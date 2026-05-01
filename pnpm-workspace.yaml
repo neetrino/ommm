@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+
+# Allow install lifecycle scripts only for these transitive deps (pnpm v10+).
+allowBuilds:
+  "@nestjs/core": true
+  sharp: true
+  unrs-resolver: true
