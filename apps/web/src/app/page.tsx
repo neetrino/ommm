@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="w-full bg-white">
       <section
-        className="relative h-[100vh] w-full overflow-hidden"
+        className="relative isolate h-screen max-h-screen min-h-0 w-full overflow-hidden supports-[height:100dvh]:h-[100dvh] supports-[height:100dvh]:max-h-[100dvh] supports-[height:100dvh]:min-h-[100dvh]"
         aria-label="Hero"
       >
         <Image
