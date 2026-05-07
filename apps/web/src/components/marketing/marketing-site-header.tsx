@@ -1,84 +1,93 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 
-function navLinkClass(active: boolean) {
+function navLinkClass(active: boolean): string {
   return [
-    "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+    "rounded-full px-3 py-2 text-sm font-medium transition-colors",
     active
-      ? "bg-zinc-100 text-zinc-900"
-      : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
+      ? "bg-white/70 text-sage-900"
+      : "text-sage-700 hover:bg-white/50 hover:text-sage-900",
   ].join(" ");
+}
+
+const NAV_LINKS = [
+  { href: "/", key: "home" as const },
+  { href: "/story", key: "story" as const },
+  { href: "/coaches", key: "coaches" as const },
+  { href: "/memberships", key: "memberships" as const },
+  { href: "/explore", key: "explore" as const },
+  { href: "/contact", key: "contact" as const },
+];
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function MarketingSiteHeader() {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
+  const tHome = useTranslations("home");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const links = [
-    { href: "/", key: "home" as const },
-    { href: "/story", key: "story" as const },
-    { href: "/coaches", key: "coaches" as const },
-    { href: "/memberships", key: "memberships" as const },
-    { href: "/explore", key: "explore" as const },
-    { href: "/contact", key: "contact" as const },
-  ];
-
-  function isActive(href: string) {
-    if (href === "/") {
-      return pathname === "/";
-    }
-    return pathname === href || pathname.startsWith(`${href}/`);
-  }
-
   return (
-    <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:h-16">
+    <header className="sticky top-0 z-50 border-b border-white/40 bg-white/55 backdrop-blur-xl">
+      <div className="ommm-container flex h-16 items-center justify-between gap-4 sm:h-20">
         <Link
           href="/"
-          className="shrink-0 text-base font-semibold tracking-tight text-zinc-900 sm:text-lg"
+          className="flex shrink-0 items-center gap-3"
           onClick={() => setOpen(false)}
         >
-          Ommm
+          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-sand-500/20 ring-1 ring-white/70 sm:h-12 sm:w-12">
+            <Image
+              src="/marketing/home/brand-mark.png"
+              alt=""
+              width={56}
+              height={56}
+              className="h-full w-full object-cover"
+              priority
+            />
+          </span>
+          <span className="font-serif text-lg font-medium tracking-tight text-sage-700 sm:text-xl">
+            Ommm
+          </span>
         </Link>
 
         <nav
-          className="hidden items-center gap-0.5 md:flex"
+          className="hidden items-center gap-0.5 lg:flex"
           aria-label="Primary"
         >
-          {links.map(({ href, key }) => (
+          {NAV_LINKS.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(href))}
+              className={navLinkClass(isActive(pathname, href))}
             >
               {tNav(key)}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <Link
             href="/login"
-            className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-4 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 sm:text-sm"
+            className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
           >
             {tCommon("login")}
           </Link>
-          <Link
-            href="/account"
-            className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 sm:text-sm"
-          >
-            {tCommon("account")}
+          <Link href="/account/classes" className="ommm-cta-primary">
+            {tHome("bookNow")}
           </Link>
         </div>
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
           aria-expanded={open}
           aria-controls="marketing-mobile-nav"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -111,36 +120,36 @@ export function MarketingSiteHeader() {
         id="marketing-mobile-nav"
         className={
           open
-            ? "border-t border-zinc-200 bg-white px-4 py-4 md:hidden"
+            ? "border-t border-white/50 bg-white/85 px-4 py-4 backdrop-blur-xl lg:hidden"
             : "hidden"
         }
       >
         <nav className="flex flex-col gap-1" aria-label="Mobile primary">
-          {links.map(({ href, key }) => (
+          {NAV_LINKS.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(href))}
+              className={navLinkClass(isActive(pathname, href))}
               onClick={() => setOpen(false)}
             >
               {tNav(key)}
             </Link>
           ))}
         </nav>
-        <div className="mt-4 flex flex-col gap-2 border-t border-zinc-100 pt-4">
+        <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
+          <Link
+            href="/account/classes"
+            className="ommm-cta-primary w-full"
+            onClick={() => setOpen(false)}
+          >
+            {tHome("bookNow")}
+          </Link>
           <Link
             href="/login"
-            className="app-btn-primary w-full text-center"
+            className="ommm-cta-ghost w-full"
             onClick={() => setOpen(false)}
           >
             {tCommon("login")}
-          </Link>
-          <Link
-            href="/account"
-            className="app-btn-secondary w-full text-center"
-            onClick={() => setOpen(false)}
-          >
-            {tCommon("account")}
           </Link>
         </div>
       </div>

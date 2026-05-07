@@ -1,18 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background: #faf9f7;
+  --foreground: #1a1c1b;
+
+  --color-paper: #faf9f7;
+  --color-sage-900: #1a1c1b;
+  --color-sage-800: #2e2e2e;
+  --color-sage-700: #334537;
+  --color-sage-500: #434843;
+  --color-sand-700: #6b5c4c;
+  --color-sand-500: #a19685;
+  --color-sand-100: #f4dfcb;
+  --color-cream-50: #fffec9;
+  --color-cream-100: #faffa0;
+  --color-peach-100: #ffe4c3;
+  --color-mint-100: #eef0cd;
+  --color-blue-100: #e4f5fd;
+
+  --gradient-wellness:
+    linear-gradient(
+      169deg,
+      var(--color-mint-100) 0%,
+      var(--color-cream-100) 23%,
+      var(--color-peach-100) 31%,
+      var(--color-blue-100) 67%,
+      var(--color-mint-100) 96%
+    );
+
+  --gradient-gift:
+    linear-gradient(180deg, #e8da74 0%, rgba(246, 255, 208, 0) 100%);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+
+  --color-paper: var(--color-paper);
+  --color-sage-900: var(--color-sage-900);
+  --color-sage-800: var(--color-sage-800);
+  --color-sage-700: var(--color-sage-700);
+  --color-sage-500: var(--color-sage-500);
+  --color-sand-700: var(--color-sand-700);
+  --color-sand-500: var(--color-sand-500);
+  --color-sand-100: var(--color-sand-100);
+  --color-cream-50: var(--color-cream-50);
+  --color-cream-100: var(--color-cream-100);
+  --color-peach-100: var(--color-peach-100);
+  --color-mint-100: var(--color-mint-100);
+  --color-blue-100: var(--color-blue-100);
+
+  --font-sans:
+    var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif:
+    var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
 }
 
 @layer components {
+  /* Generic surface card kept for non-marketing pages already using it. */
   .app-surface-card {
     @apply rounded-2xl border border-zinc-200/90 bg-white shadow-sm;
   }
@@ -58,6 +104,107 @@
 
   .app-alert-info {
     @apply rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800;
+  }
+
+  /* Marketing / wellness theme */
+  .ommm-bg-wellness {
+    background-image: var(--gradient-wellness);
+  }
+
+  .ommm-bg-gift {
+    background-image: var(--gradient-gift);
+  }
+
+  .ommm-shell {
+    @apply mx-auto w-full max-w-[min(1280px,calc(100%-2rem))] px-0;
+  }
+
+  .ommm-container {
+    @apply mx-auto w-full;
+    width: min(1280px, calc(100% - 2rem));
+  }
+
+  .ommm-section {
+    @apply py-[clamp(3rem,6vw,5.5rem)];
+  }
+
+  .ommm-eyebrow {
+    @apply font-sans text-xs font-semibold uppercase tracking-[0.18em] text-sand-700;
+  }
+
+  .ommm-chip-light {
+    @apply inline-flex items-center rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-sage-900 backdrop-blur-sm;
+  }
+
+  .ommm-chip-warm {
+    @apply inline-flex items-center rounded-full bg-sand-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-sand-700;
+  }
+
+  .ommm-chip-dark {
+    @apply inline-flex items-center rounded-full bg-sage-900/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cream-50;
+  }
+
+  .ommm-display {
+    font-family: var(--font-serif);
+    @apply font-normal text-sage-700;
+    font-size: clamp(2.25rem, 4.5vw + 1rem, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+  }
+
+  .ommm-display-italic {
+    font-family: var(--font-serif);
+    @apply italic font-light text-sage-700;
+  }
+
+  .ommm-h2 {
+    font-family: var(--font-serif);
+    @apply italic font-semibold text-sage-700;
+    font-size: clamp(1.5rem, 1.5vw + 1rem, 2.25rem);
+    line-height: 1.15;
+  }
+
+  .ommm-h3 {
+    font-family: var(--font-serif);
+    @apply font-semibold text-sage-800;
+    font-size: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+    line-height: 1.25;
+  }
+
+  .ommm-body {
+    @apply text-base leading-relaxed text-sage-500;
+  }
+
+  .ommm-body-muted {
+    @apply text-sm leading-relaxed text-sage-500/80;
+  }
+
+  .ommm-cta-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-sand-500 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-white shadow-[0_8px_24px_-12px_rgba(107,92,76,0.45)] transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .ommm-cta-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-white/80 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-sage-700 backdrop-blur-md transition-colors;
+    @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .ommm-cta-pill {
+    font-family: var(--font-serif);
+    @apply inline-flex items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 italic text-white shadow-sm transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
+  }
+
+  .ommm-card {
+    @apply rounded-[28px] border border-white/60 bg-white/55 backdrop-blur-md;
+  }
+
+  .ommm-card-organic {
+    @apply rounded-tl-[56px] rounded-tr-[24px] rounded-br-[56px] rounded-bl-[24px];
+  }
+
+  .ommm-card-organic-mirror {
+    @apply rounded-tl-[24px] rounded-tr-[56px] rounded-br-[24px] rounded-bl-[56px];
   }
 }
 

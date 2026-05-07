@@ -27,29 +27,29 @@ export async function MarketingSiteFooter() {
   ];
 
   return (
-    <footer className="border-t border-zinc-200 bg-white">
-      <div className="mx-auto max-w-5xl px-4 py-12">
-        <div className="flex flex-col gap-10 sm:flex-row sm:justify-between">
-          <div>
-            <p className="text-base font-semibold tracking-tight text-zinc-900">
+    <footer className="border-t border-white/60 bg-white/55 backdrop-blur-md">
+      <div className="ommm-container py-14">
+        <div className="flex flex-col gap-12 sm:flex-row sm:justify-between">
+          <div className="max-w-xs">
+            <p className="font-serif text-xl font-medium tracking-tight text-sage-700">
               Ommm
             </p>
-            <p className="mt-2 max-w-xs text-sm leading-relaxed text-zinc-600">
+            <p className="mt-3 text-sm leading-relaxed text-sage-500">
               {tFooter("tagline")}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-10 sm:gap-16">
             {cols.map((col) => (
               <div key={col.title}>
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sand-700">
                   {col.title}
                 </p>
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-4 space-y-2.5">
                   {col.links.map((l) => (
                     <li key={l.href}>
                       <Link
                         href={l.href}
-                        className="text-sm text-zinc-600 transition-colors hover:text-zinc-900"
+                        className="text-sm text-sage-500 transition-colors hover:text-sage-900"
                       >
                         {l.label}
                       </Link>
@@ -60,7 +60,7 @@ export async function MarketingSiteFooter() {
             ))}
           </div>
         </div>
-        <p className="mt-10 border-t border-zinc-100 pt-8 text-center text-xs text-zinc-500">
+        <p className="mt-12 border-t border-sage-700/10 pt-8 text-center text-xs text-sage-500">
           © {new Date().getFullYear()} Ommm · studio
         </p>
       </div>

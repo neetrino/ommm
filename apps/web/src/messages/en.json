@@ -20,6 +20,84 @@
     "discoverTitle": "Discover",
     "memberTitle": "Members"
   },
+  "home": {
+    "bookNow": "Book now",
+    "hero": {
+      "avatarInitial": "A",
+      "greeting": "Welcome back,",
+      "guestName": "Anna",
+      "titleStart": "Find your",
+      "titleAccent": "center today.",
+      "lead": "Studio sessions, retreats, and member journals — gathered into one calm flow that adapts to how you practice.",
+      "primaryCta": "Book a class",
+      "secondaryCta": "View memberships"
+    },
+    "nextClass": {
+      "eyebrow": "Coming up next",
+      "title": "Morning Flow",
+      "when": "Today, 6:30 PM · Studio A",
+      "coach": "with Elena Petrosyan",
+      "status": "Confirmed",
+      "duration": "45 min",
+      "spots": "12 spots available",
+      "openLabel": "Open class details",
+      "imageAlt": "Studio members practising morning flow"
+    },
+    "waitlist": {
+      "title": "Waitlist",
+      "lead": "Hold your place — we'll let you know the moment a spot opens.",
+      "spotLabel": "Spot {spot}",
+      "items": {
+        "deepStretch": "Deep Stretch",
+        "reformer": "Reformer",
+        "soundBath": "Sound Bath",
+        "vinyasa": "Vinyasa Flow"
+      },
+      "when": {
+        "thu": "Thu · 19:00",
+        "fri": "Fri · 18:30",
+        "sat": "Sat · 10:00",
+        "sun": "Sun · 09:30"
+      }
+    },
+    "explore": {
+      "title": "Explore",
+      "lead": "Stories, retreats, and editorial notes from the studio — refreshed each week.",
+      "allEvents": "All events",
+      "exploreMore": "Explore more",
+      "featured": {
+        "eyebrow": "Wellness Journal",
+        "title": "The Power of Breath",
+        "excerpt": "Three rituals our coaches keep returning to — small habits that quietly recentre the day.",
+        "imageAlt": "Close-up of a calm studio practice",
+        "openLabel": "Read article"
+      },
+      "tiles": {
+        "tuscany": {
+          "chip": "Retreat",
+          "title": "Spring in Tuscany",
+          "excerpt": "A 5-day reset among the cypress hills — yoga, slow meals, and quiet walks."
+        },
+        "protocols": {
+          "chip": "Pilates",
+          "title": "Enhanced Protocols",
+          "excerpt": "How our reformer flows are evolving for stronger posture and softer recovery."
+        },
+        "breath": {
+          "chip": "Practice",
+          "title": "Breath as anchor",
+          "excerpt": "A short series on breathwork to settle into class — or to begin the day at home."
+        }
+      }
+    },
+    "gift": {
+      "titleStart": "Share",
+      "titleAccent": "Calm.",
+      "body": "An Ommm gift card opens the studio for someone you love — classes, retreats, and quiet rituals, on their schedule.",
+      "primaryCta": "Buy a gift card",
+      "secondaryCta": "How it works"
+    }
+  },
   "marketing": {
     "heroTitle": "Calm studio, personal experience",
     "heroSubtitle": "Thoughtful scheduling, memberships, and class booking — a full studio experience on the web.",
