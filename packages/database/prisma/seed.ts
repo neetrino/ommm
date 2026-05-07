@@ -9,43 +9,40 @@ import * as argon2 from "argon2";
 
 const prisma = new PrismaClient();
 
+const DEMO_USER_PASSWORD = "Demo1234!";
+
+/** One demo login per `Role` enum value; password: DEMO_USER_PASSWORD */
+const DEMO_USERS_BY_ROLE: ReadonlyArray<{ email: string; name: string; role: Role }> = [
+  { email: "admin@ommm.local", name: "Admin", role: Role.ADMIN },
+  { email: "manager@ommm.local", name: "Manager Demo", role: Role.MANAGER },
+  { email: "content-admin@ommm.local", name: "Content Admin Demo", role: Role.CONTENT_ADMIN },
+  { email: "coach@ommm.local", name: "Coach Demo", role: Role.COACH },
+  { email: "member@ommm.local", name: "Member Demo", role: Role.USER },
+];
+
+async function seedDemoRoleUsers(passwordHash: string): Promise<void> {
+  for (const acc of DEMO_USERS_BY_ROLE) {
+    await prisma.user.upsert({
+      where: { email: acc.email },
+      update: { name: acc.name, role: acc.role },
+      create: {
+        email: acc.email,
+        passwordHash,
+        name: acc.name,
+        role: acc.role,
+        emailVerified: new Date(),
+      },
+    });
+  }
+}
+
 async function main(): Promise<void> {
-  const passwordHash = await argon2.hash("Demo1234!", { type: argon2.argon2id });
+  const passwordHash = await argon2.hash(DEMO_USER_PASSWORD, { type: argon2.argon2id });
 
-  await prisma.user.upsert({
-    where: { email: "admin@ommm.local" },
-    update: {},
-    create: {
-      email: "admin@ommm.local",
-      passwordHash,
-      name: "Admin",
-      role: Role.ADMIN,
-      emailVerified: new Date(),
-    },
-  });
+  await seedDemoRoleUsers(passwordHash);
 
-  const coachUser = await prisma.user.upsert({
+  const coachUser = await prisma.user.findUniqueOrThrow({
     where: { email: "coach@ommm.local" },
-    update: {},
-    create: {
-      email: "coach@ommm.local",
-      passwordHash,
-      name: "Coach Demo",
-      role: Role.COACH,
-      emailVerified: new Date(),
-    },
-  });
-
-  await prisma.user.upsert({
-    where: { email: "member@ommm.local" },
-    update: {},
-    create: {
-      email: "member@ommm.local",
-      passwordHash,
-      name: "Member Demo",
-      role: Role.USER,
-      emailVerified: new Date(),
-    },
   });
 
   const coachProfile = await prisma.coachProfile.upsert({

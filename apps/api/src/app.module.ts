@@ -24,27 +24,31 @@ import { ReportsModule } from "./reports/reports.module";
 import { StudioModule } from "./studio/studio.module";
 import { UsersModule } from "./users/users.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
+import { createHttpAccessLogSerializers } from "./logging/http-log-serializers";
 
 const apiPackageRoot = process.cwd();
 const monorepoRoot = path.join(apiPackageRoot, "..", "..");
 
-function createPinoHttpConfig(): {
-  level: string;
-  transport?: { target: string; options: Record<string, unknown> };
-} {
+const httpAccessSerializers = createHttpAccessLogSerializers();
+
+function createPinoHttpConfig(): Record<string, unknown> {
   const level = process.env.LOG_LEVEL ?? "info";
+  const base: Record<string, unknown> = {
+    level,
+    serializers: httpAccessSerializers,
+  };
   if (process.env.NODE_ENV === "production") {
-    return { level };
+    return base;
   }
   return {
-    level,
+    ...base,
     transport: {
       target: "pino-pretty",
       options: {
         colorize: true,
         translateTime: "HH:MM:ss",
         ignore: "pid,hostname",
-        singleLine: false,
+        singleLine: true,
       },
     },
   };
