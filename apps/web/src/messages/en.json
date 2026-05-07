@@ -22,44 +22,6 @@
   },
   "home": {
     "bookNow": "Book now",
-    "hero": {
-      "avatarInitial": "A",
-      "greeting": "Welcome back,",
-      "guestName": "Anna",
-      "titleStart": "Find your",
-      "titleAccent": "center today.",
-      "lead": "Studio sessions, retreats, and member journals — gathered into one calm flow that adapts to how you practice.",
-      "primaryCta": "Book a class",
-      "secondaryCta": "View memberships"
-    },
-    "nextClass": {
-      "eyebrow": "Coming up next",
-      "title": "Morning Flow",
-      "when": "Today, 6:30 PM · Studio A",
-      "coach": "with Elena Petrosyan",
-      "status": "Confirmed",
-      "duration": "45 min",
-      "spots": "12 spots available",
-      "openLabel": "Open class details",
-      "imageAlt": "Studio members practising morning flow"
-    },
-    "waitlist": {
-      "title": "Waitlist",
-      "lead": "Hold your place — we'll let you know the moment a spot opens.",
-      "spotLabel": "Spot {spot}",
-      "items": {
-        "deepStretch": "Deep Stretch",
-        "reformer": "Reformer",
-        "soundBath": "Sound Bath",
-        "vinyasa": "Vinyasa Flow"
-      },
-      "when": {
-        "thu": "Thu · 19:00",
-        "fri": "Fri · 18:30",
-        "sat": "Sat · 10:00",
-        "sun": "Sun · 09:30"
-      }
-    },
     "explore": {
       "title": "Explore",
       "lead": "Stories, retreats, and editorial notes from the studio — refreshed each week.",
@@ -98,6 +60,64 @@
       "secondaryCta": "How it works"
     }
   },
+  "marketingPublic": {
+    "hero": {
+      "eyebrow": "Ommm · studio space",
+      "titleLine1": "Practice with",
+      "titleAccent": "intention.",
+      "lead": "Thoughtful scheduling, clear memberships, and a calm place to plan classes — built for studios that want the web to feel as grounded as the mat.",
+      "primaryCta": "Book a class",
+      "secondaryCta": "View memberships",
+      "footnote": "Already a member? Use Log in, then head to your account for schedule, waitlists, and gifts.",
+      "previewEyebrow": "Our story",
+      "previewTitle": "Clarity on the mat, clarity online",
+      "previewCta": "Read how we work",
+      "previewAlt": "Calm studio atmosphere"
+    }
+  },
+  "account": {
+    "dashboard": {
+      "signIn": {
+        "title": "Member area",
+        "body": "Log in to see your upcoming classes, waitlists, and studio tools."
+      },
+      "greeting": "Welcome back,",
+      "titleStart": "Find your",
+      "titleAccent": "center today.",
+      "lead": "Your next session, waitlists, and studio notes — in one calm flow.",
+      "primaryCta": "Book a class",
+      "secondaryCta": "My memberships",
+      "nextClass": {
+        "eyebrow": "Coming up next",
+        "openLabel": "Open schedule",
+        "statusBooked": "Confirmed",
+        "durationMinutes": "{minutes} min",
+        "emptyTitle": "No upcoming booking yet",
+        "emptyBody": "Browse the live schedule and reserve a spot when you are ready.",
+        "emptyCta": "Browse classes"
+      },
+      "waitlist": {
+        "title": "Waitlist",
+        "lead": "We will notify you when a spot opens.",
+        "empty": "You are not on a waitlist right now.",
+        "error": "Waitlist could not be loaded. Try again shortly.",
+        "badge": "#{index} · {status}"
+      },
+      "achievements": {
+        "title": "Milestones",
+        "empty": "Keep booking classes to unlock milestones."
+      },
+      "explore": {
+        "title": "Studio journal",
+        "body": "Stories and updates on the public Explore page.",
+        "cta": "Open Explore"
+      },
+      "coach": {
+        "title": "Coach tools",
+        "cta": "Open coach panel"
+      }
+    }
+  },
   "marketing": {
     "heroTitle": "Calm studio, personal experience",
     "heroSubtitle": "Thoughtful scheduling, memberships, and class booking — a full studio experience on the web.",
@@ -134,6 +154,7 @@
     "membershipsPriceLine": "{amount} per period",
     "homeFeaturesTitle": "Everything in one place",
     "homeFeaturesLead": "A single flow from discovery to booking — clear on every screen size.",
+    "featureCardCta": "Learn more",
     "closingPrimaryCta": "Create account"
   }
 }

@@ -1,13 +1,13 @@
 import { ExploreSection } from "@/components/marketing/home/explore-section";
 import { GiftCardBanner } from "@/components/marketing/home/gift-card-banner";
-import { HomeHero } from "@/components/marketing/home/home-hero";
-import { WaitlistGrid } from "@/components/marketing/home/waitlist-grid";
+import { MarketingHighlights } from "@/components/marketing/home/marketing-highlights";
+import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 
 export default function MarketingHomePage() {
   return (
     <>
-      <HomeHero />
-      <WaitlistGrid />
+      <MarketingPublicHero />
+      <MarketingHighlights />
       <ExploreSection />
       <GiftCardBanner />
     </>

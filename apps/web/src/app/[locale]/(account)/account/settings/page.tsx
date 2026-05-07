@@ -23,8 +23,10 @@ export default async function AccountSettingsPage() {
 
   if (!res.ok) {
     return (
+      <div className="pt-6 sm:pt-8">
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         Sign in to manage settings.
+      </div>
       </div>
     );
   }
@@ -32,7 +34,7 @@ export default async function AccountSettingsPage() {
   const { user, notificationPrefs } = res.data;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 pt-6 sm:pt-8">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">Settings</h1>
         <p className="mt-2 text-sm text-zinc-600">

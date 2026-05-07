@@ -26,10 +26,12 @@ export default async function AccountBookingsPage({
 
   if (!res.ok) {
     return (
+      <div className="pt-6 sm:pt-8">
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         {res.status === 401
           ? "Sign in to see your bookings."
           : `Could not load bookings (${res.status}).`}
+      </div>
       </div>
     );
   }
@@ -44,7 +46,7 @@ export default async function AccountBookingsPage({
   );
 
   return (
-    <div>
+    <div className="pt-6 sm:pt-8">
       <h1 className="text-2xl font-semibold text-zinc-900">My bookings</h1>
 
       <section className="mt-8">

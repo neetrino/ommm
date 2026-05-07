@@ -40,7 +40,7 @@ export default async function AccountMembershipsPage() {
   ]);
 
   return (
-    <div>
+    <div className="pt-6 sm:pt-8">
       <h1 className="text-2xl font-semibold text-zinc-900">Memberships</h1>
       <p className="mt-2 text-sm text-zinc-600">
         Subscribe with Stripe when keys are configured; pause or cancel from the

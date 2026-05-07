@@ -38,8 +38,10 @@ export default async function AccountClassesPage({
 
   if (!sessionsRes.ok) {
     return (
+      <div className="pt-6 sm:pt-8">
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         Could not load schedule ({sessionsRes.status}).
+      </div>
       </div>
     );
   }
@@ -49,7 +51,7 @@ export default async function AccountClassesPage({
   );
 
   return (
-    <div>
+    <div className="pt-6 sm:pt-8">
       <h1 className="text-2xl font-semibold text-zinc-900">Classes</h1>
       <p className="mt-2 text-sm text-zinc-600">
         Next {ACCOUNT_SESSION_RANGE_DAYS} days · book or join the waitlist when

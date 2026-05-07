@@ -25,7 +25,7 @@ export default async function AccountGiftCardsPage() {
   const credits = meRes.ok ? meRes.data.user.giftCreditsCents : null;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 pt-6 sm:pt-8">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">Gift cards</h1>
         {credits != null ? (
