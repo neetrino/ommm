@@ -8,7 +8,8 @@ type Plan = {
   description: string | null;
   priceCents: number;
   isUnlimited: boolean;
-  includedSessions: number | null;
+  sessionsPerMonth: number | null;
+  periodDays: number;
   isActive: boolean;
 };
 
@@ -124,10 +125,11 @@ export default async function AccountMembershipsPage() {
                     </p>
                   ) : null}
                   <p className="mt-3 text-sm text-zinc-700">
-                    {(plan.priceCents / 100).toFixed(0)} / month ·{" "}
+                    {(plan.priceCents / 100).toFixed(0)} per {plan.periodDays}-day
+                    period ·{" "}
                     {plan.isUnlimited
                       ? "Unlimited classes"
-                      : `${plan.includedSessions ?? 0} sessions / period`}
+                      : `${plan.sessionsPerMonth ?? 0} sessions / period`}
                   </p>
                   {mineRes.ok ? (
                     <div className="mt-4">

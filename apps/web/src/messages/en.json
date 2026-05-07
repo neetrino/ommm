@@ -15,9 +15,47 @@
     "explore": "Explore",
     "contact": "Contact"
   },
+  "footer": {
+    "tagline": "Studio classes, memberships, and member tools — one calm place to plan your practice.",
+    "discoverTitle": "Discover",
+    "memberTitle": "Members"
+  },
   "marketing": {
     "heroTitle": "Calm studio, personal experience",
+    "heroSubtitle": "Thoughtful scheduling, memberships, and class booking — a full studio experience on the web.",
     "heroCta": "Book a class",
-    "membershipsCta": "View memberships"
+    "membershipsCta": "View memberships",
+    "featureScheduleTitle": "Live schedule",
+    "featureScheduleBody": "See upcoming sessions, capacity, and coaches — book in a few taps when you are signed in.",
+    "featureMembershipsTitle": "Memberships",
+    "featureMembershipsBody": "Transparent plans with clear inclusions. Subscribe when Stripe is configured, or manage with the team.",
+    "featureUpdatesTitle": "Studio journal",
+    "featureUpdatesBody": "Stories, events, and updates in Explore — published from your admin content tools.",
+    "closingTitle": "Start with a single class",
+    "closingBody": "Create an account to book, manage memberships, and keep your practice organized.",
+    "closingSecondary": "Browse memberships",
+    "storyTitle": "Our story",
+    "storyLead": "Ommm is built around clarity, presence, and sustainable practice — online and in the studio.",
+    "storyP1": "We believe scheduling and memberships should feel calm, not cluttered. The platform keeps members oriented: what is next, what is included, and how to stay in touch.",
+    "storyP2": "Editorial content in Explore can grow with you — replace placeholder copy with your own narrative as the studio evolves.",
+    "coachesPageTitle": "Coaches",
+    "coachesPageLead": "Meet the people guiding classes at Ommm.",
+    "coachesEmpty": "No active coach profiles yet — add coaches from the admin backoffice.",
+    "coachesError": "We could not load coaches right now. Please try again shortly.",
+    "coachesExperience": "{years}+ years experience",
+    "membershipsPageTitle": "Memberships",
+    "membershipsPageLead": "Choose a plan that fits how often you want to practice.",
+    "membershipsEmpty": "No plans are published yet. Check back soon or contact the studio.",
+    "membershipsError": "We could not load plans. Please try again later.",
+    "membershipsSubscribeCta": "Subscribe",
+    "membershipsAccountCta": "Go to my memberships",
+    "membershipsLoginHint": "Log in or create an account to subscribe.",
+    "membershipsPeriodDays": "{days}-day billing cycle",
+    "membershipsSessionsUnlimited": "Unlimited classes per period",
+    "membershipsSessionsCount": "{count} classes per period",
+    "membershipsPriceLine": "{amount} per period",
+    "homeFeaturesTitle": "Everything in one place",
+    "homeFeaturesLead": "A single flow from discovery to booking — clear on every screen size.",
+    "closingPrimaryCta": "Create account"
   }
 }

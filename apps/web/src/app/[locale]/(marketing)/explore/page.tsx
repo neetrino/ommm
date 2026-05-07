@@ -28,47 +28,56 @@ export default async function ExplorePage({
   const res = await serverApiJson<ContentPost[]>("/content/posts", "");
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16">
-      <h1 className="text-3xl font-semibold text-zinc-900">Explore</h1>
-      <p className="mt-4 text-zinc-600">
-        Published stories from the studio CMS (`GET /v1/content/posts`).
+    <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
+      <h1 className="app-page-heading">Explore</h1>
+      <p className="app-lede">
+        Published stories from the studio — news, events, and articles from the
+        content tools.
       </p>
       {!res.ok ? (
-        <p className="mt-6 text-sm text-amber-800">
-          Could not load posts ({res.status}).
+        <p className="app-alert-warn mt-10" role="status">
+          Could not load posts ({res.status}). Check that the API is running and
+          try again.
         </p>
       ) : res.data.length === 0 ? (
-        <p className="mt-6 text-sm text-zinc-600">
+        <p className="app-alert-info mt-10" role="status">
           No published posts yet — seed or publish from the admin content tools.
         </p>
       ) : (
-        <ul className="mt-10 space-y-6">
+        <ul className="mt-12 grid gap-6 sm:grid-cols-2">
           {res.data.map((post) => (
-            <li
-              key={post.slug}
-              className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm"
-            >
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+            <li key={post.slug} className="app-surface-card group p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 {post.type}
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-zinc-900">
+              <h2 className="mt-3 text-lg font-semibold text-zinc-900 sm:text-xl">
                 <Link
                   href={`/explore/${post.slug}`}
-                  className="hover:underline"
+                  className="transition-colors group-hover:text-zinc-600"
                 >
                   {post.title}
                 </Link>
               </h2>
               {post.excerpt ? (
-                <p className="mt-2 text-sm text-zinc-600">{post.excerpt}</p>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+                  {post.excerpt}
+                </p>
               ) : null}
               {post.publishedAt ? (
-                <p className="mt-3 text-xs text-zinc-500">
+                <p className="mt-4 text-xs text-zinc-500">
                   {new Date(post.publishedAt).toLocaleDateString(locale, {
                     dateStyle: "medium",
                   })}
                 </p>
               ) : null}
+              <p className="mt-4">
+                <Link
+                  href={`/explore/${post.slug}`}
+                  className="text-sm font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 transition-colors hover:decoration-zinc-900"
+                >
+                  Read more
+                </Link>
+              </p>
             </li>
           ))}
         </ul>

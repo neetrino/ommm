@@ -63,11 +63,11 @@ export default async function AccountHomePage({
     );
   }
 
-  const now = Date.now();
+  const asOf = new Date();
   const upcoming = (bookingsRes.ok ? bookingsRes.data : [])
     .filter(
       (b) =>
-        b.status === "BOOKED" && new Date(b.session.startsAt).getTime() > now,
+        b.status === "BOOKED" && new Date(b.session.startsAt) > asOf,
     )
     .slice(0, 5);
 

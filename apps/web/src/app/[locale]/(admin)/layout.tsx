@@ -1,5 +1,13 @@
 import { LogoutButton } from "@/components/logout-button";
+import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
+
+const ADMIN_NAV = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/clients", label: "Clients" },
+  { href: "/admin/bookings", label: "Bookings" },
+  { href: "/admin/content", label: "Content" },
+] as const;
 
 export default function AdminSectionLayout({
   children,
@@ -8,30 +16,24 @@ export default function AdminSectionLayout({
 }) {
   return (
     <div className="min-h-screen bg-zinc-100">
-      <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-          <span className="font-semibold text-zinc-900">Backoffice</span>
-          <nav className="flex flex-wrap gap-3 text-sm text-zinc-700">
-            <Link href="/admin" className="hover:text-zinc-900">
-              Dashboard
-            </Link>
-            <Link href="/admin/clients" className="hover:text-zinc-900">
-              Clients
-            </Link>
-            <Link href="/admin/bookings" className="hover:text-zinc-900">
-              Bookings
-            </Link>
-            <Link href="/admin/content" className="hover:text-zinc-900">
-              Content
-            </Link>
-            <LogoutButton className="text-sm text-zinc-700 hover:text-zinc-900" />
-            <Link href="/account" className="ml-auto hover:text-zinc-900">
+      <ShellHeader
+        brandHref="/admin"
+        brandLabel="Backoffice"
+        contentMaxClass="max-w-6xl"
+        navItems={[...ADMIN_NAV]}
+        trailing={
+          <>
+            <LogoutButton className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:w-auto" />
+            <Link
+              href="/account"
+              className="block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:w-auto lg:text-left"
+            >
               Member zone
             </Link>
-          </nav>
-        </div>
-      </header>
-      <div className="mx-auto max-w-6xl px-4 py-8">{children}</div>
+          </>
+        }
+      />
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">{children}</div>
     </div>
   );
 }

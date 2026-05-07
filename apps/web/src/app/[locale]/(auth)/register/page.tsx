@@ -1,17 +1,21 @@
 "use client";
 
-import { useRouter } from "@/i18n/navigation";
-import { ApiError, apiFetch } from "@/lib/api";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Link, useRouter } from "@/i18n/navigation";
+import { ApiError, apiFetch } from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     setError(null);
+    setPending(true);
     try {
       await apiFetch("/auth/register", {
         method: "POST",
@@ -24,44 +28,61 @@ export default function RegisterPage() {
       router.push("/login");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Register failed");
+    } finally {
+      setPending(false);
     }
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-      <h1 className="text-2xl font-semibold">Sign up</h1>
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+        {t("register")}
+      </h1>
+      <p className="mt-2 text-sm text-zinc-600">
+        Create a member account to book classes and manage memberships.
+      </p>
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Name
-          <input name="name" className="rounded border border-zinc-300 px-3 py-2" />
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Name</span>
+          <input name="name" autoComplete="name" className="app-input" />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Email
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Email</span>
           <input
             name="email"
             type="email"
             required
-            className="rounded border border-zinc-300 px-3 py-2"
+            autoComplete="email"
+            className="app-input"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Password
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Password</span>
           <input
             name="password"
             type="password"
             required
             minLength={8}
-            className="rounded border border-zinc-300 px-3 py-2"
+            autoComplete="new-password"
+            className="app-input"
           />
         </label>
-        <button
-          type="submit"
-          className="rounded-full bg-zinc-900 py-2 text-sm font-medium text-white"
-        >
-          Create account
+        <p className="text-xs text-zinc-500">At least 8 characters.</p>
+        <button type="submit" className="app-btn-primary mt-2" disabled={pending}>
+          {pending ? "Creating…" : "Create account"}
         </button>
       </form>
-      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mt-4 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
+      <p className="mt-8 text-center text-sm text-zinc-600">
+        Already have an account?{" "}
+        <Link href="/login" className="font-medium text-zinc-900 underline">
+          {t("login")}
+        </Link>
+      </p>
     </div>
   );
 }

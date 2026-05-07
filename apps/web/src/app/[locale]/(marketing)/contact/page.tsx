@@ -5,10 +5,13 @@ import { ApiError, apiFetch } from "@/lib/api";
 
 export default function ContactPage() {
   const [status, setStatus] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    setStatus(null);
+    setPending(true);
     try {
       await apiFetch<{ ok: boolean }>("/contact", {
         method: "POST",
@@ -23,42 +26,63 @@ export default function ContactPage() {
       e.currentTarget.reset();
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : "Error");
+    } finally {
+      setPending(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-16">
-      <h1 className="text-3xl font-semibold">Contact</h1>
-      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Name
-          <input name="name" required className="rounded border border-zinc-300 px-3 py-2" />
+    <div className="mx-auto max-w-lg px-4 py-16 sm:py-20">
+      <h1 className="app-page-heading">Contact</h1>
+      <p className="app-lede">
+        Send a message to the studio team. We read every note and reply by phone
+        or email when appropriate.
+      </p>
+      <form onSubmit={onSubmit} className="app-surface-card mt-10 flex flex-col gap-4 p-6 sm:p-8">
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Name</span>
+          <input name="name" required autoComplete="name" className="app-input" />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Phone
-          <input name="phone" required className="rounded border border-zinc-300 px-3 py-2" />
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Phone</span>
+          <input
+            name="phone"
+            required
+            autoComplete="tel"
+            className="app-input"
+          />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Subject
-          <input name="subject" className="rounded border border-zinc-300 px-3 py-2" />
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Subject</span>
+          <input name="subject" autoComplete="off" className="app-input" />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Message
+        <label className="flex flex-col gap-2">
+          <span className="app-label">Message</span>
           <textarea
             name="message"
             required
             rows={4}
-            className="rounded border border-zinc-300 px-3 py-2"
+            className="app-input min-h-[120px] resize-y"
           />
         </label>
-        <button
-          type="submit"
-          className="rounded-full bg-zinc-900 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-        >
-          Send
+        <button type="submit" className="app-btn-primary mt-2" disabled={pending}>
+          {pending ? "Sending…" : "Send"}
         </button>
       </form>
-      {status ? <p className="mt-4 text-sm text-zinc-600">{status}</p> : null}
+      {status ? (
+        <p
+          className={
+            status === "Sent"
+              ? "mt-4 text-sm font-medium text-emerald-800"
+              : "mt-4 text-sm text-red-600"
+          }
+          role="status"
+        >
+          {status === "Sent"
+            ? "Thank you — your message was sent."
+            : status}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,8 @@
 import { LogoutButton } from "@/components/logout-button";
+import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
+
+const COACH_NAV = [{ href: "/coach", label: "Schedule" }] as const;
 
 export default function CoachSectionLayout({
   children,
@@ -7,22 +10,25 @@ export default function CoachSectionLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-indigo-50/40">
-      <header className="border-b border-indigo-100 bg-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-3">
-          <span className="font-semibold text-indigo-950">Coach</span>
-          <nav className="flex flex-wrap gap-3 text-sm text-indigo-900">
-            <Link href="/coach" className="hover:underline">
-              Schedule
-            </Link>
-            <LogoutButton className="text-sm text-indigo-900 hover:underline" />
-            <Link href="/account" className="ml-auto hover:underline">
+    <div className="min-h-screen bg-indigo-50/50">
+      <ShellHeader
+        brandHref="/coach"
+        brandLabel="Coach"
+        variant="indigo"
+        navItems={[...COACH_NAV]}
+        trailing={
+          <>
+            <LogoutButton className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-indigo-950 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 lg:w-auto" />
+            <Link
+              href="/account"
+              className="block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-indigo-950 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 lg:w-auto lg:text-left"
+            >
               Member zone
             </Link>
-          </nav>
-        </div>
-      </header>
-      <div className="mx-auto max-w-5xl px-4 py-8">{children}</div>
+          </>
+        }
+      />
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:py-10">{children}</div>
     </div>
   );
 }
