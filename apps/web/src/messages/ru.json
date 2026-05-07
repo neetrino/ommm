@@ -1,0 +1,23 @@
+{
+  "common": {
+    "brand": "Ommm",
+    "login": "Вход",
+    "register": "Регистрация",
+    "logout": "Выход",
+    "account": "Мой аккаунт",
+    "admin": "Админ"
+  },
+  "nav": {
+    "home": "Главная",
+    "story": "История",
+    "coaches": "Тренеры",
+    "memberships": "Абонементы",
+    "explore": "Explore",
+    "contact": "Контакты"
+  },
+  "marketing": {
+    "heroTitle": "Спокойная студия, личный опыт",
+    "heroCta": "Записаться на класс",
+    "membershipsCta": "Смотреть абонементы"
+  }
+}

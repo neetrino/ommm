@@ -7,7 +7,9 @@
     "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
     "dev:api": "pnpm --filter api dev",
-    "build:api": "pnpm --filter api build"
+    "build:api": "pnpm --filter api build",
+    "test": "pnpm --filter api test",
+    "test:e2e:web": "pnpm --filter web test:e2e"
   },
   "engines": {
     "node": ">=20"

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "brand": "Ommm",
+    "login": "Մուտք",
+    "register": "Գրանցում",
+    "logout": "Ելք",
+    "account": "Իմ հաշիվը",
+    "admin": "Ադմին"
+  },
+  "nav": {
+    "home": "Գլխավոր",
+    "story": "Պատմություն",
+    "coaches": "Մարզիչներ",
+    "memberships": "Աբոնեմենտներ",
+    "explore": "Explore",
+    "contact": "Կապ"
+  },
+  "marketing": {
+    "heroTitle": "Քալմ ստուդիա, անձնական փորձ",
+    "heroCta": "Գրանցվել դասի",
+    "membershipsCta": "Դիտել աբոնեմենտները"
+  }
+}

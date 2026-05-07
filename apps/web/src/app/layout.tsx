@@ -1,10 +1,4 @@
-import type { Metadata } from "next";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Web",
-  description: "",
-};
 
 export default function RootLayout({
   children,
@@ -12,8 +6,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-white antialiased">{children}</body>
+    <html className="h-full" lang="hy" suppressHydrationWarning>
+      <body className="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
+        {children}
+      </body>
     </html>
   );
 }

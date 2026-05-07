@@ -1,0 +1,354 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  COACH
+  MANAGER
+  CONTENT_ADMIN
+  ADMIN
+}
+
+enum ClassSessionStatus {
+  DRAFT
+  ACTIVE
+  FULL
+  CANCELLED
+}
+
+enum BookingStatus {
+  BOOKED
+  COMPLETED
+  CANCELLED
+  MISSED
+}
+
+enum WaitlistStatus {
+  ACTIVE
+  OFFERED
+  EXPIRED
+  CONVERTED
+  REMOVED
+}
+
+enum ContentType {
+  EVENT
+  BLOG
+  NEWS
+  UPDATE
+  KNOWLEDGE_ARTICLE
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+}
+
+enum MembershipStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum GiftCardStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+  DEACTIVATED
+}
+
+enum AuthTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String?
+  phone          String?   @unique
+  name           String?
+  dateOfBirth    DateTime?
+  avatarUrl      String?
+  role           Role      @default(USER)
+  emailVerified  DateTime?
+  locale           String    @default("hy")
+  stripeCustomerId String?   @unique
+  giftCreditsCents Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  coachProfile      CoachProfile?
+  bookings          Booking[]
+  waitlistEntries   WaitlistEntry[]
+  memberships       UserMembership[]
+  payments          Payment[]
+  giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
+  giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
+  achievements      UserAchievement[]
+  notificationPrefs NotificationPreference?
+  bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
+  authTokens         AuthToken[]
+}
+
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String        @unique
+  type      AuthTokenType
+  expiresAt DateTime
+  createdAt DateTime      @default(now())
+
+  @@index([userId, type])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model CoachProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio            String?
+  specialization String?
+  experienceYears Int?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions            ClassSession[] @relation("SessionCoach")
+  substituteSessions  ClassSession[] @relation("SessionSubstituteCoach")
+}
+
+model ClassType {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions ClassSession[]
+}
+
+model ClassSession {
+  id                 String             @id @default(cuid())
+  classTypeId        String
+  classType          ClassType          @relation(fields: [classTypeId], references: [id])
+  coachId            String
+  coach              CoachProfile       @relation("SessionCoach", fields: [coachId], references: [id])
+  substituteCoachId  String?
+  substituteCoach    CoachProfile?      @relation("SessionSubstituteCoach", fields: [substituteCoachId], references: [id])
+  startsAt           DateTime
+  endsAt             DateTime
+  capacity           Int
+  level              String?
+  priceCents         Int                @default(0)
+  status             ClassSessionStatus @default(ACTIVE)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  bookings        Booking[]
+  waitlistEntries WaitlistEntry[]
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId   String
+  session     ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  status      BookingStatus @default(BOOKED)
+  attendedAt  DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  notes BookingNote[]
+
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+  @@index([userId])
+}
+
+model BookingNote {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("BookingNoteAuthor", fields: [authorId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model WaitlistEntry {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId      String
+  session        ClassSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  position       Int
+  status         WaitlistStatus @default(ACTIVE)
+  offeredAt      DateTime?
+  offerExpiresAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+}
+
+model MembershipPlan {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  description      String?
+  priceCents       Int
+  sessionsPerMonth Int?
+  isUnlimited      Boolean  @default(false)
+  periodDays       Int      @default(30)
+  isActive         Boolean  @default(true)
+  stripePriceId    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  memberships UserMembership[]
+}
+
+model UserMembership {
+  id                 String            @id @default(cuid())
+  userId             String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId             String
+  plan               MembershipPlan    @relation(fields: [planId], references: [id])
+  status             MembershipStatus  @default(ACTIVE)
+  sessionsRemaining  Int?
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  pausedUntil        DateTime?
+  stripeSubscriptionId String?         @unique
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([userId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amountCents     Int
+  currency        String        @default("amd")
+  status          PaymentStatus @default(PENDING)
+  stripePaymentId String?       @unique
+  description     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+model GiftCard {
+  id              String         @id @default(cuid())
+  code            String         @unique
+  amountCents     Int
+  balanceCents    Int
+  status          GiftCardStatus @default(ACTIVE)
+  purchaserId     String
+  purchaser       User           @relation("GiftCardPurchaser", fields: [purchaserId], references: [id])
+  recipientId     String?
+  recipient       User?          @relation("GiftCardRecipient", fields: [recipientId], references: [id])
+  recipientEmail  String?
+  recipientName   String?
+  message         String?
+  stripePaymentId String?        @unique
+  expiresAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ContentPost {
+  id           String        @id @default(cuid())
+  type         ContentType
+  status       ContentStatus @default(DRAFT)
+  slug         String        @unique
+  title        String
+  excerpt      String?
+  body         String?
+  coverImageUrl String?
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([type, status])
+}
+
+model StudioSettings {
+  id                      String   @id @default(cuid())
+  studioName              String   @default("Ommm")
+  contactEmail            String?
+  contactPhone            String?
+  whatsappUrl             String?
+  address                 String?
+  mapEmbedUrl             String?
+  workingHours            String?
+  socialLinksJson         String?
+  cancellationHoursNotice Int      @default(24)
+  waitlistOfferMinutes    Int      @default(30)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  description String?
+  threshold   Int
+  createdAt   DateTime @default(now())
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@id([userId, achievementId])
+}
+
+model NotificationPreference {
+  userId              String  @id
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingReminders    Boolean @default(true)
+  waitlistAlerts      Boolean @default(true)
+  promotions          Boolean @default(false)
+  communityUpdates    Boolean @default(true)
+}

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "brand": "Ommm",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "account": "My account",
+    "admin": "Admin"
+  },
+  "nav": {
+    "home": "Home",
+    "story": "Story",
+    "coaches": "Coaches",
+    "memberships": "Memberships",
+    "explore": "Explore",
+    "contact": "Contact"
+  },
+  "marketing": {
+    "heroTitle": "Calm studio, personal experience",
+    "heroCta": "Book a class",
+    "membershipsCta": "View memberships"
+  }
+}
