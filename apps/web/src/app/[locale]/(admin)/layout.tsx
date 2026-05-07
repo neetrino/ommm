@@ -1,3 +1,4 @@
+import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 
 export default function AdminSectionLayout({
@@ -23,6 +24,7 @@ export default function AdminSectionLayout({
             <Link href="/admin/content" className="hover:text-zinc-900">
               Content
             </Link>
+            <LogoutButton className="text-sm text-zinc-700 hover:text-zinc-900" />
             <Link href="/account" className="ml-auto hover:text-zinc-900">
               Member zone
             </Link>

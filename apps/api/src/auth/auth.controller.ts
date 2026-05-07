@@ -12,6 +12,20 @@ import { VerifyEmailDto } from "./dto/verify-email.dto";
 
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
+function accessTokenCookieBaseOptions(): {
+  httpOnly: true;
+  secure: boolean;
+  sameSite: "lax";
+  path: string;
+} {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  };
+}
+
 @Controller("auth")
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
@@ -28,19 +42,16 @@ export class AuthController {
   ) {
     const { user, accessToken } = await this.auth.login(dto);
     res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      ...accessTokenCookieBaseOptions(),
       maxAge: COOKIE_MAX_AGE_MS,
-      path: "/",
     });
     return { user: sanitizeUser(user) };
   }
 
+  /** Clears httpOnly access cookie; unauthenticated calls are no-ops (no guard — expired JWT must still clear cookie). */
   @Post("logout")
-  @UseGuards(JwtAuthGuard)
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie(ACCESS_TOKEN_COOKIE, { path: "/" });
+    res.clearCookie(ACCESS_TOKEN_COOKIE, accessTokenCookieBaseOptions());
     return { ok: true };
   }
 

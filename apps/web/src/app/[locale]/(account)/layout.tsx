@@ -1,3 +1,4 @@
+import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 
 export default function AccountLayout({
@@ -37,6 +38,7 @@ export default function AccountLayout({
             <Link href="/admin" className="hover:text-zinc-900">
               Admin
             </Link>
+            <LogoutButton className="text-sm text-zinc-700 hover:text-zinc-900" />
             <Link href="/" className="ml-auto hover:text-zinc-900">
               Marketing site
             </Link>

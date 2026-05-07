@@ -1,3 +1,4 @@
+import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 
 export default function CoachSectionLayout({
@@ -14,6 +15,7 @@ export default function CoachSectionLayout({
             <Link href="/coach" className="hover:underline">
               Schedule
             </Link>
+            <LogoutButton className="text-sm text-indigo-900 hover:underline" />
             <Link href="/account" className="ml-auto hover:underline">
               Member zone
             </Link>
