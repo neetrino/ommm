@@ -5,18 +5,15 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-const DEFAULT_LOGOUT_REDIRECT = "/login";
+/** Marketing home path; locale is applied by next-intl router (`/hy`). */
+const POST_LOGOUT_PATH = "/";
+const POST_LOGOUT_LOCALE = "hy" as const;
 
 type LogoutButtonProps = {
   className?: string;
-  /** App path after logout (locale prefix added by router). */
-  redirectTo?: string;
 };
 
-export function LogoutButton({
-  className,
-  redirectTo = DEFAULT_LOGOUT_REDIRECT,
-}: LogoutButtonProps) {
+export function LogoutButton({ className }: LogoutButtonProps) {
   const t = useTranslations("common");
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -26,10 +23,10 @@ export function LogoutButton({
     try {
       await apiFetch<{ ok: boolean }>("/auth/logout", { method: "POST" });
     } catch {
-      // Cookie clear is best-effort; still send user to login.
+      // Cookie clear is best-effort; still leave protected areas.
     } finally {
       setPending(false);
-      router.push(redirectTo);
+      router.replace(POST_LOGOUT_PATH, { locale: POST_LOGOUT_LOCALE });
       router.refresh();
     }
   }
