@@ -180,7 +180,7 @@ CRM Coach panel + Manager մատրից + Content role։
 
 ## Ֆազա 13 — Որակ և production
 
-- [x] API Jest smoke; Playwright marketing smoke paths (`apps/web/e2e`)
+- [x] API Jest smoke; Playwright marketing smoke paths (`apps/web/e2e`; CI-ում `pnpm --filter web exec playwright install chromium`)
 - [x] Rate limits (Nest throttler baseline; tune per env)
 - [ ] Vercel + API hosting, env secrets (ops checklist)
 
