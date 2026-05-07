@@ -4,5 +4,6 @@ import { routing } from "./src/i18n/routing";
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  // `"/((?!...).*)"` alone can miss the bare `/` on Next 16; include `/` so default-locale redirect runs.
+  matcher: ["/", "/((?!api|_next|_vercel|.*\\..*).*)"],
 };

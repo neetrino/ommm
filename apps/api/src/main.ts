@@ -1,13 +1,14 @@
-import { ValidationPipe } from "@nestjs/common";
+import { ConsoleLogger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import { Logger } from "nestjs-pino";
+import { Logger as PinoLogger } from "nestjs-pino";
 import { AppModule } from "./app.module";
 import { API_GLOBAL_PREFIX } from "./common/constants";
 
 const API_DEFAULT_PORT = 4000;
 const WEB_APP_DEFAULT_ORIGIN = "http://localhost:3000";
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 function resolvePort(): number {
   const raw = process.env.PORT;
@@ -23,7 +24,11 @@ async function bootstrap() {
     rawBody: true,
     bufferLogs: true,
   });
-  app.useLogger(app.get(Logger));
+  if (IS_PRODUCTION) {
+    app.useLogger(app.get(PinoLogger));
+  } else {
+    app.useLogger(new ConsoleLogger());
+  }
   app.use(helmet());
   app.use(cookieParser());
   const appUrl = process.env.WEB_APP_URL ?? WEB_APP_DEFAULT_ORIGIN;
