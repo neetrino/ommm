@@ -1,18 +1,18 @@
-import { ConsoleLogger, ValidationPipe } from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
-import cookieParser from "cookie-parser";
-import helmet from "helmet";
-import { Logger as PinoLogger } from "nestjs-pino";
-import { AppModule } from "./app.module";
-import { API_GLOBAL_PREFIX } from "./common/constants";
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import { Logger as PinoLogger } from 'nestjs-pino';
+import { AppModule } from './app.module';
+import { API_GLOBAL_PREFIX } from './common/constants';
+import { createNestCorsOriginDelegate } from './cors-origin';
 
 const API_DEFAULT_PORT = 4000;
-const WEB_APP_DEFAULT_ORIGIN = "http://localhost:3000";
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 function resolvePort(): number {
   const raw = process.env.PORT;
-  if (raw === undefined || raw === "") {
+  if (raw === undefined || raw === '') {
     return API_DEFAULT_PORT;
   }
   const n = Number(raw);
@@ -31,9 +31,8 @@ async function bootstrap() {
   }
   app.use(helmet());
   app.use(cookieParser());
-  const appUrl = process.env.WEB_APP_URL ?? WEB_APP_DEFAULT_ORIGIN;
   app.enableCors({
-    origin: appUrl,
+    origin: createNestCorsOriginDelegate(),
     credentials: true,
   });
   app.setGlobalPrefix(API_GLOBAL_PREFIX);
@@ -47,4 +46,4 @@ async function bootstrap() {
   const port = resolvePort();
   await app.listen(port);
 }
-bootstrap();
+void bootstrap();
