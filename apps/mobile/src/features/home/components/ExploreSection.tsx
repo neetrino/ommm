@@ -1,6 +1,7 @@
-import { Image } from "expo-image";
+import { Image, type ImageSource } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { exploreBundledAssets } from "../../../assets/exploreBundledAssets";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
 import { fontFamilies } from "../../../theme/fontFamilies";
@@ -20,10 +21,110 @@ type ExploreSectionProps = {
   onPlayPress?: () => void;
 };
 
-function resolveTileUri(key: ExploreTileMock["imageUriKey"]): string {
-  return key === "exploreRetreat"
-    ? figmaRemoteAssets.exploreRetreat
-    : figmaRemoteAssets.explorePilates;
+/** Large corner radius for pilates tile — Figma node 1:202. */
+const EXPLORE_TILE_PORTRAIT_RADIUS = 80;
+
+/** Figma node 1:202 frame — matches design (`163×237`, same proportion as `152/221`). */
+const EXPLORE_PILATES_FRAME_WIDTH = 163;
+const EXPLORE_PILATES_FRAME_HEIGHT = 237;
+
+/** Left tile sits higher, right tile lower — matches composed mobile layout. */
+const EXPLORE_TILE_VERTICAL_STAGGER = 28;
+
+function resolveExploreImageSource(
+  key: ExploreTileMock["imageUriKey"],
+): ImageSource {
+  return key === "explorePilates"
+    ? exploreBundledAssets.pilates1_202
+    : { uri: figmaRemoteAssets.exploreRetreat };
+}
+
+type ExploreTileColumnProps = {
+  tile: ExploreTileMock;
+  columnIndex: number;
+};
+
+type ExploreTileTagRowProps = {
+  tile: ExploreTileMock;
+};
+
+function ExploreTileTagRow({ tile }: ExploreTileTagRowProps) {
+  const tagRowCentered = tile.tagVariant === "dark";
+
+  return (
+    <View
+      style={[
+        styles.tileTagRow,
+        tagRowCentered
+          ? styles.tileTagRowCentered
+          : styles.tileTagRowLeading,
+      ]}
+      pointerEvents="none"
+    >
+      <View
+        style={[
+          styles.tileTag,
+          tile.tagVariant === "light"
+            ? styles.tileTagLight
+            : styles.tileTagDark,
+        ]}
+      >
+        <Text
+          style={[
+            styles.tileTagText,
+            tile.tagVariant === "light"
+              ? styles.tileTagTextLight
+              : styles.tileTagTextDark,
+          ]}
+        >
+          {tile.tag}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function ExploreTileColumn({ tile, columnIndex }: ExploreTileColumnProps) {
+  const isSquareTile = tile.imageLayout === "square";
+  const isPortraitLayout = tile.imageLayout === "roundedPortrait";
+
+  const imagePosition =
+    tile.imageUriKey === "explorePilates" ? "bottom" : "center";
+
+  return (
+    <View
+      style={[
+        styles.tileCol,
+        columnIndex === 0 ? styles.tileColStaggerUp : styles.tileColStaggerDown,
+      ]}
+    >
+      <View
+        style={[
+          styles.tileImageWrap,
+          isSquareTile
+            ? styles.tileImageRoundedSquare
+            : styles.tileImagePilatesFrame,
+        ]}
+      >
+        <Image
+          source={resolveExploreImageSource(tile.imageUriKey)}
+          style={styles.tileImage}
+          contentFit="cover"
+          contentPosition={isPortraitLayout ? "bottom" : imagePosition}
+        />
+        <ExploreTileTagRow tile={tile} />
+      </View>
+      <Text
+        style={[
+          styles.tileTitle,
+          (isSquareTile || isPortraitLayout) && styles.tileTitleCentered,
+        ]}
+        numberOfLines={2}
+      >
+        {tile.title}
+      </Text>
+    </View>
+  );
 }
 
 export function ExploreSection({
@@ -92,38 +193,12 @@ export function ExploreSection({
       </View>
 
       <View style={styles.tileGrid}>
-        {tiles.map((tile) => (
-          <View key={tile.id} style={styles.tileCol}>
-            <View style={styles.tileImageWrap}>
-              <Image
-                source={{ uri: resolveTileUri(tile.imageUriKey) }}
-                style={styles.tileImage}
-                contentFit="cover"
-              />
-              <View
-                style={[
-                  styles.tileTag,
-                  tile.tagVariant === "light"
-                    ? styles.tileTagLight
-                    : styles.tileTagDark,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.tileTagText,
-                    tile.tagVariant === "light"
-                      ? styles.tileTagTextLight
-                      : styles.tileTagTextDark,
-                  ]}
-                >
-                  {tile.tag}
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.tileTitle} numberOfLines={2}>
-              {tile.title}
-            </Text>
-          </View>
+        {tiles.map((tile, columnIndex) => (
+          <ExploreTileColumn
+            key={tile.id}
+            tile={tile}
+            columnIndex={columnIndex}
+          />
         ))}
       </View>
     </View>
@@ -235,7 +310,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: space.md,
     marginTop: space.xl,
-    paddingTop: space.md,
+    paddingTop: space.md + EXPLORE_TILE_VERTICAL_STAGGER,
+    paddingBottom: EXPLORE_TILE_VERTICAL_STAGGER,
+    overflow: "visible",
   },
   tileCol: {
     flex: 1,
@@ -243,21 +320,46 @@ const styles = StyleSheet.create({
     gap: space.sm,
     alignItems: "stretch",
   },
+  tileColStaggerUp: {
+    transform: [{ translateY: -EXPLORE_TILE_VERTICAL_STAGGER }],
+  },
+  tileColStaggerDown: {
+    transform: [{ translateY: EXPLORE_TILE_VERTICAL_STAGGER }],
+  },
   tileImageWrap: {
-    borderRadius: radii.card,
     overflow: "hidden",
     width: "100%",
-    aspectRatio: 1 / 1.15,
     backgroundColor: colors.white,
+  },
+  tileImageRoundedSquare: {
+    aspectRatio: 1,
+    borderRadius: radii.labelCard,
+  },
+  tileImagePilatesFrame: {
+    width: EXPLORE_PILATES_FRAME_WIDTH,
+    height: EXPLORE_PILATES_FRAME_HEIGHT,
+    alignSelf: "center",
+    borderRadius: EXPLORE_TILE_PORTRAIT_RADIUS,
   },
   tileImage: {
     width: "100%",
     height: "100%",
   },
-  tileTag: {
+  tileTagRow: {
     position: "absolute",
     top: space.sm - 2,
-    alignSelf: "center",
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+  },
+  tileTagRowLeading: {
+    justifyContent: "flex-start",
+    paddingLeft: space.xs,
+  },
+  tileTagRowCentered: {
+    justifyContent: "center",
+  },
+  tileTag: {
     paddingHorizontal: space.sm,
     paddingVertical: space.xxs,
     borderRadius: radii.pill,
@@ -286,5 +388,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: colors.tileTitle,
     paddingHorizontal: space.xxs,
+  },
+  tileTitleCentered: {
+    textAlign: "center",
   },
 });

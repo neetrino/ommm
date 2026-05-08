@@ -16,6 +16,8 @@ export type ExploreTileMock = {
   title: string;
   imageUriKey: "exploreRetreat" | "explorePilates";
   tagVariant: "light" | "dark";
+  /** Square tiles use fixed corner radius; `roundedPortrait` for taller frames. */
+  imageLayout: "square" | "roundedPortrait";
 };
 
 export const homeMock = {
@@ -57,6 +59,7 @@ export const homeMock = {
         title: "Spring in Tuscany",
         imageUriKey: "exploreRetreat",
         tagVariant: "light",
+        imageLayout: "square",
       },
       {
         id: "e2",
@@ -64,6 +67,7 @@ export const homeMock = {
         title: "Enhanced Protocols",
         imageUriKey: "explorePilates",
         tagVariant: "dark",
+        imageLayout: "roundedPortrait",
       },
     ] satisfies ExploreTileMock[],
   },

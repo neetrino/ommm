@@ -6,9 +6,11 @@
 export const figmaRemoteAssets = {
   bookingHero: "https://www.figma.com/api/mcp/asset/eefc7856-fb6d-45e2-b128-eed573c24f1e",
   exploreFeatured: "https://www.figma.com/api/mcp/asset/87645628-d910-443e-a38d-a051241a003f",
-  exploreRetreat: "https://www.figma.com/api/mcp/asset/d2e839a3-dcd8-4f7f-bdf5-c4e3dd73969e",
-  explorePilates: "https://www.figma.com/api/mcp/asset/c2648ba0-cd98-4d64-b606-e26d8301366e",
+  /** Node 1:194 — retreat tile visual */
+  exploreRetreat: "https://www.figma.com/api/mcp/asset/d0fe7d5b-2342-4e98-8e7c-6aeb0fee4be7",
   brandMark: "https://www.figma.com/api/mcp/asset/e0a2ea47-1d08-4b32-a934-88fcb8c7462b",
+  /** Node 1:210 gift overlay badge */
+  giftCardBadge: "https://www.figma.com/api/mcp/asset/d321bdb7-1e16-400a-806d-bc2b7ac171ed",
   iconArrowOut: "https://www.figma.com/api/mcp/asset/5c59c948-d2db-4f07-acbf-0866a1931d0e",
   iconPlay: "https://www.figma.com/api/mcp/asset/2ff2cfb4-2ce2-4709-b29b-bc284fa372c8",
   overlayGradient: "https://www.figma.com/api/mcp/asset/b160d4ef-840a-4474-9ed3-fbb80a3f02f3",

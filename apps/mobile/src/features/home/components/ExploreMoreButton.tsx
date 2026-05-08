@@ -21,20 +21,24 @@ export function ExploreMoreButton({ onPress }: ExploreMoreButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    alignSelf: "center",
+    alignSelf: "stretch",
+    marginHorizontal: space.screenHorizontal,
     backgroundColor: colors.taupeButton,
-    paddingHorizontal: space.lg,
-    paddingVertical: space.sm + 2,
+    paddingHorizontal: space.xl,
+    paddingVertical: space.sm + 4,
     borderRadius: radii.pill,
     marginBottom: space.section,
+    alignItems: "center",
+    justifyContent: "center",
   },
   pressed: {
     opacity: 0.92,
   },
   label: {
-    fontFamily: fontFamilies.newsreader.mediumItalic,
+    fontFamily: fontFamilies.newsreader.regularItalic,
     fontSize: typography.sectionTitle,
     lineHeight: 24,
     color: colors.white,
+    textAlign: "center",
   },
 });

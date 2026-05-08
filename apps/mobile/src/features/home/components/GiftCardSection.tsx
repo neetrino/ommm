@@ -30,7 +30,7 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
         <View style={styles.overlay}>
           <View style={styles.badge}>
             <Image
-              source={{ uri: figmaRemoteAssets.brandMark }}
+              source={{ uri: figmaRemoteAssets.giftCardBadge }}
               style={styles.badgeImage}
               contentFit="cover"
             />
@@ -93,6 +93,8 @@ const styles = StyleSheet.create({
   badge: {
     position: "absolute",
     top: space.sm + 2,
+    left: "50%",
+    marginLeft: -BADGE / 2,
     width: BADGE,
     height: BADGE,
     borderRadius: radii.logo,
