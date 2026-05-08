@@ -20,13 +20,15 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
     >
       <BlurView intensity={40} tint="light" style={styles.blur}>
         <View style={styles.row}>
-          <View style={styles.logoWrap} accessibilityLabel="Ommm logo">
-            <Image
-              source={{ uri: figmaRemoteAssets.brandMark }}
-              style={styles.logo}
-              contentFit="cover"
-              accessibilityIgnoresInvertColors
-            />
+          <View style={styles.logoSlot}>
+            <View style={styles.logoWrap} accessibilityLabel="Ommm logo">
+              <Image
+                source={{ uri: figmaRemoteAssets.brandMark }}
+                style={styles.logo}
+                contentFit="cover"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
           </View>
           <Pressable
             onPress={onBookPress}
@@ -45,7 +47,9 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
   );
 }
 
-const LOGO_SIZE = 50;
+const LOGO_SIZE = 96;
+/** Bar height stays at original compact strip; logo can draw larger via overflow. */
+const HEADER_ROW_MIN_HEIGHT = 50 + space.xs;
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -62,12 +66,19 @@ const styles = StyleSheet.create({
   blur: {
     paddingHorizontal: space.screenHorizontal,
     paddingBottom: space.md,
+    overflow: "visible",
   },
   row: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "space-between",
-    minHeight: LOGO_SIZE + space.xs,
+    height: HEADER_ROW_MIN_HEIGHT,
+    overflow: "visible",
+  },
+  logoSlot: {
+    height: HEADER_ROW_MIN_HEIGHT,
+    justifyContent: "center",
+    overflow: "visible",
   },
   logoWrap: {
     width: LOGO_SIZE,
