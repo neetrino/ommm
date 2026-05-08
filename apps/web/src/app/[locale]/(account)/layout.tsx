@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { LogoutButton } from "@/components/logout-button";
 import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
@@ -13,11 +14,10 @@ const ACCOUNT_NAV = [
   { href: "/admin", label: "Admin" },
 ] as const;
 
-export default function AccountLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const navItemClass =
+  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
+
+export default function AccountLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen ommm-bg-wellness">
       <ShellHeader
@@ -26,11 +26,8 @@ export default function AccountLayout({
         navItems={[...ACCOUNT_NAV]}
         trailing={
           <>
-            <LogoutButton className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:w-auto" />
-            <Link
-              href="/"
-              className="block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:w-auto lg:text-left"
-            >
+            <LogoutButton className={`${navItemClass} text-left`} />
+            <Link href="/" className={navItemClass}>
               Marketing site
             </Link>
           </>

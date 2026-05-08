@@ -11,7 +11,7 @@ export async function GiftCardBanner() {
         <article className="relative overflow-hidden rounded-[40px] sm:rounded-[56px]">
           <div
             aria-hidden
-            className="absolute inset-0 ommm-bg-gift bg-[#e8da74]"
+            className="absolute inset-0 ommm-bg-gift bg-[var(--color-gift-gold)]"
           />
           <div
             aria-hidden

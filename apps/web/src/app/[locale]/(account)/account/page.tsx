@@ -51,10 +51,7 @@ export default async function AccountHomePage({
       <div className="rounded-[28px] border border-amber-200/80 bg-amber-50/90 p-8 text-amber-950 backdrop-blur-md">
         <p className="font-serif text-lg font-semibold">{tDash("signIn.title")}</p>
         <p className="mt-2 text-sm text-amber-900/90">{tDash("signIn.body")}</p>
-        <Link
-          href="/login"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-sand-700"
-        >
+        <Link href="/login" className="ommm-cta-primary mt-6 inline-flex">
           {tCommon("login")}
         </Link>
       </div>

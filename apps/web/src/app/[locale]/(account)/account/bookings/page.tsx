@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { formatSessionRange } from "@/lib/format-session-time";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -26,12 +27,12 @@ export default async function AccountBookingsPage({
 
   if (!res.ok) {
     return (
-      <div className="pt-6 sm:pt-8">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        {res.status === 401
-          ? "Sign in to see your bookings."
-          : `Could not load bookings (${res.status}).`}
-      </div>
+      <div className="ommm-container pt-6 sm:pt-8">
+        <div className="app-alert-warn">
+          {res.status === 401
+            ? "Sign in to see your bookings."
+            : `Could not load bookings (${res.status}).`}
+        </div>
       </div>
     );
   }
@@ -46,11 +47,9 @@ export default async function AccountBookingsPage({
   );
 
   return (
-    <div className="pt-6 sm:pt-8">
-      <h1 className="text-2xl font-semibold text-zinc-900">My bookings</h1>
-
-      <section className="mt-8">
-        <h2 className="text-lg font-medium text-zinc-900">Upcoming</h2>
+    <AccountPageFrame title="My bookings">
+      <section className="max-w-4xl">
+        <h2 className="ommm-h3 text-sage-800">Upcoming</h2>
         <BookingTable
           locale={locale}
           rows={upcoming}
@@ -58,11 +57,11 @@ export default async function AccountBookingsPage({
         />
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-lg font-medium text-zinc-900">Past &amp; other</h2>
+      <section className="mt-10 max-w-4xl">
+        <h2 className="ommm-h3 text-sage-800">Past &amp; other</h2>
         <BookingTable locale={locale} rows={past} showCancel={false} />
       </section>
-    </div>
+    </AccountPageFrame>
   );
 }
 
@@ -76,27 +75,24 @@ function BookingTable({
   showCancel: boolean;
 }) {
   if (rows.length === 0) {
-    return <p className="mt-2 text-sm text-zinc-600">Nothing here yet.</p>;
+    return <p className="ommm-body-muted mt-2 text-sm">Nothing here yet.</p>;
   }
   return (
-    <ul className="mt-3 space-y-3">
+    <ul className="mt-4 space-y-3">
       {rows.map((b) => (
-        <li
-          key={b.id}
-          className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
-        >
+        <li key={b.id} className="ommm-list-row">
           <div>
-            <p className="font-medium text-zinc-900">
+            <p className="font-medium text-sage-800">
               {b.session.classType.name}
             </p>
-            <p className="text-sm text-zinc-600">
+            <p className="text-sm text-sage-500">
               {formatSessionRange(
                 locale,
                 b.session.startsAt,
                 b.session.endsAt,
               )}
             </p>
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
+            <p className="text-xs uppercase tracking-wide text-sage-500/90">
               {b.status}
             </p>
           </div>

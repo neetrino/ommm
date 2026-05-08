@@ -37,7 +37,7 @@ export default async function AdminContentPage() {
         {res.data.map((p) => (
           <li
             key={p.id}
-            className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm"
+            className="rounded-[22px] border border-zinc-200 bg-white px-4 py-3 text-sm shadow-sm"
           >
             <span className="font-medium text-zinc-900">{p.title}</span>
             <span className="ml-2 text-xs text-zinc-500">

@@ -2,6 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type Prefs = {
@@ -52,25 +53,30 @@ export function NotificationPrefsForm({ initial }: Props) {
           ["communityUpdates", "Community updates"],
         ] as const
       ).map(([key, label]) => (
-        <label key={key} className="flex items-center gap-2 text-sm text-zinc-800">
+        <label
+          key={key}
+          className="flex items-center gap-2 text-sm text-sage-700"
+        >
           <input
             type="checkbox"
             checked={prefs[key]}
             onChange={() => toggle(key)}
-            className="h-4 w-4 rounded border-zinc-300"
+            className="h-4 w-4 rounded border-sand-500/40 accent-sand-500 focus:ring-sand-500/30"
           />
           {label}
         </label>
       ))}
-      <button
+      <OmmButton
         type="button"
+        variant="primary"
+        size="sm"
+        className="w-fit"
         disabled={busy}
         onClick={() => void save()}
-        className="w-fit rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
       >
         Save preferences
-      </button>
-      {msg ? <p className="text-sm text-zinc-600">{msg}</p> : null}
+      </OmmButton>
+      {msg ? <p className="text-sm text-sage-500">{msg}</p> : null}
     </div>
   );
 }

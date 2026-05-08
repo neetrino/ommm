@@ -2,6 +2,7 @@
 
 **Աղբյուր.** [`CRM - Ommm - code.md`](../CRM%20-%20Ommm%20-%20code.md)  
 **Ստեկ.** `docs/TECH_CARD.md`, `docs/01-ARCHITECTURE.md`  
+**UI / դիզայն.** Բոլոր ապագա frontend/UI աշխատանքները պետք է համապատասխանեն [`docs/PROJECT_DESIGN_GUIDE.md`](PROJECT_DESIGN_GUIDE.md) — responsive, հարաբերական layout, տեսողական համաձայնություն։  
 **Վերջին թարմացում.** 2026-05-07 — checklist sync (implementation pass; deploy / some CRM-depth UI still follow-up).
 
 Այս փաստաթուղթը քարտեզագրում է **ամբողջ web-շրջանակը**՝ հանրային կայք, member zone, Admin / Manager / Coach / Content UI, backend API, ինտեգրացիաներ։ Նպատակը՝ **ոչ մի ֆունկցիոնալ բաժին չմոռանալ**՝ ըստ CRM-ի։

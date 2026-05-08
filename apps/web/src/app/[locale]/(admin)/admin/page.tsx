@@ -32,7 +32,9 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Admin dashboard</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+        Admin dashboard
+      </h1>
       {err ? (
         <p className="mt-4 text-sm text-amber-800">{err}</p>
       ) : data ? (
@@ -47,7 +49,7 @@ export default async function AdminDashboardPage() {
           />
         </ul>
       ) : null}
-      <section className="mt-10 rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-700">
+      <section className="mt-10 rounded-[24px] border border-zinc-200 bg-white p-4 text-sm text-zinc-700 shadow-sm">
         <p className="font-medium text-zinc-900">CSV export (admin only)</p>
         <p className="mt-2">
           Use the API{" "}
@@ -63,7 +65,7 @@ export default async function AdminDashboardPage() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <li className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <li className="rounded-[24px] border border-zinc-200 bg-white p-4 shadow-sm">
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
         {label}
       </p>

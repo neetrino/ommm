@@ -32,11 +32,11 @@ export function JoinWaitlistButton({ sessionId }: Props) {
         type="button"
         disabled={busy}
         onClick={() => void join()}
-        className="rounded-lg border border-amber-600 px-3 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-50 disabled:opacity-50"
+        className="ommm-btn-compact-warm"
       >
         Join waitlist
       </button>
-      {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
+      {msg ? <p className="text-xs text-amber-900">{msg}</p> : null}
     </div>
   );
 }

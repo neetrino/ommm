@@ -2,6 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 export function GiftRedeemForm() {
@@ -31,23 +32,19 @@ export function GiftRedeemForm() {
 
   return (
     <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-2">
-      <label className="text-sm text-zinc-700">
+      <label className="ommm-label flex flex-col gap-2">
         Gift code
         <input
           value={code}
           onChange={(ev) => setCode(ev.target.value)}
-          className="mt-1 w-full rounded border border-zinc-300 px-3 py-2"
+          className="ommm-input"
           required
         />
       </label>
-      <button
-        type="submit"
-        disabled={busy}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-      >
+      <OmmButton type="submit" variant="primary" disabled={busy}>
         Redeem
-      </button>
-      {msg ? <p className="text-sm text-zinc-600">{msg}</p> : null}
+      </OmmButton>
+      {msg ? <p className="text-sm text-sage-500">{msg}</p> : null}
     </form>
   );
 }

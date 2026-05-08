@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 const DEFAULT_AMOUNT_CENTS = 10_000;
@@ -49,7 +50,7 @@ export function GiftPurchaseForm() {
 
   return (
     <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-3">
-      <label className="text-sm text-zinc-700">
+      <label className="ommm-label flex flex-col gap-2">
         Amount (major units, e.g. 100 = 100.00)
         <input
           value={amount}
@@ -57,43 +58,39 @@ export function GiftPurchaseForm() {
           type="number"
           min={1}
           step="0.01"
-          className="mt-1 w-full rounded border border-zinc-300 px-3 py-2"
+          className="ommm-input"
           required
         />
       </label>
-      <label className="text-sm text-zinc-700">
+      <label className="ommm-label flex flex-col gap-2">
         Recipient email (optional)
         <input
           value={recipientEmail}
           onChange={(ev) => setRecipientEmail(ev.target.value)}
           type="email"
-          className="mt-1 w-full rounded border border-zinc-300 px-3 py-2"
+          className="ommm-input"
         />
       </label>
-      <label className="text-sm text-zinc-700">
+      <label className="ommm-label flex flex-col gap-2">
         Recipient name (optional)
         <input
           value={recipientName}
           onChange={(ev) => setRecipientName(ev.target.value)}
-          className="mt-1 w-full rounded border border-zinc-300 px-3 py-2"
+          className="ommm-input"
         />
       </label>
-      <label className="text-sm text-zinc-700">
+      <label className="ommm-label flex flex-col gap-2">
         Message (optional)
         <input
           value={message}
           onChange={(ev) => setMessage(ev.target.value)}
-          className="mt-1 w-full rounded border border-zinc-300 px-3 py-2"
+          className="ommm-input"
         />
       </label>
-      <button
-        type="submit"
-        disabled={busy}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-      >
+      <OmmButton type="submit" variant="primary" disabled={busy}>
         Pay with Stripe
-      </button>
-      {status ? <p className="text-sm text-zinc-600">{status}</p> : null}
+      </OmmButton>
+      {status ? <p className="text-sm text-sage-500">{status}</p> : null}
     </form>
   );
 }

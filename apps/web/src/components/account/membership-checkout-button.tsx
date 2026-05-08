@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type Props = {
@@ -37,15 +38,15 @@ export function MembershipCheckoutButton({
 
   return (
     <div className="flex flex-col gap-1">
-      <button
+      <OmmButton
         type="button"
+        variant="primary"
         disabled={busy}
         onClick={() => void checkout()}
-        className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
       >
         {label}
-      </button>
-      {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
+      </OmmButton>
+      {msg ? <p className="text-xs text-amber-900">{msg}</p> : null}
     </div>
   );
 }

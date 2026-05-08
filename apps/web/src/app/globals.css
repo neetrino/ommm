@@ -17,6 +17,7 @@
   --color-peach-100: #ffe4c3;
   --color-mint-100: #eef0cd;
   --color-blue-100: #e4f5fd;
+  --color-gift-gold: #e8da74;
 
   --gradient-wellness:
     linear-gradient(
@@ -29,7 +30,11 @@
     );
 
   --gradient-gift:
-    linear-gradient(180deg, #e8da74 0%, rgba(246, 255, 208, 0) 100%);
+    linear-gradient(
+      180deg,
+      var(--color-gift-gold) 0%,
+      rgba(246, 255, 208, 0) 100%
+    );
 }
 
 @theme inline {
@@ -49,6 +54,7 @@
   --color-peach-100: var(--color-peach-100);
   --color-mint-100: var(--color-mint-100);
   --color-blue-100: var(--color-blue-100);
+  --color-gift-gold: var(--color-gift-gold);
 
   --font-sans:
     var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -205,6 +211,67 @@
 
   .ommm-card-organic-mirror {
     @apply rounded-tl-[24px] rounded-tr-[56px] rounded-br-[24px] rounded-bl-[56px];
+  }
+
+  /* Warm auth / subtle page backdrop */
+  .ommm-bg-auth {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-mint-100) 38%, var(--color-paper)) 0%,
+      var(--color-paper) 42%,
+      color-mix(in srgb, var(--color-peach-100) 32%, var(--color-paper)) 100%
+    );
+  }
+
+  /* Form controls — wellness / member-facing */
+  .ommm-label {
+    @apply text-sm font-medium text-sage-700;
+  }
+
+  .ommm-input {
+    @apply w-full rounded-xl border border-white/70 bg-white/90 px-3 py-2.5 text-sm text-sage-900 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow];
+    @apply placeholder:text-sage-500/60 focus:border-sand-500/50 focus:outline-none focus:ring-4 focus:ring-sand-500/15;
+  }
+
+  /* Account & marketing list rows */
+  .ommm-list-row {
+    @apply flex flex-col gap-3 rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .ommm-stack-card {
+    @apply flex flex-col gap-3 rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md;
+  }
+
+  .ommm-inset-row {
+    @apply rounded-[20px] border border-white/55 bg-white/45 px-3 py-2.5 text-sm text-sage-500 backdrop-blur-md;
+  }
+
+  .ommm-account-section {
+    @apply rounded-[28px] border border-white/60 bg-white/55 p-5 shadow-[0_20px_45px_-28px_rgba(45,40,35,0.26)] backdrop-blur-md sm:p-6;
+  }
+
+  .ommm-link-sage {
+    @apply font-medium text-sage-700 underline decoration-sand-500/40 underline-offset-4 transition-colors hover:text-sand-700 hover:decoration-sand-500;
+  }
+
+  /* Compact actions (schedules, tables) */
+  .ommm-btn-compact-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-sand-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white shadow-sm transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-compact-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 backdrop-blur-sm transition-colors;
+    @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-compact-warm {
+    @apply inline-flex items-center justify-center rounded-full border border-sand-500/45 bg-sand-100/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sand-700 transition-colors;
+    @apply hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-marketing-card-hover {
+    @apply transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-28px_rgba(45,40,35,0.35)];
   }
 }
 

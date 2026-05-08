@@ -1,16 +1,15 @@
 import { getTranslations } from "next-intl/server";
+import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 
 export default async function StoryPage() {
   const m = await getTranslations("marketing");
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-16 sm:py-20">
-      <h1 className="app-page-heading">{m("storyTitle")}</h1>
-      <p className="app-lede">{m("storyLead")}</p>
-      <div className="mt-10 space-y-6 app-body-text">
-        <p>{m("storyP1")}</p>
-        <p>{m("storyP2")}</p>
+    <MarketingPageFrame title={m("storyTitle")} lede={m("storyLead")}>
+      <div className="mt-12 max-w-2xl space-y-6">
+        <p className="ommm-body">{m("storyP1")}</p>
+        <p className="ommm-body">{m("storyP2")}</p>
       </div>
-    </article>
+    </MarketingPageFrame>
   );
 }

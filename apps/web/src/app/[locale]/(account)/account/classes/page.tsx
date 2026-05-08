@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
 import { BookSessionButton } from "@/components/account/book-session-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { formatSessionRange } from "@/lib/format-session-time";
 import { serverApiJson } from "@/lib/server-api";
@@ -38,10 +39,10 @@ export default async function AccountClassesPage({
 
   if (!sessionsRes.ok) {
     return (
-      <div className="pt-6 sm:pt-8">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        Could not load schedule ({sessionsRes.status}).
-      </div>
+      <div className="ommm-container pt-6 sm:pt-8">
+        <div className="app-alert-warn">
+          Could not load schedule ({sessionsRes.status}).
+        </div>
       </div>
     );
   }
@@ -51,32 +52,25 @@ export default async function AccountClassesPage({
   );
 
   return (
-    <div className="pt-6 sm:pt-8">
-      <h1 className="text-2xl font-semibold text-zinc-900">Classes</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Next {ACCOUNT_SESSION_RANGE_DAYS} days · book or join the waitlist when
-        full.
-      </p>
-      <ul className="mt-6 space-y-4">
+    <AccountPageFrame
+      title="Classes"
+      description={`Next ${ACCOUNT_SESSION_RANGE_DAYS} days · book or join the waitlist when full.`}
+    >
+      <ul className="max-w-4xl space-y-4">
         {sessions.length === 0 ? (
-          <li className="text-sm text-zinc-600">No sessions in this window.</li>
+          <li className="ommm-body-muted text-sm">No sessions in this window.</li>
         ) : (
           sessions.map((s) => {
             const booked = s._count.bookings;
             const full = booked >= s.capacity;
             return (
-              <li
-                key={s.id}
-                className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
+              <li key={s.id} className="ommm-list-row">
                 <div>
-                  <p className="font-medium text-zinc-900">
-                    {s.classType.name}
-                  </p>
-                  <p className="text-sm text-zinc-600">
+                  <p className="font-medium text-sage-800">{s.classType.name}</p>
+                  <p className="text-sm text-sage-500">
                     {formatSessionRange(locale, s.startsAt, s.endsAt)}
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-sage-500/90">
                     {s.coach.user.name ?? "Coach"} · {booked}/{s.capacity}{" "}
                     booked ·{" "}
                     {s.priceCents > 0
@@ -99,11 +93,11 @@ export default async function AccountClassesPage({
           })
         )}
       </ul>
-      <p className="mt-8 text-sm text-zinc-600">
-        <Link href="/account/bookings" className="underline">
+      <p className="ommm-body-muted mt-8 max-w-4xl text-sm">
+        <Link href="/account/bookings" className="ommm-link-sage">
           My bookings
         </Link>
       </p>
-    </div>
+    </AccountPageFrame>
   );
 }

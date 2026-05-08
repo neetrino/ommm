@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type Plan = {
@@ -29,16 +30,19 @@ export default async function MembershipsMarketingPage({
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-      <h1 className="app-page-heading">{m("membershipsPageTitle")}</h1>
-      <p className="app-lede">{m("membershipsPageLead")}</p>
-
+    <MarketingPageFrame
+      title={m("membershipsPageTitle")}
+      lede={m("membershipsPageLead")}
+    >
       {!res.ok ? (
-        <p className="app-alert-warn mt-10" role="status">
+        <p className="app-alert-warn mt-12" role="status">
           {m("membershipsError")}
         </p>
       ) : res.data.filter((p) => p.isActive).length === 0 ? (
-        <p className="app-alert-info mt-10" role="status">
+        <p
+          className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
+          role="status"
+        >
           {m("membershipsEmpty")}
         </p>
       ) : (
@@ -55,40 +59,38 @@ export default async function MembershipsMarketingPage({
               return (
                 <li
                   key={plan.id}
-                  className="app-surface-card flex flex-col p-6 sm:p-8"
+                  className="ommm-card flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ommm-marketing-card-hover"
                 >
-                  <h2 className="text-xl font-semibold text-zinc-900">
-                    {plan.name}
-                  </h2>
+                  <h2 className="ommm-h3 text-sage-800">{plan.name}</h2>
                   {plan.description ? (
-                    <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+                    <p className="mt-3 text-sm leading-relaxed text-sage-500">
                       {plan.description}
                     </p>
                   ) : null}
-                  <p className="mt-6 text-3xl font-semibold tracking-tight text-zinc-900">
+                  <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
                     {m("membershipsPriceLine", { amount })}
                   </p>
-                  <p className="mt-2 text-sm text-zinc-500">
+                  <p className="mt-2 text-sm text-sage-500">
                     {m("membershipsPeriodDays", { days: plan.periodDays })}
                   </p>
-                  <p className="mt-4 text-sm font-medium text-zinc-700">
+                  <p className="mt-4 text-sm font-medium text-sage-700">
                     {sessionsLabel}
                   </p>
-                  <div className="mt-8 flex flex-col gap-3 border-t border-zinc-100 pt-6 sm:flex-row">
+                  <div className="mt-8 flex flex-col gap-3 border-t border-white/50 pt-6 sm:flex-row">
                     <Link
                       href="/login"
-                      className="app-btn-primary flex-1 text-center"
+                      className="ommm-cta-primary flex-1 text-center"
                     >
                       {m("membershipsSubscribeCta")}
                     </Link>
                     <Link
                       href="/account/memberships"
-                      className="app-btn-secondary flex-1 text-center"
+                      className="ommm-cta-ghost flex-1 text-center"
                     >
                       {m("membershipsAccountCta")}
                     </Link>
                   </div>
-                  <p className="mt-4 text-center text-xs text-zinc-500">
+                  <p className="mt-4 text-center text-xs text-sage-500">
                     {m("membershipsLoginHint")}
                   </p>
                 </li>
@@ -96,6 +98,6 @@ export default async function MembershipsMarketingPage({
             })}
         </ul>
       )}
-    </div>
+    </MarketingPageFrame>
   );
 }

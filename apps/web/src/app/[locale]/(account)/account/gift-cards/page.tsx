@@ -1,6 +1,10 @@
 import { headers } from "next/headers";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
+import {
+  AccountPageFrame,
+  AccountSection,
+} from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type GiftRow = {
@@ -25,76 +29,72 @@ export default async function AccountGiftCardsPage() {
   const credits = meRes.ok ? meRes.data.user.giftCreditsCents : null;
 
   return (
-    <div className="space-y-10 pt-6 sm:pt-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">Gift cards</h1>
-        {credits != null ? (
-          <p className="mt-2 text-sm text-zinc-600">
-            Gift balance (credits):{" "}
-            <span className="font-medium tabular-nums">{credits}</span> cents
+    <AccountPageFrame
+      title="Gift cards"
+      description={
+        credits != null
+          ? `Gift balance (credits): ${credits} cents`
+          : undefined
+      }
+    >
+      <div className="max-w-4xl space-y-10">
+        <AccountSection title="Redeem">
+          <div className="max-w-sm">
+            <GiftRedeemForm />
+          </div>
+        </AccountSection>
+
+        <AccountSection title="Purchase">
+          <p className="ommm-body-muted text-sm">
+            Opens Stripe Checkout (configure{" "}
+            <code className="rounded-lg bg-white/50 px-1.5 py-0.5 text-xs text-sage-700">
+              STRIPE_SECRET_KEY
+            </code>
+            ).
           </p>
-        ) : null}
+          <div className="mt-4 max-w-sm">
+            <GiftPurchaseForm />
+          </div>
+        </AccountSection>
+
+        <section>
+          <h2 className="ommm-h3 text-sage-800">Purchased</h2>
+          {!purchasedRes.ok ? (
+            <p className="ommm-body-muted mt-2 text-sm">Sign in to view.</p>
+          ) : purchasedRes.data.length === 0 ? (
+            <p className="ommm-body-muted mt-2 text-sm">
+              No gift cards purchased.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-2 text-sm">
+              {purchasedRes.data.map((g) => (
+                <li key={g.id} className="ommm-inset-row font-mono text-sage-700">
+                  {g.code} · balance {g.balanceCents}/{g.amountCents} ·{" "}
+                  {g.status}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section>
+          <h2 className="ommm-h3 text-sage-800">Received</h2>
+          {!receivedRes.ok ? (
+            <p className="ommm-body-muted mt-2 text-sm">Sign in to view.</p>
+          ) : receivedRes.data.length === 0 ? (
+            <p className="ommm-body-muted mt-2 text-sm">No gifts received yet.</p>
+          ) : (
+            <ul className="mt-4 space-y-2 text-sm">
+              {receivedRes.data.map((g) => (
+                <li key={g.id} className="ommm-inset-row">
+                  {g.recipientName ?? "Gift"} · balance {g.balanceCents} ·{" "}
+                  {g.status}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
-
-      <section className="rounded-xl border border-zinc-200 bg-white p-4">
-        <h2 className="text-lg font-medium text-zinc-900">Redeem</h2>
-        <div className="mt-4 max-w-sm">
-          <GiftRedeemForm />
-        </div>
-      </section>
-
-      <section className="rounded-xl border border-zinc-200 bg-white p-4">
-        <h2 className="text-lg font-medium text-zinc-900">Purchase</h2>
-        <p className="mt-2 text-sm text-zinc-600">
-          Opens Stripe Checkout (configure{" "}
-          <code className="text-xs">STRIPE_SECRET_KEY</code>).
-        </p>
-        <div className="mt-4 max-w-sm">
-          <GiftPurchaseForm />
-        </div>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-medium text-zinc-900">Purchased</h2>
-        {!purchasedRes.ok ? (
-          <p className="mt-2 text-sm text-zinc-600">Sign in to view.</p>
-        ) : purchasedRes.data.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600">No gift cards purchased.</p>
-        ) : (
-          <ul className="mt-3 space-y-2 text-sm">
-            {purchasedRes.data.map((g) => (
-              <li
-                key={g.id}
-                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2"
-              >
-                <span className="font-mono">{g.code}</span> · balance{" "}
-                {g.balanceCents}/{g.amountCents} · {g.status}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-lg font-medium text-zinc-900">Received</h2>
-        {!receivedRes.ok ? (
-          <p className="mt-2 text-sm text-zinc-600">Sign in to view.</p>
-        ) : receivedRes.data.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600">No gifts received yet.</p>
-        ) : (
-          <ul className="mt-3 space-y-2 text-sm">
-            {receivedRes.data.map((g) => (
-              <li
-                key={g.id}
-                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2"
-              >
-                {g.recipientName ?? "Gift"} · balance {g.balanceCents} ·{" "}
-                {g.status}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
+    </AccountPageFrame>
   );
 }

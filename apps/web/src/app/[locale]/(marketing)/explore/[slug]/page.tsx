@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type ContentPost = {
@@ -39,36 +40,33 @@ export default async function ExplorePostPage({ params }: Props) {
   const post = res.data;
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-16 sm:py-20">
-      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-        {post.type}
-      </p>
-      <h1 className="mt-3 app-page-heading">{post.title}</h1>
-      {post.publishedAt ? (
-        <p className="mt-4 text-sm text-zinc-500">
-          {new Date(post.publishedAt).toLocaleDateString(locale, {
-            dateStyle: "long",
-          })}
+    <MarketingPageFrame eyebrow={post.type} title={post.title}>
+      <div className="mt-8 max-w-2xl">
+        {post.publishedAt ? (
+          <p className="text-sm text-sage-500">
+            {new Date(post.publishedAt).toLocaleDateString(locale, {
+              dateStyle: "long",
+            })}
+          </p>
+        ) : null}
+        {post.excerpt ? (
+          <p className="mt-8 text-lg font-medium leading-relaxed text-sage-700">
+            {post.excerpt}
+          </p>
+        ) : null}
+        {post.body ? (
+          <div className="ommm-card mt-8 p-6 sm:p-8">
+            <div className="whitespace-pre-wrap text-base leading-[1.75] text-sage-500">
+              {post.body}
+            </div>
+          </div>
+        ) : null}
+        <p className="mt-12 border-t border-white/50 pt-8">
+          <Link href="/explore" className="ommm-cta-ghost inline-flex text-sm">
+            ← {tNav("explore")}
+          </Link>
         </p>
-      ) : null}
-      {post.excerpt ? (
-        <p className="mt-8 text-lg font-medium leading-relaxed text-zinc-700">
-          {post.excerpt}
-        </p>
-      ) : null}
-      {post.body ? (
-        <div className="mt-8 whitespace-pre-wrap text-base leading-[1.75] text-zinc-700">
-          {post.body}
-        </div>
-      ) : null}
-      <p className="mt-12 border-t border-zinc-200 pt-8">
-        <Link
-          href="/explore"
-          className="app-btn-secondary inline-flex text-sm"
-        >
-          ← {tNav("explore")}
-        </Link>
-      </p>
-    </article>
+      </div>
+    </MarketingPageFrame>
   );
 }

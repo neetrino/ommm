@@ -2,6 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type Props = {
@@ -57,26 +58,28 @@ export function BookSessionButton({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap gap-2">
-        <button
+        <OmmButton
           type="button"
+          variant="primary"
+          size="sm"
           disabled={busy}
           onClick={() => void bookFreeOrMembership()}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
         >
           {label}
-        </button>
+        </OmmButton>
         {priceCents > 0 ? (
-          <button
+          <OmmButton
             type="button"
+            variant="secondary"
+            size="sm"
             disabled={busy}
             onClick={() => void bookDropIn()}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-800 hover:border-zinc-400 disabled:opacity-50"
           >
             {dropInLabel}
-          </button>
+          </OmmButton>
         ) : null}
       </div>
-      {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
+      {msg ? <p className="text-xs text-amber-900">{msg}</p> : null}
     </div>
   );
 }

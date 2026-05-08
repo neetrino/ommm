@@ -55,7 +55,7 @@ export default async function CoachHomePage({
 
   if (!isCoach || !coachId) {
     return (
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 text-sm text-zinc-700">
+      <div className="rounded-[24px] border border-zinc-200 bg-white p-6 text-sm text-zinc-700 shadow-sm">
         This area is for studio coaches. Your account does not have a coach
         profile.
       </div>
@@ -101,7 +101,7 @@ export default async function CoachHomePage({
             {sessions.map((s) => (
               <li
                 key={s.id}
-                className="rounded-xl border border-indigo-100 bg-white p-4 text-sm shadow-sm"
+                className="rounded-[24px] border border-indigo-100 bg-white p-4 text-sm shadow-sm"
               >
                 <p className="font-medium text-zinc-900">
                   {s.classType.name}
@@ -129,7 +129,7 @@ export default async function CoachHomePage({
             {roster.map((b) => (
               <li
                 key={b.id}
-                className="flex flex-col gap-3 rounded-xl border border-indigo-100 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-medium text-zinc-900">

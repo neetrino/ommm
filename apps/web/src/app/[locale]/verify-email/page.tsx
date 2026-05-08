@@ -38,14 +38,14 @@ function VerifyInner() {
   if (!token) {
     return (
       <div>
-        <h1 className="text-xl font-semibold text-zinc-900">
+        <h1 className="font-serif text-xl font-semibold text-sage-800">
           Email verification
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-zinc-700">
+        <p className="ommm-body-muted mt-4">
           Missing token — open the link from your email.
         </p>
         <p className="mt-8">
-          <Link href="/login" className="app-btn-primary inline-flex text-sm">
+          <Link href="/login" className="ommm-cta-primary inline-flex text-sm">
             Log in
           </Link>
         </p>
@@ -55,13 +55,13 @@ function VerifyInner() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-zinc-900">Email verification</h1>
-      <p className="mt-4 text-sm leading-relaxed text-zinc-700">
-        {msg ?? "Verifying…"}
-      </p>
+      <h1 className="font-serif text-xl font-semibold text-sage-800">
+        Email verification
+      </h1>
+      <p className="ommm-body-muted mt-4">{msg ?? "Verifying…"}</p>
       {msg ? (
         <p className="mt-8">
-          <Link href="/login" className="app-btn-primary inline-flex text-sm">
+          <Link href="/login" className="ommm-cta-primary inline-flex text-sm">
             Log in
           </Link>
         </p>
@@ -72,13 +72,9 @@ function VerifyInner() {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12">
-      <div className="app-surface-card w-full max-w-md p-6 sm:p-8">
-        <Suspense
-          fallback={
-            <p className="text-sm text-zinc-500">Loading…</p>
-          }
-        >
+    <div className="flex min-h-screen items-center justify-center ommm-bg-auth px-4 py-12">
+      <div className="ommm-card w-full max-w-md p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
+        <Suspense fallback={<p className="text-sm text-sage-500">Loading…</p>}>
           <VerifyInner />
         </Suspense>
       </div>

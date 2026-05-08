@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { ApiError, apiFetch } from "@/lib/api";
 
 export default function ContactPage() {
@@ -32,40 +33,50 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-16 sm:py-20">
-      <h1 className="app-page-heading">Contact</h1>
-      <p className="app-lede">
-        Send a message to the studio team. We read every note and reply by phone
-        or email when appropriate.
-      </p>
-      <form onSubmit={onSubmit} className="app-surface-card mt-10 flex flex-col gap-4 p-6 sm:p-8">
+    <MarketingPageFrame
+      title="Contact"
+      lede="Send a message to the studio team. We read every note and reply by phone or email when appropriate."
+    >
+      <form
+        onSubmit={onSubmit}
+        className="ommm-card mt-12 flex w-full max-w-lg flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8"
+      >
         <label className="flex flex-col gap-2">
-          <span className="app-label">Name</span>
-          <input name="name" required autoComplete="name" className="app-input" />
+          <span className="ommm-label">Name</span>
+          <input
+            name="name"
+            required
+            autoComplete="name"
+            className="ommm-input"
+          />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="app-label">Phone</span>
+          <span className="ommm-label">Phone</span>
           <input
             name="phone"
             required
             autoComplete="tel"
-            className="app-input"
+            className="ommm-input"
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="app-label">Subject</span>
-          <input name="subject" autoComplete="off" className="app-input" />
+          <span className="ommm-label">Subject</span>
+          <input name="subject" autoComplete="off" className="ommm-input" />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="app-label">Message</span>
+          <span className="ommm-label">Message</span>
           <textarea
             name="message"
             required
             rows={4}
-            className="app-input min-h-[120px] resize-y"
+            className="ommm-input min-h-[120px] resize-y"
           />
         </label>
-        <button type="submit" className="app-btn-primary mt-2" disabled={pending}>
+        <button
+          type="submit"
+          className="ommm-cta-primary mt-2 w-full sm:w-auto"
+          disabled={pending}
+        >
           {pending ? "Sending…" : "Send"}
         </button>
       </form>
@@ -73,7 +84,7 @@ export default function ContactPage() {
         <p
           className={
             status === "Sent"
-              ? "mt-4 text-sm font-medium text-emerald-800"
+              ? "mt-4 text-sm font-medium text-sage-800"
               : "mt-4 text-sm text-red-600"
           }
           role="status"
@@ -83,6 +94,6 @@ export default function ContactPage() {
             : status}
         </p>
       ) : null}
-    </div>
+    </MarketingPageFrame>
   );
 }

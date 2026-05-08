@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 export default function LoginPage() {
@@ -34,45 +35,45 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+      <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("login")}
       </h1>
-      <p className="mt-2 text-sm text-zinc-600">
+      <p className="ommm-body-muted mt-2">
         Welcome back — use the email and password for your studio account.
       </p>
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-2">
-          <span className="app-label">Email</span>
+          <span className="ommm-label">Email</span>
           <input
             name="email"
             type="email"
             required
             autoComplete="email"
-            className="app-input"
+            className="ommm-input"
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="app-label">Password</span>
+          <span className="ommm-label">Password</span>
           <input
             name="password"
             type="password"
             required
             autoComplete="current-password"
-            className="app-input"
+            className="ommm-input"
           />
         </label>
-        <button type="submit" className="app-btn-primary mt-2" disabled={pending}>
+        <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
           {pending ? "Signing in…" : "Continue"}
-        </button>
+        </OmmButton>
       </form>
       {error ? (
         <p className="mt-4 text-sm text-red-600" role="alert">
           {error}
         </p>
       ) : null}
-      <p className="mt-8 text-center text-sm text-zinc-600">
+      <p className="ommm-body-muted mt-8 text-center text-sm">
         No account?{" "}
-        <Link href="/register" className="font-medium text-zinc-900 underline">
+        <Link href="/register" className="ommm-link-sage">
           {t("register")}
         </Link>
       </p>

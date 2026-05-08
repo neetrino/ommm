@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type PublicCoach = {
@@ -25,44 +26,47 @@ export default async function CoachesMarketingPage() {
   const res = await serverApiJson<PublicCoach[]>("/coaches", "");
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-      <h1 className="app-page-heading">{m("coachesPageTitle")}</h1>
-      <p className="app-lede">{m("coachesPageLead")}</p>
-
+    <MarketingPageFrame title={m("coachesPageTitle")} lede={m("coachesPageLead")}>
       {!res.ok ? (
-        <p className="app-alert-warn mt-10" role="status">
+        <p className="app-alert-warn mt-12" role="status">
           {m("coachesError")}
         </p>
       ) : res.data.length === 0 ? (
-        <p className="app-alert-info mt-10" role="status">
+        <p
+          className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
+          role="status"
+        >
           {m("coachesEmpty")}
         </p>
       ) : (
         <ul className="mt-12 grid gap-6 sm:grid-cols-2">
           {res.data.map((c) => (
-            <li key={c.id} className="app-surface-card flex gap-4 p-6">
+            <li
+              key={c.id}
+              className="ommm-card flex gap-4 p-6 shadow-[0_20px_45px_-28px_rgba(45,40,35,0.22)] sm:p-7 ommm-marketing-card-hover"
+            >
               <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-200/80 text-sm font-semibold text-zinc-700"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-gradient-to-br from-mint-100/90 to-sand-100 text-sm font-semibold text-sage-700 ring-1 ring-white/70"
                 aria-hidden
               >
                 {initials(c.user.name, c.user.email)}
               </div>
               <div className="min-w-0">
-                <h2 className="text-lg font-semibold text-zinc-900">
+                <h2 className="ommm-h3 text-sage-800">
                   {c.user.name?.trim() || c.user.email}
                 </h2>
                 {c.specialization ? (
-                  <p className="mt-1 text-sm font-medium text-zinc-500">
+                  <p className="mt-1 text-sm font-medium text-sand-700">
                     {c.specialization}
                   </p>
                 ) : null}
                 {c.experienceYears != null && c.experienceYears > 0 ? (
-                  <p className="mt-2 text-xs text-zinc-500">
+                  <p className="mt-2 text-xs text-sage-500">
                     {m("coachesExperience", { years: c.experienceYears })}
                   </p>
                 ) : null}
                 {c.bio ? (
-                  <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+                  <p className="mt-3 text-sm leading-relaxed text-sage-500">
                     {c.bio}
                   </p>
                 ) : null}
@@ -71,6 +75,6 @@ export default async function CoachesMarketingPage() {
           ))}
         </ul>
       )}
-    </div>
+    </MarketingPageFrame>
   );
 }
