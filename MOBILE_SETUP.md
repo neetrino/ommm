@@ -10,6 +10,8 @@ From the repository root:
 pnpm install
 ```
 
+Root `postinstall` runs `pnpm run db:generate` (Prisma Client from `packages/database/prisma/schema.prisma`). If installs use `--ignore-scripts`, run `pnpm run db:generate` manually before `pnpm run dev` / `build:api`.
+
 ## Run everything (web + API + mobile)
 
 ```bash
@@ -62,7 +64,7 @@ Which value to use:
 | Expo web (`pnpm --filter mobile web`) | `http://localhost:4000` | Browser on the same machine. |
 | Physical device (same Wi‑Fi) | `http://<your-pc-lan-ip>:4000` | Example: `http://192.168.1.10:4000`. Find your IP with `ipconfig` (Windows) or `ip addr` (Linux). The Nest `listen` default binds all interfaces, so LAN access works if the firewall allows inbound TCP on the API port. |
 
-The sample screen calls `GET /v1/health` (see `apps/api/src/app.controller.ts`).
+The **Profile** tab calls `GET /v1/health` (see `apps/api/src/app.controller.ts`) via `apps/mobile/src/lib/api/client.ts`.
 
 ### Backend CORS (web / Expo web)
 
@@ -77,6 +79,27 @@ Production keeps stricter origin checks; extend explicit origins with `CORS_ORIG
 
 - `pnpm-workspace.yaml` includes `apps/*`. Dependencies install from the root; `apps/mobile/metro.config.js` points Metro at the workspace `node_modules` so resolution stays stable.
 - TypeScript is strict in the mobile app; keep shared code in a future `packages/*` package if you outgrow a thin API client.
+- **Windows + pnpm:** the repo may include a root `.npmrc` with `node-linker=hoisted` to avoid intermittent `ENOENT` errors during `pnpm install`. If your team prefers the default linker, remove `.npmrc` after confirming installs succeed on your machines.
+
+## Navigation (Expo Router)
+
+- Entry: `package.json` → `"main": "expo-router/entry"`.
+- Routes live under `apps/mobile/app/`:
+  - `app/_layout.tsx` — fonts, `SafeAreaProvider`, root `Stack`.
+  - `app/(main)/_layout.tsx` — main shell with floating tab bar (`Slot` + `FloatingTabBar`).
+  - `app/(main)/index.tsx` — Figma home screen.
+  - `app/(main)/classes.tsx`, `schedule.tsx`, `plans.tsx` — placeholders until API-backed screens exist.
+  - `app/(main)/profile.tsx` — profile + optional `GET /v1/health` check via `fetchHealth()` (uses `EXPO_PUBLIC_API_URL`).
+- Deep linking scheme: `ommm-mobile` (see `app.config.ts`).
+
+## Figma implementation (home)
+
+- **Source:** [Ommm. Space — home frame (node `1:125`)](https://www.figma.com/design/PEytq677FUQRZdab1lvlJh/Ommm.-Spece?node-id=1-125&m=dev).
+- **Tokens:** `apps/mobile/src/theme/tokens.ts` (colors, spacing, radii, gradients, shadows).
+- **Typography:** Google fonts via `@expo-google-fonts/*`, loaded in `app/_layout.tsx`; family names in `src/theme/fontFamilies.ts`.
+- **UI structure:** feature folder `src/features/home/` (header, sections, `HomeScreen`) plus `src/components/layout/GradientBackdrop.tsx` for shared background on secondary tabs.
+- **Content:** home copy and waitlist/explore rows come from `src/lib/mocks/homeMock.ts` until Nest endpoints exist.
+- **Remote images:** `src/assets/figmaRemoteAssets.ts` points at time-limited Figma MCP asset URLs (~7 days). For production, export from Figma, add files under `apps/mobile/assets/`, and switch `Image` `source` to `require(...)` or local URIs.
 
 ## Troubleshooting
 

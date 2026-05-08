@@ -12,12 +12,12 @@
     }
   },
   "scripts": {
-    "build": "tsc",
-    "generate": "prisma generate",
-    "migrate:dev": "dotenv -e ../../.env -- prisma migrate dev",
-    "migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
-    "db:push": "dotenv -e ../../.env -- prisma db push",
-    "seed": "dotenv -e ../../.env -- prisma db seed"
+    "build": "pnpm -w exec tsc -p packages/database/tsconfig.json",
+    "generate": "pnpm -w exec prisma generate --schema packages/database/prisma/schema.prisma",
+    "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma/schema.prisma",
+    "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma/schema.prisma",
+    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma/schema.prisma",
+    "seed": "dotenv -e ../../.env -- pnpm -w exec prisma db seed --schema packages/database/prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0"

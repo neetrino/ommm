@@ -1,0 +1,136 @@
+import { Platform, StyleSheet } from "react-native";
+
+/**
+ * Design tokens derived from Figma (Ommm. Space — home 4, node 1:125).
+ * Single source of truth for colors, spacing, radii, and shadows.
+ */
+export const colors = {
+  canvas: "#faf9f7",
+  primaryGreen: "#334537",
+  primaryGreen80: "rgba(51,69,55,0.8)",
+  secondarySage: "#434843",
+  warmBrown: "#6b5c4c",
+  taupe: "#a19685",
+  taupeButton: "#988e7e",
+  taupeNavEnd: "#3b3731",
+  creamHighlight: "#fffec9",
+  cardTint: "rgba(244,223,203,0.3)",
+  badgeCream: "#f4dfcb",
+  glassBorder: "rgba(255,255,255,0.5)",
+  overlayWhite38: "rgba(255,255,255,0.38)",
+  overlayWhite35: "rgba(255,255,255,0.35)",
+  overlayWhite40: "rgba(255,255,255,0.4)",
+  overlayWhite20: "rgba(255,255,255,0.2)",
+  overlayBlack08: "rgba(0,0,0,0.08)",
+  overlayGreen20: "rgba(51,69,55,0.2)",
+  studioPill: "rgba(19,19,19,0.9)",
+  exploreTitle: "#2e2e2e",
+  tileTitle: "#2d2d2d",
+  ink: "#1a1c1b",
+  bodyMuted: "rgba(67,72,67,0.7)",
+  bodyMutedOnDark: "rgba(213,213,213,0.7)",
+  white: "#ffffff",
+  black: "#0a0a0a",
+  watermark: "rgba(51,69,55,0.05)",
+  giftGradientStart: "#e8da74",
+  giftGradientEnd: "rgba(246,255,208,0)",
+  statusGradientStart: "#fff39b",
+  statusGradientEnd: "#b6e8ff",
+  scrimDark: "rgba(0,0,0,0.25)",
+  danger: "#8b2e2e",
+} as const;
+
+export const gradients = {
+  screen: {
+    colors: ["#eef0cd", "#faffa0", "#ffe4c3", "#e4f5fd", "#eef0cd"] as const,
+    locations: [0, 0.23, 0.31, 0.68, 0.97] as const,
+    start: { x: 0.15, y: 0 },
+    end: { x: 0.85, y: 1 },
+  },
+  navBar: {
+    colors: ["#a19685", "#3b3731"] as const,
+    start: { x: 0.2, y: 0 },
+    end: { x: 0.8, y: 1.2 },
+  },
+  playButton: {
+    colors: ["#827a6c", "#1c1a17"] as const,
+    start: { x: 0.5, y: 0 },
+    end: { x: 0.5, y: 1.5 },
+  },
+} as const;
+
+export const space = {
+  xxs: 4,
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 40,
+  section: 24,
+  screenHorizontal: 24,
+} as const;
+
+export const radii = {
+  header: 40,
+  card: 48,
+  cardInner: 47,
+  banner: 64,
+  pill: 9999,
+  waitTopLeft: 64,
+  waitTopRight: 24,
+  labelCard: 24,
+  logo: 62.5,
+} as const;
+
+export const layout = {
+  designWidth: 390,
+  headerMinHeight: 116,
+  tabBarHeight: 80,
+  bookingCardHeight: 256,
+  avatarSize: 56,
+} as const;
+
+export const typography = {
+  welcome: 16,
+  sectionTitle: 18,
+  body: 16,
+  bodySmall: 14,
+  caption: 12,
+  micro: 10,
+  watermark: 96,
+  bookCta: 14,
+} as const;
+
+export const shadows = StyleSheet.create({
+  bookingCard: Platform.select({
+    ios: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.04,
+      shadowRadius: 5,
+    },
+    android: { elevation: 6 },
+    default: {},
+  }),
+  exploreHero: Platform.select({
+    ios: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 25 },
+      shadowOpacity: 0.25,
+      shadowRadius: 50,
+    },
+    android: { elevation: 12 },
+    default: {},
+  }),
+  tabBar: Platform.select({
+    ios: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 20 },
+      shadowOpacity: 0.1,
+      shadowRadius: 20,
+    },
+    android: { elevation: 16 },
+    default: {},
+  }),
+});

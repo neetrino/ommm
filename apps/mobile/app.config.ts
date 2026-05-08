@@ -11,6 +11,7 @@ loadEnv({ path: path.join(monorepoRoot, ".env.local"), override: true });
 const config: ExpoConfig = {
   name: "mobile",
   slug: "mobile",
+  scheme: "ommm-mobile",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -35,6 +36,7 @@ const config: ExpoConfig = {
   web: {
     favicon: "./assets/favicon.png",
   },
+  plugins: ["expo-router"],
 };
 
 export default config;
