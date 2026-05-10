@@ -49,7 +49,7 @@ const TILES: Tile[] = [
   },
   {
     id: "breath",
-    image: "/marketing/home/explore-featured.jpg",
+    image: "/marketing/home/next-class.jpg",
     chipKey: "tiles.breath.chip",
     chipTone: "light",
     titleKey: "tiles.breath.title",
@@ -113,6 +113,7 @@ function FeaturedExplore({ t }: { t: ExploreTranslator }) {
           alt={t("featured.imageAlt")}
           fill
           priority
+          loading="eager"
           sizes="(min-width:1024px) 56vw, 100vw"
           className="object-cover"
         />

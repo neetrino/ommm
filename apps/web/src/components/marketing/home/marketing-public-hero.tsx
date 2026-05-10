@@ -53,6 +53,7 @@ export async function MarketingPublicHero() {
                 alt={t("previewAlt")}
                 fill
                 priority
+                loading="eager"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 sizes="(min-width:1024px) 40vw, 92vw"
               />
