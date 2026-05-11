@@ -1,3 +1,5 @@
+import * as FileSystem from "expo-file-system/legacy";
+import { Platform } from "react-native";
 import { readStoredAccessToken } from "../../auth/accessTokenStorage";
 import type { AuthUserSummary } from "./authClient";
 import {
@@ -54,6 +56,40 @@ export async function patchPassword(params: {
   return { message: (parsed as { message: string }).message };
 }
 
+async function pickUriToBase64(uri: string): Promise<string> {
+  if (Platform.OS === "web") {
+    const fileResponse = await fetch(uri);
+    if (!fileResponse.ok) {
+      throw new Error("Could not read the selected image.");
+    }
+    const blob = await fileResponse.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result;
+        if (typeof dataUrl !== "string") {
+          reject(new Error("Could not read the selected image."));
+          return;
+        }
+        const idx = dataUrl.indexOf("base64,");
+        if (idx === -1) {
+          reject(new Error("Could not read the selected image."));
+          return;
+        }
+        resolve(dataUrl.slice(idx + "base64,".length));
+      };
+      reader.onerror = () => {
+        reject(reader.error ?? new Error("Could not read the selected image."));
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  return FileSystem.readAsStringAsync(uri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+}
+
 export async function uploadHomeImage(
   pick: UploadPickResult,
 ): Promise<{ user: AuthUserSummary; message: string }> {
@@ -62,31 +98,33 @@ export async function uploadHomeImage(
     throw new Error("Not signed in");
   }
   const base = getApiBaseUrl();
-  const form = new FormData();
+  const url = joinApiPath(base, "/v1/users/me/home-image-json");
   const mime = pick.mimeType ?? "image/jpeg";
-  const name = pick.fileName ?? "home-image.jpg";
-  form.append("file", {
-    uri: pick.uri,
-    name,
-    type: mime,
-  } as unknown as Blob);
+
+  const imageBase64 = await pickUriToBase64(pick.uri);
 
   const res = await fetchWithReachabilityHint(
-    joinApiPath(base, "/v1/users/me/home-image"),
+    url,
     {
       method: "POST",
       headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: form,
+      body: JSON.stringify({
+        imageBase64,
+        mimeType: mime,
+      }),
     },
     base,
   );
+
   const raw = await res.text();
   if (!res.ok) {
     throw new Error(extractErrorMessage(raw, res.statusText));
   }
+
   let parsed: unknown;
   try {
     parsed = raw.trim() === "" ? {} : JSON.parse(raw);

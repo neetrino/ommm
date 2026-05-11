@@ -2,12 +2,40 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { useRef, useState } from "react";
-import { ApiError, apiFetchFormData } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
 const ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
+
+function readFileAsHomeImageJsonPayload(
+  file: File,
+): Promise<{ imageBase64: string; mimeType: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const s = reader.result;
+      if (typeof s !== "string") {
+        reject(new Error("Could not read image"));
+        return;
+      }
+      const i = s.indexOf("base64,");
+      if (i === -1) {
+        reject(new Error("Could not read image"));
+        return;
+      }
+      resolve({
+        imageBase64: s.slice(i + "base64,".length),
+        mimeType: file.type || "image/jpeg",
+      });
+    };
+    reader.onerror = () => {
+      reject(reader.error ?? new Error("Could not read image"));
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 type Props = {
   initialPreviewUrl?: string | null;
@@ -49,9 +77,11 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
         setMsg("Image is too large. Maximum size is 5 MB.");
         return;
       }
-      const formData = new FormData();
-      formData.append("file", file);
-      await apiFetchFormData<{ message: string }>("/users/me/home-image", formData);
+      const payload = await readFileAsHomeImageJsonPayload(file);
+      await apiFetch<{ message: string }>("/users/me/home-image-json", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
       setTone("ok");
       setMsg("Home image updated successfully.");
       onFileChosen(null);

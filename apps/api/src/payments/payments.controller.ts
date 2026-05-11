@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Req,
+  ServiceUnavailableException,
   UseGuards,
 } from "@nestjs/common";
 import { SkipThrottle } from "@nestjs/throttler";
@@ -28,7 +29,9 @@ export class PaymentsController {
   ) {
     const raw = req.rawBody;
     if (!raw) {
-      throw new Error("Missing raw body for Stripe webhook");
+      throw new ServiceUnavailableException(
+        "Stripe webhook is not enabled (raw body not available on this deploy).",
+      );
     }
     await this.payments.handleStripeWebhook(raw, signature);
     return { received: true };

@@ -3,7 +3,6 @@ import { Image, type ImageSource } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   Platform,
-  Pressable,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -11,13 +10,11 @@ import {
 } from "react-native";
 import { exploreBundledAssets } from "../../../assets/exploreBundledAssets";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
-import { ExploreFeaturedPlayIcon } from "./ExploreFeaturedPlayIcon";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
   colors,
   exploreTile,
-  gradients,
   radii,
   shadows,
   space,
@@ -33,7 +30,6 @@ type ExploreSectionProps = {
   journalEyebrow: string;
   journalTitle: string;
   tiles: ExploreTileMock[];
-  onPlayPress?: () => void;
 };
 
 function resolveExploreImageSource(
@@ -186,7 +182,6 @@ export function ExploreSection({
   journalEyebrow,
   journalTitle,
   tiles,
-  onPlayPress,
 }: ExploreSectionProps) {
   const { width: windowWidth } = useWindowDimensions();
   const exploreTileWidth =
@@ -240,31 +235,11 @@ export function ExploreSection({
               style={styles.labelTopEdgeSheen}
             />
             <View style={styles.labelInner}>
-              <View style={styles.labelRow}>
-                <View style={styles.labelTextCol}>
-                  <Text style={styles.eyebrow}>{journalEyebrow}</Text>
-                  <Text style={styles.journalTitle} numberOfLines={2}>
-                    {journalTitle}
-                  </Text>
-                </View>
-                <Pressable
-                  onPress={onPlayPress}
-                  style={({ pressed }) => [
-                    styles.playButton,
-                    pressed && styles.playButtonPressed,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="Play wellness journal"
-                >
-                  <LinearGradient
-                    colors={[...gradients.playButton.colors]}
-                    start={gradients.playButton.start}
-                    end={gradients.playButton.end}
-                    style={styles.playGradient}
-                  >
-                    <ExploreFeaturedPlayIcon />
-                  </LinearGradient>
-                </Pressable>
+              <View style={styles.labelTextCol}>
+                <Text style={styles.eyebrow}>{journalEyebrow}</Text>
+                <Text style={styles.journalTitle} numberOfLines={2}>
+                  {journalTitle}
+                </Text>
               </View>
             </View>
           </BlurView>
@@ -368,12 +343,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
     padding: space.lg,
   },
-  labelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space.md,
-  },
   labelTextCol: {
     flex: 1,
     minWidth: 0,
@@ -398,22 +367,6 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0,0,0,0.4)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 8,
-  },
-  playButton: {
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: colors.white,
-    overflow: "hidden",
-  },
-  playButtonPressed: {
-    opacity: 0.92,
-  },
-  playGradient: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.pill,
-    alignItems: "center",
-    justifyContent: "center",
   },
   tileGrid: {
     flexDirection: "row",

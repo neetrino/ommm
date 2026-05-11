@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, layout, radii, space } from "../../../theme/tokens";
@@ -5,15 +6,32 @@ import { colors, layout, radii, space } from "../../../theme/tokens";
 type UserGreetingSectionProps = {
   /** Full name or fallback from session (e.g. email local-part). */
   displayName: string;
+  /** Same custom photo as Home banner; fills the circular avatar when set. */
+  avatarImageUri?: string | null;
 };
 
-export function UserGreetingSection({ displayName }: UserGreetingSectionProps) {
+export function UserGreetingSection({
+  displayName,
+  avatarImageUri,
+}: UserGreetingSectionProps) {
   return (
     <View style={styles.row}>
       <View style={styles.leftCluster}>
         <View style={styles.avatarTilt}>
           <View style={styles.avatarRing}>
-            <View style={styles.avatarFill} accessibilityLabel="Profile avatar" />
+            {avatarImageUri ? (
+              <Image
+                source={{ uri: avatarImageUri }}
+                style={styles.avatarImage}
+                contentFit="cover"
+                accessibilityLabel="Your Home photo"
+              />
+            ) : (
+              <View
+                style={styles.avatarFill}
+                accessibilityLabel="Profile avatar placeholder"
+              />
+            )}
           </View>
         </View>
         <View style={styles.welcomeBlock}>
@@ -59,6 +77,11 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   avatarFill: {
+    flex: 1,
+    borderRadius: radii.pill,
+    backgroundColor: colors.taupe,
+  },
+  avatarImage: {
     flex: 1,
     borderRadius: radii.pill,
     backgroundColor: colors.taupe,

@@ -15,3 +15,12 @@ export const MIME_TO_EXT: Readonly<Record<string, string>> = {
   "image/png": "png",
   "image/webp": "webp",
 };
+
+/** Some clients send non-standard `image/jpg`; normalize before validation. */
+export function normalizeHomeImageMime(mimetype: string): string {
+  const m = mimetype.trim().toLowerCase();
+  if (m === "image/jpg") {
+    return "image/jpeg";
+  }
+  return m;
+}

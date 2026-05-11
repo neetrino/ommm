@@ -19,7 +19,6 @@ import {
   HomeHighlightsSection,
 } from "../components/HomeHighlightsSection";
 import { NextClassSection } from "../components/NextClassSection";
-import { UserHomeImageBanner } from "../components/UserHomeImageBanner";
 import { UserGreetingSection } from "../components/UserGreetingSection";
 import { WaitlistSection } from "../components/WaitlistSection";
 
@@ -64,8 +63,10 @@ export function HomeScreen() {
       >
         {isSignedIn ? (
           <>
-            <UserHomeImageBanner uri={homeImageUri} />
-            <UserGreetingSection displayName={userGreetingName} />
+            <UserGreetingSection
+              displayName={userGreetingName}
+              avatarImageUri={homeImageUri}
+            />
             <NextClassSection
               content={homeMock.nextClass}
               onAllEventsPress={() => router.push(userMemberPath("schedule"))}

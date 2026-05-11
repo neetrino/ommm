@@ -15,6 +15,7 @@ import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { HOME_IMAGE_MAX_BYTES } from "./constants/home-image.constants";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { HomeImageJsonDto } from "./dto/home-image-json.dto";
 import { NotificationPrefsDto } from "./dto/notification-prefs.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { UsersService } from "./users.service";
@@ -40,6 +41,14 @@ export class UsersController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.users.changePassword(user.id, dto);
+  }
+
+  @Post("me/home-image-json")
+  uploadHomeImageJson(
+    @CurrentUser() user: { id: string },
+    @Body() dto: HomeImageJsonDto,
+  ) {
+    return this.users.saveHomeImageJson(user.id, dto);
   }
 
   @Post("me/home-image")
