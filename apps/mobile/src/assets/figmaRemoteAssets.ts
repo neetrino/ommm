@@ -9,8 +9,9 @@ export const figmaRemoteAssets = {
   /** Node 1:194 — retreat tile visual */
   exploreRetreat: "https://www.figma.com/api/mcp/asset/d0fe7d5b-2342-4e98-8e7c-6aeb0fee4be7",
   brandMark: "https://www.figma.com/api/mcp/asset/e0a2ea47-1d08-4b32-a934-88fcb8c7462b",
-  /** Node 1:210 gift overlay badge */
-  giftCardBadge: "https://www.figma.com/api/mcp/asset/d321bdb7-1e16-400a-806d-bc2b7ac171ed",
+  /** Node 1:217 — gift overlay badge (same export as design node 1:210) */
+  giftCardBadge:
+    "https://www.figma.com/api/mcp/asset/cafc4ee7-5c00-46f4-a96d-94f49503ddb1",
   iconArrowOut: "https://www.figma.com/api/mcp/asset/5c59c948-d2db-4f07-acbf-0866a1931d0e",
   iconPlay: "https://www.figma.com/api/mcp/asset/2ff2cfb4-2ce2-4709-b29b-bc284fa372c8",
   overlayGradient: "https://www.figma.com/api/mcp/asset/b160d4ef-840a-4474-9ed3-fbb80a3f02f3",

@@ -3,7 +3,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import { fontFamilies } from "../../../theme/fontFamilies";
-import { colors, radii, space, typography } from "../../../theme/tokens";
+import {
+  colors,
+  giftCard,
+  radii,
+  space,
+  typography,
+} from "../../../theme/tokens";
 
 type GiftCardContent = {
   titleLead: string;
@@ -66,8 +72,6 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
   );
 }
 
-const BADGE = 57;
-
 const styles = StyleSheet.create({
   wrap: {
     paddingHorizontal: space.screenHorizontal,
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radii.banner,
     overflow: "hidden",
-    minHeight: 256,
+    minHeight: giftCard.minHeight,
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
@@ -85,18 +89,16 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.overlayGreen20,
     alignItems: "center",
-    paddingHorizontal: space.lg,
-    paddingTop: BADGE + space.sm,
-    paddingBottom: space.xl,
-    gap: space.md,
+    paddingHorizontal: giftCard.overlayPaddingHorizontal,
+    paddingBottom: giftCard.overlayPaddingBottom,
   },
   badge: {
     position: "absolute",
-    top: space.sm + 2,
+    top: giftCard.badgeTop,
     left: "50%",
-    marginLeft: -BADGE / 2,
-    width: BADGE,
-    height: BADGE,
+    marginLeft: -giftCard.badgeSize / 2,
+    width: giftCard.badgeSize,
+    height: giftCard.badgeSize,
     borderRadius: radii.logo,
     overflow: "hidden",
   },
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: "center",
-    marginTop: space.md,
+    marginTop: giftCard.titleTopOffset,
   },
   titlePlain: {
     fontFamily: fontFamilies.newsreader.regular,
@@ -122,22 +124,28 @@ const styles = StyleSheet.create({
   },
   subtitleBlock: {
     alignItems: "center",
-    maxWidth: 320,
-    paddingHorizontal: 2,
+    marginTop: giftCard.subtitleMarginTop,
+    maxWidth: giftCard.subtitleMaxWidth,
+    minHeight: giftCard.subtitleMinHeight,
+    paddingHorizontal: giftCard.subtitleInnerPaddingHorizontal,
+    justifyContent: "center",
   },
   subtitle: {
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.body,
     lineHeight: 24,
     textAlign: "center",
-    color: "rgba(255,255,255,0.9)",
+    color: colors.white90,
   },
   cta: {
-    marginTop: space.sm,
+    marginTop: giftCard.ctaMarginTop,
+    minHeight: giftCard.ctaMinHeight,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.white,
-    paddingHorizontal: space.xl + 8,
-    paddingVertical: space.md,
-    borderRadius: 60,
+    paddingHorizontal: giftCard.ctaPaddingHorizontal,
+    paddingVertical: giftCard.ctaPaddingVertical,
+    borderRadius: giftCard.ctaBorderRadius,
   },
   ctaPressed: {
     opacity: 0.94,
@@ -146,7 +154,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.manrope.regular,
     fontSize: typography.body,
     lineHeight: 24,
-    letterSpacing: 1.6,
+    letterSpacing: giftCard.ctaLetterSpacing,
     textTransform: "uppercase",
     color: colors.primaryGreen,
     textAlign: "center",

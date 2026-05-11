@@ -38,6 +38,8 @@ export const colors = {
   bodyMuted: "rgba(67,72,67,0.7)",
   bodyMutedOnDark: "rgba(213,213,213,0.7)",
   white: "#ffffff",
+  /** Gift card subtitle on green overlay — Figma node 1:214 */
+  white90: "rgba(255,255,255,0.9)",
   black: "#0a0a0a",
   watermark: "rgba(51,69,55,0.05)",
   giftGradientStart: "#e8da74",
@@ -99,6 +101,33 @@ export const layout = {
   tabBarHeight: 80,
   bookingCardHeight: 256,
   avatarSize: 56,
+} as const;
+
+/**
+ * Gift card promo overlay — Figma node 1:210 (`Overlay`), frame 342×256.5 on 390pt artboard.
+ */
+export const giftCard = {
+  minHeight: 256.5,
+  badgeSize: 57,
+  badgeTop: 9.88,
+  /** First baselines row (“Share Calm.”) — metadata `Heading 3` y */
+  titleTopOffset: 76.88,
+  /** Heading bottom y+h → subtitle frame y */
+  subtitleMarginTop: 7,
+  subtitleMaxWidth: 246,
+  subtitleInnerPaddingHorizontal: 2.53,
+  subtitleMinHeight: 50,
+  ctaMarginTop: 20,
+  ctaPaddingHorizontal: 40,
+  ctaPaddingVertical: 16,
+  ctaBorderRadius: 60,
+  ctaMinHeight: 56,
+  /** Manrope uppercase label — matches Dev Mode tracking */
+  ctaLetterSpacing: 1.6,
+  /** `(342 − 246) / 2` — aligns `Container` x=48 with frame width 342 */
+  overlayPaddingHorizontal: 48,
+  /** Frame height − button bottom — keeps vertical rhythm to spec */
+  overlayPaddingBottom: 26.62,
 } as const;
 
 /**
