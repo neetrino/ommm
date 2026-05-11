@@ -101,6 +101,28 @@ export const layout = {
   avatarSize: 56,
 } as const;
 
+/**
+ * Explore secondary tiles (Figma: 1:191 Spring in Tuscany, 1:199 Enhanced Protocols).
+ * Horizontal layout reference width = 163pt (two columns on 390pt artboard).
+ */
+export const exploreTile = {
+  baseWidth: 163,
+  /** Corner radius matches `radii.card` (48) — Figma `rounded-[48px]` on both tiles. */
+  retreatBadgeOffsetX: 48,
+  retreatBadgeOffsetY: 10.875,
+  pilatesBadgeOffsetY: 9.875,
+  pilatesClipHeight: 203.75,
+  pilatesImageOffsetX: -11,
+  pilatesImageOffsetY: -10.125,
+  pilatesImageWidth: 163,
+  pilatesImageHeight: 237,
+  springColumnPaddingBottom: 64.75,
+  enhancedColumnPaddingTop: 24,
+  imageTitleGap: 12,
+  tagPaddingHorizontal: 12,
+  tagPaddingVertical: 4,
+} as const;
+
 export const typography = {
   welcome: 16,
   sectionTitle: 18,

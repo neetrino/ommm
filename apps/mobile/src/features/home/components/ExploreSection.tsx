@@ -1,12 +1,13 @@
 import { Image, type ImageSource } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { exploreBundledAssets } from "../../../assets/exploreBundledAssets";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
   colors,
+  exploreTile,
   gradients,
   radii,
   shadows,
@@ -21,16 +22,6 @@ type ExploreSectionProps = {
   onPlayPress?: () => void;
 };
 
-/** Large corner radius for pilates tile — Figma node 1:202. */
-const EXPLORE_TILE_PORTRAIT_RADIUS = 80;
-
-/** Figma node 1:202 frame — matches design (`163×237`, same proportion as `152/221`). */
-const EXPLORE_PILATES_FRAME_WIDTH = 163;
-const EXPLORE_PILATES_FRAME_HEIGHT = 237;
-
-/** Left tile sits higher, right tile lower — matches composed mobile layout. */
-const EXPLORE_TILE_VERTICAL_STAGGER = 28;
-
 function resolveExploreImageSource(
   key: ExploreTileMock["imageUriKey"],
 ): ImageSource {
@@ -42,22 +33,32 @@ function resolveExploreImageSource(
 type ExploreTileColumnProps = {
   tile: ExploreTileMock;
   columnIndex: number;
+  scale: number;
 };
 
 type ExploreTileTagRowProps = {
   tile: ExploreTileMock;
+  scale: number;
+  badgeTop: number;
+  retreatLeadingInset: number;
 };
 
-function ExploreTileTagRow({ tile }: ExploreTileTagRowProps) {
+function ExploreTileTagRow({
+  tile,
+  scale,
+  badgeTop,
+  retreatLeadingInset,
+}: ExploreTileTagRowProps) {
   const tagRowCentered = tile.tagVariant === "dark";
 
   return (
     <View
       style={[
         styles.tileTagRow,
+        { top: badgeTop },
         tagRowCentered
           ? styles.tileTagRowCentered
-          : styles.tileTagRowLeading,
+          : [styles.tileTagRowLeading, { paddingLeft: retreatLeadingInset }],
       ]}
       pointerEvents="none"
     >
@@ -67,6 +68,10 @@ function ExploreTileTagRow({ tile }: ExploreTileTagRowProps) {
           tile.tagVariant === "light"
             ? styles.tileTagLight
             : styles.tileTagDark,
+          {
+            paddingHorizontal: exploreTile.tagPaddingHorizontal * scale,
+            paddingVertical: exploreTile.tagPaddingVertical * scale,
+          },
         ]}
       >
         <Text
@@ -84,35 +89,71 @@ function ExploreTileTagRow({ tile }: ExploreTileTagRowProps) {
   );
 }
 
-function ExploreTileColumn({ tile, columnIndex }: ExploreTileColumnProps) {
+function ExploreTileColumn({ tile, columnIndex, scale }: ExploreTileColumnProps) {
   const isSquareTile = tile.imageLayout === "square";
   const isPortraitLayout = tile.imageLayout === "roundedPortrait";
 
-  const imagePosition =
-    tile.imageUriKey === "explorePilates" ? "bottom" : "center";
+  const cornerRadius = radii.card * scale;
+  const retreatBadgeTop = exploreTile.retreatBadgeOffsetY * scale;
+  const pilatesBadgeTop = exploreTile.pilatesBadgeOffsetY * scale;
+  const retreatLeadingInset = exploreTile.retreatBadgeOffsetX * scale;
+
+  const pilatesClipH = exploreTile.pilatesClipHeight * scale;
+  const pilatesImgLeft = exploreTile.pilatesImageOffsetX * scale;
+  const pilatesImgTop = exploreTile.pilatesImageOffsetY * scale;
+  const pilatesImgW = exploreTile.pilatesImageWidth * scale;
+  const pilatesImgH = exploreTile.pilatesImageHeight * scale;
+
+  const columnPad =
+    columnIndex === 0
+      ? { paddingBottom: exploreTile.springColumnPaddingBottom * scale }
+      : { paddingTop: exploreTile.enhancedColumnPaddingTop * scale };
 
   return (
     <View
       style={[
         styles.tileCol,
-        columnIndex === 0 ? styles.tileColStaggerUp : styles.tileColStaggerDown,
+        columnPad,
+        { gap: exploreTile.imageTitleGap * scale },
       ]}
     >
       <View
         style={[
           styles.tileImageWrap,
-          isSquareTile
-            ? styles.tileImageRoundedSquare
-            : styles.tileImagePilatesFrame,
+          { borderRadius: cornerRadius },
+          isSquareTile ? styles.tileImageRoundedSquare : null,
+          isPortraitLayout ? { height: pilatesClipH } : null,
         ]}
       >
-        <Image
-          source={resolveExploreImageSource(tile.imageUriKey)}
-          style={styles.tileImage}
-          contentFit="cover"
-          contentPosition={isPortraitLayout ? "bottom" : imagePosition}
+        {isPortraitLayout ? (
+          <View style={styles.pilatesClip} pointerEvents="none">
+            <Image
+              source={resolveExploreImageSource(tile.imageUriKey)}
+              style={{
+                position: "absolute",
+                left: pilatesImgLeft,
+                top: pilatesImgTop,
+                width: pilatesImgW,
+                height: pilatesImgH,
+              }}
+              contentFit="cover"
+              contentPosition="bottom"
+            />
+          </View>
+        ) : (
+          <Image
+            source={resolveExploreImageSource(tile.imageUriKey)}
+            style={styles.tileImage}
+            contentFit="cover"
+            contentPosition="center"
+          />
+        )}
+        <ExploreTileTagRow
+          tile={tile}
+          scale={scale}
+          badgeTop={isPortraitLayout ? pilatesBadgeTop : retreatBadgeTop}
+          retreatLeadingInset={retreatLeadingInset}
         />
-        <ExploreTileTagRow tile={tile} />
       </View>
       <Text
         style={[
@@ -133,6 +174,11 @@ export function ExploreSection({
   tiles,
   onPlayPress,
 }: ExploreSectionProps) {
+  const { width: windowWidth } = useWindowDimensions();
+  const exploreTileWidth =
+    (windowWidth - space.screenHorizontal * 2 - space.md) / 2;
+  const exploreScale = exploreTileWidth / exploreTile.baseWidth;
+
   return (
     <View style={styles.section}>
       <View style={styles.titleWrap}>
@@ -198,6 +244,7 @@ export function ExploreSection({
             key={tile.id}
             tile={tile}
             columnIndex={columnIndex}
+            scale={exploreScale}
           />
         ))}
       </View>
@@ -310,21 +357,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: space.md,
     marginTop: space.xl,
-    paddingTop: space.md + EXPLORE_TILE_VERTICAL_STAGGER,
-    paddingBottom: EXPLORE_TILE_VERTICAL_STAGGER,
     overflow: "visible",
   },
   tileCol: {
     flex: 1,
     minWidth: 0,
-    gap: space.sm,
     alignItems: "stretch",
-  },
-  tileColStaggerUp: {
-    transform: [{ translateY: -EXPLORE_TILE_VERTICAL_STAGGER }],
-  },
-  tileColStaggerDown: {
-    transform: [{ translateY: EXPLORE_TILE_VERTICAL_STAGGER }],
   },
   tileImageWrap: {
     overflow: "hidden",
@@ -333,13 +371,12 @@ const styles = StyleSheet.create({
   },
   tileImageRoundedSquare: {
     aspectRatio: 1,
-    borderRadius: radii.labelCard,
   },
-  tileImagePilatesFrame: {
-    width: EXPLORE_PILATES_FRAME_WIDTH,
-    height: EXPLORE_PILATES_FRAME_HEIGHT,
-    alignSelf: "center",
-    borderRadius: EXPLORE_TILE_PORTRAIT_RADIUS,
+  pilatesClip: {
+    flex: 1,
+    width: "100%",
+    overflow: "hidden",
+    backgroundColor: colors.white,
   },
   tileImage: {
     width: "100%",
@@ -347,21 +384,17 @@ const styles = StyleSheet.create({
   },
   tileTagRow: {
     position: "absolute",
-    top: space.sm - 2,
     left: 0,
     right: 0,
     flexDirection: "row",
   },
   tileTagRowLeading: {
     justifyContent: "flex-start",
-    paddingLeft: space.xs,
   },
   tileTagRowCentered: {
     justifyContent: "center",
   },
   tileTag: {
-    paddingHorizontal: space.sm,
-    paddingVertical: space.xxs,
     borderRadius: radii.pill,
   },
   tileTagLight: {
