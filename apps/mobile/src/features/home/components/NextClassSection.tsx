@@ -1,7 +1,7 @@
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
@@ -89,60 +89,118 @@ export function NextClassSection({
       </View>
 
       <View style={styles.detailsOverlap}>
-        <BlurView
-          intensity={NEXT_CLASS_DETAILS_BLUR_INTENSITY}
-          tint="light"
-          style={styles.detailsBlur}
-        >
-          <LinearGradient
-            pointerEvents="none"
-            colors={[
-              colors.detailsGlassSheenStrong,
-              colors.detailsGlassSheenSoft,
-              "transparent",
-              "transparent",
-            ]}
-            locations={[0, 0.14, 0.36, 1]}
-            start={{ x: 0.02, y: 0.02 }}
-            end={{ x: 0.48, y: 0.4 }}
-            style={styles.detailsGlassSheen}
-          />
-          <View style={styles.detailsInner}>
-            <View style={styles.detailsTopRow}>
-              <View style={styles.detailsTextCol}>
-                <Text style={styles.timeText} numberOfLines={2}>
-                  {content.timeLocation}
-                </Text>
-                <Text style={styles.instructorText} numberOfLines={2}>
-                  {content.instructor}
-                </Text>
-              </View>
-              <LinearGradient
-                colors={[colors.statusGradientStart, colors.statusGradientEnd]}
-                start={{ x: 0.1, y: 0.1 }}
-                end={{ x: 0.9, y: 0.9 }}
-                style={styles.statusPill}
-              >
-                <Text style={styles.statusText}>{content.statusLabel}</Text>
-              </LinearGradient>
-            </View>
-
+        <View style={styles.detailsGlassFrame}>
+          <BlurView
+            intensity={NEXT_CLASS_DETAILS_BLUR_INTENSITY}
+            tint="light"
+            style={styles.detailsBlur}
+          >
             <LinearGradient
-              colors={["transparent", "rgba(0,0,0,0.05)", "transparent"]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.divider}
+              pointerEvents="none"
+              colors={[
+                NEXT_CLASS_GLASS_SHEEN_PEAK,
+                NEXT_CLASS_GLASS_SHEEN_MID,
+                NEXT_CLASS_GLASS_SHEEN_FLOOR,
+                "transparent",
+              ]}
+              locations={[0, 0.05, 0.14, 0.32]}
+              start={{ x: 0.02, y: 0.02 }}
+              end={{ x: 0.48, y: 0.38 }}
+              style={styles.detailsGlassSheen}
             />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[
+                NEXT_CLASS_GLASS_TOP_GLOW,
+                NEXT_CLASS_GLASS_TOP_GLOW_MID,
+                "transparent",
+              ]}
+              locations={[0, 0.1, 1]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.detailsGlassTopBand}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[
+                NEXT_CLASS_GLASS_DIAG_GLEAM,
+                NEXT_CLASS_GLASS_DIAG_GLEAM_MID,
+                "transparent",
+                "transparent",
+              ]}
+              locations={[0, 0.07, 0.22, 0.45]}
+              start={{ x: 0.08, y: 0.12 }}
+              end={{ x: 0.92, y: 0.78 }}
+              style={styles.detailsGlassDiagonalGleam}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[
+                NEXT_CLASS_GLASS_HOT_SPOT,
+                "transparent",
+              ]}
+              locations={[0, 0.32]}
+              start={{ x: 0.22, y: 0.08 }}
+              end={{ x: 0.55, y: 0.35 }}
+              style={styles.detailsGlassHotSpot}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[
+                "transparent",
+                NEXT_CLASS_GLASS_CORNER_FLARE,
+                NEXT_CLASS_GLASS_CORNER_FLARE_SOFT,
+              ]}
+              locations={[0.62, 0.88, 1]}
+              start={{ x: 0.35, y: 0.4 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.detailsGlassCornerFlare}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[NEXT_CLASS_GLASS_TOP_EDGE_FLARE, "transparent"]}
+              locations={[0, 1]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.detailsGlassTopEdgeFlare}
+            />
+            <View style={styles.detailsInner}>
+              <View style={styles.detailsTopRow}>
+                <View style={styles.detailsTextCol}>
+                  <Text style={styles.timeText} numberOfLines={2}>
+                    {content.timeLocation}
+                  </Text>
+                  <Text style={styles.instructorText} numberOfLines={2}>
+                    {content.instructor}
+                  </Text>
+                </View>
+                <LinearGradient
+                  colors={[colors.statusGradientStart, colors.statusGradientEnd]}
+                  start={{ x: 0.1, y: 0.1 }}
+                  end={{ x: 0.9, y: 0.9 }}
+                  style={styles.statusPill}
+                >
+                  <Text style={styles.statusText}>{content.statusLabel}</Text>
+                </LinearGradient>
+              </View>
 
-            <View style={styles.detailsFooter}>
-              <Text style={styles.metaText}>{content.durationLabel}</Text>
-              <View style={styles.spotsRow}>
-                <View style={styles.spotDot} />
-                <Text style={styles.metaText}>{content.spotsLabel}</Text>
+              <LinearGradient
+                colors={["transparent", "rgba(0,0,0,0.05)", "transparent"]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.divider}
+              />
+
+              <View style={styles.detailsFooter}>
+                <Text style={styles.metaText}>{content.durationLabel}</Text>
+                <View style={styles.spotsRow}>
+                  <View style={styles.spotDot} />
+                  <Text style={styles.metaText}>{content.spotsLabel}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        </BlurView>
+          </BlurView>
+        </View>
       </View>
     </View>
   );
@@ -160,11 +218,28 @@ const NEXT_CLASS_DETAILS_OVER_IMAGE =
 /** Extra vertical padding so the frosted details panel reads slightly taller. */
 const NEXT_CLASS_DETAILS_EXTRA_VERTICAL = space.md;
 
-/** Slightly softer blur so the hero shows through the glass a bit more. */
-const NEXT_CLASS_DETAILS_BLUR_INTENSITY = 18;
+/** Blur without heavy milkiness — pair with low `backgroundColor` for clear glass. */
+const NEXT_CLASS_DETAILS_BLUR_INTENSITY = 14;
 
 /** Horizontal inset of frosted panel inside the card; lower = slightly wider glass. */
 const NEXT_CLASS_DETAILS_SIDE_INSET = 0;
+
+/**
+ * Tight specular highlights only (no full-panel white wash) — reads shiny + transparent.
+ */
+const NEXT_CLASS_GLASS_BASE_TINT = "rgba(255,255,255,0.02)" as const;
+const NEXT_CLASS_GLASS_SHEEN_PEAK = "rgba(255,255,255,0.72)" as const;
+const NEXT_CLASS_GLASS_SHEEN_MID = "rgba(255,255,255,0.14)" as const;
+const NEXT_CLASS_GLASS_SHEEN_FLOOR = "rgba(255,255,255,0.015)" as const;
+const NEXT_CLASS_GLASS_TOP_GLOW = "rgba(255,255,255,0.26)" as const;
+const NEXT_CLASS_GLASS_TOP_GLOW_MID = "rgba(255,255,255,0.05)" as const;
+const NEXT_CLASS_GLASS_DIAG_GLEAM = "rgba(255,255,255,0.26)" as const;
+const NEXT_CLASS_GLASS_DIAG_GLEAM_MID = "rgba(255,255,255,0.05)" as const;
+const NEXT_CLASS_GLASS_HOT_SPOT = "rgba(255,255,255,0.4)" as const;
+const NEXT_CLASS_GLASS_CORNER_FLARE = "rgba(255,255,255,0.17)" as const;
+const NEXT_CLASS_GLASS_CORNER_FLARE_SOFT = "rgba(255,255,255,0.03)" as const;
+const NEXT_CLASS_GLASS_TOP_EDGE_FLARE = "rgba(255,255,255,0.82)" as const;
+const NEXT_CLASS_GLASS_RIM = "rgba(255,255,255,0.56)" as const;
 
 const styles = StyleSheet.create({
   section: {
@@ -280,13 +355,53 @@ const styles = StyleSheet.create({
     zIndex: 2,
     transform: [{ translateY: -NEXT_CLASS_DETAILS_OVER_IMAGE }],
   },
+  detailsGlassFrame: {
+    borderRadius: radii.card - 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#e8f0fa",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.42,
+        shadowRadius: 14,
+      },
+      android: {
+        elevation: 8,
+      },
+      default: {},
+    }),
+  },
   detailsBlur: {
     borderRadius: radii.card - 3,
     overflow: "hidden",
-    backgroundColor: colors.overlayWhite08,
+    backgroundColor: NEXT_CLASS_GLASS_BASE_TINT,
+    borderWidth: 1,
+    borderColor: NEXT_CLASS_GLASS_RIM,
   },
   detailsGlassSheen: {
     ...StyleSheet.absoluteFillObject,
+  },
+  detailsGlassTopBand: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: "24%",
+  },
+  detailsGlassDiagonalGleam: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  detailsGlassHotSpot: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  detailsGlassCornerFlare: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  detailsGlassTopEdgeFlare: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 4,
   },
   detailsInner: {
     position: "relative",
@@ -308,7 +423,7 @@ const styles = StyleSheet.create({
     gap: space.xs + 4,
   },
   timeText: {
-    fontFamily: fontFamilies.montserrat.light,
+    fontFamily: fontFamilies.montserrat.regular,
     fontSize: typography.bodySmall,
     lineHeight: 20,
     color: colors.black,
