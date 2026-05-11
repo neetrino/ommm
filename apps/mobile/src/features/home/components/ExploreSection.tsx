@@ -1,10 +1,27 @@
+import { BlurView } from "expo-blur";
 import { Image, type ImageSource } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { exploreBundledAssets } from "../../../assets/exploreBundledAssets";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
 import { fontFamilies } from "../../../theme/fontFamilies";
+
+/** Subtle frosted glass over the featured hero; keeps imagery visible. */
+const EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY = 15;
+
+/** Base tint under blur (Android / fallback + readability on busy photos). */
+const EXPLORE_JOURNAL_GLASS_BASE = "rgba(28, 36, 42, 0.34)" as const;
+
+/** Very subtle white lift on top of the glass (keeps calm, premium read). */
+const EXPLORE_JOURNAL_GLASS_WHITE_VEIL = "rgba(255, 255, 255, 0.06)" as const;
 import {
   colors,
   exploreTile,
@@ -198,43 +215,61 @@ export function ExploreSection({
           />
         </View>
 
-        <View style={styles.labelCard}>
-          <Image
-            source={figmaRemoteAssets.overlayGradient}
-            style={styles.labelGradient}
-            contentFit="fill"
-            pointerEvents="none"
-          />
-          <View style={styles.labelRow}>
-            <View style={styles.labelTextCol}>
-              <Text style={styles.eyebrow}>{journalEyebrow}</Text>
-              <Text style={styles.journalTitle} numberOfLines={2}>
-                {journalTitle}
-              </Text>
-            </View>
-            <Pressable
-              onPress={onPlayPress}
-              style={({ pressed }) => [
-                styles.playButton,
-                pressed && styles.playButtonPressed,
+        <View style={styles.labelCardOuter}>
+          <BlurView
+            intensity={EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY}
+            tint="dark"
+            style={styles.labelBlur}
+          >
+            <View
+              pointerEvents="none"
+              style={styles.labelWhiteVeil}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[
+                "rgba(255,255,255,0.16)",
+                "rgba(255,255,255,0.05)",
+                "transparent",
               ]}
-              accessibilityRole="button"
-              accessibilityLabel="Play wellness journal"
-            >
-              <LinearGradient
-                colors={[...gradients.playButton.colors]}
-                start={gradients.playButton.start}
-                end={gradients.playButton.end}
-                style={styles.playGradient}
-              >
-                <Image
-                  source={figmaRemoteAssets.iconPlay}
-                  style={styles.playIcon}
-                  contentFit="contain"
-                />
-              </LinearGradient>
-            </Pressable>
-          </View>
+              locations={[0, 0.22, 0.55]}
+              start={{ x: 0.08, y: 0 }}
+              end={{ x: 0.92, y: 1 }}
+              style={styles.labelGlassSheen}
+            />
+            <View style={styles.labelInner}>
+              <View style={styles.labelRow}>
+                <View style={styles.labelTextCol}>
+                  <Text style={styles.eyebrow}>{journalEyebrow}</Text>
+                  <Text style={styles.journalTitle} numberOfLines={2}>
+                    {journalTitle}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={onPlayPress}
+                  style={({ pressed }) => [
+                    styles.playButton,
+                    pressed && styles.playButtonPressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Play wellness journal"
+                >
+                  <LinearGradient
+                    colors={[...gradients.playButton.colors]}
+                    start={gradients.playButton.start}
+                    end={gradients.playButton.end}
+                    style={styles.playGradient}
+                  >
+                    <Image
+                      source={figmaRemoteAssets.iconPlay}
+                      style={styles.playIcon}
+                      contentFit="contain"
+                    />
+                  </LinearGradient>
+                </Pressable>
+              </View>
+            </View>
+          </BlurView>
         </View>
       </View>
 
@@ -294,19 +329,43 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  labelCard: {
+  labelCardOuter: {
     position: "absolute",
     left: space.lg,
     right: space.lg,
     bottom: -space.lg,
     borderRadius: radii.labelCard,
-    backgroundColor: colors.overlayWhite40,
-    padding: space.lg,
-    overflow: "hidden",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#c5d4e8",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.42,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 12,
+      },
+      default: {},
+    }),
   },
-  labelGradient: {
+  labelBlur: {
+    borderRadius: radii.labelCard,
+    overflow: "hidden",
+    backgroundColor: EXPLORE_JOURNAL_GLASS_BASE,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+  },
+  labelGlassSheen: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.35,
+  },
+  labelWhiteVeil: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: EXPLORE_JOURNAL_GLASS_WHITE_VEIL,
+  },
+  labelInner: {
+    position: "relative",
+    zIndex: 1,
+    padding: space.lg,
   },
   labelRow: {
     flexDirection: "row",
@@ -326,12 +385,18 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     color: colors.white,
     textTransform: "uppercase",
+    textShadowColor: "rgba(0,0,0,0.4)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
   },
   journalTitle: {
     fontFamily: fontFamilies.newsreader.regular,
     fontSize: typography.body,
     lineHeight: 24,
     color: colors.white,
+    textShadowColor: "rgba(0,0,0,0.45)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 8,
   },
   playButton: {
     borderRadius: radii.pill,
