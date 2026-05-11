@@ -1,59 +1,38 @@
-import { Image, type ImageSource } from "expo-image";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useSegments, type Href } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, gradients, layout, radii, shadows, space } from "../../../theme/tokens";
 
 type TabKey = "home" | "classes" | "schedule" | "plans" | "profile";
 
+/** MaterialCommunityIcons glyph name — kept narrow to the tabs we actually render. */
+type TabIconName =
+  | "home"
+  | "view-dashboard"
+  | "calendar-month"
+  | "tag"
+  | "meditation";
+
 type TabItem = {
   key: TabKey;
   label: string;
   href: Href;
-  iconSource: ImageSource;
-  iconSize: { width: number; height: number };
+  iconName: TabIconName;
+  iconSize: number;
 };
 
 const TAB_ITEMS: TabItem[] = [
-  {
-    key: "home",
-    label: "Home",
-    href: "/",
-    iconSource: figmaRemoteAssets.tabHome,
-    iconSize: { width: 16, height: 18 },
-  },
-  {
-    key: "classes",
-    label: "Classes",
-    href: "/classes",
-    iconSource: figmaRemoteAssets.tabClasses,
-    iconSize: { width: 21, height: 21 },
-  },
-  {
-    key: "schedule",
-    label: "Schedule",
-    href: "/schedule",
-    iconSource: figmaRemoteAssets.tabSchedule,
-    iconSize: { width: 24, height: 24 },
-  },
-  {
-    key: "plans",
-    label: "Plans",
-    href: "/plans",
-    iconSource: figmaRemoteAssets.tabPlans,
-    iconSize: { width: 22, height: 22 },
-  },
-  {
-    key: "profile",
-    label: "Profile",
-    href: "/profile",
-    iconSource: figmaRemoteAssets.tabProfile,
-    iconSize: { width: 28, height: 23 },
-  },
+  { key: "home", label: "Home", href: "/", iconName: "home", iconSize: 22 },
+  { key: "classes", label: "Classes", href: "/classes", iconName: "view-dashboard", iconSize: 22 },
+  { key: "schedule", label: "Schedule", href: "/schedule", iconName: "calendar-month", iconSize: 24 },
+  { key: "plans", label: "Plans", href: "/plans", iconName: "tag", iconSize: 22 },
+  { key: "profile", label: "Profile", href: "/profile", iconName: "meditation", iconSize: 26 },
 ];
+
+const TAB_ICON_INACTIVE_OPACITY = 0.85;
 
 function isTabActive(segments: string[], item: TabItem): boolean {
   if (item.key === "home") {
@@ -85,6 +64,7 @@ export function FloatingTabBar() {
       >
         {TAB_ITEMS.map((item) => {
           const active = isTabActive(segments, item);
+          const iconColor = active ? colors.taupe : colors.creamHighlight;
           return (
             <Pressable
               key={item.key}
@@ -103,12 +83,13 @@ export function FloatingTabBar() {
                   active && styles.tabHighlightActive,
                 ]}
               >
-                <Image
-                  source={item.iconSource}
-                  style={item.iconSize}
-                  contentFit="contain"
-                  accessibilityIgnoresInvertColors
-                />
+                <View style={!active && styles.iconInactive}>
+                  <MaterialCommunityIcons
+                    name={item.iconName}
+                    size={item.iconSize}
+                    color={iconColor}
+                  />
+                </View>
                 <Text
                   style={[styles.tabLabel, active ? styles.tabLabelActive : undefined]}
                   numberOfLines={1}
@@ -124,11 +105,11 @@ export function FloatingTabBar() {
   );
 }
 
-/** Tab column width matches highlight so the chip scales evenly on both axes. */
-const TAB_HIGHLIGHT_SIZE = 66;
+/** Active chip diameter; column width is kept smaller so 5 tabs stay packed and the chip can overhang. */
+const TAB_HIGHLIGHT_SIZE = 72;
 const TAB_HIGHLIGHT_RADIUS = TAB_HIGHLIGHT_SIZE / 2;
-const TAB_INNER = TAB_HIGHLIGHT_SIZE;
-const FLOATING_TAB_BAR_HEIGHT = 76;
+const TAB_INNER = 66;
+const FLOATING_TAB_BAR_HEIGHT = 82;
 const TAB_BAR_HORIZONTAL_INSET = space.sm;
 
 const styles = StyleSheet.create({
@@ -168,6 +149,9 @@ const styles = StyleSheet.create({
   },
   tabHighlightActive: {
     backgroundColor: colors.creamHighlight,
+  },
+  iconInactive: {
+    opacity: TAB_ICON_INACTIVE_OPACITY,
   },
   tabPressed: {
     opacity: 0.92,

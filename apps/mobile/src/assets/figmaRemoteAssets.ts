@@ -11,9 +11,4 @@ export const figmaRemoteAssets = {
   iconArrowOut: require("../../assets/images/icon-arrow-out.png"),
   iconPlay: require("../../assets/images/icon-play.png"),
   overlayGradient: require("../../assets/images/overlay-gradient.png"),
-  tabHome: require("../../assets/images/tab-home.png"),
-  tabClasses: require("../../assets/images/tab-classes.png"),
-  tabSchedule: require("../../assets/images/tab-schedule.png"),
-  tabPlans: require("../../assets/images/tab-plans.png"),
-  tabProfile: require("../../assets/images/tab-profile.png"),
 } as const;
