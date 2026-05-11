@@ -22,7 +22,7 @@ export function ExploreMoreButton({ onPress }: ExploreMoreButtonProps) {
 const styles = StyleSheet.create({
   button: {
     alignSelf: "stretch",
-    marginHorizontal: space.screenHorizontal,
+    marginHorizontal: space.screenHorizontal + space.xxl + space.xxl,
     backgroundColor: colors.taupeButton,
     paddingHorizontal: space.xl,
     paddingVertical: space.sm + 4,
