@@ -107,12 +107,12 @@ export const layout = {
  * Gift card promo overlay — Figma node 1:210 (`Overlay`), frame 342×256.5 on 390pt artboard.
  */
 export const giftCard = {
-  minHeight: 287.5,
+  minHeight: 307.62,
   badgeSize: 128,
-  /** Relative to wrap top (= card top). Negative = badge overhangs above card. */
-  badgeTop: -30.12,
-  /** First baselines row (“Share Calm.”) — pushed down to clear the larger badge */
-  titleTopOffset: 107.88,
+  /** Relative to wrap top (= card top). Small overhang keeps top area tight. */
+  badgeTop: -10,
+  /** Badge bottom (−10 + 128) + 10 px gap — Figma rhythm, shifted up */
+  titleTopOffset: 128,
   /** Heading bottom y+h → subtitle frame y */
   subtitleMarginTop: 7,
   subtitleMaxWidth: 246,
@@ -127,7 +127,7 @@ export const giftCard = {
   ctaLetterSpacing: 1.6,
   /** `(342 − 246) / 2` — aligns `Container` x=48 with frame width 342 */
   overlayPaddingHorizontal: 48,
-  /** Frame height − button bottom — keeps vertical rhythm to spec */
+  /** Frame height − button bottom — keeps Figma vertical rhythm */
   overlayPaddingBottom: 26.62,
 } as const;
 
