@@ -91,25 +91,31 @@ export function FloatingTabBar() {
               onPress={() => router.push(item.href)}
               style={({ pressed }) => [
                 styles.tabPressable,
-                active && styles.tabPressableActive,
                 pressed && styles.tabPressed,
               ]}
               accessibilityRole="tab"
               accessibilityState={{ selected: active }}
               accessibilityLabel={item.label}
             >
-              <Image
-                source={{ uri: item.iconUri }}
-                style={item.iconSize}
-                contentFit="contain"
-                accessibilityIgnoresInvertColors
-              />
-              <Text
-                style={[styles.tabLabel, active ? styles.tabLabelActive : undefined]}
-                numberOfLines={1}
+              <View
+                style={[
+                  styles.tabHighlight,
+                  active && styles.tabHighlightActive,
+                ]}
               >
-                {item.label}
-              </Text>
+                <Image
+                  source={{ uri: item.iconUri }}
+                  style={item.iconSize}
+                  contentFit="contain"
+                  accessibilityIgnoresInvertColors
+                />
+                <Text
+                  style={[styles.tabLabel, active ? styles.tabLabelActive : undefined]}
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
+              </View>
             </Pressable>
           );
         })}
@@ -118,13 +124,18 @@ export function FloatingTabBar() {
   );
 }
 
-const TAB_INNER = 56;
+/** Tab column width matches highlight so the chip scales evenly on both axes. */
+const TAB_HIGHLIGHT_SIZE = 66;
+const TAB_HIGHLIGHT_RADIUS = TAB_HIGHLIGHT_SIZE / 2;
+const TAB_INNER = TAB_HIGHLIGHT_SIZE;
+const FLOATING_TAB_BAR_HEIGHT = 76;
+const TAB_BAR_HORIZONTAL_INSET = space.sm;
 
 const styles = StyleSheet.create({
   outer: {
     position: "absolute",
-    left: space.md,
-    right: space.md,
+    left: TAB_BAR_HORIZONTAL_INSET,
+    right: TAB_BAR_HORIZONTAL_INSET,
     alignItems: "center",
     zIndex: 30,
     maxWidth: layout.designWidth,
@@ -132,7 +143,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: "100%",
-    height: layout.tabBarHeight,
+    height: FLOATING_TAB_BAR_HEIGHT,
     borderRadius: radii.pill,
     flexDirection: "row",
     alignItems: "center",
@@ -141,13 +152,21 @@ const styles = StyleSheet.create({
   },
   tabPressable: {
     width: TAB_INNER,
+    alignSelf: "stretch",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  tabHighlight: {
+    width: TAB_HIGHLIGHT_SIZE,
+    height: TAB_HIGHLIGHT_SIZE,
+    borderRadius: TAB_HIGHLIGHT_RADIUS,
+    alignSelf: "center",
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
     gap: 5,
-    paddingVertical: space.sm,
-    borderRadius: radii.pill,
   },
-  tabPressableActive: {
+  tabHighlightActive: {
     backgroundColor: colors.creamHighlight,
   },
   tabPressed: {
