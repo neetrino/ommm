@@ -32,7 +32,7 @@ export function HomeScreen() {
       router.push("/classes");
       return;
     }
-    router.push("/welcome");
+    router.push("/login");
   };
 
   return (
@@ -81,14 +81,14 @@ export function HomeScreen() {
           <>
             <HomeHeroSection
               isSignedIn={false}
-              onPrimaryPress={() => router.push("/welcome")}
+              onPrimaryPress={() => router.push("/login")}
               onSecondaryPress={() => router.push("/register")}
               onPreviewPress={() => router.push("/classes")}
             />
             <HomeHighlightsSection
               onCardPress={(key: HighlightCardKey) => {
                 if (key === "schedule") {
-                  router.push("/welcome");
+                  router.push("/login");
                   return;
                 }
                 if (key === "memberships") {
@@ -103,7 +103,7 @@ export function HomeScreen() {
             </View>
             <GiftCardSection
               content={homeMock.giftCard}
-              onBuyPress={() => router.push("/welcome")}
+              onBuyPress={() => router.push("/login")}
             />
           </>
         )}

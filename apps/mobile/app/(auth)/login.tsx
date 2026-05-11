@@ -15,36 +15,24 @@ import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenSh
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
-const MIN_PASSWORD_LENGTH = 8;
-const ACCOUNT_ICON_SIZE = 56;
+const LOGIN_ICON_SIZE = 56;
 
-export default function RegisterRoute() {
+export default function LoginRoute() {
   const router = useRouter();
   const { isReady, isSignedIn, signIn } = useSession();
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
-    const name = fullName.trim();
-    if (name.length < 2) {
-      setFormError("Please enter your full name.");
-      return;
-    }
     if (!isValidEmail(email)) {
       setFormError("Please enter a valid email address.");
       return;
     }
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setFormError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
-      return;
-    }
-    if (password !== confirmPassword) {
-      setFormError("Passwords do not match.");
+    if (!password.trim()) {
+      setFormError("Please enter your password.");
       return;
     }
 
@@ -59,7 +47,7 @@ export default function RegisterRoute() {
     } finally {
       setBusy(false);
     }
-  }, [confirmPassword, email, fullName, password, router, signIn]);
+  }, [email, password, router, signIn]);
 
   if (isReady && isSignedIn) {
     return <Redirect href="/home" />;
@@ -77,33 +65,22 @@ export default function RegisterRoute() {
     <AuthScreenShell keyboardAware>
       <View style={styles.brandBlock}>
         <MaterialCommunityIcons
-          name="account-heart"
-          size={ACCOUNT_ICON_SIZE}
+          name="lock-outline"
+          size={LOGIN_ICON_SIZE}
           color={colors.primaryGreen}
           style={styles.icon}
           accessibilityIgnoresInvertColors
         />
         <Text style={styles.title} accessibilityRole="header">
-          Create account
+          Sign in
         </Text>
         <Text style={styles.lead}>
-          Join the studio to book classes, follow your schedule, and manage your
-          membership.
+          Enter your email and password to access your classes, schedule, and
+          profile.
         </Text>
       </View>
 
       <View style={styles.form}>
-        <TextInput
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Full name"
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          autoCapitalize="words"
-          autoCorrect={false}
-          textContentType="name"
-          accessibilityLabel="Full name"
-        />
         <TextInput
           value={email}
           onChangeText={setEmail}
@@ -113,7 +90,8 @@ export default function RegisterRoute() {
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
-          textContentType="emailAddress"
+          textContentType="username"
+          autoComplete="email"
           accessibilityLabel="Email"
         />
         <TextInput
@@ -123,18 +101,9 @@ export default function RegisterRoute() {
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}
           secureTextEntry
-          textContentType="newPassword"
+          textContentType="password"
+          autoComplete="password"
           accessibilityLabel="Password"
-        />
-        <TextInput
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholder="Confirm password"
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          secureTextEntry
-          textContentType="newPassword"
-          accessibilityLabel="Confirm password"
         />
 
         {formError ? <Text style={styles.formError}>{formError}</Text> : null}
@@ -148,25 +117,25 @@ export default function RegisterRoute() {
             busy && styles.submitDisabled,
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Create account and continue"
+          accessibilityLabel="Sign in and continue"
           accessibilityState={{ disabled: busy }}
         >
           {busy ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.submitLabel}>Sign up</Text>
+            <Text style={styles.submitLabel}>Sign in</Text>
           )}
         </Pressable>
       </View>
 
       <Pressable
-        onPress={() => router.replace("/login")}
+        onPress={() => router.push("/register")}
         style={({ pressed }) => [styles.linkWrap, pressed && styles.linkPressed]}
         accessibilityRole="button"
-        accessibilityLabel="Go to sign in"
+        accessibilityLabel="Create a new account"
       >
-        <Text style={styles.linkText}>Already have an account? </Text>
-        <Text style={styles.linkStrong}>Sign in</Text>
+        <Text style={styles.linkText}>New to the studio? </Text>
+        <Text style={styles.linkStrong}>Create account</Text>
       </Pressable>
     </AuthScreenShell>
   );

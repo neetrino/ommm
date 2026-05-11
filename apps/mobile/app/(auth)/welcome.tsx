@@ -1,6 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
-import { useCallback } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../src/auth/SessionProvider";
 import { AuthPillButtonStack } from "../../src/features/auth/components/AuthPillButtonStack";
@@ -12,12 +11,7 @@ const MEDITATION_ICON_SIZE = 64;
 
 export default function WelcomeRoute() {
   const router = useRouter();
-  const { isReady, isSignedIn, signIn } = useSession();
-
-  const onSignIn = useCallback(async () => {
-    await signIn();
-    router.replace("/home");
-  }, [router, signIn]);
+  const { isReady, isSignedIn } = useSession();
 
   if (isReady && isSignedIn) {
     return <Redirect href="/home" />;
@@ -51,7 +45,7 @@ export default function WelcomeRoute() {
 
       <View style={styles.actions}>
         <AuthPillButtonStack
-          onSignInPress={() => void onSignIn()}
+          onSignInPress={() => router.push("/login")}
           onCreateAccountPress={() => router.push("/register")}
         />
       </View>
