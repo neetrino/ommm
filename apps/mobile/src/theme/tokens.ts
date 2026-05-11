@@ -21,6 +21,14 @@ export const colors = {
   overlayWhite35: "rgba(255,255,255,0.35)",
   overlayWhite40: "rgba(255,255,255,0.4)",
   overlayWhite20: "rgba(255,255,255,0.2)",
+  /** Lighter frosted tint (e.g. Next class details glass). */
+  overlayWhite14: "rgba(255,255,255,0.14)",
+  overlayWhite10: "rgba(255,255,255,0.1)",
+  /** Extra-light glass base tint (read with BlurView + specular gradient). */
+  overlayWhite08: "rgba(255,255,255,0.08)",
+  /** Specular highlight for frosted “Next class” details glass. */
+  detailsGlassSheenStrong: "rgba(255,255,255,0.34)",
+  detailsGlassSheenSoft: "rgba(255,255,255,0.06)",
   overlayBlack08: "rgba(0,0,0,0.08)",
   overlayGreen20: "rgba(51,69,55,0.2)",
   studioPill: "rgba(19,19,19,0.9)",
@@ -74,6 +82,8 @@ export const space = {
 export const radii = {
   header: 40,
   card: 48,
+  /** Next-class frosted details panel — matches design (45px). */
+  detailsGlass: 45,
   cardInner: 47,
   banner: 64,
   pill: 9999,

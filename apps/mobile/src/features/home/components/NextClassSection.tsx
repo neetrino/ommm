@@ -89,7 +89,24 @@ export function NextClassSection({
       </View>
 
       <View style={styles.detailsOverlap}>
-        <BlurView intensity={28} tint="light" style={styles.detailsBlur}>
+        <BlurView
+          intensity={NEXT_CLASS_DETAILS_BLUR_INTENSITY}
+          tint="light"
+          style={styles.detailsBlur}
+        >
+          <LinearGradient
+            pointerEvents="none"
+            colors={[
+              colors.detailsGlassSheenStrong,
+              colors.detailsGlassSheenSoft,
+              "transparent",
+              "transparent",
+            ]}
+            locations={[0, 0.14, 0.36, 1]}
+            start={{ x: 0.02, y: 0.02 }}
+            end={{ x: 0.48, y: 0.4 }}
+            style={styles.detailsGlassSheen}
+          />
           <View style={styles.detailsInner}>
             <View style={styles.detailsTopRow}>
               <View style={styles.detailsTextCol}>
@@ -132,6 +149,19 @@ export function NextClassSection({
 }
 
 const CARD_HEIGHT = layout.bookingCardHeight;
+
+/**
+ * Draw frosted details further onto the hero image without changing layout
+ * (siblings keep their positions) or shrinking inner padding.
+ */
+const NEXT_CLASS_DETAILS_OVER_IMAGE =
+  space.xxl + space.md + space.sm + space.xs;
+
+/** Extra vertical padding so the frosted details panel reads slightly taller. */
+const NEXT_CLASS_DETAILS_EXTRA_VERTICAL = space.md;
+
+/** Slightly softer blur so the hero shows through the glass a bit more. */
+const NEXT_CLASS_DETAILS_BLUR_INTENSITY = 18;
 
 const styles = StyleSheet.create({
   section: {
@@ -245,16 +275,22 @@ const styles = StyleSheet.create({
     marginTop: -space.xl,
     paddingHorizontal: space.xxs,
     zIndex: 2,
+    transform: [{ translateY: -NEXT_CLASS_DETAILS_OVER_IMAGE }],
   },
   detailsBlur: {
     borderRadius: radii.card - 3,
     overflow: "hidden",
-    backgroundColor: colors.overlayWhite20,
+    backgroundColor: colors.overlayWhite08,
+  },
+  detailsGlassSheen: {
+    ...StyleSheet.absoluteFillObject,
   },
   detailsInner: {
+    position: "relative",
+    zIndex: 1,
     paddingHorizontal: space.lg - 1,
-    paddingTop: space.lg + 1,
-    paddingBottom: space.md,
+    paddingTop: space.lg + 1 + NEXT_CLASS_DETAILS_EXTRA_VERTICAL,
+    paddingBottom: space.md + NEXT_CLASS_DETAILS_EXTRA_VERTICAL,
     gap: space.sm + 4,
   },
   detailsTopRow: {
