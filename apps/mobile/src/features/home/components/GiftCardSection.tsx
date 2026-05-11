@@ -34,14 +34,6 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
           end={{ x: 0.5, y: 1 }}
         />
         <View style={styles.overlay}>
-          <View style={styles.badge}>
-            <Image
-              source={{ uri: figmaRemoteAssets.giftCardBadge }}
-              style={styles.badgeImage}
-              contentFit="cover"
-            />
-          </View>
-
           <Text style={styles.title} accessibilityRole="header">
             <Text style={styles.titlePlain}>{content.titleLead}</Text>
             <Text style={styles.titleAccent}>{content.titleAccent}</Text>
@@ -67,6 +59,14 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
             <Text style={styles.ctaLabel}>{content.ctaLabel}</Text>
           </Pressable>
         </View>
+      </View>
+
+      <View style={styles.badge} pointerEvents="none">
+        <Image
+          source={{ uri: figmaRemoteAssets.giftCardBadge }}
+          style={styles.badgeImage}
+          contentFit="cover"
+        />
       </View>
     </View>
   );
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     marginLeft: -giftCard.badgeSize / 2,
     width: giftCard.badgeSize,
     height: giftCard.badgeSize,
-    borderRadius: radii.logo,
+    borderRadius: giftCard.badgeSize / 2,
     overflow: "hidden",
   },
   badgeImage: {

@@ -107,11 +107,12 @@ export const layout = {
  * Gift card promo overlay — Figma node 1:210 (`Overlay`), frame 342×256.5 on 390pt artboard.
  */
 export const giftCard = {
-  minHeight: 256.5,
-  badgeSize: 57,
-  badgeTop: 9.88,
-  /** First baselines row (“Share Calm.”) — metadata `Heading 3` y */
-  titleTopOffset: 76.88,
+  minHeight: 287.5,
+  badgeSize: 128,
+  /** Relative to wrap top (= card top). Negative = badge overhangs above card. */
+  badgeTop: -30.12,
+  /** First baselines row (“Share Calm.”) — pushed down to clear the larger badge */
+  titleTopOffset: 107.88,
   /** Heading bottom y+h → subtitle frame y */
   subtitleMarginTop: 7,
   subtitleMaxWidth: 246,
