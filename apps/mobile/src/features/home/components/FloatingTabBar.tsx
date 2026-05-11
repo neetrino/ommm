@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { Image, type ImageSource } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useSegments, type Href } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -13,7 +13,7 @@ type TabItem = {
   key: TabKey;
   label: string;
   href: Href;
-  iconUri: string;
+  iconSource: ImageSource;
   iconSize: { width: number; height: number };
 };
 
@@ -22,35 +22,35 @@ const TAB_ITEMS: TabItem[] = [
     key: "home",
     label: "Home",
     href: "/",
-    iconUri: figmaRemoteAssets.tabHome,
+    iconSource: figmaRemoteAssets.tabHome,
     iconSize: { width: 16, height: 18 },
   },
   {
     key: "classes",
     label: "Classes",
     href: "/classes",
-    iconUri: figmaRemoteAssets.tabClasses,
+    iconSource: figmaRemoteAssets.tabClasses,
     iconSize: { width: 21, height: 21 },
   },
   {
     key: "schedule",
     label: "Schedule",
     href: "/schedule",
-    iconUri: figmaRemoteAssets.tabSchedule,
+    iconSource: figmaRemoteAssets.tabSchedule,
     iconSize: { width: 24, height: 24 },
   },
   {
     key: "plans",
     label: "Plans",
     href: "/plans",
-    iconUri: figmaRemoteAssets.tabPlans,
+    iconSource: figmaRemoteAssets.tabPlans,
     iconSize: { width: 22, height: 22 },
   },
   {
     key: "profile",
     label: "Profile",
     href: "/profile",
-    iconUri: figmaRemoteAssets.tabProfile,
+    iconSource: figmaRemoteAssets.tabProfile,
     iconSize: { width: 28, height: 23 },
   },
 ];
@@ -104,7 +104,7 @@ export function FloatingTabBar() {
                 ]}
               >
                 <Image
-                  source={{ uri: item.iconUri }}
+                  source={item.iconSource}
                   style={item.iconSize}
                   contentFit="contain"
                   accessibilityIgnoresInvertColors

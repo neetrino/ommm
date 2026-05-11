@@ -23,7 +23,7 @@ export function AppHeader({ onBookPress }: AppHeaderProps) {
           <View style={styles.logoSlot}>
             <View style={styles.logoWrap} accessibilityLabel="Ommm logo">
               <Image
-                source={{ uri: figmaRemoteAssets.brandMark }}
+                source={figmaRemoteAssets.brandMark}
                 style={styles.logo}
                 contentFit="cover"
                 accessibilityIgnoresInvertColors

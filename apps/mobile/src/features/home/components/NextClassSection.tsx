@@ -54,7 +54,7 @@ export function NextClassSection({
 
         <View style={[styles.mainCard, shadows.bookingCard]}>
           <Image
-            source={{ uri: figmaRemoteAssets.bookingHero }}
+            source={figmaRemoteAssets.bookingHero}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             accessibilityIgnoresInvertColors
@@ -79,7 +79,7 @@ export function NextClassSection({
               accessibilityLabel="Open class details"
             >
               <Image
-                source={{ uri: figmaRemoteAssets.iconArrowOut }}
+                source={figmaRemoteAssets.iconArrowOut}
                 style={styles.arrowIcon}
                 contentFit="contain"
               />

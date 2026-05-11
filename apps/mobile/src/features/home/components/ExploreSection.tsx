@@ -27,7 +27,7 @@ function resolveExploreImageSource(
 ): ImageSource {
   return key === "explorePilates"
     ? exploreBundledAssets.pilates1_202
-    : { uri: figmaRemoteAssets.exploreRetreat };
+    : figmaRemoteAssets.exploreRetreat;
 }
 
 type ExploreTileColumnProps = {
@@ -191,7 +191,7 @@ export function ExploreSection({
       <View style={styles.featured}>
         <View style={[styles.heroImageWrap, shadows.exploreHero]}>
           <Image
-            source={{ uri: figmaRemoteAssets.exploreFeatured }}
+            source={figmaRemoteAssets.exploreFeatured}
             style={styles.heroImage}
             contentFit="cover"
             accessibilityLabel="Wellness journal feature"
@@ -200,7 +200,7 @@ export function ExploreSection({
 
         <View style={styles.labelCard}>
           <Image
-            source={{ uri: figmaRemoteAssets.overlayGradient }}
+            source={figmaRemoteAssets.overlayGradient}
             style={styles.labelGradient}
             contentFit="fill"
             pointerEvents="none"
@@ -228,7 +228,7 @@ export function ExploreSection({
                 style={styles.playGradient}
               >
                 <Image
-                  source={{ uri: figmaRemoteAssets.iconPlay }}
+                  source={figmaRemoteAssets.iconPlay}
                   style={styles.playIcon}
                   contentFit="contain"
                 />

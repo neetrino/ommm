@@ -63,7 +63,7 @@ export function GiftCardSection({ content, onBuyPress }: GiftCardSectionProps) {
 
       <View style={styles.badge} pointerEvents="none">
         <Image
-          source={{ uri: figmaRemoteAssets.giftCardBadge }}
+          source={figmaRemoteAssets.giftCardBadge}
           style={styles.badgeImage}
           contentFit="cover"
         />

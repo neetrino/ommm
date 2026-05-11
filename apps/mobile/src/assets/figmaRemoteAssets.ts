@@ -1,23 +1,19 @@
 /**
- * Remote image URLs from Figma MCP export (node 1:125).
- * These URLs expire after ~7 days; replace with bundled assets under `assets/` for production.
- * @see MOBILE_SETUP.md — Figma assets section
+ * Bundled images exported from Figma (previously temporary MCP asset URLs).
+ * Raster files live under `assets/images/`.
  */
 export const figmaRemoteAssets = {
-  bookingHero: "https://www.figma.com/api/mcp/asset/eefc7856-fb6d-45e2-b128-eed573c24f1e",
-  exploreFeatured: "https://www.figma.com/api/mcp/asset/87645628-d910-443e-a38d-a051241a003f",
-  /** Node 1:194 — retreat tile visual */
-  exploreRetreat: "https://www.figma.com/api/mcp/asset/d0fe7d5b-2342-4e98-8e7c-6aeb0fee4be7",
-  brandMark: "https://www.figma.com/api/mcp/asset/e0a2ea47-1d08-4b32-a934-88fcb8c7462b",
-  /** Node 1:217 — gift overlay badge (same export as design node 1:210) */
-  giftCardBadge:
-    "https://www.figma.com/api/mcp/asset/cafc4ee7-5c00-46f4-a96d-94f49503ddb1",
-  iconArrowOut: "https://www.figma.com/api/mcp/asset/5c59c948-d2db-4f07-acbf-0866a1931d0e",
-  iconPlay: "https://www.figma.com/api/mcp/asset/2ff2cfb4-2ce2-4709-b29b-bc284fa372c8",
-  overlayGradient: "https://www.figma.com/api/mcp/asset/b160d4ef-840a-4474-9ed3-fbb80a3f02f3",
-  tabHome: "https://www.figma.com/api/mcp/asset/438b1a79-b549-4052-b0ef-448211112a7d",
-  tabClasses: "https://www.figma.com/api/mcp/asset/c2a5bd3d-f5e1-445c-bae0-4f9ad68232f9",
-  tabSchedule: "https://www.figma.com/api/mcp/asset/803670d0-3680-4d65-8973-1eb4a38b3fbf",
-  tabPlans: "https://www.figma.com/api/mcp/asset/014441db-f9c4-46e9-a7aa-fdd45bedfe3d",
-  tabProfile: "https://www.figma.com/api/mcp/asset/4836acb0-4faf-49a4-ac96-39c9eec77adc",
+  bookingHero: require("../../assets/images/booking-hero.png"),
+  exploreFeatured: require("../../assets/images/explore-featured.jpg"),
+  exploreRetreat: require("../../assets/images/explore-retreat.jpg"),
+  brandMark: require("../../assets/images/brand-mark.png"),
+  giftCardBadge: require("../../assets/images/gift-card-badge.png"),
+  iconArrowOut: require("../../assets/images/icon-arrow-out.png"),
+  iconPlay: require("../../assets/images/icon-play.png"),
+  overlayGradient: require("../../assets/images/overlay-gradient.png"),
+  tabHome: require("../../assets/images/tab-home.png"),
+  tabClasses: require("../../assets/images/tab-classes.png"),
+  tabSchedule: require("../../assets/images/tab-schedule.png"),
+  tabPlans: require("../../assets/images/tab-plans.png"),
+  tabProfile: require("../../assets/images/tab-profile.png"),
 } as const;
