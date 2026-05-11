@@ -13,15 +13,6 @@ import { exploreBundledAssets } from "../../../assets/exploreBundledAssets";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
 import { fontFamilies } from "../../../theme/fontFamilies";
-
-/** Subtle frosted glass over the featured hero; keeps imagery visible. */
-const EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY = 15;
-
-/** Base tint under blur (Android / fallback + readability on busy photos). */
-const EXPLORE_JOURNAL_GLASS_BASE = "rgba(28, 36, 42, 0.34)" as const;
-
-/** Very subtle white lift on top of the glass (keeps calm, premium read). */
-const EXPLORE_JOURNAL_GLASS_WHITE_VEIL = "rgba(255, 255, 255, 0.06)" as const;
 import {
   colors,
   exploreTile,
@@ -31,6 +22,9 @@ import {
   space,
   typography,
 } from "../../../theme/tokens";
+
+/** Aligned with Next Class details glass (“Today / Studio / instructor”). */
+const EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY = 18;
 
 type ExploreSectionProps = {
   journalEyebrow: string;
@@ -218,23 +212,20 @@ export function ExploreSection({
         <View style={styles.labelCardOuter}>
           <BlurView
             intensity={EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY}
-            tint="dark"
+            tint="light"
             style={styles.labelBlur}
           >
-            <View
-              pointerEvents="none"
-              style={styles.labelWhiteVeil}
-            />
             <LinearGradient
               pointerEvents="none"
               colors={[
-                "rgba(255,255,255,0.16)",
-                "rgba(255,255,255,0.05)",
+                colors.detailsGlassSheenStrong,
+                colors.detailsGlassSheenSoft,
+                "transparent",
                 "transparent",
               ]}
-              locations={[0, 0.22, 0.55]}
-              start={{ x: 0.08, y: 0 }}
-              end={{ x: 0.92, y: 1 }}
+              locations={[0, 0.14, 0.36, 1]}
+              start={{ x: 0.02, y: 0.02 }}
+              end={{ x: 0.48, y: 0.4 }}
               style={styles.labelGlassSheen}
             />
             <View style={styles.labelInner}>
@@ -337,13 +328,13 @@ const styles = StyleSheet.create({
     borderRadius: radii.labelCard,
     ...Platform.select({
       ios: {
-        shadowColor: "#c5d4e8",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.42,
-        shadowRadius: 20,
+        shadowColor: "#d8e4ef",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.38,
+        shadowRadius: 18,
       },
       android: {
-        elevation: 12,
+        elevation: 10,
       },
       default: {},
     }),
@@ -351,16 +342,12 @@ const styles = StyleSheet.create({
   labelBlur: {
     borderRadius: radii.labelCard,
     overflow: "hidden",
-    backgroundColor: EXPLORE_JOURNAL_GLASS_BASE,
+    backgroundColor: colors.overlayWhite08,
     borderWidth: 1,
     borderColor: colors.glassBorder,
   },
   labelGlassSheen: {
     ...StyleSheet.absoluteFillObject,
-  },
-  labelWhiteVeil: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: EXPLORE_JOURNAL_GLASS_WHITE_VEIL,
   },
   labelInner: {
     position: "relative",
@@ -383,25 +370,19 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     lineHeight: 16,
     letterSpacing: 1.2,
-    color: colors.white,
+    color: colors.ink,
     textTransform: "uppercase",
-    textShadowColor: "rgba(0,0,0,0.4)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 5,
   },
   journalTitle: {
     fontFamily: fontFamilies.newsreader.regular,
     fontSize: typography.body,
     lineHeight: 24,
-    color: colors.white,
-    textShadowColor: "rgba(0,0,0,0.45)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 8,
+    color: colors.black,
   },
   playButton: {
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: colors.white,
+    borderColor: colors.overlayBlack08,
     overflow: "hidden",
   },
   playButtonPressed: {

@@ -163,6 +163,9 @@ const NEXT_CLASS_DETAILS_EXTRA_VERTICAL = space.md;
 /** Slightly softer blur so the hero shows through the glass a bit more. */
 const NEXT_CLASS_DETAILS_BLUR_INTENSITY = 18;
 
+/** Horizontal inset of frosted panel inside the card; lower = slightly wider glass. */
+const NEXT_CLASS_DETAILS_SIDE_INSET = 0;
+
 const styles = StyleSheet.create({
   section: {
     paddingHorizontal: space.screenHorizontal,
@@ -273,7 +276,7 @@ const styles = StyleSheet.create({
   },
   detailsOverlap: {
     marginTop: -space.xl,
-    paddingHorizontal: space.xxs,
+    paddingHorizontal: NEXT_CLASS_DETAILS_SIDE_INSET,
     zIndex: 2,
     transform: [{ translateY: -NEXT_CLASS_DETAILS_OVER_IMAGE }],
   },
