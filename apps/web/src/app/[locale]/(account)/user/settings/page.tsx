@@ -1,9 +1,12 @@
 import { headers } from "next/headers";
+import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
+import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
 import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
 import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -12,6 +15,7 @@ type MeResponse = {
     name: string | null;
     phone: string | null;
     locale: string;
+    homeImageUrl?: string | null;
   };
   notificationPrefs: {
     bookingReminders: boolean;
@@ -21,7 +25,7 @@ type MeResponse = {
   };
 };
 
-export default async function AccountSettingsPage() {
+export default async function UserSettingsPage() {
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeResponse>("/users/me", cookie);
 
@@ -34,11 +38,12 @@ export default async function AccountSettingsPage() {
   }
 
   const { user, notificationPrefs } = res.data;
+  const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null);
 
   return (
     <AccountPageFrame
       title="Settings"
-      description="Profile changes can be wired to PATCH /users/me in a follow-up; email is read-only here."
+      description="Manage your profile, password, home image, and notification preferences."
     >
       <div className="max-w-4xl space-y-10">
         <AccountSection title="Profile">
@@ -60,6 +65,14 @@ export default async function AccountSettingsPage() {
               <dd className="text-sage-700">{user.locale}</dd>
             </div>
           </dl>
+        </AccountSection>
+
+        <AccountSection title="Password">
+          <AccountChangePasswordForm />
+        </AccountSection>
+
+        <AccountSection title="Home image">
+          <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
         </AccountSection>
 
         <AccountSection title="Notifications">

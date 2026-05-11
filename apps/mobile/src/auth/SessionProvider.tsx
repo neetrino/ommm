@@ -16,6 +16,7 @@ import {
   type AuthUserSummary,
 } from "../lib/api/authClient";
 import { getApiBaseUrl } from "../lib/api/config";
+import { resolveApiAssetUrl } from "../lib/api/assetUrl";
 import {
   clearStoredAccessToken,
   persistAccessToken,
@@ -28,10 +29,15 @@ import { sessionGreetingDisplayName } from "./sessionGreetingDisplayName";
 type SessionContextValue = {
   isReady: boolean;
   isSignedIn: boolean;
+  /** API role string when signed in (e.g. `USER`, `ADMIN`). */
+  role: string | null;
   /** Default home for the current role; meaningful when `isSignedIn`. */
   homeHref: string;
   /** Greeting line (name or email local-part); empty when signed out. */
   userGreetingName: string;
+  /** Resolved absolute URI for custom Home image, or null. */
+  homeImageUri: string | null;
+  refreshProfile: () => Promise<void>;
   establishSession: (accessToken: string, user?: AuthUserSummary) => Promise<void>;
   signInWithPassword: (email: string, password: string) => Promise<string>;
   registerAccount: (params: {
@@ -128,6 +134,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [establishSession],
   );
 
+  const refreshProfile = useCallback(async () => {
+    const token = await readStoredAccessToken();
+    if (token === null) {
+      return;
+    }
+    try {
+      const user = await fetchSessionUser(token);
+      setSessionProfile(user);
+    } catch {
+      await clearStoredAccessToken();
+      setSessionProfile(null);
+      setIsSignedIn(false);
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     const token = await readStoredAccessToken();
     if (token !== null) {
@@ -154,12 +175,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [sessionProfile],
   );
 
+  const homeImageUri = useMemo(() => {
+    if (sessionProfile === null) {
+      return null;
+    }
+    return resolveApiAssetUrl(getApiBaseUrl(), sessionProfile.homeImageUrl);
+  }, [sessionProfile]);
+
+  const role = useMemo(
+    () => (sessionProfile === null ? null : sessionProfile.role),
+    [sessionProfile],
+  );
+
   const value = useMemo<SessionContextValue>(
     () => ({
       isReady,
       isSignedIn,
+      role,
       homeHref,
       userGreetingName,
+      homeImageUri,
+      refreshProfile,
       establishSession,
       signInWithPassword,
       registerAccount,
@@ -168,9 +204,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [
       establishSession,
       homeHref,
+      homeImageUri,
       isReady,
       isSignedIn,
+      refreshProfile,
       registerAccount,
+      role,
       signInWithPassword,
       signOut,
       userGreetingName,

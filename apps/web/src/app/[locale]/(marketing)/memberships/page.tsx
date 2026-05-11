@@ -84,7 +84,7 @@ export default async function MembershipsMarketingPage({
                       {m("membershipsSubscribeCta")}
                     </Link>
                     <Link
-                      href="/account/memberships"
+                      href="/user/memberships"
                       className="ommm-cta-ghost flex-1 text-center"
                     >
                       {m("membershipsAccountCta")}

@@ -5,10 +5,10 @@ import { HomeScreen } from "../../src/features/home/screens/HomeScreen";
 import { colors } from "../../src/theme/tokens";
 
 /**
- * Public marketing home at `/home`. Signed-in members use `/user/home`.
+ * Public marketing home at `/home`. Signed-in users redirect to their role home (`homeHref`).
  */
 export default function PublicHomeRoute() {
-  const { isReady, isSignedIn } = useSession();
+  const { isReady, isSignedIn, homeHref } = useSession();
 
   if (!isReady) {
     return (
@@ -19,7 +19,7 @@ export default function PublicHomeRoute() {
   }
 
   if (isSignedIn) {
-    return <Redirect href="/user/home" />;
+    return <Redirect href={homeHref} />;
   }
 
   return <HomeScreen />;

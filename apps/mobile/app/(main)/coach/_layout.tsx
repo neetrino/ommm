@@ -1,11 +1,11 @@
-import { Redirect } from "expo-router";
+import { Redirect, Slot } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { useSession } from "../../src/auth/SessionProvider";
-import { ProfileScreen } from "../../src/features/profile/ProfileScreen";
-import { colors } from "../../src/theme/tokens";
+import { useSession } from "../../../src/auth/SessionProvider";
+import { homeHrefForRole } from "../../../src/auth/roleHome";
+import { colors } from "../../../src/theme/tokens";
 
-export default function ProfileRoute() {
-  const { isReady, isSignedIn } = useSession();
+export default function CoachRouteGroupLayout() {
+  const { isReady, isSignedIn, role } = useSession();
 
   if (!isReady) {
     return (
@@ -19,7 +19,11 @@ export default function ProfileRoute() {
     return <Redirect href="/home" />;
   }
 
-  return <ProfileScreen />;
+  if (role !== "COACH") {
+    return <Redirect href={homeHrefForRole(role ?? "USER")} />;
+  }
+
+  return <Slot />;
 }
 
 const styles = StyleSheet.create({

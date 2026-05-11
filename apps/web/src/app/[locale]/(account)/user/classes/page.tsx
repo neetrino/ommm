@@ -19,7 +19,7 @@ type SessionRow = {
   _count: { bookings: number };
 };
 
-export default async function AccountClassesPage({
+export default async function UserClassesPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -94,7 +94,7 @@ export default async function AccountClassesPage({
         )}
       </ul>
       <p className="ommm-body-muted mt-8 max-w-4xl text-sm">
-        <Link href="/account/bookings" className="ommm-link-sage">
+        <Link href="/user/bookings" className="ommm-link-sage">
           My bookings
         </Link>
       </p>

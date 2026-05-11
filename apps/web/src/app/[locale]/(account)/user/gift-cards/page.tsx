@@ -17,7 +17,7 @@ type GiftRow = {
   recipientName: string | null;
 };
 
-export default async function AccountGiftCardsPage() {
+export default async function UserGiftCardsPage() {
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [purchasedRes, receivedRes, meRes] = await Promise.all([

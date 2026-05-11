@@ -1,0 +1,36 @@
+import { Redirect, Slot } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useSession } from "../../../src/auth/SessionProvider";
+import { homeHrefForRole } from "../../../src/auth/roleHome";
+import { colors } from "../../../src/theme/tokens";
+
+export default function AdminRouteGroupLayout() {
+  const { isReady, isSignedIn, role } = useSession();
+
+  if (!isReady) {
+    return (
+      <View style={styles.boot}>
+        <ActivityIndicator size="large" color={colors.taupe} />
+      </View>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href="/home" />;
+  }
+
+  if (role !== "ADMIN" && role !== "CONTENT_ADMIN") {
+    return <Redirect href={homeHrefForRole(role ?? "USER")} />;
+  }
+
+  return <Slot />;
+}
+
+const styles = StyleSheet.create({
+  boot: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.canvas,
+  },
+});

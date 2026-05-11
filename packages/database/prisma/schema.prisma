@@ -86,6 +86,8 @@ model User {
   name           String?
   dateOfBirth    DateTime?
   avatarUrl      String?
+  /** Public path to custom Home banner image, e.g. `/v1/uploads/user-home/...` */
+  homeImageUrl   String?
   role           Role      @default(USER)
   emailVerified  DateTime?
   locale           String    @default("hy")

@@ -21,7 +21,7 @@ export async function MarketingSiteFooter() {
         { href: "/explore", label: tNav("explore") },
         { href: "/contact", label: tNav("contact") },
         { href: "/login", label: tCommon("login") },
-        { href: "/account", label: tCommon("account") },
+        { href: "/user/home", label: tCommon("account") },
       ],
     },
   ];

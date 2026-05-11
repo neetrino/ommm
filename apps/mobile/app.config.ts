@@ -38,7 +38,16 @@ const config: ExpoConfig = {
   web: {
     favicon: "./assets/favicon.png",
   },
-  plugins: ["expo-router"],
+  plugins: [
+    "expo-router",
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "Allow Ommm to access your photos so you can choose a Home screen image.",
+      },
+    ],
+  ],
 };
 
 export default config;

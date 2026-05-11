@@ -1,12 +1,42 @@
-import { Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { randomUUID } from "node:crypto";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { Express } from "express";
 import { sanitizeUser } from "../auth/auth.service";
+import { hashPassword, verifyPassword } from "../common/password-crypto";
 import { PrismaService } from "../prisma/prisma.service";
+import {
+  ALLOWED_HOME_IMAGE_MIMES,
+  MIME_TO_EXT,
+} from "./constants/home-image.constants";
+import type { ChangePasswordDto } from "./dto/change-password.dto";
 import type { NotificationPrefsDto } from "./dto/notification-prefs.dto";
 import type { UpdateProfileDto } from "./dto/update-profile.dto";
+import { absolutePathForStoredUpload } from "./user-upload.helpers";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(UsersService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
+
+  private get uploadRoot(): string {
+    const raw = this.config.get<string>("UPLOAD_DIR");
+    if (raw !== undefined && raw.trim() !== "") {
+      return raw.trim();
+    }
+    return join(process.cwd(), "uploads");
+  }
 
   async getMe(userId: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
@@ -88,5 +118,92 @@ export class UsersService {
       },
     });
     return this.getMe(userId);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    if (dto.newPassword !== dto.confirmNewPassword) {
+      throw new BadRequestException("New passwords do not match");
+    }
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { passwordHash: true },
+    });
+    if (!user.passwordHash) {
+      throw new BadRequestException(
+        "Password sign-in is not enabled for this account",
+      );
+    }
+    const currentOk = await verifyPassword(
+      user.passwordHash,
+      dto.currentPassword,
+    );
+    if (!currentOk) {
+      throw new UnauthorizedException("Current password is incorrect");
+    }
+    const passwordHash = await hashPassword(dto.newPassword);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+    return { message: "Password updated successfully" };
+  }
+
+  async saveHomeImage(userId: string, file: Express.Multer.File) {
+    if (!ALLOWED_HOME_IMAGE_MIMES.has(file.mimetype)) {
+      throw new BadRequestException(
+        "Only JPG, JPEG, PNG, or WEBP images are allowed",
+      );
+    }
+    const ext = MIME_TO_EXT[file.mimetype];
+    if (!ext) {
+      throw new BadRequestException("Invalid image type");
+    }
+    const buf = file.buffer;
+    if (!buf?.length) {
+      throw new BadRequestException("Image file is required");
+    }
+
+    const prev = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { homeImageUrl: true },
+    });
+
+    const dir = join(this.uploadRoot, "user-home", userId);
+    await mkdir(dir, { recursive: true });
+    const filename = `${randomUUID()}.${ext}`;
+    const diskPath = join(dir, filename);
+    await writeFile(diskPath, buf);
+
+    const publicPath = `/v1/uploads/user-home/${userId}/${filename}`;
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { homeImageUrl: publicPath },
+    });
+
+    if (prev.homeImageUrl && prev.homeImageUrl !== publicPath) {
+      await this.safeUnlinkStored(prev.homeImageUrl);
+    }
+
+    const fresh = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+    return {
+      user: sanitizeUser(fresh),
+      message: "Home image updated successfully",
+    };
+  }
+
+  private async safeUnlinkStored(storedPublicPath: string): Promise<void> {
+    const abs = absolutePathForStoredUpload(this.uploadRoot, storedPublicPath);
+    if (!abs) {
+      return;
+    }
+    try {
+      await unlink(abs);
+    } catch (err) {
+      this.logger.warn(
+        `Could not remove old upload file (${storedPublicPath}): ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 }

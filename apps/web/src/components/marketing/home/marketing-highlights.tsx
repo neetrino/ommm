@@ -8,7 +8,7 @@ export async function MarketingHighlights() {
     {
       title: m("featureScheduleTitle"),
       body: m("featureScheduleBody"),
-      href: "/account/classes" as const,
+      href: "/user/classes" as const,
     },
     {
       title: m("featureMembershipsTitle"),

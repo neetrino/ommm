@@ -9,6 +9,8 @@ export type AuthUserSummary = {
   role: string;
   email: string;
   name: string | null;
+  /** Public path or absolute URL for custom Home banner; null if unset. */
+  homeImageUrl: string | null;
 };
 
 export type AuthSuccessResponse = {
@@ -16,7 +18,7 @@ export type AuthSuccessResponse = {
   user: AuthUserSummary;
 };
 
-function extractErrorMessage(text: string, fallback: string): string {
+export function extractErrorMessage(text: string, fallback: string): string {
   if (text.trim() === "") {
     return fallback;
   }
@@ -46,10 +48,34 @@ function isAuthUserSummary(value: unknown): value is AuthUserSummary {
   if (typeof u.role !== "string" || typeof u.email !== "string") {
     return false;
   }
-  if (u.name === null || u.name === undefined) {
-    return true;
+  if (u.name !== null && u.name !== undefined && typeof u.name !== "string") {
+    return false;
   }
-  return typeof u.name === "string";
+  if (
+    u.homeImageUrl !== null &&
+    u.homeImageUrl !== undefined &&
+    typeof u.homeImageUrl !== "string"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function mapAuthUser(u: {
+  role: string;
+  email: string;
+  name: string | null;
+  homeImageUrl?: string | null;
+}): AuthUserSummary {
+  return {
+    role: u.role,
+    email: u.email,
+    name: u.name ?? null,
+    homeImageUrl:
+      u.homeImageUrl === undefined || u.homeImageUrl === null
+        ? null
+        : u.homeImageUrl,
+  };
 }
 
 function isAuthSuccessResponse(value: unknown): value is AuthSuccessResponse {
@@ -90,7 +116,7 @@ function apiUnreachableMessage(apiBase: string, originalMessage: string): string
   ].join("\n");
 }
 
-async function fetchWithReachabilityHint(
+export async function fetchWithReachabilityHint(
   url: string,
   init: RequestInit,
   apiBase: string,
@@ -134,11 +160,12 @@ async function postAuth(path: string, body: unknown): Promise<AuthSuccessRespons
   const u = parsed.user;
   return {
     accessToken: parsed.accessToken,
-    user: {
+    user: mapAuthUser({
       role: u.role,
       email: u.email,
       name: u.name ?? null,
-    },
+      homeImageUrl: u.homeImageUrl ?? null,
+    }),
   };
 }
 
@@ -214,9 +241,10 @@ export async function fetchSessionUser(accessToken: string): Promise<AuthUserSum
   if (!isAuthUserSummary(u)) {
     throw new Error("Unexpected session response");
   }
-  return {
+  return mapAuthUser({
     role: u.role,
     email: u.email,
     name: u.name ?? null,
-  };
+    homeImageUrl: (u as { homeImageUrl?: string | null }).homeImageUrl ?? null,
+  });
 }

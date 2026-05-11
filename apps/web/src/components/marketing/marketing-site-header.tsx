@@ -80,7 +80,7 @@ export function MarketingSiteHeader() {
           >
             {tCommon("login")}
           </Link>
-          <Link href="/account/classes" className="ommm-cta-primary">
+          <Link href="/user/classes" className="ommm-cta-primary">
             {tHome("bookNow")}
           </Link>
         </div>
@@ -138,7 +138,7 @@ export function MarketingSiteHeader() {
         </nav>
         <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
           <Link
-            href="/account/classes"
+            href="/user/classes"
             className="ommm-cta-primary w-full"
             onClick={() => setOpen(false)}
           >

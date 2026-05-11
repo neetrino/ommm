@@ -15,7 +15,7 @@ type BookingRow = {
   };
 };
 
-export default async function AccountBookingsPage({
+export default async function UserBookingsPage({
   params,
 }: {
   params: Promise<{ locale: string }>;

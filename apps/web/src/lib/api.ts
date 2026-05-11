@@ -32,6 +32,29 @@ function extractErrorMessage(text: string, fallback: string): string {
   return text;
 }
 
+export async function apiFetchFormData<T>(
+  path: string,
+  formData: FormData,
+  method: "POST" | "PATCH" = "POST",
+): Promise<T> {
+  const res = await fetch(`${API_PREFIX}${path}`, {
+    method,
+    body: formData,
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new ApiError(
+      extractErrorMessage(text, res.statusText),
+      res.status,
+    );
+  }
+  return (text ? JSON.parse(text) : {}) as T;
+}
+
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit,

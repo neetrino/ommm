@@ -23,6 +23,8 @@ type AchievementRow = { title: string; unlockedAt: string };
 export type MemberDashboardProps = {
   locale: string;
   displayName: string;
+  /** Absolute URL for optional member-only Home hero image. */
+  homeImageSrc?: string | null;
   nextBooking: NextBooking | null;
   waitlistOk: boolean;
   waitlistRows: WaitlistRow[];
@@ -49,6 +51,7 @@ function minutesBetween(startIso: string, endIso: string): number {
 export async function MemberDashboard({
   locale,
   displayName,
+  homeImageSrc,
   nextBooking,
   waitlistOk,
   waitlistRows,
@@ -59,7 +62,7 @@ export async function MemberDashboard({
   const shortName = shortFirstName(displayName);
   const initial = memberInitial(shortName || displayName);
 
-  const nextHref = "/account/classes";
+  const nextHref = "/user/classes";
   const nextImage = "/marketing/home/next-class.jpg";
 
   const waitlistItems = waitlistOk
@@ -98,6 +101,17 @@ export async function MemberDashboard({
         </div>
 
         <div className="relative space-y-12 pb-[clamp(3rem,6vw,5.5rem)] sm:space-y-14 lg:space-y-16">
+          {homeImageSrc ? (
+            <div className="relative mx-auto w-full max-w-[420px] overflow-hidden rounded-[28px] border border-white/70 shadow-[0_24px_80px_-40px_rgba(51,69,55,0.35)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={homeImageSrc}
+                alt=""
+                className="aspect-[4/5] w-full object-cover"
+              />
+            </div>
+          ) : null}
+
           <div className="grid w-full grid-cols-1 items-center gap-10 pb-2 pt-8 sm:gap-12 sm:pt-10 lg:grid-cols-12 lg:gap-14 lg:pt-12">
           <div className="lg:col-span-7">
             <div className="flex items-center gap-4">
@@ -122,10 +136,10 @@ export async function MemberDashboard({
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link href="/account/classes" className="ommm-cta-primary">
+              <Link href="/user/classes" className="ommm-cta-primary">
                 {t("primaryCta")}
               </Link>
-              <Link href="/account/memberships" className="ommm-cta-ghost">
+              <Link href="/user/memberships" className="ommm-cta-ghost">
                 {t("secondaryCta")}
               </Link>
             </div>

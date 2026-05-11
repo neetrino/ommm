@@ -23,6 +23,9 @@ coverage/
 apps/web/test-results/
 apps/web/playwright-report/
 
+# API local uploads (user home images)
+apps/api/uploads/
+
 # Logs and temp
 *.log
 npm-debug.log*

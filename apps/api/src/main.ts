@@ -1,6 +1,9 @@
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import helmet from 'helmet';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
@@ -20,7 +23,10 @@ function resolvePort(): number {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const uploadsDir = join(process.cwd(), 'uploads');
+  mkdirSync(uploadsDir, { recursive: true });
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true,
     bufferLogs: true,
   });
@@ -34,6 +40,10 @@ async function bootstrap() {
   app.enableCors({
     origin: createNestCorsOriginDelegate(),
     credentials: true,
+  });
+  app.useStaticAssets(uploadsDir, {
+    prefix: '/v1/uploads/',
+    index: false,
   });
   app.setGlobalPrefix(API_GLOBAL_PREFIX);
   app.useGlobalPipes(

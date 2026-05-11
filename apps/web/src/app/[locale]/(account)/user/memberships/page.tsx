@@ -34,7 +34,7 @@ type PaymentRow = {
   createdAt: string;
 };
 
-export default async function AccountMembershipsPage() {
+export default async function UserMembershipsPage() {
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [plansRes, mineRes, payRes] = await Promise.all([

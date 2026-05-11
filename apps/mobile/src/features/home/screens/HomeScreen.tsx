@@ -3,6 +3,10 @@ import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSession } from "../../../auth/SessionProvider";
+import {
+  guestPublicTabPath,
+  userMemberPath,
+} from "../../../navigation/memberPaths";
 import { homeMock } from "../../../lib/mocks/homeMock";
 import { colors, gradients, layout, space } from "../../../theme/tokens";
 import { AppHeader } from "../components/AppHeader";
@@ -15,13 +19,14 @@ import {
   HomeHighlightsSection,
 } from "../components/HomeHighlightsSection";
 import { NextClassSection } from "../components/NextClassSection";
+import { UserHomeImageBanner } from "../components/UserHomeImageBanner";
 import { UserGreetingSection } from "../components/UserGreetingSection";
 import { WaitlistSection } from "../components/WaitlistSection";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { isSignedIn, userGreetingName } = useSession();
+  const { isSignedIn, userGreetingName, homeImageUri } = useSession();
 
   const headerOffset = insets.top + 90;
   const bottomPad =
@@ -29,7 +34,7 @@ export function HomeScreen() {
 
   const onHeaderBookPress = () => {
     if (isSignedIn) {
-      router.push("/classes");
+      router.push(userMemberPath("classes"));
       return;
     }
     router.push("/login");
@@ -59,11 +64,12 @@ export function HomeScreen() {
       >
         {isSignedIn ? (
           <>
+            <UserHomeImageBanner uri={homeImageUri} />
             <UserGreetingSection displayName={userGreetingName} />
             <NextClassSection
               content={homeMock.nextClass}
-              onAllEventsPress={() => router.push("/schedule")}
-              onOpenClassPress={() => router.push("/classes")}
+              onAllEventsPress={() => router.push(userMemberPath("schedule"))}
+              onOpenClassPress={() => router.push(userMemberPath("classes"))}
             />
             <WaitlistSection items={[...homeMock.waitlist]} />
             <ExploreSection
@@ -71,10 +77,10 @@ export function HomeScreen() {
               journalTitle={homeMock.explore.journalTitle}
               tiles={[...homeMock.explore.tiles]}
             />
-            <ExploreMoreButton onPress={() => router.push("/classes")} />
+            <ExploreMoreButton onPress={() => router.push(userMemberPath("classes"))} />
             <GiftCardSection
               content={homeMock.giftCard}
-              onBuyPress={() => router.push("/plans")}
+              onBuyPress={() => router.push(userMemberPath("plans"))}
             />
           </>
         ) : (
@@ -92,14 +98,16 @@ export function HomeScreen() {
                   return;
                 }
                 if (key === "memberships") {
-                  router.push("/plans");
+                  router.push(guestPublicTabPath.plans);
                   return;
                 }
-                router.push("/classes");
+                router.push(guestPublicTabPath.classes);
               }}
             />
             <View style={styles.guestExploreWrap}>
-              <ExploreMoreButton onPress={() => router.push("/classes")} />
+              <ExploreMoreButton
+                onPress={() => router.push(guestPublicTabPath.classes)}
+              />
             </View>
             <GiftCardSection
               content={homeMock.giftCard}

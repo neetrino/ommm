@@ -11,6 +11,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLogoutAction } from "../../auth/useLogoutAction";
 import { GradientBackdrop } from "../../components/layout/GradientBackdrop";
+import { ProfileChangePasswordSection } from "./components/ProfileChangePasswordSection";
+import { ProfileHomeImageSection } from "./components/ProfileHomeImageSection";
 import { fontFamilies } from "../../theme/fontFamilies";
 import { colors, layout, radii, space, typography } from "../../theme/tokens";
 
@@ -41,6 +43,10 @@ export function ProfileScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Profile</Text>
+
+        <ProfileChangePasswordSection />
+
+        <ProfileHomeImageSection />
 
         <View style={styles.logoutSpacer} />
 
@@ -83,7 +89,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: space.screenHorizontal,
     paddingTop: space.xxl,
-    gap: space.lg,
+    gap: space.xl,
   },
   title: {
     fontFamily: fontFamilies.newsreader.semiBoldItalic,
@@ -93,7 +99,7 @@ const styles = StyleSheet.create({
   },
   logoutSpacer: {
     flexGrow: 1,
-    minHeight: space.lg,
+    minHeight: space.md,
   },
   logoutButton: {
     alignSelf: "stretch",

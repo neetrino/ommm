@@ -1,47 +1,32 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, useSegments, type Href } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSession } from "../../../auth/SessionProvider";
+import {
+  type RoleTabItem,
+  tabItemsForRole,
+} from "../../../navigation/roleTabs";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, gradients, layout, radii, shadows, space } from "../../../theme/tokens";
 
-type TabKey = "home" | "classes" | "schedule" | "plans" | "profile";
-
-/** MaterialCommunityIcons glyph name — kept narrow to the tabs we actually render. */
-type TabIconName =
-  | "home"
-  | "view-dashboard"
-  | "calendar-month"
-  | "tag"
-  | "meditation";
-
-type TabItem = {
-  key: TabKey;
-  label: string;
-  href: Href;
-  iconName: TabIconName;
-  iconSize: number;
-};
-
-const TAB_ITEMS: TabItem[] = [
-  { key: "home", label: "Home", href: "/user/home", iconName: "home", iconSize: 22 },
-  { key: "classes", label: "Classes", href: "/classes", iconName: "view-dashboard", iconSize: 22 },
-  { key: "schedule", label: "Schedule", href: "/schedule", iconName: "calendar-month", iconSize: 24 },
-  { key: "plans", label: "Plans", href: "/plans", iconName: "tag", iconSize: 22 },
-  { key: "profile", label: "Profile", href: "/profile", iconName: "meditation", iconSize: 26 },
-];
-
 const TAB_ICON_INACTIVE_OPACITY = 0.85;
 
-function isTabActive(segments: string[], item: TabItem): boolean {
-  return segments.includes(item.key);
+function isRouteActive(pathname: string, href: string): boolean {
+  if (pathname === href) {
+    return true;
+  }
+  const prefix = href.endsWith("/") ? href : `${href}/`;
+  return pathname.startsWith(prefix);
 }
 
 export function FloatingTabBar() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const segments = useSegments();
+  const pathname = usePathname();
+  const { role } = useSession();
+  const tabItems: RoleTabItem[] = tabItemsForRole(role);
 
   const bottom = Math.max(insets.bottom, space.sm) + space.xs;
 
@@ -52,13 +37,13 @@ export function FloatingTabBar() {
       accessibilityRole="tablist"
     >
       <LinearGradient
-        colors={[...gradients.navBar.colors]}
+        colors={gradients.navBar.colors}
         start={gradients.navBar.start}
         end={gradients.navBar.end}
         style={[styles.bar, shadows.tabBar]}
       >
-        {TAB_ITEMS.map((item) => {
-          const active = isTabActive(segments, item);
+        {tabItems.map((item) => {
+          const active = isRouteActive(pathname, item.href as string);
           const iconColor = active ? colors.taupe : colors.creamHighlight;
           return (
             <Pressable
@@ -102,10 +87,9 @@ export function FloatingTabBar() {
   );
 }
 
-/** Active chip diameter; column width is kept smaller so 5 tabs stay packed and the chip can overhang. */
+/** Active chip diameter; column width is kept smaller so tabs stay packed and the chip can overhang. */
 const TAB_HIGHLIGHT_SIZE = 72;
 const TAB_HIGHLIGHT_RADIUS = TAB_HIGHLIGHT_SIZE / 2;
-const TAB_INNER = 66;
 const FLOATING_TAB_BAR_HEIGHT = 82;
 const TAB_BAR_HORIZONTAL_INSET = space.sm;
 
@@ -129,7 +113,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg - 1,
   },
   tabPressable: {
-    width: TAB_INNER,
+    flex: 1,
+    minWidth: 52,
     alignSelf: "stretch",
     justifyContent: "center",
     alignItems: "center",

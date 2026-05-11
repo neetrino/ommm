@@ -6,10 +6,16 @@ import {
   isUserDashboardRole,
 } from "@/lib/role-home";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
-  user: { name: string | null; email: string; role: string };
+  user: {
+    name: string | null;
+    email: string;
+    role: string;
+    homeImageUrl?: string | null;
+  };
   coachProfileId: string | null;
   achievements: { title: string; unlockedAt: string }[];
 };
@@ -70,7 +76,7 @@ export default async function UserHomePage({
   const asOf = new Date();
   const upcoming = (bookingsRes.ok ? bookingsRes.data : [])
     .filter(
-      (b) =>
+      (b: BookingRow) =>
         b.status === "BOOKED" && new Date(b.session.startsAt) > asOf,
     )
     .slice(0, 5);
@@ -78,6 +84,7 @@ export default async function UserHomePage({
   const achievements = meRes.data.achievements.slice(0, 6);
   const displayName =
     meRes.data.user.name?.trim() || meRes.data.user.email;
+  const homeImageSrc = resolveApiAssetUrl(meRes.data.user.homeImageUrl ?? null);
   const first = upcoming[0];
   const nextBooking = first
     ? {
@@ -92,6 +99,7 @@ export default async function UserHomePage({
     <MemberDashboard
       locale={locale}
       displayName={displayName}
+      homeImageSrc={homeImageSrc}
       nextBooking={nextBooking}
       waitlistOk={waitRes.ok}
       waitlistRows={waitRes.ok ? waitRes.data : []}

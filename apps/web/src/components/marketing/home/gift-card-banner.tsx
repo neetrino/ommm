@@ -41,7 +41,7 @@ export async function GiftCardBanner() {
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
-                  href="/account/gift-cards"
+                  href="/user/gift-cards"
                   className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-medium uppercase tracking-[0.16em] text-sage-700 shadow-md transition-transform hover:-translate-y-0.5"
                 >
                   {t("primaryCta")}
