@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { exploreBundledAssets } from "../../../assets/exploreBundledAssets";
 import { figmaRemoteAssets } from "../../../assets/figmaRemoteAssets";
+import { ExploreFeaturedPlayIcon } from "./ExploreFeaturedPlayIcon";
 import type { ExploreTileMock } from "../../../lib/mocks/homeMock";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import {
@@ -23,8 +24,10 @@ import {
   typography,
 } from "../../../theme/tokens";
 
-/** Aligned with Next Class details glass (“Today / Studio / instructor”). */
-const EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY = 18;
+/** Frosted label over hero — reference: white type + light glass + rim highlight. */
+const EXPLORE_JOURNAL_LABEL_BLUR_INTENSITY = 20;
+const EXPLORE_JOURNAL_GLASS_BASE = "rgba(255,255,255,0.11)" as const;
+const EXPLORE_JOURNAL_TOP_EDGE_SHEEN = "rgba(255,255,255,0.62)" as const;
 
 type ExploreSectionProps = {
   journalEyebrow: string;
@@ -223,10 +226,18 @@ export function ExploreSection({
                 "transparent",
                 "transparent",
               ]}
-              locations={[0, 0.14, 0.36, 1]}
+              locations={[0, 0.12, 0.34, 1]}
               start={{ x: 0.02, y: 0.02 }}
-              end={{ x: 0.48, y: 0.4 }}
+              end={{ x: 0.48, y: 0.38 }}
               style={styles.labelGlassSheen}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[EXPLORE_JOURNAL_TOP_EDGE_SHEEN, "transparent"]}
+              locations={[0, 1]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.labelTopEdgeSheen}
             />
             <View style={styles.labelInner}>
               <View style={styles.labelRow}>
@@ -251,11 +262,7 @@ export function ExploreSection({
                     end={gradients.playButton.end}
                     style={styles.playGradient}
                   >
-                    <Image
-                      source={figmaRemoteAssets.iconPlay}
-                      style={styles.playIcon}
-                      contentFit="contain"
-                    />
+                    <ExploreFeaturedPlayIcon />
                   </LinearGradient>
                 </Pressable>
               </View>
@@ -342,12 +349,19 @@ const styles = StyleSheet.create({
   labelBlur: {
     borderRadius: radii.labelCard,
     overflow: "hidden",
-    backgroundColor: colors.overlayWhite08,
+    backgroundColor: EXPLORE_JOURNAL_GLASS_BASE,
     borderWidth: 1,
     borderColor: colors.glassBorder,
   },
   labelGlassSheen: {
     ...StyleSheet.absoluteFillObject,
+  },
+  labelTopEdgeSheen: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 4,
   },
   labelInner: {
     position: "relative",
@@ -370,19 +384,25 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     lineHeight: 16,
     letterSpacing: 1.2,
-    color: colors.ink,
+    color: colors.white,
     textTransform: "uppercase",
+    textShadowColor: "rgba(0,0,0,0.35)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5,
   },
   journalTitle: {
     fontFamily: fontFamilies.newsreader.regular,
     fontSize: typography.body,
     lineHeight: 24,
-    color: colors.black,
+    color: colors.white,
+    textShadowColor: "rgba(0,0,0,0.4)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 8,
   },
   playButton: {
     borderRadius: radii.pill,
     borderWidth: 1,
-    borderColor: colors.overlayBlack08,
+    borderColor: colors.white,
     overflow: "hidden",
   },
   playButtonPressed: {
@@ -394,10 +414,6 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     alignItems: "center",
     justifyContent: "center",
-  },
-  playIcon: {
-    width: 8,
-    height: 10,
   },
   tileGrid: {
     flexDirection: "row",

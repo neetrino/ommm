@@ -9,6 +9,5 @@ export const figmaRemoteAssets = {
   brandMark: require("../../assets/images/brand-mark.png"),
   giftCardBadge: require("../../assets/images/gift-card-badge.png"),
   iconArrowOut: require("../../assets/images/icon-arrow-out.png"),
-  iconPlay: require("../../assets/images/icon-play.png"),
   overlayGradient: require("../../assets/images/overlay-gradient.png"),
 } as const;
