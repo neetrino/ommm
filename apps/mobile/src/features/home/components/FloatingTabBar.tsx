@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useSegments, type Href } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSession } from "../../../auth/SessionProvider";
 import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, gradients, layout, radii, shadows, space } from "../../../theme/tokens";
 
@@ -42,6 +43,7 @@ export function FloatingTabBar() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const segments = useSegments();
+  const { isSignedIn } = useSession();
 
   const bottom = Math.max(insets.bottom, space.sm) + space.xs;
 
@@ -63,7 +65,13 @@ export function FloatingTabBar() {
           return (
             <Pressable
               key={item.key}
-              onPress={() => router.push(item.href)}
+              onPress={() => {
+                if (item.key === "profile" && !isSignedIn) {
+                  router.push("/home");
+                  return;
+                }
+                router.push(item.href);
+              }}
               style={({ pressed }) => [
                 styles.tabPressable,
                 pressed && styles.tabPressed,

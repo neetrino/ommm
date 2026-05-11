@@ -1,21 +1,13 @@
-import { Slot, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { Slot } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { FloatingTabBar } from "../../src/features/home/components/FloatingTabBar";
 import { useSession } from "../../src/auth/SessionProvider";
 import { colors } from "../../src/theme/tokens";
 
 export default function MainLayout() {
-  const router = useRouter();
-  const { isReady, isSignedIn } = useSession();
+  const { isReady } = useSession();
 
-  useEffect(() => {
-    if (isReady && !isSignedIn) {
-      router.replace("/welcome");
-    }
-  }, [isReady, isSignedIn, router]);
-
-  if (!isReady || !isSignedIn) {
+  if (!isReady) {
     return (
       <View style={styles.boot}>
         <ActivityIndicator size="large" color={colors.taupe} />

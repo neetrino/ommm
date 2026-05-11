@@ -1,25 +1,20 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
 import { useCallback } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GradientBackdrop } from "../../src/components/layout/GradientBackdrop";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../../src/auth/SessionProvider";
+import { AuthPillButtonStack } from "../../src/features/auth/components/AuthPillButtonStack";
+import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { fontFamilies } from "../../src/theme/fontFamilies";
-import { colors, radii, space, typography } from "../../src/theme/tokens";
+import { colors, space, typography } from "../../src/theme/tokens";
+
+const MEDITATION_ICON_SIZE = 64;
 
 export default function WelcomeRoute() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isReady, isSignedIn, signIn } = useSession();
 
-  const onContinue = useCallback(async () => {
+  const onSignIn = useCallback(async () => {
     await signIn();
     router.replace("/home");
   }, [router, signIn]);
@@ -37,97 +32,67 @@ export default function WelcomeRoute() {
   }
 
   return (
-    <View style={styles.root}>
-      <GradientBackdrop />
-      <View
-        style={[
-          styles.content,
-          {
-            paddingTop: insets.top + space.xxl,
-            paddingBottom: insets.bottom + space.xl,
-          },
-        ]}
-      >
+    <AuthScreenShell>
+      <View style={styles.brandBlock}>
         <MaterialCommunityIcons
           name="meditation"
-          size={56}
+          size={MEDITATION_ICON_SIZE}
           color={colors.primaryGreen}
           style={styles.icon}
+          accessibilityIgnoresInvertColors
         />
-        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Welcome
+        </Text>
         <Text style={styles.lead}>
           Sign in to continue to your classes, schedule, and profile.
         </Text>
-        <Pressable
-          onPress={() => void onContinue()}
-          style={({ pressed }) => [
-            styles.primaryCta,
-            pressed && styles.primaryCtaPressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Sign in and continue to the app"
-        >
-          <Text style={styles.primaryCtaLabel}>Sign in</Text>
-        </Pressable>
       </View>
-    </View>
+
+      <View style={styles.actions}>
+        <AuthPillButtonStack
+          onSignInPress={() => void onSignIn()}
+          onCreateAccountPress={() => router.push("/register")}
+        />
+      </View>
+    </AuthScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.canvas,
-  },
   boot: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.canvas,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: space.screenHorizontal,
-    justifyContent: "center",
-    gap: space.lg,
+  brandBlock: {
+    alignItems: "center",
+    gap: space.md,
   },
   icon: {
-    alignSelf: "center",
-    marginBottom: space.sm,
-    opacity: 0.92,
+    opacity: 0.94,
+    marginBottom: space.xs,
   },
   title: {
     fontFamily: fontFamilies.newsreader.semiBoldItalic,
-    fontSize: typography.sectionTitle + 10,
-    lineHeight: 36,
+    fontSize: typography.sectionTitle + 14,
+    lineHeight: 40,
     color: colors.primaryGreen,
     textAlign: "center",
   },
   lead: {
     fontFamily: fontFamilies.manrope.regular,
-    fontSize: typography.body,
-    lineHeight: 24,
-    color: colors.warmBrown,
+    fontSize: typography.body + 1,
+    lineHeight: 26,
+    color: colors.secondarySage,
     textAlign: "center",
-    marginBottom: space.md,
+    maxWidth: 320,
+    alignSelf: "center",
   },
-  primaryCta: {
-    alignSelf: "stretch",
-    backgroundColor: colors.taupe,
-    paddingVertical: space.sm + 4,
-    paddingHorizontal: space.xl,
-    borderRadius: radii.pill,
+  actions: {
+    marginTop: space.sm,
+    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryCtaPressed: {
-    opacity: 0.9,
-  },
-  primaryCtaLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.caption,
-    color: colors.white,
-    textTransform: "uppercase",
-    letterSpacing: 1,
   },
 });
