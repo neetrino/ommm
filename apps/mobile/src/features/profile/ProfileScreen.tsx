@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -8,19 +9,24 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useLogoutAction } from "../../auth/useLogoutAction";
 import { GradientBackdrop } from "../../components/layout/GradientBackdrop";
 import { fetchHealth } from "../../lib/api/client";
 import { fontFamilies } from "../../theme/fontFamilies";
-import { colors, layout, space, typography } from "../../theme/tokens";
+import { colors, layout, radii, space, typography } from "../../theme/tokens";
 
 type LoadState =
   | { status: "loading" }
   | { status: "ok"; message: string }
   | { status: "error"; message: string };
 
+const LOGOUT_ICON_SIZE = 20;
+
 export function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const logout = useLogoutAction();
   const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [logoutBusy, setLogoutBusy] = useState(false);
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.lg;
 
@@ -39,6 +45,16 @@ export function ProfileScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const onLogoutPress = useCallback(() => {
+    if (logoutBusy) {
+      return;
+    }
+    setLogoutBusy(true);
+    void logout().finally(() => {
+      setLogoutBusy(false);
+    });
+  }, [logout, logoutBusy]);
 
   return (
     <View style={styles.root}>
@@ -77,6 +93,34 @@ export function ProfileScreen() {
             <Text style={styles.buttonLabel}>Refresh</Text>
           </Pressable>
         </View>
+
+        <View style={styles.logoutSpacer} />
+
+        <Pressable
+          onPress={onLogoutPress}
+          disabled={logoutBusy}
+          style={({ pressed }) => [
+            styles.logoutButton,
+            pressed && !logoutBusy && styles.logoutButtonPressed,
+            logoutBusy && styles.logoutButtonDisabled,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Log out"
+          accessibilityState={{ disabled: logoutBusy }}
+        >
+          {logoutBusy ? (
+            <ActivityIndicator color={colors.danger} />
+          ) : (
+            <>
+              <MaterialCommunityIcons
+                name="logout"
+                size={LOGOUT_ICON_SIZE}
+                color={colors.danger}
+              />
+              <Text style={styles.logoutLabel}>Log out</Text>
+            </>
+          )}
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -149,5 +193,33 @@ const styles = StyleSheet.create({
     color: colors.white,
     textTransform: "uppercase",
     letterSpacing: 1,
+  },
+  logoutSpacer: {
+    flexGrow: 1,
+    minHeight: space.lg,
+  },
+  logoutButton: {
+    alignSelf: "stretch",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space.sm,
+    paddingVertical: space.md,
+    paddingHorizontal: space.lg,
+    backgroundColor: colors.overlayWhite38,
+    borderRadius: radii.labelCard,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.glassBorder,
+  },
+  logoutButtonPressed: {
+    opacity: 0.92,
+  },
+  logoutButtonDisabled: {
+    opacity: 0.65,
+  },
+  logoutLabel: {
+    fontFamily: fontFamilies.manrope.semiBold,
+    fontSize: typography.body,
+    color: colors.danger,
   },
 });

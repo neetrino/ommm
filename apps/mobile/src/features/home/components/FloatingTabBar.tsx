@@ -25,7 +25,7 @@ type TabItem = {
 };
 
 const TAB_ITEMS: TabItem[] = [
-  { key: "home", label: "Home", href: "/", iconName: "home", iconSize: 22 },
+  { key: "home", label: "Home", href: "/home", iconName: "home", iconSize: 22 },
   { key: "classes", label: "Classes", href: "/classes", iconName: "view-dashboard", iconSize: 22 },
   { key: "schedule", label: "Schedule", href: "/schedule", iconName: "calendar-month", iconSize: 24 },
   { key: "plans", label: "Plans", href: "/plans", iconName: "tag", iconSize: 22 },
@@ -35,11 +35,6 @@ const TAB_ITEMS: TabItem[] = [
 const TAB_ICON_INACTIVE_OPACITY = 0.85;
 
 function isTabActive(segments: string[], item: TabItem): boolean {
-  if (item.key === "home") {
-    return !segments.some((s) =>
-      ["classes", "schedule", "plans", "profile"].includes(s),
-    );
-  }
   return segments.includes(item.key);
 }
 
