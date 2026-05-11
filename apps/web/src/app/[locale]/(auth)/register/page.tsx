@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { homePathForRole } from "@/lib/role-home";
@@ -73,6 +74,7 @@ export default function RegisterPage() {
 
   return (
     <div>
+      <AuthBackToHomeLink />
       <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("register")}
       </h1>

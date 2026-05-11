@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
+import { AuthBackToHomeRow } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { fontFamilies } from "../../src/theme/fontFamilies";
@@ -69,7 +70,10 @@ export default function LoginRoute() {
   }
 
   return (
-    <AuthScreenShell keyboardAware>
+    <AuthScreenShell
+      keyboardAware
+      topLeading={<AuthBackToHomeRow onPress={() => router.replace("/home")} />}
+    >
       <View style={styles.brandBlock}>
         <MaterialCommunityIcons
           name="lock-outline"
