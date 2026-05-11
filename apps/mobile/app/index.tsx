@@ -4,7 +4,7 @@ import { useSession } from "../src/auth/SessionProvider";
 import { colors } from "../src/theme/tokens";
 
 export default function Index() {
-  const { isReady, isSignedIn } = useSession();
+  const { isReady, isSignedIn, homeHref } = useSession();
 
   if (!isReady) {
     return (
@@ -18,7 +18,7 @@ export default function Index() {
     return <Redirect href="/home" />;
   }
 
-  return <Redirect href="/user/home" />;
+  return <Redirect href={homeHref} />;
 }
 
 const styles = StyleSheet.create({

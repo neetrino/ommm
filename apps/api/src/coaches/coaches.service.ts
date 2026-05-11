@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { BookingStatus, Role, WaitlistStatus, type User } from "@prisma/client";
-import * as argon2 from "argon2";
+import { hashPassword } from "../common/password-crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import type { CreateCoachDto } from "./dto/create-coach.dto";
 import type { UpdateCoachDto } from "./dto/update-coach.dto";
@@ -38,7 +38,7 @@ export class CoachesService {
     if (exists) {
       throw new ConflictException("User already exists");
     }
-    const passwordHash = await argon2.hash(dto.password, { type: argon2.argon2id });
+    const passwordHash = await hashPassword(dto.password);
     const user = await this.prisma.user.create({
       data: {
         email,

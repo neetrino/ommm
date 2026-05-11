@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -12,26 +12,31 @@ export default function LoginPage() {
   const t = useTranslations("common");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const submitLockRef = useRef(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (pending || submitLockRef.current) {
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     setError(null);
+    submitLockRef.current = true;
     setPending(true);
     try {
-      await apiFetch("/auth/login", {
+      const { user } = await apiFetch<{ user: { role: string } }>("/auth/login", {
         method: "POST",
         body: JSON.stringify({
           email: fd.get("email"),
           password: fd.get("password"),
         }),
       });
-      const me = await apiFetch<{ user: { role: string } }>("/users/me");
-      router.push(homePathForRole(me.user.role));
+      router.push(homePathForRole(user.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed");
     } finally {
       setPending(false);
+      submitLockRef.current = false;
     }
   }
 

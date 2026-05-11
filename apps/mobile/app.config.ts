@@ -30,6 +30,8 @@ const config: ExpoConfig = {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#ffffff",
     },
+    // @ts-expect-error — Expo `ExpoConfig.android` types omit this; Gradle/manifest supports it for dev HTTP.
+    usesCleartextTraffic: true,
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
   },

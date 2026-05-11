@@ -11,10 +11,10 @@ const MEDITATION_ICON_SIZE = 64;
 
 export default function WelcomeRoute() {
   const router = useRouter();
-  const { isReady, isSignedIn } = useSession();
+  const { isReady, isSignedIn, homeHref } = useSession();
 
   if (isReady && isSignedIn) {
-    return <Redirect href="/user/home" />;
+    return <Redirect href={homeHref} />;
   }
 
   if (!isReady) {

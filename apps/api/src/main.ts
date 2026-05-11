@@ -44,6 +44,8 @@ async function bootstrap() {
     }),
   );
   const port = resolvePort();
-  await app.listen(port);
+  /** Prefer IPv4 all interfaces so Android emulator (`10.0.2.2`) and LAN devices can reach the API. */
+  const listenHost = process.env.API_LISTEN_HOST?.trim() || '0.0.0.0';
+  await app.listen(port, listenHost);
 }
 void bootstrap();

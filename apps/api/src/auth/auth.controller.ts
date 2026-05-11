@@ -31,8 +31,16 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post("register")
-  async register(@Body() dto: RegisterDto) {
-    return this.auth.register(dto);
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { user, accessToken } = await this.auth.register(dto);
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
+      ...accessTokenCookieBaseOptions(),
+      maxAge: COOKIE_MAX_AGE_MS,
+    });
+    return { user, accessToken };
   }
 
   @Post("login")
@@ -45,7 +53,7 @@ export class AuthController {
       ...accessTokenCookieBaseOptions(),
       maxAge: COOKIE_MAX_AGE_MS,
     });
-    return { user: sanitizeUser(user) };
+    return { user: sanitizeUser(user), accessToken };
   }
 
   /** Clears httpOnly access cookie; unauthenticated calls are no-ops (no guard — expired JWT must still clear cookie). */

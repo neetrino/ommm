@@ -21,7 +21,7 @@ import { WaitlistSection } from "../components/WaitlistSection";
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { isSignedIn } = useSession();
+  const { isSignedIn, userGreetingName } = useSession();
 
   const headerOffset = insets.top + 90;
   const bottomPad =
@@ -59,7 +59,7 @@ export function HomeScreen() {
       >
         {isSignedIn ? (
           <>
-            <UserGreetingSection firstName={homeMock.user.firstName} />
+            <UserGreetingSection displayName={userGreetingName} />
             <NextClassSection
               content={homeMock.nextClass}
               onAllEventsPress={() => router.push("/schedule")}

@@ -5,11 +5,12 @@ import {
   ContentStatus,
   ContentType,
 } from "@prisma/client";
-import * as argon2 from "argon2";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 const DEMO_USER_PASSWORD = "Demo1234!";
+const BCRYPT_SALT_ROUNDS = 12;
 
 /** One demo login per `Role` enum value; password: DEMO_USER_PASSWORD */
 const DEMO_USERS_BY_ROLE: ReadonlyArray<{ email: string; name: string; role: Role }> = [
@@ -24,7 +25,7 @@ async function seedDemoRoleUsers(passwordHash: string): Promise<void> {
   for (const acc of DEMO_USERS_BY_ROLE) {
     await prisma.user.upsert({
       where: { email: acc.email },
-      update: { name: acc.name, role: acc.role },
+      update: { name: acc.name, role: acc.role, passwordHash },
       create: {
         email: acc.email,
         passwordHash,
@@ -37,7 +38,7 @@ async function seedDemoRoleUsers(passwordHash: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const passwordHash = await argon2.hash(DEMO_USER_PASSWORD, { type: argon2.argon2id });
+  const passwordHash = await bcrypt.hash(DEMO_USER_PASSWORD, BCRYPT_SALT_ROUNDS);
 
   await seedDemoRoleUsers(passwordHash);
 

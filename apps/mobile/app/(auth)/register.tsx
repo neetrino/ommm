@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useSession } from "../../src/auth/SessionProvider";
 import { isValidEmail } from "../../src/auth/isValidEmail";
+import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
@@ -20,16 +21,20 @@ const ACCOUNT_ICON_SIZE = 56;
 
 export default function RegisterRoute() {
   const router = useRouter();
-  const { isReady, isSignedIn, signIn } = useSession();
+  const { isReady, isSignedIn, homeHref, registerAccount } = useSession();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const submitLockRef = useRef(false);
 
   const onSubmit = useCallback(async () => {
     setFormError(null);
+    if (busy || submitLockRef.current) {
+      return;
+    }
     const name = fullName.trim();
     if (name.length < 2) {
       setFormError("Please enter your full name.");
@@ -48,21 +53,27 @@ export default function RegisterRoute() {
       return;
     }
 
+    submitLockRef.current = true;
     setBusy(true);
     try {
-      await signIn();
-      router.replace("/user/home");
+      const nextHref = await registerAccount({
+        email,
+        password,
+        name: name.length > 0 ? name : undefined,
+      });
+      router.replace(nextHref);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Something went wrong. Please try again.";
       setFormError(message);
     } finally {
       setBusy(false);
+      submitLockRef.current = false;
     }
-  }, [confirmPassword, email, fullName, password, router, signIn]);
+  }, [busy, confirmPassword, email, fullName, password, registerAccount, router]);
 
   if (isReady && isSignedIn) {
-    return <Redirect href="/user/home" />;
+    return <Redirect href={homeHref} />;
   }
 
   if (!isReady) {
@@ -116,24 +127,20 @@ export default function RegisterRoute() {
           textContentType="emailAddress"
           accessibilityLabel="Email"
         />
-        <TextInput
+        <AuthPasswordInput
           value={password}
           onChangeText={setPassword}
           placeholder="Password"
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          secureTextEntry
           textContentType="newPassword"
+          autoComplete="password-new"
           accessibilityLabel="Password"
         />
-        <TextInput
+        <AuthPasswordInput
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           placeholder="Confirm password"
-          placeholderTextColor={colors.bodyMuted}
-          style={styles.input}
-          secureTextEntry
           textContentType="newPassword"
+          autoComplete="password-new"
           accessibilityLabel="Confirm password"
         />
 

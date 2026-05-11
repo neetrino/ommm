@@ -3,10 +3,11 @@ import { fontFamilies } from "../../../theme/fontFamilies";
 import { colors, layout, radii, space } from "../../../theme/tokens";
 
 type UserGreetingSectionProps = {
-  firstName: string;
+  /** Full name or fallback from session (e.g. email local-part). */
+  displayName: string;
 };
 
-export function UserGreetingSection({ firstName }: UserGreetingSectionProps) {
+export function UserGreetingSection({ displayName }: UserGreetingSectionProps) {
   return (
     <View style={styles.row}>
       <View style={styles.leftCluster}>
@@ -17,7 +18,7 @@ export function UserGreetingSection({ firstName }: UserGreetingSectionProps) {
         </View>
         <View style={styles.welcomeBlock}>
           <Text style={styles.welcomeLine}>Welcome back,</Text>
-          <Text style={styles.welcomeLine}>{firstName}</Text>
+          <Text style={styles.welcomeLine}>{displayName}</Text>
         </View>
       </View>
       <View style={styles.headlineBlock}>

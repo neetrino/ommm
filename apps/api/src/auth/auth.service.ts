@@ -7,12 +7,12 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { AuthTokenType, type Role, type User } from "@prisma/client";
-import * as argon2 from "argon2";
 import { createHash, randomBytes } from "node:crypto";
 import {
   EMAIL_VERIFY_TTL_MS,
   PASSWORD_RESET_TTL_MS,
 } from "../common/constants";
+import { hashPassword, verifyPassword } from "../common/password-crypto";
 import { MailService } from "../mail/mail.service";
 import { PrismaService } from "../prisma/prisma.service";
 import type { LoginDto } from "./dto/login.dto";
@@ -63,14 +63,16 @@ export class AuthService {
     return { raw, hash: tokenHash };
   }
 
-  async register(dto: RegisterDto): Promise<{ user: ReturnType<typeof sanitizeUser> }> {
+  async register(
+    dto: RegisterDto,
+  ): Promise<{ user: ReturnType<typeof sanitizeUser>; accessToken: string }> {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email.toLowerCase() },
     });
     if (existing) {
       throw new ConflictException("Email already registered");
     }
-    const passwordHash = await argon2.hash(dto.password, { type: argon2.argon2id });
+    const passwordHash = await hashPassword(dto.password);
     const user = await this.prisma.user.create({
       data: {
         email: dto.email.toLowerCase(),
@@ -91,7 +93,8 @@ export class AuthService {
       subject: "Verify your Ommm account",
       html: `<p>Hi${user.name ? ` ${user.name}` : ""},</p><p><a href="${verifyUrl}">Verify email</a></p>`,
     });
-    return { user: sanitizeUser(user) };
+    const accessToken = this.signAccessToken(user);
+    return { user: sanitizeUser(user), accessToken };
   }
 
   async login(dto: LoginDto): Promise<{ user: User; accessToken: string }> {
@@ -101,9 +104,16 @@ export class AuthService {
     if (!user?.passwordHash) {
       throw new UnauthorizedException("Invalid credentials");
     }
-    const ok = await argon2.verify(user.passwordHash, dto.password);
+    const ok = await verifyPassword(user.passwordHash, dto.password);
     if (!ok) {
       throw new UnauthorizedException("Invalid credentials");
+    }
+    if (user.passwordHash.startsWith("$argon2")) {
+      const passwordHash = await hashPassword(dto.password);
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash },
+      });
     }
     const accessToken = this.signAccessToken(user);
     return { user, accessToken };
@@ -163,7 +173,7 @@ export class AuthService {
     ) {
       throw new BadRequestException("Invalid or expired token");
     }
-    const passwordHash = await argon2.hash(newPassword, { type: argon2.argon2id });
+    const passwordHash = await hashPassword(newPassword);
     await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: row.userId },
