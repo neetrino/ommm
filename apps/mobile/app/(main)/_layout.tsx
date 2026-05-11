@@ -5,7 +5,9 @@ import { useSession } from "../../src/auth/SessionProvider";
 import { colors } from "../../src/theme/tokens";
 
 export default function MainLayout() {
-  const { isReady } = useSession();
+  const { isReady, isSignedIn } = useSession();
+  /** Authenticated app shell only — hidden for guests (e.g. public home) and outside `(main)`. */
+  const showFloatingTabBar = isSignedIn;
 
   if (!isReady) {
     return (
@@ -18,7 +20,7 @@ export default function MainLayout() {
   return (
     <View style={styles.root}>
       <Slot />
-      <FloatingTabBar />
+      {showFloatingTabBar ? <FloatingTabBar /> : null}
     </View>
   );
 }

@@ -51,7 +51,7 @@ export default function RegisterRoute() {
     setBusy(true);
     try {
       await signIn();
-      router.replace("/home");
+      router.replace("/user/home");
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Something went wrong. Please try again.";
@@ -62,7 +62,7 @@ export default function RegisterRoute() {
   }, [confirmPassword, email, fullName, password, router, signIn]);
 
   if (isReady && isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/user/home" />;
   }
 
   if (!isReady) {

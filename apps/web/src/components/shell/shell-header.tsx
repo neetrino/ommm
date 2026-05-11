@@ -52,9 +52,11 @@ export function ShellHeader({
       ? "border-indigo-100 bg-white"
       : "border-zinc-200 bg-white";
 
-  /** Exact match avoids highlighting both `/account` and `/account/classes`. */
-  function activeFor(href: string) {
-    return pathname === href;
+  /** Highlights the current section, including nested routes (e.g. `/admin/clients`). */
+  function navActive(href: string) {
+    if (href === "/") return pathname === "/";
+    if (pathname === href) return true;
+    return pathname.startsWith(`${href}/`);
   }
 
   return (
@@ -82,7 +84,7 @@ export function ShellHeader({
               <Link
                 key={item.href}
                 href={item.href}
-                className={linkClass(activeFor(item.href), variant)}
+                className={linkClass(navActive(item.href), variant)}
               >
                 {item.label}
               </Link>
@@ -139,7 +141,7 @@ export function ShellHeader({
             <Link
               key={item.href}
               href={item.href}
-              className={linkClass(activeFor(item.href), variant)}
+              className={linkClass(navActive(item.href), variant)}
               onClick={() => setOpen(false)}
             >
               {item.label}

@@ -14,7 +14,7 @@ export default function WelcomeRoute() {
   const { isReady, isSignedIn } = useSession();
 
   if (isReady && isSignedIn) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/user/home" />;
   }
 
   if (!isReady) {

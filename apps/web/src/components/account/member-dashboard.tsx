@@ -219,7 +219,7 @@ export async function MemberDashboard({
                 {t("coach.title")}
               </h2>
               <Link
-                href="/coach"
+                href="/coach/home"
                 className="mt-3 inline-block text-sm font-semibold text-indigo-900 underline-offset-4 hover:underline"
               >
                 {t("coach.cta")}

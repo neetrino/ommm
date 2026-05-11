@@ -4,14 +4,14 @@ import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
 
 const ACCOUNT_NAV = [
-  { href: "/account", label: "Home" },
+  { href: "/user/home", label: "Home" },
   { href: "/account/classes", label: "Classes" },
   { href: "/account/bookings", label: "Bookings" },
   { href: "/account/memberships", label: "Memberships" },
   { href: "/account/gift-cards", label: "Gift cards" },
   { href: "/account/settings", label: "Settings" },
-  { href: "/coach", label: "Coach" },
-  { href: "/admin", label: "Admin" },
+  { href: "/coach/home", label: "Coach" },
+  { href: "/admin/home", label: "Admin" },
 ] as const;
 
 const navItemClass =
@@ -21,7 +21,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen ommm-bg-wellness">
       <ShellHeader
-        brandHref="/account"
+        brandHref="/user/home"
         brandLabel="Account"
         navItems={[...ACCOUNT_NAV]}
         trailing={

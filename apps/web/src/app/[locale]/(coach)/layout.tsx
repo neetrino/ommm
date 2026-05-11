@@ -2,7 +2,7 @@ import { LogoutButton } from "@/components/logout-button";
 import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
 
-const COACH_NAV = [{ href: "/coach", label: "Schedule" }] as const;
+const COACH_NAV = [{ href: "/coach/home", label: "Schedule" }] as const;
 
 export default function CoachSectionLayout({
   children,
@@ -12,7 +12,7 @@ export default function CoachSectionLayout({
   return (
     <div className="min-h-screen bg-indigo-50/50">
       <ShellHeader
-        brandHref="/coach"
+        brandHref="/coach/home"
         brandLabel="Coach"
         variant="indigo"
         navItems={[...COACH_NAV]}

@@ -1,13 +1,13 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { useSession } from "../../src/auth/SessionProvider";
-import { HomeScreen } from "../../src/features/home/screens/HomeScreen";
-import { colors } from "../../src/theme/tokens";
+import { useSession } from "../../../src/auth/SessionProvider";
+import { HomeScreen } from "../../../src/features/home/screens/HomeScreen";
+import { colors } from "../../../src/theme/tokens";
 
 /**
- * Public marketing home at `/home`. Signed-in members use `/user/home`.
+ * Authenticated member home — URL shows `/user/home` (aligned with web app).
  */
-export default function PublicHomeRoute() {
+export default function UserHomeRoute() {
   const { isReady, isSignedIn } = useSession();
 
   if (!isReady) {
@@ -18,8 +18,8 @@ export default function PublicHomeRoute() {
     );
   }
 
-  if (isSignedIn) {
-    return <Redirect href="/user/home" />;
+  if (!isSignedIn) {
+    return <Redirect href="/home" />;
   }
 
   return <HomeScreen />;

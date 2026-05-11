@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { homePathForRole } from "@/lib/role-home";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +26,8 @@ export default function LoginPage() {
           password: fd.get("password"),
         }),
       });
-      router.push("/account");
+      const me = await apiFetch<{ user: { role: string } }>("/users/me");
+      router.push(homePathForRole(me.user.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed");
     } finally {
