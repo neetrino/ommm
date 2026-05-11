@@ -215,8 +215,11 @@ const CARD_HEIGHT = layout.bookingCardHeight;
 const NEXT_CLASS_DETAILS_OVER_IMAGE =
   space.xxl + space.md + space.sm + space.xs;
 
-/** Extra vertical padding so the frosted details panel reads slightly taller. */
-const NEXT_CLASS_DETAILS_EXTRA_VERTICAL = space.md;
+/**
+ * Extra top padding only — draws the frosted panel onto the hero; bottom stays
+ * tighter so overall height trims from below.
+ */
+const NEXT_CLASS_DETAILS_EXTRA_VERTICAL_TOP = space.md;
 
 /** Blur without heavy milkiness — pair with low `backgroundColor` for clear glass. */
 const NEXT_CLASS_DETAILS_BLUR_INTENSITY = 14;
@@ -407,8 +410,8 @@ const styles = StyleSheet.create({
     position: "relative",
     zIndex: 1,
     paddingHorizontal: space.lg - 1,
-    paddingTop: space.lg + 1 + NEXT_CLASS_DETAILS_EXTRA_VERTICAL,
-    paddingBottom: space.md + NEXT_CLASS_DETAILS_EXTRA_VERTICAL,
+    paddingTop: space.lg + 1 + NEXT_CLASS_DETAILS_EXTRA_VERTICAL_TOP,
+    paddingBottom: space.md,
     gap: space.sm + 4,
   },
   detailsTopRow: {
