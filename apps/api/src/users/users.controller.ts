@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { Express } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -26,7 +27,13 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
+  /**
+   * Called frequently from Next.js RSC layouts (`/users/me` per navigation).
+   * Do not apply the global HTTP throttle here — 429 was misread as “logged out”
+   * and blocked Admin dashboards under bursty dev/prefetch traffic.
+   */
   @Get('me')
+  @SkipThrottle()
   me(@CurrentUser() user: { id: string }) {
     return this.users.getMe(user.id);
   }

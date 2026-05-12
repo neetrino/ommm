@@ -59,20 +59,18 @@ export function ProfileScreen() {
             logoutBusy && styles.logoutButtonDisabled,
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Log out"
+          accessibilityLabel="Logout"
+          accessibilityHint="Signs out of your account"
           accessibilityState={{ disabled: logoutBusy }}
         >
           {logoutBusy ? (
             <ActivityIndicator color={colors.danger} />
           ) : (
-            <>
-              <MaterialCommunityIcons
-                name="logout"
-                size={LOGOUT_ICON_SIZE}
-                color={colors.danger}
-              />
-              <Text style={styles.logoutLabel}>Log out</Text>
-            </>
+            <MaterialCommunityIcons
+              name="logout"
+              size={LOGOUT_ICON_SIZE}
+              color={colors.danger}
+            />
           )}
         </Pressable>
       </ScrollView>
@@ -102,11 +100,12 @@ const styles = StyleSheet.create({
     minHeight: space.md,
   },
   logoutButton: {
-    alignSelf: "stretch",
+    alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: space.sm,
+    minWidth: 52,
+    minHeight: 52,
     paddingVertical: space.md,
     paddingHorizontal: space.lg,
     backgroundColor: colors.overlayWhite38,
@@ -119,10 +118,5 @@ const styles = StyleSheet.create({
   },
   logoutButtonDisabled: {
     opacity: 0.65,
-  },
-  logoutLabel: {
-    fontFamily: fontFamilies.manrope.semiBold,
-    fontSize: typography.body,
-    color: colors.danger,
   },
 });

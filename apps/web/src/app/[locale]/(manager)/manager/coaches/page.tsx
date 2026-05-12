@@ -5,8 +5,18 @@ type CoachAdminRow = {
   id: string;
   bio: string | null;
   specialization: string | null;
-  user: { name: string | null; email: string };
+  user: {
+    name: string | null;
+    lastName: string | null;
+    email: string;
+    phone: string | null;
+  };
 };
+
+function coachDisplayName(u: CoachAdminRow["user"]): string {
+  const s = [u.name, u.lastName].filter(Boolean).join(" ").trim();
+  return s.length > 0 ? s : "—";
+}
 
 export default async function ManagerCoachesPage() {
   const cookie = (await headers()).get("cookie") ?? "";
@@ -35,6 +45,7 @@ export default async function ManagerCoachesPage() {
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Specialization</th>
             </tr>
           </thead>
@@ -42,9 +53,12 @@ export default async function ManagerCoachesPage() {
             {res.data.map((c) => (
               <tr key={c.id} className="border-b border-zinc-100">
                 <td className="px-4 py-3 font-medium text-zinc-900">
-                  {c.user.name ?? "—"}
+                  {coachDisplayName(c.user)}
                 </td>
                 <td className="px-4 py-3 text-zinc-700">{c.user.email}</td>
+                <td className="px-4 py-3 text-zinc-700">
+                  {c.user.phone ?? "—"}
+                </td>
                 <td className="px-4 py-3 text-zinc-600">
                   {c.specialization ?? "—"}
                 </td>
