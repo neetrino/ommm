@@ -1,11 +1,10 @@
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 
-export function headerBarClass(variant: DashboardShellVariant) {
-  if (variant === "indigo") return "border-indigo-100 bg-white";
-  if (variant === "wellness")
-    return "border-white/55 bg-white/55 shadow-sm backdrop-blur-md";
-  return "border-zinc-200 bg-white";
-}
+/** Pairs sidebar brand strip + main column header so their bars share the same height. */
+export const DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS = "min-h-[5.5rem]";
+
+/** Main column heading bar: stays visible at the top of the viewport while the page scrolls. */
+export const DASHBOARD_MAIN_HEADER_STICKY_CLASS = "sticky top-0 z-10";
 
 export function brandInitial(label: string) {
   const t = label.trim();
@@ -35,10 +34,10 @@ export function sidebarAsideBgClass(variant: DashboardShellVariant) {
 
 export function collapseToggleClass(variant: DashboardShellVariant) {
   if (variant === "indigo")
-    return "mt-1 hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-200 bg-white text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 lg:inline-flex";
+    return "hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-200 bg-white text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 lg:inline-flex";
   if (variant === "wellness")
-    return "mt-1 hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/70 bg-white/80 text-sage-700 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:inline-flex";
-  return "mt-1 hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:inline-flex";
+    return "hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/70 bg-white/80 text-sage-700 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:inline-flex";
+  return "hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:inline-flex";
 }
 
 export function pageBackgroundClass(variant: DashboardShellVariant) {
@@ -49,10 +48,10 @@ export function pageBackgroundClass(variant: DashboardShellVariant) {
 
 export function menuButtonClass(variant: DashboardShellVariant) {
   if (variant === "indigo")
-    return "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm lg:hidden";
+    return "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm lg:hidden";
   if (variant === "wellness")
-    return "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm lg:hidden";
-  return "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm lg:hidden";
+    return "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm lg:hidden";
+  return "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm lg:hidden";
 }
 
 export function titleClass(variant: DashboardShellVariant) {
