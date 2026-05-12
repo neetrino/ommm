@@ -219,16 +219,17 @@
         "home": "Home",
         "progress": "Progress",
         "classes": "Classes",
-        "bookings": "Bookings",
+        "bookings": "My bookings",
         "memberships": "Memberships",
         "giftCards": "Gift cards",
-        "notifications": "Notifications",
         "profile": "Profile"
       },
       "COACH": {
-        "schedule": "Schedule",
-        "analytics": "Analytics",
+        "dashboard": "Dashboard",
+        "schedule": "My schedule",
+        "groups": "My groups",
         "salary": "Salary",
+        "analytics": "Analytics",
         "profile": "Profile"
       },
       "MANAGER": {
@@ -236,8 +237,9 @@
         "classes": "Classes",
         "bookings": "Bookings",
         "waitlists": "Waitlists",
-        "coaches": "Coaches",
         "clients": "Clients",
+        "coaches": "Coaches",
+        "giftCards": "Gift cards",
         "profile": "Profile"
       },
       "CONTENT_ADMIN": {
@@ -247,7 +249,7 @@
       },
       "ADMIN": {
         "dashboard": "Dashboard",
-        "users": "Users",
+        "clients": "Clients",
         "bookings": "Bookings",
         "classes": "Classes",
         "waitlists": "Waitlists",
@@ -286,7 +288,9 @@
         "notifications": "Alerts and studio messages."
       },
       "coach": {
-        "home": "Today's sessions and roster at a glance.",
+        "home": "Today's workload, session counts, and quick links.",
+        "schedule": "Your assigned sessions in the current date range.",
+        "groups": "Booked participants and attendance for your classes.",
         "analytics": "Teaching load and session trends.",
         "salary": "Payouts and compensation summaries.",
         "profile": "Your coach identity, account summary, and workspace notes."
@@ -298,6 +302,7 @@
         "waitlists": "Waitlist queues by session.",
         "coaches": "Coach assignments and availability.",
         "clients": "Member roster for the studio.",
+        "giftCards": "Issued cards and balances (view and resend where allowed).",
         "profile": "Your manager account summary and operational guidance."
       },
       "contentAdmin": {

@@ -2,6 +2,7 @@
  * Central navigation for authenticated role dashboards.
  * Each role’s `href` values must stay under that role’s URL namespace.
  * Labels are resolved via next-intl under `dashboard.nav.{ROLE}.{labelKey}`.
+ * Source: CRM - Ommm - code.md (member app tabs, coach/manager/admin matrices).
  */
 export type DashboardNavIcon =
   | "home"
@@ -36,31 +37,36 @@ export type DashboardNavItem = {
   icon: DashboardNavIcon;
 };
 
+/** Member (USER): Home, Classes, My Bookings, My Account areas — no top-level Notifications tab per CRM. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/home", icon: "home", labelKey: "home" },
-  { href: "/user/progress", icon: "trendingUp", labelKey: "progress" },
   { href: "/user/classes", icon: "layoutGrid", labelKey: "classes" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings" },
+  { href: "/user/progress", icon: "trendingUp", labelKey: "progress" },
   { href: "/user/memberships", icon: "tag", labelKey: "memberships" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards" },
-  { href: "/user/notifications", icon: "bell", labelKey: "notifications" },
   { href: "/user/profile", icon: "user", labelKey: "profile" },
 ];
 
+/** Coach panel: Dashboard, My schedule, My groups, Salary, Analytics, Profile settings. */
 const COACH_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/coach/home", icon: "calendar", labelKey: "schedule" },
-  { href: "/coach/analytics", icon: "barChart", labelKey: "analytics" },
+  { href: "/coach/home", icon: "layoutDashboard", labelKey: "dashboard" },
+  { href: "/coach/schedule", icon: "calendar", labelKey: "schedule" },
+  { href: "/coach/groups", icon: "users", labelKey: "groups" },
   { href: "/coach/salary", icon: "wallet", labelKey: "salary" },
+  { href: "/coach/analytics", icon: "barChart", labelKey: "analytics" },
   { href: "/coach/profile", icon: "user", labelKey: "profile" },
 ];
 
+/** Manager matrix: no Memberships, Notifications, Reports, or studio Settings. */
 const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/home", icon: "home", labelKey: "home" },
   { href: "/manager/classes", icon: "layoutGrid", labelKey: "classes" },
   { href: "/manager/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/manager/waitlists", icon: "listOrdered", labelKey: "waitlists" },
-  { href: "/manager/coaches", icon: "userCheck", labelKey: "coaches" },
   { href: "/manager/clients", icon: "users", labelKey: "clients" },
+  { href: "/manager/coaches", icon: "userCheck", labelKey: "coaches" },
+  { href: "/manager/gift-cards", icon: "gift", labelKey: "giftCards" },
   { href: "/manager/profile", icon: "user", labelKey: "profile" },
 ];
 
@@ -70,12 +76,13 @@ const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/content-admin/profile", icon: "user", labelKey: "profile" },
 ];
 
+/** Admin panel section order per CRM (Settings is studio-level; profile remains account). */
 const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/home", icon: "layoutDashboard", labelKey: "dashboard" },
-  { href: "/admin/clients", icon: "users", labelKey: "users" },
-  { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/admin/classes", icon: "layoutGrid", labelKey: "classes" },
+  { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists" },
+  { href: "/admin/clients", icon: "users", labelKey: "clients" },
   { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
   { href: "/admin/memberships", icon: "tag", labelKey: "memberships" },
   { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards" },

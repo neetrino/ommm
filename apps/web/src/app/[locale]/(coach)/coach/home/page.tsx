@@ -1,37 +1,15 @@
-import { headers } from "next/headers";
-import { MarkAttendanceButtons } from "@/components/coach/mark-attendance-buttons";
-import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
-import { formatSessionRange } from "@/lib/format-session-time";
-import { serverApiJson } from "@/lib/server-api";
+import { Link } from "@/i18n/navigation";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
+import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
-type MeResponse = {
-  user: { role: string; name: string | null };
-  coachProfileId: string | null;
-};
-
-type SessionRow = {
-  id: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  classType: { name: string };
-  coachId: string;
-  _count: { bookings: number };
-};
-
-type BookingAdminRow = {
-  id: string;
-  status: string;
-  user: { name: string | null; email: string };
-  session: {
-    id: string;
-    startsAt: string;
-    endsAt: string;
-    coachId: string;
-    classType: { name: string };
-  };
-};
+function isSameLocalCalendarDay(iso: string, ref: Date): boolean {
+  const d = new Date(iso);
+  return (
+    d.getFullYear() === ref.getFullYear() &&
+    d.getMonth() === ref.getMonth() &&
+    d.getDate() === ref.getDate()
+  );
+}
 
 export default async function CoachHomePage({
   params,
@@ -39,26 +17,19 @@ export default async function CoachHomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const cookie = (await headers()).get("cookie") ?? "";
+  const panel = await loadCoachPanelPageData();
 
-  const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
-  if (!meRes.ok) {
-    return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        Sign in to open the coach panel.
-      </div>
-    );
-  }
-
-  const coachId = meRes.data.coachProfileId;
-  const isCoach =
-    meRes.data.user.role === "COACH" || coachId != null;
-
-  if (!isCoach) {
-    redirectToRoleHome(locale, meRes.data.user.role);
-  }
-
-  if (!coachId) {
+  if (!panel.ok) {
+    if (panel.reason === "not_signed_in") {
+      return (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Sign in to open the coach panel.
+        </div>
+      );
+    }
+    if (panel.reason === "not_coach_role" && panel.role) {
+      redirectToRoleHome(locale, panel.role);
+    }
     return (
       <div className="rounded-[24px] border border-zinc-200 bg-white p-6 text-sm text-zinc-700 shadow-sm">
         This area is for studio coaches. Your account does not have a coach
@@ -67,93 +38,66 @@ export default async function CoachHomePage({
     );
   }
 
-  const from = new Date();
-  const to = new Date();
-  to.setDate(to.getDate() + ACCOUNT_SESSION_RANGE_DAYS);
-  const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&coachId=${encodeURIComponent(coachId)}`;
-
-  const [sessionsRes, bookingsRes] = await Promise.all([
-    serverApiJson<SessionRow[]>(`/classes/sessions?${q}`, cookie),
-    serverApiJson<BookingAdminRow[]>(
-      `/bookings/admin?${q}`,
-      cookie,
-    ),
-  ]);
-
-  const sessions = sessionsRes.ok ? sessionsRes.data : [];
-  const myBookings = (bookingsRes.ok ? bookingsRes.data : []).filter(
-    (b) => b.session.coachId === coachId,
+  const { sessions, roster, userName } = panel;
+  const today = new Date();
+  const todaysSessions = sessions.filter((s) =>
+    isSameLocalCalendarDay(s.startsAt, today),
   );
-  const roster = myBookings.filter((b) => b.status === "BOOKED");
+  const todaysRoster = roster.filter((b) =>
+    isSameLocalCalendarDay(b.session.startsAt, today),
+  );
+
+  const linkClass =
+    "inline-flex rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-medium text-indigo-950 transition-colors hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2";
 
   return (
     <div className="space-y-10">
       <div>
         <h1 className="text-2xl font-semibold text-indigo-950">
-          Hi{meRes.data.user.name ? `, ${meRes.data.user.name}` : ""}
+          Hi{userName ? `, ${userName}` : ""}
         </h1>
         <p className="mt-2 text-sm text-indigo-900/80">
-          Your upcoming sessions and live roster.
+          Quick overview of today and your upcoming teaching load.
         </p>
       </div>
 
       <section>
-        <h2 className="text-lg font-medium text-indigo-950">My schedule</h2>
-        {sessions.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600">No sessions in range.</p>
-        ) : (
-          <ul className="mt-4 space-y-3">
-            {sessions.map((s) => (
-              <li
-                key={s.id}
-                className="rounded-[24px] border border-indigo-100 bg-white p-4 text-sm shadow-sm"
-              >
-                <p className="font-medium text-zinc-900">
-                  {s.classType.name}
-                </p>
-                <p className="text-zinc-600">
-                  {formatSessionRange(locale, s.startsAt, s.endsAt)}
-                </p>
-                <p className="mt-1 text-xs text-zinc-500">
-                  {s._count.bookings}/{s.capacity} booked
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+        <h2 className="text-lg font-medium text-indigo-950">Today at a glance</h2>
+        <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm">
+            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+              Classes today
+            </dt>
+            <dd className="mt-1 text-2xl font-semibold text-zinc-900">
+              {todaysSessions.length}
+            </dd>
+          </div>
+          <div className="rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm">
+            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+              Booked clients today
+            </dt>
+            <dd className="mt-1 text-2xl font-semibold text-zinc-900">
+              {todaysRoster.length}
+            </dd>
+          </div>
+          <div className="rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm">
+            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+              Upcoming sessions (range)
+            </dt>
+            <dd className="mt-1 text-2xl font-semibold text-zinc-900">
+              {sessions.length}
+            </dd>
+          </div>
+        </dl>
       </section>
 
-      <section>
-        <h2 className="text-lg font-medium text-indigo-950">
-          Attendance (booked)
-        </h2>
-        {roster.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600">No active bookings.</p>
-        ) : (
-          <ul className="mt-4 space-y-3">
-            {roster.map((b) => (
-              <li
-                key={b.id}
-                className="flex flex-col gap-3 rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="font-medium text-zinc-900">
-                    {b.user.name ?? b.user.email}
-                  </p>
-                  <p className="text-sm text-zinc-600">
-                    {b.session.classType.name} ·{" "}
-                    {formatSessionRange(
-                      locale,
-                      b.session.startsAt,
-                      b.session.endsAt,
-                    )}
-                  </p>
-                </div>
-                <MarkAttendanceButtons bookingId={b.id} />
-              </li>
-            ))}
-          </ul>
-        )}
+      <section className="flex flex-wrap gap-3">
+        <Link href="/coach/schedule" className={linkClass}>
+          Open my schedule
+        </Link>
+        <Link href="/coach/groups" className={linkClass}>
+          View participants & attendance
+        </Link>
       </section>
     </div>
   );
