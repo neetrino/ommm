@@ -2,12 +2,12 @@ import {
   DeleteObjectCommand,
   PutObjectCommand,
   S3Client,
-} from "@aws-sdk/client-s3";
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+} from '@aws-sdk/client-s3';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 function normalizePublicBase(url: string): string {
-  return url.trim().replace(/\/+$/, "");
+  return url.trim().replace(/\/+$/, '');
 }
 
 function objectKeyFromPublicUrl(
@@ -19,7 +19,7 @@ function objectKeyFromPublicUrl(
   if (!u.startsWith(base)) {
     return null;
   }
-  const rest = u.slice(base.length).replace(/^\/+/, "");
+  const rest = u.slice(base.length).replace(/^\/+/, '');
   return rest.length > 0 ? rest : null;
 }
 
@@ -35,13 +35,15 @@ export class R2HomeImageStorage implements OnModuleInit {
 
   onModuleInit(): void {
     if (this.isConfigured()) {
-      this.logger.log("Home banner uploads: Cloudflare R2 (S3 API) is enabled.");
+      this.logger.log(
+        'Home banner uploads: Cloudflare R2 (S3 API) is enabled.',
+      );
       return;
     }
     const missing = this.listMissingR2Env();
     this.logger.warn(
-      `Home banner uploads: R2 is not active (missing or empty: ${missing.join(", ")}). ` +
-        "Images will fall back to local disk unless you set all R2_* variables.",
+      `Home banner uploads: R2 is not active (missing or empty: ${missing.join(', ')}). ` +
+        'Images will fall back to local disk unless you set all R2_* variables.',
     );
   }
 
@@ -53,23 +55,23 @@ export class R2HomeImageStorage implements OnModuleInit {
   /** Non-secret hints for logs / support (no values). */
   listMissingR2Env(): string[] {
     const missing: string[] = [];
-    if (!this.config.get<string>("R2_BUCKET_NAME")?.trim()) {
-      missing.push("R2_BUCKET_NAME");
+    if (!this.config.get<string>('R2_BUCKET_NAME')?.trim()) {
+      missing.push('R2_BUCKET_NAME');
     }
-    if (!this.config.get<string>("R2_ACCESS_KEY_ID")?.trim()) {
-      missing.push("R2_ACCESS_KEY_ID");
+    if (!this.config.get<string>('R2_ACCESS_KEY_ID')?.trim()) {
+      missing.push('R2_ACCESS_KEY_ID');
     }
-    if (!this.config.get<string>("R2_SECRET_ACCESS_KEY")?.trim()) {
-      missing.push("R2_SECRET_ACCESS_KEY");
+    if (!this.config.get<string>('R2_SECRET_ACCESS_KEY')?.trim()) {
+      missing.push('R2_SECRET_ACCESS_KEY');
     }
-    if (!this.config.get<string>("R2_PUBLIC_URL")?.trim()) {
-      missing.push("R2_PUBLIC_URL");
+    if (!this.config.get<string>('R2_PUBLIC_URL')?.trim()) {
+      missing.push('R2_PUBLIC_URL');
     }
     const endpoint =
-      this.config.get<string>("R2_S3_ENDPOINT")?.trim() ??
-      this.config.get<string>("R2_ACCOUNT_ID")?.trim();
+      this.config.get<string>('R2_S3_ENDPOINT')?.trim() ??
+      this.config.get<string>('R2_ACCOUNT_ID')?.trim();
     if (!endpoint) {
-      missing.push("R2_S3_ENDPOINT or R2_ACCOUNT_ID");
+      missing.push('R2_S3_ENDPOINT or R2_ACCOUNT_ID');
     }
     return missing;
   }
@@ -81,9 +83,9 @@ export class R2HomeImageStorage implements OnModuleInit {
   }): Promise<string> {
     const ctx = this.resolveR2();
     if (!ctx) {
-      throw new Error("R2 is not configured");
+      throw new Error('R2 is not configured');
     }
-    const key = params.key.replace(/^\/+/, "");
+    const key = params.key.replace(/^\/+/, '');
     await ctx.client.send(
       new PutObjectCommand({
         Bucket: ctx.bucket,
@@ -102,7 +104,7 @@ export class R2HomeImageStorage implements OnModuleInit {
       return;
     }
     const key = objectKeyFromPublicUrl(storedUrl, ctx.publicBase);
-    if (!key || key.includes("..")) {
+    if (!key || key.includes('..')) {
       return;
     }
     try {
@@ -124,16 +126,16 @@ export class R2HomeImageStorage implements OnModuleInit {
     bucket: string;
     publicBase: string;
   } | null {
-    const bucket = this.config.get<string>("R2_BUCKET_NAME")?.trim();
-    const accessKeyId = this.config.get<string>("R2_ACCESS_KEY_ID")?.trim();
+    const bucket = this.config.get<string>('R2_BUCKET_NAME')?.trim();
+    const accessKeyId = this.config.get<string>('R2_ACCESS_KEY_ID')?.trim();
     const secretAccessKey = this.config
-      .get<string>("R2_SECRET_ACCESS_KEY")
+      .get<string>('R2_SECRET_ACCESS_KEY')
       ?.trim();
-    const publicRaw = this.config.get<string>("R2_PUBLIC_URL")?.trim();
+    const publicRaw = this.config.get<string>('R2_PUBLIC_URL')?.trim();
     const endpoint =
-      this.config.get<string>("R2_S3_ENDPOINT")?.trim() ??
+      this.config.get<string>('R2_S3_ENDPOINT')?.trim() ??
       ((): string | undefined => {
-        const accountId = this.config.get<string>("R2_ACCOUNT_ID")?.trim();
+        const accountId = this.config.get<string>('R2_ACCOUNT_ID')?.trim();
         return accountId
           ? `https://${accountId}.r2.cloudflarestorage.com`
           : undefined;
@@ -151,7 +153,7 @@ export class R2HomeImageStorage implements OnModuleInit {
 
     const publicBase = normalizePublicBase(publicRaw);
     const client = new S3Client({
-      region: "auto",
+      region: 'auto',
       endpoint,
       forcePathStyle: true,
       credentials: {

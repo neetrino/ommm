@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { MembershipStatus, Role } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MembershipStatus, Role } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ClientsService {
@@ -21,7 +21,7 @@ export class ClientsService {
           include: { plan: true },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 500,
     });
   }
@@ -33,17 +33,18 @@ export class ClientsService {
         memberships: { include: { plan: true } },
         bookings: {
           take: 50,
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           include: { session: { include: { classType: true } } },
         },
-        payments: { take: 50, orderBy: { createdAt: "desc" } },
+        payments: { take: 50, orderBy: { createdAt: 'desc' } },
         giftCardsPurchased: { take: 20 },
       },
     });
     if (!user) {
       throw new NotFoundException();
     }
-    const { passwordHash: _p, ...rest } = user;
+    const { passwordHash, ...rest } = user;
+    void passwordHash;
     return rest;
   }
 }

@@ -1,5 +1,5 @@
-import * as argon2 from "argon2";
-import bcrypt from "bcryptjs";
+import * as argon2 from 'argon2';
+import bcrypt from 'bcryptjs';
 
 /** OWASP-recommended cost factor for bcrypt (balance CPU vs security). */
 export const BCRYPT_SALT_ROUNDS = 12;
@@ -20,7 +20,7 @@ export async function verifyPassword(
   storedHash: string,
   plain: string,
 ): Promise<boolean> {
-  if (storedHash.startsWith("$argon2")) {
+  if (storedHash.startsWith('$argon2')) {
     return argon2.verify(storedHash, plain);
   }
   return bcrypt.compare(plain, storedHash);

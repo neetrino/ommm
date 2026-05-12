@@ -3,12 +3,12 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { BookingStatus, Role, WaitlistStatus, type User } from "@prisma/client";
-import { hashPassword } from "../common/password-crypto";
-import { PrismaService } from "../prisma/prisma.service";
-import type { CreateCoachDto } from "./dto/create-coach.dto";
-import type { UpdateCoachDto } from "./dto/update-coach.dto";
+} from '@nestjs/common';
+import { BookingStatus, Role, WaitlistStatus, type User } from '@prisma/client';
+import { hashPassword } from '../common/password-crypto';
+import { PrismaService } from '../prisma/prisma.service';
+import type { CreateCoachDto } from './dto/create-coach.dto';
+import type { UpdateCoachDto } from './dto/update-coach.dto';
 
 @Injectable()
 export class CoachesService {
@@ -18,7 +18,9 @@ export class CoachesService {
     return this.prisma.coachProfile.findMany({
       where: { isActive: true },
       include: {
-        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        user: {
+          select: { id: true, name: true, email: true, avatarUrl: true },
+        },
       },
     });
   }
@@ -36,7 +38,7 @@ export class CoachesService {
     const email = dto.email.toLowerCase();
     const exists = await this.prisma.user.findUnique({ where: { email } });
     if (exists) {
-      throw new ConflictException("User already exists");
+      throw new ConflictException('User already exists');
     }
     const passwordHash = await hashPassword(dto.password);
     const user = await this.prisma.user.create({
@@ -72,7 +74,7 @@ export class CoachesService {
       throw new ForbiddenException();
     }
     if (actor.role === Role.MANAGER && dto.isActive === false) {
-      throw new ForbiddenException("Managers cannot deactivate coaches");
+      throw new ForbiddenException('Managers cannot deactivate coaches');
     }
     return this.prisma.coachProfile.update({
       where: { id: coachProfileId },
@@ -88,7 +90,7 @@ export class CoachesService {
       include: {
         user: { select: { id: true, name: true, email: true, role: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

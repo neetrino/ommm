@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import type { UpdateStudioDto } from "./dto/update-studio.dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import type { UpdateStudioDto } from './dto/update-studio.dto';
 
 @Injectable()
 export class StudioService {
@@ -10,7 +10,7 @@ export class StudioService {
     const row = await this.prisma.studioSettings.findFirst();
     if (!row) {
       return this.prisma.studioSettings.create({
-        data: { studioName: "Ommm" },
+        data: { studioName: 'Ommm' },
       });
     }
     return row;

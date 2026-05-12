@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { MailService } from "../mail/mail.service";
-import { PrismaService } from "../prisma/prisma.service";
-import { StudioService } from "../studio/studio.service";
-import type { CreateContactMessageDto } from "./dto/create-contact-message.dto";
+import { Injectable } from '@nestjs/common';
+import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { StudioService } from '../studio/studio.service';
+import type { CreateContactMessageDto } from './dto/create-contact-message.dto';
 
 @Injectable()
 export class ContactService {

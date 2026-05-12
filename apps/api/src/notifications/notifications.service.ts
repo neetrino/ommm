@@ -1,8 +1,8 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
-import { BookingStatus, Role } from "@prisma/client";
-import { MailService } from "../mail/mail.service";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { BookingStatus, Role } from '@prisma/client';
+import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 const REMINDER_HOURS_BEFORE = 2;
 
@@ -56,7 +56,7 @@ export class NotificationsService {
   async broadcastToAll(subject: string, html: string, testTo?: string) {
     if (testTo) {
       await this.mail.sendEmail({ to: testTo, subject, html });
-      return { ok: true, mode: "test" };
+      return { ok: true, mode: 'test' };
     }
     const users = await this.prisma.user.findMany({
       where: { role: Role.USER },

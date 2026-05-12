@@ -1,4 +1,4 @@
-import { IsString, MaxLength } from "class-validator";
+import { IsString, MaxLength } from 'class-validator';
 
 /** Mobile/web upload fallback when multipart FormData is not parsed reliably by the server. */
 export class HomeImageJsonDto {

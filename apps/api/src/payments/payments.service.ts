@@ -3,19 +3,19 @@ import {
   Injectable,
   Logger,
   ServiceUnavailableException,
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
   MembershipStatus,
   PaymentStatus,
-} from "@prisma/client";
-import Stripe from "stripe";
-import { randomBytes } from "node:crypto";
-import { MailService } from "../mail/mail.service";
-import { PrismaService } from "../prisma/prisma.service";
+} from '@prisma/client';
+import Stripe from 'stripe';
+import { randomBytes } from 'node:crypto';
+import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 type StripeClient = InstanceType<typeof Stripe>;
 
@@ -39,13 +39,13 @@ export class PaymentsService {
     private readonly config: ConfigService,
     private readonly mail: MailService,
   ) {
-    const key = config.get<string>("STRIPE_SECRET_KEY");
+    const key = config.get<string>('STRIPE_SECRET_KEY');
     this.stripe = key ? new Stripe(key) : null;
   }
 
   private ensureStripe(): StripeClient {
     if (!this.stripe) {
-      throw new ServiceUnavailableException("Stripe is not configured");
+      throw new ServiceUnavailableException('Stripe is not configured');
     }
     return this.stripe;
   }
@@ -78,19 +78,22 @@ export class PaymentsService {
       where: { id: planId },
     });
     if (!plan?.isActive) {
-      throw new BadRequestException("Plan not available");
+      throw new BadRequestException('Plan not available');
     }
     const stripe = this.ensureStripe();
     const customerId = await this.getOrCreateStripeCustomer(userId);
-    const web = this.config.get<string>("WEB_APP_URL") ?? "http://localhost:3000";
-    const currency = (this.config.get<string>("STRIPE_CURRENCY") ?? "usd").toLowerCase();
+    const web =
+      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
+    const currency = (
+      this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
+    ).toLowerCase();
 
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode: 'subscription',
       customer: customerId,
       success_url: `${web}/hy/account/memberships?success=1`,
       cancel_url: `${web}/hy/memberships?canceled=1`,
-      metadata: { type: "membership", userId, planId },
+      metadata: { type: 'membership', userId, planId },
       line_items: plan.stripePriceId
         ? [{ price: plan.stripePriceId, quantity: 1 }]
         : [
@@ -98,7 +101,7 @@ export class PaymentsService {
               price_data: {
                 currency,
                 unit_amount: plan.priceCents,
-                recurring: { interval: "month" },
+                recurring: { interval: 'month' },
                 product_data: { name: plan.name },
               },
               quantity: 1,
@@ -117,28 +120,31 @@ export class PaymentsService {
   }): Promise<{ url: string | null }> {
     const stripe = this.ensureStripe();
     const customerId = await this.getOrCreateStripeCustomer(params.purchaserId);
-    const web = this.config.get<string>("WEB_APP_URL") ?? "http://localhost:3000";
-    const currency = (this.config.get<string>("STRIPE_CURRENCY") ?? "usd").toLowerCase();
+    const web =
+      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
+    const currency = (
+      this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
+    ).toLowerCase();
 
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: 'payment',
       customer: customerId,
       success_url: `${web}/hy/account/gift-cards?success=1`,
       cancel_url: `${web}/hy/memberships?gift_canceled=1`,
       metadata: {
-        type: "gift",
+        type: 'gift',
         purchaserId: params.purchaserId,
         amountCents: String(params.amountCents),
-        recipientName: params.recipientName ?? "",
-        recipientEmail: params.recipientEmail ?? "",
-        message: params.message ?? "",
+        recipientName: params.recipientName ?? '',
+        recipientEmail: params.recipientEmail ?? '',
+        message: params.message ?? '',
       },
       line_items: [
         {
           price_data: {
             currency,
             unit_amount: params.amountCents,
-            product_data: { name: "Gift card" },
+            product_data: { name: 'Gift card' },
           },
           quantity: 1,
         },
@@ -147,30 +153,36 @@ export class PaymentsService {
     return { url: session.url };
   }
 
-  async createDropInCheckout(userId: string, sessionId: string): Promise<{ url: string | null }> {
+  async createDropInCheckout(
+    userId: string,
+    sessionId: string,
+  ): Promise<{ url: string | null }> {
     const classSession = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
     });
     if (!classSession) {
-      throw new BadRequestException("Session not found");
+      throw new BadRequestException('Session not found');
     }
     const stripe = this.ensureStripe();
     const customerId = await this.getOrCreateStripeCustomer(userId);
-    const web = this.config.get<string>("WEB_APP_URL") ?? "http://localhost:3000";
-    const currency = (this.config.get<string>("STRIPE_CURRENCY") ?? "usd").toLowerCase();
+    const web =
+      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
+    const currency = (
+      this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
+    ).toLowerCase();
 
     const checkout = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: 'payment',
       customer: customerId,
       success_url: `${web}/hy/account/classes/${sessionId}?paid=1`,
       cancel_url: `${web}/hy/account/classes/${sessionId}?canceled=1`,
-      metadata: { type: "dropin", userId, sessionId },
+      metadata: { type: 'dropin', userId, sessionId },
       line_items: [
         {
           price_data: {
             currency,
             unit_amount: classSession.priceCents,
-            product_data: { name: "Class drop-in" },
+            product_data: { name: 'Class drop-in' },
           },
           quantity: 1,
         },
@@ -179,38 +191,43 @@ export class PaymentsService {
     return { url: checkout.url };
   }
 
-  async handleStripeWebhook(rawBody: Buffer, signature: string | undefined): Promise<void> {
-    const secret = this.config.get<string>("STRIPE_WEBHOOK_SECRET");
+  async handleStripeWebhook(
+    rawBody: Buffer,
+    signature: string | undefined,
+  ): Promise<void> {
+    const secret = this.config.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!this.stripe || !secret) {
-      this.logger.warn("Stripe webhook skipped — not configured");
+      this.logger.warn('Stripe webhook skipped — not configured');
       return;
     }
     let event: { type: string; data: { object: unknown } };
     try {
       event = this.stripe.webhooks.constructEvent(
         rawBody,
-        signature ?? "",
+        signature ?? '',
         secret,
-      ) as { type: string; data: { object: unknown } };
+      );
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "invalid signature";
+      const msg = e instanceof Error ? e.message : 'invalid signature';
       throw new BadRequestException(`Webhook: ${msg}`);
     }
 
-    if (event.type === "checkout.session.completed") {
+    if (event.type === 'checkout.session.completed') {
       const session = event.data.object as StripeCheckoutSessionLike;
       const type = session.metadata?.type;
-      if (type === "membership") {
+      if (type === 'membership') {
         await this.fulfillMembership(session);
-      } else if (type === "gift") {
+      } else if (type === 'gift') {
         await this.fulfillGift(session);
-      } else if (type === "dropin") {
+      } else if (type === 'dropin') {
         await this.fulfillDropIn(session);
       }
     }
   }
 
-  private async fulfillMembership(session: StripeCheckoutSessionLike): Promise<void> {
+  private async fulfillMembership(
+    session: StripeCheckoutSessionLike,
+  ): Promise<void> {
     const userId = session.metadata?.userId;
     const planId = session.metadata?.planId;
     if (!userId || !planId) {
@@ -223,13 +240,15 @@ export class PaymentsService {
       return;
     }
     const subId =
-      typeof session.subscription === "string"
+      typeof session.subscription === 'string'
         ? session.subscription
         : session.subscription?.id;
     const start = new Date();
     const end = new Date(start);
     end.setDate(end.getDate() + plan.periodDays);
-    const sessionsRemaining = plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0);
+    const sessionsRemaining = plan.isUnlimited
+      ? null
+      : (plan.sessionsPerMonth ?? 0);
     await this.prisma.userMembership.create({
       data: {
         userId,
@@ -243,7 +262,7 @@ export class PaymentsService {
     });
     const paidCents = session.amount_total ?? plan.priceCents;
     const payId =
-      (typeof session.payment_intent === "string"
+      (typeof session.payment_intent === 'string'
         ? session.payment_intent
         : session.payment_intent?.id) ?? `sub_${session.id}`;
     await this.prisma.payment.create({
@@ -252,7 +271,7 @@ export class PaymentsService {
         amountCents: paidCents,
         status: PaymentStatus.SUCCEEDED,
         stripePaymentId: payId,
-        description: "Membership subscription",
+        description: 'Membership subscription',
       },
     });
   }
@@ -263,9 +282,9 @@ export class PaymentsService {
     if (!purchaserId || !amount) {
       return;
     }
-    const code = randomBytes(8).toString("hex").toUpperCase();
+    const code = randomBytes(8).toString('hex').toUpperCase();
     const pi =
-      typeof session.payment_intent === "string"
+      typeof session.payment_intent === 'string'
         ? session.payment_intent
         : session.payment_intent?.id;
     await this.prisma.giftCard.create({
@@ -283,16 +302,19 @@ export class PaymentsService {
     });
     const email = session.metadata?.recipientEmail;
     if (email) {
-      const web = this.config.get<string>("WEB_APP_URL") ?? "http://localhost:3000";
+      const web =
+        this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
       await this.mail.sendEmail({
         to: email,
-        subject: "Your Ommm gift card",
+        subject: 'Your Ommm gift card',
         html: `<p>Your code: <strong>${code}</strong></p><p>Redeem at ${web}</p>`,
       });
     }
   }
 
-  private async fulfillDropIn(session: StripeCheckoutSessionLike): Promise<void> {
+  private async fulfillDropIn(
+    session: StripeCheckoutSessionLike,
+  ): Promise<void> {
     const userId = session.metadata?.userId;
     const sessionId = session.metadata?.sessionId;
     if (!userId || !sessionId) {
@@ -305,7 +327,7 @@ export class PaymentsService {
       return;
     }
     const pi =
-      typeof session.payment_intent === "string"
+      typeof session.payment_intent === 'string'
         ? session.payment_intent
         : session.payment_intent?.id;
     await this.prisma.payment.create({
@@ -339,7 +361,7 @@ export class PaymentsService {
   listPayments(userId: string) {
     return this.prisma.payment.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 100,
     });
   }

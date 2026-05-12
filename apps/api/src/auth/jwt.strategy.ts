@@ -1,16 +1,34 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { PassportStrategy } from "@nestjs/passport";
-import type { User } from "@prisma/client";
-import type { Request } from "express";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { ACCESS_TOKEN_COOKIE } from "../common/constants";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import type { User } from '@prisma/client';
+import type { Request } from 'express';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ACCESS_TOKEN_COOKIE } from '../common/constants';
+import { PrismaService } from '../prisma/prisma.service';
 
 type JwtPayload = {
   sub: string;
   email: string;
 };
+
+function readAccessTokenCookie(req: Request): string | null {
+  const cookiesUnknown: unknown =
+    'cookies' in req ? (req as { cookies?: unknown }).cookies : undefined;
+  if (
+    cookiesUnknown === null ||
+    cookiesUnknown === undefined ||
+    typeof cookiesUnknown !== 'object' ||
+    Array.isArray(cookiesUnknown)
+  ) {
+    return null;
+  }
+  const raw: unknown = Reflect.get(
+    cookiesUnknown as Record<PropertyKey, unknown>,
+    ACCESS_TOKEN_COOKIE,
+  );
+  return typeof raw === 'string' ? raw : null;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,14 +38,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => {
-          const c = req?.cookies?.[ACCESS_TOKEN_COOKIE];
-          return typeof c === "string" ? c : null;
-        },
+        (req: Request) => readAccessTokenCookie(req),
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey: config.getOrThrow<string>("JWT_SECRET"),
+      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
     });
   }
 

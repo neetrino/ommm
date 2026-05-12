@@ -1,4 +1,4 @@
-import { IsString, MaxLength, MinLength } from "class-validator";
+import { IsString, MaxLength, MinLength } from 'class-validator';
 
 /** Matches registration password length rules (see RegisterDto). */
 export class ChangePasswordDto {

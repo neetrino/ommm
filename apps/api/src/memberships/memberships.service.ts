@@ -1,11 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { MembershipStatus } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import type { CreatePlanDto } from "./dto/create-plan.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MembershipStatus } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import type { CreatePlanDto } from './dto/create-plan.dto';
 
 @Injectable()
 export class MembershipsService {
@@ -14,7 +10,7 @@ export class MembershipsService {
   listPlans() {
     return this.prisma.membershipPlan.findMany({
       where: { isActive: true },
-      orderBy: { priceCents: "asc" },
+      orderBy: { priceCents: 'asc' },
     });
   }
 
@@ -38,7 +34,7 @@ export class MembershipsService {
       where: { id: planId },
     });
     if (!plan) {
-      throw new NotFoundException("Plan not found");
+      throw new NotFoundException('Plan not found');
     }
     const start = new Date();
     const end = new Date(start);
@@ -63,7 +59,7 @@ export class MembershipsService {
     return this.prisma.userMembership.findMany({
       where: { userId },
       include: { plan: true },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -95,8 +91,11 @@ export class MembershipsService {
 
   listAllAdmin() {
     return this.prisma.userMembership.findMany({
-      include: { plan: true, user: { select: { id: true, email: true, name: true } } },
-      orderBy: { createdAt: "desc" },
+      include: {
+        plan: true,
+        user: { select: { id: true, email: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
       take: 500,
     });
   }

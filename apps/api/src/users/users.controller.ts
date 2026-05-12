@@ -8,34 +8,34 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-} from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
-import type { Express } from "express";
-import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
-import { HOME_IMAGE_MAX_BYTES } from "./constants/home-image.constants";
-import { ChangePasswordDto } from "./dto/change-password.dto";
-import { HomeImageJsonDto } from "./dto/home-image-json.dto";
-import { NotificationPrefsDto } from "./dto/notification-prefs.dto";
-import { UpdateProfileDto } from "./dto/update-profile.dto";
-import { UsersService } from "./users.service";
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Express } from 'express';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { HOME_IMAGE_MAX_BYTES } from './constants/home-image.constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { HomeImageJsonDto } from './dto/home-image-json.dto';
+import { NotificationPrefsDto } from './dto/notification-prefs.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UsersService } from './users.service';
 
-@Controller("users")
+@Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
-  @Get("me")
+  @Get('me')
   me(@CurrentUser() user: { id: string }) {
     return this.users.getMe(user.id);
   }
 
-  @Patch("me")
+  @Patch('me')
   patchMe(@CurrentUser() user: { id: string }, @Body() dto: UpdateProfileDto) {
     return this.users.updateProfile(user.id, dto);
   }
 
-  @Patch("me/password")
+  @Patch('me/password')
   patchPassword(
     @CurrentUser() user: { id: string },
     @Body() dto: ChangePasswordDto,
@@ -43,7 +43,7 @@ export class UsersController {
     return this.users.changePassword(user.id, dto);
   }
 
-  @Post("me/home-image-json")
+  @Post('me/home-image-json')
   uploadHomeImageJson(
     @CurrentUser() user: { id: string },
     @Body() dto: HomeImageJsonDto,
@@ -51,9 +51,9 @@ export class UsersController {
     return this.users.saveHomeImageJson(user.id, dto);
   }
 
-  @Post("me/home-image")
+  @Post('me/home-image')
   @UseInterceptors(
-    FileInterceptor("file", {
+    FileInterceptor('file', {
       limits: { fileSize: HOME_IMAGE_MAX_BYTES },
     }),
   )
@@ -62,12 +62,12 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File | undefined,
   ) {
     if (!file) {
-      throw new BadRequestException("Image file is required");
+      throw new BadRequestException('Image file is required');
     }
     return this.users.saveHomeImage(user.id, file);
   }
 
-  @Patch("me/notifications")
+  @Patch('me/notifications')
   patchNotifs(
     @CurrentUser() user: { id: string },
     @Body() dto: NotificationPrefsDto,

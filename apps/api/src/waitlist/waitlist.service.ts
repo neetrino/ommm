@@ -2,15 +2,15 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
   WaitlistStatus,
-} from "@prisma/client";
-import { MailService } from "../mail/mail.service";
-import { PrismaService } from "../prisma/prisma.service";
-import { StudioService } from "../studio/studio.service";
+} from '@prisma/client';
+import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { StudioService } from '../studio/studio.service';
 
 @Injectable()
 export class WaitlistService {
@@ -36,21 +36,21 @@ export class WaitlistService {
       where: { id: sessionId },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
-      throw new NotFoundException("Session not found");
+      throw new NotFoundException('Session not found');
     }
     const full = await this.isFull(sessionId, session.capacity);
     if (!full) {
-      throw new BadRequestException("Session is not full");
+      throw new BadRequestException('Session is not full');
     }
     const existing = await this.prisma.waitlistEntry.findUnique({
       where: { userId_sessionId: { userId, sessionId } },
     });
     if (existing && existing.status === WaitlistStatus.ACTIVE) {
-      throw new BadRequestException("Already on waitlist");
+      throw new BadRequestException('Already on waitlist');
     }
     const last = await this.prisma.waitlistEntry.findFirst({
       where: { sessionId, status: WaitlistStatus.ACTIVE },
-      orderBy: { position: "desc" },
+      orderBy: { position: 'desc' },
     });
     const position = (last?.position ?? 0) + 1;
     return this.prisma.waitlistEntry.create({
@@ -68,17 +68,22 @@ export class WaitlistService {
 
   listMine(userId: string) {
     return this.prisma.waitlistEntry.findMany({
-      where: { userId, status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] } },
+      where: {
+        userId,
+        status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+      },
       include: { session: { include: { classType: true, coach: true } } },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   listForSession(sessionId: string) {
     return this.prisma.waitlistEntry.findMany({
       where: { sessionId },
-      include: { user: { select: { id: true, name: true, email: true, phone: true } } },
-      orderBy: { position: "asc" },
+      include: {
+        user: { select: { id: true, name: true, email: true, phone: true } },
+      },
+      orderBy: { position: 'asc' },
     });
   }
 
@@ -95,7 +100,7 @@ export class WaitlistService {
     }
     const next = await this.prisma.waitlistEntry.findFirst({
       where: { sessionId, status: WaitlistStatus.ACTIVE },
-      orderBy: { position: "asc" },
+      orderBy: { position: 'asc' },
       include: { user: true },
     });
     if (!next) {
@@ -112,11 +117,11 @@ export class WaitlistService {
         offerExpiresAt,
       },
     });
-    const webUrl = process.env.WEB_APP_URL ?? "http://localhost:3000";
+    const webUrl = process.env.WEB_APP_URL ?? 'http://localhost:3000';
     const link = `${webUrl}/hy/account/classes/${sessionId}`;
     await this.mail.sendEmail({
       to: next.user.email,
-      subject: "A spot opened — book now",
+      subject: 'A spot opened — book now',
       html: `<p>A place opened for your class.</p><p><a href="${link}">Book</a></p><p>Offer expires in ${minutes} minutes.</p>`,
     });
   }

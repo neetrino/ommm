@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
+} from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
@@ -11,10 +11,10 @@ import {
   Prisma,
   Role,
   type User,
-} from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import { WaitlistService } from "../waitlist/waitlist.service";
-import type { CreateBookingNoteDto } from "./dto/create-booking-note.dto";
+} from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { WaitlistService } from '../waitlist/waitlist.service';
+import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 
 @Injectable()
 export class BookingsService {
@@ -28,20 +28,20 @@ export class BookingsService {
       where: { id: sessionId },
     });
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
-      throw new NotFoundException("Session not found");
+      throw new NotFoundException('Session not found');
     }
     if (session.startsAt < new Date()) {
-      throw new BadRequestException("Session already started");
+      throw new BadRequestException('Session already started');
     }
     const existing = await this.prisma.booking.findUnique({
       where: { userId_sessionId: { userId, sessionId } },
     });
     if (existing?.status === BookingStatus.BOOKED) {
-      throw new BadRequestException("Already booked");
+      throw new BadRequestException('Already booked');
     }
     const booked = await this.waitlist.bookedCount(sessionId);
     if (booked >= session.capacity) {
-      throw new BadRequestException("Session is full — join waitlist");
+      throw new BadRequestException('Session is full — join waitlist');
     }
 
     const booking = await this.prisma.$transaction(async (tx) => {
@@ -56,12 +56,12 @@ export class BookingsService {
         });
         if (!m) {
           throw new BadRequestException(
-            "Active membership or payment required for this class",
+            'Active membership or payment required for this class',
           );
         }
         if (!m.plan.isUnlimited) {
           if (m.sessionsRemaining == null || m.sessionsRemaining <= 0) {
-            throw new BadRequestException("No sessions remaining on your plan");
+            throw new BadRequestException('No sessions remaining on your plan');
           }
           await tx.userMembership.update({
             where: { id: m.id },
@@ -97,7 +97,7 @@ export class BookingsService {
       throw new ForbiddenException();
     }
     if (booking.status !== BookingStatus.BOOKED) {
-      throw new BadRequestException("Cannot cancel this booking");
+      throw new BadRequestException('Cannot cancel this booking');
     }
     const studio = await this.prisma.studioSettings.findFirst();
     const noticeHours = studio?.cancellationHoursNotice ?? 24;
@@ -135,7 +135,7 @@ export class BookingsService {
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -155,17 +155,17 @@ export class BookingsService {
       where: { id: bookingId },
     });
     if (!booking || booking.status !== BookingStatus.BOOKED) {
-      throw new BadRequestException("Invalid booking");
+      throw new BadRequestException('Invalid booking');
     }
     const target = await this.prisma.classSession.findUnique({
       where: { id: targetSessionId },
     });
     if (!target || target.status === ClassSessionStatus.CANCELLED) {
-      throw new NotFoundException("Target session not found");
+      throw new NotFoundException('Target session not found');
     }
     const n = await this.waitlist.bookedCount(targetSessionId);
     if (n >= target.capacity) {
-      throw new BadRequestException("Target session is full");
+      throw new BadRequestException('Target session is full');
     }
     const oldSessionId = booking.sessionId;
     const updated = await this.prisma.booking.update({
@@ -256,7 +256,7 @@ export class BookingsService {
         session: { include: { classType: true } },
         notes: { include: { author: { select: { name: true } } } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 200,
     });
   }

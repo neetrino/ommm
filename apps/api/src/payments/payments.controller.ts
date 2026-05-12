@@ -8,45 +8,45 @@ import {
   Req,
   ServiceUnavailableException,
   UseGuards,
-} from "@nestjs/common";
-import { SkipThrottle } from "@nestjs/throttler";
-import type { RawBodyRequest } from "@nestjs/common";
-import type { Request } from "express";
-import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
-import { CreateGiftCheckoutDto } from "./dto/create-gift-checkout.dto";
-import { PaymentsService } from "./payments.service";
+} from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
+import type { RawBodyRequest } from '@nestjs/common';
+import type { Request } from 'express';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
+import { PaymentsService } from './payments.service';
 
-@Controller("payments")
+@Controller('payments')
 export class PaymentsController {
   constructor(private readonly payments: PaymentsService) {}
 
-  @Post("webhook")
+  @Post('webhook')
   @SkipThrottle()
   async webhook(
     @Req() req: RawBodyRequest<Request>,
-    @Headers("stripe-signature") signature: string | undefined,
+    @Headers('stripe-signature') signature: string | undefined,
   ) {
     const raw = req.rawBody;
     if (!raw) {
       throw new ServiceUnavailableException(
-        "Stripe webhook is not enabled (raw body not available on this deploy).",
+        'Stripe webhook is not enabled (raw body not available on this deploy).',
       );
     }
     await this.payments.handleStripeWebhook(raw, signature);
     return { received: true };
   }
 
-  @Post("checkout/membership/:planId")
+  @Post('checkout/membership/:planId')
   @UseGuards(JwtAuthGuard)
   checkoutMembership(
     @CurrentUser() user: { id: string },
-    @Param("planId") planId: string,
+    @Param('planId') planId: string,
   ) {
     return this.payments.createMembershipCheckout(user.id, planId);
   }
 
-  @Post("checkout/gift")
+  @Post('checkout/gift')
   @UseGuards(JwtAuthGuard)
   checkoutGift(
     @CurrentUser() user: { id: string },
@@ -61,16 +61,16 @@ export class PaymentsController {
     });
   }
 
-  @Post("checkout/dropin/:sessionId")
+  @Post('checkout/dropin/:sessionId')
   @UseGuards(JwtAuthGuard)
   checkoutDropIn(
     @CurrentUser() user: { id: string },
-    @Param("sessionId") sessionId: string,
+    @Param('sessionId') sessionId: string,
   ) {
     return this.payments.createDropInCheckout(user.id, sessionId);
   }
 
-  @Get("me")
+  @Get('me')
   @UseGuards(JwtAuthGuard)
   myPayments(@CurrentUser() user: { id: string }) {
     return this.payments.listPayments(user.id);

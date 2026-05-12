@@ -1,5 +1,12 @@
-import { ContentStatus, ContentType } from "@prisma/client";
-import { IsDateString, IsEnum, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { ContentStatus, ContentType } from '@prisma/client';
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UpsertPostDto {
   @IsEnum(ContentType)

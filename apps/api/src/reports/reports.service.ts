@@ -1,6 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { BookingStatus, ClassSessionStatus, PaymentStatus } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable } from '@nestjs/common';
+import {
+  BookingStatus,
+  ClassSessionStatus,
+  PaymentStatus,
+} from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ReportsService {
@@ -12,31 +16,36 @@ export class ReportsService {
     const todayEnd = new Date(todayStart);
     todayEnd.setDate(todayEnd.getDate() + 1);
 
-    const [sessionsToday, bookingsToday, waitlistCount, membersCount, revenueAgg] =
-      await Promise.all([
-        this.prisma.classSession.count({
-          where: {
-            startsAt: { gte: todayStart, lt: todayEnd },
-            status: { not: ClassSessionStatus.CANCELLED },
-          },
-        }),
-        this.prisma.booking.count({
-          where: {
-            status: BookingStatus.BOOKED,
-            session: { startsAt: { gte: todayStart, lt: todayEnd } },
-          },
-        }),
-        this.prisma.waitlistEntry.count({
-          where: { status: "ACTIVE" },
-        }),
-        this.prisma.userMembership.count({
-          where: { status: "ACTIVE", currentPeriodEnd: { gt: new Date() } },
-        }),
-        this.prisma.payment.aggregate({
-          where: { status: PaymentStatus.SUCCEEDED },
-          _sum: { amountCents: true },
-        }),
-      ]);
+    const [
+      sessionsToday,
+      bookingsToday,
+      waitlistCount,
+      membersCount,
+      revenueAgg,
+    ] = await Promise.all([
+      this.prisma.classSession.count({
+        where: {
+          startsAt: { gte: todayStart, lt: todayEnd },
+          status: { not: ClassSessionStatus.CANCELLED },
+        },
+      }),
+      this.prisma.booking.count({
+        where: {
+          status: BookingStatus.BOOKED,
+          session: { startsAt: { gte: todayStart, lt: todayEnd } },
+        },
+      }),
+      this.prisma.waitlistEntry.count({
+        where: { status: 'ACTIVE' },
+      }),
+      this.prisma.userMembership.count({
+        where: { status: 'ACTIVE', currentPeriodEnd: { gt: new Date() } },
+      }),
+      this.prisma.payment.aggregate({
+        where: { status: PaymentStatus.SUCCEEDED },
+        _sum: { amountCents: true },
+      }),
+    ]);
 
     return {
       sessionsToday,
@@ -58,21 +67,21 @@ export class ReportsService {
       },
       take: 5000,
     });
-    const header = "bookingId,userEmail,userName,class,startsAt,status\n";
+    const header = 'bookingId,userEmail,userName,class,startsAt,status\n';
     const body = rows
       .map((b) =>
         [
           b.id,
           b.user.email,
-          b.user.name ?? "",
+          b.user.name ?? '',
           b.session.classType.name,
           b.session.startsAt.toISOString(),
           b.status,
         ]
           .map((c) => `"${String(c).replace(/"/g, '""')}"`)
-          .join(","),
+          .join(','),
       )
-      .join("\n");
+      .join('\n');
     return header + body;
   }
 }

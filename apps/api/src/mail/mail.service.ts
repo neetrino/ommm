@@ -1,17 +1,17 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { Resend } from "resend";
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Resend } from 'resend';
 
 /** Log only (no external API). Same as `MAIL_TRANSPORT=test`. */
-const TRANSPORT_LOG = "log" as const;
+const TRANSPORT_LOG = 'log' as const;
 /** Send via Resend (requires valid `RESEND_API_KEY`). */
-const TRANSPORT_RESEND = "resend" as const;
+const TRANSPORT_RESEND = 'resend' as const;
 
 type MailTransport = typeof TRANSPORT_LOG | typeof TRANSPORT_RESEND;
 
 function normalizeMailTransport(raw: string | undefined): MailTransport | null {
   const v = raw?.trim().toLowerCase();
-  if (v === TRANSPORT_LOG || v === "test") {
+  if (v === TRANSPORT_LOG || v === 'test') {
     return TRANSPORT_LOG;
   }
   if (v === TRANSPORT_RESEND) {
@@ -30,13 +30,17 @@ export class MailService {
 
   constructor(private readonly config: ConfigService) {
     const nodeEnv =
-      this.config.get<string>("NODE_ENV") ?? process.env.NODE_ENV ?? "development";
-    const explicit = normalizeMailTransport(this.config.get<string>("MAIL_TRANSPORT"));
-    const key = this.config.get<string>("RESEND_API_KEY")?.trim() ?? "";
+      this.config.get<string>('NODE_ENV') ??
+      process.env.NODE_ENV ??
+      'development';
+    const explicit = normalizeMailTransport(
+      this.config.get<string>('MAIL_TRANSPORT'),
+    );
+    const key = this.config.get<string>('RESEND_API_KEY')?.trim() ?? '';
 
     if (explicit !== null) {
       this.transport = explicit;
-    } else if (nodeEnv === "production") {
+    } else if (nodeEnv === 'production') {
       this.transport = TRANSPORT_RESEND;
     } else {
       this.transport = TRANSPORT_LOG;
@@ -48,7 +52,7 @@ export class MailService {
       this.resend = null;
       if (this.transport === TRANSPORT_RESEND && key.length === 0) {
         this.logger.warn(
-          "MAIL_TRANSPORT=resend but RESEND_API_KEY is empty; outbound email is disabled.",
+          'MAIL_TRANSPORT=resend but RESEND_API_KEY is empty; outbound email is disabled.',
         );
       }
     }
@@ -60,7 +64,7 @@ export class MailService {
     html: string;
   }): Promise<void> {
     const from =
-      this.config.get<string>("RESEND_FROM") ?? "Ommm <onboarding@resend.dev>";
+      this.config.get<string>('RESEND_FROM') ?? 'Ommm <onboarding@resend.dev>';
 
     if (this.transport === TRANSPORT_LOG || this.resend === null) {
       if (this.transport === TRANSPORT_RESEND && this.resend === null) {

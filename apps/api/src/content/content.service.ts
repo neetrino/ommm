@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { ContentStatus, ContentType } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import type { UpsertPostDto } from "./dto/upsert-post.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ContentStatus, ContentType } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import type { UpsertPostDto } from './dto/upsert-post.dto';
 
 @Injectable()
 export class ContentService {
@@ -13,7 +13,7 @@ export class ContentService {
         status: ContentStatus.PUBLISHED,
         ...(type && { type }),
       },
-      orderBy: { publishedAt: "desc" },
+      orderBy: { publishedAt: 'desc' },
     });
   }
 
@@ -25,7 +25,7 @@ export class ContentService {
 
   listAdmin() {
     return this.prisma.contentPost.findMany({
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
       take: 500,
     });
   }
@@ -46,7 +46,9 @@ export class ContentService {
   }
 
   async update(id: string, dto: UpsertPostDto) {
-    const existing = await this.prisma.contentPost.findUnique({ where: { id } });
+    const existing = await this.prisma.contentPost.findUnique({
+      where: { id },
+    });
     if (!existing) {
       throw new NotFoundException();
     }

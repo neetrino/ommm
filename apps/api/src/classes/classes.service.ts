@@ -1,20 +1,20 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
   type ClassSession,
   type ClassType,
-} from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import type { CreateClassTypeDto } from "./dto/create-class-type.dto";
-import type { CreateSessionDto } from "./dto/create-session.dto";
+} from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import type { CreateClassTypeDto } from './dto/create-class-type.dto';
+import type { CreateSessionDto } from './dto/create-session.dto';
 
 @Injectable()
 export class ClassesService {
   constructor(private readonly prisma: PrismaService) {}
 
   listTypes() {
-    return this.prisma.classType.findMany({ orderBy: { name: "asc" } });
+    return this.prisma.classType.findMany({ orderBy: { name: 'asc' } });
   }
 
   createType(dto: CreateClassTypeDto): Promise<ClassType> {
@@ -31,7 +31,12 @@ export class ClassesService {
     await this.prisma.classType.delete({ where: { id } });
   }
 
-  listSessionsPublic(params: { from: Date; to: Date; coachId?: string; typeId?: string }) {
+  listSessionsPublic(params: {
+    from: Date;
+    to: Date;
+    coachId?: string;
+    typeId?: string;
+  }) {
     return this.prisma.classSession.findMany({
       where: {
         status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
@@ -41,14 +46,16 @@ export class ClassesService {
       },
       include: {
         classType: true,
-        coach: { include: { user: { select: { name: true, avatarUrl: true } } } },
+        coach: {
+          include: { user: { select: { name: true, avatarUrl: true } } },
+        },
         _count: {
           select: {
             bookings: { where: { status: BookingStatus.BOOKED } },
           },
         },
       },
-      orderBy: { startsAt: "asc" },
+      orderBy: { startsAt: 'asc' },
     });
   }
 
@@ -57,7 +64,11 @@ export class ClassesService {
       where: { id },
       include: {
         classType: true,
-        coach: { include: { user: { select: { name: true, avatarUrl: true, id: true } } } },
+        coach: {
+          include: {
+            user: { select: { name: true, avatarUrl: true, id: true } },
+          },
+        },
         substituteCoach: {
           include: { user: { select: { name: true, avatarUrl: true } } },
         },

@@ -4,27 +4,27 @@ import {
   Logger,
   ServiceUnavailableException,
   UnauthorizedException,
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import type { Express } from "express";
-import { sanitizeUser } from "../auth/auth.service";
-import { hashPassword, verifyPassword } from "../common/password-crypto";
-import { PrismaService } from "../prisma/prisma.service";
-import { R2HomeImageStorage } from "../storage/r2-home-image.storage";
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'node:crypto';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import type { Express } from 'express';
+import { sanitizeUser } from '../auth/auth.service';
+import { hashPassword, verifyPassword } from '../common/password-crypto';
+import { PrismaService } from '../prisma/prisma.service';
+import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import {
   ALLOWED_HOME_IMAGE_MIMES,
   HOME_IMAGE_MAX_BYTES,
   MIME_TO_EXT,
   normalizeHomeImageMime,
-} from "./constants/home-image.constants";
-import type { ChangePasswordDto } from "./dto/change-password.dto";
-import type { HomeImageJsonDto } from "./dto/home-image-json.dto";
-import type { NotificationPrefsDto } from "./dto/notification-prefs.dto";
-import type { UpdateProfileDto } from "./dto/update-profile.dto";
-import { absolutePathForStoredUpload } from "./user-upload.helpers";
+} from './constants/home-image.constants';
+import type { ChangePasswordDto } from './dto/change-password.dto';
+import type { HomeImageJsonDto } from './dto/home-image-json.dto';
+import type { NotificationPrefsDto } from './dto/notification-prefs.dto';
+import type { UpdateProfileDto } from './dto/update-profile.dto';
+import { absolutePathForStoredUpload } from './user-upload.helpers';
 
 @Injectable()
 export class UsersService {
@@ -37,11 +37,11 @@ export class UsersService {
   ) {}
 
   private get uploadRoot(): string {
-    const raw = this.config.get<string>("UPLOAD_DIR");
-    if (raw !== undefined && raw.trim() !== "") {
+    const raw = this.config.get<string>('UPLOAD_DIR');
+    if (raw !== undefined && raw.trim() !== '') {
       return raw.trim();
     }
-    return join(process.cwd(), "uploads");
+    return join(process.cwd(), 'uploads');
   }
 
   async getMe(userId: string) {
@@ -128,7 +128,7 @@ export class UsersService {
 
   async changePassword(userId: string, dto: ChangePasswordDto) {
     if (dto.newPassword !== dto.confirmNewPassword) {
-      throw new BadRequestException("New passwords do not match");
+      throw new BadRequestException('New passwords do not match');
     }
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
@@ -136,7 +136,7 @@ export class UsersService {
     });
     if (!user.passwordHash) {
       throw new BadRequestException(
-        "Password sign-in is not enabled for this account",
+        'Password sign-in is not enabled for this account',
       );
     }
     const currentOk = await verifyPassword(
@@ -144,14 +144,14 @@ export class UsersService {
       dto.currentPassword,
     );
     if (!currentOk) {
-      throw new UnauthorizedException("Current password is incorrect");
+      throw new UnauthorizedException('Current password is incorrect');
     }
     const passwordHash = await hashPassword(dto.newPassword);
     await this.prisma.user.update({
       where: { id: userId },
       data: { passwordHash },
     });
-    return { message: "Password updated successfully" };
+    return { message: 'Password updated successfully' };
   }
 
   async saveHomeImage(userId: string, file: Express.Multer.File) {
@@ -161,32 +161,34 @@ export class UsersService {
   }
 
   async saveHomeImageJson(userId: string, dto: HomeImageJsonDto) {
-    let raw = dto.imageBase64.trim().replace(/\s/g, "");
-    const marker = "base64,";
+    let raw = dto.imageBase64.trim().replace(/\s/g, '');
+    const marker = 'base64,';
     const splitIdx = raw.indexOf(marker);
-    if (raw.startsWith("data:") && splitIdx !== -1) {
+    if (raw.startsWith('data:') && splitIdx !== -1) {
       raw = raw.slice(splitIdx + marker.length);
     }
     let buf: Buffer;
     try {
-      buf = Buffer.from(raw, "base64");
+      buf = Buffer.from(raw, 'base64');
     } catch {
-      throw new BadRequestException("Invalid base64 image data");
+      throw new BadRequestException('Invalid base64 image data');
     }
     if (!buf.length) {
-      throw new BadRequestException("Image data is empty");
+      throw new BadRequestException('Image data is empty');
     }
     if (buf.length > HOME_IMAGE_MAX_BYTES) {
-      throw new BadRequestException("Image is too large. Maximum size is 5 MB.");
+      throw new BadRequestException(
+        'Image is too large. Maximum size is 5 MB.',
+      );
     }
     const mime = normalizeHomeImageMime(dto.mimeType);
     if (!ALLOWED_HOME_IMAGE_MIMES.has(mime)) {
       throw new BadRequestException(
-        "Only JPG, JPEG, PNG, or WEBP images are allowed",
+        'Only JPG, JPEG, PNG, or WEBP images are allowed',
       );
     }
     if (!MIME_TO_EXT[mime]) {
-      throw new BadRequestException("Invalid image type");
+      throw new BadRequestException('Invalid image type');
     }
     return this.persistHomeImage(userId, buf, mime);
   }
@@ -198,12 +200,12 @@ export class UsersService {
   ) {
     const mime = normalizeHomeImageMime(mimeInput);
     if (!ALLOWED_HOME_IMAGE_MIMES.has(mime) || !MIME_TO_EXT[mime]) {
-      throw new BadRequestException("Invalid image type");
+      throw new BadRequestException('Invalid image type');
     }
 
     if (this.isR2HomeImageRequired() && !this.r2HomeImage.isConfigured()) {
       throw new ServiceUnavailableException(
-        `Home image upload requires R2. Incomplete env: ${this.r2HomeImage.listMissingR2Env().join(", ")}`,
+        `Home image upload requires R2. Incomplete env: ${this.r2HomeImage.listMissingR2Env().join(', ')}`,
       );
     }
 
@@ -228,7 +230,7 @@ export class UsersService {
     });
     return {
       user: sanitizeUser(fresh),
-      message: "Home image updated successfully",
+      message: 'Home image updated successfully',
     };
   }
 
@@ -239,7 +241,7 @@ export class UsersService {
   ): Promise<string> {
     const ext = MIME_TO_EXT[mime];
     if (!ext) {
-      throw new BadRequestException("Invalid image type");
+      throw new BadRequestException('Invalid image type');
     }
     const filename = `${randomUUID()}.${ext}`;
     if (this.r2HomeImage.isConfigured()) {
@@ -250,7 +252,7 @@ export class UsersService {
         contentType: mime,
       });
     }
-    const dir = join(this.uploadRoot, "user-home", userId);
+    const dir = join(this.uploadRoot, 'user-home', userId);
     await mkdir(dir, { recursive: true });
     const diskPath = join(dir, filename);
     await writeFile(diskPath, buf);
@@ -261,26 +263,26 @@ export class UsersService {
     const mime = normalizeHomeImageMime(file.mimetype);
     if (!ALLOWED_HOME_IMAGE_MIMES.has(mime)) {
       throw new BadRequestException(
-        "Only JPG, JPEG, PNG, or WEBP images are allowed",
+        'Only JPG, JPEG, PNG, or WEBP images are allowed',
       );
     }
     if (!MIME_TO_EXT[mime]) {
-      throw new BadRequestException("Invalid image type");
+      throw new BadRequestException('Invalid image type');
     }
     const buf = file.buffer;
     if (!buf?.length) {
-      throw new BadRequestException("Image file is required");
+      throw new BadRequestException('Image file is required');
     }
     return buf;
   }
 
   private isR2HomeImageRequired(): boolean {
-    const raw = this.config.get<string>("R2_HOME_IMAGE_REQUIRED")?.trim();
-    return raw === "1" || raw?.toLowerCase() === "true";
+    const raw = this.config.get<string>('R2_HOME_IMAGE_REQUIRED')?.trim();
+    return raw === '1' || raw?.toLowerCase() === 'true';
   }
 
   private async removeStoredHomeImage(stored: string): Promise<void> {
-    if (stored.startsWith("http://") || stored.startsWith("https://")) {
+    if (stored.startsWith('http://') || stored.startsWith('https://')) {
       await this.r2HomeImage.deleteObjectIfOwned(stored);
       return;
     }

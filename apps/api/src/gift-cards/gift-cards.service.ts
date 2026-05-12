@@ -2,10 +2,10 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { GiftCardStatus } from "@prisma/client";
-import { MailService } from "../mail/mail.service";
-import { PrismaService } from "../prisma/prisma.service";
+} from '@nestjs/common';
+import { GiftCardStatus } from '@prisma/client';
+import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class GiftCardsService {
@@ -17,14 +17,14 @@ export class GiftCardsService {
   listMine(userId: string) {
     return this.prisma.giftCard.findMany({
       where: { purchaserId: userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   listReceived(userId: string) {
     return this.prisma.giftCard.findMany({
       where: { recipientId: userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -34,10 +34,10 @@ export class GiftCardsService {
       where: { code: normalized },
     });
     if (!card || card.status !== GiftCardStatus.ACTIVE) {
-      throw new NotFoundException("Invalid code");
+      throw new NotFoundException('Invalid code');
     }
     if (card.balanceCents <= 0) {
-      throw new BadRequestException("Gift card has no balance");
+      throw new BadRequestException('Gift card has no balance');
     }
     const amount = card.balanceCents;
     await this.prisma.$transaction([
@@ -63,7 +63,7 @@ export class GiftCardsService {
         purchaser: { select: { email: true, name: true } },
         recipient: { select: { email: true, name: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 500,
     });
   }
@@ -78,12 +78,12 @@ export class GiftCardsService {
   async resendEmail(id: string) {
     const card = await this.prisma.giftCard.findUnique({ where: { id } });
     if (!card?.recipientEmail) {
-      throw new BadRequestException("No recipient email");
+      throw new BadRequestException('No recipient email');
     }
-    const web = process.env.WEB_APP_URL ?? "http://localhost:3000";
+    const web = process.env.WEB_APP_URL ?? 'http://localhost:3000';
     await this.mail.sendEmail({
       to: card.recipientEmail,
-      subject: "Your Ommm gift card",
+      subject: 'Your Ommm gift card',
       html: `<p>Code: <strong>${card.code}</strong></p><p>Redeem at ${web}</p>`,
     });
     return { ok: true };
