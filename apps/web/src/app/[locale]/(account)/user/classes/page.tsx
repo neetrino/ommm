@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { BookSessionButton } from "@/components/account/book-session-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
@@ -25,6 +26,7 @@ export default async function UserClassesPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations("userPages.classes");
   const cookie = (await headers()).get("cookie") ?? "";
 
   const from = new Date();
@@ -41,7 +43,7 @@ export default async function UserClassesPage({
     return (
       <div className="ommm-container pt-6 sm:pt-8">
         <div className="app-alert-warn">
-          Could not load schedule ({sessionsRes.status}).
+          {t("couldNotLoad", { status: sessionsRes.status })}
         </div>
       </div>
     );
@@ -53,16 +55,27 @@ export default async function UserClassesPage({
 
   return (
     <AccountPageFrame
-      title="Classes"
-      description={`Next ${ACCOUNT_SESSION_RANGE_DAYS} days · book or join the waitlist when full.`}
+      title={t("title")}
+      description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
     >
       <ul className="max-w-4xl space-y-4">
         {sessions.length === 0 ? (
-          <li className="ommm-body-muted text-sm">No sessions in this window.</li>
+          <li className="ommm-body-muted text-sm">{t("noSessions")}</li>
         ) : (
           sessions.map((s) => {
             const booked = s._count.bookings;
             const full = booked >= s.capacity;
+            const coachName = s.coach.user.name ?? t("coachFallback");
+            const spots = t("spotsBooked", {
+              booked,
+              capacity: s.capacity,
+            });
+            const pricing =
+              s.priceCents > 0
+                ? t("paidShort", {
+                    amount: (s.priceCents / 100).toFixed(0),
+                  })
+                : t("includedShort");
             return (
               <li key={s.id} className="ommm-list-row">
                 <div>
@@ -71,11 +84,7 @@ export default async function UserClassesPage({
                     {formatSessionRange(locale, s.startsAt, s.endsAt)}
                   </p>
                   <p className="mt-1 text-xs text-sage-500/90">
-                    {s.coach.user.name ?? "Coach"} · {booked}/{s.capacity}{" "}
-                    booked ·{" "}
-                    {s.priceCents > 0
-                      ? `Paid (${(s.priceCents / 100).toFixed(0)}+)`
-                      : "Included / membership"}
+                    {coachName} · {spots} · {pricing}
                   </p>
                 </div>
                 <div className="shrink-0">
@@ -95,7 +104,7 @@ export default async function UserClassesPage({
       </ul>
       <p className="ommm-body-muted mt-8 max-w-4xl text-sm">
         <Link href="/user/bookings" className="ommm-link-sage">
-          My bookings
+          {t("myBookingsLink")}
         </Link>
       </p>
     </AccountPageFrame>

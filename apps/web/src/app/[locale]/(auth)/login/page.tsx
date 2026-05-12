@@ -11,6 +11,7 @@ import { homePathForRole } from "@/lib/role-home";
 export default function LoginPage() {
   const router = useRouter();
   const t = useTranslations("common");
+  const tAuth = useTranslations("auth.login");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
@@ -34,7 +35,7 @@ export default function LoginPage() {
       });
       router.push(homePathForRole(user.role));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      setError(err instanceof ApiError ? err.message : tAuth("loginFailed"));
     } finally {
       setPending(false);
       submitLockRef.current = false;
@@ -47,12 +48,10 @@ export default function LoginPage() {
       <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("login")}
       </h1>
-      <p className="ommm-body-muted mt-2">
-        Welcome back — use the email and password for your studio account.
-      </p>
+      <p className="ommm-body-muted mt-2">{tAuth("lead")}</p>
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Email</span>
+          <span className="ommm-label">{tAuth("email")}</span>
           <input
             name="email"
             type="email"
@@ -62,7 +61,7 @@ export default function LoginPage() {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Password</span>
+          <span className="ommm-label">{tAuth("password")}</span>
           <input
             name="password"
             type="password"
@@ -72,7 +71,7 @@ export default function LoginPage() {
           />
         </label>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
-          {pending ? "Signing in…" : "Continue"}
+          {pending ? tAuth("signingIn") : tAuth("continue")}
         </OmmButton>
       </form>
       {error ? (
@@ -81,7 +80,7 @@ export default function LoginPage() {
         </p>
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
-        No account?{" "}
+        {tAuth("noAccountPrompt")}{" "}
         <Link href="/register" className="ommm-link-sage">
           {t("register")}
         </Link>

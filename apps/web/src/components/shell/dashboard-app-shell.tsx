@@ -1,9 +1,14 @@
 "use client";
 
-import { startTransition, useEffect, useState, type ReactNode } from "react";
+import { startTransition, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { dashboardHeadingFromPath } from "@/lib/dashboard-heading";
-import type { DashboardNavItem } from "@/lib/dashboard-nav";
+import type {
+  DashboardNavDefinition,
+  DashboardNavItem,
+} from "@/lib/dashboard-nav";
+import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
+import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
@@ -26,12 +31,19 @@ export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-t
 
 const SIDEBAR_COLLAPSED_KEY = "ommm.dashboard.sidebarCollapsed";
 
+function pathMatchesNav(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  if (pathname === href) return true;
+  return pathname.startsWith(`${href}/`);
+}
+
 export type DashboardAppShellProps = {
   brandHref: string;
   brandLabel: string;
   /** Second line under the brand in the sidebar (Ilona-style). */
   brandSubline?: string;
-  navItems: DashboardNavItem[];
+  navRole: DashboardNavRole;
+  navDefinitions: DashboardNavDefinition[];
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
   trailing?: ReactNode;
@@ -42,15 +54,47 @@ export function DashboardAppShell({
   brandHref,
   brandLabel,
   brandSubline,
-  navItems,
+  navRole,
+  navDefinitions,
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
   trailing,
   children,
 }: DashboardAppShellProps) {
   const pathname = usePathname();
+  const tNav = useTranslations("dashboard.nav");
+  const tSub = useTranslations("dashboard.subtitles");
+  const tShell = useTranslations("dashboard.shell");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const navItems: DashboardNavItem[] = useMemo(
+    () =>
+      navDefinitions.map((d) => ({
+        href: d.href,
+        icon: d.icon,
+        label: (tNav as (key: string) => string)(`${navRole}.${d.labelKey}`),
+      })),
+    [navDefinitions, navRole, tNav],
+  );
+
+  const heading = useMemo(() => {
+    const matches = navItems.filter((item) =>
+      pathMatchesNav(pathname, item.href),
+    );
+    if (matches.length === 0) {
+      return { title: tShell("fallbackTitle"), subtitle: "" };
+    }
+    const best = matches.reduce((a, b) =>
+      a.href.length >= b.href.length ? a : b,
+    );
+    const subPath = dashboardSubtitlePathFromHref(best.href);
+    const subtitle =
+      subPath !== null && subPath.length > 0
+        ? (tSub as (key: string) => string)(subPath)
+        : "";
+    return { title: best.label, subtitle };
+  }, [navItems, pathname, tShell, tSub]);
 
   useEffect(() => {
     try {
@@ -74,8 +118,6 @@ export function DashboardAppShell({
     };
   }, [drawerOpen]);
 
-  const heading = dashboardHeadingFromPath(pathname, navItems);
-
   function persistCollapsed(next: boolean) {
     try {
       if (typeof window !== "undefined") {
@@ -97,7 +139,7 @@ export function DashboardAppShell({
       >
         <aside
           className={`hidden shrink-0 flex-col border-r shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)} transition-[width] duration-200 ease-out`}
-          aria-label="Workspace"
+          aria-label={tShell("workspaceAria")}
         >
           <div
             className={
@@ -138,7 +180,9 @@ export function DashboardAppShell({
               className={collapseToggleClass(variant)}
               aria-expanded={!sidebarCollapsed}
               aria-label={
-                sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+                sidebarCollapsed
+                  ? tShell("expandSidebar")
+                  : tShell("collapseSidebar")
               }
               onClick={() => persistCollapsed(!sidebarCollapsed)}
             >
@@ -179,7 +223,9 @@ export function DashboardAppShell({
                 className={menuButtonClass(variant)}
                 aria-expanded={drawerOpen}
                 aria-controls="dashboard-mobile-drawer"
-                aria-label={drawerOpen ? "Close menu" : "Open menu"}
+                aria-label={
+                  drawerOpen ? tShell("closeMenu") : tShell("openMenu")
+                }
                 onClick={() => setDrawerOpen((o) => !o)}
               >
                 <svg
@@ -230,12 +276,12 @@ export function DashboardAppShell({
           id="dashboard-mobile-drawer"
           role="dialog"
           aria-modal="true"
-          aria-label="Navigation"
+          aria-label={tShell("navigationDialogAria")}
         >
           <button
             type="button"
             className="absolute inset-0 bg-zinc-900/40"
-            aria-label="Close menu overlay"
+            aria-label={tShell("closeMenuOverlay")}
             onClick={() => setDrawerOpen(false)}
           />
           <div

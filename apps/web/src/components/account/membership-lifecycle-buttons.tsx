@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
@@ -12,6 +13,7 @@ export function MembershipLifecycleButtons({
   membershipId,
   status,
 }: MembershipLifecycleButtonsProps) {
+  const t = useTranslations("forms.membershipLifecycle");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -27,10 +29,10 @@ export function MembershipLifecycleButtons({
         method: "PATCH",
         body: JSON.stringify({}),
       });
-      setMessage("Membership paused.");
+      setMessage(t("pausedSuccess"));
     } catch (err) {
       setMessage(
-        err instanceof ApiError ? err.message : "Could not pause membership.",
+        err instanceof ApiError ? err.message : t("pauseFailed"),
       );
     } finally {
       setPending(false);
@@ -45,10 +47,10 @@ export function MembershipLifecycleButtons({
         method: "PATCH",
         body: JSON.stringify({}),
       });
-      setMessage("Membership cancelled.");
+      setMessage(t("cancelledSuccess"));
     } catch (err) {
       setMessage(
-        err instanceof ApiError ? err.message : "Could not cancel membership.",
+        err instanceof ApiError ? err.message : t("cancelFailed"),
       );
     } finally {
       setPending(false);
@@ -63,7 +65,7 @@ export function MembershipLifecycleButtons({
         disabled={pending}
         onClick={() => void pause()}
       >
-        Pause
+        {t("pause")}
       </button>
       <button
         type="button"
@@ -71,7 +73,7 @@ export function MembershipLifecycleButtons({
         disabled={pending}
         onClick={() => void cancel()}
       >
-        Cancel
+        {t("cancelAction")}
       </button>
       {message !== null ? (
         <p className="w-full text-xs text-sage-600" role="status">

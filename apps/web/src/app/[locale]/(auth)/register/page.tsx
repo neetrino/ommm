@@ -23,6 +23,7 @@ function isValidEmail(value: string): boolean {
 export default function RegisterPage() {
   const router = useRouter();
   const t = useTranslations("common");
+  const tAuth = useTranslations("auth.register");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
@@ -40,15 +41,15 @@ export default function RegisterPage() {
     setError(null);
 
     if (!isValidEmail(emailRaw)) {
-      setError("Please enter a valid email address.");
+      setError(tAuth("invalidEmail"));
       return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
-      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      setError(tAuth("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
     if (nameRaw.length > MAX_NAME_LENGTH) {
-      setError("Name is too long.");
+      setError(tAuth("nameTooLong"));
       return;
     }
 
@@ -65,7 +66,7 @@ export default function RegisterPage() {
       });
       router.push(homePathForRole(user.role));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Register failed");
+      setError(err instanceof ApiError ? err.message : tAuth("registerFailed"));
     } finally {
       setPending(false);
       submitLockRef.current = false;
@@ -78,16 +79,14 @@ export default function RegisterPage() {
       <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("register")}
       </h1>
-      <p className="ommm-body-muted mt-2">
-        Create a member account to book classes and manage memberships.
-      </p>
+      <p className="ommm-body-muted mt-2">{tAuth("lead")}</p>
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Name</span>
+          <span className="ommm-label">{tAuth("name")}</span>
           <input name="name" autoComplete="name" className="ommm-input" maxLength={MAX_NAME_LENGTH} />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Email</span>
+          <span className="ommm-label">{tAuth("email")}</span>
           <input
             name="email"
             type="email"
@@ -98,7 +97,7 @@ export default function RegisterPage() {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Password</span>
+          <span className="ommm-label">{tAuth("password")}</span>
           <input
             name="password"
             type="password"
@@ -109,9 +108,9 @@ export default function RegisterPage() {
             className="ommm-input"
           />
         </label>
-        <p className="text-xs text-sage-500">At least 8 characters.</p>
+        <p className="text-xs text-sage-500">{tAuth("passwordHint")}</p>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
-          {pending ? "Creating…" : "Create account"}
+          {pending ? tAuth("creating") : tAuth("createAccount")}
         </OmmButton>
       </form>
       {error ? (
@@ -120,7 +119,7 @@ export default function RegisterPage() {
         </p>
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
-        Already have an account?{" "}
+        {tAuth("alreadyHavePrompt")}{" "}
         <Link href="/login" className="ommm-link-sage">
           {t("login")}
         </Link>

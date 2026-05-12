@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
-import { dashboardNavForRole } from "@/lib/dashboard-nav";
+import { dashboardNavDefinitionsForRole } from "@/lib/dashboard-nav";
 import {
   redirectIfRoleNotIn,
   requireAuthForLayout,
@@ -23,15 +24,17 @@ export default async function ContentAdminSectionLayout({
   const { locale } = await params;
   const { role } = await requireAuthForLayout(locale);
   redirectIfRoleNotIn(locale, role, CONTENT_ADMIN_ROLES);
-  const nav = dashboardNavForRole(role);
+  const navDefinitions = dashboardNavDefinitionsForRole(role);
+  const tDash = await getTranslations("dashboard");
 
   return (
     <DashboardAppShell
       brandHref="/content-admin/home"
-      brandLabel="Content"
-      brandSubline="Editorial workspace"
+      brandLabel={tDash("brand.contentAdmin.title")}
+      brandSubline={tDash("brand.contentAdmin.subline")}
       contentMaxClass="max-w-6xl"
-      navItems={nav}
+      navRole="CONTENT_ADMIN"
+      navDefinitions={navDefinitions}
       trailing={
         <>
           <LogoutButton className={`${trailingClass} lg:w-auto`} />
@@ -39,7 +42,7 @@ export default async function ContentAdminSectionLayout({
             href="/user/home"
             className={`${trailingClass} text-center lg:text-left`}
           >
-            Member zone
+            {tDash("links.memberZone")}
           </Link>
         </>
       }

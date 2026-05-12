@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -51,18 +52,19 @@ function sanitizeHomePreviewSrc(src: string): string | null {
 
 function readFileAsHomeImageJsonPayload(
   file: File,
+  readFailed: string,
 ): Promise<{ imageBase64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const s = reader.result;
       if (typeof s !== "string") {
-        reject(new Error("Could not read image"));
+        reject(new Error(readFailed));
         return;
       }
       const i = s.indexOf("base64,");
       if (i === -1) {
-        reject(new Error("Could not read image"));
+        reject(new Error(readFailed));
         return;
       }
       resolve({
@@ -71,7 +73,7 @@ function readFileAsHomeImageJsonPayload(
       });
     };
     reader.onerror = () => {
-      reject(reader.error ?? new Error("Could not read image"));
+      reject(reader.error ?? new Error(readFailed));
     };
     reader.readAsDataURL(file);
   });
@@ -83,6 +85,7 @@ type Props = {
 
 export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
   const router = useRouter();
+  const t = useTranslations("forms.homeImage");
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -111,26 +114,26 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
     try {
       if (file === null) {
         setTone("err");
-        setMsg("Choose an image first.");
+        setMsg(t("chooseFirst"));
         return;
       }
       if (file.size > MAX_BYTES) {
         setTone("err");
-        setMsg("Image is too large. Maximum size is 5 MB.");
+        setMsg(t("tooLarge"));
         return;
       }
-      const payload = await readFileAsHomeImageJsonPayload(file);
+      const payload = await readFileAsHomeImageJsonPayload(file, t("readFailed"));
       await apiFetch<{ message: string }>("/users/me/home-image-json", {
         method: "POST",
         body: JSON.stringify(payload),
       });
       setTone("ok");
-      setMsg("Home image updated successfully.");
+      setMsg(t("uploadSuccess"));
       onFileChosen(null);
       router.refresh();
     } catch (e) {
       setTone("err");
-      setMsg(e instanceof ApiError ? e.message : "Could not upload image.");
+      setMsg(e instanceof ApiError ? e.message : t("uploadFailed"));
     } finally {
       setBusy(false);
     }
@@ -154,14 +157,12 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
           {/* eslint-disable-next-line @next/next/no-img-element -- dynamic blob + API URLs */}
           <img
             src={previewSrc}
-            alt="Home image preview"
+            alt={t("previewAlt")}
             className="h-full w-full object-cover"
           />
         </div>
       ) : (
-        <p className="text-sm italic text-sage-500">
-          No custom image — your dashboard uses the default layout.
-        </p>
+        <p className="text-sm italic text-sage-500">{t("emptyState")}</p>
       )}
 
       <div className="flex flex-wrap gap-3">
@@ -172,7 +173,7 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
           disabled={busy}
           onClick={() => inputRef.current?.click()}
         >
-          Choose image
+          {t("chooseImage")}
         </OmmButton>
         <OmmButton
           type="button"
@@ -181,7 +182,7 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
           disabled={busy || file === null}
           onClick={() => void upload()}
         >
-          {busy ? "Uploading…" : "Upload"}
+          {busy ? t("uploading") : t("upload")}
         </OmmButton>
       </div>
 

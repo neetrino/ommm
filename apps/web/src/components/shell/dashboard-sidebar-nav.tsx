@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import type { DashboardNavItem } from "@/lib/dashboard-nav";
@@ -56,8 +57,12 @@ export function DashboardSidebarNav({
   collapsed,
   onNavigate,
 }: DashboardSidebarNavProps) {
+  const tShell = useTranslations("dashboard.shell");
   return (
-    <nav className="flex flex-col gap-0.5 p-2" aria-label="Dashboard">
+    <nav
+      className="flex flex-col gap-0.5 p-2"
+      aria-label={tShell("dashboardNavAria")}
+    >
       {items.map((item) => {
         const active = navActive(pathname, item.href);
         return (

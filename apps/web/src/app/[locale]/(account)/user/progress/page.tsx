@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import {
   AccountPageFrame,
   AccountSection,
@@ -23,7 +24,13 @@ type BookingMine = {
   session: { startsAt: string; endsAt: string; classType: { name: string } };
 };
 
-export default async function UserProgressPage() {
+export default async function UserProgressPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations("userPages.progress");
   const cookie = (await headers()).get("cookie") ?? "";
   const [meRes, bookRes] = await Promise.all([
     serverApiJson<MeResponse>("/users/me", cookie),
@@ -32,11 +39,8 @@ export default async function UserProgressPage() {
 
   if (!meRes.ok || !bookRes.ok) {
     return (
-      <AccountPageFrame
-        title="Progress"
-        description="Sign in to view your activity and achievements."
-      >
-        <p className="text-sm text-amber-900">Sign in to view progress.</p>
+      <AccountPageFrame title={t("title")} description={t("descriptionSignedOut")}>
+        <p className="text-sm text-amber-900">{t("signInPrompt")}</p>
       </AccountPageFrame>
     );
   }
@@ -51,35 +55,30 @@ export default async function UserProgressPage() {
   });
 
   return (
-    <AccountPageFrame
-      title="Progress"
-      description="Activity summary and achievements — extend with deeper analytics as data grows."
-    >
+    <AccountPageFrame title={t("title")} description={t("descriptionSignedIn")}>
       <div className="max-w-4xl space-y-10">
-        <AccountSection title="Activity summary">
+        <AccountSection title={t("activitySummary")}>
           <ul className="grid gap-3 sm:grid-cols-2">
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">Completed classes</p>
+              <p className="font-semibold text-sage-800">{t("completedClasses")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
                 {completed.length}
               </p>
-              <p className="mt-1 text-xs text-sage-500">All time</p>
+              <p className="mt-1 text-xs text-sage-500">{t("allTime")}</p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">This month</p>
+              <p className="font-semibold text-sage-800">{t("thisMonth")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
                 {completedThisMonth.length}
               </p>
-              <p className="mt-1 text-xs text-sage-500">Completed sessions</p>
+              <p className="mt-1 text-xs text-sage-500">{t("thisMonthCaption")}</p>
             </li>
           </ul>
         </AccountSection>
 
-        <AccountSection title="Achievements">
+        <AccountSection title={t("achievements")}>
           {meRes.data.achievements.length === 0 ? (
-            <p className="ommm-body-muted text-sm">
-              Keep booking classes — achievements unlock as you go.
-            </p>
+            <p className="ommm-body-muted text-sm">{t("achievementsEmpty")}</p>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {meRes.data.achievements.map((a) => (
@@ -87,7 +86,9 @@ export default async function UserProgressPage() {
                   <p className="font-semibold text-sage-800">{a.title}</p>
                   <p className="mt-1 text-xs text-sage-500">{a.description}</p>
                   <p className="mt-2 text-xs text-sage-400">
-                    Unlocked {new Date(a.unlockedAt).toLocaleDateString()}
+                    {t("unlocked", {
+                      date: new Date(a.unlockedAt).toLocaleDateString(locale),
+                    })}
                   </p>
                 </li>
               ))}

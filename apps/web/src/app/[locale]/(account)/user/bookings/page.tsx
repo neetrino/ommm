@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { formatSessionRange } from "@/lib/format-session-time";
@@ -21,6 +22,7 @@ export default async function UserBookingsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations("userPages.bookings");
   const cookie = (await headers()).get("cookie") ?? "";
 
   const res = await serverApiJson<BookingRow[]>("/bookings/me", cookie);
@@ -30,8 +32,8 @@ export default async function UserBookingsPage({
       <div className="ommm-container pt-6 sm:pt-8">
         <div className="app-alert-warn">
           {res.status === 401
-            ? "Sign in to see your bookings."
-            : `Could not load bookings (${res.status}).`}
+            ? t("signInRequired")
+            : t("loadError", { status: res.status })}
         </div>
       </div>
     );
@@ -47,19 +49,25 @@ export default async function UserBookingsPage({
   );
 
   return (
-    <AccountPageFrame title="My bookings">
+    <AccountPageFrame title={t("title")}>
       <section className="max-w-4xl">
-        <h2 className="ommm-h3 text-sage-800">Upcoming</h2>
+        <h2 className="ommm-h3 text-sage-800">{t("upcoming")}</h2>
         <BookingTable
           locale={locale}
           rows={upcoming}
           showCancel
+          emptyLabel={t("emptySection")}
         />
       </section>
 
       <section className="mt-10 max-w-4xl">
-        <h2 className="ommm-h3 text-sage-800">Past &amp; other</h2>
-        <BookingTable locale={locale} rows={past} showCancel={false} />
+        <h2 className="ommm-h3 text-sage-800">{t("pastOther")}</h2>
+        <BookingTable
+          locale={locale}
+          rows={past}
+          showCancel={false}
+          emptyLabel={t("emptySection")}
+        />
       </section>
     </AccountPageFrame>
   );
@@ -69,13 +77,15 @@ function BookingTable({
   locale,
   rows,
   showCancel,
+  emptyLabel,
 }: {
   locale: string;
   rows: BookingRow[];
   showCancel: boolean;
+  emptyLabel: string;
 }) {
   if (rows.length === 0) {
-    return <p className="ommm-body-muted mt-2 text-sm">Nothing here yet.</p>;
+    return <p className="ommm-body-muted mt-2 text-sm">{emptyLabel}</p>;
   }
   return (
     <ul className="mt-4 space-y-3">

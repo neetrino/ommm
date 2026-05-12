@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { MembershipCheckoutButton } from "@/components/account/membership-checkout-button";
 import { MembershipLifecycleButtons } from "@/components/account/membership-lifecycle-buttons";
 import {
@@ -35,7 +36,13 @@ type PaymentRow = {
   createdAt: string;
 };
 
-export default async function UserMembershipsPage() {
+export default async function UserMembershipsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations("userPages.memberships");
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [plansRes, mineRes, payRes] = await Promise.all([
@@ -45,16 +52,13 @@ export default async function UserMembershipsPage() {
   ]);
 
   return (
-    <AccountPageFrame
-      title="Memberships"
-      description="Subscribe with Stripe when keys are configured; pause or cancel from the API or future admin tools."
-    >
+    <AccountPageFrame title={t("title")} description={t("description")}>
       <div className="max-w-4xl space-y-10">
-        <AccountSection title="Your memberships">
+        <AccountSection title={t("yourMemberships")}>
           {!mineRes.ok ? (
-            <p className="text-sm text-amber-900">Sign in to view.</p>
+            <p className="text-sm text-amber-900">{t("signInToView")}</p>
           ) : mineRes.data.length === 0 ? (
-            <p className="ommm-body-muted text-sm">No active membership yet.</p>
+            <p className="ommm-body-muted text-sm">{t("noActiveMembership")}</p>
           ) : (
             <ul className="space-y-3">
               {mineRes.data.map((m) => (
@@ -63,11 +67,15 @@ export default async function UserMembershipsPage() {
                   <p className="text-sm text-sage-500">
                     {m.status}
                     {m.sessionsRemaining != null
-                      ? ` · ${m.sessionsRemaining} sessions left`
+                      ? ` · ${t("sessionsLeft", { count: m.sessionsRemaining })}`
                       : ""}
                   </p>
                   <p className="text-xs text-sage-500/90">
-                    Renews / ends {new Date(m.currentPeriodEnd).toDateString()}
+                    {t("renewsEnds", {
+                      date: new Date(m.currentPeriodEnd).toLocaleDateString(
+                        locale,
+                      ),
+                    })}
                   </p>
                   <MembershipLifecycleButtons
                     membershipId={m.id}
@@ -79,11 +87,11 @@ export default async function UserMembershipsPage() {
           )}
         </AccountSection>
 
-        <AccountSection title="Payment history">
+        <AccountSection title={t("paymentHistory")}>
           {!payRes.ok ? (
-            <p className="ommm-body-muted text-sm">Sign in to view payments.</p>
+            <p className="ommm-body-muted text-sm">{t("signInPayments")}</p>
           ) : payRes.data.length === 0 ? (
-            <p className="ommm-body-muted text-sm">No payments recorded yet.</p>
+            <p className="ommm-body-muted text-sm">{t("noPayments")}</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {payRes.data.map((p) => (
@@ -97,7 +105,7 @@ export default async function UserMembershipsPage() {
                     <span className="ml-2 text-sage-500">{p.description}</span>
                   ) : null}
                   <span className="ml-2 text-xs text-sage-500">
-                    {new Date(p.createdAt).toLocaleString()}
+                    {new Date(p.createdAt).toLocaleString(locale)}
                   </span>
                 </li>
               ))}
@@ -105,9 +113,9 @@ export default async function UserMembershipsPage() {
           )}
         </AccountSection>
 
-        <AccountSection title="Plans">
+        <AccountSection title={t("plans")}>
           {!plansRes.ok ? (
-            <p className="text-sm text-amber-900">Could not load plans.</p>
+            <p className="text-sm text-amber-900">{t("couldNotLoadPlans")}</p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {plansRes.data
@@ -121,11 +129,13 @@ export default async function UserMembershipsPage() {
                       </p>
                     ) : null}
                     <p className="mt-3 text-sm text-sage-700">
-                      {(plan.priceCents / 100).toFixed(0)} per {plan.periodDays}
-                      -day period ·{" "}
+                      {(plan.priceCents / 100).toFixed(0)}{" "}
+                      {t("perPeriod", { days: plan.periodDays })} ·{" "}
                       {plan.isUnlimited
-                        ? "Unlimited classes"
-                        : `${plan.sessionsPerMonth ?? 0} sessions / period`}
+                        ? t("unlimitedClassesShort")
+                        : t("sessionsPerPeriodShort", {
+                            count: plan.sessionsPerMonth ?? 0,
+                          })}
                     </p>
                     {mineRes.ok ? (
                       <div className="mt-4">
@@ -133,7 +143,7 @@ export default async function UserMembershipsPage() {
                       </div>
                     ) : (
                       <p className="ommm-body-muted mt-4 text-xs">
-                        Log in to subscribe.
+                        {t("logInToSubscribe")}
                       </p>
                     )}
                   </li>

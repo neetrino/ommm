@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { ContactMessageForm } from "@/components/marketing/contact-message-form";
 import { serverApiJson } from "@/lib/server-api";
@@ -39,24 +40,22 @@ function parseSocialLinks(raw: string | null): { label: string; url: string }[] 
 }
 
 export default async function ContactPage() {
+  const t = await getTranslations("marketingPages.contact");
   const studioRes = await serverApiJson<StudioPublic>("/studio", "");
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
 
   return (
-    <MarketingPageFrame
-      title="Contact"
-      lede="Send a message to the studio team. We read every note and reply by phone or email when appropriate."
-    >
+    <MarketingPageFrame title={t("title")} lede={t("lede")}>
       {studio !== null ? (
         <section className="mt-12 grid gap-8 lg:grid-cols-2">
           <div className="ommm-card p-6 text-sm text-sage-700 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-            <h2 className="ommm-h3 text-sage-800">Studio</h2>
+            <h2 className="ommm-h3 text-sage-800">{t("studioHeading")}</h2>
             <dl className="mt-4 space-y-3">
               {studio.contactPhone !== null ? (
                 <div>
                   <dt className="text-xs font-semibold uppercase text-sage-500">
-                    Phone
+                    {t("phone")}
                   </dt>
                   <dd>
                     <a
@@ -71,7 +70,7 @@ export default async function ContactPage() {
               {studio.contactEmail !== null ? (
                 <div>
                   <dt className="text-xs font-semibold uppercase text-sage-500">
-                    Email
+                    {t("email")}
                   </dt>
                   <dd>
                     <a
@@ -86,7 +85,7 @@ export default async function ContactPage() {
               {studio.whatsappUrl !== null ? (
                 <div>
                   <dt className="text-xs font-semibold uppercase text-sage-500">
-                    WhatsApp
+                    {t("whatsApp")}
                   </dt>
                   <dd>
                     <a
@@ -95,7 +94,7 @@ export default async function ContactPage() {
                       rel="noopener noreferrer"
                       target="_blank"
                     >
-                      Chat on WhatsApp
+                      {t("chatWhatsApp")}
                     </a>
                   </dd>
                 </div>
@@ -103,7 +102,7 @@ export default async function ContactPage() {
               {studio.address !== null ? (
                 <div>
                   <dt className="text-xs font-semibold uppercase text-sage-500">
-                    Address
+                    {t("address")}
                   </dt>
                   <dd className="whitespace-pre-line">{studio.address}</dd>
                 </div>
@@ -111,7 +110,7 @@ export default async function ContactPage() {
               {studio.workingHours !== null ? (
                 <div>
                   <dt className="text-xs font-semibold uppercase text-sage-500">
-                    Hours
+                    {t("hours")}
                   </dt>
                   <dd className="whitespace-pre-line">{studio.workingHours}</dd>
                 </div>
@@ -145,7 +144,7 @@ export default async function ContactPage() {
       studio.mapEmbedUrl !== null &&
       studio.mapEmbedUrl.trim() !== "" ? (
         <section className="mt-12">
-          <h2 className="ommm-h3 text-sage-800">Map</h2>
+          <h2 className="ommm-h3 text-sage-800">{t("mapHeading")}</h2>
           <div
             className="mt-4 overflow-hidden rounded-[24px] border border-white/60 bg-white shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]"
             dangerouslySetInnerHTML={{ __html: studio.mapEmbedUrl }}

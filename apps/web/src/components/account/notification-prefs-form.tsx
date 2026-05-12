@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -18,6 +19,7 @@ type Props = {
 
 export function NotificationPrefsForm({ initial }: Props) {
   const router = useRouter();
+  const t = useTranslations("forms.notificationPrefs");
   const [prefs, setPrefs] = useState<Prefs>(initial);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -31,9 +33,9 @@ export function NotificationPrefsForm({ initial }: Props) {
         body: JSON.stringify(prefs),
       });
       router.refresh();
-      setMsg("Saved");
+      setMsg(t("saved"));
     } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : "Could not save");
+      setMsg(e instanceof ApiError ? e.message : t("saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -47,12 +49,12 @@ export function NotificationPrefsForm({ initial }: Props) {
     <div className="flex flex-col gap-4">
       {(
         [
-          ["bookingReminders", "Booking reminders"],
-          ["waitlistAlerts", "Waitlist alerts"],
-          ["promotions", "Promotions"],
-          ["communityUpdates", "Community updates"],
+          ["bookingReminders", "bookingReminders"],
+          ["waitlistAlerts", "waitlistAlerts"],
+          ["promotions", "promotions"],
+          ["communityUpdates", "communityUpdates"],
         ] as const
-      ).map(([key, label]) => (
+      ).map(([key, labelKey]) => (
         <label
           key={key}
           className="flex items-center gap-2 text-sm text-sage-700"
@@ -63,7 +65,7 @@ export function NotificationPrefsForm({ initial }: Props) {
             onChange={() => toggle(key)}
             className="h-4 w-4 rounded border-sand-500/40 accent-sand-500 focus:ring-sand-500/30"
           />
-          {label}
+          {t(labelKey)}
         </label>
       ))}
       <OmmButton
@@ -74,7 +76,7 @@ export function NotificationPrefsForm({ initial }: Props) {
         disabled={busy}
         onClick={() => void save()}
       >
-        Save preferences
+        {t("save")}
       </OmmButton>
       {msg ? <p className="text-sm text-sage-500">{msg}</p> : null}
     </div>

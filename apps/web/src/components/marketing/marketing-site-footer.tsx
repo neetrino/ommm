@@ -61,7 +61,7 @@ export async function MarketingSiteFooter() {
           </div>
         </div>
         <p className="mt-12 border-t border-sage-700/10 pt-8 text-center text-xs text-sage-500">
-          © {new Date().getFullYear()} Ommm · studio
+          © {new Date().getFullYear()} Ommm · {tFooter("copyrightSuffix")}
         </p>
       </div>
     </footer>

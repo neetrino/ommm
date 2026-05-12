@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import {
@@ -18,6 +19,7 @@ type GiftRow = {
 };
 
 export default async function UserGiftCardsPage() {
+  const t = await getTranslations("userPages.giftCards");
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [purchasedRes, receivedRes, meRes] = await Promise.all([
@@ -30,27 +32,21 @@ export default async function UserGiftCardsPage() {
 
   return (
     <AccountPageFrame
-      title="Gift cards"
+      title={t("title")}
       description={
-        credits != null
-          ? `Gift balance (credits): ${credits} cents`
-          : undefined
+        credits != null ? t("giftBalance", { cents: credits }) : undefined
       }
     >
       <div className="max-w-4xl space-y-10">
-        <AccountSection title="Redeem">
+        <AccountSection title={t("redeem")}>
           <div className="max-w-sm">
             <GiftRedeemForm />
           </div>
         </AccountSection>
 
-        <AccountSection title="Purchase">
+        <AccountSection title={t("purchase")}>
           <p className="ommm-body-muted text-sm">
-            Opens Stripe Checkout (configure{" "}
-            <code className="rounded-lg bg-white/50 px-1.5 py-0.5 text-xs text-sage-700">
-              STRIPE_SECRET_KEY
-            </code>
-            ).
+            {t("stripeNote", { code: "STRIPE_SECRET_KEY" })}
           </p>
           <div className="mt-4 max-w-sm">
             <GiftPurchaseForm />
@@ -58,19 +54,21 @@ export default async function UserGiftCardsPage() {
         </AccountSection>
 
         <section>
-          <h2 className="ommm-h3 text-sage-800">Purchased</h2>
+          <h2 className="ommm-h3 text-sage-800">{t("purchasedHeading")}</h2>
           {!purchasedRes.ok ? (
-            <p className="ommm-body-muted mt-2 text-sm">Sign in to view.</p>
+            <p className="ommm-body-muted mt-2 text-sm">{t("signInToView")}</p>
           ) : purchasedRes.data.length === 0 ? (
-            <p className="ommm-body-muted mt-2 text-sm">
-              No gift cards purchased.
-            </p>
+            <p className="ommm-body-muted mt-2 text-sm">{t("emptyPurchased")}</p>
           ) : (
             <ul className="mt-4 space-y-2 text-sm">
               {purchasedRes.data.map((g) => (
                 <li key={g.id} className="ommm-inset-row font-mono text-sage-700">
-                  {g.code} · balance {g.balanceCents}/{g.amountCents} ·{" "}
-                  {g.status}
+                  {t("rowPurchased", {
+                    code: g.code,
+                    balance: g.balanceCents,
+                    amount: g.amountCents,
+                    status: g.status,
+                  })}
                 </li>
               ))}
             </ul>
@@ -78,17 +76,20 @@ export default async function UserGiftCardsPage() {
         </section>
 
         <section>
-          <h2 className="ommm-h3 text-sage-800">Received</h2>
+          <h2 className="ommm-h3 text-sage-800">{t("receivedHeading")}</h2>
           {!receivedRes.ok ? (
-            <p className="ommm-body-muted mt-2 text-sm">Sign in to view.</p>
+            <p className="ommm-body-muted mt-2 text-sm">{t("signInToView")}</p>
           ) : receivedRes.data.length === 0 ? (
-            <p className="ommm-body-muted mt-2 text-sm">No gifts received yet.</p>
+            <p className="ommm-body-muted mt-2 text-sm">{t("emptyReceived")}</p>
           ) : (
             <ul className="mt-4 space-y-2 text-sm">
               {receivedRes.data.map((g) => (
                 <li key={g.id} className="ommm-inset-row">
-                  {g.recipientName ?? "Gift"} · balance {g.balanceCents} ·{" "}
-                  {g.status}
+                  {t("rowReceived", {
+                    name: g.recipientName ?? t("giftFallbackName"),
+                    balance: g.balanceCents,
+                    status: g.status,
+                  })}
                 </li>
               ))}
             </ul>

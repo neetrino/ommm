@@ -32,6 +32,7 @@ export function MarketingSiteHeader() {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
   const tHome = useTranslations("home");
+  const tUi = useTranslations("marketingUi");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -60,7 +61,7 @@ export function MarketingSiteHeader() {
 
         <nav
           className="hidden items-center gap-0.5 lg:flex"
-          aria-label="Primary"
+          aria-label={tUi("primaryNavAria")}
         >
           {NAV_LINKS.map(({ href, key }) => (
             <Link
@@ -90,10 +91,10 @@ export function MarketingSiteHeader() {
           className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
           aria-expanded={open}
           aria-controls="marketing-mobile-nav"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="sr-only">Menu</span>
+          <span className="sr-only">{tUi("menuSr")}</span>
           <svg
             width="20"
             height="20"
@@ -124,7 +125,7 @@ export function MarketingSiteHeader() {
             : "hidden"
         }
       >
-        <nav className="flex flex-col gap-1" aria-label="Mobile primary">
+        <nav className="flex flex-col gap-1" aria-label={tUi("mobilePrimaryNavAria")}>
           {NAV_LINKS.map(({ href, key }) => (
             <Link
               key={href}

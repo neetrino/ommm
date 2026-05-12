@@ -1,13 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-/** Marketing home path; locale is applied by next-intl router (`/hy`). */
+/** Marketing home path; locale is preserved from the active session. */
 const POST_LOGOUT_PATH = "/";
-const POST_LOGOUT_LOCALE = "hy" as const;
 
 type LogoutButtonProps = {
   className?: string;
@@ -15,6 +14,7 @@ type LogoutButtonProps = {
 
 export function LogoutButton({ className }: LogoutButtonProps) {
   const t = useTranslations("common");
+  const locale = useLocale();
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -26,7 +26,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
       // Cookie clear is best-effort; still leave protected areas.
     } finally {
       setPending(false);
-      router.replace(POST_LOGOUT_PATH, { locale: POST_LOGOUT_LOCALE });
+      router.replace(POST_LOGOUT_PATH, { locale });
       router.refresh();
     }
   }

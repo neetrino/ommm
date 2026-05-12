@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
-import { dashboardNavForRole } from "@/lib/dashboard-nav";
+import { dashboardNavDefinitionsForRole } from "@/lib/dashboard-nav";
 import {
   redirectIfRoleNotIn,
   requireAuthForLayout,
@@ -23,16 +24,18 @@ export default async function CoachSectionLayout({
   const { locale } = await params;
   const { role } = await requireAuthForLayout(locale);
   redirectIfRoleNotIn(locale, role, COACH_ROLES);
-  const nav = dashboardNavForRole(role);
+  const navDefinitions = dashboardNavDefinitionsForRole(role);
+  const tDash = await getTranslations("dashboard");
 
   return (
     <DashboardAppShell
       brandHref="/coach/home"
-      brandLabel="Coach"
-      brandSubline="Schedule & roster"
+      brandLabel={tDash("brand.coach.title")}
+      brandSubline={tDash("brand.coach.subline")}
       variant="indigo"
       contentMaxClass="max-w-5xl"
-      navItems={nav}
+      navRole="COACH"
+      navDefinitions={navDefinitions}
       trailing={
         <>
           <LogoutButton className={`${trailingClass} lg:w-auto`} />
@@ -40,7 +43,7 @@ export default async function CoachSectionLayout({
             href="/user/home"
             className={`${trailingClass} text-center lg:text-left`}
           >
-            Member zone
+            {tDash("links.memberZone")}
           </Link>
         </>
       }

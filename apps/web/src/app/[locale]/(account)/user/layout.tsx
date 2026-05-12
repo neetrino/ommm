@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
-import { dashboardNavForRole } from "@/lib/dashboard-nav";
+import { dashboardNavDefinitionsForRole } from "@/lib/dashboard-nav";
 import {
   redirectIfRoleNotIn,
   requireAuthForLayout,
@@ -23,21 +24,23 @@ export default async function UserMemberLayout({
   const { locale } = await params;
   const { role } = await requireAuthForLayout(locale);
   redirectIfRoleNotIn(locale, role, USER_ROLES);
-  const nav = dashboardNavForRole(role);
+  const navDefinitions = dashboardNavDefinitionsForRole(role);
+  const tDash = await getTranslations("dashboard");
 
   return (
     <DashboardAppShell
       brandHref="/user/home"
-      brandLabel="Member"
-      brandSubline="Your wellness space"
+      brandLabel={tDash("brand.member.title")}
+      brandSubline={tDash("brand.member.subline")}
       variant="wellness"
       contentMaxClass="w-full"
-      navItems={nav}
+      navRole="USER"
+      navDefinitions={navDefinitions}
       trailing={
         <>
           <LogoutButton className={`${trailingClass} text-left`} />
           <Link href="/" className={trailingClass}>
-            Marketing site
+            {tDash("links.marketingSite")}
           </Link>
         </>
       }

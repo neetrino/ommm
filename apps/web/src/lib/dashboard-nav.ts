@@ -1,6 +1,7 @@
 /**
  * Central navigation for authenticated role dashboards.
  * Each role’s `href` values must stay under that role’s URL namespace.
+ * Labels are resolved via next-intl under `dashboard.nav.{ROLE}.{labelKey}`.
  */
 export type DashboardNavIcon =
   | "home"
@@ -22,63 +23,72 @@ export type DashboardNavIcon =
   | "send"
   | "pieChart";
 
+export type DashboardNavDefinition = {
+  href: string;
+  icon: DashboardNavIcon;
+  /** Key under `dashboard.nav.{role}` */
+  labelKey: string;
+};
+
 export type DashboardNavItem = {
   href: string;
   label: string;
   icon: DashboardNavIcon;
 };
 
-const USER_NAV: readonly DashboardNavItem[] = [
-  { href: "/user/home", label: "Home", icon: "home" },
-  { href: "/user/progress", label: "Progress", icon: "trendingUp" },
-  { href: "/user/classes", label: "Classes", icon: "layoutGrid" },
-  { href: "/user/bookings", label: "Bookings", icon: "calendar" },
-  { href: "/user/memberships", label: "Memberships", icon: "tag" },
-  { href: "/user/gift-cards", label: "Gift cards", icon: "gift" },
-  { href: "/user/notifications", label: "Notifications", icon: "bell" },
-  { href: "/user/profile", label: "Profile", icon: "user" },
+const USER_NAV: readonly DashboardNavDefinition[] = [
+  { href: "/user/home", icon: "home", labelKey: "home" },
+  { href: "/user/progress", icon: "trendingUp", labelKey: "progress" },
+  { href: "/user/classes", icon: "layoutGrid", labelKey: "classes" },
+  { href: "/user/bookings", icon: "calendar", labelKey: "bookings" },
+  { href: "/user/memberships", icon: "tag", labelKey: "memberships" },
+  { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards" },
+  { href: "/user/notifications", icon: "bell", labelKey: "notifications" },
+  { href: "/user/profile", icon: "user", labelKey: "profile" },
 ];
 
-const COACH_NAV: readonly DashboardNavItem[] = [
-  { href: "/coach/home", label: "Schedule", icon: "calendar" },
-  { href: "/coach/analytics", label: "Analytics", icon: "barChart" },
-  { href: "/coach/salary", label: "Salary", icon: "wallet" },
-  { href: "/coach/profile", label: "Profile", icon: "user" },
+const COACH_NAV: readonly DashboardNavDefinition[] = [
+  { href: "/coach/home", icon: "calendar", labelKey: "schedule" },
+  { href: "/coach/analytics", icon: "barChart", labelKey: "analytics" },
+  { href: "/coach/salary", icon: "wallet", labelKey: "salary" },
+  { href: "/coach/profile", icon: "user", labelKey: "profile" },
 ];
 
-const MANAGER_NAV: readonly DashboardNavItem[] = [
-  { href: "/manager/home", label: "Home", icon: "home" },
-  { href: "/manager/classes", label: "Classes", icon: "layoutGrid" },
-  { href: "/manager/bookings", label: "Bookings", icon: "calendar" },
-  { href: "/manager/waitlists", label: "Waitlists", icon: "listOrdered" },
-  { href: "/manager/coaches", label: "Coaches", icon: "userCheck" },
-  { href: "/manager/clients", label: "Clients", icon: "users" },
-  { href: "/manager/profile", label: "Profile", icon: "user" },
+const MANAGER_NAV: readonly DashboardNavDefinition[] = [
+  { href: "/manager/home", icon: "home", labelKey: "home" },
+  { href: "/manager/classes", icon: "layoutGrid", labelKey: "classes" },
+  { href: "/manager/bookings", icon: "calendar", labelKey: "bookings" },
+  { href: "/manager/waitlists", icon: "listOrdered", labelKey: "waitlists" },
+  { href: "/manager/coaches", icon: "userCheck", labelKey: "coaches" },
+  { href: "/manager/clients", icon: "users", labelKey: "clients" },
+  { href: "/manager/profile", icon: "user", labelKey: "profile" },
 ];
 
-const CONTENT_ADMIN_NAV: readonly DashboardNavItem[] = [
-  { href: "/content-admin/home", label: "Home", icon: "home" },
-  { href: "/content-admin/content", label: "Content", icon: "fileText" },
-  { href: "/content-admin/profile", label: "Profile", icon: "user" },
+const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
+  { href: "/content-admin/home", icon: "home", labelKey: "home" },
+  { href: "/content-admin/content", icon: "fileText", labelKey: "content" },
+  { href: "/content-admin/profile", icon: "user", labelKey: "profile" },
 ];
 
-const ADMIN_NAV: readonly DashboardNavItem[] = [
-  { href: "/admin/home", label: "Dashboard", icon: "layoutDashboard" },
-  { href: "/admin/clients", label: "Users", icon: "users" },
-  { href: "/admin/bookings", label: "Bookings", icon: "calendar" },
-  { href: "/admin/classes", label: "Classes", icon: "layoutGrid" },
-  { href: "/admin/waitlists", label: "Waitlists", icon: "listOrdered" },
-  { href: "/admin/coaches", label: "Coaches", icon: "userCheck" },
-  { href: "/admin/memberships", label: "Memberships", icon: "tag" },
-  { href: "/admin/gift-cards", label: "Gift cards", icon: "gift" },
-  { href: "/admin/notifications", label: "Notifications", icon: "send" },
-  { href: "/admin/reports", label: "Reports", icon: "pieChart" },
-  { href: "/admin/content", label: "Content", icon: "fileText" },
-  { href: "/admin/profile", label: "Profile", icon: "user" },
+const ADMIN_NAV: readonly DashboardNavDefinition[] = [
+  { href: "/admin/home", icon: "layoutDashboard", labelKey: "dashboard" },
+  { href: "/admin/clients", icon: "users", labelKey: "users" },
+  { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
+  { href: "/admin/classes", icon: "layoutGrid", labelKey: "classes" },
+  { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists" },
+  { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
+  { href: "/admin/memberships", icon: "tag", labelKey: "memberships" },
+  { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards" },
+  { href: "/admin/notifications", icon: "send", labelKey: "notifications" },
+  { href: "/admin/reports", icon: "pieChart", labelKey: "reports" },
+  { href: "/admin/content", icon: "fileText", labelKey: "content" },
+  { href: "/admin/profile", icon: "user", labelKey: "profile" },
 ];
 
-/** Sidebar items for the authenticated dashboard role (Prisma `Role`). */
-export function dashboardNavForRole(role: string): DashboardNavItem[] {
+/** Sidebar item definitions for the authenticated dashboard role (Prisma `Role`). */
+export function dashboardNavDefinitionsForRole(
+  role: string,
+): DashboardNavDefinition[] {
   switch (role) {
     case "USER":
       return [...USER_NAV];

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
@@ -8,13 +9,16 @@ export function ContactMessageForm({
 }: {
   formClassName?: string;
 }) {
-  const [status, setStatus] = useState<string | null>(null);
+  const t = useTranslations("forms.contact");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    setStatus(null);
+    setErrorMsg(null);
+    setSent(false);
     setPending(true);
     try {
       await apiFetch<{ ok: boolean }>("/contact", {
@@ -26,10 +30,10 @@ export function ContactMessageForm({
           message: form.get("message"),
         }),
       });
-      setStatus("Sent");
+      setSent(true);
       e.currentTarget.reset();
     } catch (err) {
-      setStatus(err instanceof ApiError ? err.message : "Error");
+      setErrorMsg(err instanceof ApiError ? err.message : t("sendError"));
     } finally {
       setPending(false);
     }
@@ -42,7 +46,7 @@ export function ContactMessageForm({
         className={formClassName}
       >
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Name</span>
+          <span className="ommm-label">{t("name")}</span>
           <input
             name="name"
             required
@@ -51,7 +55,7 @@ export function ContactMessageForm({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Phone</span>
+          <span className="ommm-label">{t("phone")}</span>
           <input
             name="phone"
             required
@@ -60,11 +64,11 @@ export function ContactMessageForm({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Subject</span>
+          <span className="ommm-label">{t("subject")}</span>
           <input name="subject" autoComplete="off" className="ommm-input" />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Message</span>
+          <span className="ommm-label">{t("message")}</span>
           <textarea
             name="message"
             required
@@ -77,21 +81,17 @@ export function ContactMessageForm({
           className="ommm-cta-primary mt-2 w-full sm:w-auto"
           disabled={pending}
         >
-          {pending ? "Sending…" : "Send"}
+          {pending ? t("sending") : t("send")}
         </button>
       </form>
-      {status ? (
-        <p
-          className={
-            status === "Sent"
-              ? "mt-4 text-sm font-medium text-sage-800"
-              : "mt-4 text-sm text-red-600"
-          }
-          role="status"
-        >
-          {status === "Sent"
-            ? "Thank you — your message was sent."
-            : status}
+      {sent ? (
+        <p className="mt-4 text-sm font-medium text-sage-800" role="status">
+          {t("thankYou")}
+        </p>
+      ) : null}
+      {errorMsg ? (
+        <p className="mt-4 text-sm text-red-600" role="status">
+          {errorMsg}
         </p>
       ) : null}
     </>

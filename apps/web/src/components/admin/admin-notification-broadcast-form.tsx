@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type BroadcastResponse = { ok: boolean; count?: number; mode?: string };
 
 export function AdminNotificationBroadcastForm() {
+  const t = useTranslations("forms.adminBroadcast");
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
   const [testTo, setTestTo] = useState("");
@@ -27,12 +29,12 @@ export function AdminNotificationBroadcastForm() {
       );
       setStatus(
         res.mode === "test"
-          ? "Test email sent."
-          : `Queued broadcast to ${res.count ?? 0} addresses (email send loop).`,
+          ? t("testSent")
+          : t("queued", { count: res.count ?? 0 }),
       );
     } catch (err) {
       setStatus(
-        err instanceof ApiError ? err.message : "Could not send broadcast.",
+        err instanceof ApiError ? err.message : t("sendFailed"),
       );
     } finally {
       setPending(false);
