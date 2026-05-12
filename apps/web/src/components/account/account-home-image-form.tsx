@@ -9,6 +9,31 @@ const MAX_BYTES = 5 * 1024 * 1024;
 
 const ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
 
+/**
+ * Restricts values bound to `<img src>` so stored or reflected strings cannot
+ * use executable URL schemes (e.g. `javascript:`). CodeQL: js/xss-through-dom.
+ */
+function isAllowedHomePreviewSrc(src: string): boolean {
+  const trimmed = src.trim();
+  if (trimmed === "") {
+    return false;
+  }
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
+    return true;
+  }
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    return false;
+  }
+  return (
+    url.protocol === "https:" ||
+    url.protocol === "http:" ||
+    url.protocol === "blob:"
+  );
+}
+
 function readFileAsHomeImageJsonPayload(
   file: File,
 ): Promise<{ imageBase64: string; mimeType: string }> {
@@ -50,7 +75,11 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
-  const previewSrc = objectUrl ?? initialPreviewUrl ?? null;
+  const rawPreview = objectUrl ?? initialPreviewUrl ?? null;
+  const previewSrc =
+    rawPreview !== null && isAllowedHomePreviewSrc(rawPreview)
+      ? rawPreview
+      : null;
 
   function onFileChosen(next: File | null) {
     if (objectUrl !== null) {
