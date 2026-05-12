@@ -17,19 +17,25 @@ export class RegisterDto {
   @MaxLength(128)
   password!: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)
   name!: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)
   lastName!: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @MinLength(8)
   @MaxLength(32)

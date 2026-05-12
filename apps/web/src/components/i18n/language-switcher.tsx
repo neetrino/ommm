@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useId, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
@@ -182,10 +182,13 @@ export function LanguageSwitcher({
   const [persisting, setPersisting] = useState(false);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const dismissRef = useRef(() => {});
+  const dismissRef = useRef<() => void>(() => {});
   const listId = useId();
 
-  dismissRef.current = () => setOpen(false);
+  useEffect(() => {
+    dismissRef.current = () => setOpen(false);
+  }, []);
+
   useDismissWhenOutside(open, rootRef, dismissRef);
 
   const current: LanguageSwitcherLocaleCode | null = isLanguageSwitcherLocale(

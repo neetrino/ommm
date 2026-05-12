@@ -44,7 +44,9 @@ export class ExpoPushService {
       });
       if (!res.ok) {
         const t = await res.text();
-        this.logger.warn(`Expo push failed HTTP ${res.status}: ${t.slice(0, 200)}`);
+        this.logger.warn(
+          `Expo push failed HTTP ${res.status}: ${t.slice(0, 200)}`,
+        );
       }
     } catch (err) {
       this.logger.warn(

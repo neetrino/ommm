@@ -170,7 +170,9 @@ export class WaitlistService {
     for (const sid of sessionIds) {
       await this.offerNextIfSlot(sid);
     }
-    this.logger.log(`Expired ${stale.length} waitlist offer(s); re-offered where slots remain.`);
+    this.logger.log(
+      `Expired ${stale.length} waitlist offer(s); re-offered where slots remain.`,
+    );
   }
 
   async remove(entryId: string) {
