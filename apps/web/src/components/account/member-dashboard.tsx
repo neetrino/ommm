@@ -23,7 +23,7 @@ type AchievementRow = { title: string; unlockedAt: string };
 export type MemberDashboardProps = {
   locale: string;
   displayName: string;
-  /** Absolute URL for optional member-only Home hero image. */
+  /** Absolute URL for optional member profile photo on Home. */
   homeImageSrc?: string | null;
   nextBooking: NextBooking | null;
   waitlistOk: boolean;
@@ -101,22 +101,20 @@ export async function MemberDashboard({
         </div>
 
         <div className="relative space-y-12 pb-[clamp(3rem,6vw,5.5rem)] sm:space-y-14 lg:space-y-16">
-          {homeImageSrc ? (
-            <div className="relative mx-auto w-full max-w-[420px] overflow-hidden rounded-[28px] border border-white/70 shadow-[0_24px_80px_-40px_rgba(51,69,55,0.35)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={homeImageSrc}
-                alt=""
-                className="aspect-[4/5] w-full object-cover"
-              />
-            </div>
-          ) : null}
-
           <div className="grid w-full grid-cols-1 items-center gap-10 pb-2 pt-8 sm:gap-12 sm:pt-10 lg:grid-cols-12 lg:gap-14 lg:pt-12">
           <div className="lg:col-span-7">
             <div className="flex items-center gap-4">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-sand-500/30 text-sm font-medium text-sage-700 ring-1 ring-white/70 sm:h-14 sm:w-14">
-                {initial}
+              <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sand-500/30 text-sm font-medium text-sage-700 ring-1 ring-white/70 sm:h-14 sm:w-14">
+                {homeImageSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- remote member asset URL
+                  <img
+                    src={homeImageSrc}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  initial
+                )}
               </span>
               <p className="font-serif italic text-sage-500">
                 <span className="block text-base sm:text-lg">{t("greeting")}</span>
