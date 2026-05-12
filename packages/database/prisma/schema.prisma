@@ -90,6 +90,7 @@ model User {
   homeImageUrl   String?
   role           Role      @default(USER)
   emailVerified  DateTime?
+  /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")
   stripeCustomerId String?   @unique
   giftCreditsCents Int       @default(0)

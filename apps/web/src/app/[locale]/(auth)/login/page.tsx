@@ -1,15 +1,17 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { homePathForRole } from "@/lib/role-home";
 
 export default function LoginPage() {
   const router = useRouter();
+  const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.login");
   const [error, setError] = useState<string | null>(null);
@@ -26,14 +28,19 @@ export default function LoginPage() {
     submitLockRef.current = true;
     setPending(true);
     try {
-      const { user } = await apiFetch<{ user: { role: string } }>("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          email: fd.get("email"),
-          password: fd.get("password"),
-        }),
-      });
-      router.push(homePathForRole(user.role));
+      const { user } = await apiFetch<{ user: { role: string; locale: string } }>(
+        "/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: fd.get("email"),
+            password: fd.get("password"),
+          }),
+        },
+      );
+      const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
+      setUiLocaleCookie(nextLocale);
+      router.push(homePathForRole(user.role), { locale: nextLocale });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : tAuth("loginFailed"));
     } finally {

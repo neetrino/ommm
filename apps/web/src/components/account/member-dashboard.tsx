@@ -58,7 +58,7 @@ export async function MemberDashboard({
   achievements,
   coachProfileId,
 }: MemberDashboardProps) {
-  const t = await getTranslations("account.dashboard");
+  const t = await getTranslations({ locale, namespace: "account.dashboard" });
   const shortName = shortFirstName(displayName);
   const initial = memberInitial(shortName || displayName);
 

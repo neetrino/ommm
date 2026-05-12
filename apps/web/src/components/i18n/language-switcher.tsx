@@ -3,6 +3,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { ApiError, apiFetch } from "@/lib/api";
+import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
 import { useDismissWhenOutside } from "@/hooks/use-dismiss-when-outside";
@@ -177,6 +179,7 @@ export function LanguageSwitcher({
   const locale = useLocale();
   const t = useTranslations("language");
   const [pending, startTransition] = useTransition();
+  const [persisting, setPersisting] = useState(false);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const dismissRef = useRef(() => {});
@@ -208,11 +211,30 @@ export function LanguageSwitcher({
       onAfterSelect?.();
       return;
     }
-    startTransition(() => {
-      router.replace(pathname, { locale: next });
-      setOpen(false);
-      onAfterSelect?.();
-    });
+    const previous = locale;
+    setUiLocaleCookie(next);
+    setPersisting(true);
+    void (async () => {
+      try {
+        await apiFetch<{ user: { locale: string } }>("/users/me", {
+          method: "PATCH",
+          body: JSON.stringify({ locale: next }),
+        });
+      } catch (err) {
+        const isGuest = err instanceof ApiError && err.status === 401;
+        if (!isGuest) {
+          setUiLocaleCookie(previous);
+          setPersisting(false);
+          return;
+        }
+      }
+      setPersisting(false);
+      startTransition(() => {
+        router.replace(pathname, { locale: next });
+        setOpen(false);
+        onAfterSelect?.();
+      });
+    })();
   }
 
   const triggerLabel = `${t("switcherAria")}: ${t(`optionNames.${effectiveLocale}`)}`;
@@ -227,7 +249,7 @@ export function LanguageSwitcher({
         aria-controls={listId}
         aria-label={triggerLabel}
         title={t("expandPicker")}
-        disabled={pending}
+        disabled={pending || persisting}
         onClick={() => setOpen((v) => !v)}
       >
         <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
@@ -243,7 +265,7 @@ export function LanguageSwitcher({
           dashboardVariant={dashboardVariant}
           compact={compact}
           locale={locale}
-          pending={pending}
+          pending={pending || persisting}
           getOptionName={(code) => t(`optionNames.${code}`)}
           onPick={select}
         />

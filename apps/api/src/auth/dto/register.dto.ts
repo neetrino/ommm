@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsIn,
   IsOptional,
   IsString,
   MaxLength,
@@ -21,7 +22,6 @@ export class RegisterDto {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(8)
+  @IsIn(['hy', 'en', 'ru'])
   locale?: string;
 }

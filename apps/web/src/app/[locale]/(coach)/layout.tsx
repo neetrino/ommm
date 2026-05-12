@@ -5,6 +5,7 @@ import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 import { dashboardNavDefinitionsForRole } from "@/lib/dashboard-nav";
 import {
+  redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
   requireAuthForLayout,
 } from "@/server/require-role-layout";
@@ -22,10 +23,11 @@ export default async function CoachSectionLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { role } = await requireAuthForLayout(locale);
+  const { role, userLocale } = await requireAuthForLayout(locale);
+  await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, COACH_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
-  const tDash = await getTranslations("dashboard");
+  const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
     <DashboardAppShell

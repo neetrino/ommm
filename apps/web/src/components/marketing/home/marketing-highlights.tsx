@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export async function MarketingHighlights() {
-  const m = await getTranslations("marketing");
+export async function MarketingHighlights({ locale }: { locale: string }) {
+  const m = await getTranslations({ locale, namespace: "marketing" });
 
   const items = [
     {

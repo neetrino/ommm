@@ -1,11 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { homePathForRole } from "@/lib/role-home";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -22,6 +23,7 @@ function isValidEmail(value: string): boolean {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.register");
   const [error, setError] = useState<string | null>(null);
@@ -56,15 +58,21 @@ export default function RegisterPage() {
     submitLockRef.current = true;
     setPending(true);
     try {
-      const { user } = await apiFetch<{ user: { role: string } }>("/auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          email: emailRaw.toLowerCase(),
-          password,
-          name: nameRaw.length > 0 ? nameRaw : undefined,
-        }),
-      });
-      router.push(homePathForRole(user.role));
+      const { user } = await apiFetch<{ user: { role: string; locale: string } }>(
+        "/auth/register",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: emailRaw.toLowerCase(),
+            password,
+            name: nameRaw.length > 0 ? nameRaw : undefined,
+            locale: urlLocale,
+          }),
+        },
+      );
+      const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
+      setUiLocaleCookie(nextLocale);
+      router.push(homePathForRole(user.role), { locale: nextLocale });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : tAuth("registerFailed"));
     } finally {

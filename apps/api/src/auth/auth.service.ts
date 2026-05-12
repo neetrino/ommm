@@ -15,6 +15,7 @@ import {
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
@@ -79,7 +80,7 @@ export class AuthService {
         email: dto.email.toLowerCase(),
         passwordHash,
         name: dto.name,
-        locale: dto.locale ?? 'hy',
+        locale: normalizeAppUiLocale(dto.locale, 'hy'),
       },
     });
     const { raw } = await this.createOpaqueToken(

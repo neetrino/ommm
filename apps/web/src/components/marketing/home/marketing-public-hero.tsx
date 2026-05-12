@@ -4,8 +4,11 @@ import { Link } from "@/i18n/navigation";
 
 const HERO_PREVIEW_IMAGE = "/marketing/home/explore-featured.jpg";
 
-export async function MarketingPublicHero() {
-  const t = await getTranslations("marketingPublic.hero");
+export async function MarketingPublicHero({ locale }: { locale: string }) {
+  const t = await getTranslations({
+    locale,
+    namespace: "marketingPublic.hero",
+  });
 
   return (
     <section className="ommm-bg-wellness relative overflow-hidden">

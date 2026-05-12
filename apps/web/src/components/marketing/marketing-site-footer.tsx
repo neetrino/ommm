@@ -1,10 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export async function MarketingSiteFooter() {
-  const tNav = await getTranslations("nav");
-  const tCommon = await getTranslations("common");
-  const tFooter = await getTranslations("footer");
+export async function MarketingSiteFooter({ locale }: { locale: string }) {
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const tFooter = await getTranslations({ locale, namespace: "footer" });
 
   const cols = [
     {

@@ -13,6 +13,7 @@ import type { Express } from 'express';
 import { Prisma } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
+import { isAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import {
@@ -93,7 +94,12 @@ export class UsersService {
       data.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
     }
     if (dto.avatarUrl !== undefined) data.avatarUrl = dto.avatarUrl;
-    if (dto.locale !== undefined) data.locale = dto.locale;
+    if (dto.locale !== undefined) {
+      if (!isAppUiLocale(dto.locale)) {
+        throw new BadRequestException('Invalid locale');
+      }
+      data.locale = dto.locale;
+    }
     const user = await this.prisma.user.update({
       where: { id: userId },
       data,

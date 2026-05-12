@@ -2,8 +2,8 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export async function GiftCardBanner() {
-  const t = await getTranslations("home.gift");
+export async function GiftCardBanner({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "home.gift" });
 
   return (
     <section className="bg-paper">
