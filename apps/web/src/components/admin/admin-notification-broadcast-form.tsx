@@ -45,7 +45,7 @@ export function AdminNotificationBroadcastForm() {
     <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-4">
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
-          Subject
+          {t("subjectLabel")}
         </span>
         <input
           className="ommm-input"
@@ -58,7 +58,7 @@ export function AdminNotificationBroadcastForm() {
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
-          HTML body
+          {t("htmlBodyLabel")}
         </span>
         <textarea
           className="ommm-input min-h-[160px] resize-y"
@@ -70,18 +70,18 @@ export function AdminNotificationBroadcastForm() {
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
-          Test recipient (optional)
+          {t("testRecipientLabel")}
         </span>
         <input
           className="ommm-input"
           type="email"
           value={testTo}
           onChange={(ev) => setTestTo(ev.target.value)}
-          placeholder="you@example.com"
+          placeholder={t("testRecipientPlaceholder")}
           autoComplete="email"
         />
         <span className="text-xs text-sage-500">
-          When set, only this address receives the message.
+          {t("testRecipientHint")}
         </span>
       </label>
       {status !== null ? (
@@ -94,7 +94,7 @@ export function AdminNotificationBroadcastForm() {
         className="ommm-cta-primary w-full sm:w-auto"
         disabled={pending}
       >
-        {pending ? "Sending…" : "Send broadcast"}
+        {pending ? t("sending") : t("submit")}
       </button>
     </form>
   );

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
@@ -13,6 +14,7 @@ type Dashboard = {
 };
 
 export default async function AdminReportsPage() {
+  const t = await getTranslations("adminPages.reports");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<Dashboard>("/reports/dashboard", cookie);
 
@@ -20,23 +22,22 @@ export default async function AdminReportsPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
-          ? "Admin or manager sign-in required for reports."
-          : `Could not load reports (${res.status}).`}
+          ? t("errorAuth")
+          : t("errorLoad", { status: res.status })}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="Reports & analytics"
+      title={t("title")}
       description={
         <>
-          High-level KPIs match the dashboard API. CSV export for bookings is
-          available to admins via{" "}
+          {t("descriptionLead")}
           <code className={adminChrome.inlineCode}>
             GET /v1/reports/bookings.csv?from=&amp;to=
           </code>
-          .
+          {t("descriptionTrail")}
         </>
       }
     >

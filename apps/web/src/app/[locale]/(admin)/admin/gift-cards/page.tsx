@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
@@ -18,6 +19,7 @@ type GiftRow = {
 };
 
 export default async function AdminGiftCardsPage() {
+  const t = await getTranslations("adminPages.giftCards");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<GiftRow[]>("/gift-cards/admin", cookie);
 
@@ -25,20 +27,20 @@ export default async function AdminGiftCardsPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
-          ? "Admin or manager sign-in required."
-          : `Could not load gift cards (${res.status}).`}
+          ? t("errorAuth")
+          : t("errorLoad", { status: res.status })}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="Gift cards"
+      title={t("title")}
       description={
         <>
-          Issued cards from{" "}
+          {t("descriptionLead")}{" "}
           <code className={adminChrome.inlineCode}>GET /v1/gift-cards/admin</code>
-          . Resend and deactivate actions are available via API for admins.
+          {t("descriptionTrail")}
         </>
       }
     >
@@ -46,11 +48,11 @@ export default async function AdminGiftCardsPage() {
         <table className={adminChrome.table}>
           <thead className={adminChrome.thead}>
             <tr>
-              <th className={adminChrome.th}>Code</th>
-              <th className={adminChrome.th}>Purchaser</th>
-              <th className={adminChrome.th}>Recipient</th>
-              <th className={adminChrome.th}>Balance</th>
-              <th className={adminChrome.th}>Status</th>
+              <th className={adminChrome.th}>{t("colCode")}</th>
+              <th className={adminChrome.th}>{t("colPurchaser")}</th>
+              <th className={adminChrome.th}>{t("colRecipient")}</th>
+              <th className={adminChrome.th}>{t("colBalance")}</th>
+              <th className={adminChrome.th}>{t("colStatus")}</th>
             </tr>
           </thead>
           <tbody>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -11,54 +12,16 @@ type MeRow = {
 
 type Variant = "admin" | "contentAdmin" | "coach" | "manager";
 
-const VARIANT_COPY: Record<
-  Variant,
-  { title: string; description: string }
-> = {
-  admin: {
-    title: "Admin profile",
-    description: "Your backoffice account summary.",
-  },
-  contentAdmin: {
-    title: "Content editor profile",
-    description: "Your content workspace account summary.",
-  },
-  coach: {
-    title: "Coach profile",
-    description: "Your coach workspace identity.",
-  },
-  manager: {
-    title: "Manager profile",
-    description: "Studio operations account summary.",
-  },
-};
-
 type WorkspaceVariant = "admin" | "coach" | "manager";
 
-const WORKSPACE_NOTE: Record<
-  WorkspaceVariant,
-  { heading: string; body: string; accent: "indigo" | "zinc" }
-> = {
-  admin: {
-    heading: "Workspace & integrations",
-    body: "Global studio configuration lives in environment variables and deployment tooling. Contact your engineering team to change API keys, mail transport, or integrations.",
-    accent: "zinc",
-  },
-  coach: {
-    heading: "Workspace & permissions",
-    body: "Detailed roster and attendance tools are available on this dashboard; notify admins if you need permissions updates.",
-    accent: "indigo",
-  },
-  manager: {
-    heading: "Operational defaults",
-    body: "Operational defaults are managed centrally. Reach out to studio admins for billing, integrations, or policy changes.",
-    accent: "zinc",
-  },
+type WorkspaceNoteCardProps = {
+  variant: WorkspaceVariant;
+  heading: string;
+  body: string;
 };
 
-function WorkspaceNoteCard({ variant }: { variant: WorkspaceVariant }) {
-  const note = WORKSPACE_NOTE[variant];
-  const isIndigo = note.accent === "indigo";
+function WorkspaceNoteCard({ variant, heading, body }: WorkspaceNoteCardProps) {
+  const isIndigo = variant === "coach";
   const isAdmin = variant === "admin";
   const cardClass = isIndigo
     ? "rounded-[24px] border border-indigo-100 bg-white p-8 shadow-sm"
@@ -78,23 +41,85 @@ function WorkspaceNoteCard({ variant }: { variant: WorkspaceVariant }) {
 
   return (
     <div className={cardClass}>
-      <h2 className={headingClass}>{note.heading}</h2>
-      <p className={bodyClass}>{note.body}</p>
+      <h2 className={headingClass}>{heading}</h2>
+      <p className={bodyClass}>{body}</p>
     </div>
   );
 }
 
+type StaffProfileT = Awaited<ReturnType<typeof getTranslations>>;
+
+function staffVariantTitle(t: StaffProfileT, variant: Variant): string {
+  switch (variant) {
+    case "admin":
+      return t("variants.admin.title");
+    case "contentAdmin":
+      return t("variants.contentAdmin.title");
+    case "coach":
+      return t("variants.coach.title");
+    case "manager":
+      return t("variants.manager.title");
+    default: {
+      const _exhaustive: never = variant;
+      return _exhaustive;
+    }
+  }
+}
+
+function staffVariantDescription(t: StaffProfileT, variant: Variant): string {
+  switch (variant) {
+    case "admin":
+      return t("variants.admin.description");
+    case "contentAdmin":
+      return t("variants.contentAdmin.description");
+    case "coach":
+      return t("variants.coach.description");
+    case "manager":
+      return t("variants.manager.description");
+    default: {
+      const _exhaustive: never = variant;
+      return _exhaustive;
+    }
+  }
+}
+
+function workspaceHeading(t: StaffProfileT, variant: WorkspaceVariant): string {
+  switch (variant) {
+    case "admin":
+      return t("workspace.admin.heading");
+    case "coach":
+      return t("workspace.coach.heading");
+    case "manager":
+      return t("workspace.manager.heading");
+    default: {
+      const _exhaustive: never = variant;
+      return _exhaustive;
+    }
+  }
+}
+
+function workspaceBody(t: StaffProfileT, variant: WorkspaceVariant): string {
+  switch (variant) {
+    case "admin":
+      return t("workspace.admin.body");
+    case "coach":
+      return t("workspace.coach.body");
+    case "manager":
+      return t("workspace.manager.body");
+    default: {
+      const _exhaustive: never = variant;
+      return _exhaustive;
+    }
+  }
+}
+
 export async function StaffAccountSummary({ variant }: { variant: Variant }) {
+  const t = await getTranslations("staffProfile");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeRow>("/users/me", cookie);
-  const copy = VARIANT_COPY[variant];
 
   if (!res.ok) {
-    return (
-      <div className="app-alert-warn max-w-xl">
-        Could not load profile.
-      </div>
-    );
+    return <div className="app-alert-warn max-w-xl">{t("loadError")}</div>;
   }
 
   const u = res.data.user;
@@ -110,28 +135,35 @@ export async function StaffAccountSummary({ variant }: { variant: Variant }) {
   const ddStrongClass = wellnessAdmin ? "font-medium text-sage-900" : "font-medium text-zinc-900";
   const ddClass = wellnessAdmin ? "text-sage-800" : "text-zinc-800";
 
+  const title = staffVariantTitle(t, variant);
+  const description = staffVariantDescription(t, variant);
+
   return (
     <div className="space-y-6">
       <div className={mainCardClass}>
-        <h1 className={titleClass}>{copy.title}</h1>
-        <p className={descClass}>{copy.description}</p>
+        <h1 className={titleClass}>{title}</h1>
+        <p className={descClass}>{description}</p>
         <dl className="mt-6 space-y-3 text-sm">
           <div>
-            <dt className={dtClass}>Email</dt>
+            <dt className={dtClass}>{t("fields.email")}</dt>
             <dd className={ddStrongClass}>{u.email}</dd>
           </div>
           <div>
-            <dt className={dtClass}>Name</dt>
+            <dt className={dtClass}>{t("fields.name")}</dt>
             <dd className={ddClass}>{u.name ?? "—"}</dd>
           </div>
           <div>
-            <dt className={dtClass}>Role</dt>
+            <dt className={dtClass}>{t("fields.role")}</dt>
             <dd className={ddClass}>{u.role}</dd>
           </div>
         </dl>
       </div>
       {variant === "admin" || variant === "coach" || variant === "manager" ? (
-        <WorkspaceNoteCard variant={variant} />
+        <WorkspaceNoteCard
+          variant={variant}
+          heading={workspaceHeading(t, variant)}
+          body={workspaceBody(t, variant)}
+        />
       ) : null}
     </div>
   );

@@ -472,6 +472,154 @@
       "revenueCents": "Revenue (cents, total recorded)"
     }
   },
+  "adminPages": {
+    "home": {
+      "signInPrompt": "Sign in to open the admin dashboard."
+    },
+    "bookings": {
+      "title": "Bookings",
+      "description": "Rolling window from API (coach sees roster via coach panel filters).",
+      "errorAuth": "Coach, manager, or admin sign-in required.",
+      "errorLoad": "Could not load bookings ({status}).",
+      "colMember": "Member",
+      "colClass": "Class",
+      "colStarts": "Starts",
+      "colStatus": "Status"
+    },
+    "clients": {
+      "title": "Clients",
+      "descriptionLead": "Directory from",
+      "descriptionTrail": ".",
+      "errorAuth": "Manager or admin sign-in required.",
+      "errorLoad": "Could not load clients ({status}).",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colRole": "Role",
+      "colJoined": "Joined"
+    },
+    "coaches": {
+      "title": "Coaches",
+      "descriptionLead": "Coach profiles from",
+      "descriptionTrail": ". Substitute coach and availability are managed on sessions and profiles.",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load coaches ({status}).",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colSpecialization": "Specialization"
+    },
+    "classes": {
+      "title": "Classes",
+      "description": "Class types and published sessions in the next {days} days (calendar-style month/week views can build on this data).",
+      "sectionTypes": "Class types",
+      "sectionSessions": "Upcoming sessions",
+      "errorTypesAuth": "Admin or manager sign-in required for class types.",
+      "errorTypesLoad": "Could not load class types ({status}).",
+      "errorSessionsAuth": "Admin or manager sign-in required for sessions.",
+      "errorSessionsLoad": "Could not load sessions ({status}).",
+      "colName": "Name",
+      "colSlug": "Slug",
+      "colClass": "Class",
+      "colStarts": "Starts",
+      "colCoach": "Coach",
+      "colBooked": "Booked",
+      "colStatus": "Status"
+    },
+    "giftCards": {
+      "title": "Gift cards",
+      "descriptionLead": "Issued cards from",
+      "descriptionTrail": ". Resend and deactivate actions are available via API for admins.",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load gift cards ({status}).",
+      "colCode": "Code",
+      "colPurchaser": "Purchaser",
+      "colRecipient": "Recipient",
+      "colBalance": "Balance",
+      "colStatus": "Status"
+    },
+    "memberships": {
+      "title": "Memberships & billing",
+      "descriptionLead": "Active and historical memberships from",
+      "descriptionTrail": ". Plan edits and manual assignment use the API or future forms here.",
+      "errorAuth": "Studio admin sign-in required for membership billing.",
+      "errorLoad": "Could not load memberships ({status}).",
+      "colMember": "Member",
+      "colPlan": "Plan",
+      "colStatus": "Status",
+      "colSessionsLeft": "Sessions left",
+      "colPeriodEnd": "Period end"
+    },
+    "waitlists": {
+      "title": "Waitlists",
+      "descriptionLead": "Recent waitlist entries (all statuses). Per-session roster uses",
+      "descriptionTrail": ".",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load waitlists ({status}).",
+      "colUser": "User",
+      "colClass": "Class",
+      "colSession": "Session",
+      "colPos": "Pos",
+      "colStatus": "Status",
+      "colOfferExpires": "Offer expires"
+    },
+    "reports": {
+      "title": "Reports & analytics",
+      "descriptionLead": "High-level KPIs match the dashboard API. CSV export for bookings is available to admins via ",
+      "descriptionTrail": ".",
+      "errorAuth": "Admin or manager sign-in required for reports.",
+      "errorLoad": "Could not load reports ({status})."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap."
+    },
+    "content": {
+      "title": "Content",
+      "description": "Manage posts via API or extend this table with edit actions.",
+      "errorAuth": "Admin or content role required.",
+      "errorLoad": "Could not load posts ({status}).",
+      "postMeta": "/{slug} · updated {time}"
+    }
+  },
+  "staffProfile": {
+    "loadError": "Could not load profile.",
+    "fields": {
+      "email": "Email",
+      "name": "Name",
+      "role": "Role"
+    },
+    "variants": {
+      "admin": {
+        "title": "Admin profile",
+        "description": "Your backoffice account summary."
+      },
+      "contentAdmin": {
+        "title": "Content editor profile",
+        "description": "Your content workspace account summary."
+      },
+      "coach": {
+        "title": "Coach profile",
+        "description": "Your coach workspace identity."
+      },
+      "manager": {
+        "title": "Manager profile",
+        "description": "Studio operations account summary."
+      }
+    },
+    "workspace": {
+      "admin": {
+        "heading": "Workspace & integrations",
+        "body": "Global studio configuration lives in environment variables and deployment tooling. Contact your engineering team to change API keys, mail transport, or integrations."
+      },
+      "coach": {
+        "heading": "Workspace & permissions",
+        "body": "Detailed roster and attendance tools are available on this dashboard; notify admins if you need permissions updates."
+      },
+      "manager": {
+        "heading": "Operational defaults",
+        "body": "Operational defaults are managed centrally. Reach out to studio admins for billing, integrations, or policy changes."
+      }
+    }
+  },
   "coachPages": {
     "analytics": {
       "title": "Analytics",
@@ -568,7 +716,14 @@
     "adminBroadcast": {
       "sendFailed": "Could not send broadcast.",
       "testSent": "Test email sent.",
-      "queued": "Queued broadcast to {count} addresses (email send loop)."
+      "queued": "Queued broadcast to {count} addresses (email send loop).",
+      "subjectLabel": "Subject",
+      "htmlBodyLabel": "HTML body",
+      "testRecipientLabel": "Test recipient (optional)",
+      "testRecipientHint": "When set, only this address receives the message.",
+      "testRecipientPlaceholder": "you@example.com",
+      "sending": "Sending…",
+      "submit": "Send broadcast"
     },
     "markAttendance": {
       "failed": "Could not update",

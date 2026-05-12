@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
@@ -12,6 +13,7 @@ type ClientRow = {
 };
 
 export default async function AdminClientsPage() {
+  const t = await getTranslations("adminPages.clients");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ClientRow[]>("/clients", cookie);
 
@@ -19,19 +21,20 @@ export default async function AdminClientsPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
-          ? "Manager or admin sign-in required."
-          : `Could not load clients (${res.status}).`}
+          ? t("errorAuth")
+          : t("errorLoad", { status: res.status })}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="Clients"
+      title={t("title")}
       description={
         <>
-          Directory from{" "}
-          <code className={adminChrome.inlineCode}>GET /v1/clients</code>.
+          {t("descriptionLead")}{" "}
+          <code className={adminChrome.inlineCode}>GET /v1/clients</code>
+          {t("descriptionTrail")}
         </>
       }
     >
@@ -39,10 +42,10 @@ export default async function AdminClientsPage() {
         <table className={adminChrome.table}>
           <thead className={adminChrome.thead}>
             <tr>
-              <th className={adminChrome.th}>Name</th>
-              <th className={adminChrome.th}>Email</th>
-              <th className={adminChrome.th}>Role</th>
-              <th className={adminChrome.th}>Joined</th>
+              <th className={adminChrome.th}>{t("colName")}</th>
+              <th className={adminChrome.th}>{t("colEmail")}</th>
+              <th className={adminChrome.th}>{t("colRole")}</th>
+              <th className={adminChrome.th}>{t("colJoined")}</th>
             </tr>
           </thead>
           <tbody>

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
@@ -13,6 +14,7 @@ type MembershipAdminRow = {
 };
 
 export default async function AdminMembershipsPage() {
+  const t = await getTranslations("adminPages.memberships");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MembershipAdminRow[]>(
     "/memberships/admin/all",
@@ -23,22 +25,22 @@ export default async function AdminMembershipsPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
-          ? "Studio admin sign-in required for membership billing."
-          : `Could not load memberships (${res.status}).`}
+          ? t("errorAuth")
+          : t("errorLoad", { status: res.status })}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="Memberships & billing"
+      title={t("title")}
       description={
         <>
-          Active and historical memberships from{" "}
+          {t("descriptionLead")}{" "}
           <code className={adminChrome.inlineCode}>
             GET /v1/memberships/admin/all
           </code>
-          . Plan edits and manual assignment use the API or future forms here.
+          {t("descriptionTrail")}
         </>
       }
     >
@@ -46,11 +48,11 @@ export default async function AdminMembershipsPage() {
         <table className={adminChrome.table}>
           <thead className={adminChrome.thead}>
             <tr>
-              <th className={adminChrome.th}>Member</th>
-              <th className={adminChrome.th}>Plan</th>
-              <th className={adminChrome.th}>Status</th>
-              <th className={adminChrome.th}>Sessions left</th>
-              <th className={adminChrome.th}>Period end</th>
+              <th className={adminChrome.th}>{t("colMember")}</th>
+              <th className={adminChrome.th}>{t("colPlan")}</th>
+              <th className={adminChrome.th}>{t("colStatus")}</th>
+              <th className={adminChrome.th}>{t("colSessionsLeft")}</th>
+              <th className={adminChrome.th}>{t("colPeriodEnd")}</th>
             </tr>
           </thead>
           <tbody>

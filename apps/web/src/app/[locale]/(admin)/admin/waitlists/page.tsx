@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
@@ -15,6 +16,7 @@ type WaitlistAdminRow = {
 };
 
 export default async function AdminWaitlistsPage() {
+  const t = await getTranslations("adminPages.waitlists");
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<WaitlistAdminRow[]>(
     "/waitlist/admin/recent?take=200",
@@ -25,22 +27,22 @@ export default async function AdminWaitlistsPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
-          ? "Admin or manager sign-in required."
-          : `Could not load waitlists (${res.status}).`}
+          ? t("errorAuth")
+          : t("errorLoad", { status: res.status })}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="Waitlists"
+      title={t("title")}
       description={
         <>
-          Recent waitlist entries (all statuses). Per-session roster uses{" "}
+          {t("descriptionLead")}{" "}
           <code className={adminChrome.inlineCode}>
             GET /v1/waitlist/sessions/:sessionId
           </code>
-          .
+          {t("descriptionTrail")}
         </>
       }
     >
@@ -48,12 +50,12 @@ export default async function AdminWaitlistsPage() {
         <table className={adminChrome.table}>
           <thead className={adminChrome.thead}>
             <tr>
-              <th className={adminChrome.th}>User</th>
-              <th className={adminChrome.th}>Class</th>
-              <th className={adminChrome.th}>Session</th>
-              <th className={adminChrome.th}>Pos</th>
-              <th className={adminChrome.th}>Status</th>
-              <th className={adminChrome.th}>Offer expires</th>
+              <th className={adminChrome.th}>{t("colUser")}</th>
+              <th className={adminChrome.th}>{t("colClass")}</th>
+              <th className={adminChrome.th}>{t("colSession")}</th>
+              <th className={adminChrome.th}>{t("colPos")}</th>
+              <th className={adminChrome.th}>{t("colStatus")}</th>
+              <th className={adminChrome.th}>{t("colOfferExpires")}</th>
             </tr>
           </thead>
           <tbody>

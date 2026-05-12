@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import {
@@ -25,6 +26,7 @@ type SessionRow = {
 };
 
 export default async function AdminClassesPage() {
+  const t = await getTranslations("adminPages.classes");
   const cookie = (await headers()).get("cookie") ?? "";
   const from = new Date();
   from.setHours(0, 0, 0, 0);
@@ -41,8 +43,8 @@ export default async function AdminClassesPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {typesRes.status === 401 || typesRes.status === 403
-          ? "Admin or manager sign-in required for class types."
-          : `Could not load class types (${typesRes.status}).`}
+          ? t("errorTypesAuth")
+          : t("errorTypesLoad", { status: typesRes.status })}
       </div>
     );
   }
@@ -51,31 +53,31 @@ export default async function AdminClassesPage() {
     return (
       <div className="app-alert-warn max-w-xl">
         {sessionsRes.status === 401 || sessionsRes.status === 403
-          ? "Admin or manager sign-in required for sessions."
-          : `Could not load sessions (${sessionsRes.status}).`}
+          ? t("errorSessionsAuth")
+          : t("errorSessionsLoad", { status: sessionsRes.status })}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="Classes"
-      description={`Class types and published sessions in the next ${ACCOUNT_SESSION_RANGE_DAYS} days (calendar-style month/week views can build on this data).`}
+      title={t("title")}
+      description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
     >
-      <AccountSection title="Class types">
+      <AccountSection title={t("sectionTypes")}>
         <div className={adminChrome.tableWrap}>
           <table className={adminChrome.table}>
             <thead className={adminChrome.thead}>
               <tr>
-                <th className={adminChrome.th}>Name</th>
-                <th className={adminChrome.th}>Slug</th>
+                <th className={adminChrome.th}>{t("colName")}</th>
+                <th className={adminChrome.th}>{t("colSlug")}</th>
               </tr>
             </thead>
             <tbody>
-              {typesRes.data.map((t) => (
-                <tr key={t.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>{t.name}</td>
-                  <td className={adminChrome.td}>{t.slug}</td>
+              {typesRes.data.map((row) => (
+                <tr key={row.id} className={adminChrome.tr}>
+                  <td className={adminChrome.tdStrong}>{row.name}</td>
+                  <td className={adminChrome.td}>{row.slug}</td>
                 </tr>
               ))}
             </tbody>
@@ -83,16 +85,16 @@ export default async function AdminClassesPage() {
         </div>
       </AccountSection>
 
-      <AccountSection title="Upcoming sessions" className="mt-8">
+      <AccountSection title={t("sectionSessions")} className="mt-8">
         <div className={adminChrome.tableWrap}>
           <table className={adminChrome.table}>
             <thead className={adminChrome.thead}>
               <tr>
-                <th className={adminChrome.th}>Class</th>
-                <th className={adminChrome.th}>Starts</th>
-                <th className={adminChrome.th}>Coach</th>
-                <th className={adminChrome.th}>Booked</th>
-                <th className={adminChrome.th}>Status</th>
+                <th className={adminChrome.th}>{t("colClass")}</th>
+                <th className={adminChrome.th}>{t("colStarts")}</th>
+                <th className={adminChrome.th}>{t("colCoach")}</th>
+                <th className={adminChrome.th}>{t("colBooked")}</th>
+                <th className={adminChrome.th}>{t("colStatus")}</th>
               </tr>
             </thead>
             <tbody>
