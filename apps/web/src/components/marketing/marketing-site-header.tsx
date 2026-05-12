@@ -32,7 +32,6 @@ function isActive(pathname: string, href: string): boolean {
 export function MarketingSiteHeader() {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
-  const tHome = useTranslations("home");
   const tUi = useTranslations("marketingUi");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -87,8 +86,8 @@ export function MarketingSiteHeader() {
             >
               {tCommon("login")}
             </Link>
-            <Link href="/user/classes" className="ommm-cta-primary">
-              {tHome("bookNow")}
+            <Link href="/register" className="ommm-cta-primary">
+              {tCommon("register")}
             </Link>
           </div>
           <button
@@ -145,11 +144,11 @@ export function MarketingSiteHeader() {
         </nav>
         <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
           <Link
-            href="/user/classes"
+            href="/register"
             className="ommm-cta-primary w-full"
             onClick={() => setOpen(false)}
           >
-            {tHome("bookNow")}
+            {tCommon("register")}
           </Link>
           <Link
             href="/login"
