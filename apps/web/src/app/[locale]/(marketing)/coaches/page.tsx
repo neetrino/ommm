@@ -21,8 +21,13 @@ function initials(name: string | null, email: string) {
   return email[0]?.toUpperCase() ?? "?";
 }
 
-export default async function CoachesMarketingPage() {
-  const m = await getTranslations("marketing");
+export default async function CoachesMarketingPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const m = await getTranslations({ locale, namespace: "marketing" });
   const res = await serverApiJson<PublicCoach[]>("/coaches", "");
 
   return (

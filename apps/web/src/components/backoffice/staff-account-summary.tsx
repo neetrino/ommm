@@ -113,8 +113,14 @@ function workspaceBody(t: StaffProfileT, variant: WorkspaceVariant): string {
   }
 }
 
-export async function StaffAccountSummary({ variant }: { variant: Variant }) {
-  const t = await getTranslations("staffProfile");
+export async function StaffAccountSummary({
+  variant,
+  locale,
+}: {
+  variant: Variant;
+  locale: string;
+}) {
+  const t = await getTranslations({ locale, namespace: "staffProfile" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeRow>("/users/me", cookie);
 

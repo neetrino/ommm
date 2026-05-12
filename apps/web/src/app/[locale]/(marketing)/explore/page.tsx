@@ -12,9 +12,14 @@ type ContentPost = {
   publishedAt: string | null;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const tNav = await getTranslations("nav");
-  const tExp = await getTranslations("marketingPages.explore");
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tExp = await getTranslations({ locale, namespace: "marketingPages.explore" });
   return {
     title: tNav("explore"),
     description: tExp("metaDescription"),
@@ -27,7 +32,7 @@ export default async function ExplorePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("marketingPages.explore");
+  const t = await getTranslations({ locale, namespace: "marketingPages.explore" });
   const res = await serverApiJson<ContentPost[]>("/content/posts", "");
 
   return (

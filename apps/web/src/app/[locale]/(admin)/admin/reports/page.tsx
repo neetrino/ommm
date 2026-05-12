@@ -13,8 +13,13 @@ type Dashboard = {
   revenueCentsTotal: number;
 };
 
-export default async function AdminReportsPage() {
-  const t = await getTranslations("adminPages.reports");
+export default async function AdminReportsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.reports" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<Dashboard>("/reports/dashboard", cookie);
 
@@ -41,7 +46,7 @@ export default async function AdminReportsPage() {
         </>
       }
     >
-      <AdminReportsSummary data={res.data} />
+      <AdminReportsSummary data={res.data} locale={locale} />
     </AccountPageFrame>
   );
 }

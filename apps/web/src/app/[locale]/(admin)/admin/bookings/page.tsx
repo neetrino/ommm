@@ -14,8 +14,13 @@ type BookingAdminRow = {
   };
 };
 
-export default async function AdminBookingsPage() {
-  const t = await getTranslations("adminPages.bookings");
+export default async function AdminBookingsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.bookings" });
   const cookie = (await headers()).get("cookie") ?? "";
   const from = new Date();
   from.setDate(from.getDate() - 7);

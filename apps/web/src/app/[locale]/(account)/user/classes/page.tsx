@@ -26,7 +26,7 @@ export default async function UserClassesPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("userPages.classes");
+  const t = await getTranslations({ locale, namespace: "userPages.classes" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const from = new Date();

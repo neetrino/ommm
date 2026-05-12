@@ -1,4 +1,4 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { serverApiJson } from "@/lib/server-api";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
@@ -13,15 +13,16 @@ type ContentAdminRow = {
 };
 
 type ContentPostsPanelProps = {
+  locale: string;
   /** When true (admin workspace), match member dashboard glass surfaces. */
   wellnessChrome?: boolean;
 };
 
 export async function ContentPostsPanel({
+  locale,
   wellnessChrome = false,
 }: ContentPostsPanelProps) {
-  const t = await getTranslations("adminPages.content");
-  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "adminPages.content" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ContentAdminRow[]>(
     "/content/admin/posts",

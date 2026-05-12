@@ -18,8 +18,13 @@ type GiftRow = {
   recipient: { email: string; name: string | null } | null;
 };
 
-export default async function AdminGiftCardsPage() {
-  const t = await getTranslations("adminPages.giftCards");
+export default async function AdminGiftCardsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<GiftRow[]>("/gift-cards/admin", cookie);
 

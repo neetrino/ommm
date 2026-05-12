@@ -11,10 +11,11 @@ type Dashboard = {
 
 type AdminReportsSummaryProps = {
   data: Dashboard;
+  locale: string;
 };
 
-export async function AdminReportsSummary({ data }: AdminReportsSummaryProps) {
-  const tm = await getTranslations("adminHome.metrics");
+export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryProps) {
+  const tm = await getTranslations({ locale, namespace: "adminHome.metrics" });
 
   return (
     <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

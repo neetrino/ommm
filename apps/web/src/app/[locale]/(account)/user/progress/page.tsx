@@ -30,7 +30,7 @@ export default async function UserProgressPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("userPages.progress");
+  const t = await getTranslations({ locale, namespace: "userPages.progress" });
   const cookie = (await headers()).get("cookie") ?? "";
   const [meRes, bookRes] = await Promise.all([
     serverApiJson<MeResponse>("/users/me", cookie),

@@ -9,8 +9,13 @@ type PanelSummary = {
   activeWaitlistsForCoachSessions: number;
 };
 
-export default async function CoachAnalyticsPage() {
-  const t = await getTranslations("coachPages.analytics");
+export default async function CoachAnalyticsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "coachPages.analytics" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<PanelSummary | null>(
     "/coaches/panel/summary",

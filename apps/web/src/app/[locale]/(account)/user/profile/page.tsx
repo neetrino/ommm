@@ -27,8 +27,13 @@ type MeResponse = {
   };
 };
 
-export default async function UserProfilePage() {
-  const t = await getTranslations("userPages.profile");
+export default async function UserProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "userPages.profile" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeResponse>("/users/me", cookie);
 

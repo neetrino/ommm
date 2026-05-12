@@ -25,8 +25,13 @@ type SessionRow = {
   _count: { bookings: number };
 };
 
-export default async function AdminClassesPage() {
-  const t = await getTranslations("adminPages.classes");
+export default async function AdminClassesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.classes" });
   const cookie = (await headers()).get("cookie") ?? "";
   const from = new Date();
   from.setHours(0, 0, 0, 0);

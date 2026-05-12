@@ -16,8 +16,13 @@ type MeResponse = {
   };
 };
 
-export default async function UserNotificationsPage() {
-  const t = await getTranslations("userPages.notifications");
+export default async function UserNotificationsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "userPages.notifications" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeResponse>("/users/me", cookie);
 

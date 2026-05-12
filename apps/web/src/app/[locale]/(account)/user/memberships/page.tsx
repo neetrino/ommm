@@ -42,7 +42,7 @@ export default async function UserMembershipsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("userPages.memberships");
+  const t = await getTranslations({ locale, namespace: "userPages.memberships" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [plansRes, mineRes, payRes] = await Promise.all([

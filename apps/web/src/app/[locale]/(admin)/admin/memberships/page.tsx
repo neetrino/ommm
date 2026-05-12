@@ -13,8 +13,13 @@ type MembershipAdminRow = {
   user: { id: string; email: string; name: string | null };
 };
 
-export default async function AdminMembershipsPage() {
-  const t = await getTranslations("adminPages.memberships");
+export default async function AdminMembershipsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.memberships" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MembershipAdminRow[]>(
     "/memberships/admin/all",

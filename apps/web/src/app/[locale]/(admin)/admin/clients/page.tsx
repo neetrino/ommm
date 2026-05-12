@@ -12,8 +12,13 @@ type ClientRow = {
   createdAt: string;
 };
 
-export default async function AdminClientsPage() {
-  const t = await getTranslations("adminPages.clients");
+export default async function AdminClientsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.clients" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ClientRow[]>("/clients", cookie);
 

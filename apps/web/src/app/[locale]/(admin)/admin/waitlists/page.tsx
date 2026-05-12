@@ -15,8 +15,13 @@ type WaitlistAdminRow = {
   session: { id: string; startsAt: string; classType: { name: string } };
 };
 
-export default async function AdminWaitlistsPage() {
-  const t = await getTranslations("adminPages.waitlists");
+export default async function AdminWaitlistsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.waitlists" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<WaitlistAdminRow[]>(
     "/waitlist/admin/recent?take=200",

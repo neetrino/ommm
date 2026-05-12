@@ -11,9 +11,9 @@ type Dashboard = {
   revenueCentsTotal: number;
 };
 
-export async function AdminDashboardMetrics() {
-  const t = await getTranslations("adminHome");
-  const tm = await getTranslations("adminHome.metrics");
+export async function AdminDashboardMetrics({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "adminHome" });
+  const tm = await getTranslations({ locale, namespace: "adminHome.metrics" });
   const h = await headers();
   const cookie = h.get("cookie") ?? "";
   const origin =

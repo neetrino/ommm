@@ -20,7 +20,7 @@ export default async function MembershipsMarketingPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const m = await getTranslations("marketing");
+  const m = await getTranslations({ locale, namespace: "marketing" });
   const res = await serverApiJson<Plan[]>("/memberships/plans", "");
 
   const currency = new Intl.NumberFormat(locale, {

@@ -15,7 +15,7 @@ export default async function ManagerHomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const tCommon = await getTranslations("common");
+  const tCommon = await getTranslations({ locale, namespace: "common" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);

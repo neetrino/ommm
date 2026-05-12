@@ -18,8 +18,13 @@ type GiftRow = {
   recipientName: string | null;
 };
 
-export default async function UserGiftCardsPage() {
-  const t = await getTranslations("userPages.giftCards");
+export default async function UserGiftCardsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "userPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [purchasedRes, receivedRes, meRes] = await Promise.all([

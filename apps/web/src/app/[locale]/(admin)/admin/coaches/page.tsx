@@ -11,8 +11,13 @@ type CoachAdminRow = {
   user: { name: string | null; email: string };
 };
 
-export default async function AdminCoachesPage() {
-  const t = await getTranslations("adminPages.coaches");
+export default async function AdminCoachesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "adminPages.coaches" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie);
 

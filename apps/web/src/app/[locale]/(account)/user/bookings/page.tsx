@@ -22,7 +22,7 @@ export default async function UserBookingsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("userPages.bookings");
+  const t = await getTranslations({ locale, namespace: "userPages.bookings" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const res = await serverApiJson<BookingRow[]>("/bookings/me", cookie);

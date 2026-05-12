@@ -18,8 +18,8 @@ export default async function AdminHomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const tCommon = await getTranslations("common");
-  const tAdmin = await getTranslations("adminPages.home");
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const tAdmin = await getTranslations({ locale, namespace: "adminPages.home" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
@@ -42,5 +42,5 @@ export default async function AdminHomePage({
     redirectToRoleHome(locale, meRes.data.user.role);
   }
 
-  return <AdminDashboardMetrics />;
+  return <AdminDashboardMetrics locale={locale} />;
 }

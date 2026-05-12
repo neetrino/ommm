@@ -39,8 +39,13 @@ function parseSocialLinks(raw: string | null): { label: string; url: string }[] 
   }
 }
 
-export default async function ContactPage() {
-  const t = await getTranslations("marketingPages.contact");
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
   const studioRes = await serverApiJson<StudioPublic>("/studio", "");
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
