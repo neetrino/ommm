@@ -14,6 +14,7 @@
 - [ ] **8.** Միացնել սերվիսներ ըստ need-ի. Neon → R2 → Resend/Upstash (անհրաժեշտության դեպքում), արժեքները `.env`-ում
 - [ ] **9.** Լոկալ ստուգել. ԲԶ (migrate/հարցում), R2/փոստ — անհրաժեշտության դեպքում
 - [ ] **10.** Որակ. Branch Protection, Secret Protection, Dependabot — տե՛ս QUALITY_AUTOMATION_PLAN
+- [ ] **11.** (Web UI) Կարդալ `docs/PROJECT_DESIGN_GUIDE.md` — responsive կանոններ և դիզայն-ուղղություն
 
 ---
 

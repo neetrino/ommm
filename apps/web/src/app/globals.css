@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf9f7;
+  --foreground: #1a1c1b;
+
+  --color-paper: #faf9f7;
+  --color-sage-900: #1a1c1b;
+  --color-sage-800: #2e2e2e;
+  --color-sage-700: #334537;
+  --color-sage-500: #434843;
+  --color-sand-700: #6b5c4c;
+  --color-sand-500: #a19685;
+  --color-sand-100: #f4dfcb;
+  --color-cream-50: #fffec9;
+  --color-cream-100: #faffa0;
+  --color-peach-100: #ffe4c3;
+  --color-mint-100: #eef0cd;
+  --color-blue-100: #e4f5fd;
+  --color-gift-gold: #e8da74;
+
+  --gradient-wellness:
+    linear-gradient(
+      169deg,
+      var(--color-mint-100) 0%,
+      var(--color-cream-100) 23%,
+      var(--color-peach-100) 31%,
+      var(--color-blue-100) 67%,
+      var(--color-mint-100) 96%
+    );
+
+  --gradient-gift:
+    linear-gradient(
+      180deg,
+      var(--color-gift-gold) 0%,
+      rgba(246, 255, 208, 0) 100%
+    );
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-paper: var(--color-paper);
+  --color-sage-900: var(--color-sage-900);
+  --color-sage-800: var(--color-sage-800);
+  --color-sage-700: var(--color-sage-700);
+  --color-sage-500: var(--color-sage-500);
+  --color-sand-700: var(--color-sand-700);
+  --color-sand-500: var(--color-sand-500);
+  --color-sand-100: var(--color-sand-100);
+  --color-cream-50: var(--color-cream-50);
+  --color-cream-100: var(--color-cream-100);
+  --color-peach-100: var(--color-peach-100);
+  --color-mint-100: var(--color-mint-100);
+  --color-blue-100: var(--color-blue-100);
+  --color-gift-gold: var(--color-gift-gold);
+
+  --font-sans:
+    var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif:
+    var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
+}
+
+@layer components {
+  /* Generic surface card kept for non-marketing pages already using it. */
+  .app-surface-card {
+    @apply rounded-2xl border border-zinc-200/90 bg-white shadow-sm;
+  }
+
+  .app-input {
+    @apply w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm transition-[border-color,box-shadow];
+    @apply placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-900/[0.06];
+  }
+
+  .app-label {
+    @apply text-sm font-medium text-zinc-700;
+  }
+
+  .app-btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors;
+    @apply hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .app-btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-800 shadow-sm transition-colors;
+    @apply hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2;
+  }
+
+  .app-page-heading {
+    @apply text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl;
+  }
+
+  .app-section-heading {
+    @apply text-xl font-semibold tracking-tight text-zinc-900 sm:text-2xl;
+  }
+
+  .app-lede {
+    @apply mt-4 max-w-2xl text-base leading-relaxed text-zinc-600;
+  }
+
+  .app-body-text {
+    @apply text-base leading-relaxed text-zinc-700;
+  }
+
+  .app-alert-warn {
+    @apply rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950;
+  }
+
+  .app-alert-info {
+    @apply rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800;
+  }
+
+  /* Marketing / wellness theme */
+  .ommm-bg-wellness {
+    background-image: var(--gradient-wellness);
+  }
+
+  .ommm-bg-gift {
+    background-image: var(--gradient-gift);
+  }
+
+  .ommm-shell {
+    @apply mx-auto w-full max-w-[min(1280px,calc(100%-2rem))] px-0;
+  }
+
+  .ommm-container {
+    @apply mx-auto w-full;
+    width: min(1280px, calc(100% - 2rem));
+  }
+
+  .ommm-section {
+    @apply py-[clamp(3rem,6vw,5.5rem)];
+  }
+
+  .ommm-eyebrow {
+    @apply font-sans text-xs font-semibold uppercase tracking-[0.18em] text-sand-700;
+  }
+
+  .ommm-chip-light {
+    @apply inline-flex items-center rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-sage-900 backdrop-blur-sm;
+  }
+
+  .ommm-chip-warm {
+    @apply inline-flex items-center rounded-full bg-sand-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-sand-700;
+  }
+
+  .ommm-chip-dark {
+    @apply inline-flex items-center rounded-full bg-sage-900/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cream-50;
+  }
+
+  .ommm-display {
+    font-family: var(--font-serif);
+    @apply font-normal text-sage-700;
+    font-size: clamp(2.25rem, 4.5vw + 1rem, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+  }
+
+  .ommm-display-italic {
+    font-family: var(--font-serif);
+    @apply italic font-light text-sage-700;
+  }
+
+  .ommm-h2 {
+    font-family: var(--font-serif);
+    @apply italic font-semibold text-sage-700;
+    font-size: clamp(1.5rem, 1.5vw + 1rem, 2.25rem);
+    line-height: 1.15;
+  }
+
+  .ommm-h3 {
+    font-family: var(--font-serif);
+    @apply font-semibold text-sage-800;
+    font-size: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+    line-height: 1.25;
+  }
+
+  .ommm-body {
+    @apply text-base leading-relaxed text-sage-500;
+  }
+
+  .ommm-body-muted {
+    @apply text-sm leading-relaxed text-sage-500/80;
+  }
+
+  .ommm-cta-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-sand-500 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-white shadow-[0_8px_24px_-12px_rgba(107,92,76,0.45)] transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .ommm-cta-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-white/80 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-sage-700 backdrop-blur-md transition-colors;
+    @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .ommm-cta-pill {
+    font-family: var(--font-serif);
+    @apply inline-flex items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 italic text-white shadow-sm transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
+  }
+
+  .ommm-card {
+    @apply rounded-[28px] border border-white/60 bg-white/55 backdrop-blur-md;
+  }
+
+  .ommm-card-organic {
+    @apply rounded-tl-[56px] rounded-tr-[24px] rounded-br-[56px] rounded-bl-[24px];
+  }
+
+  .ommm-card-organic-mirror {
+    @apply rounded-tl-[24px] rounded-tr-[56px] rounded-br-[24px] rounded-bl-[56px];
+  }
+
+  /* Warm auth / subtle page backdrop */
+  .ommm-bg-auth {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-mint-100) 38%, var(--color-paper)) 0%,
+      var(--color-paper) 42%,
+      color-mix(in srgb, var(--color-peach-100) 32%, var(--color-paper)) 100%
+    );
+  }
+
+  /* Form controls — wellness / member-facing */
+  .ommm-label {
+    @apply text-sm font-medium text-sage-700;
+  }
+
+  .ommm-input {
+    @apply w-full rounded-xl border border-white/70 bg-white/90 px-3 py-2.5 text-sm text-sage-900 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow];
+    @apply placeholder:text-sage-500/60 focus:border-sand-500/50 focus:outline-none focus:ring-4 focus:ring-sand-500/15;
+  }
+
+  /* Account & marketing list rows */
+  .ommm-list-row {
+    @apply flex flex-col gap-3 rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .ommm-stack-card {
+    @apply flex flex-col gap-3 rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md;
+  }
+
+  .ommm-inset-row {
+    @apply rounded-[20px] border border-white/55 bg-white/45 px-3 py-2.5 text-sm text-sage-500 backdrop-blur-md;
+  }
+
+  .ommm-account-section {
+    @apply rounded-[28px] border border-white/60 bg-white/55 p-5 shadow-[0_20px_45px_-28px_rgba(45,40,35,0.26)] backdrop-blur-md sm:p-6;
+  }
+
+  .ommm-link-sage {
+    @apply font-medium text-sage-700 underline decoration-sand-500/40 underline-offset-4 transition-colors hover:text-sand-700 hover:decoration-sand-500;
+  }
+
+  /* Compact actions (schedules, tables) */
+  .ommm-btn-compact-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-sand-500 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white shadow-sm transition-colors;
+    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-compact-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 backdrop-blur-sm transition-colors;
+    @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-compact-warm {
+    @apply inline-flex items-center justify-center rounded-full border border-sand-500/45 bg-sand-100/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sand-700 transition-colors;
+    @apply hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-marketing-card-hover {
+    @apply transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-28px_rgba(45,40,35,0.35)];
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}

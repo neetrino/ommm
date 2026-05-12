@@ -16,6 +16,16 @@ dist/
 build/
 coverage/
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+apps/web/test-results/
+apps/web/playwright-report/
+
+# API local uploads (user home images)
+apps/api/uploads/
+
 # Logs and temp
 *.log
 npm-debug.log*

@@ -1,0 +1,35 @@
+{
+  "name": "@ommm/database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm -w exec tsc -p packages/database/tsconfig.json",
+    "generate": "pnpm -w exec prisma generate --schema packages/database/prisma/schema.prisma",
+    "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma/schema.prisma",
+    "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma/schema.prisma",
+    "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma/schema.prisma",
+    "seed": "dotenv -e ../../.env -- pnpm -w exec prisma db seed --schema packages/database/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0"
+  },
+  "devDependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv-cli": "^8.0.0",
+    "prisma": "^6.19.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
