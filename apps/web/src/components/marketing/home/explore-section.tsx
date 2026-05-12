@@ -2,6 +2,12 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
+async function exploreTranslator(locale: string) {
+  return getTranslations({ locale, namespace: "home.explore" });
+}
+
+type ExploreTranslator = Awaited<ReturnType<typeof exploreTranslator>>;
+
 type TileChipKey =
   | "tiles.tuscany.chip"
   | "tiles.protocols.chip"
@@ -16,10 +22,6 @@ type TileExcerptKey =
   | "tiles.tuscany.excerpt"
   | "tiles.protocols.excerpt"
   | "tiles.breath.excerpt";
-
-type ExploreTranslator = Awaited<
-  ReturnType<typeof getTranslations<"home.explore">>
->;
 
 type Tile = {
   id: string;
@@ -57,8 +59,8 @@ const TILES: Tile[] = [
   },
 ];
 
-export async function ExploreSection() {
-  const t = await getTranslations("home.explore");
+export async function ExploreSection({ locale }: { locale: string }) {
+  const t = await exploreTranslator(locale);
 
   return (
     <section className="bg-paper">

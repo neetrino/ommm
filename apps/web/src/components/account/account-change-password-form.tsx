@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -10,6 +11,7 @@ const PASSWORD_MAX_LENGTH = 128;
 
 export function AccountChangePasswordForm() {
   const router = useRouter();
+  const t = useTranslations("forms.changePassword");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,18 +28,21 @@ export function AccountChangePasswordForm() {
       const conf = confirmPassword.trim();
       if (!c || !n || !conf) {
         setTone("err");
-        setMsg("Please fill in all password fields.");
+        setMsg(t("fillAllFields"));
         return;
       }
       if (n !== conf) {
         setTone("err");
-        setMsg("New passwords do not match.");
+        setMsg(t("mismatch"));
         return;
       }
       if (n.length < PASSWORD_MIN_LENGTH || n.length > PASSWORD_MAX_LENGTH) {
         setTone("err");
         setMsg(
-          `Password must be between ${PASSWORD_MIN_LENGTH} and ${PASSWORD_MAX_LENGTH} characters.`,
+          t("lengthConstraint", {
+            min: PASSWORD_MIN_LENGTH,
+            max: PASSWORD_MAX_LENGTH,
+          }),
         );
         return;
       }
@@ -57,7 +62,7 @@ export function AccountChangePasswordForm() {
       router.refresh();
     } catch (e) {
       setTone("err");
-      setMsg(e instanceof ApiError ? e.message : "Could not update password.");
+      setMsg(e instanceof ApiError ? e.message : t("failed"));
     } finally {
       setBusy(false);
     }
@@ -67,7 +72,7 @@ export function AccountChangePasswordForm() {
     <div className="flex max-w-md flex-col gap-4">
       <div className="space-y-1">
         <label className="text-sm font-medium text-sage-700" htmlFor="current-password">
-          Current password
+          {t("currentPasswordLabel")}
         </label>
         <input
           id="current-password"
@@ -80,7 +85,7 @@ export function AccountChangePasswordForm() {
       </div>
       <div className="space-y-1">
         <label className="text-sm font-medium text-sage-700" htmlFor="new-password">
-          New password
+          {t("newPasswordLabel")}
         </label>
         <input
           id="new-password"
@@ -93,7 +98,7 @@ export function AccountChangePasswordForm() {
       </div>
       <div className="space-y-1">
         <label className="text-sm font-medium text-sage-700" htmlFor="confirm-password">
-          Confirm new password
+          {t("confirmPasswordLabel")}
         </label>
         <input
           id="confirm-password"
@@ -112,7 +117,7 @@ export function AccountChangePasswordForm() {
         disabled={busy}
         onClick={() => void submit()}
       >
-        Update password
+        {t("updateButton")}
       </OmmButton>
       {msg ? (
         <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>{msg}</p>

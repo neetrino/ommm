@@ -5,7 +5,8 @@
     "register": "Sign up",
     "logout": "Log out",
     "account": "My account",
-    "admin": "Admin"
+    "admin": "Admin",
+    "loading": "Loading…"
   },
   "nav": {
     "home": "Home",
@@ -18,7 +19,24 @@
   "footer": {
     "tagline": "Studio classes, memberships, and member tools — one calm place to plan your practice.",
     "discoverTitle": "Discover",
-    "memberTitle": "Members"
+    "memberTitle": "Members",
+    "copyrightSuffix": "studio"
+  },
+  "marketingUi": {
+    "primaryNavAria": "Primary navigation",
+    "mobilePrimaryNavAria": "Mobile primary navigation",
+    "menuSr": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "language": {
+    "switcherAria": "Interface language",
+    "expandPicker": "Open language menu",
+    "optionNames": {
+      "hy": "Armenian",
+      "en": "English",
+      "ru": "Russian"
+    }
   },
   "home": {
     "bookNow": "Book now",
@@ -110,7 +128,8 @@
       "explore": {
         "title": "Studio journal",
         "body": "Stories and updates on the public Explore page.",
-        "cta": "Open Explore"
+        "cta": "Open Explore",
+        "ctaShort": "Explore"
       },
       "coach": {
         "title": "Coach tools",
@@ -156,5 +175,590 @@
     "homeFeaturesLead": "A single flow from discovery to booking — clear on every screen size.",
     "featureCardCta": "Learn more",
     "closingPrimaryCta": "Create account"
+  },
+  "dashboard": {
+    "shell": {
+      "fallbackTitle": "Home",
+      "workspaceAria": "Workspace",
+      "dashboardNavAria": "Dashboard",
+      "navigationDialogAria": "Navigation",
+      "expandSidebar": "Expand sidebar",
+      "collapseSidebar": "Collapse sidebar",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "closeMenuOverlay": "Close menu overlay"
+    },
+    "brand": {
+      "member": {
+        "title": "Member",
+        "subline": "Your wellness space"
+      },
+      "backoffice": {
+        "title": "Backoffice",
+        "subline": "Studio tools and data"
+      },
+      "coach": {
+        "title": "Coach",
+        "subline": "Schedule and roster"
+      },
+      "manager": {
+        "title": "Manager",
+        "subline": "Studio operations"
+      },
+      "contentAdmin": {
+        "title": "Content",
+        "subline": "Editorial workspace"
+      }
+    },
+    "links": {
+      "marketingSite": "Marketing site",
+      "memberZone": "Member area"
+    },
+    "nav": {
+      "USER": {
+        "home": "Home",
+        "progress": "Progress",
+        "classes": "Classes",
+        "bookings": "My bookings",
+        "memberships": "Memberships",
+        "giftCards": "Gift cards",
+        "profile": "Profile"
+      },
+      "COACH": {
+        "dashboard": "Dashboard",
+        "schedule": "My schedule",
+        "groups": "My groups",
+        "salary": "Salary",
+        "analytics": "Analytics",
+        "profile": "Profile"
+      },
+      "MANAGER": {
+        "home": "Home",
+        "classes": "Classes",
+        "bookings": "Bookings",
+        "waitlists": "Waitlists",
+        "clients": "Clients",
+        "coaches": "Coaches",
+        "giftCards": "Gift cards",
+        "profile": "Profile"
+      },
+      "CONTENT_ADMIN": {
+        "home": "Home",
+        "content": "Content",
+        "profile": "Profile"
+      },
+      "ADMIN": {
+        "dashboard": "Dashboard",
+        "clients": "Clients",
+        "bookings": "Bookings",
+        "classes": "Classes",
+        "waitlists": "Waitlists",
+        "coaches": "Coaches",
+        "memberships": "Memberships",
+        "giftCards": "Gift cards",
+        "notifications": "Notifications",
+        "reports": "Reports",
+        "content": "Content",
+        "profile": "Profile"
+      }
+    },
+    "subtitles": {
+      "admin": {
+        "home": "Overview of studio activity and key metrics.",
+        "clients": "Members, roles, and account access.",
+        "bookings": "Sessions, attendance, and reservations.",
+        "classes": "Class types, capacity, and schedules.",
+        "waitlists": "Queue positions and recent waitlist activity.",
+        "coaches": "Coach roster and profile records.",
+        "memberships": "Plans, pricing, and member subscriptions.",
+        "giftCards": "Issued cards and redemption status.",
+        "notifications": "Broadcast messages to members and staff.",
+        "reports": "Operational summaries and exports.",
+        "content": "Posts, publishing status, and slugs.",
+        "profile": "Your backoffice identity, sign-in email, and workspace integration notes."
+      },
+      "user": {
+        "home": "Your upcoming classes, bookings, and member tools.",
+        "progress": "Achievements and milestones.",
+        "classes": "Browse and book sessions.",
+        "bookings": "Upcoming and past reservations.",
+        "memberships": "Active plans and renewals.",
+        "giftCards": "Balances and redemption.",
+        "profile": "Your member details, password, home image, and notification preferences.",
+        "notifications": "Alerts and studio messages."
+      },
+      "coach": {
+        "home": "Today's workload, session counts, and quick links.",
+        "schedule": "Your assigned sessions in the current date range.",
+        "groups": "Booked participants and attendance for your classes.",
+        "analytics": "Teaching load and session trends.",
+        "salary": "Payouts and compensation summaries.",
+        "profile": "Your coach identity, account summary, and workspace notes."
+      },
+      "manager": {
+        "home": "Operations snapshot for your studio.",
+        "classes": "Schedule and capacity across rooms.",
+        "bookings": "Bookings that need attention.",
+        "waitlists": "Waitlist queues by session.",
+        "coaches": "Coach assignments and availability.",
+        "clients": "Member roster for the studio.",
+        "giftCards": "Issued cards and balances (view and resend where allowed).",
+        "profile": "Your manager account summary and operational guidance."
+      },
+      "contentAdmin": {
+        "home": "Editorial tools and content overview.",
+        "content": "Posts, status, and last updates.",
+        "profile": "Your content editor account."
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "lead": "Welcome back — use the email and password for your studio account.",
+      "email": "Email",
+      "password": "Password",
+      "signingIn": "Signing in…",
+      "continue": "Continue",
+      "noAccountPrompt": "No account?",
+      "loginFailed": "Login failed"
+    },
+    "register": {
+      "lead": "Create a member account to book classes and manage memberships.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters.",
+      "creating": "Creating…",
+      "createAccount": "Create account",
+      "alreadyHavePrompt": "Already have an account?",
+      "invalidEmail": "Please enter a valid email address.",
+      "passwordTooShort": "Password must be at least {min} characters.",
+      "firstNameTooLong": "First name is too long.",
+      "lastNameTooLong": "Last name is too long.",
+      "firstNameRequired": "Please enter your first name.",
+      "lastNameRequired": "Please enter your last name.",
+      "phoneRequired": "Please enter your phone number.",
+      "invalidPhone": "Enter a valid phone number (8–15 digits).",
+      "registerFailed": "Registration failed"
+    }
+  },
+  "userPages": {
+    "memberships": {
+      "title": "Memberships",
+      "description": "Subscribe with Stripe when keys are configured; pause or cancel from the API or future admin tools.",
+      "yourMemberships": "Your memberships",
+      "signInToView": "Sign in to view.",
+      "noActiveMembership": "No active membership yet.",
+      "sessionsLeft": "{count} sessions left",
+      "renewsEnds": "Renews / ends {date}",
+      "paymentHistory": "Payment history",
+      "signInPayments": "Sign in to view payments.",
+      "noPayments": "No payments recorded yet.",
+      "plans": "Plans",
+      "couldNotLoadPlans": "Could not load plans.",
+      "perPeriod": "per {days}-day period",
+      "unlimitedClassesShort": "Unlimited classes",
+      "sessionsPerPeriodShort": "{count} classes / period",
+      "logInToSubscribe": "Log in to subscribe."
+    },
+    "progress": {
+      "title": "Progress",
+      "descriptionSignedOut": "Sign in to view your activity and achievements.",
+      "signInPrompt": "Sign in to view progress.",
+      "descriptionSignedIn": "Activity summary and achievements — extend with deeper analytics as data grows.",
+      "activitySummary": "Activity summary",
+      "completedClasses": "Completed classes",
+      "allTime": "All time",
+      "thisMonth": "This month",
+      "thisMonthCaption": "Completed sessions",
+      "achievements": "Achievements",
+      "achievementsEmpty": "Keep booking classes — achievements unlock as you go.",
+      "unlocked": "Unlocked {date}"
+    },
+    "bookings": {
+      "title": "My bookings",
+      "upcoming": "Upcoming",
+      "pastOther": "Past and other",
+      "emptySection": "Nothing here yet.",
+      "signInRequired": "Sign in to see your bookings.",
+      "loadError": "Could not load bookings ({status})."
+    },
+    "classes": {
+      "title": "Classes",
+      "description": "Next {days} days · book or join the waitlist when full.",
+      "couldNotLoad": "Could not load schedule ({status}).",
+      "noSessions": "No sessions in this window.",
+      "coachFallback": "Coach",
+      "spotsBooked": "{booked}/{capacity} booked",
+      "paidShort": "Paid ({amount}+)",
+      "includedShort": "Included / membership",
+      "myBookingsLink": "My bookings"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Choose how Ommm reaches you. Changes save immediately.",
+      "preferences": "Preferences",
+      "signIn": "Sign in to manage notifications."
+    },
+    "giftCards": {
+      "title": "Gift cards",
+      "giftBalance": "Gift balance (credits): {cents} cents",
+      "redeem": "Redeem",
+      "purchase": "Purchase",
+      "stripeNote": "Opens Stripe Checkout (configure {code}).",
+      "purchasedHeading": "Purchased",
+      "receivedHeading": "Received",
+      "signInToView": "Sign in to view.",
+      "emptyPurchased": "No gift cards purchased.",
+      "emptyReceived": "No gifts received yet.",
+      "giftFallbackName": "Gift",
+      "rowPurchased": "{code} · balance {balance}/{amount} · {status}",
+      "rowReceived": "{name} · balance {balance} · {status}"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Your account details, security, home image, and notification preferences.",
+      "signInPrompt": "Sign in to view your profile.",
+      "accountInfo": "Account information",
+      "security": "Security",
+      "homeImage": "Home image",
+      "preferences": "Preferences",
+      "labels": {
+        "email": "Email",
+        "name": "First name",
+        "lastName": "Last name",
+        "phone": "Phone",
+        "locale": "Locale"
+      },
+      "emptyValue": "—"
+    }
+  },
+  "marketingPages": {
+    "contact": {
+      "title": "Contact",
+      "lede": "Send a message to the studio team. We read every note and reply by phone or email when appropriate.",
+      "studioHeading": "Studio",
+      "phone": "Phone",
+      "email": "Email",
+      "whatsApp": "WhatsApp",
+      "chatWhatsApp": "Chat on WhatsApp",
+      "address": "Address",
+      "hours": "Hours",
+      "mapHeading": "Map"
+    },
+    "explore": {
+      "listTitle": "Stories from the studio",
+      "eyebrow": "Explore",
+      "lede": "Published updates — news, events, and articles from the content tools.",
+      "metaDescription": "Events, updates, and articles from Ommm studio.",
+      "loadError": "Could not load posts ({status}). Check that the API is running and try again.",
+      "empty": "No published posts yet.",
+      "emptyAdminHint": "Seed or publish from the admin content tools.",
+      "readMore": "Read more"
+    }
+  },
+  "adminHome": {
+    "pageTitle": "Admin dashboard",
+    "fetchError": "Fetch failed (is the API running?)",
+    "csvExportTitle": "CSV export (admin only)",
+    "csvExportBody": "Use the API {code} with an authenticated admin session.",
+    "metrics": {
+      "sessionsToday": "Sessions today",
+      "bookingsToday": "Bookings today",
+      "activeWaitlists": "Active waitlists",
+      "activeMembers": "Active members",
+      "revenueCents": "Revenue (cents, total recorded)"
+    }
+  },
+  "adminPages": {
+    "home": {
+      "signInPrompt": "Sign in to open the admin dashboard."
+    },
+    "bookings": {
+      "title": "Bookings",
+      "description": "Rolling window from API (coach sees roster via coach panel filters).",
+      "errorAuth": "Coach, manager, or admin sign-in required.",
+      "errorLoad": "Could not load bookings ({status}).",
+      "colMember": "Member",
+      "colClass": "Class",
+      "colStarts": "Starts",
+      "colStatus": "Status"
+    },
+    "clients": {
+      "title": "Clients",
+      "descriptionLead": "Directory from",
+      "descriptionTrail": ".",
+      "errorAuth": "Manager or admin sign-in required.",
+      "errorLoad": "Could not load clients ({status}).",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colRole": "Role",
+      "colJoined": "Joined"
+    },
+    "coaches": {
+      "title": "Coaches",
+      "descriptionLead": "Coach profiles from",
+      "descriptionTrail": ". Substitute coach and availability are managed on sessions and profiles.",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load coaches ({status}).",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colPhone": "Phone",
+      "colSpecialization": "Specialization",
+      "addCoachButton": "Add Coach",
+      "cancelButton": "Cancel",
+      "modalCloseAria": "Close",
+      "modalBackdropClose": "Close dialog",
+      "create": {
+        "panelTitle": "Add Coach",
+        "panelLead": "Create a coach account with a secure password. The coach uses this email to sign in and lands on the coach home after login.",
+        "nameLabel": "First name",
+        "lastNameLabel": "Surname",
+        "emailLabel": "Email (login)",
+        "emailHint": "This email is both the account login and contact address.",
+        "phoneLabel": "Phone",
+        "ageLabel": "Age",
+        "passwordLabel": "Password",
+        "submit": "Create coach",
+        "submitting": "Creating…",
+        "success": "Coach account created. Share the email and password with them securely.",
+        "nameRequired": "First name is required.",
+        "lastNameRequired": "Surname is required.",
+        "emailInvalid": "Enter a valid email address.",
+        "phoneRequired": "Phone is required.",
+        "phoneInvalid": "Enter a valid phone number (8–15 digits).",
+        "ageInvalid": "Enter age as a whole number between {min} and {max}.",
+        "passwordTooShort": "Password must be at least {min} characters.",
+        "passwordRequired": "Password is required.",
+        "nameTooLong": "First name is too long.",
+        "lastNameTooLong": "Surname is too long.",
+        "genericError": "Could not create the coach. Try again."
+      }
+    },
+    "classes": {
+      "title": "Classes",
+      "description": "Class types and published sessions in the next {days} days (calendar-style month/week views can build on this data).",
+      "sectionTypes": "Class types",
+      "sectionSessions": "Upcoming sessions",
+      "errorTypesAuth": "Admin or manager sign-in required for class types.",
+      "errorTypesLoad": "Could not load class types ({status}).",
+      "errorSessionsAuth": "Admin or manager sign-in required for sessions.",
+      "errorSessionsLoad": "Could not load sessions ({status}).",
+      "colName": "Name",
+      "colSlug": "Slug",
+      "colClass": "Class",
+      "colStarts": "Starts",
+      "colCoach": "Coach",
+      "colBooked": "Booked",
+      "colStatus": "Status"
+    },
+    "giftCards": {
+      "title": "Gift cards",
+      "descriptionLead": "Issued cards from",
+      "descriptionTrail": ". Resend and deactivate actions are available via API for admins.",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load gift cards ({status}).",
+      "colCode": "Code",
+      "colPurchaser": "Purchaser",
+      "colRecipient": "Recipient",
+      "colBalance": "Balance",
+      "colStatus": "Status"
+    },
+    "memberships": {
+      "title": "Memberships & billing",
+      "descriptionLead": "Active and historical memberships from",
+      "descriptionTrail": ". Plan edits and manual assignment use the API or future forms here.",
+      "errorAuth": "Studio admin sign-in required for membership billing.",
+      "errorLoad": "Could not load memberships ({status}).",
+      "colMember": "Member",
+      "colPlan": "Plan",
+      "colStatus": "Status",
+      "colSessionsLeft": "Sessions left",
+      "colPeriodEnd": "Period end"
+    },
+    "waitlists": {
+      "title": "Waitlists",
+      "descriptionLead": "Recent waitlist entries (all statuses). Per-session roster uses",
+      "descriptionTrail": ".",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load waitlists ({status}).",
+      "colUser": "User",
+      "colClass": "Class",
+      "colSession": "Session",
+      "colPos": "Pos",
+      "colStatus": "Status",
+      "colOfferExpires": "Offer expires"
+    },
+    "reports": {
+      "title": "Reports & analytics",
+      "descriptionLead": "High-level KPIs match the dashboard API. CSV export for bookings is available to admins via ",
+      "descriptionTrail": ".",
+      "errorAuth": "Admin or manager sign-in required for reports.",
+      "errorLoad": "Could not load reports ({status})."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap."
+    },
+    "content": {
+      "title": "Content",
+      "description": "Manage posts via API or extend this table with edit actions.",
+      "errorAuth": "Admin or content role required.",
+      "errorLoad": "Could not load posts ({status}).",
+      "postMeta": "/{slug} · updated {time}"
+    }
+  },
+  "staffProfile": {
+    "loadError": "Could not load profile.",
+    "fields": {
+      "email": "Email",
+      "name": "Name",
+      "role": "Role"
+    },
+    "variants": {
+      "admin": {
+        "title": "Admin profile",
+        "description": "Your backoffice account summary."
+      },
+      "contentAdmin": {
+        "title": "Content editor profile",
+        "description": "Your content workspace account summary."
+      },
+      "coach": {
+        "title": "Coach profile",
+        "description": "Your coach workspace identity."
+      },
+      "manager": {
+        "title": "Manager profile",
+        "description": "Studio operations account summary."
+      }
+    },
+    "workspace": {
+      "admin": {
+        "heading": "Workspace & integrations",
+        "body": "Global studio configuration lives in environment variables and deployment tooling. Contact your engineering team to change API keys, mail transport, or integrations."
+      },
+      "coach": {
+        "heading": "Workspace & permissions",
+        "body": "Detailed roster and attendance tools are available on this dashboard; notify admins if you need permissions updates."
+      },
+      "manager": {
+        "heading": "Operational defaults",
+        "body": "Operational defaults are managed centrally. Reach out to studio admins for billing, integrations, or policy changes."
+      }
+    }
+  },
+  "coachPages": {
+    "analytics": {
+      "title": "Analytics",
+      "lead": "Snapshot from the coach panel API. Charts can extend this dataset later.",
+      "signInRequired": "Coach sign-in required.",
+      "loadFailed": "Could not load coach analytics.",
+      "noProfile": "No coach profile is linked to this account.",
+      "sessionsToday": "Today's sessions",
+      "bookingsToday": "Bookings today",
+      "activeWaitlists": "Active waitlists"
+    }
+  },
+  "verifyEmail": {
+    "loading": "Loading…",
+    "title": "Email verification",
+    "missingToken": "Missing token — open the link from your email.",
+    "verifying": "Verifying…",
+    "success": "Email verified. You can log in.",
+    "verificationFailed": "Verification failed",
+    "logInCta": "Log in"
+  },
+  "forms": {
+    "notificationPrefs": {
+      "bookingReminders": "Booking reminders",
+      "waitlistAlerts": "Waitlist alerts",
+      "promotions": "Promotions",
+      "communityUpdates": "Community updates",
+      "save": "Save preferences",
+      "saved": "Saved",
+      "saveFailed": "Could not save"
+    },
+    "cancelBooking": {
+      "confirm": "Cancel this booking? Policy deadlines apply.",
+      "action": "Cancel",
+      "failed": "Could not cancel"
+    },
+    "bookSession": {
+      "book": "Book",
+      "dropIn": "Pay & book (drop-in)",
+      "bookFailed": "Could not book",
+      "checkoutFailed": "Could not start checkout",
+      "checkoutUnavailable": "Checkout unavailable"
+    },
+    "joinWaitlist": {
+      "action": "Join waitlist",
+      "failed": "Could not join waitlist"
+    },
+    "membershipCheckout": {
+      "subscribe": "Subscribe",
+      "checkoutFailed": "Could not start checkout",
+      "checkoutUnavailable": "Checkout unavailable"
+    },
+    "membershipLifecycle": {
+      "pause": "Pause",
+      "cancelAction": "Cancel",
+      "pausedSuccess": "Membership paused.",
+      "cancelledSuccess": "Membership cancelled.",
+      "pauseFailed": "Could not pause membership.",
+      "cancelFailed": "Could not cancel membership."
+    },
+    "changePassword": {
+      "currentPasswordLabel": "Current password",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "updateButton": "Update password",
+      "fillAllFields": "Please fill in all password fields.",
+      "mismatch": "New passwords do not match.",
+      "lengthConstraint": "Password must be between {min} and {max} characters.",
+      "failed": "Could not update password."
+    },
+    "homeImage": {
+      "readFailed": "Could not read image",
+      "uploadFailed": "Could not upload image.",
+      "chooseFirst": "Choose an image first.",
+      "tooLarge": "Image is too large. Maximum size is 5 MB.",
+      "uploadSuccess": "Home image updated successfully.",
+      "chooseImage": "Choose image",
+      "upload": "Upload",
+      "uploading": "Uploading…",
+      "previewAlt": "Home image preview",
+      "emptyState": "No custom image — your dashboard uses the default layout."
+    },
+    "contact": {
+      "name": "Name",
+      "phone": "Phone",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send",
+      "sending": "Sending…",
+      "thankYou": "Thank you — your message was sent.",
+      "sent": "Sent",
+      "sendError": "Error"
+    },
+    "adminBroadcast": {
+      "sendFailed": "Could not send broadcast.",
+      "testSent": "Test email sent.",
+      "queued": "Queued broadcast to {count} addresses (email send loop).",
+      "subjectLabel": "Subject",
+      "htmlBodyLabel": "HTML body",
+      "testRecipientLabel": "Test recipient (optional)",
+      "testRecipientHint": "When set, only this address receives the message.",
+      "testRecipientPlaceholder": "you@example.com",
+      "sending": "Sending…",
+      "submit": "Send broadcast"
+    },
+    "markAttendance": {
+      "failed": "Could not update",
+      "attended": "Attended",
+      "noShow": "No-show"
+    }
   }
 }

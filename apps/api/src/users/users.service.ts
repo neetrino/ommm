@@ -10,8 +10,10 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Express } from 'express';
+import { Prisma } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
+import { isAppUiLocale } from '../common/app-ui-locales';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import {
@@ -81,18 +83,25 @@ export class UsersService {
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const data: {
       name?: string;
+      lastName?: string | null;
       phone?: string | null;
       dateOfBirth?: Date | null;
       avatarUrl?: string | null;
       locale?: string;
     } = {};
     if (dto.name !== undefined) data.name = dto.name;
+    if (dto.lastName !== undefined) data.lastName = dto.lastName;
     if (dto.phone !== undefined) data.phone = dto.phone;
     if (dto.dateOfBirth !== undefined) {
       data.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
     }
     if (dto.avatarUrl !== undefined) data.avatarUrl = dto.avatarUrl;
-    if (dto.locale !== undefined) data.locale = dto.locale;
+    if (dto.locale !== undefined) {
+      if (!isAppUiLocale(dto.locale)) {
+        throw new BadRequestException('Invalid locale');
+      }
+      data.locale = dto.locale;
+    }
     const user = await this.prisma.user.update({
       where: { id: userId },
       data,
@@ -301,5 +310,22 @@ export class UsersService {
         `Could not remove old upload file (${storedPublicPath}): ${err instanceof Error ? err.message : String(err)}`,
       );
     }
+  }
+
+  async registerPushToken(
+    userId: string,
+    token: string,
+    platform: string,
+  ): Promise<{ ok: boolean }> {
+    await this.prisma.$executeRaw(
+      Prisma.sql`
+        INSERT INTO "PushDeviceToken" ("id","userId","token","platform","createdAt","updatedAt")
+        VALUES (${randomUUID()}, ${userId}, ${token}, ${platform}, NOW(), NOW())
+        ON CONFLICT ("userId", "token") DO UPDATE SET
+          "platform" = EXCLUDED."platform",
+          "updatedAt" = NOW()
+      `,
+    );
+    return { ok: true };
   }
 }

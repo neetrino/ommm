@@ -1,10 +1,10 @@
-const ADMIN_DASHBOARD_ROLES = new Set<string>(["ADMIN", "CONTENT_ADMIN"]);
-
 /**
- * Post-auth landing path for a Prisma `Role` (aligned with web `homePathForRole`).
+ * Post-auth landing path for a Prisma `Role`.
+ * Web uses `/content-admin/*` for `CONTENT_ADMIN`; the mobile app only mounts the
+ * `/admin/*` stack, so content editors land on `/admin/home` here.
  */
 export function homeHrefForRole(role: string): string {
-  if (ADMIN_DASHBOARD_ROLES.has(role)) {
+  if (role === "CONTENT_ADMIN" || role === "ADMIN") {
     return "/admin/home";
   }
   if (role === "MANAGER") {

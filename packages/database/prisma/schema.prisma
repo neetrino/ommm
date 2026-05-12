@@ -84,12 +84,14 @@ model User {
   passwordHash   String?
   phone          String?   @unique
   name           String?
+  lastName       String?
   dateOfBirth    DateTime?
   avatarUrl      String?
   /** Full public HTTPS URL (e.g. Cloudflare R2) or legacy `/v1/uploads/...` path when storing locally. */
   homeImageUrl   String?
   role           Role      @default(USER)
   emailVerified  DateTime?
+  /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")
   stripeCustomerId String?   @unique
   giftCreditsCents Int       @default(0)
@@ -107,6 +109,7 @@ model User {
   notificationPrefs NotificationPreference?
   bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
   authTokens         AuthToken[]
+  pushDeviceTokens   PushDeviceToken[]
 }
 
 model AuthToken {
@@ -119,6 +122,19 @@ model AuthToken {
   createdAt DateTime      @default(now())
 
   @@index([userId, type])
+}
+
+model PushDeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@index([userId])
 }
 
 model ContactMessage {

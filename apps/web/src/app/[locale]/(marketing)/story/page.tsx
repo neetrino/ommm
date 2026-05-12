@@ -1,8 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 
-export default async function StoryPage() {
-  const m = await getTranslations("marketing");
+export default async function StoryPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const m = await getTranslations({ locale, namespace: "marketing" });
 
   return (
     <MarketingPageFrame title={m("storyTitle")} lede={m("storyLead")}>

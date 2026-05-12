@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -39,6 +40,14 @@ export class WaitlistController {
   @UseGuards(JwtAuthGuard)
   mine(@CurrentUser() user: { id: string }) {
     return this.waitlist.listMine(user.id);
+  }
+
+  @Get('admin/recent')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminRecent(@Query('take') take?: string) {
+    const n = take ? Number.parseInt(take, 10) : 150;
+    return this.waitlist.listAdminRecent(Number.isFinite(n) ? n : 150);
   }
 
   @Get('sessions/:sessionId')

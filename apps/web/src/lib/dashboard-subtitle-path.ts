@@ -1,0 +1,47 @@
+/**
+ * Maps dashboard hrefs to nested keys under `dashboard.subtitles` (next-intl).
+ * Example: `/admin/home` → `admin.home` → messages.dashboard.subtitles.admin.home
+ */
+const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
+  "/admin/home": "admin.home",
+  "/admin/clients": "admin.clients",
+  "/admin/bookings": "admin.bookings",
+  "/admin/classes": "admin.classes",
+  "/admin/waitlists": "admin.waitlists",
+  "/admin/coaches": "admin.coaches",
+  "/admin/memberships": "admin.memberships",
+  "/admin/gift-cards": "admin.giftCards",
+  "/admin/notifications": "admin.notifications",
+  "/admin/reports": "admin.reports",
+  "/admin/content": "admin.content",
+  "/admin/profile": "admin.profile",
+  "/user/home": "user.home",
+  "/user/progress": "user.progress",
+  "/user/classes": "user.classes",
+  "/user/bookings": "user.bookings",
+  "/user/memberships": "user.memberships",
+  "/user/gift-cards": "user.giftCards",
+  "/user/profile": "user.profile",
+  "/user/notifications": "user.notifications",
+  "/coach/home": "coach.home",
+  "/coach/schedule": "coach.schedule",
+  "/coach/groups": "coach.groups",
+  "/coach/analytics": "coach.analytics",
+  "/coach/salary": "coach.salary",
+  "/coach/profile": "coach.profile",
+  "/manager/home": "manager.home",
+  "/manager/classes": "manager.classes",
+  "/manager/bookings": "manager.bookings",
+  "/manager/waitlists": "manager.waitlists",
+  "/manager/coaches": "manager.coaches",
+  "/manager/clients": "manager.clients",
+  "/manager/gift-cards": "manager.giftCards",
+  "/manager/profile": "manager.profile",
+  "/content-admin/home": "contentAdmin.home",
+  "/content-admin/content": "contentAdmin.content",
+  "/content-admin/profile": "contentAdmin.profile",
+};
+
+export function dashboardSubtitlePathFromHref(href: string): string | null {
+  return HREF_TO_SUBTITLE_PATH[href] ?? null;
+}

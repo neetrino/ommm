@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -14,11 +15,14 @@ type Props = {
 
 export function BookSessionButton({
   sessionId,
-  label = "Book",
-  dropInLabel = "Pay & book (drop-in)",
+  label,
+  dropInLabel,
   priceCents,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("forms.bookSession");
+  const bookLabel = label ?? t("book");
+  const payDropInLabel = dropInLabel ?? t("dropIn");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -29,7 +33,7 @@ export function BookSessionButton({
       await apiFetch(`/bookings/sessions/${sessionId}`, { method: "POST" });
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : "Could not book");
+      setMsg(e instanceof ApiError ? e.message : t("bookFailed"));
     } finally {
       setBusy(false);
     }
@@ -47,9 +51,9 @@ export function BookSessionButton({
         window.location.href = url;
         return;
       }
-      setMsg("Checkout unavailable");
+      setMsg(t("checkoutUnavailable"));
     } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : "Could not start checkout");
+      setMsg(e instanceof ApiError ? e.message : t("checkoutFailed"));
     } finally {
       setBusy(false);
     }
@@ -65,7 +69,7 @@ export function BookSessionButton({
           disabled={busy}
           onClick={() => void bookFreeOrMembership()}
         >
-          {label}
+          {bookLabel}
         </OmmButton>
         {priceCents > 0 ? (
           <OmmButton
@@ -75,7 +79,7 @@ export function BookSessionButton({
             disabled={busy}
             onClick={() => void bookDropIn()}
           >
-            {dropInLabel}
+            {payDropInLabel}
           </OmmButton>
         ) : null}
       </div>

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BookingStatus, Role } from '@prisma/client';
+import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -13,6 +14,7 @@ export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly expoPush: ExpoPushService,
   ) {}
 
   @Cron(CronExpression.EVERY_30_MINUTES)
@@ -47,6 +49,16 @@ export class NotificationsService {
         subject: `Reminder: ${b.session.classType.name}`,
         html: `<p>Your class starts soon (${REMINDER_HOURS_BEFORE}h).</p>`,
       });
+      const tokens = await loadPushTokensForUser(this.prisma, b.user.id);
+      if (tokens.length > 0) {
+        await this.expoPush.send(
+          tokens.map((to) => ({
+            to,
+            title: `Reminder: ${b.session.classType.name}`,
+            body: `Your class starts in about ${REMINDER_HOURS_BEFORE} hours.`,
+          })),
+        );
+      }
     }
     if (bookings.length > 0) {
       this.logger.log(`Sent up to ${bookings.length} class reminders`);

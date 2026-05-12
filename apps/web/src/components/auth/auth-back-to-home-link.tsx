@@ -22,8 +22,8 @@ function BackToHomeChevronIcon() {
 }
 
 /**
- * Frosted circular control — matches auth register / Figma sign-in header.
- * Wrapper `pt-[19px]` matches shell top rhythm; `translate-y-[38px]` shifts only the control further down.
+ * Frosted circular control — auth sign-in header pattern.
+ * Wrapper `pt-[19px]` matches shell top rhythm; `-translate-y-2` nudges the control up slightly.
  */
 export function AuthBackToHomeLink() {
   const tNav = useTranslations("nav");
@@ -31,7 +31,7 @@ export function AuthBackToHomeLink() {
     <div className="-mt-1 mb-4 pt-[19px]">
       <Link
         href="/"
-        className="inline-flex h-10 w-10 translate-y-[38px] items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-700 shadow-sm backdrop-blur-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+        className="inline-flex h-10 w-10 -translate-y-2 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-700 shadow-sm backdrop-blur-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         aria-label={tNav("home")}
       >
         <BackToHomeChevronIcon />

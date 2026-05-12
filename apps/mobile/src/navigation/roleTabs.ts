@@ -35,7 +35,12 @@ const USER_TABS: RoleTabItem[] = [
     href: "/user/schedule",
     ...ICON.schedule,
   },
-  { key: "plans", label: "Plans", href: "/user/plans", ...ICON.plans },
+  {
+    key: "progress",
+    label: "Progress",
+    href: "/user/progress",
+    ...ICON.classes,
+  },
   {
     key: "profile",
     label: "Profile",
@@ -54,6 +59,17 @@ const ADMIN_TABS: RoleTabItem[] = [
   },
   {
     key: "admin-profile",
+    label: "Profile",
+    href: "/admin/profile",
+    ...ICON.profile,
+  },
+];
+
+/** Mobile stack has no `/content-admin/*`; keep tabs to safe admin routes. */
+const CONTENT_ADMIN_TABS: RoleTabItem[] = [
+  { key: "content-admin-home", label: "Home", href: "/admin/home", ...ICON.home },
+  {
+    key: "content-admin-profile",
     label: "Profile",
     href: "/admin/profile",
     ...ICON.profile,
@@ -99,7 +115,10 @@ export function tabItemsForRole(role: string | null): RoleTabItem[] {
   if (role === null) {
     return USER_TABS;
   }
-  if (role === "ADMIN" || role === "CONTENT_ADMIN") {
+  if (role === "CONTENT_ADMIN") {
+    return CONTENT_ADMIN_TABS;
+  }
+  if (role === "ADMIN") {
     return ADMIN_TABS;
   }
   if (role === "COACH") {

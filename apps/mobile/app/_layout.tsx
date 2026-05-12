@@ -22,6 +22,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "../src/auth/SessionProvider";
+import { PushTokenRegistrar } from "../src/auth/PushTokenRegistrar";
 import { colors } from "../src/theme/tokens";
 
 export default function RootLayout() {
@@ -51,6 +52,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SessionProvider>
+        <PushTokenRegistrar />
         <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false }} />
       </SessionProvider>

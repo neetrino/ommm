@@ -7,6 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role, type User } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -25,7 +26,9 @@ export class CoachesController {
     return this.coaches.listPublic();
   }
 
+  /** Same RSC / dashboard burst pattern as `GET /users/me` — avoid 429 false “auth failure”. */
   @Get('admin/list')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   listAdmin() {

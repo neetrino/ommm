@@ -1,5 +1,5 @@
-import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { MemberClassesScreen } from "../../../src/features/member/screens/MemberClassesScreen";
 
 export default function UserClassesRoute() {
-  return <PlaceholderTabScreen title="Classes" />;
+  return <MemberClassesScreen />;
 }

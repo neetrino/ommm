@@ -1,4 +1,7 @@
 import { Manrope, Newsreader } from "next/font/google";
+import { headers } from "next/headers";
+import { routing } from "@/i18n/routing";
+import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -15,15 +18,37 @@ const newsreader = Newsreader({
   display: "swap",
 });
 
-export default function RootLayout({
+function htmlLangFromPathname(pathname: string | null): string {
+  if (pathname === null || pathname === "") {
+    return routing.defaultLocale;
+  }
+  const first = pathname.split("/").filter(Boolean)[0];
+  if (
+    first !== undefined &&
+    routing.locales.includes(first as (typeof routing.locales)[number])
+  ) {
+    return first;
+  }
+  return routing.defaultLocale;
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let pathname: string | null = null;
+  try {
+    pathname = (await headers()).get(OMMM_PATHNAME_HEADER);
+  } catch {
+    pathname = null;
+  }
+  const htmlLang = htmlLangFromPathname(pathname);
+
   return (
     <html
       className={`${manrope.variable} ${newsreader.variable} h-full`}
-      lang="hy"
+      lang={htmlLang}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-paper font-sans text-sage-900 antialiased">

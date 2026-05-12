@@ -12,11 +12,17 @@ type ContentPost = {
   publishedAt: string | null;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("nav");
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tExp = await getTranslations({ locale, namespace: "marketingPages.explore" });
   return {
-    title: t("explore"),
-    description: "Events, updates, and articles from Ommm studio.",
+    title: tNav("explore"),
+    description: tExp("metaDescription"),
   };
 }
 
@@ -26,25 +32,25 @@ export default async function ExplorePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "marketingPages.explore" });
   const res = await serverApiJson<ContentPost[]>("/content/posts", "");
 
   return (
     <MarketingPageFrame
-      eyebrow="Explore"
-      title="Stories from the studio"
-      lede="Published updates — news, events, and articles from the content tools."
+      eyebrow={t("eyebrow")}
+      title={t("listTitle")}
+      lede={t("lede")}
     >
       {!res.ok ? (
         <p className="app-alert-warn mt-12" role="status">
-          Could not load posts ({res.status}). Check that the API is running and
-          try again.
+          {t("loadError", { status: res.status })}
         </p>
       ) : res.data.length === 0 ? (
         <p
           className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
           role="status"
         >
-          No published posts yet — seed or publish from the admin content tools.
+          {t("empty")} {t("emptyAdminHint")}
         </p>
       ) : (
         <ul className="mt-12 grid gap-6 sm:grid-cols-2">
@@ -79,7 +85,7 @@ export default async function ExplorePage({
                   href={`/explore/${post.slug}`}
                   className="text-sm font-semibold uppercase tracking-[0.12em] text-sand-700 underline decoration-sand-500/40 underline-offset-4 transition-colors hover:text-sand-500 hover:decoration-sand-500"
                 >
-                  Read more
+                  {t("readMore")}
                 </Link>
               </p>
             </li>

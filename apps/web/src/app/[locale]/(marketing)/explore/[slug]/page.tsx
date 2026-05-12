@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ExplorePostPage({ params }: Props) {
   const { locale, slug } = await params;
   const res = await serverApiJson<ContentPost>(`/content/posts/${slug}`, "");
-  const tNav = await getTranslations("nav");
+  const tNav = await getTranslations({ locale, namespace: "nav" });
 
   if (!res.ok || !res.data) {
     notFound();

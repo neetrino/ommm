@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -10,11 +11,12 @@ type Props = {
 
 export function CancelBookingButton({ bookingId }: Props) {
   const router = useRouter();
+  const t = useTranslations("forms.cancelBooking");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function cancel() {
-    if (!window.confirm("Cancel this booking? Policy deadlines apply.")) {
+    if (!window.confirm(t("confirm"))) {
       return;
     }
     setBusy(true);
@@ -23,7 +25,7 @@ export function CancelBookingButton({ bookingId }: Props) {
       await apiFetch(`/bookings/${bookingId}`, { method: "DELETE" });
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : "Could not cancel");
+      setMsg(e instanceof ApiError ? e.message : t("failed"));
     } finally {
       setBusy(false);
     }
@@ -37,7 +39,7 @@ export function CancelBookingButton({ bookingId }: Props) {
         onClick={() => void cancel()}
         className="text-xs font-medium text-red-700 hover:underline disabled:opacity-50"
       >
-        Cancel
+        {t("action")}
       </button>
       {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
     </div>

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
 import {
   AccountPageFrame,
@@ -15,24 +16,27 @@ type MeResponse = {
   };
 };
 
-export default async function UserNotificationsPage() {
+export default async function UserNotificationsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "userPages.notifications" });
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MeResponse>("/users/me", cookie);
 
   if (!res.ok) {
     return (
       <div className="ommm-container pt-6 sm:pt-8">
-        <div className="app-alert-warn">Sign in to manage notifications.</div>
+        <div className="app-alert-warn">{t("signIn")}</div>
       </div>
     );
   }
 
   return (
-    <AccountPageFrame
-      title="Notifications"
-      description="Choose how Ommm reaches you. Changes save immediately."
-    >
-      <AccountSection title="Preferences">
+    <AccountPageFrame title={t("title")} description={t("description")}>
+      <AccountSection title={t("preferences")}>
         <div className="max-w-md">
           <NotificationPrefsForm initial={res.data.notificationPrefs} />
         </div>

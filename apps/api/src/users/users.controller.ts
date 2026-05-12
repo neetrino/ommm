@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { Express } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -17,6 +18,7 @@ import { HOME_IMAGE_MAX_BYTES } from './constants/home-image.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { HomeImageJsonDto } from './dto/home-image-json.dto';
 import { NotificationPrefsDto } from './dto/notification-prefs.dto';
+import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UsersService } from './users.service';
 
@@ -25,7 +27,13 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
+  /**
+   * Called frequently from Next.js RSC layouts (`/users/me` per navigation).
+   * Do not apply the global HTTP throttle here — 429 was misread as “logged out”
+   * and blocked Admin dashboards under bursty dev/prefetch traffic.
+   */
   @Get('me')
+  @SkipThrottle()
   me(@CurrentUser() user: { id: string }) {
     return this.users.getMe(user.id);
   }
@@ -73,5 +81,13 @@ export class UsersController {
     @Body() dto: NotificationPrefsDto,
   ) {
     return this.users.updateNotificationPrefs(user.id, dto);
+  }
+
+  @Post('me/push-token')
+  registerPush(
+    @CurrentUser() user: { id: string },
+    @Body() dto: RegisterPushTokenDto,
+  ) {
+    return this.users.registerPushToken(user.id, dto.token, dto.platform);
   }
 }

@@ -1,4 +1,7 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 
 type Dashboard = {
   sessionsToday: number;
@@ -8,7 +11,9 @@ type Dashboard = {
   revenueCentsTotal: number;
 };
 
-export async function AdminDashboardMetrics() {
+export async function AdminDashboardMetrics({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "adminHome" });
+  const tm = await getTranslations({ locale, namespace: "adminHome.metrics" });
   const h = await headers();
   const cookie = h.get("cookie") ?? "";
   const origin =
@@ -27,49 +32,42 @@ export async function AdminDashboardMetrics() {
       err = await res.text();
     }
   } catch {
-    err = "Fetch failed (is the API running?)";
+    err = t("fetchError");
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-        Admin dashboard
-      </h1>
+    <AccountPageFrame title={t("pageTitle")}>
       {err ? (
-        <p className="mt-4 text-sm text-amber-800">{err}</p>
+        <p className="text-sm text-amber-900">{err}</p>
       ) : data ? (
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Metric label="Sessions today" value={data.sessionsToday} />
-          <Metric label="Bookings today" value={data.bookingsToday} />
-          <Metric label="Active waitlists" value={data.activeWaitlists} />
-          <Metric label="Active members" value={data.activeMembers} />
+        <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Metric label={tm("sessionsToday")} value={data.sessionsToday} />
+          <Metric label={tm("bookingsToday")} value={data.bookingsToday} />
+          <Metric label={tm("activeWaitlists")} value={data.activeWaitlists} />
+          <Metric label={tm("activeMembers")} value={data.activeMembers} />
           <Metric
-            label="Revenue (cents, total recorded)"
+            label={tm("revenueCents")}
             value={data.revenueCentsTotal}
           />
         </ul>
       ) : null}
-      <section className="mt-10 rounded-[24px] border border-zinc-200 bg-white p-4 text-sm text-zinc-700 shadow-sm">
-        <p className="font-medium text-zinc-900">CSV export (admin only)</p>
+      <section className={`mt-10 ${adminChrome.panel}`}>
+        <p className={adminChrome.panelHeading}>{t("csvExportTitle")}</p>
         <p className="mt-2">
-          Use the API{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs">
-            GET /v1/reports/bookings.csv?from=&amp;to=
-          </code>{" "}
-          with an authenticated admin session.
+          {t("csvExportBody", {
+            code: "GET /v1/reports/bookings.csv?from=&to=",
+          })}
         </p>
       </section>
-    </div>
+    </AccountPageFrame>
   );
 }
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <li className="rounded-[24px] border border-zinc-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
+    <li className={adminChrome.metricCard}>
+      <p className={adminChrome.metricLabel}>{label}</p>
+      <p className={adminChrome.metricValue}>{value}</p>
     </li>
   );
 }

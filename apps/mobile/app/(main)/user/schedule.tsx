@@ -1,10 +1,5 @@
-import { PlaceholderTabScreen } from "../../../src/features/shell/PlaceholderTabScreen";
+import { MemberScheduleScreen } from "../../../src/features/member/screens/MemberScheduleScreen";
 
 export default function UserScheduleRoute() {
-  return (
-    <PlaceholderTabScreen
-      title="Schedule"
-      subtitle="Your full calendar will sync with the Nest API when scheduling endpoints are ready."
-    />
-  );
+  return <MemberScheduleScreen />;
 }

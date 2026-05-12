@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 type AccountPageFrameProps = {
   title: string;
-  description?: string;
+  description?: ReactNode;
   children: ReactNode;
 };
 
@@ -19,7 +19,7 @@ export function AccountPageFrame({
       <header className="max-w-3xl">
         <h1 className="ommm-h2">{title}</h1>
         {description ? (
-          <p className="ommm-body-muted mt-3">{description}</p>
+          <div className="ommm-body-muted mt-3 max-w-3xl">{description}</div>
         ) : null}
       </header>
       <div className="mt-6 sm:mt-8">{children}</div>

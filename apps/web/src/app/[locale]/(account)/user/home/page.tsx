@@ -45,8 +45,8 @@ export default async function UserHomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const tCommon = await getTranslations("common");
-  const tDash = await getTranslations("account.dashboard");
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const tDash = await getTranslations({ locale, namespace: "account.dashboard" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);

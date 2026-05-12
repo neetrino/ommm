@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function navLinkClass(active: boolean): string {
@@ -31,7 +32,7 @@ function isActive(pathname: string, href: string): boolean {
 export function MarketingSiteHeader() {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
-  const tHome = useTranslations("home");
+  const tUi = useTranslations("marketingUi");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -60,7 +61,7 @@ export function MarketingSiteHeader() {
 
         <nav
           className="hidden items-center gap-0.5 lg:flex"
-          aria-label="Primary"
+          aria-label={tUi("primaryNavAria")}
         >
           {NAV_LINKS.map(({ href, key }) => (
             <Link
@@ -73,47 +74,52 @@ export function MarketingSiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0">
+          <LanguageSwitcher
+            context="marketing"
+            onAfterSelect={() => setOpen(false)}
+          />
+          <div className="hidden items-center gap-3 lg:flex">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
+            >
+              {tCommon("login")}
+            </Link>
+            <Link href="/register" className="ommm-cta-primary">
+              {tCommon("register")}
+            </Link>
+          </div>
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
+            aria-expanded={open}
+            aria-controls="marketing-mobile-nav"
+            aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
+            onClick={() => setOpen((v) => !v)}
           >
-            {tCommon("login")}
-          </Link>
-          <Link href="/user/classes" className="ommm-cta-primary">
-            {tHome("bookNow")}
-          </Link>
+            <span className="sr-only">{tUi("menuSr")}</span>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden
+            >
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              ) : (
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+            </svg>
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
-          aria-expanded={open}
-          aria-controls="marketing-mobile-nav"
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="sr-only">Menu</span>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden
-          >
-            {open ? (
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            ) : (
-              <path
-                d="M4 7h16M4 12h16M4 17h16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-          </svg>
-        </button>
       </div>
 
       <div
@@ -124,7 +130,7 @@ export function MarketingSiteHeader() {
             : "hidden"
         }
       >
-        <nav className="flex flex-col gap-1" aria-label="Mobile primary">
+        <nav className="flex flex-col gap-1" aria-label={tUi("mobilePrimaryNavAria")}>
           {NAV_LINKS.map(({ href, key }) => (
             <Link
               key={href}
@@ -138,11 +144,11 @@ export function MarketingSiteHeader() {
         </nav>
         <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
           <Link
-            href="/user/classes"
+            href="/register"
             className="ommm-cta-primary w-full"
             onClick={() => setOpen(false)}
           >
-            {tHome("bookNow")}
+            {tCommon("register")}
           </Link>
           <Link
             href="/login"

@@ -1,5 +1,7 @@
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
+  IsIn,
   IsOptional,
   IsString,
   MaxLength,
@@ -15,13 +17,31 @@ export class RegisterDto {
   @MaxLength(128)
   password!: string;
 
-  @IsOptional()
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
+  @MinLength(1)
   @MaxLength(120)
-  name?: string;
+  name!: string;
+
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  lastName!: string;
+
+  @Transform(({ value }: { value: unknown }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @MinLength(8)
+  @MaxLength(32)
+  phone!: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(8)
+  @IsIn(['hy', 'en', 'ru'])
   locale?: string;
 }

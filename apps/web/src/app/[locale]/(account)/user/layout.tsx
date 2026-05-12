@@ -1,16 +1,18 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
+import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
-import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
-import { USER_MEMBER_NAV } from "@/lib/user-nav";
+import { dashboardNavDefinitionsForRole } from "@/lib/dashboard-nav";
 import {
+  redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
   requireAuthForLayout,
 } from "@/server/require-role-layout";
 
 const USER_ROLES = new Set<string>(["USER"]);
 
-const navItemClass =
+const trailingClass =
   "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
 
 export default async function UserMemberLayout({
@@ -21,27 +23,31 @@ export default async function UserMemberLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { role } = await requireAuthForLayout(locale);
+  const { role, userLocale } = await requireAuthForLayout(locale);
+  await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, USER_ROLES);
+  const navDefinitions = dashboardNavDefinitionsForRole(role);
+  const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
-    <div className="min-h-screen ommm-bg-wellness">
-      <ShellHeader
-        brandHref="/user/home"
-        brandLabel="Member"
-        navItems={USER_MEMBER_NAV}
-        trailing={
-          <>
-            <LogoutButton className={`${navItemClass} text-left`} />
-            <Link href="/" className={navItemClass}>
-              Marketing site
-            </Link>
-          </>
-        }
-      />
-      <div className="w-full px-4 pb-8 pt-0 sm:px-6 sm:pb-10 lg:px-8">
-        {children}
-      </div>
-    </div>
+    <DashboardAppShell
+      brandHref="/user/home"
+      brandLabel={tDash("brand.member.title")}
+      brandSubline={tDash("brand.member.subline")}
+      variant="wellness"
+      contentMaxClass="w-full"
+      navRole="USER"
+      navDefinitions={navDefinitions}
+      trailing={
+        <>
+          <LogoutButton className={`${trailingClass} text-left`} />
+          <Link href="/" className={trailingClass}>
+            {tDash("links.marketingSite")}
+          </Link>
+        </>
+      }
+    >
+      {children}
+    </DashboardAppShell>
   );
 }

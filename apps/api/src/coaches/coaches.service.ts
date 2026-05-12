@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -35,32 +36,68 @@ export class CoachesService {
   }
 
   async create(dto: CreateCoachDto) {
-    const email = dto.email.toLowerCase();
-    const exists = await this.prisma.user.findUnique({ where: { email } });
-    if (exists) {
-      throw new ConflictException('User already exists');
+    const email = dto.email.toLowerCase().trim();
+    const phone = dto.phone.trim();
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+      throw new BadRequestException('Invalid phone number');
     }
+
+    const [emailTaken, phoneTaken] = await Promise.all([
+      this.prisma.user.findUnique({ where: { email } }),
+      this.prisma.user.findUnique({ where: { phone } }),
+    ]);
+    if (emailTaken) {
+      throw new ConflictException('An account with this email already exists.');
+    }
+    if (phoneTaken) {
+      throw new ConflictException(
+        'An account with this phone number already exists.',
+      );
+    }
+
     const passwordHash = await hashPassword(dto.password);
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        name: dto.name,
-        role: Role.COACH,
-        emailVerified: new Date(),
-      },
+    const dateOfBirth = this.approximateDateOfBirthFromAge(dto.age);
+
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          passwordHash,
+          name: dto.name.trim(),
+          lastName: dto.lastName.trim(),
+          phone,
+          dateOfBirth,
+          role: Role.COACH,
+          emailVerified: new Date(),
+        },
+      });
+      return tx.coachProfile.create({
+        data: {
+          userId: user.id,
+          bio: dto.bio,
+          specialization: dto.specialization,
+          experienceYears: dto.experienceYears,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              lastName: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+      });
     });
-    return this.prisma.coachProfile.create({
-      data: {
-        userId: user.id,
-        bio: dto.bio,
-        specialization: dto.specialization,
-        experienceYears: dto.experienceYears,
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-      },
-    });
+  }
+
+  private approximateDateOfBirthFromAge(ageYears: number): Date {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - ageYears);
+    return d;
   }
 
   async update(actor: User, coachProfileId: string, dto: UpdateCoachDto) {
@@ -88,7 +125,16 @@ export class CoachesService {
   listAdmin() {
     return this.prisma.coachProfile.findMany({
       include: {
-        user: { select: { id: true, name: true, email: true, role: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            role: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });

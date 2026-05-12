@@ -43,7 +43,9 @@ type SessionContextValue = {
   registerAccount: (params: {
     email: string;
     password: string;
-    name?: string;
+    name: string;
+    lastName: string;
+    phone: string;
   }) => Promise<string>;
   signOut: () => Promise<void>;
 };
@@ -126,7 +128,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const registerAccount = useCallback(
-    async (params: { email: string; password: string; name?: string }) => {
+    async (params: {
+      email: string;
+      password: string;
+      name: string;
+      lastName: string;
+      phone: string;
+    }) => {
       const { accessToken, user } = await authRegister(params);
       await establishSession(accessToken, user);
       return homeHrefForRole(user.role);

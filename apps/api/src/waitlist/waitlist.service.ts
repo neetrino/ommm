@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   BookingStatus,
   ClassSessionStatus,
@@ -14,6 +16,8 @@ import { StudioService } from '../studio/studio.service';
 
 @Injectable()
 export class WaitlistService {
+  private readonly logger = new Logger(WaitlistService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
@@ -87,6 +91,18 @@ export class WaitlistService {
     });
   }
 
+  listAdminRecent(take: number) {
+    const safeTake = Math.min(Math.max(take, 1), 500);
+    return this.prisma.waitlistEntry.findMany({
+      orderBy: { updatedAt: 'desc' },
+      take: safeTake,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        session: { include: { classType: true } },
+      },
+    });
+  }
+
   async offerNextIfSlot(sessionId: string): Promise<void> {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
@@ -124,6 +140,39 @@ export class WaitlistService {
       subject: 'A spot opened — book now',
       html: `<p>A place opened for your class.</p><p><a href="${link}">Book</a></p><p>Offer expires in ${minutes} minutes.</p>`,
     });
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async expireOffersCron(): Promise<void> {
+    await this.expireStaleOffersAndPromote();
+  }
+
+  /**
+   * Marks expired waitlist offers and attempts to offer the next person in line per session.
+   */
+  async expireStaleOffersAndPromote(): Promise<void> {
+    const now = new Date();
+    const stale = await this.prisma.waitlistEntry.findMany({
+      where: {
+        status: WaitlistStatus.OFFERED,
+        offerExpiresAt: { lt: now },
+      },
+      select: { id: true, sessionId: true },
+    });
+    if (stale.length === 0) {
+      return;
+    }
+    await this.prisma.waitlistEntry.updateMany({
+      where: { id: { in: stale.map((s) => s.id) } },
+      data: { status: WaitlistStatus.EXPIRED },
+    });
+    const sessionIds = [...new Set(stale.map((s) => s.sessionId))];
+    for (const sid of sessionIds) {
+      await this.offerNextIfSlot(sid);
+    }
+    this.logger.log(
+      `Expired ${stale.length} waitlist offer(s); re-offered where slots remain.`,
+    );
   }
 
   async remove(entryId: string) {

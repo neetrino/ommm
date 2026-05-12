@@ -1,16 +1,19 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { homePathForRole } from "@/lib/role-home";
 
 export default function LoginPage() {
   const router = useRouter();
+  const urlLocale = useLocale();
   const t = useTranslations("common");
+  const tAuth = useTranslations("auth.login");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
@@ -25,16 +28,21 @@ export default function LoginPage() {
     submitLockRef.current = true;
     setPending(true);
     try {
-      const { user } = await apiFetch<{ user: { role: string } }>("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          email: fd.get("email"),
-          password: fd.get("password"),
-        }),
-      });
-      router.push(homePathForRole(user.role));
+      const { user } = await apiFetch<{ user: { role: string; locale: string } }>(
+        "/auth/login",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: fd.get("email"),
+            password: fd.get("password"),
+          }),
+        },
+      );
+      const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
+      setUiLocaleCookie(nextLocale);
+      router.push(homePathForRole(user.role), { locale: nextLocale });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      setError(err instanceof ApiError ? err.message : tAuth("loginFailed"));
     } finally {
       setPending(false);
       submitLockRef.current = false;
@@ -47,12 +55,10 @@ export default function LoginPage() {
       <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("login")}
       </h1>
-      <p className="ommm-body-muted mt-2">
-        Welcome back — use the email and password for your studio account.
-      </p>
+      <p className="ommm-body-muted mt-2">{tAuth("lead")}</p>
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Email</span>
+          <span className="ommm-label">{tAuth("email")}</span>
           <input
             name="email"
             type="email"
@@ -62,7 +68,7 @@ export default function LoginPage() {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">Password</span>
+          <span className="ommm-label">{tAuth("password")}</span>
           <input
             name="password"
             type="password"
@@ -72,7 +78,7 @@ export default function LoginPage() {
           />
         </label>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
-          {pending ? "Signing in…" : "Continue"}
+          {pending ? tAuth("signingIn") : tAuth("continue")}
         </OmmButton>
       </form>
       {error ? (
@@ -81,7 +87,7 @@ export default function LoginPage() {
         </p>
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
-        No account?{" "}
+        {tAuth("noAccountPrompt")}{" "}
         <Link href="/register" className="ommm-link-sage">
           {t("register")}
         </Link>

@@ -12,11 +12,28 @@ import { colors, radii, space, typography } from "../../src/theme/tokens";
 
 const MIN_PASSWORD_LENGTH = 8;
 const ACCOUNT_ICON_SIZE = 56;
+const MIN_PHONE_DIGITS = 8;
+const MAX_PHONE_DIGITS = 15;
+const MAX_PHONE_CHARS = 32;
+
+function countDigits(value: string): number {
+  return (value.match(/\d/g) ?? []).length;
+}
+
+function isValidPhone(trimmed: string): boolean {
+  if (trimmed.length < MIN_PHONE_DIGITS || trimmed.length > MAX_PHONE_CHARS) {
+    return false;
+  }
+  const digits = countDigits(trimmed);
+  return digits >= MIN_PHONE_DIGITS && digits <= MAX_PHONE_DIGITS;
+}
 
 export default function RegisterRoute() {
   const router = useRouter();
   const { isReady, isSignedIn, homeHref, registerAccount } = useSession();
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,9 +46,23 @@ export default function RegisterRoute() {
     if (busy || submitLockRef.current) {
       return;
     }
-    const name = fullName.trim();
-    if (name.length < 2) {
-      setFormError("Please enter your full name.");
+    const given = firstName.trim();
+    const family = lastName.trim();
+    const phoneTrim = phone.trim();
+    if (given.length < 1) {
+      setFormError("Please enter your first name.");
+      return;
+    }
+    if (family.length < 1) {
+      setFormError("Please enter your last name.");
+      return;
+    }
+    if (phoneTrim.length < 1) {
+      setFormError("Please enter your phone number.");
+      return;
+    }
+    if (!isValidPhone(phoneTrim)) {
+      setFormError("Enter a valid phone number (8–15 digits).");
       return;
     }
     if (!isValidEmail(email)) {
@@ -53,7 +84,9 @@ export default function RegisterRoute() {
       const nextHref = await registerAccount({
         email,
         password,
-        name: name.length > 0 ? name : undefined,
+        name: given,
+        lastName: family,
+        phone: phoneTrim,
       });
       router.replace(nextHref);
     } catch (e) {
@@ -64,7 +97,7 @@ export default function RegisterRoute() {
       setBusy(false);
       submitLockRef.current = false;
     }
-  }, [busy, confirmPassword, email, fullName, password, registerAccount, router]);
+  }, [busy, confirmPassword, email, firstName, lastName, password, phone, registerAccount, router]);
 
   if (isReady && isSignedIn) {
     return <Redirect href={homeHref} />;
@@ -102,15 +135,36 @@ export default function RegisterRoute() {
 
       <View style={styles.form}>
         <TextInput
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Full name"
+          value={firstName}
+          onChangeText={setFirstName}
+          placeholder="First name"
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}
           autoCapitalize="words"
           autoCorrect={false}
-          textContentType="name"
-          accessibilityLabel="Full name"
+          textContentType="givenName"
+          accessibilityLabel="First name"
+        />
+        <TextInput
+          value={lastName}
+          onChangeText={setLastName}
+          placeholder="Last name"
+          placeholderTextColor={colors.bodyMuted}
+          style={styles.input}
+          autoCapitalize="words"
+          autoCorrect={false}
+          textContentType="familyName"
+          accessibilityLabel="Last name"
+        />
+        <TextInput
+          value={phone}
+          onChangeText={setPhone}
+          placeholder="Phone"
+          placeholderTextColor={colors.bodyMuted}
+          style={styles.input}
+          keyboardType="phone-pad"
+          textContentType="telephoneNumber"
+          accessibilityLabel="Phone"
         />
         <TextInput
           value={email}
