@@ -7,6 +7,9 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Local cheatsheet with real credentials (never commit)
+docs/DEPLOY_ENV_URL_VS_SECRET.md
+
 # Dependencies (if scripts use Node/npm)
 node_modules/
 
