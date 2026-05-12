@@ -29,6 +29,7 @@ export default async function ContentAdminSectionLayout({
     <DashboardAppShell
       brandHref="/content-admin/home"
       brandLabel="Content"
+      brandSubline="Editorial workspace"
       contentMaxClass="max-w-6xl"
       navItems={nav}
       trailing={

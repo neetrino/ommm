@@ -1,118 +1,47 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { startTransition, useEffect, useState, type ReactNode } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
+import { dashboardHeadingFromPath } from "@/lib/dashboard-heading";
 import type { DashboardNavItem } from "@/lib/dashboard-nav";
+import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
+import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import {
+  avatarRingClass,
+  brandInitial,
+  brandSublineClass,
+  brandTitleClass,
+  collapseToggleClass,
+  headerBarClass,
+  menuButtonClass,
+  pageBackgroundClass,
+  sidebarAsideBgClass,
+  sidebarBrandStripClass,
+  sidebarShellBorderClass,
+  subtitleClass,
+  titleClass,
+} from "@/components/shell/dashboard-shell-classes";
 
-export type DashboardShellVariant = "neutral" | "indigo" | "wellness";
+export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+
+const SIDEBAR_COLLAPSED_KEY = "ommm.dashboard.sidebarCollapsed";
 
 export type DashboardAppShellProps = {
   brandHref: string;
   brandLabel: string;
+  /** Second line under the brand in the sidebar (Ilona-style). */
+  brandSubline?: string;
   navItems: DashboardNavItem[];
   variant?: DashboardShellVariant;
-  /** Width class for the main content column (sidebar sits outside this cap). */
   contentMaxClass?: string;
   trailing?: ReactNode;
   children: ReactNode;
 };
 
-function navActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  if (pathname === href) return true;
-  return pathname.startsWith(`${href}/`);
-}
-
-function headerBarClass(variant: DashboardShellVariant) {
-  if (variant === "indigo") return "border-indigo-100 bg-white";
-  if (variant === "wellness")
-    return "border-white/55 bg-white/55 shadow-sm backdrop-blur-md";
-  return "border-zinc-200 bg-white";
-}
-
-function brandClass(variant: DashboardShellVariant) {
-  if (variant === "indigo") return "font-semibold text-indigo-950";
-  if (variant === "wellness") return "font-semibold text-sage-900";
-  return "font-semibold text-zinc-900";
-}
-
-function sidebarAsideClass(variant: DashboardShellVariant) {
-  if (variant === "indigo")
-    return "border-indigo-100 bg-white shadow-sm";
-  if (variant === "wellness")
-    return "border-white/50 bg-white/40 shadow-sm backdrop-blur-md";
-  return "border-zinc-200 bg-white shadow-sm";
-}
-
-function sidebarLinkClass(
-  active: boolean,
-  variant: DashboardShellVariant,
-): string {
-  const base =
-    "flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors";
-  if (variant === "indigo") {
-    return [
-      base,
-      active
-        ? "bg-indigo-100 text-indigo-950"
-        : "text-indigo-900/90 hover:bg-indigo-50 hover:text-indigo-950",
-    ].join(" ");
-  }
-  if (variant === "wellness") {
-    return [
-      base,
-      active
-        ? "bg-white/80 text-sage-900 shadow-sm"
-        : "text-sage-700 hover:bg-white/55 hover:text-sage-900",
-    ].join(" ");
-  }
-  return [
-    base,
-    active
-      ? "bg-zinc-100 text-zinc-900"
-      : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
-  ].join(" ");
-}
-
-function menuButtonClass(variant: DashboardShellVariant) {
-  if (variant === "indigo")
-    return "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm lg:hidden";
-  if (variant === "wellness")
-    return "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm lg:hidden";
-  return "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm lg:hidden";
-}
-
-function pageBackgroundClass(variant: DashboardShellVariant) {
-  if (variant === "indigo") return "min-h-screen bg-indigo-50/50";
-  if (variant === "wellness") return "min-h-screen ommm-bg-wellness";
-  return "min-h-screen bg-zinc-100";
-}
-
-function renderNavLinks(
-  items: DashboardNavItem[],
-  variant: DashboardShellVariant,
-  pathname: string,
-  onNavigate: () => void,
-) {
-  return (
-    <nav className="flex flex-col gap-1 p-3" aria-label="Dashboard">
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={sidebarLinkClass(navActive(pathname, item.href), variant)}
-          onClick={onNavigate}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
-
 export function DashboardAppShell({
   brandHref,
   brandLabel,
+  brandSubline,
   navItems,
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
@@ -121,6 +50,20 @@ export function DashboardAppShell({
 }: DashboardAppShellProps) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      if (window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1") {
+        startTransition(() => {
+          setSidebarCollapsed(true);
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -131,68 +74,180 @@ export function DashboardAppShell({
     };
   }, [drawerOpen]);
 
+  const heading = dashboardHeadingFromPath(pathname, navItems);
+
+  function persistCollapsed(next: boolean) {
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? "1" : "0");
+      }
+    } catch {
+      /* ignore */
+    }
+    setSidebarCollapsed(next);
+  }
+
+  const asideWidth = sidebarCollapsed ? "lg:w-[4.5rem]" : "lg:w-64";
+  const borderB = `border-b ${sidebarShellBorderClass(variant)}`;
+
   return (
     <div className={pageBackgroundClass(variant)}>
-      <header className={`border-b ${headerBarClass(variant)}`}>
-        <div
-          className={`mx-auto flex h-14 w-full items-center gap-3 px-4 sm:h-16 ${contentMaxClass}`}
-        >
-          <button
-            type="button"
-            className={menuButtonClass(variant)}
-            aria-expanded={drawerOpen}
-            aria-controls="dashboard-mobile-drawer"
-            aria-label={drawerOpen ? "Close menu" : "Open menu"}
-            onClick={() => setDrawerOpen((o) => !o)}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
-            >
-              {drawerOpen ? (
-                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-              ) : (
-                <path
-                  d="M4 7h16M4 12h16M4 17h16"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-            </svg>
-          </button>
-
-          <Link
-            href={brandHref}
-            className={`min-w-0 truncate ${brandClass(variant)}`}
-            onClick={() => setDrawerOpen(false)}
-          >
-            {brandLabel}
-          </Link>
-
-          <div className="ml-auto hidden items-center gap-3 lg:flex">
-            {trailing}
-          </div>
-        </div>
-      </header>
-
-        <div
-          className={`mx-auto flex w-full flex-1 flex-col lg:flex-row ${contentMaxClass}`}
-        >
+      <div
+        className={`mx-auto flex min-h-screen w-full flex-col lg:flex-row ${contentMaxClass}`}
+      >
         <aside
-          className={`hidden w-60 shrink-0 border-r lg:sticky lg:top-0 lg:flex lg:max-h-[calc(100vh-4rem)] lg:flex-col lg:self-start ${sidebarAsideClass(variant)}`}
-          aria-label="Dashboard sections"
+          className={`hidden shrink-0 flex-col border-r shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)} transition-[width] duration-200 ease-out`}
+          aria-label="Workspace"
         >
-          {renderNavLinks(navItems, variant, pathname, () => undefined)}
+          <div
+            className={
+              sidebarCollapsed
+                ? `flex flex-col items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
+                : `flex items-start gap-2 px-2 py-4 ${borderB} ${sidebarBrandStripClass(variant)}`
+            }
+          >
+            <Link
+              href={brandHref}
+              className={
+                sidebarCollapsed
+                  ? `flex items-center justify-center rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
+                  : `flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
+              }
+              onClick={() => setDrawerOpen(false)}
+            >
+              <span
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
+              >
+                {brandInitial(brandLabel)}
+              </span>
+              {sidebarCollapsed ? (
+                <span className="sr-only">{brandLabel}</span>
+              ) : (
+                <span className="min-w-0 flex-1">
+                  <span className={brandTitleClass(variant)}>{brandLabel}</span>
+                  {brandSubline ? (
+                    <span className={brandSublineClass(variant)}>
+                      {brandSubline}
+                    </span>
+                  ) : null}
+                </span>
+              )}
+            </Link>
+            <button
+              type="button"
+              className={collapseToggleClass(variant)}
+              aria-expanded={!sidebarCollapsed}
+              aria-label={
+                sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+              }
+              onClick={() => persistCollapsed(!sidebarCollapsed)}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden
+              >
+                {sidebarCollapsed ? (
+                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                ) : (
+                  <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <DashboardSidebarNav
+              items={navItems}
+              variant={variant}
+              pathname={pathname}
+              collapsed={sidebarCollapsed}
+              onNavigate={() => undefined}
+            />
+          </div>
         </aside>
 
-        <main className="min-w-0 flex-1 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          {children}
-        </main>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <header className={`border-b ${headerBarClass(variant)}`}>
+            <div className="flex h-14 w-full items-start gap-3 px-4 py-2 sm:h-auto sm:items-center sm:py-3 sm:pl-6 sm:pr-6 lg:min-h-[4rem]">
+              <button
+                type="button"
+                className={menuButtonClass(variant)}
+                aria-expanded={drawerOpen}
+                aria-controls="dashboard-mobile-drawer"
+                aria-label={drawerOpen ? "Close menu" : "Open menu"}
+                onClick={() => setDrawerOpen((o) => !o)}
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden
+                >
+                  {drawerOpen ? (
+                    <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+                  ) : (
+                    <path
+                      d="M4 7h16M4 12h16M4 17h16"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                </svg>
+              </button>
+
+              {sidebarCollapsed ? (
+                <button
+                  type="button"
+                  className={`${collapseToggleClass(variant)} mt-0 hidden lg:inline-flex`}
+                  aria-expanded={false}
+                  aria-label="Expand sidebar"
+                  onClick={() => persistCollapsed(false)}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden
+                  >
+                    <path
+                      d="M9 6l6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              ) : null}
+
+              <div className="flex min-w-0 flex-1 flex-col justify-center pt-0.5 sm:pt-0">
+                <h1 className={titleClass(variant)}>{heading.title}</h1>
+                {heading.subtitle ? (
+                  <p className={`mt-0.5 ${subtitleClass(variant)}`}>
+                    {heading.subtitle}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="hidden shrink-0 items-center gap-3 lg:flex">
+                {trailing}
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+            {children}
+          </main>
+        </div>
       </div>
 
       {drawerOpen ? (
@@ -210,24 +265,38 @@ export function DashboardAppShell({
             onClick={() => setDrawerOpen(false)}
           />
           <div
-            className={`relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r shadow-xl ${sidebarAsideClass(variant)}`}
+            className={`relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-zinc-200 bg-white shadow-xl`}
           >
             <div
-              className={`flex h-14 shrink-0 items-center border-b px-4 sm:h-16 ${variant === "indigo" ? "border-indigo-100" : variant === "wellness" ? "border-white/50" : "border-zinc-100"}`}
+              className={`flex shrink-0 items-center gap-3 px-4 py-4 ${borderB}`}
             >
-              <span className={`truncate text-sm font-semibold ${brandClass(variant)}`}>
-                {brandLabel}
+              <span
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
+              >
+                {brandInitial(brandLabel)}
               </span>
+              <div className="min-w-0">
+                <span className="block truncate text-sm font-semibold text-zinc-900">
+                  {brandLabel}
+                </span>
+                {brandSubline ? (
+                  <span className="block truncate text-xs text-zinc-500">
+                    {brandSubline}
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto">
-              {renderNavLinks(navItems, variant, pathname, () =>
-                setDrawerOpen(false),
-              )}
+              <DashboardSidebarNav
+                items={navItems}
+                variant={variant}
+                pathname={pathname}
+                collapsed={false}
+                onNavigate={() => setDrawerOpen(false)}
+              />
             </div>
             {trailing ? (
-              <div
-                className={`shrink-0 space-y-3 border-t p-4 ${variant === "indigo" ? "border-indigo-100" : variant === "wellness" ? "border-white/50" : "border-zinc-100"}`}
-              >
+              <div className="shrink-0 space-y-3 border-t border-zinc-100 p-4">
                 {trailing}
               </div>
             ) : null}

@@ -29,6 +29,7 @@ export default async function UserMemberLayout({
     <DashboardAppShell
       brandHref="/user/home"
       brandLabel="Member"
+      brandSubline="Your wellness space"
       variant="wellness"
       contentMaxClass="w-full"
       navItems={nav}

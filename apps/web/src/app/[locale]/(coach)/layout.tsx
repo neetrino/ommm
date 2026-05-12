@@ -29,6 +29,7 @@ export default async function CoachSectionLayout({
     <DashboardAppShell
       brandHref="/coach/home"
       brandLabel="Coach"
+      brandSubline="Schedule & roster"
       variant="indigo"
       contentMaxClass="max-w-5xl"
       navItems={nav}

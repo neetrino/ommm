@@ -29,6 +29,7 @@ export default async function ManagerSectionLayout({
     <DashboardAppShell
       brandHref="/manager/home"
       brandLabel="Manager"
+      brandSubline="Studio operations"
       contentMaxClass="max-w-6xl"
       navItems={nav}
       trailing={

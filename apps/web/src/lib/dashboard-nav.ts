@@ -2,62 +2,84 @@
  * Central navigation for authenticated role dashboards.
  * Each role’s `href` values must stay under that role’s URL namespace.
  */
+export type DashboardNavIcon =
+  | "home"
+  | "layoutDashboard"
+  | "trendingUp"
+  | "layoutGrid"
+  | "calendar"
+  | "ticket"
+  | "tag"
+  | "gift"
+  | "user"
+  | "bell"
+  | "settings"
+  | "barChart"
+  | "users"
+  | "userCheck"
+  | "listOrdered"
+  | "wallet"
+  | "fileText"
+  | "send"
+  | "pieChart";
+
 export type DashboardNavItem = {
   href: string;
   label: string;
+  icon: DashboardNavIcon;
 };
 
 const USER_NAV: readonly DashboardNavItem[] = [
-  { href: "/user/home", label: "Home" },
-  { href: "/user/progress", label: "Progress" },
-  { href: "/user/classes", label: "Classes" },
-  { href: "/user/bookings", label: "Bookings" },
-  { href: "/user/memberships", label: "Memberships" },
-  { href: "/user/gift-cards", label: "Gift cards" },
-  { href: "/user/profile", label: "Profile" },
-  { href: "/user/notifications", label: "Notifications" },
-  { href: "/user/settings", label: "Settings" },
+  { href: "/user/home", label: "Home", icon: "home" },
+  { href: "/user/progress", label: "Progress", icon: "trendingUp" },
+  { href: "/user/classes", label: "Classes", icon: "layoutGrid" },
+  { href: "/user/bookings", label: "Bookings", icon: "calendar" },
+  { href: "/user/memberships", label: "Memberships", icon: "tag" },
+  { href: "/user/gift-cards", label: "Gift cards", icon: "gift" },
+  { href: "/user/profile", label: "Profile", icon: "user" },
+  { href: "/user/notifications", label: "Notifications", icon: "bell" },
+  { href: "/user/settings", label: "Settings", icon: "settings" },
 ];
 
 const COACH_NAV: readonly DashboardNavItem[] = [
-  { href: "/coach/home", label: "Schedule" },
-  { href: "/coach/analytics", label: "Analytics" },
-  { href: "/coach/salary", label: "Salary" },
-  { href: "/coach/profile", label: "Profile" },
-  { href: "/coach/settings", label: "Settings" },
+  { href: "/coach/home", label: "Schedule", icon: "calendar" },
+  { href: "/coach/analytics", label: "Analytics", icon: "barChart" },
+  { href: "/coach/salary", label: "Salary", icon: "wallet" },
+  { href: "/coach/profile", label: "Profile", icon: "user" },
+  { href: "/coach/settings", label: "Settings", icon: "settings" },
 ];
 
 const MANAGER_NAV: readonly DashboardNavItem[] = [
-  { href: "/manager/home", label: "Home" },
-  { href: "/manager/classes", label: "Classes" },
-  { href: "/manager/bookings", label: "Bookings" },
-  { href: "/manager/waitlists", label: "Waitlists" },
-  { href: "/manager/coaches", label: "Coaches" },
-  { href: "/manager/clients", label: "Clients" },
-  { href: "/manager/profile", label: "Profile" },
-  { href: "/manager/settings", label: "Settings" },
+  { href: "/manager/home", label: "Home", icon: "home" },
+  { href: "/manager/classes", label: "Classes", icon: "layoutGrid" },
+  { href: "/manager/bookings", label: "Bookings", icon: "calendar" },
+  { href: "/manager/waitlists", label: "Waitlists", icon: "listOrdered" },
+  { href: "/manager/coaches", label: "Coaches", icon: "userCheck" },
+  { href: "/manager/clients", label: "Clients", icon: "users" },
+  { href: "/manager/profile", label: "Profile", icon: "user" },
+  { href: "/manager/settings", label: "Settings", icon: "settings" },
 ];
 
 const CONTENT_ADMIN_NAV: readonly DashboardNavItem[] = [
-  { href: "/content-admin/home", label: "Home" },
-  { href: "/content-admin/content", label: "Content" },
-  { href: "/content-admin/profile", label: "Profile" },
+  { href: "/content-admin/home", label: "Home", icon: "home" },
+  { href: "/content-admin/content", label: "Content", icon: "fileText" },
+  { href: "/content-admin/profile", label: "Profile", icon: "user" },
 ];
 
 const ADMIN_NAV: readonly DashboardNavItem[] = [
-  { href: "/admin/home", label: "Dashboard" },
-  { href: "/admin/clients", label: "Users" },
-  { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/classes", label: "Classes" },
-  { href: "/admin/waitlists", label: "Waitlists" },
-  { href: "/admin/coaches", label: "Coaches" },
-  { href: "/admin/memberships", label: "Memberships" },
-  { href: "/admin/gift-cards", label: "Gift cards" },
-  { href: "/admin/notifications", label: "Notifications" },
-  { href: "/admin/reports", label: "Reports" },
-  { href: "/admin/content", label: "Content" },
-  { href: "/admin/profile", label: "Profile" },
-  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/home", label: "Dashboard", icon: "layoutDashboard" },
+  { href: "/admin/clients", label: "Users", icon: "users" },
+  { href: "/admin/bookings", label: "Bookings", icon: "calendar" },
+  { href: "/admin/classes", label: "Classes", icon: "layoutGrid" },
+  { href: "/admin/waitlists", label: "Waitlists", icon: "listOrdered" },
+  { href: "/admin/coaches", label: "Coaches", icon: "userCheck" },
+  { href: "/admin/memberships", label: "Memberships", icon: "tag" },
+  { href: "/admin/gift-cards", label: "Gift cards", icon: "gift" },
+  { href: "/admin/notifications", label: "Notifications", icon: "send" },
+  { href: "/admin/reports", label: "Reports", icon: "pieChart" },
+  { href: "/admin/content", label: "Content", icon: "fileText" },
+  { href: "/admin/profile", label: "Profile", icon: "user" },
+  { href: "/admin/settings", label: "Settings", icon: "settings" },
 ];
 
 /** Sidebar items for the authenticated dashboard role (Prisma `Role`). */

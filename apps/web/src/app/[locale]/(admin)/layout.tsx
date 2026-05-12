@@ -29,6 +29,7 @@ export default async function AdminSectionLayout({
     <DashboardAppShell
       brandHref="/admin/home"
       brandLabel="Backoffice"
+      brandSubline="Studio tools & data"
       contentMaxClass="max-w-6xl"
       navItems={nav}
       trailing={
