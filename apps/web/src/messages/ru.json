@@ -29,6 +29,15 @@
     "openMenu": "Открыть меню",
     "closeMenu": "Закрыть меню"
   },
+  "language": {
+    "switcherAria": "Язык интерфейса",
+    "expandPicker": "Открыть меню языка",
+    "optionNames": {
+      "hy": "Армянский",
+      "en": "Английский",
+      "ru": "Русский"
+    }
+  },
   "home": {
     "bookNow": "Записаться",
     "explore": {

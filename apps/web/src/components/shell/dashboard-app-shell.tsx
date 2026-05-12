@@ -2,6 +2,7 @@
 
 import { startTransition, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
 import type {
   DashboardNavDefinition,
@@ -262,6 +263,12 @@ export function DashboardAppShell({
                   </p>
                 ) : null}
               </div>
+
+              <LanguageSwitcher
+                context="dashboard"
+                dashboardVariant={variant}
+                onAfterSelect={() => setDrawerOpen(false)}
+              />
 
               <div className="hidden shrink-0 items-center gap-3 lg:flex">
                 {trailing}

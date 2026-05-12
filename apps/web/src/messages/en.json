@@ -29,6 +29,15 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
   },
+  "language": {
+    "switcherAria": "Interface language",
+    "expandPicker": "Open language menu",
+    "optionNames": {
+      "hy": "Armenian",
+      "en": "English",
+      "ru": "Russian"
+    }
+  },
   "home": {
     "bookNow": "Book now",
     "explore": {

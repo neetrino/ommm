@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function navLinkClass(active: boolean): string {
@@ -74,47 +75,52 @@ export function MarketingSiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0">
+          <LanguageSwitcher
+            context="marketing"
+            onAfterSelect={() => setOpen(false)}
+          />
+          <div className="hidden items-center gap-3 lg:flex">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
+            >
+              {tCommon("login")}
+            </Link>
+            <Link href="/user/classes" className="ommm-cta-primary">
+              {tHome("bookNow")}
+            </Link>
+          </div>
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
+            aria-expanded={open}
+            aria-controls="marketing-mobile-nav"
+            aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
+            onClick={() => setOpen((v) => !v)}
           >
-            {tCommon("login")}
-          </Link>
-          <Link href="/user/classes" className="ommm-cta-primary">
-            {tHome("bookNow")}
-          </Link>
+            <span className="sr-only">{tUi("menuSr")}</span>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden
+            >
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              ) : (
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+            </svg>
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
-          aria-expanded={open}
-          aria-controls="marketing-mobile-nav"
-          aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="sr-only">{tUi("menuSr")}</span>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden
-          >
-            {open ? (
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            ) : (
-              <path
-                d="M4 7h16M4 12h16M4 17h16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-          </svg>
-        </button>
       </div>
 
       <div

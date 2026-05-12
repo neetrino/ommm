@@ -29,6 +29,15 @@
     "openMenu": "Բացել մենյուն",
     "closeMenu": "Փակել մենյուն"
   },
+  "language": {
+    "switcherAria": "Ինտերֆեյսի լեզու",
+    "expandPicker": "Բացել լեզվի ընտրացանկը",
+    "optionNames": {
+      "hy": "Հայերեն",
+      "en": "Անգլերեն",
+      "ru": "Ռուսերեն"
+    }
+  },
   "home": {
     "bookNow": "Գրանցվել",
     "explore": {
