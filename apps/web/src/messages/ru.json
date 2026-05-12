@@ -324,7 +324,9 @@
     },
     "register": {
       "lead": "Создайте аккаунт участника, чтобы записываться на классы и управлять абонементами.",
-      "name": "Имя",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "phone": "Телефон",
       "email": "Email",
       "password": "Пароль",
       "passwordHint": "Не менее 8 символов.",
@@ -333,7 +335,12 @@
       "alreadyHavePrompt": "Уже есть аккаунт?",
       "invalidEmail": "Введите корректный email.",
       "passwordTooShort": "Пароль должен быть не короче {min} символов.",
-      "nameTooLong": "Имя слишком длинное.",
+      "firstNameTooLong": "Имя слишком длинное.",
+      "lastNameTooLong": "Фамилия слишком длинная.",
+      "firstNameRequired": "Введите имя.",
+      "lastNameRequired": "Введите фамилию.",
+      "phoneRequired": "Введите номер телефона.",
+      "invalidPhone": "Введите корректный телефон (8–15 цифр).",
       "registerFailed": "Не удалось зарегистрироваться"
     }
   },
@@ -421,6 +428,7 @@
       "labels": {
         "email": "Email",
         "name": "Имя",
+        "lastName": "Фамилия",
         "phone": "Телефон",
         "locale": "Локаль"
       },

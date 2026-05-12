@@ -12,6 +12,9 @@ import { homePathForRole } from "@/lib/role-home";
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
 const MAX_NAME_LENGTH = 120;
+const MIN_PHONE_DIGITS = 8;
+const MAX_PHONE_DIGITS = 15;
+const MAX_PHONE_CHARS = 32;
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
@@ -19,6 +22,18 @@ function isValidEmail(value: string): boolean {
     return false;
   }
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+}
+
+function countDigits(value: string): number {
+  return (value.match(/\d/g) ?? []).length;
+}
+
+function isValidPhone(trimmed: string): boolean {
+  if (trimmed.length < MIN_PHONE_DIGITS || trimmed.length > MAX_PHONE_CHARS) {
+    return false;
+  }
+  const digits = countDigits(trimmed);
+  return digits >= MIN_PHONE_DIGITS && digits <= MAX_PHONE_DIGITS;
 }
 
 export default function RegisterPage() {
@@ -38,10 +53,24 @@ export default function RegisterPage() {
     const fd = new FormData(e.currentTarget);
     const emailRaw = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
-    const nameRaw = String(fd.get("name") ?? "").trim();
+    const firstNameRaw = String(fd.get("firstName") ?? "").trim();
+    const lastNameRaw = String(fd.get("lastName") ?? "").trim();
+    const phoneRaw = String(fd.get("phone") ?? "").trim();
 
     setError(null);
 
+    if (firstNameRaw.length === 0) {
+      setError(tAuth("firstNameRequired"));
+      return;
+    }
+    if (lastNameRaw.length === 0) {
+      setError(tAuth("lastNameRequired"));
+      return;
+    }
+    if (phoneRaw.length === 0) {
+      setError(tAuth("phoneRequired"));
+      return;
+    }
     if (!isValidEmail(emailRaw)) {
       setError(tAuth("invalidEmail"));
       return;
@@ -50,8 +79,16 @@ export default function RegisterPage() {
       setError(tAuth("passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
-    if (nameRaw.length > MAX_NAME_LENGTH) {
-      setError(tAuth("nameTooLong"));
+    if (firstNameRaw.length > MAX_NAME_LENGTH) {
+      setError(tAuth("firstNameTooLong"));
+      return;
+    }
+    if (lastNameRaw.length > MAX_NAME_LENGTH) {
+      setError(tAuth("lastNameTooLong"));
+      return;
+    }
+    if (!isValidPhone(phoneRaw)) {
+      setError(tAuth("invalidPhone"));
       return;
     }
 
@@ -65,7 +102,9 @@ export default function RegisterPage() {
           body: JSON.stringify({
             email: emailRaw.toLowerCase(),
             password,
-            name: nameRaw.length > 0 ? nameRaw : undefined,
+            name: firstNameRaw,
+            lastName: lastNameRaw,
+            phone: phoneRaw,
             locale: urlLocale,
           }),
         },
@@ -90,8 +129,36 @@ export default function RegisterPage() {
       <p className="ommm-body-muted mt-2">{tAuth("lead")}</p>
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
         <label className="flex flex-col gap-2">
-          <span className="ommm-label">{tAuth("name")}</span>
-          <input name="name" autoComplete="name" className="ommm-input" maxLength={MAX_NAME_LENGTH} />
+          <span className="ommm-label">{tAuth("firstName")}</span>
+          <input
+            name="firstName"
+            required
+            autoComplete="given-name"
+            className="ommm-input"
+            maxLength={MAX_NAME_LENGTH}
+          />
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="ommm-label">{tAuth("lastName")}</span>
+          <input
+            name="lastName"
+            required
+            autoComplete="family-name"
+            className="ommm-input"
+            maxLength={MAX_NAME_LENGTH}
+          />
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="ommm-label">{tAuth("phone")}</span>
+          <input
+            name="phone"
+            type="tel"
+            required
+            autoComplete="tel"
+            className="ommm-input"
+            maxLength={MAX_PHONE_CHARS}
+            inputMode="tel"
+          />
         </label>
         <label className="flex flex-col gap-2">
           <span className="ommm-label">{tAuth("email")}</span>

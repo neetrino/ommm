@@ -182,14 +182,16 @@ export async function authLogin(params: {
 export async function authRegister(params: {
   email: string;
   password: string;
-  name?: string;
+  name: string;
+  lastName: string;
+  phone: string;
 }): Promise<AuthSuccessResponse> {
   return postAuth("/v1/auth/register", {
     email: params.email.trim().toLowerCase(),
     password: params.password,
-    ...(params.name !== undefined && params.name.trim().length > 0
-      ? { name: params.name.trim() }
-      : {}),
+    name: params.name.trim(),
+    lastName: params.lastName.trim(),
+    phone: params.phone.trim(),
   });
 }
 

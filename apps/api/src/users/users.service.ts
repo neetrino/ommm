@@ -83,12 +83,14 @@ export class UsersService {
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const data: {
       name?: string;
+      lastName?: string | null;
       phone?: string | null;
       dateOfBirth?: Date | null;
       avatarUrl?: string | null;
       locale?: string;
     } = {};
     if (dto.name !== undefined) data.name = dto.name;
+    if (dto.lastName !== undefined) data.lastName = dto.lastName;
     if (dto.phone !== undefined) data.phone = dto.phone;
     if (dto.dateOfBirth !== undefined) {
       data.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;

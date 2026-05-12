@@ -74,12 +74,25 @@ export class AuthService {
     if (existing) {
       throw new ConflictException('Email already registered');
     }
+    const phoneDigits = dto.phone.replace(/\D/g, '');
+    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+      throw new BadRequestException('Invalid phone number');
+    }
+    const phoneTaken = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
+    });
+    if (phoneTaken) {
+      throw new ConflictException('Phone number already registered');
+    }
     const passwordHash = await hashPassword(dto.password);
+    const displayFirst = dto.name;
     const user = await this.prisma.user.create({
       data: {
         email: dto.email.toLowerCase(),
         passwordHash,
-        name: dto.name,
+        name: displayFirst,
+        lastName: dto.lastName,
+        phone: dto.phone,
         locale: normalizeAppUiLocale(dto.locale, 'hy'),
       },
     });
@@ -91,10 +104,11 @@ export class AuthService {
     const webUrl =
       this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
     const verifyUrl = `${webUrl}/hy/verify-email?token=${encodeURIComponent(raw)}`;
+    const greet = [displayFirst, dto.lastName].filter(Boolean).join(' ');
     await this.mail.sendEmail({
       to: user.email,
       subject: 'Verify your Ommm account',
-      html: `<p>Hi${user.name ? ` ${user.name}` : ''},</p><p><a href="${verifyUrl}">Verify email</a></p>`,
+      html: `<p>Hi${greet ? ` ${greet}` : ''},</p><p><a href="${verifyUrl}">Verify email</a></p>`,
     });
     const accessToken = this.signAccessToken(user);
     return { user: sanitizeUser(user), accessToken };

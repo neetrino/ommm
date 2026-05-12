@@ -324,7 +324,9 @@
     },
     "register": {
       "lead": "Create a member account to book classes and manage memberships.",
-      "name": "Name",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
       "email": "Email",
       "password": "Password",
       "passwordHint": "At least 8 characters.",
@@ -333,7 +335,12 @@
       "alreadyHavePrompt": "Already have an account?",
       "invalidEmail": "Please enter a valid email address.",
       "passwordTooShort": "Password must be at least {min} characters.",
-      "nameTooLong": "Name is too long.",
+      "firstNameTooLong": "First name is too long.",
+      "lastNameTooLong": "Last name is too long.",
+      "firstNameRequired": "Please enter your first name.",
+      "lastNameRequired": "Please enter your last name.",
+      "phoneRequired": "Please enter your phone number.",
+      "invalidPhone": "Enter a valid phone number (8–15 digits).",
       "registerFailed": "Registration failed"
     }
   },
@@ -420,7 +427,8 @@
       "preferences": "Preferences",
       "labels": {
         "email": "Email",
-        "name": "Name",
+        "name": "First name",
+        "lastName": "Last name",
         "phone": "Phone",
         "locale": "Locale"
       },

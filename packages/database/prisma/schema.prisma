@@ -84,6 +84,7 @@ model User {
   passwordHash   String?
   phone          String?   @unique
   name           String?
+  lastName       String?
   dateOfBirth    DateTime?
   avatarUrl      String?
   /** Full public HTTPS URL (e.g. Cloudflare R2) or legacy `/v1/uploads/...` path when storing locally. */

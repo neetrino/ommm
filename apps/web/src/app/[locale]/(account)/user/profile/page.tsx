@@ -14,6 +14,7 @@ type MeResponse = {
   user: {
     email: string;
     name: string | null;
+    lastName: string | null;
     phone: string | null;
     locale: string;
     homeImageUrl?: string | null;
@@ -55,6 +56,10 @@ export default async function UserProfilePage() {
             <div>
               <dt className="text-sage-500">{t("labels.name")}</dt>
               <dd className="text-sage-700">{user.name ?? empty}</dd>
+            </div>
+            <div>
+              <dt className="text-sage-500">{t("labels.lastName")}</dt>
+              <dd className="text-sage-700">{user.lastName ?? empty}</dd>
             </div>
             <div>
               <dt className="text-sage-500">{t("labels.phone")}</dt>
