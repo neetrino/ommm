@@ -89,3 +89,46 @@ export function sidebarBrandStripClass(variant: DashboardShellVariant) {
   if (variant === "indigo") return "bg-indigo-50/30";
   return "bg-zinc-50/80";
 }
+
+/** Mobile drawer panel (matches desktop sidebar tone per variant). */
+export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
+  if (variant === "wellness") {
+    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-white/50 bg-white/90 shadow-xl backdrop-blur-md";
+  }
+  if (variant === "indigo") {
+    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-indigo-100 bg-white shadow-xl";
+  }
+  return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-zinc-200 bg-white shadow-xl";
+}
+
+export function mobileDrawerBrandTitleClass(variant: DashboardShellVariant) {
+  if (variant === "wellness") return "block truncate text-sm font-semibold text-sage-900";
+  if (variant === "indigo") return "block truncate text-sm font-semibold text-indigo-950";
+  return "block truncate text-sm font-semibold text-zinc-900";
+}
+
+export function mobileDrawerBrandSublineClass(variant: DashboardShellVariant) {
+  if (variant === "wellness") return "block truncate text-xs text-sage-600";
+  if (variant === "indigo") return "block truncate text-xs text-indigo-900/70";
+  return "block truncate text-xs text-zinc-500";
+}
+
+export function mobileDrawerHeaderBorderClass(variant: DashboardShellVariant) {
+  return `border-b ${sidebarShellBorderClass(variant)}`;
+}
+
+export function mobileDrawerFooterClass(variant: DashboardShellVariant) {
+  if (variant === "wellness") {
+    return "shrink-0 space-y-3 border-t border-white/50 p-4";
+  }
+  if (variant === "indigo") {
+    return "shrink-0 space-y-3 border-t border-indigo-50 p-4";
+  }
+  return "shrink-0 space-y-3 border-t border-zinc-100 p-4";
+}
+
+export function mobileDrawerOverlayScrimClass(variant: DashboardShellVariant) {
+  if (variant === "wellness") return "absolute inset-0 bg-sage-900/35";
+  if (variant === "indigo") return "absolute inset-0 bg-indigo-950/40";
+  return "absolute inset-0 bg-zinc-900/40";
+}

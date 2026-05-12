@@ -44,7 +44,7 @@ export function AdminNotificationBroadcastForm() {
   return (
     <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-4">
       <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium uppercase text-zinc-500">
+        <span className="ommm-label text-xs uppercase tracking-wide">
           Subject
         </span>
         <input
@@ -57,7 +57,7 @@ export function AdminNotificationBroadcastForm() {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium uppercase text-zinc-500">
+        <span className="ommm-label text-xs uppercase tracking-wide">
           HTML body
         </span>
         <textarea
@@ -69,7 +69,7 @@ export function AdminNotificationBroadcastForm() {
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium uppercase text-zinc-500">
+        <span className="ommm-label text-xs uppercase tracking-wide">
           Test recipient (optional)
         </span>
         <input
@@ -80,12 +80,12 @@ export function AdminNotificationBroadcastForm() {
           placeholder="you@example.com"
           autoComplete="email"
         />
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-sage-500">
           When set, only this address receives the message.
         </span>
       </label>
       {status !== null ? (
-        <p className="text-sm text-zinc-700" role="status">
+        <p className="text-sm text-sage-700" role="status">
           {status}
         </p>
       ) : null}

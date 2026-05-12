@@ -1,5 +1,10 @@
 import { headers } from "next/headers";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import {
+  AccountPageFrame,
+  AccountSection,
+} from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClassTypeRow = {
@@ -34,7 +39,7 @@ export default async function AdminClassesPage() {
 
   if (!typesRes.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {typesRes.status === 401 || typesRes.status === 403
           ? "Admin or manager sign-in required for class types."
           : `Could not load class types (${typesRes.status}).`}
@@ -44,7 +49,7 @@ export default async function AdminClassesPage() {
 
   if (!sessionsRes.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {sessionsRes.status === 401 || sessionsRes.status === 403
           ? "Admin or manager sign-in required for sessions."
           : `Could not load sessions (${sessionsRes.status}).`}
@@ -53,66 +58,65 @@ export default async function AdminClassesPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Classes</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Class types and published sessions in the next {ACCOUNT_SESSION_RANGE_DAYS}{" "}
-        days (calendar-style month/week views can build on this data).
-      </p>
-
-      <h2 className="mt-8 text-lg font-medium text-zinc-900">Class types</h2>
-      <div className="mt-4 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Slug</th>
-            </tr>
-          </thead>
-          <tbody>
-            {typesRes.data.map((t) => (
-              <tr key={t.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 font-medium text-zinc-900">{t.name}</td>
-                <td className="px-4 py-3 text-zinc-600">{t.slug}</td>
+    <AccountPageFrame
+      title="Classes"
+      description={`Class types and published sessions in the next ${ACCOUNT_SESSION_RANGE_DAYS} days (calendar-style month/week views can build on this data).`}
+    >
+      <AccountSection title="Class types">
+        <div className={adminChrome.tableWrap}>
+          <table className={adminChrome.table}>
+            <thead className={adminChrome.thead}>
+              <tr>
+                <th className={adminChrome.th}>Name</th>
+                <th className={adminChrome.th}>Slug</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {typesRes.data.map((t) => (
+                <tr key={t.id} className={adminChrome.tr}>
+                  <td className={adminChrome.tdStrong}>{t.name}</td>
+                  <td className={adminChrome.td}>{t.slug}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </AccountSection>
 
-      <h2 className="mt-8 text-lg font-medium text-zinc-900">Upcoming sessions</h2>
-      <div className="mt-4 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
-            <tr>
-              <th className="px-4 py-3">Class</th>
-              <th className="px-4 py-3">Starts</th>
-              <th className="px-4 py-3">Coach</th>
-              <th className="px-4 py-3">Booked</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessionsRes.data.map((s) => (
-              <tr key={s.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 font-medium text-zinc-900">
-                  {s.classType.name}
-                </td>
-                <td className="px-4 py-3 text-zinc-700">
-                  {new Date(s.startsAt).toLocaleString()}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
-                  {s.coach.user.name ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
-                  {s._count.bookings}/{s.capacity}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">{s.status}</td>
+      <AccountSection title="Upcoming sessions" className="mt-8">
+        <div className={adminChrome.tableWrap}>
+          <table className={adminChrome.table}>
+            <thead className={adminChrome.thead}>
+              <tr>
+                <th className={adminChrome.th}>Class</th>
+                <th className={adminChrome.th}>Starts</th>
+                <th className={adminChrome.th}>Coach</th>
+                <th className={adminChrome.th}>Booked</th>
+                <th className={adminChrome.th}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            </thead>
+            <tbody>
+              {sessionsRes.data.map((s) => (
+                <tr key={s.id} className={adminChrome.tr}>
+                  <td className={adminChrome.tdStrong}>
+                    {s.classType.name}
+                  </td>
+                  <td className={adminChrome.td}>
+                    {new Date(s.startsAt).toLocaleString()}
+                  </td>
+                  <td className={adminChrome.td}>
+                    {s.coach.user.name ?? "—"}
+                  </td>
+                  <td className={adminChrome.td}>
+                    {s._count.bookings}/{s.capacity}
+                  </td>
+                  <td className={adminChrome.td}>{s.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </AccountSection>
+    </AccountPageFrame>
   );
 }

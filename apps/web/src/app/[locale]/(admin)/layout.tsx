@@ -13,7 +13,7 @@ import {
 const ADMIN_ROLES = new Set<string>(["ADMIN"]);
 
 const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
 
 export default async function AdminSectionLayout({
   children,
@@ -34,16 +34,14 @@ export default async function AdminSectionLayout({
       brandHref="/admin/home"
       brandLabel={tDash("brand.backoffice.title")}
       brandSubline={tDash("brand.backoffice.subline")}
-      contentMaxClass="max-w-6xl"
+      variant="wellness"
+      contentMaxClass="w-full"
       navRole="ADMIN"
       navDefinitions={navDefinitions}
       trailing={
         <>
-          <LogoutButton className={`${trailingClass} lg:w-auto`} />
-          <Link
-            href="/user/home"
-            className={`${trailingClass} text-center lg:text-left`}
-          >
+          <LogoutButton className={`${trailingClass} text-left`} />
+          <Link href="/user/home" className={trailingClass}>
             {tDash("links.memberZone")}
           </Link>
         </>

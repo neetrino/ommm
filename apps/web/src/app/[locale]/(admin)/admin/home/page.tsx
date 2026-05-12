@@ -24,11 +24,15 @@ export default async function AdminHomePage({
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
   if (!meRes.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        <p>Sign in to open the admin dashboard.</p>
-        <Link href="/login" className="ommm-cta-primary mt-4 inline-flex text-sm">
-          {tCommon("login")}
-        </Link>
+      <div className="pt-6 sm:pt-8">
+        <div className="rounded-[28px] border border-amber-200/80 bg-amber-50/90 p-8 text-amber-950 backdrop-blur-md">
+          <p className="font-serif text-lg font-semibold">
+            Sign in to open the admin dashboard.
+          </p>
+          <Link href="/login" className="ommm-cta-primary mt-6 inline-flex text-sm">
+            {tCommon("login")}
+          </Link>
+        </div>
       </div>
     );
   }

@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type WaitlistAdminRow = {
@@ -21,7 +23,7 @@ export default async function AdminWaitlistsPage() {
 
   if (!res.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
           ? "Admin or manager sign-in required."
           : `Could not load waitlists (${res.status}).`}
@@ -30,40 +32,46 @@ export default async function AdminWaitlistsPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Waitlists</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Recent waitlist entries (all statuses). Per-session roster uses{" "}
-        <code className="text-xs">GET /v1/waitlist/sessions/:sessionId</code>.
-      </p>
-      <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
+    <AccountPageFrame
+      title="Waitlists"
+      description={
+        <>
+          Recent waitlist entries (all statuses). Per-session roster uses{" "}
+          <code className={adminChrome.inlineCode}>
+            GET /v1/waitlist/sessions/:sessionId
+          </code>
+          .
+        </>
+      }
+    >
+      <div className={`mt-2 ${adminChrome.tableWrap}`}>
+        <table className={adminChrome.table}>
+          <thead className={adminChrome.thead}>
             <tr>
-              <th className="px-4 py-3">User</th>
-              <th className="px-4 py-3">Class</th>
-              <th className="px-4 py-3">Session</th>
-              <th className="px-4 py-3">Pos</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Offer expires</th>
+              <th className={adminChrome.th}>User</th>
+              <th className={adminChrome.th}>Class</th>
+              <th className={adminChrome.th}>Session</th>
+              <th className={adminChrome.th}>Pos</th>
+              <th className={adminChrome.th}>Status</th>
+              <th className={adminChrome.th}>Offer expires</th>
             </tr>
           </thead>
           <tbody>
             {res.data.map((w) => (
-              <tr key={w.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 text-zinc-900">
+              <tr key={w.id} className={adminChrome.tr}>
+                <td className={adminChrome.tdStrong}>
                   <div className="font-medium">{w.user.name ?? "—"}</div>
-                  <div className="text-xs text-zinc-500">{w.user.email}</div>
+                  <div className={adminChrome.metaText}>{w.user.email}</div>
                 </td>
-                <td className="px-4 py-3 text-zinc-700">
+                <td className={adminChrome.td}>
                   {w.session.classType.name}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className={adminChrome.td}>
                   {new Date(w.session.startsAt).toLocaleString()}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">{w.position}</td>
-                <td className="px-4 py-3 text-zinc-600">{w.status}</td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className={adminChrome.td}>{w.position}</td>
+                <td className={adminChrome.td}>{w.status}</td>
+                <td className={adminChrome.td}>
                   {w.offerExpiresAt
                     ? new Date(w.offerExpiresAt).toLocaleString()
                     : "—"}
@@ -73,6 +81,6 @@ export default async function AdminWaitlistsPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </AccountPageFrame>
   );
 }

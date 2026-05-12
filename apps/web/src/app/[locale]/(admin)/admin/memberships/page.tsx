@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type MembershipAdminRow = {
@@ -19,7 +21,7 @@ export default async function AdminMembershipsPage() {
 
   if (!res.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
           ? "Studio admin sign-in required for membership billing."
           : `Could not load memberships (${res.status}).`}
@@ -28,39 +30,42 @@ export default async function AdminMembershipsPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">
-        Memberships &amp; billing
-      </h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Active and historical memberships from{" "}
-        <code className="text-xs">GET /v1/memberships/admin/all</code>. Plan
-        edits and manual assignment use the API or future forms here.
-      </p>
-      <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
+    <AccountPageFrame
+      title="Memberships & billing"
+      description={
+        <>
+          Active and historical memberships from{" "}
+          <code className={adminChrome.inlineCode}>
+            GET /v1/memberships/admin/all
+          </code>
+          . Plan edits and manual assignment use the API or future forms here.
+        </>
+      }
+    >
+      <div className={`mt-2 ${adminChrome.tableWrap}`}>
+        <table className={adminChrome.table}>
+          <thead className={adminChrome.thead}>
             <tr>
-              <th className="px-4 py-3">Member</th>
-              <th className="px-4 py-3">Plan</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Sessions left</th>
-              <th className="px-4 py-3">Period end</th>
+              <th className={adminChrome.th}>Member</th>
+              <th className={adminChrome.th}>Plan</th>
+              <th className={adminChrome.th}>Status</th>
+              <th className={adminChrome.th}>Sessions left</th>
+              <th className={adminChrome.th}>Period end</th>
             </tr>
           </thead>
           <tbody>
             {res.data.map((m) => (
-              <tr key={m.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 text-zinc-900">
+              <tr key={m.id} className={adminChrome.tr}>
+                <td className={adminChrome.tdStrong}>
                   <div className="font-medium">{m.user.name ?? "—"}</div>
-                  <div className="text-xs text-zinc-500">{m.user.email}</div>
+                  <div className={adminChrome.metaText}>{m.user.email}</div>
                 </td>
-                <td className="px-4 py-3 text-zinc-700">{m.plan.name}</td>
-                <td className="px-4 py-3 text-zinc-600">{m.status}</td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className={adminChrome.td}>{m.plan.name}</td>
+                <td className={adminChrome.td}>{m.status}</td>
+                <td className={adminChrome.td}>
                   {m.sessionsRemaining ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className={adminChrome.td}>
                   {m.currentPeriodEnd
                     ? new Date(m.currentPeriodEnd).toLocaleDateString()
                     : "—"}
@@ -70,6 +75,6 @@ export default async function AdminMembershipsPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </AccountPageFrame>
   );
 }

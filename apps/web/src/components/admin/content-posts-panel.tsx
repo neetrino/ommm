@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { serverApiJson } from "@/lib/server-api";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 
 type ContentAdminRow = {
   id: string;
@@ -10,7 +11,14 @@ type ContentAdminRow = {
   updatedAt: string;
 };
 
-export async function ContentPostsPanel() {
+type ContentPostsPanelProps = {
+  /** When true (admin workspace), match member dashboard glass surfaces. */
+  wellnessChrome?: boolean;
+};
+
+export async function ContentPostsPanel({
+  wellnessChrome = false,
+}: ContentPostsPanelProps) {
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ContentAdminRow[]>(
     "/content/admin/posts",
@@ -18,12 +26,41 @@ export async function ContentPostsPanel() {
   );
 
   if (!res.ok) {
-    return (
+    const message =
+      res.status === 401 || res.status === 403
+        ? "Admin or content role required."
+        : `Could not load posts (${res.status}).`;
+    return wellnessChrome ? (
+      <div className="app-alert-warn max-w-xl">{message}</div>
+    ) : (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        {res.status === 401 || res.status === 403
-          ? "Admin or content role required."
-          : `Could not load posts (${res.status}).`}
+        {message}
       </div>
+    );
+  }
+
+  if (wellnessChrome) {
+    return (
+      <AccountPageFrame
+        title="Content"
+        description="Manage posts via API or extend this table with edit actions."
+      >
+        <ul className="mt-2 space-y-3">
+          {res.data.map((p) => (
+            <li key={p.id} className="ommm-list-row">
+              <div>
+                <span className="font-medium text-sage-800">{p.title}</span>
+                <span className="ml-2 text-xs text-sage-500">
+                  {p.type} · {p.status}
+                </span>
+                <p className="text-xs text-sage-500">
+                  /{p.slug} · updated {new Date(p.updatedAt).toLocaleString()}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </AccountPageFrame>
     );
   }
 

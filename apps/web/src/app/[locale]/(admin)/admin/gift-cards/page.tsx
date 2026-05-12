@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type GiftRow = {
@@ -21,7 +23,7 @@ export default async function AdminGiftCardsPage() {
 
   if (!res.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
           ? "Admin or manager sign-in required."
           : `Could not load gift cards (${res.status}).`}
@@ -30,45 +32,47 @@ export default async function AdminGiftCardsPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Gift cards</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Issued cards from <code className="text-xs">GET /v1/gift-cards/admin</code>
-        . Resend and deactivate actions are available via API for admins.
-      </p>
-      <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
+    <AccountPageFrame
+      title="Gift cards"
+      description={
+        <>
+          Issued cards from{" "}
+          <code className={adminChrome.inlineCode}>GET /v1/gift-cards/admin</code>
+          . Resend and deactivate actions are available via API for admins.
+        </>
+      }
+    >
+      <div className={`mt-2 ${adminChrome.tableWrap}`}>
+        <table className={adminChrome.table}>
+          <thead className={adminChrome.thead}>
             <tr>
-              <th className="px-4 py-3">Code</th>
-              <th className="px-4 py-3">Purchaser</th>
-              <th className="px-4 py-3">Recipient</th>
-              <th className="px-4 py-3">Balance</th>
-              <th className="px-4 py-3">Status</th>
+              <th className={adminChrome.th}>Code</th>
+              <th className={adminChrome.th}>Purchaser</th>
+              <th className={adminChrome.th}>Recipient</th>
+              <th className={adminChrome.th}>Balance</th>
+              <th className={adminChrome.th}>Status</th>
             </tr>
           </thead>
           <tbody>
             {res.data.map((g) => (
-              <tr key={g.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 font-mono text-xs text-zinc-900">
-                  {g.code}
-                </td>
-                <td className="px-4 py-3 text-zinc-700">
+              <tr key={g.id} className={adminChrome.tr}>
+                <td className={adminChrome.tdMono}>{g.code}</td>
+                <td className={adminChrome.td}>
                   {g.purchaser.name ?? g.purchaser.email}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className={adminChrome.td}>
                   {g.recipientName ?? g.recipient?.name ?? g.recipientEmail ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className={adminChrome.td}>
                   {(g.balanceCents / 100).toFixed(2)} /{" "}
                   {(g.amountCents / 100).toFixed(2)}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">{g.status}</td>
+                <td className={adminChrome.td}>{g.status}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-    </div>
+    </AccountPageFrame>
   );
 }

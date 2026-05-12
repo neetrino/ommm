@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 
 type Dashboard = {
   sessionsToday: number;
@@ -34,14 +36,11 @@ export async function AdminDashboardMetrics() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-        {t("pageTitle")}
-      </h1>
+    <AccountPageFrame title={t("pageTitle")}>
       {err ? (
-        <p className="mt-4 text-sm text-amber-800">{err}</p>
+        <p className="text-sm text-amber-900">{err}</p>
       ) : data ? (
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Metric label={tm("sessionsToday")} value={data.sessionsToday} />
           <Metric label={tm("bookingsToday")} value={data.bookingsToday} />
           <Metric label={tm("activeWaitlists")} value={data.activeWaitlists} />
@@ -52,25 +51,23 @@ export async function AdminDashboardMetrics() {
           />
         </ul>
       ) : null}
-      <section className="mt-10 rounded-[24px] border border-zinc-200 bg-white p-4 text-sm text-zinc-700 shadow-sm">
-        <p className="font-medium text-zinc-900">{t("csvExportTitle")}</p>
+      <section className={`mt-10 ${adminChrome.panel}`}>
+        <p className={adminChrome.panelHeading}>{t("csvExportTitle")}</p>
         <p className="mt-2">
           {t("csvExportBody", {
             code: "GET /v1/reports/bookings.csv?from=&to=",
           })}
         </p>
       </section>
-    </div>
+    </AccountPageFrame>
   );
 }
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <li className="rounded-[24px] border border-zinc-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
+    <li className={adminChrome.metricCard}>
+      <p className={adminChrome.metricLabel}>{label}</p>
+      <p className={adminChrome.metricValue}>{value}</p>
     </li>
   );
 }

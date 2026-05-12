@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type CoachAdminRow = {
@@ -14,7 +16,7 @@ export default async function AdminCoachesPage() {
 
   if (!res.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
           ? "Admin or manager sign-in required."
           : `Could not load coaches (${res.status}).`}
@@ -23,29 +25,31 @@ export default async function AdminCoachesPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Coaches</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Coach profiles from <code className="text-xs">GET /v1/coaches/admin/list</code>
-        . Substitute coach and availability are managed on sessions and profiles.
-      </p>
-      <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
+    <AccountPageFrame
+      title="Coaches"
+      description={
+        <>
+          Coach profiles from{" "}
+          <code className={adminChrome.inlineCode}>GET /v1/coaches/admin/list</code>
+          . Substitute coach and availability are managed on sessions and profiles.
+        </>
+      }
+    >
+      <div className={`mt-2 ${adminChrome.tableWrap}`}>
+        <table className={adminChrome.table}>
+          <thead className={adminChrome.thead}>
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Specialization</th>
+              <th className={adminChrome.th}>Name</th>
+              <th className={adminChrome.th}>Email</th>
+              <th className={adminChrome.th}>Specialization</th>
             </tr>
           </thead>
           <tbody>
             {res.data.map((c) => (
-              <tr key={c.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 font-medium text-zinc-900">
-                  {c.user.name ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-zinc-700">{c.user.email}</td>
-                <td className="px-4 py-3 text-zinc-600">
+              <tr key={c.id} className={adminChrome.tr}>
+                <td className={adminChrome.tdStrong}>{c.user.name ?? "—"}</td>
+                <td className={adminChrome.td}>{c.user.email}</td>
+                <td className={adminChrome.td}>
                   {c.specialization ?? "—"}
                 </td>
               </tr>
@@ -53,6 +57,6 @@ export default async function AdminCoachesPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </AccountPageFrame>
   );
 }

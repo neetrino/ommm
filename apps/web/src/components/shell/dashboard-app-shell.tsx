@@ -21,6 +21,12 @@ import {
   DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS,
   DASHBOARD_MAIN_HEADER_STICKY_CLASS,
   menuButtonClass,
+  mobileDrawerBrandSublineClass,
+  mobileDrawerBrandTitleClass,
+  mobileDrawerFooterClass,
+  mobileDrawerHeaderBorderClass,
+  mobileDrawerOverlayScrimClass,
+  mobileDrawerPanelClass,
   pageBackgroundClass,
   sidebarAsideBgClass,
   sidebarBrandStripClass,
@@ -292,15 +298,13 @@ export function DashboardAppShell({
         >
           <button
             type="button"
-            className="absolute inset-0 bg-zinc-900/40"
+            className={mobileDrawerOverlayScrimClass(variant)}
             aria-label={tShell("closeMenuOverlay")}
             onClick={() => setDrawerOpen(false)}
           />
-          <div
-            className={`relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-zinc-200 bg-white shadow-xl`}
-          >
+          <div className={mobileDrawerPanelClass(variant)}>
             <div
-              className={`flex shrink-0 items-center gap-3 px-4 py-4 ${borderB}`}
+              className={`flex shrink-0 items-center gap-3 px-4 py-4 ${mobileDrawerHeaderBorderClass(variant)}`}
             >
               <span
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
@@ -308,11 +312,11 @@ export function DashboardAppShell({
                 {brandInitial(brandLabel)}
               </span>
               <div className="min-w-0">
-                <span className="block truncate text-sm font-semibold text-zinc-900">
+                <span className={mobileDrawerBrandTitleClass(variant)}>
                   {brandLabel}
                 </span>
                 {brandSubline ? (
-                  <span className="block truncate text-xs text-zinc-500">
+                  <span className={mobileDrawerBrandSublineClass(variant)}>
                     {brandSubline}
                   </span>
                 ) : null}
@@ -328,7 +332,7 @@ export function DashboardAppShell({
               />
             </div>
             {trailing ? (
-              <div className="shrink-0 space-y-3 border-t border-zinc-100 p-4">
+              <div className={mobileDrawerFooterClass(variant)}>
                 {trailing}
               </div>
             ) : null}
