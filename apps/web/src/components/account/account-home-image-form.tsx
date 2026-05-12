@@ -9,29 +9,44 @@ const MAX_BYTES = 5 * 1024 * 1024;
 
 const ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
 
+/** Synthetic base only for parsing same-origin-style paths (`/media/...`). */
+const HOME_PREVIEW_PATH_BASE = new URL("https://preview-path.invalid");
+
 /**
- * Restricts values bound to `<img src>` so stored or reflected strings cannot
- * use executable URL schemes (e.g. `javascript:`). CodeQL: js/xss-through-dom.
+ * Returns a canonical URL string safe for `<img src>` (relative path or
+ * http/https/blob only). Must return a *derived* string so taint does not flow
+ * unchanged from user/server input (CodeQL: js/xss-through-dom).
  */
-function isAllowedHomePreviewSrc(src: string): boolean {
+function sanitizeHomePreviewSrc(src: string): string | null {
   const trimmed = src.trim();
   if (trimmed === "") {
-    return false;
+    return null;
   }
   if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
-    return true;
+    try {
+      const parsed = new URL(trimmed, HOME_PREVIEW_PATH_BASE);
+      if (parsed.origin !== HOME_PREVIEW_PATH_BASE.origin) {
+        return null;
+      }
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch {
+      return null;
+    }
   }
   let url: URL;
   try {
     url = new URL(trimmed);
   } catch {
-    return false;
+    return null;
   }
-  return (
+  if (
     url.protocol === "https:" ||
     url.protocol === "http:" ||
     url.protocol === "blob:"
-  );
+  ) {
+    return url.href;
+  }
+  return null;
 }
 
 function readFileAsHomeImageJsonPayload(
@@ -77,9 +92,7 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
 
   const rawPreview = objectUrl ?? initialPreviewUrl ?? null;
   const previewSrc =
-    rawPreview !== null && isAllowedHomePreviewSrc(rawPreview)
-      ? rawPreview
-      : null;
+    rawPreview !== null ? sanitizeHomePreviewSrc(rawPreview) : null;
 
   function onFileChosen(next: File | null) {
     if (objectUrl !== null) {
