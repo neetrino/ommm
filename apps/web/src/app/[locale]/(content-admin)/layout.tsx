@@ -8,12 +8,12 @@ import {
   requireAuthForLayout,
 } from "@/server/require-role-layout";
 
-const USER_ROLES = new Set<string>(["USER"]);
+const CONTENT_ADMIN_ROLES = new Set<string>(["CONTENT_ADMIN"]);
 
 const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
+  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
 
-export default async function UserMemberLayout({
+export default async function ContentAdminSectionLayout({
   children,
   params,
 }: {
@@ -22,21 +22,23 @@ export default async function UserMemberLayout({
 }) {
   const { locale } = await params;
   const { role } = await requireAuthForLayout(locale);
-  redirectIfRoleNotIn(locale, role, USER_ROLES);
+  redirectIfRoleNotIn(locale, role, CONTENT_ADMIN_ROLES);
   const nav = dashboardNavForRole(role);
 
   return (
     <DashboardAppShell
-      brandHref="/user/home"
-      brandLabel="Member"
-      variant="wellness"
-      contentMaxClass="w-full"
+      brandHref="/content-admin/home"
+      brandLabel="Content"
+      contentMaxClass="max-w-6xl"
       navItems={nav}
       trailing={
         <>
-          <LogoutButton className={`${trailingClass} text-left`} />
-          <Link href="/" className={trailingClass}>
-            Marketing site
+          <LogoutButton className={`${trailingClass} lg:w-auto`} />
+          <Link
+            href="/user/home"
+            className={`${trailingClass} text-center lg:text-left`}
+          >
+            Member zone
           </Link>
         </>
       }

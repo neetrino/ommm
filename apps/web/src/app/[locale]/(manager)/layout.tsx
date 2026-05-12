@@ -1,24 +1,17 @@
 import type { ReactNode } from "react";
+import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
-import { ShellHeader } from "@/components/shell/shell-header";
 import { Link } from "@/i18n/navigation";
+import { dashboardNavForRole } from "@/lib/dashboard-nav";
 import {
   redirectIfRoleNotIn,
   requireAuthForLayout,
 } from "@/server/require-role-layout";
 
-const MANAGER_NAV = [
-  { href: "/manager/home", label: "Home" },
-  { href: "/manager/classes", label: "Classes" },
-  { href: "/manager/bookings", label: "Bookings" },
-  { href: "/manager/waitlists", label: "Waitlists" },
-  { href: "/manager/coaches", label: "Coaches" },
-  { href: "/manager/clients", label: "Clients" },
-  { href: "/manager/profile", label: "Profile" },
-  { href: "/manager/settings", label: "Settings" },
-] as const;
-
 const MANAGER_ROLES = new Set<string>(["MANAGER"]);
+
+const trailingClass =
+  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
 
 export default async function ManagerSectionLayout({
   children,
@@ -30,27 +23,27 @@ export default async function ManagerSectionLayout({
   const { locale } = await params;
   const { role } = await requireAuthForLayout(locale);
   redirectIfRoleNotIn(locale, role, MANAGER_ROLES);
+  const nav = dashboardNavForRole(role);
 
   return (
-    <div className="min-h-screen bg-zinc-100">
-      <ShellHeader
-        brandHref="/manager/home"
-        brandLabel="Manager"
-        contentMaxClass="max-w-6xl"
-        navItems={[...MANAGER_NAV]}
-        trailing={
-          <>
-            <LogoutButton className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:w-auto" />
-            <Link
-              href="/user/home"
-              className="block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 lg:w-auto lg:text-left"
-            >
-              Member zone
-            </Link>
-          </>
-        }
-      />
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">{children}</div>
-    </div>
+    <DashboardAppShell
+      brandHref="/manager/home"
+      brandLabel="Manager"
+      contentMaxClass="max-w-6xl"
+      navItems={nav}
+      trailing={
+        <>
+          <LogoutButton className={`${trailingClass} lg:w-auto`} />
+          <Link
+            href="/user/home"
+            className={`${trailingClass} text-center lg:text-left`}
+          >
+            Member zone
+          </Link>
+        </>
+      }
+    >
+      {children}
+    </DashboardAppShell>
   );
 }

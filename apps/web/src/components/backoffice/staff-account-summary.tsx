@@ -9,7 +9,7 @@ type MeRow = {
   };
 };
 
-type Variant = "admin" | "coach" | "manager";
+type Variant = "admin" | "contentAdmin" | "coach" | "manager";
 
 const VARIANT_COPY: Record<
   Variant,
@@ -18,6 +18,10 @@ const VARIANT_COPY: Record<
   admin: {
     title: "Admin profile",
     description: "Your backoffice account summary.",
+  },
+  contentAdmin: {
+    title: "Content editor profile",
+    description: "Your content workspace account summary.",
   },
   coach: {
     title: "Coach profile",
