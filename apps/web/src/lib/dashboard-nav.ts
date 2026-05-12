@@ -13,7 +13,6 @@ export type DashboardNavIcon =
   | "gift"
   | "user"
   | "bell"
-  | "settings"
   | "barChart"
   | "users"
   | "userCheck"
@@ -36,9 +35,8 @@ const USER_NAV: readonly DashboardNavItem[] = [
   { href: "/user/bookings", label: "Bookings", icon: "calendar" },
   { href: "/user/memberships", label: "Memberships", icon: "tag" },
   { href: "/user/gift-cards", label: "Gift cards", icon: "gift" },
-  { href: "/user/profile", label: "Profile", icon: "user" },
   { href: "/user/notifications", label: "Notifications", icon: "bell" },
-  { href: "/user/settings", label: "Settings", icon: "settings" },
+  { href: "/user/profile", label: "Profile", icon: "user" },
 ];
 
 const COACH_NAV: readonly DashboardNavItem[] = [
@@ -46,7 +44,6 @@ const COACH_NAV: readonly DashboardNavItem[] = [
   { href: "/coach/analytics", label: "Analytics", icon: "barChart" },
   { href: "/coach/salary", label: "Salary", icon: "wallet" },
   { href: "/coach/profile", label: "Profile", icon: "user" },
-  { href: "/coach/settings", label: "Settings", icon: "settings" },
 ];
 
 const MANAGER_NAV: readonly DashboardNavItem[] = [
@@ -57,7 +54,6 @@ const MANAGER_NAV: readonly DashboardNavItem[] = [
   { href: "/manager/coaches", label: "Coaches", icon: "userCheck" },
   { href: "/manager/clients", label: "Clients", icon: "users" },
   { href: "/manager/profile", label: "Profile", icon: "user" },
-  { href: "/manager/settings", label: "Settings", icon: "settings" },
 ];
 
 const CONTENT_ADMIN_NAV: readonly DashboardNavItem[] = [
@@ -79,7 +75,6 @@ const ADMIN_NAV: readonly DashboardNavItem[] = [
   { href: "/admin/reports", label: "Reports", icon: "pieChart" },
   { href: "/admin/content", label: "Content", icon: "fileText" },
   { href: "/admin/profile", label: "Profile", icon: "user" },
-  { href: "/admin/settings", label: "Settings", icon: "settings" },
 ];
 
 /** Sidebar items for the authenticated dashboard role (Prisma `Role`). */

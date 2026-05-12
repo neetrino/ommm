@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/account/settings",
-        destination: "/:locale/user/settings",
+        destination: "/:locale/user/profile",
         permanent: false,
       },
     ];

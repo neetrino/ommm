@@ -1,6 +1,12 @@
 import { headers } from "next/headers";
-import { Link } from "@/i18n/navigation";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
+import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
+import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
+import {
+  AccountPageFrame,
+  AccountSection,
+} from "@/components/layout/account-page-frame";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -9,6 +15,13 @@ type MeResponse = {
     name: string | null;
     phone: string | null;
     locale: string;
+    homeImageUrl?: string | null;
+  };
+  notificationPrefs: {
+    bookingReminders: boolean;
+    waitlistAlerts: boolean;
+    promotions: boolean;
+    communityUpdates: boolean;
   };
 };
 
@@ -24,35 +37,49 @@ export default async function UserProfilePage() {
     );
   }
 
-  const { user } = res.data;
+  const { user, notificationPrefs } = res.data;
+  const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null);
 
   return (
     <AccountPageFrame
       title="Profile"
-      description="Your studio profile. Edit details and preferences in Settings."
+      description="Your account details, security, home image, and notification preferences."
     >
-      <div className="max-w-xl space-y-4 rounded-[28px] border border-white/70 bg-white/70 p-8 backdrop-blur-md">
-        <dl className="space-y-3 text-sm">
-          <div>
-            <dt className="text-sage-500">Email</dt>
-            <dd className="font-medium text-sage-800">{user.email}</dd>
+      <div className="max-w-4xl space-y-10">
+        <AccountSection title="Account information">
+          <dl className="space-y-3 text-sm">
+            <div>
+              <dt className="text-sage-500">Email</dt>
+              <dd className="font-medium text-sage-800">{user.email}</dd>
+            </div>
+            <div>
+              <dt className="text-sage-500">Name</dt>
+              <dd className="text-sage-700">{user.name ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-sage-500">Phone</dt>
+              <dd className="text-sage-700">{user.phone ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-sage-500">Locale</dt>
+              <dd className="text-sage-700">{user.locale}</dd>
+            </div>
+          </dl>
+        </AccountSection>
+
+        <AccountSection title="Security">
+          <AccountChangePasswordForm />
+        </AccountSection>
+
+        <AccountSection title="Home image">
+          <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
+        </AccountSection>
+
+        <AccountSection title="Preferences">
+          <div className="max-w-md">
+            <NotificationPrefsForm initial={notificationPrefs} />
           </div>
-          <div>
-            <dt className="text-sage-500">Name</dt>
-            <dd className="text-sage-700">{user.name ?? "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-sage-500">Phone</dt>
-            <dd className="text-sage-700">{user.phone ?? "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-sage-500">Locale</dt>
-            <dd className="text-sage-700">{user.locale}</dd>
-          </div>
-        </dl>
-        <Link href="/user/settings" className="ommm-cta-primary mt-4 inline-flex">
-          Open settings
-        </Link>
+        </AccountSection>
       </div>
     </AccountPageFrame>
   );
