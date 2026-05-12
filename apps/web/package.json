@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "test:e2e": "playwright test"
+    "dev": "pnpm exec next dev",
+    "build": "pnpm exec next build",
+    "start": "pnpm exec next start",
+    "lint": "pnpm exec eslint",
+    "test:e2e": "pnpm exec playwright test"
   },
   "dependencies": {
     "next": "16.2.4",
