@@ -35,7 +35,12 @@ const USER_TABS: RoleTabItem[] = [
     href: "/user/schedule",
     ...ICON.schedule,
   },
-  { key: "plans", label: "Plans", href: "/user/plans", ...ICON.plans },
+  {
+    key: "progress",
+    label: "Progress",
+    href: "/user/progress",
+    ...ICON.classes,
+  },
   {
     key: "profile",
     label: "Profile",

@@ -9,7 +9,10 @@ import {
 
 const MANAGER_NAV = [
   { href: "/manager/home", label: "Home" },
+  { href: "/manager/classes", label: "Classes" },
   { href: "/manager/bookings", label: "Bookings" },
+  { href: "/manager/waitlists", label: "Waitlists" },
+  { href: "/manager/coaches", label: "Coaches" },
   { href: "/manager/clients", label: "Clients" },
   { href: "/manager/profile", label: "Profile" },
   { href: "/manager/settings", label: "Settings" },

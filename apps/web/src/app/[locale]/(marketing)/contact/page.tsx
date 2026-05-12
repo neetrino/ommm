@@ -1,98 +1,156 @@
-"use client";
-
-import { useState } from "react";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
-import { ApiError, apiFetch } from "@/lib/api";
+import { ContactMessageForm } from "@/components/marketing/contact-message-form";
+import { serverApiJson } from "@/lib/server-api";
 
-export default function ContactPage() {
-  const [status, setStatus] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+type StudioPublic = {
+  studioName: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  whatsappUrl: string | null;
+  address: string | null;
+  mapEmbedUrl: string | null;
+  workingHours: string | null;
+  socialLinksJson: string | null;
+};
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    setStatus(null);
-    setPending(true);
-    try {
-      await apiFetch<{ ok: boolean }>("/contact", {
-        method: "POST",
-        body: JSON.stringify({
-          name: form.get("name"),
-          phone: form.get("phone"),
-          subject: form.get("subject") || undefined,
-          message: form.get("message"),
-        }),
-      });
-      setStatus("Sent");
-      e.currentTarget.reset();
-    } catch (err) {
-      setStatus(err instanceof ApiError ? err.message : "Error");
-    } finally {
-      setPending(false);
-    }
+function parseSocialLinks(raw: string | null): { label: string; url: string }[] {
+  if (raw === null || raw.trim() === "") {
+    return [];
   }
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .filter(
+        (row): row is { label: string; url: string } =>
+          typeof row === "object" &&
+          row !== null &&
+          "label" in row &&
+          "url" in row &&
+          typeof (row as { label: unknown }).label === "string" &&
+          typeof (row as { url: unknown }).url === "string",
+      )
+      .map((row) => ({ label: row.label, url: row.url }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function ContactPage() {
+  const studioRes = await serverApiJson<StudioPublic>("/studio", "");
+  const studio = studioRes.ok ? studioRes.data : null;
+  const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
 
   return (
     <MarketingPageFrame
       title="Contact"
       lede="Send a message to the studio team. We read every note and reply by phone or email when appropriate."
     >
-      <form
-        onSubmit={onSubmit}
-        className="ommm-card mt-12 flex w-full max-w-lg flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8"
-      >
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">Name</span>
-          <input
-            name="name"
-            required
-            autoComplete="name"
-            className="ommm-input"
+      {studio !== null ? (
+        <section className="mt-12 grid gap-8 lg:grid-cols-2">
+          <div className="ommm-card p-6 text-sm text-sage-700 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
+            <h2 className="ommm-h3 text-sage-800">Studio</h2>
+            <dl className="mt-4 space-y-3">
+              {studio.contactPhone !== null ? (
+                <div>
+                  <dt className="text-xs font-semibold uppercase text-sage-500">
+                    Phone
+                  </dt>
+                  <dd>
+                    <a
+                      href={`tel:${studio.contactPhone.replace(/\s+/g, "")}`}
+                      className="text-sage-800 underline-offset-2 hover:underline"
+                    >
+                      {studio.contactPhone}
+                    </a>
+                  </dd>
+                </div>
+              ) : null}
+              {studio.contactEmail !== null ? (
+                <div>
+                  <dt className="text-xs font-semibold uppercase text-sage-500">
+                    Email
+                  </dt>
+                  <dd>
+                    <a
+                      href={`mailto:${studio.contactEmail}`}
+                      className="text-sage-800 underline-offset-2 hover:underline"
+                    >
+                      {studio.contactEmail}
+                    </a>
+                  </dd>
+                </div>
+              ) : null}
+              {studio.whatsappUrl !== null ? (
+                <div>
+                  <dt className="text-xs font-semibold uppercase text-sage-500">
+                    WhatsApp
+                  </dt>
+                  <dd>
+                    <a
+                      href={studio.whatsappUrl}
+                      className="text-sage-800 underline-offset-2 hover:underline"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      Chat on WhatsApp
+                    </a>
+                  </dd>
+                </div>
+              ) : null}
+              {studio.address !== null ? (
+                <div>
+                  <dt className="text-xs font-semibold uppercase text-sage-500">
+                    Address
+                  </dt>
+                  <dd className="whitespace-pre-line">{studio.address}</dd>
+                </div>
+              ) : null}
+              {studio.workingHours !== null ? (
+                <div>
+                  <dt className="text-xs font-semibold uppercase text-sage-500">
+                    Hours
+                  </dt>
+                  <dd className="whitespace-pre-line">{studio.workingHours}</dd>
+                </div>
+              ) : null}
+            </dl>
+            {social.length > 0 ? (
+              <ul className="mt-6 flex flex-wrap gap-3">
+                {social.map((s) => (
+                  <li key={s.url}>
+                    <a
+                      href={s.url}
+                      className="ommm-cta-ghost text-sm"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+          <div>
+            <ContactMessageForm formClassName="ommm-card flex w-full max-w-lg flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8" />
+          </div>
+        </section>
+      ) : (
+        <ContactMessageForm />
+      )}
+      {studio !== null &&
+      studio.mapEmbedUrl !== null &&
+      studio.mapEmbedUrl.trim() !== "" ? (
+        <section className="mt-12">
+          <h2 className="ommm-h3 text-sage-800">Map</h2>
+          <div
+            className="mt-4 overflow-hidden rounded-[24px] border border-white/60 bg-white shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]"
+            dangerouslySetInnerHTML={{ __html: studio.mapEmbedUrl }}
           />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">Phone</span>
-          <input
-            name="phone"
-            required
-            autoComplete="tel"
-            className="ommm-input"
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">Subject</span>
-          <input name="subject" autoComplete="off" className="ommm-input" />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">Message</span>
-          <textarea
-            name="message"
-            required
-            rows={4}
-            className="ommm-input min-h-[120px] resize-y"
-          />
-        </label>
-        <button
-          type="submit"
-          className="ommm-cta-primary mt-2 w-full sm:w-auto"
-          disabled={pending}
-        >
-          {pending ? "Sending…" : "Send"}
-        </button>
-      </form>
-      {status ? (
-        <p
-          className={
-            status === "Sent"
-              ? "mt-4 text-sm font-medium text-sage-800"
-              : "mt-4 text-sm text-red-600"
-          }
-          role="status"
-        >
-          {status === "Sent"
-            ? "Thank you — your message was sent."
-            : status}
-        </p>
+        </section>
       ) : null}
     </MarketingPageFrame>
   );

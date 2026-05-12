@@ -178,11 +178,15 @@ export function WaitlistSection({ items }: WaitlistSectionProps) {
   return (
     <View style={styles.section}>
       <Text style={styles.title}>Waitlist</Text>
-      <View style={styles.grid}>
-        {items.map((item) => (
-          <WaitlistGlassCard key={item.id} item={item} />
-        ))}
-      </View>
+      {items.length === 0 ? (
+        <Text style={styles.empty}>You have no waitlists</Text>
+      ) : (
+        <View style={styles.grid}>
+          {items.map((item) => (
+            <WaitlistGlassCard key={item.id} item={item} />
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -198,6 +202,12 @@ const styles = StyleSheet.create({
     fontSize: typography.sectionTitle,
     lineHeight: 24,
     color: colors.primaryGreen,
+  },
+  empty: {
+    fontFamily: fontFamilies.manrope.regular,
+    fontSize: typography.bodySmall,
+    lineHeight: 20,
+    color: colors.bodyMuted,
   },
   grid: {
     flexDirection: "row",

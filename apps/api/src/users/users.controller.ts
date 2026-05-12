@@ -17,6 +17,7 @@ import { HOME_IMAGE_MAX_BYTES } from './constants/home-image.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { HomeImageJsonDto } from './dto/home-image-json.dto';
 import { NotificationPrefsDto } from './dto/notification-prefs.dto';
+import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UsersService } from './users.service';
 
@@ -73,5 +74,13 @@ export class UsersController {
     @Body() dto: NotificationPrefsDto,
   ) {
     return this.users.updateNotificationPrefs(user.id, dto);
+  }
+
+  @Post('me/push-token')
+  registerPush(
+    @CurrentUser() user: { id: string },
+    @Body() dto: RegisterPushTokenDto,
+  ) {
+    return this.users.registerPushToken(user.id, dto.token, dto.platform);
   }
 }

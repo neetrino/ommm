@@ -29,6 +29,8 @@ export default async function MembershipsMarketingPage({
     maximumFractionDigits: 0,
   });
 
+  const activePlans = res.ok ? res.data.filter((p) => p.isActive) : [];
+
   return (
     <MarketingPageFrame
       title={m("membershipsPageTitle")}
@@ -38,7 +40,7 @@ export default async function MembershipsMarketingPage({
         <p className="app-alert-warn mt-12" role="status">
           {m("membershipsError")}
         </p>
-      ) : res.data.filter((p) => p.isActive).length === 0 ? (
+      ) : activePlans.length === 0 ? (
         <p
           className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
           role="status"
@@ -46,10 +48,9 @@ export default async function MembershipsMarketingPage({
           {m("membershipsEmpty")}
         </p>
       ) : (
-        <ul className="mt-12 grid gap-6 lg:grid-cols-2">
-          {res.data
-            .filter((p) => p.isActive)
-            .map((plan) => {
+        <>
+          <ul className="mt-12 grid gap-6 lg:grid-cols-2">
+            {activePlans.map((plan) => {
               const amount = currency.format(plan.priceCents / 100);
               const sessionsLabel = plan.isUnlimited
                 ? m("membershipsSessionsUnlimited")
@@ -96,7 +97,75 @@ export default async function MembershipsMarketingPage({
                 </li>
               );
             })}
-        </ul>
+          </ul>
+          <section className="mt-16">
+            <h2 className="ommm-h2 text-sage-800">Compare plans</h2>
+            <div className="mt-6 overflow-x-auto rounded-[24px] border border-white/60 bg-white/80 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]">
+              <table className="min-w-full text-left text-sm text-sage-700">
+                <thead className="border-b border-sage-200/80 bg-sage-50/80 text-xs uppercase text-sage-500">
+                  <tr>
+                    <th className="px-4 py-3">Plan</th>
+                    <th className="px-4 py-3">Price</th>
+                    <th className="px-4 py-3">Period</th>
+                    <th className="px-4 py-3">Sessions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activePlans.map((plan) => (
+                    <tr key={plan.id} className="border-b border-sage-100/80">
+                      <td className="px-4 py-3 font-medium text-sage-900">
+                        {plan.name}
+                      </td>
+                      <td className="px-4 py-3 tabular-nums">
+                        {currency.format(plan.priceCents / 100)}
+                      </td>
+                      <td className="px-4 py-3">{plan.periodDays} days</td>
+                      <td className="px-4 py-3">
+                        {plan.isUnlimited
+                          ? m("membershipsSessionsUnlimited")
+                          : m("membershipsSessionsCount", {
+                              count: plan.sessionsPerMonth ?? 0,
+                            })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section className="mt-16 max-w-3xl">
+            <h2 className="ommm-h2 text-sage-800">FAQ</h2>
+            <dl className="mt-6 space-y-6 text-sm text-sage-700">
+              <div>
+                <dt className="font-semibold text-sage-800">
+                  Can I pause my membership?
+                </dt>
+                <dd className="mt-1 text-sage-600">
+                  Yes — members can pause from their account when the plan
+                  supports it; the studio team can also help from the desk.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-sage-800">
+                  How does billing work?
+                </dt>
+                <dd className="mt-1 text-sage-600">
+                  Checkout runs through Stripe when enabled in your environment.
+                  You will see successful charges in your account payment history.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-sage-800">
+                  What if a class is full?
+                </dt>
+                <dd className="mt-1 text-sage-600">
+                  Join the waitlist from the schedule — we notify you when a spot
+                  opens, with a limited time to confirm.
+                </dd>
+              </div>
+            </dl>
+          </section>
+        </>
       )}
     </MarketingPageFrame>
   );

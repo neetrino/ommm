@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Express } from 'express';
+import { Prisma } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -301,5 +302,22 @@ export class UsersService {
         `Could not remove old upload file (${storedPublicPath}): ${err instanceof Error ? err.message : String(err)}`,
       );
     }
+  }
+
+  async registerPushToken(
+    userId: string,
+    token: string,
+    platform: string,
+  ): Promise<{ ok: boolean }> {
+    await this.prisma.$executeRaw(
+      Prisma.sql`
+        INSERT INTO "PushDeviceToken" ("id","userId","token","platform","createdAt","updatedAt")
+        VALUES (${randomUUID()}, ${userId}, ${token}, ${platform}, NOW(), NOW())
+        ON CONFLICT ("userId", "token") DO UPDATE SET
+          "platform" = EXCLUDED."platform",
+          "updatedAt" = NOW()
+      `,
+    );
+    return { ok: true };
   }
 }

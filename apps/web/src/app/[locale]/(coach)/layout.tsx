@@ -9,6 +9,8 @@ import {
 
 const COACH_NAV = [
   { href: "/coach/home", label: "Schedule" },
+  { href: "/coach/analytics", label: "Analytics" },
+  { href: "/coach/salary", label: "Salary" },
   { href: "/coach/profile", label: "Profile" },
   { href: "/coach/settings", label: "Settings" },
 ] as const;

@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { MembershipCheckoutButton } from "@/components/account/membership-checkout-button";
+import { MembershipLifecycleButtons } from "@/components/account/membership-lifecycle-buttons";
 import {
   AccountPageFrame,
   AccountSection,
@@ -68,6 +69,10 @@ export default async function UserMembershipsPage() {
                   <p className="text-xs text-sage-500/90">
                     Renews / ends {new Date(m.currentPeriodEnd).toDateString()}
                   </p>
+                  <MembershipLifecycleButtons
+                    membershipId={m.id}
+                    status={m.status}
+                  />
                 </li>
               ))}
             </ul>

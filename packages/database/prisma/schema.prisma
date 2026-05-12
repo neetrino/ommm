@@ -107,6 +107,7 @@ model User {
   notificationPrefs NotificationPreference?
   bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
   authTokens         AuthToken[]
+  pushDeviceTokens   PushDeviceToken[]
 }
 
 model AuthToken {
@@ -119,6 +120,19 @@ model AuthToken {
   createdAt DateTime      @default(now())
 
   @@index([userId, type])
+}
+
+model PushDeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token])
+  @@index([userId])
 }
 
 model ContactMessage {

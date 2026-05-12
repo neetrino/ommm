@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
   isAdminDashboardRole,
@@ -35,6 +36,10 @@ export default async function AdminHomePage({
 
   if (!isAdminDashboardRole(meRes.data.user.role)) {
     redirectToRoleHome(locale, meRes.data.user.role);
+  }
+
+  if (meRes.data.user.role === "CONTENT_ADMIN") {
+    redirect(`/${locale}/admin/content`);
   }
 
   return <AdminDashboardMetrics />;
