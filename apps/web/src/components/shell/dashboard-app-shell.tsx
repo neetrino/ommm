@@ -102,7 +102,7 @@ export function DashboardAppShell({
           <div
             className={
               sidebarCollapsed
-                ? `flex flex-col items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
+                ? `flex flex-col-reverse items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
                 : `flex items-start gap-2 px-2 py-4 ${borderB} ${sidebarBrandStripClass(variant)}`
             }
           >
@@ -206,7 +206,7 @@ export function DashboardAppShell({
               {sidebarCollapsed ? (
                 <button
                   type="button"
-                  className={`${collapseToggleClass(variant)} mt-0 hidden lg:inline-flex`}
+                  className={`${collapseToggleClass(variant)} !mt-0`}
                   aria-expanded={false}
                   aria-label="Expand sidebar"
                   onClick={() => persistCollapsed(false)}
