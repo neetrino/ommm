@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
 import { MarketingSiteFooter } from "@/components/marketing/marketing-site-footer";
 import { MarketingSiteHeader } from "@/components/marketing/marketing-site-header";
 import { routing } from "@/i18n/routing";
@@ -19,7 +20,7 @@ export default async function MarketingLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
-      <MarketingSiteHeader />
+      <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
       <main className="flex-1">{children}</main>
       <MarketingSiteFooter locale={locale} />
     </div>

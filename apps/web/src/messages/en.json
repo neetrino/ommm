@@ -14,6 +14,7 @@
     "coaches": "Coaches",
     "memberships": "Memberships",
     "explore": "Explore",
+    "schedule": "Schedule",
     "contact": "Contact"
   },
   "footer": {
@@ -174,7 +175,10 @@
     "homeFeaturesTitle": "Everything in one place",
     "homeFeaturesLead": "A single flow from discovery to booking — clear on every screen size.",
     "featureCardCta": "Learn more",
-    "closingPrimaryCta": "Create account"
+    "closingPrimaryCta": "Create account",
+    "scheduleTitle": "Schedule",
+    "scheduleLead": "Weekly class times and booking — sign in to open the live calendar.",
+    "scheduleP1": "Members see real-time availability, coach details, and waitlist options. Create an account to reserve your mat and keep your practice organized."
   },
   "dashboard": {
     "shell": {
