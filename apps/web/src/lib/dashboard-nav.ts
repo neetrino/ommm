@@ -37,6 +37,11 @@ export type DashboardNavItem = {
   icon: DashboardNavIcon;
 };
 
+export type DashboardRoleNotificationRoute = {
+  href: string;
+  labelKey: string;
+};
+
 /** Member (USER): Home, Classes, My Bookings, My Account areas — no top-level Notifications tab per CRM. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/home", icon: "home", labelKey: "home" },
@@ -86,7 +91,6 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
   { href: "/admin/memberships", icon: "tag", labelKey: "memberships" },
   { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards" },
-  { href: "/admin/notifications", icon: "send", labelKey: "notifications" },
   { href: "/admin/reports", icon: "pieChart", labelKey: "reports" },
   { href: "/admin/content", icon: "fileText", labelKey: "content" },
   { href: "/admin/profile", icon: "user", labelKey: "profile" },
@@ -109,5 +113,25 @@ export function dashboardNavDefinitionsForRole(
       return [...ADMIN_NAV];
     default:
       return [];
+  }
+}
+
+/** Notifications entrypoint route in header for the authenticated dashboard role. */
+export function dashboardNotificationRouteForRole(
+  role: string,
+): DashboardRoleNotificationRoute | null {
+  switch (role) {
+    case "USER":
+      return { href: "/user/notifications", labelKey: "notifications" };
+    case "COACH":
+      return { href: "/coach/notifications", labelKey: "notifications" };
+    case "MANAGER":
+      return { href: "/manager/notifications", labelKey: "notifications" };
+    case "CONTENT_ADMIN":
+      return { href: "/content-admin/notifications", labelKey: "notifications" };
+    case "ADMIN":
+      return { href: "/admin/notifications", labelKey: "notifications" };
+    default:
+      return null;
   }
 }
