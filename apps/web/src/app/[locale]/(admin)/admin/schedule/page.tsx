@@ -8,6 +8,12 @@ import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types"
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
+type ClassTypeRow = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 function formatTimeRange(row: AdminScheduleItem): string {
   if (row.endTime !== null) {
     return `${row.startTime} - ${row.endTime}`;
@@ -26,22 +32,32 @@ export default async function AdminSchedulePage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<AdminScheduleItem[]>("/schedule/admin", cookie);
+  const [scheduleRes, classTypesRes] = await Promise.all([
+    serverApiJson<AdminScheduleItem[]>("/schedule/admin", cookie),
+    serverApiJson<ClassTypeRow[]>("/classes/types", cookie),
+  ]);
 
-  if (!res.ok) {
+  if (!scheduleRes.ok) {
     return (
       <div className="app-alert-warn max-w-xl">
-        {res.status === 401 || res.status === 403
+        {scheduleRes.status === 401 || scheduleRes.status === 403
           ? t("errorAuth")
-          : t("errorLoad", { status: res.status })}
+          : t("errorLoad", { status: scheduleRes.status })}
       </div>
     );
   }
 
+  const classTypeOptions =
+    classTypesRes.ok && classTypesRes.data.length > 0
+      ? classTypesRes.data.map((row) => row.name)
+      : Array.from(new Set(scheduleRes.data.map((row) => row.classType))).sort((a, b) =>
+          a.localeCompare(b),
+        );
+
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
       <Suspense fallback={null}>
-        <AdminScheduleShell>
+        <AdminScheduleShell classTypeOptions={classTypeOptions}>
           <div className={adminChrome.tableWrap}>
             <table className={`${adminChrome.table} table-fixed min-w-[50rem]`}>
               <colgroup>
@@ -67,14 +83,14 @@ export default async function AdminSchedulePage({
                 </tr>
               </thead>
               <tbody>
-                {res.data.length === 0 ? (
+                {scheduleRes.data.length === 0 ? (
                   <tr className={adminChrome.tr}>
                     <td className={adminChrome.tdMuted} colSpan={8}>
                       {t("empty")}
                     </td>
                   </tr>
                 ) : (
-                  res.data.map((row) => (
+                  scheduleRes.data.map((row) => (
                     <tr key={row.id} className={adminChrome.tr}>
                       <td className={adminChrome.tdStrong}>{row.className}</td>
                       <td className={adminChrome.td}>{t(`days.${row.dayOfWeek}`)}</td>
@@ -86,7 +102,10 @@ export default async function AdminSchedulePage({
                         {row.isActive ? t("statusActive") : t("statusInactive")}
                       </td>
                       <td className={`${adminChrome.td} text-center`}>
-                        <AdminScheduleRowActions item={row} />
+                        <AdminScheduleRowActions
+                          item={row}
+                          classTypeOptions={classTypeOptions}
+                        />
                       </td>
                     </tr>
                   ))

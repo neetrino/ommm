@@ -32,10 +32,14 @@ function AddScheduleGlyph({ className }: { className?: string }) {
 }
 
 type AdminScheduleShellProps = {
+  classTypeOptions: readonly string[];
   children: ReactNode;
 };
 
-export function AdminScheduleShell({ children }: AdminScheduleShellProps) {
+export function AdminScheduleShell({
+  classTypeOptions,
+  children,
+}: AdminScheduleShellProps) {
   const t = useTranslations("adminPages.schedule");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -196,6 +200,7 @@ export function AdminScheduleShell({ children }: AdminScheduleShellProps) {
 
             <AdminScheduleForm
               mode="create"
+              classTypeOptions={classTypeOptions}
               onSaved={onScheduleCreated}
               onCancel={closeModal}
             />

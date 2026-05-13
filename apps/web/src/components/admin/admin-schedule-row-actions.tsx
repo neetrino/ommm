@@ -72,9 +72,13 @@ function CloseGlyph({ className }: { className?: string }) {
 
 type AdminScheduleRowActionsProps = {
   item: AdminScheduleItem;
+  classTypeOptions: readonly string[];
 };
 
-export function AdminScheduleRowActions({ item }: AdminScheduleRowActionsProps) {
+export function AdminScheduleRowActions({
+  item,
+  classTypeOptions,
+}: AdminScheduleRowActionsProps) {
   const t = useTranslations("adminPages.schedule");
   const router = useRouter();
   const pathname = usePathname();
@@ -290,6 +294,7 @@ export function AdminScheduleRowActions({ item }: AdminScheduleRowActionsProps) 
 
             <AdminScheduleForm
               mode="edit"
+              classTypeOptions={classTypeOptions}
               item={item}
               onSaved={onSaved}
               onCancel={closeModal}

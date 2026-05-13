@@ -17,6 +17,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 const MAX_CLASS_NAME_LENGTH = 120;
 const MAX_INSTRUCTOR_LENGTH = 120;
 const MAX_CLASS_TYPE_LENGTH = 80;
+const MAX_TYPE_SLUG_LENGTH = 120;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const MIN_SPOTS = 1;
 const MIN_DURATION = 1;
@@ -49,9 +50,16 @@ type FormState = {
 
 type AdminScheduleFormProps = {
   mode: "create" | "edit";
+  classTypeOptions: readonly string[];
   item?: AdminScheduleItem;
   onSaved: () => void;
   onCancel: () => void;
+};
+
+type ClassTypeCreateResponse = {
+  id: string;
+  name: string;
+  slug: string;
 };
 
 function initialState(item?: AdminScheduleItem): FormState {
@@ -149,6 +157,7 @@ function payloadFromState(
 
 export function AdminScheduleForm({
   mode,
+  classTypeOptions,
   item,
   onSaved,
   onCancel,
@@ -157,7 +166,74 @@ export function AdminScheduleForm({
   const [form, setForm] = useState<FormState>(() => initialState(item));
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [typePending, setTypePending] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeError, setNewTypeError] = useState<string | null>(null);
+  const [typeOptions, setTypeOptions] = useState<string[]>(() => [...classTypeOptions]);
   const submitLockRef = useRef(false);
+
+  function buildSlugFromTypeName(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, MAX_TYPE_SLUG_LENGTH);
+  }
+
+  async function onAddType() {
+    if (typePending || pending) {
+      return;
+    }
+    const normalized = newTypeName.trim();
+    setNewTypeError(null);
+
+    if (normalized.length === 0) {
+      setNewTypeError(t("form.errors.classTypeRequired"));
+      return;
+    }
+    if (normalized.length > MAX_CLASS_TYPE_LENGTH) {
+      setNewTypeError(t("form.errors.classTypeTooLong"));
+      return;
+    }
+    const alreadyExists = typeOptions.some(
+      (option) => option.toLowerCase() === normalized.toLowerCase(),
+    );
+    if (alreadyExists) {
+      setForm((prev) => ({ ...prev, classType: normalized }));
+      setNewTypeName("");
+      return;
+    }
+
+    const slug = buildSlugFromTypeName(normalized);
+    if (slug.length === 0) {
+      setNewTypeError(t("form.errors.classTypeRequired"));
+      return;
+    }
+
+    setTypePending(true);
+    try {
+      const created = await apiFetch<ClassTypeCreateResponse>("/classes/types", {
+        method: "POST",
+        body: JSON.stringify({
+          name: normalized,
+          slug,
+        }),
+      });
+      setTypeOptions((prev) => [...prev, created.name].sort((a, b) => a.localeCompare(b)));
+      setForm((prev) => ({ ...prev, classType: created.name }));
+      setNewTypeName("");
+      setNewTypeError(null);
+    } catch (requestError) {
+      setNewTypeError(
+        requestError instanceof ApiError
+          ? requestError.message
+          : t("messages.genericError"),
+      );
+    } finally {
+      setTypePending(false);
+    }
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -246,18 +322,55 @@ export function AdminScheduleForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm font-medium text-sage-700">{t("form.classType")}</span>
-          <input
+          <select
             name="classType"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-            maxLength={MAX_CLASS_TYPE_LENGTH}
+            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
             value={form.classType}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, classType: event.target.value }))
             }
             disabled={pending}
             required
-          />
+          >
+            <option value="">{t("form.selectClassTypePlaceholder")}</option>
+            {typeOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </label>
+        <div className="space-y-1">
+          <span className="text-sm font-medium text-sage-700">{t("form.addClassTypeLabel")}</span>
+          <div className="flex items-center gap-2">
+            <input
+              name="newClassType"
+              className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+              maxLength={MAX_CLASS_TYPE_LENGTH}
+              value={newTypeName}
+              onChange={(event) => setNewTypeName(event.target.value)}
+              placeholder={t("form.newClassTypePlaceholder")}
+              disabled={pending || typePending}
+            />
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="h-10 rounded-xl px-3 text-xs"
+              onClick={() => {
+                void onAddType();
+              }}
+              disabled={pending || typePending}
+            >
+              {typePending ? t("form.addingType") : t("form.addTypeButton")}
+            </OmmButton>
+          </div>
+          {newTypeError !== null ? (
+            <p className="text-xs text-red-800">{newTypeError}</p>
+          ) : null}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm font-medium text-sage-700">{t("form.day")}</span>
           <select
