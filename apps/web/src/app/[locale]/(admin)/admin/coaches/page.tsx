@@ -11,6 +11,7 @@ type CoachAdminRow = {
   id: string;
   bio: string | null;
   specialization: string | null;
+  age: number | null;
   user: {
     name: string | null;
     lastName: string | null;
@@ -76,8 +77,11 @@ export default async function AdminCoachesPage({
                     <td className={adminChrome.td}>
                       <AdminCoachActions
                         coachId={c.id}
-                        initialSpecialization={c.specialization ?? ""}
-                        initialBio={c.bio ?? ""}
+                        initialEmail={c.user.email}
+                        initialName={c.user.name ?? ""}
+                        initialLastName={c.user.lastName ?? ""}
+                        initialPhone={c.user.phone ?? ""}
+                        initialAge={c.age}
                       />
                     </td>
                   </tr>
