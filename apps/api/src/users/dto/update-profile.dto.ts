@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsDateString,
   IsIn,
   IsOptional,
@@ -7,6 +8,11 @@ import {
 } from 'class-validator';
 
 export class UpdateProfileDto {
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(320)
+  email?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(120)

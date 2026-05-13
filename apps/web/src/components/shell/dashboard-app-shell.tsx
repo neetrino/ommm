@@ -7,6 +7,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import type {
   DashboardNavDefinition,
   DashboardNavItem,
+  DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
@@ -52,6 +53,7 @@ export type DashboardAppShellProps = {
   brandSubline?: string;
   navRole: DashboardNavRole;
   navDefinitions: DashboardNavDefinition[];
+  notificationRoute: DashboardRoleNotificationRoute | null;
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
   trailing?: ReactNode;
@@ -64,6 +66,7 @@ export function DashboardAppShell({
   brandSubline,
   navRole,
   navDefinitions,
+  notificationRoute,
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
   trailing,
@@ -103,6 +106,32 @@ export function DashboardAppShell({
         : "";
     return { title: best.label, subtitle };
   }, [navItems, pathname, tShell, tSub]);
+
+  const notificationsLabel = useMemo(() => {
+    if (!notificationRoute) return null;
+    return (tNav as (key: string) => string)(
+      `${navRole}.${notificationRoute.labelKey}`,
+    );
+  }, [navRole, notificationRoute, tNav]);
+
+  const notificationsActive =
+    notificationRoute !== null && pathMatchesNav(pathname, notificationRoute.href);
+
+  const notificationButtonClass = useMemo(() => {
+    if (variant === "indigo") {
+      return notificationsActive
+        ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-indigo-300 bg-indigo-100 text-indigo-950 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2"
+        : "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-900 shadow-sm transition-colors hover:bg-indigo-50 hover:text-indigo-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2";
+    }
+    if (variant === "wellness") {
+      return notificationsActive
+        ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/90 bg-white text-sage-900 shadow-sm backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+        : "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+    }
+    return notificationsActive
+      ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-300 bg-zinc-100 text-zinc-900 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+      : "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+  }, [notificationsActive, variant]);
 
   useEffect(() => {
     try {
@@ -275,6 +304,29 @@ export function DashboardAppShell({
                 dashboardVariant={variant}
                 onAfterSelect={() => setDrawerOpen(false)}
               />
+
+              {notificationRoute && notificationsLabel ? (
+                <Link
+                  href={notificationRoute.href}
+                  className={notificationButtonClass}
+                  aria-label="Notifications"
+                  title={notificationsLabel}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    aria-hidden
+                  >
+                    <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
+                    <path d="M10 21h4" />
+                  </svg>
+                  <span className="sr-only">{notificationsLabel}</span>
+                </Link>
+              ) : null}
 
               <div className="hidden shrink-0 items-center gap-3 lg:flex">
                 {trailing}

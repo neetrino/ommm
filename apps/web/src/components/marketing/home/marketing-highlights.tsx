@@ -23,7 +23,7 @@ export async function MarketingHighlights({ locale }: { locale: string }) {
   ];
 
   return (
-    <section className="border-y border-white/50 bg-paper/90">
+    <section className="relative">
       <div className="ommm-container ommm-section">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="ommm-h2">{m("homeFeaturesTitle")}</h2>

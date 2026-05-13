@@ -1,4 +1,4 @@
-import { StaffAccountSummary } from "@/components/backoffice/staff-account-summary";
+import { RoleProfilePage } from "@/components/account/role-profile-page";
 
 export default async function AdminProfilePage({
   params,
@@ -6,5 +6,11 @@ export default async function AdminProfilePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return <StaffAccountSummary variant="admin" locale={locale} />;
+  return (
+    <RoleProfilePage
+      locale={locale}
+      showRole
+      workspaceNoteVariant="admin"
+    />
+  );
 }

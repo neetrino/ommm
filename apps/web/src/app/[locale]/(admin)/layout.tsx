@@ -3,7 +3,10 @@ import { getTranslations } from "next-intl/server";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
-import { dashboardNavDefinitionsForRole } from "@/lib/dashboard-nav";
+import {
+  dashboardNavDefinitionsForRole,
+  dashboardNotificationRouteForRole,
+} from "@/lib/dashboard-nav";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -27,6 +30,7 @@ export default async function AdminSectionLayout({
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, ADMIN_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
+  const notificationRoute = dashboardNotificationRouteForRole(role);
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
@@ -38,6 +42,7 @@ export default async function AdminSectionLayout({
       contentMaxClass="w-full"
       navRole="ADMIN"
       navDefinitions={navDefinitions}
+      notificationRoute={notificationRoute}
       trailing={
         <>
           <LogoutButton className={`${trailingClass} text-left`} />

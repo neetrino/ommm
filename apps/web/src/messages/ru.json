@@ -14,6 +14,7 @@
     "coaches": "Тренеры",
     "memberships": "Абонементы",
     "explore": "Материалы",
+    "schedule": "Расписание",
     "contact": "Контакты"
   },
   "footer": {
@@ -171,10 +172,26 @@
     "membershipsSessionsUnlimited": "Безлимитные занятия за период",
     "membershipsSessionsCount": "{count} занятий за период",
     "membershipsPriceLine": "{amount} за период",
+    "membershipsCompareTitle": "Сравнение планов",
+    "membershipsTablePlan": "План",
+    "membershipsTablePrice": "Цена",
+    "membershipsTablePeriod": "Период",
+    "membershipsTableSessions": "Занятия",
+    "membershipsPeriodDaysShort": "{days} дн.",
+    "membershipsFaqTitle": "FAQ",
+    "membershipsFaqPauseQuestion": "Можно ли поставить абонемент на паузу?",
+    "membershipsFaqPauseAnswer": "Да - участники могут поставить абонемент на паузу из аккаунта, если это поддерживает план; команда студии также может помочь на ресепшене.",
+    "membershipsFaqBillingQuestion": "Как работает списание?",
+    "membershipsFaqBillingAnswer": "Оплата проходит через Stripe, если он включен в вашем окружении. Успешные списания отображаются в истории платежей аккаунта.",
+    "membershipsFaqWaitlistQuestion": "Что делать, если класс заполнен?",
+    "membershipsFaqWaitlistAnswer": "Встаньте в лист ожидания из расписания - мы сообщим, когда освободится место, и дадим ограниченное время на подтверждение.",
     "homeFeaturesTitle": "Всё в одном месте",
     "homeFeaturesLead": "Один путь от знакомства до записи — понятно на любом размере экрана.",
     "featureCardCta": "Подробнее",
-    "closingPrimaryCta": "Создать аккаунт"
+    "closingPrimaryCta": "Создать аккаунт",
+    "scheduleTitle": "Расписание",
+    "scheduleLead": "Время занятий и запись — войдите, чтобы открыть актуальное расписание.",
+    "scheduleP1": "Участники видят доступность в реальном времени, информацию о тренерах и списки ожидания. Создайте аккаунт, чтобы забронировать место и держать практику в порядке."
   },
   "dashboard": {
     "shell": {
@@ -457,6 +474,51 @@
       "empty": "Пока нет опубликованных постов.",
       "emptyAdminHint": "Добавьте или опубликуйте из админ-инструментов контента.",
       "readMore": "Читать дальше"
+    },
+    "schedule": {
+      "metaDescription": "Расписание, фильтры и запись на занятия в студии Ommm.",
+      "pageTitle": "Найти класс",
+      "myAccount": "Мой аккаунт",
+      "filterClassType": "Тип занятия",
+      "filterClassTypeAria": "Фильтр по типу занятия",
+      "filterInstructor": "Инструктор",
+      "filterInstructorAria": "Фильтр по инструктору",
+      "filterOptionClassTherapy": "Терапия",
+      "filterOptionClassMat": "Мат",
+      "filterOptionClassReformer": "Реформер",
+      "filterOptionInstructorElena": "Елена Катернюк",
+      "filterOptionInstructorAlex": "Алекс Морган",
+      "filterOptionInstructorFrontDesk": "Стойка администратора",
+      "fullCalendar": "Полный календарь",
+      "timezoneNote": "Все даты и время показаны в часовом поясе студии.",
+      "studioBrand": "Ommm",
+      "bookCta": "Записаться",
+      "prevDatesAria": "Предыдущие даты",
+      "nextDatesAria": "Следующие даты",
+      "emptyDay": "В этот день нет занятий с выбранными фильтрами.",
+      "minutesShort": "{count} мин",
+      "samples": {
+        "compression": {
+          "title": "Компрессионная терапия",
+          "subtitle": "Стойка • Release"
+        },
+        "lagree": {
+          "title": "Lagree: основы",
+          "subtitle": "Елена Катернюк • зал Lagree"
+        },
+        "restorative": {
+          "title": "Восстановительный поток",
+          "subtitle": "Алекс Морган • основной зал"
+        },
+        "vinYasa": {
+          "title": "Утренняя виньяса",
+          "subtitle": "Елена Катернюк • основной зал"
+        },
+        "meditation": {
+          "title": "Медитация с гидом",
+          "subtitle": "Алекс Морган • тихая комната"
+        }
+      }
     }
   },
   "adminHome": {
@@ -731,6 +793,15 @@
       "uploading": "Загрузка…",
       "previewAlt": "Предпросмотр домашнего изображения",
       "emptyState": "Нет своего изображения — используется вид по умолчанию."
+    },
+    "profileEdit": {
+      "edit": "Редактировать",
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "cancel": "Отмена",
+      "saveSuccess": "Профиль успешно обновлён.",
+      "saveFailed": "Не удалось обновить профиль.",
+      "emailRequired": "Email обязателен."
     },
     "contact": {
       "name": "Имя",

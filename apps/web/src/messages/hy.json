@@ -14,6 +14,7 @@
     "coaches": "Մարզիչներ",
     "memberships": "Աբոնեմենտներ",
     "explore": "Բացահայտել",
+    "schedule": "Ժամանակացույց",
     "contact": "Կապ"
   },
   "footer": {
@@ -171,10 +172,26 @@
     "membershipsSessionsUnlimited": "Անսահմանափակ դասեր ժամանակաշրջանում",
     "membershipsSessionsCount": "{count} դաս ժամանակաշրջանում",
     "membershipsPriceLine": "{amount} ժամանակաշրջանի համար",
+    "membershipsCompareTitle": "Պլանների համեմատություն",
+    "membershipsTablePlan": "Պլան",
+    "membershipsTablePrice": "Գին",
+    "membershipsTablePeriod": "Ժամանակաշրջան",
+    "membershipsTableSessions": "Դասեր",
+    "membershipsPeriodDaysShort": "{days} օր",
+    "membershipsFaqTitle": "Հաճախ տրվող հարցեր",
+    "membershipsFaqPauseQuestion": "Կարո՞ղ եմ դադարեցնել աբոնեմենտը։",
+    "membershipsFaqPauseAnswer": "Այո - անդամները կարող են իրենց հաշվից դադարեցնել աբոնեմենտը, եթե պլանը դա թույլ է տալիս, իսկ ստուդիայի թիմը կարող է օգնել նաև ընդունարանից։",
+    "membershipsFaqBillingQuestion": "Ինչպե՞ս է աշխատում վճարումը։",
+    "membershipsFaqBillingAnswer": "Վճարումը կատարվում է Stripe-ով, երբ այն միացված է ձեր միջավայրում։ Հաջող վճարումները երևում են ձեր հաշվի վճարումների պատմությունում։",
+    "membershipsFaqWaitlistQuestion": "Ի՞նչ անել, եթե դասը լիքն է։",
+    "membershipsFaqWaitlistAnswer": "Միացեք սպասման ցուցակին ժամանակացույցից - մենք կտեղեկացնենք, երբ տեղ բացվի, և կունենաք սահմանափակ ժամանակ հաստատելու համար։",
     "homeFeaturesTitle": "Ամեն ինչ մեկ տեղում",
     "homeFeaturesLead": "Մեկ հոսք բացահայտումից մինչև գրանցում — հստակ ցանկացած էկրանի չափի համար։",
     "featureCardCta": "Իմանալ ավելին",
-    "closingPrimaryCta": "Ստեղծել հաշիվ"
+    "closingPrimaryCta": "Ստեղծել հաշիվ",
+    "scheduleTitle": "Ժամանակացույց",
+    "scheduleLead": "Շաբաթական դասերի ժամեր և գրանցում — մուտք գործեք՝ ապրող օրացույցը բացելու համար։",
+    "scheduleP1": "Անդամները տեսնում են ազատ տեղերի իրական ժամանակի տվյալները, մարզիչների մանրամասները և սպասման ցուցակի ընտրանքները։ Ստեղծեք հաշիվ՝ տեղ ամրագրելու և պրակտիկան կազմակերպելու համար։"
   },
   "dashboard": {
     "shell": {
@@ -457,6 +474,51 @@
       "empty": "Դեռ հրապարակված գրառումներ չկան։",
       "emptyAdminHint": "Ավելացրեք կամ հրապարակեք ադմինի բովանդակության գործիքներից։",
       "readMore": "Կարդալ ավելին"
+    },
+    "schedule": {
+      "metaDescription": "Դիտեք դասերի ժամերը, զտիչները և ամրագրումը Ommm ստուդիայում։",
+      "pageTitle": "Գտնել դաս",
+      "myAccount": "Իմ հաշիվը",
+      "filterClassType": "Դասի տեսակ",
+      "filterClassTypeAria": "Զտել ըստ դասի տեսակի",
+      "filterInstructor": "Մարզիչ",
+      "filterInstructorAria": "Զտել ըստ մարզչի",
+      "filterOptionClassTherapy": "Թերապիա",
+      "filterOptionClassMat": "Գորգ",
+      "filterOptionClassReformer": "Ռեֆորմեր",
+      "filterOptionInstructorElena": "Ելենա Կատերնյուկ",
+      "filterOptionInstructorAlex": "Ալեքս Մորգան",
+      "filterOptionInstructorFrontDesk": "Դիմավորում",
+      "fullCalendar": "Լրիվ օրացույց",
+      "timezoneNote": "Բոլոր ամսաթվերն ու ժամերը ցուցադրվում են տեղի ժամային գոտում։",
+      "studioBrand": "Ommm",
+      "bookCta": "Ամրագրել",
+      "prevDatesAria": "Նախորդ ամսաթվերը",
+      "nextDatesAria": "Հաջորդ ամսաթվերը",
+      "emptyDay": "Այս օրը այս զտիչներով դասեր չկան։",
+      "minutesShort": "{count} րոպե",
+      "samples": {
+        "compression": {
+          "title": "Կոմպրեսիոն թերապիա",
+          "subtitle": "Դիմավորում • ազատում"
+        },
+        "lagree": {
+          "title": "Lagree հիմքեր",
+          "subtitle": "Ելենա Կատերնյուկ • Lagree սրահ"
+        },
+        "restorative": {
+          "title": "Վերականգնող հոսք",
+          "subtitle": "Ալեքս Մորգան • Հիմնական սրահ"
+        },
+        "vinYasa": {
+          "title": "Վինյասա արշավ",
+          "subtitle": "Ելենա Կատերնյուկ • Հիմնական սրահ"
+        },
+        "meditation": {
+          "title": "Ուղեկցված մեդիտացիա",
+          "subtitle": "Ալեքս Մորգան • Հանգիստ սրահ"
+        }
+      }
     }
   },
   "adminHome": {
@@ -731,6 +793,15 @@
       "uploading": "Վերբեռնում…",
       "previewAlt": "Տան պատկերի նախադիտում",
       "emptyState": "Անհատական պատկեր չկա — վահանակը օգտագործում է լռելյայն տեսքը։"
+    },
+    "profileEdit": {
+      "edit": "Խմբագրել",
+      "save": "Պահպանել",
+      "saving": "Պահպանվում է…",
+      "cancel": "Չեղարկել",
+      "saveSuccess": "Պրոֆիլը հաջողությամբ թարմացվեց։",
+      "saveFailed": "Չհաջողվեց թարմացնել պրոֆիլը։",
+      "emailRequired": "Էլ. փոստը պարտադիր է։"
     },
     "contact": {
       "name": "Անուն",

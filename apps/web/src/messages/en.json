@@ -14,6 +14,7 @@
     "coaches": "Coaches",
     "memberships": "Memberships",
     "explore": "Explore",
+    "schedule": "Schedule",
     "contact": "Contact"
   },
   "footer": {
@@ -171,10 +172,26 @@
     "membershipsSessionsUnlimited": "Unlimited classes per period",
     "membershipsSessionsCount": "{count} classes per period",
     "membershipsPriceLine": "{amount} per period",
+    "membershipsCompareTitle": "Compare plans",
+    "membershipsTablePlan": "Plan",
+    "membershipsTablePrice": "Price",
+    "membershipsTablePeriod": "Period",
+    "membershipsTableSessions": "Sessions",
+    "membershipsPeriodDaysShort": "{days} days",
+    "membershipsFaqTitle": "FAQ",
+    "membershipsFaqPauseQuestion": "Can I pause my membership?",
+    "membershipsFaqPauseAnswer": "Yes - members can pause from their account when the plan supports it; the studio team can also help from the desk.",
+    "membershipsFaqBillingQuestion": "How does billing work?",
+    "membershipsFaqBillingAnswer": "Checkout runs through Stripe when enabled in your environment. You will see successful charges in your account payment history.",
+    "membershipsFaqWaitlistQuestion": "What if a class is full?",
+    "membershipsFaqWaitlistAnswer": "Join the waitlist from the schedule - we notify you when a spot opens, with a limited time to confirm.",
     "homeFeaturesTitle": "Everything in one place",
     "homeFeaturesLead": "A single flow from discovery to booking — clear on every screen size.",
     "featureCardCta": "Learn more",
-    "closingPrimaryCta": "Create account"
+    "closingPrimaryCta": "Create account",
+    "scheduleTitle": "Schedule",
+    "scheduleLead": "Weekly class times and booking — sign in to open the live calendar.",
+    "scheduleP1": "Members see real-time availability, coach details, and waitlist options. Create an account to reserve your mat and keep your practice organized."
   },
   "dashboard": {
     "shell": {
@@ -457,6 +474,51 @@
       "empty": "No published posts yet.",
       "emptyAdminHint": "Seed or publish from the admin content tools.",
       "readMore": "Read more"
+    },
+    "schedule": {
+      "metaDescription": "Browse class times, filters, and booking at Ommm studio.",
+      "pageTitle": "Find a Class",
+      "myAccount": "My Account",
+      "filterClassType": "Class Type",
+      "filterClassTypeAria": "Filter by class type",
+      "filterInstructor": "Instructor",
+      "filterInstructorAria": "Filter by instructor",
+      "filterOptionClassTherapy": "Therapy",
+      "filterOptionClassMat": "Mat",
+      "filterOptionClassReformer": "Reformer",
+      "filterOptionInstructorElena": "Elena Katernyuk",
+      "filterOptionInstructorAlex": "Alex Morgan",
+      "filterOptionInstructorFrontDesk": "Front desk",
+      "fullCalendar": "Full Calendar",
+      "timezoneNote": "All dates and times are displayed in the location's timezone.",
+      "studioBrand": "Ommm",
+      "bookCta": "Book",
+      "prevDatesAria": "Previous dates",
+      "nextDatesAria": "Next dates",
+      "emptyDay": "No classes match these filters on this day.",
+      "minutesShort": "{count} min",
+      "samples": {
+        "compression": {
+          "title": "Compression Therapy",
+          "subtitle": "Front desk • Release"
+        },
+        "lagree": {
+          "title": "Lagree Foundations",
+          "subtitle": "Elena Katernyuk • Lagree room"
+        },
+        "restorative": {
+          "title": "Restorative Flow",
+          "subtitle": "Alex Morgan • Main studio"
+        },
+        "vinYasa": {
+          "title": "Vinyasa Rise",
+          "subtitle": "Elena Katernyuk • Main studio"
+        },
+        "meditation": {
+          "title": "Guided Meditation",
+          "subtitle": "Alex Morgan • Quiet room"
+        }
+      }
     }
   },
   "adminHome": {
@@ -731,6 +793,15 @@
       "uploading": "Uploading…",
       "previewAlt": "Home image preview",
       "emptyState": "No custom image — your dashboard uses the default layout."
+    },
+    "profileEdit": {
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "saveSuccess": "Profile updated successfully.",
+      "saveFailed": "Could not update profile.",
+      "emailRequired": "Email is required."
     },
     "contact": {
       "name": "Name",

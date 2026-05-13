@@ -30,7 +30,7 @@ export function MarketingPageFrame({
   children,
 }: MarketingPageFrameProps) {
   return (
-    <section className="ommm-section relative overflow-hidden">
+    <section className="ommm-section relative min-h-[calc(100vh-10rem)] w-full overflow-hidden">
       <WellnessBackdrop />
       <div className="ommm-container relative">
         {eyebrow ? <p className="ommm-eyebrow">{eyebrow}</p> : null}

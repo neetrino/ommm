@@ -9,6 +9,8 @@ export const DEFAULT_DEV_API_PORT = 4000;
 
 const ANDROID_EMULATOR_HOST = "10.0.2.2";
 const LOOPBACK_HOST = "localhost";
+const LOOPBACK_IPV4 = "127.0.0.1";
+const LOOPBACK_IPV6 = "::1";
 
 function stripTrailingSlashes(url: string): string {
   return url.replace(/\/+$/, "");
@@ -49,6 +51,35 @@ function withHostname(url: string, hostname: string): string {
 
 function hostIsAndroidEmulatorBridge(hostname: string): boolean {
   return hostname === ANDROID_EMULATOR_HOST;
+}
+
+function isLoopbackHostname(hostname: string): boolean {
+  return (
+    hostname === LOOPBACK_HOST ||
+    hostname === LOOPBACK_IPV4 ||
+    hostname === LOOPBACK_IPV6
+  );
+}
+
+function getWebRuntimeHostname(): string | null {
+  if (Platform.OS !== "web") {
+    return null;
+  }
+  const maybeLocation = (globalThis as { location?: { hostname?: string } }).location;
+  const runtimeHost = maybeLocation?.hostname?.trim() ?? "";
+  return runtimeHost === "" ? null : runtimeHost;
+}
+
+function maybeRewriteLoopbackForWebLan(baseUrl: string): string {
+  const parsed = parseHttpUrl(baseUrl);
+  if (parsed === null || !isLoopbackHostname(parsed.hostname)) {
+    return baseUrl;
+  }
+  const runtimeHost = getWebRuntimeHostname();
+  if (runtimeHost === null || isLoopbackHostname(runtimeHost)) {
+    return baseUrl;
+  }
+  return withHostname(baseUrl, runtimeHost);
 }
 
 /**
@@ -99,6 +130,12 @@ function normalizeConfiguredBaseUrl(configured: string): string {
     return result;
   }
 
+  if (Platform.OS === "web" && isLoopbackHostname(parsed.hostname)) {
+    // When Expo Web is opened from another LAN device, localhost points to that device.
+    result = maybeRewriteLoopbackForWebLan(result);
+    return result;
+  }
+
   if (hostIsAndroidEmulatorBridge(parsed.hostname)) {
     if (Platform.OS === "web") {
       // Browser on the dev machine cannot reach the emulator-only alias.
@@ -127,7 +164,12 @@ function normalizeConfiguredBaseUrl(configured: string): string {
 function resolveDevFallbackBaseUrl(): string {
   const port = DEFAULT_DEV_API_PORT;
   if (Platform.OS === "web") {
-    return `http://${LOOPBACK_HOST}:${port}`;
+    const runtimeHost = getWebRuntimeHostname();
+    const host =
+      runtimeHost === null || isLoopbackHostname(runtimeHost)
+        ? LOOPBACK_HOST
+        : runtimeHost;
+    return `http://${host}:${port}`;
   }
   if (Platform.OS === "ios") {
     if (Device.isDevice) {

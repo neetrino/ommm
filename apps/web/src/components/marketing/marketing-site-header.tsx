@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
+import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 
 function navLinkClass(active: boolean): string {
   return [
@@ -15,21 +16,16 @@ function navLinkClass(active: boolean): string {
   ].join(" ");
 }
 
-const NAV_LINKS = [
-  { href: "/", key: "home" as const },
-  { href: "/story", key: "story" as const },
-  { href: "/coaches", key: "coaches" as const },
-  { href: "/memberships", key: "memberships" as const },
-  { href: "/explore", key: "explore" as const },
-  { href: "/contact", key: "contact" as const },
-];
-
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function MarketingSiteHeader() {
+export type MarketingSiteHeaderProps = {
+  navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
+};
+
+export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
@@ -63,7 +59,7 @@ export function MarketingSiteHeader() {
           className="hidden items-center gap-0.5 lg:flex"
           aria-label={tUi("primaryNavAria")}
         >
-          {NAV_LINKS.map(({ href, key }) => (
+          {navLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
@@ -80,10 +76,7 @@ export function MarketingSiteHeader() {
             onAfterSelect={() => setOpen(false)}
           />
           <div className="hidden items-center gap-3 lg:flex">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
-            >
+            <Link href="/login" className="ommm-cta-ghost">
               {tCommon("login")}
             </Link>
             <Link href="/register" className="ommm-cta-primary">
@@ -131,7 +124,7 @@ export function MarketingSiteHeader() {
         }
       >
         <nav className="flex flex-col gap-1" aria-label={tUi("mobilePrimaryNavAria")}>
-          {NAV_LINKS.map(({ href, key }) => (
+          {navLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
