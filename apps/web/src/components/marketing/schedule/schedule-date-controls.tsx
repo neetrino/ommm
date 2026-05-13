@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import {
   SCHEDULE_ARROW_BTN,
   SCHEDULE_DATE_CHIP_ACTIVE,
@@ -64,13 +63,15 @@ export function ScheduleDateControls({
     <>
       <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className={`text-lg font-semibold capitalize ${SCHEDULE_INK}`}>{monthLabel}</p>
-        <Link
-          href="/user/classes"
-          className={`inline-flex items-center gap-2 text-sm font-medium underline-offset-4 hover:underline ${SCHEDULE_INK}`}
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          className={`inline-flex cursor-default items-center gap-2 text-sm font-medium ${SCHEDULE_INK} opacity-70`}
         >
           <CalendarIcon />
           {t("fullCalendar")}
-        </Link>
+        </button>
       </div>
 
       <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>
@@ -93,10 +94,10 @@ export function ScheduleDateControls({
                   key={day.getTime()}
                   type="button"
                   onClick={() => onSelectDay(startOfLocalDay(day))}
-                  className="flex min-w-0 flex-col items-center justify-center gap-2 py-1"
+                  className="flex min-w-0 scale-100 flex-col items-center justify-center gap-2 rounded-2xl py-1 transition-transform duration-300 ease-out hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 motion-reduce:transform-none"
                 >
                   <span
-                    className={`w-full truncate text-center text-[9px] font-medium uppercase tracking-wide sm:text-[10px] ${SCHEDULE_MUTED}`}
+                    className={`w-full truncate text-center text-[9px] font-medium uppercase tracking-wide transition-colors duration-300 ease-out sm:text-[10px] ${active ? "text-sage-700" : SCHEDULE_MUTED}`}
                   >
                     {wk}
                   </span>

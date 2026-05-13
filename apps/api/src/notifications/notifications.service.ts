@@ -7,20 +7,29 @@ import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 const REMINDER_HOURS_BEFORE = 2;
+const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';
 
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
+  private readonly remindersCronEnabled: boolean;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly expoPush: ExpoPushService,
     private readonly audit: AuditService,
-  ) {}
+  ) {
+    this.remindersCronEnabled = this.isEnabledEnv(
+      process.env[ENABLE_BACKGROUND_REMINDERS_ENV],
+    );
+  }
 
   @Cron(CronExpression.EVERY_30_MINUTES)
   async sendClassReminders(): Promise<void> {
+    if (!this.remindersCronEnabled) {
+      return;
+    }
     const now = Date.now();
     const windowStart = new Date(now + REMINDER_HOURS_BEFORE * 60 * 60 * 1000);
     const windowEnd = new Date(windowStart.getTime() + 35 * 60 * 1000);
@@ -74,6 +83,14 @@ export class NotificationsService {
     if (bookings.length > 0) {
       this.logger.log(`Sent up to ${bookings.length} class reminders`);
     }
+  }
+
+  private isEnabledEnv(raw: string | undefined): boolean {
+    if (!raw) {
+      return false;
+    }
+    const normalized = raw.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true';
   }
 
   async broadcastToAll(subject: string, html: string, testTo?: string) {

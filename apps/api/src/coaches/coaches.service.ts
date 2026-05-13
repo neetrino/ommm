@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { BookingStatus, Role, WaitlistStatus, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { hashPassword } from '../common/password-crypto';
@@ -107,6 +108,13 @@ export class CoachesService {
   async update(actor: User, coachProfileId: string, dto: UpdateCoachDto) {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { id: coachProfileId },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
     if (!profile) {
       throw new NotFoundException();
@@ -117,13 +125,94 @@ export class CoachesService {
     if (actor.role === Role.MANAGER && dto.isActive === false) {
       throw new ForbiddenException('Managers cannot deactivate coaches');
     }
-    const updated = await this.prisma.coachProfile.update({
-      where: { id: coachProfileId },
-      data: dto,
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-      },
-    });
+    const normalizedPhone =
+      dto.phone === undefined ? undefined : this.normalizePhone(dto.phone);
+    const userData = {
+      ...(dto.email !== undefined && { email: dto.email.toLowerCase().trim() }),
+      ...(dto.name !== undefined && { name: dto.name.trim() }),
+      ...(dto.lastName !== undefined && { lastName: dto.lastName.trim() }),
+      ...(normalizedPhone !== undefined && { phone: normalizedPhone }),
+      ...(dto.age !== undefined && {
+        dateOfBirth: this.approximateDateOfBirthFromAge(dto.age),
+      }),
+    };
+    const profileData = {
+      ...(dto.bio !== undefined && { bio: dto.bio }),
+      ...(dto.specialization !== undefined && {
+        specialization: dto.specialization,
+      }),
+      ...(dto.experienceYears !== undefined && {
+        experienceYears: dto.experienceYears,
+      }),
+      ...(dto.isActive !== undefined && { isActive: dto.isActive }),
+    };
+    if (
+      Object.keys(userData).length === 0 &&
+      Object.keys(profileData).length === 0
+    ) {
+      throw new BadRequestException('No updatable fields were provided');
+    }
+    let updated: {
+      id: string;
+      bio: string | null;
+      specialization: string | null;
+      experienceYears: number | null;
+      isActive: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      userId: string;
+      user: {
+        id: string;
+        name: string | null;
+        email: string;
+        lastName: string | null;
+        phone: string | null;
+      };
+    };
+    try {
+      updated = await this.prisma.$transaction(async (tx) => {
+        if (Object.keys(userData).length > 0) {
+          await tx.user.update({
+            where: { id: profile.user.id },
+            data: userData,
+          });
+        }
+        return tx.coachProfile.update({
+          where: { id: coachProfileId },
+          data: profileData,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        });
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const target =
+          Array.isArray(error.meta?.target) &&
+          error.meta.target.every((value) => typeof value === 'string')
+            ? error.meta.target
+            : [];
+        if (target.includes('email')) {
+          throw new ConflictException('Email already registered');
+        }
+        if (target.includes('phone')) {
+          throw new ConflictException('Phone number already registered');
+        }
+        throw new ConflictException('Profile field must be unique');
+      }
+      throw error;
+    }
     await this.audit.log({
       actorId: actor.id,
       actorRole: actor.role,
@@ -136,21 +225,69 @@ export class CoachesService {
   }
 
   listAdmin() {
-    return this.prisma.coachProfile.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            role: true,
+    return this.prisma.coachProfile
+      .findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              role: true,
+              dateOfBirth: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((rows) =>
+        rows.map((row) => ({
+          id: row.id,
+          bio: row.bio,
+          specialization: row.specialization,
+          experienceYears: row.experienceYears,
+          isActive: row.isActive,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
+          userId: row.userId,
+          user: {
+            id: row.user.id,
+            name: row.user.name,
+            lastName: row.user.lastName,
+            email: row.user.email,
+            phone: row.user.phone,
+            role: row.user.role,
+          },
+          age: this.calculateAgeFromDateOfBirth(row.user.dateOfBirth),
+        })),
+      );
+  }
+
+  private normalizePhone(phone: string): string {
+    const normalizedPhone = phone.trim();
+    const phoneDigits = normalizedPhone.replace(/\D/g, '');
+    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+      throw new BadRequestException('Invalid phone number');
+    }
+    return normalizedPhone;
+  }
+
+  private calculateAgeFromDateOfBirth(dateOfBirth: Date | null): number | null {
+    if (!dateOfBirth) {
+      return null;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - dateOfBirth.getFullYear();
+    const monthDelta = today.getMonth() - dateOfBirth.getMonth();
+    if (
+      monthDelta < 0 ||
+      (monthDelta === 0 && today.getDate() < dateOfBirth.getDate())
+    ) {
+      age -= 1;
+    }
+    return age;
   }
 
   async coachPanelSummary(userId: string) {

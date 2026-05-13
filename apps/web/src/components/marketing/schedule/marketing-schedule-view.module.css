@@ -1,0 +1,57 @@
+.scheduleListEnter {
+  animation: ommm-schedule-list-in 300ms ease-out both;
+}
+
+.scheduleListExit {
+  animation: ommm-schedule-list-out 180ms ease-out both;
+}
+
+.scheduleItemEnter {
+  animation: ommm-schedule-item-in 300ms ease-out both;
+  animation-delay: var(--schedule-item-delay, 0ms);
+}
+
+@keyframes ommm-schedule-list-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes ommm-schedule-list-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    filter: blur(3px);
+  }
+}
+
+@keyframes ommm-schedule-item-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scheduleListEnter,
+  .scheduleListExit,
+  .scheduleItemEnter {
+    animation: none !important;
+  }
+}

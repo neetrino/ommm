@@ -41,14 +41,21 @@ export default async function ManagerCoachesPage() {
         admin-only per CRM.
       </p>
       <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
+        <table className="min-w-[34rem] w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col className="w-[24%]" />
+            <col className="w-[26%]" />
+            <col className="w-[18%]" />
+            <col className="w-[20%]" />
+            <col className="w-[12%]" />
+          </colgroup>
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Specialization</th>
-              <th className="px-4 py-3">Actions</th>
+              <th className="px-4 py-3 text-center">Phone</th>
+              <th className="px-4 py-3 text-center">Specialization</th>
+              <th className="px-4 py-3 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -58,13 +65,13 @@ export default async function ManagerCoachesPage() {
                   {coachDisplayName(c.user)}
                 </td>
                 <td className="px-4 py-3 text-zinc-700">{c.user.email}</td>
-                <td className="px-4 py-3 text-zinc-700">
+                <td className="px-4 py-3 text-center text-zinc-700">
                   {c.user.phone ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">
+                <td className="px-4 py-3 text-center text-zinc-600">
                   {c.specialization ?? "—"}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-center">
                   <AdminCoachActions
                     coachId={c.id}
                     initialSpecialization={c.specialization ?? ""}
