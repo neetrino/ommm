@@ -53,14 +53,21 @@ export default async function AdminCoachesPage({
       <Suspense fallback={null}>
         <AdminCoachesShell>
           <div className={`${adminChrome.tableWrap}`}>
-            <table className={adminChrome.table}>
+            <table className={`${adminChrome.table} table-fixed min-w-[34rem]`}>
+              <colgroup>
+                <col className="w-[24%]" />
+                <col className="w-[26%]" />
+                <col className="w-[18%]" />
+                <col className="w-[20%]" />
+                <col className="w-[12%]" />
+              </colgroup>
               <thead className={adminChrome.thead}>
                 <tr>
                   <th className={adminChrome.th}>{t("colName")}</th>
                   <th className={adminChrome.th}>{t("colEmail")}</th>
-                  <th className={adminChrome.th}>{t("colPhone")}</th>
-                  <th className={adminChrome.th}>{t("colSpecialization")}</th>
-                  <th className={adminChrome.th}>{t("colActions")}</th>
+                  <th className={`${adminChrome.th} text-center`}>{t("colPhone")}</th>
+                  <th className={`${adminChrome.th} text-center`}>{t("colSpecialization")}</th>
+                  <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,11 +77,11 @@ export default async function AdminCoachesPage({
                       {coachDisplayName(c.user)}
                     </td>
                     <td className={adminChrome.td}>{c.user.email}</td>
-                    <td className={adminChrome.td}>{c.user.phone ?? "—"}</td>
-                    <td className={adminChrome.td}>
+                    <td className={`${adminChrome.td} text-center`}>{c.user.phone ?? "—"}</td>
+                    <td className={`${adminChrome.td} text-center`}>
                       {c.specialization ?? "—"}
                     </td>
-                    <td className={adminChrome.td}>
+                    <td className={`${adminChrome.td} text-center`}>
                       <AdminCoachActions
                         coachId={c.id}
                         initialEmail={c.user.email}
