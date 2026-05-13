@@ -11,7 +11,6 @@ type ClientRow = {
   name: string | null;
   lastName?: string | null;
   phone?: string | null;
-  role: string;
   createdAt: string;
 };
 
@@ -41,14 +40,19 @@ export default async function AdminClientsPage({
       description={t("description")}
     >
       <div className={`mt-2 ${adminChrome.tableWrap}`}>
-        <table className={adminChrome.table}>
+        <table className={`${adminChrome.table} table-fixed min-w-[28rem] sm:min-w-[32rem]`}>
+          <colgroup>
+            <col className="w-1/4" />
+            <col className="w-1/4" />
+            <col className="w-1/4" />
+            <col className="w-1/4" />
+          </colgroup>
           <thead className={adminChrome.thead}>
             <tr>
               <th className={adminChrome.th}>{t("colName")}</th>
               <th className={adminChrome.th}>{t("colEmail")}</th>
-              <th className={adminChrome.th}>{t("colRole")}</th>
               <th className={adminChrome.th}>{t("colJoined")}</th>
-              <th className={adminChrome.th}>{t("colActions")}</th>
+              <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -56,11 +60,10 @@ export default async function AdminClientsPage({
               <tr key={c.id} className={adminChrome.tr}>
                 <td className={adminChrome.tdStrong}>{c.name ?? "—"}</td>
                 <td className={adminChrome.td}>{c.email}</td>
-                <td className={adminChrome.td}>{c.role}</td>
                 <td className={adminChrome.tdMuted}>
                   {new Date(c.createdAt).toLocaleDateString()}
                 </td>
-                <td className={adminChrome.td}>
+                <td className={`${adminChrome.td} text-center`}>
                   <AdminClientActions
                     clientId={c.id}
                     initialEmail={c.email}
