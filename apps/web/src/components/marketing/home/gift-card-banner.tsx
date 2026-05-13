@@ -6,7 +6,7 @@ export async function GiftCardBanner({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "home.gift" });
 
   return (
-    <section className="bg-paper">
+    <section className="relative">
       <div className="ommm-container pb-[clamp(3rem,6vw,5rem)]">
         <article className="relative overflow-hidden rounded-[40px] sm:rounded-[56px]">
           <div

@@ -63,7 +63,7 @@ export async function ExploreSection({ locale }: { locale: string }) {
   const t = await exploreTranslator(locale);
 
   return (
-    <section className="bg-paper">
+    <section className="relative">
       <div className="ommm-container ommm-section">
         <header className="relative mb-10 flex flex-wrap items-end justify-between gap-6 sm:mb-12">
           <div className="relative">
