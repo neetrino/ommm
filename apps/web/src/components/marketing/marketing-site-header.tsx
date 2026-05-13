@@ -76,10 +76,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             onAfterSelect={() => setOpen(false)}
           />
           <div className="hidden items-center gap-3 lg:flex">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-sage-700 transition-colors hover:text-sage-900"
-            >
+            <Link href="/login" className="ommm-cta-ghost">
               {tCommon("login")}
             </Link>
             <Link href="/register" className="ommm-cta-primary">
