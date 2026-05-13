@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-date-controls";
 import {
   type ScheduleFilterOption,
@@ -19,6 +20,9 @@ import {
   type MarketingScheduleItem,
   type MarketingScheduleDayOfWeek,
 } from "@/components/marketing/schedule/marketing-schedule-types";
+import {
+  useScheduleDayTransition,
+} from "@/components/marketing/schedule/use-schedule-day-transition";
 
 type ScheduleNavState = {
   windowStart: Date;
@@ -120,6 +124,13 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset]);
 
+  const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
+  const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =
+    useScheduleDayTransition({
+      selectedDayKey,
+      visibleSessions,
+    });
+
   return (
     <div className="ommm-card p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
       <ScheduleFiltersHeader
@@ -137,29 +148,53 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
         onSelectDay={(d) => setNav((s) => ({ ...s, selectedDate: d }))}
         onShiftWindow={(delta) => setNav((s) => shiftWeek(s, delta))}
       />
-      <ul className="mt-0 list-none p-0">
-        {visibleSessions.length === 0 ? (
-          <li className={`py-12 text-center text-sm ${SCHEDULE_MUTED}`}>{t("empty")}</li>
-        ) : (
-          visibleSessions.map((row) => (
-            <ScheduleSessionRow
-              key={row.id}
-              row={row}
-              studioLabel={t("studioBrand")}
-              bookLabel={t("bookCta")}
-              subtitle={`${row.instructorName} • ${row.classType}`}
-              timeLabel={toLocaleTime(locale, row.startTime)}
-              durationLabel={
-                row.durationMinutes !== null
-                  ? t("minutesShort", { count: row.durationMinutes })
-                  : row.endTime !== null
-                    ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
-                    : "-"
-              }
-            />
-          ))
-        )}
-      </ul>
+      <div
+        className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"
+        style={containerStyle}
+      >
+        <div
+          ref={contentRef}
+          className={
+            animationPhase === "exit"
+              ? styles.scheduleListExit
+              : animationPhase === "enter"
+                ? styles.scheduleListEnter
+                : ""
+          }
+        >
+          <ul key={renderedDayKey} className="list-none overflow-hidden p-0">
+            {renderedSessions.length === 0 ? (
+              <li
+                className={`py-12 text-center text-sm ${SCHEDULE_MUTED} ${
+                  animationPhase === "enter" ? styles.scheduleItemEnter : ""
+                }`}
+              >
+                {t("empty")}
+              </li>
+            ) : (
+              renderedSessions.map((row, index) => (
+                <ScheduleSessionRow
+                  key={row.id}
+                  row={row}
+                  studioLabel={t("studioBrand")}
+                  bookLabel={t("bookCta")}
+                  subtitle={`${row.instructorName} • ${row.classType}`}
+                  timeLabel={toLocaleTime(locale, row.startTime)}
+                  durationLabel={
+                    row.durationMinutes !== null
+                      ? t("minutesShort", { count: row.durationMinutes })
+                      : row.endTime !== null
+                        ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
+                        : "-"
+                  }
+                  className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                  style={getItemStyle(index)}
+                />
+              ))
+            )}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

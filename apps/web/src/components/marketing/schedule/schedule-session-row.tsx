@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import type { CSSProperties } from "react";
 import {
   SCHEDULE_BOOK_BTN,
   SCHEDULE_INK,
@@ -14,6 +15,8 @@ export type ScheduleSessionRowProps = {
   subtitle: string;
   timeLabel: string;
   durationLabel: string;
+  className?: string;
+  style?: CSSProperties;
 };
 
 export function ScheduleSessionRow({
@@ -23,10 +26,13 @@ export function ScheduleSessionRow({
   subtitle,
   timeLabel,
   durationLabel,
+  className,
+  style,
 }: ScheduleSessionRowProps) {
   return (
     <li
-      className={`flex flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_minmax(0,6rem)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER}`}
+      className={`flex flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_minmax(0,6rem)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER} ${className ?? ""}`}
+      style={style}
     >
       <div className="shrink-0">
         <p className={`text-base font-semibold ${SCHEDULE_INK}`}>{timeLabel}</p>
