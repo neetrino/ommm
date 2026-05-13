@@ -52,11 +52,7 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
       ) : null}
       <section className={`mt-10 ${adminChrome.panel}`}>
         <p className={adminChrome.panelHeading}>{t("csvExportTitle")}</p>
-        <p className="mt-2">
-          {t("csvExportBody", {
-            code: "GET /v1/reports/bookings.csv?from=&to=",
-          })}
-        </p>
+        <p className="mt-2">{t("csvExportBody")}</p>
       </section>
     </AccountPageFrame>
   );

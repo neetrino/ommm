@@ -16,7 +16,7 @@ async function parseJsonResponse(res: Response): Promise<unknown> {
 }
 
 /**
- * Fetches `GET /v1/health` from the configured Nest API.
+ * Fetches the health status from the configured Nest API.
  */
 export async function fetchHealth(): Promise<HealthResponse> {
   const base = getApiBaseUrl();

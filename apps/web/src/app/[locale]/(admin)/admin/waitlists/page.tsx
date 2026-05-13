@@ -42,15 +42,7 @@ export default async function AdminWaitlistsPage({
   return (
     <AccountPageFrame
       title={t("title")}
-      description={
-        <>
-          {t("descriptionLead")}{" "}
-          <code className={adminChrome.inlineCode}>
-            GET /v1/waitlist/sessions/:sessionId
-          </code>
-          {t("descriptionTrail")}
-        </>
-      }
+      description={t("description")}
     >
       <div className={`mt-2 ${adminChrome.tableWrap}`}>
         <table className={adminChrome.table}>

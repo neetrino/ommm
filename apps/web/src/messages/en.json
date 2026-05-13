@@ -551,7 +551,7 @@
     "pageTitle": "Admin dashboard",
     "fetchError": "Fetch failed (is the API running?)",
     "csvExportTitle": "CSV export (admin only)",
-    "csvExportBody": "Use the API {code} with an authenticated admin session.",
+    "csvExportBody": "Export bookings CSV from the admin reports section.",
     "metrics": {
       "sessionsToday": "Sessions today",
       "bookingsToday": "Bookings today",
@@ -577,8 +577,7 @@
     },
     "clients": {
       "title": "Clients",
-      "descriptionLead": "Directory from",
-      "descriptionTrail": ".",
+      "description": "Client directory.",
       "errorAuth": "Manager or admin sign-in required.",
       "errorLoad": "Could not load clients ({status}).",
       "colName": "Name",
@@ -589,8 +588,7 @@
     },
     "coaches": {
       "title": "Coaches",
-      "descriptionLead": "Coach profiles from",
-      "descriptionTrail": ". Substitute coach and availability are managed on sessions and profiles.",
+      "description": "Coach profiles with specialization and contact details.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load coaches ({status}).",
       "colName": "Name",
@@ -650,8 +648,7 @@
     },
     "giftCards": {
       "title": "Gift cards",
-      "descriptionLead": "Issued cards from",
-      "descriptionTrail": ". Resend and deactivate actions are available via API for admins.",
+      "description": "Issued gift cards with balances and status.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load gift cards ({status}).",
       "colCode": "Code",
@@ -664,8 +661,7 @@
     },
     "memberships": {
       "title": "Memberships & billing",
-      "descriptionLead": "Active and historical memberships from",
-      "descriptionTrail": ". Plan edits and manual assignment use the API or future forms here.",
+      "description": "Active and historical memberships with plan and billing state.",
       "errorAuth": "Studio admin sign-in required for membership billing.",
       "errorLoad": "Could not load memberships ({status}).",
       "colMember": "Member",
@@ -677,8 +673,7 @@
     },
     "waitlists": {
       "title": "Waitlists",
-      "descriptionLead": "Recent waitlist entries (all statuses). Per-session roster uses",
-      "descriptionTrail": ".",
+      "description": "Recent waitlist entries across all statuses.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load waitlists ({status}).",
       "colUser": "User",
@@ -691,9 +686,9 @@
     },
     "reports": {
       "title": "Reports & analytics",
-      "descriptionLead": "High-level KPIs match the dashboard API. CSV export for bookings is available to admins via ",
-      "descriptionTrail": ".",
+      "description": "High-level KPIs and booking exports for admins.",
       "exportHeading": "Export shortcuts",
+      "exportHint": "Use the admin export controls to download bookings CSV.",
       "excelHint": "(open in Excel)",
       "errorAuth": "Admin or manager sign-in required for reports.",
       "errorLoad": "Could not load reports ({status})."

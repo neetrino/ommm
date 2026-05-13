@@ -47,13 +47,7 @@ export default async function AdminCoachesPage({
   return (
     <AccountPageFrame
       title={t("title")}
-      description={
-        <>
-          {t("descriptionLead")}{" "}
-          <code className={adminChrome.inlineCode}>GET /v1/coaches/admin/list</code>
-          {t("descriptionTrail")}
-        </>
-      }
+      description={t("description")}
     >
       <Suspense fallback={null}>
         <AdminCoachesShell>

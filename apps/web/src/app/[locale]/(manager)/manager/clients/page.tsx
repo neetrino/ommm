@@ -29,9 +29,7 @@ export default async function ManagerClientsPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold text-zinc-900">Clients</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Directory from <code className="text-xs">GET /v1/clients</code>.
-      </p>
+      <p className="mt-2 text-sm text-zinc-600">Client directory.</p>
       <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">

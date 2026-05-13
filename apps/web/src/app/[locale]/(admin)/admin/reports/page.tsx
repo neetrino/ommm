@@ -39,32 +39,12 @@ export default async function AdminReportsPage({
   return (
     <AccountPageFrame
       title={t("title")}
-      description={
-        <>
-          {t("descriptionLead")}
-          <code className={adminChrome.inlineCode}>
-            GET /v1/reports/bookings.csv?from=&amp;to=
-          </code>
-          {t("descriptionTrail")}
-        </>
-      }
+      description={t("description")}
     >
       <AdminReportsSummary data={res.data} locale={locale} />
       <section className="mt-8 rounded-[20px] border border-white/60 bg-white/70 p-4 text-sm text-sage-700">
         <p className="font-medium text-sage-900">{t("exportHeading")}</p>
-        <ul className="mt-2 space-y-1 text-xs text-sage-600">
-          <li>
-            <code className={adminChrome.inlineCode}>
-              GET /v1/reports/bookings.csv?from=...&amp;to=...
-            </code>
-          </li>
-          <li>
-            <code className={adminChrome.inlineCode}>
-              GET /v1/reports/bookings.csv?from=...&amp;to=...
-            </code>{" "}
-            {t("excelHint")}
-          </li>
-        </ul>
+        <p className="mt-2 text-xs text-sage-600">{t("exportHint")}</p>
       </section>
     </AccountPageFrame>
   );

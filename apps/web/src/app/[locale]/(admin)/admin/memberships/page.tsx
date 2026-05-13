@@ -40,15 +40,7 @@ export default async function AdminMembershipsPage({
   return (
     <AccountPageFrame
       title={t("title")}
-      description={
-        <>
-          {t("descriptionLead")}{" "}
-          <code className={adminChrome.inlineCode}>
-            GET /v1/memberships/admin/all
-          </code>
-          {t("descriptionTrail")}
-        </>
-      }
+      description={t("description")}
     >
       <div className={`mt-2 ${adminChrome.tableWrap}`}>
         <table className={adminChrome.table}>
