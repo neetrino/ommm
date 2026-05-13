@@ -1,4 +1,11 @@
-import { BadRequestException, Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import type { Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';

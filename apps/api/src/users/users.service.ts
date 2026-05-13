@@ -136,7 +136,7 @@ export class UsersService {
         const target =
           Array.isArray(error.meta?.target) &&
           error.meta.target.every((value) => typeof value === 'string')
-            ? (error.meta.target as string[])
+            ? error.meta.target
             : [];
         if (target.includes('email')) {
           throw new ConflictException('Email already registered');

@@ -197,13 +197,17 @@ export class WaitlistService {
       throw new NotFoundException('Waitlist entry not found');
     }
     if (entry.sessionId !== targetSessionId) {
-      throw new BadRequestException('targetSessionId does not match entry session');
+      throw new BadRequestException(
+        'targetSessionId does not match entry session',
+      );
     }
     if (
       entry.status !== WaitlistStatus.ACTIVE &&
       entry.status !== WaitlistStatus.OFFERED
     ) {
-      throw new ConflictException('Only active or offered entries can be promoted');
+      throw new ConflictException(
+        'Only active or offered entries can be promoted',
+      );
     }
     const session = entry.session;
     if (!session || session.status === ClassSessionStatus.CANCELLED) {
@@ -214,10 +218,14 @@ export class WaitlistService {
       throw new ForbiddenException('Session is full');
     }
     const existingBooking = await this.prisma.booking.findUnique({
-      where: { userId_sessionId: { userId: entry.userId, sessionId: session.id } },
+      where: {
+        userId_sessionId: { userId: entry.userId, sessionId: session.id },
+      },
     });
     if (existingBooking && existingBooking.status === BookingStatus.BOOKED) {
-      throw new ConflictException('User already has an active booking for this session');
+      throw new ConflictException(
+        'User already has an active booking for this session',
+      );
     }
     const result = await this.prisma.$transaction(async (tx) => {
       const booking =

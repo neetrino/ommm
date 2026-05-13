@@ -61,10 +61,7 @@ export class MembershipsController {
   @Get('admin/all')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  adminAll(
-    @Query('take') take?: string,
-    @Query('offset') offset?: string,
-  ) {
+  adminAll(@Query('take') take?: string, @Query('offset') offset?: string) {
     return this.memberships.listAllAdmin({
       take: take ? Number.parseInt(take, 10) : undefined,
       offset: offset ? Number.parseInt(offset, 10) : undefined,

@@ -13,13 +13,11 @@ type ContentAdminRow = {
 };
 
 type ContentPostsPanelProps = {
-  locale: string;
   /** When true (admin workspace), match member dashboard glass surfaces. */
   wellnessChrome?: boolean;
 };
 
 export async function ContentPostsPanel({
-  locale: _locale,
   wellnessChrome = false,
 }: ContentPostsPanelProps) {
   const cookie = (await headers()).get("cookie") ?? "";

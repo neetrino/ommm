@@ -222,7 +222,9 @@ export class CoachesService {
     const basePerSessionCents = 3000;
     const completedSessions = sessions.filter((s) => s.bookings.length > 0);
     const totalEarningsCents = completedSessions.reduce((sum, s) => {
-      return sum + basePerSessionCents + s.bookings.length * perAttendeeShareCents;
+      return (
+        sum + basePerSessionCents + s.bookings.length * perAttendeeShareCents
+      );
     }, 0);
     return {
       coachProfileId: profile.id,

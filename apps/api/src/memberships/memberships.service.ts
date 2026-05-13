@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MembershipStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -42,7 +46,9 @@ export class MembershipsService {
       ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
       ...(dto.isUnlimited !== undefined && { isUnlimited: dto.isUnlimited }),
       ...(dto.periodDays !== undefined && { periodDays: dto.periodDays }),
-      ...(dto.stripePriceId !== undefined && { stripePriceId: dto.stripePriceId }),
+      ...(dto.stripePriceId !== undefined && {
+        stripePriceId: dto.stripePriceId,
+      }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
     };
     if (dto.isUnlimited === true) {

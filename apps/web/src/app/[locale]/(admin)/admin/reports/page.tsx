@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 import { AdminReportsSummary } from "./admin-reports-summary";
