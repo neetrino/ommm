@@ -114,8 +114,7 @@ function FeaturedExplore({ t }: { t: ExploreTranslator }) {
           src="/marketing/home/explore-featured.jpg"
           alt={t("featured.imageAlt")}
           fill
-          priority
-          loading="eager"
+          loading="lazy"
           sizes="(min-width:1024px) 56vw, 100vw"
           className="object-cover"
         />
