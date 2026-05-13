@@ -21,13 +21,18 @@ import { StudioService } from '../studio/studio.service';
 @Injectable()
 export class WaitlistService {
   private readonly logger = new Logger(WaitlistService.name);
+  private readonly waitlistCronEnabled: boolean;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly studio: StudioService,
     private readonly audit: AuditService,
-  ) {}
+  ) {
+    this.waitlistCronEnabled = this.isEnabledEnv(
+      process.env.ENABLE_WAITLIST_BACKGROUND_JOBS,
+    );
+  }
 
   async bookedCount(sessionId: string): Promise<number> {
     return this.prisma.booking.count({
@@ -149,6 +154,9 @@ export class WaitlistService {
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async expireOffersCron(): Promise<void> {
+    if (!this.waitlistCronEnabled) {
+      return;
+    }
     await this.expireStaleOffersAndPromote();
   }
 
@@ -315,5 +323,13 @@ export class WaitlistService {
       },
     });
     return { ok: true };
+  }
+
+  private isEnabledEnv(raw: string | undefined): boolean {
+    if (!raw) {
+      return false;
+    }
+    const normalized = raw.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true';
   }
 }

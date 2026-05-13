@@ -51,7 +51,11 @@ export class ScheduleService {
 
   async listAdmin() {
     const items = await this.prisma.scheduleItem.findMany({
-      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }, { createdAt: 'desc' }],
+      orderBy: [
+        { dayOfWeek: 'asc' },
+        { startTime: 'asc' },
+        { createdAt: 'desc' },
+      ],
     });
     return this.sortByDayAndTime(items);
   }
@@ -59,7 +63,11 @@ export class ScheduleService {
   async listPublicActive() {
     const items = await this.prisma.scheduleItem.findMany({
       where: { isActive: true },
-      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }, { createdAt: 'desc' }],
+      orderBy: [
+        { dayOfWeek: 'asc' },
+        { startTime: 'asc' },
+        { createdAt: 'desc' },
+      ],
     });
     return this.sortByDayAndTime(items);
   }
@@ -84,7 +92,9 @@ export class ScheduleService {
   }
 
   async update(id: string, dto: UpdateScheduleItemDto) {
-    const existing = await this.prisma.scheduleItem.findUnique({ where: { id } });
+    const existing = await this.prisma.scheduleItem.findUnique({
+      where: { id },
+    });
     if (!existing) {
       throw new NotFoundException('Schedule item not found');
     }
@@ -102,7 +112,9 @@ export class ScheduleService {
         dayOfWeek: dto.dayOfWeek,
         startTime: dto.startTime,
         endTime:
-          dto.endTime === undefined ? undefined : normalizeOptional(dto.endTime),
+          dto.endTime === undefined
+            ? undefined
+            : normalizeOptional(dto.endTime),
         durationMinutes: dto.durationMinutes,
         availableSpots: dto.availableSpots,
         description:

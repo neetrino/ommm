@@ -138,13 +138,18 @@ export class CoachesService {
     };
     const profileData = {
       ...(dto.bio !== undefined && { bio: dto.bio }),
-      ...(dto.specialization !== undefined && { specialization: dto.specialization }),
+      ...(dto.specialization !== undefined && {
+        specialization: dto.specialization,
+      }),
       ...(dto.experienceYears !== undefined && {
         experienceYears: dto.experienceYears,
       }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
     };
-    if (Object.keys(userData).length === 0 && Object.keys(profileData).length === 0) {
+    if (
+      Object.keys(userData).length === 0 &&
+      Object.keys(profileData).length === 0
+    ) {
       throw new BadRequestException('No updatable fields were provided');
     }
     let updated: {
@@ -156,7 +161,13 @@ export class CoachesService {
       createdAt: Date;
       updatedAt: Date;
       userId: string;
-      user: { id: string; name: string | null; email: string; lastName: string | null; phone: string | null };
+      user: {
+        id: string;
+        name: string | null;
+        email: string;
+        lastName: string | null;
+        phone: string | null;
+      };
     };
     try {
       updated = await this.prisma.$transaction(async (tx) => {
@@ -214,42 +225,44 @@ export class CoachesService {
   }
 
   listAdmin() {
-    return this.prisma.coachProfile.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            role: true,
-            dateOfBirth: true,
+    return this.prisma.coachProfile
+      .findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              role: true,
+              dateOfBirth: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    }).then((rows) =>
-      rows.map((row) => ({
-        id: row.id,
-        bio: row.bio,
-        specialization: row.specialization,
-        experienceYears: row.experienceYears,
-        isActive: row.isActive,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        userId: row.userId,
-        user: {
-          id: row.user.id,
-          name: row.user.name,
-          lastName: row.user.lastName,
-          email: row.user.email,
-          phone: row.user.phone,
-          role: row.user.role,
-        },
-        age: this.calculateAgeFromDateOfBirth(row.user.dateOfBirth),
-      })),
-    );
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((rows) =>
+        rows.map((row) => ({
+          id: row.id,
+          bio: row.bio,
+          specialization: row.specialization,
+          experienceYears: row.experienceYears,
+          isActive: row.isActive,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
+          userId: row.userId,
+          user: {
+            id: row.user.id,
+            name: row.user.name,
+            lastName: row.user.lastName,
+            email: row.user.email,
+            phone: row.user.phone,
+            role: row.user.role,
+          },
+          age: this.calculateAgeFromDateOfBirth(row.user.dateOfBirth),
+        })),
+      );
   }
 
   private normalizePhone(phone: string): string {
@@ -268,7 +281,10 @@ export class CoachesService {
     const today = new Date();
     let age = today.getFullYear() - dateOfBirth.getFullYear();
     const monthDelta = today.getMonth() - dateOfBirth.getMonth();
-    if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < dateOfBirth.getDate())) {
+    if (
+      monthDelta < 0 ||
+      (monthDelta === 0 && today.getDate() < dateOfBirth.getDate())
+    ) {
       age -= 1;
     }
     return age;
