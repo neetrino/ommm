@@ -461,6 +461,51 @@
       "empty": "Դեռ հրապարակված գրառումներ չկան։",
       "emptyAdminHint": "Ավելացրեք կամ հրապարակեք ադմինի բովանդակության գործիքներից։",
       "readMore": "Կարդալ ավելին"
+    },
+    "schedule": {
+      "metaDescription": "Դիտեք դասերի ժամերը, զտիչները և ամրագրումը Ommm ստուդիայում։",
+      "pageTitle": "Գտնել դաս",
+      "myAccount": "Իմ հաշիվը",
+      "filterClassType": "Դասի տեսակ",
+      "filterClassTypeAria": "Զտել ըստ դասի տեսակի",
+      "filterInstructor": "Մարզիչ",
+      "filterInstructorAria": "Զտել ըստ մարզչի",
+      "filterOptionClassTherapy": "Թերապիա",
+      "filterOptionClassMat": "Գորգ",
+      "filterOptionClassReformer": "Ռեֆորմեր",
+      "filterOptionInstructorElena": "Ելենա Կատերնյուկ",
+      "filterOptionInstructorAlex": "Ալեքս Մորգան",
+      "filterOptionInstructorFrontDesk": "Դիմավորում",
+      "fullCalendar": "Լրիվ օրացույց",
+      "timezoneNote": "Բոլոր ամսաթվերն ու ժամերը ցուցադրվում են տեղի ժամային գոտում։",
+      "studioBrand": "Ommm",
+      "bookCta": "Ամրագրել",
+      "prevDatesAria": "Նախորդ ամսաթվերը",
+      "nextDatesAria": "Հաջորդ ամսաթվերը",
+      "emptyDay": "Այս օրը այս զտիչներով դասեր չկան։",
+      "minutesShort": "{count} րոպե",
+      "samples": {
+        "compression": {
+          "title": "Կոմպրեսիոն թերապիա",
+          "subtitle": "Դիմավորում • ազատում"
+        },
+        "lagree": {
+          "title": "Lagree հիմքեր",
+          "subtitle": "Ելենա Կատերնյուկ • Lagree սրահ"
+        },
+        "restorative": {
+          "title": "Վերականգնող հոսք",
+          "subtitle": "Ալեքս Մորգան • Հիմնական սրահ"
+        },
+        "vinYasa": {
+          "title": "Վինյասա արշավ",
+          "subtitle": "Ելենա Կատերնյուկ • Հիմնական սրահ"
+        },
+        "meditation": {
+          "title": "Ուղեկցված մեդիտացիա",
+          "subtitle": "Ալեքս Մորգան • Հանգիստ սրահ"
+        }
+      }
     }
   },
   "adminHome": {

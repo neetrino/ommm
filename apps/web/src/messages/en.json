@@ -461,6 +461,51 @@
       "empty": "No published posts yet.",
       "emptyAdminHint": "Seed or publish from the admin content tools.",
       "readMore": "Read more"
+    },
+    "schedule": {
+      "metaDescription": "Browse class times, filters, and booking at Ommm studio.",
+      "pageTitle": "Find a Class",
+      "myAccount": "My Account",
+      "filterClassType": "Class Type",
+      "filterClassTypeAria": "Filter by class type",
+      "filterInstructor": "Instructor",
+      "filterInstructorAria": "Filter by instructor",
+      "filterOptionClassTherapy": "Therapy",
+      "filterOptionClassMat": "Mat",
+      "filterOptionClassReformer": "Reformer",
+      "filterOptionInstructorElena": "Elena Katernyuk",
+      "filterOptionInstructorAlex": "Alex Morgan",
+      "filterOptionInstructorFrontDesk": "Front desk",
+      "fullCalendar": "Full Calendar",
+      "timezoneNote": "All dates and times are displayed in the location's timezone.",
+      "studioBrand": "Ommm",
+      "bookCta": "Book",
+      "prevDatesAria": "Previous dates",
+      "nextDatesAria": "Next dates",
+      "emptyDay": "No classes match these filters on this day.",
+      "minutesShort": "{count} min",
+      "samples": {
+        "compression": {
+          "title": "Compression Therapy",
+          "subtitle": "Front desk • Release"
+        },
+        "lagree": {
+          "title": "Lagree Foundations",
+          "subtitle": "Elena Katernyuk • Lagree room"
+        },
+        "restorative": {
+          "title": "Restorative Flow",
+          "subtitle": "Alex Morgan • Main studio"
+        },
+        "vinYasa": {
+          "title": "Vinyasa Rise",
+          "subtitle": "Elena Katernyuk • Main studio"
+        },
+        "meditation": {
+          "title": "Guided Meditation",
+          "subtitle": "Alex Morgan • Quiet room"
+        }
+      }
     }
   },
   "adminHome": {

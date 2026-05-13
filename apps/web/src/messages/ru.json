@@ -461,6 +461,51 @@
       "empty": "Пока нет опубликованных постов.",
       "emptyAdminHint": "Добавьте или опубликуйте из админ-инструментов контента.",
       "readMore": "Читать дальше"
+    },
+    "schedule": {
+      "metaDescription": "Расписание, фильтры и запись на занятия в студии Ommm.",
+      "pageTitle": "Найти класс",
+      "myAccount": "Мой аккаунт",
+      "filterClassType": "Тип занятия",
+      "filterClassTypeAria": "Фильтр по типу занятия",
+      "filterInstructor": "Инструктор",
+      "filterInstructorAria": "Фильтр по инструктору",
+      "filterOptionClassTherapy": "Терапия",
+      "filterOptionClassMat": "Мат",
+      "filterOptionClassReformer": "Реформер",
+      "filterOptionInstructorElena": "Елена Катернюк",
+      "filterOptionInstructorAlex": "Алекс Морган",
+      "filterOptionInstructorFrontDesk": "Стойка администратора",
+      "fullCalendar": "Полный календарь",
+      "timezoneNote": "Все даты и время показаны в часовом поясе студии.",
+      "studioBrand": "Ommm",
+      "bookCta": "Записаться",
+      "prevDatesAria": "Предыдущие даты",
+      "nextDatesAria": "Следующие даты",
+      "emptyDay": "В этот день нет занятий с выбранными фильтрами.",
+      "minutesShort": "{count} мин",
+      "samples": {
+        "compression": {
+          "title": "Компрессионная терапия",
+          "subtitle": "Стойка • Release"
+        },
+        "lagree": {
+          "title": "Lagree: основы",
+          "subtitle": "Елена Катернюк • зал Lagree"
+        },
+        "restorative": {
+          "title": "Восстановительный поток",
+          "subtitle": "Алекс Морган • основной зал"
+        },
+        "vinYasa": {
+          "title": "Утренняя виньяса",
+          "subtitle": "Елена Катернюк • основной зал"
+        },
+        "meditation": {
+          "title": "Медитация с гидом",
+          "subtitle": "Алекс Морган • тихая комната"
+        }
+      }
     }
   },
   "adminHome": {
