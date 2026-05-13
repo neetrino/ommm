@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { MembershipStatus, Role } from '@prisma/client';
@@ -13,6 +14,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreatePlanDto } from './dto/create-plan.dto';
+import { UpdatePlanDto } from './dto/update-plan.dto';
 import { MembershipsService } from './memberships.service';
 
 @Controller('memberships')
@@ -29,6 +31,13 @@ export class MembershipsController {
   @Roles(Role.ADMIN)
   createPlan(@Body() dto: CreatePlanDto) {
     return this.memberships.createPlan(dto);
+  }
+
+  @Patch('plans/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
+    return this.memberships.updatePlan(id, dto);
   }
 
   @Get('me')
@@ -52,8 +61,14 @@ export class MembershipsController {
   @Get('admin/all')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  adminAll() {
-    return this.memberships.listAllAdmin();
+  adminAll(
+    @Query('take') take?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.memberships.listAllAdmin({
+      take: take ? Number.parseInt(take, 10) : undefined,
+      offset: offset ? Number.parseInt(offset, 10) : undefined,
+    });
   }
 
   @Post('admin/assign')

@@ -108,6 +108,8 @@ model User {
   achievements      UserAchievement[]
   notificationPrefs NotificationPreference?
   bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
+  clientNotesAuthored  ClientNote[]  @relation("ClientNoteAuthor")
+  clientNotesReceived  ClientNote[]  @relation("ClientNoteSubject")
   authTokens         AuthToken[]
   pushDeviceTokens   PushDeviceToken[]
 }
@@ -206,6 +208,7 @@ model Booking {
   updatedAt   DateTime      @updatedAt
 
   notes BookingNote[]
+  reminderLog ClassReminderSendLog?
 
   @@unique([userId, sessionId])
   @@index([sessionId])
@@ -220,6 +223,18 @@ model BookingNote {
   author    User     @relation("BookingNoteAuthor", fields: [authorId], references: [id])
   body      String
   createdAt DateTime @default(now())
+}
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("ClientNoteSubject", fields: [userId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("ClientNoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model WaitlistEntry {
@@ -369,4 +384,23 @@ model NotificationPreference {
   waitlistAlerts      Boolean @default(true)
   promotions          Boolean @default(false)
   communityUpdates    Boolean @default(true)
+}
+
+model ClassReminderSendLog {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  sentAt    DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorRole  String?
+  action     String
+  entityType String
+  entityId   String
+  payload    String?
+  createdAt  DateTime @default(now())
 }

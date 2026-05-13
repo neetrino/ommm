@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminBookingActions } from "@/components/admin/admin-booking-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -9,6 +10,7 @@ type BookingAdminRow = {
   status: string;
   user: { name: string | null; email: string };
   session: {
+    id: string;
     startsAt: string;
     classType: { name: string };
   };
@@ -53,6 +55,7 @@ export default async function AdminBookingsPage({
               <th className={adminChrome.th}>{t("colClass")}</th>
               <th className={adminChrome.th}>{t("colStarts")}</th>
               <th className={adminChrome.th}>{t("colStatus")}</th>
+              <th className={adminChrome.th}>{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -72,6 +75,12 @@ export default async function AdminBookingsPage({
                   {new Date(b.session.startsAt).toLocaleString()}
                 </td>
                 <td className={adminChrome.td}>{b.status}</td>
+                <td className={adminChrome.td}>
+                  <AdminBookingActions
+                    bookingId={b.id}
+                    defaultSessionId={b.session.id}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminMembershipActions } from "@/components/admin/admin-membership-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -58,6 +59,7 @@ export default async function AdminMembershipsPage({
               <th className={adminChrome.th}>{t("colStatus")}</th>
               <th className={adminChrome.th}>{t("colSessionsLeft")}</th>
               <th className={adminChrome.th}>{t("colPeriodEnd")}</th>
+              <th className={adminChrome.th}>{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -76,6 +78,9 @@ export default async function AdminMembershipsPage({
                   {m.currentPeriodEnd
                     ? new Date(m.currentPeriodEnd).toLocaleDateString()
                     : "—"}
+                </td>
+                <td className={adminChrome.td}>
+                  <AdminMembershipActions membershipId={m.id} />
                 </td>
               </tr>
             ))}

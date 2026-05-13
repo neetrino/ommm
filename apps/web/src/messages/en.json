@@ -394,6 +394,14 @@
       "allTime": "All time",
       "thisMonth": "This month",
       "thisMonthCaption": "Completed sessions",
+      "thisYear": "This year",
+      "thisYearCaption": "Completed sessions",
+      "allTimeCaption": "Completed sessions",
+      "performanceMetrics": "Performance metrics",
+      "totalHours": "Total hours",
+      "activeDays": "Active days",
+      "favoriteClassType": "Favorite class type",
+      "favoriteFallback": "No data yet",
       "achievements": "Achievements",
       "achievementsEmpty": "Keep booking classes — achievements unlock as you go.",
       "unlocked": "Unlocked {date}"
@@ -402,6 +410,10 @@
       "title": "My bookings",
       "upcoming": "Upcoming",
       "pastOther": "Past and other",
+      "waitlists": "Waitlists",
+      "waitlistsLoadError": "Could not load waitlists.",
+      "waitlistsEmpty": "No active waitlists.",
+      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Nothing here yet.",
       "signInRequired": "Sign in to see your bookings.",
       "loadError": "Could not load bookings ({status})."
@@ -451,6 +463,7 @@
         "name": "First name",
         "lastName": "Last name",
         "phone": "Phone",
+        "dateOfBirth": "Date of birth",
         "locale": "Locale"
       },
       "emptyValue": "—"
@@ -523,6 +536,15 @@
           "subtitle": "Alex Morgan • Quiet room"
         }
       }
+    },
+    "scheduleLive": {
+      "title": "Live schedule",
+      "login": "Log in",
+      "register": "Sign up",
+      "loadFailed": "Could not load schedule ({status}).",
+      "empty": "No upcoming classes in this window.",
+      "coach": "Coach",
+      "capacity": "{booked}/{capacity} booked"
     }
   },
   "adminHome": {
@@ -550,7 +572,8 @@
       "colMember": "Member",
       "colClass": "Class",
       "colStarts": "Starts",
-      "colStatus": "Status"
+      "colStatus": "Status",
+      "colActions": "Actions"
     },
     "clients": {
       "title": "Clients",
@@ -561,7 +584,8 @@
       "colName": "Name",
       "colEmail": "Email",
       "colRole": "Role",
-      "colJoined": "Joined"
+      "colJoined": "Joined",
+      "colActions": "Actions"
     },
     "coaches": {
       "title": "Coaches",
@@ -573,6 +597,7 @@
       "colEmail": "Email",
       "colPhone": "Phone",
       "colSpecialization": "Specialization",
+      "colActions": "Actions",
       "addCoachButton": "Add Coach",
       "cancelButton": "Cancel",
       "modalCloseAria": "Close",
@@ -620,7 +645,8 @@
       "colStarts": "Starts",
       "colCoach": "Coach",
       "colBooked": "Booked",
-      "colStatus": "Status"
+      "colStatus": "Status",
+      "colActions": "Actions"
     },
     "giftCards": {
       "title": "Gift cards",
@@ -632,7 +658,9 @@
       "colPurchaser": "Purchaser",
       "colRecipient": "Recipient",
       "colBalance": "Balance",
-      "colStatus": "Status"
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "createHeading": "Create gift card"
     },
     "memberships": {
       "title": "Memberships & billing",
@@ -644,7 +672,8 @@
       "colPlan": "Plan",
       "colStatus": "Status",
       "colSessionsLeft": "Sessions left",
-      "colPeriodEnd": "Period end"
+      "colPeriodEnd": "Period end",
+      "colActions": "Actions"
     },
     "waitlists": {
       "title": "Waitlists",
@@ -657,18 +686,22 @@
       "colSession": "Session",
       "colPos": "Pos",
       "colStatus": "Status",
-      "colOfferExpires": "Offer expires"
+      "colOfferExpires": "Offer expires",
+      "colActions": "Actions"
     },
     "reports": {
       "title": "Reports & analytics",
       "descriptionLead": "High-level KPIs match the dashboard API. CSV export for bookings is available to admins via ",
       "descriptionTrail": ".",
+      "exportHeading": "Export shortcuts",
+      "excelHint": "(open in Excel)",
       "errorAuth": "Admin or manager sign-in required for reports.",
       "errorLoad": "Could not load reports ({status})."
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap."
+      "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap.",
+      "deliveryNote": "Reminder delivery is deduplicated per booking; broadcast events are audit-logged."
     },
     "content": {
       "title": "Content",
@@ -728,6 +761,17 @@
       "sessionsToday": "Today's sessions",
       "bookingsToday": "Bookings today",
       "activeWaitlists": "Active waitlists"
+    },
+    "salary": {
+      "title": "Salary",
+      "lead": "Estimated payout summary from completed attendance.",
+      "loadFailed": "Could not load salary data ({status}).",
+      "noProfile": "No coach profile is linked to this account.",
+      "total": "Total earnings",
+      "pending": "Pending payout",
+      "paid": "Paid out",
+      "sessions": "Completed sessions",
+      "formula": "Formula: base {base} per completed session + {perAttendee} per attended participant."
     }
   },
   "verifyEmail": {
@@ -838,6 +882,39 @@
       "failed": "Could not update",
       "attended": "Attended",
       "noShow": "No-show"
+    },
+    "rebook": {
+      "action": "Rebook",
+      "working": "Rebooking...",
+      "failed": "Could not rebook"
+    },
+    "deleteAccountRequest": {
+      "action": "Request account deletion",
+      "confirm": "Send account deletion request to the studio team?",
+      "sending": "Sending...",
+      "sent": "Request sent to studio support.",
+      "failed": "Could not send request."
+    }
+  },
+  "adminActions": {
+    "studio": {
+      "title": "Studio settings",
+      "description": "Studio-level policy and contact settings.",
+      "loadFailed": "Could not load studio settings ({status}).",
+      "studioName": "Studio name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "whatsappUrl": "WhatsApp URL",
+      "address": "Address",
+      "mapEmbedUrl": "Map embed URL",
+      "workingHours": "Working hours",
+      "socialLinksJson": "Social links JSON",
+      "cancellationHoursNotice": "Cancellation hours notice",
+      "waitlistOfferMinutes": "Waitlist offer minutes",
+      "save": "Save settings",
+      "saving": "Saving...",
+      "saved": "Settings updated.",
+      "failed": "Could not update settings."
     }
   }
 }

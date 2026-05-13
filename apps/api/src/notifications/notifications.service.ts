@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BookingStatus, Role } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -15,6 +16,7 @@ export class NotificationsService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly expoPush: ExpoPushService,
+    private readonly audit: AuditService,
   ) {}
 
   @Cron(CronExpression.EVERY_30_MINUTES)
@@ -40,6 +42,12 @@ export class NotificationsService {
     });
 
     for (const b of bookings) {
+      const sentAlready = await this.prisma.classReminderSendLog.findUnique({
+        where: { bookingId: b.id },
+      });
+      if (sentAlready) {
+        continue;
+      }
       const prefs = b.user.notificationPrefs;
       if (prefs && !prefs.bookingReminders) {
         continue;
@@ -59,6 +67,9 @@ export class NotificationsService {
           })),
         );
       }
+      await this.prisma.classReminderSendLog.create({
+        data: { bookingId: b.id },
+      });
     }
     if (bookings.length > 0) {
       this.logger.log(`Sent up to ${bookings.length} class reminders`);
@@ -78,6 +89,13 @@ export class NotificationsService {
     for (const u of users) {
       await this.mail.sendEmail({ to: u.email, subject, html });
     }
+    await this.audit.log({
+      actorRole: 'ADMIN',
+      action: 'NOTIFICATION_BROADCAST',
+      entityType: 'Notification',
+      entityId: 'broadcast',
+      payload: { subject, recipientCount: users.length },
+    });
     return { ok: true, count: users.length };
   }
 }

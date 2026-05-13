@@ -4,14 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { GiftCardStatus } from '@prisma/client';
+import { randomBytes } from 'node:crypto';
+import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 
 @Injectable()
 export class GiftCardsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly audit: AuditService,
   ) {}
 
   listMine(userId: string) {
@@ -69,10 +73,16 @@ export class GiftCardsService {
   }
 
   async deactivate(id: string) {
-    return this.prisma.giftCard.update({
+    const updated = await this.prisma.giftCard.update({
       where: { id },
       data: { status: GiftCardStatus.DEACTIVATED },
     });
+    await this.audit.log({
+      action: 'GIFT_CARD_DEACTIVATED',
+      entityType: 'GiftCard',
+      entityId: id,
+    });
+    return updated;
   }
 
   async resendEmail(id: string) {
@@ -87,5 +97,47 @@ export class GiftCardsService {
       html: `<p>Code: <strong>${card.code}</strong></p><p>Redeem at ${web}</p>`,
     });
     return { ok: true };
+  }
+
+  async createAdminCard(adminId: string, dto: AdminCreateGiftCardDto) {
+    const code = randomBytes(8).toString('hex').toUpperCase();
+    const expiresAt =
+      dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
+    if (expiresAt && Number.isNaN(expiresAt.getTime())) {
+      throw new BadRequestException('Invalid expiresAt date');
+    }
+    const card = await this.prisma.giftCard.create({
+      data: {
+        code,
+        amountCents: dto.amountCents,
+        balanceCents: dto.amountCents,
+        status: GiftCardStatus.ACTIVE,
+        purchaserId: adminId,
+        recipientName: dto.recipientName,
+        recipientEmail: dto.recipientEmail,
+        message: dto.message,
+        expiresAt,
+      },
+    });
+    if (card.recipientEmail) {
+      const web = process.env.WEB_APP_URL ?? 'http://localhost:3000';
+      await this.mail.sendEmail({
+        to: card.recipientEmail,
+        subject: 'Your Ommm gift card',
+        html: `<p>Code: <strong>${card.code}</strong></p><p>Redeem at ${web}</p>`,
+      });
+    }
+    await this.audit.log({
+      actorId: adminId,
+      actorRole: 'ADMIN',
+      action: 'GIFT_CARD_CREATED_ADMIN',
+      entityType: 'GiftCard',
+      entityId: card.id,
+      payload: {
+        amountCents: card.amountCents,
+        recipientEmail: card.recipientEmail ?? null,
+      },
+    });
+    return card;
   }
 }

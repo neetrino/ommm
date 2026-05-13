@@ -8,7 +8,7 @@ type Dashboard = {
   bookingsToday: number;
   activeWaitlists: number;
   activeMembers: number;
-  revenueCentsTotal: number;
+  revenueCentsTotal?: number;
 };
 
 export async function AdminDashboardMetrics({ locale }: { locale: string }) {
@@ -22,7 +22,7 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
   let data: Dashboard | null = null;
   let err: string | null = null;
   try {
-    const res = await fetch(`${origin}/api/v1/reports/dashboard`, {
+    const res = await fetch(`${origin}/api/v1/reports/dashboard?includeRevenue=true`, {
       cache: "no-store",
       headers: { cookie },
     });
@@ -45,10 +45,9 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
           <Metric label={tm("bookingsToday")} value={data.bookingsToday} />
           <Metric label={tm("activeWaitlists")} value={data.activeWaitlists} />
           <Metric label={tm("activeMembers")} value={data.activeMembers} />
-          <Metric
-            label={tm("revenueCents")}
-            value={data.revenueCentsTotal}
-          />
+          {typeof data.revenueCentsTotal === "number" ? (
+            <Metric label={tm("revenueCents")} value={data.revenueCentsTotal} />
+          ) : null}
         </ul>
       ) : null}
       <section className={`mt-10 ${adminChrome.panel}`}>

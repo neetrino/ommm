@@ -41,6 +41,12 @@ export default async function CoachAnalyticsPage({
   }
 
   const d = res.data;
+  const utilizationPercent =
+    d.todaySessions > 0 ? Math.round((d.bookedToday / d.todaySessions) * 100) : 0;
+  const waitlistPressure =
+    d.todaySessions > 0
+      ? Math.round((d.activeWaitlistsForCoachSessions / d.todaySessions) * 100)
+      : 0;
 
   return (
     <div>
@@ -72,6 +78,26 @@ export default async function CoachAnalyticsPage({
           </p>
         </li>
       </ul>
+      <section className="mt-8 grid gap-4 sm:grid-cols-2">
+        <article className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
+          <p className="text-xs font-medium uppercase text-indigo-900/70">
+            Utilization
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-indigo-950">{utilizationPercent}%</p>
+          <p className="mt-1 text-xs text-indigo-900/70">
+            {d.bookedToday} bookings over {d.todaySessions} sessions today.
+          </p>
+        </article>
+        <article className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
+          <p className="text-xs font-medium uppercase text-indigo-900/70">
+            Waitlist pressure
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-indigo-950">{waitlistPressure}%</p>
+          <p className="mt-1 text-xs text-indigo-900/70">
+            Active waitlists relative to today&apos;s session count.
+          </p>
+        </article>
+      </section>
     </div>
   );
 }

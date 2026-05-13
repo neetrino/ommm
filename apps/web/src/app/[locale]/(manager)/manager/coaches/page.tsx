@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { AdminCoachActions } from "@/components/admin/admin-coach-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type CoachAdminRow = {
@@ -47,6 +48,7 @@ export default async function ManagerCoachesPage() {
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Specialization</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -61,6 +63,13 @@ export default async function ManagerCoachesPage() {
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
                   {c.specialization ?? "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <AdminCoachActions
+                    coachId={c.id}
+                    initialSpecialization={c.specialization ?? ""}
+                    initialBio={c.bio ?? ""}
+                  />
                 </td>
               </tr>
             ))}

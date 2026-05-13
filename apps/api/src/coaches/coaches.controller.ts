@@ -42,6 +42,13 @@ export class CoachesController {
     return this.coaches.coachPanelSummary(user.id);
   }
 
+  @Get('panel/salary')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.COACH)
+  panelSalary(@CurrentUser() user: { id: string }) {
+    return this.coaches.salarySummary(user.id);
+  }
+
   @Get(':id')
   getPublic(@Param('id') id: string) {
     return this.coaches.getPublic(id);

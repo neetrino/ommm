@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { AdminWaitlistActions } from "@/components/admin/admin-waitlist-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type WaitlistAdminRow = {
@@ -46,6 +47,7 @@ export default async function ManagerWaitlistsPage() {
               <th className="px-4 py-3">Pos</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Offer expires</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -67,6 +69,9 @@ export default async function ManagerWaitlistsPage() {
                   {w.offerExpiresAt
                     ? new Date(w.offerExpiresAt).toLocaleString()
                     : "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} />
                 </td>
               </tr>
             ))}

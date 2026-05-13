@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { MembershipStatus } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
+import type { UpdatePlanDto } from './dto/update-plan.dto';
 
 @Injectable()
 export class MembershipsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   listPlans() {
     return this.prisma.membershipPlan.findMany({
@@ -27,6 +32,38 @@ export class MembershipsService {
         stripePriceId: dto.stripePriceId,
       },
     });
+  }
+
+  async updatePlan(planId: string, dto: UpdatePlanDto) {
+    const data = {
+      ...(dto.name !== undefined && { name: dto.name }),
+      ...(dto.slug !== undefined && { slug: dto.slug.toLowerCase() }),
+      ...(dto.description !== undefined && { description: dto.description }),
+      ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
+      ...(dto.isUnlimited !== undefined && { isUnlimited: dto.isUnlimited }),
+      ...(dto.periodDays !== undefined && { periodDays: dto.periodDays }),
+      ...(dto.stripePriceId !== undefined && { stripePriceId: dto.stripePriceId }),
+      ...(dto.isActive !== undefined && { isActive: dto.isActive }),
+    };
+    if (dto.isUnlimited === true) {
+      Object.assign(data, { sessionsPerMonth: null });
+    } else if (dto.sessionsPerMonth !== undefined) {
+      Object.assign(data, { sessionsPerMonth: dto.sessionsPerMonth });
+    }
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestException('No updatable fields were provided');
+    }
+    const updated = await this.prisma.membershipPlan.update({
+      where: { id: planId },
+      data,
+    });
+    await this.audit.log({
+      action: 'MEMBERSHIP_PLAN_UPDATED',
+      entityType: 'MembershipPlan',
+      entityId: planId,
+      payload: data,
+    });
+    return updated;
   }
 
   async assignManual(userId: string, planId: string) {
@@ -89,22 +126,32 @@ export class MembershipsService {
     });
   }
 
-  listAllAdmin() {
+  listAllAdmin(options?: { take?: number; offset?: number }) {
+    const take = Math.min(Math.max(options?.take ?? 500, 1), 1000);
+    const skip = Math.max(options?.offset ?? 0, 0);
     return this.prisma.userMembership.findMany({
       include: {
         plan: true,
         user: { select: { id: true, email: true, name: true } },
       },
       orderBy: { createdAt: 'desc' },
-      take: 500,
+      take,
+      skip,
     });
   }
 
   async adminSetStatus(membershipId: string, status: MembershipStatus) {
-    return this.prisma.userMembership.update({
+    const updated = await this.prisma.userMembership.update({
       where: { id: membershipId },
       data: { status },
       include: { plan: true, user: { select: { email: true } } },
     });
+    await this.audit.log({
+      action: 'MEMBERSHIP_STATUS_UPDATED',
+      entityType: 'UserMembership',
+      entityId: membershipId,
+      payload: { status },
+    });
+    return updated;
   }
 }

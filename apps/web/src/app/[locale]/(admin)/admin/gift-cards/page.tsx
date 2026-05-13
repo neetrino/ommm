@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -58,6 +60,7 @@ export default async function AdminGiftCardsPage({
               <th className={adminChrome.th}>{t("colRecipient")}</th>
               <th className={adminChrome.th}>{t("colBalance")}</th>
               <th className={adminChrome.th}>{t("colStatus")}</th>
+              <th className={adminChrome.th}>{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -75,11 +78,21 @@ export default async function AdminGiftCardsPage({
                   {(g.amountCents / 100).toFixed(2)}
                 </td>
                 <td className={adminChrome.td}>{g.status}</td>
+                <td className={adminChrome.td}>
+                  <AdminGiftCardActions
+                    giftCardId={g.id}
+                    allowDeactivate
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <section className={`mt-6 ${adminChrome.panel}`}>
+        <p className={adminChrome.panelHeading}>{t("createHeading")}</p>
+        <AdminCreateGiftCardForm />
+      </section>
     </AccountPageFrame>
   );
 }

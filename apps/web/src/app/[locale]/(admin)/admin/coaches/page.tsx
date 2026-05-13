@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminCoachActions } from "@/components/admin/admin-coach-actions";
 import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
@@ -64,6 +65,7 @@ export default async function AdminCoachesPage({
                   <th className={adminChrome.th}>{t("colEmail")}</th>
                   <th className={adminChrome.th}>{t("colPhone")}</th>
                   <th className={adminChrome.th}>{t("colSpecialization")}</th>
+                  <th className={adminChrome.th}>{t("colActions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -76,6 +78,13 @@ export default async function AdminCoachesPage({
                     <td className={adminChrome.td}>{c.user.phone ?? "—"}</td>
                     <td className={adminChrome.td}>
                       {c.specialization ?? "—"}
+                    </td>
+                    <td className={adminChrome.td}>
+                      <AdminCoachActions
+                        coachId={c.id}
+                        initialSpecialization={c.specialization ?? ""}
+                        initialBio={c.bio ?? ""}
+                      />
                     </td>
                   </tr>
                 ))}

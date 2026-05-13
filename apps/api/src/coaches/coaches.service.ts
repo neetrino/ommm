@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { BookingStatus, Role, WaitlistStatus, type User } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import { hashPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateCoachDto } from './dto/create-coach.dto';
@@ -13,7 +14,10 @@ import type { UpdateCoachDto } from './dto/update-coach.dto';
 
 @Injectable()
 export class CoachesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   listPublic() {
     return this.prisma.coachProfile.findMany({
@@ -113,13 +117,22 @@ export class CoachesService {
     if (actor.role === Role.MANAGER && dto.isActive === false) {
       throw new ForbiddenException('Managers cannot deactivate coaches');
     }
-    return this.prisma.coachProfile.update({
+    const updated = await this.prisma.coachProfile.update({
       where: { id: coachProfileId },
       data: dto,
       include: {
         user: { select: { id: true, name: true, email: true } },
       },
     });
+    await this.audit.log({
+      actorId: actor.id,
+      actorRole: actor.role,
+      action: 'COACH_UPDATED',
+      entityType: 'CoachProfile',
+      entityId: coachProfileId,
+      payload: dto,
+    });
+    return updated;
   }
 
   listAdmin() {
@@ -181,6 +194,44 @@ export class CoachesService {
       todaySessions,
       bookedToday,
       activeWaitlistsForCoachSessions: waitlists,
+    };
+  }
+
+  async salarySummary(userId: string) {
+    const profile = await this.prisma.coachProfile.findUnique({
+      where: { userId },
+    });
+    if (!profile) {
+      return null;
+    }
+    const sessions = await this.prisma.classSession.findMany({
+      where: {
+        coachId: profile.id,
+      },
+      include: {
+        bookings: {
+          where: {
+            status: BookingStatus.COMPLETED,
+          },
+        },
+      },
+      orderBy: { startsAt: 'desc' },
+      take: 300,
+    });
+    const perAttendeeShareCents = 1000;
+    const basePerSessionCents = 3000;
+    const completedSessions = sessions.filter((s) => s.bookings.length > 0);
+    const totalEarningsCents = completedSessions.reduce((sum, s) => {
+      return sum + basePerSessionCents + s.bookings.length * perAttendeeShareCents;
+    }, 0);
+    return {
+      coachProfileId: profile.id,
+      completedSessions: completedSessions.length,
+      totalEarningsCents,
+      basePerSessionCents,
+      perAttendeeShareCents,
+      pendingPayoutCents: Math.round(totalEarningsCents * 0.4),
+      paidOutCents: Math.round(totalEarningsCents * 0.6),
     };
   }
 }

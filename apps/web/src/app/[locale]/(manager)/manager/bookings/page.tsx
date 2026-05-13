@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { AdminBookingActions } from "@/components/admin/admin-booking-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type BookingAdminRow = {
@@ -6,6 +7,7 @@ type BookingAdminRow = {
   status: string;
   user: { name: string | null; email: string };
   session: {
+    id: string;
     startsAt: string;
     classType: { name: string };
   };
@@ -48,6 +50,7 @@ export default async function ManagerBookingsPage() {
               <th className="px-4 py-3">Class</th>
               <th className="px-4 py-3">Starts</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -67,6 +70,12 @@ export default async function ManagerBookingsPage() {
                   {new Date(b.session.startsAt).toLocaleString()}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">{b.status}</td>
+                <td className="px-4 py-3">
+                  <AdminBookingActions
+                    bookingId={b.id}
+                    defaultSessionId={b.session.id}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

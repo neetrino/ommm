@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type GiftRow = {
@@ -45,6 +46,7 @@ export default async function ManagerGiftCardsPage() {
               <th className="px-4 py-3">Recipient</th>
               <th className="px-4 py-3">Balance</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -64,6 +66,12 @@ export default async function ManagerGiftCardsPage() {
                   {(g.amountCents / 100).toFixed(2)}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">{g.status}</td>
+                <td className="px-4 py-3">
+                  <AdminGiftCardActions
+                    giftCardId={g.id}
+                    allowDeactivate={false}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

@@ -550,7 +550,8 @@
       "colMember": "Участник",
       "colClass": "Занятие",
       "colStarts": "Начало",
-      "colStatus": "Статус"
+      "colStatus": "Статус",
+      "colActions": "Действия"
     },
     "clients": {
       "title": "Клиенты",
@@ -561,7 +562,8 @@
       "colName": "Имя",
       "colEmail": "Email",
       "colRole": "Роль",
-      "colJoined": "Регистрация"
+      "colJoined": "Регистрация",
+      "colActions": "Действия"
     },
     "coaches": {
       "title": "Тренеры",
@@ -573,6 +575,7 @@
       "colEmail": "Email",
       "colPhone": "Телефон",
       "colSpecialization": "Специализация",
+      "colActions": "Действия",
       "addCoachButton": "Добавить тренера",
       "cancelButton": "Отмена",
       "modalCloseAria": "Закрыть",
@@ -620,7 +623,8 @@
       "colStarts": "Начало",
       "colCoach": "Тренер",
       "colBooked": "Запись",
-      "colStatus": "Статус"
+      "colStatus": "Статус",
+      "colActions": "Действия"
     },
     "giftCards": {
       "title": "Подарочные карты",
@@ -632,7 +636,9 @@
       "colPurchaser": "Покупатель",
       "colRecipient": "Получатель",
       "colBalance": "Баланс",
-      "colStatus": "Статус"
+      "colStatus": "Статус",
+      "colActions": "Действия",
+      "createHeading": "Создать подарочную карту"
     },
     "memberships": {
       "title": "Абонементы и оплата",
@@ -644,7 +650,8 @@
       "colPlan": "План",
       "colStatus": "Статус",
       "colSessionsLeft": "Осталось занятий",
-      "colPeriodEnd": "Конец периода"
+      "colPeriodEnd": "Конец периода",
+      "colActions": "Действия"
     },
     "waitlists": {
       "title": "Листы ожидания",
@@ -657,18 +664,22 @@
       "colSession": "Сессия",
       "colPos": "Поз.",
       "colStatus": "Статус",
-      "colOfferExpires": "Истекает предложение"
+      "colOfferExpires": "Истекает предложение",
+      "colActions": "Действия"
     },
     "reports": {
       "title": "Отчёты и аналитика",
       "descriptionLead": "Ключевые показатели совпадают с API панели. CSV-экспорт бронирований для админов — ",
       "descriptionTrail": ".",
+      "exportHeading": "Быстрые экспорты",
+      "excelHint": "(открывается в Excel)",
       "errorAuth": "Нужен вход админа или менеджера для отчётов.",
       "errorLoad": "Не удалось загрузить отчёты ({status})."
     },
     "notifications": {
       "title": "Уведомления",
-      "description": "Рассылка email участникам (только админ студии). Доставка через текущий почтовый контур; push — в планах продукта."
+      "description": "Рассылка email участникам (только админ студии). Доставка через текущий почтовый контур; push — в планах продукта.",
+      "deliveryNote": "Напоминания дедуплицируются по booking, события рассылок пишутся в audit log."
     },
     "content": {
       "title": "Контент",
@@ -728,6 +739,17 @@
       "sessionsToday": "Сессий сегодня",
       "bookingsToday": "Бронирований сегодня",
       "activeWaitlists": "Активных листов ожидания"
+    },
+    "salary": {
+      "title": "Выплаты",
+      "lead": "Оценка выплат на основе завершённых посещений.",
+      "loadFailed": "Не удалось загрузить данные по выплатам ({status}).",
+      "noProfile": "К этому аккаунту не привязан профиль тренера.",
+      "total": "Всего начислено",
+      "pending": "Ожидает выплаты",
+      "paid": "Уже выплачено",
+      "sessions": "Завершённых сессий",
+      "formula": "Формула: базово {base} за завершённую сессию + {perAttendee} за каждого посетившего участника."
     }
   },
   "verifyEmail": {
@@ -838,6 +860,39 @@
       "failed": "Не удалось обновить",
       "attended": "Присутствовал",
       "noShow": "Неявка"
+    },
+    "rebook": {
+      "action": "Записаться снова",
+      "working": "Повторная запись...",
+      "failed": "Не удалось записаться снова"
+    },
+    "deleteAccountRequest": {
+      "action": "Запросить удаление аккаунта",
+      "confirm": "Отправить запрос на удаление аккаунта команде студии?",
+      "sending": "Отправка...",
+      "sent": "Запрос отправлен.",
+      "failed": "Не удалось отправить запрос."
+    }
+  },
+  "adminActions": {
+    "studio": {
+      "title": "Настройки студии",
+      "description": "Политики и контактные настройки уровня студии.",
+      "loadFailed": "Не удалось загрузить настройки студии ({status}).",
+      "studioName": "Название студии",
+      "contactEmail": "Контактный email",
+      "contactPhone": "Контактный телефон",
+      "whatsappUrl": "Ссылка WhatsApp",
+      "address": "Адрес",
+      "mapEmbedUrl": "Ссылка embed карты",
+      "workingHours": "Часы работы",
+      "socialLinksJson": "JSON соцссылок",
+      "cancellationHoursNotice": "Окно отмены (часы)",
+      "waitlistOfferMinutes": "Срок оффера листа ожидания (минуты)",
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "saved": "Настройки обновлены.",
+      "failed": "Не удалось обновить настройки."
     }
   }
 }

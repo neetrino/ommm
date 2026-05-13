@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -12,6 +13,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { ManualNotifyWaitlistEntryDto } from './dto/manual-notify-waitlist-entry.dto';
+import { PromoteWaitlistEntryDto } from './dto/promote-waitlist-entry.dto';
 import { WaitlistService } from './waitlist.service';
 
 @Controller('waitlist')
@@ -62,5 +65,29 @@ export class WaitlistController {
   @Roles(Role.ADMIN, Role.MANAGER)
   remove(@Param('id') id: string) {
     return this.waitlist.remove(id);
+  }
+
+  @Post('entries/:id/promote')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  promote(@Param('id') id: string, @Body() dto: PromoteWaitlistEntryDto) {
+    return this.waitlist.promoteToBooking(id, dto.targetSessionId);
+  }
+
+  @Post('entries/:id/notify')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  notify(
+    @CurrentUser() user: { id: string; name?: string | null; role: Role },
+    @Param('id') id: string,
+    @Body() dto: ManualNotifyWaitlistEntryDto,
+  ) {
+    return this.waitlist.manualNotify(id, {
+      subject: dto.subject,
+      message: dto.message,
+      actorName: user.name ?? null,
+      actorId: user.id,
+      actorRole: user.role,
+    });
   }
 }

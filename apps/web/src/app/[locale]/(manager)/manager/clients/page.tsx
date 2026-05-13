@@ -1,10 +1,13 @@
 import { headers } from "next/headers";
+import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClientRow = {
   id: string;
   email: string;
   name: string | null;
+  lastName?: string | null;
+  phone?: string | null;
   role: string;
   createdAt: string;
 };
@@ -37,6 +40,7 @@ export default async function ManagerClientsPage() {
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Joined</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -49,6 +53,15 @@ export default async function ManagerClientsPage() {
                 <td className="px-4 py-3 text-zinc-600">{c.role}</td>
                 <td className="px-4 py-3 text-zinc-500">
                   {new Date(c.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-3">
+                  <AdminClientActions
+                    clientId={c.id}
+                    initialEmail={c.email}
+                    initialName={c.name ?? ""}
+                    initialLastName={c.lastName ?? ""}
+                    initialPhone={c.phone ?? ""}
+                  />
                 </td>
               </tr>
             ))}

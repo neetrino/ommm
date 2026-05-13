@@ -28,6 +28,9 @@ export function CoachUpcomingSessionsSection({
           <p className="mt-1 text-xs text-zinc-500">
             {s._count.bookings}/{s.capacity} booked
           </p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-zinc-500">
+            Session ID: {s.id}
+          </p>
         </li>
       ))}
     </ul>

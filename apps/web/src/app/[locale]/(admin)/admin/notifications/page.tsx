@@ -15,6 +15,7 @@ export default async function AdminNotificationsPage({
       <div className="mt-2 max-w-xl ommm-account-section">
         <AdminNotificationBroadcastForm />
       </div>
+      <p className="ommm-body-muted mt-4 text-sm">{t("deliveryNote")}</p>
     </AccountPageFrame>
   );
 }

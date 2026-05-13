@@ -10,7 +10,7 @@ type Dashboard = {
   bookingsToday: number;
   activeWaitlists: number;
   activeMembers: number;
-  revenueCentsTotal: number;
+  revenueCentsTotal?: number;
 };
 
 export default async function AdminReportsPage({
@@ -21,7 +21,10 @@ export default async function AdminReportsPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.reports" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<Dashboard>("/reports/dashboard", cookie);
+  const res = await serverApiJson<Dashboard>(
+    "/reports/dashboard?includeRevenue=true",
+    cookie,
+  );
 
   if (!res.ok) {
     return (
@@ -47,6 +50,22 @@ export default async function AdminReportsPage({
       }
     >
       <AdminReportsSummary data={res.data} locale={locale} />
+      <section className="mt-8 rounded-[20px] border border-white/60 bg-white/70 p-4 text-sm text-sage-700">
+        <p className="font-medium text-sage-900">{t("exportHeading")}</p>
+        <ul className="mt-2 space-y-1 text-xs text-sage-600">
+          <li>
+            <code className={adminChrome.inlineCode}>
+              GET /v1/reports/bookings.csv?from=...&amp;to=...
+            </code>
+          </li>
+          <li>
+            <code className={adminChrome.inlineCode}>
+              GET /v1/reports/bookings.csv?from=...&amp;to=...
+            </code>{" "}
+            {t("excelHint")}
+          </li>
+        </ul>
+      </section>
     </AccountPageFrame>
   );
 }
