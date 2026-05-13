@@ -5,34 +5,25 @@ import {
   SCHEDULE_MUTED,
   SCHEDULE_ROW_DIVIDER,
 } from "@/components/marketing/schedule/schedule-public-design";
-import type { ScheduleSampleSessionDef } from "@/components/marketing/schedule/schedule-sample-sessions";
-
-function formatTime(locale: string, hour: number, minute: number): string {
-  const d = new Date();
-  d.setHours(hour, minute, 0, 0);
-  return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(d);
-}
+import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 
 export type ScheduleSessionRowProps = {
-  locale: string;
-  row: ScheduleSampleSessionDef;
+  row: MarketingScheduleItem;
   studioLabel: string;
   bookLabel: string;
-  title: string;
   subtitle: string;
+  timeLabel: string;
   durationLabel: string;
 };
 
 export function ScheduleSessionRow({
-  locale,
   row,
   studioLabel,
   bookLabel,
-  title,
   subtitle,
+  timeLabel,
   durationLabel,
 }: ScheduleSessionRowProps) {
-  const timeLabel = formatTime(locale, row.startHour, row.startMinute);
   return (
     <li
       className={`flex flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_minmax(0,6rem)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER}`}
@@ -42,7 +33,7 @@ export function ScheduleSessionRow({
         <p className={`mt-0.5 text-xs ${SCHEDULE_MUTED}`}>{durationLabel}</p>
       </div>
       <div className="min-w-0">
-        <p className={`text-base font-semibold leading-snug ${SCHEDULE_INK}`}>{title}</p>
+        <p className={`text-base font-semibold leading-snug ${SCHEDULE_INK}`}>{row.className}</p>
         <p className={`mt-1 text-sm ${SCHEDULE_MUTED}`}>{subtitle}</p>
       </div>
       <p className={`hidden text-sm sm:block ${SCHEDULE_MUTED} sm:text-right`}>{studioLabel}</p>

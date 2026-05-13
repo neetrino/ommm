@@ -4,6 +4,7 @@ import { GiftCardBanner } from "@/components/marketing/home/gift-card-banner";
 import { MarketingHighlights } from "@/components/marketing/home/marketing-highlights";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
+import { MarketingScheduleSection } from "@/components/marketing/schedule/marketing-schedule-section";
 import { routing } from "@/i18n/routing";
 
 type PageProps = {
@@ -25,6 +26,16 @@ export default async function MarketingHomePage({ params }: PageProps) {
         revealDelayMs={40}
       >
         <MarketingHighlights locale={locale} />
+      </ProgressiveRevealSection>
+      <ProgressiveRevealSection
+        id="schedule"
+        prefetchApiPaths={["/api/v1/schedule/public"]}
+        placeholderClassName="h-[42rem] sm:h-[40rem] lg:h-[36rem]"
+        revealDelayMs={70}
+      >
+        <div className="ommm-container ommm-section">
+          <MarketingScheduleSection locale={locale} />
+        </div>
       </ProgressiveRevealSection>
       <ProgressiveRevealSection
         id="explore"

@@ -10,37 +10,25 @@ import {
   ScheduleFilterDropdown,
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
-import type {
-  ScheduleClassTypeFilter,
-  ScheduleInstructorFilter,
-} from "@/components/marketing/schedule/schedule-sample-sessions";
 
 type ScheduleFiltersHeaderProps = {
-  filterClassType: ScheduleClassTypeFilter;
-  filterInstructor: ScheduleInstructorFilter;
-  onClassTypeChange: (v: ScheduleClassTypeFilter) => void;
-  onInstructorChange: (v: ScheduleInstructorFilter) => void;
+  filterClassType: string;
+  filterInstructor: string;
+  classTypeOptions: readonly ScheduleFilterOption<string>[];
+  instructorOptions: readonly ScheduleFilterOption<string>[];
+  onClassTypeChange: (v: string) => void;
+  onInstructorChange: (v: string) => void;
 };
 
 export function ScheduleFiltersHeader({
   filterClassType,
   filterInstructor,
+  classTypeOptions,
+  instructorOptions,
   onClassTypeChange,
   onInstructorChange,
 }: ScheduleFiltersHeaderProps) {
   const t = useTranslations("marketingPages.schedule");
-  const classTypeOptions: readonly ScheduleFilterOption<ScheduleClassTypeFilter>[] = [
-    { value: "all", label: t("filterClassType") },
-    { value: "therapy", label: t("filterOptionClassTherapy") },
-    { value: "mat", label: t("filterOptionClassMat") },
-    { value: "reformer", label: t("filterOptionClassReformer") },
-  ];
-  const instructorOptions: readonly ScheduleFilterOption<ScheduleInstructorFilter>[] = [
-    { value: "all", label: t("filterInstructor") },
-    { value: "elena", label: t("filterOptionInstructorElena") },
-    { value: "alex", label: t("filterOptionInstructorAlex") },
-    { value: "frontDesk", label: t("filterOptionInstructorFrontDesk") },
-  ];
 
   return (
     <header className="flex flex-col gap-6">

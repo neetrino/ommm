@@ -8,7 +8,7 @@ export async function MarketingHighlights({ locale }: { locale: string }) {
     {
       title: m("featureScheduleTitle"),
       body: m("featureScheduleBody"),
-      href: "/user/classes" as const,
+      href: "/schedule" as const,
     },
     {
       title: m("featureMembershipsTitle"),

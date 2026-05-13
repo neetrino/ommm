@@ -78,6 +78,16 @@ enum AuthTokenType {
   PASSWORD_RESET
 }
 
+enum ScheduleDayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
 model User {
   id             String    @id @default(cuid())
   email          String    @unique
@@ -353,6 +363,24 @@ model StudioSettings {
   waitlistOfferMinutes    Int      @default(30)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
+}
+
+model ScheduleItem {
+  id              String            @id @default(cuid())
+  className       String
+  instructorName  String
+  classType       String
+  dayOfWeek       ScheduleDayOfWeek
+  startTime       String
+  endTime         String?
+  durationMinutes Int?
+  availableSpots  Int
+  description     String?
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([isActive, dayOfWeek, startTime])
 }
 
 model Achievement {
