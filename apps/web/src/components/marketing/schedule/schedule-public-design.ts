@@ -4,8 +4,6 @@ export const SCHEDULE_INK = "text-sage-800";
 export const SCHEDULE_MUTED = "text-sage-500";
 export const SCHEDULE_BOOK_BTN =
   "ommm-btn-compact-primary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm";
-export const SCHEDULE_FILTER_SELECT =
-  "w-full min-h-11 cursor-pointer appearance-none rounded-xl border border-white/70 bg-white/80 py-2.5 pl-3 pr-9 text-sm font-medium text-sage-800 shadow-sm outline-none backdrop-blur-sm transition-[border-color,box-shadow] focus-visible:border-sand-500/40 focus-visible:ring-2 focus-visible:ring-sand-500/15";
 export const SCHEDULE_ROW_DIVIDER = "border-b border-white/55";
 /** Full-width week strip surface in wellness card tone. */
 export const SCHEDULE_DATE_STRIP_PANEL =
