@@ -201,11 +201,11 @@ export function AdminScheduleRowActions({
 
   return (
     <>
-      <div className="flex min-w-[11rem] flex-col gap-2">
-        <div className="flex items-center justify-center gap-2">
+      <div className="flex min-w-0 flex-col items-center gap-1">
+        <div className="flex items-center justify-center gap-1">
           <button
             type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-sage-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-sage-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
             aria-label={t("editButtonAria")}
             title={t("editButtonAria")}
             onClick={openModal}
@@ -215,7 +215,7 @@ export function AdminScheduleRowActions({
           </button>
           <button
             type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/70 text-red-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-red-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-red-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-red-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
             aria-label={t("deleteButtonAria")}
             title={t("deleteButtonAria")}
             onClick={() => {
@@ -230,7 +230,7 @@ export function AdminScheduleRowActions({
           type="button"
           size="sm"
           variant="ghost"
-          className="h-8 rounded-lg text-[11px]"
+          className="h-7 rounded-lg px-2 text-[10px]"
           onClick={() => {
             void toggleStatus();
           }}
