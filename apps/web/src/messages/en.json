@@ -794,6 +794,15 @@
       "previewAlt": "Home image preview",
       "emptyState": "No custom image — your dashboard uses the default layout."
     },
+    "profileEdit": {
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "saveSuccess": "Profile updated successfully.",
+      "saveFailed": "Could not update profile.",
+      "emailRequired": "Email is required."
+    },
     "contact": {
       "name": "Name",
       "phone": "Phone",

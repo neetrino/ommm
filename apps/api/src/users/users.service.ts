@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -82,6 +83,7 @@ export class UsersService {
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const data: {
+      email?: string;
       name?: string;
       lastName?: string | null;
       phone?: string | null;
@@ -89,9 +91,27 @@ export class UsersService {
       avatarUrl?: string | null;
       locale?: string;
     } = {};
+    if (dto.email !== undefined) {
+      const normalizedEmail = dto.email.trim().toLowerCase();
+      if (normalizedEmail === '') {
+        throw new BadRequestException('Email cannot be empty');
+      }
+      data.email = normalizedEmail;
+    }
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.lastName !== undefined) data.lastName = dto.lastName;
-    if (dto.phone !== undefined) data.phone = dto.phone;
+    if (dto.phone !== undefined) {
+      const normalizedPhone = dto.phone.trim();
+      if (normalizedPhone === '') {
+        data.phone = null;
+      } else {
+        const phoneDigits = normalizedPhone.replace(/\D/g, '');
+        if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+          throw new BadRequestException('Invalid phone number');
+        }
+        data.phone = normalizedPhone;
+      }
+    }
     if (dto.dateOfBirth !== undefined) {
       data.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
     }
@@ -102,11 +122,32 @@ export class UsersService {
       }
       data.locale = dto.locale;
     }
-    const user = await this.prisma.user.update({
-      where: { id: userId },
-      data,
-    });
-    return { user: sanitizeUser(user) };
+    try {
+      const user = await this.prisma.user.update({
+        where: { id: userId },
+        data,
+      });
+      return { user: sanitizeUser(user) };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const target =
+          Array.isArray(error.meta?.target) &&
+          error.meta.target.every((value) => typeof value === 'string')
+            ? (error.meta.target as string[])
+            : [];
+        if (target.includes('email')) {
+          throw new ConflictException('Email already registered');
+        }
+        if (target.includes('phone')) {
+          throw new ConflictException('Phone number already registered');
+        }
+        throw new ConflictException('Profile field must be unique');
+      }
+      throw error;
+    }
   }
 
   async updateNotificationPrefs(userId: string, dto: NotificationPrefsDto) {

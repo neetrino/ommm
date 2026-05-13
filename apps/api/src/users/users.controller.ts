@@ -5,6 +5,7 @@ import {
   Get,
   Patch,
   Post,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -12,8 +13,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Express } from 'express';
+import type { Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { AuthService } from '../auth/auth.service';
+import { ACCESS_TOKEN_COOKIE } from '../common/constants';
 import { HOME_IMAGE_MAX_BYTES } from './constants/home-image.constants';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { HomeImageJsonDto } from './dto/home-image-json.dto';
@@ -25,7 +29,10 @@ import { UsersService } from './users.service';
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly users: UsersService) {}
+  constructor(
+    private readonly users: UsersService,
+    private readonly auth: AuthService,
+  ) {}
 
   /**
    * Called frequently from Next.js RSC layouts (`/users/me` per navigation).
@@ -39,8 +46,21 @@ export class UsersController {
   }
 
   @Patch('me')
-  patchMe(@CurrentUser() user: { id: string }, @Body() dto: UpdateProfileDto) {
-    return this.users.updateProfile(user.id, dto);
+  async patchMe(
+    @CurrentUser() user: { id: string },
+    @Body() dto: UpdateProfileDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.users.updateProfile(user.id, dto);
+    const refreshedToken = this.auth.issueAccessTokenForUser(result.user);
+    res.cookie(ACCESS_TOKEN_COOKIE, refreshedToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return result;
   }
 
   @Patch('me/password')

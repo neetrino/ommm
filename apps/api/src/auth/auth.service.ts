@@ -42,7 +42,7 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  private signAccessToken(user: User): string {
+  private signAccessToken(user: Pick<User, 'id' | 'email' | 'role'>): string {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -201,7 +201,7 @@ export class AuthService {
     ]);
   }
 
-  issueAccessTokenForUser(user: User): string {
+  issueAccessTokenForUser(user: Pick<User, 'id' | 'email' | 'role'>): string {
     return this.signAccessToken(user);
   }
 
