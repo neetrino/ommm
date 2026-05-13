@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import {
   SCHEDULE_ARROW_BTN,
   SCHEDULE_DATE_CHIP_ACTIVE,
@@ -64,13 +63,15 @@ export function ScheduleDateControls({
     <>
       <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className={`text-lg font-semibold capitalize ${SCHEDULE_INK}`}>{monthLabel}</p>
-        <Link
-          href="/user/classes"
-          className={`inline-flex items-center gap-2 text-sm font-medium underline-offset-4 hover:underline ${SCHEDULE_INK}`}
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          className={`inline-flex cursor-default items-center gap-2 text-sm font-medium ${SCHEDULE_INK} opacity-70`}
         >
           <CalendarIcon />
           {t("fullCalendar")}
-        </Link>
+        </button>
       </div>
 
       <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>
