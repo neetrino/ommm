@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminWaitlistActions } from "@/components/admin/admin-waitlist-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -41,15 +42,7 @@ export default async function AdminWaitlistsPage({
   return (
     <AccountPageFrame
       title={t("title")}
-      description={
-        <>
-          {t("descriptionLead")}{" "}
-          <code className={adminChrome.inlineCode}>
-            GET /v1/waitlist/sessions/:sessionId
-          </code>
-          {t("descriptionTrail")}
-        </>
-      }
+      description={t("description")}
     >
       <div className={`mt-2 ${adminChrome.tableWrap}`}>
         <table className={adminChrome.table}>
@@ -61,6 +54,7 @@ export default async function AdminWaitlistsPage({
               <th className={adminChrome.th}>{t("colPos")}</th>
               <th className={adminChrome.th}>{t("colStatus")}</th>
               <th className={adminChrome.th}>{t("colOfferExpires")}</th>
+              <th className={adminChrome.th}>{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -82,6 +76,9 @@ export default async function AdminWaitlistsPage({
                   {w.offerExpiresAt
                     ? new Date(w.offerExpiresAt).toLocaleString()
                     : "—"}
+                </td>
+                <td className={adminChrome.td}>
+                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} />
                 </td>
               </tr>
             ))}

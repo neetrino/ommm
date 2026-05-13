@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { GiftCardDroplets } from "@/components/marketing/home/gift-card-droplets";
 
 export async function GiftCardBanner({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "home.gift" });
@@ -56,20 +57,7 @@ export async function GiftCardBanner({ locale }: { locale: string }) {
             </div>
 
             <div className="relative hidden h-full min-h-[260px] lg:col-span-5 lg:block">
-              <div className="absolute inset-0">
-                <span className="absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-cream-50/40 blur-3xl" />
-                <span className="absolute right-12 top-8 h-44 w-44 rounded-full bg-cream-50/50" />
-                <span className="absolute bottom-6 right-32 h-28 w-28 rounded-full bg-peach-100/60" />
-                <span className="absolute right-10 top-1/2 inline-flex h-32 w-32 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full ring-4 ring-white/50">
-                  <Image
-                    src="/marketing/home/brand-mark.png"
-                    alt=""
-                    width={128}
-                    height={128}
-                    className="h-full w-full object-cover"
-                  />
-                </span>
-              </div>
+              <GiftCardDroplets />
             </div>
           </div>
         </article>

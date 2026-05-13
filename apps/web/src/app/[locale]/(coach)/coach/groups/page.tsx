@@ -39,9 +39,11 @@ export default async function CoachGroupsPage({
         </p>
       </div>
       <section>
-        <h2 className="text-lg font-medium text-indigo-950">
-          Attendance (booked)
-        </h2>
+        <h2 className="text-lg font-medium text-indigo-950">Attendance (booked)</h2>
+        <p className="mt-1 text-sm text-indigo-900/70">
+          This view reflects your assigned sessions only and keeps waitlist + roster
+          visibility scoped by coach.
+        </p>
         <CoachAttendanceRosterSection
           locale={locale}
           roster={panel.roster}

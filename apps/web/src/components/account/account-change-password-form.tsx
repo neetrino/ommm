@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 128;
@@ -74,39 +75,42 @@ export function AccountChangePasswordForm() {
         <label className="text-sm font-medium text-sage-700" htmlFor="current-password">
           {t("currentPasswordLabel")}
         </label>
-        <input
+        <PasswordInput
           id="current-password"
-          type="password"
           autoComplete="current-password"
           className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
           value={currentPassword}
           onChange={(ev) => setCurrentPassword(ev.target.value)}
+          showPasswordLabel={t("showPassword")}
+          hidePasswordLabel={t("hidePassword")}
         />
       </div>
       <div className="space-y-1">
         <label className="text-sm font-medium text-sage-700" htmlFor="new-password">
           {t("newPasswordLabel")}
         </label>
-        <input
+        <PasswordInput
           id="new-password"
-          type="password"
           autoComplete="new-password"
           className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
           value={newPassword}
           onChange={(ev) => setNewPassword(ev.target.value)}
+          showPasswordLabel={t("showPassword")}
+          hidePasswordLabel={t("hidePassword")}
         />
       </div>
       <div className="space-y-1">
         <label className="text-sm font-medium text-sage-700" htmlFor="confirm-password">
           {t("confirmPasswordLabel")}
         </label>
-        <input
+        <PasswordInput
           id="confirm-password"
-          type="password"
           autoComplete="new-password"
           className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
           value={confirmPassword}
           onChange={(ev) => setConfirmPassword(ev.target.value)}
+          showPasswordLabel={t("showPassword")}
+          hidePasswordLabel={t("hidePassword")}
         />
       </div>
       <OmmButton

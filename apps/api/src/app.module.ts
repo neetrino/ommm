@@ -7,6 +7,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { ClassesModule } from './classes/classes.module';
@@ -56,6 +57,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
 
 @Module({
   imports: [
+    AuditModule,
     LoggerModule.forRoot({
       pinoHttp: createPinoHttpConfig(),
       // Avoid legacy `*` + global prefix `/v1/*` (path-to-regexp v8 warnings in nestjs-pino defaults).

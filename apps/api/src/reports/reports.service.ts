@@ -10,7 +10,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async dashboard() {
+  async dashboard(options?: { includeRevenue?: boolean }) {
+    const includeRevenue = options?.includeRevenue === true;
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date(todayStart);
@@ -41,10 +42,12 @@ export class ReportsService {
       this.prisma.userMembership.count({
         where: { status: 'ACTIVE', currentPeriodEnd: { gt: new Date() } },
       }),
-      this.prisma.payment.aggregate({
-        where: { status: PaymentStatus.SUCCEEDED },
-        _sum: { amountCents: true },
-      }),
+      includeRevenue
+        ? this.prisma.payment.aggregate({
+            where: { status: PaymentStatus.SUCCEEDED },
+            _sum: { amountCents: true },
+          })
+        : Promise.resolve(null),
     ]);
 
     return {
@@ -52,14 +55,21 @@ export class ReportsService {
       bookingsToday,
       activeWaitlists: waitlistCount,
       activeMembers: membersCount,
-      revenueCentsTotal: revenueAgg._sum.amountCents ?? 0,
+      ...(includeRevenue && {
+        revenueCentsTotal: revenueAgg?._sum.amountCents ?? 0,
+      }),
     };
   }
 
   async bookingsCsv(from: Date, to: Date): Promise<string> {
+    const toSafe = new Date(to);
+    const fromSafe = new Date(from);
+    if (toSafe < fromSafe) {
+      throw new Error('Invalid range');
+    }
     const rows = await this.prisma.booking.findMany({
       where: {
-        session: { startsAt: { gte: from, lte: to } },
+        session: { startsAt: { gte: fromSafe, lte: toSafe } },
       },
       include: {
         user: { select: { email: true, name: true } },

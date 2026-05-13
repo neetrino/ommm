@@ -334,6 +334,8 @@
       "lead": "Welcome back — use the email and password for your studio account.",
       "email": "Email",
       "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "signingIn": "Signing in…",
       "continue": "Continue",
       "noAccountPrompt": "No account?",
@@ -346,6 +348,8 @@
       "phone": "Phone",
       "email": "Email",
       "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "passwordHint": "At least 8 characters.",
       "creating": "Creating…",
       "createAccount": "Create account",
@@ -390,6 +394,14 @@
       "allTime": "All time",
       "thisMonth": "This month",
       "thisMonthCaption": "Completed sessions",
+      "thisYear": "This year",
+      "thisYearCaption": "Completed sessions",
+      "allTimeCaption": "Completed sessions",
+      "performanceMetrics": "Performance metrics",
+      "totalHours": "Total hours",
+      "activeDays": "Active days",
+      "favoriteClassType": "Favorite class type",
+      "favoriteFallback": "No data yet",
       "achievements": "Achievements",
       "achievementsEmpty": "Keep booking classes — achievements unlock as you go.",
       "unlocked": "Unlocked {date}"
@@ -398,6 +410,10 @@
       "title": "My bookings",
       "upcoming": "Upcoming",
       "pastOther": "Past and other",
+      "waitlists": "Waitlists",
+      "waitlistsLoadError": "Could not load waitlists.",
+      "waitlistsEmpty": "No active waitlists.",
+      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Nothing here yet.",
       "signInRequired": "Sign in to see your bookings.",
       "loadError": "Could not load bookings ({status})."
@@ -447,6 +463,7 @@
         "name": "First name",
         "lastName": "Last name",
         "phone": "Phone",
+        "dateOfBirth": "Date of birth",
         "locale": "Locale"
       },
       "emptyValue": "—"
@@ -519,13 +536,22 @@
           "subtitle": "Alex Morgan • Quiet room"
         }
       }
+    },
+    "scheduleLive": {
+      "title": "Live schedule",
+      "login": "Log in",
+      "register": "Sign up",
+      "loadFailed": "Could not load schedule ({status}).",
+      "empty": "No upcoming classes in this window.",
+      "coach": "Coach",
+      "capacity": "{booked}/{capacity} booked"
     }
   },
   "adminHome": {
     "pageTitle": "Admin dashboard",
     "fetchError": "Fetch failed (is the API running?)",
     "csvExportTitle": "CSV export (admin only)",
-    "csvExportBody": "Use the API {code} with an authenticated admin session.",
+    "csvExportBody": "Export bookings CSV from the admin reports section.",
     "metrics": {
       "sessionsToday": "Sessions today",
       "bookingsToday": "Bookings today",
@@ -546,29 +572,50 @@
       "colMember": "Member",
       "colClass": "Class",
       "colStarts": "Starts",
-      "colStatus": "Status"
+      "colStatus": "Status",
+      "colActions": "Actions"
     },
     "clients": {
       "title": "Clients",
-      "descriptionLead": "Directory from",
-      "descriptionTrail": ".",
+      "description": "Client directory.",
       "errorAuth": "Manager or admin sign-in required.",
       "errorLoad": "Could not load clients ({status}).",
       "colName": "Name",
       "colEmail": "Email",
       "colRole": "Role",
-      "colJoined": "Joined"
+      "colJoined": "Joined",
+      "colActions": "Actions",
+      "editClient": "Edit client",
+      "editModalTitle": "Edit client",
+      "editModalDescription": "Update the selected client details.",
+      "modalCloseAria": "Close",
+      "modalBackdropClose": "Close dialog",
+      "fieldEmail": "Email",
+      "fieldName": "First name",
+      "fieldLastName": "Last name",
+      "fieldPhone": "Phone",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Enter a valid email address.",
+      "saveButton": "Update client",
+      "savingButton": "Saving…",
+      "cancelButton": "Cancel",
+      "updateSuccess": "Client updated",
+      "genericError": "Action failed",
+      "noteLabel": "Internal note",
+      "notePlaceholder": "Write a note for this client",
+      "addNote": "Add note",
+      "noteAddedSuccess": "Note added"
     },
     "coaches": {
       "title": "Coaches",
-      "descriptionLead": "Coach profiles from",
-      "descriptionTrail": ". Substitute coach and availability are managed on sessions and profiles.",
+      "description": "Coach profiles with specialization and contact details.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load coaches ({status}).",
       "colName": "Name",
       "colEmail": "Email",
       "colPhone": "Phone",
       "colSpecialization": "Specialization",
+      "colActions": "Actions",
       "addCoachButton": "Add Coach",
       "cancelButton": "Cancel",
       "modalCloseAria": "Close",
@@ -583,6 +630,8 @@
         "phoneLabel": "Phone",
         "ageLabel": "Age",
         "passwordLabel": "Password",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
         "submit": "Create coach",
         "submitting": "Creating…",
         "success": "Coach account created. Share the email and password with them securely.",
@@ -614,36 +663,37 @@
       "colStarts": "Starts",
       "colCoach": "Coach",
       "colBooked": "Booked",
-      "colStatus": "Status"
+      "colStatus": "Status",
+      "colActions": "Actions"
     },
     "giftCards": {
       "title": "Gift cards",
-      "descriptionLead": "Issued cards from",
-      "descriptionTrail": ". Resend and deactivate actions are available via API for admins.",
+      "description": "Issued gift cards with balances and status.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load gift cards ({status}).",
       "colCode": "Code",
       "colPurchaser": "Purchaser",
       "colRecipient": "Recipient",
       "colBalance": "Balance",
-      "colStatus": "Status"
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "createHeading": "Create gift card"
     },
     "memberships": {
       "title": "Memberships & billing",
-      "descriptionLead": "Active and historical memberships from",
-      "descriptionTrail": ". Plan edits and manual assignment use the API or future forms here.",
+      "description": "Active and historical memberships with plan and billing state.",
       "errorAuth": "Studio admin sign-in required for membership billing.",
       "errorLoad": "Could not load memberships ({status}).",
       "colMember": "Member",
       "colPlan": "Plan",
       "colStatus": "Status",
       "colSessionsLeft": "Sessions left",
-      "colPeriodEnd": "Period end"
+      "colPeriodEnd": "Period end",
+      "colActions": "Actions"
     },
     "waitlists": {
       "title": "Waitlists",
-      "descriptionLead": "Recent waitlist entries (all statuses). Per-session roster uses",
-      "descriptionTrail": ".",
+      "description": "Recent waitlist entries across all statuses.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load waitlists ({status}).",
       "colUser": "User",
@@ -651,18 +701,22 @@
       "colSession": "Session",
       "colPos": "Pos",
       "colStatus": "Status",
-      "colOfferExpires": "Offer expires"
+      "colOfferExpires": "Offer expires",
+      "colActions": "Actions"
     },
     "reports": {
       "title": "Reports & analytics",
-      "descriptionLead": "High-level KPIs match the dashboard API. CSV export for bookings is available to admins via ",
-      "descriptionTrail": ".",
+      "description": "High-level KPIs and booking exports for admins.",
+      "exportHeading": "Export shortcuts",
+      "exportHint": "Use the admin export controls to download bookings CSV.",
+      "excelHint": "(open in Excel)",
       "errorAuth": "Admin or manager sign-in required for reports.",
       "errorLoad": "Could not load reports ({status})."
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap."
+      "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap.",
+      "deliveryNote": "Reminder delivery is deduplicated per booking; broadcast events are audit-logged."
     },
     "content": {
       "title": "Content",
@@ -722,6 +776,17 @@
       "sessionsToday": "Today's sessions",
       "bookingsToday": "Bookings today",
       "activeWaitlists": "Active waitlists"
+    },
+    "salary": {
+      "title": "Salary",
+      "lead": "Estimated payout summary from completed attendance.",
+      "loadFailed": "Could not load salary data ({status}).",
+      "noProfile": "No coach profile is linked to this account.",
+      "total": "Total earnings",
+      "pending": "Pending payout",
+      "paid": "Paid out",
+      "sessions": "Completed sessions",
+      "formula": "Formula: base {base} per completed session + {perAttendee} per attended participant."
     }
   },
   "verifyEmail": {
@@ -776,6 +841,8 @@
       "currentPasswordLabel": "Current password",
       "newPasswordLabel": "New password",
       "confirmPasswordLabel": "Confirm new password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "updateButton": "Update password",
       "fillAllFields": "Please fill in all password fields.",
       "mismatch": "New passwords do not match.",
@@ -830,6 +897,39 @@
       "failed": "Could not update",
       "attended": "Attended",
       "noShow": "No-show"
+    },
+    "rebook": {
+      "action": "Rebook",
+      "working": "Rebooking...",
+      "failed": "Could not rebook"
+    },
+    "deleteAccountRequest": {
+      "action": "Request account deletion",
+      "confirm": "Send account deletion request to the studio team?",
+      "sending": "Sending...",
+      "sent": "Request sent to studio support.",
+      "failed": "Could not send request."
+    }
+  },
+  "adminActions": {
+    "studio": {
+      "title": "Studio settings",
+      "description": "Studio-level policy and contact settings.",
+      "loadFailed": "Could not load studio settings ({status}).",
+      "studioName": "Studio name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "whatsappUrl": "WhatsApp URL",
+      "address": "Address",
+      "mapEmbedUrl": "Map embed URL",
+      "workingHours": "Working hours",
+      "socialLinksJson": "Social links JSON",
+      "cancellationHoursNotice": "Cancellation hours notice",
+      "waitlistOfferMinutes": "Waitlist offer minutes",
+      "save": "Save settings",
+      "saving": "Saving...",
+      "saved": "Settings updated.",
+      "failed": "Could not update settings."
     }
   }
 }

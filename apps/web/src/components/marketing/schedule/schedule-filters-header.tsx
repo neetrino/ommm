@@ -52,7 +52,7 @@ export function ScheduleFiltersHeader({
           {t("pageTitle")}
         </h1>
         <Link
-          href="/user/home"
+          href="/user/classes"
           className={`shrink-0 text-sm font-medium underline-offset-4 hover:underline sm:pt-1 ${SCHEDULE_MUTED}`}
         >
           {t("myAccount")}

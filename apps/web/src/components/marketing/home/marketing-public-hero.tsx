@@ -34,7 +34,7 @@ export async function MarketingPublicHero({ locale }: { locale: string }) {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Link href="/user/classes" className="ommm-cta-primary">
+            <Link href="/schedule" className="ommm-cta-primary">
               {t("primaryCta")}
             </Link>
             <Link href="/memberships" className="ommm-cta-ghost">

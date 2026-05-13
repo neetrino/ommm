@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AccountProfileInfoForm } from "@/components/account/account-profile-info-form";
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
+import { DeleteAccountRequestButton } from "@/components/account/delete-account-request-button";
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
 import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
 import {
@@ -27,6 +28,7 @@ type MeResponse = {
     locale: string;
     role: string;
     homeImageUrl?: string | null;
+    dateOfBirth?: string | null;
   };
   notificationPrefs: NotificationPrefs;
 };
@@ -77,6 +79,9 @@ export async function RoleProfilePage({
 
         <AccountSection title={t("security")}>
           <AccountChangePasswordForm />
+          <div className="mt-4">
+            <DeleteAccountRequestButton />
+          </div>
         </AccountSection>
 
         <AccountSection title={t("homeImage")}>

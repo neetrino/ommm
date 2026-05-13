@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
@@ -239,14 +240,15 @@ export function AdminCreateCoachForm({
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("passwordLabel")}
         </span>
-        <input
+        <PasswordInput
           name="password"
-          type="password"
           className="ommm-input"
           autoComplete="new-password"
           minLength={MIN_PASSWORD_LENGTH}
           maxLength={128}
           required
+          showPasswordLabel={t("showPassword")}
+          hidePasswordLabel={t("hidePassword")}
         />
       </label>
       {error !== null ? (

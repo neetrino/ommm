@@ -11,6 +11,7 @@ type ProfileFormUser = {
   name: string | null;
   lastName: string | null;
   phone: string | null;
+  dateOfBirth?: string | null;
   locale: string;
   role?: string;
 };
@@ -25,6 +26,7 @@ type FormState = {
   name: string;
   lastName: string;
   phone: string;
+  dateOfBirth: string;
 };
 
 function initialFormState(user: ProfileFormUser): FormState {
@@ -33,6 +35,7 @@ function initialFormState(user: ProfileFormUser): FormState {
     name: user.name ?? "",
     lastName: user.lastName ?? "",
     phone: user.phone ?? "",
+    dateOfBirth: user.dateOfBirth ? user.dateOfBirth.slice(0, 10) : "",
   };
 }
 
@@ -91,6 +94,7 @@ export function AccountProfileInfoForm({
           name: name === "" ? null : name,
           lastName: lastName === "" ? null : lastName,
           phone: phone === "" ? null : phone,
+          dateOfBirth: form.dateOfBirth === "" ? null : form.dateOfBirth,
         }),
       });
       setTone("ok");
@@ -152,6 +156,14 @@ export function AccountProfileInfoForm({
           <div>
             <dt className="text-sage-500">{tProfile("labels.phone")}</dt>
             <dd className="text-sage-700">{initialUser.phone ?? empty}</dd>
+          </div>
+          <div>
+            <dt className="text-sage-500">{tProfile("labels.dateOfBirth")}</dt>
+            <dd className="text-sage-700">
+              {initialUser.dateOfBirth
+                ? new Date(initialUser.dateOfBirth).toLocaleDateString()
+                : empty}
+            </dd>
           </div>
           {showRole ? (
             <div>
@@ -230,6 +242,19 @@ export function AccountProfileInfoForm({
           className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
           value={form.phone}
           onChange={(event) => updateField("phone", event.target.value)}
+          disabled={isSaving}
+        />
+      </div>
+      <div className="space-y-1">
+        <label className="text-sm font-medium text-sage-700" htmlFor="profile-dob">
+          {tProfile("labels.dateOfBirth")}
+        </label>
+        <input
+          id="profile-dob"
+          type="date"
+          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          value={form.dateOfBirth}
+          onChange={(event) => updateField("dateOfBirth", event.target.value)}
           disabled={isSaving}
         />
       </div>

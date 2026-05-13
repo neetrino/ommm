@@ -6,7 +6,7 @@ type Dashboard = {
   bookingsToday: number;
   activeWaitlists: number;
   activeMembers: number;
-  revenueCentsTotal: number;
+  revenueCentsTotal?: number;
 };
 
 type AdminReportsSummaryProps = {
@@ -35,10 +35,12 @@ export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryP
         <p className={adminChrome.metricLabel}>{tm("activeMembers")}</p>
         <p className={adminChrome.metricValue}>{data.activeMembers}</p>
       </li>
-      <li className={adminChrome.metricCard}>
-        <p className={adminChrome.metricLabel}>{tm("revenueCents")}</p>
-        <p className={adminChrome.metricValue}>{data.revenueCentsTotal}</p>
-      </li>
+      {typeof data.revenueCentsTotal === "number" ? (
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{tm("revenueCents")}</p>
+          <p className={adminChrome.metricValue}>{data.revenueCentsTotal}</p>
+        </li>
+      ) : null}
     </ul>
   );
 }

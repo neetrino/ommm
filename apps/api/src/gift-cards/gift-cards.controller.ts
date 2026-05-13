@@ -13,6 +13,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { RedeemGiftDto } from './dto/redeem-gift.dto';
+import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { GiftCardsService } from './gift-cards.service';
 
 @Controller('gift-cards')
@@ -42,6 +43,16 @@ export class GiftCardsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   adminList() {
     return this.giftCards.listAdmin();
+  }
+
+  @Post('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminCreate(
+    @CurrentUser() user: { id: string },
+    @Body() dto: AdminCreateGiftCardDto,
+  ) {
+    return this.giftCards.createAdminCard(user.id, dto);
   }
 
   @Patch('admin/:id/deactivate')

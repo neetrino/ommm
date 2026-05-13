@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminClassActions } from "@/components/admin/admin-class-actions";
 import {
   AccountPageFrame,
   AccountSection,
@@ -100,6 +101,7 @@ export default async function AdminClassesPage({
                 <th className={adminChrome.th}>{t("colCoach")}</th>
                 <th className={adminChrome.th}>{t("colBooked")}</th>
                 <th className={adminChrome.th}>{t("colStatus")}</th>
+                <th className={adminChrome.th}>{t("colActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -118,6 +120,9 @@ export default async function AdminClassesPage({
                     {s._count.bookings}/{s.capacity}
                   </td>
                   <td className={adminChrome.td}>{s.status}</td>
+                  <td className={adminChrome.td}>
+                    <AdminClassActions sessionId={s.id} />
+                  </td>
                 </tr>
               ))}
             </tbody>

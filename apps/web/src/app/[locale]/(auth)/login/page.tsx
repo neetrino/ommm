@@ -5,6 +5,7 @@ import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { OmmButton } from "@/components/ui/omm-button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { homePathForRole } from "@/lib/role-home";
@@ -69,12 +70,13 @@ export default function LoginPage() {
         </label>
         <label className="flex flex-col gap-2">
           <span className="ommm-label">{tAuth("password")}</span>
-          <input
+          <PasswordInput
             name="password"
-            type="password"
             required
             autoComplete="current-password"
             className="ommm-input"
+            showPasswordLabel={tAuth("showPassword")}
+            hidePasswordLabel={tAuth("hidePassword")}
           />
         </label>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>

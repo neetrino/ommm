@@ -1,10 +1,13 @@
 import { headers } from "next/headers";
+import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClientRow = {
   id: string;
   email: string;
   name: string | null;
+  lastName?: string | null;
+  phone?: string | null;
   role: string;
   createdAt: string;
 };
@@ -26,9 +29,7 @@ export default async function ManagerClientsPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold text-zinc-900">Clients</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Directory from <code className="text-xs">GET /v1/clients</code>.
-      </p>
+      <p className="mt-2 text-sm text-zinc-600">Client directory.</p>
       <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
@@ -37,6 +38,7 @@ export default async function ManagerClientsPage() {
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Joined</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -49,6 +51,15 @@ export default async function ManagerClientsPage() {
                 <td className="px-4 py-3 text-zinc-600">{c.role}</td>
                 <td className="px-4 py-3 text-zinc-500">
                   {new Date(c.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-3">
+                  <AdminClientActions
+                    clientId={c.id}
+                    initialEmail={c.email}
+                    initialName={c.name ?? ""}
+                    initialLastName={c.lastName ?? ""}
+                    initialPhone={c.phone ?? ""}
+                  />
                 </td>
               </tr>
             ))}

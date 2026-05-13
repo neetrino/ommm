@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { MarketingScheduleView } from "@/components/marketing/schedule/marketing-schedule-view";
+import { MarketingScheduleLiveView } from "@/components/marketing/schedule/marketing-schedule-live-view";
 import { SCHEDULE_PAGE_BG } from "@/components/marketing/schedule/schedule-public-design";
 
 export async function generateMetadata({
@@ -35,7 +35,7 @@ export default async function ScheduleMarketingPage({
         <div className="absolute bottom-[-5rem] left-1/3 h-72 w-72 rounded-full bg-peach-100/45 blur-3xl" />
       </div>
       <div className="ommm-container relative">
-        <MarketingScheduleView />
+        <MarketingScheduleLiveView locale={locale} />
       </div>
     </section>
   );

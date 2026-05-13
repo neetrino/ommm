@@ -125,8 +125,6 @@ export function dashboardNotificationRouteForRole(
       return { href: "/user/notifications", labelKey: "notifications" };
     case "COACH":
       return { href: "/coach/notifications", labelKey: "notifications" };
-    case "MANAGER":
-      return { href: "/manager/notifications", labelKey: "notifications" };
     case "CONTENT_ADMIN":
       return { href: "/content-admin/notifications", labelKey: "notifications" };
     case "ADMIN":
