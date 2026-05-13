@@ -19,9 +19,9 @@ export default async function MarketingLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-paper">
+    <div className="ommm-bg-wellness flex min-h-screen w-full flex-col">
       <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
-      <main className="flex-1">{children}</main>
+      <main className="flex flex-1 flex-col">{children}</main>
       <MarketingSiteFooter locale={locale} />
     </div>
   );

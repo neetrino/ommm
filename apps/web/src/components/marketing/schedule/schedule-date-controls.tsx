@@ -118,7 +118,7 @@ export function ScheduleDateControls({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col gap-1 border-b border-[#000000]/[0.06] pb-3 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
+      <div className="mt-8 flex flex-col gap-1 border-b border-white/55 pb-3 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
         <p className={`text-lg font-semibold capitalize ${SCHEDULE_INK}`}>{selectedLong}</p>
         <p className={`text-xs leading-relaxed sm:max-w-md ${SCHEDULE_MUTED}`}>{t("timezoneNote")}</p>
       </div>

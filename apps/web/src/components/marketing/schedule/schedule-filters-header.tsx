@@ -33,7 +33,7 @@ export function ScheduleFiltersHeader({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <h1
           id="schedule-page-title"
-          className={`text-2xl font-bold tracking-tight sm:text-[1.65rem] ${SCHEDULE_INK}`}
+          className={`font-serif text-[clamp(1.6rem,1.8vw+1rem,2.2rem)] italic font-semibold tracking-tight ${SCHEDULE_INK}`}
         >
           {t("pageTitle")}
         </h1>

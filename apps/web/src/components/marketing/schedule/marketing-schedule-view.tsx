@@ -62,7 +62,7 @@ export function MarketingScheduleView() {
   }, [baseline, nav.selectedDate, classType, instructor]);
 
   return (
-    <div className="font-sans">
+    <div className="ommm-card p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
       <ScheduleFiltersHeader
         filterClassType={classType}
         filterInstructor={instructor}
