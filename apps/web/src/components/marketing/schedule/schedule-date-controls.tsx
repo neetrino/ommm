@@ -6,6 +6,7 @@ import {
   SCHEDULE_ARROW_BTN,
   SCHEDULE_DATE_CHIP_ACTIVE,
   SCHEDULE_DATE_CHIP_IDLE,
+  SCHEDULE_DATE_STRIP_PANEL,
   SCHEDULE_INK,
   SCHEDULE_MUTED,
 } from "@/components/marketing/schedule/schedule-public-design";
@@ -72,45 +73,49 @@ export function ScheduleDateControls({
         </Link>
       </div>
 
-      <div className="mt-4 flex max-w-full items-center gap-2 overflow-hidden">
-        <button
-          type="button"
-          className={SCHEDULE_ARROW_BTN}
-          aria-label={t("prevDatesAria")}
-          onClick={() => onShiftWindow(-WINDOW_SHIFT)}
-        >
-          <ArrowLeftIcon />
-        </button>
-        <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {stripDays.map((day) => {
-            const active = isSameCalendarDay(day, selectedDate);
-            const dayNum = String(day.getDate());
-            const wk = formatWeekdayShort(locale, day);
-            return (
-              <button
-                key={day.getTime()}
-                type="button"
-                onClick={() => onSelectDay(startOfLocalDay(day))}
-                className="flex shrink-0 flex-col items-center gap-1.5 px-0.5"
-              >
-                <span className={`text-[11px] font-medium uppercase tracking-wide ${SCHEDULE_MUTED}`}>
-                  {wk}
-                </span>
-                <span className={active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE}>
-                  {dayNum}
-                </span>
-              </button>
-            );
-          })}
+      <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>
+        <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
+          <button
+            type="button"
+            className={SCHEDULE_ARROW_BTN}
+            aria-label={t("prevDatesAria")}
+            onClick={() => onShiftWindow(-WINDOW_SHIFT)}
+          >
+            <ArrowLeftIcon />
+          </button>
+          <div className="grid min-w-0 flex-1 grid-cols-7 gap-1 sm:gap-2">
+            {stripDays.map((day) => {
+              const active = isSameCalendarDay(day, selectedDate);
+              const dayNum = String(day.getDate());
+              const wk = formatWeekdayShort(locale, day).toUpperCase();
+              return (
+                <button
+                  key={day.getTime()}
+                  type="button"
+                  onClick={() => onSelectDay(startOfLocalDay(day))}
+                  className="flex min-w-0 flex-col items-center justify-center gap-2 py-1"
+                >
+                  <span
+                    className={`w-full truncate text-center text-[9px] font-medium uppercase tracking-wide sm:text-[10px] ${SCHEDULE_MUTED}`}
+                  >
+                    {wk}
+                  </span>
+                  <span className={active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE}>
+                    {dayNum}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            className={SCHEDULE_ARROW_BTN}
+            aria-label={t("nextDatesAria")}
+            onClick={() => onShiftWindow(WINDOW_SHIFT)}
+          >
+            <ArrowRightIcon />
+          </button>
         </div>
-        <button
-          type="button"
-          className={SCHEDULE_ARROW_BTN}
-          aria-label={t("nextDatesAria")}
-          onClick={() => onShiftWindow(WINDOW_SHIFT)}
-        >
-          <ArrowRightIcon />
-        </button>
       </div>
 
       <div className="mt-8 flex flex-col gap-1 border-b border-[#000000]/[0.06] pb-3 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">

@@ -29,3 +29,9 @@ export function compareTimeOfDay(
   const bv = bHour * 60 + bMinute;
   return av - bv;
 }
+
+/** Week view used on the schedule strip: Sunday → Saturday (matches reference UI). */
+export function startOfWeekSunday(input: Date): Date {
+  const d = startOfLocalDay(input);
+  return addDays(d, -d.getDay());
+}

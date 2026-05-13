@@ -7,9 +7,12 @@ export const SCHEDULE_BOOK_BTN =
 export const SCHEDULE_FILTER_SELECT =
   "w-full min-h-11 cursor-pointer appearance-none rounded-lg border border-[#1a1a1a]/22 bg-transparent py-2.5 pl-3 pr-9 text-sm font-medium text-[#000000] outline-none transition-[border-color,box-shadow] focus-visible:border-[#1a1a1a]/40 focus-visible:ring-2 focus-visible:ring-[#1a1a1a]/12";
 export const SCHEDULE_ROW_DIVIDER = "border-b border-[#000000]/[0.06]";
+/** Full-width week strip surface (reference: soft grey band behind dates). */
+export const SCHEDULE_DATE_STRIP_PANEL =
+  "w-full rounded-2xl bg-[#e8e6e4]/90 px-2 py-4 shadow-[0_1px_0_rgba(0,0,0,0.04)] ring-1 ring-[#000000]/[0.05] sm:px-4 sm:py-5";
 export const SCHEDULE_DATE_CHIP_ACTIVE =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#000000] shadow-sm ring-1 ring-[#000000]/8";
+  "mx-auto flex aspect-square w-full max-w-[3.25rem] items-center justify-center rounded-full bg-white text-sm font-semibold text-[#000000] shadow-md ring-1 ring-[#000000]/10 sm:max-w-[3.75rem] sm:text-base";
 export const SCHEDULE_DATE_CHIP_IDLE =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#e8e6e4] text-sm font-medium text-[#666666] ring-1 ring-transparent transition-colors hover:bg-[#dedcda]";
+  "mx-auto flex aspect-square w-full max-w-[3.25rem] items-center justify-center rounded-full bg-[#dedcda] text-sm font-medium text-[#666666] transition-colors hover:bg-[#d4d2d0] sm:max-w-[3.75rem] sm:text-base";
 export const SCHEDULE_ARROW_BTN =
-  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#1a1a1a]/15 bg-white/80 text-[#000000] shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a]/15";
+  "inline-flex h-11 w-11 shrink-0 items-center justify-center self-center rounded-full border border-[#1a1a1a]/12 bg-white text-[#000000] shadow-md transition-colors hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a1a1a]/15 sm:h-12 sm:w-12";

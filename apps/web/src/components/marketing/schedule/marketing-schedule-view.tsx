@@ -11,6 +11,7 @@ import {
   compareTimeOfDay,
   isSameCalendarDay,
   startOfLocalDay,
+  startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
 import {
   SCHEDULE_SAMPLE_SESSION_DEFS,
@@ -18,26 +19,47 @@ import {
   type ScheduleInstructorFilter,
 } from "@/components/marketing/schedule/schedule-sample-sessions";
 
+type ScheduleNavState = {
+  windowStart: Date;
+  selectedDate: Date;
+};
+
+function buildInitialNav(baseline: Date): ScheduleNavState {
+  const windowStart = startOfWeekSunday(baseline);
+  return { windowStart, selectedDate: baseline };
+}
+
+function shiftWeek(prev: ScheduleNavState, deltaDays: number): ScheduleNavState {
+  const nextWs = addDays(prev.windowStart, deltaDays);
+  const first = startOfLocalDay(nextWs);
+  const last = addDays(first, 6);
+  const sel = startOfLocalDay(prev.selectedDate);
+  const outOfRange = sel.getTime() < first.getTime() || sel.getTime() > last.getTime();
+  return {
+    windowStart: nextWs,
+    selectedDate: outOfRange ? first : prev.selectedDate,
+  };
+}
+
 export function MarketingScheduleView() {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const [baseline] = useState(() => startOfLocalDay(new Date()));
-  const [selectedDate, setSelectedDate] = useState(() => baseline);
-  const [windowStart, setWindowStart] = useState(() => addDays(baseline, -3));
+  const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));
   const [classType, setClassType] = useState<ScheduleClassTypeFilter>("all");
   const [instructor, setInstructor] = useState<ScheduleInstructorFilter>("all");
 
   const visibleSessions = useMemo(() => {
     return SCHEDULE_SAMPLE_SESSION_DEFS.filter((def) => {
       const rowDay = addDays(baseline, def.dayOffset);
-      if (!isSameCalendarDay(rowDay, selectedDate)) return false;
+      if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
       if (classType !== "all" && def.classType !== classType) return false;
       if (instructor !== "all" && def.instructorKey !== instructor) return false;
       return true;
     }).sort((a, b) =>
       compareTimeOfDay(a.startHour, a.startMinute, b.startHour, b.startMinute),
     );
-  }, [baseline, selectedDate, classType, instructor]);
+  }, [baseline, nav.selectedDate, classType, instructor]);
 
   return (
     <div className="font-sans">
@@ -49,10 +71,10 @@ export function MarketingScheduleView() {
       />
       <ScheduleDateControls
         locale={locale}
-        selectedDate={selectedDate}
-        windowStart={windowStart}
-        onSelectDay={setSelectedDate}
-        onShiftWindow={(delta) => setWindowStart((d) => addDays(d, delta))}
+        selectedDate={nav.selectedDate}
+        windowStart={nav.windowStart}
+        onSelectDay={(d) => setNav((s) => ({ ...s, selectedDate: d }))}
+        onShiftWindow={(delta) => setNav((s) => shiftWeek(s, delta))}
       />
       <ul className="mt-0 list-none p-0">
         {visibleSessions.length === 0 ? (

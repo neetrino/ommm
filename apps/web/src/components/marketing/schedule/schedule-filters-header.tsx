@@ -44,7 +44,7 @@ export function ScheduleFiltersHeader({
           {t("myAccount")}
         </Link>
       </div>
-      <div className="grid w-full max-w-md grid-cols-1 gap-3 self-start sm:grid-cols-2 lg:max-w-lg">
+      <div className="grid w-full grid-cols-1 gap-3 gap-x-4 self-stretch sm:grid-cols-2">
         <div className="relative">
           <label htmlFor="schedule-class-type" className="sr-only">
             {t("filterClassTypeAria")}
