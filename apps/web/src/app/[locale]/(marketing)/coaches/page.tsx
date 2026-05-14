@@ -49,10 +49,10 @@ export default async function CoachesMarketingPage({
           {res.data.map((c) => (
             <li
               key={c.id}
-              className="ommm-card ommm-marketing-card-hover flex min-h-[22rem] flex-col gap-6 p-6 shadow-[0_24px_55px_-26px_rgba(45,40,35,0.24)] sm:p-7"
+              className="ommm-card ommm-marketing-card-hover flex min-h-[28rem] flex-col gap-6 p-6 shadow-[0_24px_55px_-26px_rgba(45,40,35,0.24)] sm:p-7"
             >
               <div
-                className="relative h-44 w-full shrink-0 overflow-hidden rounded-[24px] bg-gradient-to-br from-mint-100/90 to-sand-100 ring-1 ring-white/70"
+                className="relative h-56 w-full shrink-0 overflow-hidden rounded-[24px] bg-gradient-to-br from-mint-100/90 to-sand-100 ring-1 ring-white/70"
                 aria-hidden
               >
                 {c.user.avatarUrl ? (

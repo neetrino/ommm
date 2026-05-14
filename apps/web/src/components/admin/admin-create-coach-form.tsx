@@ -71,8 +71,9 @@ export function AdminCreateCoachForm({
     if (pending || submitLockRef.current) {
       return;
     }
+    const form = e.currentTarget;
 
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const nameRaw = String(fd.get("name") ?? "").trim();
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
@@ -144,7 +145,7 @@ export function AdminCreateCoachForm({
           age: ageNum,
         }),
       });
-      e.currentTarget.reset();
+      form.reset();
       setError(null);
       if (onCreated !== undefined) {
         onCreated();
@@ -153,7 +154,13 @@ export function AdminCreateCoachForm({
         router.refresh();
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("genericError"));
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else if (err instanceof Error && err.message.trim().length > 0) {
+        setError(err.message);
+      } else {
+        setError(t("genericError"));
+      }
     } finally {
       setPending(false);
       submitLockRef.current = false;
