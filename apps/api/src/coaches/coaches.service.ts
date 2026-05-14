@@ -146,10 +146,7 @@ export class CoachesService {
     ) {
       throw new BadRequestException('Specialization is required');
     }
-    if (
-      normalizedClassType !== undefined &&
-      normalizedClassType.length === 0
-    ) {
+    if (normalizedClassType !== undefined && normalizedClassType.length === 0) {
       throw new BadRequestException('Class type is required');
     }
     if (normalizedClassType !== undefined) {
