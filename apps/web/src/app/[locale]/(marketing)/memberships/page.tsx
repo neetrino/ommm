@@ -68,7 +68,10 @@ export default async function MembershipsMarketingPage({
                     </p>
                   ) : null}
                   <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-                    {m("membershipsPriceLine", { amount })}
+                    <span className="text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
+                    {m("membershipsPriceLine", {
+                      amount: amount.startsWith("֏") ? amount.slice(1).trimStart() : amount,
+                    })}
                   </p>
                   <p className="mt-2 text-sm text-sage-500">
                     {plan.billingPeriod} · {m("membershipsPeriodDaysShort", { days: plan.periodDays })}
@@ -118,7 +121,8 @@ export default async function MembershipsMarketingPage({
                         {plan.name}
                       </td>
                       <td className="px-4 py-3 tabular-nums">
-                        {formatAmdFromCents(plan.priceCents, locale)}
+                        <span className="text-black">֏</span>{" "}
+                        {formatAmdFromCents(plan.priceCents, locale).replace(/^֏\s*/, "")}
                       </td>
                       <td className="px-4 py-3">
                         {m("membershipsPeriodDaysShort", { days: plan.periodDays })}

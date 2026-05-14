@@ -79,7 +79,8 @@ export default async function AdminMembershipsPage({
                 )}
 
                 <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-                  {amount}
+                  <span className="text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
+                  {amount.startsWith("֏") ? amount.slice(1) : amount}
                 </p>
                 <p className="mt-2 text-sm text-sage-500">
                   {plan.billingPeriod} · {plan.periodDays} days

@@ -158,13 +158,13 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
           <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-sage-600">
+            <span className="pointer-events-none absolute inset-y-0 left-3 z-10 inline-flex items-center text-sm font-semibold text-black">
               ֏
             </span>
             <input
               name="price"
               type="number"
-              className="ommm-input pl-8"
+              className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               min={0}
               step="0.01"
               inputMode="decimal"

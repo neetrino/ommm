@@ -101,7 +101,8 @@ export default async function UserMembershipsPage({
               {payRes.data.map((p) => (
                 <li key={p.id} className="ommm-inset-row">
                   <span className="font-medium tabular-nums text-sage-800">
-                    {formatAmdFromCents(p.amountCents, locale)}
+                    <span className="text-black">֏</span>{" "}
+                    {formatAmdFromCents(p.amountCents, locale).replace(/^֏\s*/, "")}
                   </span>
                   <span className="ml-2 text-sage-500">{p.status}</span>
                   {p.description ? (
@@ -132,7 +133,8 @@ export default async function UserMembershipsPage({
                       </p>
                     ) : null}
                     <p className="mt-3 text-sm text-sage-700">
-                      {formatAmdFromCents(plan.priceCents, locale)}{" "}
+                      <span className="text-black">֏</span>{" "}
+                      {formatAmdFromCents(plan.priceCents, locale).replace(/^֏\s*/, "")}{" "}
                       · {plan.billingPeriod} ·{" "}
                       {plan.isUnlimited
                         ? t("unlimitedClassesShort")

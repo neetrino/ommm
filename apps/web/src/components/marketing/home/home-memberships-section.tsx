@@ -122,7 +122,8 @@ export async function HomeMembershipsSection({ locale }: { locale: string }) {
                 <p className="mt-3 text-sm leading-relaxed text-sage-500">{card.description}</p>
               ) : null}
               <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-                {card.amount}
+                <span className="text-black">{card.amount.startsWith("֏") ? "֏" : ""}</span>
+                {card.amount.startsWith("֏") ? card.amount.slice(1) : card.amount}
               </p>
               <p className="mt-1 text-sm text-sage-500">{card.periodLabel}</p>
               <ul className="mt-6 space-y-2 text-sm text-sage-700">
