@@ -11,6 +11,10 @@ import {
   isValidTime24h,
   minutesFromTime,
 } from "@/components/admin/admin-schedule-helpers";
+import {
+  ScheduleFilterDropdown,
+  type ScheduleFilterOption,
+} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 
@@ -61,6 +65,22 @@ type ClassTypeCreateResponse = {
   name: string;
   slug: string;
 };
+
+function toScheduleFilterOptions(
+  values: readonly string[],
+): readonly ScheduleFilterOption<string>[] {
+  return values.map((value) => ({ value, label: value }));
+}
+
+function toScheduleDayOptions(
+  dayOptions: readonly ScheduleDayOfWeek[],
+  t: ReturnType<typeof useTranslations>,
+): readonly ScheduleFilterOption<ScheduleDayOfWeek>[] {
+  return dayOptions.map((day) => ({
+    value: day,
+    label: t(`days.${day}`),
+  }));
+}
 
 function initialState(item?: AdminScheduleItem): FormState {
   return {
@@ -171,6 +191,8 @@ export function AdminScheduleForm({
   const [newTypeError, setNewTypeError] = useState<string | null>(null);
   const [typeOptions, setTypeOptions] = useState<string[]>(() => [...classTypeOptions]);
   const submitLockRef = useRef(false);
+  const mappedDayOptions = toScheduleDayOptions(SCHEDULE_DAY_OPTIONS, t);
+  const mappedTypeOptions = toScheduleFilterOptions(typeOptions);
 
   function buildSlugFromTypeName(name: string): string {
     return name
@@ -322,23 +344,16 @@ export function AdminScheduleForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm font-medium text-sage-700">{t("form.classType")}</span>
-          <select
+          <ScheduleFilterDropdown
             name="classType"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            label={t("form.selectClassTypePlaceholder")}
+            ariaLabel={t("form.classType")}
             value={form.classType}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, classType: event.target.value }))
-            }
+            options={mappedTypeOptions}
+            onChange={(value) => setForm((prev) => ({ ...prev, classType: value }))}
             disabled={pending}
             required
-          >
-            <option value="">{t("form.selectClassTypePlaceholder")}</option>
-            {typeOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          />
         </label>
         <div className="space-y-1">
           <span className="text-sm font-medium text-sage-700">{t("form.addClassTypeLabel")}</span>
@@ -373,24 +388,15 @@ export function AdminScheduleForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-sm font-medium text-sage-700">{t("form.day")}</span>
-          <select
+          <ScheduleFilterDropdown
             name="dayOfWeek"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            label={t("form.day")}
+            ariaLabel={t("form.day")}
             value={form.dayOfWeek}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                dayOfWeek: event.target.value as ScheduleDayOfWeek,
-              }))
-            }
+            options={mappedDayOptions}
+            onChange={(value) => setForm((prev) => ({ ...prev, dayOfWeek: value }))}
             disabled={pending}
-          >
-            {SCHEDULE_DAY_OPTIONS.map((day) => (
-              <option key={day} value={day}>
-                {t(`days.${day}`)}
-              </option>
-            ))}
-          </select>
+          />
         </label>
       </div>
 
