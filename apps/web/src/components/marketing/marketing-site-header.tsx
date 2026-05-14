@@ -37,7 +37,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
       <div className="ommm-container flex h-16 items-center justify-between gap-4 sm:h-20">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-3"
+          className="flex shrink-0 items-center"
           onClick={() => setOpen(false)}
         >
           <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-sand-500/20 ring-1 ring-white/70 sm:h-12 sm:w-12">
@@ -49,9 +49,6 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               className="h-full w-full object-cover"
               priority
             />
-          </span>
-          <span className="font-serif text-lg font-medium tracking-tight text-sage-700 sm:text-xl">
-            Ommm
           </span>
         </Link>
 
