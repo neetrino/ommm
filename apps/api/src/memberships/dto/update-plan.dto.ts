@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsInt,
   IsOptional,
@@ -32,6 +34,12 @@ export class UpdatePlanDto {
   priceCents?: number;
 
   @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8)
+  currency?: string;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   sessionsPerMonth?: number;
@@ -47,10 +55,38 @@ export class UpdatePlanDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(1)
+  @MaxLength(32)
+  billingPeriod?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @MaxLength(140, { each: true })
+  features?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  buttonLabel?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPopular?: boolean;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(120)
   stripePriceId?: string;
 
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  displayOrder?: number;
 }

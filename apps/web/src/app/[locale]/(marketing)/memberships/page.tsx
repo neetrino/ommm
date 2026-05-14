@@ -8,11 +8,25 @@ type Plan = {
   name: string;
   description: string | null;
   priceCents: number;
+  currency: string;
   isUnlimited: boolean;
   sessionsPerMonth: number | null;
   periodDays: number;
+  billingPeriod: string;
+  buttonLabel: string;
+  isPopular: boolean;
   isActive: boolean;
 };
+
+function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
+  const normalized = currencyRaw.trim().toUpperCase();
+  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: safeCurrency,
+    maximumFractionDigits: 0,
+  }).format(priceCents / 100);
+}
 
 export default async function MembershipsMarketingPage({
   params,
@@ -22,12 +36,6 @@ export default async function MembershipsMarketingPage({
   const { locale } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
   const res = await serverApiJson<Plan[]>("/memberships/plans", "");
-
-  const currency = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
 
   const activePlans = res.ok ? res.data.filter((p) => p.isActive) : [];
 
@@ -51,7 +59,7 @@ export default async function MembershipsMarketingPage({
         <>
           <ul className="mt-12 grid gap-6 lg:grid-cols-2">
             {activePlans.map((plan) => {
-              const amount = currency.format(plan.priceCents / 100);
+              const amount = formatPlanCurrency(locale, plan.priceCents, plan.currency);
               const sessionsLabel = plan.isUnlimited
                 ? m("membershipsSessionsUnlimited")
                 : m("membershipsSessionsCount", {
@@ -60,7 +68,7 @@ export default async function MembershipsMarketingPage({
               return (
                 <li
                   key={plan.id}
-                  className="ommm-card flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ommm-marketing-card-hover"
+                  className={`ommm-card flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ommm-marketing-card-hover ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
                 >
                   <h2 className="ommm-h3 text-sage-800">{plan.name}</h2>
                   {plan.description ? (
@@ -72,7 +80,7 @@ export default async function MembershipsMarketingPage({
                     {m("membershipsPriceLine", { amount })}
                   </p>
                   <p className="mt-2 text-sm text-sage-500">
-                    {m("membershipsPeriodDays", { days: plan.periodDays })}
+                    {plan.billingPeriod} · {m("membershipsPeriodDaysShort", { days: plan.periodDays })}
                   </p>
                   <p className="mt-4 text-sm font-medium text-sage-700">
                     {sessionsLabel}
@@ -82,7 +90,7 @@ export default async function MembershipsMarketingPage({
                       href="/login"
                       className="ommm-cta-primary flex-1 text-center"
                     >
-                      {m("membershipsSubscribeCta")}
+                      {plan.buttonLabel || m("membershipsSubscribeCta")}
                     </Link>
                     <Link
                       href="/user/memberships"
@@ -119,7 +127,7 @@ export default async function MembershipsMarketingPage({
                         {plan.name}
                       </td>
                       <td className="px-4 py-3 tabular-nums">
-                        {currency.format(plan.priceCents / 100)}
+                        {formatPlanCurrency(locale, plan.priceCents, plan.currency)}
                       </td>
                       <td className="px-4 py-3">
                         {m("membershipsPeriodDaysShort", { days: plan.periodDays })}

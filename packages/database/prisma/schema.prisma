@@ -272,9 +272,15 @@ model MembershipPlan {
   slug             String   @unique
   description      String?
   priceCents       Int
+  currency         String   @default("USD")
   sessionsPerMonth Int?
   isUnlimited      Boolean  @default(false)
   periodDays       Int      @default(30)
+  billingPeriod    String   @default("monthly")
+  features         String[] @default([])
+  buttonLabel      String   @default("Choose plan")
+  isPopular        Boolean  @default(false)
+  displayOrder     Int      @default(0)
   isActive         Boolean  @default(true)
   stripePriceId    String?
   createdAt        DateTime @default(now())

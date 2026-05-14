@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ExploreSection } from "@/components/marketing/home/explore-section";
 import { GiftCardBanner } from "@/components/marketing/home/gift-card-banner";
+import { HomeMembershipsSection } from "@/components/marketing/home/home-memberships-section";
 import { MarketingHighlights } from "@/components/marketing/home/marketing-highlights";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
@@ -25,6 +26,14 @@ export default async function MarketingHomePage({ params }: PageProps) {
         revealDelayMs={40}
       >
         <MarketingHighlights locale={locale} />
+      </ProgressiveRevealSection>
+      <ProgressiveRevealSection
+        id="memberships"
+        prefetchApiPaths={["/api/v1/memberships/plans"]}
+        placeholderClassName="h-[52rem] sm:h-[46rem] lg:h-[40rem]"
+        revealDelayMs={65}
+      >
+        <HomeMembershipsSection locale={locale} />
       </ProgressiveRevealSection>
       <ProgressiveRevealSection
         id="explore"

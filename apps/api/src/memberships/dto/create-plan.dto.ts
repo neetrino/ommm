@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsInt,
   IsOptional,
@@ -14,10 +16,11 @@ export class CreatePlanDto {
   @MaxLength(120)
   name!: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  slug!: string;
+  slug?: string;
 
   @IsOptional()
   @IsString()
@@ -27,6 +30,12 @@ export class CreatePlanDto {
   @IsInt()
   @Min(0)
   priceCents!: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8)
+  currency?: string;
 
   @IsOptional()
   @IsInt()
@@ -39,6 +48,38 @@ export class CreatePlanDto {
   @IsInt()
   @Min(1)
   periodDays!: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(32)
+  billingPeriod?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @MaxLength(140, { each: true })
+  features?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  buttonLabel?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPopular?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  displayOrder?: number;
 
   @IsOptional()
   @IsString()

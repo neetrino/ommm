@@ -13,9 +13,12 @@ type Plan = {
   name: string;
   description: string | null;
   priceCents: number;
+  currency: string;
   isUnlimited: boolean;
   sessionsPerMonth: number | null;
   periodDays: number;
+  billingPeriod: string;
+  buttonLabel: string;
   isActive: boolean;
 };
 
@@ -35,6 +38,16 @@ type PaymentRow = {
   description: string | null;
   createdAt: string;
 };
+
+function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
+  const normalized = currencyRaw.trim().toUpperCase();
+  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: safeCurrency,
+    maximumFractionDigits: 0,
+  }).format(priceCents / 100);
+}
 
 export default async function UserMembershipsPage({
   params,
@@ -129,8 +142,8 @@ export default async function UserMembershipsPage({
                       </p>
                     ) : null}
                     <p className="mt-3 text-sm text-sage-700">
-                      {(plan.priceCents / 100).toFixed(0)}{" "}
-                      {t("perPeriod", { days: plan.periodDays })} ·{" "}
+                      {formatPlanCurrency(locale, plan.priceCents, plan.currency)}{" "}
+                      · {plan.billingPeriod} ·{" "}
                       {plan.isUnlimited
                         ? t("unlimitedClassesShort")
                         : t("sessionsPerPeriodShort", {
