@@ -14,6 +14,9 @@ type ScheduleFilterDropdownProps<T extends string> = {
   value: T;
   options: readonly ScheduleFilterOption<T>[];
   onChange: (value: T) => void;
+  name?: string;
+  disabled?: boolean;
+  required?: boolean;
 };
 
 export function ScheduleFilterDropdown<T extends string>({
@@ -22,10 +25,19 @@ export function ScheduleFilterDropdown<T extends string>({
   value,
   options,
   onChange,
+  name,
+  disabled = false,
+  required = false,
 }: ScheduleFilterDropdownProps<T>) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const listboxId = useId();
+
+  useEffect(() => {
+    if (disabled) {
+      setOpen(false);
+    }
+  }, [disabled]);
 
   useEffect(() => {
     if (!open) return;
@@ -53,11 +65,12 @@ export function ScheduleFilterDropdown<T extends string>({
       <p className="sr-only">{ariaLabel}</p>
       <button
         type="button"
-        className="w-full min-h-11 rounded-xl border border-white/70 bg-white/80 py-2.5 pl-3 pr-9 text-left text-sm font-medium text-sage-800 shadow-sm outline-none backdrop-blur-sm transition-[border-color,box-shadow] hover:border-white focus-visible:border-sand-500/40 focus-visible:ring-2 focus-visible:ring-sand-500/15"
+        className="w-full min-h-11 rounded-xl border border-white/70 bg-white/80 py-2.5 pl-3 pr-9 text-left text-sm font-medium text-sage-800 shadow-sm outline-none backdrop-blur-sm transition-[border-color,box-shadow] hover:border-white focus-visible:border-sand-500/40 focus-visible:ring-2 focus-visible:ring-sand-500/15 disabled:pointer-events-none disabled:opacity-60"
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}
+        disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
       >
         {selected?.label ?? label}
@@ -86,6 +99,7 @@ export function ScheduleFilterDropdown<T extends string>({
                       ? "bg-sand-100/75 font-semibold text-sage-800"
                       : "text-sage-700 hover:bg-white"
                   }`}
+                  disabled={disabled}
                   onClick={() => {
                     onChange(option.value);
                     setOpen(false);
@@ -106,6 +120,7 @@ export function ScheduleFilterDropdown<T extends string>({
           })}
         </ul>
       ) : null}
+      {name ? <input type="hidden" name={name} value={value} required={required} /> : null}
     </div>
   );
 }

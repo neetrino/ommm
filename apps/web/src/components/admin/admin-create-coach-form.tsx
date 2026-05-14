@@ -4,6 +4,10 @@ import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import {
+  ScheduleFilterDropdown,
+  type ScheduleFilterOption,
+} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
@@ -69,6 +73,13 @@ export function AdminCreateCoachForm({
   const [success, setSuccess] = useState(false);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const [classTypeValue, setClassTypeValue] = useState("");
+  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
+    (value) => ({
+      value,
+      label: value,
+    }),
+  );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -170,6 +181,7 @@ export function AdminCreateCoachForm({
         }),
       });
       form.reset();
+      setClassTypeValue("");
       setError(null);
       if (onCreated !== undefined) {
         onCreated();
@@ -240,21 +252,16 @@ export function AdminCreateCoachForm({
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("classTypeLabel")}
         </span>
-        <select
+        <ScheduleFilterDropdown
           name="classType"
-          className="ommm-input"
-          defaultValue=""
+          label={t("classTypePlaceholder")}
+          ariaLabel={t("classTypeLabel")}
+          value={classTypeValue}
+          options={classTypeDropdownOptions}
+          onChange={setClassTypeValue}
+          disabled={pending}
           required
-        >
-          <option value="" disabled>
-            {t("classTypePlaceholder")}
-          </option>
-          {classTypeOptions.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
+        />
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">

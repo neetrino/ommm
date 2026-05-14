@@ -7,6 +7,10 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import {
+  ScheduleFilterDropdown,
+  type ScheduleFilterOption,
+} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminCoachActionsProps = {
@@ -117,6 +121,12 @@ export function AdminCoachActions({
   const [inlineMessage, setInlineMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
   const isOpen = searchParams.get(EDIT_COACH_QUERY_KEY) === coachId;
+  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
+    (value) => ({
+      value,
+      label: value,
+    }),
+  );
 
   const resetForm = useCallback(() => {
     setForm({
@@ -477,27 +487,15 @@ export function AdminCoachActions({
                     ) : null}
                   </div>
                   <div className="space-y-1">
-                    <label
-                      className="text-sm font-medium text-sage-700"
-                      htmlFor={`class-type-${coachId}`}
-                    >
-                      {t("fieldClassType")}
-                    </label>
-                    <select
-                      id={`class-type-${coachId}`}
-                      className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+                    <p className="text-sm font-medium text-sage-700">{t("fieldClassType")}</p>
+                    <ScheduleFilterDropdown
+                      label={t("fieldClassTypePlaceholder")}
+                      ariaLabel={t("fieldClassType")}
                       value={form.classType}
-                      onChange={(event) => updateField("classType", event.target.value)}
+                      options={classTypeDropdownOptions}
+                      onChange={(value) => updateField("classType", value)}
                       disabled={busy}
-                      required
-                    >
-                      <option value="">{t("fieldClassTypePlaceholder")}</option>
-                      {classTypeOptions.map((value) => (
-                        <option key={value} value={value}>
-                          {value}
-                        </option>
-                      ))}
-                    </select>
+                    />
                     {errors.classType ? (
                       <p className="text-xs text-red-800">{errors.classType}</p>
                     ) : null}
