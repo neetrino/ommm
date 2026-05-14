@@ -874,6 +874,7 @@
       "enableButton": "Включить",
       "deleteButton": "Удалить",
       "deleteConfirm": "Удалить этот план абонемента?",
+      "noFeatures": "Преимущества пока не указаны.",
       "genericError": "Действие не выполнено.",
       "messages": {
         "createSuccess": "Абонемент создан.",

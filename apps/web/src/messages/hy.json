@@ -870,6 +870,7 @@
       "enableButton": "Միացնել",
       "deleteButton": "Ջնջել",
       "deleteConfirm": "Ջնջե՞լ այս աբոնեմենտի պլանը։",
+      "noFeatures": "Առավելություններ դեռ նշված չեն։",
       "genericError": "Գործողությունը ձախողվեց։",
       "messages": {
         "createSuccess": "Աբոնեմենտը ստեղծվեց։",

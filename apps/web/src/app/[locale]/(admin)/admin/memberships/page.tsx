@@ -21,6 +21,16 @@ type MembershipPlanAdminRow = {
   displayOrder: number;
 };
 
+function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
+  const normalized = currencyRaw.trim().toUpperCase();
+  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: safeCurrency,
+    maximumFractionDigits: 0,
+  }).format(priceCents / 100);
+}
+
 export default async function AdminMembershipsPage({
   params,
 }: {
@@ -44,60 +54,70 @@ export default async function AdminMembershipsPage({
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
       <AdminMembershipPlansShell>
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colName")}</th>
-                <th className={adminChrome.th}>{t("colPricing")}</th>
-                <th className={adminChrome.th}>{t("colPeriod")}</th>
-                <th className={adminChrome.th}>{t("colStatus")}</th>
-                <th className={adminChrome.th}>{t("colOrder")}</th>
-                <th className={adminChrome.th}>{t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {res.data.map((plan) => (
-                <tr key={plan.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>
-                    <div className="font-medium">{plan.name}</div>
-                    {plan.description ? (
-                      <div className={adminChrome.metaText}>{plan.description}</div>
-                    ) : null}
-                  </td>
-                  <td className={adminChrome.td}>
-                    <span className="tabular-nums">
-                      {(plan.priceCents / 100).toFixed(2)} {plan.currency}
-                    </span>
-                  </td>
-                  <td className={adminChrome.td}>
-                    {plan.billingPeriod} · {plan.periodDays}d
-                  </td>
-                  <td className={adminChrome.td}>
-                    <span className="inline-flex items-center gap-2">
-                      <span
-                        className={`inline-flex h-2 w-2 rounded-full ${plan.isActive ? "bg-mint-500" : "bg-sage-300"}`}
-                        aria-hidden
-                      />
-                      {plan.isActive ? t("statusActive") : t("statusInactive")}
-                    </span>
+        <div className="grid items-stretch gap-5 md:grid-cols-2 xl:gap-6">
+          {res.data.map((plan) => {
+            const amount = formatPlanCurrency(locale, plan.priceCents, plan.currency);
+            const features = plan.features.length > 0 ? plan.features : [];
+            return (
+              <article
+                key={plan.id}
+                className={`ommm-card min-w-0 flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-7 ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="ommm-h3 break-words text-sage-800">{plan.name}</h2>
+                  <div className="flex items-center gap-2">
                     {plan.isPopular ? (
-                      <span className="ml-2 rounded-full bg-sand-100 px-2 py-0.5 text-xs text-sand-800">
+                      <span className="rounded-full bg-sand-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-sand-800">
                         {t("popularBadge")}
                       </span>
                     ) : null}
-                  </td>
-                  <td className={adminChrome.td}>{plan.displayOrder}</td>
-                  <td className={adminChrome.td}>
-                    <AdminMembershipPlanActions
-                      planId={plan.id}
-                      isActive={plan.isActive}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${plan.isActive ? "bg-mint-100 text-mint-800" : "bg-sage-100 text-sage-700"}`}
+                    >
+                      {plan.isActive ? t("statusActive") : t("statusInactive")}
+                    </span>
+                  </div>
+                </div>
+
+                {plan.description ? (
+                  <p className="mt-3 break-words text-sm leading-relaxed text-sage-500">
+                    {plan.description}
+                  </p>
+                ) : (
+                  <div className="mt-3 h-5" aria-hidden />
+                )}
+
+                <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
+                  {amount}
+                </p>
+                <p className="mt-2 text-sm text-sage-500">
+                  {plan.billingPeriod} · {plan.periodDays} days
+                </p>
+
+                {features.length > 0 ? (
+                  <ul className="mt-5 space-y-2 text-sm text-sage-700">
+                    {features.map((feature) => (
+                      <li key={`${plan.id}-${feature}`} className="flex items-start gap-2">
+                        <span className="mt-1 inline-flex h-1.5 w-1.5 rounded-full bg-mint-500" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-5 text-sm text-sage-500">
+                    {t("noFeatures")}
+                  </p>
+                )}
+
+                <div className="mt-8 border-t border-white/50 pt-5">
+                  <div className="mb-3 text-xs uppercase tracking-wide text-sage-500">
+                    {t("colOrder")}: {plan.displayOrder}
+                  </div>
+                  <AdminMembershipPlanActions planId={plan.id} isActive={plan.isActive} />
+                </div>
+              </article>
+            );
+          })}
         </div>
       </AdminMembershipPlansShell>
     </AccountPageFrame>

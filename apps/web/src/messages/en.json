@@ -883,6 +883,7 @@
       "enableButton": "Enable",
       "deleteButton": "Delete",
       "deleteConfirm": "Delete this membership plan?",
+      "noFeatures": "No features listed yet.",
       "genericError": "Action failed.",
       "messages": {
         "createSuccess": "Membership created.",
