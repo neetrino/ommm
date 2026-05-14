@@ -100,46 +100,6 @@ export default async function MembershipsMarketingPage({
               );
             })}
           </ul>
-          <section className="mt-16">
-            <h2 className="ommm-h2 text-sage-800">
-              {m("membershipsCompareTitle")}
-            </h2>
-            <div className="mt-6 overflow-x-auto rounded-[24px] border border-white/60 bg-white/80 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]">
-              <table className="min-w-full text-left text-sm text-sage-700">
-                <thead className="border-b border-sage-200/80 bg-sage-50/80 text-xs uppercase text-sage-500">
-                  <tr>
-                    <th className="px-4 py-3">{m("membershipsTablePlan")}</th>
-                    <th className="px-4 py-3">{m("membershipsTablePrice")}</th>
-                    <th className="px-4 py-3">{m("membershipsTablePeriod")}</th>
-                    <th className="px-4 py-3">{m("membershipsTableSessions")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activePlans.map((plan) => (
-                    <tr key={plan.id} className="border-b border-sage-100/80">
-                      <td className="px-4 py-3 font-medium text-sage-900">
-                        {plan.name}
-                      </td>
-                      <td className="px-4 py-3 tabular-nums">
-                        <span className="text-black">֏</span>{" "}
-                        {formatAmdFromCents(plan.priceCents, locale).replace(/^֏\s*/, "")}
-                      </td>
-                      <td className="px-4 py-3">
-                        {m("membershipsPeriodDaysShort", { days: plan.periodDays })}
-                      </td>
-                      <td className="px-4 py-3">
-                        {plan.isUnlimited
-                          ? m("membershipsSessionsUnlimited")
-                          : m("membershipsSessionsCount", {
-                              count: plan.sessionsPerMonth ?? 0,
-                            })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
           <section className="mt-16 max-w-3xl">
             <h2 className="ommm-h2 text-sage-800">{m("membershipsFaqTitle")}</h2>
             <dl className="mt-6 space-y-6 text-sm text-sage-700">
