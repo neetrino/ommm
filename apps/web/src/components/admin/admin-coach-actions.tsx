@@ -26,6 +26,7 @@ type FormState = {
   lastName: string;
   phone: string;
   age: string;
+  specialization: string;
 };
 
 type FormErrors = {
@@ -34,6 +35,7 @@ type FormErrors = {
   lastName?: string;
   phone?: string;
   age?: string;
+  specialization?: string;
 };
 
 const EDIT_COACH_QUERY_KEY = "editCoach";
@@ -86,6 +88,7 @@ export function AdminCoachActions({
   initialLastName = "",
   initialPhone = "",
   initialAge = null,
+  initialSpecialization = "",
 }: AdminCoachActionsProps) {
   const t = useTranslations("adminPages.coaches");
   const router = useRouter();
@@ -100,6 +103,7 @@ export function AdminCoachActions({
     lastName: initialLastName,
     phone: initialPhone,
     age: initialAge === null ? "" : String(initialAge),
+    specialization: initialSpecialization,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [busy, setBusy] = useState(false);
@@ -114,9 +118,17 @@ export function AdminCoachActions({
       lastName: initialLastName,
       phone: initialPhone,
       age: initialAge === null ? "" : String(initialAge),
+      specialization: initialSpecialization,
     });
     setErrors({});
-  }, [initialAge, initialEmail, initialLastName, initialName, initialPhone]);
+  }, [
+    initialAge,
+    initialEmail,
+    initialLastName,
+    initialName,
+    initialPhone,
+    initialSpecialization,
+  ]);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -205,6 +217,7 @@ export function AdminCoachActions({
     const lastName = form.lastName.trim();
     const phone = form.phone.trim();
     const age = Number(form.age.trim());
+    const specialization = form.specialization.trim();
     const nextErrors: FormErrors = {};
     if (email === "") {
       nextErrors.email = t("emailRequired");
@@ -231,6 +244,9 @@ export function AdminCoachActions({
     ) {
       nextErrors.age = t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE });
     }
+    if (specialization.length === 0) {
+      nextErrors.specialization = t("specializationRequired");
+    }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -246,6 +262,7 @@ export function AdminCoachActions({
             lastName,
             phone,
             age,
+            specialization,
           }),
         }),
       t("updateSuccess"),
@@ -417,6 +434,28 @@ export function AdminCoachActions({
                       />
                       {errors.age ? <p className="text-xs text-red-800">{errors.age}</p> : null}
                     </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      className="text-sm font-medium text-sage-700"
+                      htmlFor={`specialization-${coachId}`}
+                    >
+                      {t("fieldSpecialization")}
+                    </label>
+                    <input
+                      id={`specialization-${coachId}`}
+                      type="text"
+                      className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+                      value={form.specialization}
+                      onChange={(event) =>
+                        updateField("specialization", event.target.value)
+                      }
+                      placeholder={t("fieldSpecializationPlaceholder")}
+                      disabled={busy}
+                    />
+                    {errors.specialization ? (
+                      <p className="text-xs text-red-800">{errors.specialization}</p>
+                    ) : null}
                   </div>
 
                   <div className="flex flex-wrap justify-end gap-3 pt-2">

@@ -43,9 +43,13 @@ export class CoachesService {
   async create(dto: CreateCoachDto) {
     const email = dto.email.toLowerCase().trim();
     const phone = dto.phone.trim();
+    const specialization = dto.specialization.trim();
     const phoneDigits = phone.replace(/\D/g, '');
     if (phoneDigits.length < 8 || phoneDigits.length > 15) {
       throw new BadRequestException('Invalid phone number');
+    }
+    if (specialization.length === 0) {
+      throw new BadRequestException('Specialization is required');
     }
 
     const [emailTaken, phoneTaken] = await Promise.all([
@@ -81,7 +85,7 @@ export class CoachesService {
         data: {
           userId: user.id,
           bio: dto.bio,
-          specialization: dto.specialization,
+          specialization,
           experienceYears: dto.experienceYears,
         },
         include: {
@@ -127,6 +131,14 @@ export class CoachesService {
     }
     const normalizedPhone =
       dto.phone === undefined ? undefined : this.normalizePhone(dto.phone);
+    const normalizedSpecialization =
+      dto.specialization === undefined ? undefined : dto.specialization.trim();
+    if (
+      normalizedSpecialization !== undefined &&
+      normalizedSpecialization.length === 0
+    ) {
+      throw new BadRequestException('Specialization is required');
+    }
     const userData = {
       ...(dto.email !== undefined && { email: dto.email.toLowerCase().trim() }),
       ...(dto.name !== undefined && { name: dto.name.trim() }),
@@ -139,7 +151,7 @@ export class CoachesService {
     const profileData = {
       ...(dto.bio !== undefined && { bio: dto.bio }),
       ...(dto.specialization !== undefined && {
-        specialization: dto.specialization,
+        specialization: normalizedSpecialization,
       }),
       ...(dto.experienceYears !== undefined && {
         experienceYears: dto.experienceYears,

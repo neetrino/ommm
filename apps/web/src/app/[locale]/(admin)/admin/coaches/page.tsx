@@ -89,6 +89,7 @@ export default async function AdminCoachesPage({
                         initialLastName={c.user.lastName ?? ""}
                         initialPhone={c.user.phone ?? ""}
                         initialAge={c.age}
+                        initialSpecialization={c.specialization ?? ""}
                       />
                     </td>
                   </tr>

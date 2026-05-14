@@ -15,6 +15,7 @@ const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
 const COACH_MIN_AGE = 16;
 const COACH_MAX_AGE = 100;
+const MAX_SPECIALIZATION_LENGTH = 200;
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
@@ -79,6 +80,7 @@ export function AdminCreateCoachForm({
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = String(fd.get("phone") ?? "").trim();
     const ageRaw = String(fd.get("age") ?? "").trim();
+    const specializationRaw = String(fd.get("specialization") ?? "").trim();
     const password = String(fd.get("password") ?? "");
 
     setError(null);
@@ -114,6 +116,10 @@ export function AdminCreateCoachForm({
       setError(t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }));
       return;
     }
+    if (specializationRaw.length === 0) {
+      setError(t("specializationRequired"));
+      return;
+    }
     if (password.length === 0) {
       setError(t("passwordRequired"));
       return;
@@ -130,6 +136,10 @@ export function AdminCreateCoachForm({
       setError(t("lastNameTooLong"));
       return;
     }
+    if (specializationRaw.length > MAX_SPECIALIZATION_LENGTH) {
+      setError(t("specializationTooLong"));
+      return;
+    }
 
     submitLockRef.current = true;
     setPending(true);
@@ -143,6 +153,7 @@ export function AdminCreateCoachForm({
           lastName: lastNameRaw,
           phone: phoneRaw,
           age: ageNum,
+          specialization: specializationRaw,
         }),
       });
       form.reset();
@@ -200,6 +211,18 @@ export function AdminCreateCoachForm({
           />
         </label>
       </div>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("specializationLabel")}
+        </span>
+        <input
+          name="specialization"
+          className="ommm-input"
+          maxLength={MAX_SPECIALIZATION_LENGTH}
+          placeholder={t("specializationPlaceholder")}
+          required
+        />
+      </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("emailLabel")}
