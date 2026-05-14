@@ -9,6 +9,7 @@
     "loading": "Loading…"
   },
   "nav": {
+    "studioBrand": "Ommm.Space",
     "home": "Home",
     "story": "Story",
     "coaches": "Coaches",
@@ -24,6 +25,7 @@
     "copyrightSuffix": "studio"
   },
   "marketingUi": {
+    "bookAClass": "Book a class",
     "primaryNavAria": "Primary navigation",
     "mobilePrimaryNavAria": "Mobile primary navigation",
     "menuSr": "Menu",
@@ -81,17 +83,111 @@
   },
   "marketingPublic": {
     "hero": {
-      "eyebrow": "Ommm · studio space",
-      "titleLine1": "Practice with",
-      "titleAccent": "intention.",
-      "lead": "Thoughtful scheduling, clear memberships, and a calm place to plan classes — built for studios that want the web to feel as grounded as the mat.",
-      "primaryCta": "Book a class",
+      "titleLine1": "Find Your",
+      "brandName": "Ommm",
+      "titleLine2": "Moment",
+      "subLine1": "A space for inner calmness, balance, and mindful",
+      "subLine2": "movement.",
+      "primaryCta": "Make a booking",
       "secondaryCta": "View memberships",
-      "footnote": "Already a member? Use Log in, then head to your account for schedule, waitlists, and gifts.",
-      "previewEyebrow": "Our story",
-      "previewTitle": "Clarity on the mat, clarity online",
-      "previewCta": "Read how we work",
-      "previewAlt": "Calm studio atmosphere"
+      "heroImageAlt": "Person meditating in a bright minimal studio with an oval opening to the sea",
+      "logoAlt": "Ommm studio emblem"
+    },
+    "home": {
+      "introTitle": "A Sanctuary for Every Body",
+      "introBody": "Ommm.Space is a place where every body can reconnect, slow down, and feel held. We believe that movement is not just physical — it's a rhythmic meditation that bridges the gap between effort and ease.",
+      "introEyebrow": "FOUNDED ON PRESENCE",
+      "classesTitle": "Our Core Practices",
+      "classesSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "viewSchedule": "View schedule",
+      "classCards": [
+        {
+          "title": "Mindfulness & Breathwork",
+          "body": "Techniques to anchor your presence and expand your lung capacity through guided breath."
+        },
+        {
+          "title": "Balance Work",
+          "body": "Focus on core stability and spatial awareness to find steadiness in the center of movement."
+        },
+        {
+          "title": "Restorative Recovery",
+          "body": "Deep relaxation for the nervous system, using props to hold the body in gentle stillness."
+        },
+        {
+          "title": "Dynamic Movement",
+          "body": "Fluid sequences that build heat and strength while maintaining a rhythmic, moving flow."
+        },
+        {
+          "title": "Flexibility & Lengthening",
+          "body": "Targeted stretches designed to release tension and create space within the joints and muscles."
+        },
+        {
+          "title": "Community Sessions",
+          "body": "Group practices that emphasize shared energy, connection, and collective well-being."
+        }
+      ],
+      "coachesTitle": "Featured Coaches",
+      "coachesPrevAria": "Previous coach",
+      "coachesNextAria": "Next coach",
+      "coachSlides": [
+        {
+          "name": "Jane Doe",
+          "role": "Specialization",
+          "bio": "Coach info placeholder — replace with your lead teacher bio from the admin panel when ready.",
+          "experience": "8 years experience",
+          "imageAlt": "Coach portrait"
+        },
+        {
+          "name": "Jane Doe",
+          "role": "Specialization",
+          "bio": "Coach info placeholder — replace with your lead teacher bio from the admin panel when ready.",
+          "experience": "8 years experience",
+          "imageAlt": "Coach portrait"
+        },
+        {
+          "name": "Jane Doe",
+          "role": "Specialization",
+          "bio": "Coach info placeholder — replace with your lead teacher bio from the admin panel when ready.",
+          "experience": "8 years experience",
+          "imageAlt": "Coach portrait"
+        }
+      ],
+      "plansSectionTitle": "A Sanctuary for Every Body",
+      "planCards": [
+        {
+          "planName": "Plan Name",
+          "details": "Details",
+          "price": "1111 AMD",
+          "ctaAria": "View plan details"
+        },
+        {
+          "planName": "Plan Name",
+          "details": "Details",
+          "price": "1111 AMD",
+          "ctaAria": "View plan details"
+        },
+        {
+          "planName": "Plan Name",
+          "details": "Details",
+          "price": "1111 AMD",
+          "ctaAria": "View plan details"
+        }
+      ],
+      "eventsTitle": "Events",
+      "eventWideTitle": "Featured gathering",
+      "eventWideDetails": "Details",
+      "eventNarrowATitle": "Workshop",
+      "eventNarrowBTitle": "Retreat evening",
+      "eventCardCtaAria": "Open event details",
+      "footerWordmark": "Ommm.Space",
+      "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
+      "footerIllustrationAlt": "Decorative wellness illustration",
+      "footerLinks": [
+        { "href": "/contact", "label": "Privacy" },
+        { "href": "/contact", "label": "Terms" },
+        { "href": "/explore", "label": "Journal" },
+        { "href": "/contact", "label": "Contact" }
+      ]
     }
   },
   "account": {
