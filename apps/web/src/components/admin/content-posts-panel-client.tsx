@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
 type ContentAdminRow = {
   id: string;
@@ -19,6 +20,11 @@ type ContentPostsPanelClientProps = {
 
 const CONTENT_TYPES = ["EVENT", "BLOG", "NEWS", "UPDATE", "KNOWLEDGE_ARTICLE"] as const;
 const CONTENT_STATUS = ["DRAFT", "PUBLISHED", "HIDDEN"] as const;
+const TYPE_OPTIONS: readonly DropdownOption<(typeof CONTENT_TYPES)[number]>[] = CONTENT_TYPES.map(
+  (value) => ({ value, label: value }),
+);
+const STATUS_OPTIONS: readonly DropdownOption<(typeof CONTENT_STATUS)[number]>[] =
+  CONTENT_STATUS.map((value) => ({ value, label: value }));
 
 export function ContentPostsPanelClient({
   items,
@@ -88,30 +94,30 @@ export function ContentPostsPanelClient({
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
         />
-        <select
-          className="app-input h-9 text-xs"
+        <DropdownSelect
+          label="Type"
+          ariaLabel="Content type"
+          name="type"
           value={type}
-          onChange={(event) => setType(event.target.value as (typeof CONTENT_TYPES)[number])}
-        >
-          {CONTENT_TYPES.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
-        <select
-          className="app-input h-9 text-xs"
+          options={TYPE_OPTIONS}
+          onChange={setType}
+          disabled={busyId !== null}
+          required
+          triggerClassName="h-9 min-h-9 text-xs"
+          menuClassName="text-xs"
+        />
+        <DropdownSelect
+          label="Status"
+          ariaLabel="Content status"
+          name="status"
           value={status}
-          onChange={(event) =>
-            setStatus(event.target.value as (typeof CONTENT_STATUS)[number])
-          }
-        >
-          {CONTENT_STATUS.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
+          options={STATUS_OPTIONS}
+          onChange={setStatus}
+          disabled={busyId !== null}
+          required
+          triggerClassName="h-9 min-h-9 text-xs"
+          menuClassName="text-xs"
+        />
         <button
           type="submit"
           className="rounded-md border border-slate-300 px-3 text-xs text-slate-700 hover:bg-slate-50"

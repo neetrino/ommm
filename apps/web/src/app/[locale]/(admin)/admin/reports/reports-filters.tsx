@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
 const DATE_RANGE_OPTIONS = [7, 30, 90] as const;
 const SOURCE_OPTIONS = ["all", "membership", "dropin", "gift", "other"] as const;
@@ -11,6 +12,8 @@ const STATUS_OPTIONS = ["all", "SUCCEEDED", "FAILED", "PENDING", "REFUNDED"] as 
 type DateRangeOption = (typeof DATE_RANGE_OPTIONS)[number];
 type SourceOption = (typeof SOURCE_OPTIONS)[number];
 type StatusOption = (typeof STATUS_OPTIONS)[number];
+
+type FilterOption<T extends string> = DropdownOption<T>;
 
 function parseDateRangeDays(value: string | null): DateRangeOption {
   const parsed = Number(value);
@@ -54,48 +57,67 @@ export function ReportsFilters() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
+  const rangeOptions = useMemo<readonly FilterOption<`${DateRangeOption}`>[]>(
+    () => [
+      { value: "7", label: t("range7") },
+      { value: "30", label: t("range30") },
+      { value: "90", label: t("range90") },
+    ],
+    [t],
+  );
+  const sourceOptions = useMemo<readonly FilterOption<SourceOption>[]>(
+    () => [
+      { value: "all", label: t("sourceAll") },
+      { value: "membership", label: t("sourceMembership") },
+      { value: "dropin", label: t("sourceDropIn") },
+      { value: "gift", label: t("sourceGift") },
+      { value: "other", label: t("sourceOther") },
+    ],
+    [t],
+  );
+  const statusOptions = useMemo<readonly FilterOption<StatusOption>[]>(
+    () => [
+      { value: "all", label: t("statusAll") },
+      { value: "SUCCEEDED", label: t("statusSucceeded") },
+      { value: "FAILED", label: t("statusFailed") },
+      { value: "PENDING", label: t("statusPending") },
+      { value: "REFUNDED", label: t("statusRefunded") },
+    ],
+    [t],
+  );
+
   return (
     <section className="rounded-[20px] border border-white/60 bg-white/70 p-4">
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm text-sage-700">
           <span className="mb-1 block text-xs text-sage-500">{t("rangeLabel")}</span>
-          <select
-            className="w-full rounded-xl border border-sage-200 bg-white px-3 py-2 text-sm"
-            value={String(values.rangeDays)}
-            onChange={(event) => update("rangeDays", event.target.value)}
-          >
-            <option value="7">{t("range7")}</option>
-            <option value="30">{t("range30")}</option>
-            <option value="90">{t("range90")}</option>
-          </select>
+          <DropdownSelect
+            label={t("rangeLabel")}
+            ariaLabel={t("rangeLabel")}
+            value={String(values.rangeDays) as `${DateRangeOption}`}
+            options={rangeOptions}
+            onChange={(value) => update("rangeDays", value)}
+          />
         </label>
         <label className="text-sm text-sage-700">
           <span className="mb-1 block text-xs text-sage-500">{t("sourceLabel")}</span>
-          <select
-            className="w-full rounded-xl border border-sage-200 bg-white px-3 py-2 text-sm"
+          <DropdownSelect
+            label={t("sourceLabel")}
+            ariaLabel={t("sourceLabel")}
             value={values.source}
-            onChange={(event) => update("source", event.target.value)}
-          >
-            <option value="all">{t("sourceAll")}</option>
-            <option value="membership">{t("sourceMembership")}</option>
-            <option value="dropin">{t("sourceDropIn")}</option>
-            <option value="gift">{t("sourceGift")}</option>
-            <option value="other">{t("sourceOther")}</option>
-          </select>
+            options={sourceOptions}
+            onChange={(value) => update("source", value)}
+          />
         </label>
         <label className="text-sm text-sage-700">
           <span className="mb-1 block text-xs text-sage-500">{t("statusLabel")}</span>
-          <select
-            className="w-full rounded-xl border border-sage-200 bg-white px-3 py-2 text-sm"
+          <DropdownSelect
+            label={t("statusLabel")}
+            ariaLabel={t("statusLabel")}
             value={values.status}
-            onChange={(event) => update("status", event.target.value)}
-          >
-            <option value="all">{t("statusAll")}</option>
-            <option value="SUCCEEDED">{t("statusSucceeded")}</option>
-            <option value="FAILED">{t("statusFailed")}</option>
-            <option value="PENDING">{t("statusPending")}</option>
-            <option value="REFUNDED">{t("statusRefunded")}</option>
-          </select>
+            options={statusOptions}
+            onChange={(value) => update("status", value)}
+          />
         </label>
       </div>
     </section>
