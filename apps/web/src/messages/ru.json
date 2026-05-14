@@ -451,6 +451,7 @@
         "name": "Имя",
         "lastName": "Фамилия",
         "phone": "Телефон",
+        "dateOfBirth": "Дата рождения",
         "locale": "Локаль"
       },
       "emptyValue": "—"
@@ -944,6 +945,16 @@
       }
     },
     "analytics": {
+      "title": "Аналитика",
+      "lead": "Срез панели тренера с динамикой по диапазону.",
+      "signInRequired": "Требуется вход тренера.",
+      "loadFailed": "Не удалось загрузить аналитику тренера.",
+      "noProfile": "К этому аккаунту не привязан профиль тренера.",
+      "activeWaitlists": "Активные листы ожидания",
+      "utilizationTitle": "Заполняемость",
+      "utilizationDescription": "{booked} бронирований за {sessions} сессий.",
+      "waitlistPressureTitle": "Давление листа ожидания",
+      "waitlistPressureDescription": "Активные листы ожидания относительно количества сессий.",
       "sessionsInRange": "Сессии за период",
       "bookingsInRange": "Бронирования за период",
       "trendTitle": "Последняя дневная динамика",

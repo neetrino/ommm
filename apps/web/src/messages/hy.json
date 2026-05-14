@@ -451,6 +451,7 @@
         "name": "Անուն",
         "lastName": "Ազգանուն",
         "phone": "Հեռախոս",
+        "dateOfBirth": "Ծննդյան ամսաթիվ",
         "locale": "Լեզու"
       },
       "emptyValue": "—"
@@ -944,6 +945,16 @@
       }
     },
     "analytics": {
+      "title": "Անալիտիկա",
+      "lead": "Ամփոփ պատկեր՝ մարզիչի panel API-ից, միջակայքային միտումներով։",
+      "signInRequired": "Պահանջվում է մարզիչի մուտք։",
+      "loadFailed": "Չհաջողվեց բեռնել մարզիչի անալիտիկան։",
+      "noProfile": "Այս հաշվին կցված մարզիչի պրոֆիլ չկա։",
+      "activeWaitlists": "Ակտիվ սպասման ցուցակներ",
+      "utilizationTitle": "Բեռնվածություն",
+      "utilizationDescription": "{booked} ամրագրում՝ {sessions} սեսիաներում։",
+      "waitlistPressureTitle": "Սպասման ճնշում",
+      "waitlistPressureDescription": "Ակտիվ սպասման ցուցակները՝ սեսիաների քանակի համեմատ։",
       "sessionsInRange": "Սեսիաներ միջակայքում",
       "bookingsInRange": "Ամրագրումներ միջակայքում",
       "trendTitle": "Վերջին օրերի միտում",

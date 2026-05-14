@@ -958,6 +958,16 @@
       }
     },
     "analytics": {
+      "title": "Analytics",
+      "lead": "Coach panel snapshot with range-based trends.",
+      "signInRequired": "Coach sign-in required.",
+      "loadFailed": "Could not load coach analytics.",
+      "noProfile": "No coach profile is linked to this account.",
+      "activeWaitlists": "Active waitlists",
+      "utilizationTitle": "Utilization",
+      "utilizationDescription": "{booked} bookings over {sessions} sessions.",
+      "waitlistPressureTitle": "Waitlist pressure",
+      "waitlistPressureDescription": "Active waitlists relative to session count.",
       "sessionsInRange": "Sessions in range",
       "bookingsInRange": "Bookings in range",
       "trendTitle": "Recent daily trend",
