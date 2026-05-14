@@ -239,6 +239,7 @@
         "bookings": "My bookings",
         "memberships": "Memberships",
         "giftCards": "Gift cards",
+        "notifications": "Notifications",
         "profile": "Profile"
       },
       "COACH": {
@@ -388,15 +389,30 @@
       "logInToSubscribe": "Log in to subscribe."
     },
     "progress": {
+      "title": "Progress",
+      "descriptionSignedOut": "Sign in to track your attendance, spending, and milestones.",
+      "signInPrompt": "Sign in to view your progress.",
+      "descriptionSignedIn": "Attendance trends, membership usage, and achievements.",
+      "activitySummary": "Activity summary",
+      "completedClasses": "Completed classes",
+      "allTime": "All time",
       "recentAttendance": "Recent attendance",
       "recentSpend": "Recent spend",
       "last7Days": "Last 7 days",
       "membershipUsage": "Membership usage",
       "membershipPlanLabel": "Plan: {plan}",
       "unlimitedLabel": "Unlimited",
+      "performanceMetrics": "Performance metrics",
+      "totalHours": "Total hours",
+      "activeDays": "Active days",
+      "favoriteClassType": "Favorite class type",
+      "favoriteFallback": "No favorite yet",
       "trendSection": "Trends",
       "attendanceTrend": "Attendance trend",
-      "spendTrend": "Spend trend"
+      "spendTrend": "Spend trend",
+      "achievements": "Achievements",
+      "achievementsEmpty": "No achievements yet.",
+      "unlocked": "Unlocked {date}"
     },
     "bookings": {
       "title": "My bookings",

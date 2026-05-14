@@ -239,6 +239,7 @@
         "bookings": "Мои бронирования",
         "memberships": "Абонементы",
         "giftCards": "Подарочные карты",
+        "notifications": "Уведомления",
         "profile": "Профиль"
       },
       "COACH": {
@@ -388,20 +389,39 @@
       "logInToSubscribe": "Войдите, чтобы оформить подписку."
     },
     "progress": {
+      "title": "Прогресс",
+      "descriptionSignedOut": "Войдите, чтобы отслеживать посещаемость, траты и достижения.",
+      "signInPrompt": "Войдите, чтобы открыть раздел прогресса.",
+      "descriptionSignedIn": "Динамика посещений, использование абонемента и достижения.",
+      "activitySummary": "Сводка активности",
+      "completedClasses": "Завершённые занятия",
+      "allTime": "За всё время",
       "recentAttendance": "Недавняя посещаемость",
       "recentSpend": "Недавние траты",
       "last7Days": "Последние 7 дней",
       "membershipUsage": "Использование membership",
       "membershipPlanLabel": "План: {plan}",
       "unlimitedLabel": "Безлимит",
+      "performanceMetrics": "Показатели эффективности",
+      "totalHours": "Всего часов",
+      "activeDays": "Активные дни",
+      "favoriteClassType": "Любимый тип занятия",
+      "favoriteFallback": "Пока нет",
       "trendSection": "Динамика",
       "attendanceTrend": "Динамика посещений",
-      "spendTrend": "Динамика трат"
+      "spendTrend": "Динамика трат",
+      "achievements": "Достижения",
+      "achievementsEmpty": "Пока нет достижений.",
+      "unlocked": "Открыто {date}"
     },
     "bookings": {
       "title": "Мои бронирования",
       "upcoming": "Предстоящие",
       "pastOther": "Прошлые и прочие",
+      "waitlists": "Листы ожидания",
+      "waitlistsLoadError": "Не удалось загрузить листы ожидания.",
+      "waitlistsEmpty": "Нет активных листов ожидания.",
+      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Пока пусто.",
       "signInRequired": "Войдите, чтобы увидеть бронирования.",
       "loadError": "Не удалось загрузить бронирования ({status})."

@@ -239,6 +239,7 @@
         "bookings": "Իմ ամրագրումները",
         "memberships": "Աբոնեմենտներ",
         "giftCards": "Նվեր քարտեր",
+        "notifications": "Ծանուցումներ",
         "profile": "Պրոֆիլ"
       },
       "COACH": {
@@ -388,15 +389,30 @@
       "logInToSubscribe": "Մուտք գործեք՝ բաժանորդագրվելու համար։"
     },
     "progress": {
+      "title": "Առաջընթաց",
+      "descriptionSignedOut": "Մուտք գործեք՝ ձեր հաճախումները, ծախսերը և նվաճումները հետևելու համար։",
+      "signInPrompt": "Մուտք գործեք՝ առաջընթացը տեսնելու համար։",
+      "descriptionSignedIn": "Հաճախման միտումներ, աբոնեմենտի օգտագործում և նվաճումներ։",
+      "activitySummary": "Ակտիվության ամփոփում",
+      "completedClasses": "Ավարտված դասեր",
+      "allTime": "Ամբողջ ժամանակում",
       "recentAttendance": "Վերջին հաճախումներ",
       "recentSpend": "Վերջին ծախսեր",
       "last7Days": "Վերջին 7 օրը",
       "membershipUsage": "Membership օգտագործում",
       "membershipPlanLabel": "Փլան՝ {plan}",
       "unlimitedLabel": "Անսահմանափակ",
+      "performanceMetrics": "Կատարողականի ցուցանիշներ",
+      "totalHours": "Ընդհանուր ժամեր",
+      "activeDays": "Ակտիվ օրեր",
+      "favoriteClassType": "Սիրված դասի տեսակ",
+      "favoriteFallback": "Դեռ չկա",
       "trendSection": "Միտումներ",
       "attendanceTrend": "Հաճախման միտում",
-      "spendTrend": "Ծախսերի միտում"
+      "spendTrend": "Ծախսերի միտում",
+      "achievements": "Նվաճումներ",
+      "achievementsEmpty": "Դեռ նվաճումներ չկան։",
+      "unlocked": "Բացվել է {date}"
     },
     "bookings": {
       "title": "Իմ ամրագրումները",
