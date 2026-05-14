@@ -6,6 +6,7 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type Plan = {
@@ -38,16 +39,6 @@ type PaymentRow = {
   description: string | null;
   createdAt: string;
 };
-
-function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
-  const normalized = currencyRaw.trim().toUpperCase();
-  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: safeCurrency,
-    maximumFractionDigits: 0,
-  }).format(priceCents / 100);
-}
 
 export default async function UserMembershipsPage({
   params,
@@ -110,8 +101,7 @@ export default async function UserMembershipsPage({
               {payRes.data.map((p) => (
                 <li key={p.id} className="ommm-inset-row">
                   <span className="font-medium tabular-nums text-sage-800">
-                    {(p.amountCents / 100).toFixed(2)}{" "}
-                    {p.currency.toUpperCase()}
+                    {formatAmdFromCents(p.amountCents, locale)}
                   </span>
                   <span className="ml-2 text-sage-500">{p.status}</span>
                   {p.description ? (
@@ -142,7 +132,7 @@ export default async function UserMembershipsPage({
                       </p>
                     ) : null}
                     <p className="mt-3 text-sm text-sage-700">
-                      {formatPlanCurrency(locale, plan.priceCents, plan.currency)}{" "}
+                      {formatAmdFromCents(plan.priceCents, locale)}{" "}
                       · {plan.billingPeriod} ·{" "}
                       {plan.isUnlimited
                         ? t("unlimitedClassesShort")

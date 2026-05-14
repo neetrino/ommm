@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type PublicMembershipPlan = {
@@ -27,23 +28,13 @@ type HomeMembershipCard = {
   isPopular: boolean;
 };
 
-function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
-  const normalized = currencyRaw.trim().toUpperCase();
-  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: safeCurrency,
-    maximumFractionDigits: 0,
-  }).format(priceCents / 100);
-}
-
 function fallbackCards(t: Awaited<ReturnType<typeof getTranslations>>): HomeMembershipCard[] {
   return [
     {
       id: "starter",
       name: t("homeMembershipFallbackStarterName"),
       description: t("homeMembershipFallbackStarterDescription"),
-      amount: "$39",
+      amount: "֏ 39",
       periodLabel: t("homeMembershipFallbackMonthly"),
       features: [
         t("homeMembershipFallbackFeature1"),
@@ -57,7 +48,7 @@ function fallbackCards(t: Awaited<ReturnType<typeof getTranslations>>): HomeMemb
       id: "flow",
       name: t("homeMembershipFallbackFlowName"),
       description: t("homeMembershipFallbackFlowDescription"),
-      amount: "$79",
+      amount: "֏ 79",
       periodLabel: t("homeMembershipFallbackMonthly"),
       features: [
         t("homeMembershipFallbackFeature4"),
@@ -76,7 +67,7 @@ function toHomeCards(
   t: Awaited<ReturnType<typeof getTranslations>>,
 ): HomeMembershipCard[] {
   return plans.map((plan) => {
-    const amount = formatPlanCurrency(locale, plan.priceCents, plan.currency);
+    const amount = formatAmdFromCents(plan.priceCents, locale);
 
     const features =
       plan.features.length > 0

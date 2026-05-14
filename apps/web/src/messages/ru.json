@@ -448,7 +448,7 @@
       "noSessions": "В этом окне нет сессий.",
       "coachFallback": "Тренер",
       "spotsBooked": "{booked}/{capacity} занято",
-      "paidShort": "Платно ({amount}+)",
+      "paidShort": "Платно ({amount})",
       "includedShort": "Включено / абонемент",
       "myBookingsLink": "Мои бронирования"
     },
@@ -460,7 +460,7 @@
     },
     "giftCards": {
       "title": "Подарочные карты",
-      "giftBalance": "Баланс подарков (кредиты): {cents} центов",
+      "giftBalance": "Баланс подарков (кредиты): {amount}",
       "redeem": "Погасить",
       "purchase": "Купить",
       "stripeNote": "Открывает Stripe Checkout (настройте {code}).",

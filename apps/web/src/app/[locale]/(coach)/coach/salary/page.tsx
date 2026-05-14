@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type SalarySummary = {
@@ -40,21 +41,20 @@ export default async function CoachSalaryPage({
   }
 
   const data = res.data;
-  const formatMoney = (cents: number) => (cents / 100).toFixed(2);
   return (
     <AccountPageFrame title={t("title")} description={t("lead")}>
       <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("total")}</p>
-          <p className={adminChrome.metricValue}>{formatMoney(data.totalEarningsCents)}</p>
+          <p className={adminChrome.metricValue}>{formatAmdFromCents(data.totalEarningsCents, locale)}</p>
         </li>
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("pending")}</p>
-          <p className={adminChrome.metricValue}>{formatMoney(data.pendingPayoutCents)}</p>
+          <p className={adminChrome.metricValue}>{formatAmdFromCents(data.pendingPayoutCents, locale)}</p>
         </li>
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("paid")}</p>
-          <p className={adminChrome.metricValue}>{formatMoney(data.paidOutCents)}</p>
+          <p className={adminChrome.metricValue}>{formatAmdFromCents(data.paidOutCents, locale)}</p>
         </li>
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("sessions")}</p>
@@ -65,8 +65,8 @@ export default async function CoachSalaryPage({
         <p className={adminChrome.panelHeading}>{t("lead")}</p>
         <p className="mt-2">
           {t("formula", {
-            base: formatMoney(data.basePerSessionCents),
-            perAttendee: formatMoney(data.perAttendeeShareCents),
+            base: formatAmdFromCents(data.basePerSessionCents, locale),
+            perAttendee: formatAmdFromCents(data.perAttendeeShareCents, locale),
           })}
         </p>
       </section>

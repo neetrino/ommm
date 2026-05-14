@@ -7,7 +7,6 @@ import { OmmButton } from "@/components/ui/omm-button";
 
 const MAX_NAME_LENGTH = 120;
 const MAX_DESCRIPTION_LENGTH = 500;
-const MAX_CURRENCY_LENGTH = 8;
 const MAX_BILLING_PERIOD_LENGTH = 32;
 const MAX_FEATURES_LENGTH = 1200;
 const MAX_BUTTON_LABEL_LENGTH = 80;
@@ -46,7 +45,7 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
     const name = String(fd.get("name") ?? "").trim();
     const description = String(fd.get("description") ?? "").trim();
     const priceRaw = String(fd.get("price") ?? "");
-    const currency = String(fd.get("currency") ?? "").trim().toUpperCase();
+    const currency = "AMD";
     const billingPeriod = String(fd.get("billingPeriod") ?? "").trim().toLowerCase();
     const periodDaysRaw = String(fd.get("periodDays") ?? "").trim();
     const featuresRaw = String(fd.get("features") ?? "").trim();
@@ -72,10 +71,6 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
     const priceCents = parsePriceToCents(priceRaw);
     if (priceCents === null) {
       setError(t("priceInvalid"));
-      return;
-    }
-    if (currency.length === 0 || currency.length > MAX_CURRENCY_LENGTH) {
-      setError(t("currencyInvalid"));
       return;
     }
     if (billingPeriod.length === 0 || billingPeriod.length > MAX_BILLING_PERIOD_LENGTH) {
@@ -162,16 +157,21 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
-          <input
-            name="price"
-            type="number"
-            className="ommm-input"
-            min={0}
-            step="0.01"
-            inputMode="decimal"
-            required
-            disabled={pending}
-          />
+          <div className="relative">
+            <span className="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-sm font-semibold text-sage-600">
+              ֏
+            </span>
+            <input
+              name="price"
+              type="number"
+              className="ommm-input pl-8"
+              min={0}
+              step="0.01"
+              inputMode="decimal"
+              required
+              disabled={pending}
+            />
+          </div>
         </label>
       </div>
 
@@ -188,14 +188,7 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
       <div className="grid gap-4 sm:grid-cols-3">
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCurrency")}</span>
-          <input
-            name="currency"
-            className="ommm-input uppercase"
-            defaultValue="USD"
-            maxLength={MAX_CURRENCY_LENGTH}
-            required
-            disabled={pending}
-          />
+          <input name="currency" className="ommm-input uppercase" value="AMD" readOnly disabled />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">

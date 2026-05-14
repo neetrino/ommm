@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type Dashboard = {
   sessionsToday: number;
@@ -13,14 +14,6 @@ type AdminReportsSummaryProps = {
   data: Dashboard;
   locale: string;
 };
-
-function formatMoneyFromCents(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "AMD",
-    maximumFractionDigits: 0,
-  }).format(value / 100);
-}
 
 export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryProps) {
   const tm = await getTranslations({ locale, namespace: "adminHome.metrics" });
@@ -47,7 +40,7 @@ export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryP
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{tm("revenueCents")}</p>
           <p className={adminChrome.metricValue}>
-            {formatMoneyFromCents(data.revenueCentsTotal, locale)}
+            {formatAmdFromCents(data.revenueCentsTotal, locale)}
           </p>
         </li>
       ) : null}

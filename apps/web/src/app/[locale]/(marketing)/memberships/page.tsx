@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type Plan = {
@@ -17,16 +18,6 @@ type Plan = {
   isPopular: boolean;
   isActive: boolean;
 };
-
-function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
-  const normalized = currencyRaw.trim().toUpperCase();
-  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: safeCurrency,
-    maximumFractionDigits: 0,
-  }).format(priceCents / 100);
-}
 
 export default async function MembershipsMarketingPage({
   params,
@@ -59,7 +50,7 @@ export default async function MembershipsMarketingPage({
         <>
           <ul className="mt-12 grid gap-6 lg:grid-cols-2">
             {activePlans.map((plan) => {
-              const amount = formatPlanCurrency(locale, plan.priceCents, plan.currency);
+              const amount = formatAmdFromCents(plan.priceCents, locale);
               const sessionsLabel = plan.isUnlimited
                 ? m("membershipsSessionsUnlimited")
                 : m("membershipsSessionsCount", {
@@ -127,7 +118,7 @@ export default async function MembershipsMarketingPage({
                         {plan.name}
                       </td>
                       <td className="px-4 py-3 tabular-nums">
-                        {formatPlanCurrency(locale, plan.priceCents, plan.currency)}
+                        {formatAmdFromCents(plan.priceCents, locale)}
                       </td>
                       <td className="px-4 py-3">
                         {m("membershipsPeriodDaysShort", { days: plan.periodDays })}

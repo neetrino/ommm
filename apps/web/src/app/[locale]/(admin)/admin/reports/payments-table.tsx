@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type PaymentItem = {
   id: string;
@@ -19,14 +20,6 @@ type PaymentsTableProps = {
   items: PaymentItem[];
   locale: string;
 };
-
-function formatMoney(cents: number, currency: string, locale: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function displayUserName(name: string | null, lastName: string | null): string {
   const merged = `${name ?? ""} ${lastName ?? ""}`.trim();
@@ -68,7 +61,7 @@ export async function PaymentsTable({ items, locale }: PaymentsTableProps) {
                 <p className="text-xs text-sage-500">{row.user.email}</p>
               </td>
               <td className="px-4 py-3 align-top font-medium text-sage-800">
-                {formatMoney(row.amountCents, row.currency, locale)}
+                {formatAmdFromCents(row.amountCents, locale)}
               </td>
               <td className="px-4 py-3 align-top">{row.source}</td>
               <td className="px-4 py-3 align-top">{row.status}</td>

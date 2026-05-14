@@ -6,6 +6,7 @@ import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { formatSessionRange } from "@/lib/format-session-time";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type SessionRow = {
@@ -73,7 +74,7 @@ export default async function UserClassesPage({
             const pricing =
               s.priceCents > 0
                 ? t("paidShort", {
-                    amount: (s.priceCents / 100).toFixed(0),
+                    amount: formatAmdFromCents(s.priceCents, locale),
                   })
                 : t("includedShort");
             return (

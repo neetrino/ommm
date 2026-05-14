@@ -444,7 +444,7 @@
       "noSessions": "Այս պատուհանում սեսիաներ չկան։",
       "coachFallback": "Մարզիչ",
       "spotsBooked": "{booked}/{capacity} ամրագրված",
-      "paidShort": "Վճարովի ({amount}+)",
+      "paidShort": "Վճարովի ({amount})",
       "includedShort": "Ներառված / աբոնեմենտ",
       "myBookingsLink": "Իմ ամրագրումները"
     },
@@ -456,7 +456,7 @@
     },
     "giftCards": {
       "title": "Նվեր քարտեր",
-      "giftBalance": "Նվերի մնացորդ (կրեդիտներ)՝ {cents} ցենտ",
+      "giftBalance": "Նվերի մնացորդ (կրեդիտներ)՝ {amount}",
       "redeem": "Փոխարժել",
       "purchase": "Գնել",
       "stripeNote": "Բացում է Stripe Checkout ({code} կարգավորեք)։",

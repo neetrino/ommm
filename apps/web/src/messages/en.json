@@ -448,7 +448,7 @@
       "noSessions": "No sessions in this window.",
       "coachFallback": "Coach",
       "spotsBooked": "{booked}/{capacity} booked",
-      "paidShort": "Paid ({amount}+)",
+      "paidShort": "Paid ({amount})",
       "includedShort": "Included / membership",
       "myBookingsLink": "My bookings"
     },
@@ -460,7 +460,7 @@
     },
     "giftCards": {
       "title": "Gift cards",
-      "giftBalance": "Gift balance (credits): {cents} cents",
+      "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
       "purchase": "Purchase",
       "stripeNote": "Opens Stripe Checkout (configure {code}).",

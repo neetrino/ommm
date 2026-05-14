@@ -4,6 +4,7 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type AchievementRow = {
@@ -44,14 +45,6 @@ type UserAnalyticsResponse = {
     spend: Array<{ date: string; amountCents: number }>;
   };
 };
-
-function formatMoneyFromCents(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "AMD",
-    maximumFractionDigits: 0,
-  }).format(value / 100);
-}
 
 export default async function UserProgressPage({
   params,
@@ -102,7 +95,7 @@ export default async function UserProgressPage({
             <li className="ommm-stack-card text-sm text-sage-700">
               <p className="font-semibold text-sage-800">{t("recentSpend")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {formatMoneyFromCents(
+                {formatAmdFromCents(
                   spendTrend.reduce((sum, row) => sum + row.amountCents, 0),
                   locale,
                 )}
@@ -166,7 +159,7 @@ export default async function UserProgressPage({
                 {spendTrend.map((point) => (
                   <li key={point.date}>
                     {new Date(point.date).toLocaleDateString(locale)}:{" "}
-                    {formatMoneyFromCents(point.amountCents, locale)}
+                    {formatAmdFromCents(point.amountCents, locale)}
                   </li>
                 ))}
               </ul>

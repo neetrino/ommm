@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 import { AdminReportsSummary } from "./admin-reports-summary";
 import { PaymentsTable } from "./payments-table";
@@ -68,14 +69,6 @@ function computeFromDate(days: number): string {
   return from.toISOString();
 }
 
-function formatMoneyFromCents(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "AMD",
-    maximumFractionDigits: 0,
-  }).format(value / 100);
-}
-
 export default async function AdminReportsPage({
   params,
   searchParams,
@@ -135,13 +128,13 @@ export default async function AdminReportsPage({
         <article className="ommm-stack-card">
           <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiRevenue")}</p>
           <p className="mt-2 text-2xl font-semibold text-sage-900">
-            {formatMoneyFromCents(financeRes.data.totals.revenueCents, locale)}
+            {formatAmdFromCents(financeRes.data.totals.revenueCents, locale)}
           </p>
         </article>
         <article className="ommm-stack-card">
           <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiAvgOrderValue")}</p>
           <p className="mt-2 text-2xl font-semibold text-sage-900">
-            {formatMoneyFromCents(financeRes.data.totals.averageOrderValueCents, locale)}
+            {formatAmdFromCents(financeRes.data.totals.averageOrderValueCents, locale)}
           </p>
         </article>
         <article className="ommm-stack-card">

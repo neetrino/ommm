@@ -4,6 +4,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminMembershipPlanActions } from "@/components/admin/admin-membership-plan-actions";
 import { AdminMembershipPlansShell } from "@/components/admin/admin-membership-plans-shell";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type MembershipPlanAdminRow = {
@@ -20,16 +21,6 @@ type MembershipPlanAdminRow = {
   isActive: boolean;
   displayOrder: number;
 };
-
-function formatPlanCurrency(locale: string, priceCents: number, currencyRaw: string): string {
-  const normalized = currencyRaw.trim().toUpperCase();
-  const safeCurrency = /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: safeCurrency,
-    maximumFractionDigits: 0,
-  }).format(priceCents / 100);
-}
 
 export default async function AdminMembershipsPage({
   params,
@@ -56,7 +47,7 @@ export default async function AdminMembershipsPage({
       <AdminMembershipPlansShell>
         <div className="grid items-stretch gap-5 md:grid-cols-2 xl:gap-6">
           {res.data.map((plan) => {
-            const amount = formatPlanCurrency(locale, plan.priceCents, plan.currency);
+            const amount = formatAmdFromCents(plan.priceCents, locale);
             const features = plan.features.length > 0 ? plan.features : [];
             return (
               <article
