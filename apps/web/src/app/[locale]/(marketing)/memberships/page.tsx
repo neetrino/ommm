@@ -59,7 +59,7 @@ export default async function MembershipsMarketingPage({
               return (
                 <li
                   key={plan.id}
-                  className={`ommm-card flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ommm-marketing-card-hover ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
+                  className={`ommm-card ommm-membership-card-hover flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
                 >
                   <h2 className="ommm-h3 text-sage-800">{plan.name}</h2>
                   {plan.description ? (
