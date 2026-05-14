@@ -39,16 +39,23 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const tUi = useTranslations("marketingUi");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const isMarketingHome = pathname === "/" || pathname === "";
+  const marketingPath = pathname ?? "";
+  const isMarketingHome = marketingPath === "/" || marketingPath === "";
+
+  const headerShellClass = isMarketingHome
+    ? [
+        "fixed left-0 right-0 top-0 z-50 w-full min-w-0",
+        "pt-[env(safe-area-inset-top,0px)]",
+        "bg-transparent backdrop-blur-sm",
+      ].join(" ")
+    : [
+        "sticky top-0 z-50 w-full min-w-0",
+        "pt-[env(safe-area-inset-top,0px)]",
+        "bg-white/55 backdrop-blur-xl",
+      ].join(" ");
 
   return (
-    <header
-      className={
-        isMarketingHome
-          ? "sticky top-0 z-50 border-b border-white/20 bg-transparent backdrop-blur-[12px]"
-          : "sticky top-0 z-50 border-b border-white/40 bg-white/55 backdrop-blur-xl"
-      }
-    >
+    <header className={headerShellClass}>
       <div className="ommm-container flex h-16 items-center justify-between gap-4 sm:h-20">
         <Link
           href="/"
@@ -79,7 +86,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(pathname, href), isMarketingHome)}
+              className={navLinkClass(isActive(marketingPath, href), isMarketingHome)}
             >
               {tNav(key)}
             </Link>
@@ -159,7 +166,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(pathname, href), isMarketingHome)}
+              className={navLinkClass(isActive(marketingPath, href), isMarketingHome)}
               onClick={() => setOpen(false)}
             >
               {tNav(key)}
