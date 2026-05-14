@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { GiftCardDroplets } from "@/components/marketing/home/gift-card-droplets";
@@ -21,17 +20,7 @@ export async function GiftCardBanner({ locale }: { locale: string }) {
 
           <div className="relative grid grid-cols-1 items-center gap-8 p-8 sm:p-12 lg:grid-cols-12 lg:gap-12 lg:p-16">
             <div className="lg:col-span-7">
-              <span className="inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-white/30 ring-2 ring-white/70 backdrop-blur sm:h-16 sm:w-16">
-                <Image
-                  src="/marketing/home/brand-mark.png"
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="h-full w-full object-cover"
-                />
-              </span>
-
-              <h2 className="mt-6 font-serif text-3xl font-normal leading-tight text-white sm:text-4xl lg:text-5xl">
+              <h2 className="font-serif text-3xl font-normal leading-tight text-white sm:text-4xl lg:text-5xl">
                 {t("titleStart")}{" "}
                 <span className="font-light italic">{t("titleAccent")}</span>
               </h2>
