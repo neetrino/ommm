@@ -837,6 +837,12 @@
       "fieldPrice": "Գին",
       "fieldCurrency": "Արտարժույթ",
       "fieldBillingPeriod": "Վճարման պարբերականություն",
+      "billingPeriodOptions": {
+        "weekly": "Շաբաթական",
+        "monthly": "Ամսական",
+        "quarterly": "Եռամսյակային",
+        "yearly": "Տարեկան"
+      },
       "fieldPeriodDays": "Վճարման ցիկլ (օր)",
       "fieldFeatures": "Առավելություններ",
       "featuresPlaceholder": "Մեկ առավելություն՝ մեկ տողում",

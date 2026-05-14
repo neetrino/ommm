@@ -4,12 +4,15 @@ import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
 const MAX_NAME_LENGTH = 120;
 const MAX_DESCRIPTION_LENGTH = 500;
 const MAX_BILLING_PERIOD_LENGTH = 32;
 const MAX_FEATURES_LENGTH = 1200;
 const MAX_BUTTON_LABEL_LENGTH = 80;
+const BILLING_PERIOD_OPTIONS = ["weekly", "monthly", "quarterly", "yearly"] as const;
+type BillingPeriodOption = (typeof BILLING_PERIOD_OPTIONS)[number];
 
 type AdminMembershipPlanFormProps = {
   onSaved: () => void;
@@ -28,11 +31,28 @@ function parsePriceToCents(raw: string): number | null {
   return Math.round(numeric * 100);
 }
 
+function preventNumberArrowStep(event: React.KeyboardEvent<HTMLInputElement>) {
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    event.preventDefault();
+  }
+}
+
+function isBillingPeriodOption(value: string): value is BillingPeriodOption {
+  return BILLING_PERIOD_OPTIONS.includes(value as BillingPeriodOption);
+}
+
 export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPlanFormProps) {
   const t = useTranslations("adminPages.memberships");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [billingPeriodValue, setBillingPeriodValue] = useState<BillingPeriodOption>("monthly");
   const submitLockRef = useRef(false);
+  const billingPeriodOptions: readonly DropdownOption<BillingPeriodOption>[] = BILLING_PERIOD_OPTIONS.map(
+    (option) => ({
+      value: option,
+      label: t(`billingPeriodOptions.${option}`),
+    }),
+  );
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,7 +93,11 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
       setError(t("priceInvalid"));
       return;
     }
-    if (billingPeriod.length === 0 || billingPeriod.length > MAX_BILLING_PERIOD_LENGTH) {
+    if (
+      billingPeriod.length === 0 ||
+      billingPeriod.length > MAX_BILLING_PERIOD_LENGTH ||
+      !isBillingPeriodOption(billingPeriod)
+    ) {
       setError(t("billingPeriodInvalid"));
       return;
     }
@@ -168,6 +192,7 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
               min={0}
               step="0.01"
               inputMode="decimal"
+              onKeyDown={preventNumberArrowStep}
               required
               disabled={pending}
             />
@@ -185,20 +210,19 @@ export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPl
         />
       </label>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCurrency")}</span>
-          <input name="currency" className="ommm-input uppercase" value="AMD" readOnly disabled />
-        </label>
+      <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">
             {t("fieldBillingPeriod")}
           </span>
-          <input
+          <DropdownSelect
+            label={t("fieldBillingPeriod")}
+            ariaLabel={t("fieldBillingPeriod")}
+            value={billingPeriodValue}
+            options={billingPeriodOptions}
+            onChange={setBillingPeriodValue}
             name="billingPeriod"
-            className="ommm-input"
-            defaultValue="monthly"
-            maxLength={MAX_BILLING_PERIOD_LENGTH}
+            triggerClassName="ommm-input text-left pr-9"
             required
             disabled={pending}
           />

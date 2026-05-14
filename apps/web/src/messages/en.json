@@ -850,6 +850,12 @@
       "fieldPrice": "Price",
       "fieldCurrency": "Currency",
       "fieldBillingPeriod": "Billing period",
+      "billingPeriodOptions": {
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "yearly": "Yearly"
+      },
       "fieldPeriodDays": "Billing cycle (days)",
       "fieldFeatures": "Features",
       "featuresPlaceholder": "One feature per line",

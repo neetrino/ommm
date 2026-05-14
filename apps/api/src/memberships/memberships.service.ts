@@ -1,9 +1,11 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { MembershipStatus, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -69,12 +71,13 @@ export class MembershipsService {
         },
       });
     } catch (error) {
+      if (this.isUniquePlanConflict(error)) {
+        throw new ConflictException('Membership plan with this slug already exists.');
+      }
       if (!this.isMissingColumn(error)) {
         throw error;
       }
-      throw new InternalServerErrorException(
-        'Membership plan migration is not applied. Run database migrations before creating plans.',
-      );
+      return this.createPlanLegacy(dto, slug);
     }
   }
 
@@ -319,7 +322,113 @@ export class MembershipsService {
       return false;
     }
     const column = (meta as { column?: unknown }).column;
-    return typeof column === 'string' && column.startsWith('MembershipPlan.');
+    if (typeof column !== 'string') {
+      return false;
+    }
+    const normalizedColumn = column.replace(/^MembershipPlan\./, '');
+    return [
+      'currency',
+      'billingPeriod',
+      'features',
+      'buttonLabel',
+      'isPopular',
+      'displayOrder',
+    ].includes(normalizedColumn);
+  }
+
+  private async createPlanLegacy(dto: CreatePlanDto, slug: string) {
+    try {
+      const planId = randomUUID();
+      const now = new Date();
+      const created = await this.prisma.$queryRaw<
+        Array<{
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          priceCents: number;
+          sessionsPerMonth: number | null;
+          isUnlimited: boolean;
+          periodDays: number;
+          isActive: boolean;
+          stripePriceId: string | null;
+          createdAt: Date;
+          updatedAt: Date;
+        }>
+      >(Prisma.sql`
+        INSERT INTO "MembershipPlan" (
+          "id",
+          "name",
+          "slug",
+          "description",
+          "priceCents",
+          "sessionsPerMonth",
+          "isUnlimited",
+          "periodDays",
+          "isActive",
+          "stripePriceId",
+          "createdAt",
+          "updatedAt"
+        )
+        VALUES (
+          ${planId},
+          ${dto.name},
+          ${slug},
+          ${dto.description ?? null},
+          ${dto.priceCents},
+          ${dto.isUnlimited ? null : dto.sessionsPerMonth ?? null},
+          ${dto.isUnlimited},
+          ${dto.periodDays},
+          ${dto.isActive ?? true},
+          ${dto.stripePriceId ?? null},
+          ${now},
+          ${now}
+        )
+        RETURNING
+          "id",
+          "name",
+          "slug",
+          "description",
+          "priceCents",
+          "sessionsPerMonth",
+          "isUnlimited",
+          "periodDays",
+          "isActive",
+          "stripePriceId",
+          "createdAt",
+          "updatedAt"
+      `);
+      const [plan] = created;
+      if (plan === undefined) {
+        throw new InternalServerErrorException('Failed to create membership plan');
+      }
+      return this.withMarketingDefaults(plan);
+    } catch (error) {
+      if (this.isUniquePlanConflict(error)) {
+        throw new ConflictException('Membership plan with this slug already exists.');
+      }
+      throw new InternalServerErrorException(
+        'Could not create membership plan in legacy schema. Apply membership migrations and retry.',
+      );
+    }
+  }
+
+  private isUniquePlanConflict(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null || !('code' in error)) {
+      return false;
+    }
+    const code = (error as { code?: unknown }).code;
+    if (code === 'P2002') {
+      return true;
+    }
+    if (code !== 'P2010' || !('meta' in error)) {
+      return false;
+    }
+    const meta = (error as { meta?: unknown }).meta;
+    if (typeof meta !== 'object' || meta === null || !('code' in meta)) {
+      return false;
+    }
+    return (meta as { code?: unknown }).code === '23505';
   }
 
   private withMarketingDefaults<
