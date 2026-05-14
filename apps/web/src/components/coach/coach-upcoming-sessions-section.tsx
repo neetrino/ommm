@@ -1,5 +1,6 @@
 import { formatSessionRange } from "@/lib/format-session-time";
 import type { CoachPanelSessionRow } from "@/lib/coach-panel-types";
+import { adminChrome } from "@/components/admin/admin-chrome";
 
 type CoachUpcomingSessionsSectionProps = {
   locale: string;
@@ -11,24 +12,21 @@ export function CoachUpcomingSessionsSection({
   sessions,
 }: CoachUpcomingSessionsSectionProps) {
   if (sessions.length === 0) {
-    return <p className="mt-2 text-sm text-zinc-600">No sessions in range.</p>;
+    return <p className={adminChrome.metaText}>No sessions in range.</p>;
   }
 
   return (
     <ul className="mt-4 space-y-3">
       {sessions.map((s) => (
-        <li
-          key={s.id}
-          className="rounded-[24px] border border-indigo-100 bg-white p-4 text-sm shadow-sm"
-        >
-          <p className="font-medium text-zinc-900">{s.classType.name}</p>
-          <p className="text-zinc-600">
+        <li key={s.id} className={adminChrome.panel}>
+          <p className={adminChrome.panelHeading}>{s.classType.name}</p>
+          <p className="mt-1 text-sm text-sage-700">
             {formatSessionRange(locale, s.startsAt, s.endsAt)}
           </p>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className={`mt-2 ${adminChrome.metaText}`}>
             {s._count.bookings}/{s.capacity} booked
           </p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-zinc-500">
+          <p className={`${adminChrome.metaText} mt-1 uppercase tracking-wide`}>
             Session ID: {s.id}
           </p>
         </li>

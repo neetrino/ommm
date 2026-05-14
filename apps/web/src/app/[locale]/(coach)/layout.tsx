@@ -16,7 +16,7 @@ import {
 const COACH_ROLES = new Set<string>(["COACH"]);
 
 const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-indigo-950 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2";
+  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
 
 export default async function CoachSectionLayout({
   children,
@@ -38,18 +38,15 @@ export default async function CoachSectionLayout({
       brandHref="/coach/home"
       brandLabel={tDash("brand.coach.title")}
       brandSubline={tDash("brand.coach.subline")}
-      variant="indigo"
-      contentMaxClass="max-w-5xl"
+      variant="wellness"
+      contentMaxClass="w-full"
       navRole="COACH"
       navDefinitions={navDefinitions}
       notificationRoute={notificationRoute}
       trailing={
         <>
-          <LogoutButton className={`${trailingClass} lg:w-auto`} />
-          <Link
-            href="/user/home"
-            className={`${trailingClass} text-center lg:text-left`}
-          >
+          <LogoutButton className={`${trailingClass} text-left`} />
+          <Link href="/user/home" className={trailingClass}>
             {tDash("links.memberZone")}
           </Link>
         </>

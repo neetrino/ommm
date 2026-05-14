@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type PanelSummary = {
@@ -24,7 +26,7 @@ export default async function CoachAnalyticsPage({
 
   if (!res.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {res.status === 401 || res.status === 403
           ? t("signInRequired")
           : t("loadFailed")}
@@ -34,7 +36,7 @@ export default async function CoachAnalyticsPage({
 
   if (res.data === null) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {t("noProfile")}
       </div>
     );
@@ -49,55 +51,37 @@ export default async function CoachAnalyticsPage({
       : 0;
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-indigo-950">{t("title")}</h1>
-      <p className="mt-2 text-sm text-indigo-900/80">{t("lead")}</p>
-      <ul className="mt-8 grid gap-4 sm:grid-cols-3">
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">
-            {t("sessionsToday")}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">
-            {d.todaySessions}
-          </p>
+    <AccountPageFrame title={t("title")} description={t("lead")}>
+      <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("sessionsToday")}</p>
+          <p className={adminChrome.metricValue}>{d.todaySessions}</p>
         </li>
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">
-            {t("bookingsToday")}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">
-            {d.bookedToday}
-          </p>
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("bookingsToday")}</p>
+          <p className={adminChrome.metricValue}>{d.bookedToday}</p>
         </li>
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">
-            {t("activeWaitlists")}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">
-            {d.activeWaitlistsForCoachSessions}
-          </p>
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("activeWaitlists")}</p>
+          <p className={adminChrome.metricValue}>{d.activeWaitlistsForCoachSessions}</p>
         </li>
       </ul>
       <section className="mt-8 grid gap-4 sm:grid-cols-2">
-        <article className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">
-            Utilization
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">{utilizationPercent}%</p>
-          <p className="mt-1 text-xs text-indigo-900/70">
+        <article className={adminChrome.panel}>
+          <p className={adminChrome.metricLabel}>Utilization</p>
+          <p className={adminChrome.metricValue}>{utilizationPercent}%</p>
+          <p className={adminChrome.metaText}>
             {d.bookedToday} bookings over {d.todaySessions} sessions today.
           </p>
         </article>
-        <article className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">
-            Waitlist pressure
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">{waitlistPressure}%</p>
-          <p className="mt-1 text-xs text-indigo-900/70">
+        <article className={adminChrome.panel}>
+          <p className={adminChrome.metricLabel}>Waitlist pressure</p>
+          <p className={adminChrome.metricValue}>{waitlistPressure}%</p>
+          <p className={adminChrome.metaText}>
             Active waitlists relative to today&apos;s session count.
           </p>
         </article>
       </section>
-    </div>
+    </AccountPageFrame>
   );
 }

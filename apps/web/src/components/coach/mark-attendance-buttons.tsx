@@ -38,7 +38,7 @@ export function MarkAttendanceButtons({ bookingId }: Props) {
           type="button"
           disabled={busy}
           onClick={() => void send(true)}
-          className="rounded-lg bg-emerald-700 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-800 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45"
         >
           {t("attended")}
         </button>
@@ -46,7 +46,7 @@ export function MarkAttendanceButtons({ bookingId }: Props) {
           type="button"
           disabled={busy}
           onClick={() => void send(false)}
-          className="rounded-lg border border-zinc-300 px-2 py-1 text-xs font-medium text-zinc-800 hover:bg-zinc-50 disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-full border border-white/75 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 backdrop-blur-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45"
         >
           {t("noShow")}
         </button>
