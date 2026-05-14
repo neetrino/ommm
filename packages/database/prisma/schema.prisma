@@ -224,6 +224,7 @@ model Booking {
   @@unique([userId, sessionId])
   @@index([sessionId])
   @@index([userId])
+  @@index([status, createdAt])
 }
 
 model BookingNote {
@@ -313,6 +314,8 @@ model Payment {
   updatedAt       DateTime      @updatedAt
 
   @@index([userId])
+  @@index([status, createdAt])
+  @@index([createdAt])
 }
 
 model GiftCard {

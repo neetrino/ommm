@@ -14,6 +14,14 @@ type AdminReportsSummaryProps = {
   locale: string;
 };
 
+function formatMoneyFromCents(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "AMD",
+    maximumFractionDigits: 0,
+  }).format(value / 100);
+}
+
 export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryProps) {
   const tm = await getTranslations({ locale, namespace: "adminHome.metrics" });
 
@@ -38,7 +46,9 @@ export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryP
       {typeof data.revenueCentsTotal === "number" ? (
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{tm("revenueCents")}</p>
-          <p className={adminChrome.metricValue}>{data.revenueCentsTotal}</p>
+          <p className={adminChrome.metricValue}>
+            {formatMoneyFromCents(data.revenueCentsTotal, locale)}
+          </p>
         </li>
       ) : null}
     </ul>

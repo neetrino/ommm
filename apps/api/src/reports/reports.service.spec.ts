@@ -1,0 +1,69 @@
+import { BookingStatus, ClassSessionStatus, PaymentStatus } from '@prisma/client';
+import { ReportsService } from './reports.service';
+
+function createServiceWithPrisma(prismaMock: Record<string, unknown>): ReportsService {
+  return new ReportsService(prismaMock as never);
+}
+
+describe('ReportsService', () => {
+  it('financeSummary returns aggregated totals, status and source breakdown', async () => {
+    const prismaMock = {
+      payment: {
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { amountCents: 15_000 },
+          _count: { id: 3 },
+        }),
+        groupBy: jest.fn().mockResolvedValue([
+          { status: PaymentStatus.SUCCEEDED, _sum: { amountCents: 15_000 }, _count: { id: 3 } },
+        ]),
+        findMany: jest.fn().mockResolvedValue([
+          { id: '1', amountCents: 5_000, description: 'Membership subscription', status: PaymentStatus.SUCCEEDED },
+          { id: '2', amountCents: 7_000, description: 'Drop-in session s1', status: PaymentStatus.SUCCEEDED },
+          { id: '3', amountCents: 3_000, description: 'Gift card', status: PaymentStatus.SUCCEEDED },
+        ]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.financeSummary({});
+
+    expect(result.totals.revenueCents).toBe(15_000);
+    expect(result.totals.averageOrderValueCents).toBe(5_000);
+    expect(result.bySource.membership.amountCents).toBe(5_000);
+    expect(result.bySource.dropin.amountCents).toBe(7_000);
+    expect(result.bySource.gift.amountCents).toBe(3_000);
+  });
+
+  it('coachAnalytics computes totals and trend safely', async () => {
+    const startsAt = new Date();
+    startsAt.setHours(startsAt.getHours() - 1);
+    const prismaMock = {
+      coachProfile: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'coach1' }),
+      },
+      classSession: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 's1',
+            capacity: 10,
+            startsAt,
+            status: ClassSessionStatus.ACTIVE,
+          },
+        ]),
+      },
+      booking: {
+        findMany: jest.fn().mockResolvedValue([{ sessionId: 's1', status: BookingStatus.BOOKED }]),
+      },
+      waitlistEntry: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+    const result = await service.coachAnalytics('user1', 30);
+
+    expect(result?.totals.sessions).toBe(1);
+    expect(result?.totals.bookings).toBe(1);
+    expect(result?.totals.utilizationPercent).toBe(10);
+    expect(result?.trend.length).toBe(1);
+  });
+});

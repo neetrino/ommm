@@ -24,18 +24,33 @@ type BookingMine = {
   session: { startsAt: string; endsAt: string; classType: { name: string } };
 };
 
-type PeriodKey = "month" | "year" | "all";
+type UserAnalyticsResponse = {
+  totals: {
+    completedClasses: number;
+    totalHours: number;
+    activeDays: number;
+    favoriteClassType: string | null;
+    spendCents: number;
+  };
+  membership: {
+    planName: string;
+    sessionsRemaining: number | null;
+    sessionsPerMonth: number | null;
+    isUnlimited: boolean;
+    currentPeriodEnd: string;
+  } | null;
+  trend: {
+    attendance: Array<{ date: string; count: number }>;
+    spend: Array<{ date: string; amountCents: number }>;
+  };
+};
 
-function inPeriod(dateIso: string, period: PeriodKey): boolean {
-  const d = new Date(dateIso);
-  const now = new Date();
-  if (period === "all") {
-    return true;
-  }
-  if (period === "year") {
-    return d.getFullYear() === now.getFullYear();
-  }
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+function formatMoneyFromCents(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "AMD",
+    maximumFractionDigits: 0,
+  }).format(value / 100);
 }
 
 export default async function UserProgressPage({
@@ -46,12 +61,13 @@ export default async function UserProgressPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "userPages.progress" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [meRes, bookRes] = await Promise.all([
+  const [meRes, bookRes, analyticsRes] = await Promise.all([
     serverApiJson<MeResponse>("/users/me", cookie),
     serverApiJson<BookingMine[]>("/bookings/me", cookie),
+    serverApiJson<UserAnalyticsResponse>("/reports/user/analytics?days=90", cookie),
   ]);
 
-  if (!meRes.ok || !bookRes.ok) {
+  if (!meRes.ok || !bookRes.ok || !analyticsRes.ok) {
     return (
       <AccountPageFrame title={t("title")} description={t("descriptionSignedOut")}>
         <p className="text-sm text-amber-900">{t("signInPrompt")}</p>
@@ -60,24 +76,9 @@ export default async function UserProgressPage({
   }
 
   const completed = bookRes.data.filter((b) => b.status === "COMPLETED");
-  const completedThisMonth = completed.filter((b) => inPeriod(b.session.startsAt, "month"));
-  const completedThisYear = completed.filter((b) => inPeriod(b.session.startsAt, "year"));
-  const completedAll = completed.filter((b) => inPeriod(b.session.startsAt, "all"));
-  const hoursAll = completedAll.reduce((sum, b) => {
-    const start = new Date(b.session.startsAt).getTime();
-    const end = new Date(b.session.endsAt).getTime();
-    const diffMinutes = Math.max(0, Math.round((end - start) / 60000));
-    return sum + diffMinutes / 60;
-  }, 0);
-  const activeDaysAll = new Set(
-    completedAll.map((b) => new Date(b.session.startsAt).toDateString()),
-  ).size;
-  const byClassType = new Map<string, number>();
-  for (const booking of completedAll) {
-    const key = booking.session.classType.name;
-    byClassType.set(key, (byClassType.get(key) ?? 0) + 1);
-  }
-  const favoriteClassType = [...byClassType.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? t("favoriteFallback");
+  const analytics = analyticsRes.data;
+  const attendanceTrend = analytics.trend.attendance.slice(-7);
+  const spendTrend = analytics.trend.spend.slice(-7);
 
   return (
     <AccountPageFrame title={t("title")} description={t("descriptionSignedIn")}>
@@ -87,30 +88,41 @@ export default async function UserProgressPage({
             <li className="ommm-stack-card text-sm text-sage-700">
               <p className="font-semibold text-sage-800">{t("completedClasses")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {completed.length}
+                {analytics.totals.completedClasses}
               </p>
               <p className="mt-1 text-xs text-sage-500">{t("allTime")}</p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">{t("thisMonth")}</p>
+              <p className="font-semibold text-sage-800">{t("recentAttendance")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {completedThisMonth.length}
+                {attendanceTrend.reduce((sum, row) => sum + row.count, 0)}
               </p>
-              <p className="mt-1 text-xs text-sage-500">{t("thisMonthCaption")}</p>
+              <p className="mt-1 text-xs text-sage-500">{t("last7Days")}</p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">{t("thisYear")}</p>
+              <p className="font-semibold text-sage-800">{t("recentSpend")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {completedThisYear.length}
+                {formatMoneyFromCents(
+                  spendTrend.reduce((sum, row) => sum + row.amountCents, 0),
+                  locale,
+                )}
               </p>
-              <p className="mt-1 text-xs text-sage-500">{t("thisYearCaption")}</p>
+              <p className="mt-1 text-xs text-sage-500">{t("last7Days")}</p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">{t("allTime")}</p>
+              <p className="font-semibold text-sage-800">{t("membershipUsage")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {completedAll.length}
+                {analytics.membership
+                  ? analytics.membership.isUnlimited
+                    ? t("unlimitedLabel")
+                    : analytics.membership.sessionsRemaining ?? 0
+                  : "—"}
               </p>
-              <p className="mt-1 text-xs text-sage-500">{t("allTimeCaption")}</p>
+              <p className="mt-1 text-xs text-sage-500">
+                {analytics.membership
+                  ? t("membershipPlanLabel", { plan: analytics.membership.planName })
+                  : t("favoriteFallback")}
+              </p>
             </li>
           </ul>
         </AccountSection>
@@ -119,18 +131,45 @@ export default async function UserProgressPage({
             <li className="ommm-stack-card text-sm text-sage-700">
               <p className="font-semibold text-sage-800">{t("totalHours")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {hoursAll.toFixed(1)}
+                {analytics.totals.totalHours.toFixed(1)}
               </p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
               <p className="font-semibold text-sage-800">{t("activeDays")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {activeDaysAll}
+                {analytics.totals.activeDays}
               </p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700 sm:col-span-2">
               <p className="font-semibold text-sage-800">{t("favoriteClassType")}</p>
-              <p className="mt-1 text-lg font-semibold text-sage-900">{favoriteClassType}</p>
+              <p className="mt-1 text-lg font-semibold text-sage-900">
+                {analytics.totals.favoriteClassType ?? t("favoriteFallback")}
+              </p>
+            </li>
+          </ul>
+        </AccountSection>
+        <AccountSection title={t("trendSection")}>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("attendanceTrend")}</p>
+              <ul className="mt-2 space-y-1 text-xs text-sage-500">
+                {attendanceTrend.map((point) => (
+                  <li key={point.date}>
+                    {new Date(point.date).toLocaleDateString(locale)}: {point.count}
+                  </li>
+                ))}
+              </ul>
+            </li>
+            <li className="ommm-stack-card text-sm text-sage-700">
+              <p className="font-semibold text-sage-800">{t("spendTrend")}</p>
+              <ul className="mt-2 space-y-1 text-xs text-sage-500">
+                {spendTrend.map((point) => (
+                  <li key={point.date}>
+                    {new Date(point.date).toLocaleDateString(locale)}:{" "}
+                    {formatMoneyFromCents(point.amountCents, locale)}
+                  </li>
+                ))}
+              </ul>
             </li>
           </ul>
         </AccountSection>

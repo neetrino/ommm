@@ -14,6 +14,7 @@ type AuditLogParams = {
 @Injectable()
 export class AuditService {
   private readonly logger = new Logger(AuditService.name);
+  private static readonly RETRY_DELAY_MS = 150;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -36,8 +37,7 @@ export class AuditService {
     );
 
     try {
-      await this.prisma.$disconnect();
-      await this.prisma.$connect();
+      await this.waitBeforeRetry();
       await this.createAuditLog(params);
     } catch (retryError) {
       this.logger.error(
@@ -64,7 +64,13 @@ export class AuditService {
   private isRetryableConnectionError(error: unknown): boolean {
     return (
       error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P1017'
+      (error.code === 'P1017' || error.code === 'P2024')
     );
+  }
+
+  private async waitBeforeRetry(): Promise<void> {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, AuditService.RETRY_DELAY_MS);
+    });
   }
 }

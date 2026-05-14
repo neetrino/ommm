@@ -10,14 +10,21 @@ import {
   ClassSessionStatus,
   GiftCardStatus,
   MembershipStatus,
+  Prisma,
   PaymentStatus,
 } from '@prisma/client';
 import Stripe from 'stripe';
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  AdminListPaymentsQueryDto,
+  PaymentSourceFilter,
+} from './dto/admin-list-payments-query.dto';
 
 type StripeClient = InstanceType<typeof Stripe>;
+
+type PaymentSource = 'membership' | 'dropin' | 'gift' | 'other';
 
 /** Narrow shape used after `checkout.session.completed` (avoids brittle SDK namespace types). */
 type StripeCheckoutSessionLike = {
@@ -265,6 +272,13 @@ export class PaymentsService {
       (typeof session.payment_intent === 'string'
         ? session.payment_intent
         : session.payment_intent?.id) ?? `sub_${session.id}`;
+    const existing = await this.prisma.payment.findFirst({
+      where: { OR: [{ stripePaymentId: payId }, { stripePaymentId: `sub_${session.id}` }] },
+      select: { id: true },
+    });
+    if (existing) {
+      return;
+    }
     await this.prisma.payment.create({
       data: {
         userId,
@@ -330,12 +344,22 @@ export class PaymentsService {
       typeof session.payment_intent === 'string'
         ? session.payment_intent
         : session.payment_intent?.id;
+    const stripePaymentId = pi ?? `dropin_${session.id}`;
+    const existingPayment = await this.prisma.payment.findFirst({
+      where: {
+        OR: [{ stripePaymentId }, { stripePaymentId: `dropin_${session.id}` }],
+      },
+      select: { id: true },
+    });
+    if (existingPayment) {
+      return;
+    }
     await this.prisma.payment.create({
       data: {
         userId,
         amountCents: classSession.priceCents,
         status: PaymentStatus.SUCCEEDED,
-        stripePaymentId: pi ?? `dropin_${session.id}`,
+        stripePaymentId,
         description: `Drop-in session ${sessionId}`,
       },
     });
@@ -364,5 +388,101 @@ export class PaymentsService {
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
+  }
+
+  async adminListPayments(query: AdminListPaymentsQueryDto) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    if (query.from && query.to && new Date(query.to) < new Date(query.from)) {
+      throw new BadRequestException('Invalid date range');
+    }
+    const sourceFilter = this.buildSourceFilter(query.source);
+    const where: Prisma.PaymentWhereInput = {
+      ...(query.userId ? { userId: query.userId } : {}),
+      ...(query.status ? { status: query.status } : {}),
+      ...(sourceFilter ?? {}),
+      ...(query.from || query.to
+        ? {
+            createdAt: {
+              ...(query.from ? { gte: new Date(query.from) } : {}),
+              ...(query.to ? { lte: new Date(query.to) } : {}),
+            },
+          }
+        : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              lastName: true,
+              role: true,
+            },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take,
+        skip: offset,
+      }),
+      this.prisma.payment.count({ where }),
+    ]);
+
+    return {
+      items: items.map((payment) => ({
+        ...payment,
+        source: this.detectPaymentSource(payment.description),
+      })),
+      total,
+      take,
+      offset,
+    };
+  }
+
+  private buildSourceFilter(
+    source: PaymentSourceFilter | undefined,
+  ): Prisma.PaymentWhereInput | undefined {
+    if (!source) {
+      return undefined;
+    }
+    if (source === PaymentSourceFilter.MEMBERSHIP) {
+      return { description: { startsWith: 'Membership' } };
+    }
+    if (source === PaymentSourceFilter.DROPIN) {
+      return { description: { startsWith: 'Drop-in' } };
+    }
+    if (source === PaymentSourceFilter.GIFT) {
+      return { description: { startsWith: 'Gift' } };
+    }
+    return {
+      OR: [
+        { description: null },
+        {
+          AND: [
+            { description: { not: { startsWith: 'Membership' } } },
+            { description: { not: { startsWith: 'Drop-in' } } },
+            { description: { not: { startsWith: 'Gift' } } },
+          ],
+        },
+      ],
+    };
+  }
+
+  private detectPaymentSource(description: string | null): PaymentSource {
+    const normalized = (description ?? '').toLowerCase();
+    if (normalized.startsWith('membership')) {
+      return 'membership';
+    }
+    if (normalized.startsWith('drop-in')) {
+      return 'dropin';
+    }
+    if (normalized.startsWith('gift')) {
+      return 'gift';
+    }
+    return 'other';
   }
 }

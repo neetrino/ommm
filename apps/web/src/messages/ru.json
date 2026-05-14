@@ -388,18 +388,15 @@
       "logInToSubscribe": "Войдите, чтобы оформить подписку."
     },
     "progress": {
-      "title": "Прогресс",
-      "descriptionSignedOut": "Войдите, чтобы увидеть активность и достижения.",
-      "signInPrompt": "Войдите, чтобы открыть прогресс.",
-      "descriptionSignedIn": "Сводка активности и достижения — позже можно расширить аналитикой.",
-      "activitySummary": "Сводка активности",
-      "completedClasses": "Завершённые занятия",
-      "allTime": "За всё время",
-      "thisMonth": "В этом месяце",
-      "thisMonthCaption": "Завершённые сессии",
-      "achievements": "Достижения",
-      "achievementsEmpty": "Продолжайте записываться на занятия — достижения открываются по мере практики.",
-      "unlocked": "Открыто {date}"
+      "recentAttendance": "Недавняя посещаемость",
+      "recentSpend": "Недавние траты",
+      "last7Days": "Последние 7 дней",
+      "membershipUsage": "Использование membership",
+      "membershipPlanLabel": "План: {plan}",
+      "unlimitedLabel": "Безлимит",
+      "trendSection": "Динамика",
+      "attendanceTrend": "Динамика посещений",
+      "spendTrend": "Динамика трат"
     },
     "bookings": {
       "title": "Мои бронирования",
@@ -819,13 +816,43 @@
       "colActions": "Действия"
     },
     "reports": {
-      "title": "Отчёты и аналитика",
-      "description": "Ключевые показатели и экспорт бронирований для админов.",
-      "exportHeading": "Быстрые экспорты",
-      "exportHint": "Используйте инструменты экспорта в админ-разделе для скачивания CSV бронирований.",
-      "excelHint": "(открывается в Excel)",
-      "errorAuth": "Нужен вход админа или менеджера для отчётов.",
-      "errorLoad": "Не удалось загрузить отчёты ({status})."
+      "title": "Отчёты",
+      "description": "Операционные метрики, срезы выручки и CSV-экспорт.",
+      "errorAuth": "Нужен вход админа или менеджера.",
+      "errorLoad": "Не удалось загрузить отчёты ({status}).",
+      "exportHeading": "Экспорт CSV",
+      "exportHint": "Экспортируйте данные платежей за выбранный период.",
+      "kpiRevenue": "Выручка (за период)",
+      "kpiAvgOrderValue": "Средний чек",
+      "kpiFailedPayments": "Неуспешные платежи",
+      "exportPaymentsCsv": "Экспорт CSV платежей",
+      "filters": {
+        "rangeLabel": "Период",
+        "range7": "Последние 7 дней",
+        "range30": "Последние 30 дней",
+        "range90": "Последние 90 дней",
+        "sourceLabel": "Источник",
+        "sourceAll": "Все источники",
+        "sourceMembership": "Membership",
+        "sourceDropIn": "Drop-in",
+        "sourceGift": "Gift",
+        "sourceOther": "Другое",
+        "statusLabel": "Статус",
+        "statusAll": "Все статусы",
+        "statusSucceeded": "Успешно",
+        "statusFailed": "Ошибка",
+        "statusPending": "Ожидание",
+        "statusRefunded": "Возврат"
+      },
+      "table": {
+        "empty": "Для выбранных фильтров платежи не найдены.",
+        "colDate": "Дата",
+        "colUser": "Пользователь",
+        "colAmount": "Сумма",
+        "colSource": "Источник",
+        "colStatus": "Статус",
+        "colDescription": "Описание"
+      }
     },
     "notifications": {
       "title": "Уведомления",
@@ -917,18 +944,10 @@
       }
     },
     "analytics": {
-      "title": "Аналитика",
-      "lead": "Снимок из API панели тренера. Позже можно добавить графики.",
-      "signInRequired": "Требуется вход тренера.",
-      "loadFailed": "Не удалось загрузить аналитику.",
-      "noProfile": "К этому аккаунту не привязан профиль тренера.",
-      "sessionsToday": "Сессий сегодня",
-      "bookingsToday": "Бронирований сегодня",
-      "activeWaitlists": "Активных листов ожидания",
-      "utilizationTitle": "Загрузка",
-      "utilizationDescription": "{booked} бронирований на {sessions} сессий сегодня.",
-      "waitlistPressureTitle": "Давление листа ожидания",
-      "waitlistPressureDescription": "Активные листы ожидания относительно числа сегодняшних сессий."
+      "sessionsInRange": "Сессии за период",
+      "bookingsInRange": "Бронирования за период",
+      "trendTitle": "Последняя дневная динамика",
+      "trendRow": "{sessions} сессий · {bookings} бронирований · {waitlists} листов ожидания"
     },
     "salary": {
       "title": "Выплаты",

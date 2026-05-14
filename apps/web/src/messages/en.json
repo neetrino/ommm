@@ -388,26 +388,15 @@
       "logInToSubscribe": "Log in to subscribe."
     },
     "progress": {
-      "title": "Progress",
-      "descriptionSignedOut": "Sign in to view your activity and achievements.",
-      "signInPrompt": "Sign in to view progress.",
-      "descriptionSignedIn": "Activity summary and achievements — extend with deeper analytics as data grows.",
-      "activitySummary": "Activity summary",
-      "completedClasses": "Completed classes",
-      "allTime": "All time",
-      "thisMonth": "This month",
-      "thisMonthCaption": "Completed sessions",
-      "thisYear": "This year",
-      "thisYearCaption": "Completed sessions",
-      "allTimeCaption": "Completed sessions",
-      "performanceMetrics": "Performance metrics",
-      "totalHours": "Total hours",
-      "activeDays": "Active days",
-      "favoriteClassType": "Favorite class type",
-      "favoriteFallback": "No data yet",
-      "achievements": "Achievements",
-      "achievementsEmpty": "Keep booking classes — achievements unlock as you go.",
-      "unlocked": "Unlocked {date}"
+      "recentAttendance": "Recent attendance",
+      "recentSpend": "Recent spend",
+      "last7Days": "Last 7 days",
+      "membershipUsage": "Membership usage",
+      "membershipPlanLabel": "Plan: {plan}",
+      "unlimitedLabel": "Unlimited",
+      "trendSection": "Trends",
+      "attendanceTrend": "Attendance trend",
+      "spendTrend": "Spend trend"
     },
     "bookings": {
       "title": "My bookings",
@@ -841,13 +830,43 @@
       "colActions": "Actions"
     },
     "reports": {
-      "title": "Reports & analytics",
-      "description": "High-level KPIs and booking exports for admins.",
-      "exportHeading": "Export shortcuts",
-      "exportHint": "Use the admin export controls to download bookings CSV.",
-      "excelHint": "(open in Excel)",
-      "errorAuth": "Admin or manager sign-in required for reports.",
-      "errorLoad": "Could not load reports ({status})."
+      "title": "Reports",
+      "description": "Operational metrics, revenue snapshots, and CSV exports.",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load reports ({status}).",
+      "exportHeading": "CSV export",
+      "exportHint": "Export payments data for the selected range.",
+      "kpiRevenue": "Revenue (range)",
+      "kpiAvgOrderValue": "Avg order value",
+      "kpiFailedPayments": "Failed payments",
+      "exportPaymentsCsv": "Export payments CSV",
+      "filters": {
+        "rangeLabel": "Range",
+        "range7": "Last 7 days",
+        "range30": "Last 30 days",
+        "range90": "Last 90 days",
+        "sourceLabel": "Source",
+        "sourceAll": "All sources",
+        "sourceMembership": "Membership",
+        "sourceDropIn": "Drop-in",
+        "sourceGift": "Gift",
+        "sourceOther": "Other",
+        "statusLabel": "Status",
+        "statusAll": "All statuses",
+        "statusSucceeded": "Succeeded",
+        "statusFailed": "Failed",
+        "statusPending": "Pending",
+        "statusRefunded": "Refunded"
+      },
+      "table": {
+        "empty": "No payments found for selected filters.",
+        "colDate": "Date",
+        "colUser": "User",
+        "colAmount": "Amount",
+        "colSource": "Source",
+        "colStatus": "Status",
+        "colDescription": "Description"
+      }
     },
     "notifications": {
       "title": "Notifications",
@@ -939,18 +958,10 @@
       }
     },
     "analytics": {
-      "title": "Analytics",
-      "lead": "Snapshot from the coach panel API. Charts can extend this dataset later.",
-      "signInRequired": "Coach sign-in required.",
-      "loadFailed": "Could not load coach analytics.",
-      "noProfile": "No coach profile is linked to this account.",
-      "sessionsToday": "Today's sessions",
-      "bookingsToday": "Bookings today",
-      "activeWaitlists": "Active waitlists",
-      "utilizationTitle": "Utilization",
-      "utilizationDescription": "{booked} bookings over {sessions} sessions today.",
-      "waitlistPressureTitle": "Waitlist pressure",
-      "waitlistPressureDescription": "Active waitlists relative to today's session count."
+      "sessionsInRange": "Sessions in range",
+      "bookingsInRange": "Bookings in range",
+      "trendTitle": "Recent daily trend",
+      "trendRow": "{sessions} sessions · {bookings} bookings · {waitlists} waitlists"
     },
     "salary": {
       "title": "Salary",
