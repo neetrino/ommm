@@ -68,7 +68,7 @@ export default async function MembershipsMarketingPage({
                     </p>
                   ) : null}
                   <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-                    <span className="text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
+                    <span className="mr-1.5 text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
                     {m("membershipsPriceLine", {
                       amount: amount.startsWith("֏") ? amount.slice(1).trimStart() : amount,
                     })}
