@@ -399,7 +399,7 @@ export function AdminScheduleForm({
         </label>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("form.startTime")}</span>
           <input
@@ -427,7 +427,7 @@ export function AdminScheduleForm({
             disabled={pending}
           />
         </label>
-        <label className="space-y-1">
+        <label className="space-y-1 sm:col-span-2">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("form.durationMinutes")}</span>
           <input
             name="durationMinutes"
