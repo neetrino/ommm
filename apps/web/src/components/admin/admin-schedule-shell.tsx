@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminScheduleForm } from "@/components/admin/admin-schedule-form";
 import { OmmButton } from "@/components/ui/omm-button";
 
@@ -123,30 +124,32 @@ export function AdminScheduleShell({
   }, [isModalOpen]);
 
   return (
-    <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-      {banner !== null ? (
-        <p
-          className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
-          role="status"
-        >
-          {banner}
-        </p>
-      ) : null}
+    <div className="flex flex-col gap-6">
+      <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
+        {banner !== null ? (
+          <p
+            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+            role="status"
+          >
+            {banner}
+          </p>
+        ) : null}
 
-      <div className="flex justify-end">
-        <OmmButton
-          type="button"
-          variant="primary"
-          size="md"
-          onClick={openModal}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl"
-        >
-          <AddScheduleGlyph className="h-5 w-5 shrink-0" />
-          {t("addScheduleButton")}
-        </OmmButton>
+        <div className="flex justify-end">
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={openModal}
+            className="inline-flex items-center gap-2"
+          >
+            <AddScheduleGlyph className="h-5 w-5 shrink-0" />
+            {t("addScheduleButton")}
+          </OmmButton>
+        </div>
+
+        {children}
       </div>
-
-      {children}
 
       {isModalOpen ? (
         <div
@@ -165,14 +168,14 @@ export function AdminScheduleShell({
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descId}
-            className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+            className="relative z-10 mt-auto max-h-[min(92vh,720px)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 id={titleId} className="font-serif text-2xl italic font-semibold tracking-tight text-sage-900">
+                <h2 id={titleId} className={adminChrome.panelHeading}>
                   {t("createTitle")}
                 </h2>
-                <p id={descId} className="mt-1 text-sm text-sage-500">
+                <p id={descId} className="ommm-body-muted mt-1 text-sm">
                   {t("createDescription")}
                 </p>
               </div>
@@ -196,13 +199,14 @@ export function AdminScheduleShell({
                 </svg>
               </button>
             </div>
-
-            <AdminScheduleForm
-              mode="create"
-              classTypeOptions={classTypeOptions}
-              onSaved={onScheduleCreated}
-              onCancel={closeModal}
-            />
+            <div className="mt-5">
+              <AdminScheduleForm
+                mode="create"
+                classTypeOptions={classTypeOptions}
+                onSaved={onScheduleCreated}
+                onCancel={closeModal}
+              />
+            </div>
           </div>
         </div>
       ) : null}
