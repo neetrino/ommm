@@ -153,7 +153,7 @@ export function AdminScheduleShell({
 
       {isModalOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
           role="presentation"
         >
           <button
@@ -168,7 +168,7 @@ export function AdminScheduleShell({
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descId}
-            className="relative z-10 mt-auto max-h-[min(92vh,720px)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+            className="relative z-10 w-full max-w-lg rounded-[24px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
