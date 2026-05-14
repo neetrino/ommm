@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCoachActions } from "@/components/admin/admin-coach-actions";
 import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
+import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -11,6 +12,7 @@ type CoachAdminRow = {
   id: string;
   bio: string | null;
   specialization: string | null;
+  classType: string | null;
   age: number | null;
   user: {
     name: string | null;
@@ -33,7 +35,11 @@ export default async function AdminCoachesPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.coaches" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie);
+  const [res, scheduleData] = await Promise.all([
+    serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie),
+    fetchPublicScheduleItems(cookie),
+  ]);
+  const classTypeOptions = scheduleData.classTypes;
 
   if (!res.ok) {
     return (
@@ -51,7 +57,7 @@ export default async function AdminCoachesPage({
       description={t("description")}
     >
       <Suspense fallback={null}>
-        <AdminCoachesShell>
+        <AdminCoachesShell classTypeOptions={classTypeOptions}>
           <div className={`${adminChrome.tableWrap}`}>
             <table className={`${adminChrome.table} table-fixed min-w-[34rem]`}>
               <colgroup>
@@ -90,6 +96,8 @@ export default async function AdminCoachesPage({
                         initialPhone={c.user.phone ?? ""}
                         initialAge={c.age}
                         initialSpecialization={c.specialization ?? ""}
+                        initialClassType={c.classType ?? ""}
+                        classTypeOptions={classTypeOptions}
                       />
                     </td>
                   </tr>

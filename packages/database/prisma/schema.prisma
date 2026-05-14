@@ -164,6 +164,7 @@ model CoachProfile {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   bio            String?
   specialization String?
+  classType      String?
   experienceYears Int?
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())

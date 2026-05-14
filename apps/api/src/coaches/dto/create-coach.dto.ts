@@ -55,6 +55,11 @@ export class CreateCoachDto {
   @MaxLength(200)
   specialization!: string;
 
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  classType!: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

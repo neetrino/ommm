@@ -54,6 +54,12 @@ export class UpdateCoachDto {
   specialization?: string;
 
   @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  classType?: string;
+
+  @IsOptional()
   @IsInt()
   experienceYears?: number;
 

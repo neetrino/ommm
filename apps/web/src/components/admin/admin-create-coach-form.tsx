@@ -39,6 +39,7 @@ function isValidPhone(trimmed: string): boolean {
 
 type CreateCoachApiResponse = {
   id: string;
+  classType: string | null;
   user: {
     id: string;
     name: string | null;
@@ -49,6 +50,7 @@ type CreateCoachApiResponse = {
 };
 
 export type AdminCreateCoachFormProps = {
+  classTypeOptions: readonly string[];
   /** When set, successful create invokes this instead of inline success + refresh (parent handles refresh). */
   onCreated?: () => void;
   /** Optional Cancel (e.g. close modal); omit for standalone usage. */
@@ -56,6 +58,7 @@ export type AdminCreateCoachFormProps = {
 };
 
 export function AdminCreateCoachForm({
+  classTypeOptions,
   onCreated,
   onCancel,
 }: AdminCreateCoachFormProps) {
@@ -81,6 +84,7 @@ export function AdminCreateCoachForm({
     const phoneRaw = String(fd.get("phone") ?? "").trim();
     const ageRaw = String(fd.get("age") ?? "").trim();
     const specializationRaw = String(fd.get("specialization") ?? "").trim();
+    const classTypeRaw = String(fd.get("classType") ?? "").trim();
     const password = String(fd.get("password") ?? "");
 
     setError(null);
@@ -120,6 +124,14 @@ export function AdminCreateCoachForm({
       setError(t("specializationRequired"));
       return;
     }
+    if (classTypeRaw.length === 0) {
+      setError(t("classTypeRequired"));
+      return;
+    }
+    if (!classTypeOptions.includes(classTypeRaw)) {
+      setError(t("classTypeInvalid"));
+      return;
+    }
     if (password.length === 0) {
       setError(t("passwordRequired"));
       return;
@@ -154,6 +166,7 @@ export function AdminCreateCoachForm({
           phone: phoneRaw,
           age: ageNum,
           specialization: specializationRaw,
+          classType: classTypeRaw,
         }),
       });
       form.reset();
@@ -222,6 +235,26 @@ export function AdminCreateCoachForm({
           placeholder={t("specializationPlaceholder")}
           required
         />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("classTypeLabel")}
+        </span>
+        <select
+          name="classType"
+          className="ommm-input"
+          defaultValue=""
+          required
+        >
+          <option value="" disabled>
+            {t("classTypePlaceholder")}
+          </option>
+          {classTypeOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">

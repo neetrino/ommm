@@ -11,12 +11,14 @@ import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminCoachActionsProps = {
   coachId: string;
+  classTypeOptions?: readonly string[];
   initialEmail?: string;
   initialName?: string;
   initialLastName?: string;
   initialPhone?: string;
   initialAge?: number | null;
   initialSpecialization?: string;
+  initialClassType?: string;
   initialBio?: string;
 };
 
@@ -27,6 +29,7 @@ type FormState = {
   phone: string;
   age: string;
   specialization: string;
+  classType: string;
 };
 
 type FormErrors = {
@@ -36,6 +39,7 @@ type FormErrors = {
   phone?: string;
   age?: string;
   specialization?: string;
+  classType?: string;
 };
 
 const EDIT_COACH_QUERY_KEY = "editCoach";
@@ -83,12 +87,14 @@ function CloseGlyph({ className }: { className?: string }) {
 
 export function AdminCoachActions({
   coachId,
+  classTypeOptions = [],
   initialEmail = "",
   initialName = "",
   initialLastName = "",
   initialPhone = "",
   initialAge = null,
   initialSpecialization = "",
+  initialClassType = "",
 }: AdminCoachActionsProps) {
   const t = useTranslations("adminPages.coaches");
   const router = useRouter();
@@ -104,6 +110,7 @@ export function AdminCoachActions({
     phone: initialPhone,
     age: initialAge === null ? "" : String(initialAge),
     specialization: initialSpecialization,
+    classType: initialClassType,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [busy, setBusy] = useState(false);
@@ -119,6 +126,7 @@ export function AdminCoachActions({
       phone: initialPhone,
       age: initialAge === null ? "" : String(initialAge),
       specialization: initialSpecialization,
+      classType: initialClassType,
     });
     setErrors({});
   }, [
@@ -128,6 +136,7 @@ export function AdminCoachActions({
     initialName,
     initialPhone,
     initialSpecialization,
+    initialClassType,
   ]);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -218,6 +227,7 @@ export function AdminCoachActions({
     const phone = form.phone.trim();
     const age = Number(form.age.trim());
     const specialization = form.specialization.trim();
+    const classType = form.classType.trim();
     const nextErrors: FormErrors = {};
     if (email === "") {
       nextErrors.email = t("emailRequired");
@@ -247,6 +257,14 @@ export function AdminCoachActions({
     if (specialization.length === 0) {
       nextErrors.specialization = t("specializationRequired");
     }
+    if (classType.length === 0) {
+      nextErrors.classType = t("classTypeRequired");
+    } else if (
+      classTypeOptions.length > 0 &&
+      !classTypeOptions.includes(classType)
+    ) {
+      nextErrors.classType = t("classTypeInvalid");
+    }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -263,6 +281,7 @@ export function AdminCoachActions({
             phone,
             age,
             specialization,
+            classType,
           }),
         }),
       t("updateSuccess"),
@@ -455,6 +474,32 @@ export function AdminCoachActions({
                     />
                     {errors.specialization ? (
                       <p className="text-xs text-red-800">{errors.specialization}</p>
+                    ) : null}
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      className="text-sm font-medium text-sage-700"
+                      htmlFor={`class-type-${coachId}`}
+                    >
+                      {t("fieldClassType")}
+                    </label>
+                    <select
+                      id={`class-type-${coachId}`}
+                      className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+                      value={form.classType}
+                      onChange={(event) => updateField("classType", event.target.value)}
+                      disabled={busy}
+                      required
+                    >
+                      <option value="">{t("fieldClassTypePlaceholder")}</option>
+                      {classTypeOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.classType ? (
+                      <p className="text-xs text-red-800">{errors.classType}</p>
                     ) : null}
                   </div>
 
