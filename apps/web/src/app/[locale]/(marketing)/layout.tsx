@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { MarketingFooterGate } from "@/components/marketing/marketing-footer-gate";
 import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
 import { MarketingSiteFooter } from "@/components/marketing/marketing-site-footer";
 import { MarketingSiteHeader } from "@/components/marketing/marketing-site-header";
@@ -22,7 +23,9 @@ export default async function MarketingLayout({
     <div className="ommm-bg-wellness flex min-h-screen w-full flex-col">
       <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
       <main className="flex flex-1 flex-col">{children}</main>
-      <MarketingSiteFooter locale={locale} />
+      <MarketingFooterGate>
+        <MarketingSiteFooter locale={locale} />
+      </MarketingFooterGate>
     </div>
   );
 }
