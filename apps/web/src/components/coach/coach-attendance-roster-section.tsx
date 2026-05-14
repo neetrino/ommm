@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { MarkAttendanceButtons } from "@/components/coach/mark-attendance-buttons";
 import { formatSessionRange } from "@/lib/format-session-time";
 import type { CoachPanelBookingRow } from "@/lib/coach-panel-types";
@@ -8,12 +9,17 @@ type CoachAttendanceRosterSectionProps = {
   roster: CoachPanelBookingRow[];
 };
 
-export function CoachAttendanceRosterSection({
+export async function CoachAttendanceRosterSection({
   locale,
   roster,
 }: CoachAttendanceRosterSectionProps) {
+  const t = await getTranslations({
+    locale,
+    namespace: "coachPages.groups.attendanceRoster",
+  });
+
   if (roster.length === 0) {
-    return <p className={adminChrome.metaText}>No active bookings.</p>;
+    return <p className={adminChrome.metaText}>{t("empty")}</p>;
   }
 
   return (

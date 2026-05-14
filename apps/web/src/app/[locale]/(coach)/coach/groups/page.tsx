@@ -1,4 +1,5 @@
 import { CoachAttendanceRosterSection } from "@/components/coach/coach-attendance-roster-section";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
@@ -10,13 +11,14 @@ export default async function CoachGroupsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "coachPages.groups" });
   const panel = await loadCoachPanelPageData();
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
       return (
         <div className="app-alert-warn max-w-xl">
-          Sign in to open the coach panel.
+          {t("signInRequired")}
         </div>
       );
     }
@@ -25,22 +27,20 @@ export default async function CoachGroupsPage({
     }
     return (
       <div className="app-alert-warn max-w-xl">
-        This area is for studio coaches. Your account does not have a coach
-        profile.
+        {t("noProfile")}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="My groups"
-      description="Booked participants for your sessions - mark attendance when class wraps."
+      title={t("title")}
+      description={t("description")}
     >
       <section className={adminChrome.panel}>
-        <h2 className={adminChrome.panelHeading}>Attendance (booked)</h2>
+        <h2 className={adminChrome.panelHeading}>{t("attendanceBooked")}</h2>
         <p className={adminChrome.metaText}>
-          This view reflects your assigned sessions only and keeps waitlist + roster
-          visibility scoped by coach.
+          {t("helpText")}
         </p>
         <CoachAttendanceRosterSection locale={locale} roster={panel.roster} />
       </section>

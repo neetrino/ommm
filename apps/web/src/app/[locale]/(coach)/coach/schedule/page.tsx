@@ -1,4 +1,5 @@
 import { CoachUpcomingSessionsSection } from "@/components/coach/coach-upcoming-sessions-section";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
@@ -10,13 +11,14 @@ export default async function CoachSchedulePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "coachPages.schedule" });
   const panel = await loadCoachPanelPageData();
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
       return (
         <div className="app-alert-warn max-w-xl">
-          Sign in to open the coach panel.
+          {t("signInRequired")}
         </div>
       );
     }
@@ -25,19 +27,18 @@ export default async function CoachSchedulePage({
     }
     return (
       <div className="app-alert-warn max-w-xl">
-        This area is for studio coaches. Your account does not have a coach
-        profile.
+        {t("noProfile")}
       </div>
     );
   }
 
   return (
     <AccountPageFrame
-      title="My schedule"
-      description="Upcoming sessions assigned to you in the current planning window."
+      title={t("title")}
+      description={t("description")}
     >
       <section className={adminChrome.panel}>
-        <h2 className={adminChrome.panelHeading}>Sessions</h2>
+        <h2 className={adminChrome.panelHeading}>{t("sessions")}</h2>
         <CoachUpcomingSessionsSection locale={locale} sessions={panel.sessions} />
       </section>
     </AccountPageFrame>

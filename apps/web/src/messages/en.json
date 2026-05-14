@@ -884,6 +884,41 @@
     }
   },
   "coachPages": {
+    "home": {
+      "title": "Hi {name}",
+      "description": "Quick overview of today and your upcoming teaching load.",
+      "signInRequired": "Sign in to open the coach panel.",
+      "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
+      "todayAtGlance": "Today at a glance",
+      "classesToday": "Classes today",
+      "bookedClientsToday": "Booked clients today",
+      "upcomingSessionsRange": "Upcoming sessions (range)",
+      "openSchedule": "Open my schedule",
+      "viewParticipantsAttendance": "View participants & attendance"
+    },
+    "schedule": {
+      "title": "My schedule",
+      "description": "Upcoming sessions assigned to you in the current planning window.",
+      "signInRequired": "Sign in to open the coach panel.",
+      "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
+      "sessions": "Sessions",
+      "upcomingSessions": {
+        "empty": "No sessions in range.",
+        "bookedCount": "{booked}/{capacity} booked",
+        "sessionId": "Session ID: {id}"
+      }
+    },
+    "groups": {
+      "title": "My groups",
+      "description": "Booked participants for your sessions - mark attendance when class wraps.",
+      "signInRequired": "Sign in to open the coach panel.",
+      "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
+      "attendanceBooked": "Attendance (booked)",
+      "helpText": "This view reflects your assigned sessions only and keeps waitlist + roster visibility scoped by coach.",
+      "attendanceRoster": {
+        "empty": "No active bookings."
+      }
+    },
     "analytics": {
       "title": "Analytics",
       "lead": "Snapshot from the coach panel API. Charts can extend this dataset later.",
@@ -892,7 +927,11 @@
       "noProfile": "No coach profile is linked to this account.",
       "sessionsToday": "Today's sessions",
       "bookingsToday": "Bookings today",
-      "activeWaitlists": "Active waitlists"
+      "activeWaitlists": "Active waitlists",
+      "utilizationTitle": "Utilization",
+      "utilizationDescription": "{booked} bookings over {sessions} sessions today.",
+      "waitlistPressureTitle": "Waitlist pressure",
+      "waitlistPressureDescription": "Active waitlists relative to today's session count."
     },
     "salary": {
       "title": "Salary",

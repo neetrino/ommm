@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
@@ -19,13 +20,14 @@ export default async function CoachHomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "coachPages.home" });
   const panel = await loadCoachPanelPageData();
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
       return (
         <div className="app-alert-warn max-w-xl">
-          Sign in to open the coach panel.
+          {t("signInRequired")}
         </div>
       );
     }
@@ -34,8 +36,7 @@ export default async function CoachHomePage({
     }
     return (
       <div className="app-alert-warn max-w-xl">
-        This area is for studio coaches. Your account does not have a coach
-        profile.
+        {t("noProfile")}
       </div>
     );
   }
@@ -54,22 +55,24 @@ export default async function CoachHomePage({
 
   return (
     <AccountPageFrame
-      title={`Hi${userName ? `, ${userName}` : ""}`}
-      description="Quick overview of today and your upcoming teaching load."
+      title={t("title", { name: userName ?? "" })}
+      description={t("description")}
     >
       <section>
-        <h2 className={adminChrome.sectionTitle}>Today at a glance</h2>
+        <h2 className={adminChrome.sectionTitle}>{t("todayAtGlance")}</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className={adminChrome.metricCard}>
-            <dt className={adminChrome.metricLabel}>Classes today</dt>
+            <dt className={adminChrome.metricLabel}>{t("classesToday")}</dt>
             <dd className={adminChrome.metricValue}>{todaysSessions.length}</dd>
           </div>
           <div className={adminChrome.metricCard}>
-            <dt className={adminChrome.metricLabel}>Booked clients today</dt>
+            <dt className={adminChrome.metricLabel}>{t("bookedClientsToday")}</dt>
             <dd className={adminChrome.metricValue}>{todaysRoster.length}</dd>
           </div>
           <div className={adminChrome.metricCard}>
-            <dt className={adminChrome.metricLabel}>Upcoming sessions (range)</dt>
+            <dt className={adminChrome.metricLabel}>
+              {t("upcomingSessionsRange")}
+            </dt>
             <dd className={adminChrome.metricValue}>{sessions.length}</dd>
           </div>
         </dl>
@@ -77,10 +80,10 @@ export default async function CoachHomePage({
 
       <section className="mt-8 flex flex-wrap gap-3">
         <Link href="/coach/schedule" className={linkClass}>
-          Open my schedule
+          {t("openSchedule")}
         </Link>
         <Link href="/coach/groups" className={linkClass}>
-          View participants & attendance
+          {t("viewParticipantsAttendance")}
         </Link>
       </section>
     </AccountPageFrame>

@@ -68,17 +68,20 @@ export default async function CoachAnalyticsPage({
       </ul>
       <section className="mt-8 grid gap-4 sm:grid-cols-2">
         <article className={adminChrome.panel}>
-          <p className={adminChrome.metricLabel}>Utilization</p>
+          <p className={adminChrome.metricLabel}>{t("utilizationTitle")}</p>
           <p className={adminChrome.metricValue}>{utilizationPercent}%</p>
           <p className={adminChrome.metaText}>
-            {d.bookedToday} bookings over {d.todaySessions} sessions today.
+            {t("utilizationDescription", {
+              booked: d.bookedToday,
+              sessions: d.todaySessions,
+            })}
           </p>
         </article>
         <article className={adminChrome.panel}>
-          <p className={adminChrome.metricLabel}>Waitlist pressure</p>
+          <p className={adminChrome.metricLabel}>{t("waitlistPressureTitle")}</p>
           <p className={adminChrome.metricValue}>{waitlistPressure}%</p>
           <p className={adminChrome.metaText}>
-            Active waitlists relative to today&apos;s session count.
+            {t("waitlistPressureDescription")}
           </p>
         </article>
       </section>
