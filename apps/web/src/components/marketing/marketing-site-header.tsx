@@ -40,7 +40,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
           className="flex shrink-0 items-center"
           onClick={() => setOpen(false)}
         >
-          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-sand-500/20 ring-1 ring-white/70 sm:h-12 sm:w-12">
+          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full sm:h-12 sm:w-12">
             <Image
               src="/marketing/home/brand-mark.png"
               alt=""
