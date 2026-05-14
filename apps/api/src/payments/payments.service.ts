@@ -273,7 +273,12 @@ export class PaymentsService {
         ? session.payment_intent
         : session.payment_intent?.id) ?? `sub_${session.id}`;
     const existing = await this.prisma.payment.findFirst({
-      where: { OR: [{ stripePaymentId: payId }, { stripePaymentId: `sub_${session.id}` }] },
+      where: {
+        OR: [
+          { stripePaymentId: payId },
+          { stripePaymentId: `sub_${session.id}` },
+        ],
+      },
       select: { id: true },
     });
     if (existing) {

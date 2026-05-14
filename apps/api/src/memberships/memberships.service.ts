@@ -72,7 +72,9 @@ export class MembershipsService {
       });
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {
-        throw new ConflictException('Membership plan with this slug already exists.');
+        throw new ConflictException(
+          'Membership plan with this slug already exists.',
+        );
       }
       if (!this.isMissingColumn(error)) {
         throw error;
@@ -376,7 +378,7 @@ export class MembershipsService {
           ${slug},
           ${dto.description ?? null},
           ${dto.priceCents},
-          ${dto.isUnlimited ? null : dto.sessionsPerMonth ?? null},
+          ${dto.isUnlimited ? null : (dto.sessionsPerMonth ?? null)},
           ${dto.isUnlimited},
           ${dto.periodDays},
           ${dto.isActive ?? true},
@@ -400,12 +402,16 @@ export class MembershipsService {
       `);
       const [plan] = created;
       if (plan === undefined) {
-        throw new InternalServerErrorException('Failed to create membership plan');
+        throw new InternalServerErrorException(
+          'Failed to create membership plan',
+        );
       }
       return this.withMarketingDefaults(plan);
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {
-        throw new ConflictException('Membership plan with this slug already exists.');
+        throw new ConflictException(
+          'Membership plan with this slug already exists.',
+        );
       }
       throw new InternalServerErrorException(
         'Could not create membership plan in legacy schema. Apply membership migrations and retry.',
@@ -440,7 +446,9 @@ export class MembershipsService {
       isPopular?: boolean;
       displayOrder?: number;
     },
-  >(plan: T): T & {
+  >(
+    plan: T,
+  ): T & {
     currency: string;
     billingPeriod: string;
     features: string[];

@@ -126,7 +126,10 @@ export class ReportsService {
     ]);
 
     const bySource = payments.reduce<
-      Record<'membership' | 'dropin' | 'gift' | 'other', { count: number; amountCents: number }>
+      Record<
+        'membership' | 'dropin' | 'gift' | 'other',
+        { count: number; amountCents: number }
+      >
     >(
       (acc, payment) => {
         const source = this.detectPaymentSource(payment.description);
@@ -250,7 +253,13 @@ export class ReportsService {
     const waitlistBySession = this.countBySessionId(waitlists);
     const daily = new Map<
       string,
-      { date: string; sessions: number; bookings: number; waitlists: number; capacity: number }
+      {
+        date: string;
+        sessions: number;
+        bookings: number;
+        waitlists: number;
+        capacity: number;
+      }
     >();
     for (const session of sessions) {
       const date = session.startsAt.toISOString().slice(0, 10);
@@ -279,9 +288,13 @@ export class ReportsService {
       { sessions: 0, bookings: 0, activeWaitlists: 0, capacity: 0 },
     );
     const utilizationPercent =
-      totals.capacity > 0 ? Math.round((totals.bookings / totals.capacity) * 100) : 0;
+      totals.capacity > 0
+        ? Math.round((totals.bookings / totals.capacity) * 100)
+        : 0;
     const waitlistPressurePercent =
-      totals.sessions > 0 ? Math.round((totals.activeWaitlists / totals.sessions) * 100) : 0;
+      totals.sessions > 0
+        ? Math.round((totals.activeWaitlists / totals.sessions) * 100)
+        : 0;
 
     return {
       range,
@@ -331,17 +344,25 @@ export class ReportsService {
         },
         orderBy: { createdAt: 'desc' },
         take: 1,
-        include: { plan: { select: { name: true, sessionsPerMonth: true, isUnlimited: true } } },
+        include: {
+          plan: {
+            select: { name: true, sessionsPerMonth: true, isUnlimited: true },
+          },
+        },
       }),
     ]);
 
-    const completed = bookings.filter((b) => b.status === BookingStatus.COMPLETED);
+    const completed = bookings.filter(
+      (b) => b.status === BookingStatus.COMPLETED,
+    );
     const completedHours = completed.reduce((sum, booking) => {
       const start = booking.session.startsAt.getTime();
       const end = booking.session.endsAt.getTime();
       return sum + Math.max(0, end - start) / 1000 / 60 / 60;
     }, 0);
-    const activeDays = new Set(completed.map((b) => b.session.startsAt.toDateString())).size;
+    const activeDays = new Set(
+      completed.map((b) => b.session.startsAt.toDateString()),
+    ).size;
     const classTypeCounter = new Map<string, number>();
     for (const booking of completed) {
       const key = booking.session.classType.name;
@@ -350,12 +371,18 @@ export class ReportsService {
     const favoriteClassType = [...classTypeCounter.entries()].sort(
       (a, b) => b[1] - a[1],
     )[0]?.[0];
-    const spendCents = payments.reduce((sum, payment) => sum + payment.amountCents, 0);
+    const spendCents = payments.reduce(
+      (sum, payment) => sum + payment.amountCents,
+      0,
+    );
 
     const spendTrendMap = new Map<string, number>();
     for (const payment of payments) {
       const key = payment.createdAt.toISOString().slice(0, 10);
-      spendTrendMap.set(key, (spendTrendMap.get(key) ?? 0) + payment.amountCents);
+      spendTrendMap.set(
+        key,
+        (spendTrendMap.get(key) ?? 0) + payment.amountCents,
+      );
     }
     const attendanceTrendMap = new Map<string, number>();
     for (const booking of completed) {
@@ -424,7 +451,9 @@ export class ReportsService {
     };
   }
 
-  private detectPaymentSource(description: string | null): 'membership' | 'dropin' | 'gift' | 'other' {
+  private detectPaymentSource(
+    description: string | null,
+  ): 'membership' | 'dropin' | 'gift' | 'other' {
     const normalized = (description ?? '').toLowerCase();
     if (normalized.startsWith('membership')) {
       return 'membership';
@@ -438,7 +467,9 @@ export class ReportsService {
     return 'other';
   }
 
-  private countBySessionId(items: Array<{ sessionId: string }>): Map<string, number> {
+  private countBySessionId(
+    items: Array<{ sessionId: string }>,
+  ): Map<string, number> {
     const result = new Map<string, number>();
     for (const item of items) {
       result.set(item.sessionId, (result.get(item.sessionId) ?? 0) + 1);

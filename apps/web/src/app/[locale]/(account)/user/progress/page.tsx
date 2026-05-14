@@ -68,7 +68,6 @@ export default async function UserProgressPage({
     );
   }
 
-  const completed = bookRes.data.filter((b) => b.status === "COMPLETED");
   const analytics = analyticsRes.data;
   const attendanceTrend = analytics.trend.attendance.slice(-7);
   const spendTrend = analytics.trend.spend.slice(-7);

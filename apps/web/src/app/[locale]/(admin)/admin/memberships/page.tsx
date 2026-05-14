@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminMembershipPlanActions } from "@/components/admin/admin-membership-plan-actions";
 import { AdminMembershipPlansShell } from "@/components/admin/admin-membership-plans-shell";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";

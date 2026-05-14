@@ -30,7 +30,11 @@ describe('PaymentsService', () => {
     const config = { get: jest.fn().mockReturnValue(undefined) };
     const mail = { sendEmail: jest.fn() };
     return {
-      service: new PaymentsService(prisma as never, config as never, mail as never),
+      service: new PaymentsService(
+        prisma as never,
+        config as never,
+        mail as never,
+      ),
       prisma,
     };
   }

@@ -1,7 +1,13 @@
-import { BookingStatus, ClassSessionStatus, PaymentStatus } from '@prisma/client';
+import {
+  BookingStatus,
+  ClassSessionStatus,
+  PaymentStatus,
+} from '@prisma/client';
 import { ReportsService } from './reports.service';
 
-function createServiceWithPrisma(prismaMock: Record<string, unknown>): ReportsService {
+function createServiceWithPrisma(
+  prismaMock: Record<string, unknown>,
+): ReportsService {
   return new ReportsService(prismaMock as never);
 }
 
@@ -14,12 +20,31 @@ describe('ReportsService', () => {
           _count: { id: 3 },
         }),
         groupBy: jest.fn().mockResolvedValue([
-          { status: PaymentStatus.SUCCEEDED, _sum: { amountCents: 15_000 }, _count: { id: 3 } },
+          {
+            status: PaymentStatus.SUCCEEDED,
+            _sum: { amountCents: 15_000 },
+            _count: { id: 3 },
+          },
         ]),
         findMany: jest.fn().mockResolvedValue([
-          { id: '1', amountCents: 5_000, description: 'Membership subscription', status: PaymentStatus.SUCCEEDED },
-          { id: '2', amountCents: 7_000, description: 'Drop-in session s1', status: PaymentStatus.SUCCEEDED },
-          { id: '3', amountCents: 3_000, description: 'Gift card', status: PaymentStatus.SUCCEEDED },
+          {
+            id: '1',
+            amountCents: 5_000,
+            description: 'Membership subscription',
+            status: PaymentStatus.SUCCEEDED,
+          },
+          {
+            id: '2',
+            amountCents: 7_000,
+            description: 'Drop-in session s1',
+            status: PaymentStatus.SUCCEEDED,
+          },
+          {
+            id: '3',
+            amountCents: 3_000,
+            description: 'Gift card',
+            status: PaymentStatus.SUCCEEDED,
+          },
         ]),
       },
     };
@@ -52,7 +77,11 @@ describe('ReportsService', () => {
         ]),
       },
       booking: {
-        findMany: jest.fn().mockResolvedValue([{ sessionId: 's1', status: BookingStatus.BOOKED }]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { sessionId: 's1', status: BookingStatus.BOOKED },
+          ]),
       },
       waitlistEntry: {
         findMany: jest.fn().mockResolvedValue([]),
