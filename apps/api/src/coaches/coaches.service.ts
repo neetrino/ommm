@@ -43,10 +43,16 @@ export class CoachesService {
   async create(dto: CreateCoachDto) {
     const email = dto.email.toLowerCase().trim();
     const phone = dto.phone.trim();
+    const specialization = dto.specialization.trim();
+    const classType = dto.classType.trim();
     const phoneDigits = phone.replace(/\D/g, '');
     if (phoneDigits.length < 8 || phoneDigits.length > 15) {
       throw new BadRequestException('Invalid phone number');
     }
+    if (specialization.length === 0) {
+      throw new BadRequestException('Specialization is required');
+    }
+    await this.assertValidCoachClassType(classType);
 
     const [emailTaken, phoneTaken] = await Promise.all([
       this.prisma.user.findUnique({ where: { email } }),
@@ -81,10 +87,13 @@ export class CoachesService {
         data: {
           userId: user.id,
           bio: dto.bio,
-          specialization: dto.specialization,
+          specialization,
+          classType,
           experienceYears: dto.experienceYears,
         },
-        include: {
+        select: {
+          id: true,
+          classType: true,
           user: {
             select: {
               id: true,
@@ -127,6 +136,22 @@ export class CoachesService {
     }
     const normalizedPhone =
       dto.phone === undefined ? undefined : this.normalizePhone(dto.phone);
+    const normalizedSpecialization =
+      dto.specialization === undefined ? undefined : dto.specialization.trim();
+    const normalizedClassType =
+      dto.classType === undefined ? undefined : dto.classType.trim();
+    if (
+      normalizedSpecialization !== undefined &&
+      normalizedSpecialization.length === 0
+    ) {
+      throw new BadRequestException('Specialization is required');
+    }
+    if (normalizedClassType !== undefined && normalizedClassType.length === 0) {
+      throw new BadRequestException('Class type is required');
+    }
+    if (normalizedClassType !== undefined) {
+      await this.assertValidCoachClassType(normalizedClassType);
+    }
     const userData = {
       ...(dto.email !== undefined && { email: dto.email.toLowerCase().trim() }),
       ...(dto.name !== undefined && { name: dto.name.trim() }),
@@ -139,7 +164,10 @@ export class CoachesService {
     const profileData = {
       ...(dto.bio !== undefined && { bio: dto.bio }),
       ...(dto.specialization !== undefined && {
-        specialization: dto.specialization,
+        specialization: normalizedSpecialization,
+      }),
+      ...(dto.classType !== undefined && {
+        classType: normalizedClassType,
       }),
       ...(dto.experienceYears !== undefined && {
         experienceYears: dto.experienceYears,
@@ -156,6 +184,7 @@ export class CoachesService {
       id: string;
       bio: string | null;
       specialization: string | null;
+      classType: string | null;
       experienceYears: number | null;
       isActive: boolean;
       createdAt: Date;
@@ -180,7 +209,16 @@ export class CoachesService {
         return tx.coachProfile.update({
           where: { id: coachProfileId },
           data: profileData,
-          include: {
+          select: {
+            id: true,
+            bio: true,
+            specialization: true,
+            classType: true,
+            experienceYears: true,
+            isActive: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
             user: {
               select: {
                 id: true,
@@ -247,6 +285,7 @@ export class CoachesService {
           id: row.id,
           bio: row.bio,
           specialization: row.specialization,
+          classType: row.classType,
           experienceYears: row.experienceYears,
           isActive: row.isActive,
           createdAt: row.createdAt,
@@ -263,6 +302,16 @@ export class CoachesService {
           age: this.calculateAgeFromDateOfBirth(row.user.dateOfBirth),
         })),
       );
+  }
+
+  private async assertValidCoachClassType(classType: string): Promise<void> {
+    const exists = await this.prisma.scheduleItem.findFirst({
+      where: { classType, isActive: true },
+      select: { id: true },
+    });
+    if (!exists) {
+      throw new BadRequestException('Class type is invalid');
+    }
   }
 
   private normalizePhone(phone: string): string {

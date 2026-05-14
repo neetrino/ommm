@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type Plan = {
@@ -8,9 +9,13 @@ type Plan = {
   name: string;
   description: string | null;
   priceCents: number;
+  currency: string;
   isUnlimited: boolean;
   sessionsPerMonth: number | null;
   periodDays: number;
+  billingPeriod: string;
+  buttonLabel: string;
+  isPopular: boolean;
   isActive: boolean;
 };
 
@@ -22,12 +27,6 @@ export default async function MembershipsMarketingPage({
   const { locale } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
   const res = await serverApiJson<Plan[]>("/memberships/plans", "");
-
-  const currency = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
 
   const activePlans = res.ok ? res.data.filter((p) => p.isActive) : [];
 
@@ -51,7 +50,7 @@ export default async function MembershipsMarketingPage({
         <>
           <ul className="mt-12 grid gap-6 lg:grid-cols-2">
             {activePlans.map((plan) => {
-              const amount = currency.format(plan.priceCents / 100);
+              const amount = formatAmdFromCents(plan.priceCents, locale);
               const sessionsLabel = plan.isUnlimited
                 ? m("membershipsSessionsUnlimited")
                 : m("membershipsSessionsCount", {
@@ -60,7 +59,7 @@ export default async function MembershipsMarketingPage({
               return (
                 <li
                   key={plan.id}
-                  className="ommm-card flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ommm-marketing-card-hover"
+                  className={`ommm-card ommm-membership-card-hover flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
                 >
                   <h2 className="ommm-h3 text-sage-800">{plan.name}</h2>
                   {plan.description ? (
@@ -69,10 +68,13 @@ export default async function MembershipsMarketingPage({
                     </p>
                   ) : null}
                   <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-                    {m("membershipsPriceLine", { amount })}
+                    <span className="mr-1.5 text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
+                    {m("membershipsPriceLine", {
+                      amount: amount.startsWith("֏") ? amount.slice(1).trimStart() : amount,
+                    })}
                   </p>
                   <p className="mt-2 text-sm text-sage-500">
-                    {m("membershipsPeriodDays", { days: plan.periodDays })}
+                    {plan.billingPeriod} · {m("membershipsPeriodDaysShort", { days: plan.periodDays })}
                   </p>
                   <p className="mt-4 text-sm font-medium text-sage-700">
                     {sessionsLabel}
@@ -82,7 +84,7 @@ export default async function MembershipsMarketingPage({
                       href="/login"
                       className="ommm-cta-primary flex-1 text-center"
                     >
-                      {m("membershipsSubscribeCta")}
+                      {plan.buttonLabel || m("membershipsSubscribeCta")}
                     </Link>
                     <Link
                       href="/user/memberships"
@@ -98,45 +100,6 @@ export default async function MembershipsMarketingPage({
               );
             })}
           </ul>
-          <section className="mt-16">
-            <h2 className="ommm-h2 text-sage-800">
-              {m("membershipsCompareTitle")}
-            </h2>
-            <div className="mt-6 overflow-x-auto rounded-[24px] border border-white/60 bg-white/80 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]">
-              <table className="min-w-full text-left text-sm text-sage-700">
-                <thead className="border-b border-sage-200/80 bg-sage-50/80 text-xs uppercase text-sage-500">
-                  <tr>
-                    <th className="px-4 py-3">{m("membershipsTablePlan")}</th>
-                    <th className="px-4 py-3">{m("membershipsTablePrice")}</th>
-                    <th className="px-4 py-3">{m("membershipsTablePeriod")}</th>
-                    <th className="px-4 py-3">{m("membershipsTableSessions")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activePlans.map((plan) => (
-                    <tr key={plan.id} className="border-b border-sage-100/80">
-                      <td className="px-4 py-3 font-medium text-sage-900">
-                        {plan.name}
-                      </td>
-                      <td className="px-4 py-3 tabular-nums">
-                        {currency.format(plan.priceCents / 100)}
-                      </td>
-                      <td className="px-4 py-3">
-                        {m("membershipsPeriodDaysShort", { days: plan.periodDays })}
-                      </td>
-                      <td className="px-4 py-3">
-                        {plan.isUnlimited
-                          ? m("membershipsSessionsUnlimited")
-                          : m("membershipsSessionsCount", {
-                              count: plan.sessionsPerMonth ?? 0,
-                            })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
           <section className="mt-16 max-w-3xl">
             <h2 className="ommm-h2 text-sage-800">{m("membershipsFaqTitle")}</h2>
             <dl className="mt-6 space-y-6 text-sm text-sage-700">

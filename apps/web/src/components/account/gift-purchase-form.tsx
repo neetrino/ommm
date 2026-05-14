@@ -51,7 +51,7 @@ export function GiftPurchaseForm() {
   return (
     <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-3">
       <label className="ommm-label flex flex-col gap-2">
-        Amount (major units, e.g. 100 = 100.00)
+        Amount (AMD)
         <input
           value={amount}
           onChange={(ev) => setAmount(ev.target.value)}

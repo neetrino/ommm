@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type Dashboard = {
   sessionsToday: number;
@@ -38,7 +39,9 @@ export async function AdminReportsSummary({ data, locale }: AdminReportsSummaryP
       {typeof data.revenueCentsTotal === "number" ? (
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{tm("revenueCents")}</p>
-          <p className={adminChrome.metricValue}>{data.revenueCentsTotal}</p>
+          <p className={adminChrome.metricValue}>
+            {formatAmdFromCents(data.revenueCentsTotal, locale)}
+          </p>
         </li>
       ) : null}
     </ul>

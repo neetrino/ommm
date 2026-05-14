@@ -47,7 +47,7 @@ export function AdminCreateGiftCardForm() {
         type="number"
         min={1}
         className="app-input h-9 text-xs"
-        placeholder="Amount (cents)"
+        placeholder="Amount (cents, AMD)"
         value={amountCents}
         onChange={(event) => setAmountCents(event.target.value)}
         disabled={busy}

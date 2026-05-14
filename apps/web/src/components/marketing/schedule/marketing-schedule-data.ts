@@ -3,9 +3,11 @@ import type {
   MarketingScheduleItem,
 } from "@/components/marketing/schedule/marketing-schedule-types";
 import { serverApiJson } from "@/lib/server-api";
+import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 
 type MarketingScheduleDataResult = {
   items: MarketingScheduleItem[];
+  classTypes: string[];
   loadErrorStatus: number | null;
 };
 
@@ -42,11 +44,14 @@ export async function fetchPublicScheduleItems(
   if (!res.ok) {
     return {
       items: [],
+      classTypes: [],
       loadErrorStatus: res.status,
     };
   }
+  const activeItems = res.data.filter((item) => item.isActive);
   return {
-    items: toSorted(res.data.filter((item) => item.isActive)),
+    items: toSorted(activeItems),
+    classTypes: getScheduleClassTypeValues(activeItems),
     loadErrorStatus: null,
   };
 }

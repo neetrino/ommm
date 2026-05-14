@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type GiftRow = {
@@ -16,7 +17,12 @@ type GiftRow = {
   recipient: { email: string; name: string | null } | null;
 };
 
-export default async function ManagerGiftCardsPage() {
+export default async function ManagerGiftCardsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<GiftRow[]>("/gift-cards/admin", cookie);
 
@@ -62,8 +68,8 @@ export default async function ManagerGiftCardsPage() {
                   {g.recipientName ?? g.recipient?.name ?? g.recipientEmail ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
-                  {(g.balanceCents / 100).toFixed(2)} /{" "}
-                  {(g.amountCents / 100).toFixed(2)}
+                  {formatAmdFromCents(g.balanceCents, locale)} /{" "}
+                  {formatAmdFromCents(g.amountCents, locale)}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">{g.status}</td>
                 <td className="px-4 py-3">

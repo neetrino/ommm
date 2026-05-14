@@ -125,33 +125,35 @@ export function AdminScheduleShell({
 
   return (
     <div className="flex flex-col gap-6">
-      {banner !== null ? (
-        <p
-          className="rounded-xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-sm"
-          role="status"
-        >
-          {banner}
-        </p>
-      ) : null}
+      <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
+        {banner !== null ? (
+          <p
+            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+            role="status"
+          >
+            {banner}
+          </p>
+        ) : null}
 
-      <div className="flex justify-end">
-        <OmmButton
-          type="button"
-          variant="secondary"
-          size="md"
-          onClick={openModal}
-          className="inline-flex items-center gap-2"
-        >
-          <AddScheduleGlyph className="h-5 w-5 shrink-0" />
-          {t("addScheduleButton")}
-        </OmmButton>
+        <div className="flex justify-end">
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={openModal}
+            className="inline-flex items-center gap-2"
+          >
+            <AddScheduleGlyph className="h-5 w-5 shrink-0" />
+            {t("addScheduleButton")}
+          </OmmButton>
+        </div>
+
+        {children}
       </div>
-
-      {children}
 
       {isModalOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
           role="presentation"
         >
           <button
@@ -166,7 +168,7 @@ export function AdminScheduleShell({
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descId}
-            className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+            className="relative z-10 w-full max-w-lg rounded-[24px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -197,13 +199,14 @@ export function AdminScheduleShell({
                 </svg>
               </button>
             </div>
-
-            <AdminScheduleForm
-              mode="create"
-              classTypeOptions={classTypeOptions}
-              onSaved={onScheduleCreated}
-              onCancel={closeModal}
-            />
+            <div className="mt-5">
+              <AdminScheduleForm
+                mode="create"
+                classTypeOptions={classTypeOptions}
+                onSaved={onScheduleCreated}
+                onCancel={closeModal}
+              />
+            </div>
           </div>
         </div>
       ) : null}

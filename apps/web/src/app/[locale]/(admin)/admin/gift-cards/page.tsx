@@ -4,6 +4,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
 import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type GiftRow = {
@@ -68,8 +69,8 @@ export default async function AdminGiftCardsPage({
                   {g.recipientName ?? g.recipient?.name ?? g.recipientEmail ?? "—"}
                 </td>
                 <td className={adminChrome.td}>
-                  {(g.balanceCents / 100).toFixed(2)} /{" "}
-                  {(g.amountCents / 100).toFixed(2)}
+                  {formatAmdFromCents(g.balanceCents, locale)} /{" "}
+                  {formatAmdFromCents(g.amountCents, locale)}
                 </td>
                 <td className={adminChrome.td}>{g.status}</td>
                 <td className={adminChrome.td}>

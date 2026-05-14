@@ -1,13 +1,13 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
-import { useDismissWhenOutside } from "@/hooks/use-dismiss-when-outside";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
   LANGUAGE_SWITCHER_ORDER,
@@ -36,24 +36,6 @@ function triggerClass(
   return `${base} border border-zinc-200 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 focus-visible:ring-zinc-900`;
 }
 
-function dropdownClass(
-  context: "marketing" | "dashboard",
-  variant: DashboardShellVariant,
-): string {
-  const base =
-    "absolute left-0 top-full z-50 mt-1 min-w-[9.5rem] overflow-hidden py-1 shadow-lg";
-  if (context === "marketing") {
-    return `${base} rounded-xl border border-white/70 bg-white/95 backdrop-blur-md`;
-  }
-  if (variant === "indigo") {
-    return `${base} rounded-xl border border-indigo-100 bg-white`;
-  }
-  if (variant === "wellness") {
-    return `${base} rounded-xl border border-white/40 bg-white/90 backdrop-blur-md`;
-  }
-  return `${base} rounded-xl border border-zinc-200 bg-white`;
-}
-
 function optionRowClass(
   context: "marketing" | "dashboard",
   variant: DashboardShellVariant,
@@ -73,90 +55,6 @@ function optionRowClass(
     return `${base} text-sage-900 hover:bg-white/50 focus-visible:ring-sand-500${sel}`;
   }
   return `${base} text-zinc-900 hover:bg-zinc-50 focus-visible:ring-zinc-900${sel}`;
-}
-
-function chevronClass(open: boolean): string {
-  return [
-    "ml-0.5 h-4 w-4 shrink-0 text-current transition-transform",
-    open ? "rotate-180" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
-
-function ChevronDownIcon({ className }: { className: string }) {
-  return (
-    <svg
-      className={className}
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-    >
-      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-type ListboxProps = {
-  listId: string;
-  switcherAria: string;
-  context: "marketing" | "dashboard";
-  dashboardVariant: DashboardShellVariant;
-  compact: boolean;
-  locale: string;
-  pending: boolean;
-  getOptionName: (code: LanguageSwitcherLocaleCode) => string;
-  onPick: (code: LanguageSwitcherLocaleCode) => void;
-};
-
-function LanguageSwitcherListbox({
-  listId,
-  switcherAria,
-  context,
-  dashboardVariant,
-  compact,
-  locale,
-  pending,
-  getOptionName,
-  onPick,
-}: ListboxProps) {
-  return (
-    <ul
-      id={listId}
-      role="listbox"
-      aria-label={switcherAria}
-      className={dropdownClass(context, dashboardVariant)}
-    >
-      {LANGUAGE_SWITCHER_ORDER.map((code) => {
-        const selected = locale === code;
-        return (
-          <li key={code} role="presentation">
-            <button
-              type="button"
-              role="option"
-              aria-selected={selected}
-              className={optionRowClass(
-                context,
-                dashboardVariant,
-                selected,
-                compact,
-              )}
-              disabled={pending}
-              onClick={() => onPick(code)}
-            >
-              <LocaleFlagIcon code={code} frame="default" />
-              <span className="min-w-0 flex-1">{code}</span>
-              <span className="sr-only">{getOptionName(code)}</span>
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
 }
 
 export type LanguageSwitcherProps = {
@@ -180,16 +78,7 @@ export function LanguageSwitcher({
   const t = useTranslations("language");
   const [pending, startTransition] = useTransition();
   const [persisting, setPersisting] = useState(false);
-  const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const dismissRef = useRef<() => void>(() => {});
-  const listId = useId();
-
-  useEffect(() => {
-    dismissRef.current = () => setOpen(false);
-  }, []);
-
-  useDismissWhenOutside(open, rootRef, dismissRef);
 
   const current: LanguageSwitcherLocaleCode | null = isLanguageSwitcherLocale(
     locale,
@@ -210,7 +99,6 @@ export function LanguageSwitcher({
 
   function select(next: LanguageSwitcherLocaleCode) {
     if (next === locale) {
-      setOpen(false);
       onAfterSelect?.();
       return;
     }
@@ -234,45 +122,53 @@ export function LanguageSwitcher({
       setPersisting(false);
       startTransition(() => {
         router.replace(pathname, { locale: next });
-        setOpen(false);
         onAfterSelect?.();
       });
     })();
   }
 
   const triggerLabel = `${t("switcherAria")}: ${t(`optionNames.${effectiveLocale}`)}`;
+  const options: readonly DropdownOption<LanguageSwitcherLocaleCode>[] = LANGUAGE_SWITCHER_ORDER.map(
+    (code) => ({
+      value: code,
+      label: code,
+    }),
+  );
 
   return (
     <div ref={rootRef} className={`relative shrink-0 ${className}`.trim()}>
-      <button
-        type="button"
-        className={triggerClass(context, dashboardVariant, compact)}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-controls={listId}
-        aria-label={triggerLabel}
-        title={t("expandPicker")}
+      <DropdownSelect<LanguageSwitcherLocaleCode>
+        label={effectiveLocale}
+        ariaLabel={triggerLabel}
+        value={effectiveLocale}
+        options={options}
+        onChange={select}
         disabled={pending || persisting}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
-        <span>{effectiveLocale}</span>
-        <ChevronDownIcon className={chevronClass(open)} />
-      </button>
-
-      {open ? (
-        <LanguageSwitcherListbox
-          listId={listId}
-          switcherAria={t("switcherAria")}
-          context={context}
-          dashboardVariant={dashboardVariant}
-          compact={compact}
-          locale={locale}
-          pending={pending || persisting}
-          getOptionName={(code) => t(`optionNames.${code}`)}
-          onPick={select}
-        />
-      ) : null}
+        className="min-w-[5.5rem]"
+        triggerClassName={triggerClass(context, dashboardVariant, compact)}
+        renderValue={() => (
+          <span className="inline-flex items-center gap-1.5">
+            <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
+            <span>{effectiveLocale}</span>
+          </span>
+        )}
+        renderOption={(option, selected) => (
+          <span className="inline-flex w-full items-center">
+            <span
+              className={optionRowClass(
+                context,
+                dashboardVariant,
+                selected,
+                compact,
+              )}
+            >
+              <LocaleFlagIcon code={option.value} frame={flagFrame} />
+              <span className="min-w-0 flex-1">{option.label}</span>
+              <span className="sr-only">{t(`optionNames.${option.value}`)}</span>
+            </span>
+          </span>
+        )}
+      />
     </div>
   );
 }

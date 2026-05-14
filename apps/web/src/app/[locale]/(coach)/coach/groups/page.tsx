@@ -1,4 +1,7 @@
 import { CoachAttendanceRosterSection } from "@/components/coach/coach-attendance-roster-section";
+import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
@@ -8,13 +11,14 @@ export default async function CoachGroupsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "coachPages.groups" });
   const panel = await loadCoachPanelPageData();
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
       return (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          Sign in to open the coach panel.
+        <div className="app-alert-warn max-w-xl">
+          {t("signInRequired")}
         </div>
       );
     }
@@ -22,33 +26,24 @@ export default async function CoachGroupsPage({
       redirectToRoleHome(locale, panel.role);
     }
     return (
-      <div className="rounded-[24px] border border-zinc-200 bg-white p-6 text-sm text-zinc-700 shadow-sm">
-        This area is for studio coaches. Your account does not have a coach
-        profile.
+      <div className="app-alert-warn max-w-xl">
+        {t("noProfile")}
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-indigo-950">My groups</h1>
-        <p className="mt-2 text-sm text-indigo-900/80">
-          Booked participants for your sessions — mark attendance when class
-          wraps.
+    <AccountPageFrame
+      title={t("title")}
+      description={t("description")}
+    >
+      <section className={adminChrome.panel}>
+        <h2 className={adminChrome.panelHeading}>{t("attendanceBooked")}</h2>
+        <p className={adminChrome.metaText}>
+          {t("helpText")}
         </p>
-      </div>
-      <section>
-        <h2 className="text-lg font-medium text-indigo-950">Attendance (booked)</h2>
-        <p className="mt-1 text-sm text-indigo-900/70">
-          This view reflects your assigned sessions only and keeps waitlist + roster
-          visibility scoped by coach.
-        </p>
-        <CoachAttendanceRosterSection
-          locale={locale}
-          roster={panel.roster}
-        />
+        <CoachAttendanceRosterSection locale={locale} roster={panel.roster} />
       </section>
-    </div>
+    </AccountPageFrame>
   );
 }

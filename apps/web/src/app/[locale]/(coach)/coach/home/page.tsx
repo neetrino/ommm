@@ -1,4 +1,7 @@
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
@@ -17,13 +20,14 @@ export default async function CoachHomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "coachPages.home" });
   const panel = await loadCoachPanelPageData();
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
       return (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          Sign in to open the coach panel.
+        <div className="app-alert-warn max-w-xl">
+          {t("signInRequired")}
         </div>
       );
     }
@@ -31,9 +35,8 @@ export default async function CoachHomePage({
       redirectToRoleHome(locale, panel.role);
     }
     return (
-      <div className="rounded-[24px] border border-zinc-200 bg-white p-6 text-sm text-zinc-700 shadow-sm">
-        This area is for studio coaches. Your account does not have a coach
-        profile.
+      <div className="app-alert-warn max-w-xl">
+        {t("noProfile")}
       </div>
     );
   }
@@ -48,57 +51,41 @@ export default async function CoachHomePage({
   );
 
   const linkClass =
-    "inline-flex rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-medium text-indigo-950 transition-colors hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2";
+    "ommm-cta-primary inline-flex text-sm";
 
   return (
-    <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-semibold text-indigo-950">
-          Hi{userName ? `, ${userName}` : ""}
-        </h1>
-        <p className="mt-2 text-sm text-indigo-900/80">
-          Quick overview of today and your upcoming teaching load.
-        </p>
-      </div>
-
+    <AccountPageFrame
+      title={t("title", { name: userName ?? "" })}
+      description={t("description")}
+    >
       <section>
-        <h2 className="text-lg font-medium text-indigo-950">Today at a glance</h2>
-        <dl className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm">
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Classes today
-            </dt>
-            <dd className="mt-1 text-2xl font-semibold text-zinc-900">
-              {todaysSessions.length}
-            </dd>
+        <h2 className={adminChrome.sectionTitle}>{t("todayAtGlance")}</h2>
+        <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("classesToday")}</dt>
+            <dd className={adminChrome.metricValue}>{todaysSessions.length}</dd>
           </div>
-          <div className="rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm">
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Booked clients today
-            </dt>
-            <dd className="mt-1 text-2xl font-semibold text-zinc-900">
-              {todaysRoster.length}
-            </dd>
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("bookedClientsToday")}</dt>
+            <dd className={adminChrome.metricValue}>{todaysRoster.length}</dd>
           </div>
-          <div className="rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm">
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Upcoming sessions (range)
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>
+              {t("upcomingSessionsRange")}
             </dt>
-            <dd className="mt-1 text-2xl font-semibold text-zinc-900">
-              {sessions.length}
-            </dd>
+            <dd className={adminChrome.metricValue}>{sessions.length}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="flex flex-wrap gap-3">
+      <section className="mt-8 flex flex-wrap gap-3">
         <Link href="/coach/schedule" className={linkClass}>
-          Open my schedule
+          {t("openSchedule")}
         </Link>
         <Link href="/coach/groups" className={linkClass}>
-          View participants & attendance
+          {t("viewParticipantsAttendance")}
         </Link>
       </section>
-    </div>
+    </AccountPageFrame>
   );
 }

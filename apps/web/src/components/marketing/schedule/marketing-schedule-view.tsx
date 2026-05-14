@@ -23,6 +23,7 @@ import {
 import {
   useScheduleDayTransition,
 } from "@/components/marketing/schedule/use-schedule-day-transition";
+import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 
 type ScheduleNavState = {
   windowStart: Date;
@@ -78,9 +79,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
   const [instructor, setInstructor] = useState("all");
 
   const classTypeOptions = useMemo<readonly ScheduleFilterOption<string>[]>(() => {
-    const distinct = Array.from(new Set(items.map((item) => item.classType.trim()))).filter(
-      (value) => value.length > 0,
-    );
+    const distinct = getScheduleClassTypeValues(items);
     return [
       { value: "all", label: t("filterClassTypeAll") },
       ...distinct.map((value) => ({ value, label: value })),

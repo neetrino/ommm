@@ -1,5 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type SalarySummary = {
@@ -23,7 +26,7 @@ export default async function CoachSalaryPage({
 
   if (!res.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {t("loadFailed", { status: res.status })}
       </div>
     );
@@ -31,42 +34,42 @@ export default async function CoachSalaryPage({
 
   if (res.data == null) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="app-alert-warn max-w-xl">
         {t("noProfile")}
       </div>
     );
   }
 
   const data = res.data;
-  const formatMoney = (cents: number) => (cents / 100).toFixed(2);
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-indigo-950">{t("title")}</h1>
-      <p className="mt-2 max-w-2xl text-sm text-indigo-900/80">{t("lead")}</p>
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">{t("total")}</p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">{formatMoney(data.totalEarningsCents)}</p>
+    <AccountPageFrame title={t("title")} description={t("lead")}>
+      <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("total")}</p>
+          <p className={adminChrome.metricValue}>{formatAmdFromCents(data.totalEarningsCents, locale)}</p>
         </li>
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">{t("pending")}</p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">{formatMoney(data.pendingPayoutCents)}</p>
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("pending")}</p>
+          <p className={adminChrome.metricValue}>{formatAmdFromCents(data.pendingPayoutCents, locale)}</p>
         </li>
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">{t("paid")}</p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">{formatMoney(data.paidOutCents)}</p>
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("paid")}</p>
+          <p className={adminChrome.metricValue}>{formatAmdFromCents(data.paidOutCents, locale)}</p>
         </li>
-        <li className="rounded-[20px] border border-indigo-100 bg-white p-4 text-sm shadow-sm">
-          <p className="text-xs font-medium uppercase text-indigo-900/70">{t("sessions")}</p>
-          <p className="mt-2 text-2xl font-semibold text-indigo-950">{data.completedSessions}</p>
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("sessions")}</p>
+          <p className={adminChrome.metricValue}>{data.completedSessions}</p>
         </li>
       </ul>
-      <p className="mt-6 text-sm text-indigo-900/80">
-        {t("formula", {
-          base: formatMoney(data.basePerSessionCents),
-          perAttendee: formatMoney(data.perAttendeeShareCents),
-        })}
-      </p>
-    </div>
+      <section className={`mt-8 ${adminChrome.panel}`}>
+        <p className={adminChrome.panelHeading}>{t("lead")}</p>
+        <p className="mt-2">
+          {t("formula", {
+            base: formatAmdFromCents(data.basePerSessionCents, locale),
+            perAttendee: formatAmdFromCents(data.perAttendeeShareCents, locale),
+          })}
+        </p>
+      </section>
+    </AccountPageFrame>
   );
 }

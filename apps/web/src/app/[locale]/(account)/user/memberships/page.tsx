@@ -6,6 +6,7 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type Plan = {
@@ -13,9 +14,12 @@ type Plan = {
   name: string;
   description: string | null;
   priceCents: number;
+  currency: string;
   isUnlimited: boolean;
   sessionsPerMonth: number | null;
   periodDays: number;
+  billingPeriod: string;
+  buttonLabel: string;
   isActive: boolean;
 };
 
@@ -97,8 +101,8 @@ export default async function UserMembershipsPage({
               {payRes.data.map((p) => (
                 <li key={p.id} className="ommm-inset-row">
                   <span className="font-medium tabular-nums text-sage-800">
-                    {(p.amountCents / 100).toFixed(2)}{" "}
-                    {p.currency.toUpperCase()}
+                    <span className="text-black">֏</span>{" "}
+                    {formatAmdFromCents(p.amountCents, locale).replace(/^֏\s*/, "")}
                   </span>
                   <span className="ml-2 text-sage-500">{p.status}</span>
                   {p.description ? (
@@ -129,8 +133,9 @@ export default async function UserMembershipsPage({
                       </p>
                     ) : null}
                     <p className="mt-3 text-sm text-sage-700">
-                      {(plan.priceCents / 100).toFixed(0)}{" "}
-                      {t("perPeriod", { days: plan.periodDays })} ·{" "}
+                      <span className="text-black">֏</span>{" "}
+                      {formatAmdFromCents(plan.priceCents, locale).replace(/^֏\s*/, "")}{" "}
+                      · {plan.billingPeriod} ·{" "}
                       {plan.isUnlimited
                         ? t("unlimitedClassesShort")
                         : t("sessionsPerPeriodShort", {

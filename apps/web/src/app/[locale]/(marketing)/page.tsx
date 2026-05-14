@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { ExploreSection } from "@/components/marketing/home/explore-section";
 import { GiftCardBanner } from "@/components/marketing/home/gift-card-banner";
+import { HomeMembershipsSection } from "@/components/marketing/home/home-memberships-section";
 import { MarketingHighlights } from "@/components/marketing/home/marketing-highlights";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
-import { MarketingScheduleSection } from "@/components/marketing/schedule/marketing-schedule-section";
 import { routing } from "@/i18n/routing";
 
 type PageProps = {
@@ -28,14 +28,12 @@ export default async function MarketingHomePage({ params }: PageProps) {
         <MarketingHighlights locale={locale} />
       </ProgressiveRevealSection>
       <ProgressiveRevealSection
-        id="schedule"
-        prefetchApiPaths={["/api/v1/schedule/public"]}
-        placeholderClassName="h-[42rem] sm:h-[40rem] lg:h-[36rem]"
-        revealDelayMs={70}
+        id="memberships"
+        prefetchApiPaths={["/api/v1/memberships/plans"]}
+        placeholderClassName="h-[52rem] sm:h-[46rem] lg:h-[40rem]"
+        revealDelayMs={65}
       >
-        <div className="ommm-container ommm-section">
-          <MarketingScheduleSection locale={locale} />
-        </div>
+        <HomeMembershipsSection locale={locale} />
       </ProgressiveRevealSection>
       <ProgressiveRevealSection
         id="explore"

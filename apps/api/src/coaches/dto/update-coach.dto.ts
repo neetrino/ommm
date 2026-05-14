@@ -49,8 +49,15 @@ export class UpdateCoachDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(1)
   @MaxLength(200)
   specialization?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  classType?: string;
 
   @IsOptional()
   @IsInt()

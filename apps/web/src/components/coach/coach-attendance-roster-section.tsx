@@ -1,18 +1,25 @@
+import { getTranslations } from "next-intl/server";
 import { MarkAttendanceButtons } from "@/components/coach/mark-attendance-buttons";
 import { formatSessionRange } from "@/lib/format-session-time";
 import type { CoachPanelBookingRow } from "@/lib/coach-panel-types";
+import { adminChrome } from "@/components/admin/admin-chrome";
 
 type CoachAttendanceRosterSectionProps = {
   locale: string;
   roster: CoachPanelBookingRow[];
 };
 
-export function CoachAttendanceRosterSection({
+export async function CoachAttendanceRosterSection({
   locale,
   roster,
 }: CoachAttendanceRosterSectionProps) {
+  const t = await getTranslations({
+    locale,
+    namespace: "coachPages.groups.attendanceRoster",
+  });
+
   if (roster.length === 0) {
-    return <p className="mt-2 text-sm text-zinc-600">No active bookings.</p>;
+    return <p className={adminChrome.metaText}>{t("empty")}</p>;
   }
 
   return (
@@ -20,13 +27,13 @@ export function CoachAttendanceRosterSection({
       {roster.map((b) => (
         <li
           key={b.id}
-          className="flex flex-col gap-3 rounded-[24px] border border-indigo-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+          className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${adminChrome.panel}`}
         >
           <div>
-            <p className="font-medium text-zinc-900">
+            <p className={adminChrome.panelHeading}>
               {b.user.name ?? b.user.email}
             </p>
-            <p className="text-sm text-zinc-600">
+            <p className="mt-1 text-sm text-sage-700">
               {b.session.classType.name} ·{" "}
               {formatSessionRange(
                 locale,

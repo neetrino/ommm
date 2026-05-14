@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -26,6 +27,13 @@ export class MembershipsController {
     return this.memberships.listPlans();
   }
 
+  @Get('admin/plans')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  listPlansAdmin() {
+    return this.memberships.listPlansAdmin();
+  }
+
   @Post('plans')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -38,6 +46,13 @@ export class MembershipsController {
   @Roles(Role.ADMIN)
   updatePlan(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
     return this.memberships.updatePlan(id, dto);
+  }
+
+  @Delete('plans/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  deletePlan(@Param('id') id: string) {
+    return this.memberships.deletePlan(id);
   }
 
   @Get('me')

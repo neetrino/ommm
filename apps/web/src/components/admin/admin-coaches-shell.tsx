@@ -40,10 +40,14 @@ function AddCoachGlyph({ className }: { className?: string }) {
 }
 
 type AdminCoachesShellProps = {
+  classTypeOptions: readonly string[];
   children: ReactNode;
 };
 
-export function AdminCoachesShell({ children }: AdminCoachesShellProps) {
+export function AdminCoachesShell({
+  classTypeOptions,
+  children,
+}: AdminCoachesShellProps) {
   const t = useTranslations("adminPages.coaches");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -203,6 +207,7 @@ export function AdminCoachesShell({ children }: AdminCoachesShellProps) {
             </div>
             <div className="mt-5">
               <AdminCreateCoachForm
+                classTypeOptions={classTypeOptions}
                 onCreated={onCoachCreated}
                 onCancel={closeModal}
               />

@@ -12,6 +12,9 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { CoachAnalyticsQueryDto } from './dto/coach-analytics-query.dto';
+import { DateRangeQueryDto } from './dto/date-range-query.dto';
+import { UserAnalyticsQueryDto } from './dto/user-analytics-query.dto';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
@@ -50,5 +53,46 @@ export class ReportsController {
     const csv = await this.reports.bookingsCsv(fromDate, toDate);
     res.setHeader('Content-Type', 'text/csv');
     res.send(csv);
+  }
+
+  @Get('finance/summary')
+  @Roles(Role.ADMIN, Role.MANAGER)
+  financeSummary(@Query() query: DateRangeQueryDto) {
+    return this.reports.financeSummary(query);
+  }
+
+  @Get('payments.csv')
+  @Roles(Role.ADMIN)
+  async paymentsCsv(@Query() query: DateRangeQueryDto, @Res() res: Response) {
+    if (query.from && Number.isNaN(new Date(query.from).getTime())) {
+      throw new BadRequestException('Invalid date range');
+    }
+    if (query.to && Number.isNaN(new Date(query.to).getTime())) {
+      throw new BadRequestException('Invalid date range');
+    }
+    if (query.from && query.to && new Date(query.to) < new Date(query.from)) {
+      throw new BadRequestException('Invalid date range');
+    }
+    const csv = await this.reports.paymentsCsv(query);
+    res.setHeader('Content-Type', 'text/csv');
+    res.send(csv);
+  }
+
+  @Get('coach/analytics')
+  @Roles(Role.COACH)
+  coachAnalytics(
+    @CurrentUser() user: { id: string },
+    @Query() query: CoachAnalyticsQueryDto,
+  ) {
+    return this.reports.coachAnalytics(user.id, query.days ?? 30);
+  }
+
+  @Get('user/analytics')
+  @Roles(Role.USER)
+  userAnalytics(
+    @CurrentUser() user: { id: string },
+    @Query() query: UserAnalyticsQueryDto,
+  ) {
+    return this.reports.userAnalytics(user.id, query.days ?? 90);
   }
 }

@@ -4,6 +4,10 @@ import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import {
+  ScheduleFilterDropdown,
+  type ScheduleFilterOption,
+} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
@@ -15,6 +19,7 @@ const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
 const COACH_MIN_AGE = 16;
 const COACH_MAX_AGE = 100;
+const MAX_SPECIALIZATION_LENGTH = 200;
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
@@ -38,6 +43,7 @@ function isValidPhone(trimmed: string): boolean {
 
 type CreateCoachApiResponse = {
   id: string;
+  classType: string | null;
   user: {
     id: string;
     name: string | null;
@@ -48,6 +54,7 @@ type CreateCoachApiResponse = {
 };
 
 export type AdminCreateCoachFormProps = {
+  classTypeOptions: readonly string[];
   /** When set, successful create invokes this instead of inline success + refresh (parent handles refresh). */
   onCreated?: () => void;
   /** Optional Cancel (e.g. close modal); omit for standalone usage. */
@@ -55,6 +62,7 @@ export type AdminCreateCoachFormProps = {
 };
 
 export function AdminCreateCoachForm({
+  classTypeOptions,
   onCreated,
   onCancel,
 }: AdminCreateCoachFormProps) {
@@ -65,19 +73,29 @@ export function AdminCreateCoachForm({
   const [success, setSuccess] = useState(false);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const [classTypeValue, setClassTypeValue] = useState("");
+  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
+    (value) => ({
+      value,
+      label: value,
+    }),
+  );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (pending || submitLockRef.current) {
       return;
     }
+    const form = e.currentTarget;
 
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const nameRaw = String(fd.get("name") ?? "").trim();
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const emailRaw = String(fd.get("email") ?? "").trim();
     const phoneRaw = String(fd.get("phone") ?? "").trim();
     const ageRaw = String(fd.get("age") ?? "").trim();
+    const specializationRaw = String(fd.get("specialization") ?? "").trim();
+    const classTypeRaw = String(fd.get("classType") ?? "").trim();
     const password = String(fd.get("password") ?? "");
 
     setError(null);
@@ -113,6 +131,18 @@ export function AdminCreateCoachForm({
       setError(t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }));
       return;
     }
+    if (specializationRaw.length === 0) {
+      setError(t("specializationRequired"));
+      return;
+    }
+    if (classTypeRaw.length === 0) {
+      setError(t("classTypeRequired"));
+      return;
+    }
+    if (!classTypeOptions.includes(classTypeRaw)) {
+      setError(t("classTypeInvalid"));
+      return;
+    }
     if (password.length === 0) {
       setError(t("passwordRequired"));
       return;
@@ -129,6 +159,10 @@ export function AdminCreateCoachForm({
       setError(t("lastNameTooLong"));
       return;
     }
+    if (specializationRaw.length > MAX_SPECIALIZATION_LENGTH) {
+      setError(t("specializationTooLong"));
+      return;
+    }
 
     submitLockRef.current = true;
     setPending(true);
@@ -142,9 +176,12 @@ export function AdminCreateCoachForm({
           lastName: lastNameRaw,
           phone: phoneRaw,
           age: ageNum,
+          specialization: specializationRaw,
+          classType: classTypeRaw,
         }),
       });
-      e.currentTarget.reset();
+      form.reset();
+      setClassTypeValue("");
       setError(null);
       if (onCreated !== undefined) {
         onCreated();
@@ -153,7 +190,13 @@ export function AdminCreateCoachForm({
         router.refresh();
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("genericError"));
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else if (err instanceof Error && err.message.trim().length > 0) {
+        setError(err.message);
+      } else {
+        setError(t("genericError"));
+      }
     } finally {
       setPending(false);
       submitLockRef.current = false;
@@ -193,6 +236,33 @@ export function AdminCreateCoachForm({
           />
         </label>
       </div>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("specializationLabel")}
+        </span>
+        <input
+          name="specialization"
+          className="ommm-input"
+          maxLength={MAX_SPECIALIZATION_LENGTH}
+          placeholder={t("specializationPlaceholder")}
+          required
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("classTypeLabel")}
+        </span>
+        <ScheduleFilterDropdown
+          name="classType"
+          label={t("classTypePlaceholder")}
+          ariaLabel={t("classTypeLabel")}
+          value={classTypeValue}
+          options={classTypeDropdownOptions}
+          onChange={setClassTypeValue}
+          disabled={pending}
+          required
+        />
+      </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("emailLabel")}

@@ -11,6 +11,10 @@ import {
   isValidTime24h,
   minutesFromTime,
 } from "@/components/admin/admin-schedule-helpers";
+import {
+  ScheduleFilterDropdown,
+  type ScheduleFilterOption,
+} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 
@@ -61,6 +65,22 @@ type ClassTypeCreateResponse = {
   name: string;
   slug: string;
 };
+
+function toScheduleFilterOptions(
+  values: readonly string[],
+): readonly ScheduleFilterOption<string>[] {
+  return values.map((value) => ({ value, label: value }));
+}
+
+function toScheduleDayOptions(
+  dayOptions: readonly ScheduleDayOfWeek[],
+  t: ReturnType<typeof useTranslations>,
+): readonly ScheduleFilterOption<ScheduleDayOfWeek>[] {
+  return dayOptions.map((day) => ({
+    value: day,
+    label: t(`days.${day}`),
+  }));
+}
 
 function initialState(item?: AdminScheduleItem): FormState {
   return {
@@ -171,6 +191,8 @@ export function AdminScheduleForm({
   const [newTypeError, setNewTypeError] = useState<string | null>(null);
   const [typeOptions, setTypeOptions] = useState<string[]>(() => [...classTypeOptions]);
   const submitLockRef = useRef(false);
+  const mappedDayOptions = toScheduleDayOptions(SCHEDULE_DAY_OPTIONS, t);
+  const mappedTypeOptions = toScheduleFilterOptions(typeOptions);
 
   function buildSlugFromTypeName(name: string): string {
     return name
@@ -290,10 +312,10 @@ export function AdminScheduleForm({
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.className")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.className")}</span>
           <input
             name="className"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+            className="ommm-input"
             maxLength={MAX_CLASS_NAME_LENGTH}
             value={form.className}
             onChange={(event) =>
@@ -304,10 +326,10 @@ export function AdminScheduleForm({
           />
         </label>
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.instructor")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.instructor")}</span>
           <input
             name="instructorName"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+            className="ommm-input"
             maxLength={MAX_INSTRUCTOR_LENGTH}
             value={form.instructorName}
             onChange={(event) =>
@@ -321,31 +343,24 @@ export function AdminScheduleForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.classType")}</span>
-          <select
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.classType")}</span>
+          <ScheduleFilterDropdown
             name="classType"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            label={t("form.selectClassTypePlaceholder")}
+            ariaLabel={t("form.classType")}
             value={form.classType}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, classType: event.target.value }))
-            }
+            options={mappedTypeOptions}
+            onChange={(value) => setForm((prev) => ({ ...prev, classType: value }))}
             disabled={pending}
             required
-          >
-            <option value="">{t("form.selectClassTypePlaceholder")}</option>
-            {typeOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          />
         </label>
         <div className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.addClassTypeLabel")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.addClassTypeLabel")}</span>
           <div className="flex items-center gap-2">
             <input
               name="newClassType"
-              className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+              className="ommm-input"
               maxLength={MAX_CLASS_TYPE_LENGTH}
               value={newTypeName}
               onChange={(event) => setNewTypeName(event.target.value)}
@@ -356,7 +371,6 @@ export function AdminScheduleForm({
               type="button"
               variant="secondary"
               size="sm"
-              className="h-10 rounded-xl px-3 text-xs"
               onClick={() => {
                 void onAddType();
               }}
@@ -372,35 +386,26 @@ export function AdminScheduleForm({
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.day")}</span>
-          <select
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.day")}</span>
+          <ScheduleFilterDropdown
             name="dayOfWeek"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            label={t("form.day")}
+            ariaLabel={t("form.day")}
             value={form.dayOfWeek}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                dayOfWeek: event.target.value as ScheduleDayOfWeek,
-              }))
-            }
+            options={mappedDayOptions}
+            onChange={(value) => setForm((prev) => ({ ...prev, dayOfWeek: value }))}
             disabled={pending}
-          >
-            {SCHEDULE_DAY_OPTIONS.map((day) => (
-              <option key={day} value={day}>
-                {t(`days.${day}`)}
-              </option>
-            ))}
-          </select>
+          />
         </label>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.startTime")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.startTime")}</span>
           <input
             name="startTime"
             type="time"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            className="ommm-input"
             value={form.startTime}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, startTime: event.target.value }))
@@ -410,11 +415,11 @@ export function AdminScheduleForm({
           />
         </label>
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.endTime")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.endTime")}</span>
           <input
             name="endTime"
             type="time"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            className="ommm-input"
             value={form.endTime}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, endTime: event.target.value }))
@@ -422,13 +427,13 @@ export function AdminScheduleForm({
             disabled={pending}
           />
         </label>
-        <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.durationMinutes")}</span>
+        <label className="space-y-1 sm:col-span-2">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.durationMinutes")}</span>
           <input
             name="durationMinutes"
             type="number"
             min={MIN_DURATION}
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            className="ommm-input"
             value={form.durationMinutes}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, durationMinutes: event.target.value }))
@@ -441,12 +446,12 @@ export function AdminScheduleForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-sm font-medium text-sage-700">{t("form.availableSpots")}</span>
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("form.availableSpots")}</span>
           <input
             name="availableSpots"
             type="number"
             min={MIN_SPOTS}
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+            className="ommm-input"
             value={form.availableSpots}
             onChange={(event) =>
               setForm((prev) => ({ ...prev, availableSpots: event.target.value }))
@@ -469,10 +474,10 @@ export function AdminScheduleForm({
       </div>
 
       <label className="space-y-1">
-        <span className="text-sm font-medium text-sage-700">{t("form.description")}</span>
+        <span className="ommm-label text-xs uppercase tracking-wide">{t("form.description")}</span>
         <textarea
           name="description"
-          className="app-input min-h-24 border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input min-h-24"
           maxLength={MAX_DESCRIPTION_LENGTH}
           value={form.description}
           onChange={(event) =>
@@ -491,9 +496,8 @@ export function AdminScheduleForm({
       <div className="flex flex-wrap justify-end gap-3 pt-2">
         <OmmButton
           type="button"
-          variant="ghost"
+          variant="secondary"
           size="sm"
-          className="h-10 rounded-xl px-4 text-xs"
           onClick={onCancel}
           disabled={pending}
         >
@@ -503,7 +507,6 @@ export function AdminScheduleForm({
           type="submit"
           variant="primary"
           size="sm"
-          className="h-10 rounded-xl px-5 text-xs"
           disabled={pending}
         >
           {pending

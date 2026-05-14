@@ -7,16 +7,22 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import {
+  ScheduleFilterDropdown,
+  type ScheduleFilterOption,
+} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminCoachActionsProps = {
   coachId: string;
+  classTypeOptions?: readonly string[];
   initialEmail?: string;
   initialName?: string;
   initialLastName?: string;
   initialPhone?: string;
   initialAge?: number | null;
   initialSpecialization?: string;
+  initialClassType?: string;
   initialBio?: string;
 };
 
@@ -26,6 +32,8 @@ type FormState = {
   lastName: string;
   phone: string;
   age: string;
+  specialization: string;
+  classType: string;
 };
 
 type FormErrors = {
@@ -34,6 +42,8 @@ type FormErrors = {
   lastName?: string;
   phone?: string;
   age?: string;
+  specialization?: string;
+  classType?: string;
 };
 
 const EDIT_COACH_QUERY_KEY = "editCoach";
@@ -81,11 +91,14 @@ function CloseGlyph({ className }: { className?: string }) {
 
 export function AdminCoachActions({
   coachId,
+  classTypeOptions = [],
   initialEmail = "",
   initialName = "",
   initialLastName = "",
   initialPhone = "",
   initialAge = null,
+  initialSpecialization = "",
+  initialClassType = "",
 }: AdminCoachActionsProps) {
   const t = useTranslations("adminPages.coaches");
   const router = useRouter();
@@ -100,12 +113,20 @@ export function AdminCoachActions({
     lastName: initialLastName,
     phone: initialPhone,
     age: initialAge === null ? "" : String(initialAge),
+    specialization: initialSpecialization,
+    classType: initialClassType,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [busy, setBusy] = useState(false);
   const [inlineMessage, setInlineMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
   const isOpen = searchParams.get(EDIT_COACH_QUERY_KEY) === coachId;
+  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
+    (value) => ({
+      value,
+      label: value,
+    }),
+  );
 
   const resetForm = useCallback(() => {
     setForm({
@@ -114,9 +135,19 @@ export function AdminCoachActions({
       lastName: initialLastName,
       phone: initialPhone,
       age: initialAge === null ? "" : String(initialAge),
+      specialization: initialSpecialization,
+      classType: initialClassType,
     });
     setErrors({});
-  }, [initialAge, initialEmail, initialLastName, initialName, initialPhone]);
+  }, [
+    initialAge,
+    initialEmail,
+    initialLastName,
+    initialName,
+    initialPhone,
+    initialSpecialization,
+    initialClassType,
+  ]);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -205,6 +236,8 @@ export function AdminCoachActions({
     const lastName = form.lastName.trim();
     const phone = form.phone.trim();
     const age = Number(form.age.trim());
+    const specialization = form.specialization.trim();
+    const classType = form.classType.trim();
     const nextErrors: FormErrors = {};
     if (email === "") {
       nextErrors.email = t("emailRequired");
@@ -231,6 +264,17 @@ export function AdminCoachActions({
     ) {
       nextErrors.age = t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE });
     }
+    if (specialization.length === 0) {
+      nextErrors.specialization = t("specializationRequired");
+    }
+    if (classType.length === 0) {
+      nextErrors.classType = t("classTypeRequired");
+    } else if (
+      classTypeOptions.length > 0 &&
+      !classTypeOptions.includes(classType)
+    ) {
+      nextErrors.classType = t("classTypeInvalid");
+    }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -246,6 +290,8 @@ export function AdminCoachActions({
             lastName,
             phone,
             age,
+            specialization,
+            classType,
           }),
         }),
       t("updateSuccess"),
@@ -417,6 +463,42 @@ export function AdminCoachActions({
                       />
                       {errors.age ? <p className="text-xs text-red-800">{errors.age}</p> : null}
                     </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      className="text-sm font-medium text-sage-700"
+                      htmlFor={`specialization-${coachId}`}
+                    >
+                      {t("fieldSpecialization")}
+                    </label>
+                    <input
+                      id={`specialization-${coachId}`}
+                      type="text"
+                      className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+                      value={form.specialization}
+                      onChange={(event) =>
+                        updateField("specialization", event.target.value)
+                      }
+                      placeholder={t("fieldSpecializationPlaceholder")}
+                      disabled={busy}
+                    />
+                    {errors.specialization ? (
+                      <p className="text-xs text-red-800">{errors.specialization}</p>
+                    ) : null}
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-sage-700">{t("fieldClassType")}</p>
+                    <ScheduleFilterDropdown
+                      label={t("fieldClassTypePlaceholder")}
+                      ariaLabel={t("fieldClassType")}
+                      value={form.classType}
+                      options={classTypeDropdownOptions}
+                      onChange={(value) => updateField("classType", value)}
+                      disabled={busy}
+                    />
+                    {errors.classType ? (
+                      <p className="text-xs text-red-800">{errors.classType}</p>
+                    ) : null}
                   </div>
 
                   <div className="flex flex-wrap justify-end gap-3 pt-2">

@@ -164,6 +164,7 @@ model CoachProfile {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   bio            String?
   specialization String?
+  classType      String?
   experienceYears Int?
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
@@ -223,6 +224,7 @@ model Booking {
   @@unique([userId, sessionId])
   @@index([sessionId])
   @@index([userId])
+  @@index([status, createdAt])
 }
 
 model BookingNote {
@@ -270,9 +272,15 @@ model MembershipPlan {
   slug             String   @unique
   description      String?
   priceCents       Int
+  currency         String   @default("USD")
   sessionsPerMonth Int?
   isUnlimited      Boolean  @default(false)
   periodDays       Int      @default(30)
+  billingPeriod    String   @default("monthly")
+  features         String[] @default([])
+  buttonLabel      String   @default("Choose plan")
+  isPopular        Boolean  @default(false)
+  displayOrder     Int      @default(0)
   isActive         Boolean  @default(true)
   stripePriceId    String?
   createdAt        DateTime @default(now())
@@ -312,6 +320,8 @@ model Payment {
   updatedAt       DateTime      @updatedAt
 
   @@index([userId])
+  @@index([status, createdAt])
+  @@index([createdAt])
 }
 
 model GiftCard {

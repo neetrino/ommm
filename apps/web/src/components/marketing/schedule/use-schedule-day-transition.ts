@@ -8,7 +8,6 @@ import {
   type CSSProperties,
   type RefObject,
 } from "react";
-import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 
 export const SCHEDULE_SWITCH_TRANSITION_MS = 300;
 export const SCHEDULE_CARD_STAGGER_MS = 45;
@@ -18,24 +17,22 @@ const HEIGHT_RESET_BUFFER_MS = 80;
 
 export type ScheduleAnimationPhase = "idle" | "exit" | "enter";
 
-type UseScheduleDayTransitionInput = {
-  selectedDayKey: string;
-  visibleSessions: MarketingScheduleItem[];
-};
-
-type UseScheduleDayTransitionResult = {
+type UseScheduleDayTransitionResult<TSession> = {
   contentRef: RefObject<HTMLDivElement | null>;
   renderedDayKey: string;
-  renderedSessions: MarketingScheduleItem[];
+  renderedSessions: readonly TSession[];
   animationPhase: ScheduleAnimationPhase;
   containerStyle?: CSSProperties;
   getItemStyle: (index: number) => CSSProperties;
 };
 
-export function useScheduleDayTransition({
+export function useScheduleDayTransition<TSession>({
   selectedDayKey,
   visibleSessions,
-}: UseScheduleDayTransitionInput): UseScheduleDayTransitionResult {
+}: {
+  selectedDayKey: string;
+  visibleSessions: readonly TSession[];
+}): UseScheduleDayTransitionResult<TSession> {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const startTimerRef = useRef<number | null>(null);
   const switchTimerRef = useRef<number | null>(null);

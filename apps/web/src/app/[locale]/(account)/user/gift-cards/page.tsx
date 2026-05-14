@@ -6,6 +6,7 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
 type GiftRow = {
@@ -39,7 +40,9 @@ export default async function UserGiftCardsPage({
     <AccountPageFrame
       title={t("title")}
       description={
-        credits != null ? t("giftBalance", { cents: credits }) : undefined
+        credits != null
+          ? t("giftBalance", { amount: formatAmdFromCents(credits, locale) })
+          : undefined
       }
     >
       <div className="max-w-4xl space-y-10">
@@ -70,8 +73,8 @@ export default async function UserGiftCardsPage({
                 <li key={g.id} className="ommm-inset-row font-mono text-sage-700">
                   {t("rowPurchased", {
                     code: g.code,
-                    balance: g.balanceCents,
-                    amount: g.amountCents,
+                    balance: formatAmdFromCents(g.balanceCents, locale),
+                    amount: formatAmdFromCents(g.amountCents, locale),
                     status: g.status,
                   })}
                 </li>
@@ -92,7 +95,7 @@ export default async function UserGiftCardsPage({
                 <li key={g.id} className="ommm-inset-row">
                   {t("rowReceived", {
                     name: g.recipientName ?? t("giftFallbackName"),
-                    balance: g.balanceCents,
+                    balance: formatAmdFromCents(g.balanceCents, locale),
                     status: g.status,
                   })}
                 </li>

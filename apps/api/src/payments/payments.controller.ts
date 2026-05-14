@@ -5,15 +5,20 @@ import {
   Headers,
   Param,
   Post,
+  Query,
   Req,
   ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
+import { Role } from '@prisma/client';
 import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { PaymentsService } from './payments.service';
 
@@ -74,5 +79,12 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   myPayments(@CurrentUser() user: { id: string }) {
     return this.payments.listPayments(user.id);
+  }
+
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminList(@Query() query: AdminListPaymentsQueryDto) {
+    return this.payments.adminListPayments(query);
   }
 }
