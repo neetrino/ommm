@@ -13,7 +13,6 @@ import {
   type CoachSlideCopy,
   type CoachSlideLane,
 } from "@/components/marketing/home/featured-coach-slide-card";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
 export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
@@ -184,9 +183,6 @@ type CoachNavButtonProps = {
 };
 
 function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
-  const iconSrc =
-    direction === "prev" ? HOME_SECTION_ASSETS.coachNavPrev : HOME_SECTION_ASSETS.coachNavNext;
-
   return (
     <button
       type="button"
@@ -194,13 +190,32 @@ function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
       aria-label={label}
       onClick={onPress}
     >
-      <img
-        src={iconSrc}
-        alt=""
+      <span
         aria-hidden
-        className="block h-full w-full select-none object-cover object-center"
-        draggable={false}
+        className="absolute inset-0 rounded-full border border-white/45 bg-white/38 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_rgba(255,255,255,0.18)] backdrop-blur-[1.5px]"
       />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(120%_90%_at_28%_18%,rgba(255,255,255,0.75)_0%,rgba(255,255,255,0.32)_28%,rgba(255,255,255,0)_58%)] animate-[pulse_2.1s_ease-in-out_infinite]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(120deg,rgba(255,255,255,0.05)_18%,rgba(255,255,255,0.62)_48%,rgba(255,255,255,0.05)_78%)] opacity-45 animate-[pulse_2.6s_ease-in-out_infinite]"
+      />
+      <svg
+        aria-hidden
+        viewBox="0 0 26 19"
+        className={`absolute left-1/2 top-1/2 h-[0.82rem] w-[1.15rem] -translate-x-1/2 -translate-y-1/2 md:h-[1.05rem] md:w-[1.45rem] ${
+          direction === "prev" ? "rotate-180" : ""
+        }`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M1.25 7.95495C0.559644 7.95495 0 8.5146 0 9.20495C0 9.89531 0.559644 10.455 1.25 10.455V9.20495V7.95495ZM25.3017 10.0888C25.7898 9.60068 25.7898 8.80922 25.3017 8.32107L17.3467 0.366117C16.8586 -0.122039 16.0671 -0.122039 15.5789 0.366117C15.0908 0.854272 15.0908 1.64573 15.5789 2.13388L22.65 9.20495L15.5789 16.276C15.0908 16.7642 15.0908 17.5556 15.5789 18.0438C16.0671 18.5319 16.8586 18.5319 17.3467 18.0438L25.3017 10.0888ZM1.25 9.20495V10.455H24.4178V9.20495V7.95495H1.25V9.20495Z"
+          fill="black"
+        />
+      </svg>
     </button>
   );
 }
