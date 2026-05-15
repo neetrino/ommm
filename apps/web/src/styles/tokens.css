@@ -4,12 +4,20 @@
  */
 :root {
   --ommm-coach-card-surface: #e5f4f9;
+  /** Center / active card — Figma Featured Coaches reference. */
+  --ommm-coach-card-surface-active: #ffffff;
   --ommm-coach-card-text-strong: #1d1c15;
   --ommm-coach-card-text-muted: #4a4738;
   --ommm-coach-card-shadow: 0 0.5rem 1.5rem -0.75rem rgba(45, 55, 60, 0.12);
+  --ommm-coach-card-shadow-active:
+    0 1rem 2.5rem -0.75rem rgba(45, 55, 60, 0.18),
+    0 0.25rem 0.75rem -0.25rem rgba(45, 55, 60, 0.1);
 
-  /* Figma rounded-[40px] → fluid rem */
-  --ommm-coach-card-radius: clamp(1.5rem, 4vw, 2.5rem);
+  /* Generous corner radius — Featured Coaches cards. */
+  --ommm-coach-card-radius: clamp(2rem, 4.5vw, 3rem);
+
+  /** ~15–20px at default root — side slides sit slightly below center. */
+  --ommm-coach-side-drop: clamp(0.875rem, 2.5vw, 1.125rem);
 
   --ommm-coach-name-size: clamp(1.75rem, 3.2vw, 2.75rem);
   --ommm-coach-name-leading: 1.12;

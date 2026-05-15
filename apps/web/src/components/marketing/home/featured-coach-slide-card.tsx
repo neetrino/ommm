@@ -13,9 +13,15 @@ export type CoachSlideCopy = {
   imageAlt: string;
 };
 
+export type CoachSlideLane = "center" | "side" | "far";
+
 type FeaturedCoachSlideCardProps = {
   slide: CoachSlideCopy;
   isActive: boolean;
+  /** Position relative to the visually centered slide (Figma peek row). */
+  lane: CoachSlideLane;
+  /** When false, cards fill width and vertical choreography is disabled (mobile). */
+  peekLayout: boolean;
   overlayAriaLabel: string;
   onActivate: () => void;
   /** Bookend clones are visual-only; hide from assistive tech. */
@@ -23,35 +29,81 @@ type FeaturedCoachSlideCardProps = {
 };
 
 const CARD_MOTION = {
-  duration: 0.34,
+  duration: 0.42,
   ease: [0.22, 1, 0.36, 1] as const,
 };
+
+/** Matches `--ommm-coach-side-drop` max; Framer interpolates rem strings reliably. */
+const COACH_SIDE_DROP_REM = 1.125;
+
+function cardWidthClassName(peekLayout: boolean): string {
+  if (peekLayout) {
+    return "w-[min(45.5625rem,min(76cqw,calc(100cqw-2rem)))] max-w-[min(45.5625rem,min(76cqw,calc(100cqw-2rem)))]";
+  }
+  return "w-[min(45.5625rem,calc(100cqw-1.25rem))] max-w-[min(45.5625rem,calc(100cqw-1.25rem))]";
+}
+
+function laneZIndex(lane: CoachSlideLane): number {
+  if (lane === "center") return 20;
+  if (lane === "side") return 10;
+  return 0;
+}
 
 export function FeaturedCoachSlideCard({
   slide,
   isActive,
+  lane,
+  peekLayout,
   overlayAriaLabel,
   onActivate,
   ariaHidden,
 }: FeaturedCoachSlideCardProps) {
   const reduceMotion = useReducedMotion();
 
+  const showSideDrop = peekLayout && lane === "side" && !reduceMotion;
+  const y = showSideDrop ? `${COACH_SIDE_DROP_REM}rem` : "0rem";
+
+  const opacity = (() => {
+    if (isActive) return 1;
+    if (!peekLayout) return 0.48;
+    if (lane === "side") return 0.66;
+    if (lane === "far") return 0.38;
+    return 0.48;
+  })();
+
+  const scale = (() => {
+    if (reduceMotion) return 1;
+    if (!peekLayout) return isActive ? 1 : 0.98;
+    if (lane === "center") return 1;
+    if (lane === "side") return 0.97;
+    return 0.94;
+  })();
+
+  const isCenterVisual = lane === "center";
+  const cardSurface =
+    isActive && (!peekLayout || isCenterVisual)
+      ? "var(--ommm-coach-card-surface-active)"
+      : "var(--ommm-coach-card-surface)";
+  const cardShadow =
+    isActive && (!peekLayout || isCenterVisual)
+      ? "var(--ommm-coach-card-shadow-active)"
+      : "var(--ommm-coach-card-shadow)";
+
   return (
     <motion.article
       aria-hidden={ariaHidden ? true : undefined}
-      className="relative max-w-[min(45.5625rem,calc(100cqw-3rem))] min-w-[17.5rem] w-[min(45.5625rem,calc(100cqw-3rem))] shrink-0"
+      className={`relative min-w-0 shrink-0 ${cardWidthClassName(peekLayout)}`}
+      style={{ zIndex: laneZIndex(lane) }}
       initial={false}
-      animate={{
-        opacity: isActive ? 1 : 0.52,
-        scale: reduceMotion ? 1 : isActive ? 1 : 0.985,
-      }}
+      animate={{ opacity, scale, y }}
       transition={CARD_MOTION}
     >
       <div
-        className="relative grid min-h-0 w-full grid-cols-1 overflow-hidden shadow-[var(--ommm-coach-card-shadow)] md:min-h-[var(--ommm-coach-card-min-height)] md:grid-cols-[minmax(0,1fr)_min(21.375rem,46%)]"
+        className="relative grid min-h-0 w-full grid-cols-1 overflow-hidden md:min-h-[var(--ommm-coach-card-min-height)] md:grid-cols-[minmax(0,1fr)_min(21.375rem,46%)]"
         style={{
           borderRadius: "var(--ommm-coach-card-radius)",
-          backgroundColor: "var(--ommm-coach-card-surface)",
+          backgroundColor: cardSurface,
+          boxShadow: cardShadow,
         }}
       >
         <div className="order-2 flex min-h-0 flex-col justify-center gap-y-[var(--ommm-coach-text-block-gap)] px-[var(--ommm-coach-text-gutter)] py-[clamp(1.5rem,4vw,2rem)] md:order-1 md:py-[clamp(1.5rem,4vw,2.5rem)]">
@@ -123,7 +175,7 @@ export function FeaturedCoachSlideCard({
       {!isActive ? (
         <button
           type="button"
-          className="absolute inset-0 z-10 cursor-pointer border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          className="absolute inset-0 z-30 cursor-pointer border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           style={{ borderRadius: "var(--ommm-coach-card-radius)" }}
           aria-label={overlayAriaLabel}
           tabIndex={ariaHidden ? -1 : undefined}

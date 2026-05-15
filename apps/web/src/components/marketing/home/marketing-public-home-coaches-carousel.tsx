@@ -4,12 +4,16 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   FeaturedCoachSlideCard,
   type CoachSlideCopy,
+  type CoachSlideLane,
 } from "@/components/marketing/home/featured-coach-slide-card";
 
-export type { CoachSlideCopy };
+export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
 const GAP_REM = 1.25;
-const CAROUSEL_TRANSFORM_MS = 320;
+const CAROUSEL_TRANSFORM_MS = 420;
+
+/** Viewport width (px) at which peek + vertical choreography match desktop Figma. */
+const PEEK_LAYOUT_MIN_VIEWPORT_PX = 640;
 
 /** Leading + trailing clones so the first/last real slides always have a neighbour peek. */
 function buildCoachDisplaySlides(slides: CoachSlideCopy[]): CoachSlideCopy[] {
@@ -125,6 +129,9 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
       ? undefined
       : `transform ${CAROUSEL_TRANSFORM_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
 
+  const peekLayout =
+    layoutReady && vw >= PEEK_LAYOUT_MIN_VIEWPORT_PX;
+
   return {
     viewportRef,
     trackRef,
@@ -133,7 +140,19 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
     trackTransition,
     reducedMotion,
     layoutReady,
+    peekLayout,
   };
+}
+
+function resolveCoachSlideLane(
+  peekLayout: boolean,
+  displayIndex: number,
+  visualSlideIndex: number,
+): CoachSlideLane {
+  const dist = Math.abs(displayIndex - visualSlideIndex);
+  if (dist === 0) return "center";
+  if (peekLayout && dist === 1) return "side";
+  return "far";
 }
 
 function CarouselChevron({ className, flipped }: { className?: string; flipped?: boolean }) {
@@ -242,20 +261,34 @@ export function FeaturedCoachesCarouselStrip({
   const useCloneBookends = slides.length > 1;
   const visualSlideIndex = useCloneBookends ? active + 1 : active;
 
-  const { viewportRef, trackRef, edgePadRem, translateRem, trackTransition, reducedMotion, layoutReady } =
-    useCoachCarouselMetrics(visualSlideIndex);
+  const {
+    viewportRef,
+    trackRef,
+    edgePadRem,
+    translateRem,
+    trackTransition,
+    reducedMotion,
+    layoutReady,
+    peekLayout,
+  } = useCoachCarouselMetrics(visualSlideIndex);
 
   return (
-    <div className="relative mt-10 flex min-h-[17.5rem] items-center gap-2 md:gap-4">
-      <CoachNavButton direction="prev" label={prevLabel} onPress={goPrev} />
+    <div className="relative mt-10 flex min-h-[17.5rem] items-start gap-2 md:gap-4">
+      <div className="relative z-40 flex shrink-0 self-center">
+        <CoachNavButton direction="prev" label={prevLabel} onPress={goPrev} />
+      </div>
 
       <div
         ref={viewportRef}
-        className="min-w-0 flex-1 overflow-hidden [container-type:inline-size]"
+        className={`min-w-0 flex-1 [container-type:inline-size] ${
+          peekLayout
+            ? "overflow-x-clip overflow-y-visible pb-[var(--ommm-coach-side-drop)]"
+            : "overflow-x-hidden overflow-y-hidden"
+        }`}
       >
         <div
           ref={trackRef}
-          className={`flex flex-nowrap ${layoutReady ? "visible" : "invisible"}`}
+          className={`flex flex-nowrap items-start ${layoutReady ? "visible" : "invisible"}`}
           style={{
             gap: `${GAP_REM}rem`,
             paddingLeft: `${edgePadRem}rem`,
@@ -270,6 +303,7 @@ export function FeaturedCoachesCarouselStrip({
               ? displayIndexToRealIndex(displaySlides.length, displayIndex)
               : displayIndex;
             const isClone = useCloneBookends && (displayIndex === 0 || displayIndex === displaySlides.length - 1);
+            const lane = resolveCoachSlideLane(peekLayout, displayIndex, visualSlideIndex);
             return (
               <FeaturedCoachSlideCard
                 key={
@@ -279,6 +313,8 @@ export function FeaturedCoachesCarouselStrip({
                 }
                 slide={slide}
                 isActive={active === realIndex}
+                lane={lane}
+                peekLayout={peekLayout}
                 ariaHidden={isClone}
                 overlayAriaLabel={getGoToSlideAria(slide.name)}
                 onActivate={() => {
@@ -290,7 +326,10 @@ export function FeaturedCoachesCarouselStrip({
         </div>
       </div>
 
-      <CoachNavButton direction="next" label={nextLabel} onPress={goNext} />
+      <div className="relative z-40 flex shrink-0 self-center">
+        <CoachNavButton direction="next" label={nextLabel} onPress={goNext} />
+      </div>
+
     </div>
   );
 }
