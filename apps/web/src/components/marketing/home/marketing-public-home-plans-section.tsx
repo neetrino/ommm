@@ -51,7 +51,7 @@ export async function MarketingPublicHomePlansSection({
             {t("plansSectionTitle")}
           </h2>
 
-          <div className="mx-auto mt-10 flex max-w-[1332px] flex-col flex-wrap items-center justify-center gap-8 lg:flex-row lg:gap-[60px]">
+          <div className="mx-auto mt-16 flex max-w-[1332px] flex-col flex-wrap items-center justify-center gap-8 sm:mt-20 md:mt-24 lg:flex-row lg:gap-[60px]">
             {cards.map((card, index) => (
               <Link
                 key={`plan-card-${index}`}
