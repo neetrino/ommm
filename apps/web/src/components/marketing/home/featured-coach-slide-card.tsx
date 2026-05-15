@@ -40,6 +40,8 @@ const CARD_MOTION = {
 
 /** Matches `--ommm-coach-side-drop` max; Framer interpolates rem strings reliably. */
 const COACH_SIDE_DROP_REM = 2.25;
+const SIDE_CARD_SCALE = 0.93;
+const FAR_CARD_SCALE = 0.88;
 
 function cardWidthClassName(peekLayout: boolean): string {
   if (peekLayout) {
@@ -81,8 +83,9 @@ export function FeaturedCoachSlideCard({
   const scale = (() => {
     if (reduceMotion) return 1;
     if (!peekLayout) return isActive ? 1 : 0.98;
-    if (lane === "center" || lane === "side") return 1;
-    return 0.94;
+    if (lane === "center") return 1;
+    if (lane === "side") return SIDE_CARD_SCALE;
+    return FAR_CARD_SCALE;
   })();
 
   const isCenterVisual = lane === "center";
