@@ -170,7 +170,7 @@ export function FeaturedCoachSlideCard({
                   src={HOME_SECTION_ASSETS.coachPortrait}
                   alt={slide.imageAlt}
                   fill
-                  loading={isActive ? "eager" : "lazy"}
+                  loading="eager"
                   sizes="(max-width: 768px) 100vw, min(21.375rem, 46vw)"
                   className="object-cover"
                   style={{ objectPosition: "42% 18%" }}
