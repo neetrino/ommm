@@ -10,6 +10,13 @@ export const HOME_PAGE_SURFACE = {
   coachesGradientTo: "#ede9dd",
   eventsGradientFrom: "#598090",
   eventsGradientTo: "#ede9dd",
+  /** Frosted “Sanctuary” panel — fill, specular gloss, elevation (marketing home plans only). */
+  plansCardFill:
+    "linear-gradient(180deg, rgba(255,255,255,0.58) 0%, rgba(255,255,255,0.36) 48%, rgba(255,255,255,0.24) 100%)",
+  plansCardGlossOverlay:
+    "linear-gradient(152deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 62%)",
+  plansCardShadow:
+    "0 24px 56px -24px rgba(45, 55, 62, 0.22), inset 0 1px 0 rgba(255,255,255,0.88), inset 0 -1px 0 rgba(87,127,145,0.08)",
   plansHeading: "#577f91",
   introHeading: "#695f00",
   introBody: "#4a4738",
