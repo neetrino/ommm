@@ -20,7 +20,7 @@ export async function MarketingPublicHomeEventsSection({
 
   return (
     <section
-      className={`${marketingMontserrat.variable} w-full px-4 py-16 sm:px-6 md:px-10 lg:px-20`}
+      className={`${marketingMontserrat.variable} w-full px-4 pt-16 pb-28 sm:px-6 md:px-10 lg:px-20`}
       style={{
         background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.eventsGradientTo}, ${HOME_PAGE_SURFACE.eventsGradientFrom})`,
       }}
@@ -57,7 +57,7 @@ export async function MarketingPublicHomeEventsSection({
           </div>
         </div>
 
-        <div className="mt-12 flex justify-center">
+        <div className="mt-28 flex justify-center">
           <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
         </div>
       </div>
