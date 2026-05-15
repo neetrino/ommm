@@ -69,6 +69,13 @@ function readRootRemPx(): number {
 function useCoachCarouselMetrics(visualSlideIndex: number) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  /** Latest centered slide index for layout reads (avoids stale ResizeObserver closure). */
+  const visualSlideIndexRef = useRef(visualSlideIndex);
+
+  useLayoutEffect(() => {
+    visualSlideIndexRef.current = visualSlideIndex;
+  }, [visualSlideIndex]);
+
   const [layout, setLayout] = useState<CarouselLayout>({
     viewportWidth: 0,
     cardWidthRem: 0,
@@ -84,10 +91,16 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
       return;
     }
     const read = () => {
-      const first = track.firstElementChild as HTMLElement | null;
       const vw = viewport.clientWidth;
       const rootRemPx = readRootRemPx();
-      const cwPx = first ? first.getBoundingClientRect().width : 0;
+      const kids = track.children;
+      const idx = visualSlideIndexRef.current;
+      const centerEl =
+        idx >= 0 && idx < kids.length ? (kids[idx] as HTMLElement) : null;
+      const probe =
+        centerEl ?? (track.firstElementChild as HTMLElement | null);
+      /** Layout width ignores Framer `scale` — keeps L/R peek mathematically symmetric. */
+      const cwPx = probe?.offsetWidth ?? 0;
       let cardWidthRem = cwPx > 0 ? Math.round((cwPx / rootRemPx) * 1000) / 1000 : 0;
       if (vw > 0 && cardWidthRem <= 0) {
         const fallbackRem = Math.min(45.5625, Math.max(17.5, vw / rootRemPx - 3));

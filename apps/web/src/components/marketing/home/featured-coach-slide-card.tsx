@@ -71,11 +71,11 @@ export function FeaturedCoachSlideCard({
     return 0.48;
   })();
 
+  /** Peek mode: keep immediate neighbors at scale 1 so L/R visible strips stay equal (scale skews bounds). */
   const scale = (() => {
     if (reduceMotion) return 1;
     if (!peekLayout) return isActive ? 1 : 0.98;
-    if (lane === "center") return 1;
-    if (lane === "side") return 0.97;
+    if (lane === "center" || lane === "side") return 1;
     return 0.94;
   })();
 
@@ -93,7 +93,7 @@ export function FeaturedCoachSlideCard({
     <motion.article
       aria-hidden={ariaHidden ? true : undefined}
       className={`relative min-w-0 shrink-0 ${cardWidthClassName(peekLayout)}`}
-      style={{ zIndex: laneZIndex(lane) }}
+      style={{ zIndex: laneZIndex(lane), transformOrigin: "top center" }}
       initial={false}
       animate={{ opacity, scale, y }}
       transition={CARD_MOTION}
