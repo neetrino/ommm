@@ -157,6 +157,7 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
     trackRef,
     edgePadRem,
     translateRem,
+    cardWidthRem,
     trackTransition,
     reducedMotion,
     layoutReady,
@@ -206,7 +207,7 @@ function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
   return (
     <button
       type="button"
-      className="relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--ommm-coach-nav-fg)] shadow-sm transition-[background-color,transform,opacity] [background-color:var(--ommm-coach-nav-bg)] hover:[background-color:var(--ommm-coach-nav-bg-hover)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
+      className="pointer-events-auto relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--ommm-coach-nav-fg)] shadow-sm transition-[background-color,transform,opacity] [background-color:var(--ommm-coach-nav-bg)] hover:[background-color:var(--ommm-coach-nav-bg-hover)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
       aria-label={label}
       onClick={onPress}
     >
@@ -253,6 +254,7 @@ export function FeaturedCoachesCarouselStrip({
     trackRef,
     edgePadRem,
     translateRem,
+    cardWidthRem,
     trackTransition,
     reducedMotion,
     layoutReady,
@@ -260,6 +262,65 @@ export function FeaturedCoachesCarouselStrip({
   } = useCoachCarouselMetrics(trackVisualIndex);
 
   const baseTrackTransition = instantTransform ? undefined : trackTransition;
+  const canLockTrackNavigation = Boolean(baseTrackTransition) && layoutReady && !reducedMotion;
+  const navLockRef = useRef(false);
+  const queuedDirectionRef = useRef<"prev" | "next" | null>(null);
+
+  const flushQueuedNavigation = useCallback(() => {
+    const queued = queuedDirectionRef.current;
+    if (!queued) {
+      navLockRef.current = false;
+      return;
+    }
+    queuedDirectionRef.current = null;
+    if (queued === "prev") {
+      goPrev();
+      return;
+    }
+    goNext();
+  }, [goNext, goPrev]);
+
+  const requestNavigation = useCallback(
+    (direction: "prev" | "next") => {
+      if (!canLockTrackNavigation || slides.length <= 1) {
+        if (direction === "prev") {
+          goPrev();
+          return;
+        }
+        goNext();
+        return;
+      }
+
+      if (navLockRef.current || recenteringRef.current || instantTransform) {
+        queuedDirectionRef.current = direction;
+        return;
+      }
+
+      navLockRef.current = true;
+      if (direction === "prev") {
+        goPrev();
+        return;
+      }
+      goNext();
+    },
+    [canLockTrackNavigation, goNext, goPrev, instantTransform, slides.length],
+  );
+
+  const handlePrevPress = useCallback(() => {
+    requestNavigation("prev");
+  }, [requestNavigation]);
+
+  const handleNextPress = useCallback(() => {
+    requestNavigation("next");
+  }, [requestNavigation]);
+
+  useEffect(() => {
+    if (canLockTrackNavigation) {
+      return;
+    }
+    navLockRef.current = false;
+    queuedDirectionRef.current = null;
+  }, [canLockTrackNavigation]);
 
   useLayoutEffect(() => {
     queueMicrotask(() => {
@@ -294,45 +355,47 @@ export function FeaturedCoachesCarouselStrip({
         return;
       }
       if (!useCloneBookends || slides.length <= 1 || reducedMotion) {
+        flushQueuedNavigation();
         return;
       }
       if (recenteringRef.current) {
         return;
       }
-      if (trackVisualIndex !== displayLength - 1 && trackVisualIndex !== 0) {
+      const atTrailingClone = trackVisualIndex === displayLength - 1;
+      const atLeadingClone = trackVisualIndex === 0;
+      if (!atTrailingClone && !atLeadingClone) {
+        flushQueuedNavigation();
         return;
       }
       let didSnap = false;
-      if (trackVisualIndex === displayLength - 1) {
+      if (atTrailingClone) {
         recenteringRef.current = true;
         setInstantTransform(true);
         setTrackVisualIndex(1);
         didSnap = true;
-      } else if (trackVisualIndex === 0) {
+      } else if (atLeadingClone) {
         recenteringRef.current = true;
         setInstantTransform(true);
         setTrackVisualIndex(displayLength - 2);
         didSnap = true;
       }
       if (!didSnap) {
+        flushQueuedNavigation();
         return;
       }
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setInstantTransform(false);
           recenteringRef.current = false;
+          flushQueuedNavigation();
         });
       });
     },
-    [displayLength, reducedMotion, slides.length, trackVisualIndex, useCloneBookends],
+    [displayLength, flushQueuedNavigation, reducedMotion, slides.length, trackVisualIndex, useCloneBookends],
   );
 
   return (
-    <div className="relative mt-10 flex min-h-[17.5rem] items-start gap-2 md:gap-4">
-      <div className="relative z-40 flex shrink-0 self-center">
-        <CoachNavButton direction="prev" label={prevLabel} onPress={goPrev} />
-      </div>
-
+    <div className="relative mt-10 min-h-[17.5rem]">
       <div
         ref={viewportRef}
         className={`min-w-0 flex-1 [container-type:inline-size] ${
@@ -383,10 +446,24 @@ export function FeaturedCoachesCarouselStrip({
         </div>
       </div>
 
-      <div className="relative z-40 flex shrink-0 self-center">
-        <CoachNavButton direction="next" label={nextLabel} onPress={goNext} />
+      <div className="pointer-events-none absolute inset-x-0 top-1/2 z-40 -translate-y-1/2">
+        <div
+          className="absolute -translate-x-1/2"
+          style={{
+            left: layoutReady ? `calc(50% - ${cardWidthRem / 2}rem)` : "1.125rem",
+          }}
+        >
+          <CoachNavButton direction="prev" label={prevLabel} onPress={handlePrevPress} />
+        </div>
+        <div
+          className="absolute -translate-x-1/2"
+          style={{
+            left: layoutReady ? `calc(50% + ${cardWidthRem / 2}rem)` : "calc(100% - 1.125rem)",
+          }}
+        >
+          <CoachNavButton direction="next" label={nextLabel} onPress={handleNextPress} />
+        </div>
       </div>
-
     </div>
   );
 }
