@@ -8,6 +8,9 @@ export const HOME_SECTION_ASSETS = {
   classPractice06: "/marketing/home/sections/home-class-practice-06.png",
   /** Figma portrait `-427 1` node `163:878` (Frame `163:879`). */
   coachPortrait: "/marketing/home/sections/home-coach-featured-427.png",
+  /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */
+  coachNavPrev: "/marketing/home/sections/home-coach-nav-prev.png",
+  coachNavNext: "/marketing/home/sections/home-coach-nav-next.png",
   planBackground: "/marketing/home/sections/home-plan-bg.png",
   planCtaIcon: "/marketing/home/sections/home-plan-cta-icon.png",
   eventsWide: "/marketing/home/sections/home-events-wide.jpg",

@@ -13,6 +13,7 @@ import {
   type CoachSlideCopy,
   type CoachSlideLane,
 } from "@/components/marketing/home/featured-coach-slide-card";
+import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
 export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
@@ -176,27 +177,6 @@ function resolveCoachSlideLane(
   return "far";
 }
 
-function CarouselChevron({ className, flipped }: { className?: string; flipped?: boolean }) {
-  return (
-    <svg
-      className={`${className ?? ""} ${flipped ? "scale-x-[-1]" : ""}`}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-    >
-      <path
-        d="M15 6L9 12L15 18"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 type CoachNavButtonProps = {
   direction: "prev" | "next";
   label: string;
@@ -204,14 +184,23 @@ type CoachNavButtonProps = {
 };
 
 function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
+  const iconSrc =
+    direction === "prev" ? HOME_SECTION_ASSETS.coachNavPrev : HOME_SECTION_ASSETS.coachNavNext;
+
   return (
     <button
       type="button"
-      className="pointer-events-auto relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--ommm-coach-nav-fg)] shadow-sm transition-[background-color,transform,opacity] [background-color:var(--ommm-coach-nav-bg)] hover:[background-color:var(--ommm-coach-nav-bg-hover)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
+      className="pointer-events-auto relative z-20 h-11 w-11 shrink-0 overflow-hidden rounded-full transition-opacity hover:opacity-95 active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
       aria-label={label}
       onClick={onPress}
     >
-      <CarouselChevron className="h-3 w-3 md:h-4 md:w-4" flipped={direction === "next"} />
+      <img
+        src={iconSrc}
+        alt=""
+        aria-hidden
+        className="block h-full w-full select-none object-cover object-center"
+        draggable={false}
+      />
     </button>
   );
 }
@@ -446,7 +435,7 @@ export function FeaturedCoachesCarouselStrip({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-1/2 z-40 -translate-y-1/2">
+      <div className="pointer-events-none absolute inset-x-0 top-[41%] z-40 -translate-y-1/2">
         <div
           className="absolute -translate-x-1/2"
           style={{
