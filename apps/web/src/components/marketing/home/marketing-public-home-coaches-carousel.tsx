@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type TransitionEvent,
+} from "react";
 import {
   FeaturedCoachSlideCard,
   type CoachSlideCopy,
@@ -10,10 +17,10 @@ import {
 export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
 const GAP_REM = 1.25;
-const CAROUSEL_TRANSFORM_MS = 420;
+const CAROUSEL_TRANSFORM_MS = 520;
 
 /** Viewport width (px) at which peek + vertical choreography match desktop Figma. */
-const PEEK_LAYOUT_MIN_VIEWPORT_PX = 640;
+export const PEEK_LAYOUT_MIN_VIEWPORT_PX = 640;
 
 /** Leading + trailing clones so the first/last real slides always have a neighbour peek. */
 function buildCoachDisplaySlides(slides: CoachSlideCopy[]): CoachSlideCopy[] {
@@ -140,7 +147,7 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
   const trackTransition =
     reducedMotion || !canAnimateSlides || !layoutReady
       ? undefined
-      : `transform ${CAROUSEL_TRANSFORM_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+      : `transform ${CAROUSEL_TRANSFORM_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`;
 
   const peekLayout =
     layoutReady && vw >= PEEK_LAYOUT_MIN_VIEWPORT_PX;
@@ -231,7 +238,14 @@ export function FeaturedCoachesCarouselStrip({
 }: FeaturedCoachesCarouselStripProps) {
   const displaySlides = buildCoachDisplaySlides(slides);
   const useCloneBookends = slides.length > 1;
-  const visualSlideIndex = useCloneBookends ? active + 1 : active;
+  const lastSlideIndex = Math.max(0, slides.length - 1);
+  const displayLength = displaySlides.length;
+
+  const [trackVisualIndex, setTrackVisualIndex] = useState(() =>
+    useCloneBookends ? active + 1 : active,
+  );
+  const [instantTransform, setInstantTransform] = useState(false);
+  const prevActiveRef = useRef(active);
 
   const {
     viewportRef,
@@ -242,7 +256,66 @@ export function FeaturedCoachesCarouselStrip({
     reducedMotion,
     layoutReady,
     peekLayout,
-  } = useCoachCarouselMetrics(visualSlideIndex);
+  } = useCoachCarouselMetrics(trackVisualIndex);
+
+  const baseTrackTransition = instantTransform ? undefined : trackTransition;
+
+  useLayoutEffect(() => {
+    queueMicrotask(() => {
+      if (slides.length <= 1) {
+        setTrackVisualIndex(active);
+        prevActiveRef.current = active;
+        return;
+      }
+      if (reducedMotion) {
+        setTrackVisualIndex(active + 1);
+        prevActiveRef.current = active;
+        return;
+      }
+      if (prevActiveRef.current === active) {
+        return;
+      }
+      const prev = prevActiveRef.current;
+      if (prev === lastSlideIndex && active === 0) {
+        setTrackVisualIndex(displayLength - 1);
+      } else if (prev === 0 && active === lastSlideIndex) {
+        setTrackVisualIndex(0);
+      } else {
+        setTrackVisualIndex(active + 1);
+      }
+      prevActiveRef.current = active;
+    });
+  }, [active, displayLength, lastSlideIndex, reducedMotion, slides.length]);
+
+  const handleTrackTransitionEnd = useCallback(
+    (event: TransitionEvent<HTMLDivElement>) => {
+      if (event.propertyName !== "transform" || event.target !== event.currentTarget) {
+        return;
+      }
+      if (!useCloneBookends || slides.length <= 1 || reducedMotion) {
+        return;
+      }
+      let didSnap = false;
+      if (trackVisualIndex === displayLength - 1) {
+        setInstantTransform(true);
+        setTrackVisualIndex(1);
+        didSnap = true;
+      } else if (trackVisualIndex === 0) {
+        setInstantTransform(true);
+        setTrackVisualIndex(displayLength - 2);
+        didSnap = true;
+      }
+      if (!didSnap) {
+        return;
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setInstantTransform(false);
+        });
+      });
+    },
+    [displayLength, reducedMotion, slides.length, trackVisualIndex, useCloneBookends],
+  );
 
   return (
     <div className="relative mt-10 flex min-h-[17.5rem] items-start gap-2 md:gap-4">
@@ -266,16 +339,17 @@ export function FeaturedCoachesCarouselStrip({
             paddingLeft: `${edgePadRem}rem`,
             paddingRight: `${edgePadRem}rem`,
             transform: `translate3d(${translateRem}rem,0,0)`,
-            transition: trackTransition,
-            willChange: reducedMotion || !layoutReady ? undefined : "transform",
+            transition: baseTrackTransition,
+            willChange: reducedMotion || !layoutReady || instantTransform ? undefined : "transform",
           }}
+          onTransitionEnd={handleTrackTransitionEnd}
         >
           {displaySlides.map((slide, displayIndex) => {
             const realIndex = useCloneBookends
               ? displayIndexToRealIndex(displaySlides.length, displayIndex)
               : displayIndex;
             const isClone = useCloneBookends && (displayIndex === 0 || displayIndex === displaySlides.length - 1);
-            const lane = resolveCoachSlideLane(peekLayout, displayIndex, visualSlideIndex);
+            const lane = resolveCoachSlideLane(peekLayout, displayIndex, trackVisualIndex);
             return (
               <FeaturedCoachSlideCard
                 key={

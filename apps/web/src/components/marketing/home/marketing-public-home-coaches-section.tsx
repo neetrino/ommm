@@ -1,14 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import {
   FeaturedCoachesCarouselStrip,
+  PEEK_LAYOUT_MIN_VIEWPORT_PX,
   type CoachSlideCopy,
 } from "@/components/marketing/home/marketing-public-home-coaches-carousel";
+
+const FEATURED_COACHES_AUTO_ADVANCE_MS = 5000;
 
 /**
  * Figma **Featured Coaches** `155:188` — carousel card **Frame 68** `163:879`, portrait `163:878`.
@@ -44,6 +47,52 @@ export function MarketingPublicHomeCoachesSection() {
       return (clamped + 1) % slideCount;
     });
   }, [lastIndex, slideCount]);
+
+  useEffect(() => {
+    if (slideCount <= 1) {
+      return;
+    }
+    const mq = window.matchMedia(`(min-width: ${PEEK_LAYOUT_MIN_VIEWPORT_PX}px)`);
+    const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+
+    const clearIntervalIfSet = () => {
+      if (intervalId !== undefined) {
+        clearInterval(intervalId);
+        intervalId = undefined;
+      }
+    };
+
+    const armInterval = () => {
+      clearIntervalIfSet();
+      if (!mq.matches || motionMq.matches) {
+        return;
+      }
+      intervalId = setInterval(() => {
+        if (document.visibilityState === "visible") {
+          goNext();
+        }
+      }, FEATURED_COACHES_AUTO_ADVANCE_MS);
+    };
+
+    armInterval();
+    mq.addEventListener("change", armInterval);
+    motionMq.addEventListener("change", armInterval);
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== "visible") {
+        clearIntervalIfSet();
+      } else {
+        armInterval();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      mq.removeEventListener("change", armInterval);
+      motionMq.removeEventListener("change", armInterval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      clearIntervalIfSet();
+    };
+  }, [active, goNext, slideCount]);
 
   if (slideCount === 0) {
     return null;
