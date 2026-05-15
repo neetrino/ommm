@@ -29,12 +29,9 @@ export async function MarketingPublicHomePlansSection({
   return (
     <section
       className={`${marketingMontserrat.variable} w-full px-4 py-16 sm:px-6 md:px-10 lg:px-20`}
-      style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}
+      style={{ backgroundColor: HOME_PAGE_SURFACE.coachesGradientTo }}
     >
-      <div
-        className="mx-auto max-w-[1440px] rounded-[50px] px-4 py-12 sm:px-8 sm:py-14 md:px-12 md:py-16"
-        style={{ backgroundColor: HOME_PAGE_SURFACE.plansPanelBg }}
-      >
+      <div className="mx-auto max-w-[1440px] rounded-[50px] px-4 py-12 sm:px-8 sm:py-14 md:px-12 md:py-16">
         <h2
           className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[48px]"
           style={{ color: HOME_PAGE_SURFACE.plansHeading }}

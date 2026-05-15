@@ -10,7 +10,6 @@ export const HOME_PAGE_SURFACE = {
   coachesGradientTo: "#ede9dd",
   eventsGradientFrom: "#598090",
   eventsGradientTo: "#ede9dd",
-  plansPanelBg: "rgba(255,255,255,0.2)",
   plansHeading: "#577f91",
   introHeading: "#695f00",
   introBody: "#4a4738",
