@@ -39,11 +39,11 @@ const CARD_MOTION = {
 };
 
 /** Matches `--ommm-coach-side-drop` max; Framer interpolates rem strings reliably. */
-const COACH_SIDE_DROP_REM = 1.125;
+const COACH_SIDE_DROP_REM = 2.25;
 
 function cardWidthClassName(peekLayout: boolean): string {
   if (peekLayout) {
-    return "w-[min(45.5625rem,min(76cqw,calc(100cqw-2rem)))] max-w-[min(45.5625rem,min(76cqw,calc(100cqw-2rem)))]";
+    return "w-[min(45.5625rem,min(68cqw,calc(100cqw-2rem)))] max-w-[min(45.5625rem,min(68cqw,calc(100cqw-2rem)))]";
   }
   return "w-[min(45.5625rem,calc(100cqw-1.25rem))] max-w-[min(45.5625rem,calc(100cqw-1.25rem))]";
 }

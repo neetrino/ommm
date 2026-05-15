@@ -16,8 +16,8 @@
   /* Generous corner radius — Featured Coaches cards. */
   --ommm-coach-card-radius: clamp(2rem, 4.5vw, 3rem);
 
-  /** ~15–20px at default root — side slides sit slightly below center. */
-  --ommm-coach-side-drop: clamp(0.875rem, 2.5vw, 1.125rem);
+  /** Side slides sit visibly below center on desktop peek layout. */
+  --ommm-coach-side-drop: clamp(1.25rem, 3.5vw, 2.25rem);
 
   --ommm-coach-name-size: clamp(1.75rem, 3.2vw, 2.75rem);
   --ommm-coach-name-leading: 1.12;

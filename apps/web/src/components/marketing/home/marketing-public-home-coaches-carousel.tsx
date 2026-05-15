@@ -16,7 +16,7 @@ import {
 
 export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
-const GAP_REM = 1.25;
+const GAP_REM = 2.25;
 const CAROUSEL_TRANSFORM_MS = 520;
 
 /** Viewport width (px) at which peek + vertical choreography match desktop Figma. */

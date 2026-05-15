@@ -100,16 +100,18 @@ export function MarketingPublicHomeCoachesSection() {
 
   return (
     <section
-      className={`${marketingMontserrat.variable} w-full px-4 py-16 sm:px-6 md:px-10 lg:px-20`}
+      className={`${marketingMontserrat.variable} w-full py-16`}
       style={{
         background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.coachesGradientFrom}, ${HOME_PAGE_SURFACE.coachesGradientTo})`,
       }}
     >
-      <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))]">
+      <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 lg:px-20">
         <h2 className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05] text-[#fbf5d5]">
           {t("coachesTitle")}
         </h2>
+      </div>
 
+      <div className="w-full overflow-x-clip">
         <FeaturedCoachesCarouselStrip
           slides={slides}
           active={active}
@@ -120,10 +122,10 @@ export function MarketingPublicHomeCoachesSection() {
           nextLabel={t("coachesNextAria")}
           getGoToSlideAria={(name) => t("coachesGoToSlideAria", { name })}
         />
+      </div>
 
-        <div className="mt-10 flex justify-center">
-          <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
-        </div>
+      <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 lg:px-20">
+        <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
       </div>
     </section>
   );
