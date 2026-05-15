@@ -129,7 +129,6 @@
       "coachesTitle": "Ընտրյալ մարզիչներ",
       "coachesPrevAria": "Նախորդ մարզիչ",
       "coachesNextAria": "Հաջորդ մարզիչ",
-      "coachesCounter": "{current} / {total}",
       "coachesGoToSlideAria": "Ցուցադրել՝ {name}",
       "coachSlides": [
         {

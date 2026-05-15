@@ -6,7 +6,6 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import {
-  CoachesPagination,
   FeaturedCoachesCarouselStrip,
   type CoachSlideCopy,
 } from "@/components/marketing/home/marketing-public-home-coaches-carousel";
@@ -76,15 +75,6 @@ export function MarketingPublicHomeCoachesSection() {
         <div className="mt-10 flex justify-center">
           <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
         </div>
-
-        <CoachesPagination
-          counterText={t("coachesCounter", { current: active + 1, total: slideCount })}
-          groupAriaLabel={t("coachesCounter", { current: active + 1, total: slideCount })}
-          prevLabel={t("coachesPrevAria")}
-          nextLabel={t("coachesNextAria")}
-          onPrev={goPrev}
-          onNext={goNext}
-        />
       </div>
     </section>
   );

@@ -193,59 +193,18 @@ type CoachNavButtonProps = {
   direction: "prev" | "next";
   label: string;
   onPress: () => void;
-  size?: "md" | "sm";
 };
 
-function CoachNavButton({ direction, label, onPress, size = "md" }: CoachNavButtonProps) {
-  const isSm = size === "sm";
+function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
   return (
     <button
       type="button"
-      className={`relative z-20 flex shrink-0 items-center justify-center rounded-full text-[var(--ommm-coach-nav-fg)] shadow-sm transition-[background-color,transform,opacity] [background-color:var(--ommm-coach-nav-bg)] hover:[background-color:var(--ommm-coach-nav-bg-hover)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-        isSm ? "h-8 w-8" : "h-11 w-11 md:h-16 md:w-16"
-      }`}
+      className="relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--ommm-coach-nav-fg)] shadow-sm transition-[background-color,transform,opacity] [background-color:var(--ommm-coach-nav-bg)] hover:[background-color:var(--ommm-coach-nav-bg-hover)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
       aria-label={label}
       onClick={onPress}
     >
-      <CarouselChevron
-        className={isSm ? "h-3.5 w-3.5" : "h-3 w-3 md:h-4 md:w-4"}
-        flipped={direction === "next"}
-      />
+      <CarouselChevron className="h-3 w-3 md:h-4 md:w-4" flipped={direction === "next"} />
     </button>
-  );
-}
-
-type CoachesPaginationProps = {
-  counterText: string;
-  groupAriaLabel: string;
-  prevLabel: string;
-  nextLabel: string;
-  onPrev: () => void;
-  onNext: () => void;
-};
-
-export function CoachesPagination({
-  counterText,
-  groupAriaLabel,
-  prevLabel,
-  nextLabel,
-  onPrev,
-  onNext,
-}: CoachesPaginationProps) {
-  return (
-    <div className="mt-6 flex justify-center" role="group" aria-label={groupAriaLabel}>
-      <div
-        className="flex items-center gap-2 rounded-full px-2 py-1.5 text-[0.8125rem] font-medium shadow-sm backdrop-blur-sm md:text-sm"
-        style={{
-          backgroundColor: "var(--ommm-coach-pagination-bg)",
-          color: "var(--ommm-coach-pagination-fg)",
-        }}
-      >
-        <CoachNavButton direction="prev" label={prevLabel} onPress={onPrev} size="sm" />
-        <span className="min-w-[3.5rem] select-none text-center tabular-nums">{counterText}</span>
-        <CoachNavButton direction="next" label={nextLabel} onPress={onNext} size="sm" />
-      </div>
-    </div>
   );
 }
 

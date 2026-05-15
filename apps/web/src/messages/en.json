@@ -129,7 +129,6 @@
       "coachesTitle": "Featured Coaches",
       "coachesPrevAria": "Previous coach",
       "coachesNextAria": "Next coach",
-      "coachesCounter": "{current} / {total}",
       "coachesGoToSlideAria": "Show {name}",
       "coachSlides": [
         {

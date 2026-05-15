@@ -129,7 +129,6 @@
       "coachesTitle": "Команда преподавателей",
       "coachesPrevAria": "Предыдущий преподаватель",
       "coachesNextAria": "Следующий преподаватель",
-      "coachesCounter": "{current} / {total}",
       "coachesGoToSlideAria": "Показать: {name}",
       "coachSlides": [
         {
