@@ -22,7 +22,7 @@ export async function MarketingPublicHomeEventsSection({
     <section
       className={`${marketingMontserrat.variable} w-full px-4 py-16 sm:px-6 md:px-10 lg:px-20`}
       style={{
-        background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.eventsGradientFrom}, ${HOME_PAGE_SURFACE.eventsGradientTo})`,
+        background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.eventsGradientTo}, ${HOME_PAGE_SURFACE.eventsGradientFrom})`,
       }}
     >
       <div className="mx-auto max-w-[1280px]">
