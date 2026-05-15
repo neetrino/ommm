@@ -186,27 +186,31 @@ function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
   return (
     <button
       type="button"
-      className="pointer-events-auto relative z-20 h-11 w-11 shrink-0 overflow-hidden rounded-full transition-opacity hover:opacity-95 active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
+      className="group pointer-events-auto relative z-20 h-11 w-11 shrink-0 overflow-hidden rounded-full transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:opacity-100 hover:shadow-[0_10px_24px_rgba(255,255,255,0.24)] active:translate-y-0 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
       aria-label={label}
       onClick={onPress}
     >
       <span
         aria-hidden
-        className="absolute inset-0 rounded-full border border-white/45 bg-white/38 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_rgba(255,255,255,0.18)] backdrop-blur-[1.5px]"
+        className="absolute inset-0 rounded-full border border-white/45 bg-white/38 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_rgba(255,255,255,0.18)] backdrop-blur-[1.5px] transition-all duration-300 group-hover:bg-white/45 group-hover:border-white/60"
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(120%_90%_at_28%_18%,rgba(255,255,255,0.75)_0%,rgba(255,255,255,0.32)_28%,rgba(255,255,255,0)_58%)] animate-[pulse_2.1s_ease-in-out_infinite]"
+        className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(120%_90%_at_28%_18%,rgba(255,255,255,0.75)_0%,rgba(255,255,255,0.32)_28%,rgba(255,255,255,0)_58%)] opacity-90 animate-[pulse_2.1s_ease-in-out_infinite] transition-opacity duration-300 group-hover:opacity-100"
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(120deg,rgba(255,255,255,0.05)_18%,rgba(255,255,255,0.62)_48%,rgba(255,255,255,0.05)_78%)] opacity-45 animate-[pulse_2.6s_ease-in-out_infinite]"
+        className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(120deg,rgba(255,255,255,0.05)_18%,rgba(255,255,255,0.62)_48%,rgba(255,255,255,0.05)_78%)] opacity-45 animate-[pulse_2.6s_ease-in-out_infinite] transition-opacity duration-300 group-hover:opacity-70"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 -left-[80%] w-[42%] rotate-[22deg] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[125%] group-hover:opacity-100"
       />
       <svg
         aria-hidden
         viewBox="0 0 26 19"
-        className={`absolute left-1/2 top-1/2 h-[0.82rem] w-[1.15rem] -translate-x-1/2 -translate-y-1/2 md:h-[1.05rem] md:w-[1.45rem] ${
-          direction === "prev" ? "rotate-180" : ""
+        className={`absolute left-1/2 top-1/2 h-[0.82rem] w-[1.15rem] -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_1px_3px_rgba(255,255,255,0.35)] md:h-[1.05rem] md:w-[1.45rem] ${
+          direction === "prev" ? "rotate-180 group-hover:-translate-x-[58%]" : "group-hover:-translate-x-[42%]"
         }`}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
