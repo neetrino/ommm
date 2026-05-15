@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
@@ -12,26 +12,39 @@ import {
 } from "@/components/marketing/home/marketing-public-home-coaches-carousel";
 
 /**
- * Figma **Featured Coaches** `155:188` — carousel + schedule CTA.
+ * Figma **Featured Coaches** `155:188` — carousel card **Frame 68** `163:879`, portrait `163:878`.
  */
 export function MarketingPublicHomeCoachesSection() {
   const t = useTranslations("marketingPublic.home");
   const slides = t.raw("coachSlides") as CoachSlideCopy[];
   const slideCount = slides.length;
+  const lastIndex = Math.max(0, slideCount - 1);
 
-  const [active, setActive] = useState(0);
+  const [activeRaw, setActiveRaw] = useState(0);
+  const active = Math.min(activeRaw, lastIndex);
 
-  useEffect(() => {
-    setActive((i) => Math.min(Math.max(0, i), Math.max(0, slideCount - 1)));
-  }, [slideCount]);
+  const setActive = useCallback(
+    (index: number) => {
+      setActiveRaw(Math.min(Math.max(0, index), lastIndex));
+    },
+    [lastIndex],
+  );
 
   const goPrev = useCallback(() => {
-    setActive((i) => (i - 1 + slideCount) % slideCount);
-  }, [slideCount]);
+    if (slideCount <= 0) return;
+    setActiveRaw((prev) => {
+      const clamped = Math.min(prev, lastIndex);
+      return (clamped - 1 + slideCount) % slideCount;
+    });
+  }, [lastIndex, slideCount]);
 
   const goNext = useCallback(() => {
-    setActive((i) => (i + 1) % slideCount);
-  }, [slideCount]);
+    if (slideCount <= 0) return;
+    setActiveRaw((prev) => {
+      const clamped = Math.min(prev, lastIndex);
+      return (clamped + 1) % slideCount;
+    });
+  }, [lastIndex, slideCount]);
 
   if (slideCount === 0) {
     return null;
@@ -44,8 +57,8 @@ export function MarketingPublicHomeCoachesSection() {
         background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.coachesGradientFrom}, ${HOME_PAGE_SURFACE.coachesGradientTo})`,
       }}
     >
-      <div className="mx-auto max-w-[1280px]">
-        <h2 className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[48px] text-[#fbf5d5]">
+      <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))]">
+        <h2 className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05] text-[#fbf5d5]">
           {t("coachesTitle")}
         </h2>
 

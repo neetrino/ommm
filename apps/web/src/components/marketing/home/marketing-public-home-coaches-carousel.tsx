@@ -1,21 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import {
+  FeaturedCoachSlideCard,
+  type CoachSlideCopy,
+} from "@/components/marketing/home/featured-coach-slide-card";
 
-const COACH_CAROUSEL_GAP_PX = 20;
-const VIEWPORT_INNER_GUTTER_PX = 48;
+export type { CoachSlideCopy };
+
+const GAP_REM = 1.25;
 const CAROUSEL_TRANSFORM_MS = 320;
-
-export type CoachSlideCopy = {
-  name: string;
-  role: string;
-  bio: string;
-  experience: string;
-  imageAlt: string;
-};
 
 /** Leading + trailing clones so the first/last real slides always have a neighbour peek. */
 function buildCoachDisplaySlides(slides: CoachSlideCopy[]): CoachSlideCopy[] {
@@ -58,13 +52,24 @@ function usePrefersReducedMotion(): boolean {
 
 type CarouselLayout = {
   viewportWidth: number;
-  cardWidth: number;
+  cardWidthRem: number;
+  rootRemPx: number;
 };
+
+function readRootRemPx(): number {
+  const raw = getComputedStyle(document.documentElement).fontSize;
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 16;
+}
 
 function useCoachCarouselMetrics(visualSlideIndex: number) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [layout, setLayout] = useState<CarouselLayout>({ viewportWidth: 0, cardWidth: 0 });
+  const [layout, setLayout] = useState<CarouselLayout>({
+    viewportWidth: 0,
+    cardWidthRem: 0,
+    rootRemPx: 16,
+  });
   const [canAnimateSlides, setCanAnimateSlides] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -77,16 +82,17 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
     const read = () => {
       const first = track.firstElementChild as HTMLElement | null;
       const vw = viewport.clientWidth;
-      let cw = first ? Math.round(first.getBoundingClientRect().width) : 0;
-      if (vw > 0 && cw <= 0) {
-        cw = Math.min(729, Math.max(280, vw - VIEWPORT_INNER_GUTTER_PX));
+      const rootRemPx = readRootRemPx();
+      const cwPx = first ? first.getBoundingClientRect().width : 0;
+      let cardWidthRem = cwPx > 0 ? Math.round((cwPx / rootRemPx) * 1000) / 1000 : 0;
+      if (vw > 0 && cardWidthRem <= 0) {
+        const fallbackRem = Math.min(45.5625, Math.max(17.5, vw / rootRemPx - 3));
+        cardWidthRem = Math.round(fallbackRem * 1000) / 1000;
       }
-      setLayout({ viewportWidth: vw, cardWidth: cw });
+      setLayout({ viewportWidth: vw, cardWidthRem, rootRemPx });
     };
     read();
-    const rafId = requestAnimationFrame(() => {
-      read();
-    });
+    const rafId = requestAnimationFrame(read);
     const ro = new ResizeObserver(read);
     ro.observe(viewport);
     ro.observe(track);
@@ -106,10 +112,14 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
     });
   }, []);
 
-  const { viewportWidth: vw, cardWidth: cw } = layout;
-  const layoutReady = vw > 0 && cw > 0;
-  const edgePad = layoutReady ? Math.max(0, (vw - cw) / 2) : 0;
-  const translateX = layoutReady ? -visualSlideIndex * (cw + COACH_CAROUSEL_GAP_PX) : 0;
+  const { viewportWidth: vw, cardWidthRem, rootRemPx } = layout;
+  const layoutReady = vw > 0 && cardWidthRem > 0;
+  const cwPx = cardWidthRem * rootRemPx;
+  const edgePadRem = layoutReady ? Math.max(0, (vw - cwPx) / 2 / rootRemPx) : 0;
+  const translateRem =
+    layoutReady && Number.isFinite(visualSlideIndex)
+      ? -visualSlideIndex * (cardWidthRem + GAP_REM)
+      : 0;
   const trackTransition =
     reducedMotion || !canAnimateSlides || !layoutReady
       ? undefined
@@ -118,8 +128,8 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
   return {
     viewportRef,
     trackRef,
-    edgePad,
-    translateX,
+    edgePadRem,
+    translateRem,
     trackTransition,
     reducedMotion,
     layoutReady,
@@ -159,7 +169,7 @@ function CoachNavButton({ direction, label, onPress, size = "md" }: CoachNavButt
   return (
     <button
       type="button"
-      className={`relative z-20 flex shrink-0 items-center justify-center rounded-full bg-[rgba(255,255,255,0.28)] text-[#2f3438] shadow-sm transition-[transform,opacity] hover:bg-[rgba(255,255,255,0.4)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+      className={`relative z-20 flex shrink-0 items-center justify-center rounded-full text-[var(--ommm-coach-nav-fg)] shadow-sm transition-[background-color,transform,opacity] [background-color:var(--ommm-coach-nav-bg)] hover:[background-color:var(--ommm-coach-nav-bg-hover)] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
         isSm ? "h-8 w-8" : "h-11 w-11 md:h-16 md:w-16"
       }`}
       aria-label={label}
@@ -192,68 +202,17 @@ export function CoachesPagination({
 }: CoachesPaginationProps) {
   return (
     <div className="mt-6 flex justify-center" role="group" aria-label={groupAriaLabel}>
-      <div className="flex items-center gap-2 rounded-full bg-[rgba(45,55,60,0.82)] px-2 py-1.5 text-[13px] font-medium text-[#f4f4f0] shadow-sm backdrop-blur-sm md:text-sm">
+      <div
+        className="flex items-center gap-2 rounded-full px-2 py-1.5 text-[0.8125rem] font-medium shadow-sm backdrop-blur-sm md:text-sm"
+        style={{
+          backgroundColor: "var(--ommm-coach-pagination-bg)",
+          color: "var(--ommm-coach-pagination-fg)",
+        }}
+      >
         <CoachNavButton direction="prev" label={prevLabel} onPress={onPrev} size="sm" />
         <span className="min-w-[3.5rem] select-none text-center tabular-nums">{counterText}</span>
         <CoachNavButton direction="next" label={nextLabel} onPress={onNext} size="sm" />
       </div>
-    </div>
-  );
-}
-
-type CoachSlideCardProps = {
-  slide: CoachSlideCopy;
-  isActive: boolean;
-  overlayAriaLabel: string;
-  onActivate: () => void;
-  /** Bookend clones are visual-only; hide from assistive tech. */
-  ariaHidden?: boolean;
-};
-
-function CoachSlideCard({ slide, isActive, overlayAriaLabel, onActivate, ariaHidden }: CoachSlideCardProps) {
-  return (
-    <div
-      aria-hidden={ariaHidden ? true : undefined}
-      className={`relative max-w-[729px] min-w-[280px] w-[min(729px,max(280px,calc(100cqw-48px)))] shrink-0 transition-opacity duration-300 ${
-        isActive ? "opacity-100" : "cursor-pointer opacity-[0.5] hover:opacity-[0.72]"
-      }`}
-    >
-      <div className="overflow-hidden rounded-[40px] bg-[#e5f4f9] shadow-sm">
-        <div className="grid grid-cols-1 gap-6 p-8 md:grid-cols-2 md:items-start md:gap-10 md:p-10">
-          <div className="order-2 flex flex-col gap-4 md:order-1">
-            <p
-              className={`${marketingMontserrat.className} text-[clamp(1.75rem,4vw,2.75rem)] font-extrabold leading-tight tracking-[0.72px] text-[#1d1c15]`}
-            >
-              {slide.name}
-            </p>
-            <p className={`${marketingMontserrat.className} text-base font-bold text-[#4a4738]`}>{slide.role}</p>
-            <p className={`${marketingMontserrat.className} text-base font-normal leading-6 text-[#4a4738]`}>
-              {slide.bio}
-            </p>
-            <p className={`${marketingMontserrat.className} text-base font-bold text-[#4a4738]`}>
-              {slide.experience}
-            </p>
-          </div>
-          <div className="relative order-1 mx-auto aspect-[342/597] w-full max-w-[220px] md:order-2 md:max-w-[280px]">
-            <Image
-              src={HOME_SECTION_ASSETS.coachPortrait}
-              alt={slide.imageAlt}
-              fill
-              sizes="(max-width: 768px) 220px, 280px"
-              className="object-cover object-top"
-            />
-          </div>
-        </div>
-      </div>
-      {!isActive ? (
-        <button
-          type="button"
-          className="absolute inset-0 z-10 cursor-pointer rounded-[40px] border-0 bg-transparent p-0"
-          aria-label={overlayAriaLabel}
-          tabIndex={ariaHidden ? -1 : undefined}
-          onClick={onActivate}
-        />
-      ) : null}
     </div>
   );
 }
@@ -283,11 +242,11 @@ export function FeaturedCoachesCarouselStrip({
   const useCloneBookends = slides.length > 1;
   const visualSlideIndex = useCloneBookends ? active + 1 : active;
 
-  const { viewportRef, trackRef, edgePad, translateX, trackTransition, reducedMotion, layoutReady } =
+  const { viewportRef, trackRef, edgePadRem, translateRem, trackTransition, reducedMotion, layoutReady } =
     useCoachCarouselMetrics(visualSlideIndex);
 
   return (
-    <div className="relative mt-10 flex min-h-[280px] items-center gap-2 md:gap-4">
+    <div className="relative mt-10 flex min-h-[17.5rem] items-center gap-2 md:gap-4">
       <CoachNavButton direction="prev" label={prevLabel} onPress={goPrev} />
 
       <div
@@ -298,10 +257,10 @@ export function FeaturedCoachesCarouselStrip({
           ref={trackRef}
           className={`flex flex-nowrap ${layoutReady ? "visible" : "invisible"}`}
           style={{
-            gap: COACH_CAROUSEL_GAP_PX,
-            paddingLeft: edgePad,
-            paddingRight: edgePad,
-            transform: `translate3d(${translateX}px,0,0)`,
+            gap: `${GAP_REM}rem`,
+            paddingLeft: `${edgePadRem}rem`,
+            paddingRight: `${edgePadRem}rem`,
+            transform: `translate3d(${translateRem}rem,0,0)`,
             transition: trackTransition,
             willChange: reducedMotion || !layoutReady ? undefined : "transform",
           }}
@@ -312,7 +271,7 @@ export function FeaturedCoachesCarouselStrip({
               : displayIndex;
             const isClone = useCloneBookends && (displayIndex === 0 || displayIndex === displaySlides.length - 1);
             return (
-              <CoachSlideCard
+              <FeaturedCoachSlideCard
                 key={
                   isClone
                     ? `coach-clone-${displayIndex}-${slide.name}`
