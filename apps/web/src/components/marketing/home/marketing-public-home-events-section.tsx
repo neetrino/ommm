@@ -30,7 +30,7 @@ export async function MarketingPublicHomeEventsSection({
           {t("eventsTitle")}
         </h2>
 
-        <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-6">
+        <div className="mt-24 flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-6">
           <EventFeatureCard
             href="/explore"
             imageSrc={HOME_SECTION_ASSETS.eventsWide}
