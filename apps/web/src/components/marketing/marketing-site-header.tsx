@@ -1,26 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 
-function navLinkClass(active: boolean, home: boolean): string {
-  if (home) {
-    return [
-      "rounded-full px-3 py-2 text-base font-light transition-colors",
-      active
-        ? "border-b-2 border-[rgba(250,204,21,0.5)] pb-1.5 text-white"
-        : "text-white hover:bg-white/10",
-    ].join(" ");
-  }
+function navLinkClass(active: boolean): string {
   return [
-    "rounded-full px-3 py-2 text-sm font-medium transition-colors",
+    "rounded-full px-3 py-2 text-base font-light transition-colors",
     active
-      ? "bg-white/70 text-sage-900"
-      : "text-sage-700 hover:bg-white/50 hover:text-sage-900",
+      ? "border-b-2 border-[rgba(250,204,21,0.5)] pb-1.5 text-white"
+      : "text-white hover:bg-white/10",
   ].join(" ");
 }
 
@@ -33,6 +24,7 @@ export type MarketingSiteHeaderProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
 };
 
+/** Public marketing site header — matches Home (fixed bar, text brand, light nav, Book CTA). */
 export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
@@ -40,19 +32,12 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
-  const isMarketingHome = marketingPath === "/" || marketingPath === "";
 
-  const headerShellClass = isMarketingHome
-    ? [
-        "fixed left-0 right-0 top-0 z-50 w-full min-w-0",
-        "pt-[env(safe-area-inset-top,0px)]",
-        "bg-transparent backdrop-blur-sm",
-      ].join(" ")
-    : [
-        "sticky top-0 z-50 w-full min-w-0",
-        "pt-[env(safe-area-inset-top,0px)]",
-        "bg-white/55 backdrop-blur-xl",
-      ].join(" ");
+  const headerShellClass = [
+    "fixed left-0 right-0 top-0 z-50 w-full min-w-0",
+    "pt-[env(safe-area-inset-top,0px)]",
+    "bg-transparent backdrop-blur-sm",
+  ].join(" ");
 
   return (
     <header className={headerShellClass}>
@@ -62,20 +47,9 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
           className="flex shrink-0 items-center"
           onClick={() => setOpen(false)}
         >
-          {isMarketingHome ? (
-            <span className="font-sans text-xl font-semibold tracking-tight text-white sm:text-2xl">
-              {tNav("studioBrand")}
-            </span>
-          ) : (
-            <Image
-              src="/marketing/home/brand-mark.png"
-              alt=""
-              width={104}
-              height={104}
-              className="h-20 w-20 rounded-full object-cover sm:h-24 sm:w-24"
-              priority
-            />
-          )}
+          <span className="font-sans text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            {tNav("studioBrand")}
+          </span>
         </Link>
 
         <nav
@@ -86,7 +60,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(marketingPath, href), isMarketingHome)}
+              className={navLinkClass(isActive(marketingPath, href))}
             >
               {tNav(key)}
             </Link>
@@ -98,30 +72,15 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             context="marketing"
             onAfterSelect={() => setOpen(false)}
           />
-          {isMarketingHome ? (
-            <Link
-              href="/schedule"
-              className="hidden rounded-full bg-[#e8da74] px-8 py-3 text-sm font-medium text-white shadow-sm transition-[filter,transform] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent lg:inline-flex"
-            >
-              {tUi("bookAClass")}
-            </Link>
-          ) : (
-            <div className="hidden items-center gap-3 lg:flex">
-              <Link href="/login" className="ommm-cta-ghost">
-                {tCommon("login")}
-              </Link>
-              <Link href="/register" className="ommm-cta-primary">
-                {tCommon("register")}
-              </Link>
-            </div>
-          )}
+          <Link
+            href="/schedule"
+            className="hidden rounded-full bg-[#e8da74] px-8 py-3 text-sm font-medium text-white shadow-sm transition-[filter,transform] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent lg:inline-flex"
+          >
+            {tUi("bookAClass")}
+          </Link>
           <button
             type="button"
-            className={
-              isMarketingHome
-                ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 bg-white/10 text-white shadow-sm lg:hidden"
-                : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
-            }
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 bg-white/10 text-white shadow-sm lg:hidden"
             aria-expanded={open}
             aria-controls="marketing-mobile-nav"
             aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
@@ -155,9 +114,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         id="marketing-mobile-nav"
         className={
           open
-            ? isMarketingHome
-              ? "border-t border-white/30 bg-black/30 px-4 py-4 backdrop-blur-xl lg:hidden"
-              : "border-t border-white/50 bg-white/85 px-4 py-4 backdrop-blur-xl lg:hidden"
+            ? "border-t border-white/30 bg-black/30 px-4 py-4 backdrop-blur-xl lg:hidden"
             : "hidden"
         }
       >
@@ -166,7 +123,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(marketingPath, href), isMarketingHome)}
+              className={navLinkClass(isActive(marketingPath, href))}
               onClick={() => setOpen(false)}
             >
               {tNav(key)}
@@ -174,41 +131,20 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
           ))}
         </nav>
         <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
-          {isMarketingHome ? (
-            <>
-              <Link
-                href="/schedule"
-                className="inline-flex w-full items-center justify-center rounded-full bg-[#e8da74] px-5 py-3 text-sm font-medium text-white"
-                onClick={() => setOpen(false)}
-              >
-                {tUi("bookAClass")}
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex w-full items-center justify-center rounded-full border border-white/50 px-5 py-3 text-sm font-medium text-white"
-                onClick={() => setOpen(false)}
-              >
-                {tCommon("login")}
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/register"
-                className="ommm-cta-primary w-full"
-                onClick={() => setOpen(false)}
-              >
-                {tCommon("register")}
-              </Link>
-              <Link
-                href="/login"
-                className="ommm-cta-ghost w-full"
-                onClick={() => setOpen(false)}
-              >
-                {tCommon("login")}
-              </Link>
-            </>
-          )}
+          <Link
+            href="/schedule"
+            className="inline-flex w-full items-center justify-center rounded-full bg-[#e8da74] px-5 py-3 text-sm font-medium text-white"
+            onClick={() => setOpen(false)}
+          >
+            {tUi("bookAClass")}
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex w-full items-center justify-center rounded-full border border-white/50 px-5 py-3 text-sm font-medium text-white"
+            onClick={() => setOpen(false)}
+          >
+            {tCommon("login")}
+          </Link>
         </div>
       </div>
     </header>
