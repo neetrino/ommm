@@ -129,6 +129,8 @@
       "coachesTitle": "Featured Coaches",
       "coachesPrevAria": "Previous coach",
       "coachesNextAria": "Next coach",
+      "coachesCounter": "{current} / {total}",
+      "coachesGoToSlideAria": "Show {name}",
       "coachSlides": [
         {
           "name": "Jane Doe",
@@ -138,17 +140,24 @@
           "imageAlt": "Coach portrait"
         },
         {
-          "name": "Jane Doe",
-          "role": "Specialization",
-          "bio": "Coach info placeholder — replace with your lead teacher bio from the admin panel when ready.",
-          "experience": "8 years experience",
+          "name": "Sofia Reed",
+          "role": "Vinyasa & breathwork",
+          "bio": "Coach info placeholder — flows built around steady breath and sustainable alignment.",
+          "experience": "6 years experience",
           "imageAlt": "Coach portrait"
         },
         {
-          "name": "Jane Doe",
-          "role": "Specialization",
-          "bio": "Coach info placeholder — replace with your lead teacher bio from the admin panel when ready.",
-          "experience": "8 years experience",
+          "name": "Morgan Lee",
+          "role": "Strength & mobility",
+          "bio": "Coach info placeholder — strength sessions that stay kind to joints and nervous system.",
+          "experience": "10 years experience",
+          "imageAlt": "Coach portrait"
+        },
+        {
+          "name": "Alex Rivera",
+          "role": "Restorative & meditation",
+          "bio": "Coach info placeholder — slower practices to downshift after busy weeks.",
+          "experience": "5 years experience",
           "imageAlt": "Coach portrait"
         }
       ],
