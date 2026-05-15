@@ -5,6 +5,7 @@ import { MarketingPublicHomeCoachesSection } from "@/components/marketing/home/m
 import { MarketingPublicHomeEventsSection } from "@/components/marketing/home/marketing-public-home-events-section";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
 import { MarketingPublicHomePlansSection } from "@/components/marketing/home/marketing-public-home-plans-section";
+import { MarketingHomeScrollReveal } from "@/components/marketing/home/marketing-home-scroll-reveal";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { routing } from "@/i18n/routing";
@@ -24,12 +25,24 @@ export default async function MarketingHomePage({ params }: PageProps) {
       className={`${marketingMontserrat.variable} min-h-0 w-full flex-1`}
       style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}
     >
-      <MarketingPublicHero locale={locale} />
-      <MarketingPublicHomeClassesSection locale={locale} />
-      <MarketingPublicHomeCoachesSection />
-      <MarketingPublicHomePlansSection locale={locale} />
-      <MarketingPublicHomeEventsSection locale={locale} />
-      <MarketingPublicHomeFooter locale={locale} />
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHero locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeClassesSection locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeCoachesSection />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomePlansSection locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeEventsSection locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeFooter locale={locale} />
+      </MarketingHomeScrollReveal>
     </div>
   );
 }
