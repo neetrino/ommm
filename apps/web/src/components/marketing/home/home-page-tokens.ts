@@ -12,11 +12,11 @@ export const HOME_PAGE_SURFACE = {
   eventsGradientTo: "#ede9dd",
   /** Frosted “Sanctuary” panel — fill, specular gloss, elevation (marketing home plans only). */
   plansCardFill:
-    "linear-gradient(180deg, rgba(255,255,255,0.58) 0%, rgba(255,255,255,0.36) 48%, rgba(255,255,255,0.24) 100%)",
+    "linear-gradient(180deg, rgba(48,56,64,0.088) 0%, rgba(48,56,64,0.052) 50%, rgba(48,56,64,0.118) 100%), linear-gradient(180deg, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.30) 48%, rgba(255,255,255,0.17) 100%)",
   plansCardGlossOverlay:
-    "linear-gradient(152deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 62%)",
+    "linear-gradient(155deg, rgba(255,255,255,0.44) 0%, rgba(255,255,255,0.12) 32%, rgba(255,255,255,0) 54%), linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.045) 26%, rgba(255,255,255,0) 48%), linear-gradient(105deg, rgba(255,255,255,0) 4%, rgba(255,255,255,0.055) 46%, rgba(255,255,255,0.075) 52%, rgba(255,255,255,0) 96%), radial-gradient(120% 88% at 88% 5%, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0) 46%)",
   plansCardShadow:
-    "0 24px 56px -24px rgba(45, 55, 62, 0.22), inset 0 1px 0 rgba(255,255,255,0.88), inset 0 -1px 0 rgba(87,127,145,0.08)",
+    "0 26px 58px -24px rgba(45, 55, 62, 0.32), inset 0 1px 0 rgba(255,255,255,0.94), inset 0 -1px 0 rgba(87,127,145,0.12)",
   plansHeading: "#577f91",
   introHeading: "#695f00",
   introBody: "#4a4738",
