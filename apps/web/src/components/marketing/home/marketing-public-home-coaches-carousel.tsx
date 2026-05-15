@@ -246,6 +246,7 @@ export function FeaturedCoachesCarouselStrip({
   );
   const [instantTransform, setInstantTransform] = useState(false);
   const prevActiveRef = useRef(active);
+  const recenteringRef = useRef(false);
 
   const {
     viewportRef,
@@ -295,12 +296,20 @@ export function FeaturedCoachesCarouselStrip({
       if (!useCloneBookends || slides.length <= 1 || reducedMotion) {
         return;
       }
+      if (recenteringRef.current) {
+        return;
+      }
+      if (trackVisualIndex !== displayLength - 1 && trackVisualIndex !== 0) {
+        return;
+      }
       let didSnap = false;
       if (trackVisualIndex === displayLength - 1) {
+        recenteringRef.current = true;
         setInstantTransform(true);
         setTrackVisualIndex(1);
         didSnap = true;
       } else if (trackVisualIndex === 0) {
+        recenteringRef.current = true;
         setInstantTransform(true);
         setTrackVisualIndex(displayLength - 2);
         didSnap = true;
@@ -311,6 +320,7 @@ export function FeaturedCoachesCarouselStrip({
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setInstantTransform(false);
+          recenteringRef.current = false;
         });
       });
     },
@@ -361,6 +371,7 @@ export function FeaturedCoachesCarouselStrip({
                 isActive={active === realIndex}
                 lane={lane}
                 peekLayout={peekLayout}
+                instantCarouselSnap={instantTransform}
                 ariaHidden={isClone}
                 overlayAriaLabel={getGoToSlideAria(slide.name)}
                 onActivate={() => {

@@ -26,6 +26,11 @@ type FeaturedCoachSlideCardProps = {
   onActivate: () => void;
   /** Bookend clones are visual-only; hide from assistive tech. */
   ariaHidden?: boolean;
+  /**
+   * When true, skip opacity/scale/y tween — used during infinite-carousel recenter so
+   * lane jumps do not read as a visible pulse after the track snaps.
+   */
+  instantCarouselSnap?: boolean;
 };
 
 const CARD_MOTION = {
@@ -57,6 +62,7 @@ export function FeaturedCoachSlideCard({
   overlayAriaLabel,
   onActivate,
   ariaHidden,
+  instantCarouselSnap = false,
 }: FeaturedCoachSlideCardProps) {
   const reduceMotion = useReducedMotion();
 
@@ -96,7 +102,7 @@ export function FeaturedCoachSlideCard({
       style={{ zIndex: laneZIndex(lane), transformOrigin: "top center" }}
       initial={false}
       animate={{ opacity, scale, y }}
-      transition={CARD_MOTION}
+      transition={instantCarouselSnap ? { duration: 0 } : CARD_MOTION}
     >
       <div
         className="relative grid min-h-0 w-full grid-cols-1 overflow-hidden md:min-h-[var(--ommm-coach-card-min-height)] md:grid-cols-[minmax(0,1fr)_min(21.375rem,46%)]"
