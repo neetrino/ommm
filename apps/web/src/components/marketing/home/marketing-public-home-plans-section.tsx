@@ -43,7 +43,7 @@ export async function MarketingPublicHomePlansSection({
           className="pointer-events-none absolute inset-0"
           style={{ backgroundImage: HOME_PAGE_SURFACE.plansCardGlossOverlay }}
         />
-        <div className="relative z-10 px-4 py-12 sm:px-8 sm:py-14 md:px-12 md:py-16">
+        <div className="relative z-10 px-4 pb-12 pt-20 sm:px-8 sm:pb-14 sm:pt-24 md:px-12 md:pb-16 md:pt-28">
           <h2
             className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[48px]"
             style={{ color: HOME_PAGE_SURFACE.plansHeading }}
