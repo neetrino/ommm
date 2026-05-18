@@ -1,19 +1,23 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
-
-function navLinkClass(active: boolean): string {
-  return [
-    "rounded-full px-3 py-2 text-base font-light transition-colors",
-    active
-      ? "border-b-2 border-[rgba(250,204,21,0.5)] pb-1.5 text-white"
-      : "text-white hover:bg-white/10",
-  ].join(" ");
-}
+import {
+  isCompactMarketingHeaderLocale,
+  marketingHeaderActionsClass,
+  marketingHeaderBookClass,
+  marketingHeaderBrandLinkClass,
+  marketingHeaderBrandTextClass,
+  marketingHeaderContainerClass,
+  marketingHeaderMenuButtonClass,
+  marketingHeaderMobilePanelClass,
+  marketingHeaderNavClass,
+  marketingHeaderNavLinkClass,
+  marketingHeaderShellClass,
+} from "@/components/marketing/marketing-site-header-layout";
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
@@ -26,6 +30,8 @@ export type MarketingSiteHeaderProps = {
 
 /** Public marketing site header — matches Home (fixed bar, text brand, light nav, Book CTA). */
 export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
+  const locale = useLocale();
+  const compact = isCompactMarketingHeaderLocale(locale);
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
@@ -33,54 +39,51 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
 
-  const headerShellClass = [
-    "fixed left-0 right-0 top-0 z-50 w-full min-w-0",
-    "pt-[env(safe-area-inset-top,0px)]",
-    "bg-transparent backdrop-blur-sm",
-  ].join(" ");
-
   return (
-    <header className={headerShellClass}>
-      <div className="ommm-container flex h-16 items-center justify-between gap-4 sm:h-20">
+    <header className={marketingHeaderShellClass()}>
+      <div className={marketingHeaderContainerClass(compact)}>
         <Link
           href="/"
-          className="flex shrink-0 items-center"
+          className={marketingHeaderBrandLinkClass(compact)}
           onClick={() => setOpen(false)}
         >
-          <span className="font-sans text-xl font-semibold tracking-tight text-white sm:text-2xl">
+          <span className={marketingHeaderBrandTextClass(compact)}>
             {tNav("studioBrand")}
           </span>
         </Link>
 
         <nav
-          className="hidden items-center gap-10 lg:flex"
+          className={marketingHeaderNavClass(compact)}
           aria-label={tUi("primaryNavAria")}
         >
           {navLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(marketingPath, href))}
+              className={marketingHeaderNavLinkClass(
+                isActive(marketingPath, href),
+                compact,
+              )}
             >
               {tNav(key)}
             </Link>
           ))}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0">
+        <div className={marketingHeaderActionsClass(compact)}>
           <LanguageSwitcher
             context="marketing"
             onAfterSelect={() => setOpen(false)}
           />
           <Link
             href="/schedule"
-            className="hidden rounded-full bg-[#e8da74] px-8 py-3 text-sm font-medium text-white shadow-sm transition-[filter,transform] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent lg:inline-flex"
+            className={marketingHeaderBookClass(compact)}
           >
             {tUi("bookAClass")}
           </Link>
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/50 bg-white/10 text-white shadow-sm lg:hidden"
+            className={marketingHeaderMenuButtonClass()}
             aria-expanded={open}
             aria-controls="marketing-mobile-nav"
             aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
@@ -112,18 +115,20 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
 
       <div
         id="marketing-mobile-nav"
-        className={
-          open
-            ? "border-t border-white/30 bg-black/30 px-4 py-4 backdrop-blur-xl lg:hidden"
-            : "hidden"
-        }
+        className={marketingHeaderMobilePanelClass(open)}
       >
-        <nav className="flex flex-col gap-1" aria-label={tUi("mobilePrimaryNavAria")}>
+        <nav
+          className="flex flex-col gap-1"
+          aria-label={tUi("mobilePrimaryNavAria")}
+        >
           {navLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(marketingPath, href))}
+              className={marketingHeaderNavLinkClass(
+                isActive(marketingPath, href),
+                compact,
+              )}
               onClick={() => setOpen(false)}
             >
               {tNav(key)}
