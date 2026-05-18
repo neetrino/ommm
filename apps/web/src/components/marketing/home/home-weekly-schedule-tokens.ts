@@ -15,9 +15,13 @@ export const HOME_WEEKLY_SCHEDULE_FIGMA = {
 } as const;
 
 export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
-  titleFontSize: "clamp(2rem, 5vw, 4.375rem)",
+  titleFontSize: "clamp(1.75rem, 6.5vw, 4.375rem)",
   titleLineHeight: 1.1,
   subtitleMaxWidth: "32.875rem",
-  cardMinHeight: "clamp(10.5rem, 28vw, 13.125rem)",
-  mobileColumnWidth: "min(11.375rem, 78vw)",
+  panelRadius: "clamp(1.25rem, 4vw, 3.125rem)",
+  cardRadius: "clamp(1.25rem, 3.5vw, 2.5rem)",
+  cardMinHeight: "clamp(9.5rem, 42vw, 13.125rem)",
+  /** One day column in the mobile horizontal carousel. */
+  mobileColumnWidth: "min(11.375rem, 82vw)",
+  heroOverlap: "clamp(1rem, 3.4vw, 3.0625rem)",
 } as const;

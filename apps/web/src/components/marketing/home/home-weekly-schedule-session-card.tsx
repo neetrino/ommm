@@ -33,22 +33,22 @@ export function HomeWeeklyScheduleSessionCard({
     <Link
       href="/schedule"
       aria-label={bookAriaLabel}
-      className={`${marketingMontserrat.className} group flex min-h-0 w-full min-w-0 flex-col items-center justify-between gap-3 rounded-[2.5rem] px-3 py-5 text-center transition-[border-color,background-color,transform] hover:border-[#7a7360] hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent active:scale-[0.99] sm:px-4`}
+      className={`${marketingMontserrat.className} group flex min-h-0 w-full min-w-0 flex-col items-center justify-between gap-2 rounded-[2.5rem] px-3 py-4 text-center text-sm transition-[border-color,background-color,transform] hover:border-[#7a7360] hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent active:scale-[0.99] sm:gap-3 sm:py-5 sm:text-base sm:px-4`}
       style={{
         minHeight: HOME_WEEKLY_SCHEDULE_LAYOUT.cardMinHeight,
         borderWidth: HOME_WEEKLY_SCHEDULE_FIGMA.cardBorderWidthPx,
         borderStyle: "solid",
         borderColor: HOME_WEEKLY_SCHEDULE_FIGMA.cardBorder,
-        borderRadius: HOME_WEEKLY_SCHEDULE_FIGMA.cardRadiusPx,
+        borderRadius: HOME_WEEKLY_SCHEDULE_LAYOUT.cardRadius,
         color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
       }}
     >
-      <span className="text-base font-semibold leading-6">{startLabel}</span>
-      <span className="line-clamp-3 text-base font-extrabold leading-6">{item.className}</span>
+      <span className="font-semibold leading-6">{startLabel}</span>
+      <span className="line-clamp-3 font-extrabold leading-6">{item.className}</span>
       {endLabel !== null ? (
-        <span className="text-base font-semibold leading-6">{endLabel}</span>
+        <span className="font-semibold leading-6">{endLabel}</span>
       ) : (
-        <span className="text-base font-semibold leading-6 opacity-0" aria-hidden>
+        <span className="font-semibold leading-6 opacity-0" aria-hidden>
           —
         </span>
       )}

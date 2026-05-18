@@ -11,7 +11,7 @@ type MarketingPublicHeroProps = {
  */
 export async function MarketingPublicHero({ locale }: MarketingPublicHeroProps) {
   return (
-    <div className={`${marketingMontserrat.variable} w-full min-w-0 overflow-x-clip`}>
+    <div className={`${marketingMontserrat.variable} w-full min-w-0`}>
       <HomeHeroPhotoBanner locale={locale} />
       <HomeWeeklyScheduleBanner locale={locale} />
     </div>
