@@ -1,6 +1,6 @@
 /**
  * Figma file `ommm`, frame **Hero Section** `155:108`, artboard **1440×924** for the photo stack.
- * Values are taken from Dev Mode exports (May 2026); spacing uses absolute px → % of canvas.
+ * Values are taken from Dev Mode exports (May 2026).
  */
 
 export const HOME_HERO_FIGMA = {
@@ -13,6 +13,26 @@ export const HOME_HERO_FIGMA = {
   primaryCtaHighlight: "#ffee6e",
   secondaryCtaBorder: "#fffec9",
   secondaryCtaHighlight: "#fffec9",
+  frostPanelFill: "rgba(255, 255, 255, 0.2)",
+  frostPanelRadiusPx: 50,
+} as const;
+
+/** Responsive layout derived from Figma artboard `155:108` (1440×924 photo area). */
+export const HOME_HERO_LAYOUT = {
+  imageAspectRatio: HOME_HERO_FIGMA.artboardWidthPx / HOME_HERO_FIGMA.imageHeightPx,
+  /** Matches Figma proportion using svw (aligns with real phones, not only DevTools). */
+  imageMinHeightMobile:
+    "max(16rem, calc(100svw * 924 / 1440))",
+  /** Prevents mobile Safari from stretching hero to full dynamic viewport. */
+  imageMaxHeightMobile: "min(42rem, 88dvh)",
+  /** Large screens: fluid growth capped at viewport height. */
+  imageMinHeightDesktop: "clamp(32.5rem, 64vw, 100svh)",
+  heroPanelOverlap: "clamp(1.75rem, 3.4vw, 3.0625rem)",
+  portalTop: "15.8%",
+  titleFontSize: "clamp(2.75rem, 11vw, 4.5rem)",
+  titleFontSizeDesktop: "clamp(2.75rem, 5.5vw, 8.0625rem)",
+  titleLineHeight: 107 / 129,
+  backgroundObjectPosition: "48% 42%",
 } as const;
 
 /** WCAG-friendly subcopy on the photographic hero (Figma export targets pale UI, not the photo). */
@@ -41,5 +61,4 @@ export const HOME_HERO_ASSETS = {
   backgroundImage: "/marketing/home/hero/home-hero-banner-bg.png",
   logoMark: "/marketing/home/hero/home-hero-logo-mark.png",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
-  decorativeVector: "/marketing/home/hero/home-hero-decorative-vector.svg",
 } as const;

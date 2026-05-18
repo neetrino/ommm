@@ -22,7 +22,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
 
   return (
     <div
-      className={`${marketingMontserrat.variable} min-h-0 w-full flex-1`}
+      className={`${marketingMontserrat.variable} min-h-0 w-full min-w-0 flex-1 overflow-x-clip`}
       style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}
     >
       <MarketingHomeScrollReveal>

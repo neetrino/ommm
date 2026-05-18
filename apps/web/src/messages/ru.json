@@ -94,9 +94,21 @@
       "logoAlt": "Эмблема студии Ommm"
     },
     "home": {
-      "introTitle": "Убежище для каждого тела",
-      "introBody": "Ommm.Space — место, где каждое тело может переподключиться, замедлиться и почувствовать опору. Мы верим, что движение — это не только физика: это ритмичная медитация между усилием и лёгкостью.",
-      "introEyebrow": "ОСНОВАНО НА ПРИСУТСТВИИ",
+      "weeklyScheduleTitle": "Расписание на неделю",
+      "weeklyScheduleSubtitle": "Присоединяйтесь к нам в течение недели — занятия, подобранные под ваш wellness-путь.",
+      "weeklyScheduleGridAria": "Недельное расписание по дням",
+      "weeklyScheduleEmptyDay": "Нет занятий",
+      "weeklyScheduleLoadFailed": "Не удалось загрузить расписание ({status}).",
+      "weeklyScheduleBookSessionAria": "Открыть {className} в расписании",
+      "weeklyScheduleDays": {
+        "MONDAY": "ПН",
+        "TUESDAY": "ВТ",
+        "WEDNESDAY": "СР",
+        "THURSDAY": "ЧТ",
+        "FRIDAY": "ПТ",
+        "SATURDAY": "СБ",
+        "SUNDAY": "ВС"
+      },
       "classesTitle": "Наши ключевые практики",
       "classesSubtitle": "Тщательно подобранные занятия для физического и ментального благополучия.",
       "viewSchedule": "Расписание",

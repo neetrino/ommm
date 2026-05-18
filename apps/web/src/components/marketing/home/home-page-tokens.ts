@@ -18,9 +18,6 @@ export const HOME_PAGE_SURFACE = {
   plansCardShadow:
     "0 26px 58px -24px rgba(45, 55, 62, 0.32), inset 0 1px 0 rgba(255,255,255,0.94), inset 0 -1px 0 rgba(87,127,145,0.12)",
   plansHeading: "#577f91",
-  introHeading: "#695f00",
-  introBody: "#4a4738",
-  introEyebrow: "#665f33",
   cardTitle: "#1d1c15",
   cardBody: "#4a4738",
   classCardRadiusPx: 40,

@@ -94,9 +94,21 @@
       "logoAlt": "Ommm ստուդիայի նշան"
     },
     "home": {
-      "introTitle": "Տաճար ամեն մարմնի համար",
-      "introBody": "Ommm.Space-ը տեղ է, որտեղ ամեն մարմին կարող է նորից կապվել, դանդաղել և զգալ աջակցություն։ Մենք հավատում ենք, որ շարժումը միայն ֆիզիկական չէ — այն ռիթմիկ մեդիտացիա է, որը կամուրջ է ջանքի ու թեթևության միջև։",
-      "introEyebrow": "Հիմնված ներկայության վրա",
+      "weeklyScheduleTitle": "Շաբաթական դասացուցակ",
+      "weeklyScheduleSubtitle": "Միացեք մեզ ամբողջ շաբաթ՝ ձեր wellness ճանապարհին հարմարեցված փոխակերպող սեսիաների համար։",
+      "weeklyScheduleGridAria": "Շաբաթական դասացուցակ ըստ օրերի",
+      "weeklyScheduleEmptyDay": "Սեսիաներ չկան",
+      "weeklyScheduleLoadFailed": "Դասացուցակը բեռնել չհաջողվեց ({status})։",
+      "weeklyScheduleBookSessionAria": "Դիտել {className} դասացուցակում",
+      "weeklyScheduleDays": {
+        "MONDAY": "ԵՐԿ",
+        "TUESDAY": "ԵՐՔ",
+        "WEDNESDAY": "ՉՐԿ",
+        "THURSDAY": "ՀԻՆԳ",
+        "FRIDAY": "ՈՒՐԲ",
+        "SATURDAY": "ՇԲԹ",
+        "SUNDAY": "ԿԻՐ"
+      },
       "classesTitle": "Մեր հիմնական պրակտիկաները",
       "classesSubtitle": "Մտածված սեսիաներ՝ ֆիզիկական և մտավոր բարօրության համար։",
       "viewSchedule": "Դասացուցակ",

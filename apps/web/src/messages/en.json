@@ -94,9 +94,21 @@
       "logoAlt": "Ommm studio emblem"
     },
     "home": {
-      "introTitle": "A Sanctuary for Every Body",
-      "introBody": "Ommm.Space is a place where every body can reconnect, slow down, and feel held. We believe that movement is not just physical — it's a rhythmic meditation that bridges the gap between effort and ease.",
-      "introEyebrow": "FOUNDED ON PRESENCE",
+      "weeklyScheduleTitle": "Weekly Schedule",
+      "weeklyScheduleSubtitle": "Join us throughout the week for transformative sessions tailored to your wellness journey.",
+      "weeklyScheduleGridAria": "Weekly class schedule by day",
+      "weeklyScheduleEmptyDay": "No sessions",
+      "weeklyScheduleLoadFailed": "Could not load schedule ({status}).",
+      "weeklyScheduleBookSessionAria": "View {className} on the schedule",
+      "weeklyScheduleDays": {
+        "MONDAY": "MON",
+        "TUESDAY": "TUES",
+        "WEDNESDAY": "WED",
+        "THURSDAY": "THUR",
+        "FRIDAY": "FRI",
+        "SATURDAY": "SAT",
+        "SUNDAY": "SUN"
+      },
       "classesTitle": "Our Core Practices",
       "classesSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
       "viewSchedule": "View schedule",

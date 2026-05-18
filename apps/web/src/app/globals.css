@@ -1,6 +1,11 @@
 @import "../styles/tokens.css";
 @import "tailwindcss";
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 :root {
   --background: #faf9f7;
   --foreground: #1a1c1b;
