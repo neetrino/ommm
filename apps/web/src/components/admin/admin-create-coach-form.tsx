@@ -128,6 +128,60 @@ export function AdminCreateCoachForm({
     });
   }
 
+  function formatBirthdayInput(rawValue: string): string {
+    const digits = rawValue.replace(/\D/g, "").slice(0, 8);
+    if (digits.length === 0) {
+      return "";
+    }
+
+    const dayRaw = digits.slice(0, 2);
+    const monthRaw = digits.slice(2, 4);
+    const yearRaw = digits.slice(4, 8);
+
+    const day =
+      dayRaw.length < 2
+        ? dayRaw
+        : String(Math.max(1, Math.min(31, Number(dayRaw)))).padStart(2, "0");
+
+    if (digits.length <= 2) {
+      return day;
+    }
+
+    const month =
+      monthRaw.length < 2
+        ? monthRaw
+        : String(Math.max(1, Math.min(12, Number(monthRaw)))).padStart(2, "0");
+
+    if (digits.length <= 4) {
+      return `${day}/${month}`;
+    }
+
+    return `${day}/${month}/${yearRaw}`;
+  }
+
+  function parseBirthdayDisplayToIso(displayValue: string): string | null {
+    const trimmed = displayValue.trim();
+    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+    if (match === null) {
+      return null;
+    }
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
+      return null;
+    }
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) {
+      return null;
+    }
+    return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (pending || submitLockRef.current) {
@@ -185,12 +239,17 @@ export function AdminCreateCoachForm({
       setError(t("birthdayRequired"));
       return;
     }
-    const birthdayDate = new Date(birthdayRaw);
+    const birthdayIso = parseBirthdayDisplayToIso(birthdayRaw);
+    if (birthdayIso === null) {
+      setError(t("birthdayInvalid"));
+      return;
+    }
+    const birthdayDate = new Date(birthdayIso);
     if (Number.isNaN(birthdayDate.getTime())) {
       setError(t("birthdayInvalid"));
       return;
     }
-    const derivedAge = calculateAgeFromBirthday(birthdayRaw);
+    const derivedAge = calculateAgeFromBirthday(birthdayIso);
     if (derivedAge === null || Math.abs(derivedAge - ageNum) > 1) {
       setError(t("ageBirthdayMismatch"));
       return;
@@ -296,7 +355,7 @@ export function AdminCreateCoachForm({
           lastName: lastNameRaw,
           phone: phoneRaw,
           age: ageNum,
-          birthday: birthdayRaw,
+          birthday: birthdayIso,
           bio: bioRaw,
           specialization: specializationRaw,
           classType: classTypeRaw,
@@ -429,15 +488,21 @@ export function AdminCreateCoachForm({
             <span className="ommm-label text-xs uppercase tracking-wide">
               {t("birthdayLabel")}
             </span>
-            <DatePickerInput
+          <input
               name="birthday"
+            type="text"
+            inputMode="numeric"
+            autoComplete="bday"
+            maxLength={10}
+            className="ommm-input"
               value={birthdayValue}
               required
-              ariaLabel={t("birthdayLabel")}
-              placeholder={t("birthdayLabel")}
-              onChange={(nextValue) => {
-                setBirthdayValue(nextValue);
-                const age = calculateAgeFromBirthday(nextValue);
+            placeholder="DD/MM/YYYY"
+            onChange={(event) => {
+              const nextValue = formatBirthdayInput(event.target.value);
+              setBirthdayValue(nextValue);
+              const iso = parseBirthdayDisplayToIso(nextValue);
+              const age = iso === null ? null : calculateAgeFromBirthday(iso);
                 if (age !== null) {
                   const ageInput = formRef.current?.elements.namedItem(
                     "age",
