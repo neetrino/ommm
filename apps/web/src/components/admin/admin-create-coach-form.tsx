@@ -604,7 +604,7 @@ export function AdminCreateCoachForm({
                   <img
                     src={photoPreview}
                     alt={t("photoPreviewAlt")}
-                    className="h-44 w-full object-cover"
+                    className="h-44 w-full object-contain"
                   />
                 </div>
               ) : (

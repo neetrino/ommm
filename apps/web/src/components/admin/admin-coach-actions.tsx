@@ -979,7 +979,7 @@ export function AdminCoachActions({
                           <img
                             src={photoPreview}
                             alt={t("fieldPhotoPreviewAlt")}
-                            className="h-40 w-full object-cover"
+                            className="h-40 w-full object-contain"
                           />
                         </div>
                       ) : (
