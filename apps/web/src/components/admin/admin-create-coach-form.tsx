@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import {
   ScheduleFilterDropdown,
   type ScheduleFilterOption,
@@ -78,7 +77,6 @@ export function AdminCreateCoachForm({
   ]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
-  const [photoUrlInput, setPhotoUrlInput] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
     (value) => ({
@@ -87,19 +85,8 @@ export function AdminCreateCoachForm({
     }),
   );
   const photoPreview = useMemo(() => {
-    const objectPreview =
-      photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
-    if (objectPreview !== null) {
-      return objectPreview;
-    }
-    const remotePreview =
-      photoUrlInput.trim() === ""
-        ? null
-        : sanitizeCoachPreviewSrc(
-            resolveApiAssetUrl(photoUrlInput.trim()) ?? photoUrlInput.trim(),
-          );
-    return remotePreview;
-  }, [photoPreviewUrl, photoUrlInput]);
+    return photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
+  }, [photoPreviewUrl]);
 
   function onPhotoSelected(file: File | null): void {
     if (photoPreviewUrl !== null) {
@@ -158,7 +145,6 @@ export function AdminCreateCoachForm({
     const experienceRaw = String(fd.get("experienceYears") ?? "").trim();
     const specializationRaw = String(fd.get("specialization") ?? "").trim();
     const classTypeRaw = String(fd.get("classType") ?? "").trim();
-    const photoUrlRaw = photoUrlInput.trim();
     const password = String(fd.get("password") ?? "");
 
     setError(null);
@@ -288,7 +274,7 @@ export function AdminCreateCoachForm({
       setError(t("scheduleInvalid"));
       return;
     }
-    if (photoFile === null && photoUrlRaw === "") {
+    if (photoFile === null) {
       setError(t("photoRequired"));
       return;
     }
@@ -310,7 +296,6 @@ export function AdminCreateCoachForm({
           phone: phoneRaw,
           age: ageNum,
           birthday: birthdayRaw,
-          photoUrl: photoUrlRaw.length > 0 ? photoUrlRaw : undefined,
           bio: bioRaw,
           specialization: specializationRaw,
           classType: classTypeRaw,
@@ -321,14 +306,14 @@ export function AdminCreateCoachForm({
       });
       if (photoFile !== null) {
         const payload = await readFileAsBase64Payload(photoFile);
-        const uploadResult = await apiFetch<{ avatarUrl: string }>(
+        await apiFetch<{ avatarUrl: string }>(
           `/coaches/${created.id}/photo-json`,
           {
             method: "POST",
             body: JSON.stringify(payload),
           },
         );
-        setPhotoUrlInput(uploadResult.avatarUrl);
+        onPhotoSelected(null);
       }
       form.reset();
       setClassTypeValue("");
@@ -336,7 +321,6 @@ export function AdminCreateCoachForm({
       setSelectedClassIds([]);
       setScheduleRows([createScheduleRow()]);
       onPhotoSelected(null);
-      setPhotoUrlInput("");
       setError(null);
       if (onCreated !== undefined) {
         onCreated();
@@ -564,14 +548,6 @@ export function AdminCreateCoachForm({
               />
               {t("photoChoose")}
             </label>
-            <input
-              name="photoUrl"
-              className="ommm-input min-w-[220px] flex-1"
-              placeholder={t("photoUrlPlaceholder")}
-              value={photoUrlInput}
-              onChange={(event) => setPhotoUrlInput(event.target.value)}
-              disabled={pending}
-            />
           </div>
           {photoPreview !== null ? (
             <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">

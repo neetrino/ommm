@@ -383,7 +383,6 @@ export function AdminCoachActions({
     const phone = form.phone.trim();
     const age = Number(form.age.trim());
     const birthday = form.birthday.trim();
-    const photoUrl = form.photoUrl.trim();
     const bio = form.bio.trim();
     const experienceYears = Number(form.experienceYears.trim());
     const specialization = form.specialization.trim();
@@ -459,7 +458,7 @@ export function AdminCoachActions({
         nextErrors.assignedClassTypeIds = t("assignedClassesInvalid");
       }
     }
-    if (photoUrl === "" && photoFile === null) {
+    if (photoPreview === null && photoFile === null) {
       nextErrors.photo = t("photoRequired");
     }
     if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
@@ -495,7 +494,6 @@ export function AdminCoachActions({
             phone,
             age,
             birthday,
-            photoUrl: photoUrl.length > 0 ? photoUrl : undefined,
             bio,
             specialization,
             classType,
@@ -894,14 +892,6 @@ export function AdminCoachActions({
                           />
                           {t("fieldPhotoChoose")}
                         </label>
-                        <input
-                          type="text"
-                          className="app-input min-w-[220px] flex-1 border-sand-500/25 bg-white/90 text-sage-900"
-                          value={form.photoUrl}
-                          onChange={(event) => updateField("photoUrl", event.target.value)}
-                          placeholder={t("fieldPhotoPlaceholder")}
-                          disabled={busy}
-                        />
                       </div>
                       {photoPreview !== null ? (
                         <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
