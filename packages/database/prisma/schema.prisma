@@ -165,6 +165,7 @@ model CoachProfile {
   bio            String?
   specialization String?
   classType      String?
+  assignedClassTypeIds String[] @default([])
   experienceYears Int?
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
@@ -172,6 +173,20 @@ model CoachProfile {
 
   sessions            ClassSession[] @relation("SessionCoach")
   substituteSessions  ClassSession[] @relation("SessionSubstituteCoach")
+  availabilitySlots   CoachAvailabilitySlot[]
+}
+
+model CoachAvailabilitySlot {
+  id              String       @id @default(cuid())
+  coachProfileId  String
+  coachProfile    CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  slotDate        DateTime
+  slotTime        String
+  availableSpots  Int
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([coachProfileId, slotDate, slotTime])
 }
 
 model ClassType {

@@ -12,6 +12,7 @@ import {
 } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { AdminCreateCoachForm } from "@/components/admin/admin-create-coach-form";
 import { OmmButton } from "@/components/ui/omm-button";
 
@@ -41,11 +42,13 @@ function AddCoachGlyph({ className }: { className?: string }) {
 
 type AdminCoachesShellProps = {
   classTypeOptions: readonly string[];
+  classOptions: readonly CoachClassOption[];
   children: ReactNode;
 };
 
 export function AdminCoachesShell({
   classTypeOptions,
+  classOptions,
   children,
 }: AdminCoachesShellProps) {
   const t = useTranslations("adminPages.coaches");
@@ -208,6 +211,7 @@ export function AdminCoachesShell({
             <div className="mt-5">
               <AdminCreateCoachForm
                 classTypeOptions={classTypeOptions}
+                classOptions={classOptions}
                 onCreated={onCoachCreated}
                 onCancel={closeModal}
               />

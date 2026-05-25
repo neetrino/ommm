@@ -16,6 +16,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { CoachesService } from './coaches.service';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
+import { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
 
 @Controller('coaches')
 export class CoachesController {
@@ -70,5 +71,15 @@ export class CoachesController {
     @Body() dto: UpdateCoachDto,
   ) {
     return this.coaches.update(user, id, dto);
+  }
+
+  @Post(':id/photo-json')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  uploadCoachPhotoJson(
+    @Param('id') id: string,
+    @Body() dto: UploadCoachPhotoJsonDto,
+  ) {
+    return this.coaches.uploadCoachPhotoJson(id, dto);
   }
 }

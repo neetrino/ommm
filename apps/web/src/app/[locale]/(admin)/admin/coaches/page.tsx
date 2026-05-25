@@ -13,13 +13,28 @@ type CoachAdminRow = {
   bio: string | null;
   specialization: string | null;
   classType: string | null;
+  assignedClassTypeIds: string[];
+  schedule: {
+    id: string;
+    date: string;
+    time: string;
+    spots: number;
+  }[];
+  experienceYears: number | null;
   age: number | null;
   user: {
     name: string | null;
     lastName: string | null;
     email: string;
     phone: string | null;
+    dateOfBirth: string | null;
+    avatarUrl: string | null;
   };
+};
+
+type ClassTypeRow = {
+  id: string;
+  name: string;
 };
 
 function coachDisplayName(u: CoachAdminRow["user"]): string {
@@ -35,11 +50,15 @@ export default async function AdminCoachesPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.coaches" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [res, scheduleData] = await Promise.all([
+  const [res, scheduleData, classTypesRes] = await Promise.all([
     serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie),
     fetchPublicScheduleItems(cookie),
+    serverApiJson<ClassTypeRow[]>("/classes/types", cookie),
   ]);
   const classTypeOptions = scheduleData.classTypes;
+  const classOptions = classTypesRes.ok
+    ? classTypesRes.data.map((item) => ({ id: item.id, name: item.name }))
+    : [];
 
   if (!res.ok) {
     return (
@@ -57,7 +76,10 @@ export default async function AdminCoachesPage({
       description={t("description")}
     >
       <Suspense fallback={null}>
-        <AdminCoachesShell classTypeOptions={classTypeOptions}>
+        <AdminCoachesShell
+          classTypeOptions={classTypeOptions}
+          classOptions={classOptions}
+        >
           <div className={`${adminChrome.tableWrap}`}>
             <table className={`${adminChrome.table} table-fixed min-w-[34rem]`}>
               <colgroup>
@@ -95,9 +117,16 @@ export default async function AdminCoachesPage({
                         initialLastName={c.user.lastName ?? ""}
                         initialPhone={c.user.phone ?? ""}
                         initialAge={c.age}
+                        initialBirthday={c.user.dateOfBirth}
+                        initialPhotoUrl={c.user.avatarUrl}
+                        initialBio={c.bio ?? ""}
+                        initialExperienceYears={c.experienceYears}
+                        initialAssignedClassTypeIds={c.assignedClassTypeIds}
+                        initialSchedule={c.schedule}
                         initialSpecialization={c.specialization ?? ""}
                         initialClassType={c.classType ?? ""}
                         classTypeOptions={classTypeOptions}
+                        classOptions={classOptions}
                       />
                     </td>
                   </tr>

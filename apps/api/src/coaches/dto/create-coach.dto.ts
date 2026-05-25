@@ -1,5 +1,8 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayUnique,
+  IsArray,
+  IsDateString,
   IsEmail,
   IsInt,
   IsOptional,
@@ -8,7 +11,9 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { CoachScheduleSlotDto } from './coach-schedule-slot.dto';
 
 /** Inclusive; aligns with typical employment age for coaches. */
 export const COACH_MIN_AGE = 16;
@@ -45,6 +50,14 @@ export class CreateCoachDto {
   @Max(COACH_MAX_AGE)
   age!: number;
 
+  @IsDateString()
+  birthday!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  photoUrl?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(4000)
@@ -64,4 +77,16 @@ export class CreateCoachDto {
   @Type(() => Number)
   @IsInt()
   experienceYears?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  assignedClassTypeIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CoachScheduleSlotDto)
+  schedule?: CoachScheduleSlotDto[];
 }
