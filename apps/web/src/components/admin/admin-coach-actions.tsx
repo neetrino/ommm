@@ -245,6 +245,7 @@ export function AdminCoachActions({
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [busy, setBusy] = useState(false);
   const [inlineMessage, setInlineMessage] = useState<string | null>(null);
@@ -300,6 +301,7 @@ export function AdminCoachActions({
     }
     setPhotoPreviewUrl(null);
     setPhotoFile(null);
+    setPhotoRemoved(false);
     setErrors({});
   }, [
     initialAge,
@@ -329,6 +331,20 @@ export function AdminCoachActions({
     }
     setPhotoFile(file);
     setPhotoPreviewUrl(file !== null ? URL.createObjectURL(file) : null);
+    if (file !== null) {
+      setPhotoRemoved(false);
+    }
+    setErrors((prev) => ({ ...prev, photo: undefined }));
+  }
+
+  function onPhotoDeleted(): void {
+    if (photoPreviewUrl !== null) {
+      URL.revokeObjectURL(photoPreviewUrl);
+    }
+    setPhotoPreviewUrl(null);
+    setPhotoFile(null);
+    setPhotoRemoved(true);
+    updateField("photoUrl", "");
     setErrors((prev) => ({ ...prev, photo: undefined }));
   }
 
@@ -530,9 +546,6 @@ export function AdminCoachActions({
         nextErrors.assignedClassTypeIds = t("assignedClassesInvalid");
       }
     }
-    if (photoPreview === null && photoFile === null) {
-      nextErrors.photo = t("photoRequired");
-    }
     if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
       nextErrors.photo = t("photoTooLarge");
     }
@@ -573,6 +586,7 @@ export function AdminCoachActions({
             experienceYears,
             assignedClassTypeIds,
             schedule: normalizeScheduleForApi(form.schedule),
+            ...(photoRemoved ? { photoUrl: "" } : {}),
           }),
         });
         if (photoFile !== null) {
@@ -972,6 +986,18 @@ export function AdminCoachActions({
                           />
                           {t("fieldPhotoChoose")}
                         </label>
+                        {photoPreview !== null ? (
+                          <OmmButton
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 rounded-xl px-3 text-xs"
+                            onClick={onPhotoDeleted}
+                            disabled={busy}
+                          >
+                            {t("fieldScheduleRemove")}
+                          </OmmButton>
+                        ) : null}
                       </div>
                       {photoPreview !== null ? (
                         <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">

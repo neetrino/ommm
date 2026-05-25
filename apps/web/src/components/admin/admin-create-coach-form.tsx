@@ -334,10 +334,6 @@ export function AdminCreateCoachForm({
       setError(t("scheduleInvalid"));
       return;
     }
-    if (photoFile === null) {
-      setError(t("photoRequired"));
-      return;
-    }
     if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
       setError(t("photoTooLarge"));
       return;
@@ -597,6 +593,17 @@ export function AdminCreateCoachForm({
                   />
                   {t("photoChoose")}
                 </label>
+                {photoPreview !== null ? (
+                  <OmmButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onPhotoSelected(null)}
+                    disabled={pending}
+                  >
+                    {t("scheduleRemoveRow")}
+                  </OmmButton>
+                ) : null}
               </div>
               {photoPreview !== null ? (
                 <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">

@@ -4,15 +4,17 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Prisma } from '@prisma/client';
 import { BookingStatus, Role, WaitlistStatus, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { hashPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import { absolutePathForStoredUpload } from '../users/user-upload.helpers';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import {
@@ -89,6 +91,7 @@ export class CoachesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly r2Storage: R2HomeImageStorage,
   ) {}
 
   listPublic() {
@@ -241,18 +244,18 @@ export class CoachesService {
     if (buffer.length > CoachesService.COACH_PHOTO_MAX_BYTES) {
       throw new BadRequestException('Photo is too large (max 10 MB)');
     }
+    if (!this.r2Storage.isConfigured()) {
+      throw new ServiceUnavailableException(
+        `Coach photo upload requires R2. Incomplete env: ${this.r2Storage.listMissingR2Env().join(', ')}`,
+      );
+    }
 
     const filename = `${randomUUID()}.${ext}`;
-    const userFolder = join(
-      process.cwd(),
-      'uploads',
-      'coach-avatar',
-      profile.user.id,
-    );
-    await mkdir(userFolder, { recursive: true });
-    const diskPath = join(userFolder, filename);
-    await writeFile(diskPath, buffer);
-    const avatarUrl = `/v1/uploads/coach-avatar/${profile.user.id}/${filename}`;
+    const avatarUrl = await this.r2Storage.putObject({
+      key: `coach-avatar/${profile.user.id}/${filename}`,
+      body: buffer,
+      contentType: mimeType,
+    });
 
     await this.prisma.user.update({
       where: { id: profile.user.id },
@@ -644,11 +647,17 @@ export class CoachesService {
     previousUrl: string | null,
     nextUrl: string,
   ): Promise<void> {
+    if (previousUrl === null || previousUrl === nextUrl) {
+      return;
+    }
     if (
-      previousUrl === null ||
-      previousUrl === nextUrl ||
-      !previousUrl.startsWith('/v1/uploads/coach-avatar/')
+      previousUrl.startsWith('https://') ||
+      previousUrl.startsWith('http://')
     ) {
+      await this.r2Storage.deleteObjectIfOwned(previousUrl);
+      return;
+    }
+    if (!previousUrl.startsWith('/v1/uploads/coach-avatar/')) {
       return;
     }
     const absolutePath = absolutePathForStoredUpload(
