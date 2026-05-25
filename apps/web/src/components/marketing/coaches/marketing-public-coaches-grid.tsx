@@ -90,21 +90,25 @@ function CoachCard({ coach, onClick }: CoachCardProps) {
 type CoachDetailsModalProps = {
   coach: PublicCoach;
   onClose: () => void;
+  isImagePreviewOpen: boolean;
+  onOpenImagePreview: () => void;
+  onCloseImagePreview: () => void;
 };
 
-function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
+function CoachDetailsModal({
+  coach,
+  onClose,
+  isImagePreviewOpen,
+  onOpenImagePreview,
+  onCloseImagePreview,
+}: CoachDetailsModalProps) {
   const t = useTranslations("marketing");
   const titleId = useId();
   const descriptionId = useId();
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const displayName = coachDisplayName(coach);
   const showExperience = coach.experienceYears != null && coach.experienceYears > 0;
   const showSpecialization = coach.specialization !== null && coach.specialization.trim() !== "";
   const bio = coach.bio?.trim() || t("coachesModalBioFallback");
-
-  useEffect(() => {
-    setIsImagePreviewOpen(false);
-  }, [coach.id]);
 
   useEffect(() => {
     if (!isImagePreviewOpen) {
@@ -114,14 +118,14 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        setIsImagePreviewOpen(false);
+        onCloseImagePreview();
       }
     };
     window.addEventListener("keydown", onKeyDown, true);
     return () => {
       window.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [isImagePreviewOpen]);
+  }, [isImagePreviewOpen, onCloseImagePreview]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4" role="presentation">
@@ -165,7 +169,7 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
               type="button"
               onClick={() => {
                 if (coach.user.avatarUrl) {
-                  setIsImagePreviewOpen(true);
+                  onOpenImagePreview();
                 }
               }}
               className="group relative h-56 cursor-zoom-in overflow-hidden rounded-2xl border border-sand-200/80 bg-gradient-to-br from-mint-100/90 to-sand-100 shadow-[0_18px_40px_-26px_rgba(45,40,35,0.5)] transition-transform duration-200 hover:scale-[1.01] md:h-[17rem]"
@@ -242,7 +246,7 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
             type="button"
             className="absolute inset-0"
             aria-label="Close photo preview"
-            onClick={() => setIsImagePreviewOpen(false)}
+            onClick={onCloseImagePreview}
           />
           <div className="pointer-events-none relative z-10 h-[92vh] w-[96vw]">
             <Image
@@ -255,7 +259,7 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
           </div>
           <button
             type="button"
-            onClick={() => setIsImagePreviewOpen(false)}
+            onClick={onCloseImagePreview}
             aria-label="Close photo preview"
             className="absolute right-5 top-5 z-20 rounded-full border border-white/45 bg-black/45 p-2 text-2xl leading-none text-white transition hover:scale-105 hover:bg-black/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
           >
@@ -269,11 +273,73 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
 
 export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGridProps) {
   const [selectedCoachId, setSelectedCoachId] = useState<string | null>(null);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+
+  const openImagePreview = () => {
+    setIsImagePreviewOpen(true);
+  };
+
+  const closeImagePreview = () => {
+    setIsImagePreviewOpen(false);
+  };
 
   const selectedCoach = useMemo(
     () => coaches.find((coach) => coach.id === selectedCoachId) ?? null,
     [coaches, selectedCoachId],
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const url = new URL(window.location.href);
+    const queryCoachId = url.searchParams.get("coach");
+    const shouldOpenPhoto = url.searchParams.get("photo") === "1";
+    if (!queryCoachId) {
+      return;
+    }
+    const coachExists = coaches.some((coach) => coach.id === queryCoachId);
+    if (!coachExists) {
+      return;
+    }
+    setSelectedCoachId(queryCoachId);
+    setIsImagePreviewOpen(shouldOpenPhoto);
+  }, [coaches]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const url = new URL(window.location.href);
+    if (selectedCoachId) {
+      url.searchParams.set("coach", selectedCoachId);
+    } else {
+      url.searchParams.delete("coach");
+    }
+    if (selectedCoachId && isImagePreviewOpen) {
+      url.searchParams.set("photo", "1");
+    } else {
+      url.searchParams.delete("photo");
+    }
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+  }, [isImagePreviewOpen, selectedCoachId]);
+
+  useEffect(() => {
+    if (selectedCoachId === null && isImagePreviewOpen) {
+      setIsImagePreviewOpen(false);
+    }
+  }, [isImagePreviewOpen, selectedCoachId]);
+
+  useEffect(() => {
+    if (selectedCoach?.user.avatarUrl || !isImagePreviewOpen) {
+      return;
+    }
+    setIsImagePreviewOpen(false);
+  }, [isImagePreviewOpen, selectedCoach]);
 
   useEffect(() => {
     if (selectedCoach === null) {
@@ -308,7 +374,15 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
           <CoachCard key={coach.id} coach={coach} onClick={() => setSelectedCoachId(coach.id)} />
         ))}
       </ul>
-      {selectedCoach ? <CoachDetailsModal coach={selectedCoach} onClose={() => setSelectedCoachId(null)} /> : null}
+      {selectedCoach ? (
+        <CoachDetailsModal
+          coach={selectedCoach}
+          onClose={() => setSelectedCoachId(null)}
+          isImagePreviewOpen={isImagePreviewOpen}
+          onOpenImagePreview={openImagePreview}
+          onCloseImagePreview={closeImagePreview}
+        />
+      ) : null}
     </>
   );
 }
