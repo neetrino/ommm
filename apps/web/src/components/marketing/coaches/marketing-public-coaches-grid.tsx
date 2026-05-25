@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useId, useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 type PublicCoach = {
@@ -36,14 +37,61 @@ function coachInitials(name: string | null, email: string): string {
 
 type CoachCardProps = {
   coach: PublicCoach;
+  index: number;
+  compactViewport: boolean;
+  reduceMotion: boolean;
   onClick: () => void;
 };
 
-function CoachCard({ coach, onClick }: CoachCardProps) {
+function coachEntranceDirection(index: number, compactViewport: boolean): -1 | 1 {
+  if (compactViewport) {
+    return index % 2 === 0 ? -1 : 1;
+  }
+  if (index < 2) {
+    return -1;
+  }
+  if (index < 4) {
+    return 1;
+  }
+  return Math.floor(index / 2) % 2 === 0 ? -1 : 1;
+}
+
+function CoachCard({ coach, index, compactViewport, reduceMotion, onClick }: CoachCardProps) {
   const t = useTranslations("marketing");
+  const direction = coachEntranceDirection(index, compactViewport);
+  const translateDistance = compactViewport ? 28 : 56;
+  const delaySeconds = Math.min(index, 7) * 0.1;
+
+  const initialState = reduceMotion
+    ? { opacity: 0 }
+    : {
+        opacity: 0,
+        x: direction * translateDistance,
+        scale: 0.965,
+        filter: "blur(10px)",
+      };
+
+  const visibleState = reduceMotion
+    ? { opacity: 1 }
+    : { opacity: 1, x: 0, scale: 1, filter: "blur(0px)" };
+
+  const transition = reduceMotion
+    ? { duration: 0.2, ease: "easeOut" as const }
+    : {
+        duration: 0.82,
+        delay: delaySeconds,
+        ease: [0.22, 1, 0.36, 1] as const,
+      };
 
   return (
-    <li className="list-none">
+    <motion.li
+      className="list-none"
+      initial={initialState}
+      whileInView={visibleState}
+      viewport={{ once: true, amount: 0.24 }}
+      transition={transition}
+      style={{ willChange: "transform, opacity, filter" }}
+    >
       <button
         type="button"
         onClick={onClick}
@@ -83,7 +131,7 @@ function CoachCard({ coach, onClick }: CoachCardProps) {
           ) : null}
         </div>
       </button>
-    </li>
+    </motion.li>
   );
 }
 
@@ -278,6 +326,8 @@ function CoachDetailsModal({
 export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGridProps) {
   const [selectedCoachId, setSelectedCoachId] = useState<string | null>(null);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [compactViewport, setCompactViewport] = useState(false);
+  const reduceMotion = useReducedMotion() ?? false;
 
   const openImagePreview = () => {
     setIsImagePreviewOpen(true);
@@ -371,11 +421,30 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
     };
   }, [selectedCoach]);
 
+  useEffect(() => {
+    const viewportMediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncViewport = () => {
+      setCompactViewport(viewportMediaQuery.matches);
+    };
+    syncViewport();
+    viewportMediaQuery.addEventListener("change", syncViewport);
+    return () => {
+      viewportMediaQuery.removeEventListener("change", syncViewport);
+    };
+  }, []);
+
   return (
     <>
-      <ul className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {coaches.map((coach) => (
-          <CoachCard key={coach.id} coach={coach} onClick={() => setSelectedCoachId(coach.id)} />
+      <ul className="mt-12 grid grid-cols-1 gap-6 overflow-x-clip md:grid-cols-2 lg:grid-cols-4">
+        {coaches.map((coach, index) => (
+          <CoachCard
+            key={coach.id}
+            coach={coach}
+            index={index}
+            compactViewport={compactViewport}
+            reduceMotion={reduceMotion}
+            onClick={() => setSelectedCoachId(coach.id)}
+          />
         ))}
       </ul>
       {selectedCoach ? (
