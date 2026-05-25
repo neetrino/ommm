@@ -250,6 +250,7 @@ export function AdminCoachActions({
   const [busy, setBusy] = useState(false);
   const [inlineMessage, setInlineMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
+  const [isMounted, setIsMounted] = useState(false);
   const isOpen = searchParams.get(EDIT_COACH_QUERY_KEY) === coachId;
   const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
     (value) => ({
@@ -405,6 +406,10 @@ export function AdminCoachActions({
     router.replace(query ? `${pathname}?${query}` : pathname);
     setErrors({});
   }, [busy, pathname, router, searchParams]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -633,7 +638,7 @@ export function AdminCoachActions({
         </div>
       ) : null}
 
-      {isOpen && typeof document !== "undefined"
+      {isOpen && isMounted
         ? createPortal(
             <div
               className="fixed inset-0 flex items-end justify-center p-0 sm:items-center sm:p-4"
