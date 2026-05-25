@@ -8,7 +8,7 @@ type PublicCoach = {
   bio: string | null;
   specialization: string | null;
   experienceYears: number | null;
-  user: { name: string | null; email: string; avatarUrl: string | null };
+  user: { name: string | null; lastName: string | null; email: string; avatarUrl: string | null };
 };
 
 export default async function CoachesMarketingPage({

@@ -23,10 +23,10 @@ export function coachCardDisplayName(user: CoachCardUser): string {
 }
 
 /** Initials fallback when no avatar is available. */
-export function coachCardInitials(name: string | null, email: string): string {
-  const trimmedName = name?.trim();
-  if (trimmedName) {
-    const parts = trimmedName.split(/\s+/).filter(Boolean);
+export function coachCardInitials(user: CoachCardUser): string {
+  const displayName = coachCardDisplayName(user);
+  if (displayName !== user.email) {
+    const parts = displayName.split(/\s+/).filter(Boolean);
     const firstInitial = parts[0]?.[0] ?? "";
     const secondInitial = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
     const compactInitials = `${firstInitial}${secondInitial}`.toUpperCase();
@@ -34,5 +34,5 @@ export function coachCardInitials(name: string | null, email: string): string {
       return compactInitials;
     }
   }
-  return email[0]?.toUpperCase() ?? "?";
+  return user.email[0]?.toUpperCase() ?? "?";
 }

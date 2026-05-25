@@ -99,7 +99,7 @@ export class CoachesService {
       where: { isActive: true },
       include: {
         user: {
-          select: { id: true, name: true, email: true, avatarUrl: true },
+          select: { id: true, name: true, lastName: true, email: true, avatarUrl: true },
         },
       },
     });
@@ -109,7 +109,7 @@ export class CoachesService {
     return this.prisma.coachProfile.findFirst({
       where: { id, isActive: true },
       include: {
-        user: { select: { id: true, name: true, avatarUrl: true } },
+        user: { select: { id: true, name: true, lastName: true, avatarUrl: true } },
       },
     });
   }

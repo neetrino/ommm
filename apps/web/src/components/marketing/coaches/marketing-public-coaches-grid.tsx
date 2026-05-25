@@ -192,7 +192,7 @@ function CoachDetailsModal({
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-5xl font-semibold text-sage-700">
-                  {coachCardInitials(coach.user.name, coach.user.email)}
+                  {coachCardInitials(coach.user)}
                 </div>
               )}
             </button>

@@ -72,7 +72,7 @@ export function PublicCoachCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-sage-700">
-            {coachCardInitials(user.name, user.email)}
+            {coachCardInitials(user)}
           </div>
         )}
       </div>
