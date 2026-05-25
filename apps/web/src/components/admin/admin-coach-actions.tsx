@@ -126,6 +126,75 @@ function CloseGlyph({ className }: { className?: string }) {
   );
 }
 
+function formatBirthdayInput(rawValue: string): string {
+  const digits = rawValue.replace(/\D/g, "").slice(0, 8);
+  if (digits.length === 0) {
+    return "";
+  }
+
+  const dayRaw = digits.slice(0, 2);
+  const monthRaw = digits.slice(2, 4);
+  const yearRaw = digits.slice(4, 8);
+
+  const day =
+    dayRaw.length < 2
+      ? dayRaw
+      : String(Math.max(1, Math.min(31, Number(dayRaw)))).padStart(2, "0");
+
+  if (digits.length <= 2) {
+    return day;
+  }
+
+  const month =
+    monthRaw.length < 2
+      ? monthRaw
+      : String(Math.max(1, Math.min(12, Number(monthRaw)))).padStart(2, "0");
+
+  if (digits.length <= 4) {
+    return `${day}/${month}`;
+  }
+
+  return `${day}/${month}/${yearRaw}`;
+}
+
+function parseBirthdayDisplayToIso(displayValue: string): string | null {
+  const trimmed = displayValue.trim();
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+  if (match === null) {
+    return null;
+  }
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
+    return null;
+  }
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function formatIsoBirthdayToDisplay(isoValue: string | null | undefined): string {
+  if (isoValue === null || isoValue === undefined) {
+    return "";
+  }
+  const trimmed = isoValue.trim();
+  if (trimmed === "") {
+    return "";
+  }
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed.slice(0, 10));
+  if (match === null) {
+    return "";
+  }
+  return `${match[3]}/${match[2]}/${match[1]}`;
+}
+
 export function AdminCoachActions({
   coachId,
   classTypeOptions = [],
@@ -157,7 +226,7 @@ export function AdminCoachActions({
     lastName: initialLastName,
     phone: initialPhone,
     age: initialAge === null ? "" : String(initialAge),
-    birthday: initialBirthday?.slice(0, 10) ?? "",
+    birthday: formatIsoBirthdayToDisplay(initialBirthday),
     photoUrl: initialPhotoUrl ?? "",
     bio: initialBio,
     experienceYears: initialExperienceYears === null ? "" : String(initialExperienceYears),
@@ -209,7 +278,7 @@ export function AdminCoachActions({
       lastName: initialLastName,
       phone: initialPhone,
       age: initialAge === null ? "" : String(initialAge),
-      birthday: initialBirthday?.slice(0, 10) ?? "",
+      birthday: formatIsoBirthdayToDisplay(initialBirthday),
       photoUrl: initialPhotoUrl ?? "",
       bio: initialBio,
       experienceYears: initialExperienceYears === null ? "" : String(initialExperienceYears),
@@ -383,7 +452,8 @@ export function AdminCoachActions({
     const lastName = form.lastName.trim();
     const phone = form.phone.trim();
     const age = Number(form.age.trim());
-    const birthday = form.birthday.trim();
+    const birthdayDisplay = form.birthday.trim();
+    const birthday = parseBirthdayDisplayToIso(birthdayDisplay);
     const bio = form.bio.trim();
     const experienceYears = Number(form.experienceYears.trim());
     const specialization = form.specialization.trim();
@@ -415,11 +485,12 @@ export function AdminCoachActions({
     ) {
       nextErrors.age = t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE });
     }
-    if (birthday === "") {
+    if (birthdayDisplay === "") {
       nextErrors.birthday = t("birthdayRequired");
     } else {
-      const derivedAge = calculateAgeFromBirthday(birthday);
-      if (derivedAge === null) {
+      const derivedAge =
+        birthday === null ? null : calculateAgeFromBirthday(birthday);
+      if (birthday === null || derivedAge === null) {
         nextErrors.birthday = t("birthdayInvalid");
       } else if (Math.abs(derivedAge - age) > 1) {
         nextErrors.birthday = t("ageBirthdayMismatch");
@@ -483,6 +554,7 @@ export function AdminCoachActions({
       setErrors(nextErrors);
       return;
     }
+    const birthdayIso = birthday === null ? "" : birthday;
 
     await run(
       async () => {
@@ -494,7 +566,7 @@ export function AdminCoachActions({
             lastName,
             phone,
             age,
-            birthday,
+            birthday: birthdayIso,
             bio,
             specialization,
             classType,
@@ -695,15 +767,22 @@ export function AdminCoachActions({
                       >
                         {t("fieldBirthday")}
                       </label>
-                      <DatePickerInput
+                      <input
                         id={`birthday-${coachId}`}
-                        name="birthday"
-                        ariaLabel={t("fieldBirthday")}
-                        placeholder={t("fieldBirthday")}
+                        name="birthdayDisplay"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="bday"
+                        maxLength={10}
+                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
                         value={form.birthday}
-                        onChange={(nextValue) => {
+                        placeholder="DD/MM/YYYY"
+                        onChange={(event) => {
+                          const nextValue = formatBirthdayInput(event.target.value);
                           updateField("birthday", nextValue);
-                          const derivedAge = calculateAgeFromBirthday(nextValue);
+                          const iso = parseBirthdayDisplayToIso(nextValue);
+                          const derivedAge =
+                            iso === null ? null : calculateAgeFromBirthday(iso);
                           if (derivedAge !== null) {
                             updateField("age", String(derivedAge));
                           }
