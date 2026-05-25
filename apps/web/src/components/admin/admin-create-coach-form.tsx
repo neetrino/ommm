@@ -32,6 +32,7 @@ import {
   type CoachClassOption,
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
@@ -393,15 +394,15 @@ export function AdminCreateCoachForm({
           <span className="ommm-label text-xs uppercase tracking-wide">
             {t("birthdayLabel")}
           </span>
-          <input
+          <DatePickerInput
             name="birthday"
-            type="date"
-            className="ommm-input"
             value={birthdayValue}
             required
-            onChange={(event) => {
-              setBirthdayValue(event.target.value);
-              const age = calculateAgeFromBirthday(event.target.value);
+            ariaLabel={t("birthdayLabel")}
+            placeholder={t("birthdayLabel")}
+            onChange={(nextValue) => {
+              setBirthdayValue(nextValue);
+              const age = calculateAgeFromBirthday(nextValue);
               if (age !== null) {
                 const ageInput = formRef.current?.elements.namedItem(
                   "age",

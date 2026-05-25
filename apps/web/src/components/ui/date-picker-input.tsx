@@ -1,0 +1,366 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+const CALENDAR_GRID_DAYS = 42;
+const WEEKDAY_ORDER_MONDAY_FIRST = [1, 2, 3, 4, 5, 6, 0] as const;
+
+export type DatePickerInputProps = {
+  name: string;
+  value: string;
+  onChange: (nextValue: string) => void;
+  disabled?: boolean;
+  required?: boolean;
+  ariaLabel?: string;
+  placeholder?: string;
+};
+
+function parseIsoDate(value: string): Date | null {
+  const parts = value.split("-");
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const year = Number(parts[0]);
+  const month = Number(parts[1]);
+  const day = Number(parts[2]);
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+    return null;
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+}
+
+function formatIsoDate(value: Date): string {
+  const year = String(value.getFullYear());
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function addDays(date: Date, days: number): Date {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+function isSameCalendarDate(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function getGridStartDate(visibleMonth: Date): Date {
+  const monthStart = startOfMonth(visibleMonth);
+  const weekdayFromMonday = (monthStart.getDay() + 6) % 7;
+  return addDays(monthStart, -weekdayFromMonday);
+}
+
+function ChevronLeft() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.25}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.25}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+
+function CalendarGlyph() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.85}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden
+    >
+      <path d="M8 2v4m8-4v4" />
+      <rect x="3" y="4.5" width="18" height="16" rx="3" />
+      <path d="M3 9h18" />
+    </svg>
+  );
+}
+
+export function DatePickerInput({
+  name,
+  value,
+  onChange,
+  disabled = false,
+  required = false,
+  ariaLabel,
+  placeholder = "Select date",
+}: DatePickerInputProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const selectedDate = useMemo(() => parseIsoDate(value), [value]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState<Date>(() =>
+    startOfMonth(selectedDate ?? new Date()),
+  );
+
+  const today = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
+
+  useEffect(() => {
+    if (selectedDate !== null) {
+      setVisibleMonth(startOfMonth(selectedDate));
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function onDocumentPointerDown(event: PointerEvent): void {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+      if (wrapperRef.current?.contains(target)) {
+        return;
+      }
+      setIsOpen(false);
+    }
+
+    function onDocumentKeyDown(event: KeyboardEvent): void {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", onDocumentPointerDown);
+    document.addEventListener("keydown", onDocumentKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onDocumentPointerDown);
+      document.removeEventListener("keydown", onDocumentKeyDown);
+    };
+  }, [isOpen]);
+
+  const monthLabel = useMemo(
+    () => new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(visibleMonth),
+    [visibleMonth],
+  );
+
+  const weekdayLabels = useMemo(
+    () =>
+      WEEKDAY_ORDER_MONDAY_FIRST.map((weekday) => {
+        const base = new Date(2024, 0, weekday + 1);
+        return new Intl.DateTimeFormat(undefined, { weekday: "short" })
+          .format(base)
+          .slice(0, 3)
+          .toUpperCase();
+      }),
+    [],
+  );
+
+  const calendarDays = useMemo(() => {
+    const start = getGridStartDate(visibleMonth);
+    return Array.from({ length: CALENDAR_GRID_DAYS }, (_, index) => addDays(start, index));
+  }, [visibleMonth]);
+
+  const displayValue =
+    selectedDate === null
+      ? placeholder
+      : new Intl.DateTimeFormat(undefined, {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }).format(selectedDate);
+
+  return (
+    <div className="relative" ref={wrapperRef}>
+      <input type="hidden" name={name} value={value} />
+      <button
+        type="button"
+        className="ommm-input flex min-h-11 items-center justify-between gap-2 text-left"
+        aria-label={ariaLabel}
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-required={required}
+        disabled={disabled}
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+        }}
+      >
+        <span
+          className={`truncate ${selectedDate === null ? "text-sage-500/70" : "text-sage-900"}`}
+        >
+          {displayValue}
+        </span>
+        <span className="inline-flex items-center gap-2 text-sage-500">
+          {selectedDate !== null ? (
+            <span
+              role="button"
+              tabIndex={disabled ? -1 : 0}
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[15px] leading-none transition-colors hover:bg-sand-100 hover:text-sage-700"
+              onClick={(event) => {
+                event.stopPropagation();
+                if (!disabled) {
+                  onChange("");
+                }
+              }}
+              onKeyDown={(event) => {
+                if (disabled) {
+                  return;
+                }
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onChange("");
+                }
+              }}
+              aria-label="Clear date"
+            >
+              x
+            </span>
+          ) : null}
+          <CalendarGlyph />
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div
+          role="dialog"
+          aria-label="Date picker calendar"
+          className="absolute left-0 top-[calc(100%+8px)] z-50 w-[min(92vw,340px)] rounded-[32px] border border-sand-500/20 bg-white p-4 shadow-[0_28px_56px_-28px_rgba(45,40,35,0.45)]"
+        >
+          <div className="flex items-center justify-between px-1">
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
+              aria-label="Previous month"
+              onClick={() => {
+                setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+              }}
+            >
+              <ChevronLeft />
+            </button>
+            <p className="text-3xl font-semibold text-sage-900">{monthLabel}</p>
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
+              aria-label="Next month"
+              onClick={() => {
+                setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+              }}
+            >
+              <ChevronRight />
+            </button>
+          </div>
+
+          <div className="mt-4 grid grid-cols-7 gap-y-2 text-center text-xs font-medium tracking-wide text-sage-500">
+            {weekdayLabels.map((label) => (
+              <span key={label}>{label}</span>
+            ))}
+          </div>
+
+          <div className="mt-2 grid grid-cols-7 gap-y-1.5">
+            {calendarDays.map((day) => {
+              const isInCurrentMonth = day.getMonth() === visibleMonth.getMonth();
+              const isSelected = selectedDate !== null && isSameCalendarDate(day, selectedDate);
+              const isToday = isSameCalendarDate(day, today);
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+
+              const textTone = !isInCurrentMonth
+                ? "text-sage-300"
+                : isSelected
+                  ? "text-white"
+                  : isWeekend
+                    ? "text-rose-500"
+                    : "text-sage-900";
+
+              const backgroundTone = isSelected ? "bg-[#2f39a6]" : "bg-transparent";
+              const todayRing =
+                isToday && !isSelected ? "ring-1 ring-sand-500/35 ring-inset" : "";
+
+              return (
+                <button
+                  key={formatIsoDate(day)}
+                  type="button"
+                  className={`mx-auto inline-flex h-10 w-10 items-center justify-center rounded-full text-lg transition-colors hover:bg-sand-50 ${textTone} ${backgroundTone} ${todayRing}`}
+                  onClick={() => {
+                    onChange(formatIsoDate(day));
+                    setIsOpen(false);
+                  }}
+                >
+                  {day.getDate()}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 flex items-center justify-between border-t border-sand-500/20 px-1 pt-3">
+            <button
+              type="button"
+              className="text-base font-medium text-[#2f39a6] transition-opacity hover:opacity-80"
+              onClick={() => {
+                onChange("");
+                setIsOpen(false);
+              }}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              className="text-base font-medium text-[#2f39a6] transition-opacity hover:opacity-80"
+              onClick={() => {
+                onChange(formatIsoDate(today));
+                setVisibleMonth(startOfMonth(today));
+                setIsOpen(false);
+              }}
+            >
+              Today
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
