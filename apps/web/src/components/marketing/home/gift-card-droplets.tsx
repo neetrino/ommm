@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import {
   useCallback,
@@ -9,6 +7,7 @@ import {
   useState,
   type PointerEvent,
 } from "react";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type DropletId = "glow" | "cream" | "peach" | "brand";
 
@@ -396,6 +395,7 @@ export function GiftCardDroplets() {
                 height={128}
                 className="h-full w-full object-cover"
                 draggable={false}
+                {...belowFoldImageProps()}
               />
             </span>
           ) : null}

@@ -9,6 +9,7 @@ import {
   HOME_HERO_SUBTITLE_ON_IMAGE,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
 type HomeHeroPhotoBannerProps = {
   locale: string;
@@ -41,11 +42,10 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
             src={HOME_HERO_ASSETS.backgroundImage}
             alt={t("heroImageAlt")}
             fill
-            priority
-            fetchPriority="high"
             sizes="100vw"
             className="pointer-events-none object-cover"
             style={{ objectPosition: HOME_HERO_LAYOUT.backgroundObjectPosition }}
+            {...lcpImageProps()}
           />
         </div>
 
@@ -61,6 +61,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
             height={519}
             unoptimized
             className="h-auto w-[87.2%] max-w-full"
+            {...aboveFoldImageProps()}
           />
         </div>
 
@@ -73,10 +74,10 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
                 src={HOME_HERO_ASSETS.logoMark}
                 alt={t("logoAlt")}
                 fill
-                priority
                 sizes="130px"
                 className="object-cover"
                 style={{ objectPosition: "44% 36%" }}
+                {...aboveFoldImageProps()}
               />
             </div>
           </div>

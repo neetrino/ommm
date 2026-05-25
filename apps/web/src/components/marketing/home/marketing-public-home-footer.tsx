@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type FooterLink = {
   href: string;
@@ -65,8 +66,7 @@ export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeF
             fill
             sizes="(max-width: 768px) 100vw, 662px"
             className="object-contain"
-            fetchPriority="low"
-            loading="lazy"
+            {...belowFoldImageProps()}
           />
         </div>
       </div>

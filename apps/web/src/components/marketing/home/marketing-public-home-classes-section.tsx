@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HOME_CLASS_CARD_BACKGROUNDS, HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
@@ -84,6 +85,7 @@ export async function MarketingPublicHomeClassesSection({
                   height={640}
                   sizes="(max-width: 768px) 45vw, 240px"
                   className="h-full w-full object-cover object-top"
+                  {...belowFoldImageProps()}
                 />
               </div>
             </article>

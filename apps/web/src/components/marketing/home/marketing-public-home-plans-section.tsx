@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
@@ -65,6 +66,7 @@ export async function MarketingPublicHomePlansSection({
                   fill
                   sizes="(max-width: 1024px) 100vw, 404px"
                   className="object-cover"
+                  {...belowFoldImageProps()}
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/25" />
                 <p

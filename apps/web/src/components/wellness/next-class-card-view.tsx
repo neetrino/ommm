@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 const DEFAULT_IMAGE = "/marketing/home/next-class.jpg";
 
@@ -79,7 +80,7 @@ export function NextClassCardView(props: NextClassCardViewProps) {
             fill
             sizes="(min-width:1024px) 38vw, (min-width:640px) 70vw, 92vw"
             className="object-cover"
-            priority={priorityImage}
+            {...(priorityImage ? aboveFoldImageProps() : {})}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-sage-900/65 via-sage-900/15 to-transparent" />
 

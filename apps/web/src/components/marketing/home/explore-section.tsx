@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 async function exploreTranslator(locale: string) {
   return getTranslations({ locale, namespace: "home.explore" });
@@ -114,9 +115,9 @@ function FeaturedExplore({ t }: { t: ExploreTranslator }) {
           src="/marketing/home/explore-featured.jpg"
           alt={t("featured.imageAlt")}
           fill
-          loading="lazy"
           sizes="(min-width:1024px) 56vw, 100vw"
           className="object-cover"
+          {...belowFoldImageProps()}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-sage-900/85 via-sage-900/20 to-transparent" />
 
@@ -174,6 +175,7 @@ function ExploreTile({ tile, t }: { tile: Tile; t: ExploreTranslator }) {
           fill
           sizes="(min-width:1024px) 18vw, (min-width:640px) 28vw, 90vw"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          {...belowFoldImageProps()}
         />
         <span className={`absolute left-3 top-3 ${chipClass}`}>
           {t(tile.chipKey)}

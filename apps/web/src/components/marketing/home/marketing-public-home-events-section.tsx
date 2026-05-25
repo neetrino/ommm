@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
@@ -90,6 +91,7 @@ function EventFeatureCard({ href, imageSrc, title, details, ctaAria, wide }: Eve
         fill
         sizes={wide ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 1024px) 100vw, 340px"}
         className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+        {...belowFoldImageProps()}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-white/90" />
       <div className="absolute bottom-6 left-6 z-10 max-w-[16rem] rounded-2xl bg-white/80 px-4 py-3 backdrop-blur-sm">
