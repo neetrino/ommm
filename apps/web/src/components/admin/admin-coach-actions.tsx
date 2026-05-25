@@ -641,12 +641,12 @@ export function AdminCoachActions({
       {isOpen && isMounted
         ? createPortal(
             <div
-              className="fixed inset-0 flex items-end justify-center p-0 sm:items-center sm:p-4"
+              className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
               role="presentation"
             >
               <button
                 type="button"
-                className="absolute inset-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+                className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
                 aria-label={t("modalBackdropClose")}
                 onClick={closeModal}
               />
@@ -656,7 +656,7 @@ export function AdminCoachActions({
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
-                className="relative mt-auto max-h-[min(92vh,840px)] w-full max-w-[min(940px,95vw)] overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+                className="relative z-10 mt-auto max-h-[min(92vh,840px)] w-full max-w-[min(940px,95vw)] overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -679,207 +679,254 @@ export function AdminCoachActions({
                 </div>
 
                 <form
-                  className="mt-5 flex flex-col gap-4"
+                  className="mt-5 flex flex-col gap-5"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void onSave();
                   }}
                 >
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-sage-700" htmlFor={`email-${coachId}`}>
-                      {t("fieldEmail")}
-                    </label>
-                    <input
-                      id={`email-${coachId}`}
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                      value={form.email}
-                      onChange={(event) => updateField("email", event.target.value)}
-                      disabled={busy}
-                    />
-                    {errors.email ? <p className="text-xs text-red-800">{errors.email}</p> : null}
-                  </div>
+                  <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+                        Personal Information
+                      </h3>
+                      <p className="text-xs text-sage-500">Core account and identity details</p>
+                    </div>
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <label className="flex flex-col gap-1 lg:col-span-2">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldEmail")}</span>
+                        <input
+                          id={`email-${coachId}`}
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          className="ommm-input"
+                          value={form.email}
+                          onChange={(event) => updateField("email", event.target.value)}
+                          disabled={busy}
+                        />
+                        {errors.email ? <p className="text-xs text-red-800">{errors.email}</p> : null}
+                      </label>
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
+                        <input
+                          id={`name-${coachId}`}
+                          type="text"
+                          autoComplete="given-name"
+                          className="ommm-input"
+                          value={form.name}
+                          onChange={(event) => updateField("name", event.target.value)}
+                          disabled={busy}
+                        />
+                        {errors.name ? <p className="text-xs text-red-800">{errors.name}</p> : null}
+                      </label>
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">
+                          {t("fieldLastName")}
+                        </span>
+                        <input
+                          id={`last-name-${coachId}`}
+                          type="text"
+                          autoComplete="family-name"
+                          className="ommm-input"
+                          value={form.lastName}
+                          onChange={(event) => updateField("lastName", event.target.value)}
+                          disabled={busy}
+                        />
+                        {errors.lastName ? <p className="text-xs text-red-800">{errors.lastName}</p> : null}
+                      </label>
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPhone")}</span>
+                        <input
+                          id={`phone-${coachId}`}
+                          type="tel"
+                          autoComplete="tel"
+                          className="ommm-input"
+                          value={form.phone}
+                          onChange={(event) => updateField("phone", event.target.value)}
+                          maxLength={MAX_PHONE_CHARS}
+                          disabled={busy}
+                        />
+                        {errors.phone ? <p className="text-xs text-red-800">{errors.phone}</p> : null}
+                      </label>
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldBirthday")}</span>
+                        <input
+                          id={`birthday-${coachId}`}
+                          name="birthdayDisplay"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="bday"
+                          maxLength={10}
+                          className="ommm-input"
+                          value={form.birthday}
+                          placeholder="DD/MM/YYYY"
+                          onChange={(event) => {
+                            const nextValue = formatBirthdayInput(event.target.value);
+                            updateField("birthday", nextValue);
+                            const iso = parseBirthdayDisplayToIso(nextValue);
+                            const derivedAge =
+                              iso === null ? null : calculateAgeFromBirthday(iso);
+                            if (derivedAge !== null) {
+                              updateField("age", String(derivedAge));
+                            }
+                          }}
+                          disabled={busy}
+                        />
+                        {errors.birthday ? <p className="text-xs text-red-800">{errors.birthday}</p> : null}
+                      </label>
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAge")}</span>
+                        <input
+                          id={`age-${coachId}`}
+                          type="number"
+                          min={COACH_MIN_AGE}
+                          max={COACH_MAX_AGE}
+                          inputMode="numeric"
+                          className="ommm-input"
+                          value={form.age}
+                          onChange={(event) => updateField("age", event.target.value)}
+                          disabled={busy}
+                        />
+                        {errors.age ? <p className="text-xs text-red-800">{errors.age}</p> : null}
+                      </label>
+                    </div>
+                  </section>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label
-                        className="text-sm font-medium text-sage-700"
-                        htmlFor={`name-${coachId}`}
-                      >
-                        {t("fieldName")}
-                      </label>
-                      <input
-                        id={`name-${coachId}`}
-                        type="text"
-                        autoComplete="given-name"
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                        value={form.name}
-                        onChange={(event) => updateField("name", event.target.value)}
-                        disabled={busy}
-                      />
-                      {errors.name ? <p className="text-xs text-red-800">{errors.name}</p> : null}
+                  <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+                        Coach Details
+                      </h3>
+                      <p className="text-xs text-sage-500">Experience, specialization, and profile media</p>
                     </div>
-                    <div className="space-y-1">
-                      <label
-                        className="text-sm font-medium text-sage-700"
-                        htmlFor={`last-name-${coachId}`}
-                      >
-                        {t("fieldLastName")}
-                      </label>
-                      <input
-                        id={`last-name-${coachId}`}
-                        type="text"
-                        autoComplete="family-name"
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                        value={form.lastName}
-                        onChange={(event) => updateField("lastName", event.target.value)}
-                        disabled={busy}
-                      />
-                      {errors.lastName ? (
-                        <p className="text-xs text-red-800">{errors.lastName}</p>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-sage-700" htmlFor={`phone-${coachId}`}>
-                        {t("fieldPhone")}
-                      </label>
-                      <input
-                        id={`phone-${coachId}`}
-                        type="tel"
-                        autoComplete="tel"
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                        value={form.phone}
-                        onChange={(event) => updateField("phone", event.target.value)}
-                        maxLength={MAX_PHONE_CHARS}
-                        disabled={busy}
-                      />
-                      {errors.phone ? <p className="text-xs text-red-800">{errors.phone}</p> : null}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-sage-700" htmlFor={`age-${coachId}`}>
-                        {t("fieldAge")}
-                      </label>
-                      <input
-                        id={`age-${coachId}`}
-                        type="number"
-                        min={COACH_MIN_AGE}
-                        max={COACH_MAX_AGE}
-                        inputMode="numeric"
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                        value={form.age}
-                        onChange={(event) => updateField("age", event.target.value)}
-                        disabled={busy}
-                      />
-                      {errors.age ? <p className="text-xs text-red-800">{errors.age}</p> : null}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label
-                        className="text-sm font-medium text-sage-700"
-                        htmlFor={`birthday-${coachId}`}
-                      >
-                        {t("fieldBirthday")}
-                      </label>
-                      <input
-                        id={`birthday-${coachId}`}
-                        name="birthdayDisplay"
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="bday"
-                        maxLength={10}
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                        value={form.birthday}
-                        placeholder="DD/MM/YYYY"
-                        onChange={(event) => {
-                          const nextValue = formatBirthdayInput(event.target.value);
-                          updateField("birthday", nextValue);
-                          const iso = parseBirthdayDisplayToIso(nextValue);
-                          const derivedAge =
-                            iso === null ? null : calculateAgeFromBirthday(iso);
-                          if (derivedAge !== null) {
-                            updateField("age", String(derivedAge));
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">
+                          {t("fieldSpecialization")}
+                        </span>
+                        <input
+                          id={`specialization-${coachId}`}
+                          type="text"
+                          className="ommm-input"
+                          value={form.specialization}
+                          maxLength={MAX_SPECIALIZATION_LENGTH}
+                          onChange={(event) =>
+                            updateField("specialization", event.target.value)
                           }
-                        }}
-                        disabled={busy}
-                      />
-                      {errors.birthday ? (
-                        <p className="text-xs text-red-800">{errors.birthday}</p>
-                      ) : null}
-                    </div>
-                    <div className="space-y-1">
-                      <label
-                        className="text-sm font-medium text-sage-700"
-                        htmlFor={`experience-${coachId}`}
-                      >
-                        {t("fieldExperience")}
+                          placeholder={t("fieldSpecializationPlaceholder")}
+                          disabled={busy}
+                        />
+                        {errors.specialization ? (
+                          <p className="text-xs text-red-800">{errors.specialization}</p>
+                        ) : null}
                       </label>
-                      <input
-                        id={`experience-${coachId}`}
-                        type="number"
-                        min={0}
-                        max={MAX_EXPERIENCE_YEARS}
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                        value={form.experienceYears}
-                        onChange={(event) =>
-                          updateField("experienceYears", event.target.value)
-                        }
-                        disabled={busy}
-                      />
-                      {errors.experienceYears ? (
-                        <p className="text-xs text-red-800">{errors.experienceYears}</p>
-                      ) : null}
+                      <label className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">
+                          {t("fieldExperience")}
+                        </span>
+                        <input
+                          id={`experience-${coachId}`}
+                          type="number"
+                          min={0}
+                          max={MAX_EXPERIENCE_YEARS}
+                          className="ommm-input"
+                          value={form.experienceYears}
+                          onChange={(event) =>
+                            updateField("experienceYears", event.target.value)
+                          }
+                          disabled={busy}
+                        />
+                        {errors.experienceYears ? (
+                          <p className="text-xs text-red-800">{errors.experienceYears}</p>
+                        ) : null}
+                      </label>
+                      <div className="flex flex-col gap-1">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldClassType")}</span>
+                        <ScheduleFilterDropdown
+                          label={t("fieldClassTypePlaceholder")}
+                          ariaLabel={t("fieldClassType")}
+                          value={form.classType}
+                          options={classTypeDropdownOptions}
+                          onChange={(value) => updateField("classType", value)}
+                          disabled={busy}
+                        />
+                        {errors.classType ? (
+                          <p className="text-xs text-red-800">{errors.classType}</p>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPhoto")}</span>
+                        <div className="rounded-2xl border border-sand-500/20 bg-white/80 p-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-xs text-sage-700 hover:bg-sand-50/60">
+                              <input
+                                type="file"
+                                accept={ACCEPT_PHOTO}
+                                className="sr-only"
+                                disabled={busy}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0] ?? null;
+                                  onPhotoSelected(file);
+                                }}
+                              />
+                              {t("fieldPhotoChoose")}
+                            </label>
+                            {photoPreview !== null ? (
+                              <OmmButton
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 rounded-xl px-3 text-xs"
+                                onClick={onPhotoDeleted}
+                                disabled={busy}
+                              >
+                                {t("fieldScheduleRemove")}
+                              </OmmButton>
+                            ) : null}
+                          </div>
+                          {photoPreview !== null ? (
+                            <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={photoPreview}
+                                alt={t("fieldPhotoPreviewAlt")}
+                                className="h-40 w-full object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <p className="mt-2 text-xs text-sage-500">{t("fieldPhotoHint")}</p>
+                          )}
+                        </div>
+                        {errors.photo ? <p className="text-xs text-red-800">{errors.photo}</p> : null}
+                      </div>
+                      <label className="flex flex-col gap-1 lg:col-span-2">
+                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldBio")}</span>
+                        <textarea
+                          id={`bio-${coachId}`}
+                          className="ommm-input min-h-[150px] resize-y"
+                          value={form.bio}
+                          maxLength={MAX_BIO_LENGTH}
+                          onChange={(event) => updateField("bio", event.target.value)}
+                          disabled={busy}
+                        />
+                        {errors.bio ? <p className="text-xs text-red-800">{errors.bio}</p> : null}
+                      </label>
                     </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-sage-700" htmlFor={`bio-${coachId}`}>
-                      {t("fieldBio")}
-                    </label>
-                    <textarea
-                      id={`bio-${coachId}`}
-                      className="app-input min-h-[110px] resize-y border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                      value={form.bio}
-                      maxLength={MAX_BIO_LENGTH}
-                      onChange={(event) => updateField("bio", event.target.value)}
-                      disabled={busy}
-                    />
-                    {errors.bio ? <p className="text-xs text-red-800">{errors.bio}</p> : null}
-                  </div>
-                  <div className="space-y-1">
-                    <label
-                      className="text-sm font-medium text-sage-700"
-                      htmlFor={`specialization-${coachId}`}
-                    >
-                      {t("fieldSpecialization")}
-                    </label>
-                    <input
-                      id={`specialization-${coachId}`}
-                      type="text"
-                      className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-                      value={form.specialization}
-                      maxLength={MAX_SPECIALIZATION_LENGTH}
-                      onChange={(event) =>
-                        updateField("specialization", event.target.value)
-                      }
-                      placeholder={t("fieldSpecializationPlaceholder")}
-                      disabled={busy}
-                    />
-                    {errors.specialization ? (
-                      <p className="text-xs text-red-800">{errors.specialization}</p>
-                    ) : null}
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-sage-700">{t("fieldAssignedClasses")}</p>
-                    <div className="grid gap-2 rounded-xl border border-sand-500/20 bg-white/70 p-3 sm:grid-cols-2">
+                  </section>
+
+                  <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+                        Assigned Classes
+                      </h3>
+                      <p className="text-xs text-sage-500">Select class types coached by this person</p>
+                    </div>
+                    <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
                       {classOptions.map((option) => (
                         <label
                           key={option.id}
-                          className="inline-flex items-center gap-2 text-sm text-sage-700"
+                          className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-sage-700"
                         >
                           <input
                             type="checkbox"
@@ -895,42 +942,30 @@ export function AdminCoachActions({
                       ) : null}
                     </div>
                     {errors.assignedClassTypeIds ? (
-                      <p className="text-xs text-red-800">{errors.assignedClassTypeIds}</p>
+                      <p className="mt-2 text-xs text-red-800">{errors.assignedClassTypeIds}</p>
                     ) : null}
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-sage-700">{t("fieldClassType")}</p>
-                    <ScheduleFilterDropdown
-                      label={t("fieldClassTypePlaceholder")}
-                      ariaLabel={t("fieldClassType")}
-                      value={form.classType}
-                      options={classTypeDropdownOptions}
-                      onChange={(value) => updateField("classType", value)}
-                      disabled={busy}
-                    />
-                    {errors.classType ? (
-                      <p className="text-xs text-red-800">{errors.classType}</p>
-                    ) : null}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-sage-700">{t("fieldSchedule")}</p>
+                  </section>
+
+                  <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+                    <div className="mb-4 flex items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+                        Schedule / Availability
+                      </h3>
                       <OmmButton
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-9 rounded-xl px-3 text-xs"
                         onClick={addScheduleRow}
                         disabled={busy}
                       >
                         {t("fieldScheduleAdd")}
                       </OmmButton>
                     </div>
-                    <div className="space-y-2 rounded-xl border border-sand-500/20 bg-white/70 p-3">
+                    <div className="flex flex-col gap-3 rounded-2xl border border-sand-500/20 bg-white/80 p-3">
                       {form.schedule.map((slot, index) => (
                         <div
                           key={slot.id}
-                          className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_112px_auto]"
+                          className="grid gap-2 rounded-xl border border-white/70 bg-white/85 p-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_130px_auto]"
                         >
                           <DatePickerInput
                             name={`slot-date-${index}`}
@@ -942,7 +977,7 @@ export function AdminCoachActions({
                           />
                           <input
                             type="time"
-                            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+                            className="ommm-input"
                             value={slot.time}
                             onChange={(event) =>
                               updateSchedule(slot.id, "time", event.target.value)
@@ -952,7 +987,7 @@ export function AdminCoachActions({
                           <input
                             type="number"
                             min={MIN_SCHEDULE_SPOTS}
-                            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+                            className="ommm-input"
                             value={slot.spots}
                             onChange={(event) =>
                               updateSchedule(slot.id, "spots", event.target.value)
@@ -963,7 +998,6 @@ export function AdminCoachActions({
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="h-10 rounded-xl px-3 text-xs"
                             onClick={() => removeScheduleRow(slot.id)}
                             disabled={busy || form.schedule.length <= 1}
                           >
@@ -972,72 +1006,20 @@ export function AdminCoachActions({
                         </div>
                       ))}
                     </div>
-                    {errors.schedule ? <p className="text-xs text-red-800">{errors.schedule}</p> : null}
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-sage-700">{t("fieldPhoto")}</p>
-                    <div className="rounded-xl border border-sand-500/20 bg-white/70 p-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-xs text-sage-700 hover:bg-sand-50/60">
-                          <input
-                            type="file"
-                            accept={ACCEPT_PHOTO}
-                            className="sr-only"
-                            disabled={busy}
-                            onChange={(event) => {
-                              const file = event.target.files?.[0] ?? null;
-                              onPhotoSelected(file);
-                            }}
-                          />
-                          {t("fieldPhotoChoose")}
-                        </label>
-                        {photoPreview !== null ? (
-                          <OmmButton
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 rounded-xl px-3 text-xs"
-                            onClick={onPhotoDeleted}
-                            disabled={busy}
-                          >
-                            {t("fieldScheduleRemove")}
-                          </OmmButton>
-                        ) : null}
-                      </div>
-                      {photoPreview !== null ? (
-                        <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={photoPreview}
-                            alt={t("fieldPhotoPreviewAlt")}
-                            className="h-40 w-full object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <p className="mt-2 text-xs text-sage-500">{t("fieldPhotoHint")}</p>
-                      )}
-                    </div>
-                    {errors.photo ? <p className="text-xs text-red-800">{errors.photo}</p> : null}
-                  </div>
+                    {errors.schedule ? <p className="mt-2 text-xs text-red-800">{errors.schedule}</p> : null}
+                  </section>
 
-                  <div className="flex flex-wrap justify-end gap-3 pt-2">
+                  <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
                     <OmmButton
                       type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-10 rounded-xl px-4 text-xs"
+                      variant="secondary"
+                      size="md"
                       onClick={closeModal}
                       disabled={busy}
                     >
                       {t("cancelButton")}
                     </OmmButton>
-                    <OmmButton
-                      type="submit"
-                      variant="primary"
-                      size="sm"
-                      className="h-10 rounded-xl px-5 text-xs"
-                      disabled={busy}
-                    >
+                    <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
                       {busy ? t("savingButton") : t("saveButton")}
                     </OmmButton>
                   </div>
