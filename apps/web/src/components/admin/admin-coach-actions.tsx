@@ -637,7 +637,7 @@ export function AdminCoachActions({
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
-                className="relative mt-auto max-h-[min(92vh,760px)] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+                className="relative mt-auto max-h-[min(92vh,840px)] w-full max-w-[min(940px,95vw)] overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
