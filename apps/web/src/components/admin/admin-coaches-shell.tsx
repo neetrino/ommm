@@ -14,6 +14,8 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { AdminCreateCoachForm } from "@/components/admin/admin-create-coach-form";
+import { AdminCoachesViewProvider, useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
+import { AdminCoachesViewSwitcher } from "@/components/admin/admin-coaches-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const COACH_MODAL_QUERY_KEY = "modal";
@@ -51,7 +53,25 @@ export function AdminCoachesShell({
   classOptions,
   children,
 }: AdminCoachesShellProps) {
+  return (
+    <AdminCoachesViewProvider>
+      <AdminCoachesShellInner
+        classTypeOptions={classTypeOptions}
+        classOptions={classOptions}
+      >
+        {children}
+      </AdminCoachesShellInner>
+    </AdminCoachesViewProvider>
+  );
+}
+
+function AdminCoachesShellInner({
+  classTypeOptions,
+  classOptions,
+  children,
+}: AdminCoachesShellProps) {
   const t = useTranslations("adminPages.coaches");
+  const { viewMode, setViewMode } = useAdminCoachesView();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -145,7 +165,8 @@ export function AdminCoachesShell({
         </p>
       ) : null}
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <AdminCoachesViewSwitcher value={viewMode} onChange={setViewMode} />
         <OmmButton
           type="button"
           variant="secondary"

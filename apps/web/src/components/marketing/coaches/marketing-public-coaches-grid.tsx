@@ -5,46 +5,17 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import {
-  aboveFoldImageProps,
-  firstRowGridImageProps,
-} from "@/lib/image-loading-props";
+  coachCardDisplayName,
+  coachCardInitials,
+  type CoachCardData,
+} from "@/components/coaches/coach-card-display";
+import { PublicCoachCard } from "@/components/coaches/public-coach-card";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
-type PublicCoach = {
-  id: string;
-  bio: string | null;
-  specialization: string | null;
-  experienceYears: number | null;
-  user: { name: string | null; email: string; avatarUrl: string | null };
-};
+type PublicCoach = CoachCardData;
 
 type MarketingPublicCoachesGridProps = {
   coaches: PublicCoach[];
-};
-
-function coachDisplayName(coach: PublicCoach): string {
-  return coach.user.name?.trim() || coach.user.email;
-}
-
-function coachInitials(name: string | null, email: string): string {
-  const trimmedName = name?.trim();
-  if (trimmedName) {
-    const parts = trimmedName.split(/\s+/).filter(Boolean);
-    const firstInitial = parts[0]?.[0] ?? "";
-    const secondInitial = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
-    const compactInitials = `${firstInitial}${secondInitial}`.toUpperCase();
-    if (compactInitials !== "") {
-      return compactInitials;
-    }
-  }
-  return email[0]?.toUpperCase() ?? "?";
-}
-
-type CoachCardProps = {
-  coach: PublicCoach;
-  index: number;
-  compactViewport: boolean;
-  reduceMotion: boolean;
-  onClick: () => void;
 };
 
 function coachEntranceDirection(index: number, compactViewport: boolean): -1 | 1 {
@@ -60,11 +31,24 @@ function coachEntranceDirection(index: number, compactViewport: boolean): -1 | 1
   return Math.floor(index / 2) % 2 === 0 ? -1 : 1;
 }
 
+type CoachCardProps = {
+  coach: PublicCoach;
+  index: number;
+  compactViewport: boolean;
+  reduceMotion: boolean;
+  onClick: () => void;
+};
+
 function CoachCard({ coach, index, compactViewport, reduceMotion, onClick }: CoachCardProps) {
   const t = useTranslations("marketing");
   const direction = coachEntranceDirection(index, compactViewport);
   const translateDistance = compactViewport ? 28 : 56;
   const delaySeconds = Math.min(index, 7) * 0.1;
+  const displayName = coachCardDisplayName(coach.user);
+  const experienceText =
+    coach.experienceYears != null && coach.experienceYears > 0
+      ? t("coachesExperience", { years: coach.experienceYears })
+      : null;
 
   const initialState = reduceMotion
     ? { opacity: 0 }
@@ -96,46 +80,15 @@ function CoachCard({ coach, index, compactViewport, reduceMotion, onClick }: Coa
       transition={transition}
       style={{ willChange: "transform, opacity, filter" }}
     >
-      <button
-        type="button"
+      <PublicCoachCard
+        user={coach.user}
+        specialization={coach.specialization}
+        experienceText={experienceText}
+        bio={coach.bio}
+        imageIndex={index}
         onClick={onClick}
-        className="ommm-card ommm-marketing-card-hover group flex min-h-[28rem] w-full cursor-pointer flex-col gap-6 p-6 text-left shadow-[0_24px_55px_-26px_rgba(45,40,35,0.24)] transition-transform duration-200 hover:-translate-y-1 sm:p-7"
-        aria-label={t("coachesOpenCardAria", { name: coachDisplayName(coach) })}
-      >
-        <div
-          className="relative h-56 w-full shrink-0 overflow-hidden rounded-[24px] bg-gradient-to-br from-mint-100/90 to-sand-100 ring-1 ring-white/70"
-          aria-hidden
-        >
-          {coach.user.avatarUrl ? (
-            <Image
-              src={coach.user.avatarUrl}
-              alt=""
-              fill
-              sizes="(min-width:1024px) 22vw, (min-width:768px) 45vw, 92vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              {...firstRowGridImageProps(index)}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-sage-700">
-              {coachInitials(coach.user.name, coach.user.email)}
-            </div>
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="ommm-h3 text-sage-800 sm:text-[1.4rem]">{coachDisplayName(coach)}</h2>
-          {coach.specialization ? (
-            <p className="mt-2 text-sm font-medium text-sand-700">{coach.specialization}</p>
-          ) : null}
-          {coach.experienceYears != null && coach.experienceYears > 0 ? (
-            <p className="mt-3 text-sm text-sage-500">
-              {t("coachesExperience", { years: coach.experienceYears })}
-            </p>
-          ) : null}
-          {coach.bio ? (
-            <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-sage-500">{coach.bio}</p>
-          ) : null}
-        </div>
-      </button>
+        clickAriaLabel={t("coachesOpenCardAria", { name: displayName })}
+      />
     </motion.li>
   );
 }
@@ -158,7 +111,7 @@ function CoachDetailsModal({
   const t = useTranslations("marketing");
   const titleId = useId();
   const descriptionId = useId();
-  const displayName = coachDisplayName(coach);
+  const displayName = coachCardDisplayName(coach.user);
   const showExperience = coach.experienceYears != null && coach.experienceYears > 0;
   const showSpecialization = coach.specialization !== null && coach.specialization.trim() !== "";
   const bio = coach.bio?.trim() || t("coachesModalBioFallback");
@@ -239,7 +192,7 @@ function CoachDetailsModal({
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-5xl font-semibold text-sage-700">
-                  {coachInitials(coach.user.name, coach.user.email)}
+                  {coachCardInitials(coach.user.name, coach.user.email)}
                 </div>
               )}
             </button>
@@ -255,7 +208,7 @@ function CoachDetailsModal({
                 ) : null}
                 {showExperience ? (
                   <span className="inline-flex rounded-full border border-mint-300/80 bg-mint-50 px-3 py-1 text-xs font-semibold text-sage-800">
-                    {t("coachesExperience", { years: coach.experienceYears })}
+                    {t("coachesExperience", { years: coach.experienceYears ?? 0 })}
                   </span>
                 ) : null}
               </div>
@@ -279,7 +232,7 @@ function CoachDetailsModal({
                     {t("coachesModalExperienceLabel")}
                   </p>
                   <p className="mt-2 text-sm font-medium text-sage-800">
-                    {t("coachesExperience", { years: coach.experienceYears })}
+                    {t("coachesExperience", { years: coach.experienceYears ?? 0 })}
                   </p>
                 </div>
               ) : null}
