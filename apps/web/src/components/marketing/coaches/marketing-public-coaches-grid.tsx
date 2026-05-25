@@ -180,6 +180,8 @@ function CoachDetailsModal({
                   src={coach.user.avatarUrl}
                   alt={displayName}
                   fill
+                  priority
+                  loading="eager"
                   sizes="(min-width: 768px) 30vw, 100vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
@@ -253,6 +255,8 @@ function CoachDetailsModal({
               src={coach.user.avatarUrl}
               alt={displayName}
               fill
+              priority
+              loading="eager"
               sizes="96vw"
               className="object-contain drop-shadow-[0_28px_80px_rgba(0,0,0,0.65)]"
             />
