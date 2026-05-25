@@ -96,7 +96,32 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
   const t = useTranslations("marketing");
   const titleId = useId();
   const descriptionId = useId();
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const displayName = coachDisplayName(coach);
+  const showExperience = coach.experienceYears != null && coach.experienceYears > 0;
+  const showSpecialization = coach.specialization !== null && coach.specialization.trim() !== "";
+  const bio = coach.bio?.trim() || t("coachesModalBioFallback");
+
+  useEffect(() => {
+    setIsImagePreviewOpen(false);
+  }, [coach.id]);
+
+  useEffect(() => {
+    if (!isImagePreviewOpen) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsImagePreviewOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [isImagePreviewOpen]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4" role="presentation">
@@ -111,9 +136,9 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="relative z-10 mt-auto w-full max-w-[min(920px,95vw)] overflow-hidden rounded-t-[28px] border border-white/60 bg-white/90 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px]"
+        className="relative z-10 mt-auto min-h-[70vh] max-h-[min(95vh,900px)] w-full max-w-[min(980px,96vw)] overflow-y-auto rounded-t-[28px] border border-white/70 bg-gradient-to-br from-white via-[#fffef9] to-[#f7f2e8] shadow-[0_34px_90px_-36px_rgba(45,40,35,0.42)] backdrop-blur-md sm:mt-0 sm:min-h-[42rem] sm:rounded-[24px]"
       >
-        <div className="flex items-center justify-between border-b border-sand-200/70 px-5 py-4 sm:px-6">
+        <div className="flex items-center justify-between border-b border-sand-200/70 px-5 py-5 sm:px-7">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
               {t("coachesModalProfileLabel")}
@@ -134,55 +159,110 @@ function CoachDetailsModal({ coach, onClose }: CoachDetailsModalProps) {
           </button>
         </div>
 
-        <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-          <div className="relative min-h-[18rem] bg-gradient-to-br from-mint-100/90 to-sand-100">
-            {coach.user.avatarUrl ? (
-              <Image
-                src={coach.user.avatarUrl}
-                alt={displayName}
-                fill
-                sizes="(min-width: 768px) 45vw, 100vw"
-                className="object-cover"
-              />
-            ) : (
-              <div className="flex h-full min-h-[18rem] items-center justify-center text-5xl font-semibold text-sage-700">
-                {coachInitials(coach.user.name, coach.user.email)}
+        <div id={descriptionId} className="space-y-7 p-5 sm:p-7">
+          <div className="grid gap-5 md:grid-cols-[14rem_minmax(0,1fr)]">
+            <button
+              type="button"
+              onClick={() => {
+                if (coach.user.avatarUrl) {
+                  setIsImagePreviewOpen(true);
+                }
+              }}
+              className="group relative h-56 cursor-zoom-in overflow-hidden rounded-2xl border border-sand-200/80 bg-gradient-to-br from-mint-100/90 to-sand-100 shadow-[0_18px_40px_-26px_rgba(45,40,35,0.5)] transition-transform duration-200 hover:scale-[1.01] md:h-[17rem]"
+              aria-label={`Open ${displayName} photo preview`}
+            >
+              {coach.user.avatarUrl ? (
+                <Image
+                  src={coach.user.avatarUrl}
+                  alt={displayName}
+                  fill
+                  sizes="(min-width: 768px) 30vw, 100vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-5xl font-semibold text-sage-700">
+                  {coachInitials(coach.user.name, coach.user.email)}
+                </div>
+              )}
+            </button>
+
+            <div className="flex min-w-0 flex-col justify-start rounded-2xl border border-white/70 bg-white/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-5">
+              <h4 className="text-2xl font-semibold text-sage-900">{displayName}</h4>
+              <p className="mt-1 truncate text-sm text-sage-500">{coach.user.email}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {showSpecialization ? (
+                  <span className="inline-flex rounded-full border border-sand-300/80 bg-sand-50 px-3 py-1 text-xs font-semibold text-sand-800">
+                    {coach.specialization}
+                  </span>
+                ) : null}
+                {showExperience ? (
+                  <span className="inline-flex rounded-full border border-mint-300/80 bg-mint-50 px-3 py-1 text-xs font-semibold text-sage-800">
+                    {t("coachesExperience", { years: coach.experienceYears })}
+                  </span>
+                ) : null}
               </div>
-            )}
+            </div>
           </div>
 
-          <div id={descriptionId} className="flex flex-col gap-4 px-5 py-5 sm:px-6 sm:py-6">
-            {coach.specialization ? (
-              <div>
+          <div>
+            <h5 className="text-base font-semibold text-sage-900">{t("coachesModalBasicInfoLabel")}</h5>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {showSpecialization ? (
+                <div className="rounded-xl border border-sand-200/80 bg-white/85 p-4 shadow-[0_10px_30px_-24px_rgba(45,40,35,0.6)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
+                    {t("coachesModalSpecializationLabel")}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-sage-800">{coach.specialization}</p>
+                </div>
+              ) : null}
+              {showExperience ? (
+                <div className="rounded-xl border border-sand-200/80 bg-white/85 p-4 shadow-[0_10px_30px_-24px_rgba(45,40,35,0.6)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
+                    {t("coachesModalExperienceLabel")}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-sage-800">
+                    {t("coachesExperience", { years: coach.experienceYears })}
+                  </p>
+                </div>
+              ) : null}
+              <div className="rounded-xl border border-sand-200/80 bg-white/90 p-4 shadow-[0_14px_36px_-30px_rgba(45,40,35,0.65)] sm:col-span-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
-                  {t("coachesModalSpecializationLabel")}
+                  {t("coachesModalBioLabel")}
                 </p>
-                <p className="mt-1 text-base font-semibold text-sand-800">{coach.specialization}</p>
+                <p className="mt-2 text-sm leading-relaxed text-sage-600 sm:text-[0.95rem]">{bio}</p>
               </div>
-            ) : null}
-
-            {coach.experienceYears != null && coach.experienceYears > 0 ? (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
-                  {t("coachesModalExperienceLabel")}
-                </p>
-                <p className="mt-1 text-base text-sage-700">
-                  {t("coachesExperience", { years: coach.experienceYears })}
-                </p>
-              </div>
-            ) : null}
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
-                {t("coachesModalBioLabel")}
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-sage-600">
-                {coach.bio?.trim() || t("coachesModalBioFallback")}
-              </p>
             </div>
           </div>
         </div>
+
       </section>
+      {isImagePreviewOpen && coach.user.avatarUrl ? (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-sage-950/75 p-3 backdrop-blur-[6px] sm:p-6">
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label="Close photo preview"
+            onClick={() => setIsImagePreviewOpen(false)}
+          />
+          <div className="pointer-events-none relative z-10 h-[92vh] w-[96vw]">
+            <Image
+              src={coach.user.avatarUrl}
+              alt={displayName}
+              fill
+              sizes="96vw"
+              className="object-contain drop-shadow-[0_28px_80px_rgba(0,0,0,0.65)]"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsImagePreviewOpen(false)}
+            aria-label="Close photo preview"
+            className="absolute right-5 top-5 z-20 rounded-full border border-white/45 bg-black/45 p-2 text-2xl leading-none text-white transition hover:scale-105 hover:bg-black/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
