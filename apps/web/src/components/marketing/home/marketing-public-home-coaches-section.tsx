@@ -7,7 +7,6 @@ import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketin
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import {
   FeaturedCoachesCarouselStrip,
-  PEEK_LAYOUT_MIN_VIEWPORT_PX,
   type CoachSlideCopy,
 } from "@/components/marketing/home/marketing-public-home-coaches-carousel";
 
@@ -52,7 +51,6 @@ export function MarketingPublicHomeCoachesSection() {
     if (slideCount <= 1) {
       return;
     }
-    const mq = window.matchMedia(`(min-width: ${PEEK_LAYOUT_MIN_VIEWPORT_PX}px)`);
     const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
     let intervalId: ReturnType<typeof setInterval> | undefined;
 
@@ -65,7 +63,7 @@ export function MarketingPublicHomeCoachesSection() {
 
     const armInterval = () => {
       clearIntervalIfSet();
-      if (!mq.matches || motionMq.matches) {
+      if (motionMq.matches) {
         return;
       }
       intervalId = setInterval(() => {
@@ -76,7 +74,6 @@ export function MarketingPublicHomeCoachesSection() {
     };
 
     armInterval();
-    mq.addEventListener("change", armInterval);
     motionMq.addEventListener("change", armInterval);
     const onVisibilityChange = () => {
       if (document.visibilityState !== "visible") {
@@ -87,7 +84,6 @@ export function MarketingPublicHomeCoachesSection() {
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
-      mq.removeEventListener("change", armInterval);
       motionMq.removeEventListener("change", armInterval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       clearIntervalIfSet();

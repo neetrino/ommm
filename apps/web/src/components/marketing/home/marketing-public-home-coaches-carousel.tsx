@@ -19,9 +19,6 @@ export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home
 const GAP_REM = 2.25;
 const CAROUSEL_TRANSFORM_MS = 520;
 
-/** Viewport width (px) at which peek + vertical choreography match desktop Figma. */
-export const PEEK_LAYOUT_MIN_VIEWPORT_PX = 640;
-
 /** Leading + trailing clones so the first/last real slides always have a neighbour peek. */
 function buildCoachDisplaySlides(slides: CoachSlideCopy[]): CoachSlideCopy[] {
   if (slides.length <= 1) {
@@ -149,8 +146,8 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
       ? undefined
       : `transform ${CAROUSEL_TRANSFORM_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`;
 
-  const peekLayout =
-    layoutReady && vw >= PEEK_LAYOUT_MIN_VIEWPORT_PX;
+  /** Keep one choreography model across all breakpoints; only card sizing adapts responsively. */
+  const peekLayout = layoutReady;
 
   return {
     viewportRef,
