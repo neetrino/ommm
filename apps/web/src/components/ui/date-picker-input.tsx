@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const CALENDAR_GRID_DAYS = 42;
-const WEEKDAY_ORDER_MONDAY_FIRST = [1, 2, 3, 4, 5, 6, 0] as const;
+const MONDAY_ANCHOR_DATE = new Date(2024, 0, 1);
 
 export type DatePickerInputProps = {
   name: string;
@@ -68,6 +67,17 @@ function getGridStartDate(visibleMonth: Date): Date {
   const monthStart = startOfMonth(visibleMonth);
   const weekdayFromMonday = (monthStart.getDay() + 6) % 7;
   return addDays(monthStart, -weekdayFromMonday);
+}
+
+function getGridEndDate(visibleMonth: Date): Date {
+  const monthEnd = new Date(
+    visibleMonth.getFullYear(),
+    visibleMonth.getMonth() + 1,
+    0,
+  );
+  const weekday = monthEnd.getDay();
+  const daysToSunday = weekday === 0 ? 0 : 7 - weekday;
+  return addDays(monthEnd, daysToSunday);
 }
 
 function ChevronLeft() {
@@ -190,8 +200,8 @@ export function DatePickerInput({
 
   const weekdayLabels = useMemo(
     () =>
-      WEEKDAY_ORDER_MONDAY_FIRST.map((weekday) => {
-        const base = new Date(2024, 0, weekday + 1);
+      Array.from({ length: 7 }, (_, index) => {
+        const base = addDays(MONDAY_ANCHOR_DATE, index);
         return new Intl.DateTimeFormat(undefined, { weekday: "short" })
           .format(base)
           .slice(0, 3)
@@ -202,7 +212,9 @@ export function DatePickerInput({
 
   const calendarDays = useMemo(() => {
     const start = getGridStartDate(visibleMonth);
-    return Array.from({ length: CALENDAR_GRID_DAYS }, (_, index) => addDays(start, index));
+    const end = getGridEndDate(visibleMonth);
+    const totalDays = Math.floor((end.getTime() - start.getTime()) / 86_400_000) + 1;
+    return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
   }, [visibleMonth]);
 
   const displayValue =
@@ -215,7 +227,7 @@ export function DatePickerInput({
         }).format(selectedDate);
 
   return (
-    <div className="relative" ref={wrapperRef}>
+    <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
       <input type="hidden" name={name} value={value} />
       <button
         type="button"
@@ -269,12 +281,12 @@ export function DatePickerInput({
         <div
           role="dialog"
           aria-label="Date picker calendar"
-          className="absolute left-0 top-[calc(100%+8px)] z-50 w-[min(92vw,340px)] rounded-[32px] border border-sand-500/20 bg-white p-4 shadow-[0_28px_56px_-28px_rgba(45,40,35,0.45)]"
+          className="absolute left-0 top-[calc(100%+8px)] z-[150] w-[min(88vw,292px)] rounded-[24px] border border-sand-500/20 bg-white p-3 shadow-[0_28px_56px_-28px_rgba(45,40,35,0.45)]"
         >
           <div className="flex items-center justify-between px-1">
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
               aria-label="Previous month"
               onClick={() => {
                 setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -282,10 +294,10 @@ export function DatePickerInput({
             >
               <ChevronLeft />
             </button>
-            <p className="text-3xl font-semibold text-sage-900">{monthLabel}</p>
+            <p className="text-xl font-semibold text-sage-900">{monthLabel}</p>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sand-500/20 text-sage-700 transition-colors hover:bg-sand-50"
               aria-label="Next month"
               onClick={() => {
                 setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
@@ -295,13 +307,13 @@ export function DatePickerInput({
             </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-7 gap-y-2 text-center text-xs font-medium tracking-wide text-sage-500">
+          <div className="mt-2.5 grid grid-cols-7 gap-y-1 text-center text-[10px] font-medium tracking-wide text-sage-500">
             {weekdayLabels.map((label) => (
               <span key={label}>{label}</span>
             ))}
           </div>
 
-          <div className="mt-2 grid grid-cols-7 gap-y-1.5">
+          <div className="mt-1 grid grid-cols-7 gap-y-0.5">
             {calendarDays.map((day) => {
               const isInCurrentMonth = day.getMonth() === visibleMonth.getMonth();
               const isSelected = selectedDate !== null && isSameCalendarDate(day, selectedDate);
@@ -309,7 +321,7 @@ export function DatePickerInput({
               const isWeekend = day.getDay() === 0 || day.getDay() === 6;
 
               const textTone = !isInCurrentMonth
-                ? "text-sage-300"
+                ? "text-sage-400"
                 : isSelected
                   ? "text-white"
                   : isWeekend
@@ -319,12 +331,13 @@ export function DatePickerInput({
               const backgroundTone = isSelected ? "bg-[#2f39a6]" : "bg-transparent";
               const todayRing =
                 isToday && !isSelected ? "ring-1 ring-sand-500/35 ring-inset" : "";
+              const mutedOldMonthTone = !isInCurrentMonth ? "opacity-65" : "";
 
               return (
                 <button
                   key={formatIsoDate(day)}
                   type="button"
-                  className={`mx-auto inline-flex h-10 w-10 items-center justify-center rounded-full text-lg transition-colors hover:bg-sand-50 ${textTone} ${backgroundTone} ${todayRing}`}
+                  className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors hover:bg-sand-50 ${textTone} ${backgroundTone} ${todayRing} ${mutedOldMonthTone}`}
                   onClick={() => {
                     onChange(formatIsoDate(day));
                     setIsOpen(false);
@@ -336,7 +349,7 @@ export function DatePickerInput({
             })}
           </div>
 
-          <div className="mt-3 flex items-center justify-between border-t border-sand-500/20 px-1 pt-3">
+          <div className="mt-2.5 flex items-center justify-between border-t border-sand-500/20 px-1 pt-2.5">
             <button
               type="button"
               className="text-base font-medium text-[#2f39a6] transition-opacity hover:opacity-80"

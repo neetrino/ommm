@@ -349,119 +349,231 @@ export function AdminCreateCoachForm({
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-5"
     >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("nameLabel")}
-          </span>
-          <input
-            name="name"
-            className="ommm-input"
-            autoComplete="given-name"
-            maxLength={MAX_NAME_LENGTH}
-            required
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("lastNameLabel")}
-          </span>
-          <input
-            name="lastName"
-            className="ommm-input"
-            autoComplete="family-name"
-            maxLength={MAX_NAME_LENGTH}
-            required
-          />
-        </label>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">
-          {t("specializationLabel")}
-        </span>
-        <input
-          name="specialization"
-          className="ommm-input"
-          maxLength={MAX_SPECIALIZATION_LENGTH}
-          placeholder={t("specializationPlaceholder")}
-          required
-        />
-      </label>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("birthdayLabel")}
-          </span>
-          <DatePickerInput
-            name="birthday"
-            value={birthdayValue}
-            required
-            ariaLabel={t("birthdayLabel")}
-            placeholder={t("birthdayLabel")}
-            onChange={(nextValue) => {
-              setBirthdayValue(nextValue);
-              const age = calculateAgeFromBirthday(nextValue);
-              if (age !== null) {
-                const ageInput = formRef.current?.elements.namedItem(
-                  "age",
-                ) as HTMLInputElement | null;
-                if (ageInput !== null) {
-                  ageInput.value = String(age);
+      <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+            Personal Information
+          </h3>
+          <p className="text-xs text-sage-500">Core account and identity details</p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("nameLabel")}
+            </span>
+            <input
+              name="name"
+              className="ommm-input"
+              autoComplete="given-name"
+              maxLength={MAX_NAME_LENGTH}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("lastNameLabel")}
+            </span>
+            <input
+              name="lastName"
+              className="ommm-input"
+              autoComplete="family-name"
+              maxLength={MAX_NAME_LENGTH}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 lg:col-span-2">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("emailLabel")}
+            </span>
+            <input
+              name="email"
+              type="email"
+              className="ommm-input"
+              autoComplete="email"
+              maxLength={MAX_EMAIL_LENGTH}
+              required
+            />
+            <span className="text-xs text-sage-500">{t("emailHint")}</span>
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("phoneLabel")}
+            </span>
+            <input
+              name="phone"
+              type="tel"
+              className="ommm-input"
+              autoComplete="tel"
+              maxLength={MAX_PHONE_CHARS}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("passwordLabel")}
+            </span>
+            <PasswordInput
+              name="password"
+              className="ommm-input"
+              autoComplete="new-password"
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              required
+              showPasswordLabel={t("showPassword")}
+              hidePasswordLabel={t("hidePassword")}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("birthdayLabel")}
+            </span>
+            <DatePickerInput
+              name="birthday"
+              value={birthdayValue}
+              required
+              ariaLabel={t("birthdayLabel")}
+              placeholder={t("birthdayLabel")}
+              onChange={(nextValue) => {
+                setBirthdayValue(nextValue);
+                const age = calculateAgeFromBirthday(nextValue);
+                if (age !== null) {
+                  const ageInput = formRef.current?.elements.namedItem(
+                    "age",
+                  ) as HTMLInputElement | null;
+                  if (ageInput !== null) {
+                    ageInput.value = String(age);
+                  }
                 }
-              }
-            }}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("experienceLabel")}
-          </span>
-          <input
-            name="experienceYears"
-            type="number"
-            className="ommm-input"
-            min={0}
-            max={MAX_EXPERIENCE_YEARS}
-            inputMode="numeric"
-            required
-          />
-        </label>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">
-          {t("classTypeLabel")}
-        </span>
-        <ScheduleFilterDropdown
-          name="classType"
-          label={t("classTypePlaceholder")}
-          ariaLabel={t("classTypeLabel")}
-          value={classTypeValue}
-          options={classTypeDropdownOptions}
-          onChange={setClassTypeValue}
-          disabled={pending}
-          required
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">
-          {t("bioLabel")}
-        </span>
-        <textarea
-          name="bio"
-          className="ommm-input min-h-[120px] resize-y"
-          maxLength={MAX_BIO_LENGTH}
-          required
-        />
-      </label>
-      <div className="flex flex-col gap-2">
-        <span className="ommm-label text-xs uppercase tracking-wide">
-          {t("assignedClassesLabel")}
-        </span>
-        <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/70 p-3 sm:grid-cols-2">
+              }}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("ageLabel")}
+            </span>
+            <input
+              name="age"
+              type="number"
+              className="ommm-input"
+              min={COACH_MIN_AGE}
+              max={COACH_MAX_AGE}
+              inputMode="numeric"
+              required
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+            Coach Details
+          </h3>
+          <p className="text-xs text-sage-500">Experience, specialization, and profile media</p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("specializationLabel")}
+            </span>
+            <input
+              name="specialization"
+              className="ommm-input"
+              maxLength={MAX_SPECIALIZATION_LENGTH}
+              placeholder={t("specializationPlaceholder")}
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("experienceLabel")}
+            </span>
+            <input
+              name="experienceYears"
+              type="number"
+              className="ommm-input"
+              min={0}
+              max={MAX_EXPERIENCE_YEARS}
+              inputMode="numeric"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("classTypeLabel")}
+            </span>
+            <ScheduleFilterDropdown
+              name="classType"
+              label={t("classTypePlaceholder")}
+              ariaLabel={t("classTypeLabel")}
+              value={classTypeValue}
+              options={classTypeDropdownOptions}
+              onChange={setClassTypeValue}
+              disabled={pending}
+              required
+            />
+          </label>
+          <div className="flex flex-col gap-2">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("photoLabel")}</span>
+            <div className="rounded-2xl border border-sand-500/20 bg-white/80 p-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-sm text-sage-700 transition-colors hover:bg-sand-50/70">
+                  <input
+                    type="file"
+                    accept={ACCEPT_PHOTO}
+                    className="sr-only"
+                    disabled={pending}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      onPhotoSelected(file);
+                    }}
+                  />
+                  {t("photoChoose")}
+                </label>
+              </div>
+              {photoPreview !== null ? (
+                <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoPreview}
+                    alt={t("photoPreviewAlt")}
+                    className="h-44 w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-sage-500">{t("photoHint")}</p>
+              )}
+            </div>
+          </div>
+          <label className="flex flex-col gap-1 lg:col-span-2">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("bioLabel")}
+            </span>
+            <textarea
+              name="bio"
+              className="ommm-input min-h-[150px] resize-y"
+              maxLength={MAX_BIO_LENGTH}
+              required
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+            Assigned Classes
+          </h3>
+          <p className="text-xs text-sage-500">Select class types coached by this person</p>
+        </div>
+        <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
           {classOptions.map((option) => (
-            <label key={option.id} className="inline-flex items-center gap-2 text-sm text-sage-700">
+            <label
+              key={option.id}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-sage-700"
+            >
               <input
                 type="checkbox"
                 checked={selectedClassIds.includes(option.id)}
@@ -475,12 +587,13 @@ export function AdminCreateCoachForm({
             <p className="text-sm text-sage-500">{t("assignedClassesEmpty")}</p>
           ) : null}
         </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("scheduleLabel")}
-          </span>
+      </section>
+
+      <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
+            Schedule / Availability
+          </h3>
           <OmmButton
             type="button"
             variant="ghost"
@@ -491,9 +604,12 @@ export function AdminCreateCoachForm({
             {t("scheduleAddRow")}
           </OmmButton>
         </div>
-        <div className="flex flex-col gap-3 rounded-2xl border border-sand-500/20 bg-white/70 p-3">
+        <div className="flex flex-col gap-3 rounded-2xl border border-sand-500/20 bg-white/80 p-3">
           {scheduleRows.map((row) => (
-            <div key={row.id} className="grid gap-2 sm:grid-cols-[1fr_1fr_110px_auto]">
+            <div
+              key={row.id}
+              className="grid gap-2 rounded-xl border border-white/70 bg-white/85 p-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_130px_auto]"
+            >
               <input
                 type="date"
                 className="ommm-input"
@@ -531,93 +647,8 @@ export function AdminCreateCoachForm({
             </div>
           ))}
         </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("photoLabel")}</span>
-        <div className="rounded-2xl border border-sand-500/20 bg-white/70 p-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-sm text-sage-700 hover:bg-sand-50/70">
-              <input
-                type="file"
-                accept={ACCEPT_PHOTO}
-                className="sr-only"
-                disabled={pending}
-                onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  onPhotoSelected(file);
-                }}
-              />
-              {t("photoChoose")}
-            </label>
-          </div>
-          {photoPreview !== null ? (
-            <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photoPreview} alt={t("photoPreviewAlt")} className="h-40 w-full object-cover" />
-            </div>
-          ) : (
-            <p className="mt-2 text-xs text-sage-500">{t("photoHint")}</p>
-          )}
-        </div>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">
-          {t("emailLabel")}
-        </span>
-        <input
-          name="email"
-          type="email"
-          className="ommm-input"
-          autoComplete="email"
-          maxLength={MAX_EMAIL_LENGTH}
-          required
-        />
-        <span className="text-xs text-sage-500">{t("emailHint")}</span>
-      </label>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("phoneLabel")}
-          </span>
-          <input
-            name="phone"
-            type="tel"
-            className="ommm-input"
-            autoComplete="tel"
-            maxLength={MAX_PHONE_CHARS}
-            required
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("ageLabel")}
-          </span>
-          <input
-            name="age"
-            type="number"
-            className="ommm-input"
-            min={COACH_MIN_AGE}
-            max={COACH_MAX_AGE}
-            inputMode="numeric"
-            required
-          />
-        </label>
-      </div>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">
-          {t("passwordLabel")}
-        </span>
-        <PasswordInput
-          name="password"
-          className="ommm-input"
-          autoComplete="new-password"
-          minLength={MIN_PASSWORD_LENGTH}
-          maxLength={128}
-          required
-          showPasswordLabel={t("showPassword")}
-          hidePasswordLabel={t("hidePassword")}
-        />
-      </label>
+      </section>
+
       {error !== null ? (
         <p className="app-alert-warn text-sm" role="alert">
           {error}
@@ -628,19 +659,19 @@ export function AdminCreateCoachForm({
           {t("success")}
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-7 sm:px-7">
         {onCancel !== undefined ? (
           <OmmButton
             type="button"
             variant="secondary"
-            size="sm"
+            size="md"
             disabled={pending}
             onClick={onCancel}
           >
             {tPage("cancelButton")}
           </OmmButton>
         ) : null}
-        <OmmButton type="submit" variant="primary" size="sm" disabled={pending}>
+        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
           {pending ? t("submitting") : t("submit")}
         </OmmButton>
       </div>
