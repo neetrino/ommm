@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type ProfileFormUser = {
   email: string;
@@ -249,12 +250,13 @@ export function AccountProfileInfoForm({
         <label className="text-sm font-medium text-sage-700" htmlFor="profile-dob">
           {tProfile("labels.dateOfBirth")}
         </label>
-        <input
+        <DatePickerInput
           id="profile-dob"
-          type="date"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          name="dateOfBirth"
+          ariaLabel={tProfile("labels.dateOfBirth")}
+          placeholder={tProfile("labels.dateOfBirth")}
           value={form.dateOfBirth}
-          onChange={(event) => updateField("dateOfBirth", event.target.value)}
+          onChange={(nextValue) => updateField("dateOfBirth", nextValue)}
           disabled={isSaving}
         />
       </div>

@@ -32,6 +32,7 @@ import {
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type AdminCoachActionsProps = {
   coachId: string;
@@ -694,14 +695,15 @@ export function AdminCoachActions({
                       >
                         {t("fieldBirthday")}
                       </label>
-                      <input
+                      <DatePickerInput
                         id={`birthday-${coachId}`}
-                        type="date"
-                        className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+                        name="birthday"
+                        ariaLabel={t("fieldBirthday")}
+                        placeholder={t("fieldBirthday")}
                         value={form.birthday}
-                        onChange={(event) => {
-                          updateField("birthday", event.target.value);
-                          const derivedAge = calculateAgeFromBirthday(event.target.value);
+                        onChange={(nextValue) => {
+                          updateField("birthday", nextValue);
+                          const derivedAge = calculateAgeFromBirthday(nextValue);
                           if (derivedAge !== null) {
                             updateField("age", String(derivedAge));
                           }
@@ -827,18 +829,17 @@ export function AdminCoachActions({
                       </OmmButton>
                     </div>
                     <div className="space-y-2 rounded-xl border border-sand-500/20 bg-white/70 p-3">
-                      {form.schedule.map((slot) => (
+                      {form.schedule.map((slot, index) => (
                         <div
                           key={slot.id}
                           className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_112px_auto]"
                         >
-                          <input
-                            type="date"
-                            className="app-input border-sand-500/25 bg-white/90 text-sage-900"
+                          <DatePickerInput
+                            name={`slot-date-${index}`}
+                            ariaLabel={t("fieldSchedule")}
+                            placeholder={t("fieldSchedule")}
                             value={slot.date}
-                            onChange={(event) =>
-                              updateSchedule(slot.id, "date", event.target.value)
-                            }
+                            onChange={(nextValue) => updateSchedule(slot.id, "date", nextValue)}
                             disabled={busy}
                           />
                           <input

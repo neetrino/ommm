@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const MONDAY_ANCHOR_DATE = new Date(2024, 0, 1);
+const POPUP_MAX_WIDTH = 292;
+const POPUP_MIN_WIDTH = 248;
+const POPUP_EDGE_MARGIN = 8;
+const POPUP_GAP = 8;
+const FALLBACK_POPUP_HEIGHT = 320;
 
 export type DatePickerInputProps = {
+  id?: string;
   name: string;
   value: string;
   onChange: (nextValue: string) => void;
@@ -12,6 +19,13 @@ export type DatePickerInputProps = {
   required?: boolean;
   ariaLabel?: string;
   placeholder?: string;
+};
+
+type PopupPosition = {
+  top: number;
+  left: number;
+  width: number;
+  maxHeight: number;
 };
 
 function parseIsoDate(value: string): Date | null {
@@ -137,6 +151,7 @@ function CalendarGlyph() {
 }
 
 export function DatePickerInput({
+  id,
   name,
   value,
   onChange,
@@ -146,8 +161,11 @@ export function DatePickerInput({
   placeholder = "Select date",
 }: DatePickerInputProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const selectedDate = useMemo(() => parseIsoDate(value), [value]);
   const [isOpen, setIsOpen] = useState(false);
+  const [popupPosition, setPopupPosition] = useState<PopupPosition | null>(null);
   const [visibleMonth, setVisibleMonth] = useState<Date>(() =>
     startOfMonth(selectedDate ?? new Date()),
   );
@@ -165,6 +183,7 @@ export function DatePickerInput({
 
   useEffect(() => {
     if (!isOpen) {
+      setPopupPosition(null);
       return;
     }
 
@@ -174,6 +193,9 @@ export function DatePickerInput({
         return;
       }
       if (wrapperRef.current?.contains(target)) {
+        return;
+      }
+      if (popupRef.current?.contains(target)) {
         return;
       }
       setIsOpen(false);
@@ -192,6 +214,62 @@ export function DatePickerInput({
       document.removeEventListener("keydown", onDocumentKeyDown);
     };
   }, [isOpen]);
+
+  const updatePopupPosition = useCallback(() => {
+    if (!isOpen || triggerRef.current === null || typeof window === "undefined") {
+      return;
+    }
+
+    const rect = triggerRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const width = Math.max(
+      POPUP_MIN_WIDTH,
+      Math.min(POPUP_MAX_WIDTH, Math.floor(viewportWidth * 0.88)),
+    );
+    const popupHeight = popupRef.current?.offsetHeight ?? FALLBACK_POPUP_HEIGHT;
+    const availableBelow = viewportHeight - rect.bottom - POPUP_GAP - POPUP_EDGE_MARGIN;
+    const availableAbove = rect.top - POPUP_GAP - POPUP_EDGE_MARGIN;
+    const shouldOpenUpward =
+      availableBelow < popupHeight && availableAbove > availableBelow;
+
+    const left = Math.max(
+      POPUP_EDGE_MARGIN,
+      Math.min(rect.left, viewportWidth - width - POPUP_EDGE_MARGIN),
+    );
+    const top = shouldOpenUpward
+      ? Math.max(POPUP_EDGE_MARGIN, rect.top - popupHeight - POPUP_GAP)
+      : Math.min(
+          rect.bottom + POPUP_GAP,
+          viewportHeight - popupHeight - POPUP_EDGE_MARGIN,
+        );
+
+    setPopupPosition({
+      top,
+      left,
+      width,
+      maxHeight: viewportHeight - POPUP_EDGE_MARGIN * 2,
+    });
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    updatePopupPosition();
+    const rafId = window.requestAnimationFrame(() => {
+      updatePopupPosition();
+    });
+
+    window.addEventListener("resize", updatePopupPosition);
+    window.addEventListener("scroll", updatePopupPosition, true);
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", updatePopupPosition);
+      window.removeEventListener("scroll", updatePopupPosition, true);
+    };
+  }, [isOpen, updatePopupPosition]);
 
   const monthLabel = useMemo(
     () => new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(visibleMonth),
@@ -230,6 +308,8 @@ export function DatePickerInput({
     <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
       <input type="hidden" name={name} value={value} />
       <button
+        ref={triggerRef}
+        id={id}
         type="button"
         className="ommm-input flex min-h-11 items-center justify-between gap-2 text-left"
         aria-label={ariaLabel}
@@ -277,11 +357,20 @@ export function DatePickerInput({
         </span>
       </button>
 
-      {isOpen ? (
+      {isOpen && popupPosition !== null
+        ? createPortal(
         <div
+          ref={popupRef}
           role="dialog"
           aria-label="Date picker calendar"
-          className="absolute left-0 top-[calc(100%+8px)] z-[150] w-[min(88vw,292px)] rounded-[24px] border border-sand-500/20 bg-white p-3 shadow-[0_28px_56px_-28px_rgba(45,40,35,0.45)]"
+          className="z-[1500] overflow-auto rounded-[24px] border border-sand-500/20 bg-white p-3 shadow-[0_28px_56px_-28px_rgba(45,40,35,0.45)]"
+          style={{
+            position: "fixed",
+            top: popupPosition.top,
+            left: popupPosition.left,
+            width: popupPosition.width,
+            maxHeight: popupPosition.maxHeight,
+          }}
         >
           <div className="flex items-center justify-between px-1">
             <button
@@ -372,8 +461,10 @@ export function DatePickerInput({
               Today
             </button>
           </div>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+        : null}
     </div>
   );
 }

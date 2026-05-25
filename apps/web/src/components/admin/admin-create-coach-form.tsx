@@ -605,16 +605,17 @@ export function AdminCreateCoachForm({
           </OmmButton>
         </div>
         <div className="flex flex-col gap-3 rounded-2xl border border-sand-500/20 bg-white/80 p-3">
-          {scheduleRows.map((row) => (
+          {scheduleRows.map((row, index) => (
             <div
               key={row.id}
               className="grid gap-2 rounded-xl border border-white/70 bg-white/85 p-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_130px_auto]"
             >
-              <input
-                type="date"
-                className="ommm-input"
+              <DatePickerInput
+                name={`schedule-date-${index}`}
+                ariaLabel={t("scheduleLabel")}
+                placeholder={t("scheduleLabel")}
                 value={row.date}
-                onChange={(event) => updateScheduleRow(row.id, "date", event.target.value)}
+                onChange={(nextValue) => updateScheduleRow(row.id, "date", nextValue)}
                 disabled={pending}
                 required
               />
