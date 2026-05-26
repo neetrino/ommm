@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { CLASS_STATUS_VALUES, type AdminClassCoachOption, type AdminClassTypeOption } from "@/components/admin/admin-classes-types";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type ClassesFiltersProps = {
   search: string;
@@ -125,11 +126,23 @@ export function ClassesFilters({
         </label>
         <label className={fieldLabelClass}>
           <span className={captionClass}>{t("filters.fromDateLabel")}</span>
-          <input type="date" className={controlClass} value={fromDate} onChange={(event) => onFromDateChange(event.target.value)} />
+          <DatePickerInput
+            name="classes-from-date-filter"
+            ariaLabel={t("filters.fromDateLabel")}
+            placeholder="DD/MM/YYYY"
+            value={fromDate}
+            onChange={onFromDateChange}
+          />
         </label>
         <label className={fieldLabelClass}>
           <span className={captionClass}>{t("filters.toDateLabel")}</span>
-          <input type="date" className={controlClass} value={toDate} onChange={(event) => onToDateChange(event.target.value)} />
+          <DatePickerInput
+            name="classes-to-date-filter"
+            ariaLabel={t("filters.toDateLabel")}
+            placeholder="DD/MM/YYYY"
+            value={toDate}
+            onChange={onToDateChange}
+          />
         </label>
       </div>
 

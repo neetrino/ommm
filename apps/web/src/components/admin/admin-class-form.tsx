@@ -14,6 +14,7 @@ import {
   type ClassStatusValue,
   type WeekdayValue,
 } from "@/components/admin/admin-classes-types";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminClassFormProps = {
@@ -198,7 +199,13 @@ export function AdminClassForm({
         </label>
         <label className="space-y-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("form.date")}</span>
-          <input type="date" className="ommm-input" value={form.date} onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value }))} disabled={pending} />
+          <DatePickerInput
+            name="class-date"
+            ariaLabel={t("form.date")}
+            value={form.date}
+            onChange={(nextValue) => setForm((prev) => ({ ...prev, date: nextValue }))}
+            disabled={pending}
+          />
         </label>
         <label className="space-y-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("form.startTime")}</span>
@@ -247,7 +254,7 @@ export function AdminClassForm({
 
       {form.recurrencePattern !== "NONE" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <label className="space-y-1"><span className="ommm-label text-xs uppercase tracking-wide">{t("form.recurrenceEndDate")}</span><input type="date" className="ommm-input" value={form.recurrenceEndsAt} onChange={(event) => setForm((prev) => ({ ...prev, recurrenceEndsAt: event.target.value }))} disabled={pending} /></label>
+          <label className="space-y-1"><span className="ommm-label text-xs uppercase tracking-wide">{t("form.recurrenceEndDate")}</span><DatePickerInput name="class-recurrence-end-date" ariaLabel={t("form.recurrenceEndDate")} value={form.recurrenceEndsAt} onChange={(nextValue) => setForm((prev) => ({ ...prev, recurrenceEndsAt: nextValue }))} disabled={pending} /></label>
           <label className="space-y-1"><span className="ommm-label text-xs uppercase tracking-wide">{t("form.recurrenceCount")}</span><input type="number" min={1} className="ommm-input" value={form.recurrenceCount} onChange={(event) => setForm((prev) => ({ ...prev, recurrenceCount: event.target.value }))} disabled={pending} /></label>
         </div>
       ) : null}

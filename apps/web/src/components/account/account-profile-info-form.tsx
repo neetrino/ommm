@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { formatDateForUi } from "@/lib/date-display";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 
@@ -162,7 +163,7 @@ export function AccountProfileInfoForm({
             <dt className="text-sage-500">{tProfile("labels.dateOfBirth")}</dt>
             <dd className="text-sage-700">
               {initialUser.dateOfBirth
-                ? new Date(initialUser.dateOfBirth).toLocaleDateString()
+                ? formatDateForUi(initialUser.dateOfBirth)
                 : empty}
             </dd>
           </div>

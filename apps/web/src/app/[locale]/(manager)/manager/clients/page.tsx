@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { AdminClientActions } from "@/components/admin/admin-client-actions";
+import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClientRow = {
@@ -50,7 +51,7 @@ export default async function ManagerClientsPage() {
                 <td className="px-4 py-3 text-zinc-700">{c.email}</td>
                 <td className="px-4 py-3 text-zinc-600">{c.role}</td>
                 <td className="px-4 py-3 text-zinc-500">
-                  {new Date(c.createdAt).toLocaleDateString()}
+                  {formatDateForUi(c.createdAt)}
                 </td>
                 <td className="px-4 py-3">
                   <AdminClientActions

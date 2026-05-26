@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClientRow = {
@@ -61,7 +62,7 @@ export default async function AdminClientsPage({
                 <td className={adminChrome.tdStrong}>{c.name ?? "—"}</td>
                 <td className={adminChrome.td}>{c.email}</td>
                 <td className={adminChrome.tdMuted}>
-                  {new Date(c.createdAt).toLocaleDateString()}
+                  {formatDateForUi(c.createdAt)}
                 </td>
                 <td className={`${adminChrome.td} text-center`}>
                   <AdminClientActions

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
 type ContentAdminRow = {
@@ -210,7 +211,7 @@ export function ContentPostsPanelClient({
                 </div>
               </div>
               <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
-                /{p.slug} · {new Date(p.updatedAt).toLocaleString()}
+                /{p.slug} · {formatDateTimeForUi(p.updatedAt)}
               </p>
             </div>
           </li>

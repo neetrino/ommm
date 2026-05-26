@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClassTypeRow = {
@@ -97,7 +98,7 @@ export default async function ManagerClassesPage() {
                   {s.classType.name}
                 </td>
                 <td className="px-4 py-3 text-zinc-700">
-                  {new Date(s.startsAt).toLocaleString()}
+                  {formatDateTimeForUi(s.startsAt)}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
                   {s.coach.user.name ?? "—"}

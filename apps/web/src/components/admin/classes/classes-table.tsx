@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type { AdminClassSessionRow } from "@/components/admin/admin-classes-types";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { ClassStatusBadge } from "@/components/admin/classes/class-status-badge";
+import { formatDateForUi } from "@/lib/date-display";
 
 type ClassesTableProps = {
   locale: string;
@@ -63,8 +64,8 @@ function DuplicateGlyph() {
   );
 }
 
-function formatDate(value: string, locale: string): string {
-  return new Date(value).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
+function formatDate(value: string): string {
+  return formatDateForUi(value);
 }
 
 function formatTimeRange(startsAt: string, endsAt: string, locale: string): string {
@@ -240,7 +241,7 @@ export function ClassesTable({
               {sessions.map((row) => (
                 <tr key={row.id} className={adminChrome.tr}>
                   <td className={adminChrome.tdStrong}>{row.title}</td>
-                  <td className={adminChrome.td}>{formatDate(row.startsAt, locale)}</td>
+                  <td className={adminChrome.td}>{formatDate(row.startsAt)}</td>
                   <td className={adminChrome.td}>{formatTimeRange(row.startsAt, row.endsAt, locale)}</td>
                   <td className={adminChrome.td}>{row.coach.user.name ?? t("fallback.notSpecified")}</td>
                   <td className={adminChrome.td}>{`${row._count.bookings}/${row.capacity}`}</td>
@@ -268,7 +269,7 @@ export function ClassesTable({
               <ClassStatusBadge status={row.status} />
             </div>
             <div className="mt-3 grid gap-2 text-xs text-sage-600 sm:grid-cols-2">
-              <p><span className="font-medium text-sage-800">{t("colDate")}:</span> {formatDate(row.startsAt, locale)}</p>
+              <p><span className="font-medium text-sage-800">{t("colDate")}:</span> {formatDate(row.startsAt)}</p>
               <p><span className="font-medium text-sage-800">{t("colTime")}:</span> {formatTimeRange(row.startsAt, row.endsAt, locale)}</p>
               <p><span className="font-medium text-sage-800">{t("colCoach")}:</span> {row.coach.user.name ?? t("fallback.notSpecified")}</p>
               <p><span className="font-medium text-sage-800">{t("colCapacity")}:</span> {row._count.bookings}/{row.capacity}</p>

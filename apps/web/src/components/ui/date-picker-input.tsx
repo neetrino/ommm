@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { formatDateForUi } from "@/lib/date-display";
 
 const MONDAY_ANCHOR_DATE = new Date(2024, 0, 1);
 const POPUP_MAX_WIDTH = 292;
@@ -158,7 +159,7 @@ export function DatePickerInput({
   disabled = false,
   required = false,
   ariaLabel,
-  placeholder = "Select date",
+  placeholder = "DD/MM/YYYY",
 }: DatePickerInputProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -293,13 +294,7 @@ export function DatePickerInput({
   }, [visibleMonth]);
 
   const displayValue =
-    selectedDate === null
-      ? placeholder
-      : new Intl.DateTimeFormat(undefined, {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        }).format(selectedDate);
+    selectedDate === null ? placeholder : formatDateForUi(selectedDate);
 
   return (
     <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminWaitlistActions } from "@/components/admin/admin-waitlist-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type WaitlistAdminRow = {
@@ -68,13 +69,13 @@ export default async function AdminWaitlistsPage({
                   {w.session.classType.name}
                 </td>
                 <td className={adminChrome.td}>
-                  {new Date(w.session.startsAt).toLocaleString()}
+                  {formatDateTimeForUi(w.session.startsAt, locale)}
                 </td>
                 <td className={adminChrome.td}>{w.position}</td>
                 <td className={adminChrome.td}>{w.status}</td>
                 <td className={adminChrome.td}>
                   {w.offerExpiresAt
-                    ? new Date(w.offerExpiresAt).toLocaleString()
+                    ? formatDateTimeForUi(w.offerExpiresAt, locale)
                     : "—"}
                 </td>
                 <td className={adminChrome.td}>

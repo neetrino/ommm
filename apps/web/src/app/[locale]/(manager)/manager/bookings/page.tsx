@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { AdminBookingActions } from "@/components/admin/admin-booking-actions";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type BookingAdminRow = {
@@ -67,7 +68,7 @@ export default async function ManagerBookingsPage() {
                   {b.session.classType.name}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
-                  {new Date(b.session.startsAt).toLocaleString()}
+                  {formatDateTimeForUi(b.session.startsAt)}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">{b.status}</td>
                 <td className="px-4 py-3">
