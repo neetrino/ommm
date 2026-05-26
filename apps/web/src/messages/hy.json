@@ -1002,6 +1002,12 @@
       "emptySessions": "Ընտրված ֆիլտրերով դասեր չկան։",
       "confirmCancel": "Չեղարկե՞լ այս դասը։",
       "confirmActivate": "Ակտիվացնե՞լ այս դասը։",
+      "confirm": {
+        "cancelTitle": "Չեղարկել դասը",
+        "cancelDescription": "Դասը կնշվի որպես չեղարկված։ Կարող եք հետո կրկին ակտիվացնել։",
+        "activateTitle": "Ակտիվացնել դասը",
+        "activateDescription": "Դասը կրկին կդառնա ակտիվ և հասանելի։"
+      },
       "filters": {
         "searchLabel": "Որոնում",
         "searchPlaceholder": "Որոնել ըստ դասի, մարզչի կամ տեսակի",

@@ -1015,6 +1015,12 @@
       "emptySessions": "No classes match your current filters.",
       "confirmCancel": "Cancel this class?",
       "confirmActivate": "Activate this class?",
+      "confirm": {
+        "cancelTitle": "Cancel class",
+        "cancelDescription": "This class will be marked as cancelled. You can activate it again later.",
+        "activateTitle": "Activate class",
+        "activateDescription": "This class will become active and available again."
+      },
       "filters": {
         "searchLabel": "Search",
         "searchPlaceholder": "Search by class, coach, or type",

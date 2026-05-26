@@ -21,6 +21,11 @@ type ModalState =
   | { mode: "create" }
   | { mode: "edit" | "duplicate"; item: AdminClassSessionRow };
 
+type ConfirmState =
+  | { mode: "closed" }
+  | { mode: "cancel"; id: string }
+  | { mode: "activate"; id: string };
+
 type AdminClassesManagementProps = {
   locale: string;
   initialSessions: readonly AdminClassSessionRow[];
@@ -48,6 +53,7 @@ export function AdminClassesManagement({
   const [modal, setModal] = useState<ModalState>({ mode: "closed" });
   const [banner, setBanner] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState>({ mode: "closed" });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -58,6 +64,8 @@ export function AdminClassesManagement({
   const [toDateFilter, setToDateFilter] = useState("");
   const titleId = useId();
   const descId = useId();
+  const confirmTitleId = useId();
+  const confirmDescId = useId();
 
   const levelOptions = useMemo(
     () => Array.from(new Set(sessions.map((row) => row.level).filter((value): value is string => !!value))).sort((a, b) => a.localeCompare(b)),
@@ -102,7 +110,6 @@ export function AdminClassesManagement({
   }
 
   async function cancelSession(id: string) {
-    if (!window.confirm(t("confirmCancel"))) return;
     setBusyId(id);
     setBanner(null);
     try {
@@ -119,7 +126,6 @@ export function AdminClassesManagement({
   }
 
   async function activateSession(id: string) {
-    if (!window.confirm(t("confirmActivate"))) return;
     setBusyId(id);
     setBanner(null);
     try {
@@ -134,6 +140,17 @@ export function AdminClassesManagement({
     } finally {
       setBusyId(null);
     }
+  }
+
+  async function runConfirmAction() {
+    if (confirm.mode === "closed") return;
+    const id = confirm.id;
+    setConfirm({ mode: "closed" });
+    if (confirm.mode === "cancel") {
+      await cancelSession(id);
+      return;
+    }
+    await activateSession(id);
   }
 
   const modalTitle =
@@ -218,7 +235,11 @@ export function AdminClassesManagement({
           hasActiveFilters={hasActiveFilters}
         />
 
-        {coaches.length === 0 ? <p className="app-alert-warn text-sm">{t("emptyCoaches")}</p> : null}
+        {coaches.length === 0 ? (
+          <div className="rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">
+            {t("emptyCoaches")}
+          </div>
+        ) : null}
 
         <ClassesTable
           locale={locale}
@@ -229,10 +250,10 @@ export function AdminClassesManagement({
           onCreate={() => setModal({ mode: "create" })}
           onEdit={(row) => setModal({ mode: "edit", item: row })}
           onCancel={(id) => {
-            void cancelSession(id);
+            setConfirm({ mode: "cancel", id });
           }}
           onActivate={(id) => {
-            void activateSession(id);
+            setConfirm({ mode: "activate", id });
           }}
           onDuplicate={(row) => setModal({ mode: "duplicate", item: row })}
           onResetFilters={resetFilters}
@@ -277,6 +298,56 @@ export function AdminClassesManagement({
                     }
                   }}
                 />
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+
+      {confirm.mode !== "closed" && typeof document !== "undefined"
+        ? createPortal(
+            <div className="fixed inset-0 z-[95] flex items-end justify-center p-0 sm:items-center sm:p-4" role="presentation">
+              <button
+                type="button"
+                className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]"
+                aria-label={t("modalBackdropClose")}
+                onClick={() => setConfirm({ mode: "closed" })}
+              />
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={confirmTitleId}
+                aria-describedby={confirmDescId}
+                className="relative z-10 mt-auto w-full max-w-md rounded-t-[24px] border border-white/60 bg-white/90 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px]"
+              >
+                <h3 id={confirmTitleId} className={adminChrome.panelHeading}>
+                  {confirm.mode === "cancel" ? t("confirm.cancelTitle") : t("confirm.activateTitle")}
+                </h3>
+                <p id={confirmDescId} className="ommm-body-muted mt-2 text-sm">
+                  {confirm.mode === "cancel" ? t("confirm.cancelDescription") : t("confirm.activateDescription")}
+                </p>
+                <div className="mt-5 flex flex-wrap justify-end gap-2">
+                  <OmmButton
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setConfirm({ mode: "closed" })}
+                    disabled={busyId === confirm.id}
+                  >
+                    {t("cancelButton")}
+                  </OmmButton>
+                  <OmmButton
+                    type="button"
+                    variant={confirm.mode === "cancel" ? "danger" : "primary"}
+                    size="sm"
+                    onClick={() => {
+                      void runConfirmAction();
+                    }}
+                    disabled={busyId === confirm.id}
+                  >
+                    {confirm.mode === "cancel" ? t("cancelAction") : t("activateAction")}
+                  </OmmButton>
+                </div>
               </div>
             </div>,
             document.body,
