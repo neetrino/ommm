@@ -118,6 +118,24 @@ export function AdminClassesManagement({
     }
   }
 
+  async function activateSession(id: string) {
+    if (!window.confirm(t("confirmActivate"))) return;
+    setBusyId(id);
+    setBanner(null);
+    try {
+      const updated = await apiFetch<AdminClassSessionRow>(`/classes/sessions/${id}/status`, {
+        method: "POST",
+        body: JSON.stringify({ status: "ACTIVE" }),
+      });
+      upsertSession(updated);
+      setBanner(t("messages.activateSuccess"));
+    } catch (error) {
+      setBanner(error instanceof ApiError ? error.message : t("messages.genericError"));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const modalTitle =
     modal.mode === "edit" ? t("editTitle") : modal.mode === "duplicate" ? t("duplicateTitle") : t("createTitle");
   const modalLead =
@@ -212,6 +230,9 @@ export function AdminClassesManagement({
           onEdit={(row) => setModal({ mode: "edit", item: row })}
           onCancel={(id) => {
             void cancelSession(id);
+          }}
+          onActivate={(id) => {
+            void activateSession(id);
           }}
           onDuplicate={(row) => setModal({ mode: "duplicate", item: row })}
           onResetFilters={resetFilters}

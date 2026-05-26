@@ -1014,6 +1014,7 @@
       "emptyCoaches": "No coaches available. Add coaches before creating classes.",
       "emptySessions": "No classes match your current filters.",
       "confirmCancel": "Cancel this class?",
+      "confirmActivate": "Activate this class?",
       "filters": {
         "searchLabel": "Search",
         "searchPlaceholder": "Search by class, coach, or type",
@@ -1058,6 +1059,7 @@
       "colActions": "Actions",
       "editButton": "Edit",
       "cancelAction": "Cancel",
+      "activateAction": "Activate",
       "duplicateButton": "Duplicate",
       "priceAmount": "{amount} per session",
       "sessionsRequired": "{count} sessions required",
@@ -1120,6 +1122,7 @@
         "createSuccess": "Class created.",
         "updateSuccess": "Class updated.",
         "cancelSuccess": "Class cancelled.",
+        "activateSuccess": "Class activated.",
         "duplicateSuccess": "Class duplicated.",
         "genericError": "Action failed."
       }

@@ -1001,6 +1001,7 @@
       "emptyCoaches": "Մարզիչներ չկան։ Նախ ավելացրեք մարզիչներ։",
       "emptySessions": "Ընտրված ֆիլտրերով դասեր չկան։",
       "confirmCancel": "Չեղարկե՞լ այս դասը։",
+      "confirmActivate": "Ակտիվացնե՞լ այս դասը։",
       "filters": {
         "searchLabel": "Որոնում",
         "searchPlaceholder": "Որոնել ըստ դասի, մարզչի կամ տեսակի",
@@ -1045,6 +1046,7 @@
       "colActions": "Գործողություններ",
       "editButton": "Խմբագրել",
       "cancelAction": "Չեղարկել",
+      "activateAction": "Ակտիվացնել",
       "duplicateButton": "Կրկնօրինակել",
       "priceAmount": "{amount} մեկ սեսիայի համար",
       "sessionsRequired": "Պահանջվում է {count} սեսիա",
@@ -1107,6 +1109,7 @@
         "createSuccess": "Դասը ստեղծվեց։",
         "updateSuccess": "Դասը թարմացվեց։",
         "cancelSuccess": "Դասը չեղարկվեց։",
+        "activateSuccess": "Դասը ակտիվացվեց։",
         "duplicateSuccess": "Դասը կրկնօրինակվեց։",
         "genericError": "Գործողությունը ձախողվեց։"
       }

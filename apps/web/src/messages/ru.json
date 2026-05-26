@@ -1005,6 +1005,7 @@
       "emptyCoaches": "Список тренеров пуст. Сначала добавьте тренеров.",
       "emptySessions": "По выбранным фильтрам занятий нет.",
       "confirmCancel": "Отменить это занятие?",
+      "confirmActivate": "Активировать это занятие?",
       "filters": {
         "searchLabel": "Поиск",
         "searchPlaceholder": "Поиск по занятию, тренеру или типу",
@@ -1049,6 +1050,7 @@
       "colActions": "Действия",
       "editButton": "Редактировать",
       "cancelAction": "Отменить",
+      "activateAction": "Активировать",
       "duplicateButton": "Дублировать",
       "priceAmount": "{amount} за сессию",
       "sessionsRequired": "Требуется сессий: {count}",
@@ -1111,6 +1113,7 @@
         "createSuccess": "Занятие создано.",
         "updateSuccess": "Занятие обновлено.",
         "cancelSuccess": "Занятие отменено.",
+        "activateSuccess": "Занятие активировано.",
         "duplicateSuccess": "Занятие продублировано.",
         "genericError": "Действие не выполнено."
       }
