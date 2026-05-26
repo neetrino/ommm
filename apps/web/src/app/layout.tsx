@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import { Manrope, Newsreader } from "next/font/google";
 import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
@@ -17,6 +18,12 @@ const newsreader = Newsreader({
   variable: "--font-newsreader",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 function htmlLangFromPathname(pathname: string | null): string {
   if (pathname === null || pathname === "") {
@@ -51,7 +58,7 @@ export default async function RootLayout({
       lang={htmlLang}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-paper font-sans text-sage-900 antialiased">
+      <body className="min-h-screen overflow-x-clip bg-paper font-sans text-sage-900 antialiased">
         {children}
       </body>
     </html>

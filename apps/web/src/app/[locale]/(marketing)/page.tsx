@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
-import { ExploreSection } from "@/components/marketing/home/explore-section";
-import { GiftCardBanner } from "@/components/marketing/home/gift-card-banner";
-import { HomeMembershipsSection } from "@/components/marketing/home/home-memberships-section";
-import { MarketingHighlights } from "@/components/marketing/home/marketing-highlights";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
-import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
+import { MarketingPublicHomeClassesSection } from "@/components/marketing/home/marketing-public-home-classes-section";
+import { MarketingPublicHomeCoachesSection } from "@/components/marketing/home/marketing-public-home-coaches-section";
+import { MarketingPublicHomeEventsSection } from "@/components/marketing/home/marketing-public-home-events-section";
+import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
+import { MarketingPublicHomePlansSection } from "@/components/marketing/home/marketing-public-home-plans-section";
+import { MarketingHomeScrollReveal } from "@/components/marketing/home/marketing-home-scroll-reveal";
+import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
+import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { routing } from "@/i18n/routing";
 
 type PageProps = {
@@ -18,38 +21,28 @@ export default async function MarketingHomePage({ params }: PageProps) {
   }
 
   return (
-    <>
-      <MarketingPublicHero locale={locale} />
-      <ProgressiveRevealSection
-        id="highlights"
-        placeholderClassName="h-[30rem] sm:h-[32rem]"
-        revealDelayMs={40}
-      >
-        <MarketingHighlights locale={locale} />
-      </ProgressiveRevealSection>
-      <ProgressiveRevealSection
-        id="memberships"
-        prefetchApiPaths={["/api/v1/memberships/plans"]}
-        placeholderClassName="h-[52rem] sm:h-[46rem] lg:h-[40rem]"
-        revealDelayMs={65}
-      >
-        <HomeMembershipsSection locale={locale} />
-      </ProgressiveRevealSection>
-      <ProgressiveRevealSection
-        id="explore"
-        prefetchApiPaths={["/api/v1/content/posts"]}
-        placeholderClassName="h-[60rem] sm:h-[52rem] lg:h-[48rem]"
-        revealDelayMs={80}
-      >
-        <ExploreSection locale={locale} />
-      </ProgressiveRevealSection>
-      <ProgressiveRevealSection
-        id="gift"
-        placeholderClassName="h-[28rem] sm:h-[26rem] lg:h-[24rem]"
-        revealDelayMs={120}
-      >
-        <GiftCardBanner locale={locale} />
-      </ProgressiveRevealSection>
-    </>
+    <div
+      className={`${marketingMontserrat.variable} min-h-0 w-full min-w-0 flex-1 overflow-x-clip`}
+      style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}
+    >
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHero locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeClassesSection locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeCoachesSection />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomePlansSection locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeEventsSection locale={locale} />
+      </MarketingHomeScrollReveal>
+      <MarketingHomeScrollReveal>
+        <MarketingPublicHomeFooter locale={locale} />
+      </MarketingHomeScrollReveal>
+    </div>
   );
 }

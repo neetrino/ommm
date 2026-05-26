@@ -17,6 +17,7 @@ import {
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
+import { TimePickerInput } from "@/components/ui/time-picker-input";
 
 const MAX_CLASS_NAME_LENGTH = 120;
 const MAX_INSTRUCTOR_LENGTH = 120;
@@ -402,28 +403,20 @@ export function AdminScheduleForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("form.startTime")}</span>
-          <input
+          <TimePickerInput
             name="startTime"
-            type="time"
-            className="ommm-input"
             value={form.startTime}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, startTime: event.target.value }))
-            }
+            onChange={(nextValue) => setForm((prev) => ({ ...prev, startTime: nextValue }))}
             disabled={pending}
             required
           />
         </label>
         <label className="space-y-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("form.endTime")}</span>
-          <input
+          <TimePickerInput
             name="endTime"
-            type="time"
-            className="ommm-input"
             value={form.endTime}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, endTime: event.target.value }))
-            }
+            onChange={(nextValue) => setForm((prev) => ({ ...prev, endTime: nextValue }))}
             disabled={pending}
           />
         </label>

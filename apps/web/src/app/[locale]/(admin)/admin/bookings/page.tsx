@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminBookingActions } from "@/components/admin/admin-booking-actions";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type BookingAdminRow = {
@@ -72,7 +73,7 @@ export default async function AdminBookingsPage({
                   {b.session.classType.name}
                 </td>
                 <td className={adminChrome.td}>
-                  {new Date(b.session.startsAt).toLocaleString()}
+                  {formatDateTimeForUi(b.session.startsAt, locale)}
                 </td>
                 <td className={adminChrome.td}>{b.status}</td>
                 <td className={adminChrome.td}>

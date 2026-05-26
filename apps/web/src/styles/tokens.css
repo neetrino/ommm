@@ -1,0 +1,38 @@
+/**
+ * Marketing design tokens — Figma **Main** `155:107`, Featured Coaches card **Frame 68** `163:879`
+ * (portrait `163:878`). All spacing/typography use rem or fluid clamp(); no raw px for layout.
+ */
+:root {
+  --ommm-coach-card-surface: #e5f4f9;
+  /** Center / active card — Figma Featured Coaches reference. */
+  --ommm-coach-card-surface-active: #ffffff;
+  --ommm-coach-card-text-strong: #1d1c15;
+  --ommm-coach-card-text-muted: #4a4738;
+  --ommm-coach-card-shadow: 0 0.5rem 1.5rem -0.75rem rgba(45, 55, 60, 0.12);
+  --ommm-coach-card-shadow-active:
+    0 1rem 2.5rem -0.75rem rgba(45, 55, 60, 0.18),
+    0 0.25rem 0.75rem -0.25rem rgba(45, 55, 60, 0.1);
+
+  /* Generous corner radius — Featured Coaches cards. */
+  --ommm-coach-card-radius: clamp(2rem, 4.5vw, 3rem);
+
+  /** Side slides sit visibly below center on desktop peek layout. */
+  --ommm-coach-side-drop: clamp(1.25rem, 3.5vw, 2.25rem);
+
+  --ommm-coach-name-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  --ommm-coach-name-leading: 1.12;
+
+  --ommm-coach-body-size: clamp(0.9375rem, 1.5vw, 1rem);
+  --ommm-coach-body-leading: 1.5;
+
+  --ommm-coach-text-gutter: clamp(1.25rem, 5vw, 3.6875rem);
+  --ommm-coach-text-block-gap: clamp(1rem, 3vw, 1.75rem);
+
+  /* Image column — Figma 342×597 within 729-wide card */
+  --ommm-coach-image-max-width: min(21.375rem, 46%);
+  --ommm-coach-card-min-height: clamp(20rem, 52vw, 26.125rem);
+
+  --ommm-coach-nav-bg: rgba(255, 255, 255, 0.28);
+  --ommm-coach-nav-bg-hover: rgba(255, 255, 255, 0.4);
+  --ommm-coach-nav-fg: #2f3438;
+}

@@ -3,7 +3,9 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { MembershipStatus, Prisma } from '@prisma/client';
@@ -14,6 +16,8 @@ import type { UpdatePlanDto } from './dto/update-plan.dto';
 
 @Injectable()
 export class MembershipsService {
+  private readonly logger = new Logger(MembershipsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
@@ -26,6 +30,12 @@ export class MembershipsService {
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
     } catch (error) {
+      if (this.isDatabaseUnreachable(error)) {
+        this.logger.warn(
+          'Database unreachable (Prisma P1001/P1017); returning empty membership plans for public listing.',
+        );
+        return [];
+      }
       if (!this.isMissingColumn(error)) {
         throw error;
       }
@@ -40,6 +50,11 @@ export class MembershipsService {
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
     } catch (error) {
+      if (this.isDatabaseUnreachable(error)) {
+        throw new ServiceUnavailableException(
+          'Database is unreachable. Wake the Neon branch or fix DATABASE_URL, then retry.',
+        );
+      }
       if (!this.isMissingColumn(error)) {
         throw error;
       }
@@ -309,6 +324,15 @@ export class MembershipsService {
       .map((feature) => feature.trim())
       .filter((feature) => feature.length > 0)
       .slice(0, 20);
+  }
+
+  /** Prisma: P1001 can't reach server; P1017 server closed connection (e.g. idle Neon). */
+  private isDatabaseUnreachable(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null || !('code' in error)) {
+      return false;
+    }
+    const code = (error as { code?: unknown }).code;
+    return code === 'P1001' || code === 'P1017';
   }
 
   private isMissingColumn(error: unknown): boolean {

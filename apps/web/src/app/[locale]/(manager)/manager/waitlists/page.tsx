@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { AdminWaitlistActions } from "@/components/admin/admin-waitlist-actions";
+import { formatDateTimeForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type WaitlistAdminRow = {
@@ -61,13 +62,13 @@ export default async function ManagerWaitlistsPage() {
                   {w.session.classType.name}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
-                  {new Date(w.session.startsAt).toLocaleString()}
+                  {formatDateTimeForUi(w.session.startsAt)}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">{w.position}</td>
                 <td className="px-4 py-3 text-zinc-600">{w.status}</td>
                 <td className="px-4 py-3 text-zinc-600">
                   {w.offerExpiresAt
-                    ? new Date(w.offerExpiresAt).toLocaleString()
+                    ? formatDateTimeForUi(w.offerExpiresAt)
                     : "—"}
                 </td>
                 <td className="px-4 py-3">

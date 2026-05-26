@@ -1,9 +1,12 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { NextClassCardView } from "@/components/wellness/next-class-card-view";
 import { WaitlistCardsSection } from "@/components/wellness/waitlist-cards-section";
 import { waitlistToneAtIndex } from "@/components/wellness/waitlist-tone";
+import { formatDateForUi } from "@/lib/date-display";
 import { formatSessionRange } from "@/lib/format-session-time";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type NextBooking = {
   id: string;
@@ -48,6 +51,18 @@ function minutesBetween(startIso: string, endIso: string): number {
   return Math.max(1, Math.round(ms / 60_000));
 }
 
+function formatDateTimeLabel(value: string, locale: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  const time = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+  return `${formatDateForUi(date)} ${time}`;
+}
+
 export async function MemberDashboard({
   locale,
   displayName,
@@ -73,13 +88,7 @@ export async function MemberDashboard({
           status: w.status,
         }),
         title: w.session.classType.name,
-        timeLine: new Date(w.session.startsAt).toLocaleString(locale, {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-        }),
+        timeLine: formatDateTimeLabel(w.session.startsAt, locale),
         tone: waitlistToneAtIndex(index),
       }))
     : [];
@@ -106,11 +115,14 @@ export async function MemberDashboard({
             <div className="flex items-center gap-4">
               <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sand-500/30 text-sm font-medium text-sage-700 ring-1 ring-white/70 sm:h-14 sm:w-14">
                 {homeImageSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- remote member asset URL
-                  <img
+                  <Image
                     src={homeImageSrc}
                     alt=""
+                    width={56}
+                    height={56}
+                    sizes="56px"
                     className="h-full w-full object-cover"
+                    {...belowFoldImageProps()}
                   />
                 ) : (
                   initial
@@ -204,7 +216,7 @@ export async function MemberDashboard({
                 >
                   <p className="font-medium text-sage-900">{a.title}</p>
                   <p className="mt-2 text-xs text-sage-500">
-                    {new Date(a.unlockedAt).toLocaleDateString(locale)}
+                    {formatDateForUi(a.unlockedAt)}
                   </p>
                 </li>
               ))}

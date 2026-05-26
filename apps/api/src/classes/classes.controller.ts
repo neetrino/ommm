@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Param,
   Post,
   Query,
@@ -13,8 +14,10 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { ClassesService } from './classes.service';
+import { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import { CreateClassTypeDto } from './dto/create-class-type.dto';
 import { CreateSessionDto } from './dto/create-session.dto';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Controller('classes')
 export class ClassesController {
@@ -61,16 +64,37 @@ export class ClassesController {
     return this.classes.getSessionPublic(id);
   }
 
+  @Get('admin/sessions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  listAdminSessions(@Query() query: AdminListSessionsQueryDto) {
+    return this.classes.listSessionsAdmin(query);
+  }
+
   @Post('sessions')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   createSession(@Body() dto: CreateSessionDto) {
     return this.classes.createSession(dto);
   }
 
+  @Patch('sessions/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  updateSession(@Param('id') id: string, @Body() dto: UpdateSessionDto) {
+    return this.classes.updateSession(id, dto);
+  }
+
+  @Post('sessions/:id/cancel')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  cancelSession(@Param('id') id: string) {
+    return this.classes.cancelSession(id);
+  }
+
   @Post('sessions/:id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   setStatus(
     @Param('id') id: string,
     @Body('status') status: ClassSessionStatus,

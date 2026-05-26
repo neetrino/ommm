@@ -4,6 +4,7 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -147,7 +148,7 @@ export default async function UserProgressPage({
               <ul className="mt-2 space-y-1 text-xs text-sage-500">
                 {attendanceTrend.map((point) => (
                   <li key={point.date}>
-                    {new Date(point.date).toLocaleDateString(locale)}: {point.count}
+                    {formatDateForUi(point.date)}: {point.count}
                   </li>
                 ))}
               </ul>
@@ -157,7 +158,7 @@ export default async function UserProgressPage({
               <ul className="mt-2 space-y-1 text-xs text-sage-500">
                 {spendTrend.map((point) => (
                   <li key={point.date}>
-                    {new Date(point.date).toLocaleDateString(locale)}:{" "}
+                    {formatDateForUi(point.date)}:{" "}
                     {formatAmdFromCents(point.amountCents, locale)}
                   </li>
                 ))}
@@ -177,7 +178,7 @@ export default async function UserProgressPage({
                   <p className="mt-1 text-xs text-sage-500">{a.description}</p>
                   <p className="mt-2 text-xs text-sage-400">
                     {t("unlocked", {
-                      date: new Date(a.unlockedAt).toLocaleDateString(locale),
+                      date: formatDateForUi(a.unlockedAt),
                     })}
                   </p>
                 </li>

@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type PanelSummary = {
@@ -97,7 +98,7 @@ export default async function CoachAnalyticsPage({
           {trendPoints.map((point) => (
             <li key={point.date} className="ommm-inset-row">
               <span className="font-medium text-sage-800">
-                {new Date(point.date).toLocaleDateString(locale)}
+                {formatDateForUi(point.date)}
               </span>
               <span className="ml-2 text-sage-500">
                 {t("trendRow", {

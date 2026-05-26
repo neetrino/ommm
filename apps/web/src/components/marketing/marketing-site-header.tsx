@@ -1,20 +1,23 @@
 "use client";
 
-import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
-
-function navLinkClass(active: boolean): string {
-  return [
-    "rounded-full px-3 py-2 text-sm font-medium transition-colors",
-    active
-      ? "bg-white/70 text-sage-900"
-      : "text-sage-700 hover:bg-white/50 hover:text-sage-900",
-  ].join(" ");
-}
+import {
+  isCompactMarketingHeaderLocale,
+  marketingHeaderActionsClass,
+  marketingHeaderBookClass,
+  marketingHeaderBrandLinkClass,
+  marketingHeaderBrandTextClass,
+  marketingHeaderContainerClass,
+  marketingHeaderMenuButtonClass,
+  marketingHeaderMobilePanelClass,
+  marketingHeaderNavClass,
+  marketingHeaderNavLinkClass,
+  marketingHeaderShellClass,
+} from "@/components/marketing/marketing-site-header-layout";
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
@@ -25,62 +28,62 @@ export type MarketingSiteHeaderProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
 };
 
+/** Public marketing site header — matches Home (fixed bar, text brand, light nav, Book CTA). */
 export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
+  const locale = useLocale();
+  const compact = isCompactMarketingHeaderLocale(locale);
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const marketingPath = pathname ?? "";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/40 bg-white/55 backdrop-blur-xl">
-      <div className="ommm-container flex h-16 items-center justify-between gap-4 sm:h-20">
+    <header className={marketingHeaderShellClass()}>
+      <div className={marketingHeaderContainerClass(compact)}>
         <Link
           href="/"
-          className="flex shrink-0 items-center"
+          className={marketingHeaderBrandLinkClass(compact)}
           onClick={() => setOpen(false)}
         >
-          <Image
-            src="/marketing/home/brand-mark.png"
-            alt=""
-            width={104}
-            height={104}
-            className="h-20 w-20 rounded-full object-cover sm:h-24 sm:w-24"
-            priority
-          />
+          <span className={marketingHeaderBrandTextClass(compact)}>
+            {tNav("studioBrand")}
+          </span>
         </Link>
 
         <nav
-          className="hidden items-center gap-0.5 lg:flex"
+          className={marketingHeaderNavClass(compact)}
           aria-label={tUi("primaryNavAria")}
         >
           {navLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(pathname, href))}
+              className={marketingHeaderNavLinkClass(
+                isActive(marketingPath, href),
+                compact,
+              )}
             >
               {tNav(key)}
             </Link>
           ))}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0">
+        <div className={marketingHeaderActionsClass(compact)}>
           <LanguageSwitcher
             context="marketing"
             onAfterSelect={() => setOpen(false)}
           />
-          <div className="hidden items-center gap-3 lg:flex">
-            <Link href="/login" className="ommm-cta-ghost">
-              {tCommon("login")}
-            </Link>
-            <Link href="/register" className="ommm-cta-primary">
-              {tCommon("register")}
-            </Link>
-          </div>
+          <Link
+            href="/schedule"
+            className={marketingHeaderBookClass(compact)}
+          >
+            {tUi("bookAClass")}
+          </Link>
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm lg:hidden"
+            className={marketingHeaderMenuButtonClass()}
             aria-expanded={open}
             aria-controls="marketing-mobile-nav"
             aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
@@ -112,18 +115,20 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
 
       <div
         id="marketing-mobile-nav"
-        className={
-          open
-            ? "border-t border-white/50 bg-white/85 px-4 py-4 backdrop-blur-xl lg:hidden"
-            : "hidden"
-        }
+        className={marketingHeaderMobilePanelClass(open)}
       >
-        <nav className="flex flex-col gap-1" aria-label={tUi("mobilePrimaryNavAria")}>
+        <nav
+          className="flex flex-col gap-1"
+          aria-label={tUi("mobilePrimaryNavAria")}
+        >
           {navLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
-              className={navLinkClass(isActive(pathname, href))}
+              className={marketingHeaderNavLinkClass(
+                isActive(marketingPath, href),
+                compact,
+              )}
               onClick={() => setOpen(false)}
             >
               {tNav(key)}
@@ -132,15 +137,15 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         </nav>
         <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
           <Link
-            href="/register"
-            className="ommm-cta-primary w-full"
+            href="/schedule"
+            className="inline-flex w-full items-center justify-center rounded-full bg-[#e8da74] px-5 py-3 text-sm font-medium text-white"
             onClick={() => setOpen(false)}
           >
-            {tCommon("register")}
+            {tUi("bookAClass")}
           </Link>
           <Link
             href="/login"
-            className="ommm-cta-ghost w-full"
+            className="inline-flex w-full items-center justify-center rounded-full border border-white/50 px-5 py-3 text-sm font-medium text-white"
             onClick={() => setOpen(false)}
           >
             {tCommon("login")}

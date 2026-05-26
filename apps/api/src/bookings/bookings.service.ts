@@ -45,7 +45,9 @@ export class BookingsService {
     }
 
     const booking = await this.prisma.$transaction(async (tx) => {
-      if (session.priceCents > 0) {
+      const requiredSessions =
+        session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
+      if (requiredSessions > 0) {
         const m = await tx.userMembership.findFirst({
           where: {
             userId,
@@ -60,12 +62,15 @@ export class BookingsService {
           );
         }
         if (!m.plan.isUnlimited) {
-          if (m.sessionsRemaining == null || m.sessionsRemaining <= 0) {
+          if (
+            m.sessionsRemaining == null ||
+            m.sessionsRemaining < requiredSessions
+          ) {
             throw new BadRequestException('No sessions remaining on your plan');
           }
           await tx.userMembership.update({
             where: { id: m.id },
-            data: { sessionsRemaining: m.sessionsRemaining - 1 },
+            data: { sessionsRemaining: m.sessionsRemaining - requiredSessions },
           });
         }
       }

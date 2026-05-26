@@ -45,6 +45,17 @@ function parseAllowedDevOrigins(raw: string | undefined): string[] {
     .filter((item) => item.length > 0);
 }
 
+function resolveR2ImageHostname(raw: string | undefined): string | null {
+  if (!raw || raw.trim().length === 0) {
+    return null;
+  }
+  try {
+    return new URL(raw.trim()).hostname;
+  } catch {
+    return null;
+  }
+}
+
 const allowedDevOrigins = [
   ...new Set([
     ...collectLanIpv4Hosts(),
@@ -52,11 +63,29 @@ const allowedDevOrigins = [
   ]),
 ];
 
+const r2ImageHostname = resolveR2ImageHostname(process.env.R2_PUBLIC_URL);
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: monorepoRoot,
   },
   allowedDevOrigins,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.r2.dev",
+      },
+      ...(r2ImageHostname === null
+        ? []
+        : [
+            {
+              protocol: "https" as const,
+              hostname: r2ImageHostname,
+            },
+          ]),
+    ],
+  },
   async redirects() {
     return [
       {

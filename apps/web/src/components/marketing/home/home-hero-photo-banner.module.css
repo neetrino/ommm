@@ -1,0 +1,32 @@
+/**
+ * Hero sizing aligned with real mobile browsers (not only DevTools emulation).
+ * Uses svw + safe-area; desktop keeps fluid large-screen growth.
+ */
+
+.homeHeroFrame {
+  min-height: var(--home-hero-min-h);
+  max-height: var(--home-hero-max-h);
+}
+
+.homeHeroContent {
+  padding-top: max(5rem, calc(3.75rem + env(safe-area-inset-top, 0px)));
+}
+
+.homeHeroTitle {
+  font-size: var(--home-hero-title-size);
+}
+
+@media (min-width: 1024px) {
+  .homeHeroFrame {
+    min-height: var(--home-hero-min-h-lg);
+    max-height: none;
+  }
+
+  .homeHeroContent {
+    padding-top: 7rem;
+  }
+
+  .homeHeroTitle {
+    font-size: var(--home-hero-title-size-lg);
+  }
+}

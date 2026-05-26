@@ -1,7 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 export function AuthSiteHeader() {
   return (
@@ -14,7 +13,7 @@ export function AuthSiteHeader() {
             width={104}
             height={104}
             className="h-20 w-20 rounded-full object-cover sm:h-24 sm:w-24"
-            priority
+            {...aboveFoldImageProps()}
           />
         </Link>
       </div>

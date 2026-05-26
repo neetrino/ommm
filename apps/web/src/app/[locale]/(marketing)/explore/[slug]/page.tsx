@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
+import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type ContentPost = {
@@ -44,9 +45,7 @@ export default async function ExplorePostPage({ params }: Props) {
       <div className="mt-8 max-w-2xl">
         {post.publishedAt ? (
           <p className="text-sm text-sage-500">
-            {new Date(post.publishedAt).toLocaleDateString(locale, {
-              dateStyle: "long",
-            })}
+            {formatDateForUi(post.publishedAt)}
           </p>
         ) : null}
         {post.excerpt ? (

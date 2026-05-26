@@ -149,6 +149,7 @@ export function AdminScheduleDayView({
           <div className="grid min-w-0 flex-1 grid-cols-7 gap-1 sm:gap-2">
             {dayStrip.map((entry) => {
               const active = entry.day === selectedDay;
+              const isToday = entry.day === today;
               const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(entry.date);
               const dayNum = String(entry.date.getDate());
               return (
@@ -165,7 +166,11 @@ export function AdminScheduleDayView({
                   >
                     {weekday}
                   </span>
-                  <span className={active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE}>
+                  <span
+                    className={`${active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE} ${
+                      isToday ? "border border-black/70" : ""
+                    }`}
+                  >
                     {dayNum}
                   </span>
                 </button>

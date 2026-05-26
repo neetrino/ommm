@@ -6,6 +6,7 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -76,9 +77,7 @@ export default async function UserMembershipsPage({
                   </p>
                   <p className="text-xs text-sage-500/90">
                     {t("renewsEnds", {
-                      date: new Date(m.currentPeriodEnd).toLocaleDateString(
-                        locale,
-                      ),
+                      date: formatDateForUi(m.currentPeriodEnd),
                     })}
                   </p>
                   <MembershipLifecycleButtons
@@ -109,7 +108,7 @@ export default async function UserMembershipsPage({
                     <span className="ml-2 text-sage-500">{p.description}</span>
                   ) : null}
                   <span className="ml-2 text-xs text-sage-500">
-                    {new Date(p.createdAt).toLocaleString(locale)}
+                    {formatDateTimeForUi(p.createdAt, locale)}
                   </span>
                 </li>
               ))}

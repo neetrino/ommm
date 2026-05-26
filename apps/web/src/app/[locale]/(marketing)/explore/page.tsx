@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
+import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
 type ContentPost = {
@@ -75,9 +76,7 @@ export default async function ExplorePage({
               ) : null}
               {post.publishedAt ? (
                 <p className="mt-4 text-xs text-sage-500">
-                  {new Date(post.publishedAt).toLocaleDateString(locale, {
-                    dateStyle: "medium",
-                  })}
+                  {formatDateForUi(post.publishedAt)}
                 </p>
               ) : null}
               <p className="mt-5">

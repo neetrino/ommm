@@ -272,6 +272,7 @@ Before changing UI:
 6. **Do not break** authentication, routing, `next-intl` paths, forms, or data fetching when restyling.  
 7. **Test** UI at multiple viewport widths after every meaningful change.  
 8. **No default exports** for new components if project rules require named exports (see `.cursor/rules/00-core.mdc`).
+9. **Calendar/date UI standardization:** use shared `DatePickerInput` only, and display user-facing dates in `day/month/year` format. See `docs/CALENDAR_UI_GUIDELINES.md`.
 
 ---
 
@@ -307,4 +308,4 @@ For a **follow-up implementation** pass (separate tasks / prompts):
 
 ---
 
-*Last updated: 2026-05-07 — documentation pass (no UI changes).*
+*Last updated: 2026-05-26 — added shared calendar and date format rule references.*
