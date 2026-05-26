@@ -75,6 +75,9 @@ export function FloatingTabBar() {
                 <Text
                   style={[styles.tabLabel, active ? styles.tabLabelActive : undefined]}
                   numberOfLines={2}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
+                  ellipsizeMode="clip"
                 >
                   {item.label}
                 </Text>
@@ -88,9 +91,9 @@ export function FloatingTabBar() {
 }
 
 /** Active chip diameter; column width is kept smaller so tabs stay packed and the chip can overhang. */
-const TAB_HIGHLIGHT_SIZE = 68;
+const TAB_HIGHLIGHT_SIZE = 76;
 const TAB_HIGHLIGHT_RADIUS = TAB_HIGHLIGHT_SIZE / 2;
-const FLOATING_TAB_BAR_HEIGHT = 82;
+const FLOATING_TAB_BAR_HEIGHT = 88;
 const TAB_BAR_HORIZONTAL_INSET = space.sm;
 
 const styles = StyleSheet.create({
@@ -135,6 +138,8 @@ const styles = StyleSheet.create({
     width: TAB_HIGHLIGHT_SIZE,
     height: TAB_HIGHLIGHT_SIZE,
     minHeight: TAB_HIGHLIGHT_SIZE,
+    overflow: "hidden",
+    paddingHorizontal: 6,
   },
   iconInactive: {
     opacity: TAB_ICON_INACTIVE_OPACITY,
@@ -153,5 +158,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.montserrat.bold,
     lineHeight: 12,
     color: colors.taupe,
+    maxWidth: TAB_HIGHLIGHT_SIZE - 12,
   },
 });
