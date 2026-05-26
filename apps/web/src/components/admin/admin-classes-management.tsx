@@ -1,8 +1,10 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminClassForm } from "@/components/admin/admin-class-form";
@@ -26,12 +28,28 @@ type ConfirmState =
   | { mode: "cancel"; id: string }
   | { mode: "activate"; id: string };
 
+type ModalQueryMode = "create" | "edit" | "duplicate";
+type ConfirmQueryMode = "cancel" | "activate";
+
 type AdminClassesManagementProps = {
   locale: string;
   initialSessions: readonly AdminClassSessionRow[];
   classTypes: readonly AdminClassTypeOption[];
   coaches: readonly AdminClassCoachOption[];
 };
+
+const CLASS_MODAL_QUERY_KEY = "classModal";
+const CLASS_MODAL_ID_QUERY_KEY = "classModalId";
+const CLASS_CONFIRM_QUERY_KEY = "classConfirm";
+const CLASS_CONFIRM_ID_QUERY_KEY = "classConfirmId";
+
+function isModalQueryMode(value: string | null): value is ModalQueryMode {
+  return value === "create" || value === "edit" || value === "duplicate";
+}
+
+function isConfirmQueryMode(value: string | null): value is ConfirmQueryMode {
+  return value === "cancel" || value === "activate";
+}
 
 function AddClassGlyph({ className }: { className?: string }) {
   return (
@@ -49,11 +67,12 @@ export function AdminClassesManagement({
   coaches,
 }: AdminClassesManagementProps) {
   const t = useTranslations("adminPages.classes");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [sessions, setSessions] = useState<AdminClassSessionRow[]>(() => [...initialSessions]);
-  const [modal, setModal] = useState<ModalState>({ mode: "closed" });
   const [banner, setBanner] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState<ConfirmState>({ mode: "closed" });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -66,6 +85,39 @@ export function AdminClassesManagement({
   const descId = useId();
   const confirmTitleId = useId();
   const confirmDescId = useId();
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
+
+  const modal = useMemo<ModalState>(() => {
+    const mode = searchParams.get(CLASS_MODAL_QUERY_KEY);
+    if (!isModalQueryMode(mode)) {
+      return { mode: "closed" };
+    }
+    if (mode === "create") {
+      return { mode: "create" };
+    }
+    const sessionId = searchParams.get(CLASS_MODAL_ID_QUERY_KEY);
+    if (sessionId === null || sessionId.trim().length === 0) {
+      return { mode: "closed" };
+    }
+    const item = sessions.find((row) => row.id === sessionId);
+    if (item === undefined) {
+      return { mode: "closed" };
+    }
+    return { mode, item };
+  }, [searchParams, sessions]);
+
+  const confirm = useMemo<ConfirmState>(() => {
+    const mode = searchParams.get(CLASS_CONFIRM_QUERY_KEY);
+    const id = searchParams.get(CLASS_CONFIRM_ID_QUERY_KEY);
+    if (!isConfirmQueryMode(mode) || id === null || id.trim().length === 0) {
+      return { mode: "closed" };
+    }
+    return { mode, id };
+  }, [searchParams]);
 
   const levelOptions = useMemo(
     () => Array.from(new Set(sessions.map((row) => row.level).filter((value): value is string => !!value))).sort((a, b) => a.localeCompare(b)),
@@ -145,7 +197,7 @@ export function AdminClassesManagement({
   async function runConfirmAction() {
     if (confirm.mode === "closed") return;
     const id = confirm.id;
-    setConfirm({ mode: "closed" });
+    closeConfirm();
     if (confirm.mode === "cancel") {
       await cancelSession(id);
       return;
@@ -196,6 +248,52 @@ export function AdminClassesManagement({
     setToDateFilter("");
   }
 
+  function replaceSearchParams(nextParams: URLSearchParams): void {
+    const query = nextParams.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }
+
+  function closeModal(): void {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete(CLASS_MODAL_QUERY_KEY);
+    nextParams.delete(CLASS_MODAL_ID_QUERY_KEY);
+    replaceSearchParams(nextParams);
+  }
+
+  function openCreateModal(): void {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set(CLASS_MODAL_QUERY_KEY, "create");
+    nextParams.delete(CLASS_MODAL_ID_QUERY_KEY);
+    nextParams.delete(CLASS_CONFIRM_QUERY_KEY);
+    nextParams.delete(CLASS_CONFIRM_ID_QUERY_KEY);
+    replaceSearchParams(nextParams);
+  }
+
+  function openSessionModal(mode: "edit" | "duplicate", sessionId: string): void {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set(CLASS_MODAL_QUERY_KEY, mode);
+    nextParams.set(CLASS_MODAL_ID_QUERY_KEY, sessionId);
+    nextParams.delete(CLASS_CONFIRM_QUERY_KEY);
+    nextParams.delete(CLASS_CONFIRM_ID_QUERY_KEY);
+    replaceSearchParams(nextParams);
+  }
+
+  function closeConfirm(): void {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete(CLASS_CONFIRM_QUERY_KEY);
+    nextParams.delete(CLASS_CONFIRM_ID_QUERY_KEY);
+    replaceSearchParams(nextParams);
+  }
+
+  function openConfirm(mode: ConfirmQueryMode, id: string): void {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set(CLASS_CONFIRM_QUERY_KEY, mode);
+    nextParams.set(CLASS_CONFIRM_ID_QUERY_KEY, id);
+    nextParams.delete(CLASS_MODAL_QUERY_KEY);
+    nextParams.delete(CLASS_MODAL_ID_QUERY_KEY);
+    replaceSearchParams(nextParams);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="ommm-card flex flex-col gap-5 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
@@ -205,7 +303,7 @@ export function AdminClassesManagement({
             <h2 className={adminChrome.sectionTitle}>{t("managementTitle")}</h2>
             <p className="ommm-body-muted mt-2 text-sm sm:text-base">{t("managementDescription")}</p>
           </div>
-          <OmmButton type="button" variant="primary" size="md" onClick={() => setModal({ mode: "create" })} className="inline-flex items-center gap-2" disabled={coaches.length === 0 || classTypes.length === 0}>
+          <OmmButton type="button" variant="primary" size="md" onClick={openCreateModal} className="inline-flex items-center gap-2" disabled={coaches.length === 0 || classTypes.length === 0}>
             <AddClassGlyph className="h-5 w-5 shrink-0" />
             {t("addClassButton")}
           </OmmButton>
@@ -247,37 +345,37 @@ export function AdminClassesManagement({
           hasFilters={hasActiveFilters}
           refreshing={isRefreshing}
           busyId={busyId}
-          onCreate={() => setModal({ mode: "create" })}
-          onEdit={(row) => setModal({ mode: "edit", item: row })}
+          onCreate={openCreateModal}
+          onEdit={(row) => openSessionModal("edit", row.id)}
           onCancel={(id) => {
-            setConfirm({ mode: "cancel", id });
+            openConfirm("cancel", id);
           }}
           onActivate={(id) => {
-            setConfirm({ mode: "activate", id });
+            openConfirm("activate", id);
           }}
-          onDuplicate={(row) => setModal({ mode: "duplicate", item: row })}
+          onDuplicate={(row) => openSessionModal("duplicate", row.id)}
           onResetFilters={resetFilters}
         />
       </div>
 
-      {modal.mode !== "closed" && typeof document !== "undefined"
+      {modal.mode !== "closed" && isMounted
         ? createPortal(
             <div className="fixed inset-0 z-[90] flex items-end justify-center p-0 sm:items-center sm:p-4" role="presentation">
-              <button type="button" className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]" aria-label={t("modalBackdropClose")} onClick={() => setModal({ mode: "closed" })} />
+              <button type="button" className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]" aria-label={t("modalBackdropClose")} onClick={closeModal} />
               <div role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descId} className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-3xl overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/85 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 id={titleId} className={adminChrome.panelHeading}>{modalTitle}</h2>
                     <p id={descId} className="ommm-body-muted mt-1 text-sm">{modalLead}</p>
                   </div>
-                  <button type="button" className="rounded-full p-2 text-sage-500 hover:bg-white/60 hover:text-sage-900" aria-label={t("modalCloseAria")} onClick={() => setModal({ mode: "closed" })}>✕</button>
+                  <button type="button" className="rounded-full p-2 text-sage-500 hover:bg-white/60 hover:text-sage-900" aria-label={t("modalCloseAria")} onClick={closeModal}>✕</button>
                 </div>
                 <AdminClassForm
                   mode={modal.mode}
                   classTypes={classTypes}
                   coaches={coaches}
                   item={modal.mode === "create" ? undefined : modal.item}
-                  onCancel={() => setModal({ mode: "closed" })}
+                  onCancel={closeModal}
                   onSaved={async () => {
                     setIsRefreshing(true);
                     try {
@@ -290,7 +388,7 @@ export function AdminClassesManagement({
                             ? t("messages.duplicateSuccess")
                             : t("messages.createSuccess"),
                       );
-                      setModal({ mode: "closed" });
+                      closeModal();
                     } catch (error) {
                       setBanner(error instanceof ApiError ? error.message : t("messages.genericError"));
                     } finally {
@@ -304,14 +402,14 @@ export function AdminClassesManagement({
           )
         : null}
 
-      {confirm.mode !== "closed" && typeof document !== "undefined"
+      {confirm.mode !== "closed" && isMounted
         ? createPortal(
             <div className="fixed inset-0 z-[95] flex items-end justify-center p-0 sm:items-center sm:p-4" role="presentation">
               <button
                 type="button"
                 className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]"
                 aria-label={t("modalBackdropClose")}
-                onClick={() => setConfirm({ mode: "closed" })}
+                onClick={closeConfirm}
               />
               <div
                 role="dialog"
@@ -331,7 +429,7 @@ export function AdminClassesManagement({
                     type="button"
                     variant="secondary"
                     size="sm"
-                    onClick={() => setConfirm({ mode: "closed" })}
+                    onClick={closeConfirm}
                     disabled={busyId === confirm.id}
                   >
                     {t("cancelButton")}
