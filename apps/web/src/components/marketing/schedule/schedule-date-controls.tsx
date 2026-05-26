@@ -56,6 +56,7 @@ export function ScheduleDateControls({
 }: ScheduleDateControlsProps) {
   const t = useTranslations("marketingPages.schedule");
   const stripDays = Array.from({ length: VISIBLE_DAYS }, (_, idx) => addDays(windowStart, idx));
+  const today = startOfLocalDay(new Date());
   const monthLabel = formatMonthTitle(locale, selectedDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
 
@@ -87,6 +88,7 @@ export function ScheduleDateControls({
           <div className="grid min-w-0 flex-1 grid-cols-7 gap-1 sm:gap-2">
             {stripDays.map((day) => {
               const active = isSameCalendarDay(day, selectedDate);
+              const isToday = isSameCalendarDay(day, today);
               const dayNum = String(day.getDate());
               const wk = formatWeekdayShort(locale, day).toUpperCase();
               return (
@@ -101,7 +103,11 @@ export function ScheduleDateControls({
                   >
                     {wk}
                   </span>
-                  <span className={active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE}>
+                  <span
+                    className={`${active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE} ${
+                      isToday ? "border border-black/70" : ""
+                    }`}
+                  >
                     {dayNum}
                   </span>
                 </button>
