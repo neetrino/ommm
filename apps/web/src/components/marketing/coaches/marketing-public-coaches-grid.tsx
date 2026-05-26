@@ -280,8 +280,22 @@ function CoachDetailsModal({
 }
 
 export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGridProps) {
-  const [selectedCoachId, setSelectedCoachId] = useState<string | null>(null);
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [selectedCoachId, setSelectedCoachId] = useState<string | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    const queryCoachId = new URL(window.location.href).searchParams.get("coach");
+    if (!queryCoachId) {
+      return null;
+    }
+    return coaches.some((coach) => coach.id === queryCoachId) ? queryCoachId : null;
+  });
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return new URL(window.location.href).searchParams.get("photo") === "1";
+  });
   const [compactViewport, setCompactViewport] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
 
@@ -297,24 +311,7 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
     () => coaches.find((coach) => coach.id === selectedCoachId) ?? null,
     [coaches, selectedCoachId],
   );
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const url = new URL(window.location.href);
-    const queryCoachId = url.searchParams.get("coach");
-    const shouldOpenPhoto = url.searchParams.get("photo") === "1";
-    if (!queryCoachId) {
-      return;
-    }
-    const coachExists = coaches.some((coach) => coach.id === queryCoachId);
-    if (!coachExists) {
-      return;
-    }
-    setSelectedCoachId(queryCoachId);
-    setIsImagePreviewOpen(shouldOpenPhoto);
-  }, [coaches]);
+  const canShowImagePreview = isImagePreviewOpen && selectedCoach?.user.avatarUrl != null;
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -326,7 +323,7 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
     } else {
       url.searchParams.delete("coach");
     }
-    if (selectedCoachId && isImagePreviewOpen) {
+    if (selectedCoachId && canShowImagePreview) {
       url.searchParams.set("photo", "1");
     } else {
       url.searchParams.delete("photo");
@@ -336,20 +333,7 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
     if (nextUrl !== currentUrl) {
       window.history.replaceState(window.history.state, "", nextUrl);
     }
-  }, [isImagePreviewOpen, selectedCoachId]);
-
-  useEffect(() => {
-    if (selectedCoachId === null && isImagePreviewOpen) {
-      setIsImagePreviewOpen(false);
-    }
-  }, [isImagePreviewOpen, selectedCoachId]);
-
-  useEffect(() => {
-    if (selectedCoach?.user.avatarUrl || !isImagePreviewOpen) {
-      return;
-    }
-    setIsImagePreviewOpen(false);
-  }, [isImagePreviewOpen, selectedCoach]);
+  }, [canShowImagePreview, selectedCoachId]);
 
   useEffect(() => {
     if (selectedCoach === null) {
@@ -369,6 +353,7 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSelectedCoachId(null);
+        setIsImagePreviewOpen(false);
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -399,15 +384,20 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
             index={index}
             compactViewport={compactViewport}
             reduceMotion={reduceMotion}
-            onClick={() => setSelectedCoachId(coach.id)}
+            onClick={() => {
+              setSelectedCoachId(coach.id);
+            }}
           />
         ))}
       </ul>
       {selectedCoach ? (
         <CoachDetailsModal
           coach={selectedCoach}
-          onClose={() => setSelectedCoachId(null)}
-          isImagePreviewOpen={isImagePreviewOpen}
+          onClose={() => {
+            setSelectedCoachId(null);
+            setIsImagePreviewOpen(false);
+          }}
+          isImagePreviewOpen={canShowImagePreview}
           onOpenImagePreview={openImagePreview}
           onCloseImagePreview={closeImagePreview}
         />

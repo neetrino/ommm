@@ -169,6 +169,10 @@ export function DatePickerInput({
   const [visibleMonth, setVisibleMonth] = useState<Date>(() =>
     startOfMonth(selectedDate ?? new Date()),
   );
+  const closePicker = useCallback(() => {
+    setIsOpen(false);
+    setPopupPosition(null);
+  }, []);
 
   const today = useMemo(() => {
     const now = new Date();
@@ -176,14 +180,7 @@ export function DatePickerInput({
   }, []);
 
   useEffect(() => {
-    if (selectedDate !== null) {
-      setVisibleMonth(startOfMonth(selectedDate));
-    }
-  }, [selectedDate]);
-
-  useEffect(() => {
     if (!isOpen) {
-      setPopupPosition(null);
       return;
     }
 
@@ -198,12 +195,12 @@ export function DatePickerInput({
       if (popupRef.current?.contains(target)) {
         return;
       }
-      setIsOpen(false);
+      closePicker();
     }
 
     function onDocumentKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        closePicker();
       }
     }
 
@@ -213,7 +210,7 @@ export function DatePickerInput({
       document.removeEventListener("pointerdown", onDocumentPointerDown);
       document.removeEventListener("keydown", onDocumentKeyDown);
     };
-  }, [isOpen]);
+  }, [closePicker, isOpen]);
 
   const updatePopupPosition = useCallback(() => {
     if (!isOpen || triggerRef.current === null || typeof window === "undefined") {
@@ -306,7 +303,7 @@ export function DatePickerInput({
 
   return (
     <div className={isOpen ? "relative z-[140]" : "relative"} ref={wrapperRef}>
-      <input type="hidden" name={name} value={value} />
+      <input type="hidden" name={name} value={value} required={required} />
       <button
         ref={triggerRef}
         id={id}
@@ -315,10 +312,19 @@ export function DatePickerInput({
         aria-label={ariaLabel}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        aria-required={required}
         disabled={disabled}
         onClick={() => {
-          setIsOpen((prev) => !prev);
+          setIsOpen((prev) => {
+            const nextOpen = !prev;
+            if (nextOpen) {
+              if (selectedDate !== null) {
+                setVisibleMonth(startOfMonth(selectedDate));
+              }
+            } else {
+              setPopupPosition(null);
+            }
+            return nextOpen;
+          });
         }}
       >
         <span
@@ -429,7 +435,7 @@ export function DatePickerInput({
                   className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors hover:bg-sand-50 ${textTone} ${backgroundTone} ${todayRing} ${mutedOldMonthTone}`}
                   onClick={() => {
                     onChange(formatIsoDate(day));
-                    setIsOpen(false);
+                    closePicker();
                   }}
                 >
                   {day.getDate()}
@@ -444,7 +450,7 @@ export function DatePickerInput({
               className="text-base font-medium text-[#2f39a6] transition-opacity hover:opacity-80"
               onClick={() => {
                 onChange("");
-                setIsOpen(false);
+                closePicker();
               }}
             >
               Clear
@@ -455,7 +461,7 @@ export function DatePickerInput({
               onClick={() => {
                 onChange(formatIsoDate(today));
                 setVisibleMonth(startOfMonth(today));
-                setIsOpen(false);
+                closePicker();
               }}
             >
               Today

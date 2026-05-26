@@ -1,7 +1,15 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -250,7 +258,11 @@ export function AdminCoachActions({
   const [busy, setBusy] = useState(false);
   const [inlineMessage, setInlineMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
   const isOpen = searchParams.get(EDIT_COACH_QUERY_KEY) === coachId;
   const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
     (value) => ({
@@ -406,10 +418,6 @@ export function AdminCoachActions({
     router.replace(query ? `${pathname}?${query}` : pathname);
     setErrors({});
   }, [busy, pathname, router, searchParams]);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!isOpen) {
