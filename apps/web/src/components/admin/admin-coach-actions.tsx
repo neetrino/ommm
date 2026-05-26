@@ -267,6 +267,9 @@ export function AdminCoachActions({
           );
     return remote;
   }, [form.photoUrl, photoPreviewUrl]);
+  const photoPreviewImgSrc = useMemo(() => {
+    return photoPreview !== null ? encodeURI(photoPreview) : null;
+  }, [photoPreview]);
 
   const resetForm = useCallback(() => {
     setForm({
@@ -872,11 +875,11 @@ export function AdminCoachActions({
                               </OmmButton>
                             ) : null}
                           </div>
-                          {photoPreview !== null ? (
+                          {photoPreviewImgSrc !== null ? (
                             <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
-                                src={photoPreview}
+                                src={photoPreviewImgSrc}
                                 alt={t("fieldPhotoPreviewAlt")}
                                 className="h-40 w-full object-contain"
                               />

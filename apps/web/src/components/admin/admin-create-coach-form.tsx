@@ -88,6 +88,9 @@ export function AdminCreateCoachForm({
   const photoPreview = useMemo(() => {
     return photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
   }, [photoPreviewUrl]);
+  const photoPreviewImgSrc = useMemo(() => {
+    return photoPreview !== null ? encodeURI(photoPreview) : null;
+  }, [photoPreview]);
 
   function onPhotoSelected(file: File | null): void {
     if (photoPreviewUrl !== null) {
@@ -605,11 +608,11 @@ export function AdminCreateCoachForm({
                   </OmmButton>
                 ) : null}
               </div>
-              {photoPreview !== null ? (
+              {photoPreviewImgSrc !== null ? (
                 <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={photoPreview}
+                    src={photoPreviewImgSrc}
                     alt={t("photoPreviewAlt")}
                     className="h-44 w-full object-contain"
                   />
