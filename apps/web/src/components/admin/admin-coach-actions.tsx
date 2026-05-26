@@ -263,6 +263,7 @@ export function AdminCoachActions({
         ? null
         : sanitizeCoachPreviewSrc(
             resolveApiAssetUrl(form.photoUrl.trim()) ?? form.photoUrl.trim(),
+            { allowRemoteHttp: true },
           );
     return remote;
   }, [form.photoUrl, photoPreviewUrl]);

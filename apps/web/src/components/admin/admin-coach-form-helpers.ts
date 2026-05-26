@@ -19,6 +19,10 @@ export const MAX_SCHEDULE_SPOTS = 200;
 
 const PREVIEW_PATH_BASE = new URL("https://coach-preview.invalid");
 
+export type CoachPreviewSanitizeOptions = {
+  allowRemoteHttp?: boolean;
+};
+
 export type CoachScheduleInput = {
   id: string;
   date: string;
@@ -82,9 +86,16 @@ export function isValidTime(value: string): boolean {
   return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
 }
 
-export function sanitizeCoachPreviewSrc(src: string): string | null {
+export function sanitizeCoachPreviewSrc(
+  src: string,
+  options: CoachPreviewSanitizeOptions = {},
+): string | null {
   const trimmed = src.trim();
   if (trimmed === "") {
+    return null;
+  }
+  // Block control chars and meta chars that can break attribute context.
+  if (/[\u0000-\u001F\u007F<>"'`]/.test(trimmed)) {
     return null;
   }
   if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
@@ -100,10 +111,12 @@ export function sanitizeCoachPreviewSrc(src: string): string | null {
   }
   try {
     const url = new URL(trimmed);
+    if (url.protocol === "blob:") {
+      return url.href;
+    }
     if (
-      url.protocol === "https:" ||
-      url.protocol === "http:" ||
-      url.protocol === "blob:"
+      options.allowRemoteHttp === true &&
+      (url.protocol === "https:" || url.protocol === "http:")
     ) {
       return url.href;
     }
