@@ -99,7 +99,13 @@ export class CoachesService {
       where: { isActive: true },
       include: {
         user: {
-          select: { id: true, name: true, lastName: true, email: true, avatarUrl: true },
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            email: true,
+            avatarUrl: true,
+          },
         },
       },
     });
@@ -109,7 +115,9 @@ export class CoachesService {
     return this.prisma.coachProfile.findFirst({
       where: { id, isActive: true },
       include: {
-        user: { select: { id: true, name: true, lastName: true, avatarUrl: true } },
+        user: {
+          select: { id: true, name: true, lastName: true, avatarUrl: true },
+        },
       },
     });
   }
@@ -412,7 +420,7 @@ export class CoachesService {
     }
     let updated: CoachUpdateResult;
     try {
-      updated = (await this.prisma.$transaction(async (tx) => {
+      updated = await this.prisma.$transaction(async (tx) => {
         if (Object.keys(userData).length > 0) {
           await tx.user.update({
             where: { id: profile.user.id },
@@ -467,7 +475,7 @@ export class CoachesService {
           },
           select: coachUpdateSelect,
         });
-      })) as unknown as CoachUpdateResult;
+      });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

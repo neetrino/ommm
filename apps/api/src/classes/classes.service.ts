@@ -6,7 +6,6 @@ import {
 import {
   BookingStatus,
   ClassSessionStatus,
-  SessionRecurrencePattern,
   type ClassSession,
   type ClassType,
   type Prisma,
@@ -19,7 +18,24 @@ import type { CreateSessionDto } from './dto/create-session.dto';
 import type { UpdateSessionDto } from './dto/update-session.dto';
 
 type SessionRecurrencePayload = {
-  recurrencePattern: SessionRecurrencePattern;
+  recurrencePattern: SessionRecurrencePatternValue;
+  recurrenceWeekdays: ScheduleDayOfWeek[];
+  recurrenceEndsAt: Date | null;
+  recurrenceCount: number | null;
+};
+
+const SESSION_RECURRENCE_PATTERN = {
+  NONE: 'NONE',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  CUSTOM_WEEKDAYS: 'CUSTOM_WEEKDAYS',
+} as const;
+
+type SessionRecurrencePatternValue =
+  (typeof SESSION_RECURRENCE_PATTERN)[keyof typeof SESSION_RECURRENCE_PATTERN];
+
+type ClassSessionWithRecurrence = ClassSession & {
+  recurrencePattern: SessionRecurrencePatternValue;
   recurrenceWeekdays: ScheduleDayOfWeek[];
   recurrenceEndsAt: Date | null;
   recurrenceCount: number | null;
@@ -115,7 +131,9 @@ export class ClassesService {
     });
   }
 
-  async listSessionsAdmin(query: AdminListSessionsQueryDto): Promise<AdminSessionRow[]> {
+  async listSessionsAdmin(
+    query: AdminListSessionsQueryDto,
+  ): Promise<AdminSessionRow[]> {
     const where: Prisma.ClassSessionWhereInput = {
       ...(query.from || query.to
         ? {
@@ -165,19 +183,20 @@ export class ClassesService {
   private buildRecurrencePayloadForCreate(
     dto: CreateSessionDto,
   ): SessionRecurrencePayload {
-    const pattern = dto.recurrencePattern ?? SessionRecurrencePattern.NONE;
+    const pattern =
+      (dto.recurrencePattern ?? SESSION_RECURRENCE_PATTERN.NONE) as SessionRecurrencePatternValue;
     const weekdays = dto.recurrenceWeekdays ?? [];
     if (
-      pattern === SessionRecurrencePattern.CUSTOM_WEEKDAYS &&
+      pattern === SESSION_RECURRENCE_PATTERN.CUSTOM_WEEKDAYS &&
       weekdays.length === 0
     ) {
       throw new BadRequestException(
         'Choose at least one weekday for custom recurrence',
       );
     }
-    if (pattern === SessionRecurrencePattern.NONE) {
+    if (pattern === SESSION_RECURRENCE_PATTERN.NONE) {
       return {
-        recurrencePattern: SessionRecurrencePattern.NONE,
+        recurrencePattern: SESSION_RECURRENCE_PATTERN.NONE,
         recurrenceWeekdays: [],
         recurrenceEndsAt: null,
         recurrenceCount: null,
@@ -186,7 +205,7 @@ export class ClassesService {
     return {
       recurrencePattern: pattern,
       recurrenceWeekdays:
-        pattern === SessionRecurrencePattern.CUSTOM_WEEKDAYS ? weekdays : [],
+        pattern === SESSION_RECURRENCE_PATTERN.CUSTOM_WEEKDAYS ? weekdays : [],
       recurrenceEndsAt: dto.recurrenceEndsAt
         ? new Date(dto.recurrenceEndsAt)
         : null,
@@ -196,21 +215,21 @@ export class ClassesService {
 
   private buildRecurrencePayloadForUpdate(
     dto: UpdateSessionDto,
-    current: ClassSession,
+    current: ClassSessionWithRecurrence,
   ): SessionRecurrencePayload {
     const pattern = dto.recurrencePattern ?? current.recurrencePattern;
     const weekdays = dto.recurrenceWeekdays ?? current.recurrenceWeekdays;
     if (
-      pattern === SessionRecurrencePattern.CUSTOM_WEEKDAYS &&
+      pattern === SESSION_RECURRENCE_PATTERN.CUSTOM_WEEKDAYS &&
       weekdays.length === 0
     ) {
       throw new BadRequestException(
         'Choose at least one weekday for custom recurrence',
       );
     }
-    if (pattern === SessionRecurrencePattern.NONE) {
+    if (pattern === SESSION_RECURRENCE_PATTERN.NONE) {
       return {
-        recurrencePattern: SessionRecurrencePattern.NONE,
+        recurrencePattern: SESSION_RECURRENCE_PATTERN.NONE,
         recurrenceWeekdays: [],
         recurrenceEndsAt: null,
         recurrenceCount: null,
@@ -219,7 +238,7 @@ export class ClassesService {
     return {
       recurrencePattern: pattern,
       recurrenceWeekdays:
-        pattern === SessionRecurrencePattern.CUSTOM_WEEKDAYS ? weekdays : [],
+        pattern === SESSION_RECURRENCE_PATTERN.CUSTOM_WEEKDAYS ? weekdays : [],
       recurrenceEndsAt:
         dto.recurrenceEndsAt === undefined
           ? current.recurrenceEndsAt
@@ -239,8 +258,7 @@ export class ClassesService {
     this.assertTimeRange(startsAt, endsAt);
     const recurrence = this.buildRecurrencePayloadForCreate(dto);
 
-    const created = await this.prisma.classSession.create({
-      data: {
+    const createData = {
         title: dto.title.trim(),
         description: this.normalizeOptional(dto.description),
         classTypeId: dto.classTypeId,
@@ -258,25 +276,32 @@ export class ClassesService {
         recurrenceWeekdays: recurrence.recurrenceWeekdays,
         recurrenceEndsAt: recurrence.recurrenceEndsAt,
         recurrenceCount: recurrence.recurrenceCount,
-      },
+      } as Prisma.ClassSessionUncheckedCreateInput;
+
+    const created = await this.prisma.classSession.create({
+      data: createData,
     });
     return this.findSessionAdminOrThrow(created.id);
   }
 
-  async updateSession(id: string, dto: UpdateSessionDto): Promise<AdminSessionRow> {
-    const existing = await this.prisma.classSession.findUnique({ where: { id } });
-    if (!existing) {
+  async updateSession(
+    id: string,
+    dto: UpdateSessionDto,
+  ): Promise<AdminSessionRow> {
+    const existingRaw = await this.prisma.classSession.findUnique({
+      where: { id },
+    });
+    if (!existingRaw) {
       throw new NotFoundException('Session not found');
     }
+    const existing = existingRaw as ClassSessionWithRecurrence;
 
     const startsAt = dto.startsAt ? new Date(dto.startsAt) : existing.startsAt;
     const endsAt = dto.endsAt ? new Date(dto.endsAt) : existing.endsAt;
     this.assertTimeRange(startsAt, endsAt);
     const recurrence = this.buildRecurrencePayloadForUpdate(dto, existing);
 
-    await this.prisma.classSession.update({
-      where: { id },
-      data: {
+    const updateData = {
         ...(dto.title !== undefined && { title: dto.title.trim() }),
         ...(dto.description !== undefined && {
           description: this.normalizeOptional(dto.description),
@@ -289,7 +314,9 @@ export class ClassesService {
         ...(dto.startsAt !== undefined && { startsAt }),
         ...(dto.endsAt !== undefined && { endsAt }),
         ...(dto.capacity !== undefined && { capacity: dto.capacity }),
-        ...(dto.level !== undefined && { level: this.normalizeOptional(dto.level) }),
+        ...(dto.level !== undefined && {
+          level: this.normalizeOptional(dto.level),
+        }),
         ...(dto.classFormat !== undefined && {
           classFormat: this.normalizeOptional(dto.classFormat),
         }),
@@ -302,7 +329,11 @@ export class ClassesService {
         recurrenceWeekdays: recurrence.recurrenceWeekdays,
         recurrenceEndsAt: recurrence.recurrenceEndsAt,
         recurrenceCount: recurrence.recurrenceCount,
-      },
+      } as Prisma.ClassSessionUncheckedUpdateInput;
+
+    await this.prisma.classSession.update({
+      where: { id },
+      data: updateData,
     });
     return this.findSessionAdminOrThrow(id);
   }
