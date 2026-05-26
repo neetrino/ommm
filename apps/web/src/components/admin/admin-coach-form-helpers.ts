@@ -31,6 +31,33 @@ export type CoachClassOption = {
   name: string;
 };
 
+const FALLBACK_UUID_TEMPLATE = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+
+function generateScheduleRowId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(
+      16,
+      20,
+    )}-${hex.slice(20)}`;
+  }
+
+  return FALLBACK_UUID_TEMPLATE.replace(/[xy]/g, (char) => {
+    const randomNibble = Math.floor(Math.random() * 16);
+    const nibble = char === "x" ? randomNibble : (randomNibble & 0x3) | 0x8;
+    return nibble.toString(16);
+  });
+}
+
 export function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
   if (trimmed.length === 0 || trimmed.length > MAX_EMAIL_LENGTH) {
@@ -105,7 +132,7 @@ export function calculateAgeFromBirthday(value: string): number | null {
 
 export function createScheduleRow(): CoachScheduleInput {
   return {
-    id: crypto.randomUUID(),
+    id: generateScheduleRowId(),
     date: "",
     time: "",
     spots: "1",
