@@ -88,6 +88,13 @@ enum ScheduleDayOfWeek {
   SATURDAY
 }
 
+enum SessionRecurrencePattern {
+  NONE
+  DAILY
+  WEEKLY
+  CUSTOM_WEEKDAYS
+}
+
 model User {
   id             String    @id @default(cuid())
   email          String    @unique
@@ -202,6 +209,8 @@ model ClassType {
 
 model ClassSession {
   id                 String             @id @default(cuid())
+  title              String             @default("")
+  description        String?
   classTypeId        String
   classType          ClassType          @relation(fields: [classTypeId], references: [id])
   coachId            String
@@ -212,8 +221,14 @@ model ClassSession {
   endsAt             DateTime
   capacity           Int
   level              String?
+  classFormat        String?
   priceCents         Int                @default(0)
+  sessionRequirement Int?
   status             ClassSessionStatus @default(ACTIVE)
+  recurrencePattern  SessionRecurrencePattern @default(NONE)
+  recurrenceWeekdays ScheduleDayOfWeek[] @default([])
+  recurrenceEndsAt   DateTime?
+  recurrenceCount    Int?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 

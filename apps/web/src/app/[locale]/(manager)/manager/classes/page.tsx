@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
-import { AdminClassActions } from "@/components/admin/admin-class-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClassTypeRow = {
@@ -89,7 +88,6 @@ export default async function ManagerClassesPage() {
               <th className="px-4 py-3">Coach</th>
               <th className="px-4 py-3">Booked</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -108,9 +106,6 @@ export default async function ManagerClassesPage() {
                   {s._count.bookings}/{s.capacity}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">{s.status}</td>
-                <td className="px-4 py-3">
-                  <AdminClassActions sessionId={s.id} />
-                </td>
               </tr>
             ))}
           </tbody>

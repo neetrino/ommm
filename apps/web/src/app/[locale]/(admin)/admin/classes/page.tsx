@@ -1,29 +1,24 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
-import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminClassActions } from "@/components/admin/admin-class-actions";
+import { AdminClassesManagement } from "@/components/admin/admin-classes-management";
 import {
   AccountPageFrame,
-  AccountSection,
 } from "@/components/layout/account-page-frame";
+import type {
+  AdminClassCoachOption,
+  AdminClassSessionRow,
+  AdminClassTypeOption,
+} from "@/components/admin/admin-classes-types";
 import { serverApiJson } from "@/lib/server-api";
 
-type ClassTypeRow = {
+type CoachAdminRow = {
   id: string;
-  name: string;
-  slug: string;
-};
-
-type SessionRow = {
-  id: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  status: string;
-  classType: { name: string };
-  coach: { user: { name: string | null } };
-  _count: { bookings: number };
+  specialization: string | null;
+  user: {
+    name: string | null;
+    lastName: string | null;
+  };
 };
 
 export default async function AdminClassesPage({
@@ -40,9 +35,10 @@ export default async function AdminClassesPage({
   to.setDate(to.getDate() + ACCOUNT_SESSION_RANGE_DAYS);
   const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
 
-  const [typesRes, sessionsRes] = await Promise.all([
-    serverApiJson<ClassTypeRow[]>("/classes/types", cookie),
-    serverApiJson<SessionRow[]>(`/classes/sessions?${q}`, cookie),
+  const [typesRes, sessionsRes, coachesRes] = await Promise.all([
+    serverApiJson<AdminClassTypeOption[]>("/classes/types", cookie),
+    serverApiJson<AdminClassSessionRow[]>(`/classes/admin/sessions?${q}`, cookie),
+    serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie),
   ]);
 
   if (!typesRes.ok) {
@@ -65,70 +61,33 @@ export default async function AdminClassesPage({
     );
   }
 
+  if (!coachesRes.ok) {
+    return (
+      <div className="app-alert-warn max-w-xl">
+        {coachesRes.status === 401 || coachesRes.status === 403
+          ? t("errorCoachesAuth")
+          : t("errorCoachesLoad", { status: coachesRes.status })}
+      </div>
+    );
+  }
+
+  const coaches: AdminClassCoachOption[] = coachesRes.data.map((coach) => ({
+    id: coach.id,
+    name: [coach.user.name, coach.user.lastName].filter(Boolean).join(" ").trim() || t("coachFallback"),
+    specialization: coach.specialization,
+  }));
+
   return (
     <AccountPageFrame
       title={t("title")}
       description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
     >
-      <AccountSection title={t("sectionTypes")}>
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colName")}</th>
-                <th className={adminChrome.th}>{t("colSlug")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {typesRes.data.map((row) => (
-                <tr key={row.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>{row.name}</td>
-                  <td className={adminChrome.td}>{row.slug}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </AccountSection>
-
-      <AccountSection title={t("sectionSessions")} className="mt-8">
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colClass")}</th>
-                <th className={adminChrome.th}>{t("colStarts")}</th>
-                <th className={adminChrome.th}>{t("colCoach")}</th>
-                <th className={adminChrome.th}>{t("colBooked")}</th>
-                <th className={adminChrome.th}>{t("colStatus")}</th>
-                <th className={adminChrome.th}>{t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sessionsRes.data.map((s) => (
-                <tr key={s.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>
-                    {s.classType.name}
-                  </td>
-                  <td className={adminChrome.td}>
-                    {new Date(s.startsAt).toLocaleString()}
-                  </td>
-                  <td className={adminChrome.td}>
-                    {s.coach.user.name ?? "—"}
-                  </td>
-                  <td className={adminChrome.td}>
-                    {s._count.bookings}/{s.capacity}
-                  </td>
-                  <td className={adminChrome.td}>{s.status}</td>
-                  <td className={adminChrome.td}>
-                    <AdminClassActions sessionId={s.id} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </AccountSection>
+      <AdminClassesManagement
+        locale={locale}
+        initialSessions={sessionsRes.data}
+        classTypes={typesRes.data}
+        coaches={coaches}
+      />
     </AccountPageFrame>
   );
 }

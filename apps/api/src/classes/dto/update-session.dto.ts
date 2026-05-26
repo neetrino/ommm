@@ -15,36 +15,42 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateSessionDto {
+export class UpdateSessionDto {
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  title!: string;
+  title?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(1000)
   description?: string;
 
+  @IsOptional()
   @IsString()
-  classTypeId!: string;
+  classTypeId?: string;
 
+  @IsOptional()
   @IsString()
-  coachId!: string;
+  coachId?: string;
 
   @IsOptional()
   @IsString()
   substituteCoachId?: string;
 
+  @IsOptional()
   @IsDateString()
-  startsAt!: string;
+  startsAt?: string;
 
+  @IsOptional()
   @IsDateString()
-  endsAt!: string;
+  endsAt?: string;
 
+  @IsOptional()
   @IsInt()
   @Min(1)
-  capacity!: number;
+  capacity?: number;
 
   @IsOptional()
   @IsString()
