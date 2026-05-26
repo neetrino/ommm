@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 
@@ -115,32 +116,11 @@ export function AccountProfileInfoForm({
     return (
       <div className="relative space-y-4">
         <div className="absolute right-0 top-0">
-          <OmmButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={startEdit}
-            aria-label={tForm("edit")}
+          <EditActionButton
+            ariaLabel={tForm("edit")}
             title={tForm("edit")}
-            className="h-11 w-11 rounded-full p-0"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
-            >
-              <path d="M12 20h9" strokeLinecap="round" strokeLinejoin="round" />
-              <path
-                d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </OmmButton>
+            onClick={startEdit}
+          />
         </div>
         <dl className="space-y-3 pr-14 text-sm">
           <div>

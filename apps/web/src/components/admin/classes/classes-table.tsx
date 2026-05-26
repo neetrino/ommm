@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type { AdminClassSessionRow } from "@/components/admin/admin-classes-types";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { ClassStatusBadge } from "@/components/admin/classes/class-status-badge";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { formatDateForUi } from "@/lib/date-display";
 
 type ClassesTableProps = {
@@ -25,14 +26,6 @@ function CalendarGlyph() {
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="3" y="5" width="18" height="16" rx="2.5" />
       <path d="M8 3v4m8-4v4M3 10h18" />
-    </svg>
-  );
-}
-
-function EditGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 20h4l10-10a2.1 2.1 0 0 0-3-3L5 17v3z" />
     </svg>
   );
 }
@@ -97,15 +90,12 @@ function RowActions({
   const t = useTranslations("adminPages.classes");
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
+      <EditActionButton
+        ariaLabel={t("editButton")}
         title={t("editButton")}
-        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-sand-300 bg-white/70 px-3 text-xs font-medium text-sage-800 transition-colors hover:bg-white"
+        label={t("editButton")}
         onClick={() => onEdit(row)}
-      >
-        <EditGlyph />
-        <span>{t("editButton")}</span>
-      </button>
+      />
       {row.status === "CANCELLED" ? (
         <button
           type="button"

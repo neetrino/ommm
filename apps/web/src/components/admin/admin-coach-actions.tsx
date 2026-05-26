@@ -39,6 +39,7 @@ import {
   type CoachClassOption,
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 
@@ -96,25 +97,6 @@ type FormErrors = {
 const EDIT_COACH_QUERY_KEY = "editCoach";
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
-
-function PencilGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
-  );
-}
 
 function CloseGlyph({ className }: { className?: string }) {
   return (
@@ -622,15 +604,11 @@ export function AdminCoachActions({
   return (
     <>
       <div className="flex items-center justify-center">
-        <button
-          type="button"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-sage-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
-          aria-label={t("editCoach")}
+        <EditActionButton
+          ariaLabel={t("editCoach")}
           title={t("editCoach")}
           onClick={openModal}
-        >
-          <PencilGlyph className="h-4 w-4" />
-        </button>
+        />
       </div>
 
       {inlineMessage ? (

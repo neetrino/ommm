@@ -9,28 +9,10 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminScheduleForm } from "@/components/admin/admin-schedule-form";
 import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const EDIT_SCHEDULE_QUERY_KEY = "editSchedule";
-
-function PencilGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
-  );
-}
 
 function TrashGlyph({ className }: { className?: string }) {
   return (
@@ -204,16 +186,12 @@ export function AdminScheduleRowActions({
     <>
       <div className="flex min-w-0 flex-col items-center gap-1">
         <div className="flex items-center justify-center gap-1">
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-sage-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
-            aria-label={t("editButtonAria")}
+          <EditActionButton
+            ariaLabel={t("editButtonAria")}
             title={t("editButtonAria")}
             onClick={openModal}
             disabled={busy}
-          >
-            <PencilGlyph className="h-4 w-4" />
-          </button>
+          />
           <button
             type="button"
             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-red-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-red-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
