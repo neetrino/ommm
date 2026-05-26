@@ -100,7 +100,7 @@ function RowActions({
       <button
         type="button"
         title={t("editButton")}
-        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/70 bg-white/80 px-3 text-xs font-medium text-sage-800 transition-colors hover:bg-white"
+        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-sand-300 bg-white/70 px-3 text-xs font-medium text-sage-800 transition-colors hover:bg-white"
         onClick={() => onEdit(row)}
       >
         <EditGlyph />
