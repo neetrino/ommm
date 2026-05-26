@@ -7,12 +7,13 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminClassForm } from "@/components/admin/admin-class-form";
 import {
-  CLASS_STATUS_VALUES,
   type AdminClassCoachOption,
   type AdminClassSessionRow,
   type AdminClassTypeOption,
-  type ClassStatusValue,
 } from "@/components/admin/admin-classes-types";
+import { ClassesFilters } from "@/components/admin/classes/classes-filters";
+import { ClassesSummaryCards } from "@/components/admin/classes/classes-summary-cards";
+import { ClassesTable } from "@/components/admin/classes/classes-table";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type ModalState =
@@ -26,13 +27,6 @@ type AdminClassesManagementProps = {
   classTypes: readonly AdminClassTypeOption[];
   coaches: readonly AdminClassCoachOption[];
 };
-
-function statusBadgeClass(status: ClassStatusValue): string {
-  if (status === "ACTIVE") return "border-mint-200/80 bg-mint-50/90 text-sage-800";
-  if (status === "FULL") return "border-amber-200/80 bg-amber-50/90 text-amber-800";
-  if (status === "CANCELLED") return "border-red-200/80 bg-red-50/90 text-red-800";
-  return "border-sand-300/80 bg-sand-100/80 text-sage-700";
-}
 
 function AddClassGlyph({ className }: { className?: string }) {
   return (
@@ -54,11 +48,14 @@ export function AdminClassesManagement({
   const [modal, setModal] = useState<ModalState>({ mode: "closed" });
   const [banner, setBanner] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [coachFilter, setCoachFilter] = useState<string>("ALL");
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [levelFilter, setLevelFilter] = useState<string>("ALL");
-  const [dateFilter, setDateFilter] = useState("");
+  const [fromDateFilter, setFromDateFilter] = useState("");
+  const [toDateFilter, setToDateFilter] = useState("");
   const titleId = useId();
   const descId = useId();
 
@@ -70,18 +67,30 @@ export function AdminClassesManagement({
   const filtered = useMemo(
     () =>
       sessions.filter((row) => {
+        if (searchQuery.trim().length > 0) {
+          const query = searchQuery.trim().toLocaleLowerCase();
+          const searchPool = `${row.title} ${row.coach.user.name ?? ""} ${row.classType.name} ${row.classFormat ?? ""}`.toLocaleLowerCase();
+          if (!searchPool.includes(query)) return false;
+        }
         if (statusFilter !== "ALL" && row.status !== statusFilter) return false;
         if (coachFilter !== "ALL" && row.coach.id !== coachFilter) return false;
         if (typeFilter !== "ALL" && row.classType.id !== typeFilter) return false;
         if (levelFilter !== "ALL" && (row.level ?? "") !== levelFilter) return false;
-        if (dateFilter.length > 0) {
-          const date = new Date(row.startsAt);
-          const key = `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, "0")}-${`${date.getDate()}`.padStart(2, "0")}`;
-          if (key !== dateFilter) return false;
+        if (fromDateFilter.length > 0) {
+          const startsAtDate = new Date(row.startsAt);
+          const fromDate = new Date(fromDateFilter);
+          fromDate.setHours(0, 0, 0, 0);
+          if (startsAtDate < fromDate) return false;
+        }
+        if (toDateFilter.length > 0) {
+          const startsAtDate = new Date(row.startsAt);
+          const toDate = new Date(toDateFilter);
+          toDate.setHours(23, 59, 59, 999);
+          if (startsAtDate > toDate) return false;
         }
         return true;
       }),
-    [sessions, statusFilter, coachFilter, typeFilter, levelFilter, dateFilter],
+    [sessions, searchQuery, statusFilter, coachFilter, typeFilter, levelFilter, fromDateFilter, toDateFilter],
   );
 
   function upsertSession(next: AdminClassSessionRow): void {
@@ -114,82 +123,99 @@ export function AdminClassesManagement({
   const modalLead =
     modal.mode === "edit" ? t("editDescription") : modal.mode === "duplicate" ? t("duplicateDescription") : t("createDescription");
 
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    statusFilter !== "ALL" ||
+    coachFilter !== "ALL" ||
+    typeFilter !== "ALL" ||
+    levelFilter !== "ALL" ||
+    fromDateFilter.length > 0 ||
+    toDateFilter.length > 0;
+
+  const summary = useMemo(() => {
+    const total = sessions.length;
+    let active = 0;
+    let upcoming = 0;
+    let full = 0;
+    let cancelled = 0;
+    let draft = 0;
+
+    for (const row of sessions) {
+      if (row.status === "ACTIVE") active += 1;
+      if (row.status === "CANCELLED") cancelled += 1;
+      if (row.status === "DRAFT") draft += 1;
+      if (row.status === "FULL" || row._count.bookings >= row.capacity) full += 1;
+      if (row.status === "ACTIVE" || row.status === "FULL") upcoming += 1;
+    }
+
+    return { total, active, upcoming, full, cancelled, draft };
+  }, [sessions]);
+
+  function resetFilters() {
+    setSearchQuery("");
+    setStatusFilter("ALL");
+    setCoachFilter("ALL");
+    setTypeFilter("ALL");
+    setLevelFilter("ALL");
+    setFromDateFilter("");
+    setToDateFilter("");
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="ommm-card flex flex-col gap-5 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
         {banner ? <p className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800">{banner}</p> : null}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <select className="ommm-input h-10 min-w-[8rem] py-0 text-sm" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-              <option value="ALL">{t("filters.allStatuses")}</option>
-              {CLASS_STATUS_VALUES.map((value) => <option key={value} value={value}>{t(`status.${value}`)}</option>)}
-            </select>
-            <select className="ommm-input h-10 min-w-[8rem] py-0 text-sm" value={coachFilter} onChange={(event) => setCoachFilter(event.target.value)}>
-              <option value="ALL">{t("filters.allCoaches")}</option>
-              {coaches.map((coach) => <option key={coach.id} value={coach.id}>{coach.name}</option>)}
-            </select>
-            <select className="ommm-input h-10 min-w-[8rem] py-0 text-sm" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
-              <option value="ALL">{t("filters.allTypes")}</option>
-              {classTypes.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}
-            </select>
-            <select className="ommm-input h-10 min-w-[8rem] py-0 text-sm" value={levelFilter} onChange={(event) => setLevelFilter(event.target.value)}>
-              <option value="ALL">{t("filters.allLevels")}</option>
-              {levelOptions.map((level) => <option key={level} value={level}>{level}</option>)}
-            </select>
-            <input type="date" className="ommm-input h-10 py-0 text-sm" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} />
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-2xl">
+            <h2 className={adminChrome.sectionTitle}>{t("managementTitle")}</h2>
+            <p className="ommm-body-muted mt-2 text-sm sm:text-base">{t("managementDescription")}</p>
           </div>
-          <OmmButton type="button" variant="secondary" size="md" onClick={() => setModal({ mode: "create" })} className="inline-flex items-center gap-2" disabled={coaches.length === 0 || classTypes.length === 0}>
+          <OmmButton type="button" variant="primary" size="md" onClick={() => setModal({ mode: "create" })} className="inline-flex items-center gap-2" disabled={coaches.length === 0 || classTypes.length === 0}>
             <AddClassGlyph className="h-5 w-5 shrink-0" />
             {t("addClassButton")}
           </OmmButton>
-        </div>
+        </header>
+
+        <ClassesSummaryCards {...summary} />
+
+        <ClassesFilters
+          search={searchQuery}
+          status={statusFilter}
+          coachId={coachFilter}
+          typeId={typeFilter}
+          level={levelFilter}
+          fromDate={fromDateFilter}
+          toDate={toDateFilter}
+          levels={levelOptions}
+          coaches={coaches}
+          classTypes={classTypes}
+          onSearchChange={setSearchQuery}
+          onStatusChange={setStatusFilter}
+          onCoachChange={setCoachFilter}
+          onTypeChange={setTypeFilter}
+          onLevelChange={setLevelFilter}
+          onFromDateChange={setFromDateFilter}
+          onToDateChange={setToDateFilter}
+          onReset={resetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
 
         {coaches.length === 0 ? <p className="app-alert-warn text-sm">{t("emptyCoaches")}</p> : null}
 
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colClass")}</th>
-                <th className={adminChrome.th}>{t("colDate")}</th>
-                <th className={adminChrome.th}>{t("colTime")}</th>
-                <th className={adminChrome.th}>{t("colCoach")}</th>
-                <th className={adminChrome.th}>{t("colCapacity")}</th>
-                <th className={adminChrome.th}>{t("colLevel")}</th>
-                <th className={adminChrome.th}>{t("colType")}</th>
-                <th className={adminChrome.th}>{t("colPriceOrSessions")}</th>
-                <th className={adminChrome.th}>{t("colStatus")}</th>
-                <th className={adminChrome.th}>{t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr className={adminChrome.tr}><td className={adminChrome.tdMuted} colSpan={10}>{t("emptySessions")}</td></tr>
-              ) : (
-                filtered.map((row) => (
-                  <tr key={row.id} className={adminChrome.tr}>
-                    <td className={adminChrome.tdStrong}>{row.title}</td>
-                    <td className={adminChrome.td}>{new Date(row.startsAt).toLocaleDateString(locale)}</td>
-                    <td className={adminChrome.td}>{new Date(row.startsAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })} - {new Date(row.endsAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}</td>
-                    <td className={adminChrome.td}>{row.coach.user.name ?? "—"}</td>
-                    <td className={adminChrome.td}>{row._count.bookings}/{row.capacity}</td>
-                    <td className={adminChrome.td}>{row.level ?? "—"}</td>
-                    <td className={adminChrome.td}>{row.classType.name}</td>
-                    <td className={adminChrome.td}>{row.sessionRequirement ? t("sessionsRequired", { count: row.sessionRequirement }) : t("priceAmount", { amount: (row.priceCents / 100).toFixed(2) })}</td>
-                    <td className={adminChrome.td}><span className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadgeClass(row.status)}`}>{t(`status.${row.status}`)}</span></td>
-                    <td className={adminChrome.td}>
-                      <div className="flex flex-wrap gap-2">
-                        <button type="button" className="rounded-md border border-white/60 bg-white/70 px-2 py-1 text-xs text-sage-800" onClick={() => setModal({ mode: "edit", item: row })}>{t("editButton")}</button>
-                        <button type="button" className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-800" onClick={() => { void cancelSession(row.id); }} disabled={busyId === row.id}>{t("cancelAction")}</button>
-                        <button type="button" className="rounded-md border border-sand-300 px-2 py-1 text-xs text-sage-800" onClick={() => setModal({ mode: "duplicate", item: row })}>{t("duplicateButton")}</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <ClassesTable
+          locale={locale}
+          sessions={filtered}
+          hasFilters={hasActiveFilters}
+          refreshing={isRefreshing}
+          busyId={busyId}
+          onCreate={() => setModal({ mode: "create" })}
+          onEdit={(row) => setModal({ mode: "edit", item: row })}
+          onCancel={(id) => {
+            void cancelSession(id);
+          }}
+          onDuplicate={(row) => setModal({ mode: "duplicate", item: row })}
+          onResetFilters={resetFilters}
+        />
       </div>
 
       {modal.mode !== "closed" && typeof document !== "undefined"
@@ -211,16 +237,23 @@ export function AdminClassesManagement({
                   item={modal.mode === "create" ? undefined : modal.item}
                   onCancel={() => setModal({ mode: "closed" })}
                   onSaved={async () => {
-                    const latest = await apiFetch<AdminClassSessionRow[]>("/classes/admin/sessions");
-                    setSessions(latest);
-                    setBanner(
-                      modal.mode === "edit"
-                        ? t("messages.updateSuccess")
-                        : modal.mode === "duplicate"
-                          ? t("messages.duplicateSuccess")
-                          : t("messages.createSuccess"),
-                    );
-                    setModal({ mode: "closed" });
+                    setIsRefreshing(true);
+                    try {
+                      const latest = await apiFetch<AdminClassSessionRow[]>("/classes/admin/sessions");
+                      setSessions(latest);
+                      setBanner(
+                        modal.mode === "edit"
+                          ? t("messages.updateSuccess")
+                          : modal.mode === "duplicate"
+                            ? t("messages.duplicateSuccess")
+                            : t("messages.createSuccess"),
+                      );
+                      setModal({ mode: "closed" });
+                    } catch (error) {
+                      setBanner(error instanceof ApiError ? error.message : t("messages.genericError"));
+                    } finally {
+                      setIsRefreshing(false);
+                    }
                   }}
                 />
               </div>

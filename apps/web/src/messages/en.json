@@ -988,14 +988,19 @@
       }
     },
     "classes": {
-      "title": "Classes",
-      "description": "Create and manage class schedule sessions for the next {days} days.",
+      "title": "Classes Management",
+      "description": "Manage class schedule sessions for the next {days} days, including coaches, capacity, and statuses.",
+      "managementTitle": "Classes Management",
+      "managementDescription": "Manage class schedules, coaches, capacity, and statuses from one organized workspace.",
       "errorTypesAuth": "Admin sign-in required for class types.",
       "errorTypesLoad": "Could not load class types ({status}).",
+      "errorTypesLoadFriendly": "Class types are unavailable right now. Please try again shortly.",
       "errorSessionsAuth": "Admin sign-in required for sessions.",
       "errorSessionsLoad": "Could not load sessions ({status}).",
+      "errorSessionsLoadFriendly": "Classes are unavailable right now. Please try again shortly.",
       "errorCoachesAuth": "Admin sign-in required for coaches.",
       "errorCoachesLoad": "Could not load coaches ({status}).",
+      "errorCoachesLoadFriendly": "Coach data is unavailable right now. Please try again shortly.",
       "coachFallback": "Coach",
       "addClassButton": "Add Class",
       "createTitle": "Create Class",
@@ -1010,10 +1015,36 @@
       "emptySessions": "No classes match your current filters.",
       "confirmCancel": "Cancel this class?",
       "filters": {
+        "searchLabel": "Search",
+        "searchPlaceholder": "Search by class, coach, or type",
+        "statusLabel": "Status",
+        "coachLabel": "Coach",
+        "typeLabel": "Class type",
+        "levelLabel": "Level",
+        "fromDateLabel": "From date",
+        "toDateLabel": "To date",
+        "reset": "Reset filters",
         "allStatuses": "All statuses",
         "allCoaches": "All coaches",
         "allTypes": "All class types",
         "allLevels": "All levels"
+      },
+      "summary": {
+        "total": "Total Classes",
+        "active": "Active Classes",
+        "upcoming": "Upcoming Classes",
+        "full": "Full Classes",
+        "cancelled": "Cancelled Classes",
+        "draft": "Draft Classes"
+      },
+      "empty": {
+        "noneTitle": "No classes yet",
+        "noneBody": "Create your first class to start scheduling sessions for members.",
+        "filteredTitle": "No classes found",
+        "filteredBody": "No classes match the current filters. Try adjusting or resetting them."
+      },
+      "fallback": {
+        "notSpecified": "—"
       },
       "colClass": "Class",
       "colDate": "Date",

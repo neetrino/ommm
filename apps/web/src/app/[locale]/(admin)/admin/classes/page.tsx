@@ -46,7 +46,7 @@ export default async function AdminClassesPage({
       <div className="app-alert-warn max-w-xl">
         {typesRes.status === 401 || typesRes.status === 403
           ? t("errorTypesAuth")
-          : t("errorTypesLoad", { status: typesRes.status })}
+          : t("errorTypesLoadFriendly")}
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default async function AdminClassesPage({
       <div className="app-alert-warn max-w-xl">
         {sessionsRes.status === 401 || sessionsRes.status === 403
           ? t("errorSessionsAuth")
-          : t("errorSessionsLoad", { status: sessionsRes.status })}
+          : t("errorSessionsLoadFriendly")}
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default async function AdminClassesPage({
       <div className="app-alert-warn max-w-xl">
         {coachesRes.status === 401 || coachesRes.status === 403
           ? t("errorCoachesAuth")
-          : t("errorCoachesLoad", { status: coachesRes.status })}
+          : t("errorCoachesLoadFriendly")}
       </div>
     );
   }
