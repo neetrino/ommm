@@ -183,8 +183,7 @@ export class ClassesService {
   private buildRecurrencePayloadForCreate(
     dto: CreateSessionDto,
   ): SessionRecurrencePayload {
-    const pattern =
-      (dto.recurrencePattern ?? SESSION_RECURRENCE_PATTERN.NONE) as SessionRecurrencePatternValue;
+    const pattern = dto.recurrencePattern ?? SESSION_RECURRENCE_PATTERN.NONE;
     const weekdays = dto.recurrenceWeekdays ?? [];
     if (
       pattern === SESSION_RECURRENCE_PATTERN.CUSTOM_WEEKDAYS &&
@@ -259,24 +258,24 @@ export class ClassesService {
     const recurrence = this.buildRecurrencePayloadForCreate(dto);
 
     const createData = {
-        title: dto.title.trim(),
-        description: this.normalizeOptional(dto.description),
-        classTypeId: dto.classTypeId,
-        coachId: dto.coachId,
-        substituteCoachId: dto.substituteCoachId,
-        startsAt,
-        endsAt,
-        capacity: dto.capacity,
-        level: this.normalizeOptional(dto.level),
-        classFormat: this.normalizeOptional(dto.classFormat),
-        priceCents: dto.priceCents ?? 0,
-        sessionRequirement: dto.sessionRequirement ?? null,
-        status: dto.status ?? ClassSessionStatus.DRAFT,
-        recurrencePattern: recurrence.recurrencePattern,
-        recurrenceWeekdays: recurrence.recurrenceWeekdays,
-        recurrenceEndsAt: recurrence.recurrenceEndsAt,
-        recurrenceCount: recurrence.recurrenceCount,
-      } as Prisma.ClassSessionUncheckedCreateInput;
+      title: dto.title.trim(),
+      description: this.normalizeOptional(dto.description),
+      classTypeId: dto.classTypeId,
+      coachId: dto.coachId,
+      substituteCoachId: dto.substituteCoachId,
+      startsAt,
+      endsAt,
+      capacity: dto.capacity,
+      level: this.normalizeOptional(dto.level),
+      classFormat: this.normalizeOptional(dto.classFormat),
+      priceCents: dto.priceCents ?? 0,
+      sessionRequirement: dto.sessionRequirement ?? null,
+      status: dto.status ?? ClassSessionStatus.DRAFT,
+      recurrencePattern: recurrence.recurrencePattern,
+      recurrenceWeekdays: recurrence.recurrenceWeekdays,
+      recurrenceEndsAt: recurrence.recurrenceEndsAt,
+      recurrenceCount: recurrence.recurrenceCount,
+    } as Prisma.ClassSessionUncheckedCreateInput;
 
     const created = await this.prisma.classSession.create({
       data: createData,
@@ -302,34 +301,34 @@ export class ClassesService {
     const recurrence = this.buildRecurrencePayloadForUpdate(dto, existing);
 
     const updateData = {
-        ...(dto.title !== undefined && { title: dto.title.trim() }),
-        ...(dto.description !== undefined && {
-          description: this.normalizeOptional(dto.description),
-        }),
-        ...(dto.classTypeId !== undefined && { classTypeId: dto.classTypeId }),
-        ...(dto.coachId !== undefined && { coachId: dto.coachId }),
-        ...(dto.substituteCoachId !== undefined && {
-          substituteCoachId: this.normalizeOptional(dto.substituteCoachId),
-        }),
-        ...(dto.startsAt !== undefined && { startsAt }),
-        ...(dto.endsAt !== undefined && { endsAt }),
-        ...(dto.capacity !== undefined && { capacity: dto.capacity }),
-        ...(dto.level !== undefined && {
-          level: this.normalizeOptional(dto.level),
-        }),
-        ...(dto.classFormat !== undefined && {
-          classFormat: this.normalizeOptional(dto.classFormat),
-        }),
-        ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
-        ...(dto.sessionRequirement !== undefined && {
-          sessionRequirement: dto.sessionRequirement,
-        }),
-        ...(dto.status !== undefined && { status: dto.status }),
-        recurrencePattern: recurrence.recurrencePattern,
-        recurrenceWeekdays: recurrence.recurrenceWeekdays,
-        recurrenceEndsAt: recurrence.recurrenceEndsAt,
-        recurrenceCount: recurrence.recurrenceCount,
-      } as Prisma.ClassSessionUncheckedUpdateInput;
+      ...(dto.title !== undefined && { title: dto.title.trim() }),
+      ...(dto.description !== undefined && {
+        description: this.normalizeOptional(dto.description),
+      }),
+      ...(dto.classTypeId !== undefined && { classTypeId: dto.classTypeId }),
+      ...(dto.coachId !== undefined && { coachId: dto.coachId }),
+      ...(dto.substituteCoachId !== undefined && {
+        substituteCoachId: this.normalizeOptional(dto.substituteCoachId),
+      }),
+      ...(dto.startsAt !== undefined && { startsAt }),
+      ...(dto.endsAt !== undefined && { endsAt }),
+      ...(dto.capacity !== undefined && { capacity: dto.capacity }),
+      ...(dto.level !== undefined && {
+        level: this.normalizeOptional(dto.level),
+      }),
+      ...(dto.classFormat !== undefined && {
+        classFormat: this.normalizeOptional(dto.classFormat),
+      }),
+      ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
+      ...(dto.sessionRequirement !== undefined && {
+        sessionRequirement: dto.sessionRequirement,
+      }),
+      ...(dto.status !== undefined && { status: dto.status }),
+      recurrencePattern: recurrence.recurrencePattern,
+      recurrenceWeekdays: recurrence.recurrenceWeekdays,
+      recurrenceEndsAt: recurrence.recurrenceEndsAt,
+      recurrenceCount: recurrence.recurrenceCount,
+    } as Prisma.ClassSessionUncheckedUpdateInput;
 
     await this.prisma.classSession.update({
       where: { id },
