@@ -419,6 +419,7 @@
         "schedule": "Расписание",
         "memberships": "Абонементы",
         "giftCards": "Подарочные карты",
+        "finance": "Финансы",
         "notifications": "Уведомления",
         "reports": "Отчёты",
         "content": "Контент",
@@ -436,6 +437,7 @@
         "schedule": "Публичные карточки расписания для Home и Schedule.",
         "memberships": "Тарифы, цены и подписки участников.",
         "giftCards": "Выпущенные карты и статус погашения.",
+        "finance": "Платежи, выручка и состояние транзакций по студии.",
         "notifications": "Рассылки участникам и сотрудникам.",
         "reports": "Операционные сводки и выгрузки.",
         "content": "Публикации, статус и slug.",
@@ -1085,15 +1087,38 @@
     },
     "reports": {
       "title": "Отчёты",
-      "description": "Операционные метрики, срезы выручки и CSV-экспорт.",
+      "description": "Операционные метрики и сводки активности студии.",
       "errorAuth": "Нужен вход админа или менеджера.",
       "errorLoad": "Не удалось загрузить отчёты ({status}).",
+      "financeMovedHeading": "Финансовый блок перенесен в раздел Finance",
+      "financeMovedHint": "Выручка, транзакции, статусы платежей и финансовый экспорт теперь доступны на странице Finance.",
+      "table": {
+        "empty": "Операционные записи не найдены."
+      }
+    },
+    "finance": {
+      "title": "Финансы",
+      "description": "Выручка, платежи, возвраты и история транзакций в одном месте.",
+      "errorAuth": "Требуется вход администратора.",
+      "errorLoad": "Не удалось загрузить финансовые данные ({status}).",
+      "kpiTotalRevenue": "Общая выручка",
+      "kpiMonthlyRevenue": "Выручка за месяц",
+      "kpiPendingPayments": "Ожидающие платежи",
+      "kpiCompletedPayments": "Завершённые платежи",
+      "kpiRefundedPayments": "Возвращённые платежи",
+      "revenueBySource": "Выручка по источникам",
+      "transactionsCount": "{count} транзакций",
+      "recentTransactions": "Последние транзакции",
+      "shownCount": "Показано {shown} из {total} транзакций",
       "exportHeading": "Экспорт CSV",
       "exportHint": "Экспортируйте данные платежей за выбранный период.",
-      "kpiRevenue": "Выручка (за период)",
-      "kpiAvgOrderValue": "Средний чек",
-      "kpiFailedPayments": "Неуспешные платежи",
       "exportPaymentsCsv": "Экспорт CSV платежей",
+      "sources": {
+        "membership": "Абонементы",
+        "dropin": "Бронирования",
+        "gift": "Подарочные карты",
+        "other": "Другие платежи"
+      },
       "filters": {
         "rangeLabel": "Период",
         "range7": "Последние 7 дней",
@@ -1110,7 +1135,9 @@
         "statusSucceeded": "Успешно",
         "statusFailed": "Ошибка",
         "statusPending": "Ожидание",
-        "statusRefunded": "Возврат"
+        "statusRefunded": "Возврат",
+        "searchLabel": "Поиск",
+        "searchPlaceholder": "Клиент, email, ID платежа, референс"
       },
       "table": {
         "empty": "Для выбранных фильтров платежи не найдены.",

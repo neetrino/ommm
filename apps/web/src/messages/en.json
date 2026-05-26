@@ -419,6 +419,7 @@
         "schedule": "Schedule",
         "memberships": "Memberships",
         "giftCards": "Gift cards",
+        "finance": "Finance",
         "notifications": "Notifications",
         "reports": "Reports",
         "content": "Content",
@@ -436,6 +437,7 @@
         "schedule": "Public schedule cards shown on Home and Schedule pages.",
         "memberships": "Plans, pricing, and member subscriptions.",
         "giftCards": "Issued cards and redemption status.",
+        "finance": "Payments, revenue, and transaction health across the studio.",
         "notifications": "Broadcast messages to members and staff.",
         "reports": "Operational summaries and exports.",
         "content": "Posts, publishing status, and slugs.",
@@ -1094,15 +1096,38 @@
     },
     "reports": {
       "title": "Reports",
-      "description": "Operational metrics, revenue snapshots, and CSV exports.",
+      "description": "Operational metrics and studio activity summaries.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load reports ({status}).",
+      "financeMovedHeading": "Finance moved to Finance section",
+      "financeMovedHint": "Revenue, transactions, payment statuses, and finance exports are now available in the Finance page.",
+      "table": {
+        "empty": "No operational records found."
+      }
+    },
+    "finance": {
+      "title": "Finance",
+      "description": "Revenue, payments, refunds, and transaction history in one place.",
+      "errorAuth": "Admin sign-in required.",
+      "errorLoad": "Could not load finance data ({status}).",
+      "kpiTotalRevenue": "Total revenue",
+      "kpiMonthlyRevenue": "Monthly revenue",
+      "kpiPendingPayments": "Pending payments",
+      "kpiCompletedPayments": "Completed payments",
+      "kpiRefundedPayments": "Refunded payments",
+      "revenueBySource": "Revenue by source",
+      "transactionsCount": "{count} transactions",
+      "recentTransactions": "Recent transactions",
+      "shownCount": "Showing {shown} of {total} transactions",
       "exportHeading": "CSV export",
       "exportHint": "Export payments data for the selected range.",
-      "kpiRevenue": "Revenue (range)",
-      "kpiAvgOrderValue": "Avg order value",
-      "kpiFailedPayments": "Failed payments",
       "exportPaymentsCsv": "Export payments CSV",
+      "sources": {
+        "membership": "Memberships",
+        "dropin": "Bookings",
+        "gift": "Gift cards",
+        "other": "Other payments"
+      },
       "filters": {
         "rangeLabel": "Range",
         "range7": "Last 7 days",
@@ -1119,7 +1144,9 @@
         "statusSucceeded": "Succeeded",
         "statusFailed": "Failed",
         "statusPending": "Pending",
-        "statusRefunded": "Refunded"
+        "statusRefunded": "Refunded",
+        "searchLabel": "Search",
+        "searchPlaceholder": "Client, email, payment ID, reference"
       },
       "table": {
         "empty": "No payments found for selected filters.",

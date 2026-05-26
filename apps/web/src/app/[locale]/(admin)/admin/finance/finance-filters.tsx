@@ -12,7 +12,6 @@ const STATUS_OPTIONS = ["all", "SUCCEEDED", "FAILED", "PENDING", "REFUNDED"] as 
 type DateRangeOption = (typeof DATE_RANGE_OPTIONS)[number];
 type SourceOption = (typeof SOURCE_OPTIONS)[number];
 type StatusOption = (typeof STATUS_OPTIONS)[number];
-
 type FilterOption<T extends string> = DropdownOption<T>;
 
 function parseDateRangeDays(value: string | null): DateRangeOption {
@@ -37,8 +36,8 @@ function parseStatus(value: string | null): StatusOption {
   return "all";
 }
 
-export function ReportsFilters() {
-  const t = useTranslations("adminPages.reports.filters");
+export function FinanceFilters() {
+  const t = useTranslations("adminPages.finance.filters");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -47,13 +46,18 @@ export function ReportsFilters() {
       rangeDays: parseDateRangeDays(searchParams.get("rangeDays")),
       source: parseSource(searchParams.get("source")),
       status: parseStatus(searchParams.get("status")),
+      q: searchParams.get("q") ?? "",
     }),
     [searchParams],
   );
 
-  const update = (key: "rangeDays" | "source" | "status", value: string) => {
+  const update = (key: "rangeDays" | "source" | "status" | "q", value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(key, value);
+    if (value.length === 0) {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
     router.replace(`${pathname}?${params.toString()}`);
   };
 
@@ -88,7 +92,7 @@ export function ReportsFilters() {
 
   return (
     <section className="rounded-[20px] border border-white/60 bg-white/70 p-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <label className="text-sm text-sage-700">
           <span className="mb-1 block text-xs text-sage-500">{t("rangeLabel")}</span>
           <DropdownSelect
@@ -117,6 +121,16 @@ export function ReportsFilters() {
             value={values.status}
             options={statusOptions}
             onChange={(value) => update("status", value)}
+          />
+        </label>
+        <label className="text-sm text-sage-700">
+          <span className="mb-1 block text-xs text-sage-500">{t("searchLabel")}</span>
+          <input
+            type="search"
+            value={values.q}
+            placeholder={t("searchPlaceholder")}
+            onChange={(event) => update("q", event.target.value)}
+            className="h-10 w-full rounded-xl border border-sage-200 bg-white px-3 text-sm text-sage-800 outline-none transition focus:border-sand-500 focus:ring-2 focus:ring-sand-300/50"
           />
         </label>
       </div>
