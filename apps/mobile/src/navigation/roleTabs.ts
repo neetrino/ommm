@@ -7,7 +7,10 @@ export type TabIconName =
   | "calendar-month"
   | "tag"
   | "meditation"
-  | "account-multiple";
+  | "account-multiple"
+  | "clipboard-check-outline"
+  | "layers-outline"
+  | "account-circle-outline";
 
 export type RoleTabItem = {
   key: string;
@@ -20,15 +23,17 @@ export type RoleTabItem = {
 const ICON = {
   home: { iconName: "home" as const, iconSize: 22 },
   classes: { iconName: "view-dashboard" as const, iconSize: 22 },
+  bookings: { iconName: "clipboard-check-outline" as const, iconSize: 22 },
   schedule: { iconName: "calendar-month" as const, iconSize: 24 },
   plans: { iconName: "tag" as const, iconSize: 22 },
+  userPlans: { iconName: "layers-outline" as const, iconSize: 22 },
   profile: { iconName: "meditation" as const, iconSize: 26 },
+  account: { iconName: "account-circle-outline" as const, iconSize: 24 },
   users: { iconName: "account-multiple" as const, iconSize: 22 },
 } as const;
 
 const USER_TABS: RoleTabItem[] = [
   { key: "home", label: "Home", href: "/user/home", ...ICON.home },
-  { key: "classes", label: "Classes", href: "/user/classes", ...ICON.classes },
   {
     key: "schedule",
     label: "Schedule",
@@ -36,16 +41,22 @@ const USER_TABS: RoleTabItem[] = [
     ...ICON.schedule,
   },
   {
+    key: "classes",
+    label: "My Bookings",
+    href: "/user/classes",
+    ...ICON.bookings,
+  },
+  {
     key: "progress",
-    label: "Progress",
+    label: "Plans",
     href: "/user/progress",
-    ...ICON.classes,
+    ...ICON.userPlans,
   },
   {
     key: "profile",
-    label: "Profile",
+    label: "My Account",
     href: "/user/profile",
-    ...ICON.profile,
+    ...ICON.account,
   },
 ];
 
