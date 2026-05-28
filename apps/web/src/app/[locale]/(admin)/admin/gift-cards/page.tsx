@@ -21,6 +21,61 @@ type GiftRow = {
   recipient: { email: string; name: string | null } | null;
 };
 
+function getGiftCardFormLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      placeholders: {
+        amount: "Գումար (ցենտ, AMD)",
+        recipientEmail: "Ստացողի էլ. փոստ",
+        recipientName: "Ստացողի անուն",
+        message: "Հաղորդագրություն",
+      },
+      actions: {
+        creating: "Ստեղծվում է...",
+        create: "Ստեղծել",
+      },
+      feedback: {
+        created: "Նվեր քարտը ստեղծվեց",
+        failed: "Ստեղծումը չհաջողվեց",
+      },
+    };
+  }
+  if (locale === "ru") {
+    return {
+      placeholders: {
+        amount: "Сумма (центы, AMD)",
+        recipientEmail: "Email получателя",
+        recipientName: "Имя получателя",
+        message: "Сообщение",
+      },
+      actions: {
+        creating: "Создание...",
+        create: "Создать",
+      },
+      feedback: {
+        created: "Подарочная карта создана",
+        failed: "Не удалось создать",
+      },
+    };
+  }
+  return {
+    placeholders: {
+      amount: "Amount (cents, AMD)",
+      recipientEmail: "Recipient email",
+      recipientName: "Recipient name",
+      message: "Message",
+    },
+    actions: {
+      creating: "Creating...",
+      create: "Create",
+    },
+    feedback: {
+      created: "Gift card created",
+      failed: "Creation failed",
+    },
+  };
+}
+
 export default async function AdminGiftCardsPage({
   params,
 }: {
@@ -28,6 +83,7 @@ export default async function AdminGiftCardsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
+  const formLabels = getGiftCardFormLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<GiftRow[]>("/gift-cards/admin", cookie);
 
@@ -86,7 +142,7 @@ export default async function AdminGiftCardsPage({
       </div>
       <section className={`mt-6 ${adminChrome.panel}`}>
         <p className={adminChrome.panelHeading}>{t("createHeading")}</p>
-        <AdminCreateGiftCardForm />
+        <AdminCreateGiftCardForm labels={formLabels} />
       </section>
     </AccountPageFrame>
   );

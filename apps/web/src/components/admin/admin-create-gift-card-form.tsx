@@ -3,7 +3,28 @@
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
-export function AdminCreateGiftCardForm() {
+type AdminCreateGiftCardFormLabels = {
+  placeholders: {
+    amount: string;
+    recipientEmail: string;
+    recipientName: string;
+    message: string;
+  };
+  actions: {
+    creating: string;
+    create: string;
+  };
+  feedback: {
+    created: string;
+    failed: string;
+  };
+};
+
+type AdminCreateGiftCardFormProps = {
+  labels: AdminCreateGiftCardFormLabels;
+};
+
+export function AdminCreateGiftCardForm({ labels }: AdminCreateGiftCardFormProps) {
   const [amountCents, setAmountCents] = useState("10000");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");
@@ -31,11 +52,11 @@ export function AdminCreateGiftCardForm() {
         }),
       });
       setTone("ok");
-      setResult("Gift card created");
+      setResult(labels.feedback.created);
       window.location.reload();
     } catch (error) {
       setTone("err");
-      setResult(error instanceof ApiError ? error.message : "Creation failed");
+      setResult(error instanceof ApiError ? error.message : labels.feedback.failed);
     } finally {
       setBusy(false);
     }
@@ -47,7 +68,7 @@ export function AdminCreateGiftCardForm() {
         type="number"
         min={1}
         className="app-input h-9 text-xs"
-        placeholder="Amount (cents, AMD)"
+        placeholder={labels.placeholders.amount}
         value={amountCents}
         onChange={(event) => setAmountCents(event.target.value)}
         disabled={busy}
@@ -55,7 +76,7 @@ export function AdminCreateGiftCardForm() {
       <input
         type="email"
         className="app-input h-9 text-xs"
-        placeholder="Recipient email"
+        placeholder={labels.placeholders.recipientEmail}
         value={recipientEmail}
         onChange={(event) => setRecipientEmail(event.target.value)}
         disabled={busy}
@@ -63,7 +84,7 @@ export function AdminCreateGiftCardForm() {
       <input
         type="text"
         className="app-input h-9 text-xs"
-        placeholder="Recipient name"
+        placeholder={labels.placeholders.recipientName}
         value={recipientName}
         onChange={(event) => setRecipientName(event.target.value)}
         disabled={busy}
@@ -71,7 +92,7 @@ export function AdminCreateGiftCardForm() {
       <input
         type="text"
         className="app-input h-9 text-xs"
-        placeholder="Message"
+        placeholder={labels.placeholders.message}
         value={message}
         onChange={(event) => setMessage(event.target.value)}
         disabled={busy}
@@ -81,7 +102,7 @@ export function AdminCreateGiftCardForm() {
         className="rounded-md border border-slate-300 px-3 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         disabled={busy}
       >
-        {busy ? "Creating..." : "Create"}
+        {busy ? labels.actions.creating : labels.actions.create}
       </button>
       {result ? (
         <p

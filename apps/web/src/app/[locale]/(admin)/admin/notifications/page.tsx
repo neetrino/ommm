@@ -129,6 +129,46 @@ function getNotificationAnalyticsLabels(locale: string) {
   };
 }
 
+function getScheduledBroadcastLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      heading: "Ժամանակացույցված ուղարկումներ",
+      empty: "Ժամանակացույցված ուղարկումներ չկան։",
+      reschedule: "Վերաժամանակացույցել",
+      cancel: "Չեղարկել",
+      chooseScheduleFirst: "Նախ ընտրեք ժամանակը։",
+      scheduleCancelled: "Ժամանակացույցված ուղարկումը չեղարկվեց։",
+      scheduleUpdated: "Ժամանակացույցված ուղարկումը թարմացվեց։",
+      cancelFailed: "Չհաջողվեց չեղարկել ժամանակացույցը։",
+      updateFailed: "Չհաջողվեց թարմացնել ժամանակացույցը։",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      heading: "Рассылки по расписанию",
+      empty: "Запланированных рассылок нет.",
+      reschedule: "Перенести",
+      cancel: "Отменить",
+      chooseScheduleFirst: "Сначала выберите время.",
+      scheduleCancelled: "Запланированная рассылка отменена.",
+      scheduleUpdated: "Запланированная рассылка обновлена.",
+      cancelFailed: "Не удалось отменить расписание.",
+      updateFailed: "Не удалось обновить расписание.",
+    };
+  }
+  return {
+    heading: "Scheduled broadcasts",
+    empty: "No scheduled broadcasts.",
+    reschedule: "Reschedule",
+    cancel: "Cancel",
+    chooseScheduleFirst: "Choose a schedule time first.",
+    scheduleCancelled: "Scheduled broadcast cancelled.",
+    scheduleUpdated: "Scheduled broadcast updated.",
+    cancelFailed: "Could not cancel schedule.",
+    updateFailed: "Could not update schedule.",
+  };
+}
+
 export default async function AdminNotificationsPage({
   params,
 }: {
@@ -178,6 +218,7 @@ export default async function AdminNotificationsPage({
         daily: [],
       };
   const labels = getNotificationAnalyticsLabels(locale);
+  const scheduledLabels = getScheduledBroadcastLabels(locale);
   const trendRows = analytics.daily.slice(-14);
 
   return (
@@ -235,7 +276,7 @@ export default async function AdminNotificationsPage({
       <div className="mt-2 max-w-xl ommm-account-section">
         <AdminNotificationBroadcastForm />
       </div>
-      <AdminScheduledBroadcasts items={scheduled} />
+      <AdminScheduledBroadcasts items={scheduled} labels={scheduledLabels} />
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-sage-900">{labels.heading}</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-3">

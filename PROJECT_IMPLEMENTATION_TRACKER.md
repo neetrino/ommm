@@ -109,6 +109,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-008 | Add content approval workflow and richer editorial fields | Web+API/Content | DONE | `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260528153000_content_review_workflow_and_editorial_fields/migration.sql`, `apps/api/src/content/content.controller.ts`, `apps/api/src/content/content.service.ts`, `apps/api/src/content/dto/upsert-post.dto.ts`, `apps/api/src/content/dto/review-post.dto.ts`, `apps/api/src/content/content.service.spec.ts`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:33 (UTC+4) | `401f308` |
 | PH9-001 | Localize hardcoded admin notifications/content strings by locale | Web/i18n | DONE | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:43 (UTC+4) | `3e1b5b1` |
 | PH9-002 | Localize manager and content-admin hardcoded UI copy | Web/i18n | DONE | `apps/web/src/app/[locale]/(manager)/manager/home/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/clients/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`, `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:50 (UTC+4) | `1792512` |
+| PH9-003 | Localize shared admin client-component hardcoded messages | Web/i18n | DONE | `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/components/admin/admin-create-gift-card-form.tsx`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:58 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -640,6 +641,7 @@ Tasks completed:
 - Localized previously hardcoded content-admin/editorial workflow labels, actions, placeholders, and feedback messages.
 - Localized manager workspace hardcoded copy across home/bookings/clients/coaches/waitlists/gift-cards/classes pages.
 - Localized content-admin home hardcoded workspace copy.
+- Localized shared admin client-component hardcoded messages in scheduled-broadcast actions and create-gift-card form.
 - Kept existing user local edit in `apps/web/src/messages/en.json` untouched while closing UI-level multilingual gaps in updated modules.
 Files changed:
 - `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`
@@ -653,6 +655,9 @@ Files changed:
 - `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`
 - `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`
 - `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`
+- `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`
+- `apps/web/src/components/admin/admin-create-gift-card-form.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`
 - `PROJECT_IMPLEMENTATION_TRACKER.md`
 Build result:
 - `pnpm --filter api build` PASSED
@@ -664,9 +669,11 @@ Known issues:
 Commit hash:
 - `3e1b5b1`
 - `1792512`
+- TBD (`PH9-003`)
 Push status:
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
+- TBD (`PH9-003`)
 Next phase:
 - Phase 9 continuation
 
@@ -739,6 +746,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (manager/content-admin locale pass) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | API remains stable during manager/content-admin localization |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Manager and content-admin localized UI compiles across locales |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (shared admin i18n pass) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | API unaffected by shared admin localization |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Shared admin localized action/forms compile across locales |
 
 ## 10. Git History Created By This Work
 
@@ -767,10 +777,11 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add content approval workflow and editorial metadata` | `401f308` | Yes |
 | Phase 9 (interim) | `phase-9: localize notifications and content admin ui copy` | `3e1b5b1` | Yes |
 | Phase 9 (interim) | `phase-9: localize manager and content-admin workspace copy` | `1792512` | Yes |
+| Phase 9 (interim) | `phase-9: localize shared admin action and form copy` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Continue multilingual consistency sweep for remaining role pages and shared admin components.
+- Continue multilingual consistency sweep for remaining role pages and edge utility dialogs.
 - Run final validation in Phase 10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

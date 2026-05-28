@@ -13,6 +13,17 @@ type ScheduledBroadcast = {
 
 type AdminScheduledBroadcastsProps = {
   items: ScheduledBroadcast[];
+  labels: {
+    heading: string;
+    empty: string;
+    reschedule: string;
+    cancel: string;
+    chooseScheduleFirst: string;
+    scheduleCancelled: string;
+    scheduleUpdated: string;
+    cancelFailed: string;
+    updateFailed: string;
+  };
 };
 
 function toDateTimeLocalValue(value: string): string {
@@ -25,7 +36,7 @@ function toDateTimeLocalValue(value: string): string {
     .slice(0, 16);
 }
 
-export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProps) {
+export function AdminScheduledBroadcasts({ items, labels }: AdminScheduledBroadcastsProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [scheduleDraft, setScheduleDraft] = useState<Record<string, string>>(
@@ -37,10 +48,10 @@ export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProp
     setMessage(null);
     try {
       await apiFetch(`/notifications/admin/scheduled/${id}`, { method: "DELETE" });
-      setMessage("Scheduled broadcast cancelled.");
+      setMessage(labels.scheduleCancelled);
       window.location.reload();
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : "Could not cancel schedule.");
+      setMessage(error instanceof ApiError ? error.message : labels.cancelFailed);
     } finally {
       setBusyId(null);
     }
@@ -49,7 +60,7 @@ export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProp
   async function reschedule(id: string) {
     const raw = scheduleDraft[id];
     if (!raw) {
-      setMessage("Choose a schedule time first.");
+      setMessage(labels.chooseScheduleFirst);
       return;
     }
     setBusyId(id);
@@ -59,10 +70,10 @@ export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProp
         method: "PATCH",
         body: JSON.stringify({ scheduleAt: new Date(raw).toISOString() }),
       });
-      setMessage("Scheduled broadcast updated.");
+      setMessage(labels.scheduleUpdated);
       window.location.reload();
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : "Could not update schedule.");
+      setMessage(error instanceof ApiError ? error.message : labels.updateFailed);
     } finally {
       setBusyId(null);
     }
@@ -70,10 +81,10 @@ export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProp
 
   return (
     <section className="mt-8">
-      <h2 className="text-lg font-semibold text-sage-900">Scheduled broadcasts</h2>
+      <h2 className="text-lg font-semibold text-sage-900">{labels.heading}</h2>
       <ul className="mt-3 space-y-2">
         {items.length === 0 ? (
-          <li className="ommm-body-muted text-sm">No scheduled broadcasts.</li>
+          <li className="ommm-body-muted text-sm">{labels.empty}</li>
         ) : (
           items.map((item) => (
             <li key={item.id} className="ommm-inset-row flex flex-wrap items-center gap-3">
@@ -95,7 +106,7 @@ export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProp
                 disabled={busyId !== null || item.status !== "PENDING"}
                 onClick={() => void reschedule(item.id)}
               >
-                Reschedule
+                {labels.reschedule}
               </button>
               <button
                 type="button"
@@ -103,7 +114,7 @@ export function AdminScheduledBroadcasts({ items }: AdminScheduledBroadcastsProp
                 disabled={busyId !== null || item.status !== "PENDING"}
                 onClick={() => void cancel(item.id)}
               >
-                Cancel
+                {labels.cancel}
               </button>
             </li>
           ))
