@@ -78,6 +78,23 @@ export class ReportsController {
     res.send(csv);
   }
 
+  @Get('gift-credits.csv')
+  @Roles(Role.ADMIN)
+  async giftCreditsCsv(@Query() query: DateRangeQueryDto, @Res() res: Response) {
+    if (query.from && Number.isNaN(new Date(query.from).getTime())) {
+      throw new BadRequestException('Invalid date range');
+    }
+    if (query.to && Number.isNaN(new Date(query.to).getTime())) {
+      throw new BadRequestException('Invalid date range');
+    }
+    if (query.from && query.to && new Date(query.to) < new Date(query.from)) {
+      throw new BadRequestException('Invalid date range');
+    }
+    const csv = await this.reports.giftCreditsCsv(query);
+    res.setHeader('Content-Type', 'text/csv');
+    res.send(csv);
+  }
+
   @Get('coach/analytics')
   @Roles(Role.COACH)
   coachAnalytics(

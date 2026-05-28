@@ -115,4 +115,69 @@ describe('ReportsService', () => {
     expect(result?.totals.utilizationPercent).toBe(10);
     expect(result?.trend.length).toBe(1);
   });
+
+  it('giftCreditsCsv includes issued, redeemed and spent rows', async () => {
+    const now = new Date('2026-05-28T09:00:00.000Z');
+    const prismaMock = {
+      giftCard: {
+        findMany: jest
+          .fn()
+          .mockResolvedValueOnce([
+            {
+              code: 'GIFT-ISSUED',
+              amountCents: 12_000,
+              createdAt: now,
+              purchaser: {
+                id: 'admin-1',
+                email: 'admin@test.com',
+                name: 'Admin',
+                lastName: 'One',
+              },
+              recipient: null,
+              recipientEmail: 'client@test.com',
+              recipientName: 'Client One',
+            },
+          ])
+          .mockResolvedValueOnce([
+            {
+              code: 'GIFT-REDEEMED',
+              amountCents: 8_000,
+              updatedAt: now,
+              recipient: {
+                id: 'user-1',
+                email: 'user@test.com',
+                name: 'User',
+                lastName: 'One',
+              },
+            },
+          ]),
+      },
+      payment: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'pay-1',
+            userId: 'user-1',
+            amountCents: 3_000,
+            currency: 'amd',
+            createdAt: now,
+            description: 'Gift credit spend for booking session-1',
+            user: {
+              id: 'user-1',
+              email: 'user@test.com',
+              name: 'User',
+              lastName: 'One',
+            },
+          },
+        ]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const csv = await service.giftCreditsCsv({});
+
+    expect(csv).toContain('eventType,eventAt,userId,userEmail,userName,amountCents');
+    expect(csv).toContain('"ISSUED"');
+    expect(csv).toContain('"REDEEMED"');
+    expect(csv).toContain('"SPENT"');
+  });
 });

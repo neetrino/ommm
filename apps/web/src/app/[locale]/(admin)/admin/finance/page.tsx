@@ -263,12 +263,20 @@ export default async function AdminFinancePage({
       <section className="mt-8 rounded-[20px] border border-white/60 bg-white/70 p-4 text-sm text-sage-700">
         <p className="font-medium text-sage-900">{t("exportHeading")}</p>
         <p className="mt-2 text-xs text-sage-600">{t("exportHint")}</p>
-        <a
-          className="mt-3 inline-flex rounded-xl border border-sage-300 bg-white px-3 py-2 text-xs font-medium text-sage-700"
-          href={`/api/v1/reports/payments.csv?from=${encodeURIComponent(from)}`}
-        >
-          {t("exportPaymentsCsv")}
-        </a>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a
+            className="inline-flex rounded-xl border border-sage-300 bg-white px-3 py-2 text-xs font-medium text-sage-700"
+            href={`/api/v1/reports/payments.csv?from=${encodeURIComponent(from)}`}
+          >
+            {t("exportPaymentsCsv")}
+          </a>
+          <a
+            className="inline-flex rounded-xl border border-sage-300 bg-white px-3 py-2 text-xs font-medium text-sage-700"
+            href={`/api/v1/reports/gift-credits.csv?from=${encodeURIComponent(from)}`}
+          >
+            {t("exportGiftCreditsCsv")}
+          </a>
+        </div>
       </section>
 
       <section className="mt-8">

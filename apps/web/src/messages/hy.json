@@ -1308,6 +1308,7 @@
       "exportHeading": "CSV արտահանում",
       "exportHint": "Արտահանեք payments տվյալները ընտրված միջակայքով։",
       "exportPaymentsCsv": "Արտահանել payments CSV",
+      "exportGiftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV",
       "sources": {
         "membership": "Աբոնեմենտներ",
         "dropin": "Ամրագրումներ",

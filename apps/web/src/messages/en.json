@@ -1321,6 +1321,7 @@
       "exportHeading": "CSV export",
       "exportHint": "Export payments data for the selected range.",
       "exportPaymentsCsv": "Export payments CSV",
+      "exportGiftCreditsCsv": "Export gift credits CSV",
       "sources": {
         "membership": "Memberships",
         "dropin": "Bookings",

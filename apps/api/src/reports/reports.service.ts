@@ -9,6 +9,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 
+const GIFT_CREDIT_CURRENCY = 'amd';
+
 @Injectable()
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -242,6 +244,97 @@ export class ReportsService {
       )
       .join('\n');
     return header + body;
+  }
+
+  async giftCreditsCsv(range: DateRangeQueryDto): Promise<string> {
+    const dateFilter = this.buildPaymentDateFilter(range);
+    const [issuedCards, redeemedCards, spendPayments] = await Promise.all([
+      this.prisma.giftCard.findMany({
+        where: {
+          ...(dateFilter ? { createdAt: dateFilter } : {}),
+        },
+        include: {
+          purchaser: { select: { id: true, email: true, name: true, lastName: true } },
+          recipient: { select: { id: true, email: true, name: true, lastName: true } },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
+      }),
+      this.prisma.giftCard.findMany({
+        where: {
+          status: GiftCardStatus.REDEEMED,
+          ...(dateFilter ? { updatedAt: dateFilter } : {}),
+        },
+        include: {
+          recipient: { select: { id: true, email: true, name: true, lastName: true } },
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
+      }),
+      this.prisma.payment.findMany({
+        where: {
+          ...(dateFilter ? { createdAt: dateFilter } : {}),
+          status: PaymentStatus.SUCCEEDED,
+          description: { startsWith: 'Gift credit spend' },
+        },
+        include: {
+          user: { select: { id: true, email: true, name: true, lastName: true } },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
+      }),
+    ]);
+
+    const rows: string[] = [];
+    for (const card of issuedCards) {
+      rows.push(
+        this.toCsvRow([
+          'ISSUED',
+          card.createdAt.toISOString(),
+          card.purchaser.id,
+          card.purchaser.email,
+          `${card.purchaser.name ?? ''} ${card.purchaser.lastName ?? ''}`.trim(),
+          card.amountCents,
+          GIFT_CREDIT_CURRENCY,
+          card.code,
+          card.recipientEmail ?? card.recipient?.email ?? card.recipientName ?? '',
+        ]),
+      );
+    }
+    for (const card of redeemedCards) {
+      rows.push(
+        this.toCsvRow([
+          'REDEEMED',
+          card.updatedAt.toISOString(),
+          card.recipient?.id ?? '',
+          card.recipient?.email ?? '',
+          `${card.recipient?.name ?? ''} ${card.recipient?.lastName ?? ''}`.trim(),
+          card.amountCents,
+          GIFT_CREDIT_CURRENCY,
+          card.code,
+          '',
+        ]),
+      );
+    }
+    for (const payment of spendPayments) {
+      rows.push(
+        this.toCsvRow([
+          'SPENT',
+          payment.createdAt.toISOString(),
+          payment.userId,
+          payment.user.email,
+          `${payment.user.name ?? ''} ${payment.user.lastName ?? ''}`.trim(),
+          payment.amountCents,
+          payment.currency,
+          payment.id,
+          payment.description ?? '',
+        ]),
+      );
+    }
+
+    const header =
+      'eventType,eventAt,userId,userEmail,userName,amountCents,currency,reference,notes\n';
+    return header + rows.join('\n');
   }
 
   async coachAnalytics(userId: string, days: number) {
@@ -513,5 +606,9 @@ export class ReportsService {
       result.set(item.sessionId, (result.get(item.sessionId) ?? 0) + 1);
     }
     return result;
+  }
+
+  private toCsvRow(cells: ReadonlyArray<string | number>): string {
+    return cells.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',');
   }
 }
