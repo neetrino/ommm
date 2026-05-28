@@ -120,6 +120,7 @@ export default async function ManagerGiftCardsPage({
                   <AdminGiftCardActions
                     giftCardId={g.id}
                     allowDeactivate={false}
+                    locale={locale}
                   />
                 </td>
               </tr>

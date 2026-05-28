@@ -120,6 +120,7 @@ export default async function ManagerCoachesPage({
                 <td className="px-4 py-3 text-center">
                   <AdminCoachActions
                     coachId={c.id}
+                    locale={locale}
                     initialSpecialization={c.specialization ?? ""}
                     initialBio={c.bio ?? ""}
                   />

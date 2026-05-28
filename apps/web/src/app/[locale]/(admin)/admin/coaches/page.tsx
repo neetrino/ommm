@@ -162,6 +162,7 @@ export default async function AdminCoachesPage({
             coaches={res.data}
             classTypeOptions={classTypeOptions}
             classOptions={classOptions}
+            locale={locale}
           />
         </AdminCoachesShell>
       </Suspense>

@@ -11,9 +11,10 @@
 - [x] Phase 5 - User account gaps
 - [x] Phase 6 - Manager and coach role gaps
 - [x] Phase 7 - Finance, memberships, payments, gift cards
+- [x] Phase 9 - Multilingual consistency
 
 ### In Progress
-- [ ] Phase 9 - Multilingual consistency
+- [ ] None
 
 ### Remaining
 - [ ] Phase 10 - Final validation and release readiness
@@ -110,7 +111,8 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH9-001 | Localize hardcoded admin notifications/content strings by locale | Web/i18n | DONE | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:43 (UTC+4) | `3e1b5b1` |
 | PH9-002 | Localize manager and content-admin hardcoded UI copy | Web/i18n | DONE | `apps/web/src/app/[locale]/(manager)/manager/home/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/clients/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`, `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:50 (UTC+4) | `1792512` |
 | PH9-003 | Localize shared admin client-component hardcoded messages | Web/i18n | DONE | `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/components/admin/admin-create-gift-card-form.tsx`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:58 (UTC+4) | `6c18a5c` |
-| PH9-004 | Localize booking and waitlist row-action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-booking-actions.tsx`, `apps/web/src/components/admin/admin-waitlist-actions.tsx`, `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:06 (UTC+4) | TBD |
+| PH9-004 | Localize booking and waitlist row-action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-booking-actions.tsx`, `apps/web/src/components/admin/admin-waitlist-actions.tsx`, `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:06 (UTC+4) | `6e3b5d0` |
+| PH9-005 | Localize coach and gift-card action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-coach-actions.tsx`, `apps/web/src/components/admin/admin-gift-card-actions.tsx`, `apps/web/src/components/admin/admin-coaches-directory.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:14 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -634,9 +636,9 @@ Push status:
 Next phase:
 - Phase 9
 
-### Phase 9 Result (Interim)
+### Phase 9 Result
 
-Status: IN PROGRESS
+Status: DONE
 Tasks completed:
 - Localized previously hardcoded admin notifications analytics labels for `en`/`hy`/`ru` via locale-aware server rendering.
 - Localized previously hardcoded content-admin/editorial workflow labels, actions, placeholders, and feedback messages.
@@ -644,6 +646,7 @@ Tasks completed:
 - Localized content-admin home hardcoded workspace copy.
 - Localized shared admin client-component hardcoded messages in scheduled-broadcast actions and create-gift-card form.
 - Localized booking and waitlist row-action widgets (admin+manager pages) for all supported locales.
+- Localized coach modal section labels and gift-card row actions for admin+manager contexts.
 - Kept existing user local edit in `apps/web/src/messages/en.json` untouched while closing UI-level multilingual gaps in updated modules.
 Files changed:
 - `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`
@@ -666,6 +669,12 @@ Files changed:
 - `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`
 - `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`
 - `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`
+- `apps/web/src/components/admin/admin-coach-actions.tsx`
+- `apps/web/src/components/admin/admin-coaches-directory.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`
+- `apps/web/src/components/admin/admin-gift-card-actions.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`
 - `PROJECT_IMPLEMENTATION_TRACKER.md`
 Build result:
 - `pnpm --filter api build` PASSED
@@ -678,14 +687,16 @@ Commit hash:
 - `3e1b5b1`
 - `1792512`
 - `6c18a5c`
-- TBD (`PH9-004`)
+- `6e3b5d0`
+- TBD (`PH9-005`)
 Push status:
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
-- TBD (`PH9-004`)
+- Pushed to `origin/work/1748df5-base`
+- TBD (`PH9-005`)
 Next phase:
-- Phase 9 continuation
+- Phase 10
 
 ## 9. Build / Test History
 
@@ -762,6 +773,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (booking/waitlist action widget locale pass) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | API unaffected by booking/waitlist action localization |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Booking/waitlist action widgets compile across locales |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (coach/gift-card action widget locale pass) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | API unaffected by coach/gift-card action localization |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Coach and gift-card action widgets compile across locales |
 
 ## 10. Git History Created By This Work
 
@@ -791,11 +805,11 @@ Next phase:
 | Phase 9 (interim) | `phase-9: localize notifications and content admin ui copy` | `3e1b5b1` | Yes |
 | Phase 9 (interim) | `phase-9: localize manager and content-admin workspace copy` | `1792512` | Yes |
 | Phase 9 (interim) | `phase-9: localize shared admin action and form copy` | `6c18a5c` | Yes |
-| Phase 9 (interim) | `phase-9: localize booking and waitlist action widgets` | TBD | TBD |
+| Phase 9 (interim) | `phase-9: localize booking and waitlist action widgets` | `6e3b5d0` | Yes |
+| Phase 9 (interim) | `phase-9: localize coach and gift-card action widgets` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Continue multilingual consistency sweep for remaining role pages and edge utility dialogs.
 - Run final validation in Phase 10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

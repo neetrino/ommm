@@ -36,20 +36,24 @@ type AdminCoachesDirectoryProps = {
   coaches: readonly AdminCoachDirectoryRow[];
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
+  locale?: string;
 };
 
 function CoachActionsCell({
   coach,
   classTypeOptions,
   classOptions,
+  locale = "en",
 }: {
   coach: AdminCoachDirectoryRow;
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
+  locale?: string;
 }) {
   return (
     <AdminCoachActions
       coachId={coach.id}
+      locale={locale}
       initialEmail={coach.user.email}
       initialName={coach.user.name ?? ""}
       initialLastName={coach.user.lastName ?? ""}
@@ -73,6 +77,7 @@ function AdminCoachesListView({
   coaches,
   classTypeOptions,
   classOptions,
+  locale = "en",
 }: AdminCoachesDirectoryProps) {
   const t = useTranslations("adminPages.coaches");
 
@@ -109,6 +114,7 @@ function AdminCoachesListView({
                   coach={coach}
                   classTypeOptions={classTypeOptions}
                   classOptions={classOptions}
+                  locale={locale}
                 />
               </td>
             </tr>
@@ -123,6 +129,7 @@ function AdminCoachesBoardView({
   coaches,
   classTypeOptions,
   classOptions,
+  locale = "en",
 }: AdminCoachesDirectoryProps) {
   const tMarketing = useTranslations("marketing");
 
@@ -151,6 +158,7 @@ function AdminCoachesBoardView({
                     coach={coach}
                     classTypeOptions={classTypeOptions}
                     classOptions={classOptions}
+                    locale={locale}
                   />
                 </div>
               }

@@ -6,12 +6,43 @@ import { ApiError, apiFetch } from "@/lib/api";
 type AdminGiftCardActionsProps = {
   giftCardId: string;
   allowDeactivate: boolean;
+  locale?: string;
 };
+
+function getGiftCardActionLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      actionFailed: "Գործողությունը չհաջողվեց",
+      giftCardEmailResent: "Նվեր քարտի նամակը կրկին ուղարկվեց",
+      giftCardDeactivated: "Նվեր քարտը ապաակտիվացվեց",
+      resend: "Կրկին ուղարկել",
+      deactivate: "Ապաակտիվացնել",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      actionFailed: "Действие не выполнено",
+      giftCardEmailResent: "Письмо с подарочной картой отправлено повторно",
+      giftCardDeactivated: "Подарочная карта деактивирована",
+      resend: "Отправить повторно",
+      deactivate: "Деактивировать",
+    };
+  }
+  return {
+    actionFailed: "Action failed",
+    giftCardEmailResent: "Gift card email resent",
+    giftCardDeactivated: "Gift card deactivated",
+    resend: "Resend",
+    deactivate: "Deactivate",
+  };
+}
 
 export function AdminGiftCardActions({
   giftCardId,
   allowDeactivate,
+  locale = "en",
 }: AdminGiftCardActionsProps) {
+  const labels = getGiftCardActionLabels(locale);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -29,7 +60,7 @@ export function AdminGiftCardActions({
       window.location.reload();
     } catch (error) {
       setTone("err");
-      setMessage(error instanceof ApiError ? error.message : "Action failed");
+      setMessage(error instanceof ApiError ? error.message : labels.actionFailed);
     } finally {
       setBusy(false);
     }
@@ -45,11 +76,11 @@ export function AdminGiftCardActions({
           onClick={() =>
             void run(
               () => apiFetch(`/gift-cards/admin/${giftCardId}/resend`, { method: "POST" }),
-              "Gift card email resent",
+              labels.giftCardEmailResent,
             )
           }
         >
-          Resend
+          {labels.resend}
         </button>
         {allowDeactivate ? (
           <button
@@ -62,11 +93,11 @@ export function AdminGiftCardActions({
                   apiFetch(`/gift-cards/admin/${giftCardId}/deactivate`, {
                     method: "PATCH",
                   }),
-                "Gift card deactivated",
+                labels.giftCardDeactivated,
               )
             }
           >
-            Deactivate
+            {labels.deactivate}
           </button>
         ) : null}
       </div>

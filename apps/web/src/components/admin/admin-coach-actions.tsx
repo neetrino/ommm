@@ -45,6 +45,7 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type AdminCoachActionsProps = {
   coachId: string;
+  locale?: string;
   classTypeOptions?: readonly string[];
   classOptions?: readonly CoachClassOption[];
   initialEmail?: string;
@@ -97,6 +98,43 @@ type FormErrors = {
 const EDIT_COACH_QUERY_KEY = "editCoach";
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
+
+function getCoachActionLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      personalInfoHeading: "Անձնական տվյալներ",
+      personalInfoDescription: "Հաշվի և ինքնության հիմնական տվյալներ",
+      coachDetailsHeading: "Մարզչի տվյալներ",
+      coachDetailsDescription: "Փորձ, մասնագիտացում և պրոֆիլի մեդիա",
+      assignedClassesHeading: "Կցված դասեր",
+      assignedClassesDescription: "Ընտրեք այս մարզչի վարած դասերի տեսակները",
+      scheduleHeading: "Ժամանակացույց / հասանելիություն",
+      birthdayPlaceholder: "ՕՕ/ԱԱ/ՏՏՏՏ",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      personalInfoHeading: "Личные данные",
+      personalInfoDescription: "Основные данные учётной записи и личности",
+      coachDetailsHeading: "Данные тренера",
+      coachDetailsDescription: "Опыт, специализация и медиа профиля",
+      assignedClassesHeading: "Назначенные занятия",
+      assignedClassesDescription: "Выберите типы занятий, которые ведёт тренер",
+      scheduleHeading: "Расписание / доступность",
+      birthdayPlaceholder: "ДД/ММ/ГГГГ",
+    };
+  }
+  return {
+    personalInfoHeading: "Personal Information",
+    personalInfoDescription: "Core account and identity details",
+    coachDetailsHeading: "Coach Details",
+    coachDetailsDescription: "Experience, specialization, and profile media",
+    assignedClassesHeading: "Assigned Classes",
+    assignedClassesDescription: "Select class types coached by this person",
+    scheduleHeading: "Schedule / Availability",
+    birthdayPlaceholder: "DD/MM/YYYY",
+  };
+}
 
 function CloseGlyph({ className }: { className?: string }) {
   return (
@@ -187,6 +225,7 @@ function formatIsoBirthdayToDisplay(isoValue: string | null | undefined): string
 
 export function AdminCoachActions({
   coachId,
+  locale = "en",
   classTypeOptions = [],
   classOptions = [],
   initialEmail = "",
@@ -204,6 +243,7 @@ export function AdminCoachActions({
   initialBio = "",
 }: AdminCoachActionsProps) {
   const t = useTranslations("adminPages.coaches");
+  const labels = getCoachActionLabels(locale);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -678,9 +718,9 @@ export function AdminCoachActions({
                   <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Personal Information
+                        {labels.personalInfoHeading}
                       </h3>
-                      <p className="text-xs text-sage-500">Core account and identity details</p>
+                      <p className="text-xs text-sage-500">{labels.personalInfoDescription}</p>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       <label className="flex flex-col gap-1 lg:col-span-2">
@@ -750,7 +790,7 @@ export function AdminCoachActions({
                           maxLength={10}
                           className="ommm-input"
                           value={form.birthday}
-                          placeholder="DD/MM/YYYY"
+                          placeholder={labels.birthdayPlaceholder}
                           onChange={(event) => {
                             const nextValue = formatBirthdayInput(event.target.value);
                             updateField("birthday", nextValue);
@@ -786,9 +826,9 @@ export function AdminCoachActions({
                   <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Coach Details
+                        {labels.coachDetailsHeading}
                       </h3>
-                      <p className="text-xs text-sage-500">Experience, specialization, and profile media</p>
+                      <p className="text-xs text-sage-500">{labels.coachDetailsDescription}</p>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       <label className="flex flex-col gap-1">
@@ -908,9 +948,9 @@ export function AdminCoachActions({
                   <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Assigned Classes
+                        {labels.assignedClassesHeading}
                       </h3>
-                      <p className="text-xs text-sage-500">Select class types coached by this person</p>
+                      <p className="text-xs text-sage-500">{labels.assignedClassesDescription}</p>
                     </div>
                     <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
                       {classOptions.map((option) => (
@@ -939,7 +979,7 @@ export function AdminCoachActions({
                   <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Schedule / Availability
+                        {labels.scheduleHeading}
                       </h3>
                       <OmmButton
                         type="button"
