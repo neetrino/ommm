@@ -291,11 +291,25 @@ describe('NotificationsService', () => {
     expect(analytics.summary.campaignsTotal).toBe(1);
     expect(analytics.summary.deliveriesTotal).toBe(2);
     expect(analytics.summary.averageRecipientsPerCampaign).toBe(3);
+    expect(analytics.funnel).toEqual(
+      expect.objectContaining({
+        campaignsTotal: 1,
+        scheduledCampaigns: 0,
+        immediateCampaigns: 1,
+        estimatedRecipientsTotal: 3,
+        deliveredRecipientsTotal: 2,
+        deliveryRatePct: 67,
+      }),
+    );
+    expect(analytics.channelBreakdown).toEqual([
+      expect.objectContaining({ channel: 'email', deliveries: 2 }),
+    ]);
     expect(analytics.topSubjects[0]).toEqual(
       expect.objectContaining({
         subject: 'Morning flow update',
         campaigns: 1,
         deliveries: 2,
+        estimatedRecipients: 3,
       }),
     );
   });

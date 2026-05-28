@@ -45,10 +45,23 @@ type NotificationAnalytics = {
     deliveriesTotal: number;
     averageRecipientsPerCampaign: number;
   };
+  funnel: {
+    campaignsTotal: number;
+    scheduledCampaigns: number;
+    immediateCampaigns: number;
+    estimatedRecipientsTotal: number;
+    deliveredRecipientsTotal: number;
+    deliveryRatePct: number;
+  };
+  channelBreakdown: Array<{
+    channel: string;
+    deliveries: number;
+  }>;
   topSubjects: Array<{
     subject: string;
     campaigns: number;
     deliveries: number;
+    estimatedRecipients: number;
   }>;
 };
 
@@ -88,6 +101,15 @@ export default async function AdminNotificationsPage({
           deliveriesTotal: 0,
           averageRecipientsPerCampaign: 0,
         },
+        funnel: {
+          campaignsTotal: 0,
+          scheduledCampaigns: 0,
+          immediateCampaigns: 0,
+          estimatedRecipientsTotal: 0,
+          deliveredRecipientsTotal: 0,
+          deliveryRatePct: 0,
+        },
+        channelBreakdown: [],
         topSubjects: [],
       };
 
@@ -180,6 +202,39 @@ export default async function AdminNotificationsPage({
                 <span className="font-medium text-sage-800">{subject.subject}</span>
                 <span className="text-sage-500">campaigns: {subject.campaigns}</span>
                 <span className="text-sage-500">deliveries: {subject.deliveries}</span>
+                <span className="text-sage-500">estimated: {subject.estimatedRecipients}</span>
+              </li>
+            ))
+          )}
+        </ul>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">Delivery rate</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {analytics.funnel.deliveryRatePct}%
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">Scheduled campaigns</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {analytics.funnel.scheduledCampaigns}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">Immediate campaigns</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {analytics.funnel.immediateCampaigns}
+            </p>
+          </article>
+        </div>
+        <ul className="mt-3 space-y-2">
+          {analytics.channelBreakdown.length === 0 ? (
+            <li className="ommm-body-muted text-sm">No channel stats yet.</li>
+          ) : (
+            analytics.channelBreakdown.map((item) => (
+              <li key={item.channel} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
+                <span className="font-medium text-sage-800">{item.channel}</span>
+                <span className="text-sage-500">deliveries: {item.deliveries}</span>
               </li>
             ))
           )}

@@ -534,10 +534,17 @@ export class NotificationsService {
 
     const deliveriesByDate = new Map<string, number>();
     const deliveriesBySubject = new Map<string, number>();
+    const channelBreakdown = new Map<string, number>();
     for (const item of deliveries) {
       const payload = this.parseDeliveryPayload(item.payload);
       const date = item.createdAt.toISOString().slice(0, 10);
       deliveriesByDate.set(date, (deliveriesByDate.get(date) ?? 0) + 1);
+      if (payload?.channel) {
+        channelBreakdown.set(
+          payload.channel,
+          (channelBreakdown.get(payload.channel) ?? 0) + 1,
+        );
+      }
       if (payload?.subject) {
         deliveriesBySubject.set(
           payload.subject,
@@ -547,7 +554,9 @@ export class NotificationsService {
     }
 
     const campaignsBySubject = new Map<string, number>();
+    const recipientsBySubject = new Map<string, number>();
     const campaignsByDate = new Map<string, number>();
+    let scheduledCampaigns = 0;
     let totalEstimatedRecipients = 0;
     for (const item of broadcasts) {
       const date = item.createdAt.toISOString().slice(0, 10);
@@ -555,7 +564,12 @@ export class NotificationsService {
       const payload = this.parseBroadcastCampaignPayload(item.payload);
       const subject = payload?.subject ?? 'Scheduled campaign';
       campaignsBySubject.set(subject, (campaignsBySubject.get(subject) ?? 0) + 1);
-      totalEstimatedRecipients += payload?.recipientCount ?? 0;
+      const recipients = payload?.recipientCount ?? 0;
+      recipientsBySubject.set(subject, (recipientsBySubject.get(subject) ?? 0) + recipients);
+      totalEstimatedRecipients += recipients;
+      if (item.action === ACTION_BROADCAST_SCHEDULED_SENT) {
+        scheduledCampaigns += 1;
+      }
     }
 
     const daily = this.composeDailyRows({
@@ -569,9 +583,18 @@ export class NotificationsService {
         subject,
         campaigns,
         deliveries: deliveriesBySubject.get(subject) ?? 0,
+        estimatedRecipients: recipientsBySubject.get(subject) ?? 0,
       }))
       .sort((a, b) => b.deliveries - a.deliveries || b.campaigns - a.campaigns)
       .slice(0, 5);
+    const channelRows = [...channelBreakdown.entries()]
+      .map(([channel, deliveriesCount]) => ({ channel, deliveries: deliveriesCount }))
+      .sort((a, b) => b.deliveries - a.deliveries);
+    const immediateCampaigns = Math.max(0, broadcasts.length - scheduledCampaigns);
+    const deliveryRatePct =
+      totalEstimatedRecipients > 0
+        ? Math.round((deliveries.length / totalEstimatedRecipients) * 100)
+        : 0;
 
     return {
       range: { from: from.toISOString(), to: to.toISOString(), days: safeDays },
@@ -583,6 +606,15 @@ export class NotificationsService {
             ? Math.round(totalEstimatedRecipients / broadcasts.length)
             : 0,
       },
+      funnel: {
+        campaignsTotal: broadcasts.length,
+        scheduledCampaigns,
+        immediateCampaigns,
+        estimatedRecipientsTotal: totalEstimatedRecipients,
+        deliveredRecipientsTotal: deliveries.length,
+        deliveryRatePct,
+      },
+      channelBreakdown: channelRows,
       topSubjects,
       daily,
     };
