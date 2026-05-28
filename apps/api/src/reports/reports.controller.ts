@@ -27,11 +27,15 @@ export class ReportsController {
   dashboard(
     @CurrentUser() user: { role: Role },
     @Query('includeRevenue') includeRevenue?: string,
+    @Query('includeOverview') includeOverview?: string,
   ) {
     const canSeeRevenue = user.role === Role.ADMIN;
     const requestedRevenue = includeRevenue === 'true';
+    const canSeeOverview = user.role === Role.ADMIN;
+    const requestedOverview = includeOverview === 'true';
     return this.reports.dashboard({
       includeRevenue: canSeeRevenue && requestedRevenue,
+      includeOverview: canSeeOverview && requestedOverview,
     });
   }
 

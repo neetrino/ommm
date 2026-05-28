@@ -761,12 +761,98 @@
     "fetchError": "Fetch failed (is the API running?)",
     "csvExportTitle": "CSV export (admin only)",
     "csvExportBody": "Export bookings CSV from the admin reports section.",
-    "metrics": {
-      "sessionsToday": "Sessions today",
-      "bookingsToday": "Bookings today",
-      "activeWaitlists": "Active waitlists",
-      "activeMembers": "Active members",
-      "revenueCents": "Revenue (cents, total recorded)"
+    "overview": {
+      "pageDescription": "Fast operational overview of classes, bookings, members, revenue, and alerts.",
+      "errorAuth": "Admin sign-in required.",
+      "errorLoad": "Could not load dashboard data ({status}).",
+      "cards": {
+        "todayClasses": {
+          "title": "Today's Classes",
+          "helper": "{count} classes today"
+        },
+        "todayBookings": {
+          "title": "Today's Bookings",
+          "helper": "{count} bookings today"
+        },
+        "activeMembers": {
+          "title": "Active Members",
+          "helper": "{count} active members"
+        },
+        "waitlistCount": {
+          "title": "Waitlist Count",
+          "helper": "{count} active waitlists"
+        },
+        "revenueSummary": {
+          "title": "Revenue Summary",
+          "helper": "Today: {todayRevenue}",
+          "noData": "No data",
+          "noDataHelper": "No revenue data available yet"
+        },
+        "upcomingCancellations": {
+          "title": "Upcoming Cancellations",
+          "helper": "{count} upcoming cancellations"
+        },
+        "newUsers": {
+          "title": "New Users",
+          "helper": "{count} new users today"
+        },
+        "importantAlerts": {
+          "title": "Important Alerts",
+          "helper": "{count} active alerts"
+        }
+      },
+      "todayClasses": {
+        "title": "Today's upcoming classes",
+        "total": "{count} classes scheduled today",
+        "empty": "No upcoming classes for today.",
+        "timeLine": "{dateTime} • Coach: {coachName}",
+        "capacity": "{booked}/{capacity} booked"
+      },
+      "todayBookings": {
+        "title": "Today's bookings breakdown",
+        "breakdown": {
+          "booked": "Confirmed: {count}",
+          "completed": "Completed: {count}",
+          "cancelled": "Cancelled: {count}",
+          "missed": "Missed: {count}"
+        }
+      },
+      "revenue": {
+        "title": "Revenue summary",
+        "today": "Today",
+        "thisMonth": "This month",
+        "pending": "Pending payments",
+        "pendingValue": "{count} ({amount})",
+        "trend": "{percent}% vs previous month",
+        "empty": "No revenue data available yet."
+      },
+      "upcomingCancellations": {
+        "title": "Upcoming cancellations",
+        "empty": "No upcoming cancellations.",
+        "line": "{type}: {name} • {dateTime}",
+        "typeBooking": "Class booking",
+        "typeMembership": "Membership"
+      },
+      "newUsers": {
+        "title": "New users today: {count}",
+        "empty": "No recent users yet.",
+        "joined": "Joined: {dateTime}"
+      },
+      "alerts": {
+        "title": "Important alerts",
+        "empty": "No important alerts right now.",
+        "levelInfo": "Info",
+        "levelWarning": "Warning",
+        "count": "{count} affected",
+        "items": {
+          "classes_full_today": "Classes are at full capacity today",
+          "waitlist_pressure": "Waitlists are growing",
+          "classes_cancelled_today": "There are cancelled classes today",
+          "payments_pending": "Pending payments require attention",
+          "draft_classes_upcoming": "Draft classes need publishing",
+          "upcoming_cancellations": "Upcoming cancellations detected"
+        }
+      }
     }
   },
   "adminPages": {

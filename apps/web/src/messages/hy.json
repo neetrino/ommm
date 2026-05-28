@@ -748,12 +748,98 @@
     "fetchError": "Բեռնումը ձախողվեց (API-ն աշխատու՞մ է)։",
     "csvExportTitle": "CSV արտահանում (միայն ադմին)",
     "csvExportBody": "Արտահանեք booking-ների CSV-ն ադմինի հաշվետվությունների բաժնից։",
-    "metrics": {
-      "sessionsToday": "Սեսիաներ այսօր",
-      "bookingsToday": "Ամրագրումներ այսօր",
-      "activeWaitlists": "Ակտիվ սպասման ցուցակներ",
-      "activeMembers": "Ակտիվ անդամներ",
-      "revenueCents": "Եկամուտ (ցենտ, ընդհանուր գրանցված)"
+    "overview": {
+      "pageDescription": "Արագ օպերացիոն ակնարկ՝ դասերի, ամրագրումների, անդամների, եկամտի և ազդանշանների մասին։",
+      "errorAuth": "Պահանջվում է ադմինի մուտք։",
+      "errorLoad": "Չհաջողվեց բեռնել dashboard-ի տվյալները ({status})։",
+      "cards": {
+        "todayClasses": {
+          "title": "Այսօրվա դասեր",
+          "helper": "{count} դաս այսօր"
+        },
+        "todayBookings": {
+          "title": "Այսօրվա ամրագրումներ",
+          "helper": "{count} ամրագրում այսօր"
+        },
+        "activeMembers": {
+          "title": "Ակտիվ անդամներ",
+          "helper": "{count} ակտիվ անդամ"
+        },
+        "waitlistCount": {
+          "title": "Սպասման ցուցակ",
+          "helper": "{count} ակտիվ սպասման ցուցակ"
+        },
+        "revenueSummary": {
+          "title": "Եկամուտի ամփոփում",
+          "helper": "Այսօր՝ {todayRevenue}",
+          "noData": "Տվյալ չկա",
+          "noDataHelper": "Եկամտի տվյալներ դեռ հասանելի չեն"
+        },
+        "upcomingCancellations": {
+          "title": "Առաջիկա չեղարկումներ",
+          "helper": "{count} առաջիկա չեղարկում"
+        },
+        "newUsers": {
+          "title": "Նոր օգտատերեր",
+          "helper": "{count} նոր օգտատեր այսօր"
+        },
+        "importantAlerts": {
+          "title": "Կարևոր ազդանշաններ",
+          "helper": "{count} ակտիվ ազդանշան"
+        }
+      },
+      "todayClasses": {
+        "title": "Այսօրվա առաջիկա դասեր",
+        "total": "Այսօր նախատեսված է {count} դաս",
+        "empty": "Այսօր առաջիկա դասեր չկան։",
+        "timeLine": "{dateTime} • Մարզիչ՝ {coachName}",
+        "capacity": "{booked}/{capacity} ամրագրված"
+      },
+      "todayBookings": {
+        "title": "Այսօրվա ամրագրումների բաժանում",
+        "breakdown": {
+          "booked": "Հաստատված՝ {count}",
+          "completed": "Ավարտված՝ {count}",
+          "cancelled": "Չեղարկված՝ {count}",
+          "missed": "Բաց թողնված՝ {count}"
+        }
+      },
+      "revenue": {
+        "title": "Եկամտի ամփոփում",
+        "today": "Այսօր",
+        "thisMonth": "Այս ամիս",
+        "pending": "Սպասող վճարումներ",
+        "pendingValue": "{count} ({amount})",
+        "trend": "{percent}% նախորդ ամսվա համեմատ",
+        "empty": "Եկամտի տվյալներ դեռ հասանելի չեն։"
+      },
+      "upcomingCancellations": {
+        "title": "Առաջիկա չեղարկումներ",
+        "empty": "Առաջիկա չեղարկումներ չկան։",
+        "line": "{type}: {name} • {dateTime}",
+        "typeBooking": "Դասի ամրագրում",
+        "typeMembership": "Աբոնեմենտ"
+      },
+      "newUsers": {
+        "title": "Նոր օգտատերեր այսօր՝ {count}",
+        "empty": "Վերջին օգտատերեր դեռ չկան։",
+        "joined": "Գրանցվել է՝ {dateTime}"
+      },
+      "alerts": {
+        "title": "Կարևոր ազդանշաններ",
+        "empty": "Այս պահին կարևոր ազդանշաններ չկան։",
+        "levelInfo": "Տեղեկատվական",
+        "levelWarning": "Զգուշացում",
+        "count": "{count} միավոր",
+        "items": {
+          "classes_full_today": "Այսօր կան լրիվ լցված դասեր",
+          "waitlist_pressure": "Սպասման ցուցակներն աճում են",
+          "classes_cancelled_today": "Այսօր կան չեղարկված դասեր",
+          "payments_pending": "Սպասող վճարումները ուշադրություն են պահանջում",
+          "draft_classes_upcoming": "Սևագիր դասերը պետք է հրապարակել",
+          "upcoming_cancellations": "Գրանցվել են առաջիկա չեղարկումներ"
+        }
+      }
     }
   },
   "adminPages": {

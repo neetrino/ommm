@@ -752,12 +752,98 @@
     "fetchError": "Не удалось загрузить (API запущен?)",
     "csvExportTitle": "Экспорт CSV (только админ)",
     "csvExportBody": "Экспортируйте CSV бронирований из раздела отчётов админа.",
-    "metrics": {
-      "sessionsToday": "Сессий сегодня",
-      "bookingsToday": "Бронирований сегодня",
-      "activeWaitlists": "Активных листов ожидания",
-      "activeMembers": "Активных участников",
-      "revenueCents": "Выручка (центы, всего записано)"
+    "overview": {
+      "pageDescription": "Быстрый операционный обзор занятий, бронирований, участников, выручки и алертов.",
+      "errorAuth": "Требуется вход администратора.",
+      "errorLoad": "Не удалось загрузить данные дашборда ({status}).",
+      "cards": {
+        "todayClasses": {
+          "title": "Занятия сегодня",
+          "helper": "{count} занятий сегодня"
+        },
+        "todayBookings": {
+          "title": "Бронирования сегодня",
+          "helper": "{count} бронирований сегодня"
+        },
+        "activeMembers": {
+          "title": "Активные участники",
+          "helper": "{count} активных участников"
+        },
+        "waitlistCount": {
+          "title": "Лист ожидания",
+          "helper": "{count} активных листов ожидания"
+        },
+        "revenueSummary": {
+          "title": "Сводка по выручке",
+          "helper": "Сегодня: {todayRevenue}",
+          "noData": "Нет данных",
+          "noDataHelper": "Данные по выручке пока недоступны"
+        },
+        "upcomingCancellations": {
+          "title": "Предстоящие отмены",
+          "helper": "{count} предстоящих отмен"
+        },
+        "newUsers": {
+          "title": "Новые пользователи",
+          "helper": "{count} новых пользователей сегодня"
+        },
+        "importantAlerts": {
+          "title": "Важные алерты",
+          "helper": "{count} активных алертов"
+        }
+      },
+      "todayClasses": {
+        "title": "Ближайшие занятия сегодня",
+        "total": "На сегодня запланировано {count} занятий",
+        "empty": "На сегодня больше нет ближайших занятий.",
+        "timeLine": "{dateTime} • Тренер: {coachName}",
+        "capacity": "{booked}/{capacity} забронировано"
+      },
+      "todayBookings": {
+        "title": "Статусы бронирований за сегодня",
+        "breakdown": {
+          "booked": "Подтверждено: {count}",
+          "completed": "Завершено: {count}",
+          "cancelled": "Отменено: {count}",
+          "missed": "Пропущено: {count}"
+        }
+      },
+      "revenue": {
+        "title": "Сводка по выручке",
+        "today": "Сегодня",
+        "thisMonth": "В этом месяце",
+        "pending": "Ожидающие платежи",
+        "pendingValue": "{count} ({amount})",
+        "trend": "{percent}% к прошлому месяцу",
+        "empty": "Данные по выручке пока недоступны."
+      },
+      "upcomingCancellations": {
+        "title": "Предстоящие отмены",
+        "empty": "Предстоящих отмен нет.",
+        "line": "{type}: {name} • {dateTime}",
+        "typeBooking": "Бронирование занятия",
+        "typeMembership": "Абонемент"
+      },
+      "newUsers": {
+        "title": "Новые пользователи сегодня: {count}",
+        "empty": "Пока нет недавних пользователей.",
+        "joined": "Регистрация: {dateTime}"
+      },
+      "alerts": {
+        "title": "Важные алерты",
+        "empty": "Сейчас важных алертов нет.",
+        "levelInfo": "Инфо",
+        "levelWarning": "Внимание",
+        "count": "Затронуто: {count}",
+        "items": {
+          "classes_full_today": "Сегодня есть занятия с полной загрузкой",
+          "waitlist_pressure": "Листы ожидания растут",
+          "classes_cancelled_today": "Сегодня есть отменённые занятия",
+          "payments_pending": "Ожидающие платежи требуют внимания",
+          "draft_classes_upcoming": "Черновики занятий нужно опубликовать",
+          "upcoming_cancellations": "Обнаружены предстоящие отмены"
+        }
+      }
     }
   },
   "adminPages": {

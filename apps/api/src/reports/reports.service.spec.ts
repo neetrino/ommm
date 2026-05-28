@@ -12,6 +12,38 @@ function createServiceWithPrisma(
 }
 
 describe('ReportsService', () => {
+  it('dashboard returns base counters without overview details', async () => {
+    const prismaMock = {
+      classSession: {
+        count: jest.fn().mockResolvedValue(8),
+      },
+      booking: {
+        count: jest.fn().mockResolvedValue(42),
+      },
+      waitlistEntry: {
+        count: jest.fn().mockResolvedValue(6),
+      },
+      userMembership: {
+        count: jest.fn().mockResolvedValue(120),
+      },
+      payment: {
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { amountCents: 500_000 },
+        }),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.dashboard({ includeRevenue: true });
+
+    expect(result.sessionsToday).toBe(8);
+    expect(result.bookingsToday).toBe(42);
+    expect(result.activeWaitlists).toBe(6);
+    expect(result.activeMembers).toBe(120);
+    expect(result.revenueCentsTotal).toBe(500_000);
+    expect(result).not.toHaveProperty('upcomingClasses');
+  });
+
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {
     const prismaMock = {
       payment: {
