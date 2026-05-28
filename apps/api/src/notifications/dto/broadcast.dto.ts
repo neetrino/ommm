@@ -2,6 +2,7 @@ import {
   IsBoolean,
   IsEmail,
   IsEnum,
+  IsISO8601,
   IsOptional,
   IsString,
   MaxLength,
@@ -37,4 +38,8 @@ export class BroadcastDto {
   @IsOptional()
   @IsBoolean()
   onlyPromotionsOptIn?: boolean;
+
+  @IsOptional()
+  @IsISO8601()
+  scheduleAt?: string;
 }

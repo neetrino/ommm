@@ -4,7 +4,12 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
-type BroadcastResponse = { ok: boolean; count?: number; mode?: string };
+type BroadcastResponse = {
+  ok: boolean;
+  count?: number;
+  mode?: string;
+  scheduledFor?: string;
+};
 type BroadcastAudience = "users" | "coaches" | "staff" | "all";
 type BroadcastTemplateKey =
   | "custom"
@@ -21,6 +26,7 @@ export function AdminNotificationBroadcastForm() {
   const [testTo, setTestTo] = useState("");
   const [audience, setAudience] = useState<BroadcastAudience>("users");
   const [onlyPromotionsOptIn, setOnlyPromotionsOptIn] = useState(false);
+  const [scheduleAt, setScheduleAt] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const templates: Record<Exclude<BroadcastTemplateKey, "custom">, BroadcastTemplate> = {
@@ -62,6 +68,9 @@ export function AdminNotificationBroadcastForm() {
       if (testTo.trim() !== "") {
         body.testTo = testTo.trim();
       }
+      if (scheduleAt.trim() !== "") {
+        body.scheduleAt = new Date(scheduleAt).toISOString();
+      }
       const res = await apiFetch<BroadcastResponse>(
         "/notifications/admin/broadcast",
         { method: "POST", body: JSON.stringify(body) },
@@ -69,7 +78,9 @@ export function AdminNotificationBroadcastForm() {
       setStatus(
         res.mode === "test"
           ? t("testSent")
-          : t("queued", { count: res.count ?? 0 }),
+          : res.mode === "scheduled"
+            ? t("scheduled", { when: scheduleAt })
+            : t("queued", { count: res.count ?? 0 }),
       );
     } catch (err) {
       setStatus(
@@ -162,6 +173,20 @@ export function AdminNotificationBroadcastForm() {
         />
         <span className="text-xs text-sage-500">
           {t("testRecipientHint")}
+        </span>
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("scheduleAtLabel")}
+        </span>
+        <input
+          className="ommm-input"
+          type="datetime-local"
+          value={scheduleAt}
+          onChange={(ev) => setScheduleAt(ev.target.value)}
+        />
+        <span className="text-xs text-sage-500">
+          {t("scheduleAtHint")}
         </span>
       </label>
       {status !== null ? (

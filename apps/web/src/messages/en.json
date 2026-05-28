@@ -1361,7 +1361,12 @@
     "notifications": {
       "title": "Notifications",
       "description": "Send an email broadcast to members (studio admin only). Delivery uses the existing mail pipeline; push notifications are tracked separately in the product roadmap.",
-      "deliveryNote": "Reminder delivery is deduplicated per booking; broadcast events are audit-logged."
+      "deliveryNote": "Reminder delivery is deduplicated per booking; broadcast events are audit-logged.",
+      "stats": {
+        "immediateBroadcasts": "Immediate broadcasts",
+        "scheduledPending": "Scheduled pending",
+        "scheduledSent": "Scheduled sent"
+      }
     },
     "content": {
       "title": "Content",
@@ -1581,6 +1586,7 @@
     "adminBroadcast": {
       "sendFailed": "Could not send broadcast.",
       "testSent": "Test email sent.",
+      "scheduled": "Scheduled broadcast for {when}.",
       "queued": "Queued broadcast to {count} addresses (email send loop).",
       "templateLabel": "Template",
       "templateHint": "Choose a preset to prefill subject and body, then customize as needed.",
@@ -1591,6 +1597,8 @@
       "testRecipientLabel": "Test recipient (optional)",
       "testRecipientHint": "When set, only this address receives the message.",
       "testRecipientPlaceholder": "you@example.com",
+      "scheduleAtLabel": "Schedule at (optional)",
+      "scheduleAtHint": "If set in the future, this broadcast will be queued and sent by background schedule.",
       "sending": "Sending…",
       "submit": "Send broadcast",
       "audiences": {

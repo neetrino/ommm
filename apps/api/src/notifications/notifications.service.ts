@@ -6,9 +6,14 @@ import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BroadcastAudience } from './dto/broadcast.dto';
+import { randomUUID } from 'node:crypto';
 
 const REMINDER_HOURS_BEFORE = 2;
 const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';
+const ACTION_BROADCAST = 'NOTIFICATION_BROADCAST';
+const ACTION_BROADCAST_SCHEDULED = 'NOTIFICATION_BROADCAST_SCHEDULED';
+const ACTION_BROADCAST_SCHEDULED_SENT = 'NOTIFICATION_BROADCAST_SCHEDULED_SENT';
+const ACTION_BROADCAST_SCHEDULED_FAILED = 'NOTIFICATION_BROADCAST_SCHEDULED_FAILED';
 
 @Injectable()
 export class NotificationsService {
@@ -86,6 +91,65 @@ export class NotificationsService {
     }
   }
 
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async dispatchScheduledBroadcasts(): Promise<void> {
+    const scheduled = await this.prisma.auditLog.findMany({
+      where: {
+        action: ACTION_BROADCAST_SCHEDULED,
+        entityType: 'Notification',
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+    });
+    for (const item of scheduled) {
+      const payload = this.parseScheduledPayload(item.payload);
+      if (!payload || new Date(payload.scheduleAt) > new Date()) {
+        continue;
+      }
+      const sentLog = await this.prisma.auditLog.findFirst({
+        where: {
+          action: ACTION_BROADCAST_SCHEDULED_SENT,
+          entityType: 'Notification',
+          entityId: item.id,
+        },
+      });
+      if (sentLog) {
+        continue;
+      }
+      try {
+        const sent = await this.broadcastToAll(payload.subject, payload.html, {
+          audience: payload.audience,
+          onlyPromotionsOptIn: payload.onlyPromotionsOptIn,
+        });
+        await this.audit.log({
+          actorRole: 'ADMIN',
+          action: ACTION_BROADCAST_SCHEDULED_SENT,
+          entityType: 'Notification',
+          entityId: item.id,
+          payload: {
+            scheduledFor: payload.scheduleAt,
+            sentCount: sent.count ?? 0,
+          },
+        });
+      } catch (error) {
+        this.logger.error(
+          `Scheduled broadcast dispatch failed for ${item.id}`,
+          error instanceof Error ? error.stack : undefined,
+        );
+        await this.audit.log({
+          actorRole: 'ADMIN',
+          action: ACTION_BROADCAST_SCHEDULED_FAILED,
+          entityType: 'Notification',
+          entityId: item.id,
+          payload: {
+            scheduledFor: payload.scheduleAt,
+            error: error instanceof Error ? error.message : 'unknown',
+          },
+        });
+      }
+    }
+  }
+
   private isEnabledEnv(raw: string | undefined): boolean {
     if (!raw) {
       return false;
@@ -123,7 +187,7 @@ export class NotificationsService {
     }
     await this.audit.log({
       actorRole: 'ADMIN',
-      action: 'NOTIFICATION_BROADCAST',
+      action: ACTION_BROADCAST,
       entityType: 'Notification',
       entityId: 'broadcast',
       payload: {
@@ -134,6 +198,72 @@ export class NotificationsService {
       },
     });
     return { ok: true, count: users.length };
+  }
+
+  async scheduleBroadcast(
+    actorId: string,
+    params: {
+      subject: string;
+      html: string;
+      audience: BroadcastAudience;
+      onlyPromotionsOptIn: boolean;
+      scheduleAt: string;
+    },
+  ) {
+    const scheduledFor = new Date(params.scheduleAt);
+    if (Number.isNaN(scheduledFor.getTime()) || scheduledFor <= new Date()) {
+      return this.broadcastToAll(params.subject, params.html, {
+        audience: params.audience,
+        onlyPromotionsOptIn: params.onlyPromotionsOptIn,
+      });
+    }
+    const entityId = randomUUID();
+    await this.audit.log({
+      actorId,
+      actorRole: 'ADMIN',
+      action: ACTION_BROADCAST_SCHEDULED,
+      entityType: 'Notification',
+      entityId,
+      payload: {
+        subject: params.subject,
+        html: params.html,
+        audience: params.audience,
+        onlyPromotionsOptIn: params.onlyPromotionsOptIn,
+        scheduleAt: scheduledFor.toISOString(),
+      },
+    });
+    return {
+      ok: true,
+      mode: 'scheduled',
+      scheduledFor: scheduledFor.toISOString(),
+    };
+  }
+
+  async getAdminStats() {
+    const [scheduled, scheduledSent, scheduledFailed, immediateBroadcasts, remindersSent] =
+      await Promise.all([
+        this.prisma.auditLog.count({
+          where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
+        }),
+        this.prisma.auditLog.count({
+          where: { action: ACTION_BROADCAST_SCHEDULED_SENT, entityType: 'Notification' },
+        }),
+        this.prisma.auditLog.count({
+          where: { action: ACTION_BROADCAST_SCHEDULED_FAILED, entityType: 'Notification' },
+        }),
+        this.prisma.auditLog.count({
+          where: { action: ACTION_BROADCAST, entityType: 'Notification' },
+        }),
+        this.prisma.classReminderSendLog.count(),
+      ]);
+    return {
+      immediateBroadcasts,
+      scheduledBroadcasts: scheduled,
+      scheduledPending: Math.max(0, scheduled - scheduledSent - scheduledFailed),
+      scheduledSent,
+      scheduledFailed,
+      reminderDeliveries: remindersSent,
+    };
   }
 
   private resolveAudienceRoles(audience: BroadcastAudience): Role[] {
@@ -153,5 +283,43 @@ export class NotificationsService {
       ];
     }
     return [Role.USER];
+  }
+
+  private parseScheduledPayload(rawPayload: string | null): {
+    subject: string;
+    html: string;
+    audience: BroadcastAudience;
+    onlyPromotionsOptIn: boolean;
+    scheduleAt: string;
+  } | null {
+    if (!rawPayload) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(rawPayload) as Partial<{
+        subject: string;
+        html: string;
+        audience: BroadcastAudience;
+        onlyPromotionsOptIn: boolean;
+        scheduleAt: string;
+      }>;
+      if (
+        !parsed.subject ||
+        !parsed.html ||
+        !parsed.audience ||
+        !parsed.scheduleAt
+      ) {
+        return null;
+      }
+      return {
+        subject: parsed.subject,
+        html: parsed.html,
+        audience: parsed.audience,
+        onlyPromotionsOptIn: parsed.onlyPromotionsOptIn === true,
+        scheduleAt: parsed.scheduleAt,
+      };
+    } catch {
+      return null;
+    }
   }
 }
