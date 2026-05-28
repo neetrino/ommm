@@ -100,6 +100,11 @@ export default function LoginPage() {
         >
           {tAuth("continueWithGoogle")}
         </OmmButton>
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="ommm-link-sage">
+            {tAuth("forgotPassword")}
+          </Link>
+        </p>
       </form>
       {error ? (
         <p className="mt-4 text-sm text-red-600" role="alert">

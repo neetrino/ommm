@@ -16,6 +16,7 @@ const GOOGLE_OAUTH_SCOPES = ['openid', 'email', 'profile'];
 const DEFAULT_UI_LOCALE = 'en';
 const WEB_DEFAULT_URL = 'http://localhost:3000';
 const WEB_AUTH_ENTRY_PATH = `/${DEFAULT_UI_LOCALE}/account`;
+const WEB_SET_PASSWORD_PATH = `/${DEFAULT_UI_LOCALE}/set-password`;
 
 type GoogleOAuthConfig = {
   clientId: string;
@@ -107,7 +108,7 @@ export class GoogleOAuthService {
     const user = await this.resolveUserForGoogleProfile(profile);
     return {
       accessToken: this.auth.issueAccessTokenForUser(user),
-      redirectUrl: this.resolveWebEntryUrl(),
+      redirectUrl: this.resolveWebEntryUrl(user),
     };
   }
 
@@ -279,9 +280,10 @@ export class GoogleOAuthService {
     });
   }
 
-  private resolveWebEntryUrl(): string {
+  private resolveWebEntryUrl(user: Pick<User, 'passwordHash'>): string {
     const configured = this.config.get<string>('WEB_APP_URL')?.trim();
     const baseUrl = configured && configured.length > 0 ? configured : WEB_DEFAULT_URL;
-    return `${baseUrl.replace(/\/$/, '')}${WEB_AUTH_ENTRY_PATH}`;
+    const path = user.passwordHash ? WEB_AUTH_ENTRY_PATH : WEB_SET_PASSWORD_PATH;
+    return `${baseUrl.replace(/\/$/, '')}${path}`;
   }
 }

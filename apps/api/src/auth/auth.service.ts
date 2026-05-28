@@ -178,7 +178,8 @@ export class AuthService {
     );
     const webUrl =
       this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const resetUrl = `${webUrl}/${DEFAULT_UI_LOCALE}/reset-password?token=${encodeURIComponent(raw)}`;
+    const locale = normalizeAppUiLocale(user.locale, DEFAULT_UI_LOCALE);
+    const resetUrl = `${webUrl}/${locale}/reset-password?token=${encodeURIComponent(raw)}`;
     await this.mail.sendEmail({
       to: user.email,
       subject: 'Reset your Ommm password',

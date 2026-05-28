@@ -488,6 +488,7 @@
       "signingIn": "Signing in…",
       "continue": "Continue",
       "continueWithGoogle": "Continue with Google",
+      "forgotPassword": "Forgot password?",
       "noAccountPrompt": "No account?",
       "loginFailed": "Login failed"
     },
@@ -514,7 +515,37 @@
       "phoneRequired": "Please enter your phone number.",
       "invalidPhone": "Enter a valid phone number (8–15 digits).",
       "registerFailed": "Registration failed"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "lead": "Enter your account email and we will send a reset link.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "sending": "Sending…",
+      "success": "If this email exists, a reset link was sent.",
+      "failed": "Could not request password reset.",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Create a new password",
+      "lead": "Set a new password for your account.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Reset password",
+      "resetting": "Resetting…",
+      "missingToken": "Reset token is missing.",
+      "passwordTooShort": "Password must be at least {min} characters.",
+      "mismatch": "Passwords do not match.",
+      "success": "Password reset completed. You can now log in.",
+      "failed": "Could not reset password.",
+      "backToLogin": "Back to login"
     }
+  },
+  "setPasswordPage": {
+    "title": "Set your password",
+    "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
     "memberships": {
