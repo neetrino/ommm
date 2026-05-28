@@ -100,7 +100,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH7-004 | Add gift-credit ledger CSV export endpoint and finance UI export action | Web+API/Finance | DONE | `apps/api/src/reports/reports.controller.ts`, `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:04 (UTC+4) | `2867751` |
 | PH7-005 | Add membership change-plan proration policy and automated tests | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:12 (UTC+4) | `fd9b8fc` |
 | PH7-006 | Add monetary proration adjustment ledger entries for plan changes | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:19 (UTC+4) | `019cb59` |
-| PH8-001 | Add notification audience segmentation and content admin filtering baseline | Web+API/Notifications+Content | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:28 (UTC+4) | TBD |
+| PH8-001 | Add notification audience segmentation and content admin filtering baseline | Web+API/Notifications+Content | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:28 (UTC+4) | `8e69bc2` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -597,9 +597,9 @@ Tests result:
 Known issues:
 - Notification scheduling queue and delivery analytics are still pending in Phase 8.
 Commit hash:
-- TBD
+- `8e69bc2`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 8 continuation
 
@@ -662,7 +662,7 @@ Next phase:
 | Phase 7 (continuation) | `phase-7: add gift-credit csv export and finance export actions` | `2867751` | Yes |
 | Phase 7 (continuation) | `phase-7: add membership proration policy for plan changes` | `fd9b8fc` | Yes |
 | Phase 7 (continuation) | `phase-7: add monetary proration adjustments for plan changes` | `019cb59` | Yes |
-| Phase 8 (continuation) | `phase-8: add notification audience segmentation and content filters` | TBD | TBD |
+| Phase 8 (continuation) | `phase-8: add notification audience segmentation and content filters` | `8e69bc2` | Yes |
 
 ## 11. Final Remaining Work
 
