@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type BroadcastResponse = { ok: boolean; count?: number; mode?: string };
+type BroadcastAudience = "users" | "coaches" | "staff" | "all";
 type BroadcastTemplateKey =
   | "custom"
   | "newClass"
@@ -18,6 +19,8 @@ export function AdminNotificationBroadcastForm() {
   const [html, setHtml] = useState("");
   const [templateKey, setTemplateKey] = useState<BroadcastTemplateKey>("custom");
   const [testTo, setTestTo] = useState("");
+  const [audience, setAudience] = useState<BroadcastAudience>("users");
+  const [onlyPromotionsOptIn, setOnlyPromotionsOptIn] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const templates: Record<Exclude<BroadcastTemplateKey, "custom">, BroadcastTemplate> = {
@@ -50,7 +53,12 @@ export function AdminNotificationBroadcastForm() {
     setStatus(null);
     setPending(true);
     try {
-      const body: Record<string, string> = { subject, html };
+      const body: Record<string, string | boolean> = {
+        subject,
+        html,
+        audience,
+        onlyPromotionsOptIn,
+      };
       if (testTo.trim() !== "") {
         body.testTo = testTo.trim();
       }
@@ -90,6 +98,31 @@ export function AdminNotificationBroadcastForm() {
         </select>
         <span className="text-xs text-sage-500">{t("templateHint")}</span>
       </label>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("audienceLabel")}
+        </span>
+        <select
+          className="ommm-input"
+          value={audience}
+          onChange={(ev) => setAudience(ev.target.value as BroadcastAudience)}
+        >
+          <option value="users">{t("audiences.users")}</option>
+          <option value="coaches">{t("audiences.coaches")}</option>
+          <option value="staff">{t("audiences.staff")}</option>
+          <option value="all">{t("audiences.all")}</option>
+        </select>
+      </label>
+      {audience === "users" ? (
+        <label className="flex items-center gap-2 text-xs text-sage-700">
+          <input
+            type="checkbox"
+            checked={onlyPromotionsOptIn}
+            onChange={(ev) => setOnlyPromotionsOptIn(ev.target.checked)}
+          />
+          <span>{t("promotionsOnlyLabel")}</span>
+        </label>
+      ) : null}
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("subjectLabel")}

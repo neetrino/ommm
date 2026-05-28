@@ -100,6 +100,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH7-004 | Add gift-credit ledger CSV export endpoint and finance UI export action | Web+API/Finance | DONE | `apps/api/src/reports/reports.controller.ts`, `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:04 (UTC+4) | `2867751` |
 | PH7-005 | Add membership change-plan proration policy and automated tests | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:12 (UTC+4) | `fd9b8fc` |
 | PH7-006 | Add monetary proration adjustment ledger entries for plan changes | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:19 (UTC+4) | `019cb59` |
+| PH8-001 | Add notification audience segmentation and content admin filtering baseline | Web+API/Notifications+Content | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:28 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -110,7 +111,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | WAIT-001 | Waitlist production consistency | Queue, offer, manual actions implemented | Env-gated cron dependency, preference-aware notifications | Stuck waitlist offers, missed user notifications | High |
 | BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist, plus session-proration and monetary adjustment ledger entries | External Stripe settlement automation for proration charge/credit is not yet encoded | Revenue leakage and billing disputes | Low |
 | GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions, booking spend fallback, finance ledger KPIs, and gift-credit CSV export exist | Optional deeper BI/dashboard drilldown UX beyond CSV export | Reconciliation mostly operational, not structural | Low |
-| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, and broadcast template presets exist | API-level audience segmentation/scheduling + richer chart/export depth | Limited business operations visibility | Medium |
+| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, broadcast template presets, audience segmentation, and promotions opt-in targeting exist | Scheduled campaign queue and delivery analytics dashboard are still missing | Limited business operations visibility | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
 
 ## 5. Missing Tasks
@@ -121,8 +122,8 @@ Current state is a mature monorepo with substantial implementation across web an
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
 | FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Optional external-gateway settlement sync for proration (Stripe invoice/credit-note parity) | Low | 7 |
-| NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Upgrade from broadcast-only model | High | 8 |
-| CNT-001 | Expand content manager scope | Web+API/Content | Support additional CRM content management areas | Medium | 8 |
+| NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Scheduling queue + delivery metrics dashboard beyond immediate segmented broadcast | Medium | 8 |
+| CNT-001 | Expand content manager scope | Web+API/Content | Content approval workflow and richer editorial fields beyond baseline post CRUD/filtering | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
 | MBL-002 | Fix mobile tabs IA and complete My Bookings | Mobile | Only after explicit mobile approval; fix routing and functional parity | High | Mobile-only |
 
@@ -568,6 +569,40 @@ Push status:
 Next phase:
 - Phase 7 continuation
 
+### Phase 8 Result (Interim)
+
+Status: IN PROGRESS
+Tasks completed:
+- Added notification broadcast audience segmentation (`users`/`coaches`/`staff`/`all`) at API and admin UI level.
+- Added optional promotions opt-in targeting for user broadcasts.
+- Added notifications unit tests for segmented broadcast and test-mode behavior.
+- Added admin content panel filters (search/type/status) for operational content management.
+- Added localized (`en`/`hy`/`ru`) labels for new broadcast audience controls.
+Files changed:
+- `apps/api/src/notifications/dto/broadcast.dto.ts`
+- `apps/api/src/notifications/notifications.controller.ts`
+- `apps/api/src/notifications/notifications.service.ts`
+- `apps/api/src/notifications/notifications.service.spec.ts`
+- `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`
+- `apps/web/src/components/admin/content-posts-panel-client.tsx`
+- `apps/web/src/messages/en.json`
+- `apps/web/src/messages/hy.json`
+- `apps/web/src/messages/ru.json`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+- `pnpm --filter web build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (5 suites, 13 tests)
+Known issues:
+- Notification scheduling queue and delivery analytics are still pending in Phase 8.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 8 continuation
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -606,6 +641,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 4 suites, 11 tests passed (monetary proration adjustment tests added) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Monetary proration adjustment ledger logic compiled |
 | 2026-05-28 | `pnpm --filter web build` | PASS | No web regressions from monetary proration API update |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 5 suites, 13 tests passed (notifications segmentation tests added) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Notification segmentation DTO/service changes compiled |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Admin notifications/content panel controls compiled |
 
 ## 10. Git History Created By This Work
 
@@ -624,10 +662,11 @@ Next phase:
 | Phase 7 (continuation) | `phase-7: add gift-credit csv export and finance export actions` | `2867751` | Yes |
 | Phase 7 (continuation) | `phase-7: add membership proration policy for plan changes` | `fd9b8fc` | Yes |
 | Phase 7 (continuation) | `phase-7: add monetary proration adjustments for plan changes` | `019cb59` | Yes |
+| Phase 8 (continuation) | `phase-8: add notification audience segmentation and content filters` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Continue Phase 8 notification/content management depth.
+- Continue Phase 8 with notification scheduling queue and delivery analytics.
 - Close multilingual consistency and run final validation in Phases 9-10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

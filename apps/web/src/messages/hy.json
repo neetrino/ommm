@@ -1571,6 +1571,8 @@
       "queued": "Հերթագրված է {count} հասցեի հաղորդագրություն (էլ. փոստի ցիկլ)։",
       "templateLabel": "Ձևանմուշ",
       "templateHint": "Ընտրեք պատրաստ ձևանմուշ, ապա ըստ կարիքի խմբագրեք վերնագիրն ու բովանդակությունը։",
+      "audienceLabel": "Թիրախային լսարան",
+      "promotionsOnlyLabel": "Միայն promotions-ին համաձայնած օգտատերեր",
       "subjectLabel": "Թեմա",
       "htmlBodyLabel": "HTML մարմին",
       "testRecipientLabel": "Փորձարկման ստացող (ըստ ցանկության)",
@@ -1578,6 +1580,12 @@
       "testRecipientPlaceholder": "you@example.com",
       "sending": "Ուղարկում…",
       "submit": "Ուղարկել հաղորդագրությունը",
+      "audiences": {
+        "users": "Օգտատերեր",
+        "coaches": "Մարզիչներ",
+        "staff": "Աշխատակազմի դերեր",
+        "all": "Բոլոր դերերը"
+      },
       "templates": {
         "custom": "Անհատական հաղորդագրություն",
         "newClass": {

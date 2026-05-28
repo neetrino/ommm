@@ -3,7 +3,7 @@ import { Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { BroadcastDto } from './dto/broadcast.dto';
+import { BroadcastAudience, BroadcastDto } from './dto/broadcast.dto';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
@@ -14,6 +14,10 @@ export class NotificationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   broadcast(@Body() dto: BroadcastDto) {
-    return this.notifications.broadcastToAll(dto.subject, dto.html, dto.testTo);
+    return this.notifications.broadcastToAll(dto.subject, dto.html, {
+      testTo: dto.testTo,
+      audience: dto.audience ?? BroadcastAudience.USERS,
+      onlyPromotionsOptIn: dto.onlyPromotionsOptIn ?? false,
+    });
   }
 }

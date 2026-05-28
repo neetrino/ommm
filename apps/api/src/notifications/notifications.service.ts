@@ -5,6 +5,7 @@ import { AuditService } from '../audit/audit.service';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { BroadcastAudience } from './dto/broadcast.dto';
 
 const REMINDER_HOURS_BEFORE = 2;
 const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';
@@ -93,13 +94,27 @@ export class NotificationsService {
     return normalized === '1' || normalized === 'true';
   }
 
-  async broadcastToAll(subject: string, html: string, testTo?: string) {
-    if (testTo) {
-      await this.mail.sendEmail({ to: testTo, subject, html });
+  async broadcastToAll(
+    subject: string,
+    html: string,
+    options: {
+      testTo?: string;
+      audience: BroadcastAudience;
+      onlyPromotionsOptIn: boolean;
+    },
+  ) {
+    if (options.testTo) {
+      await this.mail.sendEmail({ to: options.testTo, subject, html });
       return { ok: true, mode: 'test' };
     }
+    const roles = this.resolveAudienceRoles(options.audience);
     const users = await this.prisma.user.findMany({
-      where: { role: Role.USER },
+      where: {
+        role: { in: roles },
+        ...(options.onlyPromotionsOptIn && roles.includes(Role.USER)
+          ? { notificationPrefs: { is: { promotions: true } } }
+          : {}),
+      },
       select: { email: true },
       take: 500,
     });
@@ -111,8 +126,32 @@ export class NotificationsService {
       action: 'NOTIFICATION_BROADCAST',
       entityType: 'Notification',
       entityId: 'broadcast',
-      payload: { subject, recipientCount: users.length },
+      payload: {
+        subject,
+        recipientCount: users.length,
+        audience: options.audience,
+        onlyPromotionsOptIn: options.onlyPromotionsOptIn,
+      },
     });
     return { ok: true, count: users.length };
+  }
+
+  private resolveAudienceRoles(audience: BroadcastAudience): Role[] {
+    if (audience === BroadcastAudience.COACHES) {
+      return [Role.COACH];
+    }
+    if (audience === BroadcastAudience.STAFF) {
+      return [Role.COACH, Role.MANAGER, Role.CONTENT_ADMIN, Role.ADMIN];
+    }
+    if (audience === BroadcastAudience.ALL) {
+      return [
+        Role.USER,
+        Role.COACH,
+        Role.MANAGER,
+        Role.CONTENT_ADMIN,
+        Role.ADMIN,
+      ];
+    }
+    return [Role.USER];
   }
 }

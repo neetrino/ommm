@@ -38,6 +38,25 @@ export function ContentPostsPanelClient({
   const [type, setType] = useState<(typeof CONTENT_TYPES)[number]>("BLOG");
   const [status, setStatus] = useState<(typeof CONTENT_STATUS)[number]>("DRAFT");
   const [body, setBody] = useState("");
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"ALL" | (typeof CONTENT_TYPES)[number]>("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | (typeof CONTENT_STATUS)[number]>(
+    "ALL",
+  );
+  const filteredItems = items.filter((item) => {
+    if (typeFilter !== "ALL" && item.type !== typeFilter) {
+      return false;
+    }
+    if (statusFilter !== "ALL" && item.status !== statusFilter) {
+      return false;
+    }
+    const normalizedQuery = query.trim().toLowerCase();
+    if (normalizedQuery.length === 0) {
+      return true;
+    }
+    const haystack = `${item.title} ${item.slug} ${item.type} ${item.status}`.toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
 
   async function run(
     id: string,
@@ -134,8 +153,45 @@ export function ContentPostsPanelClient({
         />
       </form>
 
+      <div className="grid gap-2 sm:grid-cols-4">
+        <input
+          className="app-input h-9 text-xs sm:col-span-2"
+          placeholder="Search posts"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <select
+          className="app-input h-9 text-xs"
+          value={typeFilter}
+          onChange={(event) =>
+            setTypeFilter(event.target.value as "ALL" | (typeof CONTENT_TYPES)[number])
+          }
+        >
+          <option value="ALL">All types</option>
+          {CONTENT_TYPES.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+        <select
+          className="app-input h-9 text-xs"
+          value={statusFilter}
+          onChange={(event) =>
+            setStatusFilter(event.target.value as "ALL" | (typeof CONTENT_STATUS)[number])
+          }
+        >
+          <option value="ALL">All statuses</option>
+          {CONTENT_STATUS.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <ul className={wellnessChrome ? "mt-2 space-y-3" : "mt-6 space-y-2"}>
-        {items.map((p) => (
+        {filteredItems.map((p) => (
           <li
             key={p.id}
             className={

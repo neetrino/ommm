@@ -1584,6 +1584,8 @@
       "queued": "Queued broadcast to {count} addresses (email send loop).",
       "templateLabel": "Template",
       "templateHint": "Choose a preset to prefill subject and body, then customize as needed.",
+      "audienceLabel": "Audience",
+      "promotionsOnlyLabel": "Only users opted into promotions",
       "subjectLabel": "Subject",
       "htmlBodyLabel": "HTML body",
       "testRecipientLabel": "Test recipient (optional)",
@@ -1591,6 +1593,12 @@
       "testRecipientPlaceholder": "you@example.com",
       "sending": "Sending…",
       "submit": "Send broadcast",
+      "audiences": {
+        "users": "Users",
+        "coaches": "Coaches",
+        "staff": "Staff roles",
+        "all": "All roles"
+      },
       "templates": {
         "custom": "Custom message",
         "newClass": {
