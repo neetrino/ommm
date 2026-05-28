@@ -1441,11 +1441,16 @@
       "cancelFailed": "Չհաջողվեց չեղարկել աբոնեմենտը։"
     },
     "changePassword": {
+      "setTitle": "Սահմանել գաղտնաբառ",
+      "changeTitle": "Փոխել գաղտնաբառը",
+      "setDescription": "Դուք մուտք եք գործել Google-ով։ Սահմանեք գաղտնաբառ, եթե ցանկանում եք այս կայքում մուտք գործել նաև էլ. փոստով և գաղտնաբառով։",
       "currentPasswordLabel": "Ընթացիկ գաղտնաբառ",
       "newPasswordLabel": "Նոր գաղտնաբառ",
       "confirmPasswordLabel": "Հաստատել նոր գաղտնաբառը",
       "showPassword": "Ցույց տալ գաղտնաբառը",
       "hidePassword": "Թաքցնել գաղտնաբառը",
+      "setButton": "Սահմանել գաղտնաբառ",
+      "changeButton": "Փոխել գաղտնաբառը",
       "updateButton": "Թարմացնել գաղտնաբառը",
       "fillAllFields": "Լրացրեք բոլոր դաշտերը։",
       "mismatch": "Նոր գաղտնաբառերը չեն համընկնում։",

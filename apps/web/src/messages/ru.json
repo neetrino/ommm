@@ -1445,11 +1445,16 @@
       "cancelFailed": "Не удалось отменить абонемент."
     },
     "changePassword": {
+      "setTitle": "Установить пароль",
+      "changeTitle": "Сменить пароль",
+      "setDescription": "Вы вошли через Google. Установите пароль, если хотите входить на этом сайте также по email и паролю.",
       "currentPasswordLabel": "Текущий пароль",
       "newPasswordLabel": "Новый пароль",
       "confirmPasswordLabel": "Подтвердите новый пароль",
       "showPassword": "Показать пароль",
       "hidePassword": "Скрыть пароль",
+      "setButton": "Установить пароль",
+      "changeButton": "Сменить пароль",
       "updateButton": "Обновить пароль",
       "fillAllFields": "Заполните все поля пароля.",
       "mismatch": "Новые пароли не совпадают.",

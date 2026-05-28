@@ -184,24 +184,32 @@ export class UsersService {
       where: { id: userId },
       select: { passwordHash: true },
     });
-    if (!user.passwordHash) {
-      throw new BadRequestException(
-        'Password sign-in is not enabled for this account',
-      );
+    const existingPasswordHash = user.passwordHash;
+    const hasExistingPassword = existingPasswordHash !== null;
+
+    if (hasExistingPassword) {
+      const currentPassword = dto.currentPassword?.trim();
+      if (!currentPassword) {
+        throw new BadRequestException('Current password is required');
+      }
+      const currentOk = await verifyPassword(existingPasswordHash, currentPassword);
+      if (!currentOk) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
     }
-    const currentOk = await verifyPassword(
-      user.passwordHash,
-      dto.currentPassword,
-    );
-    if (!currentOk) {
-      throw new UnauthorizedException('Current password is incorrect');
-    }
+
     const passwordHash = await hashPassword(dto.newPassword);
-    await this.prisma.user.update({
+    const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { passwordHash },
     });
-    return { message: 'Password updated successfully' };
+    return {
+      ok: true,
+      message: hasExistingPassword
+        ? 'Password updated successfully'
+        : 'Password set successfully',
+      user: sanitizeUser(updated),
+    };
   }
 
   async saveHomeImage(userId: string, file: Express.Multer.File) {

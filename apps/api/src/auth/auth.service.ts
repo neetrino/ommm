@@ -29,10 +29,15 @@ function newOpaqueToken(): string {
   return randomBytes(32).toString('base64url');
 }
 
-export function sanitizeUser(user: User): Omit<User, 'passwordHash'> {
+export type SafeUser = Omit<User, 'passwordHash'> & { hasPassword: boolean };
+
+export function sanitizeUser(user: User): SafeUser {
   const { passwordHash, ...rest } = user;
   void passwordHash;
-  return rest;
+  return {
+    ...rest,
+    hasPassword: passwordHash !== null,
+  };
 }
 
 @Injectable()
