@@ -207,14 +207,17 @@ export class MembershipsService {
   }
 
   listMine(userId: string) {
-    return this.prisma.userMembership.findMany({
-      where: { userId },
-      include: { plan: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.syncExpiredMemberships(userId).then(() =>
+      this.prisma.userMembership.findMany({
+        where: { userId },
+        include: { plan: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    );
   }
 
   async pause(userId: string, membershipId: string) {
+    await this.syncExpiredMemberships(userId);
     const m = await this.prisma.userMembership.findFirst({
       where: { id: membershipId, userId },
     });
@@ -228,6 +231,7 @@ export class MembershipsService {
   }
 
   async cancel(userId: string, membershipId: string) {
+    await this.syncExpiredMemberships(userId);
     const m = await this.prisma.userMembership.findFirst({
       where: { id: membershipId, userId },
     });
@@ -243,14 +247,27 @@ export class MembershipsService {
   listAllAdmin(options?: { take?: number; offset?: number }) {
     const take = Math.min(Math.max(options?.take ?? 500, 1), 1000);
     const skip = Math.max(options?.offset ?? 0, 0);
-    return this.prisma.userMembership.findMany({
-      include: {
-        plan: true,
-        user: { select: { id: true, email: true, name: true } },
+    return this.syncExpiredMemberships().then(() =>
+      this.prisma.userMembership.findMany({
+        include: {
+          plan: true,
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+      }),
+    );
+  }
+
+  private async syncExpiredMemberships(userId?: string) {
+    await this.prisma.userMembership.updateMany({
+      where: {
+        ...(userId ? { userId } : {}),
+        status: MembershipStatus.ACTIVE,
+        currentPeriodEnd: { lte: new Date() },
       },
-      orderBy: { createdAt: 'desc' },
-      take,
-      skip,
+      data: { status: MembershipStatus.EXPIRED },
     });
   }
 

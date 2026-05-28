@@ -49,7 +49,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | User My Account | Yes | DONE | `apps/web/src/app/[locale]/(account)/user/profile/page.tsx`, `user/layout.tsx` | Some sections still shallow | Low |
 | User Progress/Achievements | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/progress/page.tsx`, `apps/api/src/reports/reports.controller.ts` (`user/analytics`) | Missing full achievement engine depth | Medium |
 | User Memberships & Billing | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/memberships/page.tsx`, `apps/api/src/memberships/*`, `apps/api/src/payments/*` | Renewal/upgrade/downgrade lifecycle gaps | High |
-| User Gift Cards | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/gift-cards/page.tsx`, `apps/api/src/gift-cards/gift-cards.service.ts` | Gift credits redemption spend path incomplete | High |
+| User Gift Cards | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/gift-cards/page.tsx`, `apps/api/src/gift-cards/gift-cards.service.ts`, `apps/api/src/bookings/bookings.service.ts` | Gift-credit spend now covers direct booking fallback; full ledger/audit depth still pending | Medium |
 | User Settings/Security | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/profile/page.tsx`, `apps/api/src/users/users.service.ts` | Delete-account and full settings depth missing | Medium |
 | Booking Flow | Yes | PARTIAL | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/web/src/components/account/book-session-button.tsx` | Remaining race conditions can still occur between checkout and webhook booking | High |
 | Cancellation Policy | Yes | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/studio/dto/update-studio.dto.ts` | Session-credit restore added; refund policy automation still pending finance phase | Medium |
@@ -94,6 +94,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH4-001 | Add CRM baseline filtering for admin clients and coaches | Web+API/Admin | DONE | `apps/api/src/clients/dto/admin-list-clients-query.dto.ts`, `apps/api/src/clients/clients.controller.ts`, `apps/api/src/clients/clients.service.ts`, `apps/api/src/coaches/dto/admin-list-coaches-query.dto.ts`, `apps/api/src/coaches/coaches.controller.ts`, `apps/api/src/coaches/coaches.service.ts`, `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:16 (UTC+4) | `7af8bd2` |
 | PH5-001 | Replace delete-account placeholder flow with authenticated request pipeline | Web+API/User | DONE | `apps/api/src/users/dto/request-account-deletion.dto.ts`, `apps/api/src/users/users.controller.ts`, `apps/api/src/users/users.service.ts`, `apps/web/src/components/account/delete-account-request-button.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:24 (UTC+4) | `0424909` |
 | PH6-001 | Enforce coach-scoped access on admin booking/waitlist operations | API/RBAC | DONE | `apps/api/src/bookings/bookings.controller.ts`, `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/waitlist/waitlist.controller.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:31 (UTC+4) | `3068587` |
+| PH7-001 | Integrate gift-credit spend into booking and auto-expire stale memberships | API/Finance | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/memberships/memberships.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:40 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -115,7 +116,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
 | FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Subscription lifecycle completeness | High | 7 |
-| FIN-002 | Implement gift credit spend accounting | API/Finance | Deduct credit on valid charge paths and expose balances correctly | High | 7 |
+| FIN-002 | Implement gift credit spend accounting | API/Finance | Extend beyond booking fallback to broader ledger/reporting depth | Medium | 7 |
 | NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Upgrade from broadcast-only model | High | 8 |
 | CNT-001 | Expand content manager scope | Web+API/Content | Support additional CRM content management areas | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
@@ -130,7 +131,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | R-003 | Coach/admin booking list scope may exceed intended data visibility | RBAC/API | High | `apps/api/src/bookings/bookings.controller.ts` allows coach on admin list routes | Scope coach access to own sessions |
 | R-004 | Waitlist expiry/promotion depended on env flag | Waitlist | Medium | `apps/api/src/waitlist/waitlist.service.ts` now expires stale offers during offer attempts; cron flag still affects periodic cleanup | Add observability and remove remaining env fragility in later hardening |
 | R-005 | Background reminders depend on env flag | Notifications | Medium | `apps/api/src/notifications/notifications.service.ts` (`ENABLE_BACKGROUND_REMINDERS`) | Add deployment checklist + monitoring |
-| R-006 | Gift credits increase on redeem but spend path incomplete | Finance/Gift | High | `apps/api/src/gift-cards/gift-cards.service.ts` increments `giftCreditsCents`; no full charge deduction path | Implement credit spend integration in finance phase |
+| R-006 | Gift credits increase on redeem but spend path only partially integrated | Finance/Gift | Medium | `apps/api/src/gift-cards/gift-cards.service.ts` + booking fallback deduction in `apps/api/src/bookings/bookings.service.ts` | Expand to full ledger/reporting and additional spend scenarios |
 | R-007 | Drop-in booking path separated from primary booking checks | Booking/Payments | Medium | `apps/api/src/payments/payments.service.ts` now validates session availability, duplicates, and capacity before checkout; webhook race remains | Add reservation/hold semantics for checkout to eliminate race windows |
 | R-008 | Mobile tab “My Bookings” points to classes page | Mobile UX | High | `apps/mobile/src/navigation/roleTabs.ts` (`label: My Bookings`, `href: /user/classes`) | Correct IA and add dedicated bookings flow (mobile-approved phase only) |
 | R-009 | Staff “Member zone” links route to user-only area | Web UX | Medium | Dashboard layouts link to `/user/home` while user layout is USER-only | Either remove link or provide role-appropriate member preview behavior |
@@ -517,6 +518,30 @@ Push status:
 Next phase:
 - Phase 7 - Finance, Memberships, Payments, Gift Cards
 
+### Phase 7 Result (Interim)
+
+Status: IN PROGRESS
+Tasks completed:
+- Added gift-credit booking fallback: when no active membership is present and class requires payment, booking now consumes `giftCreditsCents` if sufficient and records payment entry.
+- Added stale-membership expiration sync before user/admin membership listings and pause/cancel actions.
+- Added re-book handling for existing cancelled booking records to avoid unique-key rebook failures.
+Files changed:
+- `apps/api/src/bookings/bookings.service.ts`
+- `apps/api/src/memberships/memberships.service.ts`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (3 suites, 7 tests)
+Known issues:
+- Membership renewal/upgrade/downgrade lifecycle and full gift-credit finance ledger are still pending in Phase 7.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 7 continuation
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -537,6 +562,8 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Profile security delete-request UX and i18n compiled |
 | 2026-05-28 | `pnpm --filter api build` | PASS | RBAC scoping changes for bookings/waitlist compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Gift-credit booking fallback and membership expiry sync compiled |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 
 ## 10. Git History Created By This Work

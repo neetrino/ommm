@@ -58,23 +58,61 @@ export class BookingsService {
           },
           include: { plan: true },
         });
-        if (!m) {
+        if (m) {
+          if (!m.plan.isUnlimited) {
+            if (
+              m.sessionsRemaining == null ||
+              m.sessionsRemaining < requiredSessions
+            ) {
+              throw new BadRequestException('No sessions remaining on your plan');
+            }
+            await tx.userMembership.update({
+              where: { id: m.id },
+              data: { sessionsRemaining: m.sessionsRemaining - requiredSessions },
+            });
+          }
+        } else if (session.priceCents > 0) {
+          const user = await tx.user.findUnique({
+            where: { id: userId },
+            select: { giftCreditsCents: true },
+          });
+          const credits = user?.giftCreditsCents ?? 0;
+          if (credits < session.priceCents) {
+            throw new BadRequestException(
+              'Active membership, payment, or gift credits required for this class',
+            );
+          }
+          await tx.user.update({
+            where: { id: userId },
+            data: { giftCreditsCents: { decrement: session.priceCents } },
+          });
+          await tx.payment.create({
+            data: {
+              userId,
+              amountCents: session.priceCents,
+              status: PaymentStatus.SUCCEEDED,
+              description: `Gift credit spend ${sessionId}`,
+            },
+          });
+        } else {
           throw new BadRequestException(
             'Active membership or payment required for this class',
           );
         }
-        if (!m.plan.isUnlimited) {
-          if (
-            m.sessionsRemaining == null ||
-            m.sessionsRemaining < requiredSessions
-          ) {
-            throw new BadRequestException('No sessions remaining on your plan');
-          }
-          await tx.userMembership.update({
-            where: { id: m.id },
-            data: { sessionsRemaining: m.sessionsRemaining - requiredSessions },
-          });
-        }
+      }
+      const existingBooking = await tx.booking.findUnique({
+        where: { userId_sessionId: { userId, sessionId } },
+      });
+      if (existingBooking) {
+        return tx.booking.update({
+          where: { id: existingBooking.id },
+          data: {
+            status: BookingStatus.BOOKED,
+            cancelledAt: null,
+            attendedAt: null,
+          },
+          include: { session: { include: { classType: true } } },
+        });
       }
       return tx.booking.create({
         data: { userId, sessionId, status: BookingStatus.BOOKED },
