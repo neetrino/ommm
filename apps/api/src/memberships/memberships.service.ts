@@ -8,7 +8,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { MembershipStatus, Prisma } from '@prisma/client';
+import { MembershipStatus, PaymentStatus, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
@@ -320,6 +320,26 @@ export class MembershipsService {
       },
       include: { plan: true },
     });
+    const prorationAdjustment = this.calculateProrationAdjustmentCents({
+      oldPriceCents: membership.plan.priceCents,
+      newPriceCents: plan.priceCents,
+      remainingRatio: planChangePolicy.remainingRatio,
+      prorationApplied: planChangePolicy.prorationApplied,
+    });
+    if (prorationAdjustment !== 0) {
+      await this.prisma.payment.create({
+        data: {
+          userId,
+          amountCents: prorationAdjustment,
+          currency: plan.currency.toLowerCase(),
+          status: PaymentStatus.SUCCEEDED,
+          description:
+            prorationAdjustment > 0
+              ? `Membership plan proration charge (${membership.planId} -> ${plan.id})`
+              : `Membership plan proration credit (${membership.planId} -> ${plan.id})`,
+        },
+      });
+    }
     await this.audit.log({
       actorId: userId,
       actorRole: 'USER',
@@ -330,6 +350,7 @@ export class MembershipsService {
         fromPlanId: membership.planId,
         toPlanId: plan.id,
         prorationApplied: planChangePolicy.prorationApplied,
+        prorationAdjustmentCents: prorationAdjustment,
       },
     });
     return updated;
@@ -451,6 +472,7 @@ export class MembershipsService {
     currentPeriodEnd: Date;
     sessionsRemaining: number | null;
     prorationApplied: boolean;
+    remainingRatio: number;
   } {
     const shouldProrate =
       params.membership.status === MembershipStatus.ACTIVE &&
@@ -464,6 +486,7 @@ export class MembershipsService {
         currentPeriodEnd: end,
         sessionsRemaining: this.resolvePlanSessions(params.plan, 1),
         prorationApplied: false,
+        remainingRatio: 1,
       };
     }
     const ratio = this.calculateRemainingRatio(
@@ -476,7 +499,21 @@ export class MembershipsService {
       currentPeriodEnd: params.membership.currentPeriodEnd,
       sessionsRemaining: this.resolvePlanSessions(params.plan, ratio),
       prorationApplied: true,
+      remainingRatio: ratio,
     };
+  }
+
+  private calculateProrationAdjustmentCents(params: {
+    oldPriceCents: number;
+    newPriceCents: number;
+    remainingRatio: number;
+    prorationApplied: boolean;
+  }): number {
+    if (!params.prorationApplied) {
+      return 0;
+    }
+    const delta = params.newPriceCents - params.oldPriceCents;
+    return Math.round(delta * params.remainingRatio);
   }
 
   private resolvePlanSessions(

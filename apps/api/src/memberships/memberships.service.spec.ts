@@ -6,6 +6,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 describe('MembershipsService', () => {
   function createService() {
     const prisma = {
+      payment: {
+        create: jest.fn().mockResolvedValue({ id: 'p1' }),
+      },
       userMembership: {
         findFirst: jest.fn(),
         update: jest.fn(),
@@ -40,6 +43,7 @@ describe('MembershipsService', () => {
         isUnlimited: false,
         sessionsPerMonth: 10,
         periodDays: 30,
+        priceCents: 20_000,
       },
     });
     prisma.membershipPlan.findUnique.mockResolvedValue({
@@ -48,6 +52,8 @@ describe('MembershipsService', () => {
       isUnlimited: false,
       sessionsPerMonth: 12,
       periodDays: 30,
+      priceCents: 35_000,
+      currency: 'AMD',
     });
     prisma.userMembership.update.mockResolvedValue({
       id: 'm1',
@@ -67,10 +73,20 @@ describe('MembershipsService', () => {
     );
     expect(updateData.currentPeriodEnd.toISOString()).toBe(periodEnd.toISOString());
     expect(updateData.sessionsRemaining).toBe(8);
+    expect(prisma.payment.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        userId: 'u1',
+        amountCents: 10000,
+        status: 'SUCCEEDED',
+      }),
+    });
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'MEMBERSHIP_PLAN_CHANGED',
-        payload: expect.objectContaining({ prorationApplied: true }),
+        payload: expect.objectContaining({
+          prorationApplied: true,
+          prorationAdjustmentCents: 10000,
+        }),
       }),
     );
   });
@@ -90,6 +106,7 @@ describe('MembershipsService', () => {
         isUnlimited: false,
         sessionsPerMonth: 10,
         periodDays: 30,
+        priceCents: 20_000,
       },
     });
     prisma.membershipPlan.findUnique.mockResolvedValue({
@@ -98,6 +115,8 @@ describe('MembershipsService', () => {
       isUnlimited: false,
       sessionsPerMonth: 12,
       periodDays: 30,
+      priceCents: 12_000,
+      currency: 'AMD',
     });
     prisma.userMembership.update.mockResolvedValue({
       id: 'm2',
@@ -116,11 +135,58 @@ describe('MembershipsService', () => {
     expect(updateData.currentPeriodEnd.getTime()).toBeGreaterThan(
       updateData.currentPeriodStart.getTime(),
     );
+    expect(prisma.payment.create).not.toHaveBeenCalled();
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'MEMBERSHIP_PLAN_CHANGED',
-        payload: expect.objectContaining({ prorationApplied: false }),
+        payload: expect.objectContaining({
+          prorationApplied: false,
+          prorationAdjustmentCents: 0,
+        }),
       }),
     );
+  });
+
+  it('creates credit adjustment when active plan change is a downgrade', async () => {
+    const { service, prisma } = createService();
+    const now = Date.now();
+    prisma.userMembership.findFirst.mockResolvedValue({
+      id: 'm3',
+      userId: 'u1',
+      planId: 'old-plan',
+      status: MembershipStatus.ACTIVE,
+      currentPeriodStart: new Date(now - 10 * DAY_MS),
+      currentPeriodEnd: new Date(now + 10 * DAY_MS),
+      plan: {
+        id: 'old-plan',
+        isUnlimited: false,
+        sessionsPerMonth: 12,
+        periodDays: 30,
+        priceCents: 30_000,
+      },
+    });
+    prisma.membershipPlan.findUnique.mockResolvedValue({
+      id: 'new-plan',
+      isActive: true,
+      isUnlimited: false,
+      sessionsPerMonth: 8,
+      periodDays: 30,
+      priceCents: 15_000,
+      currency: 'AMD',
+    });
+    prisma.userMembership.update.mockResolvedValue({
+      id: 'm3',
+      planId: 'new-plan',
+    });
+
+    await service.changePlan('u1', 'm3', 'new-plan');
+
+    expect(prisma.payment.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        userId: 'u1',
+        amountCents: -7500,
+        description: expect.stringContaining('proration credit'),
+      }),
+    });
   });
 });
