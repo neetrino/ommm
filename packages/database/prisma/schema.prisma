@@ -48,6 +48,8 @@ enum ContentType {
 
 enum ContentStatus {
   DRAFT
+  IN_REVIEW
+  REJECTED
   PUBLISHED
   HIDDEN
 }
@@ -391,17 +393,26 @@ model GiftCard {
 }
 
 model ContentPost {
-  id           String        @id @default(cuid())
-  type         ContentType
-  status       ContentStatus @default(DRAFT)
-  slug         String        @unique
-  title        String
-  excerpt      String?
-  body         String?
+  id             String        @id @default(cuid())
+  type           ContentType
+  status         ContentStatus @default(DRAFT)
+  slug           String        @unique
+  title          String
+  excerpt        String?
+  body           String?
+  authorName     String?
+  tags           String[]      @default([])
+  seoTitle       String?
+  seoDescription String?
+  editorialNotes String?
+  reviewNotes    String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  submittedForReviewAt DateTime?
   coverImageUrl String?
-  publishedAt  DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([type, status])
 }

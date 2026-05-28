@@ -13,7 +13,7 @@
 - [x] Phase 7 - Finance, memberships, payments, gift cards
 
 ### In Progress
-- [ ] Phase 8 - Notifications and content management
+- [x] Phase 8 - Notifications and content management
 
 ### Remaining
 - [ ] Phase 9 - Multilingual consistency
@@ -107,6 +107,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-005 | Add campaign analytics drilldown for notifications | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:04 (UTC+4) | `ddcd22e` |
 | PH8-006 | Add conversion funnel and channel-performance analytics slices | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:12 (UTC+4) | `59509a5` |
 | PH8-007 | Add daily trend overlays and per-campaign conversion KPI | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:20 (UTC+4) | `86163d0` |
+| PH8-008 | Add content approval workflow and richer editorial fields | Web+API/Content | DONE | `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260528153000_content_review_workflow_and_editorial_fields/migration.sql`, `apps/api/src/content/content.controller.ts`, `apps/api/src/content/content.service.ts`, `apps/api/src/content/dto/upsert-post.dto.ts`, `apps/api/src/content/dto/review-post.dto.ts`, `apps/api/src/content/content.service.spec.ts`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:33 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -118,6 +119,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist, plus session-proration and monetary adjustment ledger entries | External Stripe settlement automation for proration charge/credit is not yet encoded | Revenue leakage and billing disputes | Low |
 | GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions, booking spend fallback, finance ledger KPIs, and gift-credit CSV export exist | Optional deeper BI/dashboard drilldown UX beyond CSV export | Reconciliation mostly operational, not structural | Low |
 | ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, broadcast templates, audience segmentation, scheduled queue, delivery summary cards, recipient-level delivery logs, and campaign analytics with funnel/channel/trend overlays exist | Optional richer BI-grade visualization (charts/export dashboards) can be added later | Limited business operations visibility | Medium |
+| CNT-001 | Content governance depth | Admin/content-admin post management now supports editorial metadata, submit-for-review, approve/reject workflow | Future enhancement: explicit multi-step approver assignment and SLA tracking | Publishing governance could still mature | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
 
 ## 5. Missing Tasks
@@ -129,7 +131,6 @@ Current state is a mature monorepo with substantial implementation across web an
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
 | FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Optional external-gateway settlement sync for proration (Stripe invoice/credit-note parity) | Low | 7 |
 | NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Optional BI-grade charting/export for campaign analytics | Low | 8 |
-| CNT-001 | Expand content manager scope | Web+API/Content | Content approval workflow and richer editorial fields beyond baseline post CRUD/filtering | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
 | MBL-002 | Fix mobile tabs IA and complete My Bookings | Mobile | Only after explicit mobile approval; fix routing and functional parity | High | Mobile-only |
 
@@ -577,7 +578,7 @@ Next phase:
 
 ### Phase 8 Result (Interim)
 
-Status: IN PROGRESS
+Status: DONE
 Tasks completed:
 - Added notification broadcast audience segmentation (`users`/`coaches`/`staff`/`all`) at API and admin UI level.
 - Added optional promotions opt-in targeting for user broadcasts.
@@ -592,6 +593,7 @@ Tasks completed:
 - Added campaign analytics drilldown endpoint + UI summary (campaign count, deliveries, avg recipients, top subjects).
 - Added conversion funnel and channel-performance slices (delivery-rate %, scheduled vs immediate split, channel delivery totals).
 - Added daily trend overlays (last 14 days) and per-campaign conversion KPI percentages.
+- Added content approval workflow (`submit-review`, `approve`, `reject`) with richer editorial metadata fields.
 Files changed:
 - `apps/api/src/notifications/dto/broadcast.dto.ts`
 - `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`
@@ -602,6 +604,14 @@ Files changed:
 - `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`
 - `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`
 - `apps/web/src/components/admin/content-posts-panel-client.tsx`
+- `apps/web/src/components/admin/content-posts-panel.tsx`
+- `apps/api/src/content/content.controller.ts`
+- `apps/api/src/content/content.service.ts`
+- `apps/api/src/content/content.service.spec.ts`
+- `apps/api/src/content/dto/upsert-post.dto.ts`
+- `apps/api/src/content/dto/review-post.dto.ts`
+- `packages/database/prisma/schema.prisma`
+- `packages/database/prisma/migrations/20260528153000_content_review_workflow_and_editorial_fields/migration.sql`
 - `apps/web/src/messages/en.json`
 - `apps/web/src/messages/hy.json`
 - `apps/web/src/messages/ru.json`
@@ -610,15 +620,16 @@ Build result:
 - `pnpm --filter api build` PASSED
 - `pnpm --filter web build` PASSED
 Tests result:
-- `pnpm --filter api test` PASSED (5 suites, 19 tests)
+- `pnpm --filter api test` PASSED (6 suites, 23 tests)
 Known issues:
 - Optional BI-grade charting/export remains a follow-up enhancement.
+- `pnpm --filter @ommm/database generate` hit Windows file lock on Prisma engine DLL; used `prisma generate --no-engine` successfully.
 Commit hash:
-- `86163d0`
+- TBD
 Push status:
-- Pushed to `origin/work/1748df5-base`
+- TBD
 Next phase:
-- Phase 8 continuation
+- Phase 9
 
 ## 9. Build / Test History
 
@@ -679,6 +690,10 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 5 suites, 19 tests passed (daily trend + conversion KPI coverage expanded) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Notification campaign trend/KPI analytics aggregation compiled |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Admin notifications daily trend and conversion KPI UI compiled |
+| 2026-05-28 | `pnpm -w exec prisma generate --schema packages/database/prisma/schema.prisma --no-engine` | PASS | Prisma client regenerated without engine due Windows file-lock on query engine DLL |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (content approval workflow tests added) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Content workflow endpoints and DTO updates compiled |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Content admin/editorial workflow UI compiled |
 
 ## 10. Git History Created By This Work
 
@@ -704,10 +719,10 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add notification campaign analytics drilldown` | `ddcd22e` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification conversion funnel and channel analytics` | `59509a5` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification trend overlays and conversion kpis` | `86163d0` | Yes |
+| Phase 8 (continuation) | `phase-8: add content approval workflow and editorial metadata` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Complete remaining Phase 8 content-governance gaps (approval workflow and richer editorial fields).
 - Close multilingual consistency and run final validation in Phases 9-10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

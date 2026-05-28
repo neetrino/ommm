@@ -9,6 +9,16 @@ type ContentAdminRow = {
   title: string;
   type: string;
   status: string;
+  excerpt?: string | null;
+  body?: string | null;
+  authorName?: string | null;
+  tags?: string[];
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  editorialNotes?: string | null;
+  reviewNotes?: string | null;
+  submittedForReviewAt?: string | null;
+  reviewedAt?: string | null;
   updatedAt: string;
 };
 
