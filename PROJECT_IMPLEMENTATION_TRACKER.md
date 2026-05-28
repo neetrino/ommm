@@ -113,7 +113,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH9-003 | Localize shared admin client-component hardcoded messages | Web/i18n | DONE | `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/components/admin/admin-create-gift-card-form.tsx`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:58 (UTC+4) | `6c18a5c` |
 | PH9-004 | Localize booking and waitlist row-action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-booking-actions.tsx`, `apps/web/src/components/admin/admin-waitlist-actions.tsx`, `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:06 (UTC+4) | `6e3b5d0` |
 | PH9-005 | Localize coach and gift-card action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-coach-actions.tsx`, `apps/web/src/components/admin/admin-gift-card-actions.tsx`, `apps/web/src/components/admin/admin-coaches-directory.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:14 (UTC+4) | `8c75257` |
-| PH10-001 | Run final validation pass and close phase-10 tracker lifecycle | Web+API/Release | DONE | `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:19 (UTC+4) | TBD |
+| PH10-001 | Run final validation pass and close phase-10 tracker lifecycle | Web+API/Release | DONE | `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:19 (UTC+4) | `58c66b0` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -719,9 +719,9 @@ Known issues:
 - Optional Stripe settlement parity for proration adjustments (invoice/credit-note sync) remains deferred by scope.
 - Mobile implementation remains intentionally deferred until explicit approval.
 Commit hash:
-- TBD (`PH10-001`)
+- `58c66b0`
 Push status:
-- TBD (`PH10-001`)
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Mobile phase only if explicitly approved
 
@@ -838,7 +838,7 @@ Next phase:
 | Phase 9 (interim) | `phase-9: localize shared admin action and form copy` | `6c18a5c` | Yes |
 | Phase 9 (interim) | `phase-9: localize booking and waitlist action widgets` | `6e3b5d0` | Yes |
 | Phase 9 (interim) | `phase-9: localize coach and gift-card action widgets` | `8c75257` | Yes |
-| Phase 10 | `phase-10: final validation and tracker completion` | TBD | TBD |
+| Phase 10 | `phase-10: final validation and tracker completion` | `58c66b0` | Yes |
 
 ## 11. Final Remaining Work
 
