@@ -124,6 +124,26 @@ export class WaitlistService {
     if (n >= session.capacity) {
       return;
     }
+    const now = new Date();
+    await this.prisma.waitlistEntry.updateMany({
+      where: {
+        sessionId,
+        status: WaitlistStatus.OFFERED,
+        offerExpiresAt: { lte: now },
+      },
+      data: { status: WaitlistStatus.EXPIRED },
+    });
+    const hasOpenOffer = await this.prisma.waitlistEntry.findFirst({
+      where: {
+        sessionId,
+        status: WaitlistStatus.OFFERED,
+        OR: [{ offerExpiresAt: null }, { offerExpiresAt: { gt: now } }],
+      },
+      select: { id: true },
+    });
+    if (hasOpenOffer) {
+      return;
+    }
     const next = await this.prisma.waitlistEntry.findFirst({
       where: { sessionId, status: WaitlistStatus.ACTIVE },
       orderBy: { position: 'asc' },
@@ -134,7 +154,7 @@ export class WaitlistService {
     }
     const settings = await this.studio.getPublic();
     const minutes = settings.waitlistOfferMinutes ?? 30;
-    const offerExpiresAt = new Date(Date.now() + minutes * 60 * 1000);
+    const offerExpiresAt = new Date(now.getTime() + minutes * 60 * 1000);
     await this.prisma.waitlistEntry.update({
       where: { id: next.id },
       data: {

@@ -6,8 +6,10 @@ import {
 } from '@nestjs/common';
 import {
   BookingStatus,
+  type ClassSession,
   ClassSessionStatus,
   MembershipStatus,
+  PaymentStatus,
   Prisma,
   Role,
   type User,
@@ -113,20 +115,63 @@ export class BookingsService {
         `Cancellation must be at least ${noticeHours}h before class`,
       );
     }
-    await this.releaseSlot(booking.sessionId, bookingId);
+    await this.releaseSlot(booking);
     return { ok: true };
   }
 
-  private async releaseSlot(sessionId: string, bookingId: string) {
-    await this.prisma.booking.update({
-      where: { id: bookingId },
-      data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
+  private async releaseSlot(booking: {
+    id: string;
+    userId: string;
+    sessionId: string;
+    session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
+  }) {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
+      });
+      const requiredSessions =
+        booking.session.sessionRequirement ?? (booking.session.priceCents > 0 ? 1 : 0);
+      if (requiredSessions <= 0) {
+        return;
+      }
+      const hasDropInPayment = await tx.payment.findFirst({
+        where: {
+          userId: booking.userId,
+          description: `Drop-in session ${booking.sessionId}`,
+          status: PaymentStatus.SUCCEEDED,
+        },
+        select: { id: true },
+      });
+      if (hasDropInPayment) {
+        return;
+      }
+      const membership = await tx.userMembership.findFirst({
+        where: {
+          userId: booking.userId,
+          status: MembershipStatus.ACTIVE,
+          currentPeriodEnd: { gt: new Date() },
+        },
+        include: { plan: true },
+      });
+      if (!membership || membership.plan.isUnlimited || membership.sessionsRemaining == null) {
+        return;
+      }
+      const maxSessions = membership.plan.sessionsPerMonth;
+      const restored = membership.sessionsRemaining + requiredSessions;
+      await tx.userMembership.update({
+        where: { id: membership.id },
+        data: {
+          sessionsRemaining:
+            maxSessions == null ? restored : Math.min(restored, maxSessions),
+        },
+      });
     });
     await this.prisma.classSession.updateMany({
-      where: { id: sessionId, status: ClassSessionStatus.FULL },
+      where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
       data: { status: ClassSessionStatus.ACTIVE },
     });
-    await this.waitlist.offerNextIfSlot(sessionId);
+    await this.waitlist.offerNextIfSlot(booking.sessionId);
   }
 
   listMine(userId: string) {
@@ -147,11 +192,12 @@ export class BookingsService {
   async adminCancel(bookingId: string) {
     const booking = await this.prisma.booking.findUnique({
       where: { id: bookingId },
+      include: { session: true },
     });
     if (!booking) {
       throw new NotFoundException();
     }
-    await this.releaseSlot(booking.sessionId, bookingId);
+    await this.releaseSlot(booking);
     return { ok: true };
   }
 

@@ -6,6 +6,13 @@ import { PaymentSourceFilter } from './dto/admin-list-payments-query.dto';
 describe('PaymentsService', () => {
   function createService() {
     const prisma = {
+      classSession: {
+        findUnique: jest.fn(),
+      },
+      booking: {
+        findUnique: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
+      },
       payment: {
         findMany: jest.fn().mockResolvedValue([
           {
@@ -60,5 +67,39 @@ describe('PaymentsService', () => {
     expect(prisma.payment.findMany).toHaveBeenCalled();
     expect(result.total).toBe(1);
     expect(result.items[0]?.source).toBe('membership');
+  });
+
+  it('createDropInCheckout rejects when session is already booked', async () => {
+    const { service, prisma } = createService();
+    prisma.classSession.findUnique.mockResolvedValue({
+      id: 's1',
+      status: 'ACTIVE',
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      capacity: 10,
+    });
+    prisma.booking.findUnique.mockResolvedValue({
+      id: 'b1',
+      status: 'BOOKED',
+    });
+
+    await expect(service.createDropInCheckout('u1', 's1')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+
+  it('createDropInCheckout rejects when session is full', async () => {
+    const { service, prisma } = createService();
+    prisma.classSession.findUnique.mockResolvedValue({
+      id: 's1',
+      status: 'ACTIVE',
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      capacity: 1,
+    });
+    prisma.booking.findUnique.mockResolvedValue(null);
+    prisma.booking.count.mockResolvedValue(1);
+
+    await expect(service.createDropInCheckout('u1', 's1')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
   });
 });

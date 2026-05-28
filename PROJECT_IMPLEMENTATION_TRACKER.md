@@ -31,9 +31,9 @@ Current state is a mature monorepo with substantial implementation across web an
 | User Memberships & Billing | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/memberships/page.tsx`, `apps/api/src/memberships/*`, `apps/api/src/payments/*` | Renewal/upgrade/downgrade lifecycle gaps | High |
 | User Gift Cards | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/gift-cards/page.tsx`, `apps/api/src/gift-cards/gift-cards.service.ts` | Gift credits redemption spend path incomplete | High |
 | User Settings/Security | Yes | PARTIAL | `apps/web/src/app/[locale]/(account)/user/profile/page.tsx`, `apps/api/src/users/users.service.ts` | Delete-account and full settings depth missing | Medium |
-| Booking Flow | Yes | PARTIAL | `apps/api/src/bookings/bookings.service.ts`, `apps/web/src/components/account/book-session-button.tsx` | Drop-in vs membership flow consistency edge cases | High |
-| Cancellation Policy | Yes | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/studio/dto/update-studio.dto.ts` | Refund/session restore business rules not complete | Medium |
-| Waitlist Logic | Yes | PARTIAL | `apps/api/src/waitlist/waitlist.service.ts`, `apps/web/src/components/account/join-waitlist-button.tsx` | Offer expiry/promotion depends on env cron; preference checks incomplete | High |
+| Booking Flow | Yes | PARTIAL | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/web/src/components/account/book-session-button.tsx` | Remaining race conditions can still occur between checkout and webhook booking | High |
+| Cancellation Policy | Yes | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/studio/dto/update-studio.dto.ts` | Session-credit restore added; refund policy automation still pending finance phase | Medium |
+| Waitlist Logic | Yes | PARTIAL | `apps/api/src/waitlist/waitlist.service.ts`, `apps/web/src/components/account/join-waitlist-button.tsx` | Offer sequencing hardened; audience preference and richer observability still missing | Medium |
 | Membership Logic | Yes | PARTIAL | `apps/api/src/memberships/memberships.service.ts`, `packages/database/prisma/schema.prisma` (`UserMembership`) | Pause/renewal/upgrade lifecycle incomplete | High |
 | Payment Logic | Yes | PARTIAL | `apps/api/src/payments/payments.service.ts` | Only core Stripe checkout/webhook path; retry/refund depth limited | High |
 | Notifications | Yes | PARTIAL | `apps/api/src/notifications/notifications.service.ts`, `notifications.controller.ts` | Templates/segmentation/scheduling depth missing | High |
@@ -70,6 +70,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH0-001 | Full repository audit against CRM spec and create tracker baseline | Cross-cutting | DONE | `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:24 (UTC+4) | N/A (not committed yet) |
 | PH1-001 | Implement auth recovery and OAuth set-password flow | Auth/Account | DONE | `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/login/page.tsx`, `apps/web/src/app/[locale]/set-password/page.tsx`, `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/auth/auth.service.ts`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:58 (UTC+4) | `b6d4fa6` |
 | PH2-001 | Harden admin core navigation and route parity baseline | Web/Admin | DONE | `apps/web/src/lib/dashboard-nav.ts`, `apps/web/src/components/shell/dashboard-nav-icon.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:03 (UTC+4) | `2c0666b` |
+| PH3-001 | Align cancellation credits, waitlist offer sequencing, and drop-in prechecks | API/Booking+Waitlist | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `apps/api/src/payments/payments.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:10 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -87,8 +88,6 @@ Current state is a mature monorepo with substantial implementation across web an
 
 | Task ID | Task | Area | Description | Priority | Phase |
 | ------- | ---- | ---- | ----------- | -------- | ----- |
-| BOOK-002 | Add booking cancellation side-effects (session restore/refund rules) | API/Booking | Implement policy-consistent effects after cancellation | High | 3 |
-| WAIT-002 | Harden waitlist promotion and expiration reliability | API/Waitlist | Remove brittle env coupling and enforce offer lifecycle correctness | High | 3 |
 | CLIENT-001 | Add advanced clients filtering and segmentation | Web/Admin | Implement CRM-required tags, behavior filters, quick filters | High | 4 |
 | COACH-001 | Expand coach directory/search and operational filters | Web/Admin | Add CRM-level filtering/sort/quick filter capabilities | Medium | 4 |
 | USER-001 | Complete user progress/achievements metrics | Web/User | Full metrics, periods, badge progression logic | Medium | 5 |
@@ -108,10 +107,10 @@ Current state is a mature monorepo with substantial implementation across web an
 | R-001 | Password reset link pointed to missing web page | Auth/Web | Resolved | `apps/api/src/auth/auth.service.ts`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx` | Fixed in Phase 1 |
 | R-002 | Manager has broader finance/payment access than CRM matrix | RBAC/API | High | `apps/api/src/payments/payments.controller.ts` and `reports.controller.ts` allow manager in finance endpoints | Tighten `@Roles` and align UI guards |
 | R-003 | Coach/admin booking list scope may exceed intended data visibility | RBAC/API | High | `apps/api/src/bookings/bookings.controller.ts` allows coach on admin list routes | Scope coach access to own sessions |
-| R-004 | Waitlist expiry/promotion depends on env flag | Waitlist | High | `apps/api/src/waitlist/waitlist.service.ts` (`ENABLE_WAITLIST_BACKGROUND_JOBS`) | Ensure production-safe default and observability |
+| R-004 | Waitlist expiry/promotion depended on env flag | Waitlist | Medium | `apps/api/src/waitlist/waitlist.service.ts` now expires stale offers during offer attempts; cron flag still affects periodic cleanup | Add observability and remove remaining env fragility in later hardening |
 | R-005 | Background reminders depend on env flag | Notifications | Medium | `apps/api/src/notifications/notifications.service.ts` (`ENABLE_BACKGROUND_REMINDERS`) | Add deployment checklist + monitoring |
 | R-006 | Gift credits increase on redeem but spend path incomplete | Finance/Gift | High | `apps/api/src/gift-cards/gift-cards.service.ts` increments `giftCreditsCents`; no full charge deduction path | Implement credit spend integration in finance phase |
-| R-007 | Drop-in booking path separated from primary booking checks | Booking/Payments | High | `apps/api/src/payments/payments.service.ts` (`fulfillDropIn`) + `bookings.service.ts` membership checks | Unify booking eligibility and payment-backed booking state |
+| R-007 | Drop-in booking path separated from primary booking checks | Booking/Payments | Medium | `apps/api/src/payments/payments.service.ts` now validates session availability, duplicates, and capacity before checkout; webhook race remains | Add reservation/hold semantics for checkout to eliminate race windows |
 | R-008 | Mobile tab “My Bookings” points to classes page | Mobile UX | High | `apps/mobile/src/navigation/roleTabs.ts` (`label: My Bookings`, `href: /user/classes`) | Correct IA and add dedicated bookings flow (mobile-approved phase only) |
 | R-009 | Staff “Member zone” links route to user-only area | Web UX | Medium | Dashboard layouts link to `/user/home` while user layout is USER-only | Either remove link or provide role-appropriate member preview behavior |
 
@@ -380,6 +379,33 @@ Push status:
 Next phase:
 - Phase 3 - Booking, Waitlist, Schedule Consistency
 
+### Phase 3 Result
+
+Status: COMPLETED
+Tasks completed:
+- Added membership-session credit restoration on booking cancellation (excluding paid drop-in cancellations).
+- Added drop-in checkout prechecks for canceled/started/full/already-booked sessions.
+- Hardened waitlist offer sequencing by expiring stale offers inline and preventing multiple active simultaneous offers.
+- Added API tests for drop-in checkout duplicate/full validation paths.
+Files changed:
+- `apps/api/src/bookings/bookings.service.ts`
+- `apps/api/src/payments/payments.service.ts`
+- `apps/api/src/waitlist/waitlist.service.ts`
+- `apps/api/src/payments/payments.service.spec.ts`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (3 suites, 7 tests)
+Known issues:
+- Checkout-to-webhook seat race is still possible without reservation holds.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 4 - Clients and Coaches Management Gaps
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -391,6 +417,8 @@ Next phase:
 | 2026-05-28 | `pnpm --filter web build` | PASS | Includes `/admin/analytics` and `/admin/packages` alias routes |
 | 2026-05-28 | `pnpm --filter api build` | PASS | No API regressions from Phase 2 web/admin changes |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 5 tests passed |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Booking/waitlist/drop-in consistency changes compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 
 ## 10. Git History Created By This Work
 
@@ -399,10 +427,11 @@ Next phase:
 | Phase 0 | `phase-0: audit project and add implementation tracker` | N/A | No |
 | Phase 1 | `phase-1: complete auth recovery and password setup flow` | `b6d4fa6` | Yes |
 | Phase 2 | `phase-2: harden admin core navigation and reporting baseline` | `2c0666b` | Yes |
+| Phase 3 | `phase-3: align booking and waitlist lifecycle rules` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
-- Align RBAC and booking/waitlist lifecycle correctness in Phases 3 and 6.
+- Align RBAC correctness in Phase 6.
 - Complete finance/membership/gift-credit correctness in Phase 7.
 - Upgrade notification/content management depth in Phase 8.
 - Close multilingual consistency and run final validation in Phases 9-10.
