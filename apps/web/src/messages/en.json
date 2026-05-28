@@ -1610,10 +1610,13 @@
     },
     "deleteAccountRequest": {
       "action": "Request account deletion",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Tell us why you want to delete your account.",
       "confirm": "Send account deletion request to the studio team?",
       "sending": "Sending...",
       "sent": "Request sent to studio support.",
-      "failed": "Could not send request."
+      "failed": "Could not send request.",
+      "recentlySubmitted": "Deletion request already submitted recently"
     }
   },
   "adminActions": {

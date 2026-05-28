@@ -1,5 +1,25 @@
 # Ommm Project Implementation Tracker
 
+## Quick Phase Checklist (Tick View)
+
+### Done
+- [x] Phase 0 - Audit and tracker initialization
+- [x] Phase 1 - Auth/account critical fixes
+- [x] Phase 2 - Admin core integrity
+- [x] Phase 3 - Booking/waitlist/schedule consistency
+- [x] Phase 4 - Clients/coaches management gaps
+- [x] Phase 5 - User account gaps
+
+### In Progress
+- [ ] Phase 6 - Manager and coach role gaps
+
+### Remaining
+- [ ] Phase 7 - Finance, memberships, payments, gift cards
+- [ ] Phase 8 - Notifications and content management
+- [ ] Phase 9 - Multilingual consistency
+- [ ] Phase 10 - Final validation and release readiness
+- [ ] Mobile phase (only after explicit approval)
+
 ## 1. Project Audit Summary
 
 Current state is a mature monorepo with substantial implementation across web and API, partial mobile implementation, and several CRM-depth gaps.
@@ -72,6 +92,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH2-001 | Harden admin core navigation and route parity baseline | Web/Admin | DONE | `apps/web/src/lib/dashboard-nav.ts`, `apps/web/src/components/shell/dashboard-nav-icon.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:03 (UTC+4) | `2c0666b` |
 | PH3-001 | Align cancellation credits, waitlist offer sequencing, and drop-in prechecks | API/Booking+Waitlist | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `apps/api/src/payments/payments.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:10 (UTC+4) | `cf893cc` |
 | PH4-001 | Add CRM baseline filtering for admin clients and coaches | Web+API/Admin | DONE | `apps/api/src/clients/dto/admin-list-clients-query.dto.ts`, `apps/api/src/clients/clients.controller.ts`, `apps/api/src/clients/clients.service.ts`, `apps/api/src/coaches/dto/admin-list-coaches-query.dto.ts`, `apps/api/src/coaches/coaches.controller.ts`, `apps/api/src/coaches/coaches.service.ts`, `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:16 (UTC+4) | `7af8bd2` |
+| PH5-001 | Replace delete-account placeholder flow with authenticated request pipeline | Web+API/User | DONE | `apps/api/src/users/dto/request-account-deletion.dto.ts`, `apps/api/src/users/users.controller.ts`, `apps/api/src/users/users.service.ts`, `apps/web/src/components/account/delete-account-request-button.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:24 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -439,6 +460,36 @@ Push status:
 Next phase:
 - Phase 5 - User Account Gaps
 
+### Phase 5 Result
+
+Status: COMPLETED
+Tasks completed:
+- Replaced profile delete-account placeholder (`/contact`) with authenticated API endpoint (`POST /users/me/delete-request`).
+- Added optional deletion reason field on profile security section and localized copy in all supported languages.
+- Added duplicate-request guard to prevent repeated deletion requests within 24h.
+Files changed:
+- `apps/api/src/users/dto/request-account-deletion.dto.ts`
+- `apps/api/src/users/users.controller.ts`
+- `apps/api/src/users/users.service.ts`
+- `apps/web/src/components/account/delete-account-request-button.tsx`
+- `apps/web/src/messages/en.json`
+- `apps/web/src/messages/hy.json`
+- `apps/web/src/messages/ru.json`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+- `pnpm --filter web build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (3 suites, 7 tests)
+Known issues:
+- Membership lifecycle depth (upgrade/downgrade/renewal) remains for finance phase.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 6 - Manager and Coach Role Gaps
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -455,6 +506,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api build` | PASS | Clients/coaches admin filtering query support compiled |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Admin clients/coaches filter forms and i18n compiled |
+| 2026-05-28 | `pnpm --filter api build` | PASS | User delete-account request API flow compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Profile security delete-request UX and i18n compiled |
 
 ## 10. Git History Created By This Work
 
@@ -465,10 +519,10 @@ Next phase:
 | Phase 2 | `phase-2: harden admin core navigation and reporting baseline` | `2c0666b` | Yes |
 | Phase 3 | `phase-3: align booking and waitlist lifecycle rules` | `cf893cc` | Yes |
 | Phase 4 | `phase-4: extend client and coach management capabilities` | `7af8bd2` | Yes |
+| Phase 5 | `phase-5: harden user account security request flow` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
-- Complete user account depth in Phase 5.
 - Align RBAC correctness in Phase 6.
 - Complete finance/membership/gift-credit correctness in Phase 7.
 - Upgrade notification/content management depth in Phase 8.
