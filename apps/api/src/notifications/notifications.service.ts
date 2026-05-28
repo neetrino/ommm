@@ -579,12 +579,20 @@ export class NotificationsService {
       deliveriesByDate,
     });
     const topSubjects = [...campaignsBySubject.entries()]
-      .map(([subject, campaigns]) => ({
-        subject,
-        campaigns,
-        deliveries: deliveriesBySubject.get(subject) ?? 0,
-        estimatedRecipients: recipientsBySubject.get(subject) ?? 0,
-      }))
+      .map(([subject, campaigns]) => {
+        const deliveriesCount = deliveriesBySubject.get(subject) ?? 0;
+        const estimatedRecipients = recipientsBySubject.get(subject) ?? 0;
+        return {
+          subject,
+          campaigns,
+          deliveries: deliveriesCount,
+          estimatedRecipients,
+          conversionRatePct:
+            estimatedRecipients > 0
+              ? Math.round((deliveriesCount / estimatedRecipients) * 100)
+              : 0,
+        };
+      })
       .sort((a, b) => b.deliveries - a.deliveries || b.campaigns - a.campaigns)
       .slice(0, 5);
     const channelRows = [...channelBreakdown.entries()]

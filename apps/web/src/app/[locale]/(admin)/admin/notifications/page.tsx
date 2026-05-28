@@ -62,6 +62,12 @@ type NotificationAnalytics = {
     campaigns: number;
     deliveries: number;
     estimatedRecipients: number;
+    conversionRatePct: number;
+  }>;
+  daily: Array<{
+    date: string;
+    campaigns: number;
+    deliveries: number;
   }>;
 };
 
@@ -111,7 +117,9 @@ export default async function AdminNotificationsPage({
         },
         channelBreakdown: [],
         topSubjects: [],
+        daily: [],
       };
+  const trendRows = analytics.daily.slice(-14);
 
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
@@ -203,6 +211,7 @@ export default async function AdminNotificationsPage({
                 <span className="text-sage-500">campaigns: {subject.campaigns}</span>
                 <span className="text-sage-500">deliveries: {subject.deliveries}</span>
                 <span className="text-sage-500">estimated: {subject.estimatedRecipients}</span>
+                <span className="text-sage-500">conversion: {subject.conversionRatePct}%</span>
               </li>
             ))
           )}
@@ -235,6 +244,20 @@ export default async function AdminNotificationsPage({
               <li key={item.channel} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
                 <span className="font-medium text-sage-800">{item.channel}</span>
                 <span className="text-sage-500">deliveries: {item.deliveries}</span>
+              </li>
+            ))
+          )}
+        </ul>
+        <h3 className="mt-4 text-sm font-semibold text-sage-900">Daily trend (last 14 days)</h3>
+        <ul className="mt-2 space-y-2">
+          {trendRows.length === 0 ? (
+            <li className="ommm-body-muted text-sm">No trend data yet.</li>
+          ) : (
+            trendRows.map((day) => (
+              <li key={day.date} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
+                <span className="font-medium text-sage-800">{day.date}</span>
+                <span className="text-sage-500">campaigns: {day.campaigns}</span>
+                <span className="text-sage-500">deliveries: {day.deliveries}</span>
               </li>
             ))
           )}

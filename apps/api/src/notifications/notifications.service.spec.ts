@@ -310,6 +310,15 @@ describe('NotificationsService', () => {
         campaigns: 1,
         deliveries: 2,
         estimatedRecipients: 3,
+        conversionRatePct: 67,
+      }),
+    );
+    expect(analytics.daily).toHaveLength(7);
+    expect(analytics.daily[0]).toEqual(
+      expect.objectContaining({
+        date: expect.any(String),
+        campaigns: expect.any(Number),
+        deliveries: expect.any(Number),
       }),
     );
   });
