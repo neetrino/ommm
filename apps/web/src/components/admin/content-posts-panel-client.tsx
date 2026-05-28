@@ -27,6 +27,43 @@ type ContentAdminRow = {
 type ContentPostsPanelClientProps = {
   items: ContentAdminRow[];
   wellnessChrome?: boolean;
+  labels: {
+    placeholders: {
+      title: string;
+      slug: string;
+      body: string;
+      authorName: string;
+      tagsCsv: string;
+      seoTitle: string;
+      seoDescription: string;
+      editorialNotes: string;
+      searchPosts: string;
+    };
+    labels: {
+      type: string;
+      status: string;
+      allTypes: string;
+      allStatuses: string;
+      create: string;
+      toggleHide: string;
+      submitReview: string;
+      approve: string;
+      reject: string;
+      delete: string;
+      tags: string;
+      review: string;
+    };
+    feedback: {
+      actionFailed: string;
+      postCreated: string;
+      visibilityUpdated: string;
+      submittedForReview: string;
+      postApproved: string;
+      postRejected: string;
+      postDeleted: string;
+      rejectionNotePrompt: string;
+    };
+  };
 };
 
 const CONTENT_TYPES = ["EVENT", "BLOG", "NEWS", "UPDATE", "KNOWLEDGE_ARTICLE"] as const;
@@ -40,6 +77,7 @@ const STATUS_OPTIONS: readonly DropdownOption<(typeof CONTENT_STATUS)[number]>[]
 export function ContentPostsPanelClient({
   items,
   wellnessChrome = false,
+  labels,
 }: ContentPostsPanelClientProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -88,7 +126,7 @@ export function ContentPostsPanelClient({
       setMessage(okLabel);
       window.location.reload();
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : "Action failed");
+      setMessage(error instanceof ApiError ? error.message : labels.feedback.actionFailed);
     } finally {
       setBusyId(null);
     }
@@ -118,32 +156,32 @@ export function ContentPostsPanelClient({
                   type,
                   status,
                   body,
-                authorName: authorName || undefined,
-                tags: parseTags(tagsCsv),
-                seoTitle: seoTitle || undefined,
-                seoDescription: seoDescription || undefined,
-                editorialNotes: editorialNotes || undefined,
+                  authorName: authorName || undefined,
+                  tags: parseTags(tagsCsv),
+                  seoTitle: seoTitle || undefined,
+                  seoDescription: seoDescription || undefined,
+                  editorialNotes: editorialNotes || undefined,
                 }),
               }),
-            "Post created",
+            labels.feedback.postCreated,
           );
         }}
       >
         <input
           className="app-input h-9 text-xs sm:col-span-2"
-          placeholder="Title"
+          placeholder={labels.placeholders.title}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
         />
         <input
           className="app-input h-9 text-xs"
-          placeholder="Slug"
+          placeholder={labels.placeholders.slug}
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
         />
         <DropdownSelect
-          label="Type"
-          ariaLabel="Content type"
+          label={labels.labels.type}
+          ariaLabel={labels.labels.type}
           name="type"
           value={type}
           options={TYPE_OPTIONS}
@@ -154,8 +192,8 @@ export function ContentPostsPanelClient({
           menuClassName="text-xs"
         />
         <DropdownSelect
-          label="Status"
-          ariaLabel="Content status"
+          label={labels.labels.status}
+          ariaLabel={labels.labels.status}
           name="status"
           value={status}
           options={STATUS_OPTIONS}
@@ -170,41 +208,41 @@ export function ContentPostsPanelClient({
           className="rounded-md border border-slate-300 px-3 text-xs text-slate-700 hover:bg-slate-50"
           disabled={busyId !== null}
         >
-          Create
+          {labels.labels.create}
         </button>
         <textarea
           className="app-input min-h-20 text-xs sm:col-span-6"
-          placeholder="Body"
+          placeholder={labels.placeholders.body}
           value={body}
           onChange={(event) => setBody(event.target.value)}
         />
         <input
           className="app-input h-9 text-xs sm:col-span-2"
-          placeholder="Author name"
+          placeholder={labels.placeholders.authorName}
           value={authorName}
           onChange={(event) => setAuthorName(event.target.value)}
         />
         <input
           className="app-input h-9 text-xs sm:col-span-2"
-          placeholder="Tags (comma separated)"
+          placeholder={labels.placeholders.tagsCsv}
           value={tagsCsv}
           onChange={(event) => setTagsCsv(event.target.value)}
         />
         <input
           className="app-input h-9 text-xs sm:col-span-2"
-          placeholder="SEO title"
+          placeholder={labels.placeholders.seoTitle}
           value={seoTitle}
           onChange={(event) => setSeoTitle(event.target.value)}
         />
         <input
           className="app-input h-9 text-xs sm:col-span-6"
-          placeholder="SEO description"
+          placeholder={labels.placeholders.seoDescription}
           value={seoDescription}
           onChange={(event) => setSeoDescription(event.target.value)}
         />
         <textarea
           className="app-input min-h-16 text-xs sm:col-span-6"
-          placeholder="Editorial notes"
+          placeholder={labels.placeholders.editorialNotes}
           value={editorialNotes}
           onChange={(event) => setEditorialNotes(event.target.value)}
         />
@@ -213,7 +251,7 @@ export function ContentPostsPanelClient({
       <div className="grid gap-2 sm:grid-cols-4">
         <input
           className="app-input h-9 text-xs sm:col-span-2"
-          placeholder="Search posts"
+          placeholder={labels.placeholders.searchPosts}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
@@ -224,7 +262,7 @@ export function ContentPostsPanelClient({
             setTypeFilter(event.target.value as "ALL" | (typeof CONTENT_TYPES)[number])
           }
         >
-          <option value="ALL">All types</option>
+          <option value="ALL">{labels.labels.allTypes}</option>
           {CONTENT_TYPES.map((value) => (
             <option key={value} value={value}>
               {value}
@@ -238,7 +276,7 @@ export function ContentPostsPanelClient({
             setStatusFilter(event.target.value as "ALL" | (typeof CONTENT_STATUS)[number])
           }
         >
-          <option value="ALL">All statuses</option>
+          <option value="ALL">{labels.labels.allStatuses}</option>
           {CONTENT_STATUS.map((value) => (
             <option key={value} value={value}>
               {value}
@@ -296,19 +334,19 @@ export function ContentPostsPanelClient({
                               type: p.type,
                               status: p.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN",
                               body: "",
-                            authorName: p.authorName ?? undefined,
-                            tags: p.tags ?? [],
-                            seoTitle: p.seoTitle ?? undefined,
-                            seoDescription: p.seoDescription ?? undefined,
-                            editorialNotes: p.editorialNotes ?? undefined,
-                            reviewNotes: p.reviewNotes ?? undefined,
+                              authorName: p.authorName ?? undefined,
+                              tags: p.tags ?? [],
+                              seoTitle: p.seoTitle ?? undefined,
+                              seoDescription: p.seoDescription ?? undefined,
+                              editorialNotes: p.editorialNotes ?? undefined,
+                              reviewNotes: p.reviewNotes ?? undefined,
                             }),
                           }),
-                        "Visibility updated",
+                        labels.feedback.visibilityUpdated,
                       )
                     }
                   >
-                    Toggle hide
+                    {labels.labels.toggleHide}
                   </button>
                   {(p.status === "DRAFT" || p.status === "REJECTED" || p.status === "HIDDEN") ? (
                     <button
@@ -322,11 +360,11 @@ export function ContentPostsPanelClient({
                             apiFetch(`/content/admin/posts/${p.id}/submit-review`, {
                               method: "POST",
                             }),
-                          "Submitted for review",
+                          labels.feedback.submittedForReview,
                         )
                       }
                     >
-                      Submit review
+                      {labels.labels.submitReview}
                     </button>
                   ) : null}
                   {p.status === "IN_REVIEW" ? (
@@ -343,18 +381,18 @@ export function ContentPostsPanelClient({
                                 method: "POST",
                                 body: JSON.stringify({ decision: "APPROVE" }),
                               }),
-                            "Post approved",
+                            labels.feedback.postApproved,
                           )
                         }
                       >
-                        Approve
+                        {labels.labels.approve}
                       </button>
                       <button
                         type="button"
                         className="rounded-md border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-50"
                         disabled={busyId !== null}
                         onClick={() => {
-                          const note = window.prompt("Rejection note");
+                          const note = window.prompt(labels.feedback.rejectionNotePrompt);
                           if (!note || note.trim().length === 0) {
                             return;
                           }
@@ -365,11 +403,11 @@ export function ContentPostsPanelClient({
                                 method: "POST",
                                 body: JSON.stringify({ decision: "REJECT", note }),
                               }),
-                            "Post rejected",
+                            labels.feedback.postRejected,
                           );
                         }}
                       >
-                        Reject
+                        {labels.labels.reject}
                       </button>
                     </>
                   ) : null}
@@ -384,11 +422,11 @@ export function ContentPostsPanelClient({
                           apiFetch(`/content/admin/posts/${p.id}`, {
                             method: "DELETE",
                           }),
-                        "Post deleted",
+                        labels.feedback.postDeleted,
                       )
                     }
                   >
-                    Delete
+                    {labels.labels.delete}
                   </button>
                 </div>
               </div>
@@ -397,12 +435,12 @@ export function ContentPostsPanelClient({
               </p>
               {p.tags && p.tags.length > 0 ? (
                 <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
-                  tags: {p.tags.join(", ")}
+                  {labels.labels.tags}: {p.tags.join(", ")}
                 </p>
               ) : null}
               {p.reviewNotes ? (
                 <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
-                  review: {p.reviewNotes}
+                  {labels.labels.review}: {p.reviewNotes}
                 </p>
               ) : null}
             </div>

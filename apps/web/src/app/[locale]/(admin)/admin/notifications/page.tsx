@@ -71,6 +71,64 @@ type NotificationAnalytics = {
   }>;
 };
 
+function getNotificationAnalyticsLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      heading: "Քարոզարշավների անալիտիկա (30 օր)",
+      campaigns: "Քարոզարշավներ",
+      deliveries: "Առաքումներ",
+      avgRecipients: "Միջ. ստացողներ / քարոզարշավ",
+      emptyCampaigns: "Քարոզարշավների անալիտիկա դեռ չկա։",
+      campaignsShort: "քարոզարշավ",
+      deliveriesShort: "առաքում",
+      estimatedShort: "գնահատված",
+      conversionShort: "կոնվերսիա",
+      deliveryRate: "Առաքման տոկոս",
+      scheduledCampaigns: "Ժամանակացույցված քարոզարշավներ",
+      immediateCampaigns: "Անմիջական քարոզարշավներ",
+      emptyChannels: "Ալիքների վիճակագրություն դեռ չկա։",
+      dailyTrend: "Օրական տրենդ (վերջին 14 օր)",
+      emptyTrend: "Տրենդի տվյալ դեռ չկա։",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      heading: "Аналитика кампаний (30 дней)",
+      campaigns: "Кампании",
+      deliveries: "Доставки",
+      avgRecipients: "Сред. получателей / кампания",
+      emptyCampaigns: "Аналитики кампаний пока нет.",
+      campaignsShort: "кампании",
+      deliveriesShort: "доставки",
+      estimatedShort: "оценено",
+      conversionShort: "конверсия",
+      deliveryRate: "Процент доставки",
+      scheduledCampaigns: "Кампании по расписанию",
+      immediateCampaigns: "Мгновенные кампании",
+      emptyChannels: "Статистики каналов пока нет.",
+      dailyTrend: "Дневной тренд (последние 14 дней)",
+      emptyTrend: "Данных тренда пока нет.",
+    };
+  }
+  return {
+    heading: "Campaign analytics (30d)",
+    campaigns: "Campaigns",
+    deliveries: "Deliveries",
+    avgRecipients: "Avg recipients / campaign",
+    emptyCampaigns: "No campaign analytics yet.",
+    campaignsShort: "campaigns",
+    deliveriesShort: "deliveries",
+    estimatedShort: "estimated",
+    conversionShort: "conversion",
+    deliveryRate: "Delivery rate",
+    scheduledCampaigns: "Scheduled campaigns",
+    immediateCampaigns: "Immediate campaigns",
+    emptyChannels: "No channel stats yet.",
+    dailyTrend: "Daily trend (last 14 days)",
+    emptyTrend: "No trend data yet.",
+  };
+}
+
 export default async function AdminNotificationsPage({
   params,
 }: {
@@ -119,6 +177,7 @@ export default async function AdminNotificationsPage({
         topSubjects: [],
         daily: [],
       };
+  const labels = getNotificationAnalyticsLabels(locale);
   const trendRows = analytics.daily.slice(-14);
 
   return (
@@ -178,24 +237,22 @@ export default async function AdminNotificationsPage({
       </div>
       <AdminScheduledBroadcasts items={scheduled} />
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-sage-900">Campaign analytics (30d)</h2>
+        <h2 className="text-lg font-semibold text-sage-900">{labels.heading}</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-3">
           <article className="ommm-stack-card">
-            <p className="text-xs uppercase tracking-wide text-sage-500">Campaigns</p>
+            <p className="text-xs uppercase tracking-wide text-sage-500">{labels.campaigns}</p>
             <p className="mt-2 text-2xl font-semibold text-sage-900">
               {analytics.summary.campaignsTotal}
             </p>
           </article>
           <article className="ommm-stack-card">
-            <p className="text-xs uppercase tracking-wide text-sage-500">Deliveries</p>
+            <p className="text-xs uppercase tracking-wide text-sage-500">{labels.deliveries}</p>
             <p className="mt-2 text-2xl font-semibold text-sage-900">
               {analytics.summary.deliveriesTotal}
             </p>
           </article>
           <article className="ommm-stack-card">
-            <p className="text-xs uppercase tracking-wide text-sage-500">
-              Avg recipients / campaign
-            </p>
+            <p className="text-xs uppercase tracking-wide text-sage-500">{labels.avgRecipients}</p>
             <p className="mt-2 text-2xl font-semibold text-sage-900">
               {analytics.summary.averageRecipientsPerCampaign}
             </p>
@@ -203,34 +260,34 @@ export default async function AdminNotificationsPage({
         </div>
         <ul className="mt-3 space-y-2">
           {analytics.topSubjects.length === 0 ? (
-            <li className="ommm-body-muted text-sm">No campaign analytics yet.</li>
+            <li className="ommm-body-muted text-sm">{labels.emptyCampaigns}</li>
           ) : (
             analytics.topSubjects.map((subject) => (
               <li key={subject.subject} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
                 <span className="font-medium text-sage-800">{subject.subject}</span>
-                <span className="text-sage-500">campaigns: {subject.campaigns}</span>
-                <span className="text-sage-500">deliveries: {subject.deliveries}</span>
-                <span className="text-sage-500">estimated: {subject.estimatedRecipients}</span>
-                <span className="text-sage-500">conversion: {subject.conversionRatePct}%</span>
+                <span className="text-sage-500">{labels.campaignsShort}: {subject.campaigns}</span>
+                <span className="text-sage-500">{labels.deliveriesShort}: {subject.deliveries}</span>
+                <span className="text-sage-500">{labels.estimatedShort}: {subject.estimatedRecipients}</span>
+                <span className="text-sage-500">{labels.conversionShort}: {subject.conversionRatePct}%</span>
               </li>
             ))
           )}
         </ul>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <article className="ommm-stack-card">
-            <p className="text-xs uppercase tracking-wide text-sage-500">Delivery rate</p>
+            <p className="text-xs uppercase tracking-wide text-sage-500">{labels.deliveryRate}</p>
             <p className="mt-2 text-2xl font-semibold text-sage-900">
               {analytics.funnel.deliveryRatePct}%
             </p>
           </article>
           <article className="ommm-stack-card">
-            <p className="text-xs uppercase tracking-wide text-sage-500">Scheduled campaigns</p>
+            <p className="text-xs uppercase tracking-wide text-sage-500">{labels.scheduledCampaigns}</p>
             <p className="mt-2 text-2xl font-semibold text-sage-900">
               {analytics.funnel.scheduledCampaigns}
             </p>
           </article>
           <article className="ommm-stack-card">
-            <p className="text-xs uppercase tracking-wide text-sage-500">Immediate campaigns</p>
+            <p className="text-xs uppercase tracking-wide text-sage-500">{labels.immediateCampaigns}</p>
             <p className="mt-2 text-2xl font-semibold text-sage-900">
               {analytics.funnel.immediateCampaigns}
             </p>
@@ -238,26 +295,26 @@ export default async function AdminNotificationsPage({
         </div>
         <ul className="mt-3 space-y-2">
           {analytics.channelBreakdown.length === 0 ? (
-            <li className="ommm-body-muted text-sm">No channel stats yet.</li>
+            <li className="ommm-body-muted text-sm">{labels.emptyChannels}</li>
           ) : (
             analytics.channelBreakdown.map((item) => (
               <li key={item.channel} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
                 <span className="font-medium text-sage-800">{item.channel}</span>
-                <span className="text-sage-500">deliveries: {item.deliveries}</span>
+                <span className="text-sage-500">{labels.deliveriesShort}: {item.deliveries}</span>
               </li>
             ))
           )}
         </ul>
-        <h3 className="mt-4 text-sm font-semibold text-sage-900">Daily trend (last 14 days)</h3>
+        <h3 className="mt-4 text-sm font-semibold text-sage-900">{labels.dailyTrend}</h3>
         <ul className="mt-2 space-y-2">
           {trendRows.length === 0 ? (
-            <li className="ommm-body-muted text-sm">No trend data yet.</li>
+            <li className="ommm-body-muted text-sm">{labels.emptyTrend}</li>
           ) : (
             trendRows.map((day) => (
               <li key={day.date} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
                 <span className="font-medium text-sage-800">{day.date}</span>
-                <span className="text-sage-500">campaigns: {day.campaigns}</span>
-                <span className="text-sage-500">deliveries: {day.deliveries}</span>
+                <span className="text-sage-500">{labels.campaignsShort}: {day.campaigns}</span>
+                <span className="text-sage-500">{labels.deliveriesShort}: {day.deliveries}</span>
               </li>
             ))
           )}
