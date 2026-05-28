@@ -102,7 +102,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH7-006 | Add monetary proration adjustment ledger entries for plan changes | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:19 (UTC+4) | `019cb59` |
 | PH8-001 | Add notification audience segmentation and content admin filtering baseline | Web+API/Notifications+Content | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:28 (UTC+4) | `8e69bc2` |
 | PH8-002 | Add scheduled broadcast queue baseline and notification delivery stats | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:37 (UTC+4) | `3c67e76` |
-| PH8-003 | Add scheduled broadcast management lifecycle and audience analytics breakdown | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:48 (UTC+4) | TBD |
+| PH8-003 | Add scheduled broadcast management lifecycle and audience analytics breakdown | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:48 (UTC+4) | `1a6be17` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -606,9 +606,9 @@ Tests result:
 Known issues:
 - Recipient-level delivery tracing and deeper analytics drilldowns are still pending in Phase 8.
 Commit hash:
-- TBD
+- `1a6be17`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 8 continuation
 
@@ -679,7 +679,7 @@ Next phase:
 | Phase 7 (continuation) | `phase-7: add monetary proration adjustments for plan changes` | `019cb59` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification audience segmentation and content filters` | `8e69bc2` | Yes |
 | Phase 8 (continuation) | `phase-8: add scheduled notification queue and delivery stats` | `3c67e76` | Yes |
-| Phase 8 (continuation) | `phase-8: add scheduled broadcast lifecycle and analytics breakdown` | TBD | TBD |
+| Phase 8 (continuation) | `phase-8: add scheduled broadcast lifecycle and analytics breakdown` | `1a6be17` | Yes |
 
 ## 11. Final Remaining Work
 
