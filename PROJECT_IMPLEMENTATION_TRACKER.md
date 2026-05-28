@@ -112,7 +112,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH9-002 | Localize manager and content-admin hardcoded UI copy | Web/i18n | DONE | `apps/web/src/app/[locale]/(manager)/manager/home/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/clients/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`, `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:50 (UTC+4) | `1792512` |
 | PH9-003 | Localize shared admin client-component hardcoded messages | Web/i18n | DONE | `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/components/admin/admin-create-gift-card-form.tsx`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:58 (UTC+4) | `6c18a5c` |
 | PH9-004 | Localize booking and waitlist row-action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-booking-actions.tsx`, `apps/web/src/components/admin/admin-waitlist-actions.tsx`, `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:06 (UTC+4) | `6e3b5d0` |
-| PH9-005 | Localize coach and gift-card action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-coach-actions.tsx`, `apps/web/src/components/admin/admin-gift-card-actions.tsx`, `apps/web/src/components/admin/admin-coaches-directory.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:14 (UTC+4) | TBD |
+| PH9-005 | Localize coach and gift-card action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-coach-actions.tsx`, `apps/web/src/components/admin/admin-gift-card-actions.tsx`, `apps/web/src/components/admin/admin-coaches-directory.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:14 (UTC+4) | `8c75257` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -688,13 +688,13 @@ Commit hash:
 - `1792512`
 - `6c18a5c`
 - `6e3b5d0`
-- TBD (`PH9-005`)
+- `8c75257`
 Push status:
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
-- TBD (`PH9-005`)
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 10
 
@@ -806,7 +806,7 @@ Next phase:
 | Phase 9 (interim) | `phase-9: localize manager and content-admin workspace copy` | `1792512` | Yes |
 | Phase 9 (interim) | `phase-9: localize shared admin action and form copy` | `6c18a5c` | Yes |
 | Phase 9 (interim) | `phase-9: localize booking and waitlist action widgets` | `6e3b5d0` | Yes |
-| Phase 9 (interim) | `phase-9: localize coach and gift-card action widgets` | TBD | TBD |
+| Phase 9 (interim) | `phase-9: localize coach and gift-card action widgets` | `8c75257` | Yes |
 
 ## 11. Final Remaining Work
 
