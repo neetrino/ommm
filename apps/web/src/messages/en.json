@@ -1369,7 +1369,11 @@
         "scheduledCancelled": "Scheduled cancelled",
         "broadcastsToUsers": "Broadcasts to users",
         "broadcastsToStaff": "Broadcasts to staff"
-      }
+      },
+      "deliveryListHeading": "Recent deliveries",
+      "deliveryListEmpty": "No delivery logs yet.",
+      "scheduledTag": "scheduled",
+      "immediateTag": "immediate"
     },
     "content": {
       "title": "Content",

@@ -1360,7 +1360,11 @@
         "scheduledCancelled": "Отменено по расписанию",
         "broadcastsToUsers": "Рассылки пользователям",
         "broadcastsToStaff": "Рассылки персоналу"
-      }
+      },
+      "deliveryListHeading": "Последние доставки",
+      "deliveryListEmpty": "Логов доставки пока нет.",
+      "scheduledTag": "по расписанию",
+      "immediateTag": "сразу"
     },
     "content": {
       "title": "Контент",

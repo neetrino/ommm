@@ -29,6 +29,16 @@ type ScheduledBroadcast = {
   status: "PENDING" | "SENT" | "FAILED" | "CANCELLED";
 };
 
+type DeliveryRow = {
+  id: string;
+  createdAt: string;
+  recipientEmail: string;
+  channel: string;
+  audience: "users" | "coaches" | "staff" | "all";
+  subject: string;
+  scheduled: boolean;
+};
+
 export default async function AdminNotificationsPage({
   params,
 }: {
@@ -37,9 +47,10 @@ export default async function AdminNotificationsPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.notifications" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [statsRes, scheduledRes] = await Promise.all([
+  const [statsRes, scheduledRes, deliveriesRes] = await Promise.all([
     serverApiJson<NotificationStats>("/notifications/admin/stats", cookie),
     serverApiJson<ScheduledBroadcast[]>("/notifications/admin/scheduled", cookie),
+    serverApiJson<DeliveryRow[]>("/notifications/admin/deliveries", cookie),
   ]);
   const stats = statsRes.ok
     ? statsRes.data
@@ -54,6 +65,7 @@ export default async function AdminNotificationsPage({
         byAudience: { users: 0, coaches: 0, staff: 0, all: 0 },
       };
   const scheduled = scheduledRes.ok ? scheduledRes.data : [];
+  const deliveries = deliveriesRes.ok ? deliveriesRes.data : [];
 
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
@@ -111,6 +123,23 @@ export default async function AdminNotificationsPage({
         <AdminNotificationBroadcastForm />
       </div>
       <AdminScheduledBroadcasts items={scheduled} />
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-sage-900">{t("deliveryListHeading")}</h2>
+        <ul className="mt-3 space-y-2">
+          {deliveries.length === 0 ? (
+            <li className="ommm-body-muted text-sm">{t("deliveryListEmpty")}</li>
+          ) : (
+            deliveries.slice(0, 20).map((row) => (
+              <li key={row.id} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
+                <span className="font-medium text-sage-800">{row.recipientEmail}</span>
+                <span className="text-sage-500">{row.audience}</span>
+                <span className="text-sage-500">{row.scheduled ? t("scheduledTag") : t("immediateTag")}</span>
+                <span className="text-sage-500">{row.subject}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      </section>
       <p className="ommm-body-muted mt-4 text-sm">{t("deliveryNote")}</p>
     </AccountPageFrame>
   );

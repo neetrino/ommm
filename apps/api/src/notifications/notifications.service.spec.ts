@@ -66,6 +66,12 @@ describe('NotificationsService', () => {
         }),
       }),
     );
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'NOTIFICATION_DELIVERY',
+        payload: expect.objectContaining({ recipientEmail: 'u1@test.com' }),
+      }),
+    );
     expect(result.count).toBe(2);
   });
 
@@ -202,6 +208,36 @@ describe('NotificationsService', () => {
       expect.objectContaining({
         action: 'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED',
         entityId: 'schedule-1',
+      }),
+    );
+  });
+
+  it('getRecentDeliveries returns parsed recipient logs', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.findMany.mockResolvedValue([
+      {
+        id: 'd1',
+        action: 'NOTIFICATION_DELIVERY',
+        entityType: 'Notification',
+        createdAt: new Date('2026-05-28T10:00:00.000Z'),
+        payload: JSON.stringify({
+          recipientEmail: 'user@test.com',
+          channel: 'email',
+          audience: 'users',
+          scheduled: true,
+          subject: 'Hello',
+        }),
+      },
+    ]);
+
+    const rows = await service.getRecentDeliveries();
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        recipientEmail: 'user@test.com',
+        scheduled: true,
+        subject: 'Hello',
       }),
     );
   });

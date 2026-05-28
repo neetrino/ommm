@@ -39,6 +39,13 @@ export class NotificationsController {
     return this.notifications.getAdminStats();
   }
 
+  @Get('admin/deliveries')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminDeliveries() {
+    return this.notifications.getRecentDeliveries();
+  }
+
   @Get('admin/scheduled')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

@@ -1356,7 +1356,11 @@
         "scheduledCancelled": "Չեղարկված ժամանակացույցված ուղարկումներ",
         "broadcastsToUsers": "Ուղարկումներ օգտատերերին",
         "broadcastsToStaff": "Ուղարկումներ աշխատակազմին"
-      }
+      },
+      "deliveryListHeading": "Վերջին առաքումները",
+      "deliveryListEmpty": "Առաքման log-եր դեռ չկան։",
+      "scheduledTag": "ժամանակացույցված",
+      "immediateTag": "անմիջական"
     },
     "content": {
       "title": "Բովանդակություն",

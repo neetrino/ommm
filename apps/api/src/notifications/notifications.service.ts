@@ -11,6 +11,7 @@ import { randomUUID } from 'node:crypto';
 const REMINDER_HOURS_BEFORE = 2;
 const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';
 const ACTION_BROADCAST = 'NOTIFICATION_BROADCAST';
+const ACTION_NOTIFICATION_DELIVERY = 'NOTIFICATION_DELIVERY';
 const ACTION_BROADCAST_SCHEDULED = 'NOTIFICATION_BROADCAST_SCHEDULED';
 const ACTION_BROADCAST_SCHEDULED_UPDATED = 'NOTIFICATION_BROADCAST_SCHEDULED_UPDATED';
 const ACTION_BROADCAST_SCHEDULED_CANCELLED = 'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED';
@@ -134,6 +135,7 @@ export class NotificationsService {
         const sent = await this.broadcastToAll(payload.subject, payload.html, {
           audience: payload.audience,
           onlyPromotionsOptIn: payload.onlyPromotionsOptIn,
+          scheduleEntityId: item.entityId,
         });
         await this.audit.log({
           actorRole: 'ADMIN',
@@ -179,6 +181,7 @@ export class NotificationsService {
       testTo?: string;
       audience: BroadcastAudience;
       onlyPromotionsOptIn: boolean;
+      scheduleEntityId?: string;
     },
   ) {
     if (options.testTo) {
@@ -198,6 +201,19 @@ export class NotificationsService {
     });
     for (const u of users) {
       await this.mail.sendEmail({ to: u.email, subject, html });
+      await this.audit.log({
+        actorRole: 'ADMIN',
+        action: ACTION_NOTIFICATION_DELIVERY,
+        entityType: 'Notification',
+        entityId: options.scheduleEntityId ?? 'immediate',
+        payload: {
+          recipientEmail: u.email,
+          channel: 'email',
+          audience: options.audience,
+          scheduled: options.scheduleEntityId !== undefined,
+          subject,
+        },
+      });
     }
     await this.audit.log({
       actorRole: 'ADMIN',
@@ -464,6 +480,30 @@ export class NotificationsService {
     };
   }
 
+  async getRecentDeliveries(limit = 100) {
+    const safeLimit = Math.min(Math.max(limit, 1), 500);
+    const deliveries = await this.prisma.auditLog.findMany({
+      where: {
+        action: ACTION_NOTIFICATION_DELIVERY,
+        entityType: 'Notification',
+      },
+      orderBy: { createdAt: 'desc' },
+      take: safeLimit,
+    });
+    return deliveries.map((item) => {
+      const payload = this.parseDeliveryPayload(item.payload);
+      return {
+        id: item.id,
+        createdAt: item.createdAt.toISOString(),
+        recipientEmail: payload?.recipientEmail ?? '',
+        channel: payload?.channel ?? 'email',
+        audience: payload?.audience ?? 'users',
+        subject: payload?.subject ?? '',
+        scheduled: payload?.scheduled ?? false,
+      };
+    });
+  }
+
   private resolveAudienceRoles(audience: BroadcastAudience): Role[] {
     if (audience === BroadcastAudience.COACHES) {
       return [Role.COACH];
@@ -535,6 +575,44 @@ export class NotificationsService {
         return null;
       }
       return { audience: parsed.audience };
+    } catch {
+      return null;
+    }
+  }
+
+  private parseDeliveryPayload(rawPayload: string | null): {
+    recipientEmail: string;
+    channel: string;
+    audience: 'users' | 'coaches' | 'staff' | 'all';
+    scheduled: boolean;
+    subject: string;
+  } | null {
+    if (!rawPayload) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(rawPayload) as Partial<{
+        recipientEmail: string;
+        channel: string;
+        audience: 'users' | 'coaches' | 'staff' | 'all';
+        scheduled: boolean;
+        subject: string;
+      }>;
+      if (
+        !parsed.recipientEmail ||
+        !parsed.channel ||
+        !parsed.audience ||
+        !parsed.subject
+      ) {
+        return null;
+      }
+      return {
+        recipientEmail: parsed.recipientEmail,
+        channel: parsed.channel,
+        audience: parsed.audience,
+        scheduled: parsed.scheduled === true,
+        subject: parsed.subject,
+      };
     } catch {
       return null;
     }
