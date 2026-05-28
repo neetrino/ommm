@@ -1656,7 +1656,7 @@
   },
   "adminActions": {
     "studio": {
-      "title": "Studio settings",
+      "title": "Studio Settings",
       "description": "Studio-level policy and contact settings.",
       "loadFailed": "Could not load studio settings ({status}).",
       "studioName": "Studio name",
