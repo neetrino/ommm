@@ -106,7 +106,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-004 | Add recipient-level notification delivery tracing and admin delivery log view | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:56 (UTC+4) | `29e0393` |
 | PH8-005 | Add campaign analytics drilldown for notifications | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:04 (UTC+4) | `ddcd22e` |
 | PH8-006 | Add conversion funnel and channel-performance analytics slices | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:12 (UTC+4) | `59509a5` |
-| PH8-007 | Add daily trend overlays and per-campaign conversion KPI | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:20 (UTC+4) | TBD |
+| PH8-007 | Add daily trend overlays and per-campaign conversion KPI | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:20 (UTC+4) | `86163d0` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -614,9 +614,9 @@ Tests result:
 Known issues:
 - Optional BI-grade charting/export remains a follow-up enhancement.
 Commit hash:
-- TBD
+- `86163d0`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 8 continuation
 
@@ -703,7 +703,7 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add notification delivery tracing and recent delivery logs` | `29e0393` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification campaign analytics drilldown` | `ddcd22e` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification conversion funnel and channel analytics` | `59509a5` | Yes |
-| Phase 8 (continuation) | `phase-8: add notification trend overlays and conversion kpis` | TBD | TBD |
+| Phase 8 (continuation) | `phase-8: add notification trend overlays and conversion kpis` | `86163d0` | Yes |
 
 ## 11. Final Remaining Work
 
