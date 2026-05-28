@@ -69,7 +69,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | ------- | ---- | ---- | ------ | ------------- | ------------ | ------ |
 | PH0-001 | Full repository audit against CRM spec and create tracker baseline | Cross-cutting | DONE | `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:24 (UTC+4) | N/A (not committed yet) |
 | PH1-001 | Implement auth recovery and OAuth set-password flow | Auth/Account | DONE | `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/login/page.tsx`, `apps/web/src/app/[locale]/set-password/page.tsx`, `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/auth/auth.service.ts`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:58 (UTC+4) | `b6d4fa6` |
-| PH2-001 | Harden admin core navigation and route parity baseline | Web/Admin | DONE | `apps/web/src/lib/dashboard-nav.ts`, `apps/web/src/components/shell/dashboard-nav-icon.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:03 (UTC+4) | TBD |
+| PH2-001 | Harden admin core navigation and route parity baseline | Web/Admin | DONE | `apps/web/src/lib/dashboard-nav.ts`, `apps/web/src/components/shell/dashboard-nav-icon.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:03 (UTC+4) | `2c0666b` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -374,9 +374,9 @@ Tests result:
 Known issues:
 - Notification targeting/scheduling and deeper analytics exports remain for later phases.
 Commit hash:
-- TBD
+- `2c0666b`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 3 - Booking, Waitlist, Schedule Consistency
 
@@ -398,7 +398,7 @@ Next phase:
 | ----- | -------------- | ----------- | ------ |
 | Phase 0 | `phase-0: audit project and add implementation tracker` | N/A | No |
 | Phase 1 | `phase-1: complete auth recovery and password setup flow` | `b6d4fa6` | Yes |
-| Phase 2 | `phase-2: harden admin core navigation and reporting baseline` | TBD | TBD |
+| Phase 2 | `phase-2: harden admin core navigation and reporting baseline` | `2c0666b` | Yes |
 
 ## 11. Final Remaining Work
 
