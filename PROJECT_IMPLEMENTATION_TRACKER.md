@@ -110,6 +110,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH9-001 | Localize hardcoded admin notifications/content strings by locale | Web/i18n | DONE | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:43 (UTC+4) | `3e1b5b1` |
 | PH9-002 | Localize manager and content-admin hardcoded UI copy | Web/i18n | DONE | `apps/web/src/app/[locale]/(manager)/manager/home/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/clients/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`, `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:50 (UTC+4) | `1792512` |
 | PH9-003 | Localize shared admin client-component hardcoded messages | Web/i18n | DONE | `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/components/admin/admin-create-gift-card-form.tsx`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:58 (UTC+4) | `6c18a5c` |
+| PH9-004 | Localize booking and waitlist row-action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-booking-actions.tsx`, `apps/web/src/components/admin/admin-waitlist-actions.tsx`, `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:06 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -642,6 +643,7 @@ Tasks completed:
 - Localized manager workspace hardcoded copy across home/bookings/clients/coaches/waitlists/gift-cards/classes pages.
 - Localized content-admin home hardcoded workspace copy.
 - Localized shared admin client-component hardcoded messages in scheduled-broadcast actions and create-gift-card form.
+- Localized booking and waitlist row-action widgets (admin+manager pages) for all supported locales.
 - Kept existing user local edit in `apps/web/src/messages/en.json` untouched while closing UI-level multilingual gaps in updated modules.
 Files changed:
 - `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`
@@ -658,6 +660,12 @@ Files changed:
 - `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`
 - `apps/web/src/components/admin/admin-create-gift-card-form.tsx`
 - `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`
+- `apps/web/src/components/admin/admin-booking-actions.tsx`
+- `apps/web/src/components/admin/admin-waitlist-actions.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`
 - `PROJECT_IMPLEMENTATION_TRACKER.md`
 Build result:
 - `pnpm --filter api build` PASSED
@@ -670,10 +678,12 @@ Commit hash:
 - `3e1b5b1`
 - `1792512`
 - `6c18a5c`
+- TBD (`PH9-004`)
 Push status:
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
 - Pushed to `origin/work/1748df5-base`
+- TBD (`PH9-004`)
 Next phase:
 - Phase 9 continuation
 
@@ -749,6 +759,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (shared admin i18n pass) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | API unaffected by shared admin localization |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Shared admin localized action/forms compile across locales |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (booking/waitlist action widget locale pass) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | API unaffected by booking/waitlist action localization |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Booking/waitlist action widgets compile across locales |
 
 ## 10. Git History Created By This Work
 
@@ -778,6 +791,7 @@ Next phase:
 | Phase 9 (interim) | `phase-9: localize notifications and content admin ui copy` | `3e1b5b1` | Yes |
 | Phase 9 (interim) | `phase-9: localize manager and content-admin workspace copy` | `1792512` | Yes |
 | Phase 9 (interim) | `phase-9: localize shared admin action and form copy` | `6c18a5c` | Yes |
+| Phase 9 (interim) | `phase-9: localize booking and waitlist action widgets` | TBD | TBD |
 
 ## 11. Final Remaining Work
 

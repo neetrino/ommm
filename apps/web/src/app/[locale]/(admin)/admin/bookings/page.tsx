@@ -80,6 +80,7 @@ export default async function AdminBookingsPage({
                   <AdminBookingActions
                     bookingId={b.id}
                     defaultSessionId={b.session.id}
+                    locale={locale}
                   />
                 </td>
               </tr>

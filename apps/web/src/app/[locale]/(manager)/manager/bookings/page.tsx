@@ -119,6 +119,7 @@ export default async function ManagerBookingsPage({
                   <AdminBookingActions
                     bookingId={b.id}
                     defaultSessionId={b.session.id}
+                    locale={locale}
                   />
                 </td>
               </tr>

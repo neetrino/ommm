@@ -124,7 +124,7 @@ export default async function ManagerWaitlistsPage({
                     : "—"}
                 </td>
                 <td className="px-4 py-3">
-                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} />
+                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} locale={locale} />
                 </td>
               </tr>
             ))}

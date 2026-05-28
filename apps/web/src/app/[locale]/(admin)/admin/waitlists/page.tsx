@@ -79,7 +79,7 @@ export default async function AdminWaitlistsPage({
                     : "—"}
                 </td>
                 <td className={adminChrome.td}>
-                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} />
+                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} locale={locale} />
                 </td>
               </tr>
             ))}

@@ -6,12 +6,52 @@ import { ApiError, apiFetch } from "@/lib/api";
 type AdminWaitlistActionsProps = {
   entryId: string;
   sessionId: string;
+  locale?: string;
 };
+
+function getWaitlistActionLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      actionFailed: "Գործողությունը չհաջողվեց",
+      entryPromoted: "Մուտքը առաջխաղացվեց",
+      entryRemoved: "Մուտքը հեռացվեց",
+      notificationSent: "Ծանուցումը ուղարկվեց",
+      promote: "Առաջխաղացնել",
+      remove: "Հեռացնել",
+      notify: "Ծանուցել",
+      optionalMessage: "Ընտրովի ծանուցման հաղորդագրություն",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      actionFailed: "Действие не выполнено",
+      entryPromoted: "Запись повышена",
+      entryRemoved: "Запись удалена",
+      notificationSent: "Уведомление отправлено",
+      promote: "Повысить",
+      remove: "Удалить",
+      notify: "Уведомить",
+      optionalMessage: "Необязательное сообщение уведомления",
+    };
+  }
+  return {
+    actionFailed: "Action failed",
+    entryPromoted: "Entry promoted",
+    entryRemoved: "Entry removed",
+    notificationSent: "Notification sent",
+    promote: "Promote",
+    remove: "Remove",
+    notify: "Notify",
+    optionalMessage: "Optional notification message",
+  };
+}
 
 export function AdminWaitlistActions({
   entryId,
   sessionId,
+  locale = "en",
 }: AdminWaitlistActionsProps) {
+  const labels = getWaitlistActionLabels(locale);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -30,7 +70,7 @@ export function AdminWaitlistActions({
       window.location.reload();
     } catch (error) {
       setTone("err");
-      setMessage(error instanceof ApiError ? error.message : "Action failed");
+      setMessage(error instanceof ApiError ? error.message : labels.actionFailed);
     } finally {
       setBusy(false);
     }
@@ -50,11 +90,11 @@ export function AdminWaitlistActions({
                   method: "POST",
                   body: JSON.stringify({ targetSessionId: sessionId }),
                 }),
-              "Entry promoted",
+              labels.entryPromoted,
             )
           }
         >
-          Promote
+          {labels.promote}
         </button>
         <button
           type="button"
@@ -63,18 +103,18 @@ export function AdminWaitlistActions({
           onClick={() =>
             void run(
               () => apiFetch(`/waitlist/entries/${entryId}`, { method: "DELETE" }),
-              "Entry removed",
+              labels.entryRemoved,
             )
           }
         >
-          Remove
+          {labels.remove}
         </button>
       </div>
       <div className="flex items-center gap-2">
         <input
           type="text"
           className="app-input h-9 text-xs"
-          placeholder="Optional notification message"
+          placeholder={labels.optionalMessage}
           value={notifyMessage}
           onChange={(event) => setNotifyMessage(event.target.value)}
           disabled={busy}
@@ -92,11 +132,11 @@ export function AdminWaitlistActions({
                     message: notifyMessage.trim() || undefined,
                   }),
                 }),
-              "Notification sent",
+              labels.notificationSent,
             )
           }
         >
-          Notify
+          {labels.notify}
         </button>
       </div>
       {message ? (
