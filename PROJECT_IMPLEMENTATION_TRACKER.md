@@ -104,7 +104,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-002 | Add scheduled broadcast queue baseline and notification delivery stats | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:37 (UTC+4) | `3c67e76` |
 | PH8-003 | Add scheduled broadcast management lifecycle and audience analytics breakdown | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:48 (UTC+4) | `1a6be17` |
 | PH8-004 | Add recipient-level notification delivery tracing and admin delivery log view | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:56 (UTC+4) | `29e0393` |
-| PH8-005 | Add campaign analytics drilldown for notifications | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:04 (UTC+4) | TBD |
+| PH8-005 | Add campaign analytics drilldown for notifications | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:04 (UTC+4) | `ddcd22e` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -610,9 +610,9 @@ Tests result:
 Known issues:
 - Advanced conversion and channel-performance analytics are still pending in Phase 8.
 Commit hash:
-- TBD
+- `ddcd22e`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 8 continuation
 
@@ -691,7 +691,7 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add scheduled notification queue and delivery stats` | `3c67e76` | Yes |
 | Phase 8 (continuation) | `phase-8: add scheduled broadcast lifecycle and analytics breakdown` | `1a6be17` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification delivery tracing and recent delivery logs` | `29e0393` | Yes |
-| Phase 8 (continuation) | `phase-8: add notification campaign analytics drilldown` | TBD | TBD |
+| Phase 8 (continuation) | `phase-8: add notification campaign analytics drilldown` | `ddcd22e` | Yes |
 
 ## 11. Final Remaining Work
 
