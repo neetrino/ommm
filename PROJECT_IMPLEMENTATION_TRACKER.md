@@ -96,6 +96,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH6-001 | Enforce coach-scoped access on admin booking/waitlist operations | API/RBAC | DONE | `apps/api/src/bookings/bookings.controller.ts`, `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/waitlist/waitlist.controller.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:31 (UTC+4) | `3068587` |
 | PH7-001 | Integrate gift-credit spend into booking and auto-expire stale memberships | API/Finance | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/memberships/memberships.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:40 (UTC+4) | `bcc8710` |
 | PH7-002 | Add membership renew and plan-switch lifecycle endpoints with user UI controls | Web+API/Finance | DONE | `apps/api/src/memberships/dto/change-membership-plan.dto.ts`, `apps/api/src/memberships/memberships.controller.ts`, `apps/api/src/memberships/memberships.service.ts`, `apps/web/src/components/account/membership-lifecycle-buttons.tsx`, `apps/web/src/components/account/membership-plan-switch-button.tsx`, `apps/web/src/app/[locale]/(account)/user/memberships/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:49 (UTC+4) | `4e3e1ff` |
+| PH7-003 | Add gift-credit ledger metrics to finance reporting and admin finance UI | Web+API/Finance | DONE | `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:58 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -104,8 +105,8 @@ Current state is a mature monorepo with substantial implementation across web an
 | RBAC-001 | Manager permissions alignment | Manager routes and guards exist | Endpoint-level mismatches vs CRM matrix (finance/payment/report scope) | Unauthorized data access or blocked expected actions | High |
 | BOOK-001 | Booking-payment consistency | Membership booking and drop-in checkout both exist | Unified booking lifecycle and clear payment-backed booking semantics | Double-booking edge cases / operational confusion | High |
 | WAIT-001 | Waitlist production consistency | Queue, offer, manual actions implemented | Env-gated cron dependency, preference-aware notifications | Stuck waitlist offers, missed user notifications | High |
-| BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel status, Stripe checkout | Renewal, upgrade/downgrade, pause semantics, expiry automation | Revenue leakage and billing disputes | High |
-| GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions exist | Gift credits consumption path not fully integrated | Inaccurate wallet/accounting | High |
+| BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist | Proration/business policy rules for upgrades/downgrades are not encoded | Revenue leakage and billing disputes | Medium |
+| GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions, booking spend fallback, and finance ledger KPIs exist | Dedicated gift-credit transaction export endpoint and richer per-user ledger drilldown | Reconciliation effort remains partly manual | Medium |
 | ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, and broadcast template presets exist | API-level audience segmentation/scheduling + richer chart/export depth | Limited business operations visibility | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
 
@@ -117,7 +118,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
 | FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Additional proration/business-policy depth after baseline renew/switch flow | Medium | 7 |
-| FIN-002 | Implement gift credit spend accounting | API/Finance | Extend beyond booking fallback to broader ledger/reporting depth | Medium | 7 |
+| FIN-002 | Implement gift credit spend accounting | API/Finance | Add gift-credit CSV/export + per-user ledger drilldown beyond summary KPIs | Low | 7 |
 | NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Upgrade from broadcast-only model | High | 8 |
 | CNT-001 | Expand content manager scope | Web+API/Content | Support additional CRM content management areas | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
@@ -528,6 +529,8 @@ Tasks completed:
 - Added re-book handling for existing cancelled booking records to avoid unique-key rebook failures.
 - Added membership lifecycle endpoints for renew and plan switch (`PATCH /memberships/me/:id/renew`, `PATCH /memberships/me/:id/change-plan`).
 - Wired memberships UI to show Renew action for non-active memberships and Switch Plan action from plan cards.
+- Added finance-summary gift-credit ledger metrics (`issued/redeemed/spent/outstanding`) in reports API.
+- Added admin finance dashboard cards for gift-credit ledger visibility in UI.
 Files changed:
 - `apps/api/src/bookings/bookings.service.ts`
 - `apps/api/src/memberships/memberships.service.ts`
@@ -536,6 +539,9 @@ Files changed:
 - `apps/web/src/components/account/membership-lifecycle-buttons.tsx`
 - `apps/web/src/components/account/membership-plan-switch-button.tsx`
 - `apps/web/src/app/[locale]/(account)/user/memberships/page.tsx`
+- `apps/api/src/reports/reports.service.ts`
+- `apps/api/src/reports/reports.service.spec.ts`
+- `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`
 - `apps/web/src/messages/en.json`
 - `apps/web/src/messages/hy.json`
 - `apps/web/src/messages/ru.json`
@@ -545,7 +551,7 @@ Build result:
 Tests result:
 - `pnpm --filter api test` PASSED (3 suites, 7 tests)
 Known issues:
-- Full gift-credit finance ledger/reporting depth and policy-specific proration rules are still pending in Phase 7.
+- Gift-credit export/drilldown and explicit proration policy rules are still pending in Phase 7.
 Commit hash:
 - `bcc8710`
 Push status:
@@ -579,6 +585,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api build` | PASS | Membership renew/switch lifecycle endpoints compiled |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Membership renew/switch controls and i18n compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed (reports finance summary coverage retained) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Gift-credit ledger metrics in reports compiled |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Admin finance gift-credit ledger cards compiled |
 
 ## 10. Git History Created By This Work
 
@@ -593,10 +602,11 @@ Next phase:
 | Phase 6 | `phase-6: align manager and coach role boundaries` | `3068587` | Yes |
 | Phase 7 (interim) | `phase-7: integrate gift-credit booking fallback and membership expiry sync` | `bcc8710` | Yes |
 | Phase 7 (continuation) | `phase-7: add membership renew and plan-switch lifecycle` | `4e3e1ff` | Yes |
+| Phase 7 (continuation) | `phase-7: add gift-credit ledger metrics to finance reporting` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
-- Complete finance/membership/gift-credit correctness in Phase 7.
+- Complete remaining Phase 7 policy/export depth (proration rules + gift-credit export/drilldown).
 - Upgrade notification/content management depth in Phase 8.
 - Close multilingual consistency and run final validation in Phases 9-10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

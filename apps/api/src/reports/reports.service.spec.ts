@@ -47,6 +47,23 @@ describe('ReportsService', () => {
           },
         ]),
       },
+      giftCard: {
+        aggregate: jest
+          .fn()
+          .mockResolvedValueOnce({
+            _sum: { amountCents: 4_000 },
+            _count: { id: 1 },
+          })
+          .mockResolvedValueOnce({
+            _sum: { amountCents: 2_000 },
+            _count: { id: 1 },
+          }),
+      },
+      user: {
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { giftCreditsCents: 1_500 },
+        }),
+      },
     };
     const service = createServiceWithPrisma(prismaMock);
 
@@ -57,6 +74,9 @@ describe('ReportsService', () => {
     expect(result.bySource.membership.amountCents).toBe(5_000);
     expect(result.bySource.dropin.amountCents).toBe(7_000);
     expect(result.bySource.gift.amountCents).toBe(3_000);
+    expect(result.giftCredits.issuedCents).toBe(4_000);
+    expect(result.giftCredits.redeemedCents).toBe(2_000);
+    expect(result.giftCredits.outstandingCreditsCents).toBe(1_500);
   });
 
   it('coachAnalytics computes totals and trend safely', async () => {

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
+  GiftCardStatus,
   PaymentStatus,
   Prisma,
 } from '@prisma/client';
@@ -102,7 +103,8 @@ export class ReportsService {
     const where: Prisma.PaymentWhereInput = {
       ...(dateFilter ? { createdAt: dateFilter } : {}),
     };
-    const [totals, byStatusRaw, payments] = await Promise.all([
+    const [totals, byStatusRaw, payments, giftIssuedAgg, giftRedeemedAgg, giftSpentAgg, giftLiabilityAgg] =
+      await Promise.all([
       this.prisma.payment.aggregate({
         where: { ...where, status: PaymentStatus.SUCCEEDED },
         _sum: { amountCents: true },
@@ -122,6 +124,33 @@ export class ReportsService {
           description: true,
           status: true,
         },
+      }),
+      this.prisma.giftCard.aggregate({
+        where: {
+          ...(dateFilter ? { createdAt: dateFilter } : {}),
+        },
+        _sum: { amountCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.giftCard.aggregate({
+        where: {
+          status: GiftCardStatus.REDEEMED,
+          ...(dateFilter ? { updatedAt: dateFilter } : {}),
+        },
+        _sum: { amountCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: {
+          ...where,
+          status: PaymentStatus.SUCCEEDED,
+          description: { startsWith: 'Gift credit spend' },
+        },
+        _sum: { amountCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.user.aggregate({
+        _sum: { giftCreditsCents: true },
       }),
     ]);
 
@@ -167,6 +196,15 @@ export class ReportsService {
       },
       byStatus,
       bySource,
+      giftCredits: {
+        issuedCents: giftIssuedAgg._sum.amountCents ?? 0,
+        issuedCount: giftIssuedAgg._count.id ?? 0,
+        redeemedCents: giftRedeemedAgg._sum.amountCents ?? 0,
+        redeemedCount: giftRedeemedAgg._count.id ?? 0,
+        spentCents: giftSpentAgg._sum.amountCents ?? 0,
+        spendTransactionsCount: giftSpentAgg._count.id ?? 0,
+        outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
+      },
     };
   }
 

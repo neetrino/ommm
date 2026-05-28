@@ -22,6 +22,15 @@ type FinanceSummary = {
     amountCents: number;
   }>;
   bySource: Record<"membership" | "dropin" | "gift" | "other", { count: number; amountCents: number }>;
+  giftCredits: {
+    issuedCents: number;
+    issuedCount: number;
+    redeemedCents: number;
+    redeemedCount: number;
+    spentCents: number;
+    spendTransactionsCount: number;
+    outstandingCreditsCents: number;
+  };
 };
 
 type PaymentsResponse = {
@@ -205,6 +214,49 @@ export default async function AdminFinancePage({
               </p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-sage-900">{t("giftCreditsHeading")}</h2>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiGiftIssued")}</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {formatAmdFromCents(financeRes.data.giftCredits.issuedCents, locale)}
+            </p>
+            <p className="mt-1 text-xs text-sage-500">
+              {t("transactionsCount", { count: financeRes.data.giftCredits.issuedCount })}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiGiftRedeemed")}</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {formatAmdFromCents(financeRes.data.giftCredits.redeemedCents, locale)}
+            </p>
+            <p className="mt-1 text-xs text-sage-500">
+              {t("transactionsCount", { count: financeRes.data.giftCredits.redeemedCount })}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiGiftSpent")}</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {formatAmdFromCents(financeRes.data.giftCredits.spentCents, locale)}
+            </p>
+            <p className="mt-1 text-xs text-sage-500">
+              {t("transactionsCount", {
+                count: financeRes.data.giftCredits.spendTransactionsCount,
+              })}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">
+              {t("kpiGiftOutstandingCredits")}
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {formatAmdFromCents(financeRes.data.giftCredits.outstandingCreditsCents, locale)}
+            </p>
+          </article>
         </div>
       </section>
 
