@@ -68,7 +68,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | Task ID | Task | Area | Status | Files changed | Completed at | Commit |
 | ------- | ---- | ---- | ------ | ------------- | ------------ | ------ |
 | PH0-001 | Full repository audit against CRM spec and create tracker baseline | Cross-cutting | DONE | `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:24 (UTC+4) | N/A (not committed yet) |
-| PH1-001 | Implement auth recovery and OAuth set-password flow | Auth/Account | DONE | `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/login/page.tsx`, `apps/web/src/app/[locale]/set-password/page.tsx`, `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/auth/auth.service.ts`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:58 (UTC+4) | PENDING |
+| PH1-001 | Implement auth recovery and OAuth set-password flow | Auth/Account | DONE | `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/login/page.tsx`, `apps/web/src/app/[locale]/set-password/page.tsx`, `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/auth/auth.service.ts`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:58 (UTC+4) | `b6d4fa6` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -343,9 +343,9 @@ Tests result:
 Known issues:
 - Remaining high-priority items are RBAC and booking/waitlist/finance consistency (Sections 4-6).
 Commit hash:
-- PENDING
+- `b6d4fa6`
 Push status:
-- PENDING
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 2 - Admin Core Integrity
 
@@ -363,7 +363,7 @@ Next phase:
 | Phase | Commit message | Commit hash | Pushed |
 | ----- | -------------- | ----------- | ------ |
 | Phase 0 | `phase-0: audit project and add implementation tracker` | N/A | No |
-| Phase 1 | `phase-1: complete auth recovery and password setup flow` | PENDING | PENDING |
+| Phase 1 | `phase-1: complete auth recovery and password setup flow` | `b6d4fa6` | Yes |
 
 ## 11. Final Remaining Work
 
