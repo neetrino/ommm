@@ -96,7 +96,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH6-001 | Enforce coach-scoped access on admin booking/waitlist operations | API/RBAC | DONE | `apps/api/src/bookings/bookings.controller.ts`, `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/waitlist/waitlist.controller.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:31 (UTC+4) | `3068587` |
 | PH7-001 | Integrate gift-credit spend into booking and auto-expire stale memberships | API/Finance | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/memberships/memberships.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:40 (UTC+4) | `bcc8710` |
 | PH7-002 | Add membership renew and plan-switch lifecycle endpoints with user UI controls | Web+API/Finance | DONE | `apps/api/src/memberships/dto/change-membership-plan.dto.ts`, `apps/api/src/memberships/memberships.controller.ts`, `apps/api/src/memberships/memberships.service.ts`, `apps/web/src/components/account/membership-lifecycle-buttons.tsx`, `apps/web/src/components/account/membership-plan-switch-button.tsx`, `apps/web/src/app/[locale]/(account)/user/memberships/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:49 (UTC+4) | `4e3e1ff` |
-| PH7-003 | Add gift-credit ledger metrics to finance reporting and admin finance UI | Web+API/Finance | DONE | `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:58 (UTC+4) | TBD |
+| PH7-003 | Add gift-credit ledger metrics to finance reporting and admin finance UI | Web+API/Finance | DONE | `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:58 (UTC+4) | `3b54c60` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -602,7 +602,7 @@ Next phase:
 | Phase 6 | `phase-6: align manager and coach role boundaries` | `3068587` | Yes |
 | Phase 7 (interim) | `phase-7: integrate gift-credit booking fallback and membership expiry sync` | `bcc8710` | Yes |
 | Phase 7 (continuation) | `phase-7: add membership renew and plan-switch lifecycle` | `4e3e1ff` | Yes |
-| Phase 7 (continuation) | `phase-7: add gift-credit ledger metrics to finance reporting` | TBD | TBD |
+| Phase 7 (continuation) | `phase-7: add gift-credit ledger metrics to finance reporting` | `3b54c60` | Yes |
 
 ## 11. Final Remaining Work
 
