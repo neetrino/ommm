@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import type { User } from '@prisma/client';
@@ -14,6 +15,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AddClientNoteDto } from './dto/add-client-note.dto';
+import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientsService } from './clients.service';
 
@@ -24,8 +26,8 @@ export class ClientsController {
   constructor(private readonly clients: ClientsService) {}
 
   @Get()
-  list() {
-    return this.clients.list();
+  list(@Query() query: AdminListClientsQueryDto) {
+    return this.clients.list(query);
   }
 
   @Get(':id')

@@ -3,9 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { MembershipStatus, Role } from '@prisma/client';
+import { MembershipStatus, Prisma, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  AdminClientMembershipFilter,
+  AdminClientOrder,
+  type AdminListClientsQueryDto,
+} from './dto/admin-list-clients-query.dto';
 import type { UpdateClientDto } from './dto/update-client.dto';
 
 @Injectable()
@@ -15,9 +20,43 @@ export class ClientsService {
     private readonly audit: AuditService,
   ) {}
 
-  list() {
+  list(query: AdminListClientsQueryDto) {
+    const q = query.q?.trim();
+    const where: Prisma.UserWhereInput = {
+      role: Role.USER,
+      ...(q
+        ? {
+            OR: [
+              { email: { contains: q, mode: Prisma.QueryMode.insensitive } },
+              { name: { contains: q, mode: Prisma.QueryMode.insensitive } },
+              { lastName: { contains: q, mode: Prisma.QueryMode.insensitive } },
+              { phone: { contains: q, mode: Prisma.QueryMode.insensitive } },
+            ],
+          }
+        : {}),
+      ...(query.membership === AdminClientMembershipFilter.ACTIVE
+        ? {
+            memberships: {
+              some: {
+                status: MembershipStatus.ACTIVE,
+                currentPeriodEnd: { gt: new Date() },
+              },
+            },
+          }
+        : {}),
+      ...(query.membership === AdminClientMembershipFilter.INACTIVE
+        ? {
+            memberships: {
+              none: {
+                status: MembershipStatus.ACTIVE,
+                currentPeriodEnd: { gt: new Date() },
+              },
+            },
+          }
+        : {}),
+    };
     return this.prisma.user.findMany({
-      where: { role: Role.USER },
+      where,
       select: {
         id: true,
         email: true,
@@ -32,8 +71,10 @@ export class ClientsService {
           include: { plan: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
-      take: 500,
+      orderBy: {
+        createdAt: query.order === AdminClientOrder.OLDEST ? 'asc' : 'desc',
+      },
+      take: query.take ?? 500,
     });
   }
 

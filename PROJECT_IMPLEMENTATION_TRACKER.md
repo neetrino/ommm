@@ -40,8 +40,8 @@ Current state is a mature monorepo with substantial implementation across web an
 | Admin Dashboard | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/home/page.tsx` | KPI depth and CRM alert richness limited | Medium |
 | Admin Bookings | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/api/src/bookings/bookings.controller.ts` | Missing full calendar views and richer actions | High |
 | Admin Waitlists | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/api/src/waitlist/waitlist.controller.ts` | Minor UX filtering depth | Low |
-| Admin Clients | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/api/src/clients/clients.controller.ts` | Missing advanced filters/tags/segment tools | High |
-| Admin Coaches | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/api/src/coaches/coaches.controller.ts` | Advanced analytics/filtering can improve | Medium |
+| Admin Clients | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/api/src/clients/clients.controller.ts`, `apps/api/src/clients/clients.service.ts` | Baseline advanced search/filter/order now available | Medium |
+| Admin Coaches | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/api/src/coaches/coaches.controller.ts`, `apps/api/src/coaches/coaches.service.ts` | Baseline filtering complete; analytics depth can improve | Medium |
 | Admin Schedule | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/schedule/page.tsx`, `apps/api/src/classes/classes.controller.ts` | Recurrence generation incomplete | Medium |
 | Admin Packages | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/memberships/page.tsx` | Implemented as memberships, not full CRM packages model depth | Medium |
 | Admin Gift Cards | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/api/src/gift-cards/gift-cards.controller.ts` | Expiration enforcement improvement | Medium |
@@ -71,6 +71,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH1-001 | Implement auth recovery and OAuth set-password flow | Auth/Account | DONE | `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/login/page.tsx`, `apps/web/src/app/[locale]/set-password/page.tsx`, `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/auth/auth.service.ts`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:58 (UTC+4) | `b6d4fa6` |
 | PH2-001 | Harden admin core navigation and route parity baseline | Web/Admin | DONE | `apps/web/src/lib/dashboard-nav.ts`, `apps/web/src/components/shell/dashboard-nav-icon.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:03 (UTC+4) | `2c0666b` |
 | PH3-001 | Align cancellation credits, waitlist offer sequencing, and drop-in prechecks | API/Booking+Waitlist | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `apps/api/src/payments/payments.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:10 (UTC+4) | `cf893cc` |
+| PH4-001 | Add CRM baseline filtering for admin clients and coaches | Web+API/Admin | DONE | `apps/api/src/clients/dto/admin-list-clients-query.dto.ts`, `apps/api/src/clients/clients.controller.ts`, `apps/api/src/clients/clients.service.ts`, `apps/api/src/coaches/dto/admin-list-coaches-query.dto.ts`, `apps/api/src/coaches/coaches.controller.ts`, `apps/api/src/coaches/coaches.service.ts`, `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:16 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -88,8 +89,6 @@ Current state is a mature monorepo with substantial implementation across web an
 
 | Task ID | Task | Area | Description | Priority | Phase |
 | ------- | ---- | ---- | ----------- | -------- | ----- |
-| CLIENT-001 | Add advanced clients filtering and segmentation | Web/Admin | Implement CRM-required tags, behavior filters, quick filters | High | 4 |
-| COACH-001 | Expand coach directory/search and operational filters | Web/Admin | Add CRM-level filtering/sort/quick filter capabilities | Medium | 4 |
 | USER-001 | Complete user progress/achievements metrics | Web/User | Full metrics, periods, badge progression logic | Medium | 5 |
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
@@ -406,6 +405,40 @@ Push status:
 Next phase:
 - Phase 4 - Clients and Coaches Management Gaps
 
+### Phase 4 Result
+
+Status: COMPLETED
+Tasks completed:
+- Added admin clients API query filters (search, membership status, order, take) and wired admin clients UI filter form.
+- Added admin coaches API query filters (search, specialization, class type, active status, order) and wired admin coaches UI filter form.
+- Added localized copy (`en`/`hy`/`ru`) for new filter controls and client membership badge states.
+Files changed:
+- `apps/api/src/clients/dto/admin-list-clients-query.dto.ts`
+- `apps/api/src/clients/clients.controller.ts`
+- `apps/api/src/clients/clients.service.ts`
+- `apps/api/src/coaches/dto/admin-list-coaches-query.dto.ts`
+- `apps/api/src/coaches/coaches.controller.ts`
+- `apps/api/src/coaches/coaches.service.ts`
+- `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`
+- `apps/web/src/messages/en.json`
+- `apps/web/src/messages/hy.json`
+- `apps/web/src/messages/ru.json`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+- `pnpm --filter web build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (3 suites, 7 tests)
+Known issues:
+- Client/coach tagging and saved segment presets are not implemented yet.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 5 - User Account Gaps
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -419,6 +452,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 5 tests passed |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Booking/waitlist/drop-in consistency changes compiled |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Clients/coaches admin filtering query support compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Admin clients/coaches filter forms and i18n compiled |
 
 ## 10. Git History Created By This Work
 
@@ -428,9 +464,11 @@ Next phase:
 | Phase 1 | `phase-1: complete auth recovery and password setup flow` | `b6d4fa6` | Yes |
 | Phase 2 | `phase-2: harden admin core navigation and reporting baseline` | `2c0666b` | Yes |
 | Phase 3 | `phase-3: align booking and waitlist lifecycle rules` | `cf893cc` | Yes |
+| Phase 4 | `phase-4: extend client and coach management capabilities` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
+- Complete user account depth in Phase 5.
 - Align RBAC correctness in Phase 6.
 - Complete finance/membership/gift-credit correctness in Phase 7.
 - Upgrade notification/content management depth in Phase 8.

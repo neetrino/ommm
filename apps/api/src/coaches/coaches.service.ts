@@ -16,6 +16,11 @@ import { hashPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import { absolutePathForStoredUpload } from '../users/user-upload.helpers';
+import {
+  AdminCoachActiveFilter,
+  AdminCoachOrder,
+  type AdminListCoachesQueryDto,
+} from './dto/admin-list-coaches-query.dto';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import {
   COACH_AVAILABILITY_MAX_SPOTS,
@@ -507,8 +512,41 @@ export class CoachesService {
     return updated;
   }
 
-  listAdmin() {
+  listAdmin(query: AdminListCoachesQueryDto = {}) {
+    const q = query.q?.trim();
+    const specialization = query.specialization?.trim();
+    const classType = query.classType?.trim();
+    const where: Prisma.CoachProfileWhereInput = {
+      ...(q
+        ? {
+            OR: [
+              { user: { email: { contains: q, mode: Prisma.QueryMode.insensitive } } },
+              { user: { name: { contains: q, mode: Prisma.QueryMode.insensitive } } },
+              { user: { lastName: { contains: q, mode: Prisma.QueryMode.insensitive } } },
+              { user: { phone: { contains: q, mode: Prisma.QueryMode.insensitive } } },
+              { specialization: { contains: q, mode: Prisma.QueryMode.insensitive } },
+              { classType: { contains: q, mode: Prisma.QueryMode.insensitive } },
+            ],
+          }
+        : {}),
+      ...(specialization
+        ? {
+            specialization: {
+              contains: specialization,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          }
+        : {}),
+      ...(classType
+        ? { classType: { contains: classType, mode: Prisma.QueryMode.insensitive } }
+        : {}),
+      ...(query.isActive === AdminCoachActiveFilter.ACTIVE ? { isActive: true } : {}),
+      ...(query.isActive === AdminCoachActiveFilter.INACTIVE
+        ? { isActive: false }
+        : {}),
+    };
     const listAdminArgs = {
+      where,
       include: {
         user: {
           select: {
@@ -528,7 +566,9 @@ export class CoachesService {
           },
         } as Record<string, unknown>),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: {
+        createdAt: query.order === AdminCoachOrder.OLDEST ? 'asc' : 'desc',
+      },
     } as Prisma.CoachProfileFindManyArgs;
     return this.prisma.coachProfile.findMany(listAdminArgs).then((rows) =>
       (rows as unknown as CoachAdminListRow[]).map((row) => ({
