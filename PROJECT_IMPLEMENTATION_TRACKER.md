@@ -107,7 +107,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-006 | Add conversion funnel and channel-performance analytics slices | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:12 (UTC+4) | `59509a5` |
 | PH8-007 | Add daily trend overlays and per-campaign conversion KPI | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:20 (UTC+4) | `86163d0` |
 | PH8-008 | Add content approval workflow and richer editorial fields | Web+API/Content | DONE | `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260528153000_content_review_workflow_and_editorial_fields/migration.sql`, `apps/api/src/content/content.controller.ts`, `apps/api/src/content/content.service.ts`, `apps/api/src/content/dto/upsert-post.dto.ts`, `apps/api/src/content/dto/review-post.dto.ts`, `apps/api/src/content/content.service.spec.ts`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:33 (UTC+4) | `401f308` |
-| PH9-001 | Localize hardcoded admin notifications/content strings by locale | Web/i18n | DONE | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:43 (UTC+4) | TBD |
+| PH9-001 | Localize hardcoded admin notifications/content strings by locale | Web/i18n | DONE | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:43 (UTC+4) | `3e1b5b1` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -651,9 +651,9 @@ Tests result:
 Known issues:
 - Additional locale audit remains for untouched pages outside notifications/content-admin scope.
 Commit hash:
-- TBD
+- `3e1b5b1`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 9 continuation
 
@@ -749,7 +749,7 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add notification conversion funnel and channel analytics` | `59509a5` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification trend overlays and conversion kpis` | `86163d0` | Yes |
 | Phase 8 (continuation) | `phase-8: add content approval workflow and editorial metadata` | `401f308` | Yes |
-| Phase 9 (interim) | `phase-9: localize notifications and content admin ui copy` | TBD | TBD |
+| Phase 9 (interim) | `phase-9: localize notifications and content admin ui copy` | `3e1b5b1` | Yes |
 
 ## 11. Final Remaining Work
 
