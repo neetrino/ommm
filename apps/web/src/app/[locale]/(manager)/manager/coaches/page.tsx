@@ -19,7 +19,56 @@ function coachDisplayName(u: CoachAdminRow["user"]): string {
   return s.length > 0 ? s : "—";
 }
 
-export default async function ManagerCoachesPage() {
+function getManagerCoachesLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      authRequired: "Պահանջվում է մենեջերի մուտք։",
+      loadFailed: "Չհաջողվեց բեռնել մարզիչներին ({status})։",
+      title: "Մարզիչներ",
+      description:
+        "Գործառնական ցուցակ։ Մարզիչի պրոֆիլի deactivate/delete գործողությունները մնում են միայն ադմինին՝ CRM պահանջով։",
+      colName: "Անուն",
+      colEmail: "Էլ. փոստ",
+      colPhone: "Հեռախոս",
+      colSpecialization: "Մասնագիտացում",
+      colActions: "Գործողություններ",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      authRequired: "Нужен вход менеджера.",
+      loadFailed: "Не удалось загрузить тренеров ({status}).",
+      title: "Тренеры",
+      description:
+        "Операционный каталог. Деактивация/удаление профилей тренеров остаётся только у админа по CRM-матрице.",
+      colName: "Имя",
+      colEmail: "Email",
+      colPhone: "Телефон",
+      colSpecialization: "Специализация",
+      colActions: "Действия",
+    };
+  }
+  return {
+    authRequired: "Manager sign-in required.",
+    loadFailed: "Could not load coaches ({status}).",
+    title: "Coaches",
+    description:
+      "Directory view for operations. Deactivate/delete coach profiles stay admin-only per CRM.",
+    colName: "Name",
+    colEmail: "Email",
+    colPhone: "Phone",
+    colSpecialization: "Specialization",
+    colActions: "Actions",
+  };
+}
+
+export default async function ManagerCoachesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const labels = getManagerCoachesLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie);
 
@@ -27,19 +76,16 @@ export default async function ManagerCoachesPage() {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         {res.status === 401 || res.status === 403
-          ? "Manager sign-in required."
-          : `Could not load coaches (${res.status}).`}
+          ? labels.authRequired
+          : labels.loadFailed.replace("{status}", String(res.status))}
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Coaches</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Directory view for operations. Deactivate/delete coach profiles stay
-        admin-only per CRM.
-      </p>
+      <h1 className="text-2xl font-semibold text-zinc-900">{labels.title}</h1>
+      <p className="mt-2 text-sm text-zinc-600">{labels.description}</p>
       <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-[34rem] w-full table-fixed text-left text-sm">
           <colgroup>
@@ -51,11 +97,11 @@ export default async function ManagerCoachesPage() {
           </colgroup>
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3 text-center">Phone</th>
-              <th className="px-4 py-3 text-center">Specialization</th>
-              <th className="px-4 py-3 text-center">Actions</th>
+              <th className="px-4 py-3">{labels.colName}</th>
+              <th className="px-4 py-3">{labels.colEmail}</th>
+              <th className="px-4 py-3 text-center">{labels.colPhone}</th>
+              <th className="px-4 py-3 text-center">{labels.colSpecialization}</th>
+              <th className="px-4 py-3 text-center">{labels.colActions}</th>
             </tr>
           </thead>
           <tbody>

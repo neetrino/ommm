@@ -108,6 +108,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-007 | Add daily trend overlays and per-campaign conversion KPI | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:20 (UTC+4) | `86163d0` |
 | PH8-008 | Add content approval workflow and richer editorial fields | Web+API/Content | DONE | `packages/database/prisma/schema.prisma`, `packages/database/prisma/migrations/20260528153000_content_review_workflow_and_editorial_fields/migration.sql`, `apps/api/src/content/content.controller.ts`, `apps/api/src/content/content.service.ts`, `apps/api/src/content/dto/upsert-post.dto.ts`, `apps/api/src/content/dto/review-post.dto.ts`, `apps/api/src/content/content.service.spec.ts`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:33 (UTC+4) | `401f308` |
 | PH9-001 | Localize hardcoded admin notifications/content strings by locale | Web/i18n | DONE | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/content-posts-panel.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:43 (UTC+4) | `3e1b5b1` |
+| PH9-002 | Localize manager and content-admin hardcoded UI copy | Web/i18n | DONE | `apps/web/src/app/[locale]/(manager)/manager/home/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/clients/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`, `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:50 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -637,11 +638,21 @@ Status: IN PROGRESS
 Tasks completed:
 - Localized previously hardcoded admin notifications analytics labels for `en`/`hy`/`ru` via locale-aware server rendering.
 - Localized previously hardcoded content-admin/editorial workflow labels, actions, placeholders, and feedback messages.
+- Localized manager workspace hardcoded copy across home/bookings/clients/coaches/waitlists/gift-cards/classes pages.
+- Localized content-admin home hardcoded workspace copy.
 - Kept existing user local edit in `apps/web/src/messages/en.json` untouched while closing UI-level multilingual gaps in updated modules.
 Files changed:
 - `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`
 - `apps/web/src/components/admin/content-posts-panel.tsx`
 - `apps/web/src/components/admin/content-posts-panel-client.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/home/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/clients/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`
+- `apps/web/src/app/[locale]/(manager)/manager/classes/page.tsx`
+- `apps/web/src/app/[locale]/(content-admin)/content-admin/home/page.tsx`
 - `PROJECT_IMPLEMENTATION_TRACKER.md`
 Build result:
 - `pnpm --filter api build` PASSED
@@ -652,8 +663,10 @@ Known issues:
 - Additional locale audit remains for untouched pages outside notifications/content-admin scope.
 Commit hash:
 - `3e1b5b1`
+- TBD (`PH9-002`)
 Push status:
 - Pushed to `origin/work/1748df5-base`
+- TBD (`PH9-002`)
 Next phase:
 - Phase 9 continuation
 
@@ -723,6 +736,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (no API regressions from i18n-focused web updates) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | API compiles clean during phase-9 multilingual checks |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Localized notifications/content-admin UI compiles across locales |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (manager/content-admin locale pass) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | API remains stable during manager/content-admin localization |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Manager and content-admin localized UI compiles across locales |
 
 ## 10. Git History Created By This Work
 
@@ -750,6 +766,7 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add notification trend overlays and conversion kpis` | `86163d0` | Yes |
 | Phase 8 (continuation) | `phase-8: add content approval workflow and editorial metadata` | `401f308` | Yes |
 | Phase 9 (interim) | `phase-9: localize notifications and content admin ui copy` | `3e1b5b1` | Yes |
+| Phase 9 (interim) | `phase-9: localize manager and content-admin workspace copy` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
