@@ -1512,10 +1512,16 @@
     "membershipLifecycle": {
       "pause": "Pause",
       "cancelAction": "Cancel",
+      "renew": "Renew",
+      "switchPlan": "Switch to this plan",
       "pausedSuccess": "Membership paused.",
       "cancelledSuccess": "Membership cancelled.",
+      "renewedSuccess": "Membership renewed.",
+      "planChangedSuccess": "Plan updated successfully.",
       "pauseFailed": "Could not pause membership.",
-      "cancelFailed": "Could not cancel membership."
+      "cancelFailed": "Could not cancel membership.",
+      "renewFailed": "Could not renew membership.",
+      "planChangeFailed": "Could not switch membership plan."
     },
     "changePassword": {
       "setTitle": "Set password",

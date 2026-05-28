@@ -1499,10 +1499,16 @@
     "membershipLifecycle": {
       "pause": "Դադարեցնել",
       "cancelAction": "Չեղարկել",
+      "renew": "Թարմացնել",
+      "switchPlan": "Անցնել այս պլանին",
       "pausedSuccess": "Աբոնեմենտը դադարեցված է։",
       "cancelledSuccess": "Աբոնեմենտը չեղարկված է։",
+      "renewedSuccess": "Աբոնեմենտը թարմացվեց։",
+      "planChangedSuccess": "Պլանը հաջողությամբ փոխվեց։",
       "pauseFailed": "Չհաջողվեց դադարեցնել աբոնեմենտը։",
-      "cancelFailed": "Չհաջողվեց չեղարկել աբոնեմենտը։"
+      "cancelFailed": "Չհաջողվեց չեղարկել աբոնեմենտը։",
+      "renewFailed": "Չհաջողվեց թարմացնել աբոնեմենտը։",
+      "planChangeFailed": "Չհաջողվեց փոխել աբոնեմենտի պլանը։"
     },
     "changePassword": {
       "setTitle": "Սահմանել գաղտնաբառ",

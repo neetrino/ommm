@@ -244,6 +244,89 @@ export class MembershipsService {
     });
   }
 
+  async renew(userId: string, membershipId: string) {
+    await this.syncExpiredMemberships(userId);
+    const membership = await this.prisma.userMembership.findFirst({
+      where: { id: membershipId, userId },
+      include: { plan: true },
+    });
+    if (!membership) {
+      throw new NotFoundException();
+    }
+    if (membership.status === MembershipStatus.ACTIVE) {
+      throw new BadRequestException('Membership is already active');
+    }
+    const start = new Date();
+    const end = new Date(start);
+    end.setDate(end.getDate() + membership.plan.periodDays);
+    const sessionsRemaining = membership.plan.isUnlimited
+      ? null
+      : (membership.plan.sessionsPerMonth ?? 0);
+    const renewed = await this.prisma.userMembership.update({
+      where: { id: membershipId },
+      data: {
+        status: MembershipStatus.ACTIVE,
+        currentPeriodStart: start,
+        currentPeriodEnd: end,
+        sessionsRemaining,
+      },
+      include: { plan: true },
+    });
+    await this.audit.log({
+      actorId: userId,
+      actorRole: 'USER',
+      action: 'MEMBERSHIP_RENEWED',
+      entityType: 'UserMembership',
+      entityId: membershipId,
+      payload: { planId: renewed.planId },
+    });
+    return renewed;
+  }
+
+  async changePlan(userId: string, membershipId: string, nextPlanId: string) {
+    await this.syncExpiredMemberships(userId);
+    const [membership, plan] = await Promise.all([
+      this.prisma.userMembership.findFirst({
+        where: { id: membershipId, userId },
+        include: { plan: true },
+      }),
+      this.prisma.membershipPlan.findUnique({ where: { id: nextPlanId } }),
+    ]);
+    if (!membership) {
+      throw new NotFoundException();
+    }
+    if (!plan || !plan.isActive) {
+      throw new NotFoundException('Target plan not found');
+    }
+    if (membership.planId === plan.id) {
+      throw new BadRequestException('Membership already uses this plan');
+    }
+    const start = new Date();
+    const end = new Date(start);
+    end.setDate(end.getDate() + plan.periodDays);
+    const sessionsRemaining = plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0);
+    const updated = await this.prisma.userMembership.update({
+      where: { id: membershipId },
+      data: {
+        planId: plan.id,
+        status: MembershipStatus.ACTIVE,
+        currentPeriodStart: start,
+        currentPeriodEnd: end,
+        sessionsRemaining,
+      },
+      include: { plan: true },
+    });
+    await this.audit.log({
+      actorId: userId,
+      actorRole: 'USER',
+      action: 'MEMBERSHIP_PLAN_CHANGED',
+      entityType: 'UserMembership',
+      entityId: membershipId,
+      payload: { fromPlanId: membership.planId, toPlanId: plan.id },
+    });
+    return updated;
+  }
+
   listAllAdmin(options?: { take?: number; offset?: number }) {
     const take = Math.min(Math.max(options?.take ?? 500, 1), 1000);
     const skip = Math.max(options?.offset ?? 0, 0);

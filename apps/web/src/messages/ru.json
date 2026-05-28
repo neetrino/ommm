@@ -1503,10 +1503,16 @@
     "membershipLifecycle": {
       "pause": "Пауза",
       "cancelAction": "Отменить",
+      "renew": "Продлить",
+      "switchPlan": "Переключить на этот план",
       "pausedSuccess": "Абонемент приостановлен.",
       "cancelledSuccess": "Абонемент отменён.",
+      "renewedSuccess": "Абонемент продлён.",
+      "planChangedSuccess": "План успешно обновлён.",
       "pauseFailed": "Не удалось приостановить абонемент.",
-      "cancelFailed": "Не удалось отменить абонемент."
+      "cancelFailed": "Не удалось отменить абонемент.",
+      "renewFailed": "Не удалось продлить абонемент.",
+      "planChangeFailed": "Не удалось переключить план абонемента."
     },
     "changePassword": {
       "setTitle": "Установить пароль",

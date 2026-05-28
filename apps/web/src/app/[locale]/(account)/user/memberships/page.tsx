@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { MembershipCheckoutButton } from "@/components/account/membership-checkout-button";
 import { MembershipLifecycleButtons } from "@/components/account/membership-lifecycle-buttons";
+import { MembershipPlanSwitchButton } from "@/components/account/membership-plan-switch-button";
 import {
   AccountPageFrame,
   AccountSection,
@@ -29,7 +30,8 @@ type MembershipRow = {
   status: string;
   sessionsRemaining: number | null;
   currentPeriodEnd: string;
-  plan: { name: string };
+  planId: string;
+  plan: { id: string; name: string };
 };
 
 type PaymentRow = {
@@ -121,37 +123,51 @@ export default async function UserMembershipsPage({
             <p className="text-sm text-amber-900">{t("couldNotLoadPlans")}</p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
-              {plansRes.data
-                .filter((p) => p.isActive)
-                .map((plan) => (
-                  <li key={plan.id} className="ommm-stack-card">
-                    <p className="font-semibold text-sage-800">{plan.name}</p>
-                    {plan.description ? (
-                      <p className="mt-2 text-sm text-sage-500">
-                        {plan.description}
+              {(() => {
+                const activeMembership =
+                  mineRes.ok
+                    ? mineRes.data.find((membership) => membership.status === "ACTIVE") ?? null
+                    : null;
+                return plansRes.data
+                  .filter((p) => p.isActive)
+                  .map((plan) => (
+                    <li key={plan.id} className="ommm-stack-card">
+                      <p className="font-semibold text-sage-800">{plan.name}</p>
+                      {plan.description ? (
+                        <p className="mt-2 text-sm text-sage-500">
+                          {plan.description}
+                        </p>
+                      ) : null}
+                      <p className="mt-3 text-sm text-sage-700">
+                        <span className="text-black">֏</span>{" "}
+                        {formatAmdFromCents(plan.priceCents, locale).replace(/^֏\s*/, "")}{" "}
+                        · {plan.billingPeriod} ·{" "}
+                        {plan.isUnlimited
+                          ? t("unlimitedClassesShort")
+                          : t("sessionsPerPeriodShort", {
+                              count: plan.sessionsPerMonth ?? 0,
+                            })}
                       </p>
-                    ) : null}
-                    <p className="mt-3 text-sm text-sage-700">
-                      <span className="text-black">֏</span>{" "}
-                      {formatAmdFromCents(plan.priceCents, locale).replace(/^֏\s*/, "")}{" "}
-                      · {plan.billingPeriod} ·{" "}
-                      {plan.isUnlimited
-                        ? t("unlimitedClassesShort")
-                        : t("sessionsPerPeriodShort", {
-                            count: plan.sessionsPerMonth ?? 0,
-                          })}
-                    </p>
-                    {mineRes.ok ? (
-                      <div className="mt-4">
-                        <MembershipCheckoutButton planId={plan.id} />
-                      </div>
-                    ) : (
-                      <p className="ommm-body-muted mt-4 text-xs">
-                        {t("logInToSubscribe")}
-                      </p>
-                    )}
-                  </li>
-                ))}
+                      {mineRes.ok ? (
+                        <div className="mt-4">
+                          {activeMembership !== null &&
+                          activeMembership.planId !== plan.id ? (
+                            <MembershipPlanSwitchButton
+                              membershipId={activeMembership.id}
+                              planId={plan.id}
+                            />
+                          ) : (
+                            <MembershipCheckoutButton planId={plan.id} />
+                          )}
+                        </div>
+                      ) : (
+                        <p className="ommm-body-muted mt-4 text-xs">
+                          {t("logInToSubscribe")}
+                        </p>
+                      )}
+                    </li>
+                  ));
+              })()}
             </ul>
           )}
         </AccountSection>

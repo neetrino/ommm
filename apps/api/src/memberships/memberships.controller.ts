@@ -15,6 +15,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreatePlanDto } from './dto/create-plan.dto';
+import { ChangeMembershipPlanDto } from './dto/change-membership-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { MembershipsService } from './memberships.service';
 
@@ -71,6 +72,22 @@ export class MembershipsController {
   @UseGuards(JwtAuthGuard)
   cancel(@CurrentUser() user: { id: string }, @Param('id') id: string) {
     return this.memberships.cancel(user.id, id);
+  }
+
+  @Patch('me/:id/renew')
+  @UseGuards(JwtAuthGuard)
+  renew(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.memberships.renew(user.id, id);
+  }
+
+  @Patch('me/:id/change-plan')
+  @UseGuards(JwtAuthGuard)
+  changePlan(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+    @Body() dto: ChangeMembershipPlanDto,
+  ) {
+    return this.memberships.changePlan(user.id, id, dto.planId);
   }
 
   @Get('admin/all')
