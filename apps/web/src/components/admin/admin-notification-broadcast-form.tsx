@@ -20,6 +20,10 @@ type BroadcastTemplate = { subject: string; html: string };
 
 export function AdminNotificationBroadcastForm() {
   const t = useTranslations("forms.adminBroadcast");
+  const getTemplateBody = (key: string) => {
+    const value = t.raw(key);
+    return typeof value === "string" ? value : "";
+  };
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
   const [templateKey, setTemplateKey] = useState<BroadcastTemplateKey>("custom");
@@ -32,15 +36,15 @@ export function AdminNotificationBroadcastForm() {
   const templates: Record<Exclude<BroadcastTemplateKey, "custom">, BroadcastTemplate> = {
     newClass: {
       subject: t("templates.newClass.subject"),
-      html: t("templates.newClass.body"),
+      html: getTemplateBody("templates.newClass.body"),
     },
     policyReminder: {
       subject: t("templates.policyReminder.subject"),
-      html: t("templates.policyReminder.body"),
+      html: getTemplateBody("templates.policyReminder.body"),
     },
     waitlistOffer: {
       subject: t("templates.waitlistOffer.subject"),
-      html: t("templates.waitlistOffer.body"),
+      html: getTemplateBody("templates.waitlistOffer.body"),
     },
   };
 

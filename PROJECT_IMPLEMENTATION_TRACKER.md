@@ -12,12 +12,12 @@
 - [x] Phase 6 - Manager and coach role gaps
 - [x] Phase 7 - Finance, memberships, payments, gift cards
 - [x] Phase 9 - Multilingual consistency
+- [x] Phase 10 - Final validation and release readiness
 
 ### In Progress
 - [ ] None
 
 ### Remaining
-- [ ] Phase 10 - Final validation and release readiness
 - [ ] Mobile phase (only after explicit approval)
 
 ## 1. Project Audit Summary
@@ -113,6 +113,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH9-003 | Localize shared admin client-component hardcoded messages | Web/i18n | DONE | `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/components/admin/admin-create-gift-card-form.tsx`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:58 (UTC+4) | `6c18a5c` |
 | PH9-004 | Localize booking and waitlist row-action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-booking-actions.tsx`, `apps/web/src/components/admin/admin-waitlist-actions.tsx`, `apps/web/src/app/[locale]/(admin)/admin/bookings/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/bookings/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/waitlists/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/waitlists/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:06 (UTC+4) | `6e3b5d0` |
 | PH9-005 | Localize coach and gift-card action widgets for admin/manager scopes | Web/i18n | DONE | `apps/web/src/components/admin/admin-coach-actions.tsx`, `apps/web/src/components/admin/admin-gift-card-actions.tsx`, `apps/web/src/components/admin/admin-coaches-directory.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/coaches/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/web/src/app/[locale]/(manager)/manager/gift-cards/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:14 (UTC+4) | `8c75257` |
+| PH10-001 | Run final validation pass and close phase-10 tracker lifecycle | Web+API/Release | DONE | `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 16:19 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -698,6 +699,32 @@ Push status:
 Next phase:
 - Phase 10
 
+### Phase 10 Result
+
+Status: DONE
+Tasks completed:
+- Fixed admin notification broadcast template i18n runtime formatting error by switching HTML template bodies to raw translation reads.
+- Re-generated Prisma client with local query engine to recover API dev startup from accidental data-proxy-only runtime mismatch.
+- Executed final validation checks for web/api scope and confirmed clean pass.
+- Finalized implementation tracker for release-readiness state (mobile still explicitly deferred).
+Files changed:
+- `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+- `pnpm --filter web build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (6 suites, 23 tests)
+Known issues:
+- Optional Stripe settlement parity for proration adjustments (invoice/credit-note sync) remains deferred by scope.
+- Mobile implementation remains intentionally deferred until explicit approval.
+Commit hash:
+- TBD (`PH10-001`)
+Push status:
+- TBD (`PH10-001`)
+Next phase:
+- Mobile phase only if explicitly approved
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -776,6 +803,10 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (coach/gift-card action widget locale pass) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | API unaffected by coach/gift-card action localization |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Coach and gift-card action widgets compile across locales |
+| 2026-05-28 | `pnpm -w exec prisma generate --schema packages/database/prisma/schema.prisma` | PASS | Prisma client regenerated with local query engine for dev runtime recovery |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 6 suites, 23 tests passed (phase-10 final validation) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | API compile pass during final validation |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Web compile pass including admin notification template fix |
 
 ## 10. Git History Created By This Work
 
@@ -807,9 +838,9 @@ Next phase:
 | Phase 9 (interim) | `phase-9: localize shared admin action and form copy` | `6c18a5c` | Yes |
 | Phase 9 (interim) | `phase-9: localize booking and waitlist action widgets` | `6e3b5d0` | Yes |
 | Phase 9 (interim) | `phase-9: localize coach and gift-card action widgets` | `8c75257` | Yes |
+| Phase 10 | `phase-10: final validation and tracker completion` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Run final validation in Phase 10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.
