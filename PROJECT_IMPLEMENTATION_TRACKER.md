@@ -104,6 +104,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH8-002 | Add scheduled broadcast queue baseline and notification delivery stats | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:37 (UTC+4) | `3c67e76` |
 | PH8-003 | Add scheduled broadcast management lifecycle and audience analytics breakdown | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:48 (UTC+4) | `1a6be17` |
 | PH8-004 | Add recipient-level notification delivery tracing and admin delivery log view | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:56 (UTC+4) | `29e0393` |
+| PH8-005 | Add campaign analytics drilldown for notifications | Web+API/Notifications | DONE | `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 15:04 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -114,7 +115,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | WAIT-001 | Waitlist production consistency | Queue, offer, manual actions implemented | Env-gated cron dependency, preference-aware notifications | Stuck waitlist offers, missed user notifications | High |
 | BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist, plus session-proration and monetary adjustment ledger entries | External Stripe settlement automation for proration charge/credit is not yet encoded | Revenue leakage and billing disputes | Low |
 | GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions, booking spend fallback, finance ledger KPIs, and gift-credit CSV export exist | Optional deeper BI/dashboard drilldown UX beyond CSV export | Reconciliation mostly operational, not structural | Low |
-| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, broadcast templates, audience segmentation, scheduled queue, delivery summary cards, and recipient-level delivery logs exist | Deeper campaign analytics drilldowns (trend charts, conversion funnel, per-campaign KPIs) are still missing | Limited business operations visibility | Medium |
+| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, broadcast templates, audience segmentation, scheduled queue, delivery summary cards, recipient-level delivery logs, and basic campaign analytics exist | Advanced conversion funnel and delivery channel performance slices are still missing | Limited business operations visibility | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
 
 ## 5. Missing Tasks
@@ -125,7 +126,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
 | FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Optional external-gateway settlement sync for proration (Stripe invoice/credit-note parity) | Low | 7 |
-| NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Advanced campaign analytics drilldowns and per-campaign KPI aggregation | Medium | 8 |
+| NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Advanced conversion funnel analytics and channel-performance breakdown | Medium | 8 |
 | CNT-001 | Expand content manager scope | Web+API/Content | Content approval workflow and richer editorial fields beyond baseline post CRUD/filtering | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
 | MBL-002 | Fix mobile tabs IA and complete My Bookings | Mobile | Only after explicit mobile approval; fix routing and functional parity | High | Mobile-only |
@@ -586,6 +587,7 @@ Tasks completed:
 - Added scheduled broadcast lifecycle API (`list`/`update`/`cancel`) and UI controls for rescheduling/canceling pending jobs.
 - Added audience analytics breakdown counters in notification stats.
 - Added recipient-level delivery audit logs and admin-facing recent-deliveries list.
+- Added campaign analytics drilldown endpoint + UI summary (campaign count, deliveries, avg recipients, top subjects).
 Files changed:
 - `apps/api/src/notifications/dto/broadcast.dto.ts`
 - `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`
@@ -604,13 +606,13 @@ Build result:
 - `pnpm --filter api build` PASSED
 - `pnpm --filter web build` PASSED
 Tests result:
-- `pnpm --filter api test` PASSED (5 suites, 18 tests)
+- `pnpm --filter api test` PASSED (5 suites, 19 tests)
 Known issues:
-- Deeper campaign analytics drilldowns are still pending in Phase 8.
+- Advanced conversion and channel-performance analytics are still pending in Phase 8.
 Commit hash:
-- `29e0393`
+- TBD
 Push status:
-- Pushed to `origin/work/1748df5-base`
+- TBD
 Next phase:
 - Phase 8 continuation
 
@@ -664,6 +666,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 5 suites, 18 tests passed (recipient-level delivery tracing test added) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Notification delivery tracing endpoint compiled |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Admin notifications delivery log list compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 5 suites, 19 tests passed (campaign analytics test added) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Notification campaign analytics endpoint compiled |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Admin notifications campaign analytics section compiled |
 
 ## 10. Git History Created By This Work
 
@@ -686,10 +691,11 @@ Next phase:
 | Phase 8 (continuation) | `phase-8: add scheduled notification queue and delivery stats` | `3c67e76` | Yes |
 | Phase 8 (continuation) | `phase-8: add scheduled broadcast lifecycle and analytics breakdown` | `1a6be17` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification delivery tracing and recent delivery logs` | `29e0393` | Yes |
+| Phase 8 (continuation) | `phase-8: add notification campaign analytics drilldown` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Continue Phase 8 with richer campaign analytics drilldowns (trend/conversion/per-campaign KPI view).
+- Continue Phase 8 with advanced conversion-funnel and channel-performance analytics slices.
 - Close multilingual consistency and run final validation in Phases 9-10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

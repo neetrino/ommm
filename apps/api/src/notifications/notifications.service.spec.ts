@@ -241,4 +241,62 @@ describe('NotificationsService', () => {
       }),
     );
   });
+
+  it('getCampaignAnalytics returns summary and top subjects', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.findMany
+      .mockResolvedValueOnce([
+        {
+          id: 'b1',
+          action: 'NOTIFICATION_BROADCAST',
+          entityType: 'Notification',
+          createdAt: new Date('2026-05-28T09:00:00.000Z'),
+          payload: JSON.stringify({
+            subject: 'Morning flow update',
+            recipientCount: 3,
+          }),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: 'd1',
+          action: 'NOTIFICATION_DELIVERY',
+          entityType: 'Notification',
+          createdAt: new Date('2026-05-28T09:01:00.000Z'),
+          payload: JSON.stringify({
+            recipientEmail: 'u1@test.com',
+            channel: 'email',
+            audience: 'users',
+            scheduled: false,
+            subject: 'Morning flow update',
+          }),
+        },
+        {
+          id: 'd2',
+          action: 'NOTIFICATION_DELIVERY',
+          entityType: 'Notification',
+          createdAt: new Date('2026-05-28T09:02:00.000Z'),
+          payload: JSON.stringify({
+            recipientEmail: 'u2@test.com',
+            channel: 'email',
+            audience: 'users',
+            scheduled: false,
+            subject: 'Morning flow update',
+          }),
+        },
+      ]);
+
+    const analytics = await service.getCampaignAnalytics(7);
+
+    expect(analytics.summary.campaignsTotal).toBe(1);
+    expect(analytics.summary.deliveriesTotal).toBe(2);
+    expect(analytics.summary.averageRecipientsPerCampaign).toBe(3);
+    expect(analytics.topSubjects[0]).toEqual(
+      expect.objectContaining({
+        subject: 'Morning flow update',
+        campaigns: 1,
+        deliveries: 2,
+      }),
+    );
+  });
 });

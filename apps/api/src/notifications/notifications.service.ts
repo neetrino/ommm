@@ -504,6 +504,90 @@ export class NotificationsService {
     });
   }
 
+  async getCampaignAnalytics(days: number) {
+    const safeDays = Math.min(Math.max(days, 1), 90);
+    const to = new Date();
+    const from = new Date(to);
+    from.setDate(from.getDate() - safeDays + 1);
+    from.setHours(0, 0, 0, 0);
+
+    const [broadcasts, deliveries] = await Promise.all([
+      this.prisma.auditLog.findMany({
+        where: {
+          entityType: 'Notification',
+          action: { in: [ACTION_BROADCAST, ACTION_BROADCAST_SCHEDULED_SENT] },
+          createdAt: { gte: from, lte: to },
+        },
+        orderBy: { createdAt: 'asc' },
+        take: 5000,
+      }),
+      this.prisma.auditLog.findMany({
+        where: {
+          entityType: 'Notification',
+          action: ACTION_NOTIFICATION_DELIVERY,
+          createdAt: { gte: from, lte: to },
+        },
+        orderBy: { createdAt: 'asc' },
+        take: 10000,
+      }),
+    ]);
+
+    const deliveriesByDate = new Map<string, number>();
+    const deliveriesBySubject = new Map<string, number>();
+    for (const item of deliveries) {
+      const payload = this.parseDeliveryPayload(item.payload);
+      const date = item.createdAt.toISOString().slice(0, 10);
+      deliveriesByDate.set(date, (deliveriesByDate.get(date) ?? 0) + 1);
+      if (payload?.subject) {
+        deliveriesBySubject.set(
+          payload.subject,
+          (deliveriesBySubject.get(payload.subject) ?? 0) + 1,
+        );
+      }
+    }
+
+    const campaignsBySubject = new Map<string, number>();
+    const campaignsByDate = new Map<string, number>();
+    let totalEstimatedRecipients = 0;
+    for (const item of broadcasts) {
+      const date = item.createdAt.toISOString().slice(0, 10);
+      campaignsByDate.set(date, (campaignsByDate.get(date) ?? 0) + 1);
+      const payload = this.parseBroadcastCampaignPayload(item.payload);
+      const subject = payload?.subject ?? 'Scheduled campaign';
+      campaignsBySubject.set(subject, (campaignsBySubject.get(subject) ?? 0) + 1);
+      totalEstimatedRecipients += payload?.recipientCount ?? 0;
+    }
+
+    const daily = this.composeDailyRows({
+      from,
+      to,
+      campaignsByDate,
+      deliveriesByDate,
+    });
+    const topSubjects = [...campaignsBySubject.entries()]
+      .map(([subject, campaigns]) => ({
+        subject,
+        campaigns,
+        deliveries: deliveriesBySubject.get(subject) ?? 0,
+      }))
+      .sort((a, b) => b.deliveries - a.deliveries || b.campaigns - a.campaigns)
+      .slice(0, 5);
+
+    return {
+      range: { from: from.toISOString(), to: to.toISOString(), days: safeDays },
+      summary: {
+        campaignsTotal: broadcasts.length,
+        deliveriesTotal: deliveries.length,
+        averageRecipientsPerCampaign:
+          broadcasts.length > 0
+            ? Math.round(totalEstimatedRecipients / broadcasts.length)
+            : 0,
+      },
+      topSubjects,
+      daily,
+    };
+  }
+
   private resolveAudienceRoles(audience: BroadcastAudience): Role[] {
     if (audience === BroadcastAudience.COACHES) {
       return [Role.COACH];
@@ -575,6 +659,36 @@ export class NotificationsService {
         return null;
       }
       return { audience: parsed.audience };
+    } catch {
+      return null;
+    }
+  }
+
+  private parseBroadcastCampaignPayload(rawPayload: string | null): {
+    subject: string;
+    recipientCount: number;
+  } | null {
+    if (!rawPayload) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(rawPayload) as Partial<{
+        subject: string;
+        recipientCount: number;
+        sentCount: number;
+      }>;
+      if (typeof parsed.subject !== 'string') {
+        return null;
+      }
+      return {
+        subject: parsed.subject,
+        recipientCount:
+          typeof parsed.recipientCount === 'number'
+            ? parsed.recipientCount
+            : typeof parsed.sentCount === 'number'
+              ? parsed.sentCount
+              : 0,
+      };
     } catch {
       return null;
     }
@@ -681,5 +795,25 @@ export class NotificationsService {
         }
         return next;
       }, base);
+  }
+
+  private composeDailyRows(params: {
+    from: Date;
+    to: Date;
+    campaignsByDate: Map<string, number>;
+    deliveriesByDate: Map<string, number>;
+  }) {
+    const rows: Array<{ date: string; campaigns: number; deliveries: number }> = [];
+    const cursor = new Date(params.from);
+    while (cursor <= params.to) {
+      const date = cursor.toISOString().slice(0, 10);
+      rows.push({
+        date,
+        campaigns: params.campaignsByDate.get(date) ?? 0,
+        deliveries: params.deliveriesByDate.get(date) ?? 0,
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return rows;
   }
 }

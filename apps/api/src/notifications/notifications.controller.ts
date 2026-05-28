@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -44,6 +44,15 @@ export class NotificationsController {
   @Roles(Role.ADMIN)
   adminDeliveries() {
     return this.notifications.getRecentDeliveries();
+  }
+
+  @Get('admin/analytics')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminAnalytics(@Query('days') days?: string) {
+    const parsed = days ? Number.parseInt(days, 10) : 30;
+    const safeDays = Number.isFinite(parsed) ? parsed : 30;
+    return this.notifications.getCampaignAnalytics(safeDays);
   }
 
   @Get('admin/scheduled')

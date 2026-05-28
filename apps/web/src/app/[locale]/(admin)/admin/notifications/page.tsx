@@ -39,6 +39,19 @@ type DeliveryRow = {
   scheduled: boolean;
 };
 
+type NotificationAnalytics = {
+  summary: {
+    campaignsTotal: number;
+    deliveriesTotal: number;
+    averageRecipientsPerCampaign: number;
+  };
+  topSubjects: Array<{
+    subject: string;
+    campaigns: number;
+    deliveries: number;
+  }>;
+};
+
 export default async function AdminNotificationsPage({
   params,
 }: {
@@ -47,10 +60,11 @@ export default async function AdminNotificationsPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.notifications" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [statsRes, scheduledRes, deliveriesRes] = await Promise.all([
+  const [statsRes, scheduledRes, deliveriesRes, analyticsRes] = await Promise.all([
     serverApiJson<NotificationStats>("/notifications/admin/stats", cookie),
     serverApiJson<ScheduledBroadcast[]>("/notifications/admin/scheduled", cookie),
     serverApiJson<DeliveryRow[]>("/notifications/admin/deliveries", cookie),
+    serverApiJson<NotificationAnalytics>("/notifications/admin/analytics?days=30", cookie),
   ]);
   const stats = statsRes.ok
     ? statsRes.data
@@ -66,6 +80,16 @@ export default async function AdminNotificationsPage({
       };
   const scheduled = scheduledRes.ok ? scheduledRes.data : [];
   const deliveries = deliveriesRes.ok ? deliveriesRes.data : [];
+  const analytics = analyticsRes.ok
+    ? analyticsRes.data
+    : {
+        summary: {
+          campaignsTotal: 0,
+          deliveriesTotal: 0,
+          averageRecipientsPerCampaign: 0,
+        },
+        topSubjects: [],
+      };
 
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
@@ -123,6 +147,44 @@ export default async function AdminNotificationsPage({
         <AdminNotificationBroadcastForm />
       </div>
       <AdminScheduledBroadcasts items={scheduled} />
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-sage-900">Campaign analytics (30d)</h2>
+        <div className="mt-3 grid gap-4 sm:grid-cols-3">
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">Campaigns</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {analytics.summary.campaignsTotal}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">Deliveries</p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {analytics.summary.deliveriesTotal}
+            </p>
+          </article>
+          <article className="ommm-stack-card">
+            <p className="text-xs uppercase tracking-wide text-sage-500">
+              Avg recipients / campaign
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-sage-900">
+              {analytics.summary.averageRecipientsPerCampaign}
+            </p>
+          </article>
+        </div>
+        <ul className="mt-3 space-y-2">
+          {analytics.topSubjects.length === 0 ? (
+            <li className="ommm-body-muted text-sm">No campaign analytics yet.</li>
+          ) : (
+            analytics.topSubjects.map((subject) => (
+              <li key={subject.subject} className="ommm-inset-row flex flex-wrap items-center gap-3 text-xs">
+                <span className="font-medium text-sage-800">{subject.subject}</span>
+                <span className="text-sage-500">campaigns: {subject.campaigns}</span>
+                <span className="text-sage-500">deliveries: {subject.deliveries}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      </section>
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-sage-900">{t("deliveryListHeading")}</h2>
         <ul className="mt-3 space-y-2">
