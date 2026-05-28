@@ -14,6 +14,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
 
+const MIN_PRORATED_SESSIONS = 1;
+
 @Injectable()
 export class MembershipsService {
   private readonly logger = new Logger(MembershipsService.name);
@@ -301,18 +303,20 @@ export class MembershipsService {
     if (membership.planId === plan.id) {
       throw new BadRequestException('Membership already uses this plan');
     }
-    const start = new Date();
-    const end = new Date(start);
-    end.setDate(end.getDate() + plan.periodDays);
-    const sessionsRemaining = plan.isUnlimited ? null : (plan.sessionsPerMonth ?? 0);
+    const now = new Date();
+    const planChangePolicy = this.resolvePlanChangePolicy({
+      membership,
+      plan,
+      now,
+    });
     const updated = await this.prisma.userMembership.update({
       where: { id: membershipId },
       data: {
         planId: plan.id,
         status: MembershipStatus.ACTIVE,
-        currentPeriodStart: start,
-        currentPeriodEnd: end,
-        sessionsRemaining,
+        currentPeriodStart: planChangePolicy.currentPeriodStart,
+        currentPeriodEnd: planChangePolicy.currentPeriodEnd,
+        sessionsRemaining: planChangePolicy.sessionsRemaining,
       },
       include: { plan: true },
     });
@@ -322,7 +326,11 @@ export class MembershipsService {
       action: 'MEMBERSHIP_PLAN_CHANGED',
       entityType: 'UserMembership',
       entityId: membershipId,
-      payload: { fromPlanId: membership.planId, toPlanId: plan.id },
+      payload: {
+        fromPlanId: membership.planId,
+        toPlanId: plan.id,
+        prorationApplied: planChangePolicy.prorationApplied,
+      },
     });
     return updated;
   }
@@ -424,6 +432,81 @@ export class MembershipsService {
       .map((feature) => feature.trim())
       .filter((feature) => feature.length > 0)
       .slice(0, 20);
+  }
+
+  private resolvePlanChangePolicy(params: {
+    membership: {
+      status: MembershipStatus;
+      currentPeriodStart: Date;
+      currentPeriodEnd: Date;
+    };
+    plan: {
+      isUnlimited: boolean;
+      sessionsPerMonth: number | null;
+      periodDays: number;
+    };
+    now: Date;
+  }): {
+    currentPeriodStart: Date;
+    currentPeriodEnd: Date;
+    sessionsRemaining: number | null;
+    prorationApplied: boolean;
+  } {
+    const shouldProrate =
+      params.membership.status === MembershipStatus.ACTIVE &&
+      params.membership.currentPeriodEnd > params.now &&
+      params.membership.currentPeriodEnd > params.membership.currentPeriodStart;
+    if (!shouldProrate) {
+      const start = params.now;
+      const end = this.addDays(start, params.plan.periodDays);
+      return {
+        currentPeriodStart: start,
+        currentPeriodEnd: end,
+        sessionsRemaining: this.resolvePlanSessions(params.plan, 1),
+        prorationApplied: false,
+      };
+    }
+    const ratio = this.calculateRemainingRatio(
+      params.membership.currentPeriodStart,
+      params.membership.currentPeriodEnd,
+      params.now,
+    );
+    return {
+      currentPeriodStart: params.membership.currentPeriodStart,
+      currentPeriodEnd: params.membership.currentPeriodEnd,
+      sessionsRemaining: this.resolvePlanSessions(params.plan, ratio),
+      prorationApplied: true,
+    };
+  }
+
+  private resolvePlanSessions(
+    plan: { isUnlimited: boolean; sessionsPerMonth: number | null },
+    ratio: number,
+  ): number | null {
+    if (plan.isUnlimited) {
+      return null;
+    }
+    const baseSessions = plan.sessionsPerMonth ?? 0;
+    if (baseSessions === 0) {
+      return 0;
+    }
+    const prorated = Math.ceil(baseSessions * ratio);
+    return Math.max(MIN_PRORATED_SESSIONS, prorated);
+  }
+
+  private calculateRemainingRatio(start: Date, end: Date, now: Date): number {
+    const totalMs = end.getTime() - start.getTime();
+    if (totalMs <= 0) {
+      return 1;
+    }
+    const remainingMs = Math.max(0, end.getTime() - now.getTime());
+    return Math.min(1, remainingMs / totalMs);
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
   }
 
   /** Prisma: P1001 can't reach server; P1017 server closed connection (e.g. idle Neon). */

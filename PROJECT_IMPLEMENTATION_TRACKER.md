@@ -98,6 +98,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH7-002 | Add membership renew and plan-switch lifecycle endpoints with user UI controls | Web+API/Finance | DONE | `apps/api/src/memberships/dto/change-membership-plan.dto.ts`, `apps/api/src/memberships/memberships.controller.ts`, `apps/api/src/memberships/memberships.service.ts`, `apps/web/src/components/account/membership-lifecycle-buttons.tsx`, `apps/web/src/components/account/membership-plan-switch-button.tsx`, `apps/web/src/app/[locale]/(account)/user/memberships/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:49 (UTC+4) | `4e3e1ff` |
 | PH7-003 | Add gift-credit ledger metrics to finance reporting and admin finance UI | Web+API/Finance | DONE | `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:58 (UTC+4) | `3b54c60` |
 | PH7-004 | Add gift-credit ledger CSV export endpoint and finance UI export action | Web+API/Finance | DONE | `apps/api/src/reports/reports.controller.ts`, `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:04 (UTC+4) | `2867751` |
+| PH7-005 | Add membership change-plan proration policy and automated tests | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:12 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -106,7 +107,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | RBAC-001 | Manager permissions alignment | Manager routes and guards exist | Endpoint-level mismatches vs CRM matrix (finance/payment/report scope) | Unauthorized data access or blocked expected actions | High |
 | BOOK-001 | Booking-payment consistency | Membership booking and drop-in checkout both exist | Unified booking lifecycle and clear payment-backed booking semantics | Double-booking edge cases / operational confusion | High |
 | WAIT-001 | Waitlist production consistency | Queue, offer, manual actions implemented | Env-gated cron dependency, preference-aware notifications | Stuck waitlist offers, missed user notifications | High |
-| BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist | Proration/business policy rules for upgrades/downgrades are not encoded | Revenue leakage and billing disputes | Medium |
+| BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist, plus session-proration policy during active-cycle plan change | Monetary proration/refund/charge adjustments are not yet encoded in payment workflow | Revenue leakage and billing disputes | Low |
 | GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions, booking spend fallback, finance ledger KPIs, and gift-credit CSV export exist | Optional deeper BI/dashboard drilldown UX beyond CSV export | Reconciliation mostly operational, not structural | Low |
 | ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, and broadcast template presets exist | API-level audience segmentation/scheduling + richer chart/export depth | Limited business operations visibility | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
@@ -118,7 +119,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | USER-001 | Complete user progress/achievements metrics | Web/User | Full metrics, periods, badge progression logic | Medium | 5 |
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
-| FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Additional proration/business-policy depth after baseline renew/switch flow | Medium | 7 |
+| FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Monetary proration/refund/charge rules for plan change are still not implemented | Low | 7 |
 | NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Upgrade from broadcast-only model | High | 8 |
 | CNT-001 | Expand content manager scope | Web+API/Content | Support additional CRM content management areas | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
@@ -532,6 +533,8 @@ Tasks completed:
 - Added finance-summary gift-credit ledger metrics (`issued/redeemed/spent/outstanding`) in reports API.
 - Added admin finance dashboard cards for gift-credit ledger visibility in UI.
 - Added gift-credit transaction export endpoint (`GET /reports/gift-credits.csv`) and finance UI export action.
+- Added session-proration policy for active-cycle plan changes, preserving billing window and prorating `sessionsRemaining`.
+- Added dedicated service tests for prorated vs non-prorated plan-change behavior.
 Files changed:
 - `apps/api/src/bookings/bookings.service.ts`
 - `apps/api/src/memberships/memberships.service.ts`
@@ -543,6 +546,8 @@ Files changed:
 - `apps/api/src/reports/reports.service.ts`
 - `apps/api/src/reports/reports.controller.ts`
 - `apps/api/src/reports/reports.service.spec.ts`
+- `apps/api/src/memberships/memberships.service.ts`
+- `apps/api/src/memberships/memberships.service.spec.ts`
 - `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`
 - `apps/web/src/messages/en.json`
 - `apps/web/src/messages/hy.json`
@@ -551,9 +556,9 @@ Files changed:
 Build result:
 - `pnpm --filter api build` PASSED
 Tests result:
-- `pnpm --filter api test` PASSED (3 suites, 8 tests)
+- `pnpm --filter api test` PASSED (4 suites, 10 tests)
 Known issues:
-- Explicit proration policy rules for upgrade/downgrade flows are still pending in Phase 7.
+- Monetary proration/refund/charge rules for plan switches are still pending in Phase 7.
 Commit hash:
 - `bcc8710`
 Push status:
@@ -593,6 +598,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 8 tests passed (gift-credit CSV export coverage added) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Gift-credit CSV export endpoint compiled |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Finance export section includes gift-credit CSV action |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 4 suites, 10 tests passed (membership proration policy tests added) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Membership plan-change proration policy compiled |
+| 2026-05-28 | `pnpm --filter web build` | PASS | No web regressions from API-only membership proration update |
 
 ## 10. Git History Created By This Work
 
@@ -609,10 +617,11 @@ Next phase:
 | Phase 7 (continuation) | `phase-7: add membership renew and plan-switch lifecycle` | `4e3e1ff` | Yes |
 | Phase 7 (continuation) | `phase-7: add gift-credit ledger metrics to finance reporting` | `3b54c60` | Yes |
 | Phase 7 (continuation) | `phase-7: add gift-credit csv export and finance export actions` | `2867751` | Yes |
+| Phase 7 (continuation) | `phase-7: add membership proration policy for plan changes` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
-- Complete remaining Phase 7 proration/business-policy depth for upgrade/downgrade flows.
+- Complete remaining Phase 7 monetary proration/refund/charge handling for upgrade/downgrade payment flows.
 - Upgrade notification/content management depth in Phase 8.
 - Close multilingual consistency and run final validation in Phases 9-10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.
