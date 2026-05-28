@@ -42,7 +42,10 @@ export class ContentController {
   @Post('admin/posts')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
-  create(@CurrentUser() user: { id: string; role: Role }, @Body() dto: UpsertPostDto) {
+  create(
+    @CurrentUser() user: { id: string; role: Role },
+    @Body() dto: UpsertPostDto,
+  ) {
     return this.content.create(dto, user);
   }
 
@@ -60,7 +63,10 @@ export class ContentController {
   @Post('admin/posts/:id/submit-review')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
-  submitForReview(@CurrentUser() user: { id: string; role: Role }, @Param('id') id: string) {
+  submitForReview(
+    @CurrentUser() user: { id: string; role: Role },
+    @Param('id') id: string,
+  ) {
     return this.content.submitForReview(id, user);
   }
 

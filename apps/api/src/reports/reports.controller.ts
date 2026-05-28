@@ -80,7 +80,10 @@ export class ReportsController {
 
   @Get('gift-credits.csv')
   @Roles(Role.ADMIN)
-  async giftCreditsCsv(@Query() query: DateRangeQueryDto, @Res() res: Response) {
+  async giftCreditsCsv(
+    @Query() query: DateRangeQueryDto,
+    @Res() res: Response,
+  ) {
     if (query.from && Number.isNaN(new Date(query.from).getTime())) {
       throw new BadRequestException('Invalid date range');
     }

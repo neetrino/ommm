@@ -175,7 +175,9 @@ describe('ReportsService', () => {
 
     const csv = await service.giftCreditsCsv({});
 
-    expect(csv).toContain('eventType,eventAt,userId,userEmail,userName,amountCents');
+    expect(csv).toContain(
+      'eventType,eventAt,userId,userEmail,userName,amountCents',
+    );
     expect(csv).toContain('"ISSUED"');
     expect(csv).toContain('"REDEEMED"');
     expect(csv).toContain('"SPENT"');

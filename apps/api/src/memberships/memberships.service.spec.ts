@@ -63,32 +63,41 @@ describe('MembershipsService', () => {
     await service.changePlan('u1', 'm1', 'new-plan');
 
     expect(prisma.userMembership.update).toHaveBeenCalled();
-    const updateData = prisma.userMembership.update.mock.calls[0]?.[0]?.data as {
-      currentPeriodStart: Date;
-      currentPeriodEnd: Date;
-      sessionsRemaining: number | null;
-    };
+    const firstUpdateCall = prisma.userMembership.update.mock.calls[0] as [
+      {
+        data: {
+          currentPeriodStart: Date;
+          currentPeriodEnd: Date;
+          sessionsRemaining: number | null;
+        };
+      },
+    ];
+    const updateData = firstUpdateCall[0].data;
     expect(updateData.currentPeriodStart.toISOString()).toBe(
       periodStart.toISOString(),
     );
-    expect(updateData.currentPeriodEnd.toISOString()).toBe(periodEnd.toISOString());
-    expect(updateData.sessionsRemaining).toBe(8);
-    expect(prisma.payment.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        userId: 'u1',
-        amountCents: 10000,
-        status: 'SUCCEEDED',
-      }),
-    });
-    expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'MEMBERSHIP_PLAN_CHANGED',
-        payload: expect.objectContaining({
-          prorationApplied: true,
-          prorationAdjustmentCents: 10000,
-        }),
-      }),
+    expect(updateData.currentPeriodEnd.toISOString()).toBe(
+      periodEnd.toISOString(),
     );
+    expect(updateData.sessionsRemaining).toBe(8);
+    const paymentCall = prisma.payment.create.mock.calls[0] as [
+      { data: { userId: string; amountCents: number; status: string } },
+    ];
+    expect(paymentCall[0].data.userId).toBe('u1');
+    expect(paymentCall[0].data.amountCents).toBe(10000);
+    expect(paymentCall[0].data.status).toBe('SUCCEEDED');
+    const firstAuditCall = audit.log.mock.calls[0] as [
+      {
+        action: string;
+        payload: {
+          prorationApplied?: boolean;
+          prorationAdjustmentCents?: number;
+        };
+      },
+    ];
+    expect(firstAuditCall[0].action).toBe('MEMBERSHIP_PLAN_CHANGED');
+    expect(firstAuditCall[0].payload.prorationApplied).toBe(true);
+    expect(firstAuditCall[0].payload.prorationAdjustmentCents).toBe(10000);
   });
 
   it('resets cycle when changing plan outside active period', async () => {
@@ -125,26 +134,36 @@ describe('MembershipsService', () => {
 
     await service.changePlan('u1', 'm2', 'new-plan');
 
-    const updateData = prisma.userMembership.update.mock.calls[0]?.[0]?.data as {
-      currentPeriodStart: Date;
-      currentPeriodEnd: Date;
-      sessionsRemaining: number | null;
-    };
+    const secondUpdateCall = prisma.userMembership.update.mock.calls[0] as [
+      {
+        data: {
+          currentPeriodStart: Date;
+          currentPeriodEnd: Date;
+          sessionsRemaining: number | null;
+        };
+      },
+    ];
+    const updateData = secondUpdateCall[0].data;
     expect(updateData.sessionsRemaining).toBe(12);
-    expect(updateData.currentPeriodStart.getTime()).toBeGreaterThan(now - DAY_MS);
+    expect(updateData.currentPeriodStart.getTime()).toBeGreaterThan(
+      now - DAY_MS,
+    );
     expect(updateData.currentPeriodEnd.getTime()).toBeGreaterThan(
       updateData.currentPeriodStart.getTime(),
     );
     expect(prisma.payment.create).not.toHaveBeenCalled();
-    expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'MEMBERSHIP_PLAN_CHANGED',
-        payload: expect.objectContaining({
-          prorationApplied: false,
-          prorationAdjustmentCents: 0,
-        }),
-      }),
-    );
+    const pausedAuditCall = audit.log.mock.calls[0] as [
+      {
+        action: string;
+        payload: {
+          prorationApplied?: boolean;
+          prorationAdjustmentCents?: number;
+        };
+      },
+    ];
+    expect(pausedAuditCall[0].action).toBe('MEMBERSHIP_PLAN_CHANGED');
+    expect(pausedAuditCall[0].payload.prorationApplied).toBe(false);
+    expect(pausedAuditCall[0].payload.prorationAdjustmentCents).toBe(0);
   });
 
   it('creates credit adjustment when active plan change is a downgrade', async () => {
@@ -181,12 +200,17 @@ describe('MembershipsService', () => {
 
     await service.changePlan('u1', 'm3', 'new-plan');
 
-    expect(prisma.payment.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        userId: 'u1',
-        amountCents: -7500,
-        description: expect.stringContaining('proration credit'),
-      }),
-    });
+    const creditPaymentCall = prisma.payment.create.mock.calls[0] as [
+      {
+        data: {
+          userId: string;
+          amountCents: number;
+          description?: string | null;
+        };
+      },
+    ];
+    expect(creditPaymentCall[0].data.userId).toBe('u1');
+    expect(creditPaymentCall[0].data.amountCents).toBe(-7500);
+    expect(creditPaymentCall[0].data.description).toContain('proration credit');
   });
 });

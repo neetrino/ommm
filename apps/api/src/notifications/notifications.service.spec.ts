@@ -11,10 +11,12 @@ describe('NotificationsService', () => {
         create: jest.fn().mockResolvedValue({ id: 'log-1' }),
       },
       user: {
-        findMany: jest.fn().mockResolvedValue([
-          { email: 'u1@test.com' },
-          { email: 'u2@test.com' },
-        ]),
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { email: 'u1@test.com' },
+            { email: 'u2@test.com' },
+          ]),
       },
       classReminderSendLog: {
         findUnique: jest.fn(),
@@ -49,29 +51,41 @@ describe('NotificationsService', () => {
       onlyPromotionsOptIn: true,
     });
 
-    expect(prisma.user.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          role: { in: ['USER'] },
-          notificationPrefs: { is: { promotions: true } },
-        }),
-      }),
+    const audienceCall = prisma.user.findMany.mock.calls[0] as [
+      {
+        where: {
+          role: { in: string[] };
+          notificationPrefs: { is: { promotions: boolean } };
+        };
+      },
+    ];
+    expect(audienceCall[0].where.role.in).toEqual(['USER']);
+    expect(audienceCall[0].where.notificationPrefs.is.promotions).toBe(true);
+    const auditCallTuples = audit.log.mock.calls as Array<
+      [
+        {
+          action: string;
+          payload: {
+            audience?: BroadcastAudience;
+            onlyPromotionsOptIn?: boolean;
+            recipientEmail?: string;
+          };
+        },
+      ]
+    >;
+    const auditEntries = auditCallTuples.map(([entry]) => entry);
+    const broadcastAuditEntry = auditEntries.find(
+      (entry) => entry.action === 'NOTIFICATION_BROADCAST',
     );
-    expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'NOTIFICATION_BROADCAST',
-        payload: expect.objectContaining({
-          audience: BroadcastAudience.USERS,
-          onlyPromotionsOptIn: true,
-        }),
-      }),
+    expect(broadcastAuditEntry).toBeDefined();
+    expect(broadcastAuditEntry?.payload.audience).toBe(BroadcastAudience.USERS);
+    expect(broadcastAuditEntry?.payload.onlyPromotionsOptIn).toBe(true);
+    const deliveryAuditEntry = auditEntries.find(
+      (entry) =>
+        entry.action === 'NOTIFICATION_DELIVERY' &&
+        entry.payload.recipientEmail === 'u1@test.com',
     );
-    expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'NOTIFICATION_DELIVERY',
-        payload: expect.objectContaining({ recipientEmail: 'u1@test.com' }),
-      }),
-    );
+    expect(deliveryAuditEntry).toBeDefined();
     expect(result.count).toBe(2);
   });
 
@@ -105,12 +119,18 @@ describe('NotificationsService', () => {
       scheduleAt,
     });
 
-    expect(audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'NOTIFICATION_BROADCAST_SCHEDULED',
-        payload: expect.objectContaining({ scheduleAt }),
-      }),
+    const scheduleAuditCall = audit.log.mock.calls[0] as [
+      {
+        action: string;
+        payload: {
+          scheduleAt?: string;
+        };
+      },
+    ];
+    expect(scheduleAuditCall[0].action).toBe(
+      'NOTIFICATION_BROADCAST_SCHEDULED',
     );
+    expect(scheduleAuditCall[0].payload.scheduleAt).toBe(scheduleAt);
     expect(result.mode).toBe('scheduled');
   });
 
@@ -201,7 +221,10 @@ describe('NotificationsService', () => {
     });
     prisma.auditLog.findMany.mockResolvedValue([]);
 
-    const result = await service.cancelScheduledBroadcast('admin-1', 'schedule-1');
+    const result = await service.cancelScheduledBroadcast(
+      'admin-1',
+      'schedule-1',
+    );
 
     expect(result.ok).toBe(true);
     expect(audit.log).toHaveBeenCalledWith(
@@ -314,12 +337,10 @@ describe('NotificationsService', () => {
       }),
     );
     expect(analytics.daily).toHaveLength(7);
-    expect(analytics.daily[0]).toEqual(
-      expect.objectContaining({
-        date: expect.any(String),
-        campaigns: expect.any(Number),
-        deliveries: expect.any(Number),
-      }),
-    );
+    const firstDay = analytics.daily[0];
+    expect(firstDay).toBeDefined();
+    expect(typeof firstDay?.date).toBe('string');
+    expect(typeof firstDay?.campaigns).toBe('number');
+    expect(typeof firstDay?.deliveries).toBe('number');
   });
 });

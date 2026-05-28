@@ -105,8 +105,15 @@ export class ReportsService {
     const where: Prisma.PaymentWhereInput = {
       ...(dateFilter ? { createdAt: dateFilter } : {}),
     };
-    const [totals, byStatusRaw, payments, giftIssuedAgg, giftRedeemedAgg, giftSpentAgg, giftLiabilityAgg] =
-      await Promise.all([
+    const [
+      totals,
+      byStatusRaw,
+      payments,
+      giftIssuedAgg,
+      giftRedeemedAgg,
+      giftSpentAgg,
+      giftLiabilityAgg,
+    ] = await Promise.all([
       this.prisma.payment.aggregate({
         where: { ...where, status: PaymentStatus.SUCCEEDED },
         _sum: { amountCents: true },
@@ -254,8 +261,12 @@ export class ReportsService {
           ...(dateFilter ? { createdAt: dateFilter } : {}),
         },
         include: {
-          purchaser: { select: { id: true, email: true, name: true, lastName: true } },
-          recipient: { select: { id: true, email: true, name: true, lastName: true } },
+          purchaser: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
+          recipient: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
         },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: 10_000,
@@ -266,7 +277,9 @@ export class ReportsService {
           ...(dateFilter ? { updatedAt: dateFilter } : {}),
         },
         include: {
-          recipient: { select: { id: true, email: true, name: true, lastName: true } },
+          recipient: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
         },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: 10_000,
@@ -278,7 +291,9 @@ export class ReportsService {
           description: { startsWith: 'Gift credit spend' },
         },
         include: {
-          user: { select: { id: true, email: true, name: true, lastName: true } },
+          user: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
         },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: 10_000,
@@ -297,7 +312,10 @@ export class ReportsService {
           card.amountCents,
           GIFT_CREDIT_CURRENCY,
           card.code,
-          card.recipientEmail ?? card.recipient?.email ?? card.recipientName ?? '',
+          card.recipientEmail ??
+            card.recipient?.email ??
+            card.recipientName ??
+            '',
         ]),
       );
     }
@@ -609,6 +627,8 @@ export class ReportsService {
   }
 
   private toCsvRow(cells: ReadonlyArray<string | number>): string {
-    return cells.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',');
+    return cells
+      .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+      .join(',');
   }
 }

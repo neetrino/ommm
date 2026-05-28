@@ -82,9 +82,9 @@ describe('PaymentsService', () => {
       status: 'BOOKED',
     });
 
-    await expect(service.createDropInCheckout('u1', 's1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.createDropInCheckout('u1', 's1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('createDropInCheckout rejects when session is full', async () => {
@@ -98,8 +98,8 @@ describe('PaymentsService', () => {
     prisma.booking.findUnique.mockResolvedValue(null);
     prisma.booking.count.mockResolvedValue(1);
 
-    await expect(service.createDropInCheckout('u1', 's1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.createDropInCheckout('u1', 's1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

@@ -139,7 +139,9 @@ export class GoogleOAuthService {
     return code;
   }
 
-  private async fetchVerifiedGoogleProfile(code: string): Promise<GoogleProfile> {
+  private async fetchVerifiedGoogleProfile(
+    code: string,
+  ): Promise<GoogleProfile> {
     const { clientId, clientSecret, callbackUrl } = this.getGoogleConfig();
     const client = new OAuth2Client({
       clientId,
@@ -172,7 +174,11 @@ export class GoogleOAuthService {
     }
     const providerAccountId = payload.sub?.trim();
     const providerEmail = payload.email?.trim();
-    if (!providerAccountId || !providerEmail || payload.email_verified !== true) {
+    if (
+      !providerAccountId ||
+      !providerEmail ||
+      payload.email_verified !== true
+    ) {
       throw new UnauthorizedException('Google email is missing or unverified');
     }
     const parsedName = parseGoogleName({
@@ -190,7 +196,9 @@ export class GoogleOAuthService {
     };
   }
 
-  private async resolveUserForGoogleProfile(profile: GoogleProfile): Promise<User> {
+  private async resolveUserForGoogleProfile(
+    profile: GoogleProfile,
+  ): Promise<User> {
     const linked = await this.prisma.oAuthAccount.findUnique({
       where: {
         provider_providerAccountId: {
@@ -282,8 +290,11 @@ export class GoogleOAuthService {
 
   private resolveWebEntryUrl(user: Pick<User, 'passwordHash'>): string {
     const configured = this.config.get<string>('WEB_APP_URL')?.trim();
-    const baseUrl = configured && configured.length > 0 ? configured : WEB_DEFAULT_URL;
-    const path = user.passwordHash ? WEB_AUTH_ENTRY_PATH : WEB_SET_PASSWORD_PATH;
+    const baseUrl =
+      configured && configured.length > 0 ? configured : WEB_DEFAULT_URL;
+    const path = user.passwordHash
+      ? WEB_AUTH_ENTRY_PATH
+      : WEB_SET_PASSWORD_PATH;
     return `${baseUrl.replace(/\/$/, '')}${path}`;
   }
 }

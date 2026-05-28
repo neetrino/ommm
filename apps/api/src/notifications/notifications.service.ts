@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BookingStatus, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
@@ -13,10 +18,13 @@ const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';
 const ACTION_BROADCAST = 'NOTIFICATION_BROADCAST';
 const ACTION_NOTIFICATION_DELIVERY = 'NOTIFICATION_DELIVERY';
 const ACTION_BROADCAST_SCHEDULED = 'NOTIFICATION_BROADCAST_SCHEDULED';
-const ACTION_BROADCAST_SCHEDULED_UPDATED = 'NOTIFICATION_BROADCAST_SCHEDULED_UPDATED';
-const ACTION_BROADCAST_SCHEDULED_CANCELLED = 'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED';
+const ACTION_BROADCAST_SCHEDULED_UPDATED =
+  'NOTIFICATION_BROADCAST_SCHEDULED_UPDATED';
+const ACTION_BROADCAST_SCHEDULED_CANCELLED =
+  'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED';
 const ACTION_BROADCAST_SCHEDULED_SENT = 'NOTIFICATION_BROADCAST_SCHEDULED_SENT';
-const ACTION_BROADCAST_SCHEDULED_FAILED = 'NOTIFICATION_BROADCAST_SCHEDULED_FAILED';
+const ACTION_BROADCAST_SCHEDULED_FAILED =
+  'NOTIFICATION_BROADCAST_SCHEDULED_FAILED';
 
 @Injectable()
 export class NotificationsService {
@@ -305,8 +313,9 @@ export class NotificationsService {
         status,
         createdAt: item.createdAt.toISOString(),
         updatedAt:
-          timelineForItem[timelineForItem.length - 1]?.createdAt.toISOString() ??
-          item.createdAt.toISOString(),
+          timelineForItem[
+            timelineForItem.length - 1
+          ]?.createdAt.toISOString() ?? item.createdAt.toISOString(),
         ...(effective ?? {
           subject: '',
           html: '',
@@ -356,9 +365,14 @@ export class NotificationsService {
       take: 200,
     });
     if (this.hasScheduledTerminalStatus(timeline)) {
-      throw new BadRequestException('Cannot update non-pending scheduled broadcast');
+      throw new BadRequestException(
+        'Cannot update non-pending scheduled broadcast',
+      );
     }
-    const effective = this.resolveEffectiveScheduledPayload(base.payload, timeline);
+    const effective = this.resolveEffectiveScheduledPayload(
+      base.payload,
+      timeline,
+    );
     if (!effective) {
       throw new BadRequestException('Invalid scheduled broadcast payload');
     }
@@ -430,33 +444,41 @@ export class NotificationsService {
       remindersSent,
       scheduledCancelled,
       recentBroadcasts,
-    ] =
-      await Promise.all([
-        this.prisma.auditLog.count({
-          where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
-        }),
-        this.prisma.auditLog.count({
-          where: { action: ACTION_BROADCAST_SCHEDULED_SENT, entityType: 'Notification' },
-        }),
-        this.prisma.auditLog.count({
-          where: { action: ACTION_BROADCAST_SCHEDULED_FAILED, entityType: 'Notification' },
-        }),
-        this.prisma.auditLog.count({
-          where: { action: ACTION_BROADCAST, entityType: 'Notification' },
-        }),
-        this.prisma.classReminderSendLog.count(),
-        this.prisma.auditLog.count({
-          where: {
-            action: ACTION_BROADCAST_SCHEDULED_CANCELLED,
-            entityType: 'Notification',
-          },
-        }),
-        this.prisma.auditLog.findMany({
-          where: { action: ACTION_BROADCAST, entityType: 'Notification' },
-          orderBy: { createdAt: 'desc' },
-          take: 200,
-        }),
-      ]);
+    ] = await Promise.all([
+      this.prisma.auditLog.count({
+        where: {
+          action: ACTION_BROADCAST_SCHEDULED,
+          entityType: 'Notification',
+        },
+      }),
+      this.prisma.auditLog.count({
+        where: {
+          action: ACTION_BROADCAST_SCHEDULED_SENT,
+          entityType: 'Notification',
+        },
+      }),
+      this.prisma.auditLog.count({
+        where: {
+          action: ACTION_BROADCAST_SCHEDULED_FAILED,
+          entityType: 'Notification',
+        },
+      }),
+      this.prisma.auditLog.count({
+        where: { action: ACTION_BROADCAST, entityType: 'Notification' },
+      }),
+      this.prisma.classReminderSendLog.count(),
+      this.prisma.auditLog.count({
+        where: {
+          action: ACTION_BROADCAST_SCHEDULED_CANCELLED,
+          entityType: 'Notification',
+        },
+      }),
+      this.prisma.auditLog.findMany({
+        where: { action: ACTION_BROADCAST, entityType: 'Notification' },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+      }),
+    ]);
     const byAudience = { users: 0, coaches: 0, staff: 0, all: 0 };
     for (const item of recentBroadcasts) {
       const payload = this.parseBroadcastPayload(item.payload);
@@ -563,9 +585,15 @@ export class NotificationsService {
       campaignsByDate.set(date, (campaignsByDate.get(date) ?? 0) + 1);
       const payload = this.parseBroadcastCampaignPayload(item.payload);
       const subject = payload?.subject ?? 'Scheduled campaign';
-      campaignsBySubject.set(subject, (campaignsBySubject.get(subject) ?? 0) + 1);
+      campaignsBySubject.set(
+        subject,
+        (campaignsBySubject.get(subject) ?? 0) + 1,
+      );
       const recipients = payload?.recipientCount ?? 0;
-      recipientsBySubject.set(subject, (recipientsBySubject.get(subject) ?? 0) + recipients);
+      recipientsBySubject.set(
+        subject,
+        (recipientsBySubject.get(subject) ?? 0) + recipients,
+      );
       totalEstimatedRecipients += recipients;
       if (item.action === ACTION_BROADCAST_SCHEDULED_SENT) {
         scheduledCampaigns += 1;
@@ -596,9 +624,15 @@ export class NotificationsService {
       .sort((a, b) => b.deliveries - a.deliveries || b.campaigns - a.campaigns)
       .slice(0, 5);
     const channelRows = [...channelBreakdown.entries()]
-      .map(([channel, deliveriesCount]) => ({ channel, deliveries: deliveriesCount }))
+      .map(([channel, deliveriesCount]) => ({
+        channel,
+        deliveries: deliveriesCount,
+      }))
       .sort((a, b) => b.deliveries - a.deliveries);
-    const immediateCampaigns = Math.max(0, broadcasts.length - scheduledCampaigns);
+    const immediateCampaigns = Math.max(
+      0,
+      broadcasts.length - scheduledCampaigns,
+    );
     const deliveryRatePct =
       totalEstimatedRecipients > 0
         ? Math.round((deliveries.length / totalEstimatedRecipients) * 100)
@@ -775,19 +809,29 @@ export class NotificationsService {
   private resolveScheduledStatus(
     timeline: Array<{ action: string }>,
   ): 'PENDING' | 'SENT' | 'FAILED' | 'CANCELLED' {
-    if (timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_CANCELLED)) {
+    if (
+      timeline.some(
+        (item) => item.action === ACTION_BROADCAST_SCHEDULED_CANCELLED,
+      )
+    ) {
       return 'CANCELLED';
     }
-    if (timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_SENT)) {
+    if (
+      timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_SENT)
+    ) {
       return 'SENT';
     }
-    if (timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_FAILED)) {
+    if (
+      timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_FAILED)
+    ) {
       return 'FAILED';
     }
     return 'PENDING';
   }
 
-  private hasScheduledTerminalStatus(timeline: Array<{ action: string }>): boolean {
+  private hasScheduledTerminalStatus(
+    timeline: Array<{ action: string }>,
+  ): boolean {
     return this.resolveScheduledStatus(timeline) !== 'PENDING';
   }
 
@@ -843,7 +887,8 @@ export class NotificationsService {
     campaignsByDate: Map<string, number>;
     deliveriesByDate: Map<string, number>;
   }) {
-    const rows: Array<{ date: string; campaigns: number; deliveries: number }> = [];
+    const rows: Array<{ date: string; campaigns: number; deliveries: number }> =
+      [];
     const cursor = new Date(params.from);
     while (cursor <= params.to) {
       const date = cursor.toISOString().slice(0, 10);

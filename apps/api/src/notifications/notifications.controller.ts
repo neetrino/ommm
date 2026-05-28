@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -76,7 +86,10 @@ export class NotificationsController {
   @Delete('admin/scheduled/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  cancelScheduled(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+  cancelScheduled(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ) {
     return this.notifications.cancelScheduledBroadcast(user.id, id);
   }
 }

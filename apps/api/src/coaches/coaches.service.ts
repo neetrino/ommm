@@ -520,12 +520,35 @@ export class CoachesService {
       ...(q
         ? {
             OR: [
-              { user: { email: { contains: q, mode: Prisma.QueryMode.insensitive } } },
-              { user: { name: { contains: q, mode: Prisma.QueryMode.insensitive } } },
-              { user: { lastName: { contains: q, mode: Prisma.QueryMode.insensitive } } },
-              { user: { phone: { contains: q, mode: Prisma.QueryMode.insensitive } } },
-              { specialization: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { classType: { contains: q, mode: Prisma.QueryMode.insensitive } },
+              {
+                user: {
+                  email: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                user: {
+                  name: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                user: {
+                  lastName: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                user: {
+                  phone: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                specialization: {
+                  contains: q,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+              {
+                classType: { contains: q, mode: Prisma.QueryMode.insensitive },
+              },
             ],
           }
         : {}),
@@ -538,9 +561,16 @@ export class CoachesService {
           }
         : {}),
       ...(classType
-        ? { classType: { contains: classType, mode: Prisma.QueryMode.insensitive } }
+        ? {
+            classType: {
+              contains: classType,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          }
         : {}),
-      ...(query.isActive === AdminCoachActiveFilter.ACTIVE ? { isActive: true } : {}),
+      ...(query.isActive === AdminCoachActiveFilter.ACTIVE
+        ? { isActive: true }
+        : {}),
       ...(query.isActive === AdminCoachActiveFilter.INACTIVE
         ? { isActive: false }
         : {}),

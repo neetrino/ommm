@@ -1,4 +1,12 @@
-import { IsBoolean, IsEnum, IsISO8601, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsISO8601,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { BroadcastAudience } from './broadcast.dto';
 
 export class UpdateScheduledBroadcastDto {

@@ -193,7 +193,10 @@ export class UsersService {
       if (!currentPassword) {
         throw new BadRequestException('Current password is required');
       }
-      const currentOk = await verifyPassword(existingPasswordHash, currentPassword);
+      const currentOk = await verifyPassword(
+        existingPasswordHash,
+        currentPassword,
+      );
       if (!currentOk) {
         throw new UnauthorizedException('Current password is incorrect');
       }
@@ -382,7 +385,13 @@ export class UsersService {
   async requestAccountDeletion(userId: string, dto: RequestAccountDeletionDto) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, name: true, lastName: true, phone: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastName: true,
+        phone: true,
+      },
     });
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentDuplicate = await this.prisma.contactMessage.findFirst({
@@ -394,7 +403,9 @@ export class UsersService {
       select: { id: true },
     });
     if (recentDuplicate) {
-      throw new BadRequestException('Deletion request already submitted recently');
+      throw new BadRequestException(
+        'Deletion request already submitted recently',
+      );
     }
     const displayName =
       `${user.name ?? ''} ${user.lastName ?? ''}`.trim() || 'Account holder';

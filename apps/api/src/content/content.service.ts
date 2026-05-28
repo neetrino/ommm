@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ContentStatus, ContentType, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -70,7 +74,11 @@ export class ContentService {
     return created;
   }
 
-  async update(id: string, dto: UpsertPostDto, actor: { id: string; role: Role }) {
+  async update(
+    id: string,
+    dto: UpsertPostDto,
+    actor: { id: string; role: Role },
+  ) {
     const existing = await this.prisma.contentPost.findUnique({
       where: { id },
     });
@@ -113,12 +121,16 @@ export class ContentService {
   }
 
   async submitForReview(id: string, actor: { id: string; role: Role }) {
-    const existing = await this.prisma.contentPost.findUnique({ where: { id } });
+    const existing = await this.prisma.contentPost.findUnique({
+      where: { id },
+    });
     if (!existing) {
       throw new NotFoundException();
     }
     if (existing.status === ContentStatus.PUBLISHED) {
-      throw new BadRequestException('Published post cannot be submitted for review');
+      throw new BadRequestException(
+        'Published post cannot be submitted for review',
+      );
     }
     const now = new Date();
     const updated = await this.prisma.contentPost.update({
@@ -147,7 +159,9 @@ export class ContentService {
     dto: ReviewPostDto,
     actor: { id: string; role: Role },
   ) {
-    const existing = await this.prisma.contentPost.findUnique({ where: { id } });
+    const existing = await this.prisma.contentPost.findUnique({
+      where: { id },
+    });
     if (!existing) {
       throw new NotFoundException();
     }
@@ -171,7 +185,7 @@ export class ContentService {
         reviewNotes: dto.note?.trim() || null,
         publishedAt:
           dto.decision === ReviewDecision.APPROVE
-            ? existing.publishedAt ?? now
+            ? (existing.publishedAt ?? now)
             : existing.publishedAt,
       },
     });
@@ -194,7 +208,10 @@ export class ContentService {
     return { ok: true };
   }
 
-  private resolvePublishedAt(dto: UpsertPostDto, existingPublishedAt?: Date | null): Date | null {
+  private resolvePublishedAt(
+    dto: UpsertPostDto,
+    existingPublishedAt?: Date | null,
+  ): Date | null {
     if (dto.publishedAt) {
       return new Date(dto.publishedAt);
     }

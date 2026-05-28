@@ -91,10 +91,7 @@ export class WaitlistService {
     });
   }
 
-  async listForSession(
-    sessionId: string,
-    actor?: { id: string; role: Role },
-  ) {
+  async listForSession(sessionId: string, actor?: { id: string; role: Role }) {
     if (actor?.role === Role.COACH) {
       const [profile, session] = await Promise.all([
         this.prisma.coachProfile.findUnique({

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ACCESS_TOKEN_COOKIE, OAUTH_STATE_COOKIE } from '../common/constants';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -98,11 +107,12 @@ export class AuthController {
   ) {
     const storedState = readCookie(req, OAUTH_STATE_COOKIE);
     try {
-      const { accessToken, redirectUrl } = await this.googleOAuth.completeGoogleAuth({
-        code,
-        state,
-        storedState,
-      });
+      const { accessToken, redirectUrl } =
+        await this.googleOAuth.completeGoogleAuth({
+          code,
+          state,
+          storedState,
+        });
       res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
         ...accessTokenCookieBaseOptions(),
         maxAge: COOKIE_MAX_AGE_MS,

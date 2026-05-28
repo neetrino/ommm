@@ -41,12 +41,17 @@ describe('ContentService', () => {
       role: Role.CONTENT_ADMIN,
     });
 
-    expect(prisma.contentPost.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: 'post-1' },
-        data: expect.objectContaining({ status: ContentStatus.IN_REVIEW }),
-      }),
-    );
+    const submitCalls = prisma.contentPost.update.mock.calls as Array<
+      [
+        {
+          where: { id: string };
+          data: { status: ContentStatus };
+        },
+      ]
+    >;
+    const submitArgs = submitCalls[0][0];
+    expect(submitArgs.where.id).toBe('post-1');
+    expect(submitArgs.data.status).toBe(ContentStatus.IN_REVIEW);
     expect(updated.status).toBe(ContentStatus.IN_REVIEW);
   });
 
@@ -91,14 +96,16 @@ describe('ContentService', () => {
     );
 
     expect(updated.status).toBe(ContentStatus.REJECTED);
-    expect(prisma.contentPost.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          status: ContentStatus.REJECTED,
-          reviewNotes: 'Needs changes',
-        }),
-      }),
-    );
+    const rejectCalls = prisma.contentPost.update.mock.calls as Array<
+      [
+        {
+          data: { status: ContentStatus; reviewNotes?: string | null };
+        },
+      ]
+    >;
+    const rejectArgs = rejectCalls[0][0];
+    expect(rejectArgs.data.status).toBe(ContentStatus.REJECTED);
+    expect(rejectArgs.data.reviewNotes).toBe('Needs changes');
   });
 
   it('create normalizes tags and sets default publishedAt for published', async () => {
@@ -120,14 +127,16 @@ describe('ContentService', () => {
       { id: 'admin-1', role: Role.ADMIN },
     );
 
-    expect(prisma.contentPost.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          slug: 'morning-flow',
-          tags: ['yoga', 'flow'],
-          publishedAt: expect.any(Date),
-        }),
-      }),
-    );
+    const createCalls = prisma.contentPost.create.mock.calls as Array<
+      [
+        {
+          data: { slug: string; tags: string[]; publishedAt: Date | null };
+        },
+      ]
+    >;
+    const createArgs = createCalls[0][0];
+    expect(createArgs.data.slug).toBe('morning-flow');
+    expect(createArgs.data.tags).toEqual(['yoga', 'flow']);
+    expect(createArgs.data.publishedAt).toBeInstanceOf(Date);
   });
 });

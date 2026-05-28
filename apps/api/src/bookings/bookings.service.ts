@@ -64,11 +64,15 @@ export class BookingsService {
               m.sessionsRemaining == null ||
               m.sessionsRemaining < requiredSessions
             ) {
-              throw new BadRequestException('No sessions remaining on your plan');
+              throw new BadRequestException(
+                'No sessions remaining on your plan',
+              );
             }
             await tx.userMembership.update({
               where: { id: m.id },
-              data: { sessionsRemaining: m.sessionsRemaining - requiredSessions },
+              data: {
+                sessionsRemaining: m.sessionsRemaining - requiredSessions,
+              },
             });
           }
         } else if (session.priceCents > 0) {
@@ -169,7 +173,8 @@ export class BookingsService {
         data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
       });
       const requiredSessions =
-        booking.session.sessionRequirement ?? (booking.session.priceCents > 0 ? 1 : 0);
+        booking.session.sessionRequirement ??
+        (booking.session.priceCents > 0 ? 1 : 0);
       if (requiredSessions <= 0) {
         return;
       }
@@ -192,7 +197,11 @@ export class BookingsService {
         },
         include: { plan: true },
       });
-      if (!membership || membership.plan.isUnlimited || membership.sessionsRemaining == null) {
+      if (
+        !membership ||
+        membership.plan.isUnlimited ||
+        membership.sessionsRemaining == null
+      ) {
         return;
       }
       const maxSessions = membership.plan.sessionsPerMonth;
@@ -349,11 +358,16 @@ export class BookingsService {
   }) {
     const coachScope =
       filters.actor.role === Role.COACH
-        ? ({ coach: { userId: filters.actor.id } } as Prisma.ClassSessionWhereInput)
+        ? ({
+            coach: { userId: filters.actor.id },
+          } as Prisma.ClassSessionWhereInput)
         : undefined;
     const sessionFilter: Prisma.ClassSessionWhereInput | undefined =
       filters.from && filters.to
-        ? { startsAt: { gte: filters.from, lte: filters.to }, ...(coachScope ?? {}) }
+        ? {
+            startsAt: { gte: filters.from, lte: filters.to },
+            ...(coachScope ?? {}),
+          }
         : coachScope;
     return this.prisma.booking.findMany({
       where: {
