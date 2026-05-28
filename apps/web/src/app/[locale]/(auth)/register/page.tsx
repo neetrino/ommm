@@ -17,6 +17,16 @@ const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
 
+function buildGoogleAuthStartUrl(): string {
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!rawApiUrl) {
+    return "/api/v1/auth/google";
+  }
+  const trimmed = rawApiUrl.replace(/\/+$/, "");
+  const apiBase = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+  return `${apiBase}/auth/google`;
+}
+
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
   if (trimmed.length === 0 || trimmed.length > MAX_EMAIL_LENGTH) {
@@ -45,6 +55,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const googleAuthUrl = buildGoogleAuthStartUrl();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -188,6 +199,13 @@ export default function RegisterPage() {
         <p className="text-xs text-sage-500">{tAuth("passwordHint")}</p>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
           {pending ? tAuth("creating") : tAuth("createAccount")}
+        </OmmButton>
+        <OmmButton
+          type="button"
+          variant="secondary"
+          onClick={() => window.location.assign(googleAuthUrl)}
+        >
+          {tAuth("continueWithGoogle")}
         </OmmButton>
       </form>
       {error ? (

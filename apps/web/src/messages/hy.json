@@ -487,6 +487,7 @@
       "hidePassword": "Թաքցնել գաղտնաբառը",
       "signingIn": "Մուտք…",
       "continue": "Շարունակել",
+      "continueWithGoogle": "Շարունակել Google-ով",
       "noAccountPrompt": "Հաշիվ չունե՞ք",
       "loginFailed": "Մուտքը ձախողվեց"
     },
@@ -502,6 +503,7 @@
       "passwordHint": "Նվազագույնը 8 նիշ։",
       "creating": "Ստեղծում…",
       "createAccount": "Ստեղծել հաշիվ",
+      "continueWithGoogle": "Շարունակել Google-ով",
       "alreadyHavePrompt": "Արդեն ունե՞ք հաշիվ",
       "invalidEmail": "Մուտքագրեք վավեր էլ. փոստ։",
       "passwordTooShort": "Գաղտնաբառը պետք է լինի առնվազն {min} նիշ։",

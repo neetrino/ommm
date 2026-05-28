@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import type { Response } from 'express';
-import { ACCESS_TOKEN_COOKIE } from '../common/constants';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import { ACCESS_TOKEN_COOKIE, OAUTH_STATE_COOKIE } from '../common/constants';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AuthService, sanitizeUser } from './auth.service';
+import { GoogleOAuthService } from './google-oauth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
@@ -11,6 +12,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const OAUTH_STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
 
 function accessTokenCookieBaseOptions(): {
   httpOnly: true;
@@ -26,9 +28,30 @@ function accessTokenCookieBaseOptions(): {
   };
 }
 
+function readCookie(req: Request, key: string): string | undefined {
+  const cookiesUnknown: unknown =
+    'cookies' in req ? (req as { cookies?: unknown }).cookies : undefined;
+  if (
+    cookiesUnknown === null ||
+    cookiesUnknown === undefined ||
+    typeof cookiesUnknown !== 'object' ||
+    Array.isArray(cookiesUnknown)
+  ) {
+    return undefined;
+  }
+  const raw: unknown = Reflect.get(
+    cookiesUnknown as Record<PropertyKey, unknown>,
+    key,
+  );
+  return typeof raw === 'string' ? raw : undefined;
+}
+
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly googleOAuth: GoogleOAuthService,
+  ) {}
 
   @Post('register')
   async register(
@@ -54,6 +77,40 @@ export class AuthController {
       maxAge: COOKIE_MAX_AGE_MS,
     });
     return { user: sanitizeUser(user), accessToken };
+  }
+
+  @Get('google')
+  googleStart(@Res() res: Response) {
+    const { authorizationUrl, state } = this.googleOAuth.startGoogleAuth();
+    res.cookie(OAUTH_STATE_COOKIE, state, {
+      ...accessTokenCookieBaseOptions(),
+      maxAge: OAUTH_STATE_COOKIE_MAX_AGE_MS,
+    });
+    res.redirect(authorizationUrl);
+  }
+
+  @Get('google/callback')
+  async googleCallback(
+    @Query('code') code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const storedState = readCookie(req, OAUTH_STATE_COOKIE);
+    try {
+      const { accessToken, redirectUrl } = await this.googleOAuth.completeGoogleAuth({
+        code,
+        state,
+        storedState,
+      });
+      res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
+        ...accessTokenCookieBaseOptions(),
+        maxAge: COOKIE_MAX_AGE_MS,
+      });
+      res.redirect(redirectUrl);
+    } finally {
+      res.clearCookie(OAUTH_STATE_COOKIE, accessTokenCookieBaseOptions());
+    }
   }
 
   /** Clears httpOnly access cookie; unauthenticated calls are no-ops (no guard — expired JWT must still clear cookie). */

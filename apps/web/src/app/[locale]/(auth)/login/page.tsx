@@ -10,6 +10,16 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { homePathForRole } from "@/lib/role-home";
 
+function buildGoogleAuthStartUrl(): string {
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!rawApiUrl) {
+    return "/api/v1/auth/google";
+  }
+  const trimmed = rawApiUrl.replace(/\/+$/, "");
+  const apiBase = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+  return `${apiBase}/auth/google`;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const urlLocale = useLocale();
@@ -18,6 +28,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const googleAuthUrl = buildGoogleAuthStartUrl();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -81,6 +92,13 @@ export default function LoginPage() {
         </label>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
           {pending ? tAuth("signingIn") : tAuth("continue")}
+        </OmmButton>
+        <OmmButton
+          type="button"
+          variant="secondary"
+          onClick={() => window.location.assign(googleAuthUrl)}
+        >
+          {tAuth("continueWithGoogle")}
         </OmmButton>
       </form>
       {error ? (

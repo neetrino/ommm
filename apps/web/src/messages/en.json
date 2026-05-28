@@ -487,6 +487,7 @@
       "hidePassword": "Hide password",
       "signingIn": "Signing in…",
       "continue": "Continue",
+      "continueWithGoogle": "Continue with Google",
       "noAccountPrompt": "No account?",
       "loginFailed": "Login failed"
     },
@@ -502,6 +503,7 @@
       "passwordHint": "At least 8 characters.",
       "creating": "Creating…",
       "createAccount": "Create account",
+      "continueWithGoogle": "Continue with Google",
       "alreadyHavePrompt": "Already have an account?",
       "invalidEmail": "Please enter a valid email address.",
       "passwordTooShort": "Password must be at least {min} characters.",

@@ -19,6 +19,8 @@ import { normalizeAppUiLocale } from '../common/app-ui-locales';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
+const DEFAULT_UI_LOCALE = 'en';
+
 function hashOpaqueToken(raw: string): string {
   return createHash('sha256').update(raw, 'utf8').digest('hex');
 }
@@ -93,7 +95,7 @@ export class AuthService {
         name: displayFirst,
         lastName: dto.lastName,
         phone: dto.phone,
-        locale: normalizeAppUiLocale(dto.locale, 'hy'),
+        locale: normalizeAppUiLocale(dto.locale, DEFAULT_UI_LOCALE),
       },
     });
     const { raw } = await this.createOpaqueToken(
@@ -103,7 +105,7 @@ export class AuthService {
     );
     const webUrl =
       this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const verifyUrl = `${webUrl}/hy/verify-email?token=${encodeURIComponent(raw)}`;
+    const verifyUrl = `${webUrl}/${DEFAULT_UI_LOCALE}/verify-email?token=${encodeURIComponent(raw)}`;
     const greet = [displayFirst, dto.lastName].filter(Boolean).join(' ');
     await this.mail.sendEmail({
       to: user.email,
@@ -171,7 +173,7 @@ export class AuthService {
     );
     const webUrl =
       this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const resetUrl = `${webUrl}/hy/reset-password?token=${encodeURIComponent(raw)}`;
+    const resetUrl = `${webUrl}/${DEFAULT_UI_LOCALE}/reset-password?token=${encodeURIComponent(raw)}`;
     await this.mail.sendEmail({
       to: user.email,
       subject: 'Reset your Ommm password',
