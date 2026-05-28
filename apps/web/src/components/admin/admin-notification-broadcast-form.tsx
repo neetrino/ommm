@@ -5,14 +5,45 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type BroadcastResponse = { ok: boolean; count?: number; mode?: string };
+type BroadcastTemplateKey =
+  | "custom"
+  | "newClass"
+  | "policyReminder"
+  | "waitlistOffer";
+type BroadcastTemplate = { subject: string; html: string };
 
 export function AdminNotificationBroadcastForm() {
   const t = useTranslations("forms.adminBroadcast");
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
+  const [templateKey, setTemplateKey] = useState<BroadcastTemplateKey>("custom");
   const [testTo, setTestTo] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const templates: Record<Exclude<BroadcastTemplateKey, "custom">, BroadcastTemplate> = {
+    newClass: {
+      subject: t("templates.newClass.subject"),
+      html: t("templates.newClass.body"),
+    },
+    policyReminder: {
+      subject: t("templates.policyReminder.subject"),
+      html: t("templates.policyReminder.body"),
+    },
+    waitlistOffer: {
+      subject: t("templates.waitlistOffer.subject"),
+      html: t("templates.waitlistOffer.body"),
+    },
+  };
+
+  function onTemplateChange(nextKey: BroadcastTemplateKey) {
+    setTemplateKey(nextKey);
+    if (nextKey === "custom") {
+      return;
+    }
+    const nextTemplate = templates[nextKey];
+    setSubject(nextTemplate.subject);
+    setHtml(nextTemplate.html);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,6 +74,22 @@ export function AdminNotificationBroadcastForm() {
 
   return (
     <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-4">
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">
+          {t("templateLabel")}
+        </span>
+        <select
+          className="ommm-input"
+          value={templateKey}
+          onChange={(ev) => onTemplateChange(ev.target.value as BroadcastTemplateKey)}
+        >
+          <option value="custom">{t("templates.custom")}</option>
+          <option value="newClass">{t("templates.newClass.label")}</option>
+          <option value="policyReminder">{t("templates.policyReminder.label")}</option>
+          <option value="waitlistOffer">{t("templates.waitlistOffer.label")}</option>
+        </select>
+        <span className="text-xs text-sage-500">{t("templateHint")}</span>
+      </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("subjectLabel")}

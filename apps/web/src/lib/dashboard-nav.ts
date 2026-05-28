@@ -22,7 +22,8 @@ export type DashboardNavIcon =
   | "wallet"
   | "fileText"
   | "send"
-  | "pieChart";
+  | "pieChart"
+  | "settings";
 
 export type DashboardNavDefinition = {
   href: string;
@@ -95,6 +96,7 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/finance", icon: "wallet", labelKey: "finance" },
   { href: "/admin/reports", icon: "pieChart", labelKey: "reports" },
   { href: "/admin/content", icon: "fileText", labelKey: "content" },
+  { href: "/admin/settings", icon: "settings", labelKey: "settings" },
   { href: "/admin/profile", icon: "user", labelKey: "profile" },
 ];
 

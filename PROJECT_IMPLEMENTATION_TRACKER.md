@@ -46,9 +46,9 @@ Current state is a mature monorepo with substantial implementation across web an
 | Admin Packages | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/memberships/page.tsx` | Implemented as memberships, not full CRM packages model depth | Medium |
 | Admin Gift Cards | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/gift-cards/page.tsx`, `apps/api/src/gift-cards/gift-cards.controller.ts` | Expiration enforcement improvement | Medium |
 | Admin Finance | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/api/src/reports/reports.controller.ts` | More granular finance controls needed | Medium |
-| Admin Analytics | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/reports/page.tsx`, `apps/api/src/reports/reports.controller.ts` | Charting/export depth not complete in UI | Medium |
-| Admin Notifications | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/api/src/notifications/notifications.controller.ts` | No robust template targeting manager | High |
-| Admin Settings | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/settings/page.tsx`, `apps/api/src/studio/studio.controller.ts` | Not fully surfaced in nav/coverage depth | Medium |
+| Admin Analytics | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/reports/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/api/src/reports/reports.controller.ts` | Charting/export depth not complete in UI | Medium |
+| Admin Notifications | Yes | PARTIAL | `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/api/src/notifications/notifications.controller.ts` | Template presets added; segmentation/scheduling still missing | High |
+| Admin Settings | Yes | DONE | `apps/web/src/app/[locale]/(admin)/admin/settings/page.tsx`, `apps/web/src/lib/dashboard-nav.ts`, `apps/api/src/studio/studio.controller.ts` | None critical for baseline discoverability | Low |
 | Coach Dashboard | Yes | DONE | `apps/web/src/app/[locale]/(coach)/coach/home/page.tsx` | KPI depth can improve | Low |
 | Coach Schedule/Calendar | Yes | DONE | `apps/web/src/app/[locale]/(coach)/coach/schedule/page.tsx` | Advanced views can improve | Low |
 | Coach Groups/Appointments | Yes | DONE | `apps/web/src/app/[locale]/(coach)/coach/groups/page.tsx` | None critical | Low |
@@ -69,6 +69,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | ------- | ---- | ---- | ------ | ------------- | ------------ | ------ |
 | PH0-001 | Full repository audit against CRM spec and create tracker baseline | Cross-cutting | DONE | `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:24 (UTC+4) | N/A (not committed yet) |
 | PH1-001 | Implement auth recovery and OAuth set-password flow | Auth/Account | DONE | `apps/web/src/app/[locale]/(auth)/forgot-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/reset-password/page.tsx`, `apps/web/src/app/[locale]/(auth)/login/page.tsx`, `apps/web/src/app/[locale]/set-password/page.tsx`, `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/auth/auth.service.ts`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 12:58 (UTC+4) | `b6d4fa6` |
+| PH2-001 | Harden admin core navigation and route parity baseline | Web/Admin | DONE | `apps/web/src/lib/dashboard-nav.ts`, `apps/web/src/components/shell/dashboard-nav-icon.tsx`, `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:03 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -79,14 +80,13 @@ Current state is a mature monorepo with substantial implementation across web an
 | WAIT-001 | Waitlist production consistency | Queue, offer, manual actions implemented | Env-gated cron dependency, preference-aware notifications | Stuck waitlist offers, missed user notifications | High |
 | BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel status, Stripe checkout | Renewal, upgrade/downgrade, pause semantics, expiry automation | Revenue leakage and billing disputes | High |
 | GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions exist | Gift credits consumption path not fully integrated | Inaccurate wallet/accounting | High |
-| ADMIN-001 | Admin analytics/notifications depth | Reports and broadcast pages exist | Templates, segmentation, richer dashboards/charts | Limited business operations visibility | Medium |
+| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, and broadcast template presets exist | API-level audience segmentation/scheduling + richer chart/export depth | Limited business operations visibility | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
 
 ## 5. Missing Tasks
 
 | Task ID | Task | Area | Description | Priority | Phase |
 | ------- | ---- | ---- | ----------- | -------- | ----- |
-| ADMIN-002 | Add admin settings discoverability in nav and parity checks | Web/Admin | Ensure settings is consistently reachable and role-safe | Medium | 2 |
 | BOOK-002 | Add booking cancellation side-effects (session restore/refund rules) | API/Booking | Implement policy-consistent effects after cancellation | High | 3 |
 | WAIT-002 | Harden waitlist promotion and expiration reliability | API/Waitlist | Remove brittle env coupling and enforce offer lifecycle correctness | High | 3 |
 | CLIENT-001 | Add advanced clients filtering and segmentation | Web/Admin | Implement CRM-required tags, behavior filters, quick filters | High | 4 |
@@ -349,6 +349,37 @@ Push status:
 Next phase:
 - Phase 2 - Admin Core Integrity
 
+### Phase 2 Result
+
+Status: COMPLETED
+Tasks completed:
+- Added admin settings entry to sidebar navigation with translated labels.
+- Added admin alias routes: `/admin/analytics` -> `/admin/reports`, `/admin/packages` -> `/admin/memberships` for CRM parity.
+- Upgraded admin broadcast form with reusable message templates (new class, policy reminder, waitlist opening).
+Files changed:
+- `apps/web/src/lib/dashboard-nav.ts`
+- `apps/web/src/components/shell/dashboard-nav-icon.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/analytics/page.tsx`
+- `apps/web/src/app/[locale]/(admin)/admin/packages/page.tsx`
+- `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`
+- `apps/web/src/messages/en.json`
+- `apps/web/src/messages/hy.json`
+- `apps/web/src/messages/ru.json`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter web build` PASSED
+- `pnpm --filter api build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (3 suites, 5 tests)
+Known issues:
+- Notification targeting/scheduling and deeper analytics exports remain for later phases.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 3 - Booking, Waitlist, Schedule Consistency
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -357,6 +388,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter web build` | PASS | Includes new `/forgot-password`, `/reset-password`, `/set-password` routes |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Google OAuth redirect logic compiled successfully |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 5 tests passed |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Includes `/admin/analytics` and `/admin/packages` alias routes |
+| 2026-05-28 | `pnpm --filter api build` | PASS | No API regressions from Phase 2 web/admin changes |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 5 tests passed |
 
 ## 10. Git History Created By This Work
 
@@ -364,10 +398,10 @@ Next phase:
 | ----- | -------------- | ----------- | ------ |
 | Phase 0 | `phase-0: audit project and add implementation tracker` | N/A | No |
 | Phase 1 | `phase-1: complete auth recovery and password setup flow` | `b6d4fa6` | Yes |
+| Phase 2 | `phase-2: harden admin core navigation and reporting baseline` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
-- Phase 2: admin core integrity (settings/reporting/navigation consistency).
 - Align RBAC and booking/waitlist lifecycle correctness in Phases 3 and 6.
 - Complete finance/membership/gift-credit correctness in Phase 7.
 - Upgrade notification/content management depth in Phase 8.

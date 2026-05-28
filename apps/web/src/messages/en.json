@@ -423,6 +423,7 @@
         "notifications": "Notifications",
         "reports": "Reports",
         "content": "Content",
+        "settings": "Settings",
         "profile": "Profile"
       }
     },
@@ -441,6 +442,7 @@
         "notifications": "Broadcast messages to members and staff.",
         "reports": "Operational summaries and exports.",
         "content": "Posts, publishing status, and slugs.",
+        "settings": "Studio policy, contacts, and operational defaults.",
         "profile": "Your backoffice identity, sign-in email, and workspace integration notes."
       },
       "user": {
@@ -1537,13 +1539,33 @@
       "sendFailed": "Could not send broadcast.",
       "testSent": "Test email sent.",
       "queued": "Queued broadcast to {count} addresses (email send loop).",
+      "templateLabel": "Template",
+      "templateHint": "Choose a preset to prefill subject and body, then customize as needed.",
       "subjectLabel": "Subject",
       "htmlBodyLabel": "HTML body",
       "testRecipientLabel": "Test recipient (optional)",
       "testRecipientHint": "When set, only this address receives the message.",
       "testRecipientPlaceholder": "you@example.com",
       "sending": "Sending…",
-      "submit": "Send broadcast"
+      "submit": "Send broadcast",
+      "templates": {
+        "custom": "Custom message",
+        "newClass": {
+          "label": "New class announcement",
+          "subject": "New class is now available",
+          "body": "<p>Hello from Ommm,</p><p>We have added a new class to this week's schedule. Check your app to reserve your spot.</p><p>See you at the studio,<br/>Ommm Team</p>"
+        },
+        "policyReminder": {
+          "label": "Policy reminder",
+          "subject": "Reminder: booking and cancellation policy",
+          "body": "<p>Hello from Ommm,</p><p>This is a friendly reminder to review your booking and cancellation timings before your next session.</p><p>Thank you,<br/>Ommm Team</p>"
+        },
+        "waitlistOffer": {
+          "label": "Waitlist opening",
+          "subject": "A spot just opened for your class",
+          "body": "<p>Hello from Ommm,</p><p>A waitlist spot has just opened up. If you are still interested, please confirm your booking as soon as possible.</p><p>Regards,<br/>Ommm Team</p>"
+        }
+      }
     },
     "markAttendance": {
       "failed": "Could not update",
