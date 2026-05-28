@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BroadcastAudience, BroadcastDto } from './dto/broadcast.dto';
 import { NotificationsService } from './notifications.service';
+import { UpdateScheduledBroadcastDto } from './dto/update-scheduled-broadcast.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -36,5 +37,30 @@ export class NotificationsController {
   @Roles(Role.ADMIN)
   adminStats() {
     return this.notifications.getAdminStats();
+  }
+
+  @Get('admin/scheduled')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminScheduled() {
+    return this.notifications.listScheduledBroadcasts();
+  }
+
+  @Patch('admin/scheduled/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  updateScheduled(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+    @Body() dto: UpdateScheduledBroadcastDto,
+  ) {
+    return this.notifications.updateScheduledBroadcast(user.id, id, dto);
+  }
+
+  @Delete('admin/scheduled/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  cancelScheduled(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.notifications.cancelScheduledBroadcast(user.id, id);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BookingStatus, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
@@ -12,6 +12,8 @@ const REMINDER_HOURS_BEFORE = 2;
 const ENABLE_BACKGROUND_REMINDERS_ENV = 'ENABLE_BACKGROUND_REMINDERS';
 const ACTION_BROADCAST = 'NOTIFICATION_BROADCAST';
 const ACTION_BROADCAST_SCHEDULED = 'NOTIFICATION_BROADCAST_SCHEDULED';
+const ACTION_BROADCAST_SCHEDULED_UPDATED = 'NOTIFICATION_BROADCAST_SCHEDULED_UPDATED';
+const ACTION_BROADCAST_SCHEDULED_CANCELLED = 'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED';
 const ACTION_BROADCAST_SCHEDULED_SENT = 'NOTIFICATION_BROADCAST_SCHEDULED_SENT';
 const ACTION_BROADCAST_SCHEDULED_FAILED = 'NOTIFICATION_BROADCAST_SCHEDULED_FAILED';
 
@@ -94,26 +96,38 @@ export class NotificationsService {
   @Cron(CronExpression.EVERY_10_MINUTES)
   async dispatchScheduledBroadcasts(): Promise<void> {
     const scheduled = await this.prisma.auditLog.findMany({
-      where: {
-        action: ACTION_BROADCAST_SCHEDULED,
-        entityType: 'Notification',
-      },
+      where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
       orderBy: { createdAt: 'asc' },
       take: 200,
     });
+    const scheduledIds = scheduled.map((entry) => entry.entityId);
+    const timeline = await this.prisma.auditLog.findMany({
+      where: {
+        entityType: 'Notification',
+        entityId: { in: scheduledIds },
+        action: {
+          in: [
+            ACTION_BROADCAST_SCHEDULED_UPDATED,
+            ACTION_BROADCAST_SCHEDULED_CANCELLED,
+            ACTION_BROADCAST_SCHEDULED_SENT,
+            ACTION_BROADCAST_SCHEDULED_FAILED,
+          ],
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 1000,
+    });
+    const timelineByEntityId = this.groupTimelineByEntityId(timeline);
     for (const item of scheduled) {
-      const payload = this.parseScheduledPayload(item.payload);
+      const payload = this.resolveEffectiveScheduledPayload(
+        item.payload,
+        timelineByEntityId.get(item.entityId) ?? [],
+      );
       if (!payload || new Date(payload.scheduleAt) > new Date()) {
         continue;
       }
-      const sentLog = await this.prisma.auditLog.findFirst({
-        where: {
-          action: ACTION_BROADCAST_SCHEDULED_SENT,
-          entityType: 'Notification',
-          entityId: item.id,
-        },
-      });
-      if (sentLog) {
+      const timelineForItem = timelineByEntityId.get(item.entityId) ?? [];
+      if (this.hasScheduledTerminalStatus(timelineForItem)) {
         continue;
       }
       try {
@@ -125,7 +139,7 @@ export class NotificationsService {
           actorRole: 'ADMIN',
           action: ACTION_BROADCAST_SCHEDULED_SENT,
           entityType: 'Notification',
-          entityId: item.id,
+          entityId: item.entityId,
           payload: {
             scheduledFor: payload.scheduleAt,
             sentCount: sent.count ?? 0,
@@ -140,7 +154,7 @@ export class NotificationsService {
           actorRole: 'ADMIN',
           action: ACTION_BROADCAST_SCHEDULED_FAILED,
           entityType: 'Notification',
-          entityId: item.id,
+          entityId: item.entityId,
           payload: {
             scheduledFor: payload.scheduleAt,
             error: error instanceof Error ? error.message : 'unknown',
@@ -236,11 +250,171 @@ export class NotificationsService {
       ok: true,
       mode: 'scheduled',
       scheduledFor: scheduledFor.toISOString(),
+      scheduleId: entityId,
     };
   }
 
+  async listScheduledBroadcasts() {
+    const scheduled = await this.prisma.auditLog.findMany({
+      where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+    });
+    const timeline = await this.prisma.auditLog.findMany({
+      where: {
+        entityType: 'Notification',
+        entityId: { in: scheduled.map((item) => item.entityId) },
+        action: {
+          in: [
+            ACTION_BROADCAST_SCHEDULED_UPDATED,
+            ACTION_BROADCAST_SCHEDULED_CANCELLED,
+            ACTION_BROADCAST_SCHEDULED_SENT,
+            ACTION_BROADCAST_SCHEDULED_FAILED,
+          ],
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 2000,
+    });
+    const timelineByEntityId = this.groupTimelineByEntityId(timeline);
+    return scheduled.map((item) => {
+      const timelineForItem = timelineByEntityId.get(item.entityId) ?? [];
+      const effective = this.resolveEffectiveScheduledPayload(
+        item.payload,
+        timelineForItem,
+      );
+      const status = this.resolveScheduledStatus(timelineForItem);
+      return {
+        id: item.entityId,
+        status,
+        createdAt: item.createdAt.toISOString(),
+        updatedAt:
+          timelineForItem[timelineForItem.length - 1]?.createdAt.toISOString() ??
+          item.createdAt.toISOString(),
+        ...(effective ?? {
+          subject: '',
+          html: '',
+          audience: BroadcastAudience.USERS,
+          onlyPromotionsOptIn: false,
+          scheduleAt: item.createdAt.toISOString(),
+        }),
+      };
+    });
+  }
+
+  async updateScheduledBroadcast(
+    actorId: string,
+    id: string,
+    changes: {
+      subject?: string;
+      html?: string;
+      audience?: BroadcastAudience;
+      onlyPromotionsOptIn?: boolean;
+      scheduleAt?: string;
+    },
+  ) {
+    const base = await this.prisma.auditLog.findFirst({
+      where: {
+        action: ACTION_BROADCAST_SCHEDULED,
+        entityType: 'Notification',
+        entityId: id,
+      },
+    });
+    if (!base) {
+      throw new NotFoundException('Scheduled broadcast not found');
+    }
+    const timeline = await this.prisma.auditLog.findMany({
+      where: {
+        entityType: 'Notification',
+        entityId: id,
+        action: {
+          in: [
+            ACTION_BROADCAST_SCHEDULED_UPDATED,
+            ACTION_BROADCAST_SCHEDULED_CANCELLED,
+            ACTION_BROADCAST_SCHEDULED_SENT,
+            ACTION_BROADCAST_SCHEDULED_FAILED,
+          ],
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+    });
+    if (this.hasScheduledTerminalStatus(timeline)) {
+      throw new BadRequestException('Cannot update non-pending scheduled broadcast');
+    }
+    const effective = this.resolveEffectiveScheduledPayload(base.payload, timeline);
+    if (!effective) {
+      throw new BadRequestException('Invalid scheduled broadcast payload');
+    }
+    const next = {
+      subject: changes.subject ?? effective.subject,
+      html: changes.html ?? effective.html,
+      audience: changes.audience ?? effective.audience,
+      onlyPromotionsOptIn:
+        changes.onlyPromotionsOptIn ?? effective.onlyPromotionsOptIn,
+      scheduleAt: changes.scheduleAt ?? effective.scheduleAt,
+    };
+    await this.audit.log({
+      actorId,
+      actorRole: 'ADMIN',
+      action: ACTION_BROADCAST_SCHEDULED_UPDATED,
+      entityType: 'Notification',
+      entityId: id,
+      payload: next,
+    });
+    return { ok: true };
+  }
+
+  async cancelScheduledBroadcast(actorId: string, id: string) {
+    const base = await this.prisma.auditLog.findFirst({
+      where: {
+        action: ACTION_BROADCAST_SCHEDULED,
+        entityType: 'Notification',
+        entityId: id,
+      },
+    });
+    if (!base) {
+      throw new NotFoundException('Scheduled broadcast not found');
+    }
+    const timeline = await this.prisma.auditLog.findMany({
+      where: {
+        entityType: 'Notification',
+        entityId: id,
+        action: {
+          in: [
+            ACTION_BROADCAST_SCHEDULED_CANCELLED,
+            ACTION_BROADCAST_SCHEDULED_SENT,
+            ACTION_BROADCAST_SCHEDULED_FAILED,
+          ],
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 50,
+    });
+    if (this.hasScheduledTerminalStatus(timeline)) {
+      throw new BadRequestException('Scheduled broadcast is already closed');
+    }
+    await this.audit.log({
+      actorId,
+      actorRole: 'ADMIN',
+      action: ACTION_BROADCAST_SCHEDULED_CANCELLED,
+      entityType: 'Notification',
+      entityId: id,
+      payload: { reason: 'Cancelled by admin' },
+    });
+    return { ok: true };
+  }
+
   async getAdminStats() {
-    const [scheduled, scheduledSent, scheduledFailed, immediateBroadcasts, remindersSent] =
+    const [
+      scheduled,
+      scheduledSent,
+      scheduledFailed,
+      immediateBroadcasts,
+      remindersSent,
+      scheduledCancelled,
+      recentBroadcasts,
+    ] =
       await Promise.all([
         this.prisma.auditLog.count({
           where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
@@ -255,14 +429,38 @@ export class NotificationsService {
           where: { action: ACTION_BROADCAST, entityType: 'Notification' },
         }),
         this.prisma.classReminderSendLog.count(),
+        this.prisma.auditLog.count({
+          where: {
+            action: ACTION_BROADCAST_SCHEDULED_CANCELLED,
+            entityType: 'Notification',
+          },
+        }),
+        this.prisma.auditLog.findMany({
+          where: { action: ACTION_BROADCAST, entityType: 'Notification' },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
       ]);
+    const byAudience = { users: 0, coaches: 0, staff: 0, all: 0 };
+    for (const item of recentBroadcasts) {
+      const payload = this.parseBroadcastPayload(item.payload);
+      if (!payload) {
+        continue;
+      }
+      byAudience[payload.audience] += 1;
+    }
     return {
       immediateBroadcasts,
       scheduledBroadcasts: scheduled,
-      scheduledPending: Math.max(0, scheduled - scheduledSent - scheduledFailed),
+      scheduledPending: Math.max(
+        0,
+        scheduled - scheduledSent - scheduledFailed - scheduledCancelled,
+      ),
       scheduledSent,
       scheduledFailed,
+      scheduledCancelled,
       reminderDeliveries: remindersSent,
+      byAudience,
     };
   }
 
@@ -321,5 +519,89 @@ export class NotificationsService {
     } catch {
       return null;
     }
+  }
+
+  private parseBroadcastPayload(rawPayload: string | null): {
+    audience: 'users' | 'coaches' | 'staff' | 'all';
+  } | null {
+    if (!rawPayload) {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(rawPayload) as Partial<{
+        audience: 'users' | 'coaches' | 'staff' | 'all';
+      }>;
+      if (!parsed.audience) {
+        return null;
+      }
+      return { audience: parsed.audience };
+    } catch {
+      return null;
+    }
+  }
+
+  private resolveScheduledStatus(
+    timeline: Array<{ action: string }>,
+  ): 'PENDING' | 'SENT' | 'FAILED' | 'CANCELLED' {
+    if (timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_CANCELLED)) {
+      return 'CANCELLED';
+    }
+    if (timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_SENT)) {
+      return 'SENT';
+    }
+    if (timeline.some((item) => item.action === ACTION_BROADCAST_SCHEDULED_FAILED)) {
+      return 'FAILED';
+    }
+    return 'PENDING';
+  }
+
+  private hasScheduledTerminalStatus(timeline: Array<{ action: string }>): boolean {
+    return this.resolveScheduledStatus(timeline) !== 'PENDING';
+  }
+
+  private groupTimelineByEntityId(
+    timeline: Array<{
+      entityId: string;
+      action: string;
+      payload: string | null;
+      createdAt: Date;
+    }>,
+  ): Map<
+    string,
+    Array<{ action: string; payload: string | null; createdAt: Date }>
+  > {
+    const grouped = new Map<
+      string,
+      Array<{ action: string; payload: string | null; createdAt: Date }>
+    >();
+    for (const item of timeline) {
+      const prev = grouped.get(item.entityId) ?? [];
+      prev.push({
+        action: item.action,
+        payload: item.payload,
+        createdAt: item.createdAt,
+      });
+      grouped.set(item.entityId, prev);
+    }
+    return grouped;
+  }
+
+  private resolveEffectiveScheduledPayload(
+    basePayloadRaw: string | null,
+    timeline: Array<{ action: string; payload: string | null }>,
+  ) {
+    const base = this.parseScheduledPayload(basePayloadRaw);
+    if (!base) {
+      return null;
+    }
+    return timeline
+      .filter((item) => item.action === ACTION_BROADCAST_SCHEDULED_UPDATED)
+      .reduce((acc, item) => {
+        const next = this.parseScheduledPayload(item.payload);
+        if (!next) {
+          return acc;
+        }
+        return next;
+      }, base);
   }
 }

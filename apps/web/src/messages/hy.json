@@ -1352,7 +1352,10 @@
       "stats": {
         "immediateBroadcasts": "Անմիջական ուղարկումներ",
         "scheduledPending": "Սպասող ժամանակացույցված ուղարկումներ",
-        "scheduledSent": "Ուղարկված ժամանակացույցված ուղարկումներ"
+        "scheduledSent": "Ուղարկված ժամանակացույցված ուղարկումներ",
+        "scheduledCancelled": "Չեղարկված ժամանակացույցված ուղարկումներ",
+        "broadcastsToUsers": "Ուղարկումներ օգտատերերին",
+        "broadcastsToStaff": "Ուղարկումներ աշխատակազմին"
       }
     },
     "content": {

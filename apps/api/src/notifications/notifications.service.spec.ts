@@ -114,7 +114,16 @@ describe('NotificationsService', () => {
       .mockResolvedValueOnce(5)
       .mockResolvedValueOnce(3)
       .mockResolvedValueOnce(1)
-      .mockResolvedValueOnce(9);
+      .mockResolvedValueOnce(9)
+      .mockResolvedValueOnce(1);
+    prisma.auditLog.findMany.mockResolvedValue([
+      {
+        entityId: 'broadcast',
+        action: 'NOTIFICATION_BROADCAST',
+        payload: JSON.stringify({ audience: 'users' }),
+        createdAt: new Date(),
+      },
+    ]);
     prisma.classReminderSendLog.count.mockResolvedValue(12);
 
     const stats = await service.getAdminStats();
@@ -122,8 +131,78 @@ describe('NotificationsService', () => {
     expect(stats.scheduledBroadcasts).toBe(5);
     expect(stats.scheduledSent).toBe(3);
     expect(stats.scheduledFailed).toBe(1);
-    expect(stats.scheduledPending).toBe(1);
+    expect(stats.scheduledPending).toBe(0);
+    expect(stats.scheduledCancelled).toBe(1);
     expect(stats.immediateBroadcasts).toBe(9);
     expect(stats.reminderDeliveries).toBe(12);
+    expect(stats.byAudience.users).toBe(1);
+  });
+
+  it('listScheduledBroadcasts returns effective state and status', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.findMany
+      .mockResolvedValueOnce([
+        {
+          id: 'a1',
+          entityId: 'schedule-1',
+          action: 'NOTIFICATION_BROADCAST_SCHEDULED',
+          payload: JSON.stringify({
+            subject: 'Initial',
+            html: '<p>Initial</p>',
+            audience: 'users',
+            onlyPromotionsOptIn: false,
+            scheduleAt: '2026-05-29T10:00:00.000Z',
+          }),
+          createdAt: new Date('2026-05-28T10:00:00.000Z'),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          entityId: 'schedule-1',
+          action: 'NOTIFICATION_BROADCAST_SCHEDULED_UPDATED',
+          payload: JSON.stringify({
+            subject: 'Updated',
+            html: '<p>Updated</p>',
+            audience: 'coaches',
+            onlyPromotionsOptIn: false,
+            scheduleAt: '2026-05-29T11:00:00.000Z',
+          }),
+          createdAt: new Date('2026-05-28T11:00:00.000Z'),
+        },
+      ]);
+
+    const list = await service.listScheduledBroadcasts();
+
+    expect(list).toHaveLength(1);
+    expect(list[0]?.subject).toBe('Updated');
+    expect(list[0]?.status).toBe('PENDING');
+  });
+
+  it('cancelScheduledBroadcast logs cancellation for pending schedule', async () => {
+    const { service, prisma, audit } = createService();
+    prisma.auditLog.findFirst.mockResolvedValue({
+      id: 'base-1',
+      entityId: 'schedule-1',
+      action: 'NOTIFICATION_BROADCAST_SCHEDULED',
+      payload: JSON.stringify({
+        subject: 'Scheduled',
+        html: '<p>Scheduled</p>',
+        audience: 'users',
+        onlyPromotionsOptIn: false,
+        scheduleAt: '2026-05-29T10:00:00.000Z',
+      }),
+      createdAt: new Date('2026-05-28T10:00:00.000Z'),
+    });
+    prisma.auditLog.findMany.mockResolvedValue([]);
+
+    const result = await service.cancelScheduledBroadcast('admin-1', 'schedule-1');
+
+    expect(result.ok).toBe(true);
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED',
+        entityId: 'schedule-1',
+      }),
+    );
   });
 });

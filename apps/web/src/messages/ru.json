@@ -1356,7 +1356,10 @@
       "stats": {
         "immediateBroadcasts": "Мгновенные рассылки",
         "scheduledPending": "Ожидают по расписанию",
-        "scheduledSent": "Отправлено по расписанию"
+        "scheduledSent": "Отправлено по расписанию",
+        "scheduledCancelled": "Отменено по расписанию",
+        "broadcastsToUsers": "Рассылки пользователям",
+        "broadcastsToStaff": "Рассылки персоналу"
       }
     },
     "content": {

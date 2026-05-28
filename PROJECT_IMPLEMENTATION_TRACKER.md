@@ -102,6 +102,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH7-006 | Add monetary proration adjustment ledger entries for plan changes | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:19 (UTC+4) | `019cb59` |
 | PH8-001 | Add notification audience segmentation and content admin filtering baseline | Web+API/Notifications+Content | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/content-posts-panel-client.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:28 (UTC+4) | `8e69bc2` |
 | PH8-002 | Add scheduled broadcast queue baseline and notification delivery stats | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:37 (UTC+4) | `3c67e76` |
+| PH8-003 | Add scheduled broadcast management lifecycle and audience analytics breakdown | Web+API/Notifications | DONE | `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`, `apps/api/src/notifications/notifications.controller.ts`, `apps/api/src/notifications/notifications.service.ts`, `apps/api/src/notifications/notifications.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`, `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`, `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:48 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -112,7 +113,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | WAIT-001 | Waitlist production consistency | Queue, offer, manual actions implemented | Env-gated cron dependency, preference-aware notifications | Stuck waitlist offers, missed user notifications | High |
 | BILL-001 | Membership lifecycle completeness | Plan CRUD, assign, pause/cancel, renew and plan-switch status paths exist, plus session-proration and monetary adjustment ledger entries | External Stripe settlement automation for proration charge/credit is not yet encoded | Revenue leakage and billing disputes | Low |
 | GIFT-001 | Gift card balance lifecycle | Purchase/redeem/list/admin actions, booking spend fallback, finance ledger KPIs, and gift-credit CSV export exist | Optional deeper BI/dashboard drilldown UX beyond CSV export | Reconciliation mostly operational, not structural | Low |
-| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, broadcast template presets, audience segmentation, and promotions opt-in targeting exist | Scheduled campaign queue and delivery analytics dashboard are still missing | Limited business operations visibility | Medium |
+| ADMIN-001 | Admin analytics/notifications depth | Reports page, analytics/packages route aliases, broadcast templates, audience segmentation, scheduled queue, and delivery summary cards exist | Deeper campaign analytics drilldowns and recipient-level delivery traces are still missing | Limited business operations visibility | Medium |
 | MBL-001 | Mobile parity and IA | Mobile shell and core screens exist | Correct tab IA, bookings/account completeness, i18n | User confusion and inconsistent experience | High |
 
 ## 5. Missing Tasks
@@ -123,7 +124,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | USER-002 | Complete account settings/security depth | Web/User | Add missing settings/security workflows (e.g., delete request UX) | Medium | 5 |
 | ROLE-001 | Align manager matrix strictly with CRM | Web+API/Roles | Ensure allowed/forbidden actions match required role matrix exactly | High | 6 |
 | FIN-001 | Implement membership renewal/upgrade/downgrade lifecycle | API/Finance | Optional external-gateway settlement sync for proration (Stripe invoice/credit-note parity) | Low | 7 |
-| NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Advanced campaign lifecycle (edit/cancel scheduled jobs and richer delivery analytics breakdown) | Medium | 8 |
+| NOTIF-001 | Add notification templates, targeting, scheduling | Web+API/Notifications | Advanced delivery analytics and recipient-level status tracking beyond current aggregate metrics | Medium | 8 |
 | CNT-001 | Expand content manager scope | Web+API/Content | Content approval workflow and richer editorial fields beyond baseline post CRUD/filtering | Medium | 8 |
 | I18N-001 | Remove hardcoded strings and close locale gaps | Web+Mobile/I18n | Ensure full Armenian/Russian/English consistency | Medium | 9 |
 | MBL-002 | Fix mobile tabs IA and complete My Bookings | Mobile | Only after explicit mobile approval; fix routing and functional parity | High | Mobile-only |
@@ -581,13 +582,17 @@ Tasks completed:
 - Added localized (`en`/`hy`/`ru`) labels for new broadcast audience controls.
 - Added scheduled broadcast queue baseline using `AuditLog` payload records and periodic background dispatch.
 - Added admin notification stats endpoint and dashboard summary cards for immediate/scheduled/reminder delivery visibility.
+- Added scheduled broadcast lifecycle API (`list`/`update`/`cancel`) and UI controls for rescheduling/canceling pending jobs.
+- Added audience analytics breakdown counters in notification stats.
 Files changed:
 - `apps/api/src/notifications/dto/broadcast.dto.ts`
+- `apps/api/src/notifications/dto/update-scheduled-broadcast.dto.ts`
 - `apps/api/src/notifications/notifications.controller.ts`
 - `apps/api/src/notifications/notifications.service.ts`
 - `apps/api/src/notifications/notifications.service.spec.ts`
 - `apps/web/src/app/[locale]/(admin)/admin/notifications/page.tsx`
 - `apps/web/src/components/admin/admin-notification-broadcast-form.tsx`
+- `apps/web/src/components/admin/admin-scheduled-broadcasts.tsx`
 - `apps/web/src/components/admin/content-posts-panel-client.tsx`
 - `apps/web/src/messages/en.json`
 - `apps/web/src/messages/hy.json`
@@ -597,13 +602,13 @@ Build result:
 - `pnpm --filter api build` PASSED
 - `pnpm --filter web build` PASSED
 Tests result:
-- `pnpm --filter api test` PASSED (5 suites, 15 tests)
+- `pnpm --filter api test` PASSED (5 suites, 17 tests)
 Known issues:
-- Scheduled broadcast edit/cancel lifecycle and deeper analytics drilldowns are still pending in Phase 8.
+- Recipient-level delivery tracing and deeper analytics drilldowns are still pending in Phase 8.
 Commit hash:
-- `3c67e76`
+- TBD
 Push status:
-- Pushed to `origin/work/1748df5-base`
+- TBD
 Next phase:
 - Phase 8 continuation
 
@@ -651,6 +656,9 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api test` | PASS | 5 suites, 15 tests passed (scheduled queue + stats tests added) |
 | 2026-05-28 | `pnpm --filter api build` | PASS | Scheduled broadcast queue and stats endpoint compiled |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Admin notifications page stats cards and schedule controls compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 5 suites, 17 tests passed (scheduled lifecycle + analytics breakdown tests added) |
+| 2026-05-28 | `pnpm --filter api build` | PASS | Scheduled update/cancel lifecycle and analytics breakdown compiled |
+| 2026-05-28 | `pnpm --filter web build` | PASS | Scheduled broadcasts list management UI compiled |
 
 ## 10. Git History Created By This Work
 
@@ -671,10 +679,11 @@ Next phase:
 | Phase 7 (continuation) | `phase-7: add monetary proration adjustments for plan changes` | `019cb59` | Yes |
 | Phase 8 (continuation) | `phase-8: add notification audience segmentation and content filters` | `8e69bc2` | Yes |
 | Phase 8 (continuation) | `phase-8: add scheduled notification queue and delivery stats` | `3c67e76` | Yes |
+| Phase 8 (continuation) | `phase-8: add scheduled broadcast lifecycle and analytics breakdown` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
 - Complete optional Stripe settlement parity for proration adjustments (invoice/credit-note sync).
-- Continue Phase 8 with scheduled job management (edit/cancel) and deeper delivery analytics.
+- Continue Phase 8 with recipient-level delivery tracing and richer campaign analytics drilldowns.
 - Close multilingual consistency and run final validation in Phases 9-10.
 - Keep `apps/mobile` untouched until explicit mobile phase approval.

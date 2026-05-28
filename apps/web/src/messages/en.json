@@ -1365,7 +1365,10 @@
       "stats": {
         "immediateBroadcasts": "Immediate broadcasts",
         "scheduledPending": "Scheduled pending",
-        "scheduledSent": "Scheduled sent"
+        "scheduledSent": "Scheduled sent",
+        "scheduledCancelled": "Scheduled cancelled",
+        "broadcastsToUsers": "Broadcasts to users",
+        "broadcastsToStaff": "Broadcasts to staff"
       }
     },
     "content": {
