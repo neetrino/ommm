@@ -85,19 +85,19 @@ const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
 /** Admin panel section order per CRM (Settings is studio-level; profile remains account). */
 const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/home", icon: "layoutDashboard", labelKey: "dashboard" },
-  { href: "/admin/classes", icon: "layoutGrid", labelKey: "classes" },
   { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists" },
   { href: "/admin/clients", icon: "users", labelKey: "clients" },
   { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
   { href: "/admin/schedule", icon: "calendar", labelKey: "schedule" },
-  { href: "/admin/memberships", icon: "tag", labelKey: "memberships" },
+  { href: "/admin/packages", icon: "tag", labelKey: "packages" },
   { href: "/admin/gift-cards", icon: "gift", labelKey: "giftCards" },
   { href: "/admin/finance", icon: "wallet", labelKey: "finance" },
-  { href: "/admin/reports", icon: "pieChart", labelKey: "reports" },
-  { href: "/admin/content", icon: "fileText", labelKey: "content" },
+  { href: "/admin/analytics", icon: "pieChart", labelKey: "analytics" },
+  { href: "/admin/notifications", icon: "bell", labelKey: "notificationManagement" },
   { href: "/admin/settings", icon: "settings", labelKey: "settings" },
-  { href: "/admin/profile", icon: "user", labelKey: "profile" },
+  { href: "/admin/feedback", icon: "fileText", labelKey: "feedback" },
+  { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers" },
 ];
 
 /** Sidebar item definitions for the authenticated dashboard role (Prisma `Role`). */
