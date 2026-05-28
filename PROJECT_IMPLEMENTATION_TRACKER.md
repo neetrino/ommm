@@ -99,7 +99,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH7-003 | Add gift-credit ledger metrics to finance reporting and admin finance UI | Web+API/Finance | DONE | `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:58 (UTC+4) | `3b54c60` |
 | PH7-004 | Add gift-credit ledger CSV export endpoint and finance UI export action | Web+API/Finance | DONE | `apps/api/src/reports/reports.controller.ts`, `apps/api/src/reports/reports.service.ts`, `apps/api/src/reports/reports.service.spec.ts`, `apps/web/src/app/[locale]/(admin)/admin/finance/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:04 (UTC+4) | `2867751` |
 | PH7-005 | Add membership change-plan proration policy and automated tests | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:12 (UTC+4) | `fd9b8fc` |
-| PH7-006 | Add monetary proration adjustment ledger entries for plan changes | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:19 (UTC+4) | TBD |
+| PH7-006 | Add monetary proration adjustment ledger entries for plan changes | API/Finance | DONE | `apps/api/src/memberships/memberships.service.ts`, `apps/api/src/memberships/memberships.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 14:19 (UTC+4) | `019cb59` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -623,7 +623,7 @@ Next phase:
 | Phase 7 (continuation) | `phase-7: add gift-credit ledger metrics to finance reporting` | `3b54c60` | Yes |
 | Phase 7 (continuation) | `phase-7: add gift-credit csv export and finance export actions` | `2867751` | Yes |
 | Phase 7 (continuation) | `phase-7: add membership proration policy for plan changes` | `fd9b8fc` | Yes |
-| Phase 7 (continuation) | `phase-7: add monetary proration adjustments for plan changes` | TBD | TBD |
+| Phase 7 (continuation) | `phase-7: add monetary proration adjustments for plan changes` | `019cb59` | Yes |
 
 ## 11. Final Remaining Work
 
