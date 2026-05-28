@@ -15,8 +15,11 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { BookingsService } from './bookings.service';
+import { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
+import { CreateBookingDto } from './dto/create-booking.dto';
 import { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import { MoveBookingDto } from './dto/move-booking.dto';
+import { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 
 @Controller('bookings')
 export class BookingsController {
@@ -27,8 +30,9 @@ export class BookingsController {
   book(
     @CurrentUser() user: { id: string },
     @Param('sessionId') sessionId: string,
+    @Body() dto: CreateBookingDto,
   ) {
-    return this.bookings.book(user.id, sessionId);
+    return this.bookings.book(user.id, sessionId, dto);
   }
 
   @Get('me')
@@ -62,6 +66,19 @@ export class BookingsController {
     });
   }
 
+  @Get('admin/management')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
+  adminManagement(
+    @CurrentUser() user: User,
+    @Query() query: AdminBookingsManagementQueryDto,
+  ) {
+    return this.bookings.listAdminManagement({
+      actor: user,
+      query,
+    });
+  }
+
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
@@ -74,6 +91,27 @@ export class BookingsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   move(@Param('id') id: string, @Body() dto: MoveBookingDto) {
     return this.bookings.moveBooking(id, dto.targetSessionId);
+  }
+
+  @Get('admin/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
+  adminGet(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.bookings.adminGetById(user, id);
+  }
+
+  @Patch('admin/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminUpdate(@Param('id') id: string, @Body() dto: UpdateAdminBookingDto) {
+    return this.bookings.adminUpdate(id, dto);
+  }
+
+  @Delete('admin/:id/permanent')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  adminDeletePermanent(@Param('id') id: string) {
+    return this.bookings.adminDeletePermanent(id);
   }
 
   @Patch('admin/:id/attendance')

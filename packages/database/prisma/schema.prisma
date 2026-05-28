@@ -30,6 +30,11 @@ enum BookingStatus {
   MISSED
 }
 
+enum BookingChannel {
+  WEBSITE
+  APP
+}
+
 enum WaitlistStatus {
   ACTIVE
   OFFERED
@@ -262,6 +267,7 @@ model Booking {
   sessionId   String
   session     ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   status      BookingStatus @default(BOOKED)
+  channel     BookingChannel @default(WEBSITE)
   attendedAt  DateTime?
   cancelledAt DateTime?
   createdAt   DateTime      @default(now())

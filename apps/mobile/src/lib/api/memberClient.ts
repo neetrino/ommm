@@ -170,6 +170,7 @@ export async function bookSession(
     {
       method: "POST",
       headers: { ...JSON_HEADERS, Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ channel: "APP" }),
     },
     base,
   );
