@@ -47,12 +47,14 @@ export class BookingsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
   adminList(
+    @CurrentUser() user: User,
     @Query('sessionId') sessionId?: string,
     @Query('userId') userId?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
     return this.bookings.listAdmin({
+      actor: user,
       sessionId,
       userId,
       from: from ? new Date(from) : undefined,
@@ -77,8 +79,12 @@ export class BookingsController {
   @Patch('admin/:id/attendance')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
-  attendance(@Param('id') id: string, @Body('attended') attended: boolean) {
-    return this.bookings.markAttended(id, Boolean(attended));
+  attendance(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body('attended') attended: boolean,
+  ) {
+    return this.bookings.markAttended(user, id, Boolean(attended));
   }
 
   @Post(':id/notes')

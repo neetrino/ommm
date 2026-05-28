@@ -9,12 +9,12 @@
 - [x] Phase 3 - Booking/waitlist/schedule consistency
 - [x] Phase 4 - Clients/coaches management gaps
 - [x] Phase 5 - User account gaps
+- [x] Phase 6 - Manager and coach role gaps
 
 ### In Progress
-- [ ] Phase 6 - Manager and coach role gaps
+- [ ] Phase 7 - Finance, memberships, payments, gift cards
 
 ### Remaining
-- [ ] Phase 7 - Finance, memberships, payments, gift cards
 - [ ] Phase 8 - Notifications and content management
 - [ ] Phase 9 - Multilingual consistency
 - [ ] Phase 10 - Final validation and release readiness
@@ -75,7 +75,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | Coach Salary | Yes | PARTIAL | `apps/web/src/app/[locale]/(coach)/coach/salary/page.tsx`, `apps/api/src/coaches/coaches.controller.ts` (`panel/salary`) | Uses simplified/hardcoded salary logic | Medium |
 | Coach Analytics | Yes | PARTIAL | `apps/web/src/app/[locale]/(coach)/coach/analytics/page.tsx`, `apps/api/src/reports/reports.controller.ts` (`coach/analytics`) | CRM-depth performance metrics limited | Medium |
 | Coach Profile Settings | Yes | DONE | `apps/web/src/app/[locale]/(coach)/coach/profile/page.tsx` | Minor improvements only | Low |
-| Manager Role | Yes | PARTIAL | `apps/web/src/app/[locale]/(manager)/*`, `apps/api/src/*` role guards | Some endpoints broader/narrower than CRM matrix | High |
+| Manager Role | Yes | PARTIAL | `apps/web/src/app/[locale]/(manager)/*`, `apps/api/src/*` role guards | Core booking/waitlist boundaries improved; finance/report scope still needs final audit pass | Medium |
 | Content Manager Role | Yes | PARTIAL | `apps/web/src/app/[locale]/(content-admin)/*`, `apps/api/src/content/content.controller.ts` | Limited content scope vs CRM needs | High |
 | Multilingual Support | Yes | PARTIAL | `apps/web/src/i18n/routing.ts`, `apps/web/messages/*.json` | Web strong, but hardcoded strings and mobile i18n gaps remain | High |
 | Mobile Home | Yes | PARTIAL | `apps/mobile/src/features/home/screens/HomeScreen.tsx` | Not full CRM parity and currently phase-frozen | Medium |
@@ -93,6 +93,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH3-001 | Align cancellation credits, waitlist offer sequencing, and drop-in prechecks | API/Booking+Waitlist | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `apps/api/src/payments/payments.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:10 (UTC+4) | `cf893cc` |
 | PH4-001 | Add CRM baseline filtering for admin clients and coaches | Web+API/Admin | DONE | `apps/api/src/clients/dto/admin-list-clients-query.dto.ts`, `apps/api/src/clients/clients.controller.ts`, `apps/api/src/clients/clients.service.ts`, `apps/api/src/coaches/dto/admin-list-coaches-query.dto.ts`, `apps/api/src/coaches/coaches.controller.ts`, `apps/api/src/coaches/coaches.service.ts`, `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:16 (UTC+4) | `7af8bd2` |
 | PH5-001 | Replace delete-account placeholder flow with authenticated request pipeline | Web+API/User | DONE | `apps/api/src/users/dto/request-account-deletion.dto.ts`, `apps/api/src/users/users.controller.ts`, `apps/api/src/users/users.service.ts`, `apps/web/src/components/account/delete-account-request-button.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:24 (UTC+4) | `0424909` |
+| PH6-001 | Enforce coach-scoped access on admin booking/waitlist operations | API/RBAC | DONE | `apps/api/src/bookings/bookings.controller.ts`, `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/waitlist/waitlist.controller.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:31 (UTC+4) | TBD |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -490,6 +491,32 @@ Push status:
 Next phase:
 - Phase 6 - Manager and Coach Role Gaps
 
+### Phase 6 Result
+
+Status: COMPLETED
+Tasks completed:
+- Scoped coach access for `GET /bookings/admin` to coach-owned sessions only.
+- Scoped coach attendance updates to own-session bookings only.
+- Scoped coach access for `GET /waitlist/sessions/:sessionId` to coach-owned sessions only.
+Files changed:
+- `apps/api/src/bookings/bookings.controller.ts`
+- `apps/api/src/bookings/bookings.service.ts`
+- `apps/api/src/waitlist/waitlist.controller.ts`
+- `apps/api/src/waitlist/waitlist.service.ts`
+- `PROJECT_IMPLEMENTATION_TRACKER.md`
+Build result:
+- `pnpm --filter api build` PASSED
+Tests result:
+- `pnpm --filter api test` PASSED (3 suites, 7 tests)
+Known issues:
+- Manager-vs-admin boundary around finance/report endpoints needs final enforcement pass.
+Commit hash:
+- TBD
+Push status:
+- TBD
+Next phase:
+- Phase 7 - Finance, Memberships, Payments, Gift Cards
+
 ## 9. Build / Test History
 
 | Date | Command | Result | Notes |
@@ -509,6 +536,8 @@ Next phase:
 | 2026-05-28 | `pnpm --filter api build` | PASS | User delete-account request API flow compiled |
 | 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 | 2026-05-28 | `pnpm --filter web build` | PASS | Profile security delete-request UX and i18n compiled |
+| 2026-05-28 | `pnpm --filter api build` | PASS | RBAC scoping changes for bookings/waitlist compiled |
+| 2026-05-28 | `pnpm --filter api test` | PASS | 3 suites, 7 tests passed |
 
 ## 10. Git History Created By This Work
 
@@ -520,10 +549,10 @@ Next phase:
 | Phase 3 | `phase-3: align booking and waitlist lifecycle rules` | `cf893cc` | Yes |
 | Phase 4 | `phase-4: extend client and coach management capabilities` | `7af8bd2` | Yes |
 | Phase 5 | `phase-5: harden user account security request flow` | `0424909` | Yes |
+| Phase 6 | `phase-6: align manager and coach role boundaries` | TBD | TBD |
 
 ## 11. Final Remaining Work
 
-- Align RBAC correctness in Phase 6.
 - Complete finance/membership/gift-credit correctness in Phase 7.
 - Upgrade notification/content management depth in Phase 8.
 - Close multilingual consistency and run final validation in Phases 9-10.

@@ -91,7 +91,25 @@ export class WaitlistService {
     });
   }
 
-  listForSession(sessionId: string) {
+  async listForSession(
+    sessionId: string,
+    actor?: { id: string; role: Role },
+  ) {
+    if (actor?.role === Role.COACH) {
+      const [profile, session] = await Promise.all([
+        this.prisma.coachProfile.findUnique({
+          where: { userId: actor.id },
+          select: { id: true },
+        }),
+        this.prisma.classSession.findUnique({
+          where: { id: sessionId },
+          select: { coachId: true },
+        }),
+      ]);
+      if (!profile || !session || session.coachId !== profile.id) {
+        throw new ForbiddenException();
+      }
+    }
     return this.prisma.waitlistEntry.findMany({
       where: { sessionId },
       include: {

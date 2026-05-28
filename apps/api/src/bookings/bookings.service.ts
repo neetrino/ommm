@@ -251,7 +251,23 @@ export class BookingsService {
     return updated;
   }
 
-  async markAttended(bookingId: string, attended: boolean) {
+  async markAttended(actor: User, bookingId: string, attended: boolean) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { session: { select: { coachId: true } } },
+    });
+    if (!booking) {
+      throw new NotFoundException();
+    }
+    if (actor.role === Role.COACH) {
+      const profile = await this.prisma.coachProfile.findUnique({
+        where: { userId: actor.id },
+        select: { id: true },
+      });
+      if (!profile || booking.session.coachId !== profile.id) {
+        throw new ForbiddenException();
+      }
+    }
     return this.prisma.booking.update({
       where: { id: bookingId },
       data: {
@@ -287,15 +303,20 @@ export class BookingsService {
   }
 
   listAdmin(filters: {
+    actor: User;
     sessionId?: string;
     userId?: string;
     from?: Date;
     to?: Date;
   }) {
+    const coachScope =
+      filters.actor.role === Role.COACH
+        ? ({ coach: { userId: filters.actor.id } } as Prisma.ClassSessionWhereInput)
+        : undefined;
     const sessionFilter: Prisma.ClassSessionWhereInput | undefined =
       filters.from && filters.to
-        ? { startsAt: { gte: filters.from, lte: filters.to } }
-        : undefined;
+        ? { startsAt: { gte: filters.from, lte: filters.to }, ...(coachScope ?? {}) }
+        : coachScope;
     return this.prisma.booking.findMany({
       where: {
         ...(filters.sessionId && { sessionId: filters.sessionId }),

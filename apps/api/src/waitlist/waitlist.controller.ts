@@ -56,8 +56,11 @@ export class WaitlistController {
   @Get('sessions/:sessionId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
-  forSession(@Param('sessionId') sessionId: string) {
-    return this.waitlist.listForSession(sessionId);
+  forSession(
+    @CurrentUser() user: { id: string; role: Role },
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.waitlist.listForSession(sessionId, user);
   }
 
   @Delete('entries/:id')
