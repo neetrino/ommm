@@ -93,7 +93,7 @@ Current state is a mature monorepo with substantial implementation across web an
 | PH3-001 | Align cancellation credits, waitlist offer sequencing, and drop-in prechecks | API/Booking+Waitlist | DONE | `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/payments/payments.service.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `apps/api/src/payments/payments.service.spec.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:10 (UTC+4) | `cf893cc` |
 | PH4-001 | Add CRM baseline filtering for admin clients and coaches | Web+API/Admin | DONE | `apps/api/src/clients/dto/admin-list-clients-query.dto.ts`, `apps/api/src/clients/clients.controller.ts`, `apps/api/src/clients/clients.service.ts`, `apps/api/src/coaches/dto/admin-list-coaches-query.dto.ts`, `apps/api/src/coaches/coaches.controller.ts`, `apps/api/src/coaches/coaches.service.ts`, `apps/web/src/app/[locale]/(admin)/admin/clients/page.tsx`, `apps/web/src/app/[locale]/(admin)/admin/coaches/page.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:16 (UTC+4) | `7af8bd2` |
 | PH5-001 | Replace delete-account placeholder flow with authenticated request pipeline | Web+API/User | DONE | `apps/api/src/users/dto/request-account-deletion.dto.ts`, `apps/api/src/users/users.controller.ts`, `apps/api/src/users/users.service.ts`, `apps/web/src/components/account/delete-account-request-button.tsx`, `apps/web/src/messages/en.json`, `apps/web/src/messages/hy.json`, `apps/web/src/messages/ru.json`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:24 (UTC+4) | `0424909` |
-| PH6-001 | Enforce coach-scoped access on admin booking/waitlist operations | API/RBAC | DONE | `apps/api/src/bookings/bookings.controller.ts`, `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/waitlist/waitlist.controller.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:31 (UTC+4) | TBD |
+| PH6-001 | Enforce coach-scoped access on admin booking/waitlist operations | API/RBAC | DONE | `apps/api/src/bookings/bookings.controller.ts`, `apps/api/src/bookings/bookings.service.ts`, `apps/api/src/waitlist/waitlist.controller.ts`, `apps/api/src/waitlist/waitlist.service.ts`, `PROJECT_IMPLEMENTATION_TRACKER.md` | 2026-05-28 13:31 (UTC+4) | `3068587` |
 
 ## 4. Partial / Incomplete Tasks
 
@@ -511,9 +511,9 @@ Tests result:
 Known issues:
 - Manager-vs-admin boundary around finance/report endpoints needs final enforcement pass.
 Commit hash:
-- TBD
+- `3068587`
 Push status:
-- TBD
+- Pushed to `origin/work/1748df5-base`
 Next phase:
 - Phase 7 - Finance, Memberships, Payments, Gift Cards
 
@@ -549,7 +549,7 @@ Next phase:
 | Phase 3 | `phase-3: align booking and waitlist lifecycle rules` | `cf893cc` | Yes |
 | Phase 4 | `phase-4: extend client and coach management capabilities` | `7af8bd2` | Yes |
 | Phase 5 | `phase-5: harden user account security request flow` | `0424909` | Yes |
-| Phase 6 | `phase-6: align manager and coach role boundaries` | TBD | TBD |
+| Phase 6 | `phase-6: align manager and coach role boundaries` | `3068587` | Yes |
 
 ## 11. Final Remaining Work
 
