@@ -35,7 +35,11 @@ export class ReportsService {
     todayEnd.setDate(todayEnd.getDate() + 1);
     const now = new Date();
 
-    const baseDashboard = await this.getBaseDashboard(todayStart, todayEnd, includeRevenue);
+    const baseDashboard = await this.getBaseDashboard(
+      todayStart,
+      todayEnd,
+      includeRevenue,
+    );
     if (!includeOverview) {
       return baseDashboard;
     }
@@ -97,7 +101,11 @@ export class ReportsService {
     };
   }
 
-  private async getOverviewDetails(todayStart: Date, todayEnd: Date, now: Date) {
+  private async getOverviewDetails(
+    todayStart: Date,
+    todayEnd: Date,
+    now: Date,
+  ) {
     const monthStart = this.getMonthStart(now);
     const nextMonthStart = this.getNextMonthStart(now);
     const previousMonthStart = this.getPreviousMonthStart(now);
@@ -184,7 +192,9 @@ export class ReportsService {
         },
         include: {
           user: { select: { name: true, lastName: true, email: true } },
-          session: { select: { startsAt: true, classType: { select: { name: true } } } },
+          session: {
+            select: { startsAt: true, classType: { select: { name: true } } },
+          },
         },
         orderBy: [{ session: { startsAt: 'asc' } }, { cancelledAt: 'desc' }],
         take: UPCOMING_ITEMS_LIMIT,

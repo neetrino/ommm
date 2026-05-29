@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -245,7 +246,18 @@ function Select({ value, onChange, options }: { value: string; onChange: (value:
 
 function Avatar({ row }: { row: ClientRow }) {
   const src = resolveApiAssetUrl(row.avatarUrl);
-  if (src) return <img src={src} alt="" className="h-10 w-10 rounded-full object-cover" />;
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt=""
+        width={40}
+        height={40}
+        className="h-10 w-10 rounded-full object-cover"
+        unoptimized
+      />
+    );
+  }
   return <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">{fullName(row).slice(0, 2).toUpperCase()}</div>;
 }
 

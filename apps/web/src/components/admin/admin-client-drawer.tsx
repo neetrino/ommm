@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
@@ -269,7 +270,16 @@ function EditSection(props: {
 function Avatar({ client }: { client: { avatarUrl: string | null; name: string | null; lastName: string | null; email: string } }) {
   const initials = fullName(client).split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("");
   if (client.avatarUrl) {
-    return <img src={client.avatarUrl} alt="" className="h-16 w-16 rounded-full object-cover" />;
+    return (
+      <Image
+        src={client.avatarUrl}
+        alt=""
+        width={64}
+        height={64}
+        className="h-16 w-16 rounded-full object-cover"
+        unoptimized
+      />
+    );
   }
   return <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-sand-100 text-lg font-semibold text-sage-800">{initials || "?"}</div>;
 }
