@@ -128,6 +128,76 @@ export class WaitlistService {
     });
   }
 
+  async listAdminActive(take: number) {
+    const safeTake = Math.min(Math.max(take, 1), 500);
+    const activeStatuses = [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED];
+    const entries = await this.prisma.waitlistEntry.findMany({
+      where: { status: { in: activeStatuses } },
+      orderBy: { createdAt: 'desc' },
+      take: safeTake,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        session: {
+          select: {
+            id: true,
+            startsAt: true,
+            classType: {
+              select: { id: true, name: true },
+            },
+          },
+        },
+      },
+    });
+    if (entries.length === 0) {
+      return [];
+    }
+    const sessionIds = [...new Set(entries.map((entry) => entry.sessionId))];
+    const counts = await this.prisma.waitlistEntry.groupBy({
+      by: ['sessionId'],
+      where: {
+        sessionId: { in: sessionIds },
+        status: { in: activeStatuses },
+      },
+      _count: {
+        _all: true,
+      },
+    });
+    const countBySessionId = new Map(
+      counts.map((item) => [item.sessionId, item._count._all]),
+    );
+    return entries.map((entry) => ({
+      id: entry.id,
+      status: entry.status,
+      waitlistDate: entry.createdAt,
+      offeredAt: entry.offeredAt,
+      offerExpiresAt: entry.offerExpiresAt,
+      sessionWaitlistCount: countBySessionId.get(entry.sessionId) ?? 0,
+      user: {
+        id: entry.user.id,
+        name: entry.user.name,
+        lastName: entry.user.lastName,
+        email: entry.user.email,
+        phone: entry.user.phone,
+      },
+      session: {
+        id: entry.session.id,
+        startsAt: entry.session.startsAt,
+        classType: {
+          id: entry.session.classType.id,
+          name: entry.session.classType.name,
+        },
+      },
+    }));
+  }
+
   async offerNextIfSlot(sessionId: string): Promise<void> {
     const session = await this.prisma.classSession.findUnique({
       where: { id: sessionId },

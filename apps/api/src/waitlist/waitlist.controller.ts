@@ -53,6 +53,14 @@ export class WaitlistController {
     return this.waitlist.listAdminRecent(Number.isFinite(n) ? n : 150);
   }
 
+  @Get('admin/active')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminActive(@Query('take') take?: string) {
+    const n = take ? Number.parseInt(take, 10) : 200;
+    return this.waitlist.listAdminActive(Number.isFinite(n) ? n : 200);
+  }
+
   @Get('sessions/:sessionId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)

@@ -1442,16 +1442,43 @@
     },
     "waitlists": {
       "title": "Waitlists",
-      "description": "Recent waitlist entries across all statuses.",
+      "description": "Manage active waitlist entries and promote members when spots open.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load waitlists ({status}).",
+      "loadFailed": "Could not load active waitlist entries.",
+      "loading": "Loading active waitlist entries...",
+      "retry": "Retry",
+      "empty": "No active waitlist entries.",
+      "actionFailed": "Action failed.",
       "colUser": "User",
-      "colClass": "Class",
-      "colSession": "Session",
-      "colPos": "Pos",
-      "colStatus": "Status",
-      "colOfferExpires": "Offer expires",
-      "colActions": "Actions"
+      "colClassType": "Class type",
+      "colWaitlistCount": "Class waitlist count",
+      "colWaitlistDate": "Waitlist date",
+      "colActions": "Actions",
+      "successPromote": "User moved from waitlist to booking.",
+      "successRemove": "User removed from waitlist.",
+      "successNotify": "Notification sent.",
+      "actions": {
+        "userDetails": "Open user details",
+        "promote": "Move user to booking",
+        "notify": "Notify user manually",
+        "remove": "Remove from waitlist"
+      },
+      "removeConfirm": {
+        "title": "Remove from waitlist?",
+        "description": "This will remove {user} from the active waitlist.",
+        "cancel": "Cancel",
+        "confirm": "Remove"
+      },
+      "drawer": {
+        "title": "User details",
+        "close": "Close",
+        "loading": "Loading user details...",
+        "error": "Could not load user details.",
+        "empty": "User data is unavailable.",
+        "memberships": "Memberships",
+        "bookings": "Recent bookings"
+      }
     },
     "reports": {
       "title": "Reports",

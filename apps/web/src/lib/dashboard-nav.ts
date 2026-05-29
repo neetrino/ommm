@@ -86,7 +86,8 @@ const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
 const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/home", icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
-  { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists" },
+  { href: "/admin/classes", icon: "layoutGrid", labelKey: "classes" },
+  { href: "/admin/waitlist", icon: "listOrdered", labelKey: "waitlists" },
   { href: "/admin/clients", icon: "users", labelKey: "clients" },
   { href: "/admin/coaches", icon: "userCheck", labelKey: "coaches" },
   { href: "/admin/schedule", icon: "calendar", labelKey: "schedule" },

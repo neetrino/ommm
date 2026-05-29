@@ -7,6 +7,7 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/admin/clients": "admin.clients",
   "/admin/bookings": "admin.bookings",
   "/admin/classes": "admin.classes",
+  "/admin/waitlist": "admin.waitlists",
   "/admin/waitlists": "admin.waitlists",
   "/admin/coaches": "admin.coaches",
   "/admin/schedule": "admin.schedule",
