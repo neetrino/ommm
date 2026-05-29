@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
+import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -204,8 +205,12 @@ export default function RegisterPage() {
           type="button"
           variant="secondary"
           onClick={() => window.location.assign(googleAuthUrl)}
+          className="gap-2.5"
         >
-          {tAuth("continueWithGoogle")}
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+            <GoogleLogoIcon className="h-4 w-4" />
+          </span>
+          <span className="leading-none">{tAuth("continueWithGoogle")}</span>
         </OmmButton>
       </form>
       {error ? (
