@@ -14,7 +14,7 @@ const MAX_BUTTON_LABEL_LENGTH = 80;
 const BILLING_PERIOD_OPTIONS = ["weekly", "monthly", "quarterly", "yearly"] as const;
 type BillingPeriodOption = (typeof BILLING_PERIOD_OPTIONS)[number];
 
-type AdminMembershipPlanFormProps = {
+type AdminPackagePlanFormProps = {
   onSaved: () => void;
   onCancel: () => void;
 };
@@ -41,8 +41,8 @@ function isBillingPeriodOption(value: string): value is BillingPeriodOption {
   return BILLING_PERIOD_OPTIONS.includes(value as BillingPeriodOption);
 }
 
-export function AdminMembershipPlanForm({ onSaved, onCancel }: AdminMembershipPlanFormProps) {
-  const t = useTranslations("adminPages.memberships");
+export function AdminPackagePlanForm({ onSaved, onCancel }: AdminPackagePlanFormProps) {
+  const t = useTranslations("adminPages.packages");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [billingPeriodValue, setBillingPeriodValue] = useState<BillingPeriodOption>("monthly");

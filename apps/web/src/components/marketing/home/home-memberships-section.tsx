@@ -135,7 +135,7 @@ export async function HomeMembershipsSection({ locale }: { locale: string }) {
                 ))}
               </ul>
               <div className="mt-8">
-                <Link href="/memberships" className="ommm-cta-primary inline-flex w-full justify-center">
+                <Link href="/packages" className="ommm-cta-primary inline-flex w-full justify-center">
                   {card.buttonLabel}
                 </Link>
               </div>

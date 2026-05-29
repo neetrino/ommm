@@ -5,13 +5,13 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 
-type AdminMembershipPlanActionsProps = {
+type AdminPackagePlanActionsProps = {
   planId: string;
   isActive: boolean;
 };
 
-export function AdminMembershipPlanActions({ planId, isActive }: AdminMembershipPlanActionsProps) {
-  const t = useTranslations("adminPages.memberships");
+export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanActionsProps) {
+  const t = useTranslations("adminPages.packages");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");

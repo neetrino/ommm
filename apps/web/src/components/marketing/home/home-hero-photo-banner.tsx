@@ -110,7 +110,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           <div className="mt-6 flex w-full max-w-[35rem] shrink-0 flex-col items-stretch gap-4 sm:mt-8 sm:flex-row sm:items-center sm:justify-center sm:gap-[3.5625rem]">
             <HomeMarketingPillLink href="/schedule" label={t("primaryCta")} variant="goldBooking" />
             <HomeMarketingPillLink
-              href="/memberships"
+              href="/packages"
               label={t("secondaryCta")}
               variant="frostMembership"
             />

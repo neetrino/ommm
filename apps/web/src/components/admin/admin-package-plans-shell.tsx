@@ -5,14 +5,14 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminMembershipPlanForm } from "@/components/admin/admin-membership-plan-form";
+import { AdminPackagePlanForm } from "@/components/admin/admin-package-plan-form";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const MODAL_QUERY_KEY = "modal";
-const MODAL_QUERY_VALUE = "add-membership";
+const MODAL_QUERY_VALUE = "add-package";
 const BANNER_MS = 8000;
 
-function AddMembershipGlyph({ className }: { className?: string }) {
+function AddPackageGlyph({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -30,12 +30,12 @@ function AddMembershipGlyph({ className }: { className?: string }) {
   );
 }
 
-type AdminMembershipPlansShellProps = {
+type AdminPackagePlansShellProps = {
   children: ReactNode;
 };
 
-export function AdminMembershipPlansShell({ children }: AdminMembershipPlansShellProps) {
-  const t = useTranslations("adminPages.memberships");
+export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps) {
+  const t = useTranslations("adminPages.packages");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -135,8 +135,8 @@ export function AdminMembershipPlansShell({ children }: AdminMembershipPlansShel
             onClick={openModal}
             className="inline-flex items-center gap-2"
           >
-            <AddMembershipGlyph className="h-5 w-5 shrink-0" />
-            {t("addMembershipButton")}
+            <AddPackageGlyph className="h-5 w-5 shrink-0" />
+            {t("addPackageButton")}
           </OmmButton>
         </div>
 
@@ -192,7 +192,7 @@ export function AdminMembershipPlansShell({ children }: AdminMembershipPlansShel
               </button>
             </div>
             <div className="mt-5">
-              <AdminMembershipPlanForm onSaved={onCreated} onCancel={closeModal} />
+              <AdminPackagePlanForm onSaved={onCreated} onCancel={closeModal} />
             </div>
           </div>
         </div>

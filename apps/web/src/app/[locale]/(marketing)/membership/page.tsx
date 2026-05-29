@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default async function AdminMembershipsPage({
+export default async function MembershipAliasPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/admin/packages`);
+  redirect(`/${locale}/packages`);
 }
