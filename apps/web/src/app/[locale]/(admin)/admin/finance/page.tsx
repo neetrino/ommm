@@ -1,10 +1,16 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import { AdminFinanceManagement } from "@/components/admin/admin-finance-management";
+import type {
+  CoachFinanceRow,
+  FinanceTab,
+} from "@/components/admin/admin-finance-types";
+import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 import { FinanceFilters } from "./finance-filters";
-import { FinancePaymentsTable } from "./finance-payments-table";
 
 type Dashboard = {
   revenueCentsTotal?: number;
@@ -53,11 +59,36 @@ type PaymentsResponse = {
   offset: number;
 };
 
+type CoachListRow = {
+  id: string;
+  userId: string;
+  isActive: boolean;
+  totalClasses: number;
+  user: {
+    id: string;
+    name: string | null;
+    lastName: string | null;
+    phone: string | null;
+    email: string;
+  };
+};
+
+type CoachSalaryPayload = {
+  items: Array<{
+    coachProfileId: string;
+    userId: string;
+    isActive: boolean;
+    user: CoachListRow["user"];
+    salary: CoachFinanceRow["salary"];
+  }>;
+};
+
 type PageSearchParams = Promise<{
   rangeDays?: string;
   source?: string;
   status?: string;
   q?: string;
+  tab?: string;
 }>;
 
 function parseRangeDays(value?: string): number {
@@ -66,6 +97,10 @@ function parseRangeDays(value?: string): number {
     return parsed;
   }
   return 30;
+}
+
+function parseTab(value?: string): FinanceTab {
+  return value === "coach" ? "coach" : "user";
 }
 
 function computeFromDate(days: number): string {
@@ -85,24 +120,21 @@ function getStatusStats(summary: FinanceSummary, status: string) {
   return summary.byStatus.find((entry) => entry.status === status) ?? { status, count: 0, amountCents: 0 };
 }
 
-function filterPaymentsByQuery(items: PaymentsResponse["items"], query: string) {
-  const normalized = query.trim().toLowerCase();
-  if (normalized.length === 0) {
-    return items;
-  }
-
-  return items.filter((item) => {
-    const fullName = `${item.user.name ?? ""} ${item.user.lastName ?? ""}`.toLowerCase();
-    const haystack = [
-      item.id,
-      item.user.email,
-      fullName,
-      item.description ?? "",
-    ]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(normalized);
-  });
+function mergeCoachRows(
+  coaches: CoachListRow[],
+  salaries: CoachSalaryPayload["items"],
+): CoachFinanceRow[] {
+  const salaryByCoachId = new Map(
+    salaries.map((entry) => [entry.coachProfileId, entry.salary]),
+  );
+  return coaches.map((coach) => ({
+    coachProfileId: coach.id,
+    userId: coach.userId,
+    isActive: coach.isActive,
+    user: coach.user,
+    salary: salaryByCoachId.get(coach.id) ?? null,
+    totalClasses: coach.totalClasses,
+  }));
 }
 
 export default async function AdminFinancePage({
@@ -122,7 +154,16 @@ export default async function AdminFinancePage({
   const statusFilter = search.status && search.status !== "all" ? `&status=${search.status}` : "";
   const sourceFilter = search.source && search.source !== "all" ? `&source=${search.source}` : "";
 
-  const [dashboardRes, financeRes, monthFinanceRes, paymentsRes] = await Promise.all([
+  const [
+    dashboardRes,
+    financeRes,
+    monthFinanceRes,
+    paymentsRes,
+    clientsRes,
+    coachesRes,
+    salariesRes,
+    packagesRes,
+  ] = await Promise.all([
     serverApiJson<Dashboard>("/reports/dashboard?includeRevenue=true", cookie),
     serverApiJson<FinanceSummary>(
       `/reports/finance/summary?from=${encodeURIComponent(from)}`,
@@ -136,9 +177,22 @@ export default async function AdminFinancePage({
       `/payments/admin?from=${encodeURIComponent(from)}${statusFilter}${sourceFilter}&take=100`,
       cookie,
     ),
+    serverApiJson<AdminClientsPayload>("/clients?meta=true", cookie),
+    serverApiJson<CoachListRow[]>("/coaches/admin/list", cookie),
+    serverApiJson<CoachSalaryPayload>("/coaches/admin/salary-summaries", cookie),
+    serverApiJson<PackageOption[]>("/memberships/admin/plans", cookie),
   ]);
 
-  if (!dashboardRes.ok || !financeRes.ok || !monthFinanceRes.ok || !paymentsRes.ok) {
+  if (
+    !dashboardRes.ok ||
+    !financeRes.ok ||
+    !monthFinanceRes.ok ||
+    !paymentsRes.ok ||
+    !clientsRes.ok ||
+    !coachesRes.ok ||
+    !salariesRes.ok ||
+    !packagesRes.ok
+  ) {
     const status = !dashboardRes.ok
       ? dashboardRes.status
       : !financeRes.ok
@@ -147,7 +201,15 @@ export default async function AdminFinancePage({
           ? monthFinanceRes.status
           : !paymentsRes.ok
             ? paymentsRes.status
-            : 500;
+            : !clientsRes.ok
+              ? clientsRes.status
+              : !coachesRes.ok
+                ? coachesRes.status
+                : !salariesRes.ok
+                  ? salariesRes.status
+                  : !packagesRes.ok
+                    ? packagesRes.status
+                    : 500;
     return (
       <div className="app-alert-warn max-w-xl">
         {status === 401 || status === 403 ? t("errorAuth") : t("errorLoad", { status })}
@@ -158,7 +220,7 @@ export default async function AdminFinancePage({
   const pending = getStatusStats(financeRes.data, "PENDING");
   const succeeded = getStatusStats(financeRes.data, "SUCCEEDED");
   const refunded = getStatusStats(financeRes.data, "REFUNDED");
-  const filteredPayments = filterPaymentsByQuery(paymentsRes.data.items, search.q ?? "");
+  const coachRows = mergeCoachRows(coachesRes.data, salariesRes.data.items);
 
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
@@ -279,15 +341,17 @@ export default async function AdminFinancePage({
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold text-sage-900">{t("recentTransactions")}</h2>
-        <p className="mt-1 text-xs text-sage-500">
-          {t("shownCount", { shown: filteredPayments.length, total: paymentsRes.data.total })}
-        </p>
-        <div className="mt-3">
-          <FinancePaymentsTable items={filteredPayments} locale={locale} />
-        </div>
-      </section>
+      <Suspense fallback={<p className="mt-8 text-sm text-sage-500">{t("loadingTabs")}</p>}>
+        <AdminFinanceManagement
+          locale={locale}
+          initialTab={parseTab(search.tab)}
+          initialUserRows={clientsRes.data.rows}
+          initialCoachRows={coachRows}
+          initialPayments={paymentsRes.data}
+          packages={packagesRes.data}
+          paymentsFrom={from}
+        />
+      </Suspense>
     </AccountPageFrame>
   );
 }

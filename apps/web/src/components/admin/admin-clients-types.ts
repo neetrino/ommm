@@ -52,6 +52,7 @@ export type ClientRow = {
   lifetimeValueCents: number;
   lastVisitDate: string | null;
   birthdayMonth: number | null;
+  hasGiftCardActivity: boolean;
 };
 
 export type AdminClientsPayload = {

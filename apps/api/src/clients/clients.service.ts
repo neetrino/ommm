@@ -286,7 +286,18 @@ export class ClientsService {
       lifetimeValueCents,
       lastVisitDate: latestBooking?.session.startsAt ?? null,
       birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
+      hasGiftCardActivity: this.hasGiftCardActivity(user),
     };
+  }
+
+  private hasGiftCardActivity(user: ClientRecord): boolean {
+    if (user.giftCardsReceived.length > 0) {
+      return true;
+    }
+    return user.giftCardsPurchased.some(
+      (card) =>
+        card.balanceCents < card.amountCents || card.status === 'REDEEMED',
+    );
   }
 
   private getActiveMembership(user: ClientRecord) {

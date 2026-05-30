@@ -52,6 +52,13 @@ export class CoachesController {
     return this.coaches.salarySummary(user.id);
   }
 
+  @Get('admin/salary-summaries')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminSalarySummaries() {
+    return this.coaches.adminSalarySummaries();
+  }
+
   @Get(':id')
   getPublic(@Param('id') id: string) {
     return this.coaches.getPublic(id);

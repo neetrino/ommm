@@ -847,6 +847,33 @@ export class CoachesService {
     };
   }
 
+  async adminSalarySummaries() {
+    const profiles = await this.prisma.coachProfile.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    const items = await Promise.all(
+      profiles.map(async (profile) => ({
+        coachProfileId: profile.id,
+        userId: profile.userId,
+        isActive: profile.isActive,
+        user: profile.user,
+        salary: await this.salarySummary(profile.userId),
+      })),
+    );
+    return { items };
+  }
+
   async salarySummary(userId: string) {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { userId },
