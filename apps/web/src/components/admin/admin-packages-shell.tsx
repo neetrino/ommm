@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminPackagePlanForm } from "@/components/admin/admin-package-plan-form";
+import { AdminPackageForm } from "@/components/admin/admin-package-form";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const MODAL_QUERY_KEY = "modal";
@@ -30,12 +30,12 @@ function AddPackageGlyph({ className }: { className?: string }) {
   );
 }
 
-type AdminPackagePlansShellProps = {
+type AdminPackagesShellProps = {
   children: ReactNode;
 };
 
-export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps) {
-  const t = useTranslations("adminPages.membershipPlans");
+export function AdminPackagesShell({ children }: AdminPackagesShellProps) {
+  const t = useTranslations("adminPages.packages");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -192,7 +192,7 @@ export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps
               </button>
             </div>
             <div className="mt-5">
-              <AdminPackagePlanForm onSaved={onCreated} onCancel={closeModal} />
+              <AdminPackageForm onSaved={onCreated} onCancel={closeModal} />
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import type { ClientDetail, ClientRow, MembershipPlanOption } from "./admin-clients-types";
+import type { ClientDetail, ClientRow, PackageOption } from "./admin-clients-types";
 import {
   ActionSection,
   HistorySections,
@@ -16,7 +16,7 @@ import {
 
 type Props = {
   client: ClientRow | null;
-  plans: MembershipPlanOption[];
+  packages: PackageOption[];
   locale: string;
   onClose: () => void;
   onChanged: () => void;
@@ -55,13 +55,13 @@ function sessionsLabel(membership: ClientDetail["memberships"][number] | null) {
   return `${membership.sessionsRemaining ?? 0}/${membership.plan.sessionsPerMonth ?? "—"}`;
 }
 
-export function AdminClientDrawer({ client, plans, locale, onClose, onChanged }: Props) {
+export function AdminClientDrawer({ client, packages, locale, onClose, onChanged }: Props) {
   const [detail, setDetail] = useState<ClientDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [note, setNote] = useState("");
-  const [planId, setPlanId] = useState("");
+  const [packageId, setPackageId] = useState("");
   const [giftAmount, setGiftAmount] = useState("10000");
   const [form, setForm] = useState<EditForm>(() => toEditForm(client));
 
@@ -75,7 +75,7 @@ export function AdminClientDrawer({ client, plans, locale, onClose, onChanged }:
       setDetail(null);
       setForm(toEditForm(client));
       setNote("");
-      setPlanId("");
+      setPackageId("");
       void apiFetch<ClientDetail>(`/clients/${client.id}`)
         .then((payload) => {
           if (cancelled) return;
@@ -175,11 +175,11 @@ export function AdminClientDrawer({ client, plans, locale, onClose, onChanged }:
             />
             <ActionSection
               client={data}
-              plans={plans}
-              planId={planId}
+              packages={packages}
+              packageId={packageId}
               giftAmount={giftAmount}
               busy={busy}
-              onPlanChange={setPlanId}
+              onPackageChange={setPackageId}
               onGiftAmountChange={setGiftAmount}
               onRun={run}
             />

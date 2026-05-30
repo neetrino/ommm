@@ -21,10 +21,12 @@ import type {
   AdminClassPackageCoachRow,
   AdminClassPackageSessionRow,
   AdminClassTypeRow,
-  ClassPackageQuickFilter,
-  ClassPackageSortOrder,
   EnrichedClassPackage,
 } from "@/components/admin/admin-class-packages-types";
+import {
+  buildPackageFiltersQuery,
+  PACKAGE_FILTER_QUERY_KEYS,
+} from "@/components/admin/admin-class-packages-url";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -33,40 +35,10 @@ type AdminClassPackagesManagementProps = {
   coaches: readonly AdminClassPackageCoachRow[];
   sessions: readonly AdminClassPackageSessionRow[];
   locale: string;
-  initialFilters: Partial<ClassPackageFilterValues>;
+  initialFilters: ClassPackageFilterValues;
 };
 
-const FILTER_QUERY_KEYS = ["search", "level", "coachId", "order", "quick"] as const;
-const FILTER_DEBOUNCE_MS = 300;
-
-function parseSortOrder(value: string | undefined): ClassPackageSortOrder {
-  const allowed: ClassPackageSortOrder[] = [
-    "newest",
-    "oldest",
-    "capacityHigh",
-    "capacityLow",
-    "priceHigh",
-    "priceLow",
-  ];
-  return allowed.includes(value as ClassPackageSortOrder)
-    ? (value as ClassPackageSortOrder)
-    : "newest";
-}
-
-function parseQuick(value: string | undefined): ClassPackageQuickFilter {
-  const allowed: ClassPackageQuickFilter[] = [
-    "",
-    "popular",
-    "highCapacity",
-    "lowCapacity",
-    "beginner",
-    "advanced",
-    "withCoaches",
-  ];
-  return allowed.includes(value as ClassPackageQuickFilter)
-    ? (value as ClassPackageQuickFilter)
-    : "";
-}
+const SEARCH_DEBOUNCE_MS = 300;
 
 export function AdminClassPackagesManagement({
   classTypes,
@@ -82,13 +54,7 @@ export function AdminClassPackagesManagement({
   const hasMounted = useRef(false);
   const [selected, setSelected] = useState<EnrichedClassPackage | null>(null);
 
-  const [filters, setFilters] = useState<ClassPackageFilterValues>(() => ({
-    search: initialFilters.search ?? "",
-    level: initialFilters.level ?? "",
-    coachId: initialFilters.coachId ?? "",
-    order: parseSortOrder(initialFilters.order),
-    quick: parseQuick(initialFilters.quick),
-  }));
+  const [filters, setFilters] = useState<ClassPackageFilterValues>(initialFilters);
 
   const enriched = useMemo(
     () => enrichClassPackages(classTypes, coaches, sessions),
@@ -123,38 +89,51 @@ export function AdminClassPackagesManagement({
     }
     const handle = window.setTimeout(() => {
       syncFiltersToUrl(filters);
-    }, FILTER_DEBOUNCE_MS);
+    }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [filters]);
+  }, [filters.search]);
 
   function updateFilter<K extends keyof ClassPackageFilterValues>(
     key: K,
     value: ClassPackageFilterValues[K],
   ) {
-    setFilters((current) => ({ ...current, [key]: value }));
+    setFilters((current) => {
+      const next = { ...current, [key]: value };
+      if (key !== "search") {
+        syncFiltersToUrl(next);
+      }
+      return next;
+    });
   }
 
   function resetFilters() {
-    setFilters({
+    const cleared: ClassPackageFilterValues = {
       search: "",
       level: "",
       coachId: "",
       order: "newest",
       quick: "",
-    });
+    };
+    setFilters(cleared);
+    syncFiltersToUrl(cleared);
   }
 
   function syncFiltersToUrl(values: ClassPackageFilterValues) {
     const params = new URLSearchParams(searchParams.toString());
-    for (const key of FILTER_QUERY_KEYS) {
+    for (const key of PACKAGE_FILTER_QUERY_KEYS) {
       params.delete(key);
     }
-    if (values.search.trim()) params.set("search", values.search.trim());
-    if (values.level.trim()) params.set("level", values.level.trim());
-    if (values.coachId.trim()) params.set("coachId", values.coachId.trim());
-    if (values.order !== "newest") params.set("order", values.order);
-    if (values.quick) params.set("quick", values.quick);
+    const filterQuery = buildPackageFiltersQuery(values);
+    if (filterQuery.length > 0) {
+      for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
+        params.set(key, entryValue);
+      }
+    }
     const qs = params.toString();
+    const currentQs = searchParams.toString();
+    if (qs === currentQs) {
+      return;
+    }
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 

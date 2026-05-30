@@ -66,23 +66,27 @@ export function AdminClassPackagesFilters({
 }: AdminClassPackagesFiltersProps) {
   const t = useTranslations("adminPages.packages.filters");
 
+  const quickLabel =
+    values.quick === "" ? t("quickAll") : t(`quick.${values.quick}`);
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {QUICK_FILTERS.map((quick) => (
-          <OmmButton
-            key={quick || "all"}
-            type="button"
-            size="sm"
-            variant={values.quick === quick ? "primary" : "ghost"}
-            onClick={() => onChange("quick", quick)}
-          >
-            {quick === "" ? t("quickAll") : t(`quick.${quick}`)}
-          </OmmButton>
-        ))}
-      </div>
-
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col gap-1">
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {t("quickFilter")}
+          </span>
+          <OmmSelectDropdown
+            ariaLabel={t("quickFilter")}
+            label={quickLabel}
+            value={values.quick}
+            options={QUICK_FILTERS.map((quick) => ({
+              value: quick,
+              label: quick === "" ? t("quickAll") : t(`quick.${quick}`),
+            }))}
+            onChange={(value) => onChange("quick", value as ClassPackageQuickFilter)}
+          />
+        </div>
         <label className="flex flex-col gap-1 sm:col-span-2">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("search")}</span>
           <input

@@ -11,11 +11,11 @@ import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import type { AdminClientsPayload, ClientRow, MembershipPlanOption } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientRow, PackageOption } from "./admin-clients-types";
 
 type Props = {
   initial: AdminClientsPayload;
-  plans: MembershipPlanOption[];
+  packages: PackageOption[];
   locale: string;
   initialFilters: Record<string, string>;
 };
@@ -45,7 +45,7 @@ const quickFilters = [
   ["no-show", "No-show Clients"],
 ] as const;
 
-export function AdminClientsManagement({ initial, plans, locale, initialFilters }: Props) {
+export function AdminClientsManagement({ initial, packages, locale, initialFilters }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const hasMounted = useRef(false);
@@ -158,7 +158,7 @@ export function AdminClientsManagement({ initial, plans, locale, initialFilters 
       ) : null}
       <AdminClientDrawer
         client={selected}
-        plans={plans}
+        packages={packages}
         locale={locale}
         onClose={() => setSelected(null)}
         onChanged={() => router.refresh()}

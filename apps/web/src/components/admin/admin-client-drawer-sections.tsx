@@ -5,17 +5,17 @@ import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import type { ClientDetail, MembershipPlanOption } from "./admin-clients-types";
+import type { ClientDetail, PackageOption } from "./admin-clients-types";
 
 type RunAction = (key: string, action: () => Promise<void>, ok: string) => Promise<void>;
 
 export function ActionSection(props: {
   client: ClientDetail;
-  plans: MembershipPlanOption[];
-  planId: string;
+  packages: PackageOption[];
+  packageId: string;
   giftAmount: string;
   busy: string | null;
-  onPlanChange: (value: string) => void;
+  onPackageChange: (value: string) => void;
   onGiftAmountChange: (value: string) => void;
   onRun: RunAction;
 }) {
@@ -72,25 +72,25 @@ export function ActionSection(props: {
             <div className="min-w-0 flex-1">
               <OmmFilterDropdown
                 allValue=""
-                value={props.planId}
+                value={props.packageId}
                 ariaLabel="Assign package"
                 allLabel="Assign package..."
-                onChange={props.onPlanChange}
-                options={props.plans
-                  .filter((plan) => plan.isActive)
-                  .map((plan) => ({ value: plan.id, label: plan.name }))}
+                onChange={props.onPackageChange}
+                options={props.packages
+                  .filter((pkg) => pkg.isActive)
+                  .map((pkg) => ({ value: pkg.id, label: pkg.name }))}
               />
             </div>
             <OmmButton
               size="sm"
-              disabled={props.planId === "" || props.busy !== null}
+              disabled={props.packageId === "" || props.busy !== null}
               onClick={() =>
                 void props.onRun(
                   "assign",
                   () =>
                     apiFetch("/memberships/admin/assign", {
                       method: "POST",
-                      body: JSON.stringify({ userId: props.client.id, planId: props.planId }),
+                      body: JSON.stringify({ userId: props.client.id, planId: props.packageId }),
                     }),
                   "Package assigned",
                 )

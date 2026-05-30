@@ -1,10 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
-import type {
-  AdminClientsPayload,
-  MembershipPlanOption,
-} from "@/components/admin/admin-clients-types";
+import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -27,9 +24,9 @@ export default async function AdminClientsPage({
     }
   }
   const endpoint = `/clients?${apiSearch.toString()}`;
-  const [clientsRes, plansRes] = await Promise.all([
+  const [clientsRes, packagesRes] = await Promise.all([
     serverApiJson<AdminClientsPayload>(endpoint, cookie),
-    serverApiJson<MembershipPlanOption[]>("/memberships/admin/plans", cookie),
+    serverApiJson<PackageOption[]>("/memberships/admin/plans", cookie),
   ]);
 
   if (!clientsRes.ok) {
@@ -43,8 +40,8 @@ export default async function AdminClientsPage({
     );
   }
 
-  if (!plansRes.ok) {
-    const status = plansRes.status;
+  if (!packagesRes.ok) {
+    const status = packagesRes.status;
     return (
       <div className="app-alert-warn max-w-xl">
         {status === 401 || status === 403
@@ -61,7 +58,7 @@ export default async function AdminClientsPage({
     >
       <AdminClientsManagement
         initial={clientsRes.data}
-        plans={plansRes.data}
+        packages={packagesRes.data}
         locale={locale}
         initialFilters={Object.fromEntries(
           Object.entries(search).filter((entry): entry is [string, string] => Boolean(entry[1])),

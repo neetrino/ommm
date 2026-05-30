@@ -5,13 +5,13 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 
-type AdminPackagePlanActionsProps = {
-  planId: string;
+type AdminPackageActionsProps = {
+  packageId: string;
   isActive: boolean;
 };
 
-export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanActionsProps) {
-  const t = useTranslations("adminPages.membershipPlans");
+export function AdminPackageActions({ packageId, isActive }: AdminPackageActionsProps) {
+  const t = useTranslations("adminPages.packages");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -23,7 +23,7 @@ export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanAc
     setPending(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/plans/${planId}`, {
+      await apiFetch(`/memberships/plans/${packageId}`, {
         method: "PATCH",
         body: JSON.stringify({ isActive: nextActive }),
       });
@@ -38,7 +38,7 @@ export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanAc
     }
   }
 
-  async function removePlan() {
+  async function removePackage() {
     if (pending) {
       return;
     }
@@ -49,7 +49,7 @@ export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanAc
     setPending(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/plans/${planId}`, { method: "DELETE" });
+      await apiFetch(`/memberships/plans/${packageId}`, { method: "DELETE" });
       setTone("ok");
       setMessage(t("messages.deleteSuccess"));
       window.location.reload();
@@ -80,7 +80,7 @@ export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanAc
           variant="danger"
           size="sm"
           onClick={() => {
-            void removePlan();
+            void removePackage();
           }}
           disabled={pending}
         >

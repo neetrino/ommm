@@ -71,7 +71,7 @@ export type AdminClientsPayload = {
   pagination: { total: number; take: number; offset: number };
 };
 
-export type MembershipPlanOption = {
+export type PackageOption = {
   id: string;
   name: string;
   isActive: boolean;
