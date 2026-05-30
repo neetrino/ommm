@@ -1,17 +1,14 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { AdminScheduleDayView } from "@/components/admin/admin-schedule-day-view";
-import { AdminScheduleShell } from "@/components/admin/admin-schedule-shell";
-import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types";
+import {
+  AdminScheduleManagement,
+  type AdminScheduleClassType,
+  type AdminScheduleCoach,
+  type AdminScheduleSession,
+} from "@/components/admin/admin-schedule-management";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
-
-type ClassTypeRow = {
-  id: string;
-  name: string;
-  slug: string;
-};
 
 export default async function AdminSchedulePage({
   params,
@@ -21,38 +18,51 @@ export default async function AdminSchedulePage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [scheduleRes, classTypesRes] = await Promise.all([
-    serverApiJson<AdminScheduleItem[]>("/schedule/admin", cookie),
-    serverApiJson<ClassTypeRow[]>("/classes/types", cookie),
+  const [sessionsRes, classTypesRes, coachesRes] = await Promise.all([
+    serverApiJson<AdminScheduleSession[]>("/classes/admin/sessions", cookie),
+    serverApiJson<AdminScheduleClassType[]>("/classes/types", cookie),
+    serverApiJson<AdminScheduleCoach[]>("/coaches/admin/list", cookie),
   ]);
 
-  if (!scheduleRes.ok) {
+  if (!sessionsRes.ok) {
     return (
       <div className="app-alert-warn max-w-xl">
-        {scheduleRes.status === 401 || scheduleRes.status === 403
+        {sessionsRes.status === 401 || sessionsRes.status === 403
           ? t("errorAuth")
-          : t("errorLoad", { status: scheduleRes.status })}
+          : t("errorLoad", { status: sessionsRes.status })}
       </div>
     );
   }
 
-  const classTypeOptions =
-    classTypesRes.ok && classTypesRes.data.length > 0
-      ? classTypesRes.data.map((row) => row.name)
-      : Array.from(new Set(scheduleRes.data.map((row) => row.classType))).sort((a, b) =>
-          a.localeCompare(b),
-        );
+  if (!classTypesRes.ok) {
+    return (
+      <div className="app-alert-warn max-w-xl">
+        {classTypesRes.status === 401 || classTypesRes.status === 403
+          ? t("errorAuth")
+          : t("errorLoad", { status: classTypesRes.status })}
+      </div>
+    );
+  }
+
+  if (!coachesRes.ok) {
+    return (
+      <div className="app-alert-warn max-w-xl">
+        {coachesRes.status === 401 || coachesRes.status === 403
+          ? t("errorAuth")
+          : t("errorLoad", { status: coachesRes.status })}
+      </div>
+    );
+  }
 
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
       <Suspense fallback={null}>
-        <AdminScheduleShell classTypeOptions={classTypeOptions}>
-          <AdminScheduleDayView
-            locale={locale}
-            items={scheduleRes.data}
-            classTypeOptions={classTypeOptions}
-          />
-        </AdminScheduleShell>
+        <AdminScheduleManagement
+          locale={locale}
+          sessions={sessionsRes.data}
+          classTypes={classTypesRes.data}
+          coaches={coachesRes.data}
+        />
       </Suspense>
     </AccountPageFrame>
   );

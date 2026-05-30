@@ -1163,9 +1163,9 @@
     },
     "schedule": {
       "title": "Schedule",
-      "description": "Manage public schedule cards shown on Home and Schedule pages.",
+      "description": "Manage the studio timetable, class sessions, coach assignments, capacity, and lifecycle status.",
       "errorAuth": "Admin sign-in required.",
-      "errorLoad": "Could not load schedule items ({status}).",
+      "errorLoad": "Could not load schedule management data ({status}).",
       "empty": "No schedule items yet. Add your first schedule item.",
       "emptyForSelectedDay": "No classes for this day.",
       "addScheduleButton": "Add Schedule",
@@ -1277,6 +1277,7 @@
       "emptySessions": "No classes match your current filters.",
       "confirmCancel": "Cancel this class?",
       "confirmActivate": "Activate this class?",
+      "deleteConfirm": "Delete this class session? This cannot be undone.",
       "confirm": {
         "cancelTitle": "Cancel class",
         "cancelDescription": "This class will be marked as cancelled. You can activate it again later.",
@@ -1296,7 +1297,40 @@
         "allStatuses": "All statuses",
         "allCoaches": "All coaches",
         "allTypes": "All class types",
-        "allLevels": "All levels"
+        "allLevels": "All levels",
+        "availabilityLabel": "Availability",
+        "allAvailability": "All availability",
+        "availableOnly": "Available spots",
+        "fullOnly": "Full classes",
+        "timeOfDayLabel": "Time of day",
+        "allTimes": "All times",
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening",
+        "activeCount": "{count} active filters"
+      },
+      "quick": {
+        "today": "Today's classes",
+        "thisWeek": "This week",
+        "available": "Available spots",
+        "full": "Full classes",
+        "cancelled": "Cancelled",
+        "beginner": "Beginner",
+        "evening": "Evening"
+      },
+      "views": {
+        "list": "List view",
+        "monthly": "Monthly view",
+        "weekly": "Weekly view",
+        "daily": "Daily view"
+      },
+      "fields": {
+        "duration": "Duration",
+        "spotsLeft": "{count} spots left"
+      },
+      "actions": {
+        "view": "View",
+        "delete": "Delete"
       },
       "summary": {
         "total": "Total Classes",
@@ -1392,6 +1426,7 @@
         "cancelSuccess": "Class cancelled.",
         "activateSuccess": "Class activated.",
         "duplicateSuccess": "Class duplicated.",
+        "deleteSuccess": "Class deleted.",
         "genericError": "Action failed."
       }
     },

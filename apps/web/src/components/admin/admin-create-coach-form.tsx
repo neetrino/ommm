@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { PlusIcon } from "@/components/ui/plus-icon";
 import {
   ScheduleFilterDropdown,
   type ScheduleFilterOption,
@@ -676,7 +677,9 @@ export function AdminCreateCoachForm({
             size="sm"
             onClick={addScheduleRow}
             disabled={pending}
+            className="gap-1.5"
           >
+            <PlusIcon className="h-3.5 w-3.5 shrink-0" />
             {t("scheduleAddRow")}
           </OmmButton>
         </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
+import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
@@ -240,7 +241,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
                     {row.recordType === "BOOKING" ? <>
                       <OmmButton size="sm" variant="ghost" disabled={busyId === row.id} onClick={() => runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: "COMPLETED" }) }); }, t("successMarkedAttended"))}>{t("actionMarkAttended")}</OmmButton>
                       <OmmButton size="sm" variant="danger" disabled={busyId === row.id} onClick={() => { if (window.confirm(t("confirmCancel"))) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) }); setRows((prev) => prev.map((item) => item.id === row.id ? { ...item, status: "CANCELLED" } : item)); }, t("successCancelled")); } }}>{t("actionCancel")}</OmmButton>
-                      <OmmButton size="sm" variant="subtle" disabled={busyId === row.id} onClick={() => { const note = window.prompt(t("promptNote")); if (note && note.trim().length > 0) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/${row.id}/notes`, { method: "POST", body: JSON.stringify({ body: note.trim() }) }); }, t("successNote")); } }}>{t("actionAddNote")}</OmmButton>
+                      <OmmButton size="sm" variant="subtle" className="gap-1.5" disabled={busyId === row.id} onClick={() => { const note = window.prompt(t("promptNote")); if (note && note.trim().length > 0) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/${row.id}/notes`, { method: "POST", body: JSON.stringify({ body: note.trim() }) }); }, t("successNote")); } }}><PlusIcon className="h-3.5 w-3.5 shrink-0" />{t("actionAddNote")}</OmmButton>
                       <OmmButton size="sm" variant="subtle" disabled={busyId === row.id} onClick={() => setMoveBooking(row)}>{t("actionMove")}</OmmButton>
                       <OmmButton size="sm" variant="subtle" disabled={busyId === row.id} onClick={() => { const next = window.prompt(t("promptEditStatus"), row.status); if (next) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: next.toUpperCase() }) }); }, t("successEdited")); } }}>{t("actionEdit")}</OmmButton>
                       <OmmButton size="sm" variant="danger" disabled={busyId === row.id} onClick={() => { if (window.confirm(t("confirmDelete"))) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" }); setRows((prev) => prev.filter((item) => item.id !== row.id)); }, t("successDeleted")); } }}>{t("actionDelete")}</OmmButton>

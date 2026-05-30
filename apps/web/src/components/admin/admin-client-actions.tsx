@@ -9,6 +9,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
+import { PlusIcon } from "@/components/ui/plus-icon";
 
 type AdminClientActionsProps = {
   clientId: string;
@@ -364,7 +365,7 @@ export function AdminClientActions({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-10 rounded-xl px-4 text-xs"
+                    className="h-10 gap-1.5 rounded-xl px-4 text-xs"
                     disabled={busy || note.trim() === ""}
                     onClick={() =>
                       void run(
@@ -377,6 +378,7 @@ export function AdminClientActions({
                       )
                     }
                   >
+                    <PlusIcon className="h-3.5 w-3.5 shrink-0" />
                     {t("addNote")}
                   </OmmButton>
                 </div>

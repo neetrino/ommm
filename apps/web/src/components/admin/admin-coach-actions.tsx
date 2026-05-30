@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { PlusIcon } from "@/components/ui/plus-icon";
 import {
   ScheduleFilterDropdown,
   type ScheduleFilterOption,
@@ -988,7 +989,9 @@ export function AdminCoachActions({
                         size="sm"
                         onClick={addScheduleRow}
                         disabled={busy}
+                        className="gap-1.5"
                       >
+                        <PlusIcon className="h-3.5 w-3.5 shrink-0" />
                         {t("fieldScheduleAdd")}
                       </OmmButton>
                     </div>
