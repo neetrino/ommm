@@ -1720,6 +1720,152 @@
         "empty": "No operational records found."
       }
     },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Studio performance metrics from live backend data — tables, charts, and CSV exports.",
+      "errorAuth": "Admin or manager sign-in required.",
+      "errorLoad": "Could not load analytics ({status}).",
+      "loading": "Loading analytics…",
+      "empty": "No data for the selected filters.",
+      "notAvailable": "N/A",
+      "viewTable": "Table",
+      "viewChart": "Chart",
+      "viewSwitcherAria": "Analytics view mode",
+      "rangeHint": "Range: {from} → {to}",
+      "kpiRangeRevenue": "Revenue (selected range)",
+      "kpiBookingsInRange": "Bookings (selected range)",
+      "kpiActiveMembers": "Active members",
+      "kpiNewUsersToday": "New users today",
+      "sources": {
+        "membership": "Memberships",
+        "dropin": "Drop-ins",
+        "gift": "Gift cards",
+        "other": "Other"
+      },
+      "bookingStatus": {
+        "booked": "Confirmed",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "missed": "Missed",
+        "waitlisted": "Waitlisted"
+      },
+      "filters": {
+        "heading": "Filters",
+        "reset": "Clear filters",
+        "rangeLabel": "Range",
+        "range7": "Last 7 days",
+        "range30": "Last 30 days",
+        "range90": "Last 90 days",
+        "coachLabel": "Coach",
+        "coachAll": "All coaches",
+        "classTypeLabel": "Class type",
+        "classTypeAll": "All class types",
+        "sortLabel": "Sort",
+        "sortRevenueDesc": "Highest revenue",
+        "sortRevenueAsc": "Lowest revenue",
+        "sortBookingsDesc": "Most bookings",
+        "sortBookingsAsc": "Least bookings",
+        "sortAttendanceDesc": "Highest attendance",
+        "sortAttendanceAsc": "Lowest attendance",
+        "sortNameAsc": "Name (A–Z)",
+        "quickToday": "Today",
+        "quickWeek": "This week",
+        "quickMonth": "This month",
+        "quickLast30": "Last 30 days"
+      },
+      "sections": {
+        "revenue": {
+          "title": "Revenue report",
+          "hint": "Totals from `/reports/finance/summary` for the selected date range.",
+          "total": "Total revenue",
+          "payments": "Successful payments",
+          "aov": "Average order value",
+          "month": "Revenue this month (dashboard)",
+          "chartAria": "Revenue by source chart"
+        },
+        "bookings": {
+          "title": "Bookings report",
+          "hint": "Status breakdown from bookings management query (up to {limit} records).",
+          "chartAria": "Booking status chart"
+        },
+        "attendance": {
+          "title": "Attendance report",
+          "hint": "Attendance rate uses completed vs missed bookings in the selected range.",
+          "rangeRate": "Attendance rate (range)",
+          "todayRate": "Attendance rate (today, dashboard)",
+          "completed": "Completed",
+          "missed": "Missed",
+          "chartAria": "Attendance chart"
+        },
+        "memberships": {
+          "title": "Membership report",
+          "hint": "Active members from dashboard; status/plan counts from up to {limit} membership records.",
+          "activeDashboard": "Active members (dashboard)",
+          "chartAria": "Membership plan distribution"
+        },
+        "users": {
+          "title": "User activity report",
+          "hint": "Client summary from `/clients?meta=true`. Retention trends are not available.",
+          "total": "Total clients",
+          "active": "Active clients",
+          "vip": "VIP clients",
+          "atRisk": "At-risk clients",
+          "visits": "Total visits",
+          "ltv": "Lifetime value",
+          "chartAria": "User activity chart"
+        },
+        "classPopularity": {
+          "title": "Class popularity",
+          "hint": "Booking counts by class type within the management query sample (max {limit}).",
+          "empty": "No class bookings in the selected range.",
+          "chartAria": "Class popularity chart"
+        },
+        "coachPerformance": {
+          "title": "Coach performance",
+          "hint": "Bookings per coach within the management query sample.",
+          "chartAria": "Coach bookings chart"
+        },
+        "coachRevenue": {
+          "title": "Preferred coaches (revenue per coach)",
+          "unsupported": "Revenue per coach is not exposed by the current reporting API."
+        },
+        "classRevenue": {
+          "title": "Preferred class types (revenue per class)",
+          "unsupported": "Revenue per class type is not exposed by the current reporting API."
+        },
+        "coachSessions": {
+          "title": "Coach session load",
+          "hint": "Total scheduled sessions per coach from the coach directory API.",
+          "chartAria": "Coach session load chart"
+        },
+        "paymentStatus": {
+          "title": "Payment status breakdown",
+          "chartAria": "Payment status chart"
+        }
+      },
+      "export": {
+        "heading": "CSV export",
+        "hint": "Exports reflect the current date range filters.",
+        "excelUnsupported": "Excel export is not available — the project only provides CSV exports via the reports API.",
+        "paymentsCsv": "Export payments CSV",
+        "bookingsCsv": "Export bookings CSV"
+      },
+      "limitations": {
+        "heading": "Unsupported or partial metrics",
+        "noTimeSeries": "Revenue and booking time-series trends (daily/weekly/monthly charts) require a dedicated analytics endpoint that is not implemented yet.",
+        "bookingsSample": "Bookings and class popularity metrics are limited to the bookings management query cap (1,000 rows).",
+        "noCoachRevenue": "Revenue per coach is not available from existing APIs.",
+        "noClassRevenue": "Revenue per class type is not available from existing APIs.",
+        "noRetention": "User retention metrics are not available from existing APIs."
+      },
+      "table": {
+        "metric": "Metric",
+        "value": "Value",
+        "rank": "#",
+        "name": "Name",
+        "count": "Count"
+      }
+    },
     "finance": {
       "title": "Finance",
       "description": "Revenue, payments, refunds, and transaction history in one place.",
