@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -12,7 +12,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
-type ScheduleView = "list" | "monthly" | "weekly" | "daily";
+export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
 type AvailabilityFilter = "all" | "available" | "full";
 type TimeOfDayFilter = "all" | "morning" | "afternoon" | "evening";
 
@@ -48,6 +48,7 @@ type Props = {
   sessions: AdminScheduleSession[];
   classTypes: AdminScheduleClassType[];
   coaches: AdminScheduleCoach[];
+  initialView: ScheduleView;
 };
 
 type Filters = {
@@ -158,11 +159,13 @@ function matchesTimeOfDay(row: AdminScheduleSession, filter: TimeOfDayFilter): b
   return hour >= 17;
 }
 
-export function AdminScheduleManagement({ locale, sessions, classTypes, coaches }: Props) {
+export function AdminScheduleManagement({ locale, sessions, classTypes, coaches, initialView }: Props) {
   const t = useTranslations("adminPages.classes");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [rows, setRows] = useState(sessions);
-  const [view, setView] = useState<ScheduleView>("list");
+  const [view, setView] = useState<ScheduleView>(initialView);
   const [filters, setFilters] = useState<Filters>(() => initialFilters());
   const [searchDraft, setSearchDraft] = useState("");
   const [selectedDay, setSelectedDay] = useState(() => isoDate(new Date()));
@@ -221,6 +224,13 @@ export function AdminScheduleManagement({ locale, sessions, classTypes, coaches 
     setFilters(initialFilters());
   }
 
+  function updateView(nextView: ScheduleView): void {
+    setView(nextView);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", nextView);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
   async function runRowAction(row: AdminScheduleSession, action: () => Promise<AdminScheduleSession | void>, ok: string) {
     setBusyId(row.id);
     setMessage(null);
@@ -249,7 +259,7 @@ export function AdminScheduleManagement({ locale, sessions, classTypes, coaches 
         onChange={updateFilter}
         onReset={resetFilters}
       />
-      <ViewToolbar view={view} onView={setView} onCreate={() => setEditing("create")} />
+      <ViewToolbar view={view} onView={updateView} onCreate={() => setEditing("create")} />
       {message ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{message}</div> : null}
       <ScheduleViews
         locale={locale}
@@ -373,19 +383,75 @@ function Select({ value, label, options, empty, onChange }: { value: string; lab
   );
 }
 
+function addDays(value: Date, days: number): Date {
+  const next = new Date(value);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function startOfWeek(value: Date): Date {
+  return addDays(value, -((value.getDay() + 6) % 7));
+}
+
+function groupRowsByDay(rows: readonly AdminScheduleSession[]): Map<string, AdminScheduleSession[]> {
+  const map = new Map<string, AdminScheduleSession[]>();
+  for (const row of rows) {
+    const key = row.startsAt.slice(0, 10);
+    map.set(key, [...(map.get(key) ?? []), row]);
+  }
+  for (const [key, value] of map) {
+    map.set(key, value.sort((a, b) => a.startsAt.localeCompare(b.startsAt)));
+  }
+  return map;
+}
+
+function CalendarGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <rect x="3" y="5" width="18" height="16" rx="3" />
+      <path d="M8 3v4M16 3v4M3 10h18" />
+    </svg>
+  );
+}
+
+function ListGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" className={className} aria-hidden>
+      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+    </svg>
+  );
+}
+
 function ViewToolbar({ view, onView, onCreate }: { view: ScheduleView; onView: (view: ScheduleView) => void; onCreate: () => void }) {
   const t = useTranslations("adminPages.classes");
+  const options: readonly ScheduleView[] = ["list", "monthly", "weekly", "daily"];
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap gap-2">
-        {(["list", "monthly", "weekly", "daily"] as const).map((next) => (
-          <OmmButton key={next} size="sm" variant={view === next ? "primary" : "ghost"} onClick={() => onView(next)}>{t(`views.${next}`)}</OmmButton>
+    <div className="rounded-[28px] border border-white/70 bg-white/55 p-3 shadow-[0_18px_44px_-28px_rgba(45,40,35,0.32)] backdrop-blur-md">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap" role="tablist" aria-label={t("views.aria")}>
+          {options.map((next) => (
+          <button
+            key={next}
+            type="button"
+            role="tab"
+            aria-selected={view === next}
+            onClick={() => onView(next)}
+            className={`group inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30 ${
+              view === next
+                ? "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]"
+                : "border-white/70 bg-white/70 text-sage-700 hover:-translate-y-0.5 hover:bg-white hover:text-sage-900"
+            }`}
+          >
+            {next === "list" ? <ListGlyph className="h-4 w-4 shrink-0" /> : <CalendarGlyph className="h-4 w-4 shrink-0" />}
+            {t(`views.${next}`)}
+          </button>
         ))}
+        </div>
+        <OmmButton size="md" variant="secondary" onClick={onCreate} className="gap-2 self-start lg:self-auto">
+          <PlusIcon className="h-4 w-4 shrink-0" />
+          {t("addClassButton")}
+        </OmmButton>
       </div>
-      <OmmButton size="md" variant="secondary" onClick={onCreate} className="gap-2">
-        <PlusIcon className="h-4 w-4 shrink-0" />
-        {t("addClassButton")}
-      </OmmButton>
     </div>
   );
 }
@@ -406,8 +472,13 @@ function ScheduleViews(props: {
 }) {
   if (props.view === "monthly") return <MonthlyPanel {...props} />;
   if (props.view === "weekly") return <WeeklyPanel {...props} />;
-  const rows = props.view === "daily" ? props.rows.filter((row) => row.startsAt.slice(0, 10) === props.selectedDay) : props.rows;
-  return <SessionTable {...props} rows={rows} />;
+  if (props.view === "daily") return <DailyPanel {...props} />;
+  return (
+    <div className="space-y-3">
+      <CalendarSummaryCard rows={props.rows} selectedDay={props.selectedDay} onSelectDay={props.onSelectDay} />
+      <SessionTable {...props} rows={props.rows} />
+    </div>
+  );
 }
 
 function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
@@ -462,23 +533,216 @@ function Badge({ label, tone }: { label: string; tone: "slate" | "sand" | "mint"
   return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${classes}`}>{label}</span>;
 }
 
+function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
+  const t = useTranslations("adminPages.classes");
+  const busy = busyId === row.id;
+  return (
+    <article className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-[0_14px_34px_-26px_rgba(45,40,35,0.35)]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.startsAt))} - {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.endsAt))}
+          </p>
+          <button type="button" className="mt-1 text-left text-base font-semibold text-sage-900 underline-offset-2 hover:underline" onClick={() => onDetails(row)}>
+            {row.title}
+          </button>
+          <p className="mt-1 text-sm text-sage-600">
+            {row.classType.name} · {coachName(row.coach)} · {durationMinutes(row)}m
+          </p>
+          <p className="mt-2 text-xs text-sage-500">
+            {row._count.bookings}/{row.capacity} · {t("fields.spotsLeft", { count: spotsLeft(row) })}
+            {row.level ? ` · ${row.level}` : ""}
+          </p>
+        </div>
+        <Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} />
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <OmmButton size="sm" variant="ghost" onClick={() => onDetails(row)}>{t("actions.view")}</OmmButton>
+        <OmmButton size="sm" variant="ghost" onClick={() => onEdit(row)}>{t("editButton")}</OmmButton>
+        <OmmButton size="sm" variant="subtle" onClick={() => onDuplicate(row)}>{t("duplicateButton")}</OmmButton>
+        {row.status === "CANCELLED" ? (
+          <OmmButton size="sm" variant="ghost" disabled={busy} onClick={() => onActivate(row)}>{t("activateAction")}</OmmButton>
+        ) : (
+          <OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onCancel(row)}>{t("cancelAction")}</OmmButton>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function CalendarSummaryCard({ rows, selectedDay, onSelectDay }: { rows: readonly AdminScheduleSession[]; selectedDay: string; onSelectDay: (day: string) => void }) {
+  const grouped = groupRowsByDay(rows);
+  const days = Array.from(grouped.keys()).sort().slice(0, 14);
+  if (days.length === 0) return null;
+  return (
+    <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
+      <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
+        {days.map((day) => (
+          <DayCard key={day} day={day} rows={grouped.get(day) ?? []} selected={day === selectedDay} onSelect={onSelectDay} compact />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DayCard({ day, rows, selected, onSelect, muted = false, compact = false }: { day: string; rows: readonly AdminScheduleSession[]; selected: boolean; onSelect: (day: string) => void; muted?: boolean; compact?: boolean }) {
+  const date = new Date(`${day}T00:00:00`);
+  const weekday = new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(date);
+  const isToday = day === isoDate(new Date());
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(day)}
+      className={`min-h-28 rounded-2xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${
+        isToday
+          ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)]"
+          : selected
+            ? "border-sage-700/20 bg-sage-50/90 text-sage-900 shadow-[0_14px_28px_-24px_rgba(45,40,35,0.35)]"
+          : muted
+            ? "border-white/50 bg-white/35 text-sage-500 hover:bg-white/55"
+            : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white"
+      }`}
+    >
+      <span className="flex items-start justify-between gap-2">
+        <span>
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] opacity-75">{weekday}</span>
+          <span className="mt-1 block text-lg font-semibold tabular-nums">{date.getDate()}</span>
+        </span>
+        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${isToday ? "bg-white/20" : selected ? "bg-sage-800/10 text-sage-900" : "bg-sand-50 text-sage-700"}`}>
+          {rows.length}
+        </span>
+      </span>
+      {compact ? null : (
+        <span className="mt-3 block space-y-1">
+          {rows.slice(0, 3).map((row) => (
+            <span key={row.id} className={`block truncate rounded-lg px-2 py-1 text-[11px] ${isToday ? "bg-white/15" : "bg-sage-50/80 text-sage-700"}`}>
+              {timeValue(row.startsAt)} · {row.title}
+            </span>
+          ))}
+          {rows.length > 3 ? <span className="block text-[11px] opacity-70">+{rows.length - 3}</span> : null}
+        </span>
+      )}
+    </button>
+  );
+}
+
 function MonthlyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
-  const days = Array.from(new Set(props.rows.map((row) => row.startsAt.slice(0, 10)))).sort();
-  const dayRows = props.rows.filter((row) => row.startsAt.slice(0, 10) === props.selectedDay);
-  return <div className="space-y-3"><div className={adminChrome.panel}><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">{days.map((day) => <button key={day} className={`rounded-xl border px-3 py-2 text-left ${day === props.selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`} onClick={() => props.onSelectDay(day)}><p className="text-sm text-sage-900">{formatDateForUi(day)}</p><p className="text-xs text-sage-600">{props.rows.filter((row) => row.startsAt.slice(0, 10) === day).length}</p></button>)}</div></div><SessionTable {...props} rows={dayRows} /></div>;
+  const grouped = groupRowsByDay(props.rows);
+  const selected = new Date(`${props.selectedDay}T00:00:00`);
+  const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
+  const gridStart = startOfWeek(monthStart);
+  const days = Array.from({ length: 42 }, (_, index) => {
+    const date = addDays(gridStart, index);
+    return date.toISOString().slice(0, 10);
+  });
+  return (
+    <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
+      <p className="mb-3 text-sm font-semibold text-sage-900">{new Intl.DateTimeFormat(props.locale, { month: "long", year: "numeric" }).format(selected)}</p>
+      <div className="grid gap-2 md:grid-cols-7">
+        {days.map((day) => {
+          const date = new Date(`${day}T00:00:00`);
+          return <DayCard key={day} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} muted={date.getMonth() !== selected.getMonth()} />;
+        })}
+      </div>
+    </div>
+  );
 }
 
 function WeeklyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
   const selected = new Date(`${props.selectedDay}T00:00:00`);
-  const monday = new Date(selected);
-  monday.setDate(selected.getDate() - ((selected.getDay() + 6) % 7));
+  const monday = startOfWeek(selected);
+  const grouped = groupRowsByDay(props.rows);
   const days = Array.from({ length: 7 }, (_, index) => {
-    const day = new Date(monday);
-    day.setDate(monday.getDate() + index);
+    const day = addDays(monday, index);
     const iso = day.toISOString().slice(0, 10);
-    return { iso, rows: props.rows.filter((row) => row.startsAt.slice(0, 10) === iso) };
+    return { iso, rows: grouped.get(iso) ?? [] };
   });
-  return <div className="space-y-3"><div className={adminChrome.panel}><div className="grid gap-2 lg:grid-cols-7">{days.map((day) => <button key={day.iso} className={`rounded-xl border px-2 py-2 text-left ${day.iso === props.selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`} onClick={() => props.onSelectDay(day.iso)}><p className="text-xs font-medium text-sage-700">{formatDateForUi(day.iso)}</p><div className="mt-1 space-y-1">{day.rows.slice(0, 4).map((row) => <div key={row.id} className="rounded-md bg-white/70 px-2 py-1 text-[11px] text-sage-700">{timeValue(row.startsAt)} · {row.title}</div>)}</div></button>)}</div></div><SessionTable {...props} rows={props.rows.filter((row) => row.startsAt.slice(0, 10) === props.selectedDay)} /></div>;
+  return (
+    <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
+      <p className="mb-3 text-sm font-semibold text-sage-900">
+        {formatDateForUi(days[0]?.iso ?? props.selectedDay)} - {formatDateForUi(days[6]?.iso ?? props.selectedDay)}
+      </p>
+      <div className="grid gap-3 lg:grid-cols-7">
+        {days.map((day) => (
+          <div
+            key={day.iso}
+            className={`min-h-72 rounded-2xl border p-3 transition-all ${
+              day.iso === isoDate(new Date())
+                ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)]"
+                : day.iso === props.selectedDay
+                  ? "border-sage-700/20 bg-sage-50/80 text-sage-900"
+                  : "border-white/70 bg-white/65 text-sage-900"
+            }`}
+          >
+            <button type="button" className="mb-3 w-full text-left" onClick={() => props.onSelectDay(day.iso)}>
+              <span className={`block text-[10px] font-semibold uppercase tracking-[0.12em] ${day.iso === isoDate(new Date()) ? "text-white/70" : "text-sage-500"}`}>
+                {new Intl.DateTimeFormat(props.locale, { weekday: "short" }).format(new Date(`${day.iso}T00:00:00`))}
+              </span>
+              <span className={`mt-1 block text-lg font-semibold ${day.iso === isoDate(new Date()) ? "text-white" : "text-sage-900"}`}>
+                {new Date(`${day.iso}T00:00:00`).getDate()}
+              </span>
+            </button>
+            <div className="space-y-2">
+              {day.rows.length === 0 ? <p className={`rounded-xl px-3 py-4 text-xs ${day.iso === isoDate(new Date()) ? "bg-white/10 text-white/65" : "bg-white/55 text-sage-400"}`}>—</p> : day.rows.map((row) => (
+                <button
+                  key={row.id}
+                  type="button"
+                  className={`w-full rounded-xl border px-3 py-2 text-left text-xs shadow-sm transition-colors ${
+                    day.iso === isoDate(new Date())
+                      ? "border-white/15 bg-white/10 text-white hover:bg-white/20"
+                      : "border-white/70 bg-white/85 text-sage-700 hover:bg-white"
+                  }`}
+                  onClick={() => props.onDetails(row)}
+                >
+                  <span className={`block font-semibold ${day.iso === isoDate(new Date()) ? "text-white" : "text-sage-900"}`}>{timeValue(row.startsAt)}</span>
+                  <span className={`mt-0.5 block truncate ${day.iso === isoDate(new Date()) ? "text-white/80" : "text-sage-600"}`}>{row.title}</span>
+                  <span className={`mt-1 block truncate text-[11px] ${day.iso === isoDate(new Date()) ? "text-white/60" : "text-sage-500"}`}>{coachName(row.coach)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DailyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
+  const selected = new Date(`${props.selectedDay}T00:00:00`);
+  const weekStart = startOfWeek(selected);
+  const grouped = groupRowsByDay(props.rows);
+  const days = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index).toISOString().slice(0, 10));
+  const selectedRows = grouped.get(props.selectedDay) ?? [];
+  return (
+    <div className="space-y-3">
+      <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-sage-900">{formatDateForUi(props.selectedDay)}</p>
+            <p className="text-xs text-sage-500">{new Intl.DateTimeFormat(props.locale, { weekday: "long" }).format(selected)}</p>
+          </div>
+          <div className="flex gap-2">
+            <OmmButton size="sm" variant="ghost" onClick={() => props.onSelectDay(addDays(selected, -1).toISOString().slice(0, 10))}>{"<"}</OmmButton>
+            <OmmButton size="sm" variant="ghost" onClick={() => props.onSelectDay(addDays(selected, 1).toISOString().slice(0, 10))}>{">"}</OmmButton>
+          </div>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
+          {days.map((day) => <DayCard key={day} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} compact />)}
+        </div>
+      </div>
+      <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
+        {selectedRows.length === 0 ? (
+          <div className="rounded-2xl border border-white/70 bg-white/70 px-4 py-10 text-center text-sm text-sage-500">—</div>
+        ) : (
+          <div className="grid gap-3 lg:grid-cols-2">
+            {selectedRows.map((row) => (
+              <SessionAgendaCard key={row.id} row={row} locale={props.locale} busyId={props.busyId} onDetails={props.onDetails} onEdit={props.onEdit} onCancel={props.onCancel} onActivate={props.onActivate} onDuplicate={props.onDuplicate} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function SessionModal({ mode, row, classTypes, coaches, onClose, onSaved }: { mode: "create" | "edit" | "duplicate"; row?: AdminScheduleSession; classTypes: readonly AdminScheduleClassType[]; coaches: readonly AdminScheduleCoach[]; onClose: () => void; onSaved: (row: AdminScheduleSession) => void }) {

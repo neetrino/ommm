@@ -6,16 +6,26 @@ import {
   type AdminScheduleClassType,
   type AdminScheduleCoach,
   type AdminScheduleSession,
+  type ScheduleView,
 } from "@/components/admin/admin-schedule-management";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
 import { serverApiJson } from "@/lib/server-api";
 
+function isScheduleView(value: string | undefined): value is ScheduleView {
+  return value === "list" || value === "monthly" || value === "weekly" || value === "daily";
+}
+
 export default async function AdminSchedulePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ view?: string | string[] }>;
 }) {
   const { locale } = await params;
+  const { view } = await searchParams;
+  const requestedView = Array.isArray(view) ? view[0] : view;
+  const initialView: ScheduleView = isScheduleView(requestedView) ? requestedView : "list";
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
   const [sessionsRes, classTypesRes, coachesRes] = await Promise.all([
@@ -62,6 +72,7 @@ export default async function AdminSchedulePage({
           sessions={sessionsRes.data}
           classTypes={classTypesRes.data}
           coaches={coachesRes.data}
+          initialView={initialView}
         />
       </Suspense>
     </AccountPageFrame>

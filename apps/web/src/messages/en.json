@@ -1319,6 +1319,7 @@
         "evening": "Evening"
       },
       "views": {
+        "aria": "Schedule view",
         "list": "List view",
         "monthly": "Monthly view",
         "weekly": "Weekly view",
