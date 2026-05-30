@@ -42,7 +42,7 @@ function isBillingPeriodOption(value: string): value is BillingPeriodOption {
 }
 
 export function AdminPackagePlanForm({ onSaved, onCancel }: AdminPackagePlanFormProps) {
-  const t = useTranslations("adminPages.packages");
+  const t = useTranslations("adminPages.membershipPlans");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [billingPeriodValue, setBillingPeriodValue] = useState<BillingPeriodOption>("monthly");

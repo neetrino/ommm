@@ -11,7 +11,7 @@ type AdminPackagePlanActionsProps = {
 };
 
 export function AdminPackagePlanActions({ planId, isActive }: AdminPackagePlanActionsProps) {
-  const t = useTranslations("adminPages.packages");
+  const t = useTranslations("adminPages.membershipPlans");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");

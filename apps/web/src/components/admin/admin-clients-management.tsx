@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -240,8 +241,29 @@ function ClientTableRow({ row, locale, onSelect }: { row: ClientRow; locale: str
   );
 }
 
-function Select({ value, onChange, options }: { value: string; onChange: (value: string) => void; options: ReadonlyArray<readonly [string, string]> }) {
-  return <select className="ommm-input h-10" value={value} onChange={(event) => onChange(event.target.value)}>{options.map(([key, label]) => <option key={`${key}-${label}`} value={key}>{label}</option>)}</select>;
+function Select({
+  value,
+  onChange,
+  options,
+  ariaLabel = "Filter",
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: ReadonlyArray<readonly [string, string]>;
+  ariaLabel?: string;
+}) {
+  const dropdownOptions = ommOptionsFromTuples(options);
+  const selected = dropdownOptions.find((option) => option.value === value);
+
+  return (
+    <OmmSelectDropdown
+      ariaLabel={ariaLabel}
+      label={selected?.label ?? ariaLabel}
+      value={value}
+      options={dropdownOptions}
+      onChange={onChange}
+    />
+  );
 }
 
 function Avatar({ row }: { row: ClientRow }) {

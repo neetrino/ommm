@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
@@ -185,25 +186,12 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         <input className="ommm-input h-10 md:col-span-2" placeholder={t("filterSearch")} value={search} onChange={(event) => setSearch(event.target.value)} />
         <DatePickerInput name="from" value={from} onChange={setFrom} placeholder={t("filterDateFrom")} />
         <DatePickerInput name="to" value={to} onChange={setTo} placeholder={t("filterDateTo")} />
-        <select className="ommm-input h-10" value={classTypeId} onChange={(event) => setClassTypeId(event.target.value)}>
-          <option value="">{t("filterClassAll")}</option>
-          {initial.filterOptions.classTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-        </select>
-        <select className="ommm-input h-10" value={coachId} onChange={(event) => setCoachId(event.target.value)}>
-          <option value="">{t("filterCoachAll")}</option>
-          {initial.filterOptions.coaches.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-        </select>
-        <select className="ommm-input h-10" value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">{t("filterStatusAll")}</option>
-          <option value="BOOKED">{t("statusBooked")}</option>
-          <option value="COMPLETED">{t("statusCompleted")}</option>
-          <option value="CANCELLED">{t("statusCancelled")}</option>
-          <option value="WAITLISTED">{t("statusWaitlisted")}</option>
-        </select>
-        <select className="ommm-input h-10 md:col-span-2" value={clientId} onChange={(event) => setClientId(event.target.value)}>
-          <option value="">{t("filterClientAll")}</option>
-          {uniqueClients.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-        </select>
+        <OmmFilterDropdown allValue="" value={classTypeId} ariaLabel={t("filterClassAll")} allLabel={t("filterClassAll")} onChange={setClassTypeId} options={initial.filterOptions.classTypes.map((item) => ({ value: item.id, label: item.name }))} />
+        <OmmFilterDropdown allValue="" value={coachId} ariaLabel={t("filterCoachAll")} allLabel={t("filterCoachAll")} onChange={setCoachId} options={initial.filterOptions.coaches.map((item) => ({ value: item.id, label: item.name }))} />
+        <OmmFilterDropdown allValue="" value={status} ariaLabel={t("filterStatusAll")} allLabel={t("filterStatusAll")} onChange={setStatus} options={[{ value: "BOOKED", label: t("statusBooked") }, { value: "COMPLETED", label: t("statusCompleted") }, { value: "CANCELLED", label: t("statusCancelled") }, { value: "WAITLISTED", label: t("statusWaitlisted") }]} />
+        <div className="md:col-span-2">
+          <OmmFilterDropdown allValue="" value={clientId} ariaLabel={t("filterClientAll")} allLabel={t("filterClientAll")} onChange={setClientId} options={uniqueClients.map((item) => ({ value: item.id, label: item.label }))} />
+        </div>
         <div className="flex flex-wrap items-center gap-2 md:col-span-2">
           <OmmButton size="sm" variant={view === "list" ? "primary" : "ghost"} onClick={() => setView("list")}>{t("viewList")}</OmmButton>
           <OmmButton size="sm" variant={view === "monthly" ? "primary" : "ghost"} onClick={() => setView("monthly")}>{t("viewMonthly")}</OmmButton>
@@ -342,5 +330,46 @@ function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow
     const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&typeId=${encodeURIComponent(booking.session.classType.id)}`;
     void apiFetch(`/classes/sessions?${q}`).then((payload) => setOptions((payload as Array<{ id: string; startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }>).filter((row) => row.id !== booking.session.id))).catch(() => setOptions([]));
   }, [booking.session.classType.id, booking.session.id]);
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-sage-950/35 p-4"><div className="w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4"><h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3><p className="mt-1 text-sm text-sage-600">{booking.user.name ?? booking.user.email} · {booking.session.classType.name}</p><select className="ommm-input mt-3 h-10 w-full" value={targetSessionId} onChange={(event) => setTargetSessionId(event.target.value)}><option value="">{t("selectClassSlot")}</option>{options.map((row) => <option key={row.id} value={row.id}>{formatDateTimeForUi(row.startsAt)} · {row.classType.name} · {row.coach.user.name ?? "—"}</option>)}</select>{options.length === 0 ? <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p> : null}<div className="mt-4 flex justify-end gap-2"><OmmButton size="sm" variant="ghost" onClick={onClose}>{t("close")}</OmmButton><OmmButton size="sm" variant="primary" disabled={targetSessionId === ""} onClick={() => onSubmit(targetSessionId)}>{t("actionMove")}</OmmButton></div></div></div>;
+  const slotOptions = options.map((row) => ({
+    value: row.id,
+    label: `${formatDateTimeForUi(row.startsAt)} · ${row.classType.name} · ${row.coach.user.name ?? "—"}`,
+  }));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sage-950/35 p-4">
+      <div className="w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4">
+        <h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3>
+        <p className="mt-1 text-sm text-sage-600">
+          {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
+        </p>
+        <div className="mt-3">
+          <OmmFilterDropdown
+            allValue=""
+            value={targetSessionId}
+            ariaLabel={t("selectClassSlot")}
+            allLabel={t("selectClassSlot")}
+            onChange={setTargetSessionId}
+            options={slotOptions}
+            disabled={slotOptions.length === 0}
+          />
+        </div>
+        {options.length === 0 ? (
+          <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
+        ) : null}
+        <div className="mt-4 flex justify-end gap-2">
+          <OmmButton size="sm" variant="ghost" onClick={onClose}>
+            {t("close")}
+          </OmmButton>
+          <OmmButton
+            size="sm"
+            variant="primary"
+            disabled={targetSessionId === ""}
+            onClick={() => onSubmit(targetSessionId)}
+          >
+            {t("actionMove")}
+          </OmmButton>
+        </div>
+      </div>
+    </div>
+  );
 }

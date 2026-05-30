@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
+import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 type ContentAdminRow = {
   id: string;
@@ -255,34 +256,40 @@ export function ContentPostsPanelClient({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <select
-          className="app-input h-9 text-xs"
+        <OmmSelectDropdown
+          ariaLabel={labels.labels.allTypes}
+          label={
+            typeFilter === "ALL"
+              ? labels.labels.allTypes
+              : typeFilter
+          }
           value={typeFilter}
-          onChange={(event) =>
-            setTypeFilter(event.target.value as "ALL" | (typeof CONTENT_TYPES)[number])
+          triggerClassName="app-input h-9 min-h-9 py-1.5 pr-9 text-left text-xs"
+          options={[
+            { value: "ALL", label: labels.labels.allTypes },
+            ...CONTENT_TYPES.map((value) => ({ value, label: value })),
+          ]}
+          onChange={(value) =>
+            setTypeFilter(value as "ALL" | (typeof CONTENT_TYPES)[number])
           }
-        >
-          <option value="ALL">{labels.labels.allTypes}</option>
-          {CONTENT_TYPES.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
-        <select
-          className="app-input h-9 text-xs"
+        />
+        <OmmSelectDropdown
+          ariaLabel={labels.labels.allStatuses}
+          label={
+            statusFilter === "ALL"
+              ? labels.labels.allStatuses
+              : statusFilter
+          }
           value={statusFilter}
-          onChange={(event) =>
-            setStatusFilter(event.target.value as "ALL" | (typeof CONTENT_STATUS)[number])
+          triggerClassName="app-input h-9 min-h-9 py-1.5 pr-9 text-left text-xs"
+          options={[
+            { value: "ALL", label: labels.labels.allStatuses },
+            ...CONTENT_STATUS.map((value) => ({ value, label: value })),
+          ]}
+          onChange={(value) =>
+            setStatusFilter(value as "ALL" | (typeof CONTENT_STATUS)[number])
           }
-        >
-          <option value="ALL">{labels.labels.allStatuses}</option>
-          {CONTENT_STATUS.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
       <ul className={wellnessChrome ? "mt-2 space-y-3" : "mt-6 space-y-2"}>

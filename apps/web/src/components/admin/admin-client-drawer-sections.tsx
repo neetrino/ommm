@@ -1,6 +1,7 @@
 "use client";
 
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -68,16 +69,18 @@ export function ActionSection(props: {
             </OmmButton>
           </div>
           <div className="mt-3 flex gap-2">
-            <select
-              className="ommm-input h-10 flex-1"
-              value={props.planId}
-              onChange={(event) => props.onPlanChange(event.target.value)}
-            >
-              <option value="">Assign package...</option>
-              {props.plans.filter((plan) => plan.isActive).map((plan) => (
-                <option key={plan.id} value={plan.id}>{plan.name}</option>
-              ))}
-            </select>
+            <div className="min-w-0 flex-1">
+              <OmmFilterDropdown
+                allValue=""
+                value={props.planId}
+                ariaLabel="Assign package"
+                allLabel="Assign package..."
+                onChange={props.onPlanChange}
+                options={props.plans
+                  .filter((plan) => plan.isActive)
+                  .map((plan) => ({ value: plan.id, label: plan.name }))}
+              />
+            </div>
             <OmmButton
               size="sm"
               disabled={props.planId === "" || props.busy !== null}

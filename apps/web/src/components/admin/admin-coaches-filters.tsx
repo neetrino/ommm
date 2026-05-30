@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 export type AdminCoachesFilterValues = {
   q: string;
@@ -129,56 +130,49 @@ export function AdminCoachesFilters({
             aria-label={t("specializationLabel")}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
+        <div className="flex flex-col gap-1 text-xs text-sage-700">
           <span>{t("classTypeLabel")}</span>
-          <select
+          <OmmFilterDropdown
+            allValue=""
             value={values.classType}
-            onChange={(event) => updateField("classType", event.target.value)}
-            className="ommm-input h-10"
-            aria-label={t("classTypeLabel")}
-          >
-            <option value="">{t("classTypePlaceholder")}</option>
-            {classTypeOptions.map((classType) => (
-              <option key={classType} value={classType}>
-                {classType}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
+            ariaLabel={t("classTypeLabel")}
+            allLabel={t("classTypePlaceholder")}
+            onChange={(value) => updateField("classType", value)}
+            options={classTypeOptions.map((classType) => ({ value: classType, label: classType }))}
+          />
+        </div>
+        <div className="flex flex-col gap-1 text-xs text-sage-700">
           <span>{t("statusLabel")}</span>
-          <select
+          <OmmFilterDropdown
+            allValue="all"
             value={values.isActive}
-            onChange={(event) =>
+            ariaLabel={t("statusLabel")}
+            allLabel={t("statusAll")}
+            onChange={(value) =>
               updateField(
                 "isActive",
-                event.target.value === "active" || event.target.value === "inactive"
-                  ? event.target.value
-                  : "all",
+                value === "active" || value === "inactive" ? value : "all",
               )
             }
-            className="ommm-input h-10"
-            aria-label={t("statusLabel")}
-          >
-            <option value="all">{t("statusAll")}</option>
-            <option value="active">{t("statusActive")}</option>
-            <option value="inactive">{t("statusInactive")}</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
+            options={[
+              { value: "active", label: t("statusActive") },
+              { value: "inactive", label: t("statusInactive") },
+            ]}
+          />
+        </div>
+        <div className="flex flex-col gap-1 text-xs text-sage-700">
           <span>{t("orderLabel")}</span>
-          <select
+          <OmmSelectDropdown
+            ariaLabel={t("orderLabel")}
+            label={values.order === "oldest" ? t("orderOldest") : t("orderNewest")}
             value={values.order}
-            onChange={(event) =>
-              updateField("order", event.target.value === "oldest" ? "oldest" : "newest")
-            }
-            className="ommm-input h-10"
-            aria-label={t("orderLabel")}
-          >
-            <option value="newest">{t("orderNewest")}</option>
-            <option value="oldest">{t("orderOldest")}</option>
-          </select>
-        </label>
+            options={[
+              { value: "newest", label: t("orderNewest") },
+              { value: "oldest", label: t("orderOldest") },
+            ]}
+            onChange={(value) => updateField("order", value === "oldest" ? "oldest" : "newest")}
+          />
+        </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <OmmButton

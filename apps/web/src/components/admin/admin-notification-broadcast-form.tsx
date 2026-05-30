@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type BroadcastResponse = {
@@ -101,32 +102,52 @@ export function AdminNotificationBroadcastForm() {
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("templateLabel")}
         </span>
-        <select
-          className="ommm-input"
+        <OmmSelectDropdown
+          ariaLabel={t("templateLabel")}
+          label={
+            templateKey === "custom"
+              ? t("templates.custom")
+              : templateKey === "newClass"
+                ? t("templates.newClass.label")
+                : templateKey === "policyReminder"
+                  ? t("templates.policyReminder.label")
+                  : t("templates.waitlistOffer.label")
+          }
           value={templateKey}
-          onChange={(ev) => onTemplateChange(ev.target.value as BroadcastTemplateKey)}
-        >
-          <option value="custom">{t("templates.custom")}</option>
-          <option value="newClass">{t("templates.newClass.label")}</option>
-          <option value="policyReminder">{t("templates.policyReminder.label")}</option>
-          <option value="waitlistOffer">{t("templates.waitlistOffer.label")}</option>
-        </select>
+          options={[
+            { value: "custom", label: t("templates.custom") },
+            { value: "newClass", label: t("templates.newClass.label") },
+            { value: "policyReminder", label: t("templates.policyReminder.label") },
+            { value: "waitlistOffer", label: t("templates.waitlistOffer.label") },
+          ]}
+          onChange={(value) => onTemplateChange(value as BroadcastTemplateKey)}
+        />
         <span className="text-xs text-sage-500">{t("templateHint")}</span>
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("audienceLabel")}
         </span>
-        <select
-          className="ommm-input"
+        <OmmSelectDropdown
+          ariaLabel={t("audienceLabel")}
+          label={
+            audience === "users"
+              ? t("audiences.users")
+              : audience === "coaches"
+                ? t("audiences.coaches")
+                : audience === "staff"
+                  ? t("audiences.staff")
+                  : t("audiences.all")
+          }
           value={audience}
-          onChange={(ev) => setAudience(ev.target.value as BroadcastAudience)}
-        >
-          <option value="users">{t("audiences.users")}</option>
-          <option value="coaches">{t("audiences.coaches")}</option>
-          <option value="staff">{t("audiences.staff")}</option>
-          <option value="all">{t("audiences.all")}</option>
-        </select>
+          options={[
+            { value: "users", label: t("audiences.users") },
+            { value: "coaches", label: t("audiences.coaches") },
+            { value: "staff", label: t("audiences.staff") },
+            { value: "all", label: t("audiences.all") },
+          ]}
+          onChange={(value) => setAudience(value as BroadcastAudience)}
+        />
       </label>
       {audience === "users" ? (
         <label className="flex items-center gap-2 text-xs text-sage-700">

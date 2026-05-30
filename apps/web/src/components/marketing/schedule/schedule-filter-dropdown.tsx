@@ -1,8 +1,11 @@
 "use client";
 
-import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
+import {
+  OmmSelectDropdown,
+  type OmmSelectOption,
+} from "@/components/ui/omm-select-dropdown";
 
-export type ScheduleFilterOption<T extends string> = DropdownOption<T>;
+export type ScheduleFilterOption<T extends string> = OmmSelectOption<T>;
 
 type ScheduleFilterDropdownProps<T extends string> = {
   label: string;
@@ -26,7 +29,7 @@ export function ScheduleFilterDropdown<T extends string>({
   required = false,
 }: ScheduleFilterDropdownProps<T>) {
   return (
-    <DropdownSelect
+    <OmmSelectDropdown
       label={label}
       ariaLabel={ariaLabel}
       value={value}

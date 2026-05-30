@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminPackagePlanForm } from "@/components/admin/admin-package-plan-form";
+import { AdminClassPackageForm } from "@/components/admin/admin-class-package-form";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const MODAL_QUERY_KEY = "modal";
@@ -30,12 +30,16 @@ function AddPackageGlyph({ className }: { className?: string }) {
   );
 }
 
-type AdminPackagePlansShellProps = {
+type AdminClassPackagesShellProps = {
+  existingNames: readonly string[];
   children: ReactNode;
 };
 
-export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps) {
-  const t = useTranslations("adminPages.membershipPlans");
+export function AdminClassPackagesShell({
+  existingNames,
+  children,
+}: AdminClassPackagesShellProps) {
+  const t = useTranslations("adminPages.packages");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -102,17 +106,14 @@ export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps
       }
     }
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [closeModal, isModalOpen]);
 
   useEffect(() => {
     if (!isModalOpen || panelRef.current === null) {
       return;
     }
-    const focusable = panelRef.current.querySelector<HTMLElement>('input[name="name"]');
-    focusable?.focus();
+    panelRef.current.querySelector<HTMLElement>('input[name="name"]')?.focus();
   }, [isModalOpen]);
 
   return (
@@ -120,7 +121,7 @@ export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps
       <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
         {banner !== null ? (
           <p
-            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800"
             role="status"
           >
             {banner}
@@ -150,7 +151,7 @@ export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps
         >
           <button
             type="button"
-            className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+            className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]"
             aria-label={t("modalBackdropClose")}
             onClick={closeModal}
           />
@@ -173,26 +174,19 @@ export function AdminPackagePlansShell({ children }: AdminPackagePlansShellProps
               </div>
               <button
                 type="button"
-                className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500"
                 aria-label={t("modalCloseAria")}
                 onClick={closeModal}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.75}
-                  strokeLinecap="round"
-                  className="h-5 w-5"
-                  aria-hidden
-                >
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
+                <span aria-hidden>×</span>
               </button>
             </div>
             <div className="mt-5">
-              <AdminPackagePlanForm onSaved={onCreated} onCancel={closeModal} />
+              <AdminClassPackageForm
+                existingNames={existingNames}
+                onSaved={onCreated}
+                onCancel={closeModal}
+              />
             </div>
           </div>
         </div>
