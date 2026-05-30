@@ -26,6 +26,7 @@ import {
   COACH_MAX_AGE,
   COACH_MIN_AGE,
   createScheduleRow,
+  hasDuplicateScheduleRows,
   isValidTime,
   MAX_BIO_LENGTH,
   MAX_EXPERIENCE_YEARS,
@@ -599,7 +600,7 @@ export function AdminCoachActions({
         spots < MIN_SCHEDULE_SPOTS
       );
     });
-    if (scheduleInvalid) {
+    if (scheduleInvalid || hasDuplicateScheduleRows(form.schedule)) {
       nextErrors.schedule = t("scheduleInvalid");
     }
     if (Object.keys(nextErrors).length > 0) {
@@ -671,12 +672,12 @@ export function AdminCoachActions({
       {isOpen && isMounted
         ? createPortal(
             <div
-              className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+              className="fixed inset-0 z-[90] flex justify-end bg-sage-950/35"
               role="presentation"
             >
               <button
                 type="button"
-                className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+                className="flex-1"
                 aria-label={t("modalBackdropClose")}
                 onClick={closeModal}
               />
@@ -686,7 +687,7 @@ export function AdminCoachActions({
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
-                className="relative z-10 mt-auto max-h-[min(92vh,840px)] w-full max-w-[min(940px,95vw)] overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+                className="h-full w-full max-w-3xl overflow-x-hidden overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -709,7 +710,7 @@ export function AdminCoachActions({
                 </div>
 
                 <form
-                  className="mt-5 flex flex-col gap-5"
+                  className="mt-5 flex min-w-0 flex-col gap-5"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void onSave();

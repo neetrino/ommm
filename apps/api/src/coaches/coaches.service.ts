@@ -49,6 +49,10 @@ type CoachAdminListRow = {
   createdAt: Date;
   updatedAt: Date;
   availabilitySlots: CoachAvailabilitySlotRow[];
+  _count: {
+    sessions: number;
+    substituteSessions: number;
+  };
   user: {
     id: string;
     name: string | null;
@@ -541,6 +545,12 @@ export class CoachesService {
                 },
               },
               {
+                id: { contains: q, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                userId: { contains: q, mode: Prisma.QueryMode.insensitive },
+              },
+              {
                 specialization: {
                   contains: q,
                   mode: Prisma.QueryMode.insensitive,
@@ -594,6 +604,12 @@ export class CoachesService {
           availabilitySlots: {
             orderBy: [{ slotDate: 'asc' }, { slotTime: 'asc' }],
           },
+          _count: {
+            select: {
+              sessions: true,
+              substituteSessions: true,
+            },
+          },
         } as Record<string, unknown>),
       },
       orderBy: {
@@ -612,6 +628,8 @@ export class CoachesService {
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         userId: row.userId,
+        totalClasses: row._count.sessions,
+        substituteClasses: row._count.substituteSessions,
         schedule: row.availabilitySlots.map((slot) => ({
           id: slot.id,
           date: slot.slotDate.toISOString(),
@@ -682,6 +700,7 @@ export class CoachesService {
     if (schedule === undefined) {
       return [];
     }
+    const seen = new Set<string>();
     return schedule.map((entry) => {
       const slotDate = this.parseBirthdayToDateOnly(entry.date);
       const slotTime = entry.time.trim();
@@ -696,6 +715,13 @@ export class CoachesService {
       ) {
         throw new BadRequestException('Schedule spots value is invalid');
       }
+      const key = `${slotDate.toISOString().slice(0, 10)}|${slotTime}`;
+      if (seen.has(key)) {
+        throw new BadRequestException(
+          'Duplicate availability slots are not allowed',
+        );
+      }
+      seen.add(key);
       return { slotDate, slotTime, availableSpots };
     });
   }

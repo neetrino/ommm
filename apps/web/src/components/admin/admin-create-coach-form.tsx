@@ -14,6 +14,7 @@ import {
   COACH_MAX_AGE,
   COACH_MIN_AGE,
   createScheduleRow,
+  hasDuplicateScheduleRows,
   isValidEmail,
   isValidPhone,
   isValidTime,
@@ -333,7 +334,7 @@ export function AdminCreateCoachForm({
         spots < MIN_SCHEDULE_SPOTS
       );
     });
-    if (scheduleValidationFailed) {
+    if (scheduleValidationFailed || hasDuplicateScheduleRows(scheduleRows)) {
       setError(t("scheduleInvalid"));
       return;
     }

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminCoachesDirectory } from "@/components/admin/admin-coaches-directory";
+import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AccountPageFrame } from "@/components/layout/account-page-frame";
@@ -21,7 +22,14 @@ type CoachAdminRow = {
   }[];
   experienceYears: number | null;
   age: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  totalClasses: number;
+  substituteClasses: number;
   user: {
+    id: string;
     name: string | null;
     lastName: string | null;
     email: string;
@@ -104,55 +112,11 @@ export default async function AdminCoachesPage({
       title={t("title")}
       description={t("description")}
     >
-      <form className="mt-2 grid gap-3 rounded-2xl border border-white/60 bg-white/70 p-3 sm:grid-cols-5">
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("filters.searchLabel")}</span>
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder={t("filters.searchPlaceholder")}
-            className="ommm-input h-10"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("filters.specializationLabel")}</span>
-          <input
-            name="specialization"
-            defaultValue={specialization}
-            placeholder={t("filters.specializationPlaceholder")}
-            className="ommm-input h-10"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("filters.classTypeLabel")}</span>
-          <input
-            name="classType"
-            defaultValue={classType}
-            placeholder={t("filters.classTypePlaceholder")}
-            className="ommm-input h-10"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("filters.statusLabel")}</span>
-          <select name="isActive" defaultValue={isActive} className="ommm-input h-10">
-            <option value="all">{t("filters.statusAll")}</option>
-            <option value="active">{t("filters.statusActive")}</option>
-            <option value="inactive">{t("filters.statusInactive")}</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("filters.orderLabel")}</span>
-          <select name="order" defaultValue={order} className="ommm-input h-10">
-            <option value="newest">{t("filters.orderNewest")}</option>
-            <option value="oldest">{t("filters.orderOldest")}</option>
-          </select>
-        </label>
-        <div className="sm:col-span-5">
-          <button type="submit" className="ommm-cta-secondary h-10 px-5">
-            {t("filters.apply")}
-          </button>
-        </div>
-      </form>
+      <AdminCoachesFilters
+        key={`${q}|${specialization}|${classType}|${isActive}|${order}`}
+        initialValues={{ q, specialization, classType, isActive, order }}
+        classTypeOptions={classTypeOptions}
+      />
       <Suspense fallback={null}>
         <AdminCoachesShell
           classTypeOptions={classTypeOptions}

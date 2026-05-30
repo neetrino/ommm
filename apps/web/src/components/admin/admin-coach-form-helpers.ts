@@ -164,6 +164,21 @@ export function normalizeScheduleForApi(rows: CoachScheduleInput[]): {
   }));
 }
 
+export function hasDuplicateScheduleRows(rows: readonly CoachScheduleInput[]): boolean {
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const key = `${row.date.trim()}|${row.time.trim()}`;
+    if (key === "|") {
+      continue;
+    }
+    if (seen.has(key)) {
+      return true;
+    }
+    seen.add(key);
+  }
+  return false;
+}
+
 export function readFileAsBase64Payload(file: File): Promise<{
   imageBase64: string;
   mimeType: string;
