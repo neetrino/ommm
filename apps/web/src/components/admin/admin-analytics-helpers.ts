@@ -1,5 +1,6 @@
 import type {
   AnalyticsBarItem,
+  AnalyticsBookingStatusFilter,
   AnalyticsQuickFilter,
   AnalyticsRangeDays,
   AnalyticsSortKey,
@@ -37,11 +38,40 @@ export function parseAnalyticsSortKey(value?: string): AnalyticsSortKey {
 }
 
 export function parseAnalyticsQuickFilter(value?: string): AnalyticsQuickFilter {
-  const allowed: AnalyticsQuickFilter[] = ["none", "today", "week", "month", "last30"];
+  const allowed: AnalyticsQuickFilter[] = [
+    "none",
+    "today",
+    "week",
+    "month",
+    "last30",
+    "topCoaches",
+    "popularClasses",
+  ];
   if (value && allowed.includes(value as AnalyticsQuickFilter)) {
     return value as AnalyticsQuickFilter;
   }
   return "none";
+}
+
+export function parseAnalyticsBookingStatus(value?: string): AnalyticsBookingStatusFilter {
+  const allowed: AnalyticsBookingStatusFilter[] = [
+    "",
+    "BOOKED",
+    "COMPLETED",
+    "CANCELLED",
+    "MISSED",
+  ];
+  if (value && allowed.includes(value as AnalyticsBookingStatusFilter)) {
+    return value as AnalyticsBookingStatusFilter;
+  }
+  return "";
+}
+
+export function resolveQuickFilterSort(quickFilter: AnalyticsQuickFilter): AnalyticsSortKey | null {
+  if (quickFilter === "topCoaches" || quickFilter === "popularClasses") {
+    return "bookings-desc";
+  }
+  return null;
 }
 
 export function resolveAnalyticsDateRange(input: {
@@ -156,6 +186,40 @@ export function buildCoachBookings(
     label: entry.label,
     value: entry.value,
   }));
+}
+
+export function buildCoachAttendance(
+  rows: Array<{
+    status: string;
+    session: { coach: { id: string; name: string | null } };
+  }>,
+): AnalyticsBarItem[] {
+  const counts = new Map<string, { label: string; completed: number; missed: number }>();
+  for (const row of rows) {
+    if (row.status !== "COMPLETED" && row.status !== "MISSED") {
+      continue;
+    }
+    const id = row.session.coach.id;
+    const label = row.session.coach.name ?? id;
+    const prev = counts.get(id) ?? { label, completed: 0, missed: 0 };
+    if (row.status === "COMPLETED") {
+      prev.completed += 1;
+    } else {
+      prev.missed += 1;
+    }
+    counts.set(id, prev);
+  }
+  return [...counts.entries()].map(([key, entry]) => {
+    const rate = computeAttendanceRate(entry.completed, entry.missed);
+    const total = entry.completed + entry.missed;
+    return {
+      key,
+      label: entry.label,
+      value: rate ?? 0,
+      displayValue:
+        rate === null ? "N/A" : `${rate}% (${entry.completed}/${total})`,
+    };
+  });
 }
 
 export function computeAttendanceRate(completed: number, missed: number): number | null {

@@ -1766,6 +1766,165 @@
         "colDescription": "Նկարագրություն"
       }
     },
+    "analytics": {
+      "title": "Անալիտիկա",
+      "description": "Ստուդիայի ցուցանիշներ՝ կենդանի backend տվյալներից. աղյուսակներ, գրաֆիկներ և CSV արտահանում։",
+      "errorAuth": "Պահանջվում է ադմինի կամ մենեջերի մուտք։",
+      "errorLoad": "Չհաջողվեց բեռնել անալիտիկան ({status})։",
+      "loading": "Բեռնվում է անալիտիկան…",
+      "empty": "Ընտրված ֆիլտրերով տվյալներ չկան։",
+      "notAvailable": "Չկա",
+      "viewTable": "Աղյուսակ",
+      "viewChart": "Գрафիկ",
+      "viewSwitcherAria": "Անալիտիկայի տեսակ",
+      "rangeHint": "Միջակայք՝ {from} → {to}",
+      "kpiRangeRevenue": "Եկամուտ (ընտրված միջակայք)",
+      "kpiBookingsInRange": "Ամրագրումներ (ընտրված միջակայք)",
+      "kpiActiveMembers": "Ակտիվ անդամներ",
+      "kpiNewUsersToday": "Նոր օգտատերեր այսօր",
+      "kpiAttendanceRate": "Ներկայության տոկոս (միջակայք)",
+      "sources": {
+        "membership": "Աբոնեմենտներ",
+        "dropin": "Drop-in",
+        "gift": "Նվեր քարտեր",
+        "other": "Այլ"
+      },
+      "bookingStatus": {
+        "booked": "Հաստատված",
+        "completed": "Ավարտված",
+        "cancelled": "Չեղարկված",
+        "missed": "Բաց թողնված",
+        "waitlisted": "Սպասման ցուցակ"
+      },
+      "filters": {
+        "heading": "Ֆիլտրեր",
+        "reset": "Մաքրել ֆիլտրերը",
+        "rangeLabel": "Միջակայք",
+        "range7": "Վերջին 7 օրը",
+        "range30": "Վերջին 30 օրը",
+        "range90": "Վերջին 90 օրը",
+        "coachLabel": "Մարզիչ",
+        "coachAll": "Բոլոր մարզիչները",
+        "classTypeLabel": "Դասի տեսակ",
+        "classTypeAll": "Բոլոր դասերը",
+        "sortLabel": "Դասավորել",
+        "sortRevenueDesc": "Ամենաբարձր եկամուտ",
+        "sortRevenueAsc": "Ամենացածր եկամուտ",
+        "sortBookingsDesc": "Ամենաշատ ամրագրումներ",
+        "sortBookingsAsc": "Ամենաքիչ ամրագրումներ",
+        "sortAttendanceDesc": "Ամենաբարձր ներկայություն",
+        "sortAttendanceAsc": "Ամենացածր ներկայություն",
+        "sortNameAsc": "Անուն (Ա–Ֆ)",
+        "quickToday": "Այսօր",
+        "quickWeek": "Այս շաբաթ",
+        "quickMonth": "Այս ամիս",
+        "quickLast30": "Վերջին 30 օրը",
+        "quickTopCoaches": "Լավագույն մարզիչներ",
+        "quickPopularClasses": "Ամենահայտնի դասեր",
+        "bookingStatusLabel": "Ամրագրման կարգավիճակ",
+        "bookingStatusAll": "Բոլոր կարգավիճակները",
+        "bookingStatusBooked": "Հաստատված",
+        "bookingStatusCompleted": "Ավարտված",
+        "bookingStatusCancelled": "Չեղարկված",
+        "bookingStatusMissed": "Բաց թողնված"
+      },
+      "sections": {
+        "revenue": {
+          "title": "Եկամտի հաշվետվություն",
+          "hint": "Ընդհանուր ցուցանիշներ `/reports/finance/summary`-ից ընտրված միջակայքի համար։",
+          "total": "Ընդհանուր եկամուտ",
+          "payments": "Հաջողված վճարումներ",
+          "aov": "Միջին պատվերի արժեք",
+          "month": "Այս ամսվա եկամուտ (dashboard)",
+          "chartAria": "Եկամուտ ըստ աղբյուրի"
+        },
+        "bookings": {
+          "title": "Ամրագրումների հաշվետվություն",
+          "hint": "Կարգավիճակների բաշխում bookings management հարցումից (մինչև {limit} գրառում)։",
+          "chartAria": "Ամրագրումների կարգավիճակների գրաֆիկ"
+        },
+        "attendance": {
+          "title": "Ներկայության հաշվետվություն",
+          "hint": "Ներկայության տոկոսը հաշվարկվում է ավարտված vs բաց թողնված ամրագրումներից։",
+          "rangeRate": "Ներկայության տոկոս (միջակայք)",
+          "todayRate": "Ներկայության տոկոս (այսօր, dashboard)",
+          "completed": "Ավարտված",
+          "missed": "Բաց թողնված",
+          "chartAria": "Ներկայության գրաֆիկ"
+        },
+        "memberships": {
+          "title": "Աբոնեմենտների հաշվետվություն",
+          "hint": "Ակտիվ անդամներ dashboard-ից. կարգավիճակ/պլան՝ մինչև {limit} աբոնեմենտից։",
+          "activeDashboard": "Ակտիվ անդամներ (dashboard)",
+          "chartAria": "Աբոնեմենտների պլանների բաշխում"
+        },
+        "users": {
+          "title": "Օգտատերերի ակտիվության հաշվետվություն",
+          "hint": "Հաճախորդների ամփոփ `/clients?meta=true`-ից։ Retention միտումներ հասանելի չեն։",
+          "total": "Ընդամենը հաճախորդներ",
+          "active": "Ակտիվ հաճախորդներ",
+          "vip": "VIP հաճախորդներ",
+          "atRisk": "Ռիսկի տակ հաճախորդներ",
+          "visits": "Ընդամենը այցեր",
+          "ltv": "Lifetime value",
+          "chartAria": "Օգտատերերի ակտիվության գրաֆիկ"
+        },
+        "classPopularity": {
+          "title": "Դասերի հայտնիություն",
+          "hint": "Ամրագրումներ ըստ դասի տեսակի (մакс. {limit} նմուշ)։",
+          "empty": "Ընտրված միջակայքում դասերի ամրագրումներ չկան։",
+          "chartAria": "Դասերի հայտնիության գրաֆիկ"
+        },
+        "coachPerformance": {
+          "title": "Մարզիչների արդյունավետություն",
+          "hint": "Ամրագրումներ և ներկայություն մարզիչի համար (management query նմուշ)։",
+          "chartAria": "Ամրագրումներ մարզիչի համար",
+          "bookingsTitle": "Ամրագրումներ մարզիչի համար",
+          "attendanceTitle": "Ներկայության տոկոս մարզիչի համար",
+          "attendanceChartAria": "Մարզիչի ներկայության գրաֆիկ"
+        },
+        "coachRevenue": {
+          "title": "Նախընտրելի մարզիչներ (եկամուտ մարզիչի համար)",
+          "unsupported": "Եկամուտը մարզիչի համար հասանելի չէ ընթացիկ reporting API-ում։"
+        },
+        "classRevenue": {
+          "title": "Նախընտրելի դասեր (եկամուտ դասի համար)",
+          "unsupported": "Եկամուտը դասի տեսակի համար հասանելի չէ ընթացիկ reporting API-ում։"
+        },
+        "coachSessions": {
+          "title": "Մարզիչի սեսիաների բեռ",
+          "hint": "Ընդհանուր սեսիաներ մարզիչի համար coach directory API-ից։",
+          "chartAria": "Մարզիչի սեսիաների բեռի գրաֆիկ"
+        },
+        "paymentStatus": {
+          "title": "Վճարման կարգավիճակների բաշխում",
+          "chartAria": "Վճարման կարգավիճակների գրաֆիկ"
+        }
+      },
+      "export": {
+        "heading": "CSV արտահանում",
+        "hint": "Արտահանումը համապատասխանում է ընտրված ամսաթվի ֆիլտրերին։",
+        "excelUnsupported": "Excel արտահանում հասանելի չէ — նախագիծը աջակցում է միայն CSV reports API-ով։",
+        "paymentsCsv": "Արտահանել payments CSV",
+        "bookingsCsv": "Արտահանել bookings CSV",
+        "giftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV"
+      },
+      "limitations": {
+        "heading": "Չաջակցվող կամ մասնակի ցուցանիշներ",
+        "noTimeSeries": "Եկամտի և ամրագրումների ժամանակային միտումները պահանջում են առանձին analytics endpoint, որը դեռ չի իրականացվել։",
+        "bookingsSample": "Ամրագրումների և դասերի հայտնիության ցուցանիշները սահմանափակված են bookings management cap-ով (1,000 տող)։",
+        "noCoachRevenue": "Եկամուտը մարզիչի համար հասանելի չէ API-ից։",
+        "noClassRevenue": "Եկամուտը դասի տեսակի համար հասանելի չէ API-ից։",
+        "noRetention": "Օգտատերերի retention ցուցանիշներ հասանելի չեն API-ից։"
+      },
+      "table": {
+        "metric": "Ցուցանիշ",
+        "value": "Արժեք",
+        "rank": "#",
+        "name": "Անուն",
+        "count": "Քանակ"
+      }
+    },
     "notifications": {
       "title": "Ծանուցումներ",
       "description": "Ուղարկեք էլ. փոստով հաղորդագրություն անդամներին (միայն ստուդիայի ադմին)։ Առաքումը՝ գոյություն ունեցող փոստային հոսքով, push-ը՝ ապագա պլանում։",

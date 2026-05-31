@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type {
+  AnalyticsBookingStatusFilter,
   AnalyticsQuickFilter,
   AnalyticsRangeDays,
   AnalyticsSortKey,
@@ -28,6 +29,7 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       rangeDays: (Number(searchParams.get("rangeDays")) || 30) as AnalyticsRangeDays,
       coachId: searchParams.get("coachId") ?? "",
       classTypeId: searchParams.get("classTypeId") ?? "",
+      bookingStatus: (searchParams.get("bookingStatus") ?? "") as AnalyticsBookingStatusFilter,
       sort: (searchParams.get("sort") ?? "revenue-desc") as AnalyticsSortKey,
       quick: (searchParams.get("quick") ?? "none") as AnalyticsQuickFilter,
     }),
@@ -40,6 +42,18 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       params.delete(key);
     } else {
       params.set(key, value);
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const updateMany = (entries: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(entries)) {
+      if (value.length === 0) {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
     }
     router.replace(`${pathname}?${params.toString()}`);
   };
@@ -97,12 +111,30 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
     [t],
   );
 
-  const quickFilters: Array<{ key: AnalyticsQuickFilter; label: string }> = [
+  const quickDateFilters: Array<{ key: AnalyticsQuickFilter; label: string }> = [
     { key: "today", label: t("quickToday") },
     { key: "week", label: t("quickWeek") },
     { key: "month", label: t("quickMonth") },
     { key: "last30", label: t("quickLast30") },
   ];
+
+  const quickSortPresets: Array<{ key: AnalyticsQuickFilter; sort: AnalyticsSortKey }> = [
+    { key: "topCoaches", sort: "bookings-desc" },
+    { key: "popularClasses", sort: "bookings-desc" },
+  ];
+
+  const bookingStatusOptions = useMemo<
+    readonly DropdownOption<AnalyticsBookingStatusFilter>[]
+  >(
+    () => [
+      { value: "", label: t("bookingStatusAll") },
+      { value: "BOOKED", label: t("bookingStatusBooked") },
+      { value: "COMPLETED", label: t("bookingStatusCompleted") },
+      { value: "CANCELLED", label: t("bookingStatusCancelled") },
+      { value: "MISSED", label: t("bookingStatusMissed") },
+    ],
+    [t],
+  );
 
   return (
     <section className="rounded-[20px] border border-white/60 bg-white/70 p-4">
@@ -117,7 +149,7 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
         </button>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        {quickFilters.map((item) => (
+        {quickDateFilters.map((item) => (
           <button
             key={item.key}
             type="button"
@@ -133,7 +165,30 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
           </button>
         ))}
       </div>
-      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-2 flex flex-wrap gap-2">
+        {quickSortPresets.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            aria-pressed={values.quick === item.key}
+            onClick={() => {
+              const active = values.quick === item.key;
+              updateMany({
+                quick: active ? "none" : item.key,
+                sort: active ? values.sort : item.sort,
+              });
+            }}
+            className={
+              values.quick === item.key
+                ? "rounded-full bg-sand-500 px-3 py-1.5 text-xs font-medium text-white"
+                : "rounded-full border border-sage-200 bg-white px-3 py-1.5 text-xs font-medium text-sage-700"
+            }
+          >
+            {item.key === "topCoaches" ? t("quickTopCoaches") : t("quickPopularClasses")}
+          </button>
+        ))}
+      </div>
+      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <label className="text-sm text-sage-700">
           <span className="mb-1 block text-xs text-sage-500">{t("rangeLabel")}</span>
           <DropdownSelect
@@ -162,6 +217,16 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
             value={values.classTypeId}
             options={classTypeOptions}
             onChange={(value) => update("classTypeId", value)}
+          />
+        </label>
+        <label className="text-sm text-sage-700">
+          <span className="mb-1 block text-xs text-sage-500">{t("bookingStatusLabel")}</span>
+          <DropdownSelect
+            label={t("bookingStatusLabel")}
+            ariaLabel={t("bookingStatusLabel")}
+            value={values.bookingStatus}
+            options={bookingStatusOptions}
+            onChange={(value) => update("bookingStatus", value)}
           />
         </label>
         <label className="text-sm text-sage-700">

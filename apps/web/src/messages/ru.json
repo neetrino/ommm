@@ -1770,6 +1770,165 @@
         "colDescription": "Описание"
       }
     },
+    "analytics": {
+      "title": "Аналитика",
+      "description": "Метрики студии из реальных данных бэкенда — таблицы, графики и экспорт CSV.",
+      "errorAuth": "Нужен вход админа или менеджера.",
+      "errorLoad": "Не удалось загрузить аналитику ({status}).",
+      "loading": "Загрузка аналитики…",
+      "empty": "Нет данных для выбранных фильтров.",
+      "notAvailable": "Н/Д",
+      "viewTable": "Таблица",
+      "viewChart": "График",
+      "viewSwitcherAria": "Режим отображения аналитики",
+      "rangeHint": "Период: {from} → {to}",
+      "kpiRangeRevenue": "Выручка (выбранный период)",
+      "kpiBookingsInRange": "Бронирования (выбранный период)",
+      "kpiActiveMembers": "Активные абонементы",
+      "kpiNewUsersToday": "Новые пользователи сегодня",
+      "kpiAttendanceRate": "Посещаемость (период)",
+      "sources": {
+        "membership": "Абонементы",
+        "dropin": "Разовые",
+        "gift": "Подарочные карты",
+        "other": "Прочее"
+      },
+      "bookingStatus": {
+        "booked": "Подтверждено",
+        "completed": "Завершено",
+        "cancelled": "Отменено",
+        "missed": "Пропущено",
+        "waitlisted": "Лист ожидания"
+      },
+      "filters": {
+        "heading": "Фильтры",
+        "reset": "Сбросить фильтры",
+        "rangeLabel": "Период",
+        "range7": "Последние 7 дней",
+        "range30": "Последние 30 дней",
+        "range90": "Последние 90 дней",
+        "coachLabel": "Тренер",
+        "coachAll": "Все тренеры",
+        "classTypeLabel": "Тип класса",
+        "classTypeAll": "Все типы классов",
+        "sortLabel": "Сортировка",
+        "sortRevenueDesc": "Наибольшая выручка",
+        "sortRevenueAsc": "Наименьшая выручка",
+        "sortBookingsDesc": "Больше всего бронирований",
+        "sortBookingsAsc": "Меньше всего бронирований",
+        "sortAttendanceDesc": "Наибольшая посещаемость",
+        "sortAttendanceAsc": "Наименьшая посещаемость",
+        "sortNameAsc": "Имя (А–Я)",
+        "quickToday": "Сегодня",
+        "quickWeek": "Эта неделя",
+        "quickMonth": "Этот месяц",
+        "quickLast30": "Последние 30 дней",
+        "quickTopCoaches": "Топ тренеров",
+        "quickPopularClasses": "Популярные классы",
+        "bookingStatusLabel": "Статус бронирования",
+        "bookingStatusAll": "Все статусы",
+        "bookingStatusBooked": "Подтверждено",
+        "bookingStatusCompleted": "Завершено",
+        "bookingStatusCancelled": "Отменено",
+        "bookingStatusMissed": "Пропущено"
+      },
+      "sections": {
+        "revenue": {
+          "title": "Отчёт по выручке",
+          "hint": "Итоги из `/reports/finance/summary` за выбранный период.",
+          "total": "Общая выручка",
+          "payments": "Успешные платежи",
+          "aov": "Средний чек",
+          "month": "Выручка за месяц (dashboard)",
+          "chartAria": "График выручки по источникам"
+        },
+        "bookings": {
+          "title": "Отчёт по бронированиям",
+          "hint": "Разбивка по статусам из bookings management (до {limit} записей).",
+          "chartAria": "График статусов бронирований"
+        },
+        "attendance": {
+          "title": "Отчёт по посещаемости",
+          "hint": "Посещаемость считается как завершённые vs пропущенные бронирования.",
+          "rangeRate": "Посещаемость (период)",
+          "todayRate": "Посещаемость (сегодня, dashboard)",
+          "completed": "Завершено",
+          "missed": "Пропущено",
+          "chartAria": "График посещаемости"
+        },
+        "memberships": {
+          "title": "Отчёт по абонементам",
+          "hint": "Активные из dashboard; статусы/планы — до {limit} записей абонементов.",
+          "activeDashboard": "Активные абонементы (dashboard)",
+          "chartAria": "Распределение планов абонементов"
+        },
+        "users": {
+          "title": "Активность пользователей",
+          "hint": "Сводка клиентов из `/clients?meta=true`. Тренды удержания недоступны.",
+          "total": "Всего клиентов",
+          "active": "Активные клиенты",
+          "vip": "VIP клиенты",
+          "atRisk": "Клиенты в зоне риска",
+          "visits": "Всего визитов",
+          "ltv": "Lifetime value",
+          "chartAria": "График активности пользователей"
+        },
+        "classPopularity": {
+          "title": "Популярность классов",
+          "hint": "Количество бронирований по типу класса (макс. {limit} выборка).",
+          "empty": "Нет бронирований классов за выбранный период.",
+          "chartAria": "График популярности классов"
+        },
+        "coachPerformance": {
+          "title": "Эффективность тренеров",
+          "hint": "Бронирования и посещаемость по тренерам (выборка management query).",
+          "chartAria": "График бронирований по тренерам",
+          "bookingsTitle": "Бронирования по тренерам",
+          "attendanceTitle": "Посещаемость по тренерам",
+          "attendanceChartAria": "График посещаемости тренеров"
+        },
+        "coachRevenue": {
+          "title": "Предпочитаемые тренеры (выручка на тренера)",
+          "unsupported": "Выручка на тренера недоступна в текущем reporting API."
+        },
+        "classRevenue": {
+          "title": "Предпочитаемые классы (выручка на тип класса)",
+          "unsupported": "Выручка на тип класса недоступна в текущем reporting API."
+        },
+        "coachSessions": {
+          "title": "Нагрузка тренеров по сессиям",
+          "hint": "Всего сессий на тренера из coach directory API.",
+          "chartAria": "График нагрузки тренеров"
+        },
+        "paymentStatus": {
+          "title": "Разбивка по статусам платежей",
+          "chartAria": "График статусов платежей"
+        }
+      },
+      "export": {
+        "heading": "Экспорт CSV",
+        "hint": "Экспорт соответствует выбранным фильтрам периода.",
+        "excelUnsupported": "Экспорт Excel недоступен — проект поддерживает только CSV через reports API.",
+        "paymentsCsv": "Экспорт CSV платежей",
+        "bookingsCsv": "Экспорт CSV бронирований",
+        "giftCreditsCsv": "Экспорт CSV подарочных кредитов"
+      },
+      "limitations": {
+        "heading": "Неподдерживаемые или частичные метрики",
+        "noTimeSeries": "Временные тренды выручки и бронирований требуют отдельного analytics endpoint, который ещё не реализован.",
+        "bookingsSample": "Метрики бронирований и популярности классов ограничены cap bookings management (1 000 строк).",
+        "noCoachRevenue": "Выручка на тренера недоступна из API.",
+        "noClassRevenue": "Выручка на тип класса недоступна из API.",
+        "noRetention": "Метрики удержания пользователей недоступны из API."
+      },
+      "table": {
+        "metric": "Метрика",
+        "value": "Значение",
+        "rank": "#",
+        "name": "Название",
+        "count": "Количество"
+      }
+    },
     "notifications": {
       "title": "Уведомления",
       "description": "Рассылка email участникам (только админ студии). Доставка через текущий почтовый контур; push — в планах продукта.",

@@ -11,7 +11,21 @@ export type AnalyticsSortKey =
   | "attendance-asc"
   | "name-asc";
 
-export type AnalyticsQuickFilter = "none" | "today" | "week" | "month" | "last30";
+export type AnalyticsQuickFilter =
+  | "none"
+  | "today"
+  | "week"
+  | "month"
+  | "last30"
+  | "topCoaches"
+  | "popularClasses";
+
+export type AnalyticsBookingStatusFilter =
+  | ""
+  | "BOOKED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "MISSED";
 
 export type AnalyticsBarItem = {
   key: string;
@@ -50,6 +64,15 @@ export type AnalyticsFinanceSummary = {
     "membership" | "dropin" | "gift" | "other",
     { count: number; amountCents: number }
   >;
+  giftCredits?: {
+    issuedCents: number;
+    issuedCount: number;
+    redeemedCents: number;
+    redeemedCount: number;
+    spentCents: number;
+    spendTransactionsCount: number;
+    outstandingCreditsCents: number;
+  };
 };
 
 export type AnalyticsBookingsPayload = {
@@ -63,6 +86,7 @@ export type AnalyticsBookingsPayload = {
   };
   classPopularity: AnalyticsBarItem[];
   coachBookings: AnalyticsBarItem[];
+  coachAttendance: AnalyticsBarItem[];
   filterOptions: {
     classTypes: Array<{ id: string; name: string }>;
     coaches: Array<{ id: string; name: string }>;
@@ -106,6 +130,7 @@ export type AdminAnalyticsPayload = {
   sortKey: AnalyticsSortKey;
   coachId: string;
   classTypeId: string;
+  bookingStatus: AnalyticsBookingStatusFilter;
   quickFilter: AnalyticsQuickFilter;
   dashboard: AnalyticsDashboardOverview;
   finance: AnalyticsFinanceSummary;

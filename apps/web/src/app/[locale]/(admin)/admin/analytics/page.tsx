@@ -5,12 +5,15 @@ import { AdminAnalyticsShell } from "@/components/admin/admin-analytics-shell";
 import {
   ANALYTICS_BOOKINGS_SAMPLE_LIMIT,
   buildClassPopularity,
+  buildCoachAttendance,
   buildCoachBookings,
+  parseAnalyticsBookingStatus,
   parseAnalyticsQuickFilter,
   parseAnalyticsRangeDays,
   parseAnalyticsSortKey,
   parseAnalyticsViewMode,
   resolveAnalyticsDateRange,
+  resolveQuickFilterSort,
 } from "@/components/admin/admin-analytics-helpers";
 import type {
   AdminAnalyticsPayload,
@@ -29,6 +32,7 @@ type PageSearchParams = Promise<{
   sort?: string;
   coachId?: string;
   classTypeId?: string;
+  bookingStatus?: string;
   quick?: string;
 }>;
 
@@ -56,7 +60,13 @@ type BookingsManagementResponse = {
 
 const MEMBERSHIPS_SAMPLE_LIMIT = 500;
 
-function buildBookingsQuery(fromIso: string, toIso: string, coachId: string, classTypeId: string) {
+function buildBookingsQuery(
+  fromIso: string,
+  toIso: string,
+  coachId: string,
+  classTypeId: string,
+  bookingStatus: string,
+) {
   const params = new URLSearchParams();
   params.set("from", fromIso);
   params.set("to", toIso);
@@ -65,6 +75,9 @@ function buildBookingsQuery(fromIso: string, toIso: string, coachId: string, cla
   }
   if (classTypeId) {
     params.set("classTypeId", classTypeId);
+  }
+  if (bookingStatus) {
+    params.set("status", bookingStatus);
   }
   return `/bookings/admin/management?${params.toString()}`;
 }
@@ -86,8 +99,11 @@ export default async function AdminAnalyticsPage({
   const { fromIso, toIso } = resolveAnalyticsDateRange({ rangeDays, quickFilter });
   const coachId = search.coachId ?? "";
   const classTypeId = search.classTypeId ?? "";
+  const bookingStatus = parseAnalyticsBookingStatus(search.bookingStatus);
+  const sortFromQuick = resolveQuickFilterSort(quickFilter);
+  const sortKey = sortFromQuick ?? parseAnalyticsSortKey(search.sort);
 
-  const bookingsQuery = buildBookingsQuery(fromIso, toIso, coachId, classTypeId);
+  const bookingsQuery = buildBookingsQuery(fromIso, toIso, coachId, classTypeId, bookingStatus);
 
   const [dashboardRes, financeRes, bookingsRes, clientsRes, coachesRes, membershipsRes] =
     await Promise.all([
@@ -145,9 +161,10 @@ export default async function AdminAnalyticsPage({
     fromIso,
     toIso,
     viewMode: parseAnalyticsViewMode(search.view),
-    sortKey: parseAnalyticsSortKey(search.sort),
+    sortKey,
     coachId,
     classTypeId,
+    bookingStatus,
     quickFilter,
     dashboard: dashboardRes.data,
     finance: financeRes.data,
@@ -158,6 +175,7 @@ export default async function AdminAnalyticsPage({
       },
       classPopularity: buildClassPopularity(bookingRows),
       coachBookings: buildCoachBookings(bookingRows),
+      coachAttendance: buildCoachAttendance(bookingRows),
       filterOptions: bookingsRes.data.filterOptions,
       sampledLimit: ANALYTICS_BOOKINGS_SAMPLE_LIMIT,
     },

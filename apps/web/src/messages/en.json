@@ -1736,6 +1736,7 @@
       "kpiBookingsInRange": "Bookings (selected range)",
       "kpiActiveMembers": "Active members",
       "kpiNewUsersToday": "New users today",
+      "kpiAttendanceRate": "Attendance rate (range)",
       "sources": {
         "membership": "Memberships",
         "dropin": "Drop-ins",
@@ -1771,7 +1772,15 @@
         "quickToday": "Today",
         "quickWeek": "This week",
         "quickMonth": "This month",
-        "quickLast30": "Last 30 days"
+        "quickLast30": "Last 30 days",
+        "quickTopCoaches": "Top coaches",
+        "quickPopularClasses": "Most popular classes",
+        "bookingStatusLabel": "Booking status",
+        "bookingStatusAll": "All statuses",
+        "bookingStatusBooked": "Confirmed",
+        "bookingStatusCompleted": "Completed",
+        "bookingStatusCancelled": "Cancelled",
+        "bookingStatusMissed": "Missed"
       },
       "sections": {
         "revenue": {
@@ -1822,8 +1831,11 @@
         },
         "coachPerformance": {
           "title": "Coach performance",
-          "hint": "Bookings per coach within the management query sample.",
-          "chartAria": "Coach bookings chart"
+          "hint": "Bookings and attendance per coach within the management query sample.",
+          "chartAria": "Coach bookings chart",
+          "bookingsTitle": "Bookings per coach",
+          "attendanceTitle": "Attendance rate per coach",
+          "attendanceChartAria": "Coach attendance rate chart"
         },
         "coachRevenue": {
           "title": "Preferred coaches (revenue per coach)",
@@ -1848,7 +1860,8 @@
         "hint": "Exports reflect the current date range filters.",
         "excelUnsupported": "Excel export is not available — the project only provides CSV exports via the reports API.",
         "paymentsCsv": "Export payments CSV",
-        "bookingsCsv": "Export bookings CSV"
+        "bookingsCsv": "Export bookings CSV",
+        "giftCreditsCsv": "Export gift credits CSV"
       },
       "limitations": {
         "heading": "Unsupported or partial metrics",

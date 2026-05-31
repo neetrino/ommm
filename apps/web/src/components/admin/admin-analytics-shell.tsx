@@ -181,6 +181,11 @@ export function AdminAnalyticsShell({ data }: Props) {
     [data.bookings.coachBookings, sortKey],
   );
 
+  const coachAttendance = useMemo(
+    () => sortBarItems(data.bookings.coachAttendance, sortKey).slice(0, 10),
+    [data.bookings.coachAttendance, sortKey],
+  );
+
   const coachSessions = useMemo(() => {
     const items: AnalyticsBarItem[] = data.coaches.map((coach) => ({
       key: coach.id,
@@ -206,6 +211,7 @@ export function AdminAnalyticsShell({ data }: Props) {
 
   const exportBookingsHref = `/api/v1/reports/bookings.csv?from=${encodeURIComponent(data.fromIso)}&to=${encodeURIComponent(data.toIso)}`;
   const exportPaymentsHref = `/api/v1/reports/payments.csv?from=${encodeURIComponent(data.fromIso)}&to=${encodeURIComponent(data.toIso)}`;
+  const exportGiftCreditsHref = `/api/v1/reports/gift-credits.csv?from=${encodeURIComponent(data.fromIso)}&to=${encodeURIComponent(data.toIso)}`;
 
   const tableLabels = {
     metric: t("table.metric"),
@@ -226,7 +232,7 @@ export function AdminAnalyticsShell({ data }: Props) {
         <AdminAnalyticsFilters filterOptions={data.bookings.filterOptions} />
       </div>
 
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("kpiRangeRevenue")}</p>
           <p className={adminChrome.metricValue}>
@@ -236,6 +242,12 @@ export function AdminAnalyticsShell({ data }: Props) {
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("kpiBookingsInRange")}</p>
           <p className={adminChrome.metricValue}>{data.bookings.summary.total}</p>
+        </li>
+        <li className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{t("kpiAttendanceRate")}</p>
+          <p className={adminChrome.metricValue}>
+            {rangeAttendanceRate === null ? t("notAvailable") : `${rangeAttendanceRate}%`}
+          </p>
         </li>
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("kpiActiveMembers")}</p>
@@ -424,6 +436,9 @@ export function AdminAnalyticsShell({ data }: Props) {
         title={t("sections.coachPerformance.title")}
         hint={t("sections.coachPerformance.hint")}
       >
+        <h3 className="text-sm font-semibold text-sage-900">
+          {t("sections.coachPerformance.bookingsTitle")}
+        </h3>
         {viewMode === "table" ? (
           <RankTable labels={tableLabels} rows={coachBookings} />
         ) : (
@@ -431,6 +446,18 @@ export function AdminAnalyticsShell({ data }: Props) {
             items={coachBookings}
             emptyLabel={t("empty")}
             ariaLabel={t("sections.coachPerformance.chartAria")}
+          />
+        )}
+        <h3 className="mt-6 text-sm font-semibold text-sage-900">
+          {t("sections.coachPerformance.attendanceTitle")}
+        </h3>
+        {viewMode === "table" ? (
+          <RankTable labels={tableLabels} rows={coachAttendance} />
+        ) : (
+          <AdminAnalyticsBarList
+            items={coachAttendance}
+            emptyLabel={t("empty")}
+            ariaLabel={t("sections.coachPerformance.attendanceChartAria")}
           />
         )}
       </SectionShell>
@@ -491,6 +518,12 @@ export function AdminAnalyticsShell({ data }: Props) {
             href={exportBookingsHref}
           >
             {t("export.bookingsCsv")}
+          </a>
+          <a
+            className="inline-flex rounded-xl border border-sage-300 bg-white px-3 py-2 text-xs font-medium text-sage-700"
+            href={exportGiftCreditsHref}
+          >
+            {t("export.giftCreditsCsv")}
           </a>
         </div>
       </section>
