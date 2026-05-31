@@ -19,7 +19,13 @@ type BroadcastTemplateKey =
   | "waitlistOffer";
 type BroadcastTemplate = { subject: string; html: string };
 
-export function AdminNotificationBroadcastForm() {
+type AdminNotificationBroadcastFormProps = {
+  onSuccess?: () => void;
+};
+
+export function AdminNotificationBroadcastForm({
+  onSuccess,
+}: AdminNotificationBroadcastFormProps) {
   const t = useTranslations("forms.adminBroadcast");
   const getTemplateBody = (key: string) => {
     const value = t.raw(key);
@@ -87,6 +93,7 @@ export function AdminNotificationBroadcastForm() {
             ? t("scheduled", { when: scheduleAt })
             : t("queued", { count: res.count ?? 0 }),
       );
+      onSuccess?.();
     } catch (err) {
       setStatus(
         err instanceof ApiError ? err.message : t("sendFailed"),
@@ -159,6 +166,7 @@ export function AdminNotificationBroadcastForm() {
           <span>{t("promotionsOnlyLabel")}</span>
         </label>
       ) : null}
+      <p className="text-xs text-sage-600">{t("deliveryMethodNote")}</p>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("subjectLabel")}
