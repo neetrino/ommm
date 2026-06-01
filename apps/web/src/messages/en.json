@@ -1273,6 +1273,8 @@
       "addClassButton": "Add Class",
       "classTypes": {
         "manageButton": "Add Class Types",
+        "revealButtonAria": "Show Add Class Types",
+        "hideButtonAria": "Hide Add Class Types",
         "modalTitle": "Class types",
         "modalDescription": "Create, edit, and manage the studio's class type catalog.",
         "modalCloseAria": "Close",

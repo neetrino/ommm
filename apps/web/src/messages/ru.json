@@ -1264,6 +1264,8 @@
       "addClassButton": "Добавить занятие",
       "classTypes": {
         "manageButton": "Добавить типы занятий",
+        "revealButtonAria": "Показать «Добавить типы занятий»",
+        "hideButtonAria": "Скрыть «Добавить типы занятий»",
         "modalTitle": "Типы занятий",
         "modalDescription": "Создавайте, редактируйте и управляйте каталогом типов занятий студии.",
         "modalCloseAria": "Закрыть",
