@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 
@@ -9,8 +8,7 @@ export async function MarketingScheduleLiveView({
   locale: string;
 }) {
   const t = await getTranslations({ locale, namespace: "marketingPages.schedule" });
-  const cookie = (await headers()).get("cookie") ?? "";
-  const { items, loadErrorStatus } = await fetchPublicScheduleItems(cookie);
+  const { items, loadErrorStatus } = await fetchPublicScheduleItems();
 
   if (loadErrorStatus !== null) {
     return <p className="app-alert-warn mt-6">{t("loadFailed", { status: loadErrorStatus })}</p>;

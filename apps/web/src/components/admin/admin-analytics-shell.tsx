@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { formatDateForUi } from "@/lib/date-display";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-list";
 import { AdminAnalyticsFilters } from "@/components/admin/admin-analytics-filters";
@@ -225,7 +226,12 @@ export function AdminAnalyticsShell({ data }: Props) {
     <>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <AdminAnalyticsViewSwitcher value={viewMode} onChange={setView} />
-        <p className={adminChrome.metaText}>{t("rangeHint", { from: data.fromIso.slice(0, 10), to: data.toIso.slice(0, 10) })}</p>
+        <p className={adminChrome.metaText}>
+          {t("rangeHint", {
+            from: formatDateForUi(data.fromIso),
+            to: formatDateForUi(data.toIso),
+          })}
+        </p>
       </div>
 
       <div className="mt-4">

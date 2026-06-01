@@ -14,6 +14,7 @@ import {
   isSameCalendarDay,
   startOfLocalDay,
 } from "@/components/marketing/schedule/schedule-date-utils";
+import { formatDateForUi } from "@/lib/date-display";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -32,11 +33,7 @@ function formatMonthTitle(locale: string, date: Date): string {
 }
 
 function formatSelectedLong(locale: string, date: Date): string {
-  return new Intl.DateTimeFormat(locale, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  }).format(date);
+  return `${formatWeekdayShort(locale, date)}, ${formatDateForUi(date)}`;
 }
 
 type ScheduleDateControlsProps = {

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { AdminCoachSessionsDrawer } from "@/components/admin/admin-coach-sessions-drawer";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { CoachFinanceFilters, CoachFinanceRow } from "@/components/admin/admin-finance-types";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
@@ -152,14 +153,11 @@ export function AdminCoachFinanceTab({ locale, initialRows }: Props) {
             { value: "oldest", label: t("sortOldest") },
           ]}
         />
-        <OmmButton
-          size="sm"
-          variant="subtle"
-          onClick={() => setFilters(defaultFilters)}
-        >
-          {t("clearFilters")}
-        </OmmButton>
       </div>
+      <AdminFilterResetBar
+        onReset={() => setFilters(defaultFilters)}
+        label={t("clearFilters")}
+      />
       <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>
       <div className={adminChrome.tableWrap}>
         <table className="w-full min-w-[52rem] border-collapse text-left text-sm">

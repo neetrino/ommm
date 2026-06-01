@@ -5,6 +5,11 @@ import {
 } from '@nestjs/common';
 import { ContentStatus, ContentType, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import {
+  PUBLIC_CACHE_KEYS,
+  PUBLIC_CACHE_TTL_SEC,
+} from '../cache/public-cache-keys';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReviewDecision, ReviewPostDto } from './dto/review-post.dto';
 import type { UpsertPostDto } from './dto/upsert-post.dto';
@@ -14,22 +19,33 @@ export class ContentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly cache: RedisCacheService,
   ) {}
 
   listPublished(type?: ContentType) {
-    return this.prisma.contentPost.findMany({
-      where: {
-        status: ContentStatus.PUBLISHED,
-        ...(type && { type }),
-      },
-      orderBy: { publishedAt: 'desc' },
-    });
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.contentPosts(type),
+      PUBLIC_CACHE_TTL_SEC.contentPosts,
+      () =>
+        this.prisma.contentPost.findMany({
+          where: {
+            status: ContentStatus.PUBLISHED,
+            ...(type && { type }),
+          },
+          orderBy: { publishedAt: 'desc' },
+        }),
+    );
   }
 
   getBySlug(slug: string) {
-    return this.prisma.contentPost.findFirst({
-      where: { slug, status: ContentStatus.PUBLISHED },
-    });
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.contentPost(slug),
+      PUBLIC_CACHE_TTL_SEC.contentPost,
+      () =>
+        this.prisma.contentPost.findFirst({
+          where: { slug, status: ContentStatus.PUBLISHED },
+        }),
+    );
   }
 
   listAdmin() {
@@ -71,6 +87,7 @@ export class ContentService {
       entityId: created.id,
       payload: { status: created.status },
     });
+    await this.invalidatePublicContentCache();
     return created;
   }
 
@@ -117,6 +134,7 @@ export class ContentService {
       entityId: id,
       payload: { status: updated.status },
     });
+    await this.invalidatePublicContentCache();
     return updated;
   }
 
@@ -200,12 +218,18 @@ export class ContentService {
       entityId: id,
       payload: { note: dto.note ?? null },
     });
+    await this.invalidatePublicContentCache();
     return updated;
   }
 
   async delete(id: string) {
     await this.prisma.contentPost.delete({ where: { id } });
+    await this.invalidatePublicContentCache();
     return { ok: true };
+  }
+
+  private async invalidatePublicContentCache(): Promise<void> {
+    await this.cache.invalidateByPrefix(PUBLIC_CACHE_KEYS.contentPrefix);
   }
 
   private resolvePublishedAt(

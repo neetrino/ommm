@@ -4,6 +4,7 @@ import { homePathForRole } from "@/lib/role-home";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { routing } from "@/i18n/routing";
 import { serverApiJson } from "@/lib/server-api";
+import { ServiceUnavailableError } from "@/server/service-unavailable-error";
 
 type MePayload = {
   user: { role: string; locale?: string | null };
@@ -51,6 +52,9 @@ export async function requireAuthForLayout(locale: string): Promise<{
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MePayload>("/users/me", cookie);
   if (!res.ok) {
+    if (res.status === 503 || res.status === 504) {
+      throw new ServiceUnavailableError();
+    }
     redirect(`/${locale}/login`);
   }
   return {

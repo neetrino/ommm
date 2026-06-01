@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { DateTimePickerFields } from "@/components/ui/date-time-picker-fields";
 import type { BroadcastAudience, ScheduledBroadcast } from "./admin-notifications-types";
 
 export type ScheduledEditDraft = {
@@ -10,7 +11,8 @@ export type ScheduledEditDraft = {
   html: string;
   audience: BroadcastAudience;
   onlyPromotionsOptIn: boolean;
-  scheduleAt: string;
+  scheduleDate: string;
+  scheduleTime: string;
 };
 
 type Props = {
@@ -92,11 +94,15 @@ export function AdminScheduledBroadcastEditModal({
           ) : null}
           <label className="flex flex-col gap-1">
             <span className="ommm-label text-xs uppercase tracking-wide">{t("table.scheduledFor")}</span>
-            <input
-              className="ommm-input"
-              type="datetime-local"
-              value={draft.scheduleAt}
-              onChange={(ev) => onDraftChange({ ...draft, scheduleAt: ev.target.value })}
+            <DateTimePickerFields
+              dateName="scheduleDate"
+              dateValue={draft.scheduleDate}
+              timeValue={draft.scheduleTime}
+              dateAriaLabel={t("table.scheduledFor")}
+              timeAriaLabel={t("table.scheduledFor")}
+              onDateChange={(value) => onDraftChange({ ...draft, scheduleDate: value })}
+              onTimeChange={(value) => onDraftChange({ ...draft, scheduleTime: value })}
+              disabled={busy}
             />
           </label>
         </div>
@@ -116,14 +122,4 @@ export function AdminScheduledBroadcastEditModal({
       </div>
     </div>
   );
-}
-
-export function toDateTimeLocalValue(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
 }

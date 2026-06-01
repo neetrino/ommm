@@ -10,6 +10,11 @@ import {
 import { randomUUID } from 'node:crypto';
 import { MembershipStatus, PaymentStatus, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import {
+  PUBLIC_CACHE_KEYS,
+  PUBLIC_CACHE_TTL_SEC,
+} from '../cache/public-cache-keys';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
@@ -23,9 +28,18 @@ export class MembershipsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly cache: RedisCacheService,
   ) {}
 
   async listPlans() {
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.memberships,
+      PUBLIC_CACHE_TTL_SEC.memberships,
+      () => this.loadActivePlansFromDb(),
+    );
+  }
+
+  private async loadActivePlansFromDb() {
     try {
       return await this.prisma.membershipPlan.findMany({
         where: { isActive: true },
@@ -68,7 +82,7 @@ export class MembershipsService {
   async createPlan(dto: CreatePlanDto) {
     const slug = this.resolveSlug(dto.name, dto.slug);
     try {
-      return await this.prisma.membershipPlan.create({
+      const plan = await this.prisma.membershipPlan.create({
         data: {
           name: dto.name,
           slug,
@@ -87,6 +101,8 @@ export class MembershipsService {
           stripePriceId: dto.stripePriceId,
         },
       });
+      await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
+      return plan;
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {
         throw new ConflictException(
@@ -96,7 +112,9 @@ export class MembershipsService {
       if (!this.isMissingColumn(error)) {
         throw error;
       }
-      return this.createPlanLegacy(dto, slug);
+      const legacyPlan = await this.createPlanLegacy(dto, slug);
+      await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
+      return legacyPlan;
     }
   }
 
@@ -161,6 +179,7 @@ export class MembershipsService {
       entityId: planId,
       payload: data,
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
     return updated;
   }
 
@@ -179,6 +198,7 @@ export class MembershipsService {
       entityId: planId,
       payload: {},
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
     return { ok: true };
   }
 

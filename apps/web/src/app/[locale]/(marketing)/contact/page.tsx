@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { ContactMessageForm } from "@/components/marketing/contact-message-form";
-import { serverApiJson } from "@/lib/server-api";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type StudioPublic = {
   studioName: string;
@@ -46,7 +46,7 @@ export default async function ContactPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const studioRes = await serverApiJson<StudioPublic>("/studio", "");
+  const studioRes = await serverApiJsonPublic<StudioPublic>("/studio");
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
 

@@ -24,6 +24,12 @@ export const adminChrome = {
   thead: "border-b border-white/50 bg-white/35 text-xs uppercase tracking-wide text-sage-500",
   th: "px-4 py-3 font-medium",
   tr: "border-b border-white/40 last:border-b-0",
+  tableHeadDivider:
+    "border-b-[3px] border-solid border-white shadow-[0_1px_0_0_rgba(255,255,255,0.9)]",
+  tableBodyDividers:
+    "[&_tr:not(:last-child)]:border-b-[3px] [&_tr:not(:last-child)]:border-solid [&_tr:not(:last-child)]:border-white [&_tr:not(:last-child)]:shadow-[0_1px_0_0_rgba(255,255,255,0.9)]",
+  tableRowDivider:
+    "border-b-[3px] border-solid border-white shadow-[0_1px_0_0_rgba(255,255,255,0.9)]",
   tdStrong: "px-4 py-3 font-medium text-sage-900",
   td: "px-4 py-3 text-sage-700",
   tdMuted: "px-4 py-3 text-sage-500",

@@ -145,7 +145,7 @@ export function OmmFilterMultiSelect({
         return wrapAccentLabel(
           <span
             className={mergeClasses(
-              optionLabelClassName(wrapLabel),
+              optionLabelClassName(false),
               "text-sm font-semibold",
             )}
           >
@@ -206,7 +206,13 @@ export function OmmFilterMultiSelect({
         : `${ariaLabel}: ${formatSelectedCount(selectedOptions.length)}`;
 
   return (
-    <div ref={rootRef} className="ommm-dropdown-root min-w-0">
+    <div
+      ref={rootRef}
+      className={mergeClasses(
+        "ommm-dropdown-root min-w-0",
+        variant === "accent" ? "w-full min-w-[14rem] max-w-sm" : undefined,
+      )}
+    >
       <p className="sr-only">{ariaLabel}</p>
       <button
         ref={triggerRef}

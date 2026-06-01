@@ -235,7 +235,7 @@ export function AccountProfileInfoForm({
           id="profile-dob"
           name="dateOfBirth"
           ariaLabel={tProfile("labels.dateOfBirth")}
-          placeholder={tProfile("labels.dateOfBirth")}
+          placeholder="DD/MM/YYYY"
           value={form.dateOfBirth}
           onChange={(nextValue) => updateField("dateOfBirth", nextValue)}
           disabled={isSaving}

@@ -27,23 +27,47 @@ const VARIANT_CLASSES: Record<AdminRowIconButtonVariant, string> = {
 };
 
 const ICON_BUTTON_SIZE_PX = 28;
+const ICON_BUTTON_LG_SIZE_PX = 40;
 const ICON_ORBIT_GAP_PX = 4;
+const ICON_ORBIT_LG_GAP_PX = 5;
 const CIRCLE_PADDING_PX = 4;
 
+type AdminRowIconGroupSize = "default" | "lg";
+
+function sizeConfig(size: AdminRowIconGroupSize): {
+  buttonPx: number;
+  gapPx: number;
+  paddingPx: number;
+} {
+  if (size === "lg") {
+    return {
+      buttonPx: ICON_BUTTON_LG_SIZE_PX,
+      gapPx: ICON_ORBIT_LG_GAP_PX,
+      paddingPx: CIRCLE_PADDING_PX,
+    };
+  }
+  return {
+    buttonPx: ICON_BUTTON_SIZE_PX,
+    gapPx: ICON_ORBIT_GAP_PX,
+    paddingPx: CIRCLE_PADDING_PX,
+  };
+}
+
 /** Minimum orbit radius so circular buttons do not overlap. */
-function orbitRadiusPx(itemCount: number): number {
+function orbitRadiusPx(itemCount: number, size: AdminRowIconGroupSize): number {
   if (itemCount <= 1) {
     return 0;
   }
+  const { buttonPx, gapPx } = sizeConfig(size);
   const angleStepRad = Math.PI / itemCount;
-  const minRadius =
-    (ICON_BUTTON_SIZE_PX + ICON_ORBIT_GAP_PX) / (2 * Math.sin(angleStepRad));
+  const minRadius = (buttonPx + gapPx) / (2 * Math.sin(angleStepRad));
   return Math.ceil(minRadius);
 }
 
-function circleContainerSizePx(itemCount: number): number {
-  const radius = orbitRadiusPx(itemCount);
-  return radius * 2 + ICON_BUTTON_SIZE_PX + CIRCLE_PADDING_PX * 2;
+function circleContainerSizePx(itemCount: number, size: AdminRowIconGroupSize): number {
+  const { buttonPx, paddingPx } = sizeConfig(size);
+  const radius = orbitRadiusPx(itemCount, size);
+  return radius * 2 + buttonPx + paddingPx * 2;
 }
 
 /** Compact circular icon control for admin table/card row actions. */
@@ -79,7 +103,13 @@ export function AdminRowIconButton({
 }
 
 /** Arranges row action icons evenly on a circular orbit. */
-export function AdminRowIconGroup({ children }: { children: ReactNode }) {
+export function AdminRowIconGroup({
+  children,
+  size = "default",
+}: {
+  children: ReactNode;
+  size?: AdminRowIconGroupSize;
+}) {
   const items = Children.toArray(children).filter(isValidElement);
   const count = items.length;
 
@@ -87,13 +117,13 @@ export function AdminRowIconGroup({ children }: { children: ReactNode }) {
     return null;
   }
 
-  const radius = orbitRadiusPx(count);
-  const size = circleContainerSizePx(count);
+  const radius = orbitRadiusPx(count, size);
+  const containerSize = circleContainerSizePx(count, size);
 
   return (
     <div
       className="ommm-admin-row-icon-circle"
-      style={{ width: size, height: size }}
+      style={{ width: containerSize, height: containerSize }}
       role="group"
     >
       {items.map((child, index) => {

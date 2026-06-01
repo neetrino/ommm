@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -36,8 +37,18 @@ export class ClientsController {
   }
 
   @Patch(':id')
-  patch(@Param('id') id: string, @Body() dto: UpdateClientDto) {
-    return this.clients.updateBasicInfo(id, dto);
+  patch(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: UpdateClientDto,
+  ) {
+    return this.clients.updateBasicInfo(user, id, dto);
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN)
+  remove(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.clients.remove(user, id);
   }
 
   @Get(':id/notes')
