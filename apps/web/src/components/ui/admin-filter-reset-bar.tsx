@@ -28,9 +28,11 @@ export function AdminFilterResetBar({
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-2 sm:ml-auto sm:gap-3">
-      {meta}
-      <AdminFilterResetButton onClick={onReset}>{label}</AdminFilterResetButton>
+    <div className="flex w-full justify-end">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        {meta}
+        <AdminFilterResetButton onClick={onReset}>{label}</AdminFilterResetButton>
+      </div>
     </div>
   );
 }
