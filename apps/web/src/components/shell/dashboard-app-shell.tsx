@@ -297,11 +297,13 @@ export function DashboardAppShell({
             className={`${isAdminShell ? DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS : DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
           >
             {isAdminShell ? (
-              <AdminDashboardHeader
-                title={heading.title}
-                drawerOpen={drawerOpen}
-                onMenuToggle={() => setDrawerOpen((open) => !open)}
-              />
+              <div className="ommm-admin-content mx-auto w-full">
+                <AdminDashboardHeader
+                  title={heading.title}
+                  drawerOpen={drawerOpen}
+                  onMenuToggle={() => setDrawerOpen((open) => !open)}
+                />
+              </div>
             ) : (
               <div
                 className={`flex w-full items-center gap-2 px-2 py-4 ${DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS} ${borderB} ${sidebarBrandStripClass(variant)}`}

@@ -108,7 +108,7 @@ export function AdminCoachesFilters({
   }
 
   return (
-    <div className="mt-2 flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <label className="flex flex-col gap-1 text-xs text-sage-700 sm:col-span-2 xl:col-span-1">
           <span>{t("searchLabel")}</span>

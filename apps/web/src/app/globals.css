@@ -537,11 +537,7 @@ html {
   }
 
   .ommm-admin-content {
-    @apply mx-auto w-full max-w-[1024px];
-  }
-
-  .ommm-admin-content--wide {
-    @apply max-w-[1280px];
+    @apply mx-auto w-full max-w-[1280px];
   }
 
   .ommm-admin-add-button {
