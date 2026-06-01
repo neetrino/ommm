@@ -954,6 +954,7 @@
       "fieldName": "Անուն",
       "fieldLastName": "Ազգանուն",
       "fieldPhone": "Հեռախոս",
+      "fieldBirthday": "Ծննդյան ամսաթիվ",
       "emailRequired": "Էլ. փոստը պարտադիր է։",
       "emailInvalid": "Մուտքագրեք վավեր էլ. փոստ։",
       "saveButton": "Թարմացնել հաճախորդին",

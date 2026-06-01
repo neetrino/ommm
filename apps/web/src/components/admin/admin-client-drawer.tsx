@@ -1,12 +1,17 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { OmmButton } from "@/components/ui/omm-button";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import type { ClientDetail, ClientRow, PackageOption } from "./admin-clients-types";
 import {
   ActionSection,
@@ -22,31 +27,9 @@ type Props = {
   onChanged: () => void;
 };
 
-type EditForm = {
-  email: string;
-  name: string;
-  lastName: string;
-  phone: string;
-  dateOfBirth: string;
-};
-
 function fullName(client: { name: string | null; lastName: string | null; email: string }) {
   const value = [client.name, client.lastName].filter(Boolean).join(" ").trim();
   return value || client.email;
-}
-
-function isoDate(value: string | null) {
-  return value ? value.slice(0, 10) : "";
-}
-
-function toEditForm(source: ClientDetail | ClientRow | null): EditForm {
-  return {
-    email: source?.email ?? "",
-    name: source?.name ?? "",
-    lastName: source?.lastName ?? "",
-    phone: source?.phone ?? "",
-    dateOfBirth: isoDate(source?.dateOfBirth ?? null),
-  };
 }
 
 function sessionsLabel(membership: ClientDetail["memberships"][number] | null) {
@@ -56,6 +39,10 @@ function sessionsLabel(membership: ClientDetail["memberships"][number] | null) {
 }
 
 export function AdminClientDrawer({ client, packages, locale, onClose, onChanged }: Props) {
+  const t = useTranslations("adminPages.clients");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [detail, setDetail] = useState<ClientDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -63,7 +50,30 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
   const [note, setNote] = useState("");
   const [packageId, setPackageId] = useState("");
   const [giftAmount, setGiftAmount] = useState("10000");
-  const [form, setForm] = useState<EditForm>(() => toEditForm(client));
+  const wasEditingRef = useRef(false);
+
+  const refreshDetail = useCallback(async () => {
+    if (!client) return;
+    const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
+    setDetail(fresh);
+  }, [client]);
+
+  function openEditModal() {
+    if (!client) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(EDIT_CLIENT_QUERY_KEY, client.id);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }
+
+  useEffect(() => {
+    if (!client) return;
+    const isEditingThisClient = searchParams.get(EDIT_CLIENT_QUERY_KEY) === client.id;
+    if (wasEditingRef.current && !isEditingThisClient) {
+      void refreshDetail();
+    }
+    wasEditingRef.current = isEditingThisClient;
+  }, [client, refreshDetail, searchParams]);
 
   useEffect(() => {
     if (!client) return;
@@ -73,14 +83,12 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
       setLoading(true);
       setMessage(null);
       setDetail(null);
-      setForm(toEditForm(client));
       setNote("");
       setPackageId("");
       void apiFetch<ClientDetail>(`/clients/${client.id}`)
         .then((payload) => {
           if (cancelled) return;
           setDetail(payload);
-          setForm(toEditForm(payload));
         })
         .catch(() => {
           if (!cancelled) setDetail(null);
@@ -128,7 +136,12 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
 
   return createPortal(
     <div className="ommm-drawer-overlay z-[90]">
-      <button className="ommm-modal-backdrop" type="button" aria-label="Close client details" onClick={onClose} />
+      <button
+        className="ommm-modal-backdrop"
+        type="button"
+        aria-label={t("modalBackdropClose")}
+        onClick={onClose}
+      />
       <aside className="relative z-10 h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
@@ -136,7 +149,22 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
             <h2 className="text-xl font-semibold text-sage-900">{fullName(client)}</h2>
             <p className="text-sm text-sage-600">{client.phone ?? "—"} · {client.email}</p>
           </div>
-          <OmmButton variant="ghost" size="sm" onClick={onClose}>Close</OmmButton>
+          <div className="flex items-center gap-2">
+            <EditActionButton
+              ariaLabel={t("editClient")}
+              title={t("editClient")}
+              onClick={openEditModal}
+            />
+            <button
+              type="button"
+              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              aria-label={t("modalCloseAria")}
+              title={t("modalCloseAria")}
+              onClick={onClose}
+            >
+              <CancelGlyph className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {message ? (
@@ -151,28 +179,6 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
           <div className="space-y-4">
             <BasicInfo data={data} locale={locale} />
             <SummaryGrid client={activity} locale={locale} />
-            <EditSection
-              form={form}
-              busy={busy !== null}
-              onChange={(key, value) => setForm((prev) => ({ ...prev, [key]: value }))}
-              onSave={() =>
-                void run(
-                  "save",
-                  () =>
-                    apiFetch(`/clients/${client.id}`, {
-                      method: "PATCH",
-                      body: JSON.stringify({
-                        email: form.email.trim(),
-                        name: form.name.trim(),
-                        lastName: form.lastName.trim(),
-                        phone: form.phone.trim(),
-                        dateOfBirth: form.dateOfBirth || "",
-                      }),
-                    }),
-                  "Client updated",
-                )
-              }
-            />
             <ActionSection
               client={data}
               packages={packages}
@@ -244,27 +250,6 @@ function SummaryGrid({ client, locale }: { client: ClientRow; locale: string }) 
     ["Lifetime value", formatAmdFromCents(client.lifetimeValueCents, locale)],
   ];
   return <div className="grid gap-2 sm:grid-cols-3">{values.map(([label, value]) => <Metric key={label} label={String(label)} value={String(value)} />)}</div>;
-}
-
-function EditSection(props: {
-  form: EditForm;
-  busy: boolean;
-  onChange: (key: keyof EditForm, value: string) => void;
-  onSave: () => void;
-}) {
-  return (
-    <section className="rounded-2xl border border-white/60 bg-white/70 p-4">
-      <p className="font-medium text-sage-900">Edit client info</p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <input className="ommm-input h-10" value={props.form.email} onChange={(event) => props.onChange("email", event.target.value)} aria-label="Email" />
-        <input className="ommm-input h-10" value={props.form.phone} onChange={(event) => props.onChange("phone", event.target.value)} aria-label="Phone" />
-        <input className="ommm-input h-10" value={props.form.name} onChange={(event) => props.onChange("name", event.target.value)} aria-label="First name" />
-        <input className="ommm-input h-10" value={props.form.lastName} onChange={(event) => props.onChange("lastName", event.target.value)} aria-label="Last name" />
-        <input className="ommm-input h-10" type="date" value={props.form.dateOfBirth} onChange={(event) => props.onChange("dateOfBirth", event.target.value)} aria-label="Date of birth" />
-        <OmmButton size="sm" disabled={props.busy} onClick={props.onSave}>Save changes</OmmButton>
-      </div>
-    </section>
-  );
 }
 
 function Avatar({ client }: { client: { avatarUrl: string | null; name: string | null; lastName: string | null; email: string } }) {

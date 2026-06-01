@@ -967,6 +967,7 @@
       "fieldName": "First name",
       "fieldLastName": "Last name",
       "fieldPhone": "Phone",
+      "fieldBirthday": "Date of birth",
       "emailRequired": "Email is required.",
       "emailInvalid": "Enter a valid email address.",
       "saveButton": "Update client",

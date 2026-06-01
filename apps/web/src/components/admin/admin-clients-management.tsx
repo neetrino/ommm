@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -15,8 +16,9 @@ import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import {
   ADMIN_CLIENTS_FILTER_KEYS,
   mergeAdminClientsUrlQuery,
+  VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
-import type { AdminClientsPayload, ClientRow, PackageOption } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientDetail, ClientRow, PackageOption } from "./admin-clients-types";
 
 type Props = {
   initial: AdminClientsPayload;
@@ -40,6 +42,7 @@ const quickFilters = [
 export function AdminClientsManagement({ initial, packages, locale, initialFilters }: Props) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const hasMounted = useRef(false);
   const requestId = useRef(0);
   const [payload, setPayload] = useState(initial);
@@ -60,6 +63,78 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
   const [selected, setSelected] = useState<ClientRow | null>(null);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const selectClient = useCallback(
+    (row: ClientRow) => {
+      setSelected(row);
+      replaceSearchParams((params) => {
+        params.set(VIEW_CLIENT_QUERY_KEY, row.id);
+      });
+    },
+    [replaceSearchParams],
+  );
+
+  const closeClientView = useCallback(() => {
+    setSelected(null);
+    replaceSearchParams((params) => {
+      params.delete(VIEW_CLIENT_QUERY_KEY);
+    });
+  }, [replaceSearchParams]);
+
+  const restoredViewClientIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!viewClientId) {
+      restoredViewClientIdRef.current = null;
+      setSelected(null);
+      return undefined;
+    }
+
+    const fromRows = payload.rows.find((row) => row.id === viewClientId);
+    if (fromRows) {
+      restoredViewClientIdRef.current = viewClientId;
+      setSelected(fromRows);
+      return undefined;
+    }
+
+    if (restoredViewClientIdRef.current === viewClientId) {
+      return undefined;
+    }
+
+    restoredViewClientIdRef.current = viewClientId;
+    let cancelled = false;
+
+    void apiFetch<ClientDetail>(`/clients/${viewClientId}`)
+      .then((detail) => {
+        if (!cancelled) {
+          setSelected(detail.activity);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          restoredViewClientIdRef.current = null;
+          setSelected(null);
+          replaceSearchParams((params) => {
+            params.delete(VIEW_CLIENT_QUERY_KEY);
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [payload.rows, replaceSearchParams, viewClientId]);
 
   const urlQueryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -162,7 +237,7 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
       <ClientsTable
         rows={payload.rows}
         locale={locale}
-        onSelect={setSelected}
+        onSelect={selectClient}
         onChanged={refetchClients}
       />
       {payload.rows.length === 0 ? (
@@ -174,7 +249,7 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
         client={selected}
         packages={packages}
         locale={locale}
-        onClose={() => setSelected(null)}
+        onClose={closeClientView}
         onChanged={() => router.refresh()}
       />
     </div>

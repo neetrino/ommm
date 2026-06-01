@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
@@ -18,6 +19,8 @@ type AdminClientActionsProps = {
   initialName: string;
   initialLastName: string;
   initialPhone: string;
+  initialDateOfBirth?: string;
+  onChanged?: () => void;
 };
 
 type FormState = {
@@ -25,13 +28,12 @@ type FormState = {
   name: string;
   lastName: string;
   phone: string;
+  dateOfBirth: string;
 };
 
 type FormErrors = {
   email?: string;
 };
-
-const EDIT_CLIENT_QUERY_KEY = "editClient";
 
 function CloseGlyph({ className }: { className?: string }) {
   return (
@@ -58,6 +60,8 @@ export function AdminClientActions({
   initialName,
   initialLastName,
   initialPhone,
+  initialDateOfBirth = "",
+  onChanged,
 }: AdminClientActionsProps) {
   const t = useTranslations("adminPages.clients");
   const router = useRouter();
@@ -71,6 +75,7 @@ export function AdminClientActions({
     name: initialName,
     lastName: initialLastName,
     phone: initialPhone,
+    dateOfBirth: initialDateOfBirth,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [note, setNote] = useState("");
@@ -85,9 +90,10 @@ export function AdminClientActions({
       name: initialName,
       lastName: initialLastName,
       phone: initialPhone,
+      dateOfBirth: initialDateOfBirth,
     });
     setErrors({});
-  }, [initialEmail, initialLastName, initialName, initialPhone]);
+  }, [initialDateOfBirth, initialEmail, initialLastName, initialName, initialPhone]);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -170,6 +176,7 @@ export function AdminClientActions({
       if (options?.closeOnSuccess) {
         closeModal();
       }
+      onChanged?.();
       router.refresh();
     } catch (error) {
       setTone("err");
@@ -200,6 +207,7 @@ export function AdminClientActions({
             name: form.name.trim(),
             lastName: form.lastName.trim(),
             phone: form.phone.trim(),
+            dateOfBirth: form.dateOfBirth || "",
           }),
         }),
       t("updateSuccess"),
@@ -235,7 +243,7 @@ export function AdminClientActions({
       {isOpen && typeof document !== "undefined"
         ? createPortal(
             <div
-              className="ommm-modal-overlay z-50"
+              className="ommm-modal-overlay z-[95]"
               role="presentation"
             >
               <button
@@ -344,6 +352,23 @@ export function AdminClientActions({
                   className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
                   value={form.phone}
                   onChange={(event) => updateField("phone", event.target.value)}
+                  disabled={busy}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label
+                  className="text-sm font-medium text-sage-700"
+                  htmlFor={`date-of-birth-${clientId}`}
+                >
+                  {t("fieldBirthday")}
+                </label>
+                <input
+                  id={`date-of-birth-${clientId}`}
+                  type="date"
+                  className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+                  value={form.dateOfBirth}
+                  onChange={(event) => updateField("dateOfBirth", event.target.value)}
                   disabled={busy}
                 />
               </div>

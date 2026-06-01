@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AdminClientActions } from "@/components/admin/admin-client-actions";
+import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { PencilGlyph, TrashGlyph } from "@/components/ui/admin-action-glyphs";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
@@ -15,7 +16,10 @@ const CLIENT_ROW_ICON_CLASS = "h-5 w-5 shrink-0";
 const CLIENT_ROW_ICON_BUTTON_CLASS = "ommm-admin-row-icon-button-lg";
 const CLIENT_ROW_TOGGLE_BUTTON_CLASS =
   "ommm-admin-row-icon-button-lg ommm-admin-row-icon-button-toggle";
-const EDIT_CLIENT_QUERY_KEY = "editClient";
+
+function isoDate(value: string | null): string {
+  return value ? value.slice(0, 10) : "";
+}
 
 type AdminClientRowActionsProps = {
   client: ClientRow;
@@ -158,6 +162,8 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
         initialName={client.name ?? ""}
         initialLastName={client.lastName ?? ""}
         initialPhone={client.phone ?? ""}
+        initialDateOfBirth={isoDate(client.dateOfBirth)}
+        onChanged={onChanged}
       />
     </>
   );
