@@ -6,8 +6,14 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
+import {
+  parseAdminClientSegmentFilters,
+  serializeAdminClientSegmentFilters,
+  type AdminClientSegmentFilter,
+} from "@/components/admin/admin-clients-segment-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
@@ -29,7 +35,7 @@ type Props = {
 
 const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
-const quickFilters = [
+const segmentFilterOptions: ReadonlyArray<readonly [AdminClientSegmentFilter, string]> = [
   ["new", "New Clients"],
   ["vip", "VIP Clients"],
   ["at-risk", "At Risk Clients"],
@@ -37,7 +43,7 @@ const quickFilters = [
   ["birthday-this-month", "Birthday This Month"],
   ["inactive-30-days", "Inactive 30+ Days"],
   ["no-show", "No-show Clients"],
-] as const;
+];
 
 export function AdminClientsManagement({ initial, packages, locale, initialFilters }: Props) {
   const router = useRouter();
@@ -225,7 +231,7 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
   return (
     <div className="space-y-4">
       <Summary payload={payload} locale={locale} />
-      <QuickFilters active={filters.quick} onChange={(value) => updateFilter("quick", value)} />
+      <SegmentFilters active={filters.quick} onChange={(value) => updateFilter("quick", value)} />
       <Filters
         filters={filters}
         payload={payload}
@@ -268,8 +274,64 @@ function Summary({ payload, locale }: { payload: AdminClientsPayload; locale: st
   return <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">{cards.map(([label, value]) => <div key={label} className={adminChrome.metricCard}><p className={adminChrome.metricLabel}>{label}</p><p className={adminChrome.metricValue}>{value}</p></div>)}</div>;
 }
 
-function QuickFilters({ active, onChange }: { active: string; onChange: (value: string) => void }) {
-  return <div className="flex flex-wrap gap-2">{quickFilters.map(([value, label]) => <OmmButton key={value} size="sm" variant={active === value ? "primary" : "ghost"} onClick={() => onChange(active === value ? "" : value)}>{label}</OmmButton>)}</div>;
+function SegmentFilters({
+  active,
+  onChange,
+}: {
+  active: string;
+  onChange: (value: string) => void;
+}) {
+  const selectedValues = useMemo(() => parseAdminClientSegmentFilters(active), [active]);
+  const options = useMemo(
+    () =>
+      segmentFilterOptions.map(([value, label]) => ({
+        value,
+        label,
+      })),
+    [],
+  );
+
+  return (
+    <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
+      <div className="flex flex-col gap-2 sm:max-w-md">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
+          <SegmentFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
+          Client segments
+        </span>
+        <OmmFilterMultiSelect
+          variant="accent"
+          wrapLabel
+          ariaLabel="Client segment filters"
+          allLabel="All clients"
+          selectedValues={selectedValues}
+          onChange={(values) =>
+            onChange(serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]))
+          }
+          formatSelectedCount={(count) =>
+            count === 1 ? "1 segment selected" : `${count} segments selected`
+          }
+          options={options}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SegmentFilterGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z" />
+    </svg>
+  );
 }
 
 function Filters(props: {

@@ -559,7 +559,12 @@ export class ClientsService {
       return false;
     if (query.birthdayMonth && row.birthdayMonth !== query.birthdayMonth)
       return false;
-    if (query.quick && !this.matchesQuickFilter(row, query.quick)) return false;
+    if (
+      query.quick?.length &&
+      !query.quick.some((filter) => this.matchesQuickFilter(row, filter))
+    ) {
+      return false;
+    }
     return true;
   }
 

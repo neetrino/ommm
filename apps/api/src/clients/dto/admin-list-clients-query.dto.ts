@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsIn,
   IsInt,
@@ -70,6 +71,21 @@ export enum AdminClientQuickFilter {
   NO_SHOW = 'no-show',
 }
 
+function parseAdminClientQuickFilters(
+  value: unknown,
+): AdminClientQuickFilter[] | undefined {
+  if (value === undefined || value === '') {
+    return undefined;
+  }
+  const parts = Array.isArray(value)
+    ? value.flatMap((entry) => String(entry).split(','))
+    : String(value).split(',');
+  const normalized = parts.map((part) => part.trim()).filter(Boolean);
+  return normalized.length > 0
+    ? (normalized as AdminClientQuickFilter[])
+    : undefined;
+}
+
 export class AdminListClientsQueryDto {
   @IsOptional()
   @IsString()
@@ -129,8 +145,10 @@ export class AdminListClientsQueryDto {
   birthdayMonth?: number;
 
   @IsOptional()
-  @IsIn(Object.values(AdminClientQuickFilter))
-  quick?: AdminClientQuickFilter;
+  @Transform(({ value }) => parseAdminClientQuickFilters(value))
+  @IsArray()
+  @IsIn(Object.values(AdminClientQuickFilter), { each: true })
+  quick?: AdminClientQuickFilter[];
 
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === '1')
