@@ -1270,6 +1270,7 @@
         "modalBackdropClose": "Закрыть окно",
         "listHeading": "Каталог",
         "addButton": "Добавить тип",
+        "editButtonAria": "Редактировать «{name}»",
         "emptyTitle": "Типов занятий пока нет",
         "emptyBody": "Нажмите «Добавить тип» выше, чтобы создать первый — например Reformer, Yoga или Mat Pilates.",
         "formCreateTitle": "Новый тип",

@@ -1266,6 +1266,7 @@
         "modalBackdropClose": "Փակել պատուհանը",
         "listHeading": "Ցուցակ",
         "addButton": "Ավելացնել տեսակ",
+        "editButtonAria": "Խմբագրել «{name}»",
         "emptyTitle": "Տեսակներ դեռ չկան",
         "emptyBody": "Վերևի «Ավելացնել տեսակ» կոճակով ստեղծեք առաջին տեսակը՝ Reformer, Yoga և այլն։",
         "formCreateTitle": "Նոր տեսակ",
