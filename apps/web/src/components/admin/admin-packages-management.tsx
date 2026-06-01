@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
-import { AdminClassTypesModal, type AdminClassTypeRow } from "@/components/admin/admin-class-types-modal";
+import type { AdminClassTypeRow } from "@/components/admin/admin-class-types-modal";
 import {
   AdminPackagesShell,
   PackagesAddButton,
@@ -33,7 +33,6 @@ export function AdminPackagesManagement({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(() => classTypes[0]?.id ?? "");
-  const [classTypesOpen, setClassTypesOpen] = useState(false);
 
   useEffect(() => {
     if (classTypes.length === 0) {
@@ -60,10 +59,6 @@ export function AdminPackagesManagement({
     router.replace(`${pathname}?${params.toString()}`);
   }
 
-  function openClassTypesModal() {
-    setClassTypesOpen(true);
-  }
-
   const toolbar =
     pillItems.length > 0 ? (
       <div className="ommm-admin-packages-toolbar">
@@ -74,13 +69,11 @@ export function AdminPackagesManagement({
           ariaLabel={t("filters.status")}
         />
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
-          <PackagesAddButton label={t("addClassTypeButton")} onClick={openClassTypesModal} />
           <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
         </div>
       </div>
     ) : (
       <div className="flex flex-wrap justify-end gap-3">
-        <PackagesAddButton label={t("addClassTypeButton")} onClick={openClassTypesModal} />
         <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
       </div>
     );
@@ -99,23 +92,11 @@ export function AdminPackagesManagement({
                 isActiveCategory={classType.id === activeTab}
                 packages={sortedPackages}
                 locale={locale}
-                onEditCategory={openClassTypesModal}
               />
             ))}
           </div>
         )}
       </AdminPackagesShell>
-
-      <AdminClassTypesModal
-        isOpen={classTypesOpen}
-        classTypes={classTypes}
-        sessionCountByTypeId={{}}
-        onClose={() => setClassTypesOpen(false)}
-        onChanged={() => {
-          setClassTypesOpen(false);
-          router.refresh();
-        }}
-      />
     </>
   );
 }
@@ -125,7 +106,6 @@ type CategoryAccordionProps = {
   isActiveCategory: boolean;
   packages: readonly AdminPackageRow[];
   locale: string;
-  onEditCategory: () => void;
 };
 
 function CategoryAccordion({
@@ -133,7 +113,6 @@ function CategoryAccordion({
   isActiveCategory,
   packages,
   locale,
-  onEditCategory,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
   const [open, setOpen] = useState(isActiveCategory);
@@ -152,8 +131,6 @@ function CategoryAccordion({
   return (
     <AdminAccordionPanel
       title={classType.name}
-      editLabel={t("editCategory")}
-      onEdit={onEditCategory}
       open={open}
       onOpenChange={setOpen}
       contentVariant="table"
