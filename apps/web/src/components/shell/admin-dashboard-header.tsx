@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 import type { DashboardRoleNotificationRoute } from "@/lib/dashboard-nav";
 
@@ -117,6 +118,7 @@ export function AdminDashboardHeader({
             {tShell("adminProfileLabel")}
           </span>
         </Link>
+        <LogoutButton className="ommm-admin-icon-button" />
       </div>
     </div>
   );
