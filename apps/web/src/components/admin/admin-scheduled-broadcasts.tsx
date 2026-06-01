@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
+import { combineIsoDateAndTime, splitIsoDateTime } from "@/lib/date-display";
+import { DateTimePickerFields } from "@/components/ui/date-time-picker-fields";
 
 type ScheduledBroadcast = {
   id: string;
@@ -9,6 +11,11 @@ type ScheduledBroadcast = {
   audience: "users" | "coaches" | "staff" | "all";
   scheduleAt: string;
   status: "PENDING" | "SENT" | "FAILED" | "CANCELLED";
+};
+
+type ScheduleDraft = {
+  date: string;
+  time: string;
 };
 
 type AdminScheduledBroadcastsProps = {
@@ -26,21 +33,17 @@ type AdminScheduledBroadcastsProps = {
   };
 };
 
-function toDateTimeLocalValue(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
+function draftFromItems(items: ScheduledBroadcast[]): Record<string, ScheduleDraft> {
+  return Object.fromEntries(
+    items.map((item) => [item.id, splitIsoDateTime(item.scheduleAt)]),
+  );
 }
 
 export function AdminScheduledBroadcasts({ items, labels }: AdminScheduledBroadcastsProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [scheduleDraft, setScheduleDraft] = useState<Record<string, string>>(
-    Object.fromEntries(items.map((item) => [item.id, toDateTimeLocalValue(item.scheduleAt)])),
+  const [scheduleDraft, setScheduleDraft] = useState<Record<string, ScheduleDraft>>(() =>
+    draftFromItems(items),
   );
 
   async function cancel(id: string) {
@@ -58,8 +61,9 @@ export function AdminScheduledBroadcasts({ items, labels }: AdminScheduledBroadc
   }
 
   async function reschedule(id: string) {
-    const raw = scheduleDraft[id];
-    if (!raw) {
+    const draft = scheduleDraft[id];
+    const scheduleIso = combineIsoDateAndTime(draft?.date ?? "", draft?.time ?? "");
+    if (scheduleIso === null) {
       setMessage(labels.chooseScheduleFirst);
       return;
     }
@@ -68,7 +72,7 @@ export function AdminScheduledBroadcasts({ items, labels }: AdminScheduledBroadc
     try {
       await apiFetch(`/notifications/admin/scheduled/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ scheduleAt: new Date(raw).toISOString() }),
+        body: JSON.stringify({ scheduleAt: scheduleIso }),
       });
       setMessage(labels.scheduleUpdated);
       window.location.reload();
@@ -91,14 +95,26 @@ export function AdminScheduledBroadcasts({ items, labels }: AdminScheduledBroadc
               <span className="font-medium text-sage-900">{item.subject}</span>
               <span className="text-xs text-sage-500">{item.audience}</span>
               <span className="text-xs text-sage-500">{item.status}</span>
-              <input
-                className="ommm-input h-9 w-auto text-xs"
-                type="datetime-local"
-                value={scheduleDraft[item.id] ?? ""}
-                onChange={(ev) =>
-                  setScheduleDraft((prev) => ({ ...prev, [item.id]: ev.target.value }))
-                }
+              <DateTimePickerFields
+                dateName={`schedule-date-${item.id}`}
+                dateValue={scheduleDraft[item.id]?.date ?? ""}
+                timeValue={scheduleDraft[item.id]?.time ?? ""}
+                dateAriaLabel={labels.reschedule}
+                timeAriaLabel={labels.reschedule}
                 disabled={busyId !== null || item.status !== "PENDING"}
+                className="flex min-w-[16rem] flex-1 flex-wrap items-center gap-2"
+                onDateChange={(value) =>
+                  setScheduleDraft((prev) => ({
+                    ...prev,
+                    [item.id]: { date: value, time: prev[item.id]?.time ?? "" },
+                  }))
+                }
+                onTimeChange={(value) =>
+                  setScheduleDraft((prev) => ({
+                    ...prev,
+                    [item.id]: { date: prev[item.id]?.date ?? "", time: value },
+                  }))
+                }
               />
               <button
                 type="button"
@@ -120,7 +136,7 @@ export function AdminScheduledBroadcasts({ items, labels }: AdminScheduledBroadc
           ))
         )}
       </ul>
-      {message ? <p className="mt-2 text-xs text-sage-700">{message}</p> : null}
+      {message ? <p className="mt-2 text-sm text-sage-700">{message}</p> : null}
     </section>
   );
 }

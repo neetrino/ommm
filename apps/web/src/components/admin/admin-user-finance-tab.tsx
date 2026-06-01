@@ -12,6 +12,7 @@ import type {
 import type { AdminClientsPayload, ClientRow, PackageOption } from "@/components/admin/admin-clients-types";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -214,20 +215,20 @@ export function AdminUserFinanceTab({
         />
         <label className="text-xs text-sage-600">
           <span className="mb-1 block">{t("expirationFrom")}</span>
-          <input
-            type="date"
-            className="ommm-input h-10 w-full"
+          <DatePickerInput
+            name="expirationFrom"
+            ariaLabel={t("expirationFrom")}
             value={filters.expirationFrom}
-            onChange={(event) => updateFilter("expirationFrom", event.target.value)}
+            onChange={(value) => updateFilter("expirationFrom", value)}
           />
         </label>
         <label className="text-xs text-sage-600">
           <span className="mb-1 block">{t("expirationTo")}</span>
-          <input
-            type="date"
-            className="ommm-input h-10 w-full"
+          <DatePickerInput
+            name="expirationTo"
+            ariaLabel={t("expirationTo")}
             value={filters.expirationTo}
-            onChange={(event) => updateFilter("expirationTo", event.target.value)}
+            onChange={(value) => updateFilter("expirationTo", value)}
           />
         </label>
         <OmmSelectDropdown

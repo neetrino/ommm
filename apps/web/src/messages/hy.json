@@ -2373,6 +2373,7 @@
       "testRecipientPlaceholder": "you@example.com",
       "scheduleAtLabel": "Ժամանակացույցել (ըստ ցանկության)",
       "scheduleAtHint": "Եթե ընտրեք ապագա ժամանակ, հաղորդագրությունը կդրվի հերթ և կուղարկվի ֆոնային ժամանակացույցով։",
+      "scheduleInvalid": "Մուտքագրեք վավեր ամսաթիվ և ժամ։",
       "deliveryMethodNote": "Admin broadcast-ները ուղարկվում են միայն էլ. փոստով։ Push-ը օգտագործվում է ավտոմատ booking հիշեցումների համար, ոչ թե ձեռքով broadcast-ների։",
       "sending": "Ուղարկում…",
       "submit": "Ուղարկել հաղորդագրությունը",

@@ -7,6 +7,13 @@ function asDate(value: Date | string): Date | null {
 }
 
 export function formatDateForUi(value: Date | string): string {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return formatIsoDateToUi(trimmed);
+    }
+  }
+
   const date = asDate(value);
   if (date === null) {
     return "";
@@ -99,4 +106,47 @@ export function parseBirthdayDisplayToIso(displayValue: string): string | null {
     return null;
   }
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+/** Splits an ISO datetime into form-friendly `YYYY-MM-DD` and `HH:mm` parts. */
+export function splitIsoDateTime(isoValue: string): { date: string; time: string } {
+  const date = asDate(isoValue);
+  if (date === null) {
+    return { date: "", time: "" };
+  }
+  const year = String(date.getFullYear());
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return {
+    date: `${year}-${month}-${day}`,
+    time: `${hours}:${minutes}`,
+  };
+}
+
+/** Combines `YYYY-MM-DD` and `HH:mm` into an ISO datetime string. */
+export function combineIsoDateAndTime(dateIso: string, timeHm: string): string | null {
+  const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateIso.trim());
+  const timeMatch = /^(\d{2}):(\d{2})$/.exec(timeHm.trim());
+  if (dateMatch === null || timeMatch === null) {
+    return null;
+  }
+
+  const year = Number(dateMatch[1]);
+  const month = Number(dateMatch[2]);
+  const day = Number(dateMatch[3]);
+  const hours = Number(timeMatch[1]);
+  const minutes = Number(timeMatch[2]);
+  const combined = new Date(year, month - 1, day, hours, minutes, 0, 0);
+  if (
+    combined.getFullYear() !== year ||
+    combined.getMonth() !== month - 1 ||
+    combined.getDate() !== day ||
+    combined.getHours() !== hours ||
+    combined.getMinutes() !== minutes
+  ) {
+    return null;
+  }
+  return combined.toISOString();
 }

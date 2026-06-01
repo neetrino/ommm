@@ -2488,6 +2488,7 @@
       "testRecipientPlaceholder": "you@example.com",
       "scheduleAtLabel": "Schedule at (optional)",
       "scheduleAtHint": "If set in the future, this broadcast will be queued and sent by background schedule.",
+      "scheduleInvalid": "Enter a valid schedule date and time.",
       "deliveryMethodNote": "Admin broadcasts are sent by email only. Push is used for automatic booking reminders, not manual broadcasts.",
       "sending": "Sending…",
       "submit": "Send broadcast",
