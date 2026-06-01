@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "rea
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type OmmFilterMultiSelectOption = {
   value: string;
@@ -68,7 +69,7 @@ export function OmmFilterMultiSelect({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
-  const [portalReady, setPortalReady] = useState(false);
+  const portalReady = useIsClientMounted();
 
   const normalizedSelection = useMemo(
     () => buildValidSelection(options, selectedValues),
@@ -87,10 +88,6 @@ export function OmmFilterMultiSelect({
     MENU_MIN_HEIGHT,
     TRIGGER_MIN_WIDTH,
   );
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
 
   useEffect(() => {
     if (!open || disabled) {

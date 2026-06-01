@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type AdminPackagesCategoryOption = {
   id: string;
@@ -43,7 +44,7 @@ export function AdminPackagesCategoryMultiSelect({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
-  const [portalReady, setPortalReady] = useState(false);
+  const portalReady = useIsClientMounted();
 
   const selectedOptions = useMemo(
     () => options.filter((option) => selectedIds.has(option.id)),
@@ -58,10 +59,6 @@ export function AdminPackagesCategoryMultiSelect({
     MENU_MIN_HEIGHT,
     TRIGGER_MIN_WIDTH,
   );
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
 
   useEffect(() => {
     if (!open || disabled) {

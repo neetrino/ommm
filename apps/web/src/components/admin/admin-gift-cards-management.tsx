@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -59,6 +59,28 @@ export function AdminGiftCardsManagement({
 
   const activeFilterCount = countActiveGiftCardFilters(filters);
 
+  const syncFiltersToUrl = useCallback(
+    (values: GiftCardFilterValues) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("modal");
+      for (const key of GIFT_CARD_FILTER_QUERY_KEYS) {
+        params.delete(key);
+      }
+      const filterQuery = buildGiftCardFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
+          params.set(key, entryValue);
+        }
+      }
+      const qs = params.toString();
+      if (qs === searchParams.toString()) {
+        return;
+      }
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
@@ -70,7 +92,7 @@ export function AdminGiftCardsManagement({
       setIsFiltering(false);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [filters.search]);
+  }, [filters.search, filters, syncFiltersToUrl]);
 
   function updateFilter<K extends keyof GiftCardFilterValues>(
     key: K,
@@ -97,25 +119,6 @@ export function AdminGiftCardsManagement({
     };
     setFilters(cleared);
     syncFiltersToUrl(cleared);
-  }
-
-  function syncFiltersToUrl(values: GiftCardFilterValues) {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("modal");
-    for (const key of GIFT_CARD_FILTER_QUERY_KEYS) {
-      params.delete(key);
-    }
-    const filterQuery = buildGiftCardFiltersQuery(values);
-    if (filterQuery.length > 0) {
-      for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
-        params.set(key, entryValue);
-      }
-    }
-    const qs = params.toString();
-    if (qs === searchParams.toString()) {
-      return;
-    }
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   function handleChanged() {

@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "rea
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type DropdownOption<T extends string> = {
   value: T;
@@ -84,7 +85,7 @@ export function DropdownSelect<T extends string>({
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const [portalReady, setPortalReady] = useState(false);
+  const portalReady = useIsClientMounted();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -101,10 +102,6 @@ export function DropdownSelect<T extends string>({
   );
   const isMenuOpen = open && !disabled && options.length > 0;
   const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
 
   useEffect(() => {
     if (!open || disabled) {
@@ -234,7 +231,7 @@ export function DropdownSelect<T extends string>({
         onKeyDown={onTriggerKeyDown}
       >
         {triggerContent}
-        <span className={mergeClasses("ml-auto shrink-0 text-sage-500", wrapLabel && "self-center")}>
+        <span className={mergeClasses("ml-auto shrink-0 text-sage-500", wrapLabel ? "self-center" : undefined)}>
           <ChevronDownIcon />
         </span>
       </button>

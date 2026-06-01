@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -340,6 +340,7 @@ export function AdminScheduleManagement({
   const searchParams = useSearchParams();
   const [rows, setRows] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
+  const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
   const [view, setView] = useState<ScheduleView>(initialView);
   const [filters, setFilters] = useState<Filters>(() => initialFilters());
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>([]);
@@ -400,9 +401,10 @@ export function AdminScheduleManagement({
     return { mode: "edit" as const, row: editing };
   }, [addClassOpen, editing]);
 
-  useEffect(() => {
+  if (prevInitialClassTypes !== initialClassTypes) {
+    setPrevInitialClassTypes(initialClassTypes);
     setClassTypes(initialClassTypes);
-  }, [initialClassTypes]);
+  }
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -939,19 +941,21 @@ function SchedulePageActions({
   onCreate: () => void;
 }) {
   const t = useTranslations("adminPages.classes");
-  const [classTypesVisible, setClassTypesVisible] = useState(false);
-
-  useEffect(() => {
-    setClassTypesVisible(readClassTypesVisiblePreference());
-  }, []);
+  const [visibleOverride, setVisibleOverride] = useState<boolean | null>(null);
+  const storedClassTypesVisible = useSyncExternalStore(
+    () => () => undefined,
+    readClassTypesVisiblePreference,
+    () => false,
+  );
+  const classTypesVisible = visibleOverride ?? storedClassTypesVisible;
 
   function revealClassTypes(): void {
-    setClassTypesVisible(true);
+    setVisibleOverride(true);
     persistClassTypesVisiblePreference(true);
   }
 
   function hideClassTypes(): void {
-    setClassTypesVisible(false);
+    setVisibleOverride(false);
     persistClassTypesVisiblePreference(false);
   }
 

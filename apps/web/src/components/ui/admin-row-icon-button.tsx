@@ -80,9 +80,7 @@ export function AdminRowIconButton({
 
 /** Arranges row action icons evenly on a circular orbit. */
 export function AdminRowIconGroup({ children }: { children: ReactNode }) {
-  const items = Children.toArray(children).filter(
-    (child) => child !== null && child !== false && isValidElement(child),
-  );
+  const items = Children.toArray(children).filter(isValidElement);
   const count = items.length;
 
   if (count === 0) {

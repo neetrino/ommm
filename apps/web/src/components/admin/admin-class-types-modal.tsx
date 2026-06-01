@@ -16,6 +16,7 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import { formatDateForUi } from "@/lib/date-display";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type AdminClassTypeRow = {
   id: string;
@@ -128,14 +129,17 @@ export function AdminClassTypesModal({
   const [error, setError] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState(false);
-  const [portalReady, setPortalReady] = useState(false);
+  const portalReady = useIsClientMounted();
   const submitLockRef = useRef(false);
   const onChangedRef = useRef(onChanged);
-  onChangedRef.current = onChanged;
   const tRef = useRef(t);
-  tRef.current = t;
   const fetchGenerationRef = useRef(0);
   const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    onChangedRef.current = onChanged;
+    tRef.current = t;
+  }, [onChanged, t]);
 
   const slugPreview = useMemo(() => buildClassTypeSlugFromName(form.name), [form.name]);
   const selectedType = types.find((row) => row.id === selectedId) ?? null;
@@ -180,7 +184,9 @@ export function AdminClassTypesModal({
 
   useEffect(() => {
     if (!isOpen) {
-      setTypes(sortTypes(classTypes));
+      queueMicrotask(() => {
+        setTypes(sortTypes(classTypes));
+      });
     }
   }, [classTypes, isOpen]);
 
@@ -188,35 +194,39 @@ export function AdminClassTypesModal({
     if (!isOpen) {
       wasOpenRef.current = false;
       fetchGenerationRef.current += 1;
-      setLoadState("idle");
+      queueMicrotask(() => {
+        setLoadState("idle");
+      });
       return;
     }
     if (wasOpenRef.current) {
       return;
     }
     wasOpenRef.current = true;
-    setListFilter("");
-    setPendingDelete(false);
-    setFieldErrors({});
-    setError(null);
-    setBanner(null);
-    setTypes(sortTypes(classTypes));
-    setLoadState("idle");
+    queueMicrotask(() => {
+      setListFilter("");
+      setPendingDelete(false);
+      setFieldErrors({});
+      setError(null);
+      setBanner(null);
+      setTypes(sortTypes(classTypes));
+      setLoadState("idle");
 
-    const initialType =
-      initialSelectedId !== null
-        ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
-        : null;
+      const initialType =
+        initialSelectedId !== null
+          ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
+          : null;
 
-    if (initialType !== null) {
-      setMode("edit");
-      setSelectedId(initialType.id);
-      setForm(formFromType(initialType));
-    } else {
-      setMode("idle");
-      setSelectedId(null);
-      setForm(emptyForm());
-    }
+      if (initialType !== null) {
+        setMode("edit");
+        setSelectedId(initialType.id);
+        setForm(formFromType(initialType));
+      } else {
+        setMode("idle");
+        setSelectedId(null);
+        setForm(emptyForm());
+      }
+    });
   }, [classTypes, initialSelectedId, isOpen]);
 
   useEffect(() => {
@@ -239,10 +249,6 @@ export function AdminClassTypesModal({
     const handle = window.setTimeout(() => setBanner(null), 5000);
     return () => window.clearTimeout(handle);
   }, [banner]);
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
 
   useEffect(() => {
     if (!isOpen) {
