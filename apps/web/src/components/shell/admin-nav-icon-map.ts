@@ -20,7 +20,6 @@ export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> 
   "/admin/home": "dashboard",
   "/admin/bookings": "bookings",
   "/admin/waitlists": "waitlists",
-  "/admin/waitlist": "waitlists",
   "/admin/clients": "clients",
   "/admin/coaches": "coaches",
   "/admin/schedule": "schedule",
