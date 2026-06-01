@@ -59,6 +59,7 @@ type Props = {
   classTypes: AdminScheduleClassType[];
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
+  description?: string;
 };
 
 type Filters = {
@@ -285,7 +286,14 @@ function buildSessionLevelOptions(
   return options;
 }
 
-export function AdminScheduleManagement({ locale, sessions, classTypes: initialClassTypes, coaches, initialView }: Props) {
+export function AdminScheduleManagement({
+  locale,
+  sessions,
+  classTypes: initialClassTypes,
+  coaches,
+  initialView,
+  description,
+}: Props) {
   const t = useTranslations("adminPages.classes");
   const router = useRouter();
   const pathname = usePathname();
@@ -439,6 +447,12 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
 
   return (
     <div className="space-y-5">
+      <div className="flex flex-col gap-4">
+        <SchedulePageActions onManageTypes={openClassTypesModal} onCreate={openAddClassModal} />
+        {description ? (
+          <p className="ommm-body-muted max-w-3xl text-sm">{description}</p>
+        ) : null}
+      </div>
       <SummaryGrid summary={summary} />
       <FiltersPanel
         values={filters}
@@ -452,12 +466,7 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
         onQuickFiltersChange={setQuickFilters}
         onReset={resetFilters}
       />
-      <ViewToolbar
-        view={view}
-        onView={updateView}
-        onCreate={openAddClassModal}
-        onManageTypes={openClassTypesModal}
-      />
+      <ViewToolbar view={view} onView={updateView} />
       {message ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{message}</div> : null}
       <ScheduleViews
         locale={locale}
@@ -798,26 +807,53 @@ const SCHEDULE_TOOLBAR_BTN_IDLE =
 const SCHEDULE_TOOLBAR_BTN_ACTIVE =
   "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]";
 
-const SCHEDULE_TOOLBAR_BUTTON_CLASS = `${SCHEDULE_TOOLBAR_BTN_BASE} ${SCHEDULE_TOOLBAR_BTN_IDLE}`;
+function SchedulePageActions({
+  onManageTypes,
+  onCreate,
+}: {
+  onManageTypes: () => void;
+  onCreate: () => void;
+}) {
+  const t = useTranslations("adminPages.classes");
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <OmmButton
+        type="button"
+        variant="secondary"
+        size="md"
+        onClick={onCreate}
+        className="inline-flex h-11 min-w-[11rem] items-center justify-center gap-2 rounded-full"
+      >
+        <PlusIcon className="h-5 w-5 shrink-0" />
+        {t("addClassButton")}
+      </OmmButton>
+      <OmmButton
+        type="button"
+        variant="secondary"
+        size="md"
+        onClick={onManageTypes}
+        className="inline-flex h-11 min-w-[11rem] self-end items-center justify-center gap-2 rounded-full sm:ml-auto sm:self-auto"
+      >
+        <ClassTypesGlyph className="h-5 w-5 shrink-0" />
+        {t("classTypes.manageButton")}
+      </OmmButton>
+    </div>
+  );
+}
 
 function ViewToolbar({
   view,
   onView,
-  onCreate,
-  onManageTypes,
 }: {
   view: ScheduleView;
   onView: (view: ScheduleView) => void;
-  onCreate: () => void;
-  onManageTypes: () => void;
 }) {
   const t = useTranslations("adminPages.classes");
   const options: readonly ScheduleView[] = ["list", "monthly", "weekly", "daily"];
   return (
     <div className="rounded-[28px] border border-white/70 bg-white/55 p-3 shadow-[0_18px_44px_-28px_rgba(45,40,35,0.32)] backdrop-blur-md">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap" role="tablist" aria-label={t("views.aria")}>
-          {options.map((next) => (
+      <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap" role="tablist" aria-label={t("views.aria")}>
+        {options.map((next) => (
           <button
             key={next}
             type="button"
@@ -832,17 +868,6 @@ function ViewToolbar({
             {t(`views.${next}`)}
           </button>
         ))}
-        </div>
-        <div className="flex flex-wrap gap-2 self-start lg:self-auto">
-          <button type="button" className={SCHEDULE_TOOLBAR_BUTTON_CLASS} onClick={onManageTypes}>
-            <ClassTypesGlyph className="h-4 w-4 shrink-0" />
-            {t("classTypes.manageButton")}
-          </button>
-          <button type="button" className={SCHEDULE_TOOLBAR_BUTTON_CLASS} onClick={onCreate}>
-            <PlusIcon className="h-4 w-4 shrink-0" />
-            {t("addClassButton")}
-          </button>
-        </div>
       </div>
     </div>
   );
