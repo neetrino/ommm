@@ -13,6 +13,11 @@ import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
+import {
+  matchesScheduleQuickFilters,
+  SCHEDULE_QUICK_FILTER_VALUES,
+  type ScheduleQuickFilter,
+} from "@/components/admin/admin-schedule-quick-filters";
 import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
@@ -187,7 +192,7 @@ function matchesTimeOfDaySelection(row: AdminScheduleSession, selected: readonly
   );
 }
 
-function countActiveFilters(values: Filters): number {
+function countActiveFilters(values: Filters, quickFilters: readonly ScheduleQuickFilter[]): number {
   return [
     values.q.trim(),
     values.from,
@@ -198,11 +203,25 @@ function countActiveFilters(values: Filters): number {
     values.statuses.length > 0 ? "status" : "",
     values.availability.length > 0 ? "availability" : "",
     values.timeOfDay.length > 0 ? "timeOfDay" : "",
+    quickFilters.length > 0 ? "quick" : "",
   ].filter(Boolean).length;
 }
 
-function isSingleSelection<T extends string>(selected: readonly T[], value: T): boolean {
-  return selected.length === 1 && selected[0] === value;
+function QuickFilterGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z" />
+    </svg>
+  );
 }
 
 function initialForm(
@@ -275,6 +294,7 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [view, setView] = useState<ScheduleView>(initialView);
   const [filters, setFilters] = useState<Filters>(() => initialFilters());
+  const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>([]);
   const [searchDraft, setSearchDraft] = useState("");
   const [selectedDay, setSelectedDay] = useState(() => isoDate(new Date()));
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
@@ -360,9 +380,10 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
       if (filters.levels.length > 0 && (!row.level || !filters.levels.includes(row.level))) return false;
       if (filters.statuses.length > 0 && !filters.statuses.includes(row.status)) return false;
       if (!matchesAvailability(row, filters.availability)) return false;
-      return matchesTimeOfDaySelection(row, filters.timeOfDay);
+      if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
+      return matchesScheduleQuickFilters(row, quickFilters);
     });
-  }, [filters, rows]);
+  }, [filters, quickFilters, rows]);
 
   const summary = useMemo(() => {
     const now = new Date();
@@ -391,6 +412,7 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
   function resetFilters() {
     setSearchDraft("");
     setFilters(initialFilters());
+    setQuickFilters([]);
   }
 
   function updateView(nextView: ScheduleView): void {
@@ -420,12 +442,14 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
       <SummaryGrid summary={summary} />
       <FiltersPanel
         values={filters}
+        quickFilters={quickFilters}
         searchDraft={searchDraft}
         classTypes={classTypes}
         coaches={coaches}
         levels={levels}
         onSearch={setSearchDraft}
         onChange={updateFilter}
+        onQuickFiltersChange={setQuickFilters}
         onReset={resetFilters}
       />
       <ViewToolbar
@@ -547,16 +571,18 @@ function ScheduleFilterField({
 
 function FiltersPanel(props: {
   values: Filters;
+  quickFilters: ScheduleQuickFilter[];
   searchDraft: string;
   classTypes: readonly AdminScheduleClassType[];
   coaches: readonly AdminScheduleCoach[];
   levels: readonly string[];
   onSearch: (value: string) => void;
   onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
+  onQuickFiltersChange: (value: ScheduleQuickFilter[]) => void;
   onReset: () => void;
 }) {
   const t = useTranslations("adminPages.classes");
-  const activeCount = countActiveFilters(props.values);
+  const activeCount = countActiveFilters(props.values, props.quickFilters);
   const scheduleMultiSelectProps = {
     wrapLabel: true,
     formatSelectedCount: (count: number) => t("filters.selectedCount", { count }),
@@ -663,27 +689,61 @@ function FiltersPanel(props: {
           </ScheduleFilterField>
         </div>
       </div>
-      <QuickFilters values={props.values} onChange={props.onChange} onReset={props.onReset} activeCount={activeCount} />
+      <QuickFilters
+        selected={props.quickFilters}
+        onChange={props.onQuickFiltersChange}
+        onReset={props.onReset}
+        activeCount={activeCount}
+      />
     </div>
   );
 }
 
-function QuickFilters({ values, onChange, onReset, activeCount }: { values: Filters; onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void; onReset: () => void; activeCount: number }) {
+function QuickFilters({
+  selected,
+  onChange,
+  onReset,
+  activeCount,
+}: {
+  selected: ScheduleQuickFilter[];
+  onChange: (value: ScheduleQuickFilter[]) => void;
+  onReset: () => void;
+  activeCount: number;
+}) {
   const t = useTranslations("adminPages.classes");
-  const today = isoDate(new Date());
-  const weekEnd = new Date();
-  weekEnd.setDate(weekEnd.getDate() + 7);
+  const quickOptions = useMemo(
+    () =>
+      SCHEDULE_QUICK_FILTER_VALUES.map((value) => ({
+        value,
+        label: t(`quick.${value}`),
+      })),
+    [t],
+  );
+
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2">
-      <OmmButton size="sm" variant={values.from === today && values.to === today ? "primary" : "ghost"} onClick={() => { onChange("from", today); onChange("to", today); }}>{t("quick.today")}</OmmButton>
-      <OmmButton size="sm" variant={values.from === today && values.to === isoDate(weekEnd) ? "primary" : "ghost"} onClick={() => { onChange("from", today); onChange("to", isoDate(weekEnd)); }}>{t("quick.thisWeek")}</OmmButton>
-      <OmmButton size="sm" variant={isSingleSelection(values.availability, "available") ? "primary" : "ghost"} onClick={() => onChange("availability", isSingleSelection(values.availability, "available") ? [] : ["available"])}>{t("quick.available")}</OmmButton>
-      <OmmButton size="sm" variant={isSingleSelection(values.availability, "full") ? "primary" : "ghost"} onClick={() => onChange("availability", isSingleSelection(values.availability, "full") ? [] : ["full"])}>{t("quick.full")}</OmmButton>
-      <OmmButton size="sm" variant={isSingleSelection(values.statuses, "CANCELLED") ? "primary" : "ghost"} onClick={() => onChange("statuses", isSingleSelection(values.statuses, "CANCELLED") ? [] : ["CANCELLED"])}>{t("quick.cancelled")}</OmmButton>
-      <OmmButton size="sm" variant={isSingleSelection(values.levels, SESSION_LEVEL_VALUES[0]) ? "primary" : "ghost"} onClick={() => onChange("levels", isSingleSelection(values.levels, SESSION_LEVEL_VALUES[0]) ? [] : [SESSION_LEVEL_VALUES[0]])}>{t("quick.beginner")}</OmmButton>
-      <OmmButton size="sm" variant={isSingleSelection(values.timeOfDay, "evening") ? "primary" : "ghost"} onClick={() => onChange("timeOfDay", isSingleSelection(values.timeOfDay, "evening") ? [] : ["evening"])}>{t("quick.evening")}</OmmButton>
-      <OmmButton size="sm" variant="subtle" onClick={onReset}>{t("filters.reset")}</OmmButton>
-      <p className="text-xs text-sage-500">{t("filters.activeCount", { count: activeCount })}</p>
+    <div className="mt-3 flex flex-col gap-3 border-t border-sage-700/10 pt-3 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="flex min-w-0 w-full flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
+          <QuickFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
+          {t("filters.quickFilterLabel")}
+        </span>
+        <OmmFilterMultiSelect
+          variant="accent"
+          wrapLabel
+          ariaLabel={t("filters.quickFilterLabel")}
+          allLabel={t("filters.allQuickFilters")}
+          selectedValues={selected}
+          onChange={(value) => onChange(value as ScheduleQuickFilter[])}
+          formatSelectedCount={(count) => t("filters.selectedCount", { count })}
+          options={quickOptions}
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-2 sm:pb-0.5">
+        <OmmButton size="sm" variant="subtle" onClick={onReset}>
+          {t("filters.reset")}
+        </OmmButton>
+        <p className="text-xs text-sage-500">{t("filters.activeCount", { count: activeCount })}</p>
+      </div>
     </div>
   );
 }

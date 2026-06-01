@@ -11,6 +11,8 @@ export type OmmFilterMultiSelectOption = {
   label: string;
 };
 
+export type OmmFilterMultiSelectVariant = "default" | "accent";
+
 export type OmmFilterMultiSelectProps = {
   ariaLabel: string;
   allLabel: string;
@@ -19,6 +21,8 @@ export type OmmFilterMultiSelectProps = {
   onChange: (selectedValues: string[]) => void;
   disabled?: boolean;
   wrapLabel?: boolean;
+  /** Visual emphasis for quick-filter controls vs standard filter dropdowns. */
+  variant?: OmmFilterMultiSelectVariant;
   /** Formats trigger text when more than one value is selected. Defaults to “{count} selected”. */
   formatSelectedCount?: (count: number) => string;
 };
@@ -56,6 +60,7 @@ export function OmmFilterMultiSelect({
   onChange,
   disabled = false,
   wrapLabel = false,
+  variant = "default",
   formatSelectedCount = defaultSelectedCountLabel,
 }: OmmFilterMultiSelectProps) {
   const listboxId = useId();
@@ -130,8 +135,27 @@ export function OmmFilterMultiSelect({
     onChange([...next]);
   }
 
+  function wrapAccentLabel(content: ReactNode): ReactNode {
+    if (variant !== "accent") {
+      return content;
+    }
+    return <span className="ommm-dropdown-trigger-label min-w-0 flex-1">{content}</span>;
+  }
+
   function renderTriggerContent(): ReactNode {
     if (isAllSelected) {
+      if (variant === "accent") {
+        return wrapAccentLabel(
+          <span
+            className={mergeClasses(
+              optionLabelClassName(wrapLabel),
+              "text-sm font-semibold",
+            )}
+          >
+            {allLabel}
+          </span>,
+        );
+      }
       return (
         <span
           className={mergeClasses(
@@ -143,17 +167,32 @@ export function OmmFilterMultiSelect({
         </span>
       );
     }
-    if (selectedOptions.length === 1) {
-      return (
-        <span
-          className={mergeClasses(
-            optionLabelClassName(wrapLabel),
-            "text-sm font-semibold text-[#464646]",
-          )}
-        >
-          {selectedOptions[0]?.label}
-        </span>
-      );
+    if (selectedOptions.length >= 1) {
+      if (variant === "accent") {
+        return wrapAccentLabel(
+          <span
+            className={mergeClasses(
+              optionLabelClassName(wrapLabel),
+              "text-sm font-semibold",
+            )}
+          >
+            {formatSelectedCount(selectedOptions.length)}
+          </span>,
+        );
+      }
+      if (selectedOptions.length === 1) {
+        const label = selectedOptions[0]?.label ?? "";
+        return (
+          <span
+            className={mergeClasses(
+              optionLabelClassName(wrapLabel),
+              "text-sm font-semibold text-[#464646]",
+            )}
+          >
+            {label}
+          </span>
+        );
+      }
     }
     return (
       <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#464646]">
@@ -175,8 +214,12 @@ export function OmmFilterMultiSelect({
       <button
         ref={triggerRef}
         type="button"
-        className="ommm-dropdown-trigger"
+        className={mergeClasses(
+          "ommm-dropdown-trigger",
+          variant === "accent" ? "ommm-dropdown-trigger--accent" : undefined,
+        )}
         data-open={isMenuOpen ? "true" : "false"}
+        data-active={!isAllSelected ? "true" : "false"}
         aria-label={triggerAriaLabel}
         aria-haspopup="listbox"
         aria-expanded={isMenuOpen}
@@ -197,7 +240,14 @@ export function OmmFilterMultiSelect({
         }}
       >
         {renderTriggerContent()}
-        <span className="ml-auto shrink-0 text-sage-500">
+        <span
+          className={mergeClasses(
+            "ml-auto shrink-0",
+            variant === "accent"
+              ? "ommm-dropdown-trigger-chevron"
+              : "text-sage-500",
+          )}
+        >
           <ChevronDownIcon />
         </span>
       </button>

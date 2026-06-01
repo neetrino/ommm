@@ -1364,7 +1364,9 @@
         "afternoon": "Afternoon",
         "evening": "Evening",
         "activeCount": "{count} active filters",
-        "selectedCount": "{count} selected"
+        "selectedCount": "{count} selected",
+        "quickFilterLabel": "Quick filters",
+        "allQuickFilters": "All quick filters"
       },
       "quick": {
         "today": "Today's classes",

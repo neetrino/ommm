@@ -1351,7 +1351,9 @@
         "afternoon": "Կեսօր",
         "evening": "Երեկո",
         "activeCount": "{count} ակտիվ ֆիլտր",
-        "selectedCount": "{count} ընտրված"
+        "selectedCount": "{count} ընտրված",
+        "quickFilterLabel": "Արագ ֆիլտրեր",
+        "allQuickFilters": "Բոլոր արագ ֆիլտրերը"
       },
       "quick": {
         "today": "Այսօրվա դասեր",
