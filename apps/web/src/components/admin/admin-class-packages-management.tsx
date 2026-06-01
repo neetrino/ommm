@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -82,6 +82,28 @@ export function AdminClassPackagesManagement({
 
   const activeFilterCount = countActivePackageFilters(filters);
 
+  const syncFiltersToUrl = useCallback(
+    (values: ClassPackageFilterValues) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const key of PACKAGE_FILTER_QUERY_KEYS) {
+        params.delete(key);
+      }
+      const filterQuery = buildPackageFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
+          params.set(key, entryValue);
+        }
+      }
+      const qs = params.toString();
+      const currentQs = searchParams.toString();
+      if (qs === currentQs) {
+        return;
+      }
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
@@ -91,7 +113,7 @@ export function AdminClassPackagesManagement({
       syncFiltersToUrl(filters);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [filters.search]);
+  }, [filters.search, filters, syncFiltersToUrl]);
 
   function updateFilter<K extends keyof ClassPackageFilterValues>(
     key: K,
@@ -116,25 +138,6 @@ export function AdminClassPackagesManagement({
     };
     setFilters(cleared);
     syncFiltersToUrl(cleared);
-  }
-
-  function syncFiltersToUrl(values: ClassPackageFilterValues) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const key of PACKAGE_FILTER_QUERY_KEYS) {
-      params.delete(key);
-    }
-    const filterQuery = buildPackageFiltersQuery(values);
-    if (filterQuery.length > 0) {
-      for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
-        params.set(key, entryValue);
-      }
-    }
-    const qs = params.toString();
-    const currentQs = searchParams.toString();
-    if (qs === currentQs) {
-      return;
-    }
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   function onPackageChanged() {

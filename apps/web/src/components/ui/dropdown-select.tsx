@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "rea
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type DropdownOption<T extends string> = {
   value: T;
@@ -23,6 +24,8 @@ export type DropdownSelectProps<T extends string> = {
   className?: string;
   triggerClassName?: string;
   menuClassName?: string;
+  /** When true, label text wraps instead of truncating with ellipsis. */
+  wrapLabel?: boolean;
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
 };
@@ -35,12 +38,20 @@ function isCharacterNavigationKey(event: React.KeyboardEvent<HTMLButtonElement>)
   return event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ";
 }
 
+function optionLabelClassName(wrapLabel: boolean): string {
+  return wrapLabel
+    ? "min-w-0 flex-1 whitespace-normal break-words leading-snug"
+    : "min-w-0 flex-1 truncate";
+}
+
 function DefaultOptionContent<T extends string>({
   option,
   selected,
+  wrapLabel = false,
 }: {
   option: DropdownOption<T>;
   selected: boolean;
+  wrapLabel?: boolean;
 }) {
   return (
     <>
@@ -51,7 +62,7 @@ function DefaultOptionContent<T extends string>({
       >
         {selected ? <DropdownCheckGlyph className="h-3 w-3" /> : null}
       </span>
-      <span className="min-w-0 flex-1 truncate">{option.label}</span>
+      <span className={optionLabelClassName(wrapLabel)}>{option.label}</span>
     </>
   );
 }
@@ -68,12 +79,13 @@ export function DropdownSelect<T extends string>({
   className,
   triggerClassName,
   menuClassName,
+  wrapLabel = false,
   renderValue,
   renderOption,
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const [portalReady, setPortalReady] = useState(false);
+  const portalReady = useIsClientMounted();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -90,10 +102,6 @@ export function DropdownSelect<T extends string>({
   );
   const isMenuOpen = open && !disabled && options.length > 0;
   const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
 
   useEffect(() => {
     if (!open || disabled) {
@@ -192,7 +200,12 @@ export function DropdownSelect<T extends string>({
   const triggerContent = renderValue ? (
     renderValue(selected)
   ) : (
-    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#464646]">
+    <span
+      className={mergeClasses(
+        optionLabelClassName(wrapLabel),
+        "text-sm font-semibold text-[#464646]",
+      )}
+    >
       {selected?.label ?? label}
     </span>
   );
@@ -203,7 +216,11 @@ export function DropdownSelect<T extends string>({
       <button
         ref={triggerRef}
         type="button"
-        className={mergeClasses("ommm-dropdown-trigger", triggerClassName)}
+        className={mergeClasses(
+          "ommm-dropdown-trigger",
+          wrapLabel ? "h-auto min-h-11 items-start py-2.5" : undefined,
+          triggerClassName,
+        )}
         data-open={isMenuOpen ? "true" : "false"}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
@@ -214,7 +231,7 @@ export function DropdownSelect<T extends string>({
         onKeyDown={onTriggerKeyDown}
       >
         {triggerContent}
-        <span className="ml-auto shrink-0 text-sage-500">
+        <span className={mergeClasses("ml-auto shrink-0 text-sage-500", wrapLabel ? "self-center" : undefined)}>
           <ChevronDownIcon />
         </span>
       </button>
@@ -262,7 +279,11 @@ export function DropdownSelect<T extends string>({
                         {renderOption ? (
                           renderOption(option, isSelected)
                         ) : (
-                          <DefaultOptionContent option={option} selected={isSelected} />
+                          <DefaultOptionContent
+                            option={option}
+                            selected={isSelected}
+                            wrapLabel={wrapLabel}
+                          />
                         )}
                       </button>
                     </li>

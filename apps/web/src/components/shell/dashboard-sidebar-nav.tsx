@@ -87,47 +87,56 @@ export function DashboardSidebarNav({
   onNavigate,
 }: DashboardSidebarNavProps) {
   const tShell = useTranslations("dashboard.shell");
+  const isAdmin = variant === "admin";
+  const firstMutedIndex = isAdmin
+    ? items.findIndex((item) => isAdminMutedNavItem(variant, item.href))
+    : -1;
+
   return (
     <nav
       className={
-        variant === "admin"
-          ? "flex flex-col gap-1 px-0 py-0"
-          : "flex flex-col gap-0.5 p-2"
+        isAdmin ? "ommm-admin-nav-list" : "flex flex-col gap-0.5 p-2"
       }
       aria-label={tShell("dashboardNavAria")}
     >
-      {items.map((item) => {
+      {items.map((item, index) => {
         const active = navActive(pathname, item.href);
         const muted = isAdminMutedNavItem(variant, item.href);
-        const adminIconSlug =
-          variant === "admin" ? adminNavIconSlugForHref(item.href) : null;
+        const adminIconSlug = isAdmin ? adminNavIconSlugForHref(item.href) : null;
+        const showMutedDivider = isAdmin && index === firstMutedIndex;
+
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            title={collapsed ? item.label : undefined}
-            className={
-              active
-                ? rowActive(variant, collapsed, muted)
-                : rowBase(variant, collapsed, muted)
-            }
-            onClick={onNavigate}
-          >
-            {adminIconSlug ? (
-              <AdminNavIcon slug={adminIconSlug} />
-            ) : (
-              <DashboardNavIcon name={item.icon} />
-            )}
-            <span
+          <div key={item.href}>
+            {showMutedDivider ? <div className="ommm-admin-nav-divider" aria-hidden /> : null}
+            <Link
+              href={item.href}
+              title={collapsed ? item.label : undefined}
+              aria-current={active ? "page" : undefined}
               className={
-                collapsed
-                  ? "sr-only"
-                  : "min-w-0 truncate text-left leading-tight"
+                active
+                  ? rowActive(variant, collapsed, muted)
+                  : rowBase(variant, collapsed, muted)
               }
+              onClick={onNavigate}
             >
-              {item.label}
-            </span>
-          </Link>
+              {adminIconSlug ? (
+                <span className="ommm-admin-nav-icon">
+                  <AdminNavIcon slug={adminIconSlug} />
+                </span>
+              ) : (
+                <DashboardNavIcon name={item.icon} />
+              )}
+              <span
+                className={
+                  collapsed
+                    ? "sr-only"
+                    : "min-w-0 truncate text-left leading-tight"
+                }
+              >
+                {item.label}
+              </span>
+            </Link>
+          </div>
         );
       })}
     </nav>

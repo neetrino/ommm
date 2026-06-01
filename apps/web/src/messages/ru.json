@@ -1264,12 +1264,15 @@
       "addClassButton": "Добавить занятие",
       "classTypes": {
         "manageButton": "Добавить типы занятий",
+        "revealButtonAria": "Показать «Добавить типы занятий»",
+        "hideButtonAria": "Скрыть «Добавить типы занятий»",
         "modalTitle": "Типы занятий",
         "modalDescription": "Создавайте, редактируйте и управляйте каталогом типов занятий студии.",
         "modalCloseAria": "Закрыть",
         "modalBackdropClose": "Закрыть окно",
         "listHeading": "Каталог",
         "addButton": "Добавить тип",
+        "editButtonAria": "Редактировать «{name}»",
         "emptyTitle": "Типов занятий пока нет",
         "emptyBody": "Нажмите «Добавить тип» выше, чтобы создать первый — например Reformer, Yoga или Mat Pilates.",
         "formCreateTitle": "Новый тип",
@@ -1353,7 +1356,10 @@
         "morning": "Утро",
         "afternoon": "День",
         "evening": "Вечер",
-        "activeCount": "{count} активных фильтров"
+        "activeCount": "{count} активных фильтров",
+        "selectedCount": "{count} выбрано",
+        "quickFilterLabel": "Быстрые фильтры",
+        "allQuickFilters": "Все быстрые фильтры"
       },
       "quick": {
         "today": "Занятия сегодня",

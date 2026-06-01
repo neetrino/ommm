@@ -1,7 +1,8 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export const OMM_MODAL_BACKDROP_CLASS = "ommm-modal-backdrop";
 
@@ -46,11 +47,7 @@ export function OmmModalPortal({
   panelClassName,
   children,
 }: OmmModalPortalProps) {
-  const [portalReady, setPortalReady] = useState(false);
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
+  const portalReady = useIsClientMounted();
 
   useEffect(() => {
     if (!isOpen) {
@@ -101,11 +98,7 @@ export function OmmDrawerPortal({
   panelClassName = "relative z-10 h-full w-full max-w-md overflow-auto bg-white p-5 shadow-xl",
   children,
 }: OmmDrawerPortalProps) {
-  const [portalReady, setPortalReady] = useState(false);
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
+  const portalReady = useIsClientMounted();
 
   useEffect(() => {
     if (!isOpen) {

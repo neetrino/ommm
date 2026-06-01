@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFilterDropdown, OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
@@ -12,12 +13,18 @@ import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
+import { AdminScheduleSessionActions } from "@/components/admin/admin-schedule-session-actions";
+import {
+  matchesScheduleQuickFilters,
+  SCHEDULE_QUICK_FILTER_VALUES,
+  type ScheduleQuickFilter,
+} from "@/components/admin/admin-schedule-quick-filters";
 import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
-type AvailabilityFilter = "all" | "available" | "full";
-type TimeOfDayFilter = "all" | "morning" | "afternoon" | "evening";
+type AvailabilityOption = "available" | "full";
+type TimeOfDayOption = "morning" | "afternoon" | "evening";
 
 export type AdminScheduleSession = {
   id: string;
@@ -53,18 +60,19 @@ type Props = {
   classTypes: AdminScheduleClassType[];
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
+  description?: string;
 };
 
 type Filters = {
   q: string;
   from: string;
   to: string;
-  coachId: string;
-  typeId: string;
-  level: string;
-  status: "" | SessionStatus;
-  availability: AvailabilityFilter;
-  timeOfDay: TimeOfDayFilter;
+  coachIds: string[];
+  typeIds: string[];
+  levels: string[];
+  statuses: SessionStatus[];
+  availability: AvailabilityOption[];
+  timeOfDay: TimeOfDayOption[];
 };
 
 type FormState = {
@@ -80,12 +88,22 @@ type FormState = {
   status: SessionStatus;
 };
 
+type ScheduleToastTone = "ok" | "err";
+
+type ScheduleToast = {
+  tone: ScheduleToastTone;
+  message: string;
+};
+
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
 const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
 const SEARCH_DEBOUNCE_MS = 300;
+const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
 const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
+const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
+const CLASS_TYPES_VISIBLE_STORAGE_KEY = "ommm.admin.schedule.classTypesVisible";
 
 function replaceScheduleModalInUrl(
   pathname: string,
@@ -96,8 +114,29 @@ function replaceScheduleModalInUrl(
   const params = new URLSearchParams(searchParams.toString());
   if (modal === null) {
     params.delete(SCHEDULE_MODAL_QUERY_KEY);
+    params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
   } else {
     params.set(SCHEDULE_MODAL_QUERY_KEY, modal);
+    if (modal !== CLASS_TYPES_MODAL_QUERY_VALUE) {
+      params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
+    }
+  }
+  const qs = params.toString();
+  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+}
+
+function replaceEditingClassTypeInUrl(
+  pathname: string,
+  searchParams: URLSearchParams,
+  router: ReturnType<typeof useRouter>,
+  classTypeId: string | null,
+): void {
+  const params = new URLSearchParams(searchParams.toString());
+  params.set(SCHEDULE_MODAL_QUERY_KEY, CLASS_TYPES_MODAL_QUERY_VALUE);
+  if (classTypeId === null) {
+    params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
+  } else {
+    params.set(EDIT_CLASS_TYPE_QUERY_KEY, classTypeId);
   }
   const qs = params.toString();
   router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -126,18 +165,104 @@ function spotsLeft(row: AdminScheduleSession): number {
   return Math.max(row.capacity - row._count.bookings, 0);
 }
 
+function formatSessionTimes(
+  locale: string,
+  startsAt: string,
+  endsAt: string,
+): { start: string; end: string } {
+  const formatter = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
+  return {
+    start: formatter.format(new Date(startsAt)),
+    end: formatter.format(new Date(endsAt)),
+  };
+}
+
+const scheduleTable = {
+  wrap: adminChrome.tableWrap,
+  table: "w-full min-w-[56rem] table-fixed border-collapse text-left text-xs sm:text-sm",
+  row: `${adminChrome.tr} transition-colors hover:bg-white/40`,
+  th: `${adminChrome.th} px-3 py-3 align-middle first:pl-5 last:pr-5`,
+  thCompact: `${adminChrome.th} px-3 py-3 text-center align-middle whitespace-nowrap`,
+  thGroup: `${adminChrome.th} w-[9%] px-4 py-3 align-middle whitespace-nowrap`,
+  thGroupCenter: `${adminChrome.th} w-[9%] px-4 py-3 text-center align-middle whitespace-nowrap`,
+  thActions: `${adminChrome.th} w-[6.5rem] px-2 py-3 text-center align-middle`,
+  tdPrimary: `${adminChrome.tdStrong} min-w-0 px-3 py-3.5 align-middle first:pl-5`,
+  td: `${adminChrome.td} min-w-0 px-3 py-3.5 align-middle`,
+  tdMuted: `${adminChrome.tdMuted} min-w-0 px-3 py-3.5 align-middle`,
+  tdCompact: `${adminChrome.td} px-3 py-3.5 text-center align-middle whitespace-nowrap tabular-nums`,
+  tdGroup: `${adminChrome.td} w-[9%] min-w-0 px-4 py-3.5 align-middle`,
+  tdGroupCenter: `${adminChrome.td} w-[9%] px-4 py-3.5 text-center align-middle whitespace-nowrap tabular-nums`,
+  tdActions: "w-[6.5rem] min-w-0 px-2 py-2 align-middle last:pr-3",
+} as const;
+
 function initialFilters(): Filters {
   return {
     q: "",
     from: "",
     to: "",
-    coachId: "",
-    typeId: "",
-    level: "",
-    status: "",
-    availability: "all",
-    timeOfDay: "all",
+    coachIds: [],
+    typeIds: [],
+    levels: [],
+    statuses: [],
+    availability: [],
+    timeOfDay: [],
   };
+}
+
+function matchesAvailability(row: AdminScheduleSession, selected: readonly AvailabilityOption[]): boolean {
+  if (selected.length === 0) {
+    return true;
+  }
+  const available = spotsLeft(row) > 0;
+  const full = spotsLeft(row) === 0;
+  return (
+    (selected.includes("available") && available) ||
+    (selected.includes("full") && full)
+  );
+}
+
+function matchesTimeOfDaySelection(row: AdminScheduleSession, selected: readonly TimeOfDayOption[]): boolean {
+  if (selected.length === 0) {
+    return true;
+  }
+  const hour = new Date(row.startsAt).getHours();
+  return (
+    (selected.includes("morning") && hour < 12) ||
+    (selected.includes("afternoon") && hour >= 12 && hour < 17) ||
+    (selected.includes("evening") && hour >= 17)
+  );
+}
+
+function countActiveFilters(values: Filters, quickFilters: readonly ScheduleQuickFilter[]): number {
+  return [
+    values.q.trim(),
+    values.from,
+    values.to,
+    values.coachIds.length > 0 ? "coach" : "",
+    values.typeIds.length > 0 ? "type" : "",
+    values.levels.length > 0 ? "level" : "",
+    values.statuses.length > 0 ? "status" : "",
+    values.availability.length > 0 ? "availability" : "",
+    values.timeOfDay.length > 0 ? "timeOfDay" : "",
+    quickFilters.length > 0 ? "quick" : "",
+  ].filter(Boolean).length;
+}
+
+function QuickFilterGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z" />
+    </svg>
+  );
 }
 
 function initialForm(
@@ -201,36 +326,43 @@ function buildSessionLevelOptions(
   return options;
 }
 
-function matchesTimeOfDay(row: AdminScheduleSession, filter: TimeOfDayFilter): boolean {
-  if (filter === "all") return true;
-  const hour = new Date(row.startsAt).getHours();
-  if (filter === "morning") return hour < 12;
-  if (filter === "afternoon") return hour >= 12 && hour < 17;
-  return hour >= 17;
-}
-
-export function AdminScheduleManagement({ locale, sessions, classTypes: initialClassTypes, coaches, initialView }: Props) {
+export function AdminScheduleManagement({
+  locale,
+  sessions,
+  classTypes: initialClassTypes,
+  coaches,
+  initialView,
+  description,
+}: Props) {
   const t = useTranslations("adminPages.classes");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [rows, setRows] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
+  const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
   const [view, setView] = useState<ScheduleView>(initialView);
   const [filters, setFilters] = useState<Filters>(() => initialFilters());
+  const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>([]);
   const [searchDraft, setSearchDraft] = useState("");
   const [selectedDay, setSelectedDay] = useState(() => isoDate(new Date()));
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<ScheduleToast | null>(null);
 
   const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
   const classTypesOpen = scheduleModalParam === CLASS_TYPES_MODAL_QUERY_VALUE;
   const addClassOpen = scheduleModalParam === ADD_CLASS_MODAL_QUERY_VALUE;
+  const editingClassTypeIdParam = searchParams.get(EDIT_CLASS_TYPE_QUERY_KEY);
+  const editingClassTypeId =
+    editingClassTypeIdParam !== null &&
+    classTypes.some((type) => type.id === editingClassTypeIdParam)
+      ? editingClassTypeIdParam
+      : null;
 
   const openClassTypesModal = useCallback(() => {
-    replaceScheduleModalInUrl(pathname, searchParams, router, CLASS_TYPES_MODAL_QUERY_VALUE);
+    replaceEditingClassTypeInUrl(pathname, searchParams, router, null);
   }, [pathname, router, searchParams]);
 
   const closeClassTypesModal = useCallback(() => {
@@ -238,6 +370,13 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
       replaceScheduleModalInUrl(pathname, searchParams, router, null);
     }
   }, [pathname, router, searchParams]);
+
+  const setEditingClassTypeInUrl = useCallback(
+    (classTypeId: string | null) => {
+      replaceEditingClassTypeInUrl(pathname, searchParams, router, classTypeId);
+    },
+    [pathname, router, searchParams],
+  );
 
   const openAddClassModal = useCallback(() => {
     replaceScheduleModalInUrl(pathname, searchParams, router, ADD_CLASS_MODAL_QUERY_VALUE);
@@ -262,9 +401,10 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
     return { mode: "edit" as const, row: editing };
   }, [addClassOpen, editing]);
 
-  useEffect(() => {
+  if (prevInitialClassTypes !== initialClassTypes) {
+    setPrevInitialClassTypes(initialClassTypes);
     setClassTypes(initialClassTypes);
-  }, [initialClassTypes]);
+  }
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -272,6 +412,14 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
   }, [searchDraft]);
+
+  useEffect(() => {
+    if (toast === null) {
+      return undefined;
+    }
+    const handle = window.setTimeout(() => setToast(null), ADMIN_SCHEDULE_TOAST_DISMISS_MS);
+    return () => window.clearTimeout(handle);
+  }, [toast]);
 
   const levels = useMemo(() => {
     return Array.from(
@@ -285,15 +433,15 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
       if (q && !`${row.title} ${row.classType.name} ${coachName(row.coach)}`.toLowerCase().includes(q)) return false;
       if (filters.from && row.startsAt.slice(0, 10) < filters.from) return false;
       if (filters.to && row.startsAt.slice(0, 10) > filters.to) return false;
-      if (filters.coachId && row.coach.id !== filters.coachId) return false;
-      if (filters.typeId && row.classType.id !== filters.typeId) return false;
-      if (filters.level && row.level !== filters.level) return false;
-      if (filters.status && row.status !== filters.status) return false;
-      if (filters.availability === "available" && spotsLeft(row) <= 0) return false;
-      if (filters.availability === "full" && spotsLeft(row) > 0) return false;
-      return matchesTimeOfDay(row, filters.timeOfDay);
+      if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
+      if (filters.typeIds.length > 0 && !filters.typeIds.includes(row.classType.id)) return false;
+      if (filters.levels.length > 0 && (!row.level || !filters.levels.includes(row.level))) return false;
+      if (filters.statuses.length > 0 && !filters.statuses.includes(row.status)) return false;
+      if (!matchesAvailability(row, filters.availability)) return false;
+      if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
+      return matchesScheduleQuickFilters(row, quickFilters);
     });
-  }, [filters, rows]);
+  }, [filters, quickFilters, rows]);
 
   const summary = useMemo(() => {
     const now = new Date();
@@ -322,6 +470,7 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
   function resetFilters() {
     setSearchDraft("");
     setFilters(initialFilters());
+    setQuickFilters([]);
   }
 
   function updateView(nextView: ScheduleView): void {
@@ -333,14 +482,17 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
 
   async function runRowAction(row: AdminScheduleSession, action: () => Promise<AdminScheduleSession | void>, ok: string) {
     setBusyId(row.id);
-    setMessage(null);
+    setToast(null);
     try {
       const updated = await action();
       if (updated) setRows((current) => current.map((item) => (item.id === updated.id ? updated : item)));
-      setMessage(ok);
+      setToast({ tone: "ok", message: ok });
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : t("messages.genericError"));
+      setToast({
+        tone: "err",
+        message: error instanceof ApiError ? error.message : t("messages.genericError"),
+      });
     } finally {
       setBusyId(null);
     }
@@ -348,24 +500,39 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
 
   return (
     <div className="space-y-5">
+      <div className="flex flex-col gap-4">
+        <SchedulePageActions onManageTypes={openClassTypesModal} onCreate={openAddClassModal} />
+        {description ? (
+          <p className="ommm-body-muted max-w-3xl text-sm">{description}</p>
+        ) : null}
+      </div>
       <SummaryGrid summary={summary} />
       <FiltersPanel
         values={filters}
+        quickFilters={quickFilters}
         searchDraft={searchDraft}
         classTypes={classTypes}
         coaches={coaches}
         levels={levels}
         onSearch={setSearchDraft}
         onChange={updateFilter}
+        onQuickFiltersChange={setQuickFilters}
         onReset={resetFilters}
       />
-      <ViewToolbar
-        view={view}
-        onView={updateView}
-        onCreate={openAddClassModal}
-        onManageTypes={openClassTypesModal}
-      />
-      {message ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{message}</div> : null}
+      <ViewToolbar view={view} onView={updateView} />
+      {toast ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-4 right-4 z-[95] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
+            toast.tone === "ok"
+              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
+              : "border-red-200/80 bg-red-50/95 text-red-900"
+          }`}
+        >
+          {toast.message}
+        </div>
+      ) : null}
       <ScheduleViews
         locale={locale}
         view={view}
@@ -415,13 +582,15 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
                 ? current.map((row) => (row.id === saved.id ? saved : row))
                 : [...current, saved],
             );
-            setMessage(
-              sessionModalConfig.mode === "create"
-                ? t("messages.createSuccess")
-                : sessionModalConfig.mode === "duplicate"
-                  ? t("messages.duplicateSuccess")
-                  : t("messages.updateSuccess"),
-            );
+            setToast({
+              tone: "ok",
+              message:
+                sessionModalConfig.mode === "create"
+                  ? t("messages.createSuccess")
+                  : sessionModalConfig.mode === "duplicate"
+                    ? t("messages.duplicateSuccess")
+                    : t("messages.updateSuccess"),
+            });
             if (addClassOpen) {
               closeAddClassModal();
             } else {
@@ -436,7 +605,9 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
         isOpen={classTypesOpen}
         classTypes={classTypes}
         sessionCountByTypeId={sessionCountByTypeId}
+        initialSelectedId={editingClassTypeId}
         onClose={closeClassTypesModal}
+        onSelectedTypeIdChange={setEditingClassTypeInUrl}
         onChanged={(nextTypes) => {
           setClassTypes(nextTypes);
         }}
@@ -459,52 +630,198 @@ function SummaryGrid({ summary }: { summary: Record<"total" | "active" | "upcomi
   );
 }
 
+function ScheduleFilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1 text-xs text-sage-700">
+      <span>{label}</span>
+      {children}
+    </div>
+  );
+}
+
 function FiltersPanel(props: {
   values: Filters;
+  quickFilters: ScheduleQuickFilter[];
   searchDraft: string;
   classTypes: readonly AdminScheduleClassType[];
   coaches: readonly AdminScheduleCoach[];
   levels: readonly string[];
   onSearch: (value: string) => void;
   onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
+  onQuickFiltersChange: (value: ScheduleQuickFilter[]) => void;
   onReset: () => void;
 }) {
   const t = useTranslations("adminPages.classes");
-  const activeCount = Object.values(props.values).filter((value) => value !== "" && value !== "all").length;
+  const activeCount = countActiveFilters(props.values, props.quickFilters);
+  const scheduleMultiSelectProps = {
+    wrapLabel: true,
+    formatSelectedCount: (count: number) => t("filters.selectedCount", { count }),
+  };
   return (
     <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-8">
-        <input className="ommm-input h-10 md:col-span-2" value={props.searchDraft} placeholder={t("filters.searchPlaceholder")} onChange={(event) => props.onSearch(event.target.value)} aria-label={t("filters.searchLabel")} />
-        <DatePickerInput name="from" value={props.values.from} onChange={(value) => props.onChange("from", value)} placeholder={t("filters.fromDateLabel")} ariaLabel={t("filters.fromDateLabel")} />
-        <DatePickerInput name="to" value={props.values.to} onChange={(value) => props.onChange("to", value)} placeholder={t("filters.toDateLabel")} ariaLabel={t("filters.toDateLabel")} />
-        <OmmFilterDropdown allValue="" value={props.values.coachId} ariaLabel={t("filters.coachLabel")} allLabel={t("filters.allCoaches")} onChange={(value) => props.onChange("coachId", value)} options={props.coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))} />
-        <OmmFilterDropdown allValue="" value={props.values.typeId} ariaLabel={t("filters.typeLabel")} allLabel={t("filters.allTypes")} onChange={(value) => props.onChange("typeId", value)} options={props.classTypes.map((type) => ({ value: type.id, label: type.name }))} />
-        <OmmFilterDropdown allValue="" value={props.values.level} ariaLabel={t("filters.levelLabel")} allLabel={t("filters.allLevels")} onChange={(value) => props.onChange("level", value)} options={props.levels.map((level) => ({ value: level, label: level }))} />
-        <OmmFilterDropdown allValue="" value={props.values.status} ariaLabel={t("filters.statusLabel")} allLabel={t("filters.allStatuses")} onChange={(value) => props.onChange("status", value as Filters["status"])} options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))} />
-        <OmmFilterDropdown allValue="all" value={props.values.availability} ariaLabel={t("filters.availabilityLabel")} allLabel={t("filters.allAvailability")} onChange={(value) => props.onChange("availability", value as AvailabilityFilter)} options={[{ value: "available", label: t("filters.availableOnly") }, { value: "full", label: t("filters.fullOnly") }]} />
-        <OmmFilterDropdown allValue="all" value={props.values.timeOfDay} ariaLabel={t("filters.timeOfDayLabel")} allLabel={t("filters.allTimes")} onChange={(value) => props.onChange("timeOfDay", value as TimeOfDayFilter)} options={[{ value: "morning", label: t("filters.morning") }, { value: "afternoon", label: t("filters.afternoon") }, { value: "evening", label: t("filters.evening") }]} />
+      <div className="flex flex-col gap-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ScheduleFilterField label={t("filters.searchLabel")}>
+            <input
+              className="ommm-input h-10"
+              value={props.searchDraft}
+              placeholder={t("filters.searchPlaceholder")}
+              onChange={(event) => props.onSearch(event.target.value)}
+              aria-label={t("filters.searchLabel")}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.fromDateLabel")}>
+            <DatePickerInput
+              name="from"
+              value={props.values.from}
+              onChange={(value) => props.onChange("from", value)}
+              placeholder={t("filters.fromDateLabel")}
+              ariaLabel={t("filters.fromDateLabel")}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.toDateLabel")}>
+            <DatePickerInput
+              name="to"
+              value={props.values.to}
+              onChange={(value) => props.onChange("to", value)}
+              placeholder={t("filters.toDateLabel")}
+              ariaLabel={t("filters.toDateLabel")}
+            />
+          </ScheduleFilterField>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+          <ScheduleFilterField label={t("filters.coachLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.coachLabel")}
+              allLabel={t("filters.allCoaches")}
+              selectedValues={props.values.coachIds}
+              onChange={(value) => props.onChange("coachIds", value)}
+              options={props.coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.typeLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.typeLabel")}
+              allLabel={t("filters.allTypes")}
+              selectedValues={props.values.typeIds}
+              onChange={(value) => props.onChange("typeIds", value)}
+              options={props.classTypes.map((type) => ({ value: type.id, label: type.name }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.levelLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.levelLabel")}
+              allLabel={t("filters.allLevels")}
+              selectedValues={props.values.levels}
+              onChange={(value) => props.onChange("levels", value)}
+              options={props.levels.map((level) => ({ value: level, label: level }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.statusLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.statusLabel")}
+              allLabel={t("filters.allStatuses")}
+              selectedValues={props.values.statuses}
+              onChange={(value) => props.onChange("statuses", value as SessionStatus[])}
+              options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.availabilityLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.availabilityLabel")}
+              allLabel={t("filters.allAvailability")}
+              selectedValues={props.values.availability}
+              onChange={(value) => props.onChange("availability", value as AvailabilityOption[])}
+              options={[
+                { value: "available", label: t("filters.availableOnly") },
+                { value: "full", label: t("filters.fullOnly") },
+              ]}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.timeOfDayLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.timeOfDayLabel")}
+              allLabel={t("filters.allTimes")}
+              selectedValues={props.values.timeOfDay}
+              onChange={(value) => props.onChange("timeOfDay", value as TimeOfDayOption[])}
+              options={[
+                { value: "morning", label: t("filters.morning") },
+                { value: "afternoon", label: t("filters.afternoon") },
+                { value: "evening", label: t("filters.evening") },
+              ]}
+            />
+          </ScheduleFilterField>
+        </div>
       </div>
-      <QuickFilters values={props.values} onChange={props.onChange} onReset={props.onReset} activeCount={activeCount} />
+      <QuickFilters
+        selected={props.quickFilters}
+        onChange={props.onQuickFiltersChange}
+        onReset={props.onReset}
+        activeCount={activeCount}
+      />
     </div>
   );
 }
 
-function QuickFilters({ values, onChange, onReset, activeCount }: { values: Filters; onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void; onReset: () => void; activeCount: number }) {
+function QuickFilters({
+  selected,
+  onChange,
+  onReset,
+  activeCount,
+}: {
+  selected: ScheduleQuickFilter[];
+  onChange: (value: ScheduleQuickFilter[]) => void;
+  onReset: () => void;
+  activeCount: number;
+}) {
   const t = useTranslations("adminPages.classes");
-  const today = isoDate(new Date());
-  const weekEnd = new Date();
-  weekEnd.setDate(weekEnd.getDate() + 7);
+  const quickOptions = useMemo(
+    () =>
+      SCHEDULE_QUICK_FILTER_VALUES.map((value) => ({
+        value,
+        label: t(`quick.${value}`),
+      })),
+    [t],
+  );
+
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2">
-      <OmmButton size="sm" variant={values.from === today && values.to === today ? "primary" : "ghost"} onClick={() => { onChange("from", today); onChange("to", today); }}>{t("quick.today")}</OmmButton>
-      <OmmButton size="sm" variant={values.from === today && values.to === isoDate(weekEnd) ? "primary" : "ghost"} onClick={() => { onChange("from", today); onChange("to", isoDate(weekEnd)); }}>{t("quick.thisWeek")}</OmmButton>
-      <OmmButton size="sm" variant={values.availability === "available" ? "primary" : "ghost"} onClick={() => onChange("availability", values.availability === "available" ? "all" : "available")}>{t("quick.available")}</OmmButton>
-      <OmmButton size="sm" variant={values.availability === "full" ? "primary" : "ghost"} onClick={() => onChange("availability", values.availability === "full" ? "all" : "full")}>{t("quick.full")}</OmmButton>
-      <OmmButton size="sm" variant={values.status === "CANCELLED" ? "primary" : "ghost"} onClick={() => onChange("status", values.status === "CANCELLED" ? "" : "CANCELLED")}>{t("quick.cancelled")}</OmmButton>
-      <OmmButton size="sm" variant={values.level === SESSION_LEVEL_VALUES[0] ? "primary" : "ghost"} onClick={() => onChange("level", values.level === SESSION_LEVEL_VALUES[0] ? "" : SESSION_LEVEL_VALUES[0])}>{t("quick.beginner")}</OmmButton>
-      <OmmButton size="sm" variant={values.timeOfDay === "evening" ? "primary" : "ghost"} onClick={() => onChange("timeOfDay", values.timeOfDay === "evening" ? "all" : "evening")}>{t("quick.evening")}</OmmButton>
-      <OmmButton size="sm" variant="subtle" onClick={onReset}>{t("filters.reset")}</OmmButton>
-      <p className="text-xs text-sage-500">{t("filters.activeCount", { count: activeCount })}</p>
+    <div className="mt-3 border-t border-sage-700/10 pt-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+        <div className="flex min-w-0 flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
+            <QuickFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
+            {t("filters.quickFilterLabel")}
+          </span>
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            ariaLabel={t("filters.quickFilterLabel")}
+            allLabel={t("filters.allQuickFilters")}
+            selectedValues={selected}
+            onChange={(value) => onChange(value as ScheduleQuickFilter[])}
+            formatSelectedCount={(count) => t("filters.selectedCount", { count })}
+            options={quickOptions}
+          />
+        </div>
+        <div className="flex shrink-0 items-center gap-3 self-end sm:ml-auto">
+          <button type="button" className="ommm-schedule-accent-button" onClick={onReset}>
+            {t("filters.reset")}
+          </button>
+          <p className="text-xs text-sage-600">{t("filters.activeCount", { count: activeCount })}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -557,26 +874,156 @@ const SCHEDULE_TOOLBAR_BTN_IDLE =
 const SCHEDULE_TOOLBAR_BTN_ACTIVE =
   "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]";
 
-const SCHEDULE_TOOLBAR_BUTTON_CLASS = `${SCHEDULE_TOOLBAR_BTN_BASE} ${SCHEDULE_TOOLBAR_BTN_IDLE}`;
+function EyeRevealGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M2.9 12.5C4.5 9.1 7.9 6 12 6s7.5 3.1 9.1 6.5a1.1 1.1 0 0 1 0 1c-1.6 3.4-5 6.5-9.1 6.5s-7.5-3.1-9.1-6.5a1.1 1.1 0 0 1 0-1Z" />
+      <circle cx="12" cy="12.5" r="3" />
+    </svg>
+  );
+}
+
+function EyeHideGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M2.9 12.5C4.5 9.1 7.9 6 12 6c2.2 0 4.2.9 5.8 2.1M21.1 13.5C19.5 16.9 16.1 20 12 20c-2.2 0-4.2-.9-5.8-2.1" />
+      <circle cx="12" cy="12.5" r="3" />
+      <path d="m4 4 16 16" />
+    </svg>
+  );
+}
+
+function readClassTypesVisiblePreference(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  try {
+    return window.localStorage.getItem(CLASS_TYPES_VISIBLE_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function persistClassTypesVisiblePreference(visible: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.localStorage.setItem(CLASS_TYPES_VISIBLE_STORAGE_KEY, visible ? "1" : "0");
+  } catch {
+    /* ignore quota / privacy errors */
+  }
+}
+
+function SchedulePageActions({
+  onManageTypes,
+  onCreate,
+}: {
+  onManageTypes: () => void;
+  onCreate: () => void;
+}) {
+  const t = useTranslations("adminPages.classes");
+  const [visibleOverride, setVisibleOverride] = useState<boolean | null>(null);
+  const storedClassTypesVisible = useSyncExternalStore(
+    () => () => undefined,
+    readClassTypesVisiblePreference,
+    () => false,
+  );
+  const classTypesVisible = visibleOverride ?? storedClassTypesVisible;
+
+  function revealClassTypes(): void {
+    setVisibleOverride(true);
+    persistClassTypesVisiblePreference(true);
+  }
+
+  function hideClassTypes(): void {
+    setVisibleOverride(false);
+    persistClassTypesVisiblePreference(false);
+  }
+
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <OmmButton
+        type="button"
+        variant="secondary"
+        size="md"
+        onClick={onCreate}
+        className="inline-flex h-11 min-w-[11rem] items-center justify-center gap-2 rounded-full"
+      >
+        <PlusIcon className="h-5 w-5 shrink-0" />
+        {t("addClassButton")}
+      </OmmButton>
+
+      <div className="flex h-11 items-center justify-end gap-2 self-end sm:ml-auto sm:self-auto">
+        {!classTypesVisible ? (
+          <button
+            type="button"
+            onClick={revealClassTypes}
+            aria-label={t("classTypes.revealButtonAria")}
+            title={t("classTypes.revealButtonAria")}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-600 shadow-sm backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30"
+          >
+            <EyeRevealGlyph className="h-5 w-5 shrink-0" />
+          </button>
+        ) : (
+          <>
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={onManageTypes}
+              className="inline-flex h-11 min-w-[11rem] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full transition-all duration-300 ease-out"
+            >
+              <ClassTypesGlyph className="h-5 w-5 shrink-0" />
+              {t("classTypes.manageButton")}
+            </OmmButton>
+            <button
+              type="button"
+              onClick={hideClassTypes}
+              aria-label={t("classTypes.hideButtonAria")}
+              title={t("classTypes.hideButtonAria")}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-600 shadow-sm backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30"
+            >
+              <EyeHideGlyph className="h-5 w-5 shrink-0" />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ViewToolbar({
   view,
   onView,
-  onCreate,
-  onManageTypes,
 }: {
   view: ScheduleView;
   onView: (view: ScheduleView) => void;
-  onCreate: () => void;
-  onManageTypes: () => void;
 }) {
   const t = useTranslations("adminPages.classes");
   const options: readonly ScheduleView[] = ["list", "monthly", "weekly", "daily"];
   return (
     <div className="rounded-[28px] border border-white/70 bg-white/55 p-3 shadow-[0_18px_44px_-28px_rgba(45,40,35,0.32)] backdrop-blur-md">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap" role="tablist" aria-label={t("views.aria")}>
-          {options.map((next) => (
+      <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap" role="tablist" aria-label={t("views.aria")}>
+        {options.map((next) => (
           <button
             key={next}
             type="button"
@@ -591,17 +1038,6 @@ function ViewToolbar({
             {t(`views.${next}`)}
           </button>
         ))}
-        </div>
-        <div className="flex flex-wrap gap-2 self-start lg:self-auto">
-          <button type="button" className={SCHEDULE_TOOLBAR_BUTTON_CLASS} onClick={onManageTypes}>
-            <ClassTypesGlyph className="h-4 w-4 shrink-0" />
-            {t("classTypes.manageButton")}
-          </button>
-          <button type="button" className={SCHEDULE_TOOLBAR_BUTTON_CLASS} onClick={onCreate}>
-            <PlusIcon className="h-4 w-4 shrink-0" />
-            {t("addClassButton")}
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -658,21 +1094,34 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
     return <div className={adminChrome.panel}><p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p><p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p></div>;
   }
   return (
-    <div className="rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
-      <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+    <div className={scheduleTable.wrap}>
+      <table className={scheduleTable.table}>
         <colgroup>
-          <col className="w-[17%]" />
+          <col className="w-[16%]" />
           <col className="w-[12%]" />
           <col className="w-[9%]" />
-          <col className="w-[11%]" />
+          <col className="w-[10%]" />
+          <col className="w-[9%]" />
+          <col className="w-[9%]" />
+          <col className="w-[9%]" />
           <col className="w-[7%]" />
-          <col className="w-[10%]" />
-          <col className="w-[10%]" />
           <col className="w-[8%]" />
-          <col className="w-[8%]" />
-          <col className="w-[8%]" />
+          <col className="w-[11%]" />
         </colgroup>
-        <thead className={adminChrome.thead}><tr><th className={adminChrome.th}>{t("colClass")}</th><th className={adminChrome.th}>{t("colType")}</th><th className={adminChrome.th}>{t("colDate")}</th><th className={adminChrome.th}>{t("colTime")}</th><th className={adminChrome.th}>{t("fields.duration")}</th><th className={adminChrome.th}>{t("colCoach")}</th><th className={adminChrome.th}>{t("colCapacity")}</th><th className={adminChrome.th}>{t("colLevel")}</th><th className={adminChrome.th}>{t("colStatus")}</th><th className={adminChrome.th}>{t("colActions")}</th></tr></thead>
+        <thead className={adminChrome.thead}>
+          <tr>
+            <th className={scheduleTable.th}>{t("colClass")}</th>
+            <th className={scheduleTable.th}>{t("colType")}</th>
+            <th className={scheduleTable.th}>{t("colDate")}</th>
+            <th className={scheduleTable.th}>{t("colTime")}</th>
+            <th className={scheduleTable.thGroupCenter}>{t("fields.duration")}</th>
+            <th className={scheduleTable.thGroup}>{t("colCoach")}</th>
+            <th className={scheduleTable.thGroupCenter}>{t("colCapacity")}</th>
+            <th className={scheduleTable.th}>{t("colLevel")}</th>
+            <th className={scheduleTable.thCompact}>{t("colStatus")}</th>
+            <th className={scheduleTable.thActions}>{t("colActions")}</th>
+          </tr>
+        </thead>
         <tbody>{rows.map((row) => <SessionRow key={row.id} row={row} {...props} />)}</tbody>
       </table>
     </div>
@@ -682,25 +1131,89 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
 function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDelete, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDelete: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
   const t = useTranslations("adminPages.classes");
   const busy = busyId === row.id;
+  const times = formatSessionTimes(locale, row.startsAt, row.endsAt);
+  const classFormat = row.classFormat?.trim();
+
   return (
-    <tr className={adminChrome.tr}>
-      <td className={adminChrome.tdStrong}><button className="text-left underline-offset-2 hover:underline" onClick={() => onDetails(row)}>{row.title}</button></td>
-      <td className={adminChrome.td}>{row.classType.name}<div className={adminChrome.metaText}>{row.classFormat ?? "—"}</div></td>
-      <td className={adminChrome.td}>{formatDateForUi(row.startsAt)}</td>
-      <td className={adminChrome.td}>{new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.startsAt))} - {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.endsAt))}</td>
-      <td className={adminChrome.td}>{durationMinutes(row)}m</td>
-      <td className={adminChrome.td}>{coachName(row.coach)}</td>
-      <td className={adminChrome.td}>{row._count.bookings}/{row.capacity}<div className={adminChrome.metaText}>{t("fields.spotsLeft", { count: spotsLeft(row) })}</div></td>
-      <td className={adminChrome.tdMuted}>{row.level ?? "—"}</td>
-      <td className={adminChrome.td}><Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} /></td>
-      <td className={adminChrome.td}><div className="flex flex-wrap gap-1"><OmmButton size="sm" variant="ghost" onClick={() => onDetails(row)}>{t("actions.view")}</OmmButton><OmmButton size="sm" variant="ghost" onClick={() => onEdit(row)}>{t("editButton")}</OmmButton><OmmButton size="sm" variant="subtle" onClick={() => onDuplicate(row)}>{t("duplicateButton")}</OmmButton>{row.status === "CANCELLED" ? <OmmButton size="sm" variant="ghost" disabled={busy} onClick={() => onActivate(row)}>{t("activateAction")}</OmmButton> : <OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onCancel(row)}>{t("cancelAction")}</OmmButton>}<OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onDelete(row)}>{t("actions.delete")}</OmmButton></div></td>
+    <tr className={scheduleTable.row}>
+      <td className={scheduleTable.tdPrimary}>
+        <button
+          type="button"
+          className="block max-w-full truncate text-left underline-offset-2 hover:underline"
+          title={row.title}
+          onClick={() => onDetails(row)}
+        >
+          {row.title}
+        </button>
+      </td>
+      <td className={scheduleTable.td}>
+        <span className="block truncate font-medium text-sage-800" title={row.classType.name}>
+          {row.classType.name}
+        </span>
+        {classFormat ? (
+          <span className={`${adminChrome.metaText} block truncate`} title={classFormat}>
+            {classFormat}
+          </span>
+        ) : null}
+      </td>
+      <td className={scheduleTable.td}>
+        <span className="block whitespace-nowrap tabular-nums">{formatDateForUi(row.startsAt)}</span>
+      </td>
+      <td className={scheduleTable.td}>
+        <span className="block whitespace-nowrap tabular-nums">{times.start}</span>
+        <span className="block whitespace-nowrap tabular-nums text-xs text-sage-500">{times.end}</span>
+      </td>
+      <td className={scheduleTable.tdGroupCenter}>{durationMinutes(row)}m</td>
+      <td className={scheduleTable.tdGroup}>
+        <span className="block truncate" title={coachName(row.coach)}>
+          {coachName(row.coach)}
+        </span>
+      </td>
+      <td className={scheduleTable.tdGroupCenter}>
+        <span className="block font-medium tabular-nums">
+          {row._count.bookings}/{row.capacity}
+        </span>
+        <span className={`${adminChrome.metaText} block`}>
+          {t("fields.spotsLeft", { count: spotsLeft(row) })}
+        </span>
+      </td>
+      <td className={scheduleTable.tdMuted}>
+        <span className="block truncate">{row.level ?? "—"}</span>
+      </td>
+      <td className={scheduleTable.tdCompact}>
+        <div className="flex justify-center">
+          <Badge
+            label={t(`status.${row.status}`)}
+            tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"}
+          />
+        </div>
+      </td>
+      <td className={scheduleTable.tdActions}>
+        <div className="flex items-center justify-center">
+          <AdminScheduleSessionActions
+            row={row}
+            busy={busy}
+            includeDelete
+            onDetails={onDetails}
+            onEdit={onEdit}
+            onDuplicate={onDuplicate}
+            onCancel={onCancel}
+            onActivate={onActivate}
+            onDelete={onDelete}
+          />
+        </div>
+      </td>
     </tr>
   );
 }
 
 function Badge({ label, tone }: { label: string; tone: "slate" | "sand" | "mint" }) {
   const classes = tone === "mint" ? "border-mint-200 bg-mint-50 text-sage-900" : tone === "sand" ? "border-sand-300 bg-sand-50 text-sage-900" : "border-zinc-200 bg-zinc-50 text-zinc-800";
-  return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${classes}`}>{label}</span>;
+  return (
+    <span className={`inline-flex shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium leading-tight ${classes}`}>
+      {label}
+    </span>
+  );
 }
 
 function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
@@ -726,15 +1239,16 @@ function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, o
         </div>
         <Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} />
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <OmmButton size="sm" variant="ghost" onClick={() => onDetails(row)}>{t("actions.view")}</OmmButton>
-        <OmmButton size="sm" variant="ghost" onClick={() => onEdit(row)}>{t("editButton")}</OmmButton>
-        <OmmButton size="sm" variant="subtle" onClick={() => onDuplicate(row)}>{t("duplicateButton")}</OmmButton>
-        {row.status === "CANCELLED" ? (
-          <OmmButton size="sm" variant="ghost" disabled={busy} onClick={() => onActivate(row)}>{t("activateAction")}</OmmButton>
-        ) : (
-          <OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onCancel(row)}>{t("cancelAction")}</OmmButton>
-        )}
+      <div className="mt-4 flex justify-end">
+        <AdminScheduleSessionActions
+          row={row}
+          busy={busy}
+          onDetails={onDetails}
+          onEdit={onEdit}
+          onDuplicate={onDuplicate}
+          onCancel={onCancel}
+          onActivate={onActivate}
+        />
       </div>
     </article>
   );

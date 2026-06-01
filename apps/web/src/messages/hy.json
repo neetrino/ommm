@@ -1260,12 +1260,15 @@
       "addClassButton": "Ավելացնել դաս",
       "classTypes": {
         "manageButton": "Ավելացնել դասի տեսակներ",
+        "revealButtonAria": "Ցույց տալ «Ավելացնել դասի տեսակներ»",
+        "hideButtonAria": "Թաքցնել «Ավելացնել դասի տեսակներ»",
         "modalTitle": "Դասերի տեսակներ",
         "modalDescription": "Ստեղծեք, խմբագրեք և կառավարեք studio-ի դասերի տեսակները։",
         "modalCloseAria": "Փակել",
         "modalBackdropClose": "Փակել պատուհանը",
         "listHeading": "Ցուցակ",
         "addButton": "Ավելացնել տեսակ",
+        "editButtonAria": "Խմբագրել «{name}»",
         "emptyTitle": "Տեսակներ դեռ չկան",
         "emptyBody": "Վերևի «Ավելացնել տեսակ» կոճակով ստեղծեք առաջին տեսակը՝ Reformer, Yoga և այլն։",
         "formCreateTitle": "Նոր տեսակ",
@@ -1349,7 +1352,10 @@
         "morning": "Առավոտ",
         "afternoon": "Կեսօր",
         "evening": "Երեկո",
-        "activeCount": "{count} ակտիվ ֆիլտր"
+        "activeCount": "{count} ակտիվ ֆիլտր",
+        "selectedCount": "{count} ընտրված",
+        "quickFilterLabel": "Արագ ֆիլտրեր",
+        "allQuickFilters": "Բոլոր արագ ֆիլտրերը"
       },
       "quick": {
         "today": "Այսօրվա դասեր",

@@ -25,7 +25,6 @@ export type LanguageSwitcherProps = {
 };
 
 export function LanguageSwitcher({
-  context: _context,
   dashboardVariant = "neutral",
   compact = false,
   className = "",

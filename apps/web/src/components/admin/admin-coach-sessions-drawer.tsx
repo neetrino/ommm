@@ -53,27 +53,29 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
     }
     let cancelled = false;
     const { from, to } = monthBounds(month);
-    setLoading(true);
-    setError(null);
-    void apiFetch<CoachSessionRow[]>(
-      `/classes/admin/sessions?coachId=${encodeURIComponent(coach.coachProfileId)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
-    )
-      .then((rows) => {
+
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const rows = await apiFetch<CoachSessionRow[]>(
+          `/classes/admin/sessions?coachId=${encodeURIComponent(coach.coachProfileId)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+        );
         if (!cancelled) {
           setSessions(rows);
         }
-      })
-      .catch(() => {
+      } catch {
         if (!cancelled) {
           setError(t("loadFailed"));
           setSessions([]);
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) {
           setLoading(false);
         }
-      });
+      }
+    })();
+
     return () => {
       cancelled = true;
     };

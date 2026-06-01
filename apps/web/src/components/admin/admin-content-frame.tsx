@@ -8,6 +8,7 @@ type AdminContentFrameProps = {
 
 /**
  * Admin page content wrapper — title lives in the dashboard shell header (Figma).
+ * Matches the Bookings section width (1280px max) for consistent banner proportions.
  */
 export function AdminContentFrame({ description, children }: AdminContentFrameProps) {
   return (

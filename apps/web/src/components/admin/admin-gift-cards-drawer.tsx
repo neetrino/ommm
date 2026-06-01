@@ -20,7 +20,7 @@ type AdminGiftCardDrawerProps = {
   onChanged: () => void;
 };
 
-function displayDate(value: string | null, locale: string): string {
+function displayDate(value: string | null): string {
   if (value === null) {
     return "—";
   }
@@ -94,8 +94,8 @@ export function AdminGiftCardDrawer({
             value={formatAmdFromCents(card.balanceCents, locale)}
           />
           <DetailRow label={t("colStatus")} value={t(`statusValues.${card.status}`)} />
-          <DetailRow label={t("colCreated")} value={displayDate(card.createdAt, locale)} />
-          <DetailRow label={t("colExpiration")} value={displayDate(card.expiresAt, locale)} />
+          <DetailRow label={t("colCreated")} value={displayDate(card.createdAt)} />
+          <DetailRow label={t("colExpiration")} value={displayDate(card.expiresAt)} />
           {card.expiresAt !== null ? (
             <DetailRow
               label={t("drawerExpirationState")}

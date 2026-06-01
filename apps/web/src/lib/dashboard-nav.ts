@@ -84,7 +84,7 @@ const CONTENT_ADMIN_NAV: readonly DashboardNavDefinition[] = [
 
 /** Admin panel section order per CRM (Settings is studio-level; profile remains account). */
 const ADMIN_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/admin/home", icon: "layoutDashboard", labelKey: "dashboard" },
+  { href: "/admin/dashboard", icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/admin/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/admin/waitlists", icon: "listOrdered", labelKey: "waitlists" },
   { href: "/admin/clients", icon: "users", labelKey: "clients" },

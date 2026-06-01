@@ -25,6 +25,15 @@ html {
   --color-blue-100: #e4f5fd;
   --color-gift-gold: #e8da74;
 
+  /* Admin portal — Figma management shell (Packages, sidebar, header) */
+  --ommm-admin-olive: #97907c;
+  --ommm-admin-cream: #fbf5d5;
+  --ommm-admin-page: #ede9dd;
+  --ommm-admin-olive-muted: #c5bf9f;
+  --ommm-admin-olive-muted-hover: #d4ceb0;
+  --ommm-admin-shadow-soft: 0 12px 32px -24px rgba(45, 40, 35, 0.22);
+  --ommm-admin-shadow-nav-active: 0 10px 28px -18px rgba(45, 40, 35, 0.28);
+
   --gradient-wellness:
     linear-gradient(
       169deg,
@@ -262,45 +271,84 @@ html {
 
   /* Admin dashboard — Figma OMMM management portal */
   .ommm-bg-admin {
-    background-color: #ede9dd;
+    background-color: var(--ommm-admin-page);
   }
 
   .ommm-admin-sidebar {
-    @apply bg-[#97907c] text-[#fbf5d5];
+    background-color: var(--ommm-admin-olive);
+    color: var(--ommm-admin-cream);
+    box-shadow: var(--ommm-admin-shadow-soft);
   }
 
   .ommm-admin-sidebar-brand-title {
     font-family: var(--font-serif);
-    @apply block truncate text-2xl font-normal text-[#fbf5d5];
+    @apply block truncate text-2xl font-normal;
+    color: var(--ommm-admin-cream);
   }
 
   .ommm-admin-sidebar-brand-subline {
     @apply mt-0.5 block truncate text-xs font-semibold uppercase tracking-[0.12em] text-white/60;
   }
 
+  .ommm-admin-nav-list {
+    @apply flex flex-col gap-0.5 py-2;
+  }
+
+  .ommm-admin-nav-divider {
+    @apply mx-6 my-3 border-t;
+    border-color: rgba(251, 245, 213, 0.16);
+  }
+
+  .ommm-admin-nav-icon {
+    @apply inline-flex h-5 w-6 shrink-0 items-center justify-center;
+  }
+
   .ommm-admin-nav-link {
-    @apply flex w-full items-center gap-4 rounded-r-full py-3 pl-6 pr-4 text-xs font-semibold uppercase tracking-[0.12em] text-[#fbf5d5] transition-colors;
-    @apply hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#97907c];
+    @apply flex w-full items-center gap-3 rounded-r-full py-2.5 pl-6 pr-5 text-xs font-semibold uppercase tracking-[0.12em];
+    color: var(--ommm-admin-cream);
+    transition:
+      background-color 180ms ease-out,
+      color 180ms ease-out,
+      box-shadow 180ms ease-out;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2;
+    --tw-ring-offset-color: var(--ommm-admin-olive);
+  }
+
+  .ommm-admin-nav-link:hover:not(.ommm-admin-nav-link-active) {
+    background-color: rgba(251, 245, 213, 0.12);
   }
 
   .ommm-admin-nav-link-active {
-    @apply bg-white text-[#97907c] shadow-sm;
+    background-color: #fff;
+    color: var(--ommm-admin-olive);
+    box-shadow: var(--ommm-admin-shadow-nav-active);
+  }
+
+  .ommm-admin-nav-link-active:hover {
+    background-color: #fff;
+    color: var(--ommm-admin-olive);
   }
 
   .ommm-admin-nav-link-muted {
-    @apply text-[#c5bf9f];
+    color: var(--ommm-admin-olive-muted);
   }
 
   .ommm-admin-nav-link-muted:hover:not(.ommm-admin-nav-link-active) {
-    @apply text-[#d4ceb0];
+    color: var(--ommm-admin-olive-muted-hover);
+    background-color: rgba(251, 245, 213, 0.08);
   }
 
   .ommm-admin-nav-link-muted.ommm-admin-nav-link-active {
-    @apply text-[#97907c];
+    color: var(--ommm-admin-olive);
   }
 
   .ommm-admin-header-bar {
-    @apply mb-6 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
+    @apply mb-0 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
+  }
+
+  .ommm-admin-sticky-header {
+    background-color: #ede9dd;
+    padding-bottom: 1.5rem;
   }
 
   .ommm-admin-header-title {
@@ -320,6 +368,31 @@ html {
 
   .ommm-admin-icon-button-active {
     @apply border-white/90 bg-white text-sage-900;
+  }
+
+  .ommm-admin-row-icon-circle {
+    @apply relative mx-auto inline-flex shrink-0 items-center justify-center;
+  }
+
+  .ommm-admin-row-icon-circle-item {
+    @apply absolute left-1/2 top-1/2 z-[1] hover:z-10 focus-within:z-10;
+    transform: translate(-50%, -50%) rotate(var(--orbit-angle)) translateY(calc(-1 * var(--orbit-radius)))
+      rotate(calc(-1 * var(--orbit-angle)));
+  }
+
+  .ommm-admin-row-icon-button {
+    @apply inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm backdrop-blur-sm transition-all;
+    @apply hover:bg-white hover:text-sage-900 active:scale-[0.97] active:bg-white/90;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .ommm-admin-row-icon-button-danger {
+    @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
+  }
+
+  .ommm-admin-row-icon-button-subtle {
+    @apply border-white/50 bg-white/60 text-sage-500 hover:border-white/70 hover:bg-white hover:text-sage-900;
   }
 
   .ommm-admin-profile-chip {
@@ -405,7 +478,8 @@ html {
   }
 
   .ommm-admin-packages-toolbar-wrap {
-    @apply w-full;
+    @apply sticky z-[15] -mx-4 bg-[#ede9dd] px-4 pb-3 pt-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8;
+    top: var(--ommm-admin-header-sticky-offset, 7.5rem);
   }
 
   .ommm-admin-packages-toolbar {
@@ -427,6 +501,63 @@ html {
 
   .ommm-dropdown-trigger--compact {
     @apply min-h-9 px-3 py-1.5 text-xs;
+  }
+
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent:hover,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent:focus-visible,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent[data-open="true"] {
+    border-color: rgba(146, 144, 126, 0.85);
+    background-color: #92907e;
+    color: var(--ommm-admin-cream);
+    @apply shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] ring-0;
+  }
+
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent:hover,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent:focus-visible {
+    border-color: #7a7869;
+    background-color: #8a8876;
+  }
+
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent[data-open="true"] {
+    border-color: #7a7869;
+    background-color: #92907e;
+    @apply ring-2 ring-[#92907e]/30;
+  }
+
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent[data-active="true"] {
+    border-color: #7a7869;
+    background-color: #8a8876;
+  }
+
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent .ommm-dropdown-trigger-label,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent .ommm-dropdown-trigger-label *,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent .ommm-dropdown-trigger-chevron,
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent .ommm-dropdown-trigger-chevron svg {
+    color: var(--ommm-admin-cream);
+  }
+
+  .ommm-dropdown-trigger.ommm-dropdown-trigger--accent .ommm-dropdown-chip {
+    background-color: rgba(251, 245, 213, 0.24);
+    color: var(--ommm-admin-cream);
+  }
+
+  .ommm-schedule-accent-button {
+    @apply inline-flex min-h-9 shrink-0 items-center justify-center rounded-full border px-4 py-1.5 text-xs font-semibold transition-[border-color,background-color,box-shadow];
+    border-color: rgba(146, 144, 126, 0.85);
+    background-color: #92907e;
+    color: var(--ommm-admin-cream);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#92907e]/30 focus-visible:ring-offset-2;
+  }
+
+  .ommm-schedule-accent-button:hover {
+    border-color: #7a7869;
+    background-color: #8a8876;
+  }
+
+  .ommm-schedule-accent-button:disabled {
+    @apply cursor-not-allowed opacity-45;
   }
 
   .ommm-dropdown-chip {
@@ -488,7 +619,7 @@ html {
   }
 
   .ommm-admin-content {
-    @apply mx-auto w-full max-w-[1024px];
+    @apply mx-auto w-full max-w-[1280px];
   }
 
   .ommm-admin-add-button {

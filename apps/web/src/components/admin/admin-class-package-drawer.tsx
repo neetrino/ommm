@@ -37,21 +37,23 @@ export function AdminClassPackageDrawer({
   onChanged,
 }: AdminClassPackageDrawerProps) {
   const t = useTranslations("adminPages.packages");
-  const [selectedCoachIds, setSelectedCoachIds] = useState<string[]>([]);
-  const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [tone, setTone] = useState<"ok" | "err">("ok");
-  const submitLockRef = useRef(false);
-
   const initialCoachIds = useMemo(
     () => (pkg === null ? [] : pkg.assignedCoaches.map((coach) => coach.id)),
     [pkg],
   );
 
-  useEffect(() => {
+  const [selectedCoachIds, setSelectedCoachIds] = useState<string[]>(initialCoachIds);
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [tone, setTone] = useState<"ok" | "err">("ok");
+  const [prevPkgId, setPrevPkgId] = useState<string | undefined>(pkg?.id);
+  const submitLockRef = useRef(false);
+
+  if (pkg?.id !== prevPkgId) {
+    setPrevPkgId(pkg?.id);
     setSelectedCoachIds(initialCoachIds);
     setMessage(null);
-  }, [initialCoachIds, pkg?.id]);
+  }
 
   useEffect(() => {
     if (pkg === null) {
