@@ -145,12 +145,12 @@ export function AdminPackagesShell({ children }: AdminPackagesShellProps) {
 
       {isModalOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+          className="ommm-modal-overlay z-50"
           role="presentation"
         >
           <button
             type="button"
-            className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+            className="ommm-modal-backdrop"
             aria-label={t("modalBackdropClose")}
             onClick={closeModal}
           />

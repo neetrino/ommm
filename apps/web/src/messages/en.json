@@ -1444,6 +1444,11 @@
         "classType": "Class type",
         "capacity": "Capacity",
         "level": "Level",
+        "levels": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
         "classFormat": "Class type label",
         "pricePerSession": "Price per session",
         "sessionRequirement": "Session requirement",

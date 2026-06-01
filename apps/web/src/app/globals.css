@@ -207,6 +207,18 @@ html {
     @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
   }
 
+  .ommm-modal-backdrop {
+    @apply absolute inset-0 z-0 bg-sage-900/45 backdrop-blur-[2px] transition-opacity;
+  }
+
+  .ommm-modal-overlay {
+    @apply fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4;
+  }
+
+  .ommm-drawer-overlay {
+    @apply fixed inset-0 z-40 flex justify-end;
+  }
+
   .ommm-card {
     @apply rounded-[28px] border border-white/60 bg-white/55 backdrop-blur-md;
   }

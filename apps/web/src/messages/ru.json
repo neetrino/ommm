@@ -1435,6 +1435,11 @@
         "classType": "Тип занятия",
         "capacity": "Вместимость",
         "level": "Уровень",
+        "levels": {
+          "beginner": "Начальный",
+          "intermediate": "Средний",
+          "advanced": "Продвинутый"
+        },
         "classFormat": "Метка типа",
         "pricePerSession": "Цена за сессию",
         "sessionRequirement": "Требуемые сессии",

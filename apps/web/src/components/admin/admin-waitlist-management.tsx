@@ -279,8 +279,15 @@ export function AdminWaitlistManagement({
       ) : null}
 
       {pendingRemove ? (
-        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-sage-950/45 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/60 bg-white p-5 shadow-[0_20px_50px_-25px_rgba(45,40,35,0.35)]">
+        <div className="ommm-modal-overlay z-[95] items-center p-4" role="presentation">
+          <button
+            type="button"
+            className="ommm-modal-backdrop"
+            aria-label={t("removeConfirm.cancel")}
+            onClick={() => setPendingRemove(null)}
+            disabled={busyAction !== null}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/60 bg-white p-5 shadow-[0_20px_50px_-25px_rgba(45,40,35,0.35)]">
             <h3 className="text-base font-semibold text-sage-900">{t("removeConfirm.title")}</h3>
             <p className="mt-2 text-sm text-sage-700">
               {t("removeConfirm.description", { user: confirmRemoveLabel })}

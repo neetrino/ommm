@@ -127,9 +127,9 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
   const activity = data?.activity ?? client;
 
   return createPortal(
-    <div className="fixed inset-0 z-[90] flex justify-end bg-sage-950/35">
-      <button className="flex-1" type="button" aria-label="Close client details" onClick={onClose} />
-      <aside className="h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
+    <div className="ommm-drawer-overlay z-[90]">
+      <button className="ommm-modal-backdrop" type="button" aria-label="Close client details" onClick={onClose} />
+      <aside className="relative z-10 h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-sage-500">Client profile</p>

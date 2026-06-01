@@ -158,9 +158,9 @@ export function AdminClassPackageDrawer({
     selectedCoachIds.some((id) => !initialCoachIds.includes(id));
 
   return createPortal(
-    <div className="fixed inset-0 z-40 flex justify-end bg-sage-950/35">
-      <button type="button" className="flex-1" onClick={onClose} aria-label={t("drawerClose")} />
-      <aside className="h-full w-full max-w-md overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-xl">
+    <div className="ommm-drawer-overlay z-40">
+      <button type="button" className="ommm-modal-backdrop" onClick={onClose} aria-label={t("drawerClose")} />
+      <aside className="relative z-10 h-full w-full max-w-md overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h3 className="font-serif text-xl font-semibold text-sage-900">{pkg.name}</h3>

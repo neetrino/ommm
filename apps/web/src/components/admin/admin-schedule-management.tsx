@@ -12,6 +12,7 @@ import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
+import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
@@ -80,9 +81,27 @@ type FormState = {
 };
 
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
+const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
 const SEARCH_DEBOUNCE_MS = 300;
-const CLASS_TYPES_MODAL_QUERY_KEY = "modal";
+const SCHEDULE_MODAL_QUERY_KEY = "modal";
 const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
+const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
+
+function replaceScheduleModalInUrl(
+  pathname: string,
+  searchParams: URLSearchParams,
+  router: ReturnType<typeof useRouter>,
+  modal: string | null,
+): void {
+  const params = new URLSearchParams(searchParams.toString());
+  if (modal === null) {
+    params.delete(SCHEDULE_MODAL_QUERY_KEY);
+  } else {
+    params.set(SCHEDULE_MODAL_QUERY_KEY, modal);
+  }
+  const qs = params.toString();
+  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+}
 
 function isoDate(value: Date | string): string {
   return new Date(value).toISOString().slice(0, 10);
@@ -156,6 +175,32 @@ function formPayload(form: FormState) {
   };
 }
 
+function buildSessionLevelOptions(
+  translate: (
+    key: "form.levels.beginner" | "form.levels.intermediate" | "form.levels.advanced",
+  ) => string,
+  extraLevel?: string | null,
+): Array<{ value: string; label: string }> {
+  const options = SESSION_LEVEL_VALUES.map((value) => ({
+    value,
+    label:
+      value === "Beginner"
+        ? translate("form.levels.beginner")
+        : value === "Intermediate"
+          ? translate("form.levels.intermediate")
+          : translate("form.levels.advanced"),
+  }));
+  const trimmed = extraLevel?.trim();
+  if (
+    trimmed &&
+    trimmed.length > 0 &&
+    !SESSION_LEVEL_VALUES.includes(trimmed as (typeof SESSION_LEVEL_VALUES)[number])
+  ) {
+    return [{ value: trimmed, label: trimmed }, ...options];
+  }
+  return options;
+}
+
 function matchesTimeOfDay(row: AdminScheduleSession, filter: TimeOfDayFilter): boolean {
   if (filter === "all") return true;
   const hour = new Date(row.startsAt).getHours();
@@ -175,28 +220,47 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
   const [filters, setFilters] = useState<Filters>(() => initialFilters());
   const [searchDraft, setSearchDraft] = useState("");
   const [selectedDay, setSelectedDay] = useState(() => isoDate(new Date()));
-  const [editing, setEditing] = useState<AdminScheduleSession | "create" | null>(null);
+  const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const classTypesOpen =
-    searchParams.get(CLASS_TYPES_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE;
+  const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
+  const classTypesOpen = scheduleModalParam === CLASS_TYPES_MODAL_QUERY_VALUE;
+  const addClassOpen = scheduleModalParam === ADD_CLASS_MODAL_QUERY_VALUE;
 
   const openClassTypesModal = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(CLASS_TYPES_MODAL_QUERY_KEY, CLASS_TYPES_MODAL_QUERY_VALUE);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    replaceScheduleModalInUrl(pathname, searchParams, router, CLASS_TYPES_MODAL_QUERY_VALUE);
   }, [pathname, router, searchParams]);
 
   const closeClassTypesModal = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (params.get(CLASS_TYPES_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
-      params.delete(CLASS_TYPES_MODAL_QUERY_KEY);
+    if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
+      replaceScheduleModalInUrl(pathname, searchParams, router, null);
     }
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [pathname, router, searchParams]);
+
+  const openAddClassModal = useCallback(() => {
+    replaceScheduleModalInUrl(pathname, searchParams, router, ADD_CLASS_MODAL_QUERY_VALUE);
+  }, [pathname, router, searchParams]);
+
+  const closeAddClassModal = useCallback(() => {
+    if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === ADD_CLASS_MODAL_QUERY_VALUE) {
+      replaceScheduleModalInUrl(pathname, searchParams, router, null);
+    }
+  }, [pathname, router, searchParams]);
+
+  const sessionModalConfig = useMemo(() => {
+    if (addClassOpen) {
+      return { mode: "create" as const, row: undefined };
+    }
+    if (editing === null) {
+      return null;
+    }
+    if (editing.id === "") {
+      return { mode: "duplicate" as const, row: editing };
+    }
+    return { mode: "edit" as const, row: editing };
+  }, [addClassOpen, editing]);
 
   useEffect(() => {
     setClassTypes(initialClassTypes);
@@ -298,7 +362,7 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
       <ViewToolbar
         view={view}
         onView={updateView}
-        onCreate={() => setEditing("create")}
+        onCreate={openAddClassModal}
         onManageTypes={openClassTypesModal}
       />
       {message ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{message}</div> : null}
@@ -331,17 +395,38 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
         }}
         onDuplicate={(row) => setEditing({ ...row, id: "" })}
       />
-      {editing ? (
+      {sessionModalConfig ? (
         <SessionModal
-          mode={editing === "create" ? "create" : editing.id === "" ? "duplicate" : "edit"}
-          row={editing === "create" ? undefined : editing}
+          isOpen
+          mode={sessionModalConfig.mode}
+          row={sessionModalConfig.row}
           classTypes={classTypes}
           coaches={coaches}
-          onClose={() => setEditing(null)}
-          onSaved={(saved) => {
-            setRows((current) => (current.some((row) => row.id === saved.id) ? current.map((row) => (row.id === saved.id ? saved : row)) : [...current, saved]));
-            setMessage(editing === "create" ? t("messages.createSuccess") : editing.id === "" ? t("messages.duplicateSuccess") : t("messages.updateSuccess"));
+          onClose={() => {
+            if (addClassOpen) {
+              closeAddClassModal();
+              return;
+            }
             setEditing(null);
+          }}
+          onSaved={(saved) => {
+            setRows((current) =>
+              current.some((row) => row.id === saved.id)
+                ? current.map((row) => (row.id === saved.id ? saved : row))
+                : [...current, saved],
+            );
+            setMessage(
+              sessionModalConfig.mode === "create"
+                ? t("messages.createSuccess")
+                : sessionModalConfig.mode === "duplicate"
+                  ? t("messages.duplicateSuccess")
+                  : t("messages.updateSuccess"),
+            );
+            if (addClassOpen) {
+              closeAddClassModal();
+            } else {
+              setEditing(null);
+            }
             router.refresh();
           }}
         />
@@ -416,7 +501,7 @@ function QuickFilters({ values, onChange, onReset, activeCount }: { values: Filt
       <OmmButton size="sm" variant={values.availability === "available" ? "primary" : "ghost"} onClick={() => onChange("availability", values.availability === "available" ? "all" : "available")}>{t("quick.available")}</OmmButton>
       <OmmButton size="sm" variant={values.availability === "full" ? "primary" : "ghost"} onClick={() => onChange("availability", values.availability === "full" ? "all" : "full")}>{t("quick.full")}</OmmButton>
       <OmmButton size="sm" variant={values.status === "CANCELLED" ? "primary" : "ghost"} onClick={() => onChange("status", values.status === "CANCELLED" ? "" : "CANCELLED")}>{t("quick.cancelled")}</OmmButton>
-      <OmmButton size="sm" variant={values.level.toLowerCase() === "beginner" ? "primary" : "ghost"} onClick={() => onChange("level", values.level.toLowerCase() === "beginner" ? "" : "Beginner")}>{t("quick.beginner")}</OmmButton>
+      <OmmButton size="sm" variant={values.level === SESSION_LEVEL_VALUES[0] ? "primary" : "ghost"} onClick={() => onChange("level", values.level === SESSION_LEVEL_VALUES[0] ? "" : SESSION_LEVEL_VALUES[0])}>{t("quick.beginner")}</OmmButton>
       <OmmButton size="sm" variant={values.timeOfDay === "evening" ? "primary" : "ghost"} onClick={() => onChange("timeOfDay", values.timeOfDay === "evening" ? "all" : "evening")}>{t("quick.evening")}</OmmButton>
       <OmmButton size="sm" variant="subtle" onClick={onReset}>{t("filters.reset")}</OmmButton>
       <p className="text-xs text-sage-500">{t("filters.activeCount", { count: activeCount })}</p>
@@ -830,33 +915,222 @@ function DailyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
   );
 }
 
-function SessionModal({ mode, row, classTypes, coaches, onClose, onSaved }: { mode: "create" | "edit" | "duplicate"; row?: AdminScheduleSession; classTypes: readonly AdminScheduleClassType[]; coaches: readonly AdminScheduleCoach[]; onClose: () => void; onSaved: (row: AdminScheduleSession) => void }) {
+function SessionModal({
+  isOpen,
+  mode,
+  row,
+  classTypes,
+  coaches,
+  onClose,
+  onSaved,
+}: {
+  isOpen: boolean;
+  mode: "create" | "edit" | "duplicate";
+  row?: AdminScheduleSession;
+  classTypes: readonly AdminScheduleClassType[];
+  coaches: readonly AdminScheduleCoach[];
+  onClose: () => void;
+  onSaved: (row: AdminScheduleSession) => void;
+}) {
   const t = useTranslations("adminPages.classes");
   const [form, setForm] = useState(() => initialForm(classTypes, coaches, row));
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const levelOptions = useMemo(
+    () => buildSessionLevelOptions((key) => t(key), row?.level ?? form.level),
+    [form.level, row?.level, t],
+  );
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
     try {
       const payload = formPayload(form);
-      const saved = await apiFetch<AdminScheduleSession>(mode === "edit" && row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions", { method: mode === "edit" ? "PATCH" : "POST", body: JSON.stringify(payload) });
+      const saved = await apiFetch<AdminScheduleSession>(
+        mode === "edit" && row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
+        { method: mode === "edit" ? "PATCH" : "POST", body: JSON.stringify(payload) },
+      );
       onSaved(saved);
     } catch (requestError) {
-      setError(requestError instanceof ApiError ? requestError.message : t("messages.genericError"));
+      setError(
+        requestError instanceof ApiError ? requestError.message : t("messages.genericError"),
+      );
     } finally {
       setPending(false);
     }
   }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-sage-950/35 p-0 sm:items-center sm:p-4"><div className="w-full max-w-2xl rounded-t-[28px] border border-white/60 bg-white p-5 shadow-xl sm:rounded-[24px]"><div className="flex items-start justify-between gap-4"><div><h2 className={adminChrome.panelHeading}>{mode === "create" ? t("createTitle") : mode === "duplicate" ? t("duplicateTitle") : t("editTitle")}</h2><p className="ommm-body-muted mt-1 text-sm">{mode === "duplicate" ? t("duplicateDescription") : mode === "create" ? t("createDescription") : t("editDescription")}</p></div><button className="rounded-full p-2 text-sage-500 hover:bg-sand-50" onClick={onClose} aria-label={t("modalCloseAria")} type="button">x</button></div><form className="mt-5 grid gap-3 sm:grid-cols-2" onSubmit={(event) => { void submit(event); }}><input className="ommm-input sm:col-span-2" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder={t("form.className")} required /><OmmFormDropdown value={form.classTypeId} ariaLabel={t("form.classType")} placeholderLabel={t("form.classType")} options={classTypes.map((type) => ({ value: type.id, label: type.name }))} onChange={(value) => setForm((current) => ({ ...current, classTypeId: value }))} /><OmmFormDropdown value={form.coachId} ariaLabel={t("form.coach")} placeholderLabel={t("form.coach")} options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))} onChange={(value) => setForm((current) => ({ ...current, coachId: value }))} /><DatePickerInput name="date" value={form.date} onChange={(value) => setForm((current) => ({ ...current, date: value }))} ariaLabel={t("form.date")} required /><TimePickerInput name="startTime" value={form.startTime} onChange={(value) => setForm((current) => ({ ...current, startTime: value }))} required /><TimePickerInput name="endTime" value={form.endTime} onChange={(value) => setForm((current) => ({ ...current, endTime: value }))} required /><input className="ommm-input" type="number" min={1} value={form.capacity} onChange={(event) => setForm((current) => ({ ...current, capacity: event.target.value }))} placeholder={t("form.capacity")} required /><input className="ommm-input" value={form.level} onChange={(event) => setForm((current) => ({ ...current, level: event.target.value }))} placeholder={t("form.level")} /><OmmFormDropdown value={form.status} ariaLabel={t("form.status")} placeholderLabel={t("form.status")} options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))} onChange={(value) => setForm((current) => ({ ...current, status: value as SessionStatus }))} /><textarea className="ommm-input min-h-24 sm:col-span-2" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder={t("form.description")} />{error ? <p className="app-alert-warn text-sm sm:col-span-2">{error}</p> : null}<div className="flex justify-end gap-2 sm:col-span-2"><OmmButton type="button" size="sm" variant="ghost" onClick={onClose} disabled={pending}>{t("cancelButton")}</OmmButton><OmmButton type="submit" size="sm" variant="primary" disabled={pending}>{pending ? t("savingButton") : mode === "create" ? t("createButton") : t("saveButton")}</OmmButton></div></form></div></div>
+    <OmmModalPortal
+      isOpen={isOpen}
+      onClose={onClose}
+      backdropAriaLabel={t("modalBackdropClose")}
+      closeDisabled={pending}
+      panelClassName="max-w-2xl rounded-t-[28px] border border-white/60 bg-white p-5 shadow-xl sm:rounded-[24px]"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className={adminChrome.panelHeading}>
+            {mode === "create"
+              ? t("createTitle")
+              : mode === "duplicate"
+                ? t("duplicateTitle")
+                : t("editTitle")}
+          </h2>
+          <p className="ommm-body-muted mt-1 text-sm">
+            {mode === "duplicate"
+              ? t("duplicateDescription")
+              : mode === "create"
+                ? t("createDescription")
+                : t("editDescription")}
+          </p>
+        </div>
+        <button
+          className="rounded-full p-2 text-sage-500 hover:bg-sand-50"
+          onClick={onClose}
+          aria-label={t("modalCloseAria")}
+          type="button"
+        >
+          x
+        </button>
+      </div>
+      <form className="mt-5 grid gap-3 sm:grid-cols-2" onSubmit={(event) => { void submit(event); }}>
+        <input
+          className="ommm-input sm:col-span-2"
+          value={form.title}
+          onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+          placeholder={t("form.className")}
+          required
+        />
+        <OmmFormDropdown
+          value={form.classTypeId}
+          ariaLabel={t("form.classType")}
+          placeholderLabel={t("form.classType")}
+          options={classTypes.map((type) => ({ value: type.id, label: type.name }))}
+          onChange={(value) => setForm((current) => ({ ...current, classTypeId: value }))}
+        />
+        <OmmFormDropdown
+          value={form.coachId}
+          ariaLabel={t("form.coach")}
+          placeholderLabel={t("form.coach")}
+          options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
+          onChange={(value) => setForm((current) => ({ ...current, coachId: value }))}
+        />
+        <DatePickerInput
+          name="date"
+          value={form.date}
+          onChange={(value) => setForm((current) => ({ ...current, date: value }))}
+          ariaLabel={t("form.date")}
+          required
+        />
+        <TimePickerInput
+          name="startTime"
+          value={form.startTime}
+          onChange={(value) => setForm((current) => ({ ...current, startTime: value }))}
+          required
+        />
+        <TimePickerInput
+          name="endTime"
+          value={form.endTime}
+          onChange={(value) => setForm((current) => ({ ...current, endTime: value }))}
+          required
+        />
+        <input
+          className="ommm-input"
+          type="number"
+          min={1}
+          value={form.capacity}
+          onChange={(event) => setForm((current) => ({ ...current, capacity: event.target.value }))}
+          placeholder={t("form.capacity")}
+          required
+        />
+        <OmmFilterDropdown
+          allValue=""
+          value={form.level}
+          ariaLabel={t("form.level")}
+          allLabel={t("form.level")}
+          options={levelOptions}
+          onChange={(value) => setForm((current) => ({ ...current, level: value }))}
+        />
+        <OmmFormDropdown
+          value={form.status}
+          ariaLabel={t("form.status")}
+          placeholderLabel={t("form.status")}
+          options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))}
+          onChange={(value) => setForm((current) => ({ ...current, status: value as SessionStatus }))}
+        />
+        <textarea
+          className="ommm-input min-h-24 sm:col-span-2"
+          value={form.description}
+          onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+          placeholder={t("form.description")}
+        />
+        {error ? <p className="app-alert-warn text-sm sm:col-span-2">{error}</p> : null}
+        <div className="flex justify-end gap-2 sm:col-span-2">
+          <OmmButton type="button" size="sm" variant="ghost" onClick={onClose} disabled={pending}>
+            {t("cancelButton")}
+          </OmmButton>
+          <OmmButton type="submit" size="sm" variant="primary" disabled={pending}>
+            {pending ? t("savingButton") : mode === "create" ? t("createButton") : t("saveButton")}
+          </OmmButton>
+        </div>
+      </form>
+    </OmmModalPortal>
   );
 }
 
-function DetailsDrawer({ locale, row, onClose }: { locale: string; row: AdminScheduleSession; onClose: () => void }) {
+function DetailsDrawer({
+  locale,
+  row,
+  onClose,
+}: {
+  locale: string;
+  row: AdminScheduleSession;
+  onClose: () => void;
+}) {
   const t = useTranslations("adminPages.classes");
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-sage-950/35"><button className="flex-1" onClick={onClose} aria-label={t("modalCloseAria")} /><aside className="h-full w-full max-w-md overflow-auto bg-white p-5"><div className="mb-4 flex items-center justify-between"><h3 className="font-semibold text-sage-900">{row.title}</h3><button onClick={onClose} type="button">x</button></div><div className="space-y-3 text-sm text-sage-700"><p><span className="text-sage-500">{t("colType")}:</span> {row.classType.name}</p><p><span className="text-sage-500">{t("colDate")}:</span> {formatDateTimeForUi(row.startsAt, locale)}</p><p><span className="text-sage-500">{t("form.endTime")}:</span> {formatDateTimeForUi(row.endsAt, locale)}</p><p><span className="text-sage-500">{t("fields.duration")}:</span> {durationMinutes(row)}m</p><p><span className="text-sage-500">{t("colCoach")}:</span> {coachName(row.coach)}</p><p><span className="text-sage-500">{t("colCapacity")}:</span> {row._count.bookings}/{row.capacity} · {t("fields.spotsLeft", { count: spotsLeft(row) })}</p><p><span className="text-sage-500">{t("colLevel")}:</span> {row.level ?? "—"}</p><p><span className="text-sage-500">{t("colStatus")}:</span> {t(`status.${row.status}`)}</p>{row.description ? <p><span className="text-sage-500">{t("form.description")}:</span> {row.description}</p> : null}</div></aside></div>
+    <OmmDrawerPortal isOpen onClose={onClose} backdropAriaLabel={t("modalCloseAria")}>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-semibold text-sage-900">{row.title}</h3>
+        <button onClick={onClose} type="button">
+          x
+        </button>
+      </div>
+      <div className="space-y-3 text-sm text-sage-700">
+        <p>
+          <span className="text-sage-500">{t("colType")}:</span> {row.classType.name}
+        </p>
+        <p>
+          <span className="text-sage-500">{t("colDate")}:</span> {formatDateTimeForUi(row.startsAt, locale)}
+        </p>
+        <p>
+          <span className="text-sage-500">{t("form.endTime")}:</span>{" "}
+          {formatDateTimeForUi(row.endsAt, locale)}
+        </p>
+        <p>
+          <span className="text-sage-500">{t("fields.duration")}:</span> {durationMinutes(row)}m
+        </p>
+        <p>
+          <span className="text-sage-500">{t("colCoach")}:</span> {coachName(row.coach)}
+        </p>
+        <p>
+          <span className="text-sage-500">{t("colCapacity")}:</span> {row._count.bookings}/{row.capacity}{" "}
+          · {t("fields.spotsLeft", { count: spotsLeft(row) })}
+        </p>
+        <p>
+          <span className="text-sage-500">{t("colLevel")}:</span> {row.level ?? "—"}
+        </p>
+        <p>
+          <span className="text-sage-500">{t("colStatus")}:</span> {t(`status.${row.status}`)}
+        </p>
+        {row.description ? (
+          <p>
+            <span className="text-sage-500">{t("form.description")}:</span> {row.description}
+          </p>
+        ) : null}
+      </div>
+    </OmmDrawerPortal>
   );
 }

@@ -1431,6 +1431,11 @@
         "classType": "Դասի տեսակ",
         "capacity": "Տարողություն",
         "level": "Մակարդակ",
+        "levels": {
+          "beginner": "Սկսնակ",
+          "intermediate": "Միջին",
+          "advanced": "Խորը"
+        },
         "classFormat": "Դասի պիտակ",
         "pricePerSession": "Գին մեկ սեսիայի համար",
         "sessionRequirement": "Պահանջվող սեսիաներ",

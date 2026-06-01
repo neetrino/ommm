@@ -33,8 +33,11 @@ export function AdminScheduledBroadcastEditModal({
   const t = useTranslations("adminPages.notifications");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-      <div className={`${adminChrome.panel} max-h-[90vh] w-full max-w-xl overflow-y-auto`}>
+    <div className="ommm-modal-overlay items-center p-4">
+      <button type="button" className="ommm-modal-backdrop" onClick={onClose} aria-label={t("actions.close")} />
+      <div
+        className={`relative z-10 ${adminChrome.panel} max-h-[90vh] w-full max-w-xl overflow-y-auto`}
+      >
         <h3 className={adminChrome.panelHeading}>{t("editScheduledTitle")}</h3>
         <p className={`${adminChrome.metaText} mt-1`}>{editing.subject}</p>
         <div className="mt-4 flex flex-col gap-3">

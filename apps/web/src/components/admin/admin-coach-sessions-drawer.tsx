@@ -109,17 +109,17 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
   });
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex">
+    <div className="ommm-drawer-overlay z-[70]">
       <button
         type="button"
-        className="flex-1 bg-sage-900/35 backdrop-blur-[2px]"
+        className="ommm-modal-backdrop"
         aria-label={t("close")}
         onClick={onClose}
       />
       <aside
         role="dialog"
         aria-labelledby={titleId}
-        className="flex h-full w-full max-w-md flex-col border-l border-white/60 bg-white/95 p-5 shadow-2xl"
+        className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-white/60 bg-white/95 p-5 shadow-2xl"
       >
         <div className="flex items-start justify-between gap-3">
           <div>

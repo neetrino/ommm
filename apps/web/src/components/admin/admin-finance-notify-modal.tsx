@@ -95,10 +95,10 @@ export function AdminFinanceNotifyModal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+    <div className="ommm-modal-overlay z-[80] items-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-sage-900/40 backdrop-blur-sm"
+        className="ommm-modal-backdrop"
         aria-label={t("closeModal")}
         onClick={onClose}
       />

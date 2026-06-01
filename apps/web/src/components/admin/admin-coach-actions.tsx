@@ -673,12 +673,12 @@ export function AdminCoachActions({
       {isOpen && isMounted
         ? createPortal(
             <div
-              className="fixed inset-0 z-[90] flex justify-end bg-sage-950/35"
+              className="ommm-drawer-overlay z-[90]"
               role="presentation"
             >
               <button
                 type="button"
-                className="flex-1"
+                className="ommm-modal-backdrop"
                 aria-label={t("modalBackdropClose")}
                 onClick={closeModal}
               />
@@ -688,7 +688,7 @@ export function AdminCoachActions({
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
-                className="h-full w-full max-w-3xl overflow-x-hidden overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
+                className="relative z-10 h-full w-full max-w-3xl overflow-x-hidden overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>

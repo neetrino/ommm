@@ -88,14 +88,14 @@ export function AdminCoachDetailsDrawer({
   const assignedClasses = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] flex justify-end bg-sage-950/35">
+    <div className="ommm-drawer-overlay z-[80]">
       <button
         type="button"
-        className="flex-1"
+        className="ommm-modal-backdrop"
         aria-label={t("drawer.close")}
         onClick={onClose}
       />
-      <aside className="h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
+      <aside className="relative z-10 h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-sage-500">

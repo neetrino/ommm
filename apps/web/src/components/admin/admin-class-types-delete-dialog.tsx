@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmModalBackdrop, OMM_MODAL_OVERLAY_CLASS } from "@/components/ui/omm-modal";
 
 type AdminClassTypesDeleteDialogProps = {
   typeName: string;
@@ -21,14 +22,8 @@ export function AdminClassTypesDeleteDialog({
   const t = useTranslations("adminPages.classes.classTypes");
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-      role="presentation"
-    >
-      <div
-        className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]"
-        aria-hidden
-      />
+    <div className={`${OMM_MODAL_OVERLAY_CLASS} z-[60] items-center p-4`} role="presentation">
+      <OmmModalBackdrop onClose={onCancel} ariaLabel={t("cancelButton")} disabled={pending} />
       <div
         role="alertdialog"
         aria-modal="true"
