@@ -721,28 +721,30 @@ function QuickFilters({
   );
 
   return (
-    <div className="mt-3 flex flex-col gap-3 border-t border-sage-700/10 pt-3 sm:flex-row sm:flex-wrap sm:items-end">
-      <div className="flex min-w-0 w-full flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
-          <QuickFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
-          {t("filters.quickFilterLabel")}
-        </span>
-        <OmmFilterMultiSelect
-          variant="accent"
-          wrapLabel
-          ariaLabel={t("filters.quickFilterLabel")}
-          allLabel={t("filters.allQuickFilters")}
-          selectedValues={selected}
-          onChange={(value) => onChange(value as ScheduleQuickFilter[])}
-          formatSelectedCount={(count) => t("filters.selectedCount", { count })}
-          options={quickOptions}
-        />
-      </div>
-      <div className="flex flex-wrap items-center gap-2 sm:pb-0.5">
-        <OmmButton size="sm" variant="subtle" onClick={onReset}>
-          {t("filters.reset")}
-        </OmmButton>
-        <p className="text-xs text-sage-500">{t("filters.activeCount", { count: activeCount })}</p>
+    <div className="mt-3 border-t border-sage-700/10 pt-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+        <div className="flex min-w-0 flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
+            <QuickFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
+            {t("filters.quickFilterLabel")}
+          </span>
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            ariaLabel={t("filters.quickFilterLabel")}
+            allLabel={t("filters.allQuickFilters")}
+            selectedValues={selected}
+            onChange={(value) => onChange(value as ScheduleQuickFilter[])}
+            formatSelectedCount={(count) => t("filters.selectedCount", { count })}
+            options={quickOptions}
+          />
+        </div>
+        <div className="flex shrink-0 items-center gap-3 self-end sm:ml-auto">
+          <button type="button" className="ommm-schedule-accent-button" onClick={onReset}>
+            {t("filters.reset")}
+          </button>
+          <p className="text-xs text-sage-600">{t("filters.activeCount", { count: activeCount })}</p>
+        </div>
       </div>
     </div>
   );
