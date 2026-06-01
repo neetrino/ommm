@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
+import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
 import type { DashboardNavItem } from "@/lib/dashboard-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 
@@ -66,11 +68,17 @@ export function DashboardSidebarNav({
   const tShell = useTranslations("dashboard.shell");
   return (
     <nav
-      className="flex flex-col gap-0.5 p-2"
+      className={
+        variant === "admin"
+          ? "flex flex-col gap-1 px-0 py-0"
+          : "flex flex-col gap-0.5 p-2"
+      }
       aria-label={tShell("dashboardNavAria")}
     >
       {items.map((item) => {
         const active = navActive(pathname, item.href);
+        const adminIconSlug =
+          variant === "admin" ? adminNavIconSlugForHref(item.href) : null;
         return (
           <Link
             key={item.href}
@@ -79,7 +87,11 @@ export function DashboardSidebarNav({
             className={active ? rowActive(variant, collapsed) : rowBase(variant, collapsed)}
             onClick={onNavigate}
           >
-            <DashboardNavIcon name={item.icon} />
+            {adminIconSlug ? (
+              <AdminNavIcon slug={adminIconSlug} />
+            ) : (
+              <DashboardNavIcon name={item.icon} />
+            )}
             <span
               className={
                 collapsed
