@@ -463,6 +463,17 @@ function ListGlyph({ className }: { className?: string }) {
   );
 }
 
+const SCHEDULE_TOOLBAR_BTN_BASE =
+  "inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30";
+
+const SCHEDULE_TOOLBAR_BTN_IDLE =
+  "border-white/70 bg-white/70 text-sage-700 hover:-translate-y-0.5 hover:bg-white hover:text-sage-900";
+
+const SCHEDULE_TOOLBAR_BTN_ACTIVE =
+  "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]";
+
+const SCHEDULE_TOOLBAR_BUTTON_CLASS = `${SCHEDULE_TOOLBAR_BTN_BASE} ${SCHEDULE_TOOLBAR_BTN_IDLE}`;
+
 function ViewToolbar({
   view,
   onView,
@@ -487,10 +498,8 @@ function ViewToolbar({
             role="tab"
             aria-selected={view === next}
             onClick={() => onView(next)}
-            className={`group inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30 ${
-              view === next
-                ? "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]"
-                : "border-white/70 bg-white/70 text-sage-700 hover:-translate-y-0.5 hover:bg-white hover:text-sage-900"
+            className={`group ${SCHEDULE_TOOLBAR_BTN_BASE} ${
+              view === next ? SCHEDULE_TOOLBAR_BTN_ACTIVE : SCHEDULE_TOOLBAR_BTN_IDLE
             }`}
           >
             {next === "list" ? <ListGlyph className="h-4 w-4 shrink-0" /> : <CalendarGlyph className="h-4 w-4 shrink-0" />}
@@ -499,14 +508,14 @@ function ViewToolbar({
         ))}
         </div>
         <div className="flex flex-wrap gap-2 self-start lg:self-auto">
-          <OmmButton size="md" variant="secondary" onClick={onManageTypes} className="gap-2">
+          <button type="button" className={SCHEDULE_TOOLBAR_BUTTON_CLASS} onClick={onManageTypes}>
             <ClassTypesGlyph className="h-4 w-4 shrink-0" />
             {t("classTypes.manageButton")}
-          </OmmButton>
-          <OmmButton size="md" variant="secondary" onClick={onCreate} className="gap-2">
+          </button>
+          <button type="button" className={SCHEDULE_TOOLBAR_BUTTON_CLASS} onClick={onCreate}>
             <PlusIcon className="h-4 w-4 shrink-0" />
             {t("addClassButton")}
-          </OmmButton>
+          </button>
         </div>
       </div>
     </div>
