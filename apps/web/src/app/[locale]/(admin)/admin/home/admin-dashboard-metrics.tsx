@@ -356,11 +356,6 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
           )}
         </article>
       </section>
-
-      <section className={`mt-4 ${adminChrome.panel}`}>
-        <p className={adminChrome.panelHeading}>{t("csvExportTitle")}</p>
-        <p className="mt-2 text-sm text-sage-600">{t("csvExportBody")}</p>
-      </section>
     </AccountPageFrame>
   );
 }

@@ -759,8 +759,6 @@
   "adminHome": {
     "pageTitle": "Admin dashboard",
     "fetchError": "Fetch failed (is the API running?)",
-    "csvExportTitle": "CSV export (admin only)",
-    "csvExportBody": "Export bookings CSV from the admin reports section.",
     "overview": {
       "pageDescription": "Fast operational overview of classes, bookings, members, revenue, and alerts.",
       "errorAuth": "Admin sign-in required.",
