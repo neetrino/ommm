@@ -7,7 +7,7 @@ import {
   giftCardFiltersQueryKey,
   parseGiftCardFiltersFromSearch,
 } from "@/components/admin/admin-gift-cards-url";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminGiftCardsPage({
@@ -36,7 +36,7 @@ export default async function AdminGiftCardsPage({
   const initialFilters = parseGiftCardFiltersFromSearch(search);
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
+    <AdminContentFrame description={t("description")}>
       <Suspense fallback={null}>
         <AdminGiftCardsManagement
           key={giftCardFiltersQueryKey(initialFilters)}
@@ -45,6 +45,6 @@ export default async function AdminGiftCardsPage({
           initialFilters={initialFilters}
         />
       </Suspense>
-    </AccountPageFrame>
+    </AdminContentFrame>
   );
 }

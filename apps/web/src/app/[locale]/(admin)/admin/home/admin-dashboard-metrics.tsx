@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
@@ -57,7 +57,6 @@ type DashboardOverview = {
 };
 
 export async function AdminDashboardMetrics({ locale }: { locale: string }) {
-  const t = await getTranslations({ locale, namespace: "adminHome" });
   const tm = await getTranslations({ locale, namespace: "adminHome.overview" });
   const cookie = (await headers()).get("cookie") ?? "";
 
@@ -72,9 +71,9 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
         ? tm("errorAuth")
         : tm("errorLoad", { status: overviewRes.status });
     return (
-      <AccountPageFrame title={t("pageTitle")} description={tm("pageDescription")}>
+      <AdminContentFrame description={tm("pageDescription")}>
         <div className="app-alert-warn max-w-xl">{message}</div>
-      </AccountPageFrame>
+      </AdminContentFrame>
     );
   }
 
@@ -163,7 +162,7 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
   ];
 
   return (
-    <AccountPageFrame title={t("pageTitle")} description={tm("pageDescription")}>
+    <AdminContentFrame description={tm("pageDescription")}>
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => (
           <li
@@ -356,6 +355,6 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
           )}
         </article>
       </section>
-    </AccountPageFrame>
+    </AdminContentFrame>
   );
 }

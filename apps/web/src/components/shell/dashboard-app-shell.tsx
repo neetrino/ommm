@@ -12,6 +12,7 @@ import type {
 import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
+import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
   avatarRingClass,
@@ -166,8 +167,14 @@ export function DashboardAppShell({
     setSidebarCollapsed(next);
   }
 
-  const asideWidth = sidebarCollapsed ? "lg:w-[4.5rem]" : "lg:w-64";
-  const borderB = `border-b ${sidebarShellBorderClass(variant)}`;
+  const asideWidth =
+    variant === "admin"
+      ? "lg:w-72"
+      : sidebarCollapsed
+        ? "lg:w-[4.5rem]"
+        : "lg:w-64";
+  const borderB = variant === "admin" ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
+  const isAdminShell = variant === "admin";
 
   return (
     <div className={pageBackgroundClass(variant)}>
@@ -175,70 +182,96 @@ export function DashboardAppShell({
         className={`mx-auto flex min-h-screen w-full flex-col lg:flex-row ${contentMaxClass}`}
       >
         <aside
-          className={`hidden shrink-0 flex-col border-r shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)} transition-[width] duration-200 ease-out`}
+          className={`hidden shrink-0 flex-col shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${
+            isAdminShell
+              ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
+              : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
+          } transition-[width] duration-200 ease-out`}
           aria-label={tShell("workspaceAria")}
         >
           <div
             className={
-              sidebarCollapsed
-                ? `flex flex-col-reverse items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
-                : `flex items-center gap-2 px-2 py-4 ${DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS} ${borderB} ${sidebarBrandStripClass(variant)}`
+              isAdminShell
+                ? "px-8 pb-8"
+                : sidebarCollapsed
+                  ? `flex flex-col-reverse items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
+                  : `flex items-center gap-2 px-2 py-4 ${DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS} ${borderB} ${sidebarBrandStripClass(variant)}`
             }
           >
             <Link
               href={brandHref}
               className={
-                sidebarCollapsed
-                  ? `flex items-center justify-center rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
-                  : `flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
+                isAdminShell
+                  ? "block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#97907c]"
+                  : sidebarCollapsed
+                    ? `flex items-center justify-center rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
+                    : `flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
               }
               onClick={() => setDrawerOpen(false)}
             >
-              <span
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
-              >
-                {brandInitial(brandLabel)}
-              </span>
-              {sidebarCollapsed ? (
+              {!isAdminShell ? (
+                <span
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
+                >
+                  {brandInitial(brandLabel)}
+                </span>
+              ) : null}
+              {sidebarCollapsed && !isAdminShell ? (
                 <span className="sr-only">{brandLabel}</span>
               ) : (
                 <span className="min-w-0 flex-1">
-                  <span className={brandTitleClass(variant)}>{brandLabel}</span>
+                  <span
+                    className={
+                      isAdminShell
+                        ? "ommm-admin-sidebar-brand-title"
+                        : brandTitleClass(variant)
+                    }
+                  >
+                    {brandLabel}
+                  </span>
                   {brandSubline ? (
-                    <span className={brandSublineClass(variant)}>
+                    <span
+                      className={
+                        isAdminShell
+                          ? "ommm-admin-sidebar-brand-subline"
+                          : brandSublineClass(variant)
+                      }
+                    >
                       {brandSubline}
                     </span>
                   ) : null}
                 </span>
               )}
             </Link>
-            <button
-              type="button"
-              className={collapseToggleClass(variant)}
-              aria-expanded={!sidebarCollapsed}
-              aria-label={
-                sidebarCollapsed
-                  ? tShell("expandSidebar")
-                  : tShell("collapseSidebar")
-              }
-              onClick={() => persistCollapsed(!sidebarCollapsed)}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden
+            {!isAdminShell ? (
+              <button
+                type="button"
+                className={collapseToggleClass(variant)}
+                aria-expanded={!sidebarCollapsed}
+                aria-label={
+                  sidebarCollapsed
+                    ? tShell("expandSidebar")
+                    : tShell("collapseSidebar")
+                }
+                onClick={() => persistCollapsed(!sidebarCollapsed)}
               >
-                {sidebarCollapsed ? (
-                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                ) : (
-                  <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-              </svg>
-            </button>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden
+                >
+                  {sidebarCollapsed ? (
+                    <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                  ) : (
+                    <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+                  )}
+                </svg>
+              </button>
+            ) : null}
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
@@ -246,95 +279,115 @@ export function DashboardAppShell({
               items={navItems}
               variant={variant}
               pathname={pathname}
-              collapsed={sidebarCollapsed}
+              collapsed={isAdminShell ? false : sidebarCollapsed}
               onNavigate={() => undefined}
             />
           </div>
+          {isAdminShell && trailing ? (
+            <div className="mt-auto space-y-2 px-6 pb-2 pt-4">{trailing}</div>
+          ) : null}
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header
-            className={`${DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
+            className={`${DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0 ${isAdminShell ? "px-4 pt-4 sm:px-6 lg:px-8" : ""}`}
           >
-            <div
-              className={`flex w-full items-center gap-2 px-2 py-4 ${DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS} ${borderB} ${sidebarBrandStripClass(variant)}`}
-            >
-              <button
-                type="button"
-                className={menuButtonClass(variant)}
-                aria-expanded={drawerOpen}
-                aria-controls="dashboard-mobile-drawer"
-                aria-label={
-                  drawerOpen ? tShell("closeMenu") : tShell("openMenu")
-                }
-                onClick={() => setDrawerOpen((o) => !o)}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  aria-hidden
-                >
-                  {drawerOpen ? (
-                    <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-                  ) : (
-                    <path
-                      d="M4 7h16M4 12h16M4 17h16"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  )}
-                </svg>
-              </button>
-
-              <div className="flex min-w-0 flex-1 flex-col justify-center">
-                <h1 className={titleClass(variant)}>{heading.title}</h1>
-                {heading.subtitle ? (
-                  <p className={`mt-0.5 ${subtitleClass(variant)}`}>
-                    {heading.subtitle}
-                  </p>
-                ) : null}
-              </div>
-
-              <LanguageSwitcher
-                context="dashboard"
-                dashboardVariant={variant}
-                onAfterSelect={() => setDrawerOpen(false)}
+            {isAdminShell ? (
+              <AdminDashboardHeader
+                title={heading.title}
+                notificationRoute={notificationRoute}
+                notificationsLabel={notificationsLabel}
+                notificationsActive={notificationsActive}
+                drawerOpen={drawerOpen}
+                onMenuToggle={() => setDrawerOpen((open) => !open)}
               />
-
-              {notificationRoute && notificationsLabel ? (
-                <Link
-                  href={notificationRoute.href}
-                  className={notificationButtonClass}
-                  aria-label="Notifications"
-                  title={notificationsLabel}
-                  onClick={() => setDrawerOpen(false)}
+            ) : (
+              <div
+                className={`flex w-full items-center gap-2 px-2 py-4 ${DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS} ${borderB} ${sidebarBrandStripClass(variant)}`}
+              >
+                <button
+                  type="button"
+                  className={menuButtonClass(variant)}
+                  aria-expanded={drawerOpen}
+                  aria-controls="dashboard-mobile-drawer"
+                  aria-label={
+                    drawerOpen ? tShell("closeMenu") : tShell("openMenu")
+                  }
+                  onClick={() => setDrawerOpen((o) => !o)}
                 >
                   <svg
-                    className="h-5 w-5"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.75"
+                    strokeWidth="2"
                     aria-hidden
                   >
-                    <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
-                    <path d="M10 21h4" />
+                    {drawerOpen ? (
+                      <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+                    ) : (
+                      <path
+                        d="M4 7h16M4 12h16M4 17h16"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
                   </svg>
-                  <span className="sr-only">{notificationsLabel}</span>
-                </Link>
-              ) : null}
+                </button>
 
-              <div className="hidden shrink-0 items-center gap-3 lg:flex">
-                {trailing}
+                <div className="flex min-w-0 flex-1 flex-col justify-center">
+                  <h1 className={titleClass(variant)}>{heading.title}</h1>
+                  {heading.subtitle ? (
+                    <p className={`mt-0.5 ${subtitleClass(variant)}`}>
+                      {heading.subtitle}
+                    </p>
+                  ) : null}
+                </div>
+
+                <LanguageSwitcher
+                  context="dashboard"
+                  dashboardVariant={variant}
+                  onAfterSelect={() => setDrawerOpen(false)}
+                />
+
+                {notificationRoute && notificationsLabel ? (
+                  <Link
+                    href={notificationRoute.href}
+                    className={notificationButtonClass}
+                    aria-label="Notifications"
+                    title={notificationsLabel}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      aria-hidden
+                    >
+                      <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
+                      <path d="M10 21h4" />
+                    </svg>
+                    <span className="sr-only">{notificationsLabel}</span>
+                  </Link>
+                ) : null}
+
+                <div className="hidden shrink-0 items-center gap-3 lg:flex">
+                  {trailing}
+                </div>
               </div>
-            </div>
+            )}
           </header>
 
-          <main className="flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10">
+          <main
+            className={
+              isAdminShell
+                ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
+                : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
+            }
+          >
             {children}
           </main>
         </div>

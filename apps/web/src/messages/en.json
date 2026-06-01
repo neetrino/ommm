@@ -346,7 +346,11 @@
       "collapseSidebar": "Collapse sidebar",
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
-      "closeMenuOverlay": "Close menu overlay"
+      "closeMenuOverlay": "Close menu overlay",
+      "globalSearchPlaceholder": "Search sessions, coaches, or clients…",
+      "globalSearchAria": "Global search",
+      "globalSearchHint": "Global search is not available yet.",
+      "adminProfileLabel": "Admin"
     },
     "brand": {
       "member": {
@@ -356,6 +360,10 @@
       "backoffice": {
         "title": "Backoffice",
         "subline": "Studio tools and data"
+      },
+      "admin": {
+        "title": "Ommm.Space",
+        "subline": "Management portal"
       },
       "coach": {
         "title": "Coach",
@@ -1630,6 +1638,9 @@
       "deleteConfirm": "Delete this package?",
       "noFeatures": "No features listed yet.",
       "empty": "No packages match your filters.",
+      "tabAllPackages": "All packages",
+      "editCategory": "Edit category",
+      "categoryEmpty": "No membership packages are linked to this class category yet.",
       "cardSessions": "Sessions",
       "sessionsUnlimited": "Unlimited",
       "sessionsPerMonth": "{count} per billing period",

@@ -23,7 +23,8 @@ import type {
   AnalyticsFinanceSummary,
   AnalyticsMembershipRow,
 } from "@/components/admin/admin-analytics-types";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 type PageSearchParams = Promise<{
@@ -142,11 +143,11 @@ export default async function AdminAnalyticsPage({
     ].find((res) => !res.ok);
     const status = failed && !failed.ok ? failed.status : 500;
     return (
-      <AccountPageFrame title={t("title")} description={t("description")}>
+      <AdminContentFrame description={t("description")}>
         <div className="app-alert-warn max-w-xl">
           {status === 401 || status === 403 ? t("errorAuth") : t("errorLoad", { status })}
         </div>
-      </AccountPageFrame>
+      </AdminContentFrame>
     );
   }
 
@@ -186,10 +187,12 @@ export default async function AdminAnalyticsPage({
   };
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
-        <AdminAnalyticsShell data={payload} />
-      </Suspense>
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <AdminSectionShell>
+        <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
+          <AdminAnalyticsShell data={payload} />
+        </Suspense>
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

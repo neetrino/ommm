@@ -7,7 +7,8 @@ import type {
   FinanceTab,
 } from "@/components/admin/admin-finance-types";
 import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 import { FinanceFilters } from "./finance-filters";
@@ -223,7 +224,7 @@ export default async function AdminFinancePage({
   const coachRows = mergeCoachRows(coachesRes.data, salariesRes.data.items);
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
+    <AdminContentFrame description={t("description")}>
       <FinanceFilters />
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
@@ -341,17 +342,19 @@ export default async function AdminFinancePage({
         </div>
       </section>
 
-      <Suspense fallback={<p className="mt-8 text-sm text-sage-500">{t("loadingTabs")}</p>}>
-        <AdminFinanceManagement
-          locale={locale}
-          initialTab={parseTab(search.tab)}
-          initialUserRows={clientsRes.data.rows}
-          initialCoachRows={coachRows}
-          initialPayments={paymentsRes.data}
-          packages={packagesRes.data}
-          paymentsFrom={from}
-        />
-      </Suspense>
-    </AccountPageFrame>
+      <AdminSectionShell>
+        <Suspense fallback={<p className="text-sm text-sage-500">{t("loadingTabs")}</p>}>
+          <AdminFinanceManagement
+            locale={locale}
+            initialTab={parseTab(search.tab)}
+            initialUserRows={clientsRes.data.rows}
+            initialCoachRows={coachRows}
+            initialPayments={paymentsRes.data}
+            packages={packagesRes.data}
+            paymentsFrom={from}
+          />
+        </Suspense>
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

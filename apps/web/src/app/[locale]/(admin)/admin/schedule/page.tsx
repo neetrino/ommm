@@ -8,7 +8,7 @@ import {
   type AdminScheduleSession,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-management";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 function isScheduleView(value: string | undefined): value is ScheduleView {
@@ -65,7 +65,7 @@ export default async function AdminSchedulePage({
   }
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
+    <AdminContentFrame description={t("description")}>
       <Suspense fallback={null}>
         <AdminScheduleManagement
           locale={locale}
@@ -75,6 +75,6 @@ export default async function AdminSchedulePage({
           initialView={initialView}
         />
       </Suspense>
-    </AccountPageFrame>
+    </AdminContentFrame>
   );
 }

@@ -5,7 +5,7 @@ import { AdminCoachesDirectory } from "@/components/admin/admin-coaches-director
 import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { serverApiJson } from "@/lib/server-api";
 
 type CoachAdminRow = {
@@ -108,10 +108,7 @@ export default async function AdminCoachesPage({
   }
 
   return (
-    <AccountPageFrame
-      title={t("title")}
-      description={t("description")}
-    >
+    <AdminContentFrame description={t("description")}>
       <AdminCoachesFilters
         key={`${q}|${specialization}|${classType}|${isActive}|${order}`}
         initialValues={{ q, specialization, classType, isActive, order }}
@@ -130,6 +127,6 @@ export default async function AdminCoachesPage({
           />
         </AdminCoachesShell>
       </Suspense>
-    </AccountPageFrame>
+    </AdminContentFrame>
   );
 }

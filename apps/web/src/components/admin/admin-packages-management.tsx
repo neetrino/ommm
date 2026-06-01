@@ -4,8 +4,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
+import { AdminClassTypesModal, type AdminClassTypeRow } from "@/components/admin/admin-class-types-modal";
 import { AdminPackageActions } from "@/components/admin/admin-package-actions";
-import { AdminPackagesShell } from "@/components/admin/admin-packages-shell";
+import {
+  AdminPackagesShell,
+  PackagesAddButton,
+} from "@/components/admin/admin-packages-shell";
 import {
   countActivePackageFilters,
   filterPackages,
@@ -13,6 +18,7 @@ import {
   sortPackages,
 } from "@/components/admin/admin-packages-filter-logic";
 import { AdminPackagesFilters } from "@/components/admin/admin-packages-filters";
+import { AdminPillTabs } from "@/components/admin/admin-pill-tabs";
 import type { AdminPackageRow, PackageFilterValues } from "@/components/admin/admin-packages-types";
 import {
   buildPackageFiltersQuery,
@@ -20,16 +26,21 @@ import {
 } from "@/components/admin/admin-packages-url";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
+const ALL_TAB_ID = "all";
+const MODAL_QUERY_KEY = "modal";
+const MODAL_QUERY_VALUE = "add-package";
+const SEARCH_DEBOUNCE_MS = 300;
+
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
+  classTypes: readonly AdminClassTypeRow[];
   locale: string;
   initialFilters: PackageFilterValues;
 };
 
-const SEARCH_DEBOUNCE_MS = 300;
-
 export function AdminPackagesManagement({
   packages,
+  classTypes,
   locale,
   initialFilters,
 }: AdminPackagesManagementProps) {
@@ -39,6 +50,8 @@ export function AdminPackagesManagement({
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<PackageFilterValues>(initialFilters);
+  const [activeTab, setActiveTab] = useState(ALL_TAB_ID);
+  const [classTypesOpen, setClassTypesOpen] = useState(false);
 
   const filtered = useMemo(
     () => sortPackages(filterPackages(packages, filters), filters.order),
@@ -46,6 +59,39 @@ export function AdminPackagesManagement({
   );
 
   const activeFilterCount = countActivePackageFilters(filters);
+
+  const pillItems = useMemo(
+    () => [
+      { id: ALL_TAB_ID, label: t("tabAllPackages") },
+      ...classTypes.map((type) => ({ id: type.id, label: type.name })),
+    ],
+    [classTypes, t],
+  );
+
+  const visibleClassTypes = useMemo(() => {
+    if (activeTab === ALL_TAB_ID) {
+      return classTypes;
+    }
+    return classTypes.filter((type) => type.id === activeTab);
+  }, [activeTab, classTypes]);
+
+  function syncFiltersToUrl(values: PackageFilterValues) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const key of PACKAGE_FILTER_QUERY_KEYS) {
+      params.delete(key);
+    }
+    const filterQuery = buildPackageFiltersQuery(values);
+    if (filterQuery.length > 0) {
+      for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
+        params.set(key, entryValue);
+      }
+    }
+    const qs = params.toString();
+    if (qs === searchParams.toString()) {
+      return;
+    }
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
 
   useEffect(() => {
     if (!hasMounted.current) {
@@ -57,6 +103,12 @@ export function AdminPackagesManagement({
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
   }, [filters.search]);
+
+  function openAddModal() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
+    router.replace(`${pathname}?${params.toString()}`);
+  }
 
   function updateFilter<K extends keyof PackageFilterValues>(
     key: K,
@@ -81,47 +133,70 @@ export function AdminPackagesManagement({
     syncFiltersToUrl(cleared);
   }
 
-  function syncFiltersToUrl(values: PackageFilterValues) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const key of PACKAGE_FILTER_QUERY_KEYS) {
-      params.delete(key);
-    }
-    const filterQuery = buildPackageFiltersQuery(values);
-    if (filterQuery.length > 0) {
-      for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
-        params.set(key, entryValue);
-      }
-    }
-    const qs = params.toString();
-    if (qs === searchParams.toString()) {
-      return;
-    }
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }
+  const toolbar = (
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <AdminPillTabs
+        items={pillItems}
+        activeId={activeTab}
+        onChange={setActiveTab}
+        ariaLabel={t("filters.status")}
+      />
+      <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
+    </div>
+  );
 
   return (
-    <AdminPackagesShell>
-      <AdminPackagesFilters
-        values={filters}
-        activeFilterCount={activeFilterCount}
-        onChange={updateFilter}
-        onReset={resetFilters}
-      />
+    <>
+      <AdminPackagesShell toolbar={toolbar}>
+        <AdminPackagesFilters
+          values={filters}
+          activeFilterCount={activeFilterCount}
+          onChange={updateFilter}
+          onReset={resetFilters}
+        />
 
-      {filtered.length === 0 ? (
-        <p className="text-sm text-sage-500">{t("empty")}</p>
-      ) : (
-        <div className="grid items-stretch gap-5 md:grid-cols-2 xl:gap-6">
-          {filtered.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} locale={locale} />
-          ))}
-        </div>
-      )}
-    </AdminPackagesShell>
+        {activeTab === ALL_TAB_ID ? (
+          filtered.length === 0 ? (
+            <p className="text-sm text-sage-500">{t("empty")}</p>
+          ) : (
+            <div className="flex flex-col gap-5">
+              {filtered.map((pkg) => (
+                <AdminAccordionPanel key={pkg.id} title={pkg.name} defaultOpen={false}>
+                  <PackageDetails pkg={pkg} locale={locale} />
+                </AdminAccordionPanel>
+              ))}
+            </div>
+          )
+        ) : (
+          <div className="flex flex-col gap-5">
+            {visibleClassTypes.map((classType) => (
+              <AdminAccordionPanel
+                key={classType.id}
+                title={classType.name}
+                editLabel={t("editCategory")}
+                onEdit={() => setClassTypesOpen(true)}
+                emptyLabel={t("categoryEmpty")}
+              />
+            ))}
+          </div>
+        )}
+      </AdminPackagesShell>
+
+      <AdminClassTypesModal
+        isOpen={classTypesOpen}
+        classTypes={classTypes}
+        sessionCountByTypeId={{}}
+        onClose={() => setClassTypesOpen(false)}
+        onChanged={() => {
+          setClassTypesOpen(false);
+          router.refresh();
+        }}
+      />
+    </>
   );
 }
 
-function PackageCard({ pkg, locale }: { pkg: AdminPackageRow; locale: string }) {
+function PackageDetails({ pkg, locale }: { pkg: AdminPackageRow; locale: string }) {
   const t = useTranslations("adminPages.packages");
   const amount = formatAmdFromCents(pkg.priceCents, locale);
   const features = pkg.features.length > 0 ? pkg.features : [];
@@ -131,12 +206,9 @@ function PackageCard({ pkg, locale }: { pkg: AdminPackageRow; locale: string }) 
   });
 
   return (
-    <article
-      className={`ommm-card flex min-w-0 flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-7 ${pkg.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="ommm-h3 break-words text-sage-800">{pkg.name}</h2>
-        <div className="flex items-center gap-2">
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {pkg.isPopular ? (
             <span className="rounded-full bg-sand-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-sand-800">
               {t("popularBadge")}
@@ -151,27 +223,23 @@ function PackageCard({ pkg, locale }: { pkg: AdminPackageRow; locale: string }) 
       </div>
 
       {pkg.description ? (
-        <p className="mt-3 break-words text-sm leading-relaxed text-sage-500">
-          {pkg.description}
-        </p>
-      ) : (
-        <div className="mt-3 h-5" aria-hidden />
-      )}
+        <p className="break-words text-sm leading-relaxed text-sage-500">{pkg.description}</p>
+      ) : null}
 
-      <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
+      <p className="font-serif text-3xl font-semibold tracking-tight text-sage-700">
         <span className="text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
         {amount.startsWith("֏") ? amount.slice(1) : amount}
       </p>
-      <p className="mt-2 text-sm text-sage-500">
+      <p className="text-sm text-sage-500">
         {pkg.billingPeriod} · {pkg.periodDays} {t("daysLabel")}
       </p>
-      <p className="mt-1 text-sm text-sage-600">
+      <p className="text-sm text-sage-600">
         <span className="text-sage-500">{t("cardSessions")}: </span>
         {sessionsLabel}
       </p>
 
       {features.length > 0 ? (
-        <ul className="mt-5 space-y-2 text-sm text-sage-700">
+        <ul className="space-y-2 text-sm text-sage-700">
           {features.map((feature) => (
             <li key={`${pkg.id}-${feature}`} className="flex items-start gap-2">
               <span className="mt-1 inline-flex h-1.5 w-1.5 rounded-full bg-mint-500" />
@@ -180,15 +248,15 @@ function PackageCard({ pkg, locale }: { pkg: AdminPackageRow; locale: string }) 
           ))}
         </ul>
       ) : (
-        <p className="mt-5 text-sm text-sage-500">{t("noFeatures")}</p>
+        <p className="text-sm text-sage-500">{t("noFeatures")}</p>
       )}
 
-      <div className="mt-8 border-t border-white/50 pt-5">
+      <div className="border-t border-white/50 pt-4">
         <div className="mb-3 text-xs uppercase tracking-wide text-sage-500">
           {t("colOrder")}: {pkg.displayOrder}
         </div>
         <AdminPackageActions packageId={pkg.id} isActive={pkg.isActive} />
       </div>
-    </article>
+    </div>
   );
 }

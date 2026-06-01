@@ -16,6 +16,8 @@ export const adminChrome = {
   panel:
     "rounded-[24px] border border-white/60 bg-white/55 p-4 text-sm text-sage-700 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5",
   panelHeading: "font-medium text-sage-900",
+  accordion:
+    "rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 backdrop-blur-md",
   tableWrap:
     "overflow-x-auto rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md",
   table: "w-full min-w-[32rem] border-collapse text-left text-sm",

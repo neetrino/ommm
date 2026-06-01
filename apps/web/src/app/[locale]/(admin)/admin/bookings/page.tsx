@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminBookingsManagement } from "@/components/admin/admin-bookings-management";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminBookingsPage({
@@ -67,8 +68,10 @@ export default async function AdminBookingsPage({
   }
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      <AdminBookingsManagement locale={locale} initial={res.data} />
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <AdminSectionShell>
+        <AdminBookingsManagement locale={locale} initial={res.data} />
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { AdminNotificationsManagement } from "@/components/admin/admin-notifications-management";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminNotificationsPage({
@@ -71,8 +72,10 @@ export default async function AdminNotificationsPage({
   };
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      <AdminNotificationsManagement locale={locale} initial={initial} />
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <AdminSectionShell>
+        <AdminNotificationsManagement locale={locale} initial={initial} />
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

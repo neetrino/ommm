@@ -6,35 +6,18 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminPackageForm } from "@/components/admin/admin-package-form";
-import { OmmButton } from "@/components/ui/omm-button";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 
 const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "add-package";
 const BANNER_MS = 8000;
 
-function AddPackageGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 2v20M2 12h20" />
-    </svg>
-  );
-}
-
 type AdminPackagesShellProps = {
+  toolbar?: ReactNode;
   children: ReactNode;
 };
 
-export function AdminPackagesShell({ children }: AdminPackagesShellProps) {
+export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProps) {
   const t = useTranslations("adminPages.packages");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -116,38 +99,20 @@ export function AdminPackagesShell({ children }: AdminPackagesShellProps) {
   }, [isModalOpen]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-        {banner !== null ? (
-          <p
-            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
-            role="status"
-          >
-            {banner}
-          </p>
-        ) : null}
-
-        <div className="flex justify-end">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openModal}
-            className="inline-flex items-center gap-2"
-          >
-            <AddPackageGlyph className="h-5 w-5 shrink-0" />
-            {t("addPackageButton")}
-          </OmmButton>
-        </div>
-
+    <>
+      <AdminSectionShell
+        banner={banner}
+        toolbar={
+          toolbar ?? (
+            <PackagesAddButton onClick={openModal} label={t("addPackageButton")} />
+          )
+        }
+      >
         {children}
-      </div>
+      </AdminSectionShell>
 
       {isModalOpen ? (
-        <div
-          className="ommm-modal-overlay z-50"
-          role="presentation"
-        >
+        <div className="ommm-modal-overlay z-50" role="presentation">
           <button
             type="button"
             className="ommm-modal-backdrop"
@@ -197,6 +162,38 @@ export function AdminPackagesShell({ children }: AdminPackagesShellProps) {
           </div>
         </div>
       ) : null}
+    </>
+  );
+}
+
+export function PackagesAddButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="flex justify-end">
+      <button
+        type="button"
+        className="ommm-admin-add-button inline-flex items-center gap-2"
+        onClick={onClick}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.65}
+          strokeLinecap="round"
+          className="h-5 w-5"
+          aria-hidden
+        >
+          <path d="M12 2v20M2 12h20" />
+        </svg>
+        {label}
+      </button>
     </div>
   );
 }

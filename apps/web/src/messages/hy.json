@@ -346,7 +346,11 @@
       "collapseSidebar": "Նեղացնել կողային վահանակը",
       "openMenu": "Բացել մենյուն",
       "closeMenu": "Փակել մենյուն",
-      "closeMenuOverlay": "Փակել մենյուի շերտը"
+      "closeMenuOverlay": "Փակել մենյուի շերտը",
+      "globalSearchPlaceholder": "Որոնել դասեր, մարզիչներ կամ հաճախորդներ…",
+      "globalSearchAria": "Ընդհանուր որոնում",
+      "globalSearchHint": "Ընդհանուր որոնումը դեռ հասանելի չէ։",
+      "adminProfileLabel": "Ադմին"
     },
     "brand": {
       "member": {
@@ -356,6 +360,10 @@
       "backoffice": {
         "title": "Ադմին",
         "subline": "Ստուդիայի գործիքներ և տվյալներ"
+      },
+      "admin": {
+        "title": "Ommm.Space",
+        "subline": "MANAGEMENT PORTAL"
       },
       "coach": {
         "title": "Մարզիչ",
@@ -1617,6 +1625,9 @@
       "deleteConfirm": "Ջնջե՞լ այս փաթեթը։",
       "noFeatures": "Առավելություններ դեռ նշված չեն։",
       "empty": "Զտիչներին համապատասխան փաթեթներ չկան։",
+      "tabAllPackages": "Բոլոր փաթեթները",
+      "editCategory": "Խմբագրել կատեգորիան",
+      "categoryEmpty": "Այս դասի կատեգորիային դեռ կապված աբոնեմենտային փաթեթներ չկան։",
       "cardSessions": "Սեսիաներ",
       "sessionsUnlimited": "Անսահմանա",
       "sessionsPerMonth": "{count} վճարման պարբերության համար",

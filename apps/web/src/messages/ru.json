@@ -346,7 +346,11 @@
       "collapseSidebar": "Свернуть боковую панель",
       "openMenu": "Открыть меню",
       "closeMenu": "Закрыть меню",
-      "closeMenuOverlay": "Закрыть затемнение меню"
+      "closeMenuOverlay": "Закрыть затемнение меню",
+      "globalSearchPlaceholder": "Поиск занятий, тренеров или клиентов…",
+      "globalSearchAria": "Глобальный поиск",
+      "globalSearchHint": "Глобальный поиск пока недоступен.",
+      "adminProfileLabel": "Админ"
     },
     "brand": {
       "member": {
@@ -356,6 +360,10 @@
       "backoffice": {
         "title": "Бэкофис",
         "subline": "Инструменты и данные студии"
+      },
+      "admin": {
+        "title": "Ommm.Space",
+        "subline": "MANAGEMENT PORTAL"
       },
       "coach": {
         "title": "Тренер",
@@ -1621,6 +1629,9 @@
       "deleteConfirm": "Удалить этот пакет?",
       "noFeatures": "Преимущества пока не указаны.",
       "empty": "Нет пакетов по выбранным фильтрам.",
+      "tabAllPackages": "Все пакеты",
+      "editCategory": "Изменить категорию",
+      "categoryEmpty": "К этой категории занятий пока не привязаны абонементные пакеты.",
       "cardSessions": "Сессии",
       "sessionsUnlimited": "Безлимит",
       "sessionsPerMonth": "{count} за период оплаты",

@@ -33,6 +33,9 @@ function triggerClass(
   if (variant === "wellness") {
     return `${base} border border-white/35 bg-white/25 text-sage-900 backdrop-blur-sm hover:bg-white/40 focus-visible:ring-sand-500`;
   }
+  if (variant === "admin") {
+    return `${base} border border-white/35 bg-white/20 text-[#fbf5d5] backdrop-blur-sm hover:bg-white/30 focus-visible:ring-white/50`;
+  }
   return `${base} border border-zinc-200 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 focus-visible:ring-zinc-900`;
 }
 
@@ -52,6 +55,9 @@ function optionRowClass(
     return `${base} text-indigo-950 hover:bg-indigo-50 focus-visible:ring-indigo-600${sel}`;
   }
   if (variant === "wellness") {
+    return `${base} text-sage-900 hover:bg-white/50 focus-visible:ring-sand-500${sel}`;
+  }
+  if (variant === "admin") {
     return `${base} text-sage-900 hover:bg-white/50 focus-visible:ring-sand-500${sel}`;
   }
   return `${base} text-zinc-900 hover:bg-zinc-50 focus-visible:ring-zinc-900${sel}`;
@@ -93,7 +99,8 @@ export function LanguageSwitcher({
       : "hy");
 
   const flagFrame =
-    context === "dashboard" && dashboardVariant === "wellness"
+    context === "dashboard" &&
+    (dashboardVariant === "wellness" || dashboardVariant === "admin")
       ? "warm"
       : "default";
 

@@ -16,7 +16,7 @@ import {
 const ADMIN_ROLES = new Set<string>(["ADMIN"]);
 
 const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
+  "block w-full rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.12em] text-[#fbf5d5]/90 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#97907c]";
 
 export default async function AdminSectionLayout({
   children,
@@ -36,9 +36,9 @@ export default async function AdminSectionLayout({
   return (
     <DashboardAppShell
       brandHref="/admin/home"
-      brandLabel={tDash("brand.backoffice.title")}
-      brandSubline={tDash("brand.backoffice.subline")}
-      variant="wellness"
+      brandLabel={tDash("brand.admin.title")}
+      brandSubline={tDash("brand.admin.subline")}
+      variant="admin"
       contentMaxClass="w-full"
       navRole="ADMIN"
       navDefinitions={navDefinitions}

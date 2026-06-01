@@ -2,7 +2,8 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
 import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminClientsPage({
@@ -52,18 +53,17 @@ export default async function AdminClientsPage({
   }
 
   return (
-    <AccountPageFrame
-      title={t("title")}
-      description={t("description")}
-    >
-      <AdminClientsManagement
-        initial={clientsRes.data}
-        packages={packagesRes.data}
-        locale={locale}
-        initialFilters={Object.fromEntries(
-          Object.entries(search).filter((entry): entry is [string, string] => Boolean(entry[1])),
-        )}
-      />
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <AdminSectionShell>
+        <AdminClientsManagement
+          initial={clientsRes.data}
+          packages={packagesRes.data}
+          locale={locale}
+          initialFilters={Object.fromEntries(
+            Object.entries(search).filter((entry): entry is [string, string] => Boolean(entry[1])),
+          )}
+        />
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

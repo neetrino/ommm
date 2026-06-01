@@ -19,6 +19,9 @@ function accentBorder(variant: DashboardShellVariant) {
 }
 
 function rowBase(variant: DashboardShellVariant, collapsed: boolean) {
+  if (variant === "admin") {
+    return "ommm-admin-nav-link";
+  }
   const gap = collapsed ? "justify-center gap-0 px-0" : "gap-3 px-3";
   const base = `flex w-full items-center rounded-xl py-2.5 text-sm font-medium transition-colors border-l-4 ${gap}`;
   if (variant === "indigo") {
@@ -31,6 +34,9 @@ function rowBase(variant: DashboardShellVariant, collapsed: boolean) {
 }
 
 function rowActive(variant: DashboardShellVariant, collapsed: boolean) {
+  if (variant === "admin") {
+    return "ommm-admin-nav-link ommm-admin-nav-link-active";
+  }
   const gap = collapsed ? "justify-center gap-0 px-0" : "gap-3 px-3";
   const border = accentBorder(variant);
   if (variant === "indigo") {
