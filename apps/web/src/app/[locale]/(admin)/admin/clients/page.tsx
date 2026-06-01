@@ -51,7 +51,7 @@ export default async function AdminClientsPage({
   }
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <AdminSectionShell>
         <AdminClientsManagement
           initial={clientsRes.data}
