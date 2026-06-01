@@ -4,13 +4,9 @@ import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
-import type { DashboardRoleNotificationRoute } from "@/lib/dashboard-nav";
 
 type AdminDashboardHeaderProps = {
   title: string;
-  notificationRoute: DashboardRoleNotificationRoute | null;
-  notificationsLabel: string | null;
-  notificationsActive: boolean;
   onMenuToggle: () => void;
   drawerOpen: boolean;
 };
@@ -33,9 +29,6 @@ function SearchGlyph() {
 
 export function AdminDashboardHeader({
   title,
-  notificationRoute,
-  notificationsLabel,
-  notificationsActive,
   onMenuToggle,
   drawerOpen,
 }: AdminDashboardHeaderProps) {
@@ -86,39 +79,17 @@ export function AdminDashboardHeader({
 
       <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-4">
         <LanguageSwitcher context="dashboard" dashboardVariant="admin" />
-        {notificationRoute && notificationsLabel ? (
-          <Link
-            href={notificationRoute.href}
-            className={
-              notificationsActive
-                ? "ommm-admin-icon-button ommm-admin-icon-button-active"
-                : "ommm-admin-icon-button"
-            }
-            aria-label={notificationsLabel}
-            title={notificationsLabel}
-          >
-            <svg
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              aria-hidden
-            >
-              <path d="M6 10a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
-              <path d="M10 21h4" />
-            </svg>
+        <div className="ommm-admin-account-cluster">
+          <Link href="/admin/profile" className="ommm-admin-profile-chip">
+            <span className="ommm-admin-profile-avatar" aria-hidden>
+              A
+            </span>
+            <span className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 sm:inline">
+              {tShell("adminProfileLabel")}
+            </span>
           </Link>
-        ) : null}
-        <Link href="/admin/profile" className="ommm-admin-profile-chip">
-          <span className="ommm-admin-profile-avatar" aria-hidden>
-            A
-          </span>
-          <span className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 sm:inline">
-            {tShell("adminProfileLabel")}
-          </span>
-        </Link>
-        <LogoutButton className="ommm-admin-icon-button" />
+          <LogoutButton className="ommm-admin-account-logout" />
+        </div>
       </div>
     </div>
   );

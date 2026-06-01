@@ -295,9 +295,6 @@ export function DashboardAppShell({
             {isAdminShell ? (
               <AdminDashboardHeader
                 title={heading.title}
-                notificationRoute={notificationRoute}
-                notificationsLabel={notificationsLabel}
-                notificationsActive={notificationsActive}
                 drawerOpen={drawerOpen}
                 onMenuToggle={() => setDrawerOpen((open) => !open)}
               />
