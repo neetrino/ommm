@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -35,12 +35,10 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [isActive, setIsActive] = useState(!(client.isBlocked ?? false));
+  const serverIsActive = !(client.isBlocked ?? false);
+  const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
+  const isActive = pendingIsActive ?? serverIsActive;
   const toggleLabel = isActive ? t("deactivateClient") : t("activateClient");
-
-  useEffect(() => {
-    setIsActive(!(client.isBlocked ?? false));
-  }, [client.isBlocked]);
 
   function openEditModal(): void {
     const params = new URLSearchParams(searchParams.toString());
@@ -74,8 +72,7 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
     }
 
     const nextIsActive = !isActive;
-    const previousIsActive = isActive;
-    setIsActive(nextIsActive);
+    setPendingIsActive(nextIsActive);
     setBusy(true);
     setMessage(null);
 
@@ -88,11 +85,12 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
       setMessage(nextIsActive ? t("activateSuccess") : t("deactivateSuccess"));
       onChanged();
     } catch (error) {
-      setIsActive(previousIsActive);
+      setPendingIsActive(null);
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
     } finally {
       setBusy(false);
+      setPendingIsActive(null);
     }
   }
 

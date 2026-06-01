@@ -77,10 +77,19 @@ function parseAdminClientQuickFilters(
   if (value === undefined || value === '') {
     return undefined;
   }
-  const parts = Array.isArray(value)
-    ? value.flatMap((entry) => String(entry).split(','))
-    : String(value).split(',');
-  const normalized = parts.map((part) => part.trim()).filter(Boolean);
+
+  let rawParts: string[];
+  if (Array.isArray(value)) {
+    rawParts = value.flatMap((entry) =>
+      typeof entry === 'string' ? entry.split(',') : [],
+    );
+  } else if (typeof value === 'string') {
+    rawParts = value.split(',');
+  } else {
+    return undefined;
+  }
+
+  const normalized = rawParts.map((part) => part.trim()).filter(Boolean);
   return normalized.length > 0
     ? (normalized as AdminClientQuickFilter[])
     : undefined;

@@ -79,10 +79,24 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
     order: initialFilters.order ?? "newest",
     quick: initialFilters.quick ?? "",
   }));
-  const [selected, setSelected] = useState<ClientRow | null>(null);
+  const [fetchedClient, setFetchedClient] = useState<ClientRow | null>(null);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
+
+  const selected = useMemo(() => {
+    if (!viewClientId) {
+      return null;
+    }
+    const fromRows = payload.rows.find((row) => row.id === viewClientId);
+    if (fromRows) {
+      return fromRows;
+    }
+    if (fetchedClient?.id === viewClientId) {
+      return fetchedClient;
+    }
+    return null;
+  }, [fetchedClient, payload.rows, viewClientId]);
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -96,7 +110,6 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
 
   const selectClient = useCallback(
     (row: ClientRow) => {
-      setSelected(row);
       replaceSearchParams((params) => {
         params.set(VIEW_CLIENT_QUERY_KEY, row.id);
       });
@@ -105,7 +118,6 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
   );
 
   const closeClientView = useCallback(() => {
-    setSelected(null);
     replaceSearchParams((params) => {
       params.delete(VIEW_CLIENT_QUERY_KEY);
     });
@@ -116,14 +128,12 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
   useEffect(() => {
     if (!viewClientId) {
       restoredViewClientIdRef.current = null;
-      setSelected(null);
       return undefined;
     }
 
     const fromRows = payload.rows.find((row) => row.id === viewClientId);
     if (fromRows) {
       restoredViewClientIdRef.current = viewClientId;
-      setSelected(fromRows);
       return undefined;
     }
 
@@ -137,13 +147,12 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
     void apiFetch<ClientDetail>(`/clients/${viewClientId}`)
       .then((detail) => {
         if (!cancelled) {
-          setSelected(detail.activity);
+          setFetchedClient(detail.activity);
         }
       })
       .catch(() => {
         if (!cancelled) {
           restoredViewClientIdRef.current = null;
-          setSelected(null);
           replaceSearchParams((params) => {
             params.delete(VIEW_CLIENT_QUERY_KEY);
           });

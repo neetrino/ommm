@@ -37,7 +37,11 @@ export class ClientsController {
   }
 
   @Patch(':id')
-  patch(@CurrentUser() user: User, @Param('id') id: string, @Body() dto: UpdateClientDto) {
+  patch(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: UpdateClientDto,
+  ) {
     return this.clients.updateBasicInfo(user, id, dto);
   }
 

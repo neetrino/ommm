@@ -18,14 +18,19 @@ describe('ContentService', () => {
       log: jest.fn().mockResolvedValue(undefined),
     };
     const cache = {
-      getOrSet: jest.fn((_key: string, _ttl: number, loader: () => Promise<unknown>) =>
-        loader(),
+      getOrSet: jest.fn(
+        (_key: string, _ttl: number, loader: () => Promise<unknown>) =>
+          loader(),
       ),
       invalidate: jest.fn().mockResolvedValue(undefined),
       invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
     };
     return {
-      service: new ContentService(prisma as never, audit as never, cache as never),
+      service: new ContentService(
+        prisma as never,
+        audit as never,
+        cache as never,
+      ),
       prisma,
       audit,
     };

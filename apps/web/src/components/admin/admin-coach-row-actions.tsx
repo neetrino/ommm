@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -40,12 +40,9 @@ export function AdminCoachRowActions({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [isActive, setIsActive] = useState(coach.isActive);
+  const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
+  const isActive = pendingIsActive ?? coach.isActive;
   const toggleLabel = isActive ? t("deactivateCoach") : t("activateCoach");
-
-  useEffect(() => {
-    setIsActive(coach.isActive);
-  }, [coach.isActive]);
 
   function openEditModal(): void {
     const params = new URLSearchParams(searchParams.toString());
@@ -88,8 +85,7 @@ export function AdminCoachRowActions({
     }
 
     const nextIsActive = !isActive;
-    const previousIsActive = isActive;
-    setIsActive(nextIsActive);
+    setPendingIsActive(nextIsActive);
     setBusy(true);
     setMessage(null);
 
@@ -102,11 +98,12 @@ export function AdminCoachRowActions({
       setMessage(nextIsActive ? t("activateSuccess") : t("deactivateSuccess"));
       router.refresh();
     } catch (error) {
-      setIsActive(previousIsActive);
+      setPendingIsActive(null);
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
     } finally {
       setBusy(false);
+      setPendingIsActive(null);
     }
   }
 

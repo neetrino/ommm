@@ -15,7 +15,7 @@ type AdminCenterToastProps = {
   durationMs?: number;
 };
 
-type ToastPhase = "enter" | "exit" | "idle";
+type ToastPhase = "enter" | "exit";
 
 export function AdminCenterToast({
   message,
@@ -23,28 +23,19 @@ export function AdminCenterToast({
   onDismiss,
   durationMs = ADMIN_CENTER_TOAST_VISIBLE_MS,
 }: AdminCenterToastProps) {
-  const [phase, setPhase] = useState<ToastPhase>("idle");
-  const [displayMessage, setDisplayMessage] = useState<string | null>(null);
+  const [phase, setPhase] = useState<ToastPhase>("enter");
   const onDismissRef = useRef(onDismiss);
-  onDismissRef.current = onDismiss;
 
   useEffect(() => {
-    if (!message) {
-      setPhase("idle");
-      setDisplayMessage(null);
-      return undefined;
-    }
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
 
-    setDisplayMessage(message);
-    setPhase("enter");
-
+  useEffect(() => {
     const exitTimer = window.setTimeout(() => {
       setPhase("exit");
     }, durationMs);
 
     const hideTimer = window.setTimeout(() => {
-      setPhase("idle");
-      setDisplayMessage(null);
       onDismissRef.current();
     }, durationMs + ADMIN_CENTER_TOAST_EXIT_MS);
 
@@ -54,7 +45,7 @@ export function AdminCenterToast({
     };
   }, [durationMs, message]);
 
-  if (phase === "idle" || displayMessage === null || typeof document === "undefined") {
+  if (!message || typeof document === "undefined") {
     return null;
   }
 
@@ -75,7 +66,7 @@ export function AdminCenterToast({
         role="status"
         className={`pointer-events-auto max-w-sm rounded-2xl border px-8 py-5 text-center text-sm font-medium shadow-[0_24px_60px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md ${toneClass} ${animationClass}`}
       >
-        {displayMessage}
+        {message}
       </div>
     </div>,
     document.body,

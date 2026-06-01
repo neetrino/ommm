@@ -152,8 +152,7 @@ function AdminCoachesBoardView({
   classTypeOptions,
   classOptions,
   locale = "en",
-  onSelect,
-}: AdminCoachesDirectoryProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
+}: AdminCoachesDirectoryProps) {
   const tMarketing = useTranslations("marketing");
   const t = useTranslations("adminPages.coaches");
 
@@ -256,7 +255,7 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
 
   const content =
     viewMode === "board" ? (
-      <AdminCoachesBoardView {...props} onSelect={openProfileDrawer} />
+      <AdminCoachesBoardView {...props} />
     ) : (
       <AdminCoachesListView {...props} onSelect={openProfileDrawer} />
     );
