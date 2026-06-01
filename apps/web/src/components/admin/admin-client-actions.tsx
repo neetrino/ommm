@@ -14,6 +14,7 @@ import {
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import { EditActionButton } from "@/components/ui/edit-action-button";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 
@@ -252,16 +253,11 @@ export function AdminClientActions({
       ) : null}
 
       {inlineMessage ? (
-        <div
-          role="status"
-          className={`fixed bottom-4 right-4 max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
-            tone === "ok"
-              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
-              : "border-red-200/80 bg-red-50/95 text-red-900"
-          }`}
-        >
-          {inlineMessage}
-        </div>
+        <AdminCenterToast
+          message={inlineMessage}
+          tone={tone}
+          onDismiss={() => setInlineMessage(null)}
+        />
       ) : null}
 
       {isOpen && typeof document !== "undefined"

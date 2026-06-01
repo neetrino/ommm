@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
@@ -47,6 +48,7 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
   const [note, setNote] = useState("");
   const [packageId, setPackageId] = useState("");
   const [giftAmount, setGiftAmount] = useState("10000");
@@ -120,11 +122,13 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
     setMessage(null);
     try {
       await action();
+      setMessageTone("ok");
       setMessage(ok);
       onChanged();
       const fresh = await apiFetch<ClientDetail>(`/clients/${clientId}`);
       setDetail(fresh);
     } catch (error) {
+      setMessageTone("err");
       setMessage(error instanceof ApiError ? error.message : "Action failed");
     } finally {
       setBusy(null);
@@ -168,9 +172,11 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
         </div>
 
         {message ? (
-          <div className="mb-4 rounded-xl border border-sand-500/30 bg-white/75 p-3 text-sm text-sage-800">
-            {message}
-          </div>
+          <AdminCenterToast
+            message={message}
+            tone={messageTone}
+            onDismiss={() => setMessage(null)}
+          />
         ) : null}
 
         {loading || !data ? (

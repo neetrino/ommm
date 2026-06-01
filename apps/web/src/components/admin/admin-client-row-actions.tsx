@@ -9,6 +9,7 @@ import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { PencilGlyph, TrashGlyph } from "@/components/ui/admin-action-glyphs";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton, AdminRowIconGroup } from "@/components/ui/admin-row-icon-button";
 
@@ -143,16 +144,11 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
       </AdminRowIconGroup>
 
       {message ? (
-        <div
-          role="status"
-          className={`fixed bottom-4 right-4 max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
-            tone === "ok"
-              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
-              : "border-red-200/80 bg-red-50/95 text-red-900"
-          }`}
-        >
-          {message}
-        </div>
+        <AdminCenterToast
+          message={message}
+          tone={tone}
+          onDismiss={() => setMessage(null)}
+        />
       ) : null}
 
       <AdminClientActions
