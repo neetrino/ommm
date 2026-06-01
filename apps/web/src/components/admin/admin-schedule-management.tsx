@@ -1026,8 +1026,9 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
     return <div className={adminChrome.panel}><p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p><p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p></div>;
   }
   return (
-    <div className="rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
-      <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+    <div className="overflow-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
         <colgroup>
           <col className="w-[17%]" />
           <col className="w-[12%]" />
@@ -1042,7 +1043,8 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
         </colgroup>
         <thead className={adminChrome.thead}><tr><th className={adminChrome.th}>{t("colClass")}</th><th className={adminChrome.th}>{t("colType")}</th><th className={adminChrome.th}>{t("colDate")}</th><th className={adminChrome.th}>{t("colTime")}</th><th className={adminChrome.th}>{t("fields.duration")}</th><th className={adminChrome.th}>{t("colCoach")}</th><th className={adminChrome.th}>{t("colCapacity")}</th><th className={adminChrome.th}>{t("colLevel")}</th><th className={adminChrome.th}>{t("colStatus")}</th><th className={adminChrome.th}>{t("colActions")}</th></tr></thead>
         <tbody>{rows.map((row) => <SessionRow key={row.id} row={row} {...props} />)}</tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }
