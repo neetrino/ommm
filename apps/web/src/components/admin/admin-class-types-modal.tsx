@@ -31,6 +31,10 @@ type AdminClassTypesModalProps = {
   sessionCountByTypeId: Readonly<Record<string, number>>;
   onClose: () => void;
   onChanged: (types: AdminClassTypeRow[]) => void;
+  /** Opens the editor for this type when the modal is shown. */
+  initialSelectedId?: string | null;
+  /** When false, hides create actions (e.g. Packages edit-category flow). */
+  allowCreate?: boolean;
 };
 
 type LoadState = "idle" | "loading" | "error";
@@ -103,6 +107,8 @@ export function AdminClassTypesModal({
   sessionCountByTypeId,
   onClose,
   onChanged,
+  initialSelectedId = null,
+  allowCreate = true,
 }: AdminClassTypesModalProps) {
   const t = useTranslations("adminPages.classes.classTypes");
   const titleId = useId();
@@ -185,17 +191,29 @@ export function AdminClassTypesModal({
       return;
     }
     wasOpenRef.current = true;
-    setMode("idle");
-    setSelectedId(null);
-    setForm(emptyForm());
+    setListFilter("");
+    setPendingDelete(false);
     setFieldErrors({});
     setError(null);
     setBanner(null);
-    setListFilter("");
-    setPendingDelete(false);
     setTypes(sortTypes(classTypes));
     setLoadState("idle");
-  }, [isOpen, classTypes]);
+
+    const initialType =
+      initialSelectedId !== null
+        ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
+        : null;
+
+    if (initialType !== null) {
+      setMode("edit");
+      setSelectedId(initialType.id);
+      setForm(formFromType(initialType));
+    } else {
+      setMode("idle");
+      setSelectedId(null);
+      setForm(emptyForm());
+    }
+  }, [classTypes, initialSelectedId, isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -459,16 +477,18 @@ export function AdminClassTypesModal({
                     <span className="ml-1 text-sage-400">({types.length})</span>
                   ) : null}
                 </p>
-                <OmmButton
-                  size="sm"
-                  variant="secondary"
-                  className="gap-1.5"
-                  onClick={beginCreate}
-                  disabled={listBusy || pending}
-                >
-                  <PlusIcon className="h-3.5 w-3.5" />
-                  {t("addButton")}
-                </OmmButton>
+                {allowCreate ? (
+                  <OmmButton
+                    size="sm"
+                    variant="secondary"
+                    className="gap-1.5"
+                    onClick={beginCreate}
+                    disabled={listBusy || pending}
+                  >
+                    <PlusIcon className="h-3.5 w-3.5" />
+                    {t("addButton")}
+                  </OmmButton>
+                ) : null}
               </div>
 
               {mode !== "idle" ? (

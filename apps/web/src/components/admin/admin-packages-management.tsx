@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
-import type { AdminClassTypeRow } from "@/components/admin/admin-class-types-modal";
+import { AdminClassTypesModal, type AdminClassTypeRow } from "@/components/admin/admin-class-types-modal";
 import {
   AdminPackagesShell,
   PackagesAddButton,
@@ -16,6 +16,7 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 
 const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "add-package";
+const EDIT_CATEGORY_QUERY_KEY = "editCategory";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
@@ -32,6 +33,10 @@ export function AdminPackagesManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const editingClassTypeId = searchParams.get(EDIT_CATEGORY_QUERY_KEY);
+  const isEditCategoryOpen =
+    editingClassTypeId !== null &&
+    classTypes.some((type) => type.id === editingClassTypeId);
   const [activeTab, setActiveTab] = useState(() => classTypes[0]?.id ?? "");
 
   useEffect(() => {
@@ -58,6 +63,22 @@ export function AdminPackagesManagement({
     params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
     router.replace(`${pathname}?${params.toString()}`);
   }
+
+  const openEditCategory = useCallback(
+    (classTypeId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(EDIT_CATEGORY_QUERY_KEY, classTypeId);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const closeEditCategory = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(EDIT_CATEGORY_QUERY_KEY);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const toolbar =
     pillItems.length > 0 ? (
@@ -92,11 +113,30 @@ export function AdminPackagesManagement({
                 isActiveCategory={classType.id === activeTab}
                 packages={sortedPackages}
                 locale={locale}
+                onEditCategory={() => openEditCategory(classType.id)}
               />
             ))}
           </div>
         )}
       </AdminPackagesShell>
+
+      <AdminClassTypesModal
+        isOpen={isEditCategoryOpen}
+        classTypes={classTypes}
+        sessionCountByTypeId={{}}
+        initialSelectedId={editingClassTypeId}
+        allowCreate={false}
+        onClose={closeEditCategory}
+        onChanged={(nextTypes) => {
+          router.refresh();
+          if (
+            editingClassTypeId !== null &&
+            !nextTypes.some((type) => type.id === editingClassTypeId)
+          ) {
+            closeEditCategory();
+          }
+        }}
+      />
     </>
   );
 }
@@ -106,6 +146,7 @@ type CategoryAccordionProps = {
   isActiveCategory: boolean;
   packages: readonly AdminPackageRow[];
   locale: string;
+  onEditCategory: () => void;
 };
 
 function CategoryAccordion({
@@ -113,6 +154,7 @@ function CategoryAccordion({
   isActiveCategory,
   packages,
   locale,
+  onEditCategory,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
   const [open, setOpen] = useState(isActiveCategory);
@@ -131,6 +173,8 @@ function CategoryAccordion({
   return (
     <AdminAccordionPanel
       title={classType.name}
+      editLabel={t("editCategory")}
+      onEdit={onEditCategory}
       open={open}
       onOpenChange={setOpen}
       contentVariant="table"
