@@ -410,13 +410,15 @@ export function DashboardAppShell({
           />
           <div className={mobileDrawerPanelClass(variant)}>
             <div
-              className={`flex shrink-0 items-center gap-3 px-4 py-4 ${mobileDrawerHeaderBorderClass(variant)}`}
+              className={`flex shrink-0 items-center gap-3 px-6 py-6 ${mobileDrawerHeaderBorderClass(variant)}`}
             >
-              <span
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
-              >
-                {brandInitial(brandLabel)}
-              </span>
+              {!isAdminShell ? (
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
+                >
+                  {brandInitial(brandLabel)}
+                </span>
+              ) : null}
               <div className="min-w-0">
                 <span className={mobileDrawerBrandTitleClass(variant)}>
                   {brandLabel}
