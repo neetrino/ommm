@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { combineIsoDateAndTime, formatDateTimeForUi, splitIsoDateTime } from "@/lib/date-display";
@@ -253,12 +254,15 @@ export function AdminNotificationsScheduledSection({
           />
         </label>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <button type="button" className="ommm-cta-ghost text-xs" onClick={resetFilters}>
-          {t("filters.reset")}
-        </button>
-        <span className={adminChrome.metaText}>{t("filters.resultCount", { count: filtered.length })}</span>
-      </div>
+      <AdminFilterResetBar
+        onReset={resetFilters}
+        label={t("filters.reset")}
+        meta={
+          <span className={adminChrome.metaText}>
+            {t("filters.resultCount", { count: filtered.length })}
+          </span>
+        }
+      />
       <div className={adminChrome.tableWrap}>
         <table className={adminChrome.table}>
           <thead className={adminChrome.thead}>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type R
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFilterDropdown, OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
@@ -815,11 +816,16 @@ function QuickFilters({
             options={quickOptions}
           />
         </div>
-        <div className="flex shrink-0 items-center gap-3 self-end sm:ml-auto">
-          <button type="button" className="ommm-schedule-accent-button" onClick={onReset}>
-            {t("filters.reset")}
-          </button>
-          <p className="text-xs text-sage-600">{t("filters.activeCount", { count: activeCount })}</p>
+        <div className="w-full sm:ml-auto sm:max-w-none">
+          <AdminFilterResetBar
+            onReset={onReset}
+            label={t("filters.reset")}
+            meta={
+              <p className="text-xs text-sage-600">
+                {t("filters.activeCount", { count: activeCount })}
+              </p>
+            }
+          />
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import type {
   UserFinanceFilters,
 } from "@/components/admin/admin-finance-types";
 import type { AdminClientsPayload, ClientRow, PackageOption } from "@/components/admin/admin-clients-types";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -252,10 +253,8 @@ export function AdminUserFinanceTab({
           />
           {t("giftCardOnly")}
         </label>
-        <OmmButton size="sm" variant="subtle" onClick={resetFilters}>
-          {t("clearFilters")}
-        </OmmButton>
       </div>
+      <AdminFilterResetBar onReset={resetFilters} label={t("clearFilters")} />
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
       <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>

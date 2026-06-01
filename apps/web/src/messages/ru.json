@@ -886,7 +886,7 @@
       "filterCoachAll": "Все тренеры",
       "filterClientAll": "Все клиенты",
       "filterStatusAll": "Все статусы",
-      "resetFilters": "Сбросить фильтры",
+      "resetFilters": "Reset Filters",
       "viewList": "Все бронирования",
       "viewMonthly": "Месячный вид",
       "viewWeekly": "Недельный вид",
@@ -989,7 +989,8 @@
         "orderLabel": "Сортировка",
         "orderNewest": "Сначала новые",
         "orderOldest": "Сначала старые",
-        "apply": "Применить фильтры"
+        "apply": "Применить фильтры",
+        "resetFilters": "Reset Filters"
       }
     },
     "coaches": {
@@ -1022,6 +1023,7 @@
         "orderOldest": "Сначала старые",
         "apply": "Применить фильтры",
         "clear": "Сбросить фильтры",
+        "resetFilters": "Reset Filters",
         "loading": "Загружаем подходящих тренеров...",
         "activeCount": "Активных фильтров: {count}",
         "quickActive": "Активные",

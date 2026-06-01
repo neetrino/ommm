@@ -882,7 +882,7 @@
       "filterCoachAll": "Բոլոր մարզիչները",
       "filterClientAll": "Բոլոր հաճախորդները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
-      "resetFilters": "Զրոյացնել ֆիլտրերը",
+      "resetFilters": "Reset Filters",
       "viewList": "Բոլոր ամրագրումները",
       "viewMonthly": "Ամսական տեսք",
       "viewWeekly": "Շաբաթական տեսք",
@@ -985,7 +985,8 @@
         "orderLabel": "Դասավորություն",
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
-        "apply": "Կիրառել ֆիլտրերը"
+        "apply": "Կիրառել ֆիլտրերը",
+        "resetFilters": "Reset Filters"
       }
     },
     "coaches": {
@@ -1017,7 +1018,8 @@
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
         "apply": "Կիրառել ֆիլտրերը",
-        "clear": "Մաքրել ֆիլտրերը",
+        "clear": "Reset Filters",
+        "resetFilters": "Reset Filters",
         "loading": "Բեռնում ենք համապատասխան մարզիչներին...",
         "activeCount": "Ակտիվ ֆիլտրեր՝ {count}",
         "quickActive": "Ակտիվ",
@@ -1352,7 +1354,7 @@
         "levelLabel": "Մակարդակ",
         "fromDateLabel": "Սկսած ամսաթվից",
         "toDateLabel": "Մինչև ամսաթիվ",
-        "reset": "Վերակայել ֆիլտրերը",
+        "reset": "Reset Filters",
         "allStatuses": "Բոլոր կարգավիճակները",
         "allCoaches": "Բոլոր մարզիչները",
         "allTypes": "Բոլոր տեսակները",
@@ -1574,7 +1576,7 @@
         "quickActive": "Ակտիվ նվեր քարտեր",
         "quickExpired": "Ժամկետանց քարտեր",
         "quickUnredeemed": "Չփոխարժված քարտեր",
-        "reset": "Մաքրել ֆիլտրերը",
+        "reset": "Reset Filters",
         "activeCount": "{count} ակտիվ ֆիլտր"
       },
       "actions": {
@@ -1704,7 +1706,7 @@
         "sortOldest": "Հիներից",
         "sortPriceHigh": "Առավելագույն գին",
         "sortPriceLow": "Նվազագույն գին",
-        "reset": "Մաքրել զտիչները",
+        "reset": "Reset Filters",
         "activeCount": "{count} ակտիվ զտիչ"
       },
       "messages": {
@@ -1919,7 +1921,7 @@
       },
       "filters": {
         "heading": "Ֆիլտրեր",
-        "reset": "Մաքրել ֆիլտրերը",
+        "reset": "Reset Filters",
         "rangeLabel": "Միջակայք",
         "range7": "Վերջին 7 օրը",
         "range30": "Վերջին 30 օրը",
@@ -2102,7 +2104,7 @@
         "timing": "Timing",
         "timingAll": "Բոլոր timing-ները",
         "sort": "Դասավորել",
-        "reset": "Մաքրել filter-ները",
+        "reset": "Reset Filters",
         "resultCount": "{count} արդյունք",
         "noMatches": "Filter-ներին համապատասխան տարրեր չկան։"
       },

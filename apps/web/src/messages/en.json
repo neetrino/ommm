@@ -895,7 +895,7 @@
       "filterCoachAll": "All coaches",
       "filterClientAll": "All clients",
       "filterStatusAll": "All statuses",
-      "resetFilters": "Reset filters",
+      "resetFilters": "Reset Filters",
       "viewList": "All bookings",
       "viewMonthly": "Monthly view",
       "viewWeekly": "Weekly view",
@@ -998,7 +998,8 @@
         "orderLabel": "Order",
         "orderNewest": "Newest first",
         "orderOldest": "Oldest first",
-        "apply": "Apply filters"
+        "apply": "Apply filters",
+        "resetFilters": "Reset Filters"
       }
     },
     "coaches": {
@@ -1030,7 +1031,8 @@
         "orderNewest": "Newest first",
         "orderOldest": "Oldest first",
         "apply": "Apply filters",
-        "clear": "Clear filters",
+        "clear": "Reset Filters",
+        "resetFilters": "Reset Filters",
         "loading": "Loading matching coaches...",
         "activeCount": "{count} active filters",
         "quickActive": "Active",
@@ -1365,7 +1367,7 @@
         "levelLabel": "Level",
         "fromDateLabel": "From date",
         "toDateLabel": "To date",
-        "reset": "Reset filters",
+        "reset": "Reset Filters",
         "allStatuses": "All statuses",
         "allCoaches": "All coaches",
         "allTypes": "All class types",
@@ -1587,7 +1589,7 @@
         "quickActive": "Active gift cards",
         "quickExpired": "Expired gift cards",
         "quickUnredeemed": "Unredeemed cards",
-        "reset": "Clear filters",
+        "reset": "Reset Filters",
         "activeCount": "{count} active filters"
       },
       "actions": {
@@ -1717,7 +1719,7 @@
         "sortOldest": "Oldest first",
         "sortPriceHigh": "Highest price",
         "sortPriceLow": "Lowest price",
-        "reset": "Clear filters",
+        "reset": "Reset Filters",
         "activeCount": "{count} active filters"
       },
       "messages": {
@@ -1873,7 +1875,7 @@
       },
       "filters": {
         "heading": "Filters",
-        "reset": "Clear filters",
+        "reset": "Reset Filters",
         "rangeLabel": "Range",
         "range7": "Last 7 days",
         "range30": "Last 30 days",
@@ -2100,7 +2102,7 @@
         "sortLowestCost": "Lowest cost",
         "sortNearestExpiration": "Nearest expiration",
         "giftCardOnly": "Gift card used only",
-        "clearFilters": "Clear filters",
+        "clearFilters": "Reset Filters",
         "loading": "Loading…",
         "loadFailed": "Could not load user finance records.",
         "rowCount": "{count} records",
@@ -2135,7 +2137,7 @@
         "sortLabel": "Sort",
         "sortHighestSalary": "Highest salary",
         "sortOldest": "Oldest coaches",
-        "clearFilters": "Clear filters",
+        "clearFilters": "Reset Filters",
         "rowCount": "{count} coaches",
         "empty": "No coaches match the current filters.",
         "colCoach": "Coach",
@@ -2217,7 +2219,7 @@
         "timing": "Timing",
         "timingAll": "All timing",
         "sort": "Sort",
-        "reset": "Clear filters",
+        "reset": "Reset Filters",
         "resultCount": "{count} results",
         "noMatches": "No items match the current filters."
       },

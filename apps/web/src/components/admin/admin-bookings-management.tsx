@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
@@ -193,12 +194,19 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         <div className="md:col-span-2">
           <OmmFilterDropdown allValue="" value={clientId} ariaLabel={t("filterClientAll")} allLabel={t("filterClientAll")} onChange={setClientId} options={uniqueClients.map((item) => ({ value: item.id, label: item.label }))} />
         </div>
-        <div className="flex flex-wrap items-center gap-2 md:col-span-2">
-          <OmmButton size="sm" variant={view === "list" ? "primary" : "ghost"} onClick={() => setView("list")}>{t("viewList")}</OmmButton>
-          <OmmButton size="sm" variant={view === "monthly" ? "primary" : "ghost"} onClick={() => setView("monthly")}>{t("viewMonthly")}</OmmButton>
-          <OmmButton size="sm" variant={view === "weekly" ? "primary" : "ghost"} onClick={() => setView("weekly")}>{t("viewWeekly")}</OmmButton>
-          <OmmButton size="sm" variant={view === "daily" ? "primary" : "ghost"} onClick={() => setView("daily")}>{t("viewDaily")}</OmmButton>
-          <OmmButton size="sm" variant="subtle" onClick={resetFilters}>{t("resetFilters")}</OmmButton>
+        <div className="md:col-span-2 xl:col-span-6">
+          <AdminFilterResetBar
+            onReset={resetFilters}
+            label={t("resetFilters")}
+            leading={
+              <>
+                <OmmButton size="sm" variant={view === "list" ? "primary" : "ghost"} onClick={() => setView("list")}>{t("viewList")}</OmmButton>
+                <OmmButton size="sm" variant={view === "monthly" ? "primary" : "ghost"} onClick={() => setView("monthly")}>{t("viewMonthly")}</OmmButton>
+                <OmmButton size="sm" variant={view === "weekly" ? "primary" : "ghost"} onClick={() => setView("weekly")}>{t("viewWeekly")}</OmmButton>
+                <OmmButton size="sm" variant={view === "daily" ? "primary" : "ghost"} onClick={() => setView("daily")}>{t("viewDaily")}</OmmButton>
+              </>
+            }
+          />
         </div>
       </div>
 
