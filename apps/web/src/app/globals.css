@@ -342,8 +342,41 @@ html {
     @apply flex min-h-[98px] flex-col justify-center rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 px-6 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.16)] backdrop-blur-md sm:px-10 sm:py-[21px];
   }
 
+  .ommm-admin-accordion[data-expanded="true"] {
+    @apply min-h-0 justify-start pb-10 pt-8 sm:px-[41px];
+  }
+
   .ommm-admin-accordion-nested {
     @apply min-h-0 bg-white/60 px-5 py-4 sm:px-8;
+  }
+
+  .ommm-admin-packages-table-grid {
+    display: grid;
+    grid-template-columns:
+      minmax(7rem, 1.15fr)
+      minmax(7rem, 1.35fr)
+      minmax(7rem, 1.25fr)
+      minmax(5rem, 0.95fr)
+      minmax(5rem, 0.85fr)
+      2.75rem;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ommm-admin-packages-table-header {
+    @apply border-b border-[rgba(212,196,183,0.2)] pb-4 text-xs font-semibold uppercase tracking-[0.12em] text-[rgba(80,69,59,0.6)];
+  }
+
+  .ommm-admin-packages-table-row {
+    @apply border-t border-[rgba(212,196,183,0.1)] py-1 first:border-t-0;
+  }
+
+  .ommm-admin-packages-table-row .ommm-admin-packages-table-grid {
+    @apply rounded-[25px] px-1 py-3 text-base text-[#1b1c1a] transition-colors;
+  }
+
+  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid {
+    background-color: rgba(151, 144, 124, 0.26);
   }
 
   .ommm-admin-packages {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
 type AdminAccordionPanelProps = {
   title: string;
@@ -8,9 +8,11 @@ type AdminAccordionPanelProps = {
   onEdit?: () => void;
   children?: ReactNode;
   defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   emptyLabel?: string;
-  /** Nested package row inside a category accordion. */
-  nested?: boolean;
+  /** Table body layout — Figma expanded category card. */
+  contentVariant?: "default" | "table";
 };
 
 function ChevronGlyph({ open }: { open: boolean }) {
@@ -58,24 +60,45 @@ export function AdminAccordionPanel({
   onEdit,
   children,
   defaultOpen = false,
+  open: controlledOpen,
+  onOpenChange,
   emptyLabel,
-  nested = false,
+  contentVariant = "default",
 }: AdminAccordionPanelProps) {
   const panelId = useId();
-  const [open, setOpen] = useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  function setOpen(next: boolean) {
+    if (!isControlled) {
+      setInternalOpen(next);
+    }
+    onOpenChange?.(next);
+  }
+
+  useEffect(() => {
+    if (!isControlled) {
+      setInternalOpen(defaultOpen);
+    }
+  }, [defaultOpen, isControlled]);
+
   const hasBody = children !== undefined && children !== null;
   const showEmpty = open && !hasBody && emptyLabel !== undefined;
 
   return (
     <article
-      className={
-        nested
-          ? "ommm-admin-accordion ommm-admin-accordion-nested"
-          : "ommm-admin-accordion"
-      }
+      className="ommm-admin-accordion"
+      data-expanded={open ? "true" : "false"}
     >
       <div className="flex min-h-[46px] items-center justify-between gap-4">
-        <h3 className="font-serif text-xl font-normal tracking-[-0.02em] text-[#464646] sm:text-[1.625rem] sm:leading-[2.6rem]">
+        <h3
+          className={
+            open
+              ? "font-serif text-[2rem] font-normal leading-[2.6rem] tracking-[-0.02em] text-[#1b1c1a]"
+              : "font-serif text-xl font-normal tracking-[-0.02em] text-[#464646] sm:text-[1.625rem] sm:leading-[2.6rem]"
+          }
+        >
           {title}
         </h3>
         <div className="flex shrink-0 items-center gap-5 sm:gap-7">
@@ -94,7 +117,7 @@ export function AdminAccordionPanel({
             className="inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
             aria-expanded={open}
             aria-controls={panelId}
-            onClick={() => setOpen((value) => !value)}
+            onClick={() => setOpen(!open)}
           >
             <span className="sr-only">{open ? "Collapse" : "Expand"}</span>
             <ChevronGlyph open={open} />
@@ -102,7 +125,14 @@ export function AdminAccordionPanel({
         </div>
       </div>
       {open ? (
-        <div id={panelId} className="mt-5 border-t border-white/50 pt-5">
+        <div
+          id={panelId}
+          className={
+            contentVariant === "table"
+              ? "mt-8"
+              : "mt-5 border-t border-white/50 pt-5"
+          }
+        >
           {hasBody ? children : null}
           {showEmpty ? (
             <p className="text-sm text-sage-500">{emptyLabel}</p>
