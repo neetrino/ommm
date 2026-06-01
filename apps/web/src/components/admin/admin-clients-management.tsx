@@ -1,7 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
@@ -12,8 +21,13 @@ import {
   type AdminClientSegmentFilter,
 } from "@/components/admin/admin-clients-segment-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
-import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
+import {
+  OmmFilterDropdown,
+  OmmSelectDropdown,
+  ommOptionsFromTuples,
+} from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -230,24 +244,19 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
   const activeFilterCount = useMemo(() => countActiveClientFilters(filters), [filters]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-6">
       <Summary payload={payload} locale={locale} />
-      <SegmentFilters
-        active={filters.quick}
-        activeFilterCount={activeFilterCount}
-        onChange={(value) => updateFilter("quick", value)}
-        onReset={resetFilters}
-      />
-      <Filters
+      <FiltersPanel
         filters={filters}
         payload={payload}
+        loading={loading}
+        activeFilterCount={activeFilterCount}
         onChange={updateFilter}
+        onReset={resetFilters}
       />
       {error ? <div className="app-alert-warn">{error}</div> : null}
-      {loading ? <p className="text-sm text-sage-500">Loading...</p> : null}
       <ClientsTable
         rows={payload.rows}
-        locale={locale}
         onSelect={selectClient}
         onChanged={refetchClients}
       />
@@ -276,7 +285,16 @@ function Summary({ payload, locale }: { payload: AdminClientsPayload; locale: st
     ["Visits", payload.summary.totalVisits],
     ["Lifetime value", formatAmdFromCents(payload.summary.lifetimeValueCents, locale)],
   ];
-  return <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">{cards.map(([label, value]) => <div key={label} className={adminChrome.metricCard}><p className={adminChrome.metricLabel}>{label}</p><p className={adminChrome.metricValue}>{value}</p></div>)}</div>;
+  return (
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      {cards.map(([label, value]) => (
+        <article key={label} className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{label}</p>
+          <p className={adminChrome.metricValue}>{value}</p>
+        </article>
+      ))}
+    </section>
+  );
 }
 
 function countActiveClientFilters(
@@ -298,19 +316,37 @@ function countActiveClientFilters(
   ].filter(Boolean).length;
 }
 
-function SegmentFilters({
-  active,
-  activeFilterCount,
-  onChange,
-  onReset,
+function FilterField({
+  label,
+  children,
+  className = "",
 }: {
-  active: string;
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`flex flex-col gap-1 text-xs text-sage-700 ${className}`}>
+      <span>{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function FiltersPanel(props: {
+  filters: Record<(typeof filterKeys)[number], string>;
+  payload: AdminClientsPayload;
+  loading: boolean;
   activeFilterCount: number;
-  onChange: (value: string) => void;
+  onChange: (key: (typeof filterKeys)[number], value: string) => void;
   onReset: () => void;
 }) {
-  const selectedValues = useMemo(() => parseAdminClientSegmentFilters(active), [active]);
-  const options = useMemo(
+  const t = useTranslations("adminPages.clients.filters");
+  const selectedSegments = useMemo(
+    () => parseAdminClientSegmentFilters(props.filters.quick),
+    [props.filters.quick],
+  );
+  const segmentOptions = useMemo(
     () =>
       segmentFilterOptions.map(([value, label]) => ({
         value,
@@ -320,115 +356,272 @@ function SegmentFilters({
   );
 
   return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-        <div className="flex min-w-0 flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
-            <SegmentFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
-            Client segments
-          </span>
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
+        <FilterField label={t("searchLabel")} className="sm:col-span-2 xl:col-span-2">
+          <input
+            className="ommm-input h-10"
+            placeholder="Search name, phone, email, client ID"
+            value={props.filters.search}
+            onChange={(event) => props.onChange("search", event.target.value)}
+            aria-label={t("searchLabel")}
+          />
+        </FilterField>
+        <FilterField label="Badge">
+          <FilterSelect
+            value={props.filters.tag}
+            onChange={(value) => props.onChange("tag", value)}
+            options={[
+              ["", "All badges"],
+              ["vip", "VIP"],
+              ["new", "New"],
+              ["at-risk", "At Risk"],
+              ["beginner", "Beginner"],
+            ]}
+            ariaLabel="Badge"
+          />
+        </FilterField>
+        <FilterField label="Status">
+          <FilterSelect
+            value={props.filters.status}
+            onChange={(value) => props.onChange("status", value)}
+            options={[
+              ["", "All statuses"],
+              ["active", "Active"],
+              ["inactive", "Inactive"],
+              ["frozen", "Frozen"],
+              ["blocked", "Blocked"],
+            ]}
+            ariaLabel="Status"
+          />
+        </FilterField>
+        <FilterField label="Package">
+          <FilterSelect
+            value={props.filters.packageType}
+            onChange={(value) => props.onChange("packageType", value)}
+            options={[
+              ["", "All packages"],
+              ["single-class", "Single class"],
+              ["monthly-package", "Monthly package"],
+              ["vip-package", "VIP package"],
+            ]}
+            ariaLabel="Package"
+          />
+        </FilterField>
+        <FilterField label="Payment">
+          <FilterSelect
+            value={props.filters.paymentStatus}
+            onChange={(value) => props.onChange("paymentStatus", value)}
+            options={[
+              ["", "All payments"],
+              ["paid", "Paid"],
+              ["unpaid", "Unpaid"],
+              ["overdue", "Overdue"],
+              ["partial", "Partial"],
+            ]}
+            ariaLabel="Payment"
+          />
+        </FilterField>
+        <FilterField label="Source">
+          <FilterSelect
+            value={props.filters.source}
+            onChange={(value) => props.onChange("source", value)}
+            options={[
+              ["", "All sources"],
+              ["website", "Website"],
+              ["mobile-app", "Mobile App"],
+              ["admin", "Admin"],
+              ["instagram", "Instagram"],
+              ["referral", "Referral"],
+            ]}
+            ariaLabel="Source"
+          />
+        </FilterField>
+        <FilterField label="Attendance">
+          <FilterSelect
+            value={props.filters.attendance}
+            onChange={(value) => props.onChange("attendance", value)}
+            options={[
+              ["", "All attendance"],
+              ["regular", "Regular"],
+              ["no-show", "No-show"],
+              ["often-cancels", "Often cancels"],
+              ["low-attendance", "Low attendance"],
+            ]}
+            ariaLabel="Attendance"
+          />
+        </FilterField>
+        <FilterField label="Birthday month">
+          <FilterSelect
+            value={props.filters.birthdayMonth}
+            onChange={(value) => props.onChange("birthdayMonth", value)}
+            options={monthOptions()}
+            ariaLabel="Birthday month"
+          />
+        </FilterField>
+        <FilterField label="Class level">
+          <FilterSelect
+            value={props.filters.classLevel}
+            onChange={(value) => props.onChange("classLevel", value)}
+            options={[
+              ["", "All levels"],
+              ["beginner", "Beginner"],
+              ["intermediate", "Intermediate"],
+              ["advanced", "Advanced"],
+              ...props.payload.filterOptions.classLevels.map(
+                (level) => [level, level] as const,
+              ),
+            ]}
+            ariaLabel="Class level"
+          />
+        </FilterField>
+        <FilterField label="Preferred coach">
+          <FilterSelect
+            value={props.filters.preferredCoachId}
+            onChange={(value) => props.onChange("preferredCoachId", value)}
+            options={[
+              ["", "All coaches"],
+              ...props.payload.filterOptions.preferredCoaches.map(
+                (coach) => [coach.id, coach.name] as const,
+              ),
+            ]}
+            ariaLabel="Preferred coach"
+          />
+        </FilterField>
+        <FilterField label={t("orderLabel")}>
+          <OmmSelectDropdown
+            ariaLabel={t("orderLabel")}
+            label={orderLabel(props.filters.order)}
+            value={props.filters.order}
+            options={ommOptionsFromTuples([
+              ["newest", "Newest clients first"],
+              ["oldest", "Oldest clients first"],
+              ["most-active", "Most active"],
+              ["highest-lifetime-value", "Highest lifetime value"],
+              ["last-visit-newest", "Last visit newest"],
+              ["last-visit-oldest", "Last visit oldest"],
+              ["most-bookings", "Most bookings"],
+              ["most-cancellations", "Most cancellations"],
+            ])}
+            onChange={(value) => props.onChange("order", value)}
+          />
+        </FilterField>
+      </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+        <FilterField label="Client segments" className="min-w-0 sm:max-w-xs sm:flex-1 lg:max-w-sm">
           <OmmFilterMultiSelect
             variant="accent"
             wrapLabel
             ariaLabel="Client segment filters"
             allLabel="All clients"
-            selectedValues={selectedValues}
+            selectedValues={selectedSegments}
             onChange={(values) =>
-              onChange(serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]))
+              props.onChange(
+                "quick",
+                serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]),
+              )
             }
             formatSelectedCount={(count) =>
               count === 1 ? "1 segment selected" : `${count} segments selected`
             }
-            options={options}
+            options={segmentOptions}
           />
-        </div>
-        <div className="flex shrink-0 items-center gap-3 self-end sm:ml-auto">
-          <button type="button" className="ommm-schedule-accent-button" onClick={onReset}>
+        </FilterField>
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <OmmButton type="button" size="sm" variant="subtle" onClick={props.onReset}>
             Reset filters
-          </button>
-          <p className="text-xs text-sage-600">{activeFilterCount} active filters</p>
+          </OmmButton>
+          <p className="text-xs text-sage-500" role="status">
+            {props.loading
+              ? "Loading matching clients..."
+              : `${props.activeFilterCount} active filters`}
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-function SegmentFilterGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z" />
-    </svg>
-  );
+function orderLabel(order: string): string {
+  const labels: Record<string, string> = {
+    newest: "Newest clients first",
+    oldest: "Oldest clients first",
+    "most-active": "Most active",
+    "highest-lifetime-value": "Highest lifetime value",
+    "last-visit-newest": "Last visit newest",
+    "last-visit-oldest": "Last visit oldest",
+    "most-bookings": "Most bookings",
+    "most-cancellations": "Most cancellations",
+  };
+  return labels[order] ?? "Newest clients first";
 }
 
-function Filters(props: {
-  filters: Record<(typeof filterKeys)[number], string>;
-  payload: AdminClientsPayload;
-  onChange: (key: (typeof filterKeys)[number], value: string) => void;
+function FilterSelect({
+  value,
+  onChange,
+  options,
+  ariaLabel,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: ReadonlyArray<readonly [string, string]>;
+  ariaLabel: string;
 }) {
+  const allLabel = options.find(([optionValue]) => optionValue === "")?.[1] ?? "All";
+  const dropdownOptions = options
+    .filter(([optionValue]) => optionValue !== "")
+    .map(([optionValue, label]) => ({ value: optionValue, label }));
+
   return (
-    <div className="grid gap-2 rounded-2xl border border-white/60 bg-white/70 p-3 md:grid-cols-4 xl:grid-cols-6">
-      <input className="ommm-input h-10 md:col-span-2" placeholder="Search name, phone, email, client ID" value={props.filters.search} onChange={(event) => props.onChange("search", event.target.value)} />
-      <Select value={props.filters.tag} onChange={(value) => props.onChange("tag", value)} options={[["", "All badges"], ["vip", "VIP"], ["new", "New"], ["at-risk", "At Risk"], ["beginner", "Beginner"]]} />
-      <Select value={props.filters.status} onChange={(value) => props.onChange("status", value)} options={[["", "All statuses"], ["active", "Active"], ["inactive", "Inactive"], ["frozen", "Frozen"], ["blocked", "Blocked"]]} />
-      <Select value={props.filters.packageType} onChange={(value) => props.onChange("packageType", value)} options={[["", "All packages"], ["single-class", "Single class"], ["monthly-package", "Monthly package"], ["vip-package", "VIP package"]]} />
-      <Select value={props.filters.paymentStatus} onChange={(value) => props.onChange("paymentStatus", value)} options={[["", "All payments"], ["paid", "Paid"], ["unpaid", "Unpaid"], ["overdue", "Overdue"], ["partial", "Partial"]]} />
-      <Select value={props.filters.source} onChange={(value) => props.onChange("source", value)} options={[["", "All sources"], ["website", "Website"], ["mobile-app", "Mobile App"], ["admin", "Admin"], ["instagram", "Instagram"], ["referral", "Referral"]]} />
-      <Select value={props.filters.attendance} onChange={(value) => props.onChange("attendance", value)} options={[["", "All attendance"], ["regular", "Regular"], ["no-show", "No-show"], ["often-cancels", "Often cancels"], ["low-attendance", "Low attendance"]]} />
-      <Select value={props.filters.birthdayMonth} onChange={(value) => props.onChange("birthdayMonth", value)} options={monthOptions()} />
-      <Select value={props.filters.classLevel} onChange={(value) => props.onChange("classLevel", value)} options={[["", "All levels"], ["beginner", "Beginner"], ["intermediate", "Intermediate"], ["advanced", "Advanced"], ...props.payload.filterOptions.classLevels.map((level) => [level, level] as const)]} />
-      <Select value={props.filters.preferredCoachId} onChange={(value) => props.onChange("preferredCoachId", value)} options={[["", "All coaches"], ...props.payload.filterOptions.preferredCoaches.map((coach) => [coach.id, coach.name] as const)]} />
-      <Select value={props.filters.order} onChange={(value) => props.onChange("order", value)} options={[["newest", "Newest clients first"], ["oldest", "Oldest clients first"], ["most-active", "Most active"], ["highest-lifetime-value", "Highest lifetime value"], ["last-visit-newest", "Last visit newest"], ["last-visit-oldest", "Last visit oldest"], ["most-bookings", "Most bookings"], ["most-cancellations", "Most cancellations"]]} />
-    </div>
+    <OmmFilterDropdown
+      allValue=""
+      value={value}
+      ariaLabel={ariaLabel}
+      allLabel={allLabel}
+      onChange={onChange}
+      options={dropdownOptions}
+    />
   );
 }
 
 function ClientsTable({
   rows,
-  locale,
   onSelect,
   onChanged,
 }: {
   rows: ClientRow[];
-  locale: string;
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
 }) {
+  const t = useTranslations("adminPages.clients");
+
   return (
     <div className={adminChrome.tableWrap}>
       <table className={`${adminChrome.table} table-fixed min-w-[72rem]`}>
         <colgroup>
-          <col className="w-[28%]" />
+          <col className="w-[32%]" />
+          <col className="w-[14%]" />
           <col className="w-[12%]" />
-          <col className="w-[10%]" />
-          <col className="w-[12%]" />
-          <col className="w-[10%]" />
-          <col className="w-32" />
+          <col className="w-[14%]" />
+          <col className="w-[14%]" />
+          <col className="w-[14%]" />
         </colgroup>
-        <thead className={`${adminChrome.thead} border-b-0 ${adminChrome.tableHeadDivider}`}>
+        <thead className={adminChrome.thead}>
           <tr>
-            <th className={adminChrome.th}>Clients</th>
+            <th className={adminChrome.th}>{t("title")}</th>
             <th className={`${adminChrome.th} text-center`}>Date of birth</th>
             <th className={`${adminChrome.th} text-center`}>Sessions</th>
             <th className={`${adminChrome.th} text-center`}>Register date</th>
             <th className={`${adminChrome.th} text-center`}>Notes</th>
-            <th className={`${adminChrome.th} text-center`}>Actions</th>
+            <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
           </tr>
         </thead>
-        <tbody className={adminChrome.tableBodyDividers}>
-          {rows.map((row) => (
+        <tbody>
+          {rows.map((row, index) => (
             <ClientTableRow
               key={row.id}
               row={row}
+              rowDivider={index < rows.length - 1 ? adminChrome.tableRowDivider : ""}
               onSelect={onSelect}
               onChanged={onChanged}
             />
@@ -441,18 +634,20 @@ function ClientsTable({
 
 function ClientTableRow({
   row,
+  rowDivider,
   onSelect,
   onChanged,
 }: {
   row: ClientRow;
+  rowDivider: string;
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
 }) {
   return (
     <tr>
-      <td className={adminChrome.tdStrong}>
+      <td className={`${adminChrome.tdStrong} ${rowDivider}`}>
         <div className="flex items-center gap-3">
-          <Avatar row={row} />
+          <ClientAvatar row={row} />
           <div className="min-w-0">
             <button
               type="button"
@@ -461,30 +656,34 @@ function ClientTableRow({
             >
               {fullName(row)}
             </button>
-            <div className="break-words text-xs font-normal text-sage-500">{row.phone ?? "—"}</div>
-            <div className="mt-1 flex flex-wrap gap-1">
-              {row.tags.map((tag) => (
-                <Badge key={tag} label={tag} />
-              ))}
+            <div className="break-words text-xs font-normal text-sage-500">
+              {row.phone ?? "—"}
             </div>
+            {row.tags.length > 0 ? (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {row.tags.map((tag) => (
+                  <ClientBadge key={tag} label={tag} />
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </td>
-      <td className={`${adminChrome.tdMuted} text-center`}>
+      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
         {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
       </td>
-      <td className={`${adminChrome.td} text-center`}>{sessionText(row)}</td>
-      <td className={`${adminChrome.tdMuted} text-center`}>
+      <td className={`${adminChrome.td} text-center ${rowDivider}`}>{sessionText(row)}</td>
+      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
         {formatDateForUi(row.createdAt)}
       </td>
-      <td className={`${adminChrome.td} text-center`}>
+      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
         {row.noteCount}
         {row.latestNote ? (
           <div className="truncate text-xs text-sage-500">{row.latestNote.body}</div>
         ) : null}
       </td>
-      <td className={`${adminChrome.td} overflow-hidden text-center`}>
-        <div className="mx-auto flex w-32 justify-center">
+      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
+        <div className="flex justify-center">
           <AdminClientRowActions client={row} onChanged={onChanged} />
         </div>
       </td>
@@ -492,32 +691,7 @@ function ClientTableRow({
   );
 }
 
-function Select({
-  value,
-  onChange,
-  options,
-  ariaLabel = "Filter",
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: ReadonlyArray<readonly [string, string]>;
-  ariaLabel?: string;
-}) {
-  const dropdownOptions = ommOptionsFromTuples(options);
-  const selected = dropdownOptions.find((option) => option.value === value);
-
-  return (
-    <OmmSelectDropdown
-      ariaLabel={ariaLabel}
-      label={selected?.label ?? ariaLabel}
-      value={value}
-      options={dropdownOptions}
-      onChange={onChange}
-    />
-  );
-}
-
-function Avatar({ row }: { row: ClientRow }) {
+function ClientAvatar({ row }: { row: ClientRow }) {
   const src = resolveApiAssetUrl(row.avatarUrl);
   if (src) {
     return (
@@ -543,8 +717,12 @@ function Avatar({ row }: { row: ClientRow }) {
   );
 }
 
-function Badge({ label }: { label: string }) {
-  return <span className="rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-[11px] text-sage-800">{label}</span>;
+function ClientBadge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900">
+      {label}
+    </span>
+  );
 }
 
 function sessionText(row: ClientRow) {

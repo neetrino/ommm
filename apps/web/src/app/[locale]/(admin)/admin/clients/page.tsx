@@ -7,7 +7,6 @@ import {
 } from "@/components/admin/admin-clients-query";
 import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminClientsPage({
@@ -51,15 +50,13 @@ export default async function AdminClientsPage({
   }
 
   return (
-    <AdminContentFrame>
-      <AdminSectionShell>
-        <AdminClientsManagement
-          initial={clientsRes.data}
-          packages={packagesRes.data}
-          locale={locale}
-          initialFilters={pickAdminClientsInitialFilters(search)}
-        />
-      </AdminSectionShell>
+    <AdminContentFrame description={t("description")}>
+      <AdminClientsManagement
+        initial={clientsRes.data}
+        packages={packagesRes.data}
+        locale={locale}
+        initialFilters={pickAdminClientsInitialFilters(search)}
+      />
     </AdminContentFrame>
   );
 }

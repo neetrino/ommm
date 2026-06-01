@@ -24,9 +24,6 @@ type AdminCoachesDirectoryProps = {
   locale?: string;
 };
 
-const COACHES_TABLE_ROW_DIVIDER =
-  "border-b-[3px] border-solid border-white shadow-[0_1px_0_0_rgba(255,255,255,0.9)]";
-
 function CoachAvatar({ coach }: { coach: AdminCoachDirectoryRow }) {
   const src =
     coach.user.avatarUrl !== null
@@ -95,7 +92,7 @@ function AdminCoachesListView({
         <tbody>
           {coaches.map((coach, index) => {
             const rowDivider =
-              index < coaches.length - 1 ? COACHES_TABLE_ROW_DIVIDER : "";
+              index < coaches.length - 1 ? adminChrome.tableRowDivider : "";
 
             return (
               <tr key={coach.id}>
