@@ -12,6 +12,10 @@ import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import {
+  ADMIN_CLIENTS_FILTER_KEYS,
+  mergeAdminClientsUrlQuery,
+} from "@/components/admin/admin-clients-query";
 import type { AdminClientsPayload, ClientRow, PackageOption } from "./admin-clients-types";
 
 type Props = {
@@ -21,20 +25,7 @@ type Props = {
   initialFilters: Record<string, string>;
 };
 
-const filterKeys = [
-  "search",
-  "tag",
-  "status",
-  "packageType",
-  "classLevel",
-  "paymentStatus",
-  "source",
-  "preferredCoachId",
-  "attendance",
-  "birthdayMonth",
-  "order",
-  "quick",
-] as const;
+const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
 const quickFilters = [
   ["new", "New Clients"],
@@ -110,8 +101,12 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
           });
       });
       const currentQuery = window.location.search.replace(/^\?/, "");
-      if (currentQuery !== urlQueryString) {
-        const nextUrl = urlQueryString ? `${pathname}?${urlQueryString}` : pathname;
+      const nextQuery = mergeAdminClientsUrlQuery(
+        urlQueryString,
+        Object.fromEntries(new URLSearchParams(window.location.search)),
+      );
+      if (currentQuery !== nextQuery) {
+        const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
         router.replace(nextUrl, { scroll: false });
       }
     }, 300);
