@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ClassSessionStatus, Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -24,7 +25,9 @@ import { UpdateSessionDto } from './dto/update-session.dto';
 export class ClassesController {
   constructor(private readonly classes: ClassesService) {}
 
+  /** Admin schedule RSC + filters — same burst pattern as `GET /coaches/admin/list`. */
   @Get('types')
+  @SkipThrottle()
   listTypes() {
     return this.classes.listTypes();
   }
@@ -73,6 +76,7 @@ export class ClassesController {
   }
 
   @Get('admin/sessions')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   listAdminSessions(@Query() query: AdminListSessionsQueryDto) {

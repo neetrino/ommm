@@ -354,7 +354,6 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
         onClose={closeClassTypesModal}
         onChanged={(nextTypes) => {
           setClassTypes(nextTypes);
-          router.refresh();
         }}
       />
     </div>
