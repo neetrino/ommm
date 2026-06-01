@@ -387,6 +387,38 @@ html {
     @apply disabled:pointer-events-none disabled:opacity-50;
   }
 
+  .ommm-admin-row-icon-button-lg {
+    @apply h-10 w-10;
+  }
+
+  .ommm-admin-row-icon-button-toggle {
+    @apply h-10 w-10 rounded-full px-1;
+  }
+
+  .ommm-toggle-switch {
+    @apply inline-flex shrink-0 items-center;
+  }
+
+  .ommm-toggle-switch-track {
+    @apply relative block h-4 w-7 rounded-full transition-colors duration-200 ease-out;
+  }
+
+  .ommm-toggle-switch-off .ommm-toggle-switch-track {
+    @apply bg-zinc-300;
+  }
+
+  .ommm-toggle-switch-on .ommm-toggle-switch-track {
+    background-color: #7cb868;
+  }
+
+  .ommm-toggle-switch-knob {
+    @apply absolute top-0.5 left-0.5 block h-3 w-3 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out;
+  }
+
+  .ommm-toggle-switch-on .ommm-toggle-switch-knob {
+    transform: translateX(0.75rem);
+  }
+
   .ommm-admin-row-icon-button-danger {
     @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
   }

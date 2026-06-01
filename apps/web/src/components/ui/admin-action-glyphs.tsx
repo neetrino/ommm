@@ -86,4 +86,44 @@ export function ToggleOnGlyph({ className }: GlyphProps) {
   );
 }
 
+const TOGGLE_SWITCH_ACTIVE_TRACK = "#7CB868";
+const TOGGLE_SWITCH_INACTIVE_TRACK = "#C5C5C5";
+const TOGGLE_SWITCH_KNOB_FILL = "#FFFFFF";
+const TOGGLE_SWITCH_KNOB_RADIUS = 4.5;
+const TOGGLE_SWITCH_KNOB_ACTIVE_X = 18;
+const TOGGLE_SWITCH_KNOB_INACTIVE_X = 6;
+
+type ToggleSwitchGlyphProps = GlyphProps & {
+  checked?: boolean;
+};
+
+/** Pill toggle switch (green ON / gray OFF) for row status actions. */
+export function ToggleSwitchGlyph({ className, checked = true }: ToggleSwitchGlyphProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 14"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <rect
+        x="1"
+        y="1"
+        width="22"
+        height="12"
+        rx="6"
+        fill={checked ? TOGGLE_SWITCH_ACTIVE_TRACK : TOGGLE_SWITCH_INACTIVE_TRACK}
+      />
+      <circle
+        cx={checked ? TOGGLE_SWITCH_KNOB_ACTIVE_X : TOGGLE_SWITCH_KNOB_INACTIVE_X}
+        cy="7"
+        r={TOGGLE_SWITCH_KNOB_RADIUS}
+        fill={TOGGLE_SWITCH_KNOB_FILL}
+      />
+    </svg>
+  );
+}
+
 export const ADMIN_ACTION_ICON_CLASS = "h-3.5 w-3.5 shrink-0";
+export const ADMIN_TOGGLE_SWITCH_ICON_CLASS = "h-3.5 w-6 shrink-0";

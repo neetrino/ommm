@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -80,6 +81,13 @@ export class CoachesController {
     @Body() dto: UpdateCoachDto,
   ) {
     return this.coaches.update(user, id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  remove(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.coaches.remove(user, id);
   }
 
   @Post(':id/photo-json')

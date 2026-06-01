@@ -47,6 +47,7 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type AdminCoachActionsProps = {
   coachId: string;
+  showEditTrigger?: boolean;
   locale?: string;
   classTypeOptions?: readonly string[];
   classOptions?: readonly CoachClassOption[];
@@ -227,6 +228,7 @@ function formatIsoBirthdayToDisplay(isoValue: string | null | undefined): string
 
 export function AdminCoachActions({
   coachId,
+  showEditTrigger = true,
   locale = "en",
   classTypeOptions = [],
   classOptions = [],
@@ -649,13 +651,15 @@ export function AdminCoachActions({
 
   return (
     <>
-      <div className="flex items-center justify-center">
-        <EditActionButton
-          ariaLabel={t("editCoach")}
-          title={t("editCoach")}
-          onClick={openModal}
-        />
-      </div>
+      {showEditTrigger ? (
+        <div className="flex items-center justify-center">
+          <EditActionButton
+            ariaLabel={t("editCoach")}
+            title={t("editCoach")}
+            onClick={openModal}
+          />
+        </div>
+      ) : null}
 
       {inlineMessage ? (
         <div

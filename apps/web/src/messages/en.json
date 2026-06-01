@@ -1091,6 +1091,9 @@
       "confirmDeactivate": "Deactivate this coach? Existing classes and bookings are not deleted.",
       "activateSuccess": "Coach activated",
       "deactivateSuccess": "Coach deactivated",
+      "deleteCoach": "Delete coach",
+      "deleteConfirm": "Delete this coach permanently? This cannot be undone.",
+      "deleteSuccess": "Coach deleted",
       "drawer": {
         "eyebrow": "Coach profile",
         "close": "Close",

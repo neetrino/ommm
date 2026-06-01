@@ -531,6 +531,57 @@ export class CoachesService {
     return updated;
   }
 
+  async remove(actor: User, coachProfileId: string): Promise<void> {
+    const profile = await this.prisma.coachProfile.findUnique({
+      where: { id: coachProfileId },
+      include: {
+        user: { select: { id: true, avatarUrl: true } },
+        _count: { select: { sessions: true } },
+      },
+    });
+    if (!profile) {
+      throw new NotFoundException('Coach profile not found');
+    }
+    if (profile._count.sessions > 0) {
+      throw new BadRequestException(
+        'Cannot delete a coach assigned to class sessions. Deactivate the coach instead.',
+      );
+    }
+
+    const avatarUrl = profile.user.avatarUrl;
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.classSession.updateMany({
+          where: { substituteCoachId: coachProfileId },
+          data: { substituteCoachId: null },
+        });
+        await tx.coachProfile.delete({ where: { id: coachProfileId } });
+        await tx.user.delete({ where: { id: profile.user.id } });
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new BadRequestException(
+          'This coach account has linked records and cannot be deleted. Deactivate instead.',
+        );
+      }
+      throw error;
+    }
+
+    await this.removeOldCoachPhoto(avatarUrl, '');
+    await this.audit.log({
+      actorId: actor.id,
+      actorRole: actor.role,
+      action: 'COACH_DELETED',
+      entityType: 'CoachProfile',
+      entityId: coachProfileId,
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
+  }
+
   listAdmin(query: AdminListCoachesQueryDto = {}) {
     const q = query.q?.trim();
     const specialization = query.specialization?.trim();
