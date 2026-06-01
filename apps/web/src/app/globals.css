@@ -287,6 +287,18 @@ html {
     @apply bg-white text-[#97907c] shadow-sm;
   }
 
+  .ommm-admin-nav-link-muted {
+    @apply text-[#c5bf9f];
+  }
+
+  .ommm-admin-nav-link-muted:hover:not(.ommm-admin-nav-link-active) {
+    @apply text-[#d4ceb0];
+  }
+
+  .ommm-admin-nav-link-muted.ommm-admin-nav-link-active {
+    @apply text-[#97907c];
+  }
+
   .ommm-admin-header-bar {
     @apply mb-6 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
   }
