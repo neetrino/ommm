@@ -414,7 +414,7 @@ function ClientsTable({
           <col className="w-[10%]" />
           <col className="w-32" />
         </colgroup>
-        <thead className={adminChrome.thead}>
+        <thead className={`${adminChrome.thead} border-b-0 ${adminChrome.tableHeadDivider}`}>
           <tr>
             <th className={adminChrome.th}>Clients</th>
             <th className={`${adminChrome.th} text-center`}>Date of birth</th>
@@ -424,7 +424,7 @@ function ClientsTable({
             <th className={`${adminChrome.th} text-center`}>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={adminChrome.tableBodyDividers}>
           {rows.map((row) => (
             <ClientTableRow
               key={row.id}
@@ -449,7 +449,7 @@ function ClientTableRow({
   onChanged: () => void;
 }) {
   return (
-    <tr className={adminChrome.tr}>
+    <tr>
       <td className={adminChrome.tdStrong}>
         <div className="flex items-center gap-3">
           <Avatar row={row} />

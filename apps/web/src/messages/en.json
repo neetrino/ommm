@@ -1006,6 +1006,7 @@
       "description": "Coach profiles with specialization and contact details.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load coaches ({status}).",
+      "colCoaches": "Coaches",
       "colName": "Name",
       "colEmail": "Email",
       "colPhone": "Phone",

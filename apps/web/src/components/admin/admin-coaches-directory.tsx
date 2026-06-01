@@ -24,6 +24,9 @@ type AdminCoachesDirectoryProps = {
   locale?: string;
 };
 
+const COACHES_TABLE_ROW_DIVIDER =
+  "border-b-[3px] border-solid border-white shadow-[0_1px_0_0_rgba(255,255,255,0.9)]";
+
 function CoachAvatar({ coach }: { coach: AdminCoachDirectoryRow }) {
   const src =
     coach.user.avatarUrl !== null
@@ -36,13 +39,13 @@ function CoachAvatar({ coach }: { coach: AdminCoachDirectoryRow }) {
         alt=""
         width={40}
         height={40}
-        className="h-10 w-10 rounded-full object-cover"
+        className="h-10 w-10 shrink-0 rounded-full object-cover"
         unoptimized
       />
     );
   }
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
       {coachCardDisplayName(coach.user).slice(0, 2).toUpperCase()}
     </div>
   );
@@ -72,19 +75,17 @@ function AdminCoachesListView({
 
   return (
     <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[58rem]`}>
+      <table className={`${adminChrome.table} table-fixed min-w-[52rem]`}>
         <colgroup>
-          <col className="w-[27%]" />
-          <col className="w-[20%]" />
-          <col className="w-[15%]" />
-          <col className="w-[14%]" />
-          <col className="w-[10%]" />
-          <col className="w-[14%]" />
+          <col className="w-[32%]" />
+          <col className="w-[18%]" />
+          <col className="w-[16%]" />
+          <col className="w-[12%]" />
+          <col className="w-[22%]" />
         </colgroup>
         <thead className={adminChrome.thead}>
           <tr>
-            <th className={adminChrome.th}>{t("colName")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colPhone")}</th>
+            <th className={adminChrome.th}>{t("colCoaches")}</th>
             <th className={`${adminChrome.th} text-center`}>{t("colSpecialization")}</th>
             <th className={`${adminChrome.th} text-center`}>{t("colWorkload")}</th>
             <th className={`${adminChrome.th} text-center`}>{t("colStatus")}</th>
@@ -92,50 +93,57 @@ function AdminCoachesListView({
           </tr>
         </thead>
         <tbody>
-          {coaches.map((coach) => (
-            <tr key={coach.id} className={adminChrome.tr}>
-              <td className={adminChrome.tdStrong}>
-                <div className="flex items-center gap-3">
-                  <CoachAvatar coach={coach} />
-                  <div className="min-w-0">
-                    <button
-                      type="button"
-                      className="break-words text-left underline decoration-sage-300 underline-offset-4"
-                      onClick={() => onSelect(coach)}
-                    >
-                      {coachCardDisplayName(coach.user)}
-                    </button>
-                    <div className="break-words text-xs font-normal text-sage-500">
-                      {coach.user.email}
+          {coaches.map((coach, index) => {
+            const rowDivider =
+              index < coaches.length - 1 ? COACHES_TABLE_ROW_DIVIDER : "";
+
+            return (
+              <tr key={coach.id}>
+                <td className={`${adminChrome.tdStrong} ${rowDivider}`}>
+                  <div className="flex items-center gap-3">
+                    <CoachAvatar coach={coach} />
+                    <div className="min-w-0">
+                      <button
+                        type="button"
+                        className="break-words text-left underline decoration-sage-300 underline-offset-4"
+                        onClick={() => onSelect(coach)}
+                      >
+                        {coachCardDisplayName(coach.user)}
+                      </button>
+                      <div className="break-words text-xs font-normal text-sage-500">
+                        {coach.user.phone ?? "—"}
+                      </div>
+                      <div className="break-words text-xs font-normal text-sage-500">
+                        {coach.user.email}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
-              <td className={`${adminChrome.td} text-center`}>{coach.user.phone ?? "—"}</td>
-              <td className={`${adminChrome.td} text-center`}>
-                {coach.specialization ?? "—"}
-              </td>
-              <td className={`${adminChrome.td} text-center`}>
-                {t("workloadSummary", {
-                  classes: coach.totalClasses,
-                  slots: coach.schedule.length,
-                })}
-              </td>
-              <td className={`${adminChrome.td} text-center`}>
-                <StatusBadge isActive={coach.isActive} />
-              </td>
-              <td className={`${adminChrome.td} text-center`}>
-                <div className="flex justify-center">
-                  <AdminCoachRowActions
-                    coach={coach}
-                    classTypeOptions={classTypeOptions}
-                    classOptions={classOptions}
-                    locale={locale}
-                  />
-                </div>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
+                  {coach.specialization ?? "—"}
+                </td>
+                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
+                  {t("workloadSummary", {
+                    classes: coach.totalClasses,
+                    slots: coach.schedule.length,
+                  })}
+                </td>
+                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
+                  <StatusBadge isActive={coach.isActive} />
+                </td>
+                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
+                  <div className="flex justify-center">
+                    <AdminCoachRowActions
+                      coach={coach}
+                      classTypeOptions={classTypeOptions}
+                      classOptions={classOptions}
+                      locale={locale}
+                    />
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
