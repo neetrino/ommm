@@ -12,7 +12,6 @@ import {
   type AdminClientSegmentFilter,
 } from "@/components/admin/admin-clients-segment-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
@@ -228,15 +227,21 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
     });
   }
 
+  const activeFilterCount = useMemo(() => countActiveClientFilters(filters), [filters]);
+
   return (
     <div className="space-y-4">
       <Summary payload={payload} locale={locale} />
-      <SegmentFilters active={filters.quick} onChange={(value) => updateFilter("quick", value)} />
+      <SegmentFilters
+        active={filters.quick}
+        activeFilterCount={activeFilterCount}
+        onChange={(value) => updateFilter("quick", value)}
+        onReset={resetFilters}
+      />
       <Filters
         filters={filters}
         payload={payload}
         onChange={updateFilter}
-        onReset={resetFilters}
       />
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">Loading...</p> : null}
@@ -274,12 +279,35 @@ function Summary({ payload, locale }: { payload: AdminClientsPayload; locale: st
   return <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">{cards.map(([label, value]) => <div key={label} className={adminChrome.metricCard}><p className={adminChrome.metricLabel}>{label}</p><p className={adminChrome.metricValue}>{value}</p></div>)}</div>;
 }
 
+function countActiveClientFilters(
+  filters: Record<(typeof filterKeys)[number], string>,
+): number {
+  return [
+    filters.search.trim(),
+    filters.tag,
+    filters.status,
+    filters.packageType,
+    filters.classLevel,
+    filters.paymentStatus,
+    filters.source,
+    filters.preferredCoachId,
+    filters.attendance,
+    filters.birthdayMonth,
+    filters.order !== "newest" ? filters.order : "",
+    filters.quick.trim() ? "quick" : "",
+  ].filter(Boolean).length;
+}
+
 function SegmentFilters({
   active,
+  activeFilterCount,
   onChange,
+  onReset,
 }: {
   active: string;
+  activeFilterCount: number;
   onChange: (value: string) => void;
+  onReset: () => void;
 }) {
   const selectedValues = useMemo(() => parseAdminClientSegmentFilters(active), [active]);
   const options = useMemo(
@@ -293,25 +321,33 @@ function SegmentFilters({
 
   return (
     <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="flex flex-col gap-2 sm:max-w-md">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
-          <SegmentFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
-          Client segments
-        </span>
-        <OmmFilterMultiSelect
-          variant="accent"
-          wrapLabel
-          ariaLabel="Client segment filters"
-          allLabel="All clients"
-          selectedValues={selectedValues}
-          onChange={(values) =>
-            onChange(serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]))
-          }
-          formatSelectedCount={(count) =>
-            count === 1 ? "1 segment selected" : `${count} segments selected`
-          }
-          options={options}
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+        <div className="flex min-w-0 flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
+            <SegmentFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
+            Client segments
+          </span>
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            ariaLabel="Client segment filters"
+            allLabel="All clients"
+            selectedValues={selectedValues}
+            onChange={(values) =>
+              onChange(serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]))
+            }
+            formatSelectedCount={(count) =>
+              count === 1 ? "1 segment selected" : `${count} segments selected`
+            }
+            options={options}
+          />
+        </div>
+        <div className="flex shrink-0 items-center gap-3 self-end sm:ml-auto">
+          <button type="button" className="ommm-schedule-accent-button" onClick={onReset}>
+            Reset filters
+          </button>
+          <p className="text-xs text-sage-600">{activeFilterCount} active filters</p>
+        </div>
       </div>
     </div>
   );
@@ -338,7 +374,6 @@ function Filters(props: {
   filters: Record<(typeof filterKeys)[number], string>;
   payload: AdminClientsPayload;
   onChange: (key: (typeof filterKeys)[number], value: string) => void;
-  onReset: () => void;
 }) {
   return (
     <div className="grid gap-2 rounded-2xl border border-white/60 bg-white/70 p-3 md:grid-cols-4 xl:grid-cols-6">
@@ -353,7 +388,6 @@ function Filters(props: {
       <Select value={props.filters.classLevel} onChange={(value) => props.onChange("classLevel", value)} options={[["", "All levels"], ["beginner", "Beginner"], ["intermediate", "Intermediate"], ["advanced", "Advanced"], ...props.payload.filterOptions.classLevels.map((level) => [level, level] as const)]} />
       <Select value={props.filters.preferredCoachId} onChange={(value) => props.onChange("preferredCoachId", value)} options={[["", "All coaches"], ...props.payload.filterOptions.preferredCoaches.map((coach) => [coach.id, coach.name] as const)]} />
       <Select value={props.filters.order} onChange={(value) => props.onChange("order", value)} options={[["newest", "Newest clients first"], ["oldest", "Oldest clients first"], ["most-active", "Most active"], ["highest-lifetime-value", "Highest lifetime value"], ["last-visit-newest", "Last visit newest"], ["last-visit-oldest", "Last visit oldest"], ["most-bookings", "Most bookings"], ["most-cancellations", "Most cancellations"]]} />
-      <OmmButton size="sm" variant="subtle" onClick={props.onReset}>Clear filters</OmmButton>
     </div>
   );
 }
