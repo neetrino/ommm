@@ -88,9 +88,17 @@ type FormState = {
   status: SessionStatus;
 };
 
+type ScheduleToastTone = "ok" | "err";
+
+type ScheduleToast = {
+  tone: ScheduleToastTone;
+  message: string;
+};
+
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
 const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
 const SEARCH_DEBOUNCE_MS = 300;
+const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
 const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
@@ -310,7 +318,7 @@ export function AdminScheduleManagement({
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<ScheduleToast | null>(null);
 
   const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
   const classTypesOpen = scheduleModalParam === CLASS_TYPES_MODAL_QUERY_VALUE;
@@ -373,6 +381,14 @@ export function AdminScheduleManagement({
     return () => window.clearTimeout(handle);
   }, [searchDraft]);
 
+  useEffect(() => {
+    if (toast === null) {
+      return undefined;
+    }
+    const handle = window.setTimeout(() => setToast(null), ADMIN_SCHEDULE_TOAST_DISMISS_MS);
+    return () => window.clearTimeout(handle);
+  }, [toast]);
+
   const levels = useMemo(() => {
     return Array.from(
       new Set(rows.map((row) => row.level).filter((level): level is string => level !== null)),
@@ -434,14 +450,17 @@ export function AdminScheduleManagement({
 
   async function runRowAction(row: AdminScheduleSession, action: () => Promise<AdminScheduleSession | void>, ok: string) {
     setBusyId(row.id);
-    setMessage(null);
+    setToast(null);
     try {
       const updated = await action();
       if (updated) setRows((current) => current.map((item) => (item.id === updated.id ? updated : item)));
-      setMessage(ok);
+      setToast({ tone: "ok", message: ok });
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : t("messages.genericError"));
+      setToast({
+        tone: "err",
+        message: error instanceof ApiError ? error.message : t("messages.genericError"),
+      });
     } finally {
       setBusyId(null);
     }
@@ -469,7 +488,19 @@ export function AdminScheduleManagement({
         onReset={resetFilters}
       />
       <ViewToolbar view={view} onView={updateView} />
-      {message ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{message}</div> : null}
+      {toast ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-4 right-4 z-[95] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
+            toast.tone === "ok"
+              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
+              : "border-red-200/80 bg-red-50/95 text-red-900"
+          }`}
+        >
+          {toast.message}
+        </div>
+      ) : null}
       <ScheduleViews
         locale={locale}
         view={view}
@@ -519,13 +550,15 @@ export function AdminScheduleManagement({
                 ? current.map((row) => (row.id === saved.id ? saved : row))
                 : [...current, saved],
             );
-            setMessage(
-              sessionModalConfig.mode === "create"
-                ? t("messages.createSuccess")
-                : sessionModalConfig.mode === "duplicate"
-                  ? t("messages.duplicateSuccess")
-                  : t("messages.updateSuccess"),
-            );
+            setToast({
+              tone: "ok",
+              message:
+                sessionModalConfig.mode === "create"
+                  ? t("messages.createSuccess")
+                  : sessionModalConfig.mode === "duplicate"
+                    ? t("messages.duplicateSuccess")
+                    : t("messages.updateSuccess"),
+            });
             if (addClassOpen) {
               closeAddClassModal();
             } else {
