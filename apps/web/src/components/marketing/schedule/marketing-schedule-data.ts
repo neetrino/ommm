@@ -2,7 +2,7 @@ import type {
   MarketingScheduleDayOfWeek,
   MarketingScheduleItem,
 } from "@/components/marketing/schedule/marketing-schedule-types";
-import { serverApiJson } from "@/lib/server-api";
+import { serverApiJsonPublic } from "@/lib/server-api";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 
 type MarketingScheduleDataResult = {
@@ -34,12 +34,9 @@ function toSorted(items: MarketingScheduleItem[]): MarketingScheduleItem[] {
   });
 }
 
-export async function fetchPublicScheduleItems(
-  cookieHeader: string,
-): Promise<MarketingScheduleDataResult> {
-  const res = await serverApiJson<MarketingScheduleItem[]>(
+export async function fetchPublicScheduleItems(): Promise<MarketingScheduleDataResult> {
+  const res = await serverApiJsonPublic<MarketingScheduleItem[]>(
     "/schedule/public",
-    cookieHeader,
   );
   if (!res.ok) {
     return {

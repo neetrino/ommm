@@ -12,6 +12,11 @@ import { join } from 'node:path';
 import { Prisma } from '@prisma/client';
 import { BookingStatus, Role, WaitlistStatus, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import {
+  PUBLIC_CACHE_KEYS,
+  PUBLIC_CACHE_TTL_SEC,
+} from '../cache/public-cache-keys';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { hashPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
@@ -101,23 +106,29 @@ export class CoachesService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly r2Storage: R2HomeImageStorage,
+    private readonly cache: RedisCacheService,
   ) {}
 
   listPublic() {
-    return this.prisma.coachProfile.findMany({
-      where: { isActive: true },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            email: true,
-            avatarUrl: true,
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.coaches,
+      PUBLIC_CACHE_TTL_SEC.coaches,
+      () =>
+        this.prisma.coachProfile.findMany({
+          where: { isActive: true },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                lastName: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
           },
-        },
-      },
-    });
+        }),
+    );
   }
 
   getPublic(id: string) {
@@ -170,7 +181,7 @@ export class CoachesService {
       dto.birthday,
     );
 
-    return this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email,
@@ -230,6 +241,8 @@ export class CoachesService {
         select: coachCreateSelect,
       });
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
+    return created;
   }
 
   async uploadCoachPhotoJson(
@@ -279,6 +292,7 @@ export class CoachesService {
       data: { avatarUrl },
     });
     await this.removeOldCoachPhoto(profile.user.avatarUrl, avatarUrl);
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
     return { avatarUrl };
   }
 
@@ -513,6 +527,7 @@ export class CoachesService {
       entityId: coachProfileId,
       payload: dto,
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
     return updated;
   }
 

@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { serverApiJson } from "@/lib/server-api";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type PublicMembershipPlan = {
   id: string;
@@ -92,7 +92,7 @@ function toHomeCards(
 
 export async function HomeMembershipsSection({ locale }: { locale: string }) {
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await serverApiJson<PublicMembershipPlan[]>("/memberships/plans", "");
+  const res = await serverApiJsonPublic<PublicMembershipPlan[]>("/memberships/plans");
   const activePlans = res.ok ? res.data.filter((plan) => plan.isActive) : [];
   const cards =
     activePlans.length > 0 ? toHomeCards(activePlans, locale, m) : fallbackCards(m);

@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { HomeHeroPhotoBanner } from "@/components/marketing/home/home-hero-photo-banner";
 import { HomeWeeklyScheduleBanner } from "@/components/marketing/home/home-weekly-schedule-banner";
+import { HomeWeeklyScheduleBannerSkeleton } from "@/components/marketing/home/home-weekly-schedule-banner-skeleton";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type MarketingPublicHeroProps = {
@@ -13,7 +15,9 @@ export async function MarketingPublicHero({ locale }: MarketingPublicHeroProps) 
   return (
     <div className={`${marketingMontserrat.variable} w-full min-w-0`}>
       <HomeHeroPhotoBanner locale={locale} />
-      <HomeWeeklyScheduleBanner locale={locale} />
+      <Suspense fallback={<HomeWeeklyScheduleBannerSkeleton />}>
+        <HomeWeeklyScheduleBanner locale={locale} />
+      </Suspense>
     </div>
   );
 }

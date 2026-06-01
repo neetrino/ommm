@@ -4,6 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ScheduleDayOfWeek, type ScheduleItem } from '@prisma/client';
+import {
+  PUBLIC_CACHE_KEYS,
+  PUBLIC_CACHE_TTL_SEC,
+} from '../cache/public-cache-keys';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateScheduleItemDto } from './dto/create-schedule-item.dto';
 import { UpdateScheduleItemDto } from './dto/update-schedule-item.dto';
@@ -34,7 +39,10 @@ function assertTimeRange(startTime: string, endTime?: string): void {
 
 @Injectable()
 export class ScheduleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: RedisCacheService,
+  ) {}
 
   private sortByDayAndTime(items: ScheduleItem[]): ScheduleItem[] {
     return [...items].sort((a, b) => {
@@ -61,6 +69,14 @@ export class ScheduleService {
   }
 
   async listPublicActive() {
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.schedule,
+      PUBLIC_CACHE_TTL_SEC.schedule,
+      () => this.loadPublicActiveFromDb(),
+    );
+  }
+
+  private async loadPublicActiveFromDb() {
     const items = await this.prisma.scheduleItem.findMany({
       where: { isActive: true },
       orderBy: [
@@ -88,6 +104,7 @@ export class ScheduleService {
         isActive: dto.isActive ?? true,
       },
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.schedule);
     return item;
   }
 
@@ -124,10 +141,12 @@ export class ScheduleService {
         isActive: dto.isActive,
       },
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.schedule);
     return item;
   }
 
   async remove(id: string): Promise<void> {
     await this.prisma.scheduleItem.delete({ where: { id } });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.schedule);
   }
 }

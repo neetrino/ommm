@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { serverApiJson } from "@/lib/server-api";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type Plan = {
   id: string;
@@ -26,7 +26,7 @@ export default async function PackagesMarketingPage({
 }) {
   const { locale } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await serverApiJson<Plan[]>("/memberships/plans", "");
+  const res = await serverApiJsonPublic<Plan[]>("/memberships/plans");
 
   const activePlans = res.ok ? res.data.filter((p) => p.isActive) : [];
 

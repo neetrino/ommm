@@ -7,6 +7,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CacheModule } from './cache/cache.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
@@ -80,6 +81,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
         path.join(monorepoRoot, '.env'),
       ],
     }),
+    CacheModule,
     PrismaModule,
     MailModule,
     AuthModule,
