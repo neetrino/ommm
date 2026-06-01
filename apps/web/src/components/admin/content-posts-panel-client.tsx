@@ -189,7 +189,7 @@ export function ContentPostsPanelClient({
           onChange={setType}
           disabled={busyId !== null}
           required
-          triggerClassName="h-9 min-h-9 text-xs"
+          triggerClassName="ommm-dropdown-trigger--compact"
           menuClassName="text-xs"
         />
         <DropdownSelect
@@ -201,7 +201,7 @@ export function ContentPostsPanelClient({
           onChange={setStatus}
           disabled={busyId !== null}
           required
-          triggerClassName="h-9 min-h-9 text-xs"
+          triggerClassName="ommm-dropdown-trigger--compact"
           menuClassName="text-xs"
         />
         <button
@@ -264,7 +264,7 @@ export function ContentPostsPanelClient({
               : typeFilter
           }
           value={typeFilter}
-          triggerClassName="app-input h-9 min-h-9 py-1.5 pr-9 text-left text-xs"
+          triggerClassName="ommm-dropdown-trigger--compact"
           options={[
             { value: "ALL", label: labels.labels.allTypes },
             ...CONTENT_TYPES.map((value) => ({ value, label: value })),
@@ -281,7 +281,7 @@ export function ContentPostsPanelClient({
               : statusFilter
           }
           value={statusFilter}
-          triggerClassName="app-input h-9 min-h-9 py-1.5 pr-9 text-left text-xs"
+          triggerClassName="ommm-dropdown-trigger--compact"
           options={[
             { value: "ALL", label: labels.labels.allStatuses },
             ...CONTENT_STATUS.map((value) => ({ value, label: value })),

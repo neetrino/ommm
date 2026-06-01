@@ -4,9 +4,6 @@ import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-se
 
 export type OmmSelectOption<T extends string = string> = DropdownOption<T>;
 
-const OMM_TRIGGER_CLASS =
-  "ommm-input min-h-10 py-2 pr-9 text-left [appearance:none]";
-
 export type OmmSelectDropdownProps<T extends string> = {
   ariaLabel: string;
   value: T;
@@ -52,7 +49,7 @@ export function OmmSelectDropdown<T extends string>({
       name={name}
       required={required}
       disabled={disabled}
-      triggerClassName={triggerClassName ?? OMM_TRIGGER_CLASS}
+      triggerClassName={triggerClassName}
       menuClassName={menuClassName}
     />
   );

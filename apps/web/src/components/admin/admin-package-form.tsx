@@ -222,7 +222,6 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
             options={billingPeriodOptions}
             onChange={setBillingPeriodValue}
             name="billingPeriod"
-            triggerClassName="ommm-input text-left pr-9"
             required
             disabled={pending}
           />

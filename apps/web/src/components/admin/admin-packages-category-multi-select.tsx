@@ -4,18 +4,12 @@ import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
+import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
+import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 
 export type AdminPackagesCategoryOption = {
   id: string;
   label: string;
-};
-
-type MenuPosition = {
-  top: number;
-  left: number;
-  width: number;
-  maxHeight: number;
-  placement: "top" | "bottom";
 };
 
 type AdminPackagesCategoryMultiSelectProps = {
@@ -26,26 +20,7 @@ type AdminPackagesCategoryMultiSelectProps = {
 };
 
 const MENU_MIN_HEIGHT = 140;
-const MENU_SPACING = 8;
 const TRIGGER_MIN_WIDTH = 280;
-
-function CheckGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
-    </svg>
-  );
-}
 
 function buildSelectionFromIds(
   options: readonly AdminPackagesCategoryOption[],
@@ -69,7 +44,6 @@ export function AdminPackagesCategoryMultiSelect({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
 
   const selectedOptions = useMemo(
     () => options.filter((option) => selectedIds.has(option.id)),
@@ -77,6 +51,13 @@ export function AdminPackagesCategoryMultiSelect({
   );
   const allSelected = options.length > 0 && selectedOptions.length === options.length;
   const isMenuOpen = open && !disabled && options.length > 0;
+  const menuPosition = useFloatingMenuPosition(
+    triggerRef,
+    isMenuOpen,
+    disabled,
+    MENU_MIN_HEIGHT,
+    TRIGGER_MIN_WIDTH,
+  );
 
   useEffect(() => {
     setPortalReady(true);
@@ -91,8 +72,8 @@ export function AdminPackagesCategoryMultiSelect({
         return;
       }
       const clickedTrigger = rootRef.current?.contains(event.target) ?? false;
-      const clickedList = menuRef.current?.contains(event.target) ?? false;
-      if (!clickedTrigger && !clickedList) {
+      const clickedMenu = menuRef.current?.contains(event.target) ?? false;
+      if (!clickedTrigger && !clickedMenu) {
         setOpen(false);
       }
     };
@@ -101,37 +82,6 @@ export function AdminPackagesCategoryMultiSelect({
     return () => {
       document.removeEventListener("mousedown", closeOnOutside);
       document.removeEventListener("touchstart", closeOnOutside);
-    };
-  }, [disabled, open]);
-
-  useEffect(() => {
-    if (!open || disabled) {
-      return undefined;
-    }
-    const updatePosition = () => {
-      const trigger = triggerRef.current;
-      if (trigger === null) {
-        return;
-      }
-      const rect = trigger.getBoundingClientRect();
-      const width = Math.min(Math.max(rect.width, TRIGGER_MIN_WIDTH), window.innerWidth - 16);
-      const availableBelow = window.innerHeight - rect.bottom - MENU_SPACING;
-      const availableAbove = rect.top - MENU_SPACING;
-      const openAbove = availableBelow < MENU_MIN_HEIGHT && availableAbove > availableBelow;
-      setMenuPosition({
-        top: openAbove ? rect.top - MENU_SPACING : rect.bottom + MENU_SPACING,
-        left: Math.min(rect.left, Math.max(8, window.innerWidth - width - 8)),
-        width,
-        maxHeight: Math.max(120, openAbove ? availableAbove : availableBelow),
-        placement: openAbove ? "top" : "bottom",
-      });
-    };
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
     };
   }, [disabled, open]);
 
@@ -176,7 +126,7 @@ export function AdminPackagesCategoryMultiSelect({
     return (
       <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
         {selectedOptions.map((option) => (
-          <span key={option.id} className="ommm-admin-packages-category-chip">
+          <span key={option.id} className="ommm-dropdown-chip">
             {option.label}
           </span>
         ))}
@@ -185,11 +135,11 @@ export function AdminPackagesCategoryMultiSelect({
   }
 
   return (
-    <div ref={rootRef} className="ommm-admin-packages-category-filter">
+    <div ref={rootRef} className="ommm-dropdown-root ommm-admin-packages-category-filter">
       <button
         ref={triggerRef}
         type="button"
-        className="ommm-admin-packages-category-trigger"
+        className="ommm-dropdown-trigger"
         data-open={isMenuOpen ? "true" : "false"}
         aria-label={t("categoriesLabel")}
         aria-haspopup="listbox"
@@ -220,7 +170,7 @@ export function AdminPackagesCategoryMultiSelect({
         ? createPortal(
             <div
               ref={menuRef}
-              className="ommm-admin-packages-category-menu"
+              className="ommm-dropdown-menu"
               style={{
                 top: menuPosition.top,
                 left: menuPosition.left,
@@ -229,14 +179,14 @@ export function AdminPackagesCategoryMultiSelect({
                 transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
               }}
             >
-              <div className="ommm-admin-packages-category-menu-header">
+              <div className="ommm-dropdown-menu-header">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#97907c]">
                   {t("categoriesLabel")}
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="ommm-admin-packages-category-menu-action"
+                    className="ommm-dropdown-menu-action"
                     onClick={selectAll}
                     disabled={allSelected}
                   >
@@ -244,7 +194,7 @@ export function AdminPackagesCategoryMultiSelect({
                   </button>
                   <button
                     type="button"
-                    className="ommm-admin-packages-category-menu-action"
+                    className="ommm-dropdown-menu-action"
                     onClick={clearAll}
                     disabled={selectedOptions.length === 0}
                   >
@@ -257,7 +207,8 @@ export function AdminPackagesCategoryMultiSelect({
                 role="listbox"
                 aria-label={t("categoriesLabel")}
                 aria-multiselectable="true"
-                className="ommm-admin-packages-category-menu-list"
+                className="ommm-dropdown-menu-list"
+                style={{ maxHeight: Math.max(96, menuPosition.maxHeight - 72) }}
               >
                 {options.map((option) => {
                   const isSelected = selectedIds.has(option.id);
@@ -267,16 +218,16 @@ export function AdminPackagesCategoryMultiSelect({
                         type="button"
                         role="option"
                         aria-selected={isSelected}
-                        className="ommm-admin-packages-category-option"
+                        className="ommm-dropdown-option"
                         data-selected={isSelected ? "true" : "false"}
                         onClick={() => toggleOption(option.id)}
                       >
                         <span
-                          className="ommm-admin-packages-category-checkbox"
+                          className="ommm-dropdown-checkbox"
                           data-checked={isSelected ? "true" : "false"}
                           aria-hidden
                         >
-                          {isSelected ? <CheckGlyph className="h-3 w-3" /> : null}
+                          {isSelected ? <DropdownCheckGlyph className="h-3 w-3" /> : null}
                         </span>
                         <span className="min-w-0 flex-1 truncate">{option.label}</span>
                       </button>
