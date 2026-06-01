@@ -1602,6 +1602,28 @@
       "fieldPopular": "Популярный",
       "fieldActive": "Активен",
       "fieldDisplayOrder": "Порядок отображения",
+      "fieldPeriodDaysHint": "Количество дней в одном платёжном цикле.",
+      "fieldDisplayOrderHint": "Меньшие значения отображаются первыми на сайте.",
+      "fieldPopularHint": "Выделяет этот план значком «Популярный».",
+      "fieldActiveHint": "Неактивные планы скрыты с публичного сайта.",
+      "formSections": {
+        "details": {
+          "heading": "Данные пакета",
+          "description": "Название и краткое описание на сайте"
+        },
+        "pricing": {
+          "heading": "Цена и оплата",
+          "description": "Цена, период оплаты и длина цикла"
+        },
+        "display": {
+          "heading": "Публичное отображение",
+          "description": "Список преимуществ, текст кнопки и порядок"
+        },
+        "visibility": {
+          "heading": "Видимость",
+          "description": "Значок «Популярный» и статус активности"
+        }
+      },
       "nameRequired": "Название пакета обязательно.",
       "nameTooLong": "Название пакета слишком длинное.",
       "descriptionTooLong": "Описание слишком длинное.",

@@ -2,44 +2,27 @@
 
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
+import {
+  BILLING_PERIOD_OPTIONS,
+  isBillingPeriodOption,
+  MAX_BILLING_PERIOD_LENGTH,
+  MAX_BUTTON_LABEL_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_FEATURES_LENGTH,
+  MAX_NAME_LENGTH,
+  parsePriceToCents,
+  preventNumberArrowStep,
+  type BillingPeriodOption,
+} from "@/components/admin/admin-package-form-utils";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
-
-const MAX_NAME_LENGTH = 120;
-const MAX_DESCRIPTION_LENGTH = 500;
-const MAX_BILLING_PERIOD_LENGTH = 32;
-const MAX_FEATURES_LENGTH = 1200;
-const MAX_BUTTON_LABEL_LENGTH = 80;
-const BILLING_PERIOD_OPTIONS = ["weekly", "monthly", "quarterly", "yearly"] as const;
-type BillingPeriodOption = (typeof BILLING_PERIOD_OPTIONS)[number];
 
 type AdminPackageFormProps = {
   onSaved: () => void;
   onCancel: () => void;
 };
-
-function parsePriceToCents(raw: string): number | null {
-  const normalized = raw.trim().replace(",", ".");
-  if (normalized.length === 0) {
-    return null;
-  }
-  const numeric = Number(normalized);
-  if (!Number.isFinite(numeric) || numeric < 0) {
-    return null;
-  }
-  return Math.round(numeric * 100);
-}
-
-function preventNumberArrowStep(event: React.KeyboardEvent<HTMLInputElement>) {
-  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-    event.preventDefault();
-  }
-}
-
-function isBillingPeriodOption(value: string): value is BillingPeriodOption {
-  return BILLING_PERIOD_OPTIONS.includes(value as BillingPeriodOption);
-}
 
 export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
   const t = useTranslations("adminPages.packages");
@@ -166,133 +149,172 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-5"
     >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
-          <input
-            name="name"
-            className="ommm-input"
-            maxLength={MAX_NAME_LENGTH}
-            required
-            disabled={pending}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
-          <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3 z-10 inline-flex items-center text-sm font-semibold text-black">
-              ֏
-            </span>
+      <AdminPackageFormSection
+        heading={t("formSections.details.heading")}
+        description={t("formSections.details.description")}
+      >
+        <div className="flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
             <input
-              name="price"
-              type="number"
-              className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              min={0}
-              step="0.01"
-              inputMode="decimal"
-              onKeyDown={preventNumberArrowStep}
+              name="name"
+              className="ommm-input"
+              maxLength={MAX_NAME_LENGTH}
               required
               disabled={pending}
             />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+            <textarea
+              name="description"
+              className="ommm-input min-h-24 resize-y"
+              maxLength={MAX_DESCRIPTION_LENGTH}
+              disabled={pending}
+            />
+          </label>
+        </div>
+      </AdminPackageFormSection>
+
+      <AdminPackageFormSection
+        heading={t("formSections.pricing.heading")}
+        description={t("formSections.pricing.description")}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 z-10 inline-flex items-center text-sm font-semibold text-sage-700">
+                ֏
+              </span>
+              <input
+                name="price"
+                type="number"
+                className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
+                onKeyDown={preventNumberArrowStep}
+                required
+                disabled={pending}
+              />
+            </div>
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPeriodDays")}</span>
+            <input
+              name="periodDays"
+              type="number"
+              className="ommm-input"
+              min={1}
+              step={1}
+              defaultValue={30}
+              required
+              disabled={pending}
+            />
+            <span className="text-xs text-sage-500">{t("fieldPeriodDaysHint")}</span>
+          </label>
+          <label className="flex flex-col gap-1.5 sm:col-span-2">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("fieldBillingPeriod")}
+            </span>
+            <DropdownSelect
+              label={t("fieldBillingPeriod")}
+              ariaLabel={t("fieldBillingPeriod")}
+              value={billingPeriodValue}
+              options={billingPeriodOptions}
+              onChange={setBillingPeriodValue}
+              name="billingPeriod"
+              required
+              disabled={pending}
+            />
+          </label>
+        </div>
+      </AdminPackageFormSection>
+
+      <AdminPackageFormSection
+        heading={t("formSections.display.heading")}
+        description={t("formSections.display.description")}
+      >
+        <div className="flex flex-col gap-4">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldFeatures")}</span>
+            <textarea
+              name="features"
+              className="ommm-input min-h-28 resize-y"
+              placeholder={t("featuresPlaceholder")}
+              maxLength={MAX_FEATURES_LENGTH}
+              disabled={pending}
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldButtonLabel")}
+              </span>
+              <input
+                name="buttonLabel"
+                className="ommm-input"
+                defaultValue="Choose plan"
+                maxLength={MAX_BUTTON_LABEL_LENGTH}
+                required
+                disabled={pending}
+              />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">
+                {t("fieldDisplayOrder")}
+              </span>
+              <input
+                name="displayOrder"
+                type="number"
+                className="ommm-input"
+                min={0}
+                step={1}
+                defaultValue={0}
+                required
+                disabled={pending}
+              />
+              <span className="text-xs text-sage-500">{t("fieldDisplayOrderHint")}</span>
+            </label>
           </div>
-        </label>
-      </div>
+        </div>
+      </AdminPackageFormSection>
 
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
-        <textarea
-          name="description"
-          className="ommm-input min-h-20"
-          maxLength={MAX_DESCRIPTION_LENGTH}
-          disabled={pending}
-        />
-      </label>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("fieldBillingPeriod")}
-          </span>
-          <DropdownSelect
-            label={t("fieldBillingPeriod")}
-            ariaLabel={t("fieldBillingPeriod")}
-            value={billingPeriodValue}
-            options={billingPeriodOptions}
-            onChange={setBillingPeriodValue}
-            name="billingPeriod"
-            required
-            disabled={pending}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPeriodDays")}</span>
-          <input
-            name="periodDays"
-            type="number"
-            className="ommm-input"
-            min={1}
-            step={1}
-            defaultValue={30}
-            required
-            disabled={pending}
-          />
-        </label>
-      </div>
-
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldFeatures")}</span>
-        <textarea
-          name="features"
-          className="ommm-input min-h-24"
-          placeholder={t("featuresPlaceholder")}
-          maxLength={MAX_FEATURES_LENGTH}
-          disabled={pending}
-        />
-      </label>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("fieldButtonLabel")}
-          </span>
-          <input
-            name="buttonLabel"
-            className="ommm-input"
-            defaultValue="Choose plan"
-            maxLength={MAX_BUTTON_LABEL_LENGTH}
-            required
-            disabled={pending}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">
-            {t("fieldDisplayOrder")}
-          </span>
-          <input
-            name="displayOrder"
-            type="number"
-            className="ommm-input"
-            min={0}
-            step={1}
-            defaultValue={0}
-            required
-            disabled={pending}
-          />
-        </label>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex items-center gap-2 rounded-xl border border-white/60 bg-white/50 px-3 py-2">
-          <input type="checkbox" name="isPopular" disabled={pending} />
-          <span className="text-sm text-sage-700">{t("fieldPopular")}</span>
-        </label>
-        <label className="flex items-center gap-2 rounded-xl border border-white/60 bg-white/50 px-3 py-2">
-          <input type="checkbox" name="isActive" defaultChecked disabled={pending} />
-          <span className="text-sm text-sage-700">{t("fieldActive")}</span>
-        </label>
-      </div>
+      <AdminPackageFormSection
+        heading={t("formSections.visibility.heading")}
+        description={t("formSections.visibility.description")}
+      >
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-colors has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60">
+            <input
+              type="checkbox"
+              name="isPopular"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
+              disabled={pending}
+            />
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-sage-800">{t("fieldPopular")}</span>
+              <span className="text-xs text-sage-500">{t("fieldPopularHint")}</span>
+            </span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-colors has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60">
+            <input
+              type="checkbox"
+              name="isActive"
+              defaultChecked
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
+              disabled={pending}
+            />
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-medium text-sage-800">{t("fieldActive")}</span>
+              <span className="text-xs text-sage-500">{t("fieldActiveHint")}</span>
+            </span>
+          </label>
+        </div>
+      </AdminPackageFormSection>
 
       {error !== null ? (
         <p className="app-alert-warn text-sm" role="alert">
@@ -300,11 +322,11 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <OmmButton type="button" variant="secondary" size="sm" onClick={onCancel} disabled={pending}>
+      <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-7 sm:px-7">
+        <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={pending}>
           {t("cancelButton")}
         </OmmButton>
-        <OmmButton type="submit" variant="primary" size="sm" disabled={pending}>
+        <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
           {pending ? t("savingButton") : t("saveButton")}
         </OmmButton>
       </div>

@@ -1611,6 +1611,28 @@
       "fieldPopular": "Popular",
       "fieldActive": "Active",
       "fieldDisplayOrder": "Display order",
+      "fieldPeriodDaysHint": "Number of days in one billing cycle.",
+      "fieldDisplayOrderHint": "Lower numbers appear first on the site.",
+      "fieldPopularHint": "Highlights this plan with a popular badge.",
+      "fieldActiveHint": "Inactive plans are hidden from the public site.",
+      "formSections": {
+        "details": {
+          "heading": "Package details",
+          "description": "Name and short description shown on the site"
+        },
+        "pricing": {
+          "heading": "Pricing & billing",
+          "description": "Price, billing period, and cycle length"
+        },
+        "display": {
+          "heading": "Public display",
+          "description": "Features list, CTA label, and sort order"
+        },
+        "visibility": {
+          "heading": "Visibility",
+          "description": "Popular badge and active status"
+        }
+      },
       "nameRequired": "Package name is required.",
       "nameTooLong": "Package name is too long.",
       "descriptionTooLong": "Description is too long.",

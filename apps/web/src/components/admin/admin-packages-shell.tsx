@@ -120,9 +120,9 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descId}
-            className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+            className="relative z-10 mt-auto flex max-h-[min(92vh,760px)] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
               <div>
                 <h2 id={titleId} className={adminChrome.panelHeading}>
                   {t("createTitle")}
@@ -151,7 +151,7 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
                 </svg>
               </button>
             </div>
-            <div className="mt-5">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
               <AdminPackageForm onSaved={onCreated} onCancel={closeModal} />
             </div>
           </div>
