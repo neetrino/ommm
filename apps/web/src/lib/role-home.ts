@@ -2,7 +2,7 @@
 export const USER_HOME_PATH = "/user/home";
 
 /** Backoffice home for studio administrators (`Role.ADMIN`). */
-export const ADMIN_HOME_PATH = "/admin/home";
+export const ADMIN_HOME_PATH = "/admin/dashboard";
 
 /** Content editor workspace (Prisma `Role.CONTENT_ADMIN`). */
 export const CONTENT_ADMIN_HOME_PATH = "/content-admin/home";

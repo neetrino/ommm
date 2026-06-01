@@ -17,7 +17,7 @@ export type AdminNavIconSlug =
 
 /** Maps admin sidebar routes to Figma-exported icon assets. */
 export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
-  "/admin/home": "dashboard",
+  "/admin/dashboard": "dashboard",
   "/admin/bookings": "bookings",
   "/admin/waitlists": "waitlists",
   "/admin/clients": "clients",

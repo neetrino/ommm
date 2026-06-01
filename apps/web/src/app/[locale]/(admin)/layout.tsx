@@ -30,7 +30,7 @@ export default async function AdminSectionLayout({
 
   return (
     <DashboardAppShell
-      brandHref="/admin/home"
+      brandHref="/admin/dashboard"
       brandLabel={tDash("brand.admin.title")}
       brandSubline={tDash("brand.admin.subline")}
       variant="admin"
