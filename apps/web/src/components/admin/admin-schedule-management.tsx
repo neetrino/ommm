@@ -165,6 +165,36 @@ function spotsLeft(row: AdminScheduleSession): number {
   return Math.max(row.capacity - row._count.bookings, 0);
 }
 
+function formatSessionTimes(
+  locale: string,
+  startsAt: string,
+  endsAt: string,
+): { start: string; end: string } {
+  const formatter = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
+  return {
+    start: formatter.format(new Date(startsAt)),
+    end: formatter.format(new Date(endsAt)),
+  };
+}
+
+const scheduleTable = {
+  wrap: adminChrome.tableWrap,
+  table: "w-full min-w-[56rem] table-fixed border-collapse text-left text-xs sm:text-sm",
+  row: `${adminChrome.tr} transition-colors hover:bg-white/40`,
+  th: `${adminChrome.th} px-3 py-3 align-middle first:pl-5 last:pr-5`,
+  thCompact: `${adminChrome.th} px-3 py-3 text-center align-middle whitespace-nowrap`,
+  thGroup: `${adminChrome.th} w-[9%] px-4 py-3 align-middle whitespace-nowrap`,
+  thGroupCenter: `${adminChrome.th} w-[9%] px-4 py-3 text-center align-middle whitespace-nowrap`,
+  thActions: `${adminChrome.th} w-[6.5rem] px-2 py-3 text-center align-middle`,
+  tdPrimary: `${adminChrome.tdStrong} min-w-0 px-3 py-3.5 align-middle first:pl-5`,
+  td: `${adminChrome.td} min-w-0 px-3 py-3.5 align-middle`,
+  tdMuted: `${adminChrome.tdMuted} min-w-0 px-3 py-3.5 align-middle`,
+  tdCompact: `${adminChrome.td} px-3 py-3.5 text-center align-middle whitespace-nowrap tabular-nums`,
+  tdGroup: `${adminChrome.td} w-[9%] min-w-0 px-4 py-3.5 align-middle`,
+  tdGroupCenter: `${adminChrome.td} w-[9%] px-4 py-3.5 text-center align-middle whitespace-nowrap tabular-nums`,
+  tdActions: "w-[6.5rem] min-w-0 px-2 py-2 align-middle last:pr-3",
+} as const;
+
 function initialFilters(): Filters {
   return {
     q: "",
@@ -1060,21 +1090,34 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
     return <div className={adminChrome.panel}><p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p><p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p></div>;
   }
   return (
-    <div className="overflow-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
-      <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+    <div className={scheduleTable.wrap}>
+      <table className={scheduleTable.table}>
         <colgroup>
-          <col className="w-[14%]" />
-          <col className="w-[11%]" />
-          <col className="w-[8%]" />
+          <col className="w-[16%]" />
+          <col className="w-[12%]" />
+          <col className="w-[9%]" />
           <col className="w-[10%]" />
-          <col className="w-[6%]" />
+          <col className="w-[9%]" />
           <col className="w-[9%]" />
           <col className="w-[9%]" />
           <col className="w-[7%]" />
           <col className="w-[8%]" />
-          <col className="w-[18%]" />
+          <col className="w-[11%]" />
         </colgroup>
-        <thead className={adminChrome.thead}><tr><th className={adminChrome.th}>{t("colClass")}</th><th className={adminChrome.th}>{t("colType")}</th><th className={adminChrome.th}>{t("colDate")}</th><th className={adminChrome.th}>{t("colTime")}</th><th className={adminChrome.th}>{t("fields.duration")}</th><th className={adminChrome.th}>{t("colCoach")}</th><th className={adminChrome.th}>{t("colCapacity")}</th><th className={adminChrome.th}>{t("colLevel")}</th><th className={adminChrome.th}>{t("colStatus")}</th><th className={`${adminChrome.th} text-center`}>{t("colActions")}</th></tr></thead>
+        <thead className={adminChrome.thead}>
+          <tr>
+            <th className={scheduleTable.th}>{t("colClass")}</th>
+            <th className={scheduleTable.th}>{t("colType")}</th>
+            <th className={scheduleTable.th}>{t("colDate")}</th>
+            <th className={scheduleTable.th}>{t("colTime")}</th>
+            <th className={scheduleTable.thGroupCenter}>{t("fields.duration")}</th>
+            <th className={scheduleTable.thGroup}>{t("colCoach")}</th>
+            <th className={scheduleTable.thGroupCenter}>{t("colCapacity")}</th>
+            <th className={scheduleTable.th}>{t("colLevel")}</th>
+            <th className={scheduleTable.thCompact}>{t("colStatus")}</th>
+            <th className={scheduleTable.thActions}>{t("colActions")}</th>
+          </tr>
+        </thead>
         <tbody>{rows.map((row) => <SessionRow key={row.id} row={row} {...props} />)}</tbody>
       </table>
     </div>
@@ -1084,19 +1127,64 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
 function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDelete, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDelete: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
   const t = useTranslations("adminPages.classes");
   const busy = busyId === row.id;
-  const timeRange = `${new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.startsAt))} - ${new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.endsAt))}`;
+  const times = formatSessionTimes(locale, row.startsAt, row.endsAt);
+  const classFormat = row.classFormat?.trim();
+
   return (
-    <tr className={adminChrome.tr}>
-      <td className={`${adminChrome.tdStrong} min-w-0`}><button type="button" className="block max-w-full truncate text-left underline-offset-2 hover:underline" title={row.title} onClick={() => onDetails(row)}>{row.title}</button></td>
-      <td className={`${adminChrome.td} min-w-0`}><span className="block truncate" title={row.classType.name}>{row.classType.name}</span><div className={`${adminChrome.metaText} truncate`}>{row.classFormat ?? "—"}</div></td>
-      <td className={`${adminChrome.td} min-w-0 whitespace-nowrap`}>{formatDateForUi(row.startsAt)}</td>
-      <td className={`${adminChrome.td} min-w-0`}><span className="block truncate" title={timeRange}>{timeRange}</span></td>
-      <td className={`${adminChrome.td} whitespace-nowrap`}>{durationMinutes(row)}m</td>
-      <td className={`${adminChrome.td} min-w-0`}><span className="block truncate" title={coachName(row.coach)}>{coachName(row.coach)}</span></td>
-      <td className={`${adminChrome.td} min-w-0 whitespace-nowrap`}>{row._count.bookings}/{row.capacity}<div className={adminChrome.metaText}>{t("fields.spotsLeft", { count: spotsLeft(row) })}</div></td>
-      <td className={`${adminChrome.tdMuted} min-w-0`}><span className="block truncate">{row.level ?? "—"}</span></td>
-      <td className={`${adminChrome.td} min-w-0`}><Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} /></td>
-      <td className="min-w-0 px-2 py-3 align-middle">
+    <tr className={scheduleTable.row}>
+      <td className={scheduleTable.tdPrimary}>
+        <button
+          type="button"
+          className="block max-w-full truncate text-left underline-offset-2 hover:underline"
+          title={row.title}
+          onClick={() => onDetails(row)}
+        >
+          {row.title}
+        </button>
+      </td>
+      <td className={scheduleTable.td}>
+        <span className="block truncate font-medium text-sage-800" title={row.classType.name}>
+          {row.classType.name}
+        </span>
+        {classFormat ? (
+          <span className={`${adminChrome.metaText} block truncate`} title={classFormat}>
+            {classFormat}
+          </span>
+        ) : null}
+      </td>
+      <td className={scheduleTable.td}>
+        <span className="block whitespace-nowrap tabular-nums">{formatDateForUi(row.startsAt)}</span>
+      </td>
+      <td className={scheduleTable.td}>
+        <span className="block whitespace-nowrap tabular-nums">{times.start}</span>
+        <span className="block whitespace-nowrap tabular-nums text-xs text-sage-500">{times.end}</span>
+      </td>
+      <td className={scheduleTable.tdGroupCenter}>{durationMinutes(row)}m</td>
+      <td className={scheduleTable.tdGroup}>
+        <span className="block truncate" title={coachName(row.coach)}>
+          {coachName(row.coach)}
+        </span>
+      </td>
+      <td className={scheduleTable.tdGroupCenter}>
+        <span className="block font-medium tabular-nums">
+          {row._count.bookings}/{row.capacity}
+        </span>
+        <span className={`${adminChrome.metaText} block`}>
+          {t("fields.spotsLeft", { count: spotsLeft(row) })}
+        </span>
+      </td>
+      <td className={scheduleTable.tdMuted}>
+        <span className="block truncate">{row.level ?? "—"}</span>
+      </td>
+      <td className={scheduleTable.tdCompact}>
+        <div className="flex justify-center">
+          <Badge
+            label={t(`status.${row.status}`)}
+            tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"}
+          />
+        </div>
+      </td>
+      <td className={scheduleTable.tdActions}>
         <div className="flex items-center justify-center">
           <AdminScheduleSessionActions
             row={row}
@@ -1117,7 +1205,11 @@ function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActiva
 
 function Badge({ label, tone }: { label: string; tone: "slate" | "sand" | "mint" }) {
   const classes = tone === "mint" ? "border-mint-200 bg-mint-50 text-sage-900" : tone === "sand" ? "border-sand-300 bg-sand-50 text-sage-900" : "border-zinc-200 bg-zinc-50 text-zinc-800";
-  return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${classes}`}>{label}</span>;
+  return (
+    <span className={`inline-flex shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium leading-tight ${classes}`}>
+      {label}
+    </span>
+  );
 }
 
 function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
