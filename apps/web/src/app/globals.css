@@ -497,6 +497,10 @@ html {
     @apply mx-auto w-full max-w-[1024px];
   }
 
+  .ommm-admin-content--wide {
+    @apply max-w-[1280px];
+  }
+
   .ommm-admin-add-button {
     @apply inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-[#5f5a4a] px-5 text-xs font-semibold uppercase tracking-[0.12em] text-[#fbf5d5] transition-colors;
     @apply hover:bg-[#4b4537] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
