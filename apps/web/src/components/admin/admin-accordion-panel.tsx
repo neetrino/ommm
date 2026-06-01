@@ -9,6 +9,8 @@ type AdminAccordionPanelProps = {
   children?: ReactNode;
   defaultOpen?: boolean;
   emptyLabel?: string;
+  /** Nested package row inside a category accordion. */
+  nested?: boolean;
 };
 
 function ChevronGlyph({ open }: { open: boolean }) {
@@ -57,6 +59,7 @@ export function AdminAccordionPanel({
   children,
   defaultOpen = false,
   emptyLabel,
+  nested = false,
 }: AdminAccordionPanelProps) {
   const panelId = useId();
   const [open, setOpen] = useState(defaultOpen);
@@ -64,16 +67,22 @@ export function AdminAccordionPanel({
   const showEmpty = open && !hasBody && emptyLabel !== undefined;
 
   return (
-    <article className="ommm-admin-accordion">
-      <div className="flex items-center justify-between gap-4">
-        <h3 className="font-serif text-xl font-normal tracking-tight text-sage-800 sm:text-[1.625rem]">
+    <article
+      className={
+        nested
+          ? "ommm-admin-accordion ommm-admin-accordion-nested"
+          : "ommm-admin-accordion"
+      }
+    >
+      <div className="flex min-h-[46px] items-center justify-between gap-4">
+        <h3 className="font-serif text-xl font-normal tracking-[-0.02em] text-[#464646] sm:text-[1.625rem] sm:leading-[2.6rem]">
           {title}
         </h3>
         <div className="flex shrink-0 items-center gap-5 sm:gap-7">
           {editLabel && onEdit ? (
             <button
               type="button"
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 transition-colors hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#464646] transition-colors hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
               onClick={onEdit}
             >
               {editLabel}

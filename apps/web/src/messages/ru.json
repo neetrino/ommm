@@ -1632,6 +1632,7 @@
       "tabAllPackages": "Все пакеты",
       "editCategory": "Изменить категорию",
       "categoryEmpty": "К этой категории занятий пока не привязаны абонементные пакеты.",
+      "selectCategoryHint": "Выберите эту категорию выше, чтобы просмотреть и управлять её пакетами.",
       "cardSessions": "Сессии",
       "sessionsUnlimited": "Безлимит",
       "sessionsPerMonth": "{count} за период оплаты",

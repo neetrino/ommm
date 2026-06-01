@@ -1641,6 +1641,7 @@
       "tabAllPackages": "All packages",
       "editCategory": "Edit category",
       "categoryEmpty": "No membership packages are linked to this class category yet.",
+      "selectCategoryHint": "Select this category above to view and manage its packages.",
       "cardSessions": "Sessions",
       "sessionsUnlimited": "Unlimited",
       "sessionsPerMonth": "{count} per billing period",

@@ -6,7 +6,6 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminPackageForm } from "@/components/admin/admin-package-form";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 
 const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "add-package";
@@ -35,12 +34,6 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
     p.delete(MODAL_QUERY_KEY);
     const qs = p.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname);
-  }, [pathname, router, searchParams]);
-
-  const openModal = useCallback(() => {
-    const p = new URLSearchParams(searchParams.toString());
-    p.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
-    router.replace(`${pathname}?${p.toString()}`);
   }, [pathname, router, searchParams]);
 
   const onCreated = useCallback(() => {
@@ -100,16 +93,18 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
 
   return (
     <>
-      <AdminSectionShell
-        banner={banner}
-        toolbar={
-          toolbar ?? (
-            <PackagesAddButton onClick={openModal} label={t("addPackageButton")} />
-          )
-        }
-      >
+      <div className="ommm-admin-packages">
+        {banner !== null && banner.length > 0 ? (
+          <p
+            className="mb-6 rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+            role="status"
+          >
+            {banner}
+          </p>
+        ) : null}
+        {toolbar ? <div className="ommm-admin-packages-toolbar-wrap">{toolbar}</div> : null}
         {children}
-      </AdminSectionShell>
+      </div>
 
       {isModalOpen ? (
         <div className="ommm-modal-overlay z-50" role="presentation">
@@ -174,26 +169,24 @@ export function PackagesAddButton({
   onClick: () => void;
 }) {
   return (
-    <div className="flex justify-end">
-      <button
-        type="button"
-        className="ommm-admin-add-button inline-flex items-center gap-2"
-        onClick={onClick}
+    <button
+      type="button"
+      className="ommm-admin-add-button inline-flex items-center gap-2"
+      onClick={onClick}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.65}
+        strokeLinecap="round"
+        className="h-5 w-5"
+        aria-hidden
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.65}
-          strokeLinecap="round"
-          className="h-5 w-5"
-          aria-hidden
-        >
-          <path d="M12 2v20M2 12h20" />
-        </svg>
-        {label}
-      </button>
-    </div>
+        <path d="M12 2v20M2 12h20" />
+      </svg>
+      {label}
+    </button>
   );
 }

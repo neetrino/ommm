@@ -324,15 +324,38 @@ html {
 
   .ommm-admin-pill-tab {
     @apply inline-flex h-11 min-w-[5rem] items-center justify-center rounded-full border border-[#97907c] px-4 text-xs font-semibold uppercase tracking-[0.12em] text-[#97907c] transition-colors;
-    @apply hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
+  }
+
+  .ommm-admin-pill-tab:not(.ommm-admin-pill-tab-active) {
+    @apply hover:bg-white/40 hover:text-[#97907c];
+    @apply active:bg-white/60 active:text-[#6b6452];
   }
 
   .ommm-admin-pill-tab-active {
     @apply border-transparent bg-[rgba(151,144,124,0.77)] text-[#fbf5d5];
+    @apply hover:border-transparent hover:bg-[#97907c] hover:text-[#fbf5d5];
+    @apply active:border-transparent active:bg-[#8a836f] active:text-[#fbf5d5];
   }
 
   .ommm-admin-accordion {
-    @apply rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 px-6 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.16)] backdrop-blur-md sm:px-10 sm:py-6;
+    @apply flex min-h-[98px] flex-col justify-center rounded-[24px] border border-[rgba(212,196,183,0.2)] bg-white/78 px-6 py-5 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.16)] backdrop-blur-md sm:px-10 sm:py-[21px];
+  }
+
+  .ommm-admin-accordion-nested {
+    @apply min-h-0 bg-white/60 px-5 py-4 sm:px-8;
+  }
+
+  .ommm-admin-packages {
+    @apply flex flex-col gap-12;
+  }
+
+  .ommm-admin-packages-toolbar-wrap {
+    @apply w-full;
+  }
+
+  .ommm-admin-packages-toolbar {
+    @apply flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:gap-[7.5rem];
   }
 
   .ommm-admin-content {
