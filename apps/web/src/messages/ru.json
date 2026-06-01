@@ -1354,7 +1354,8 @@
         "morning": "Утро",
         "afternoon": "День",
         "evening": "Вечер",
-        "activeCount": "{count} активных фильтров"
+        "activeCount": "{count} активных фильтров",
+        "selectedCount": "{count} выбрано"
       },
       "quick": {
         "today": "Занятия сегодня",

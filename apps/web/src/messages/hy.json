@@ -1350,7 +1350,8 @@
         "morning": "Առավոտ",
         "afternoon": "Կեսօր",
         "evening": "Երեկո",
-        "activeCount": "{count} ակտիվ ֆիլտր"
+        "activeCount": "{count} ակտիվ ֆիլտր",
+        "selectedCount": "{count} ընտրված"
       },
       "quick": {
         "today": "Այսօրվա դասեր",

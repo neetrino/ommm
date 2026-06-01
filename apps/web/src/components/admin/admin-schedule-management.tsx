@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFilterDropdown, OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
@@ -16,8 +17,8 @@ import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
-type AvailabilityFilter = "all" | "available" | "full";
-type TimeOfDayFilter = "all" | "morning" | "afternoon" | "evening";
+type AvailabilityOption = "available" | "full";
+type TimeOfDayOption = "morning" | "afternoon" | "evening";
 
 export type AdminScheduleSession = {
   id: string;
@@ -59,12 +60,12 @@ type Filters = {
   q: string;
   from: string;
   to: string;
-  coachId: string;
-  typeId: string;
-  level: string;
-  status: "" | SessionStatus;
-  availability: AvailabilityFilter;
-  timeOfDay: TimeOfDayFilter;
+  coachIds: string[];
+  typeIds: string[];
+  levels: string[];
+  statuses: SessionStatus[];
+  availability: AvailabilityOption[];
+  timeOfDay: TimeOfDayOption[];
 };
 
 type FormState = {
@@ -153,13 +154,55 @@ function initialFilters(): Filters {
     q: "",
     from: "",
     to: "",
-    coachId: "",
-    typeId: "",
-    level: "",
-    status: "",
-    availability: "all",
-    timeOfDay: "all",
+    coachIds: [],
+    typeIds: [],
+    levels: [],
+    statuses: [],
+    availability: [],
+    timeOfDay: [],
   };
+}
+
+function matchesAvailability(row: AdminScheduleSession, selected: readonly AvailabilityOption[]): boolean {
+  if (selected.length === 0) {
+    return true;
+  }
+  const available = spotsLeft(row) > 0;
+  const full = spotsLeft(row) === 0;
+  return (
+    (selected.includes("available") && available) ||
+    (selected.includes("full") && full)
+  );
+}
+
+function matchesTimeOfDaySelection(row: AdminScheduleSession, selected: readonly TimeOfDayOption[]): boolean {
+  if (selected.length === 0) {
+    return true;
+  }
+  const hour = new Date(row.startsAt).getHours();
+  return (
+    (selected.includes("morning") && hour < 12) ||
+    (selected.includes("afternoon") && hour >= 12 && hour < 17) ||
+    (selected.includes("evening") && hour >= 17)
+  );
+}
+
+function countActiveFilters(values: Filters): number {
+  return [
+    values.q.trim(),
+    values.from,
+    values.to,
+    values.coachIds.length > 0 ? "coach" : "",
+    values.typeIds.length > 0 ? "type" : "",
+    values.levels.length > 0 ? "level" : "",
+    values.statuses.length > 0 ? "status" : "",
+    values.availability.length > 0 ? "availability" : "",
+    values.timeOfDay.length > 0 ? "timeOfDay" : "",
+  ].filter(Boolean).length;
+}
+
+function isSingleSelection<T extends string>(selected: readonly T[], value: T): boolean {
+  return selected.length === 1 && selected[0] === value;
 }
 
 function initialForm(
@@ -221,14 +264,6 @@ function buildSessionLevelOptions(
     return [{ value: trimmed, label: trimmed }, ...options];
   }
   return options;
-}
-
-function matchesTimeOfDay(row: AdminScheduleSession, filter: TimeOfDayFilter): boolean {
-  if (filter === "all") return true;
-  const hour = new Date(row.startsAt).getHours();
-  if (filter === "morning") return hour < 12;
-  if (filter === "afternoon") return hour >= 12 && hour < 17;
-  return hour >= 17;
 }
 
 export function AdminScheduleManagement({ locale, sessions, classTypes: initialClassTypes, coaches, initialView }: Props) {
@@ -320,13 +355,12 @@ export function AdminScheduleManagement({ locale, sessions, classTypes: initialC
       if (q && !`${row.title} ${row.classType.name} ${coachName(row.coach)}`.toLowerCase().includes(q)) return false;
       if (filters.from && row.startsAt.slice(0, 10) < filters.from) return false;
       if (filters.to && row.startsAt.slice(0, 10) > filters.to) return false;
-      if (filters.coachId && row.coach.id !== filters.coachId) return false;
-      if (filters.typeId && row.classType.id !== filters.typeId) return false;
-      if (filters.level && row.level !== filters.level) return false;
-      if (filters.status && row.status !== filters.status) return false;
-      if (filters.availability === "available" && spotsLeft(row) <= 0) return false;
-      if (filters.availability === "full" && spotsLeft(row) > 0) return false;
-      return matchesTimeOfDay(row, filters.timeOfDay);
+      if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
+      if (filters.typeIds.length > 0 && !filters.typeIds.includes(row.classType.id)) return false;
+      if (filters.levels.length > 0 && (!row.level || !filters.levels.includes(row.level))) return false;
+      if (filters.statuses.length > 0 && !filters.statuses.includes(row.status)) return false;
+      if (!matchesAvailability(row, filters.availability)) return false;
+      return matchesTimeOfDaySelection(row, filters.timeOfDay);
     });
   }, [filters, rows]);
 
@@ -496,6 +530,21 @@ function SummaryGrid({ summary }: { summary: Record<"total" | "active" | "upcomi
   );
 }
 
+function ScheduleFilterField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1 text-xs text-sage-700">
+      <span>{label}</span>
+      {children}
+    </div>
+  );
+}
+
 function FiltersPanel(props: {
   values: Filters;
   searchDraft: string;
@@ -507,19 +556,112 @@ function FiltersPanel(props: {
   onReset: () => void;
 }) {
   const t = useTranslations("adminPages.classes");
-  const activeCount = Object.values(props.values).filter((value) => value !== "" && value !== "all").length;
+  const activeCount = countActiveFilters(props.values);
+  const scheduleMultiSelectProps = {
+    wrapLabel: true,
+    formatSelectedCount: (count: number) => t("filters.selectedCount", { count }),
+  };
   return (
     <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-8">
-        <input className="ommm-input h-10 md:col-span-2" value={props.searchDraft} placeholder={t("filters.searchPlaceholder")} onChange={(event) => props.onSearch(event.target.value)} aria-label={t("filters.searchLabel")} />
-        <DatePickerInput name="from" value={props.values.from} onChange={(value) => props.onChange("from", value)} placeholder={t("filters.fromDateLabel")} ariaLabel={t("filters.fromDateLabel")} />
-        <DatePickerInput name="to" value={props.values.to} onChange={(value) => props.onChange("to", value)} placeholder={t("filters.toDateLabel")} ariaLabel={t("filters.toDateLabel")} />
-        <OmmFilterDropdown allValue="" value={props.values.coachId} ariaLabel={t("filters.coachLabel")} allLabel={t("filters.allCoaches")} onChange={(value) => props.onChange("coachId", value)} options={props.coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))} />
-        <OmmFilterDropdown allValue="" value={props.values.typeId} ariaLabel={t("filters.typeLabel")} allLabel={t("filters.allTypes")} onChange={(value) => props.onChange("typeId", value)} options={props.classTypes.map((type) => ({ value: type.id, label: type.name }))} />
-        <OmmFilterDropdown allValue="" value={props.values.level} ariaLabel={t("filters.levelLabel")} allLabel={t("filters.allLevels")} onChange={(value) => props.onChange("level", value)} options={props.levels.map((level) => ({ value: level, label: level }))} />
-        <OmmFilterDropdown allValue="" value={props.values.status} ariaLabel={t("filters.statusLabel")} allLabel={t("filters.allStatuses")} onChange={(value) => props.onChange("status", value as Filters["status"])} options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))} />
-        <OmmFilterDropdown allValue="all" value={props.values.availability} ariaLabel={t("filters.availabilityLabel")} allLabel={t("filters.allAvailability")} onChange={(value) => props.onChange("availability", value as AvailabilityFilter)} options={[{ value: "available", label: t("filters.availableOnly") }, { value: "full", label: t("filters.fullOnly") }]} />
-        <OmmFilterDropdown allValue="all" value={props.values.timeOfDay} ariaLabel={t("filters.timeOfDayLabel")} allLabel={t("filters.allTimes")} onChange={(value) => props.onChange("timeOfDay", value as TimeOfDayFilter)} options={[{ value: "morning", label: t("filters.morning") }, { value: "afternoon", label: t("filters.afternoon") }, { value: "evening", label: t("filters.evening") }]} />
+      <div className="flex flex-col gap-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ScheduleFilterField label={t("filters.searchLabel")}>
+            <input
+              className="ommm-input h-10"
+              value={props.searchDraft}
+              placeholder={t("filters.searchPlaceholder")}
+              onChange={(event) => props.onSearch(event.target.value)}
+              aria-label={t("filters.searchLabel")}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.fromDateLabel")}>
+            <DatePickerInput
+              name="from"
+              value={props.values.from}
+              onChange={(value) => props.onChange("from", value)}
+              placeholder={t("filters.fromDateLabel")}
+              ariaLabel={t("filters.fromDateLabel")}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.toDateLabel")}>
+            <DatePickerInput
+              name="to"
+              value={props.values.to}
+              onChange={(value) => props.onChange("to", value)}
+              placeholder={t("filters.toDateLabel")}
+              ariaLabel={t("filters.toDateLabel")}
+            />
+          </ScheduleFilterField>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+          <ScheduleFilterField label={t("filters.coachLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.coachLabel")}
+              allLabel={t("filters.allCoaches")}
+              selectedValues={props.values.coachIds}
+              onChange={(value) => props.onChange("coachIds", value)}
+              options={props.coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.typeLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.typeLabel")}
+              allLabel={t("filters.allTypes")}
+              selectedValues={props.values.typeIds}
+              onChange={(value) => props.onChange("typeIds", value)}
+              options={props.classTypes.map((type) => ({ value: type.id, label: type.name }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.levelLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.levelLabel")}
+              allLabel={t("filters.allLevels")}
+              selectedValues={props.values.levels}
+              onChange={(value) => props.onChange("levels", value)}
+              options={props.levels.map((level) => ({ value: level, label: level }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.statusLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.statusLabel")}
+              allLabel={t("filters.allStatuses")}
+              selectedValues={props.values.statuses}
+              onChange={(value) => props.onChange("statuses", value as SessionStatus[])}
+              options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.availabilityLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.availabilityLabel")}
+              allLabel={t("filters.allAvailability")}
+              selectedValues={props.values.availability}
+              onChange={(value) => props.onChange("availability", value as AvailabilityOption[])}
+              options={[
+                { value: "available", label: t("filters.availableOnly") },
+                { value: "full", label: t("filters.fullOnly") },
+              ]}
+            />
+          </ScheduleFilterField>
+          <ScheduleFilterField label={t("filters.timeOfDayLabel")}>
+            <OmmFilterMultiSelect
+              {...scheduleMultiSelectProps}
+              ariaLabel={t("filters.timeOfDayLabel")}
+              allLabel={t("filters.allTimes")}
+              selectedValues={props.values.timeOfDay}
+              onChange={(value) => props.onChange("timeOfDay", value as TimeOfDayOption[])}
+              options={[
+                { value: "morning", label: t("filters.morning") },
+                { value: "afternoon", label: t("filters.afternoon") },
+                { value: "evening", label: t("filters.evening") },
+              ]}
+            />
+          </ScheduleFilterField>
+        </div>
       </div>
       <QuickFilters values={props.values} onChange={props.onChange} onReset={props.onReset} activeCount={activeCount} />
     </div>
@@ -535,11 +677,11 @@ function QuickFilters({ values, onChange, onReset, activeCount }: { values: Filt
     <div className="mt-3 flex flex-wrap items-center gap-2">
       <OmmButton size="sm" variant={values.from === today && values.to === today ? "primary" : "ghost"} onClick={() => { onChange("from", today); onChange("to", today); }}>{t("quick.today")}</OmmButton>
       <OmmButton size="sm" variant={values.from === today && values.to === isoDate(weekEnd) ? "primary" : "ghost"} onClick={() => { onChange("from", today); onChange("to", isoDate(weekEnd)); }}>{t("quick.thisWeek")}</OmmButton>
-      <OmmButton size="sm" variant={values.availability === "available" ? "primary" : "ghost"} onClick={() => onChange("availability", values.availability === "available" ? "all" : "available")}>{t("quick.available")}</OmmButton>
-      <OmmButton size="sm" variant={values.availability === "full" ? "primary" : "ghost"} onClick={() => onChange("availability", values.availability === "full" ? "all" : "full")}>{t("quick.full")}</OmmButton>
-      <OmmButton size="sm" variant={values.status === "CANCELLED" ? "primary" : "ghost"} onClick={() => onChange("status", values.status === "CANCELLED" ? "" : "CANCELLED")}>{t("quick.cancelled")}</OmmButton>
-      <OmmButton size="sm" variant={values.level === SESSION_LEVEL_VALUES[0] ? "primary" : "ghost"} onClick={() => onChange("level", values.level === SESSION_LEVEL_VALUES[0] ? "" : SESSION_LEVEL_VALUES[0])}>{t("quick.beginner")}</OmmButton>
-      <OmmButton size="sm" variant={values.timeOfDay === "evening" ? "primary" : "ghost"} onClick={() => onChange("timeOfDay", values.timeOfDay === "evening" ? "all" : "evening")}>{t("quick.evening")}</OmmButton>
+      <OmmButton size="sm" variant={isSingleSelection(values.availability, "available") ? "primary" : "ghost"} onClick={() => onChange("availability", isSingleSelection(values.availability, "available") ? [] : ["available"])}>{t("quick.available")}</OmmButton>
+      <OmmButton size="sm" variant={isSingleSelection(values.availability, "full") ? "primary" : "ghost"} onClick={() => onChange("availability", isSingleSelection(values.availability, "full") ? [] : ["full"])}>{t("quick.full")}</OmmButton>
+      <OmmButton size="sm" variant={isSingleSelection(values.statuses, "CANCELLED") ? "primary" : "ghost"} onClick={() => onChange("statuses", isSingleSelection(values.statuses, "CANCELLED") ? [] : ["CANCELLED"])}>{t("quick.cancelled")}</OmmButton>
+      <OmmButton size="sm" variant={isSingleSelection(values.levels, SESSION_LEVEL_VALUES[0]) ? "primary" : "ghost"} onClick={() => onChange("levels", isSingleSelection(values.levels, SESSION_LEVEL_VALUES[0]) ? [] : [SESSION_LEVEL_VALUES[0]])}>{t("quick.beginner")}</OmmButton>
+      <OmmButton size="sm" variant={isSingleSelection(values.timeOfDay, "evening") ? "primary" : "ghost"} onClick={() => onChange("timeOfDay", isSingleSelection(values.timeOfDay, "evening") ? [] : ["evening"])}>{t("quick.evening")}</OmmButton>
       <OmmButton size="sm" variant="subtle" onClick={onReset}>{t("filters.reset")}</OmmButton>
       <p className="text-xs text-sage-500">{t("filters.activeCount", { count: activeCount })}</p>
     </div>

@@ -1363,7 +1363,8 @@
         "morning": "Morning",
         "afternoon": "Afternoon",
         "evening": "Evening",
-        "activeCount": "{count} active filters"
+        "activeCount": "{count} active filters",
+        "selectedCount": "{count} selected"
       },
       "quick": {
         "today": "Today's classes",
