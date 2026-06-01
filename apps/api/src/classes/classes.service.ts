@@ -151,7 +151,9 @@ export class ClassesService {
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
+      .split('-')
+      .filter((segment) => segment.length > 0)
+      .join('-')
       .slice(0, 120);
   }
 

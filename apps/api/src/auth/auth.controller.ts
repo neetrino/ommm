@@ -23,6 +23,36 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const OAUTH_STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
 
+function oauthStateCookieOptions(): {
+  httpOnly: true;
+  secure: true;
+  sameSite: 'lax';
+  path: string;
+  maxAge: number;
+} {
+  return {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: OAUTH_STATE_COOKIE_MAX_AGE_MS,
+  };
+}
+
+function oauthStateCookieClearOptions(): {
+  httpOnly: true;
+  secure: true;
+  sameSite: 'lax';
+  path: string;
+} {
+  return {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+  };
+}
+
 function accessTokenCookieBaseOptions(): {
   httpOnly: true;
   secure: boolean;
@@ -91,10 +121,7 @@ export class AuthController {
   @Get('google')
   googleStart(@Res() res: Response) {
     const { authorizationUrl, state } = this.googleOAuth.startGoogleAuth();
-    res.cookie(OAUTH_STATE_COOKIE, state, {
-      ...accessTokenCookieBaseOptions(),
-      maxAge: OAUTH_STATE_COOKIE_MAX_AGE_MS,
-    });
+    res.cookie(OAUTH_STATE_COOKIE, state, oauthStateCookieOptions());
     res.redirect(authorizationUrl);
   }
 
@@ -119,7 +146,7 @@ export class AuthController {
       });
       res.redirect(redirectUrl);
     } finally {
-      res.clearCookie(OAUTH_STATE_COOKIE, accessTokenCookieBaseOptions());
+      res.clearCookie(OAUTH_STATE_COOKIE, oauthStateCookieClearOptions());
     }
   }
 
