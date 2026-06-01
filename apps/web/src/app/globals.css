@@ -300,7 +300,12 @@ html {
   }
 
   .ommm-admin-header-bar {
-    @apply mb-6 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
+    @apply mb-0 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
+  }
+
+  .ommm-admin-sticky-header {
+    background-color: #ede9dd;
+    padding-bottom: 1.5rem;
   }
 
   .ommm-admin-header-title {
@@ -405,7 +410,8 @@ html {
   }
 
   .ommm-admin-packages-toolbar-wrap {
-    @apply w-full;
+    @apply sticky z-[15] -mx-4 bg-[#ede9dd] px-4 pb-3 pt-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8;
+    top: var(--ommm-admin-header-sticky-offset, 7.5rem);
   }
 
   .ommm-admin-packages-toolbar {

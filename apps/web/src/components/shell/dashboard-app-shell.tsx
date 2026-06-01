@@ -13,6 +13,7 @@ import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
+import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
   avatarRingClass,
@@ -20,6 +21,7 @@ import {
   brandSublineClass,
   brandTitleClass,
   collapseToggleClass,
+  DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS,
   DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS,
   DASHBOARD_MAIN_HEADER_STICKY_CLASS,
   menuButtonClass,
@@ -175,6 +177,7 @@ export function DashboardAppShell({
         : "lg:w-64";
   const borderB = variant === "admin" ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
   const isAdminShell = variant === "admin";
+  const adminHeaderRef = useAdminStickyHeaderOffset(isAdminShell);
 
   return (
     <div className={pageBackgroundClass(variant)}>
@@ -290,7 +293,8 @@ export function DashboardAppShell({
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header
-            className={`${DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0 ${isAdminShell ? "px-4 pt-4 sm:px-6 lg:px-8" : ""}`}
+            ref={isAdminShell ? adminHeaderRef : undefined}
+            className={`${isAdminShell ? DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS : DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
           >
             {isAdminShell ? (
               <AdminDashboardHeader
