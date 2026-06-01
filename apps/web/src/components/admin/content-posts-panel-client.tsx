@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
+import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 type ContentAdminRow = {
   id: string;
@@ -11,16 +12,63 @@ type ContentAdminRow = {
   title: string;
   type: string;
   status: string;
+  excerpt?: string | null;
+  body?: string | null;
+  authorName?: string | null;
+  tags?: string[];
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  editorialNotes?: string | null;
+  reviewNotes?: string | null;
+  submittedForReviewAt?: string | null;
+  reviewedAt?: string | null;
   updatedAt: string;
 };
 
 type ContentPostsPanelClientProps = {
   items: ContentAdminRow[];
   wellnessChrome?: boolean;
+  labels: {
+    placeholders: {
+      title: string;
+      slug: string;
+      body: string;
+      authorName: string;
+      tagsCsv: string;
+      seoTitle: string;
+      seoDescription: string;
+      editorialNotes: string;
+      searchPosts: string;
+    };
+    labels: {
+      type: string;
+      status: string;
+      allTypes: string;
+      allStatuses: string;
+      create: string;
+      toggleHide: string;
+      submitReview: string;
+      approve: string;
+      reject: string;
+      delete: string;
+      tags: string;
+      review: string;
+    };
+    feedback: {
+      actionFailed: string;
+      postCreated: string;
+      visibilityUpdated: string;
+      submittedForReview: string;
+      postApproved: string;
+      postRejected: string;
+      postDeleted: string;
+      rejectionNotePrompt: string;
+    };
+  };
 };
 
 const CONTENT_TYPES = ["EVENT", "BLOG", "NEWS", "UPDATE", "KNOWLEDGE_ARTICLE"] as const;
-const CONTENT_STATUS = ["DRAFT", "PUBLISHED", "HIDDEN"] as const;
+const CONTENT_STATUS = ["DRAFT", "IN_REVIEW", "REJECTED", "PUBLISHED", "HIDDEN"] as const;
 const TYPE_OPTIONS: readonly DropdownOption<(typeof CONTENT_TYPES)[number]>[] = CONTENT_TYPES.map(
   (value) => ({ value, label: value }),
 );
@@ -30,6 +78,7 @@ const STATUS_OPTIONS: readonly DropdownOption<(typeof CONTENT_STATUS)[number]>[]
 export function ContentPostsPanelClient({
   items,
   wellnessChrome = false,
+  labels,
 }: ContentPostsPanelClientProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -38,6 +87,30 @@ export function ContentPostsPanelClient({
   const [type, setType] = useState<(typeof CONTENT_TYPES)[number]>("BLOG");
   const [status, setStatus] = useState<(typeof CONTENT_STATUS)[number]>("DRAFT");
   const [body, setBody] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [tagsCsv, setTagsCsv] = useState("");
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
+  const [editorialNotes, setEditorialNotes] = useState("");
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"ALL" | (typeof CONTENT_TYPES)[number]>("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | (typeof CONTENT_STATUS)[number]>(
+    "ALL",
+  );
+  const filteredItems = items.filter((item) => {
+    if (typeFilter !== "ALL" && item.type !== typeFilter) {
+      return false;
+    }
+    if (statusFilter !== "ALL" && item.status !== statusFilter) {
+      return false;
+    }
+    const normalizedQuery = query.trim().toLowerCase();
+    if (normalizedQuery.length === 0) {
+      return true;
+    }
+    const haystack = `${item.title} ${item.slug} ${item.type} ${item.status}`.toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
 
   async function run(
     id: string,
@@ -54,10 +127,17 @@ export function ContentPostsPanelClient({
       setMessage(okLabel);
       window.location.reload();
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : "Action failed");
+      setMessage(error instanceof ApiError ? error.message : labels.feedback.actionFailed);
     } finally {
       setBusyId(null);
     }
+  }
+
+  function parseTags(input: string): string[] {
+    return input
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item, index, arr) => item.length > 0 && arr.indexOf(item) === index);
   }
 
   return (
@@ -77,46 +157,51 @@ export function ContentPostsPanelClient({
                   type,
                   status,
                   body,
+                  authorName: authorName || undefined,
+                  tags: parseTags(tagsCsv),
+                  seoTitle: seoTitle || undefined,
+                  seoDescription: seoDescription || undefined,
+                  editorialNotes: editorialNotes || undefined,
                 }),
               }),
-            "Post created",
+            labels.feedback.postCreated,
           );
         }}
       >
         <input
           className="app-input h-9 text-xs sm:col-span-2"
-          placeholder="Title"
+          placeholder={labels.placeholders.title}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
         />
         <input
           className="app-input h-9 text-xs"
-          placeholder="Slug"
+          placeholder={labels.placeholders.slug}
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
         />
         <DropdownSelect
-          label="Type"
-          ariaLabel="Content type"
+          label={labels.labels.type}
+          ariaLabel={labels.labels.type}
           name="type"
           value={type}
           options={TYPE_OPTIONS}
           onChange={setType}
           disabled={busyId !== null}
           required
-          triggerClassName="h-9 min-h-9 text-xs"
+          triggerClassName="ommm-dropdown-trigger--compact"
           menuClassName="text-xs"
         />
         <DropdownSelect
-          label="Status"
-          ariaLabel="Content status"
+          label={labels.labels.status}
+          ariaLabel={labels.labels.status}
           name="status"
           value={status}
           options={STATUS_OPTIONS}
           onChange={setStatus}
           disabled={busyId !== null}
           required
-          triggerClassName="h-9 min-h-9 text-xs"
+          triggerClassName="ommm-dropdown-trigger--compact"
           menuClassName="text-xs"
         />
         <button
@@ -124,18 +209,91 @@ export function ContentPostsPanelClient({
           className="rounded-md border border-slate-300 px-3 text-xs text-slate-700 hover:bg-slate-50"
           disabled={busyId !== null}
         >
-          Create
+          {labels.labels.create}
         </button>
         <textarea
           className="app-input min-h-20 text-xs sm:col-span-6"
-          placeholder="Body"
+          placeholder={labels.placeholders.body}
           value={body}
           onChange={(event) => setBody(event.target.value)}
         />
+        <input
+          className="app-input h-9 text-xs sm:col-span-2"
+          placeholder={labels.placeholders.authorName}
+          value={authorName}
+          onChange={(event) => setAuthorName(event.target.value)}
+        />
+        <input
+          className="app-input h-9 text-xs sm:col-span-2"
+          placeholder={labels.placeholders.tagsCsv}
+          value={tagsCsv}
+          onChange={(event) => setTagsCsv(event.target.value)}
+        />
+        <input
+          className="app-input h-9 text-xs sm:col-span-2"
+          placeholder={labels.placeholders.seoTitle}
+          value={seoTitle}
+          onChange={(event) => setSeoTitle(event.target.value)}
+        />
+        <input
+          className="app-input h-9 text-xs sm:col-span-6"
+          placeholder={labels.placeholders.seoDescription}
+          value={seoDescription}
+          onChange={(event) => setSeoDescription(event.target.value)}
+        />
+        <textarea
+          className="app-input min-h-16 text-xs sm:col-span-6"
+          placeholder={labels.placeholders.editorialNotes}
+          value={editorialNotes}
+          onChange={(event) => setEditorialNotes(event.target.value)}
+        />
       </form>
 
+      <div className="grid gap-2 sm:grid-cols-4">
+        <input
+          className="app-input h-9 text-xs sm:col-span-2"
+          placeholder={labels.placeholders.searchPosts}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <OmmSelectDropdown
+          ariaLabel={labels.labels.allTypes}
+          label={
+            typeFilter === "ALL"
+              ? labels.labels.allTypes
+              : typeFilter
+          }
+          value={typeFilter}
+          triggerClassName="ommm-dropdown-trigger--compact"
+          options={[
+            { value: "ALL", label: labels.labels.allTypes },
+            ...CONTENT_TYPES.map((value) => ({ value, label: value })),
+          ]}
+          onChange={(value) =>
+            setTypeFilter(value as "ALL" | (typeof CONTENT_TYPES)[number])
+          }
+        />
+        <OmmSelectDropdown
+          ariaLabel={labels.labels.allStatuses}
+          label={
+            statusFilter === "ALL"
+              ? labels.labels.allStatuses
+              : statusFilter
+          }
+          value={statusFilter}
+          triggerClassName="ommm-dropdown-trigger--compact"
+          options={[
+            { value: "ALL", label: labels.labels.allStatuses },
+            ...CONTENT_STATUS.map((value) => ({ value, label: value })),
+          ]}
+          onChange={(value) =>
+            setStatusFilter(value as "ALL" | (typeof CONTENT_STATUS)[number])
+          }
+        />
+      </div>
+
       <ul className={wellnessChrome ? "mt-2 space-y-3" : "mt-6 space-y-2"}>
-        {items.map((p) => (
+        {filteredItems.map((p) => (
           <li
             key={p.id}
             className={
@@ -183,14 +341,83 @@ export function ContentPostsPanelClient({
                               type: p.type,
                               status: p.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN",
                               body: "",
+                              authorName: p.authorName ?? undefined,
+                              tags: p.tags ?? [],
+                              seoTitle: p.seoTitle ?? undefined,
+                              seoDescription: p.seoDescription ?? undefined,
+                              editorialNotes: p.editorialNotes ?? undefined,
+                              reviewNotes: p.reviewNotes ?? undefined,
                             }),
                           }),
-                        "Visibility updated",
+                        labels.feedback.visibilityUpdated,
                       )
                     }
                   >
-                    Toggle hide
+                    {labels.labels.toggleHide}
                   </button>
+                  {(p.status === "DRAFT" || p.status === "REJECTED" || p.status === "HIDDEN") ? (
+                    <button
+                      type="button"
+                      className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      disabled={busyId !== null}
+                      onClick={() =>
+                        void run(
+                          `${p.id}-submit`,
+                          () =>
+                            apiFetch(`/content/admin/posts/${p.id}/submit-review`, {
+                              method: "POST",
+                            }),
+                          labels.feedback.submittedForReview,
+                        )
+                      }
+                    >
+                      {labels.labels.submitReview}
+                    </button>
+                  ) : null}
+                  {p.status === "IN_REVIEW" ? (
+                    <>
+                      <button
+                        type="button"
+                        className="rounded-md border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                        disabled={busyId !== null}
+                        onClick={() =>
+                          void run(
+                            `${p.id}-approve`,
+                            () =>
+                              apiFetch(`/content/admin/posts/${p.id}/review`, {
+                                method: "POST",
+                                body: JSON.stringify({ decision: "APPROVE" }),
+                              }),
+                            labels.feedback.postApproved,
+                          )
+                        }
+                      >
+                        {labels.labels.approve}
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-md border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                        disabled={busyId !== null}
+                        onClick={() => {
+                          const note = window.prompt(labels.feedback.rejectionNotePrompt);
+                          if (!note || note.trim().length === 0) {
+                            return;
+                          }
+                          void run(
+                            `${p.id}-reject`,
+                            () =>
+                              apiFetch(`/content/admin/posts/${p.id}/review`, {
+                                method: "POST",
+                                body: JSON.stringify({ decision: "REJECT", note }),
+                              }),
+                            labels.feedback.postRejected,
+                          );
+                        }}
+                      >
+                        {labels.labels.reject}
+                      </button>
+                    </>
+                  ) : null}
                   <button
                     type="button"
                     className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50"
@@ -202,17 +429,27 @@ export function ContentPostsPanelClient({
                           apiFetch(`/content/admin/posts/${p.id}`, {
                             method: "DELETE",
                           }),
-                        "Post deleted",
+                        labels.feedback.postDeleted,
                       )
                     }
                   >
-                    Delete
+                    {labels.labels.delete}
                   </button>
                 </div>
               </div>
               <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
                 /{p.slug} · {formatDateTimeForUi(p.updatedAt)}
               </p>
+              {p.tags && p.tags.length > 0 ? (
+                <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
+                  {labels.labels.tags}: {p.tags.join(", ")}
+                </p>
+              ) : null}
+              {p.reviewNotes ? (
+                <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
+                  {labels.labels.review}: {p.reviewNotes}
+                </p>
+              ) : null}
             </div>
           </li>
         ))}

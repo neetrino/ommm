@@ -30,6 +30,11 @@ enum BookingStatus {
   MISSED
 }
 
+enum BookingChannel {
+  WEBSITE
+  APP
+}
+
 enum WaitlistStatus {
   ACTIVE
   OFFERED
@@ -48,6 +53,8 @@ enum ContentType {
 
 enum ContentStatus {
   DRAFT
+  IN_REVIEW
+  REJECTED
   PUBLISHED
   HIDDEN
 }
@@ -128,6 +135,7 @@ model User {
   clientNotesAuthored  ClientNote[]  @relation("ClientNoteAuthor")
   clientNotesReceived  ClientNote[]  @relation("ClientNoteSubject")
   authTokens         AuthToken[]
+  oauthAccounts      OAuthAccount[]
   pushDeviceTokens   PushDeviceToken[]
 }
 
@@ -141,6 +149,22 @@ model AuthToken {
   createdAt DateTime      @default(now())
 
   @@index([userId, type])
+}
+
+model OAuthAccount {
+  id                    String   @id @default(cuid())
+  userId                String
+  provider              String
+  providerAccountId     String
+  providerEmail         String?
+  providerEmailVerified Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model PushDeviceToken {
@@ -243,6 +267,7 @@ model Booking {
   sessionId   String
   session     ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   status      BookingStatus @default(BOOKED)
+  channel     BookingChannel @default(WEBSITE)
   attendedAt  DateTime?
   cancelledAt DateTime?
   createdAt   DateTime      @default(now())
@@ -374,17 +399,26 @@ model GiftCard {
 }
 
 model ContentPost {
-  id           String        @id @default(cuid())
-  type         ContentType
-  status       ContentStatus @default(DRAFT)
-  slug         String        @unique
-  title        String
-  excerpt      String?
-  body         String?
+  id             String        @id @default(cuid())
+  type           ContentType
+  status         ContentStatus @default(DRAFT)
+  slug           String        @unique
+  title          String
+  excerpt        String?
+  body           String?
+  authorName     String?
+  tags           String[]      @default([])
+  seoTitle       String?
+  seoDescription String?
+  editorialNotes String?
+  reviewNotes    String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  submittedForReviewAt DateTime?
   coverImageUrl String?
-  publishedAt  DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([type, status])
 }

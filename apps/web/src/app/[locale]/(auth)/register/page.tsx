@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
+import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -16,6 +17,16 @@ const MAX_NAME_LENGTH = 120;
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 const MAX_PHONE_CHARS = 32;
+
+function buildGoogleAuthStartUrl(): string {
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!rawApiUrl) {
+    return "/api/v1/auth/google";
+  }
+  const trimmed = rawApiUrl.replace(/\/+$/, "");
+  const apiBase = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+  return `${apiBase}/auth/google`;
+}
 
 function isValidEmail(value: string): boolean {
   const trimmed = value.trim();
@@ -45,6 +56,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const googleAuthUrl = buildGoogleAuthStartUrl();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -188,6 +200,17 @@ export default function RegisterPage() {
         <p className="text-xs text-sage-500">{tAuth("passwordHint")}</p>
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
           {pending ? tAuth("creating") : tAuth("createAccount")}
+        </OmmButton>
+        <OmmButton
+          type="button"
+          variant="secondary"
+          onClick={() => window.location.assign(googleAuthUrl)}
+          className="gap-2.5"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+            <GoogleLogoIcon className="h-4 w-4" />
+          </span>
+          <span className="leading-none">{tAuth("continueWithGoogle")}</span>
         </OmmButton>
       </form>
       {error ? (

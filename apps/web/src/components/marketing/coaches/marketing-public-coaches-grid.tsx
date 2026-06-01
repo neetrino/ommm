@@ -134,10 +134,10 @@ function CoachDetailsModal({
   }, [isImagePreviewOpen, onCloseImagePreview]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4" role="presentation">
+    <div className="ommm-modal-overlay z-50" role="presentation">
       <button
         type="button"
-        className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px]"
+        className="ommm-modal-backdrop"
         aria-label={t("coachesModalBackdropClose")}
         onClick={onClose}
       />
@@ -248,10 +248,10 @@ function CoachDetailsModal({
 
       </section>
       {isImagePreviewOpen && coach.user.avatarUrl ? (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-sage-950/75 p-3 backdrop-blur-[6px] sm:p-6">
+        <div className="ommm-modal-overlay z-[80] items-center p-3 sm:p-6" role="presentation">
           <button
             type="button"
-            className="absolute inset-0"
+            className="ommm-modal-backdrop"
             aria-label="Close photo preview"
             onClick={onCloseImagePreview}
           />

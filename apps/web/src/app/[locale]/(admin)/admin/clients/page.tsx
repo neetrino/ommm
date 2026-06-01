@@ -1,83 +1,69 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminClientActions } from "@/components/admin/admin-client-actions";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
-import { formatDateForUi } from "@/lib/date-display";
+import { AdminClientsManagement } from "@/components/admin/admin-clients-management";
+import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
-
-type ClientRow = {
-  id: string;
-  email: string;
-  name: string | null;
-  lastName?: string | null;
-  phone?: string | null;
-  createdAt: string;
-};
 
 export default async function AdminClientsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.clients" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<ClientRow[]>("/clients", cookie);
+  const apiSearch = new URLSearchParams();
+  apiSearch.set("meta", "true");
+  for (const [key, value] of Object.entries(search)) {
+    if (value) {
+      apiSearch.set(key, value);
+    }
+  }
+  const endpoint = `/clients?${apiSearch.toString()}`;
+  const [clientsRes, packagesRes] = await Promise.all([
+    serverApiJson<AdminClientsPayload>(endpoint, cookie),
+    serverApiJson<PackageOption[]>("/memberships/admin/plans", cookie),
+  ]);
 
-  if (!res.ok) {
+  if (!clientsRes.ok) {
+    const status = clientsRes.status;
     return (
       <div className="app-alert-warn max-w-xl">
-        {res.status === 401 || res.status === 403
+        {status === 401 || status === 403
           ? t("errorAuth")
-          : t("errorLoad", { status: res.status })}
+          : t("errorLoad", { status })}
+      </div>
+    );
+  }
+
+  if (!packagesRes.ok) {
+    const status = packagesRes.status;
+    return (
+      <div className="app-alert-warn max-w-xl">
+        {status === 401 || status === 403
+          ? t("errorAuth")
+          : t("errorLoad", { status })}
       </div>
     );
   }
 
   return (
-    <AccountPageFrame
-      title={t("title")}
-      description={t("description")}
-    >
-      <div className={`mt-2 ${adminChrome.tableWrap}`}>
-        <table className={`${adminChrome.table} table-fixed min-w-[28rem] sm:min-w-[32rem]`}>
-          <colgroup>
-            <col className="w-1/4" />
-            <col className="w-1/4" />
-            <col className="w-1/4" />
-            <col className="w-1/4" />
-          </colgroup>
-          <thead className={adminChrome.thead}>
-            <tr>
-              <th className={adminChrome.th}>{t("colName")}</th>
-              <th className={adminChrome.th}>{t("colEmail")}</th>
-              <th className={adminChrome.th}>{t("colJoined")}</th>
-              <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {res.data.map((c) => (
-              <tr key={c.id} className={adminChrome.tr}>
-                <td className={adminChrome.tdStrong}>{c.name ?? "—"}</td>
-                <td className={adminChrome.td}>{c.email}</td>
-                <td className={adminChrome.tdMuted}>
-                  {formatDateForUi(c.createdAt)}
-                </td>
-                <td className={`${adminChrome.td} text-center`}>
-                  <AdminClientActions
-                    clientId={c.id}
-                    initialEmail={c.email}
-                    initialName={c.name ?? ""}
-                    initialLastName={c.lastName ?? ""}
-                    initialPhone={c.phone ?? ""}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <AdminSectionShell>
+        <AdminClientsManagement
+          initial={clientsRes.data}
+          packages={packagesRes.data}
+          locale={locale}
+          initialFilters={Object.fromEntries(
+            Object.entries(search).filter((entry): entry is [string, string] => Boolean(entry[1])),
+          )}
+        />
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

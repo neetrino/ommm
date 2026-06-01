@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ClassSessionStatus, Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -17,13 +18,16 @@ import { ClassesService } from './classes.service';
 import { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import { CreateClassTypeDto } from './dto/create-class-type.dto';
 import { CreateSessionDto } from './dto/create-session.dto';
+import { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Controller('classes')
 export class ClassesController {
   constructor(private readonly classes: ClassesService) {}
 
+  /** Admin schedule RSC + filters — same burst pattern as `GET /coaches/admin/list`. */
   @Get('types')
+  @SkipThrottle()
   listTypes() {
     return this.classes.listTypes();
   }
@@ -33,6 +37,13 @@ export class ClassesController {
   @Roles(Role.ADMIN, Role.MANAGER)
   createType(@Body() dto: CreateClassTypeDto) {
     return this.classes.createType(dto);
+  }
+
+  @Patch('types/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  updateType(@Param('id') id: string, @Body() dto: UpdateClassTypeDto) {
+    return this.classes.updateType(id, dto);
   }
 
   @Delete('types/:id')
@@ -65,6 +76,7 @@ export class ClassesController {
   }
 
   @Get('admin/sessions')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   listAdminSessions(@Query() query: AdminListSessionsQueryDto) {

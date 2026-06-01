@@ -8,11 +8,13 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { MembershipStatus, Prisma } from '@prisma/client';
+import { MembershipStatus, PaymentStatus, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+
+const MIN_PRORATED_SESSIONS = 1;
 
 @Injectable()
 export class MembershipsService {
@@ -207,14 +209,17 @@ export class MembershipsService {
   }
 
   listMine(userId: string) {
-    return this.prisma.userMembership.findMany({
-      where: { userId },
-      include: { plan: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.syncExpiredMemberships(userId).then(() =>
+      this.prisma.userMembership.findMany({
+        where: { userId },
+        include: { plan: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    );
   }
 
   async pause(userId: string, membershipId: string) {
+    await this.syncExpiredMemberships(userId);
     const m = await this.prisma.userMembership.findFirst({
       where: { id: membershipId, userId },
     });
@@ -228,6 +233,7 @@ export class MembershipsService {
   }
 
   async cancel(userId: string, membershipId: string) {
+    await this.syncExpiredMemberships(userId);
     const m = await this.prisma.userMembership.findFirst({
       where: { id: membershipId, userId },
     });
@@ -240,17 +246,140 @@ export class MembershipsService {
     });
   }
 
+  async renew(userId: string, membershipId: string) {
+    await this.syncExpiredMemberships(userId);
+    const membership = await this.prisma.userMembership.findFirst({
+      where: { id: membershipId, userId },
+      include: { plan: true },
+    });
+    if (!membership) {
+      throw new NotFoundException();
+    }
+    if (membership.status === MembershipStatus.ACTIVE) {
+      throw new BadRequestException('Membership is already active');
+    }
+    const start = new Date();
+    const end = new Date(start);
+    end.setDate(end.getDate() + membership.plan.periodDays);
+    const sessionsRemaining = membership.plan.isUnlimited
+      ? null
+      : (membership.plan.sessionsPerMonth ?? 0);
+    const renewed = await this.prisma.userMembership.update({
+      where: { id: membershipId },
+      data: {
+        status: MembershipStatus.ACTIVE,
+        currentPeriodStart: start,
+        currentPeriodEnd: end,
+        sessionsRemaining,
+      },
+      include: { plan: true },
+    });
+    await this.audit.log({
+      actorId: userId,
+      actorRole: 'USER',
+      action: 'MEMBERSHIP_RENEWED',
+      entityType: 'UserMembership',
+      entityId: membershipId,
+      payload: { planId: renewed.planId },
+    });
+    return renewed;
+  }
+
+  async changePlan(userId: string, membershipId: string, nextPlanId: string) {
+    await this.syncExpiredMemberships(userId);
+    const [membership, plan] = await Promise.all([
+      this.prisma.userMembership.findFirst({
+        where: { id: membershipId, userId },
+        include: { plan: true },
+      }),
+      this.prisma.membershipPlan.findUnique({ where: { id: nextPlanId } }),
+    ]);
+    if (!membership) {
+      throw new NotFoundException();
+    }
+    if (!plan || !plan.isActive) {
+      throw new NotFoundException('Target plan not found');
+    }
+    if (membership.planId === plan.id) {
+      throw new BadRequestException('Membership already uses this plan');
+    }
+    const now = new Date();
+    const planChangePolicy = this.resolvePlanChangePolicy({
+      membership,
+      plan,
+      now,
+    });
+    const updated = await this.prisma.userMembership.update({
+      where: { id: membershipId },
+      data: {
+        planId: plan.id,
+        status: MembershipStatus.ACTIVE,
+        currentPeriodStart: planChangePolicy.currentPeriodStart,
+        currentPeriodEnd: planChangePolicy.currentPeriodEnd,
+        sessionsRemaining: planChangePolicy.sessionsRemaining,
+      },
+      include: { plan: true },
+    });
+    const prorationAdjustment = this.calculateProrationAdjustmentCents({
+      oldPriceCents: membership.plan.priceCents,
+      newPriceCents: plan.priceCents,
+      remainingRatio: planChangePolicy.remainingRatio,
+      prorationApplied: planChangePolicy.prorationApplied,
+    });
+    if (prorationAdjustment !== 0) {
+      await this.prisma.payment.create({
+        data: {
+          userId,
+          amountCents: prorationAdjustment,
+          currency: plan.currency.toLowerCase(),
+          status: PaymentStatus.SUCCEEDED,
+          description:
+            prorationAdjustment > 0
+              ? `Membership plan proration charge (${membership.planId} -> ${plan.id})`
+              : `Membership plan proration credit (${membership.planId} -> ${plan.id})`,
+        },
+      });
+    }
+    await this.audit.log({
+      actorId: userId,
+      actorRole: 'USER',
+      action: 'MEMBERSHIP_PLAN_CHANGED',
+      entityType: 'UserMembership',
+      entityId: membershipId,
+      payload: {
+        fromPlanId: membership.planId,
+        toPlanId: plan.id,
+        prorationApplied: planChangePolicy.prorationApplied,
+        prorationAdjustmentCents: prorationAdjustment,
+      },
+    });
+    return updated;
+  }
+
   listAllAdmin(options?: { take?: number; offset?: number }) {
     const take = Math.min(Math.max(options?.take ?? 500, 1), 1000);
     const skip = Math.max(options?.offset ?? 0, 0);
-    return this.prisma.userMembership.findMany({
-      include: {
-        plan: true,
-        user: { select: { id: true, email: true, name: true } },
+    return this.syncExpiredMemberships().then(() =>
+      this.prisma.userMembership.findMany({
+        include: {
+          plan: true,
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+      }),
+    );
+  }
+
+  private async syncExpiredMemberships(userId?: string) {
+    await this.prisma.userMembership.updateMany({
+      where: {
+        ...(userId ? { userId } : {}),
+        status: MembershipStatus.ACTIVE,
+        currentPeriodEnd: { lte: new Date() },
       },
-      orderBy: { createdAt: 'desc' },
-      take,
-      skip,
+      data: { status: MembershipStatus.EXPIRED },
     });
   }
 
@@ -324,6 +453,97 @@ export class MembershipsService {
       .map((feature) => feature.trim())
       .filter((feature) => feature.length > 0)
       .slice(0, 20);
+  }
+
+  private resolvePlanChangePolicy(params: {
+    membership: {
+      status: MembershipStatus;
+      currentPeriodStart: Date;
+      currentPeriodEnd: Date;
+    };
+    plan: {
+      isUnlimited: boolean;
+      sessionsPerMonth: number | null;
+      periodDays: number;
+    };
+    now: Date;
+  }): {
+    currentPeriodStart: Date;
+    currentPeriodEnd: Date;
+    sessionsRemaining: number | null;
+    prorationApplied: boolean;
+    remainingRatio: number;
+  } {
+    const shouldProrate =
+      params.membership.status === MembershipStatus.ACTIVE &&
+      params.membership.currentPeriodEnd > params.now &&
+      params.membership.currentPeriodEnd > params.membership.currentPeriodStart;
+    if (!shouldProrate) {
+      const start = params.now;
+      const end = this.addDays(start, params.plan.periodDays);
+      return {
+        currentPeriodStart: start,
+        currentPeriodEnd: end,
+        sessionsRemaining: this.resolvePlanSessions(params.plan, 1),
+        prorationApplied: false,
+        remainingRatio: 1,
+      };
+    }
+    const ratio = this.calculateRemainingRatio(
+      params.membership.currentPeriodStart,
+      params.membership.currentPeriodEnd,
+      params.now,
+    );
+    return {
+      currentPeriodStart: params.membership.currentPeriodStart,
+      currentPeriodEnd: params.membership.currentPeriodEnd,
+      sessionsRemaining: this.resolvePlanSessions(params.plan, ratio),
+      prorationApplied: true,
+      remainingRatio: ratio,
+    };
+  }
+
+  private calculateProrationAdjustmentCents(params: {
+    oldPriceCents: number;
+    newPriceCents: number;
+    remainingRatio: number;
+    prorationApplied: boolean;
+  }): number {
+    if (!params.prorationApplied) {
+      return 0;
+    }
+    const delta = params.newPriceCents - params.oldPriceCents;
+    return Math.round(delta * params.remainingRatio);
+  }
+
+  private resolvePlanSessions(
+    plan: { isUnlimited: boolean; sessionsPerMonth: number | null },
+    ratio: number,
+  ): number | null {
+    if (plan.isUnlimited) {
+      return null;
+    }
+    const baseSessions = plan.sessionsPerMonth ?? 0;
+    if (baseSessions === 0) {
+      return 0;
+    }
+    const prorated = Math.ceil(baseSessions * ratio);
+    return Math.max(MIN_PRORATED_SESSIONS, prorated);
+  }
+
+  private calculateRemainingRatio(start: Date, end: Date, now: Date): number {
+    const totalMs = end.getTime() - start.getTime();
+    if (totalMs <= 0) {
+      return 1;
+    }
+    const remainingMs = Math.max(0, end.getTime() - now.getTime());
+    return Math.min(1, remainingMs / totalMs);
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
   }
 
   /** Prisma: P1001 can't reach server; P1017 server closed connection (e.g. idle Neon). */

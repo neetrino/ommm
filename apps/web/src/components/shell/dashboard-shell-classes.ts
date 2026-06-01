@@ -43,6 +43,7 @@ export function collapseToggleClass(variant: DashboardShellVariant) {
 export function pageBackgroundClass(variant: DashboardShellVariant) {
   if (variant === "indigo") return "min-h-screen bg-indigo-50/50";
   if (variant === "wellness") return "min-h-screen ommm-bg-wellness";
+  if (variant === "admin") return "min-h-screen ommm-bg-admin";
   return "min-h-screen bg-zinc-100";
 }
 
@@ -92,6 +93,9 @@ export function sidebarBrandStripClass(variant: DashboardShellVariant) {
 
 /** Mobile drawer panel (matches desktop sidebar tone per variant). */
 export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
+  if (variant === "admin") {
+    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col bg-[#97907c] text-[#fbf5d5] shadow-xl";
+  }
   if (variant === "wellness") {
     return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-white/50 bg-white/90 shadow-xl backdrop-blur-md";
   }
@@ -128,6 +132,7 @@ export function mobileDrawerFooterClass(variant: DashboardShellVariant) {
 }
 
 export function mobileDrawerOverlayScrimClass(variant: DashboardShellVariant) {
+  if (variant === "admin") return "absolute inset-0 bg-sage-900/45";
   if (variant === "wellness") return "absolute inset-0 bg-sage-900/35";
   if (variant === "indigo") return "absolute inset-0 bg-indigo-950/40";
   return "absolute inset-0 bg-zinc-900/40";

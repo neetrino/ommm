@@ -12,6 +12,38 @@ function createServiceWithPrisma(
 }
 
 describe('ReportsService', () => {
+  it('dashboard returns base counters without overview details', async () => {
+    const prismaMock = {
+      classSession: {
+        count: jest.fn().mockResolvedValue(8),
+      },
+      booking: {
+        count: jest.fn().mockResolvedValue(42),
+      },
+      waitlistEntry: {
+        count: jest.fn().mockResolvedValue(6),
+      },
+      userMembership: {
+        count: jest.fn().mockResolvedValue(120),
+      },
+      payment: {
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { amountCents: 500_000 },
+        }),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.dashboard({ includeRevenue: true });
+
+    expect(result.sessionsToday).toBe(8);
+    expect(result.bookingsToday).toBe(42);
+    expect(result.activeWaitlists).toBe(6);
+    expect(result.activeMembers).toBe(120);
+    expect(result.revenueCentsTotal).toBe(500_000);
+    expect(result).not.toHaveProperty('upcomingClasses');
+  });
+
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {
     const prismaMock = {
       payment: {
@@ -47,6 +79,23 @@ describe('ReportsService', () => {
           },
         ]),
       },
+      giftCard: {
+        aggregate: jest
+          .fn()
+          .mockResolvedValueOnce({
+            _sum: { amountCents: 4_000 },
+            _count: { id: 1 },
+          })
+          .mockResolvedValueOnce({
+            _sum: { amountCents: 2_000 },
+            _count: { id: 1 },
+          }),
+      },
+      user: {
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { giftCreditsCents: 1_500 },
+        }),
+      },
     };
     const service = createServiceWithPrisma(prismaMock);
 
@@ -57,6 +106,9 @@ describe('ReportsService', () => {
     expect(result.bySource.membership.amountCents).toBe(5_000);
     expect(result.bySource.dropin.amountCents).toBe(7_000);
     expect(result.bySource.gift.amountCents).toBe(3_000);
+    expect(result.giftCredits.issuedCents).toBe(4_000);
+    expect(result.giftCredits.redeemedCents).toBe(2_000);
+    expect(result.giftCredits.outstandingCreditsCents).toBe(1_500);
   });
 
   it('coachAnalytics computes totals and trend safely', async () => {
@@ -94,5 +146,72 @@ describe('ReportsService', () => {
     expect(result?.totals.bookings).toBe(1);
     expect(result?.totals.utilizationPercent).toBe(10);
     expect(result?.trend.length).toBe(1);
+  });
+
+  it('giftCreditsCsv includes issued, redeemed and spent rows', async () => {
+    const now = new Date('2026-05-28T09:00:00.000Z');
+    const prismaMock = {
+      giftCard: {
+        findMany: jest
+          .fn()
+          .mockResolvedValueOnce([
+            {
+              code: 'GIFT-ISSUED',
+              amountCents: 12_000,
+              createdAt: now,
+              purchaser: {
+                id: 'admin-1',
+                email: 'admin@test.com',
+                name: 'Admin',
+                lastName: 'One',
+              },
+              recipient: null,
+              recipientEmail: 'client@test.com',
+              recipientName: 'Client One',
+            },
+          ])
+          .mockResolvedValueOnce([
+            {
+              code: 'GIFT-REDEEMED',
+              amountCents: 8_000,
+              updatedAt: now,
+              recipient: {
+                id: 'user-1',
+                email: 'user@test.com',
+                name: 'User',
+                lastName: 'One',
+              },
+            },
+          ]),
+      },
+      payment: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'pay-1',
+            userId: 'user-1',
+            amountCents: 3_000,
+            currency: 'amd',
+            createdAt: now,
+            description: 'Gift credit spend for booking session-1',
+            user: {
+              id: 'user-1',
+              email: 'user@test.com',
+              name: 'User',
+              lastName: 'One',
+            },
+          },
+        ]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const csv = await service.giftCreditsCsv({});
+
+    expect(csv).toContain(
+      'eventType,eventAt,userId,userEmail,userName,amountCents',
+    );
+    expect(csv).toContain('"ISSUED"');
+    expect(csv).toContain('"REDEEMED"');
+    expect(csv).toContain('"SPENT"');
   });
 });

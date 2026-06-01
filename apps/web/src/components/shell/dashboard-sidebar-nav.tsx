@@ -3,13 +3,24 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
+import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
 import type { DashboardNavItem } from "@/lib/dashboard-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+
+const ADMIN_MUTED_NAV_HREFS = new Set([
+  "/admin/feedback",
+  "/admin/guest-users",
+]);
 
 function navActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   if (pathname === href) return true;
   return pathname.startsWith(`${href}/`);
+}
+
+function isAdminMutedNavItem(variant: DashboardShellVariant, href: string) {
+  return variant === "admin" && ADMIN_MUTED_NAV_HREFS.has(href);
 }
 
 function accentBorder(variant: DashboardShellVariant) {
@@ -18,7 +29,16 @@ function accentBorder(variant: DashboardShellVariant) {
   return "border-blue-600";
 }
 
-function rowBase(variant: DashboardShellVariant, collapsed: boolean) {
+function rowBase(
+  variant: DashboardShellVariant,
+  collapsed: boolean,
+  muted: boolean,
+) {
+  if (variant === "admin") {
+    return muted
+      ? "ommm-admin-nav-link ommm-admin-nav-link-muted"
+      : "ommm-admin-nav-link";
+  }
   const gap = collapsed ? "justify-center gap-0 px-0" : "gap-3 px-3";
   const base = `flex w-full items-center rounded-xl py-2.5 text-sm font-medium transition-colors border-l-4 ${gap}`;
   if (variant === "indigo") {
@@ -30,7 +50,16 @@ function rowBase(variant: DashboardShellVariant, collapsed: boolean) {
   return `${base} border-transparent text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900`;
 }
 
-function rowActive(variant: DashboardShellVariant, collapsed: boolean) {
+function rowActive(
+  variant: DashboardShellVariant,
+  collapsed: boolean,
+  muted: boolean,
+) {
+  if (variant === "admin") {
+    return muted
+      ? "ommm-admin-nav-link ommm-admin-nav-link-muted ommm-admin-nav-link-active"
+      : "ommm-admin-nav-link ommm-admin-nav-link-active";
+  }
   const gap = collapsed ? "justify-center gap-0 px-0" : "gap-3 px-3";
   const border = accentBorder(variant);
   if (variant === "indigo") {
@@ -60,20 +89,35 @@ export function DashboardSidebarNav({
   const tShell = useTranslations("dashboard.shell");
   return (
     <nav
-      className="flex flex-col gap-0.5 p-2"
+      className={
+        variant === "admin"
+          ? "flex flex-col gap-1 px-0 py-0"
+          : "flex flex-col gap-0.5 p-2"
+      }
       aria-label={tShell("dashboardNavAria")}
     >
       {items.map((item) => {
         const active = navActive(pathname, item.href);
+        const muted = isAdminMutedNavItem(variant, item.href);
+        const adminIconSlug =
+          variant === "admin" ? adminNavIconSlugForHref(item.href) : null;
         return (
           <Link
             key={item.href}
             href={item.href}
             title={collapsed ? item.label : undefined}
-            className={active ? rowActive(variant, collapsed) : rowBase(variant, collapsed)}
+            className={
+              active
+                ? rowActive(variant, collapsed, muted)
+                : rowBase(variant, collapsed, muted)
+            }
             onClick={onNavigate}
           >
-            <DashboardNavIcon name={item.icon} />
+            {adminIconSlug ? (
+              <AdminNavIcon slug={adminIconSlug} />
+            ) : (
+              <DashboardNavIcon name={item.icon} />
+            )}
             <span
               className={
                 collapsed

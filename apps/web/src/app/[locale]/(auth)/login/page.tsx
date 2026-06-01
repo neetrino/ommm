@@ -4,11 +4,22 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
+import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { homePathForRole } from "@/lib/role-home";
+
+function buildGoogleAuthStartUrl(): string {
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!rawApiUrl) {
+    return "/api/v1/auth/google";
+  }
+  const trimmed = rawApiUrl.replace(/\/+$/, "");
+  const apiBase = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+  return `${apiBase}/auth/google`;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,6 +29,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const submitLockRef = useRef(false);
+  const googleAuthUrl = buildGoogleAuthStartUrl();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,6 +94,22 @@ export default function LoginPage() {
         <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
           {pending ? tAuth("signingIn") : tAuth("continue")}
         </OmmButton>
+        <OmmButton
+          type="button"
+          variant="secondary"
+          onClick={() => window.location.assign(googleAuthUrl)}
+          className="gap-2.5"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
+            <GoogleLogoIcon className="h-4 w-4" />
+          </span>
+          <span className="leading-none">{tAuth("continueWithGoogle")}</span>
+        </OmmButton>
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="ommm-link-sage">
+            {tAuth("forgotPassword")}
+          </Link>
+        </p>
       </form>
       {error ? (
         <p className="mt-4 text-sm text-red-600" role="alert">

@@ -6,12 +6,64 @@ import { ApiError, apiFetch } from "@/lib/api";
 type AdminBookingActionsProps = {
   bookingId: string;
   defaultSessionId: string;
+  locale?: string;
 };
+
+function getBookingActionLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      actionFailed: "Գործողությունը չհաջողվեց",
+      bookingCancelled: "Ամրագրումը չեղարկվեց",
+      attendanceUpdated: "Ներկայությունը թարմացվեց",
+      bookingMoved: "Ամրագրումը տեղափոխվեց",
+      noteAdded: "Նշումը ավելացվեց",
+      cancel: "Չեղարկել",
+      attended: "Մասնակցել է",
+      missed: "Բացակայել է",
+      move: "Տեղափոխել",
+      addNote: "Ավելացնել նշում",
+      targetSessionId: "Թիրախ սեսիայի ID",
+      internalNote: "Ներքին նշում",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      actionFailed: "Действие не выполнено",
+      bookingCancelled: "Бронирование отменено",
+      attendanceUpdated: "Посещаемость обновлена",
+      bookingMoved: "Бронирование перенесено",
+      noteAdded: "Заметка добавлена",
+      cancel: "Отменить",
+      attended: "Посетил",
+      missed: "Пропустил",
+      move: "Перенести",
+      addNote: "Добавить заметку",
+      targetSessionId: "ID целевой сессии",
+      internalNote: "Внутренняя заметка",
+    };
+  }
+  return {
+    actionFailed: "Action failed",
+    bookingCancelled: "Booking cancelled",
+    attendanceUpdated: "Attendance updated",
+    bookingMoved: "Booking moved",
+    noteAdded: "Note added",
+    cancel: "Cancel",
+    attended: "Attended",
+    missed: "Missed",
+    move: "Move",
+    addNote: "Add note",
+    targetSessionId: "Target session ID",
+    internalNote: "Internal note",
+  };
+}
 
 export function AdminBookingActions({
   bookingId,
   defaultSessionId,
+  locale = "en",
 }: AdminBookingActionsProps) {
+  const labels = getBookingActionLabels(locale);
   const [targetSessionId, setTargetSessionId] = useState(defaultSessionId);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -31,7 +83,7 @@ export function AdminBookingActions({
       window.location.reload();
     } catch (error) {
       setTone("err");
-        setMessage(error instanceof ApiError ? error.message : "Action failed");
+      setMessage(error instanceof ApiError ? error.message : labels.actionFailed);
     } finally {
       setBusy(false);
     }
@@ -47,11 +99,11 @@ export function AdminBookingActions({
           onClick={() =>
             void run(
               () => apiFetch(`/bookings/admin/${bookingId}`, { method: "DELETE" }),
-              "Booking cancelled",
+              labels.bookingCancelled,
             )
           }
         >
-          Cancel
+          {labels.cancel}
         </button>
         <button
           type="button"
@@ -64,11 +116,11 @@ export function AdminBookingActions({
                   method: "PATCH",
                   body: JSON.stringify({ attended: true }),
                 }),
-              "Attendance updated",
+              labels.attendanceUpdated,
             )
           }
         >
-          Attended
+          {labels.attended}
         </button>
         <button
           type="button"
@@ -81,18 +133,18 @@ export function AdminBookingActions({
                   method: "PATCH",
                   body: JSON.stringify({ attended: false }),
                 }),
-              "Attendance updated",
+              labels.attendanceUpdated,
             )
           }
         >
-          Missed
+          {labels.missed}
         </button>
       </div>
       <div className="flex items-center gap-2">
         <input
           type="text"
           className="app-input h-9 text-xs"
-          placeholder="Target session ID"
+          placeholder={labels.targetSessionId}
           value={targetSessionId}
           onChange={(event) => setTargetSessionId(event.target.value)}
           disabled={busy}
@@ -108,18 +160,18 @@ export function AdminBookingActions({
                   method: "PATCH",
                   body: JSON.stringify({ targetSessionId }),
                 }),
-              "Booking moved",
+              labels.bookingMoved,
             )
           }
         >
-          Move
+          {labels.move}
         </button>
       </div>
       <div className="flex items-center gap-2">
         <input
           type="text"
           className="app-input h-9 text-xs"
-          placeholder="Internal note"
+          placeholder={labels.internalNote}
           value={note}
           onChange={(event) => setNote(event.target.value)}
           disabled={busy}
@@ -135,11 +187,11 @@ export function AdminBookingActions({
                   method: "POST",
                   body: JSON.stringify({ body: note.trim() }),
                 }),
-              "Note added",
+              labels.noteAdded,
             )
           }
         >
-          Add note
+          {labels.addNote}
         </button>
       </div>
       {message ? (

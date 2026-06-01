@@ -10,7 +10,13 @@ import { PasswordInput } from "@/components/ui/password-input";
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 128;
 
-export function AccountChangePasswordForm() {
+type AccountChangePasswordFormProps = {
+  hasPassword: boolean;
+};
+
+export function AccountChangePasswordForm({
+  hasPassword,
+}: AccountChangePasswordFormProps) {
   const router = useRouter();
   const t = useTranslations("forms.changePassword");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -27,7 +33,7 @@ export function AccountChangePasswordForm() {
       const c = currentPassword.trim();
       const n = newPassword.trim();
       const conf = confirmPassword.trim();
-      if (!c || !n || !conf) {
+      if (!n || !conf || (hasPassword && !c)) {
         setTone("err");
         setMsg(t("fillAllFields"));
         return;
@@ -47,13 +53,20 @@ export function AccountChangePasswordForm() {
         );
         return;
       }
+      const payload: {
+        newPassword: string;
+        confirmNewPassword: string;
+        currentPassword?: string;
+      } = {
+        newPassword: n,
+        confirmNewPassword: conf,
+      };
+      if (hasPassword) {
+        payload.currentPassword = c;
+      }
       const res = await apiFetch<{ message: string }>("/users/me/password", {
         method: "PATCH",
-        body: JSON.stringify({
-          currentPassword: c,
-          newPassword: n,
-          confirmNewPassword: conf,
-        }),
+        body: JSON.stringify(payload),
       });
       setTone("ok");
       setMsg(res.message);
@@ -71,20 +84,30 @@ export function AccountChangePasswordForm() {
 
   return (
     <div className="flex max-w-md flex-col gap-4">
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="current-password">
-          {t("currentPasswordLabel")}
-        </label>
-        <PasswordInput
-          id="current-password"
-          autoComplete="current-password"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={currentPassword}
-          onChange={(ev) => setCurrentPassword(ev.target.value)}
-          showPasswordLabel={t("showPassword")}
-          hidePasswordLabel={t("hidePassword")}
-        />
+      <div className="space-y-2">
+        <h3 className="text-base font-semibold text-sage-900">
+          {hasPassword ? t("changeTitle") : t("setTitle")}
+        </h3>
+        {!hasPassword ? (
+          <p className="text-sm text-sage-600">{t("setDescription")}</p>
+        ) : null}
       </div>
+      {hasPassword ? (
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-sage-700" htmlFor="current-password">
+            {t("currentPasswordLabel")}
+          </label>
+          <PasswordInput
+            id="current-password"
+            autoComplete="current-password"
+            className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+            value={currentPassword}
+            onChange={(ev) => setCurrentPassword(ev.target.value)}
+            showPasswordLabel={t("showPassword")}
+            hidePasswordLabel={t("hidePassword")}
+          />
+        </div>
+      ) : null}
       <div className="space-y-1">
         <label className="text-sm font-medium text-sage-700" htmlFor="new-password">
           {t("newPasswordLabel")}
@@ -121,7 +144,7 @@ export function AccountChangePasswordForm() {
         disabled={busy}
         onClick={() => void submit()}
       >
-        {t("updateButton")}
+        {hasPassword ? t("changeButton") : t("setButton")}
       </OmmButton>
       {msg ? (
         <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>{msg}</p>

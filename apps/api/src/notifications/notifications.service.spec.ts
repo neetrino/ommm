@@ -1,0 +1,346 @@
+import { NotificationsService } from './notifications.service';
+import { BroadcastAudience } from './dto/broadcast.dto';
+
+describe('NotificationsService', () => {
+  function createService() {
+    const prisma = {
+      auditLog: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+        findFirst: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({ id: 'log-1' }),
+      },
+      user: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            { email: 'u1@test.com' },
+            { email: 'u2@test.com' },
+          ]),
+      },
+      classReminderSendLog: {
+        findUnique: jest.fn(),
+        create: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
+      },
+      booking: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const mail = { sendEmail: jest.fn().mockResolvedValue(undefined) };
+    const expoPush = { send: jest.fn().mockResolvedValue(undefined) };
+    const audit = { log: jest.fn().mockResolvedValue(undefined) };
+    return {
+      service: new NotificationsService(
+        prisma as never,
+        mail as never,
+        expoPush as never,
+        audit as never,
+      ),
+      prisma,
+      mail,
+      audit,
+    };
+  }
+
+  it('broadcastToAll targets selected audience with promotions filter', async () => {
+    const { service, prisma, audit } = createService();
+
+    const result = await service.broadcastToAll('Promo', '<p>Hi</p>', {
+      audience: BroadcastAudience.USERS,
+      onlyPromotionsOptIn: true,
+    });
+
+    const audienceCall = prisma.user.findMany.mock.calls[0] as [
+      {
+        where: {
+          role: { in: string[] };
+          notificationPrefs: { is: { promotions: boolean } };
+        };
+      },
+    ];
+    expect(audienceCall[0].where.role.in).toEqual(['USER']);
+    expect(audienceCall[0].where.notificationPrefs.is.promotions).toBe(true);
+    const auditCallTuples = audit.log.mock.calls as Array<
+      [
+        {
+          action: string;
+          payload: {
+            audience?: BroadcastAudience;
+            onlyPromotionsOptIn?: boolean;
+            recipientEmail?: string;
+          };
+        },
+      ]
+    >;
+    const auditEntries = auditCallTuples.map(([entry]) => entry);
+    const broadcastAuditEntry = auditEntries.find(
+      (entry) => entry.action === 'NOTIFICATION_BROADCAST',
+    );
+    expect(broadcastAuditEntry).toBeDefined();
+    expect(broadcastAuditEntry?.payload.audience).toBe(BroadcastAudience.USERS);
+    expect(broadcastAuditEntry?.payload.onlyPromotionsOptIn).toBe(true);
+    const deliveryAuditEntry = auditEntries.find(
+      (entry) =>
+        entry.action === 'NOTIFICATION_DELIVERY' &&
+        entry.payload.recipientEmail === 'u1@test.com',
+    );
+    expect(deliveryAuditEntry).toBeDefined();
+    expect(result.count).toBe(2);
+  });
+
+  it('broadcastToAll sends test email without querying audience', async () => {
+    const { service, prisma, mail } = createService();
+
+    const result = await service.broadcastToAll('Test', '<p>Body</p>', {
+      testTo: 'test@example.com',
+      audience: BroadcastAudience.ALL,
+      onlyPromotionsOptIn: false,
+    });
+
+    expect(mail.sendEmail).toHaveBeenCalledWith({
+      to: 'test@example.com',
+      subject: 'Test',
+      html: '<p>Body</p>',
+    });
+    expect(prisma.user.findMany).not.toHaveBeenCalled();
+    expect(result.mode).toBe('test');
+  });
+
+  it('scheduleBroadcast queues future notification broadcast', async () => {
+    const { service, audit } = createService();
+    const scheduleAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+    const result = await service.scheduleBroadcast('admin-1', {
+      subject: 'Future',
+      html: '<p>Later</p>',
+      audience: BroadcastAudience.ALL,
+      onlyPromotionsOptIn: false,
+      scheduleAt,
+    });
+
+    const scheduleAuditCall = audit.log.mock.calls[0] as [
+      {
+        action: string;
+        payload: {
+          scheduleAt?: string;
+        };
+      },
+    ];
+    expect(scheduleAuditCall[0].action).toBe(
+      'NOTIFICATION_BROADCAST_SCHEDULED',
+    );
+    expect(scheduleAuditCall[0].payload.scheduleAt).toBe(scheduleAt);
+    expect(result.mode).toBe('scheduled');
+  });
+
+  it('getAdminStats aggregates queue and delivery counters', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.count
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(9)
+      .mockResolvedValueOnce(1);
+    prisma.auditLog.findMany.mockResolvedValue([
+      {
+        entityId: 'broadcast',
+        action: 'NOTIFICATION_BROADCAST',
+        payload: JSON.stringify({ audience: 'users' }),
+        createdAt: new Date(),
+      },
+    ]);
+    prisma.classReminderSendLog.count.mockResolvedValue(12);
+
+    const stats = await service.getAdminStats();
+
+    expect(stats.scheduledBroadcasts).toBe(5);
+    expect(stats.scheduledSent).toBe(3);
+    expect(stats.scheduledFailed).toBe(1);
+    expect(stats.scheduledPending).toBe(0);
+    expect(stats.scheduledCancelled).toBe(1);
+    expect(stats.immediateBroadcasts).toBe(9);
+    expect(stats.reminderDeliveries).toBe(12);
+    expect(stats.byAudience.users).toBe(1);
+  });
+
+  it('listScheduledBroadcasts returns effective state and status', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.findMany
+      .mockResolvedValueOnce([
+        {
+          id: 'a1',
+          entityId: 'schedule-1',
+          action: 'NOTIFICATION_BROADCAST_SCHEDULED',
+          payload: JSON.stringify({
+            subject: 'Initial',
+            html: '<p>Initial</p>',
+            audience: 'users',
+            onlyPromotionsOptIn: false,
+            scheduleAt: '2026-05-29T10:00:00.000Z',
+          }),
+          createdAt: new Date('2026-05-28T10:00:00.000Z'),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          entityId: 'schedule-1',
+          action: 'NOTIFICATION_BROADCAST_SCHEDULED_UPDATED',
+          payload: JSON.stringify({
+            subject: 'Updated',
+            html: '<p>Updated</p>',
+            audience: 'coaches',
+            onlyPromotionsOptIn: false,
+            scheduleAt: '2026-05-29T11:00:00.000Z',
+          }),
+          createdAt: new Date('2026-05-28T11:00:00.000Z'),
+        },
+      ]);
+
+    const list = await service.listScheduledBroadcasts();
+
+    expect(list).toHaveLength(1);
+    expect(list[0]?.subject).toBe('Updated');
+    expect(list[0]?.status).toBe('PENDING');
+  });
+
+  it('cancelScheduledBroadcast logs cancellation for pending schedule', async () => {
+    const { service, prisma, audit } = createService();
+    prisma.auditLog.findFirst.mockResolvedValue({
+      id: 'base-1',
+      entityId: 'schedule-1',
+      action: 'NOTIFICATION_BROADCAST_SCHEDULED',
+      payload: JSON.stringify({
+        subject: 'Scheduled',
+        html: '<p>Scheduled</p>',
+        audience: 'users',
+        onlyPromotionsOptIn: false,
+        scheduleAt: '2026-05-29T10:00:00.000Z',
+      }),
+      createdAt: new Date('2026-05-28T10:00:00.000Z'),
+    });
+    prisma.auditLog.findMany.mockResolvedValue([]);
+
+    const result = await service.cancelScheduledBroadcast(
+      'admin-1',
+      'schedule-1',
+    );
+
+    expect(result.ok).toBe(true);
+    expect(audit.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'NOTIFICATION_BROADCAST_SCHEDULED_CANCELLED',
+        entityId: 'schedule-1',
+      }),
+    );
+  });
+
+  it('getRecentDeliveries returns parsed recipient logs', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.findMany.mockResolvedValue([
+      {
+        id: 'd1',
+        action: 'NOTIFICATION_DELIVERY',
+        entityType: 'Notification',
+        createdAt: new Date('2026-05-28T10:00:00.000Z'),
+        payload: JSON.stringify({
+          recipientEmail: 'user@test.com',
+          channel: 'email',
+          audience: 'users',
+          scheduled: true,
+          subject: 'Hello',
+        }),
+      },
+    ]);
+
+    const rows = await service.getRecentDeliveries();
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        recipientEmail: 'user@test.com',
+        scheduled: true,
+        subject: 'Hello',
+      }),
+    );
+  });
+
+  it('getCampaignAnalytics returns summary and top subjects', async () => {
+    const { service, prisma } = createService();
+    prisma.auditLog.findMany
+      .mockResolvedValueOnce([
+        {
+          id: 'b1',
+          action: 'NOTIFICATION_BROADCAST',
+          entityType: 'Notification',
+          createdAt: new Date('2026-05-28T09:00:00.000Z'),
+          payload: JSON.stringify({
+            subject: 'Morning flow update',
+            recipientCount: 3,
+          }),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: 'd1',
+          action: 'NOTIFICATION_DELIVERY',
+          entityType: 'Notification',
+          createdAt: new Date('2026-05-28T09:01:00.000Z'),
+          payload: JSON.stringify({
+            recipientEmail: 'u1@test.com',
+            channel: 'email',
+            audience: 'users',
+            scheduled: false,
+            subject: 'Morning flow update',
+          }),
+        },
+        {
+          id: 'd2',
+          action: 'NOTIFICATION_DELIVERY',
+          entityType: 'Notification',
+          createdAt: new Date('2026-05-28T09:02:00.000Z'),
+          payload: JSON.stringify({
+            recipientEmail: 'u2@test.com',
+            channel: 'email',
+            audience: 'users',
+            scheduled: false,
+            subject: 'Morning flow update',
+          }),
+        },
+      ]);
+
+    const analytics = await service.getCampaignAnalytics(7);
+
+    expect(analytics.summary.campaignsTotal).toBe(1);
+    expect(analytics.summary.deliveriesTotal).toBe(2);
+    expect(analytics.summary.averageRecipientsPerCampaign).toBe(3);
+    expect(analytics.funnel).toEqual(
+      expect.objectContaining({
+        campaignsTotal: 1,
+        scheduledCampaigns: 0,
+        immediateCampaigns: 1,
+        estimatedRecipientsTotal: 3,
+        deliveredRecipientsTotal: 2,
+        deliveryRatePct: 67,
+      }),
+    );
+    expect(analytics.channelBreakdown).toEqual([
+      expect.objectContaining({ channel: 'email', deliveries: 2 }),
+    ]);
+    expect(analytics.topSubjects[0]).toEqual(
+      expect.objectContaining({
+        subject: 'Morning flow update',
+        campaigns: 1,
+        deliveries: 2,
+        estimatedRecipients: 3,
+        conversionRatePct: 67,
+      }),
+    );
+    expect(analytics.daily).toHaveLength(7);
+    const firstDay = analytics.daily[0];
+    expect(firstDay).toBeDefined();
+    expect(typeof firstDay?.date).toBe('string');
+    expect(typeof firstDay?.campaigns).toBe('number');
+    expect(typeof firstDay?.deliveries).toBe('number');
+  });
+});

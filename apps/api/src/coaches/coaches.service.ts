@@ -16,6 +16,11 @@ import { hashPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import { absolutePathForStoredUpload } from '../users/user-upload.helpers';
+import {
+  AdminCoachActiveFilter,
+  AdminCoachOrder,
+  type AdminListCoachesQueryDto,
+} from './dto/admin-list-coaches-query.dto';
 import type { CreateCoachDto } from './dto/create-coach.dto';
 import {
   COACH_AVAILABILITY_MAX_SPOTS,
@@ -44,6 +49,10 @@ type CoachAdminListRow = {
   createdAt: Date;
   updatedAt: Date;
   availabilitySlots: CoachAvailabilitySlotRow[];
+  _count: {
+    sessions: number;
+    substituteSessions: number;
+  };
   user: {
     id: string;
     name: string | null;
@@ -507,8 +516,77 @@ export class CoachesService {
     return updated;
   }
 
-  listAdmin() {
+  listAdmin(query: AdminListCoachesQueryDto = {}) {
+    const q = query.q?.trim();
+    const specialization = query.specialization?.trim();
+    const classType = query.classType?.trim();
+    const where: Prisma.CoachProfileWhereInput = {
+      ...(q
+        ? {
+            OR: [
+              {
+                user: {
+                  email: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                user: {
+                  name: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                user: {
+                  lastName: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                user: {
+                  phone: { contains: q, mode: Prisma.QueryMode.insensitive },
+                },
+              },
+              {
+                id: { contains: q, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                userId: { contains: q, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                specialization: {
+                  contains: q,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+              {
+                classType: { contains: q, mode: Prisma.QueryMode.insensitive },
+              },
+            ],
+          }
+        : {}),
+      ...(specialization
+        ? {
+            specialization: {
+              contains: specialization,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          }
+        : {}),
+      ...(classType
+        ? {
+            classType: {
+              contains: classType,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          }
+        : {}),
+      ...(query.isActive === AdminCoachActiveFilter.ACTIVE
+        ? { isActive: true }
+        : {}),
+      ...(query.isActive === AdminCoachActiveFilter.INACTIVE
+        ? { isActive: false }
+        : {}),
+    };
     const listAdminArgs = {
+      where,
       include: {
         user: {
           select: {
@@ -526,9 +604,17 @@ export class CoachesService {
           availabilitySlots: {
             orderBy: [{ slotDate: 'asc' }, { slotTime: 'asc' }],
           },
+          _count: {
+            select: {
+              sessions: true,
+              substituteSessions: true,
+            },
+          },
         } as Record<string, unknown>),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: {
+        createdAt: query.order === AdminCoachOrder.OLDEST ? 'asc' : 'desc',
+      },
     } as Prisma.CoachProfileFindManyArgs;
     return this.prisma.coachProfile.findMany(listAdminArgs).then((rows) =>
       (rows as unknown as CoachAdminListRow[]).map((row) => ({
@@ -542,6 +628,8 @@ export class CoachesService {
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         userId: row.userId,
+        totalClasses: row._count.sessions,
+        substituteClasses: row._count.substituteSessions,
         schedule: row.availabilitySlots.map((slot) => ({
           id: slot.id,
           date: slot.slotDate.toISOString(),
@@ -612,6 +700,7 @@ export class CoachesService {
     if (schedule === undefined) {
       return [];
     }
+    const seen = new Set<string>();
     return schedule.map((entry) => {
       const slotDate = this.parseBirthdayToDateOnly(entry.date);
       const slotTime = entry.time.trim();
@@ -626,6 +715,13 @@ export class CoachesService {
       ) {
         throw new BadRequestException('Schedule spots value is invalid');
       }
+      const key = `${slotDate.toISOString().slice(0, 10)}|${slotTime}`;
+      if (seen.has(key)) {
+        throw new BadRequestException(
+          'Duplicate availability slots are not allowed',
+        );
+      }
+      seen.add(key);
       return { slotDate, slotTime, availableSpots };
     });
   }
@@ -749,6 +845,33 @@ export class CoachesService {
       bookedToday,
       activeWaitlistsForCoachSessions: waitlists,
     };
+  }
+
+  async adminSalarySummaries() {
+    const profiles = await this.prisma.coachProfile.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    const items = await Promise.all(
+      profiles.map(async (profile) => ({
+        coachProfileId: profile.id,
+        userId: profile.userId,
+        isActive: profile.isActive,
+        user: profile.user,
+        salary: await this.salarySummary(profile.userId),
+      })),
+    );
+    return { items };
   }
 
   async salarySummary(userId: string) {

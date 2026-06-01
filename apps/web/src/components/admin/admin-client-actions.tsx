@@ -9,6 +9,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
+import { PlusIcon } from "@/components/ui/plus-icon";
 
 type AdminClientActionsProps = {
   clientId: string;
@@ -230,12 +231,12 @@ export function AdminClientActions({
       {isOpen && typeof document !== "undefined"
         ? createPortal(
             <div
-              className="fixed inset-0 flex items-end justify-center p-0 sm:items-center sm:p-4"
+              className="ommm-modal-overlay z-50"
               role="presentation"
             >
               <button
                 type="button"
-                className="absolute inset-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+                className="ommm-modal-backdrop"
                 aria-label={t("modalBackdropClose")}
                 onClick={closeModal}
               />
@@ -245,7 +246,7 @@ export function AdminClientActions({
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
-                className="relative mt-auto max-h-[min(92vh,760px)] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+                className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
               >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -364,7 +365,7 @@ export function AdminClientActions({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-10 rounded-xl px-4 text-xs"
+                    className="h-10 gap-1.5 rounded-xl px-4 text-xs"
                     disabled={busy || note.trim() === ""}
                     onClick={() =>
                       void run(
@@ -377,6 +378,7 @@ export function AdminClientActions({
                       )
                     }
                   >
+                    <PlusIcon className="h-3.5 w-3.5 shrink-0" />
                     {t("addNote")}
                   </OmmButton>
                 </div>

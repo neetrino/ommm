@@ -1,5 +1,6 @@
 import { ContentStatus, ContentType } from '@prisma/client';
 import {
+  IsArray,
   IsDateString,
   IsEnum,
   IsOptional,
@@ -34,6 +35,50 @@ export class UpsertPostDto {
   @IsString()
   @MaxLength(100_000)
   body?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  authorName?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(40, { each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  seoTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(320)
+  seoDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  editorialNotes?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  reviewNotes?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  reviewedById?: string;
+
+  @IsOptional()
+  @IsDateString()
+  reviewedAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  submittedForReviewAt?: string;
 
   @IsOptional()
   @IsString()

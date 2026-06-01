@@ -19,4 +19,9 @@ export class UpdateClientDto {
   @IsString()
   @MaxLength(32)
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  dateOfBirth?: string;
 }

@@ -7,6 +7,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
+import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
@@ -14,48 +15,6 @@ import {
   type LanguageSwitcherLocaleCode,
   isLanguageSwitcherLocale,
 } from "@/lib/language-switcher-locales";
-
-function triggerClass(
-  context: "marketing" | "dashboard",
-  variant: DashboardShellVariant,
-  compact: boolean,
-): string {
-  const pad = compact
-    ? "gap-1 px-2 py-1 text-[10px] sm:px-2.5 sm:text-[11px]"
-    : "gap-1.5 px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm";
-  const base = `${pad} inline-flex min-w-0 shrink-0 items-center rounded-full font-medium tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1`;
-  if (context === "marketing") {
-    return `${base} border border-white/60 bg-white/55 text-sage-800 shadow-sm ring-white/40 hover:bg-white/75 focus-visible:ring-sand-500`;
-  }
-  if (variant === "indigo") {
-    return `${base} border border-indigo-200 bg-white text-indigo-950 shadow-sm hover:bg-indigo-50 focus-visible:ring-indigo-600`;
-  }
-  if (variant === "wellness") {
-    return `${base} border border-white/35 bg-white/25 text-sage-900 backdrop-blur-sm hover:bg-white/40 focus-visible:ring-sand-500`;
-  }
-  return `${base} border border-zinc-200 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 focus-visible:ring-zinc-900`;
-}
-
-function optionRowClass(
-  context: "marketing" | "dashboard",
-  variant: DashboardShellVariant,
-  selected: boolean,
-  compact: boolean,
-): string {
-  const pad = compact ? "gap-1.5 px-2 py-1.5 text-[11px]" : "gap-2 px-3 py-2 text-sm";
-  const base = `${pad} flex w-full items-center text-left font-medium tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset`;
-  const sel = selected ? " bg-black/[0.06]" : "";
-  if (context === "marketing") {
-    return `${base} text-sage-800 hover:bg-white/80 focus-visible:ring-sand-500${sel}`;
-  }
-  if (variant === "indigo") {
-    return `${base} text-indigo-950 hover:bg-indigo-50 focus-visible:ring-indigo-600${sel}`;
-  }
-  if (variant === "wellness") {
-    return `${base} text-sage-900 hover:bg-white/50 focus-visible:ring-sand-500${sel}`;
-  }
-  return `${base} text-zinc-900 hover:bg-zinc-50 focus-visible:ring-zinc-900${sel}`;
-}
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
@@ -66,7 +25,7 @@ export type LanguageSwitcherProps = {
 };
 
 export function LanguageSwitcher({
-  context,
+  context: _context,
   dashboardVariant = "neutral",
   compact = false,
   className = "",
@@ -93,7 +52,7 @@ export function LanguageSwitcher({
       : "hy");
 
   const flagFrame =
-    context === "dashboard" && dashboardVariant === "wellness"
+    dashboardVariant === "wellness" || dashboardVariant === "admin"
       ? "warm"
       : "default";
 
@@ -136,7 +95,7 @@ export function LanguageSwitcher({
   );
 
   return (
-    <div ref={rootRef} className={`relative shrink-0 ${className}`.trim()}>
+    <div ref={rootRef} className={`ommm-dropdown-root min-w-[5.5rem] shrink-0 ${className}`.trim()}>
       <DropdownSelect<LanguageSwitcherLocaleCode>
         label={effectiveLocale}
         ariaLabel={triggerLabel}
@@ -144,29 +103,30 @@ export function LanguageSwitcher({
         options={options}
         onChange={select}
         disabled={pending || persisting}
-        className="min-w-[5.5rem]"
-        triggerClassName={triggerClass(context, dashboardVariant, compact)}
+        triggerClassName={
+          compact
+            ? "ommm-dropdown-trigger--compact min-h-9 px-2.5 text-[11px]"
+            : "ommm-dropdown-trigger--compact"
+        }
         renderValue={() => (
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
             <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
             <span>{effectiveLocale}</span>
           </span>
         )}
         renderOption={(option, selected) => (
-          <span className="inline-flex w-full items-center">
+          <>
             <span
-              className={optionRowClass(
-                context,
-                dashboardVariant,
-                selected,
-                compact,
-              )}
+              className="ommm-dropdown-checkbox"
+              data-checked={selected ? "true" : "false"}
+              aria-hidden
             >
-              <LocaleFlagIcon code={option.value} frame={flagFrame} />
-              <span className="min-w-0 flex-1">{option.label}</span>
-              <span className="sr-only">{t(`optionNames.${option.value}`)}</span>
+              {selected ? <DropdownCheckGlyph className="h-3 w-3" /> : null}
             </span>
-          </span>
+            <LocaleFlagIcon code={option.value} frame={flagFrame} />
+            <span className="min-w-0 flex-1">{option.label}</span>
+            <span className="sr-only">{t(`optionNames.${option.value}`)}</span>
+          </>
         )}
       />
     </div>

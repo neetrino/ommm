@@ -155,40 +155,44 @@ function AdminCoachesShellInner({
   }, [isModalOpen]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col">
       {banner !== null ? (
         <p
-          className="rounded-xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-sm"
+          className="mb-4 rounded-xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-sm"
           role="status"
         >
           {banner}
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <AdminCoachesViewSwitcher value={viewMode} onChange={setViewMode} />
-        <OmmButton
-          type="button"
-          variant="secondary"
-          size="md"
-          onClick={openModal}
-          className="inline-flex items-center gap-2"
-        >
-          <AddCoachGlyph className="h-5 w-5 shrink-0" />
-          {t("addCoachButton")}
-        </OmmButton>
+      <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex justify-start">
+          <AdminCoachesViewSwitcher value={viewMode} onChange={setViewMode} />
+        </div>
+        <div className="flex justify-start sm:justify-end">
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={openModal}
+            className="inline-flex h-11 min-w-[10rem] items-center justify-center gap-2 rounded-full"
+          >
+            <AddCoachGlyph className="h-5 w-5 shrink-0" />
+            {t("addCoachButton")}
+          </OmmButton>
+        </div>
       </div>
 
       {children}
 
       {isModalOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+          className="ommm-modal-overlay z-50"
           role="presentation"
         >
           <button
             type="button"
-            className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+            className="ommm-modal-backdrop"
             aria-label={t("modalBackdropClose")}
             onClick={closeModal}
           />

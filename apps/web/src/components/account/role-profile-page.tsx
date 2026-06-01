@@ -27,6 +27,7 @@ type MeResponse = {
     phone: string | null;
     locale: string;
     role: string;
+    hasPassword: boolean;
     homeImageUrl?: string | null;
     dateOfBirth?: string | null;
   };
@@ -78,7 +79,7 @@ export async function RoleProfilePage({
         </AccountSection>
 
         <AccountSection title={t("security")}>
-          <AccountChangePasswordForm />
+          <AccountChangePasswordForm hasPassword={user.hasPassword} />
           <div className="mt-4">
             <DeleteAccountRequestButton />
           </div>

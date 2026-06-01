@@ -12,7 +12,7 @@ export async function MarketingSiteFooter({ locale }: { locale: string }) {
       links: [
         { href: "/story", label: tNav("story") },
         { href: "/coaches", label: tNav("coaches") },
-        { href: "/memberships", label: tNav("memberships") },
+        { href: "/packages", label: tNav("memberships") },
       ],
     },
     {

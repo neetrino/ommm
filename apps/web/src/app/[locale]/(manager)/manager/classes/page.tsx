@@ -20,7 +20,71 @@ type SessionRow = {
   _count: { bookings: number };
 };
 
-export default async function ManagerClassesPage() {
+function getManagerClassesLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      authRequired: "Պահանջվում է մենեջերի մուտք։",
+      loadClassTypesFailed: "Չհաջողվեց բեռնել դասերի տեսակները ({status})։",
+      loadSessionsFailed: "Չհաջողվեց բեռնել սեսիաները ({status})։",
+      title: "Դասեր",
+      description:
+        "Նույն schedule window-ը, ինչ ադմինի մոտ ({days} օր)։ Սեսիաների ստեղծումն ու խմբագրումը անհրաժեշտության դեպքում մնում է ադմինի գործիքներում։",
+      classTypesTitle: "Դասերի տեսակներ",
+      sessionsTitle: "Առաջիկա սեսիաներ",
+      colName: "Անուն",
+      colSlug: "Slug",
+      colClass: "Դաս",
+      colStarts: "Սկիզբ",
+      colCoach: "Մարզիչ",
+      colBooked: "Ամրագրված",
+      colStatus: "Կարգավիճակ",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      authRequired: "Нужен вход менеджера.",
+      loadClassTypesFailed: "Не удалось загрузить типы классов ({status}).",
+      loadSessionsFailed: "Не удалось загрузить сессии ({status}).",
+      title: "Классы",
+      description:
+        "То же окно расписания, что и у админа ({days} дней). Создание и редактирование сессий при необходимости остаются в админ-инструментах.",
+      classTypesTitle: "Типы классов",
+      sessionsTitle: "Ближайшие сессии",
+      colName: "Название",
+      colSlug: "Slug",
+      colClass: "Класс",
+      colStarts: "Начало",
+      colCoach: "Тренер",
+      colBooked: "Записано",
+      colStatus: "Статус",
+    };
+  }
+  return {
+    authRequired: "Manager sign-in required.",
+    loadClassTypesFailed: "Could not load class types ({status}).",
+    loadSessionsFailed: "Could not load sessions ({status}).",
+    title: "Classes",
+    description:
+      "Same schedule window as admin ({days} days). Create and edit sessions remain in the admin tools when needed.",
+    classTypesTitle: "Class types",
+    sessionsTitle: "Upcoming sessions",
+    colName: "Name",
+    colSlug: "Slug",
+    colClass: "Class",
+    colStarts: "Starts",
+    colCoach: "Coach",
+    colBooked: "Booked",
+    colStatus: "Status",
+  };
+}
+
+export default async function ManagerClassesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const labels = getManagerClassesLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
   const from = new Date();
   from.setHours(0, 0, 0, 0);
@@ -37,8 +101,8 @@ export default async function ManagerClassesPage() {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         {typesRes.status === 401 || typesRes.status === 403
-          ? "Manager sign-in required."
-          : `Could not load class types (${typesRes.status}).`}
+          ? labels.authRequired
+          : labels.loadClassTypesFailed.replace("{status}", String(typesRes.status))}
       </div>
     );
   }
@@ -47,26 +111,25 @@ export default async function ManagerClassesPage() {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         {sessionsRes.status === 401 || sessionsRes.status === 403
-          ? "Manager sign-in required."
-          : `Could not load sessions (${sessionsRes.status}).`}
+          ? labels.authRequired
+          : labels.loadSessionsFailed.replace("{status}", String(sessionsRes.status))}
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Classes</h1>
+      <h1 className="text-2xl font-semibold text-zinc-900">{labels.title}</h1>
       <p className="mt-2 text-sm text-zinc-600">
-        Same schedule window as admin ({ACCOUNT_SESSION_RANGE_DAYS} days). Create
-        and edit sessions remain in the admin tools when needed.
+        {labels.description.replace("{days}", String(ACCOUNT_SESSION_RANGE_DAYS))}
       </p>
-      <h2 className="mt-8 text-lg font-medium text-zinc-900">Class types</h2>
+      <h2 className="mt-8 text-lg font-medium text-zinc-900">{labels.classTypesTitle}</h2>
       <div className="mt-4 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Slug</th>
+              <th className="px-4 py-3">{labels.colName}</th>
+              <th className="px-4 py-3">{labels.colSlug}</th>
             </tr>
           </thead>
           <tbody>
@@ -79,16 +142,16 @@ export default async function ManagerClassesPage() {
           </tbody>
         </table>
       </div>
-      <h2 className="mt-8 text-lg font-medium text-zinc-900">Upcoming sessions</h2>
+      <h2 className="mt-8 text-lg font-medium text-zinc-900">{labels.sessionsTitle}</h2>
       <div className="mt-4 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
             <tr>
-              <th className="px-4 py-3">Class</th>
-              <th className="px-4 py-3">Starts</th>
-              <th className="px-4 py-3">Coach</th>
-              <th className="px-4 py-3">Booked</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">{labels.colClass}</th>
+              <th className="px-4 py-3">{labels.colStarts}</th>
+              <th className="px-4 py-3">{labels.colCoach}</th>
+              <th className="px-4 py-3">{labels.colBooked}</th>
+              <th className="px-4 py-3">{labels.colStatus}</th>
             </tr>
           </thead>
           <tbody>

@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -14,6 +15,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CoachesService } from './coaches.service';
+import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
@@ -32,8 +34,8 @@ export class CoachesController {
   @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  listAdmin() {
-    return this.coaches.listAdmin();
+  listAdmin(@Query() query: AdminListCoachesQueryDto) {
+    return this.coaches.listAdmin(query);
   }
 
   @Get('panel/summary')
@@ -48,6 +50,13 @@ export class CoachesController {
   @Roles(Role.COACH)
   panelSalary(@CurrentUser() user: { id: string }) {
     return this.coaches.salarySummary(user.id);
+  }
+
+  @Get('admin/salary-summaries')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminSalarySummaries() {
+    return this.coaches.adminSalarySummaries();
   }
 
   @Get(':id')

@@ -22,7 +22,7 @@ Application-ը կունենա հետևյալ հիմնական tabs-ը՝
 * Upcomings  
 * Waitlist  
 * Explore (Events / blog / news / updates)  
-2. **Classes**  
+2. **Classes \> scvehdule**  
 * Calendar and  schedule  
 * Coaches’ details  
 3. **My Bookings**  
@@ -635,11 +635,12 @@ Website-ը պետք է ունենա նույն core functionality-ն, ինչ mob
 
 1. Home  
 2. Story (about us)  
-3. Coaches  
-4. Memberships  
-5. Explore \- events, news  
-6. My Account  
-7. Contact Us
+3. Schedule  
+4. Coaches  
+5. Memberships  
+6. Explore \- events, news  
+7. My Account  
+8. Contact Us
 
 # 
 
@@ -811,36 +812,32 @@ Website-ը պետք է ապահովի՝
 
 # Functional Requirements
 
-Admin Panel-ի նպատակն է ապահովել Ommm. studio-ի ներքին թիմի համար հարմար dashboard, որտեղ նրանք կարող են կառավարել classes-ը, bookings-ը, clients-ը, coaches-ը, memberships-ը, payments-ը, content-ը և notifications-ը։
-
-Admin Panel-ը public-facing չէ։ Այն նախատեսված է միայն authorized team members-ի համար։
-
 **Admin Panel-ի բաժիններ**
 
 Admin Panel-ը հանդիսանում է հարթակի կառավարման համակարգը և ունի հետևյալ հիմնական բաժինները՝
 
 1. Dashboard  
-2. Classes  
-3. Bookings / Schedule / Calendar  
-4. Waitlists  
-5. Clients  
-6. Coaches  
-7. Memberships & Billing  
+2. Bookings  
+3. Waitlists  
+4. Clients  
+5. Coaches  
+6. Schedule  
+7. Packages  
 8. Gift Cards  
-9. Notifications  
-10. Reports & Analytics  
-11. Settings  
-12. Content management
+9. Finance  
+10. Analytics  
+11. Notification  
+12. Settings  
+    Feedback  
+    Guest users
 
 # 
 
 # 
 
-# **1\) Dashboard**
+1. # **Dashboard**
 
-Dashboard-ը պետք է admin-ին տա արագ overview studio-ի վիճակի մասին։
-
-Պետք է ցուցադրվի՝
+Dashboard-ը պետք է admin-ին տա արագ overview studio-ի վիճակի մասին և պետք է ցուցադրի հետևյալ տվյալները՝
 
 * Today’s classes  
 * Today’s bookings count  
@@ -858,59 +855,35 @@ Dashboard-ը պետք է admin-ին տա արագ overview studio-ի վիճակ�
 * 6 active waitlists  
 * 120 active members
 
-# **2\) Classes Management**
+2. # **Bookings**
 
-Admin-ը պետք է կարողանա ստեղծել և կառավարել class schedule-ը։
+Admin-ը պետք է կարողանա տեսնել և կառավարել բոլոր bookings/appointment-ը, որոնք գալու են և վեբկայքից և մոբայլ հավելվածից։ Ցանկացած user, երբ գրանցվի որևէ դասի՝ schedule լիստից, կլինի դա մեկանգամյա, թե այլ փաթեթից, այստեղ կցուսադրվի
 
-Admin-ը կարող է՝
+**2.1.** Այս էջը Պետք է ունենա ՝
 
-* Create class  
-* Edit class  
-* Cancel class  
-* Duplicate class  
-* Set recurring schedule  
-* Assign coach  
-* Set capacity  
-* Set duration  
-* Set price/session requirement  
-* Manage availability status
+* All bookings list, որտեղ ցուցակով կցուցդրվի և ավտոմատ կլցվի բոլոր տեղերից եղած գրացնումները
 
-## 
+**2.2.** Լիստը պետք է ունենա հետևյալ դաշտերը՝
 
-## 
-
-## **Class fields**
-
-Յուրաքանչյուր class պետք է ունենա՝
-
-* Class name  
-* Description  
-* Date  
-* Start time  
-* End time / duration  
-* Coach  
-* Capacity  
-* Level  
+* User name and phone number (user name should be clickable, and after clicking it should open user’s data and information, the opening can be with right slide sheet)  
 * Class type  
-* Status: Active / Cancelled / Full / Draft
+* User’s session count  
+* Payment status (Paid / cash / Unpaid / Refunded)  
+* Attendance status (Attended / not addtemded / No-show / Late cancel)  
+*   
+* Actions (delete, edit)  
+* Register date  
+* Channel (Website / App)
 
-# **3\) Booking Management**
+**2.3.** Այս էջը Պետք է ունենա հետևյալ ֆիլտրները՝
 
-Admin-ը պետք է կարողանա տեսնել և կառավարել բոլոր bookings-ը։
-
-Պետք է ներառի՝
-
-* All bookings list  
 * Filter by date  
-* Filter by class  
+* Filter by class type (package type)  
 * Filter by client  
 * Filter by coach  
-* Filter by status  
-* Booking detail page
+* Filter by status
 
-## **Admin actions**
-
-Admin-ը կարող է՝
+**2.4.** Admin-ը կարող է լիստից եղած ցանկացած ամրագրմանը (booking) տալ հետևյալ action-ները, սրանք կարող են լիստի վերջում մի սյունյակով լինեն icon-ների տեսքով՝
 
 * View booking  
 * Cancel booking  
@@ -918,57 +891,53 @@ Admin-ը կարող է՝
 * Mark as attended  
 * Add internal note
 
-## **Booking statuses**
+## **2.5.** Booking statuses-ները հետևյալն են լինելու
 
 * Booked  
 * Completed  
 * Cancelled  
 * Waitlisted
 
-Admin-ը կկարողանա bookings-ը և classes schedule-ը տեսնել calendar view-ով՝ տարբեր կտրվածքներով՝ 
+**2.6.** Այս էջը պետք է տեսնել մի քանի view-ով 
 
-* Monthly view  
+* Monthly view (calendar-ի տեսքով)  
 * Weekly view  
 * Daily view
 
 # 
 
-# **4\) Waitlist Management**
+3. # **Waitlist Management**
 
-Admin-ը պետք է կարողանա վերահսկել waitlist-ը։
+Admin-ը պետք է կարողանա վերահսկել waitlist-ը, որը կապված է booking-ների հետ, երբ որևէ դաս, արդեն ունենում է իր ամբողջական մասնակիցների քանկաը, բայց որևէ user ցանկանում է, waitlist-ում հայտվել, քանի որ հնարավոր է որևէ user կհանի իր booking-ը և տեղ կազատվի, էս դեպքում notification ա գնալու user-ին, որ արդեն ազատ տեղ կա, ու user-ը ունենալու ա հնարավորություն book լինելու։
 
-Պետք է ներառի՝
+**3.1.** Այս էջը պետք է ներառի ցուցակ, որտեղ լիստի տեսքով կերևան բոլոր  waitlist user-ները, ցուցակը կունենա հետևյալ սյունյակները՝
 
-* Waitlisted users  
-* Class waitlist count  
-* User position  
-* Notification status
+* Waitlisted user name and phone (user name should be clickable, and after clicking it should open user’s data and information, the opening can be with right slide sheet)  
+* Class type name  
+* Class waitlist count (քանի հոգի ա սպասում տվյալ class-ին)  
+* Waitlist date
 
-Admin-ը կարող է՝
+**3.2.** Admin-ը կարող է պետք է տվյալ սյունյակի վերջում ունենա actions սյունյակ, որը կունենա կառավարման գործողություններ՝ icon-ի տեսքով՝
 
-* Move user from waitlist to booking  
-* Remove user from waitlist  
-* Notify user manually  
-* Set auto-notify when spot opens
+4. Move user from waitlist to booking  
+5. Remove user from waitlist  
+6. Notify user manually
 
-# **5\) Client Management**
+# **4\. Client/user Management**
 
 Admin-ը պետք է կարողանա տեսնել user profiles-ը և դրանց activity-ն։
 
-Client profile-ը պետք է ներառի՝
+**4.1.** Client-ի էջը պետք է ունենա ցուցակ, որտեղ ցուցադրվելու են բոլոր user-ները, իսկ լիստը պետք է ներառի՝
 
-* Name  
-* Phone  
-* Email  
+* photo  
+* Name and Phone (user name should be clickable, and after clicking it should open user’s data and information, the opening can be with right slide sheet \- the data should be: Booking history, Payment history, Gift cards, client activity and progress and all lifetime history, Total visits, Lifetime value)  
 * Date of birth  
-* Membership status  
-* Sessions remaining  
-* Booking history  
-* Payment history  
-* Gift cards  
-* Notes
+* Sessions remaining (ex. 8/3)  
+* Register date  
+* Notes  
+* Actions (delete, edit, deactivate, badge (see 4.3 point))
 
-Admin-ը կարող է՝
+**4.2.** Admin-ը կարող է՝
 
 * Edit client info  
 * View activity  
@@ -978,108 +947,354 @@ Admin-ը կարող է՝
 * Assign package manually  
 * Give gift cards
 
-# **6\) Coach Management**
+**4.3.** Ունենալու ենք ամեն user-ի անվան մոտ **Client Tags կամ badges** — VIP (եթե գնում է vip package), New (եթե նոր է գրանցվել), At Risk (եթե վճարումը ուշացրել է), Beginner (եթե հաճախում է beginner level-ի class-ների), որոնք տրվելու են ավտոմատ:
 
-Admin-ը պետք է կարողանա կառավարել coaches-ին։
+**4.4.** Clients էջը պետք է ունենա որոնման և ֆիլտրացման հարմար համակարգ, որպեսզի admin-ը կարողանա արագ գտնել անհրաժեշտ client-ին և segment անել client base-ը ըստ կարգավիճակի, ակտիվության, փաթեթների և վարքագծի։
 
-Coach profile-ը պետք է ներառի՝
+**4.4.1** Search \- Էջի վերևում պետք է լինի search input, որով հնարավոր է որոնել client-ներին հետևյալ տվյալներով՝
 
-* Name  
+* Անուն / Ազգանուն  
+* Հեռախոսահամար  
+* Email  
+* Client ID
+
+admin-ը կարող է գրել client-ի անունը կամ հեռախոսահամարի մի մասը, և համակարգը պետք է անմիջապես ցույց տա համապատասխան արդյունքները։
+
+### **4.4.2 Filters \-** Clients էջը պետք է ունենա հետևյալ ֆիլտրները՝
+
+| Filter | Նկարագրություն |
+| ----- | ----- |
+| Filter by Client Tag / Badge | VIP, New, At Risk, Beginner և այլ ավտոմատ տրվող tags-երով ֆիլտրացում |
+| Filter by Status | Active, Inactive, Frozen, Blocked |
+| Filter by Package Type | Single class, Monthly package, VIP package |
+| Filter by Class Level | Beginner, Intermediate, Advanced |
+| Filter by Payment Status | Paid, Unpaid, Overdue, Partial |
+| Filter by Source | Website, Mobile App, Admin, Instagram, Referral |
+| Filter by Preferred Coach | ըստ նախընտրած coach-ի |
+| Filter by Attendance Behavior | Regular, No-show, Often cancels, Low attendance |
+| Filter by Birthday Month | birthday campaigns-ի համար |
+
+### **4.4.3. Sort \-** Բացի filters-ից, պետք է լինի նաև sorting հնարավորություն՝
+
+* # Newest clients first
+
+* # Oldest clients first
+
+* # Most active clients
+
+* # Highest lifetime value
+
+* # Last visit newest first
+
+* # Last visit oldest first
+
+* # Most bookings
+
+* # Most cancellations
+
+### **4.4.4. Quick Filters \-** Ավելի արագ աշխատանքի համար էջում կարող են լինել quick filter buttons՝
+
+* # New Clients
+
+* # VIP Clients
+
+* # At Risk Clients
+
+* # Unpaid Clients
+
+* # Birthday This Month
+
+* # Inactive 30+ Days
+
+* # No-show Clients
+
+# **5\. Coach Management**
+
+Admin-ը պետք է կարողանա կառավարել coaches-ին։ այս էջում լինելու է լիստի կամ board view-ի տեսքով բոլոր ուսուցիչները որոնք ավելացնելու է ադմինը
+
+Լինելու է add button, որի միջոցով ավելացվելու են coach-եր
+
+**5.1.** Add սեղմելուց հետո բացվելու է հետևյալ field-երը
+
 * Photo  
-* Bio  
-* Specialization  
-* Experience  
-* Assigned classes  
-* Availability  
-* Status: Active / Inactive
+* Name surname   
+* date of birth  
+* phone number   
+* Email  
+* Class type   
+* Level  
+* Salary price  
+* Bio,   
+* Experience,  
+* Video url,   
+* working days and hours (hhave possibility to add several spots)
 
-Admin-ը կարող է՝
+**5.2.** Coach profile-ը պետք է ունենա ցուցակ, որտեղ ցուցադրվելու են բոլոր coach/instructor-ներ\` list-ի տեսքովը, իսկ լիստը պետք է ներառի ՝
+
+* Photo  
+* Name and phone number (coach name should be clickable, and after clicking it should open coach’s data and information, the opening can be with right slide sheet \- the data should be: Bio, Experience, video, Assigned classes, date of birth, all lifetime history, salary history, working graphic to add availability and classes day and time with spots)  
+* Specialization  
+* Total students (users)  
+* Salary  
+* Actions (delete, edit, deactivate)
+
+**5.3.** Admin-ը կարող է կատարել հետևյալ գործողությունները՝
 
 * Add coach  
 * Edit coach profile  
-* Assign coach to class  
+* Assign coach to class (Substitute coach (օրինակ եթե պարզվում է որ ինտրուկտորը այդ օրվա դասը չի կարող անցկացնել, և հնարավոր չի չեղարկել, ապա կարող է լինել հնարավորություն փոխարինել ինստրուկտորին)  
 * Remove coach from schedule  
-* Deactivate coach  
-* Substitute coach (օրինակ եթե պարզվում է որ ինտրուկտորը այդ օրվա դասը չի կարող անցկացնել, և հնարավոր չի չեղարկել, ապա կարող է լինել հնարավորություն փոխարինել ինստրուկտորին)
+* Deactivate/ activate coach
 
-# **7\) Memberships & Billing Management**
+**5.4.** Coaches էջը պետք է ունենա որոնման և ֆիլտրացման հարմար համակարգ, որպեսզի admin-ը կարողանա արագ գտնել coach-ին, տեսնել նրա ակտիվությունը, դասերի ծանրաբեռնվածությունը և performance-ը։
 
-Admin-ը պետք է կառավարի membership plans-ը, payments-ը և billing history-ն։
+### **5.4.1. Search \-** Էջի վերևում պետք է լինի search input, որով հնարավոր է որոնել coach-երին հետևյալ տվյալներով՝
 
-Պետք է ներառի՝
+* Անուն / Ազգանուն  
+* Հեռախոսահամար  
+* Coach ID  
+* Մասնագիտացում / class type
 
-* Membership plans list  
-* Active subscriptions  
-* Expired subscriptions  
-* Paused memberships  
-* Payment history  
-* Failed payments
+### 
 
-Admin-ը կարող է՝
+### **5.4.2. Filters- ** coach էջը պետք է ունենա հետևյալ ֆիլտրները՝
 
-* Create membership plan  
-* Edit plan price  
-* Set session limit  
-* Set renewal period  
-* Pause membership  
-* Cancel membership  
-* Add manual payment  
-* Refund request mark անել
+| Filter | Նկարագրություն |
+| :---- | ----- |
+| Filter by Status | Active, Inactive, On Vacation, Blocked |
+| Filter by Class Type | Yoga, Pilates, Fitness, Dance և այլ class տեսակներ |
+| Filter by Class Level | Beginner, Intermediate, Advanced |
+| Filter by Schedule Days | Monday–Sunday օրերով |
+| Filter by Working Hours | Առավոտյան, ցերեկային, երեկոյան ժամեր |
+| Filter by Cancellation Rate | հաճախ cancel արվող դասերով coach-եր |
 
-# **8\) Gift Cards Management**
+### **5.4.3. Sort \-** Բացի filters-ից, պետք է լինի նաև sorting հնարավորություն՝
 
-Admin-ը պետք է կառավարի gift cards-ը։
+* # Newest coaches first
 
-Պետք է ներառի՝
+* # Oldest coaches first
 
-* Gift card list  
-* Purchaser  
-* Recipient  
+* # Highest rated
+
+* # Most booked
+
+* # Highest revenue generated
+
+* # Lowest cancellation rate
+
+### **5.4.4. Quick Filters \-** Ավելի արագ աշխատանքի համար էջում կարող են լինել quick filter buttons՝
+
+* # Fully Booked
+
+* # Top Rated
+
+* # Most Booked
+
+* # New Coaches
+
+* # Low Attendance Classes
+
+* # High Cancellation Rate
+
+# **6\. Schedule**
+
+**6.1.** Schedule էջը նախատեսված է studio-ի բոլոր դասերի ժամանակացույցը կառավարելու համար։ Այս էջում admin-ը պետք է կարողանա տեսնել, ստեղծել, խմբագրել և վերահսկել բոլոր upcoming և past classes-ները՝ ըստ օրվա, շաբաթվա կամ calendar view-ի\` monthly։
+
+**6.2.** Schedule էջը պետք է ցույց տա՝
+
+* որ օրը ինչ դասեր կան  
+* դասի ժամը  
+* class type-ը  
+* coach-ը  
+* դասի capacity-ն  
+* քանի տեղ է արդեն լրացված  
+* քանի ազատ տեղ է մնացել  
+* waitlist-ի քանակը  
+* դասի status-ը
+
+Օրինակ՝  
+ **Monday, 18:00 — Pilates Beginner — Coach Anna — 8/12 booked — 4 spots left**
+
+**6.3 Schedule Views \-** Schedule էջը պետք է ունենա մի քանի տեսք։
+
+| View | Նկարագրություն |
+| :---- | :---- |
+| Calendar View | Ամսական calendar, որտեղ ամեն օրվա տակ երևում են այդ օրվա դասերը |
+| Weekly View | Շաբաթական գրաֆիկ՝ օրերով և ժամերով բաժանված |
+| Daily View | Մեկ օրվա բոլոր դասերը՝ list կամ timeline տեսքով |
+| List View | Բոլոր դասերը ցուցակով՝ filters-ով և search-ով |
+
+## **6.4 Schedule List-ի դաշտերը**
+
+Յուրաքանչյուր class/session-ի համար պետք է ցուցադրվեն հետևյալ դաշտերը․
+
+| Դաշտ | Նկարագրություն |
+| ----- | ----- |
+| Class Name | Դասի անունը, օրինակ՝ Pilates Beginner |
+| Class Type | Yoga, Pilates, Fitness, Dance և այլն |
+| Class Level | Beginner, Intermediate, Advanced |
+| Date | Դասի օրը |
+| Start Time | Դասի սկիզբը |
+| End Time | Դասի ավարտը |
+| Duration | Դասի տևողությունը |
+| Coach | Դասը վարող coach-ը |
+| Capacity | Ընդհանուր տեղերի քանակը |
+| Booked Count | Քանի client է գրանցվել |
+| Spots Left | Քանի ազատ տեղ է մնացել |
+| Waitlist Count | Քանի հոգի է waitlist-ում |
+| Attendance Count | Քանի հոգի է իրականում ներկա եղել |
+| Status | Scheduled, Full, Completed, Cancelled |
+| Actions | View, Edit, Cancel, Duplicate, Mark Completed |
+
+## 
+
+## 
+
+## **6.5 Filters \-** Schedule էջը պետք է ունենա հետևյալ filters-ը․
+
+| Filter | Նկարագրություն |
+| :---- | :---- |
+| Filter by Date | ընտրել կոնկրետ օր կամ ժամանակահատված |
+| Filter by Coach | տեսնել կոնկրետ coach-ի դասերը |
+| Filter by Class Type | Yoga, Pilates, Fitness և այլն |
+| Filter by Class Level | Beginner, Intermediate, Advanced |
+| Filter by Status | Scheduled, Full, Completed, Cancelled |
+| Filter by Availability | Available spots, Full classes, Waitlist active |
+| Filter by Time of Day | Morning, Afternoon, Evening |
+
+## **6.6 Search \-** Էջում պետք է լինի search input, որով admin-ը կարող է որոնել՝
+
+* class name-ով  
+* coach-ի անունով  
+* class type-ով
+
+## 
+
+## **6.7 Quick Filters**
+
+* Today’s Classes  
+* This Week  
+* Available Spots  
+* Full Classes  
+* Waitlist Active  
+* Cancelled Classes  
+* Beginner Classes  
+* Evening Classes
+
+**6.8 Actions**
+
+Admin-ը յուրաքանչյուր դասի համար պետք է կարողանա կատարել հետևյալ actions-ը․
+
+| Action | Նկարագրություն |
+| :---- | :---- |
+| View Class | բացել class-ի ամբողջական տվյալները |
+| Edit Class | փոխել ժամը, coach-ը, capacity-ն կամ այլ տվյալներ |
+| Cancel Class | չեղարկել դասը |
+| Add Client | ձեռքով client գրանցել դասին |
+| Move Clients | տեղափոխել clients-ին մեկ այլ դաս |
+| Change teacher | Փոխարինել մեկ այլ դասատույով |
+| View Attendance | տեսնել ովքեր են ներկա եղել |
+
+**6.9. Class Statuses**
+
+Schedule-ի դասերը կարող են ունենալ հետևյալ status-ները․
+
+| Status | Նկարագրություն |
+| :---- | :---- |
+| Scheduled | դասը պլանավորված է |
+| Open | դասը հասանելի է booking-ի համար |
+| Full | բոլոր տեղերը լրացված են |
+| Waitlist Active | տեղ չկա, բայց waitlist-ը բաց է |
+| Completed | դասը ավարտվել է |
+| Cancelled | դասը չեղարկվել է |
+| Draft | դասը դեռ հրապարակված չէ |
+
+## **6.10 Working Graphic / Coach Schedule**
+
+Schedule էջում պետք է լինի նաև coach-երի working graphic-ի կառավարում։
+
+Յուրաքանչյուր coach-ի համար պետք է հնարավոր լինի նշել՝
+
+* working days  
+* working hours  
+* break time  
+* vacation days  
+* unavailable dates  
+* max classes per day  
+* class types, որոնք coach-ը կարող է վարել
+
+Օրինակ՝  
+ **Coach Anna — Monday/Wednesday/Friday — 10:00–18:00 — Pilates, Stretching**
+
+# **7\. Packages**
+
+**7.1.** Admin-ը պետք է կարողանա ստեղծել, կառավարել և ավելացնել class package-ներ՝ class type-եր, այստեղ ավելանում են իրենց բոլոր դասերի տեսակները՝ իրենց փաթեթներով և արժեքներով, օրինակ reformer group, reformer individual, mat pilates, yoga, dances։
+
+**7.2.** Այս էջում ցուցադրվելու է բոլոր classes package-ները լիստ կամ board view-ով, ադմինը սեղմելու է add button-ի վրա և ավելացնի դասը
+
+**7.3.** Դաս ավելացնելը ունենալու է հետևյալ field-երը՝
+
+* Class name (որը հանդիսանալու է հենց class type-ը, և ամեն coach add անելուց class type field-ում լինելու է dropdown menu-ում)  
+* Description  
+* Capacity  
+* Level  
+* Session quantity with its price and guest quantity (need to have add button to have possibility to add more sessions with prices)  
+* Coaches list to have possibility to choose coaches that have this class  
+* Actions \-delete, edit,  deactivate
+
+# **8\. Gift Cards Management**
+
+**8.1.** Admin-ը պետք է կարողանա ստեղծել, կառավարել և ավելացնել gift card-ներ Այս էջում լինելու է add button և ցուցադրվելու է  բոլոր gift cards-երը՝ լիստի տեսքով
+
+**8.2.** Լիստը ներառելու է՝
+
+* Purchaser name  
 * Amount  
-* Balance  
 * Status  
+* Created date  
 * Expiration date
 
-Admin-ը կարող է՝
+**8.3.** Admin-ը կարող է՝
 
-* Create gift card manually  
+* Create gift card manually and assign user  
 * Deactivate gift card  
 * View redemption history  
 * Resend gift card
 
-# **9\) Notifications Management**
+# **9\. Finance**
 
-Admin-ը պետք է կարողանա ուղարկել և կառավարել notifications։
+9.1. Admin-ը պետք է ունենա ֆինանսական անալիտիկա, կառավարի membership plans-ը, payments-ը և billing history-ն՝ լիստի տեսքով, ցուցակով պետք է տեսնի բոլոր տվյալները։
 
-Notification types՝
+9.2. Ֆինանսը պետք է բաժանված լինի 2 tab-ի՝ User finance և coaches finance
 
-* Booking reminder  
-* Waitlist update  
-* Event announcement  
-* Promotion  
-* Community update
+9.3. User finance tab-ը Պետք է ներառի՝
 
-Admin-ը կարող է՝
+* User name and phone number  
+* Membership package or plan name  
+* Cost  
+* Expiration date  
+* Payment status (dropdown menu: paid, pending, canceled, cash)  
+* Discount/gift card used  
+* Actions (should be with action icons with dropdown menus if needed)  
+  * edit,   
+  * pause membership,   
+  * send refund request,   
+  * notification(after clicking this icon it send notification to the user, the message templates should be with dropdown menu to help admin choose which one is needed(the notification templates managed from notification management page)))
 
-* Send push notification  
-* Send email notification  
-* Select audience  
-* Schedule notification  
-* View delivery status
+9.4. Coach finance tab-ը, նախաֆեսված է coach-երի աշխատավարձը կառավարելու համար,  Պետք է ներառի՝
 
-Audience examples՝
+* Coach name and phone number  
+* Cost (monthly salary price)  
+* Session counts (the number should be clickable, after that should open the right side sheet which should show the date and time, class type of the session for what she get a salary  
+* Month  
+* Payment status (dropdown menu: paid, pending, canceled, cash)  
+* Actions (should be with action icons with dropdown menus if needed)  
+  * edit,   
+  * pause,
 
-* All users  
-* Active members  
-* Inactive users  
-* Waitlisted users  
-* Users with upcoming booking
+# **10\. Analytics**
 
-# **10\) Reports & Analytics**
-
-Admin-ը պետք է տեսնի studio-ի key metrics-ը։
-
-Պետք է ներառի՝
+10.1. Admin-ը պետք է տեսնի studio-ի key metrics-ը՝ լիստի՝ սյունյակների, նաև chart-երի տեսքով, որոնք Պետք է ներառեն՝
 
 * Revenue report  
 * Bookings report  
@@ -1087,38 +1302,126 @@ Admin-ը պետք է տեսնի studio-ի key metrics-ը։
 * Membership report  
 * User activity report  
 * Class popularity  
-* Coach performance
+* Coach performance  
+* Preferred coaches (Revenue per coach)  
+* Preferred classes type (Revenue per class)
 
-Reports-ը պետք է կարողանան export լինել՝ CSV կամ Excel
+10.2. Այս էջում առկա անալիտիկան կամ Reports-ը պետք է կարողանալ export անել՝ CSV կամ Excel ֆոռմատով։
 
 # 
 
-# **11\) Settings**
+# **11\. Notifications Management**
+
+**11.1.** Admin-ը պետք է կարողանա ուղարկել և կառավարել notifications, ստեղ լինելու են tamplate-ներ՝ տեքստի տեսքով, որը ադմինը edit անելու ընտրի ում ուղարկի, կարա ընտրի, որ class type-ի համարա էդ message-ը կամ ինչ ստատուս ունեցող user-ների ու ուղարկի notification-ներ:։
+
+**11.2.** Notification types-երը հետևյալն են՝
+
+* Booking reminder  
+* Waitlist update  
+* Event announcement  
+* Promotion  
+* Community update
+
+**11.3.** Admin-ը կարող է՝
+
+* Add/edit/delete new message  
+* Choose class type to send message  
+* Choose status to send message (for example user’s who need to pay the monthly or daily or other fee, status can be All users, Active members, Inactive users, Waitlisted users, Users with upcoming booking)  
+* Send push notification  
+* Send email notification  
+* Schedule notification  
+* View delivery status
+
+# **12\. Settings**
 
 Admin Settings-ում պետք է լինեն՝
 
-* Studio info  
-* Working hours  
+* Admin panel passwords  
 * Cancellation policy  
-* Booking rules  
-* Languages  
-* Notification templates \- ?
+* Languages
 
-# **12\) Content Management**
+## 
 
-Admin-ը պետք է կարողանա կառավարել և app-ի, և website-ի content-ը։
+## **13\. CORE ENTITIES**
 
-Բաժիններ՝
+* User  
+* Client  
+* Coach  
+* Booking  
+* Session  
+* Package  
+* Membership  
+* WaitlistEntry  
+* Invoice  
+* Payment  
+* Notification  
+* Attendance  
+* Subscription  
+* GiftCard
 
-* Events \- add / delete / hide  
-* Blog \- add / delete / hide  
-* News  \- add / delete / hide  
-* Updates  \- add / delete / hide  
-* Classes  \- add / delete / hide  
-* Changes banners  \- add / delete / hide  
-* Edit cancelation policy  
-* Edit about info
+## 
 
+## **14\. RELATIONSHIPS**
+
+* Client HAS MANY bookings  
+* Booking BELONGS TO session  
+* Session HAS ONE coach  
+* Package DEFINES booking limits  
+* WaitlistEntry CONNECTS user ↔ class
+
+## **15\. allowed transitions**
+
+* Booked \-\> Completed  
+* Booked \-\> Cancelled  
+* Waitlisted \-\> Booked  
+* Completed \-\> Refunded ❌ NOT ALLOWED
+
+## **16\. Business Rules**
+
+* User cannot book same session twice  
+* Waitlist auto-promotes first user  
+* Cancellation before 12h \= refund  
+* Session limit decreases only after attendance  
+* Membership freezes pause expiration
+
+**17\. Booking flow**
+
+User books class
+
+↓
+
+Validate package
+
+↓
+
+Check capacity
+
+↓
+
+If full → waitlist
+
+↓
+
+Send notification
+
+↓
+
+Create attendance placeholder
+
+↓
+
+Update analytics
+
+# **18\. Technical conventions**
+
+* UUID everywhere  
+* Soft delete only  
+* Audit logs required  
+* Timezone strategy  
+* Error format  
+* Pagination standard  
+* Naming convention  
+* File storage strategy
 
 # User Account
 
@@ -1505,13 +1808,6 @@ Manager-ը ունի լայն հասանելիություն համակարգի �
 | Settings | ✅ | ❌ |  |
 
 # Content man. Role
-
-## Implementation sync (codebase, 2026-05)
-
-- **Content manager vs `CONTENT_ADMIN`:** The web app uses Prisma role `CONTENT_ADMIN`; navigation is limited to **Content** and **Profile**, and `/admin/home` redirects to `/admin/content`.
-- **Manager vs CRM matrix:** The manager shell includes **Classes**, **Waitlists**, and **Coaches** (read-focused lists). **Settings** remains available for profile-style preferences; full studio **Settings** in the CRM sense is still admin-only.
-- **Push notifications:** Devices register an Expo push token via `POST /v1/users/me/push-token`; class reminders attempt **email first**, then **Expo push** when tokens exist. Optional `EXPO_ACCESS_TOKEN` is documented in `.env.example`.
-- **Waitlist offers:** Offer TTL comes from studio `waitlistOfferMinutes`; a cron job expires stale `OFFERED` rows and calls `offerNextIfSlot` per session.
 
 # **Content Management**
 

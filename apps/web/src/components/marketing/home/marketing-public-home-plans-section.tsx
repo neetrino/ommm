@@ -56,7 +56,7 @@ export async function MarketingPublicHomePlansSection({
             {cards.map((card, index) => (
               <Link
                 key={`plan-card-${index}`}
-                href="/memberships"
+                href="/packages"
                 aria-label={card.ctaAria}
                 className="group relative block h-[531px] w-full max-w-[404px] shrink-0 overflow-hidden rounded-[40px] bg-[#97907c] shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#577f91] focus-visible:ring-offset-2"
               >

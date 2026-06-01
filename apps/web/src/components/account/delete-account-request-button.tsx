@@ -7,6 +7,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 export function DeleteAccountRequestButton() {
   const t = useTranslations("forms.deleteAccountRequest");
   const [busy, setBusy] = useState(false);
+  const [reason, setReason] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
 
@@ -20,20 +21,22 @@ export function DeleteAccountRequestButton() {
     setBusy(true);
     setMessage(null);
     try {
-      await apiFetch("/contact", {
+      await apiFetch("/users/me/delete-request", {
         method: "POST",
-        body: JSON.stringify({
-          name: "Account holder",
-          phone: "N/A",
-          subject: "Delete account request",
-          message: "User requested account deletion from profile settings.",
-        }),
+        body: JSON.stringify({ reason: reason.trim() || undefined }),
       });
       setTone("ok");
       setMessage(t("sent"));
     } catch (error) {
       setTone("err");
-      setMessage(error instanceof ApiError ? error.message : t("failed"));
+      if (
+        error instanceof ApiError &&
+        error.message === "Deletion request already submitted recently"
+      ) {
+        setMessage(t("recentlySubmitted"));
+      } else {
+        setMessage(error instanceof ApiError ? error.message : t("failed"));
+      }
     } finally {
       setBusy(false);
     }
@@ -41,6 +44,17 @@ export function DeleteAccountRequestButton() {
 
   return (
     <div className="flex flex-col items-start gap-2">
+      <label className="flex w-full max-w-md flex-col gap-1">
+        <span className="text-xs text-sage-600">{t("reasonLabel")}</span>
+        <textarea
+          className="ommm-input min-h-[96px] resize-y"
+          value={reason}
+          onChange={(event) => setReason(event.target.value)}
+          placeholder={t("reasonPlaceholder")}
+          maxLength={1000}
+          disabled={busy}
+        />
+      </label>
       <button
         type="button"
         className="rounded-md border border-red-300 px-3 py-2 text-sm text-red-700 hover:bg-red-50 disabled:opacity-50"

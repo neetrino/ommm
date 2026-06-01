@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminStudioSettingsForm } from "@/components/admin/admin-studio-settings-form";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 type StudioSettings = {
@@ -34,8 +35,10 @@ export default async function AdminSettingsPage({
     );
   }
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      <AdminStudioSettingsForm initial={res.data} />
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <AdminSectionShell>
+        <AdminStudioSettingsForm initial={res.data} />
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }

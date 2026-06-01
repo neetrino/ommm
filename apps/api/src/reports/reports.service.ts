@@ -2,23 +2,61 @@ import { Injectable } from '@nestjs/common';
 import {
   BookingStatus,
   ClassSessionStatus,
+  GiftCardStatus,
+  MembershipStatus,
   PaymentStatus,
   Prisma,
+  Role,
+  WaitlistStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
+
+const GIFT_CREDIT_CURRENCY = 'amd';
+const UPCOMING_ITEMS_LIMIT = 6;
+const RECENT_USERS_LIMIT = 5;
+const WAITLIST_ALERT_THRESHOLD = 3;
+
+type DashboardOptions = {
+  includeRevenue?: boolean;
+  includeOverview?: boolean;
+};
 
 @Injectable()
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async dashboard(options?: { includeRevenue?: boolean }) {
+  async dashboard(options?: DashboardOptions) {
     const includeRevenue = options?.includeRevenue === true;
+    const includeOverview = options?.includeOverview === true;
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date(todayStart);
     todayEnd.setDate(todayEnd.getDate() + 1);
+    const now = new Date();
 
+    const baseDashboard = await this.getBaseDashboard(
+      todayStart,
+      todayEnd,
+      includeRevenue,
+    );
+    if (!includeOverview) {
+      return baseDashboard;
+    }
+
+    const details = await this.getOverviewDetails(todayStart, todayEnd, now);
+
+    return {
+      ...baseDashboard,
+      ...details,
+    };
+  }
+
+  private async getBaseDashboard(
+    todayStart: Date,
+    todayEnd: Date,
+    includeRevenue: boolean,
+  ) {
     const [
       sessionsToday,
       bookingsToday,
@@ -63,6 +101,361 @@ export class ReportsService {
     };
   }
 
+  private async getOverviewDetails(
+    todayStart: Date,
+    todayEnd: Date,
+    now: Date,
+  ) {
+    const monthStart = this.getMonthStart(now);
+    const nextMonthStart = this.getNextMonthStart(now);
+    const previousMonthStart = this.getPreviousMonthStart(now);
+
+    const [
+      todayClasses,
+      bookingsByStatusRaw,
+      waitlistPressureCount,
+      todayRevenueAgg,
+      monthRevenueAgg,
+      previousMonthRevenueAgg,
+      pendingPaymentsAgg,
+      upcomingBookingCancellations,
+      upcomingMembershipCancellations,
+      newUsersToday,
+      recentUsers,
+      fullClassesToday,
+      cancelledClassesToday,
+      draftClassesUpcoming,
+    ] = await Promise.all([
+      this.prisma.classSession.findMany({
+        where: {
+          startsAt: { gte: todayStart, lt: todayEnd },
+          status: { not: ClassSessionStatus.CANCELLED },
+        },
+        include: {
+          classType: { select: { name: true } },
+          coach: {
+            select: {
+              user: { select: { name: true, lastName: true, email: true } },
+            },
+          },
+          _count: {
+            select: {
+              bookings: { where: { status: BookingStatus.BOOKED } },
+            },
+          },
+        },
+        orderBy: { startsAt: 'asc' },
+      }),
+      this.prisma.booking.groupBy({
+        by: ['status'],
+        where: {
+          session: { startsAt: { gte: todayStart, lt: todayEnd } },
+        },
+        _count: { id: true },
+      }),
+      this.prisma.waitlistEntry.groupBy({
+        by: ['sessionId'],
+        where: { status: WaitlistStatus.ACTIVE },
+        _count: { id: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: {
+          status: PaymentStatus.SUCCEEDED,
+          createdAt: { gte: todayStart, lt: todayEnd },
+        },
+        _sum: { amountCents: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: {
+          status: PaymentStatus.SUCCEEDED,
+          createdAt: { gte: monthStart, lt: nextMonthStart },
+        },
+        _sum: { amountCents: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: {
+          status: PaymentStatus.SUCCEEDED,
+          createdAt: { gte: previousMonthStart, lt: monthStart },
+        },
+        _sum: { amountCents: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: { status: PaymentStatus.PENDING },
+        _count: { id: true },
+        _sum: { amountCents: true },
+      }),
+      this.prisma.booking.findMany({
+        where: {
+          status: BookingStatus.CANCELLED,
+          cancelledAt: { not: null },
+          session: { startsAt: { gte: now } },
+        },
+        include: {
+          user: { select: { name: true, lastName: true, email: true } },
+          session: {
+            select: { startsAt: true, classType: { select: { name: true } } },
+          },
+        },
+        orderBy: [{ session: { startsAt: 'asc' } }, { cancelledAt: 'desc' }],
+        take: UPCOMING_ITEMS_LIMIT,
+      }),
+      this.prisma.userMembership.findMany({
+        where: {
+          status: MembershipStatus.CANCELLED,
+          currentPeriodEnd: { gte: now },
+        },
+        include: {
+          user: { select: { name: true, lastName: true, email: true } },
+          plan: { select: { name: true } },
+        },
+        orderBy: { currentPeriodEnd: 'asc' },
+        take: UPCOMING_ITEMS_LIMIT,
+      }),
+      this.prisma.user.count({
+        where: {
+          role: Role.USER,
+          createdAt: { gte: todayStart, lt: todayEnd },
+        },
+      }),
+      this.prisma.user.findMany({
+        where: { role: Role.USER },
+        select: {
+          id: true,
+          createdAt: true,
+          name: true,
+          lastName: true,
+          email: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: RECENT_USERS_LIMIT,
+      }),
+      this.prisma.classSession.count({
+        where: {
+          startsAt: { gte: todayStart, lt: todayEnd },
+          status: ClassSessionStatus.FULL,
+        },
+      }),
+      this.prisma.classSession.count({
+        where: {
+          startsAt: { gte: todayStart, lt: todayEnd },
+          status: ClassSessionStatus.CANCELLED,
+        },
+      }),
+      this.prisma.classSession.count({
+        where: {
+          startsAt: { gte: now },
+          status: ClassSessionStatus.DRAFT,
+        },
+      }),
+    ]);
+
+    const bookingsByStatus = this.mapBookingStatusCounts(bookingsByStatusRaw);
+    const upcomingClasses = todayClasses
+      .filter((session) => session.startsAt >= now)
+      .slice(0, UPCOMING_ITEMS_LIMIT)
+      .map((session) => ({
+        id: session.id,
+        className: session.classType.name,
+        startsAt: session.startsAt.toISOString(),
+        coachName: this.joinName(
+          session.coach.user.name,
+          session.coach.user.lastName,
+          session.coach.user.email,
+        ),
+        bookedCount: session._count.bookings,
+        capacity: session.capacity,
+        status: session.status,
+      }));
+
+    const revenue = this.resolveRevenueSummary(
+      todayRevenueAgg._sum.amountCents ?? 0,
+      monthRevenueAgg._sum.amountCents ?? 0,
+      previousMonthRevenueAgg._sum.amountCents ?? 0,
+      pendingPaymentsAgg._sum.amountCents ?? 0,
+      pendingPaymentsAgg._count.id ?? 0,
+    );
+
+    const upcomingCancellations = [
+      ...upcomingBookingCancellations.map((booking) => ({
+        id: booking.id,
+        type: 'booking' as const,
+        userName: this.joinName(
+          booking.user.name,
+          booking.user.lastName,
+          booking.user.email,
+        ),
+        itemName: booking.session.classType.name,
+        dateTime: booking.session.startsAt.toISOString(),
+        status: booking.status,
+      })),
+      ...upcomingMembershipCancellations.map((membership) => ({
+        id: membership.id,
+        type: 'membership' as const,
+        userName: this.joinName(
+          membership.user.name,
+          membership.user.lastName,
+          membership.user.email,
+        ),
+        itemName: membership.plan.name,
+        dateTime: membership.currentPeriodEnd.toISOString(),
+        status: membership.status,
+      })),
+    ]
+      .sort((a, b) => a.dateTime.localeCompare(b.dateTime))
+      .slice(0, UPCOMING_ITEMS_LIMIT);
+
+    const alerts = this.buildAlerts({
+      fullClassesToday,
+      waitlistPressureCount: waitlistPressureCount.filter(
+        (entry) => entry._count.id >= WAITLIST_ALERT_THRESHOLD,
+      ).length,
+      cancelledClassesToday,
+      pendingPaymentsCount: pendingPaymentsAgg._count.id ?? 0,
+      draftClassesUpcoming,
+      upcomingCancellationsCount: upcomingCancellations.length,
+    });
+
+    return {
+      bookingsByStatus,
+      upcomingClasses,
+      revenue,
+      upcomingCancellations,
+      newUsers: {
+        todayCount: newUsersToday,
+        recent: recentUsers.map((user) => ({
+          id: user.id,
+          name: this.joinName(user.name, user.lastName, user.email),
+          email: user.email,
+          createdAt: user.createdAt.toISOString(),
+        })),
+      },
+      alerts,
+    };
+  }
+
+  private mapBookingStatusCounts(
+    rows: Array<{ status: BookingStatus; _count: { id: number } }>,
+  ) {
+    const initial: Record<BookingStatus, number> = {
+      BOOKED: 0,
+      COMPLETED: 0,
+      CANCELLED: 0,
+      MISSED: 0,
+    };
+
+    for (const row of rows) {
+      initial[row.status] = row._count.id;
+    }
+
+    return initial;
+  }
+
+  private resolveRevenueSummary(
+    todayRevenueCents: number,
+    monthRevenueCents: number,
+    previousMonthRevenueCents: number,
+    pendingPaymentsCents: number,
+    pendingPaymentsCount: number,
+  ) {
+    const trendPercent =
+      previousMonthRevenueCents > 0
+        ? Math.round(
+            ((monthRevenueCents - previousMonthRevenueCents) /
+              previousMonthRevenueCents) *
+              100,
+          )
+        : null;
+
+    return {
+      todayRevenueCents,
+      monthRevenueCents,
+      pendingPaymentsCents,
+      pendingPaymentsCount,
+      trendPercent,
+    };
+  }
+
+  private buildAlerts(input: {
+    fullClassesToday: number;
+    waitlistPressureCount: number;
+    cancelledClassesToday: number;
+    pendingPaymentsCount: number;
+    draftClassesUpcoming: number;
+    upcomingCancellationsCount: number;
+  }) {
+    const alerts: Array<{
+      code: string;
+      level: 'info' | 'warning';
+      count: number;
+    }> = [];
+
+    if (input.fullClassesToday > 0) {
+      alerts.push({
+        code: 'classes_full_today',
+        level: 'info',
+        count: input.fullClassesToday,
+      });
+    }
+    if (input.waitlistPressureCount > 0) {
+      alerts.push({
+        code: 'waitlist_pressure',
+        level: 'warning',
+        count: input.waitlistPressureCount,
+      });
+    }
+    if (input.cancelledClassesToday > 0) {
+      alerts.push({
+        code: 'classes_cancelled_today',
+        level: 'warning',
+        count: input.cancelledClassesToday,
+      });
+    }
+    if (input.pendingPaymentsCount > 0) {
+      alerts.push({
+        code: 'payments_pending',
+        level: 'warning',
+        count: input.pendingPaymentsCount,
+      });
+    }
+    if (input.draftClassesUpcoming > 0) {
+      alerts.push({
+        code: 'draft_classes_upcoming',
+        level: 'info',
+        count: input.draftClassesUpcoming,
+      });
+    }
+    if (input.upcomingCancellationsCount > 0) {
+      alerts.push({
+        code: 'upcoming_cancellations',
+        level: 'info',
+        count: input.upcomingCancellationsCount,
+      });
+    }
+
+    return alerts;
+  }
+
+  private getMonthStart(now: Date): Date {
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  }
+
+  private getNextMonthStart(now: Date): Date {
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  }
+
+  private getPreviousMonthStart(now: Date): Date {
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  }
+
+  private joinName(
+    firstName: string | null,
+    lastName: string | null,
+    fallback: string,
+  ): string {
+    const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+    return fullName.length > 0 ? fullName : fallback;
+  }
+
   async bookingsCsv(from: Date, to: Date): Promise<string> {
     const toSafe = new Date(to);
     const fromSafe = new Date(from);
@@ -102,7 +495,15 @@ export class ReportsService {
     const where: Prisma.PaymentWhereInput = {
       ...(dateFilter ? { createdAt: dateFilter } : {}),
     };
-    const [totals, byStatusRaw, payments] = await Promise.all([
+    const [
+      totals,
+      byStatusRaw,
+      payments,
+      giftIssuedAgg,
+      giftRedeemedAgg,
+      giftSpentAgg,
+      giftLiabilityAgg,
+    ] = await Promise.all([
       this.prisma.payment.aggregate({
         where: { ...where, status: PaymentStatus.SUCCEEDED },
         _sum: { amountCents: true },
@@ -122,6 +523,33 @@ export class ReportsService {
           description: true,
           status: true,
         },
+      }),
+      this.prisma.giftCard.aggregate({
+        where: {
+          ...(dateFilter ? { createdAt: dateFilter } : {}),
+        },
+        _sum: { amountCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.giftCard.aggregate({
+        where: {
+          status: GiftCardStatus.REDEEMED,
+          ...(dateFilter ? { updatedAt: dateFilter } : {}),
+        },
+        _sum: { amountCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.payment.aggregate({
+        where: {
+          ...where,
+          status: PaymentStatus.SUCCEEDED,
+          description: { startsWith: 'Gift credit spend' },
+        },
+        _sum: { amountCents: true },
+        _count: { id: true },
+      }),
+      this.prisma.user.aggregate({
+        _sum: { giftCreditsCents: true },
       }),
     ]);
 
@@ -167,6 +595,15 @@ export class ReportsService {
       },
       byStatus,
       bySource,
+      giftCredits: {
+        issuedCents: giftIssuedAgg._sum.amountCents ?? 0,
+        issuedCount: giftIssuedAgg._count.id ?? 0,
+        redeemedCents: giftRedeemedAgg._sum.amountCents ?? 0,
+        redeemedCount: giftRedeemedAgg._count.id ?? 0,
+        spentCents: giftSpentAgg._sum.amountCents ?? 0,
+        spendTransactionsCount: giftSpentAgg._count.id ?? 0,
+        outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
+      },
     };
   }
 
@@ -204,6 +641,108 @@ export class ReportsService {
       )
       .join('\n');
     return header + body;
+  }
+
+  async giftCreditsCsv(range: DateRangeQueryDto): Promise<string> {
+    const dateFilter = this.buildPaymentDateFilter(range);
+    const [issuedCards, redeemedCards, spendPayments] = await Promise.all([
+      this.prisma.giftCard.findMany({
+        where: {
+          ...(dateFilter ? { createdAt: dateFilter } : {}),
+        },
+        include: {
+          purchaser: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
+          recipient: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
+      }),
+      this.prisma.giftCard.findMany({
+        where: {
+          status: GiftCardStatus.REDEEMED,
+          ...(dateFilter ? { updatedAt: dateFilter } : {}),
+        },
+        include: {
+          recipient: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
+      }),
+      this.prisma.payment.findMany({
+        where: {
+          ...(dateFilter ? { createdAt: dateFilter } : {}),
+          status: PaymentStatus.SUCCEEDED,
+          description: { startsWith: 'Gift credit spend' },
+        },
+        include: {
+          user: {
+            select: { id: true, email: true, name: true, lastName: true },
+          },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
+      }),
+    ]);
+
+    const rows: string[] = [];
+    for (const card of issuedCards) {
+      rows.push(
+        this.toCsvRow([
+          'ISSUED',
+          card.createdAt.toISOString(),
+          card.purchaser.id,
+          card.purchaser.email,
+          `${card.purchaser.name ?? ''} ${card.purchaser.lastName ?? ''}`.trim(),
+          card.amountCents,
+          GIFT_CREDIT_CURRENCY,
+          card.code,
+          card.recipientEmail ??
+            card.recipient?.email ??
+            card.recipientName ??
+            '',
+        ]),
+      );
+    }
+    for (const card of redeemedCards) {
+      rows.push(
+        this.toCsvRow([
+          'REDEEMED',
+          card.updatedAt.toISOString(),
+          card.recipient?.id ?? '',
+          card.recipient?.email ?? '',
+          `${card.recipient?.name ?? ''} ${card.recipient?.lastName ?? ''}`.trim(),
+          card.amountCents,
+          GIFT_CREDIT_CURRENCY,
+          card.code,
+          '',
+        ]),
+      );
+    }
+    for (const payment of spendPayments) {
+      rows.push(
+        this.toCsvRow([
+          'SPENT',
+          payment.createdAt.toISOString(),
+          payment.userId,
+          payment.user.email,
+          `${payment.user.name ?? ''} ${payment.user.lastName ?? ''}`.trim(),
+          payment.amountCents,
+          payment.currency,
+          payment.id,
+          payment.description ?? '',
+        ]),
+      );
+    }
+
+    const header =
+      'eventType,eventAt,userId,userEmail,userName,amountCents,currency,reference,notes\n';
+    return header + rows.join('\n');
   }
 
   async coachAnalytics(userId: string, days: number) {
@@ -475,5 +1014,11 @@ export class ReportsService {
       result.set(item.sessionId, (result.get(item.sessionId) ?? 0) + 1);
     }
     return result;
+  }
+
+  private toCsvRow(cells: ReadonlyArray<string | number>): string {
+    return cells
+      .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+      .join(',');
   }
 }

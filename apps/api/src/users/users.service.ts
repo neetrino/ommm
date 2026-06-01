@@ -26,6 +26,7 @@ import {
 import type { ChangePasswordDto } from './dto/change-password.dto';
 import type { HomeImageJsonDto } from './dto/home-image-json.dto';
 import type { NotificationPrefsDto } from './dto/notification-prefs.dto';
+import type { RequestAccountDeletionDto } from './dto/request-account-deletion.dto';
 import type { UpdateProfileDto } from './dto/update-profile.dto';
 import { absolutePathForStoredUpload } from './user-upload.helpers';
 
@@ -184,24 +185,35 @@ export class UsersService {
       where: { id: userId },
       select: { passwordHash: true },
     });
-    if (!user.passwordHash) {
-      throw new BadRequestException(
-        'Password sign-in is not enabled for this account',
+    const existingPasswordHash = user.passwordHash;
+    const hasExistingPassword = existingPasswordHash !== null;
+
+    if (hasExistingPassword) {
+      const currentPassword = dto.currentPassword?.trim();
+      if (!currentPassword) {
+        throw new BadRequestException('Current password is required');
+      }
+      const currentOk = await verifyPassword(
+        existingPasswordHash,
+        currentPassword,
       );
+      if (!currentOk) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
     }
-    const currentOk = await verifyPassword(
-      user.passwordHash,
-      dto.currentPassword,
-    );
-    if (!currentOk) {
-      throw new UnauthorizedException('Current password is incorrect');
-    }
+
     const passwordHash = await hashPassword(dto.newPassword);
-    await this.prisma.user.update({
+    const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { passwordHash },
     });
-    return { message: 'Password updated successfully' };
+    return {
+      ok: true,
+      message: hasExistingPassword
+        ? 'Password updated successfully'
+        : 'Password set successfully',
+      user: sanitizeUser(updated),
+    };
   }
 
   async saveHomeImage(userId: string, file: Express.Multer.File) {
@@ -367,6 +379,51 @@ export class UsersService {
           "updatedAt" = NOW()
       `,
     );
+    return { ok: true };
+  }
+
+  async requestAccountDeletion(userId: string, dto: RequestAccountDeletionDto) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastName: true,
+        phone: true,
+      },
+    });
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentDuplicate = await this.prisma.contactMessage.findFirst({
+      where: {
+        subject: 'Delete account request',
+        createdAt: { gte: oneDayAgo },
+        message: { contains: `userId=${user.id}` },
+      },
+      select: { id: true },
+    });
+    if (recentDuplicate) {
+      throw new BadRequestException(
+        'Deletion request already submitted recently',
+      );
+    }
+    const displayName =
+      `${user.name ?? ''} ${user.lastName ?? ''}`.trim() || 'Account holder';
+    const reason = dto.reason?.trim();
+    const lines = [
+      `Authenticated account deletion request.`,
+      `userId=${user.id}`,
+      `email=${user.email}`,
+      reason ? `reason=${reason}` : 'reason=(not provided)',
+    ];
+    await this.prisma.contactMessage.create({
+      data: {
+        name: displayName,
+        phone: user.phone ?? 'Not provided',
+        subject: 'Delete account request',
+        message: lines.join('\n'),
+      },
+    });
     return { ok: true };
   }
 }

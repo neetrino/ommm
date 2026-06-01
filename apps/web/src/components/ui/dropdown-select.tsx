@@ -3,18 +3,12 @@
 import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
+import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
+import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 
 export type DropdownOption<T extends string> = {
   value: T;
   label: string;
-};
-
-type MenuPosition = {
-  top: number;
-  left: number;
-  width: number;
-  maxHeight: number;
-  placement: "top" | "bottom";
 };
 
 export type DropdownSelectProps<T extends string> = {
@@ -33,21 +27,33 @@ export type DropdownSelectProps<T extends string> = {
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
 };
 
-const DEFAULT_TRIGGER_CLASS =
-  "w-full min-h-11 rounded-xl border border-white/70 bg-white/80 py-2.5 pl-3 pr-9 text-left text-sm font-medium text-sage-800 shadow-sm outline-none backdrop-blur-sm transition-[border-color,box-shadow] hover:border-white focus-visible:border-sand-500/40 focus-visible:ring-2 focus-visible:ring-sand-500/15 disabled:pointer-events-none disabled:opacity-60";
-
-const DEFAULT_MENU_CLASS =
-  "fixed z-[2000] overflow-y-auto overflow-x-hidden rounded-2xl border border-white/70 bg-white/95 p-1 shadow-[0_24px_50px_-28px_rgba(45,40,35,0.32)] backdrop-blur-xl";
-
-const DEFAULT_OPTION_CLASS =
-  "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/20";
-
 function mergeClasses(...parts: Array<string | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }
 
 function isCharacterNavigationKey(event: React.KeyboardEvent<HTMLButtonElement>): boolean {
   return event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ";
+}
+
+function DefaultOptionContent<T extends string>({
+  option,
+  selected,
+}: {
+  option: DropdownOption<T>;
+  selected: boolean;
+}) {
+  return (
+    <>
+      <span
+        className="ommm-dropdown-checkbox"
+        data-checked={selected ? "true" : "false"}
+        aria-hidden
+      >
+        {selected ? <DropdownCheckGlyph className="h-3 w-3" /> : null}
+      </span>
+      <span className="min-w-0 flex-1 truncate">{option.label}</span>
+    </>
+  );
 }
 
 export function DropdownSelect<T extends string>({
@@ -67,12 +73,12 @@ export function DropdownSelect<T extends string>({
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const [portalReady, setPortalReady] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const listRef = useRef<HTMLUListElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const listboxId = useId();
-  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
 
   const selected = useMemo(
     () => options.find((option) => option.value === value),
@@ -83,14 +89,25 @@ export function DropdownSelect<T extends string>({
     [options, value],
   );
   const isMenuOpen = open && !disabled && options.length > 0;
+  const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
 
   useEffect(() => {
-    if (!open || disabled) return;
+    setPortalReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open || disabled) {
+      return undefined;
+    }
     const closeOnOutside = (event: MouseEvent | TouchEvent) => {
-      if (!(event.target instanceof Node)) return;
+      if (!(event.target instanceof Node)) {
+        return;
+      }
       const clickedTrigger = rootRef.current?.contains(event.target) ?? false;
-      const clickedList = listRef.current?.contains(event.target) ?? false;
-      if (!clickedTrigger && !clickedList) setOpen(false);
+      const clickedMenu = menuRef.current?.contains(event.target) ?? false;
+      if (!clickedTrigger && !clickedMenu) {
+        setOpen(false);
+      }
     };
     document.addEventListener("mousedown", closeOnOutside);
     document.addEventListener("touchstart", closeOnOutside);
@@ -98,38 +115,12 @@ export function DropdownSelect<T extends string>({
       document.removeEventListener("mousedown", closeOnOutside);
       document.removeEventListener("touchstart", closeOnOutside);
     };
-  }, [open, disabled]);
+  }, [disabled, open]);
 
   useEffect(() => {
-    if (!open || disabled) return;
-    const updatePosition = () => {
-      const trigger = triggerRef.current;
-      if (trigger === null) return;
-      const rect = trigger.getBoundingClientRect();
-      const spacing = 8;
-      const minMenuHeight = 140;
-      const availableBelow = window.innerHeight - rect.bottom - spacing;
-      const availableAbove = rect.top - spacing;
-      const openAbove = availableBelow < minMenuHeight && availableAbove > availableBelow;
-      setMenuPosition({
-        top: openAbove ? rect.top - spacing : rect.bottom + spacing,
-        left: Math.min(rect.left, Math.max(8, window.innerWidth - rect.width - 8)),
-        width: Math.min(rect.width, window.innerWidth - 16),
-        maxHeight: Math.max(120, openAbove ? availableAbove : availableBelow),
-        placement: openAbove ? "top" : "bottom",
-      });
-    };
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [open, disabled]);
-
-  useEffect(() => {
-    if (!isMenuOpen) return;
+    if (!isMenuOpen) {
+      return;
+    }
     optionRefs.current[focusedIndex]?.focus();
   }, [focusedIndex, isMenuOpen]);
 
@@ -146,13 +137,17 @@ export function DropdownSelect<T extends string>({
   }
 
   function openMenu(initialIndex: number) {
-    if (disabled || options.length === 0) return;
+    if (disabled || options.length === 0) {
+      return;
+    }
     setFocusedIndex(initialIndex);
     setOpen(true);
   }
 
   function onTriggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
-    if (!isCharacterNavigationKey(event)) return;
+    if (!isCharacterNavigationKey(event)) {
+      return;
+    }
     event.preventDefault();
     const startIndex = event.key === "ArrowUp" ? options.length - 1 : selectedIndex;
     openMenu(startIndex);
@@ -194,13 +189,22 @@ export function DropdownSelect<T extends string>({
     }
   }
 
+  const triggerContent = renderValue ? (
+    renderValue(selected)
+  ) : (
+    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#464646]">
+      {selected?.label ?? label}
+    </span>
+  );
+
   return (
-    <div ref={rootRef} className={mergeClasses("relative", className)}>
+    <div ref={rootRef} className={mergeClasses("ommm-dropdown-root", className)}>
       <p className="sr-only">{ariaLabel}</p>
       <button
         ref={triggerRef}
         type="button"
-        className={mergeClasses(DEFAULT_TRIGGER_CLASS, triggerClassName)}
+        className={mergeClasses("ommm-dropdown-trigger", triggerClassName)}
+        data-open={isMenuOpen ? "true" : "false"}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={isMenuOpen}
@@ -209,20 +213,17 @@ export function DropdownSelect<T extends string>({
         onClick={() => (isMenuOpen ? closeAndFocusTrigger() : openMenu(selectedIndex))}
         onKeyDown={onTriggerKeyDown}
       >
-        {renderValue ? renderValue(selected) : (selected?.label ?? label)}
+        {triggerContent}
+        <span className="ml-auto shrink-0 text-sage-500">
+          <ChevronDownIcon />
+        </span>
       </button>
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sage-500">
-        <ChevronDownIcon />
-      </span>
 
-      {isMenuOpen && menuPosition !== null && typeof document !== "undefined"
+      {isMenuOpen && menuPosition !== null && portalReady && typeof document !== "undefined"
         ? createPortal(
-            <ul
-              ref={listRef}
-              id={listboxId}
-              role="listbox"
-              aria-label={ariaLabel}
-              className={mergeClasses(DEFAULT_MENU_CLASS, menuClassName)}
+            <div
+              ref={menuRef}
+              className={mergeClasses("ommm-dropdown-menu", menuClassName)}
               style={{
                 top: menuPosition.top,
                 left: menuPosition.left,
@@ -231,47 +232,44 @@ export function DropdownSelect<T extends string>({
                 transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
               }}
             >
-              {options.map((option, index) => {
-                const isSelected = option.value === value;
-                return (
-                  <li key={option.value} role="presentation">
-                    <button
-                      ref={(node) => {
-                        optionRefs.current[index] = node;
-                      }}
-                      type="button"
-                      role="option"
-                      tabIndex={index === focusedIndex ? 0 : -1}
-                      aria-selected={isSelected}
-                      className={mergeClasses(
-                        DEFAULT_OPTION_CLASS,
-                        isSelected
-                          ? "bg-sand-100/75 font-semibold text-sage-800"
-                          : "text-sage-700 hover:bg-white",
-                      )}
-                      onClick={() => selectValue(option.value)}
-                      onKeyDown={(event) => onOptionKeyDown(event, index, option)}
-                    >
-                      {renderOption ? (
-                        renderOption(option, isSelected)
-                      ) : (
-                        <>
-                          <span>{option.label}</span>
-                          <span
-                            aria-hidden
-                            className={
-                              isSelected
-                                ? "h-2 w-2 rounded-full bg-sand-700"
-                                : "h-2 w-2 rounded-full bg-transparent"
-                            }
-                          />
-                        </>
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>,
+              <ul
+                id={listboxId}
+                role="listbox"
+                aria-label={ariaLabel}
+                className="ommm-dropdown-menu-list"
+                style={{ maxHeight: Math.max(96, menuPosition.maxHeight - 16) }}
+              >
+                {options.map((option, index) => {
+                  const isSelected = option.value === value;
+                  return (
+                    <li key={option.value} role="presentation">
+                      <button
+                        ref={(node) => {
+                          optionRefs.current[index] = node;
+                        }}
+                        type="button"
+                        role="option"
+                        tabIndex={index === focusedIndex ? 0 : -1}
+                        aria-selected={isSelected}
+                        className={mergeClasses(
+                          "ommm-dropdown-option",
+                          renderOption ? "ommm-dropdown-option-custom" : undefined,
+                        )}
+                        data-selected={isSelected ? "true" : "false"}
+                        onClick={() => selectValue(option.value)}
+                        onKeyDown={(event) => onOptionKeyDown(event, index, option)}
+                      >
+                        {renderOption ? (
+                          renderOption(option, isSelected)
+                        ) : (
+                          <DefaultOptionContent option={option} selected={isSelected} />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>,
             document.body,
           )
         : null}

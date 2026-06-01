@@ -1,35 +1,27 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
-import { AdminGiftCardActions } from "@/components/admin/admin-gift-card-actions";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AdminGiftCardsManagement } from "@/components/admin/admin-gift-cards-management";
+import type { AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
+import {
+  giftCardFiltersQueryKey,
+  parseGiftCardFiltersFromSearch,
+} from "@/components/admin/admin-gift-cards-url";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { serverApiJson } from "@/lib/server-api";
-
-type GiftRow = {
-  id: string;
-  code: string;
-  amountCents: number;
-  balanceCents: number;
-  status: string;
-  recipientEmail: string | null;
-  recipientName: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-  purchaser: { email: string; name: string | null };
-  recipient: { email: string; name: string | null } | null;
-};
 
 export default async function AdminGiftCardsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<GiftRow[]>("/gift-cards/admin", cookie);
+  const res = await serverApiJson<AdminGiftCardRow[]>("/gift-cards/admin", cookie);
 
   if (!res.ok) {
     return (
@@ -41,53 +33,18 @@ export default async function AdminGiftCardsPage({
     );
   }
 
+  const initialFilters = parseGiftCardFiltersFromSearch(search);
+
   return (
-    <AccountPageFrame
-      title={t("title")}
-      description={t("description")}
-    >
-      <div className={`mt-2 ${adminChrome.tableWrap}`}>
-        <table className={adminChrome.table}>
-          <thead className={adminChrome.thead}>
-            <tr>
-              <th className={adminChrome.th}>{t("colCode")}</th>
-              <th className={adminChrome.th}>{t("colPurchaser")}</th>
-              <th className={adminChrome.th}>{t("colRecipient")}</th>
-              <th className={adminChrome.th}>{t("colBalance")}</th>
-              <th className={adminChrome.th}>{t("colStatus")}</th>
-              <th className={adminChrome.th}>{t("colActions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {res.data.map((g) => (
-              <tr key={g.id} className={adminChrome.tr}>
-                <td className={adminChrome.tdMono}>{g.code}</td>
-                <td className={adminChrome.td}>
-                  {g.purchaser.name ?? g.purchaser.email}
-                </td>
-                <td className={adminChrome.td}>
-                  {g.recipientName ?? g.recipient?.name ?? g.recipientEmail ?? "—"}
-                </td>
-                <td className={adminChrome.td}>
-                  {formatAmdFromCents(g.balanceCents, locale)} /{" "}
-                  {formatAmdFromCents(g.amountCents, locale)}
-                </td>
-                <td className={adminChrome.td}>{g.status}</td>
-                <td className={adminChrome.td}>
-                  <AdminGiftCardActions
-                    giftCardId={g.id}
-                    allowDeactivate
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <section className={`mt-6 ${adminChrome.panel}`}>
-        <p className={adminChrome.panelHeading}>{t("createHeading")}</p>
-        <AdminCreateGiftCardForm />
-      </section>
-    </AccountPageFrame>
+    <AdminContentFrame description={t("description")}>
+      <Suspense fallback={null}>
+        <AdminGiftCardsManagement
+          key={giftCardFiltersQueryKey(initialFilters)}
+          giftCards={res.data}
+          locale={locale}
+          initialFilters={initialFilters}
+        />
+      </Suspense>
+    </AdminContentFrame>
   );
 }

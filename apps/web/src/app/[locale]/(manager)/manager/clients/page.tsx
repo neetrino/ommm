@@ -13,7 +13,53 @@ type ClientRow = {
   createdAt: string;
 };
 
-export default async function ManagerClientsPage() {
+function getManagerClientsLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      authRequired: "Պահանջվում է մենեջերի կամ ադմինի մուտք։",
+      loadFailed: "Չհաջողվեց բեռնել հաճախորդներին ({status})։",
+      title: "Հաճախորդներ",
+      description: "Հաճախորդների ցուցակ։",
+      colName: "Անուն",
+      colEmail: "Էլ. փոստ",
+      colRole: "Դեր",
+      colJoined: "Միացել է",
+      colActions: "Գործողություններ",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      authRequired: "Нужен вход менеджера или админа.",
+      loadFailed: "Не удалось загрузить клиентов ({status}).",
+      title: "Клиенты",
+      description: "Каталог клиентов.",
+      colName: "Имя",
+      colEmail: "Email",
+      colRole: "Роль",
+      colJoined: "Дата регистрации",
+      colActions: "Действия",
+    };
+  }
+  return {
+    authRequired: "Manager or admin sign-in required.",
+    loadFailed: "Could not load clients ({status}).",
+    title: "Clients",
+    description: "Client directory.",
+    colName: "Name",
+    colEmail: "Email",
+    colRole: "Role",
+    colJoined: "Joined",
+    colActions: "Actions",
+  };
+}
+
+export default async function ManagerClientsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const labels = getManagerClientsLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ClientRow[]>("/clients", cookie);
 
@@ -21,25 +67,25 @@ export default async function ManagerClientsPage() {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
         {res.status === 401 || res.status === 403
-          ? "Manager or admin sign-in required."
-          : `Could not load clients (${res.status}).`}
+          ? labels.authRequired
+          : labels.loadFailed.replace("{status}", String(res.status))}
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">Clients</h1>
-      <p className="mt-2 text-sm text-zinc-600">Client directory.</p>
+      <h1 className="text-2xl font-semibold text-zinc-900">{labels.title}</h1>
+      <p className="mt-2 text-sm text-zinc-600">{labels.description}</p>
       <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Joined</th>
-              <th className="px-4 py-3">Actions</th>
+              <th className="px-4 py-3">{labels.colName}</th>
+              <th className="px-4 py-3">{labels.colEmail}</th>
+              <th className="px-4 py-3">{labels.colRole}</th>
+              <th className="px-4 py-3">{labels.colJoined}</th>
+              <th className="px-4 py-3">{labels.colActions}</th>
             </tr>
           </thead>
           <tbody>

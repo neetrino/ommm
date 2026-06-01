@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { PlusIcon } from "@/components/ui/plus-icon";
 import {
   ScheduleFilterDropdown,
   type ScheduleFilterOption,
@@ -26,6 +27,7 @@ import {
   COACH_MAX_AGE,
   COACH_MIN_AGE,
   createScheduleRow,
+  hasDuplicateScheduleRows,
   isValidTime,
   MAX_BIO_LENGTH,
   MAX_EXPERIENCE_YEARS,
@@ -45,6 +47,7 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type AdminCoachActionsProps = {
   coachId: string;
+  locale?: string;
   classTypeOptions?: readonly string[];
   classOptions?: readonly CoachClassOption[];
   initialEmail?: string;
@@ -97,6 +100,43 @@ type FormErrors = {
 const EDIT_COACH_QUERY_KEY = "editCoach";
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
+
+function getCoachActionLabels(locale: string) {
+  if (locale === "hy") {
+    return {
+      personalInfoHeading: "Անձնական տվյալներ",
+      personalInfoDescription: "Հաշվի և ինքնության հիմնական տվյալներ",
+      coachDetailsHeading: "Մարզչի տվյալներ",
+      coachDetailsDescription: "Փորձ, մասնագիտացում և պրոֆիլի մեդիա",
+      assignedClassesHeading: "Կցված դասեր",
+      assignedClassesDescription: "Ընտրեք այս մարզչի վարած դասերի տեսակները",
+      scheduleHeading: "Ժամանակացույց / հասանելիություն",
+      birthdayPlaceholder: "ՕՕ/ԱԱ/ՏՏՏՏ",
+    };
+  }
+  if (locale === "ru") {
+    return {
+      personalInfoHeading: "Личные данные",
+      personalInfoDescription: "Основные данные учётной записи и личности",
+      coachDetailsHeading: "Данные тренера",
+      coachDetailsDescription: "Опыт, специализация и медиа профиля",
+      assignedClassesHeading: "Назначенные занятия",
+      assignedClassesDescription: "Выберите типы занятий, которые ведёт тренер",
+      scheduleHeading: "Расписание / доступность",
+      birthdayPlaceholder: "ДД/ММ/ГГГГ",
+    };
+  }
+  return {
+    personalInfoHeading: "Personal Information",
+    personalInfoDescription: "Core account and identity details",
+    coachDetailsHeading: "Coach Details",
+    coachDetailsDescription: "Experience, specialization, and profile media",
+    assignedClassesHeading: "Assigned Classes",
+    assignedClassesDescription: "Select class types coached by this person",
+    scheduleHeading: "Schedule / Availability",
+    birthdayPlaceholder: "DD/MM/YYYY",
+  };
+}
 
 function CloseGlyph({ className }: { className?: string }) {
   return (
@@ -187,6 +227,7 @@ function formatIsoBirthdayToDisplay(isoValue: string | null | undefined): string
 
 export function AdminCoachActions({
   coachId,
+  locale = "en",
   classTypeOptions = [],
   classOptions = [],
   initialEmail = "",
@@ -204,6 +245,7 @@ export function AdminCoachActions({
   initialBio = "",
 }: AdminCoachActionsProps) {
   const t = useTranslations("adminPages.coaches");
+  const labels = getCoachActionLabels(locale);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -559,7 +601,7 @@ export function AdminCoachActions({
         spots < MIN_SCHEDULE_SPOTS
       );
     });
-    if (scheduleInvalid) {
+    if (scheduleInvalid || hasDuplicateScheduleRows(form.schedule)) {
       nextErrors.schedule = t("scheduleInvalid");
     }
     if (Object.keys(nextErrors).length > 0) {
@@ -631,12 +673,12 @@ export function AdminCoachActions({
       {isOpen && isMounted
         ? createPortal(
             <div
-              className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+              className="ommm-drawer-overlay z-[90]"
               role="presentation"
             >
               <button
                 type="button"
-                className="absolute inset-0 z-0 bg-sage-950/45 backdrop-blur-[2px] transition-opacity"
+                className="ommm-modal-backdrop"
                 aria-label={t("modalBackdropClose")}
                 onClick={closeModal}
               />
@@ -646,7 +688,7 @@ export function AdminCoachActions({
                 aria-modal="true"
                 aria-labelledby={titleId}
                 aria-describedby={descId}
-                className="relative z-10 mt-auto max-h-[min(92vh,840px)] w-full max-w-[min(940px,95vw)] overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
+                className="relative z-10 h-full w-full max-w-3xl overflow-x-hidden overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -669,7 +711,7 @@ export function AdminCoachActions({
                 </div>
 
                 <form
-                  className="mt-5 flex flex-col gap-5"
+                  className="mt-5 flex min-w-0 flex-col gap-5"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void onSave();
@@ -678,9 +720,9 @@ export function AdminCoachActions({
                   <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Personal Information
+                        {labels.personalInfoHeading}
                       </h3>
-                      <p className="text-xs text-sage-500">Core account and identity details</p>
+                      <p className="text-xs text-sage-500">{labels.personalInfoDescription}</p>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       <label className="flex flex-col gap-1 lg:col-span-2">
@@ -750,7 +792,7 @@ export function AdminCoachActions({
                           maxLength={10}
                           className="ommm-input"
                           value={form.birthday}
-                          placeholder="DD/MM/YYYY"
+                          placeholder={labels.birthdayPlaceholder}
                           onChange={(event) => {
                             const nextValue = formatBirthdayInput(event.target.value);
                             updateField("birthday", nextValue);
@@ -786,9 +828,9 @@ export function AdminCoachActions({
                   <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Coach Details
+                        {labels.coachDetailsHeading}
                       </h3>
-                      <p className="text-xs text-sage-500">Experience, specialization, and profile media</p>
+                      <p className="text-xs text-sage-500">{labels.coachDetailsDescription}</p>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       <label className="flex flex-col gap-1">
@@ -908,9 +950,9 @@ export function AdminCoachActions({
                   <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Assigned Classes
+                        {labels.assignedClassesHeading}
                       </h3>
-                      <p className="text-xs text-sage-500">Select class types coached by this person</p>
+                      <p className="text-xs text-sage-500">{labels.assignedClassesDescription}</p>
                     </div>
                     <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
                       {classOptions.map((option) => (
@@ -939,7 +981,7 @@ export function AdminCoachActions({
                   <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        Schedule / Availability
+                        {labels.scheduleHeading}
                       </h3>
                       <OmmButton
                         type="button"
@@ -947,7 +989,9 @@ export function AdminCoachActions({
                         size="sm"
                         onClick={addScheduleRow}
                         disabled={busy}
+                        className="gap-1.5"
                       >
+                        <PlusIcon className="h-3.5 w-3.5 shrink-0" />
                         {t("fieldScheduleAdd")}
                       </OmmButton>
                     </div>

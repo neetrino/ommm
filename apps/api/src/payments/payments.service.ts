@@ -170,6 +170,24 @@ export class PaymentsService {
     if (!classSession) {
       throw new BadRequestException('Session not found');
     }
+    if (classSession.status === ClassSessionStatus.CANCELLED) {
+      throw new BadRequestException('Session is not available');
+    }
+    if (classSession.startsAt < new Date()) {
+      throw new BadRequestException('Session already started');
+    }
+    const existingBooking = await this.prisma.booking.findUnique({
+      where: { userId_sessionId: { userId, sessionId } },
+    });
+    if (existingBooking?.status === BookingStatus.BOOKED) {
+      throw new BadRequestException('Already booked');
+    }
+    const booked = await this.prisma.booking.count({
+      where: { sessionId, status: BookingStatus.BOOKED },
+    });
+    if (booked >= classSession.capacity) {
+      throw new BadRequestException('Session is full — join waitlist');
+    }
     const stripe = this.ensureStripe();
     const customerId = await this.getOrCreateStripeCustomer(userId);
     const web =
