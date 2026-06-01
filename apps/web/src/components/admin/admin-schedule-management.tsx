@@ -13,6 +13,7 @@ import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
+import { AdminScheduleSessionActions } from "@/components/admin/admin-schedule-session-actions";
 import {
   matchesScheduleQuickFilters,
   SCHEDULE_QUICK_FILTER_VALUES,
@@ -1027,24 +1028,22 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
   }
   return (
     <div className="overflow-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+      <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
         <colgroup>
-          <col className="w-[17%]" />
-          <col className="w-[12%]" />
-          <col className="w-[9%]" />
+          <col className="w-[14%]" />
           <col className="w-[11%]" />
+          <col className="w-[8%]" />
+          <col className="w-[10%]" />
+          <col className="w-[6%]" />
+          <col className="w-[9%]" />
+          <col className="w-[9%]" />
           <col className="w-[7%]" />
-          <col className="w-[10%]" />
-          <col className="w-[10%]" />
           <col className="w-[8%]" />
-          <col className="w-[8%]" />
-          <col className="w-[8%]" />
+          <col className="w-[18%]" />
         </colgroup>
-        <thead className={adminChrome.thead}><tr><th className={adminChrome.th}>{t("colClass")}</th><th className={adminChrome.th}>{t("colType")}</th><th className={adminChrome.th}>{t("colDate")}</th><th className={adminChrome.th}>{t("colTime")}</th><th className={adminChrome.th}>{t("fields.duration")}</th><th className={adminChrome.th}>{t("colCoach")}</th><th className={adminChrome.th}>{t("colCapacity")}</th><th className={adminChrome.th}>{t("colLevel")}</th><th className={adminChrome.th}>{t("colStatus")}</th><th className={adminChrome.th}>{t("colActions")}</th></tr></thead>
+        <thead className={adminChrome.thead}><tr><th className={adminChrome.th}>{t("colClass")}</th><th className={adminChrome.th}>{t("colType")}</th><th className={adminChrome.th}>{t("colDate")}</th><th className={adminChrome.th}>{t("colTime")}</th><th className={adminChrome.th}>{t("fields.duration")}</th><th className={adminChrome.th}>{t("colCoach")}</th><th className={adminChrome.th}>{t("colCapacity")}</th><th className={adminChrome.th}>{t("colLevel")}</th><th className={adminChrome.th}>{t("colStatus")}</th><th className={`${adminChrome.th} text-center`}>{t("colActions")}</th></tr></thead>
         <tbody>{rows.map((row) => <SessionRow key={row.id} row={row} {...props} />)}</tbody>
-        </table>
-      </div>
+      </table>
     </div>
   );
 }
@@ -1052,18 +1051,33 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
 function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDelete, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDelete: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
   const t = useTranslations("adminPages.classes");
   const busy = busyId === row.id;
+  const timeRange = `${new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.startsAt))} - ${new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.endsAt))}`;
   return (
     <tr className={adminChrome.tr}>
-      <td className={adminChrome.tdStrong}><button className="text-left underline-offset-2 hover:underline" onClick={() => onDetails(row)}>{row.title}</button></td>
-      <td className={adminChrome.td}>{row.classType.name}<div className={adminChrome.metaText}>{row.classFormat ?? "—"}</div></td>
-      <td className={adminChrome.td}>{formatDateForUi(row.startsAt)}</td>
-      <td className={adminChrome.td}>{new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.startsAt))} - {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.endsAt))}</td>
-      <td className={adminChrome.td}>{durationMinutes(row)}m</td>
-      <td className={adminChrome.td}>{coachName(row.coach)}</td>
-      <td className={adminChrome.td}>{row._count.bookings}/{row.capacity}<div className={adminChrome.metaText}>{t("fields.spotsLeft", { count: spotsLeft(row) })}</div></td>
-      <td className={adminChrome.tdMuted}>{row.level ?? "—"}</td>
-      <td className={adminChrome.td}><Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} /></td>
-      <td className={adminChrome.td}><div className="flex flex-wrap gap-1"><OmmButton size="sm" variant="ghost" onClick={() => onDetails(row)}>{t("actions.view")}</OmmButton><OmmButton size="sm" variant="ghost" onClick={() => onEdit(row)}>{t("editButton")}</OmmButton><OmmButton size="sm" variant="subtle" onClick={() => onDuplicate(row)}>{t("duplicateButton")}</OmmButton>{row.status === "CANCELLED" ? <OmmButton size="sm" variant="ghost" disabled={busy} onClick={() => onActivate(row)}>{t("activateAction")}</OmmButton> : <OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onCancel(row)}>{t("cancelAction")}</OmmButton>}<OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onDelete(row)}>{t("actions.delete")}</OmmButton></div></td>
+      <td className={`${adminChrome.tdStrong} min-w-0`}><button type="button" className="block max-w-full truncate text-left underline-offset-2 hover:underline" title={row.title} onClick={() => onDetails(row)}>{row.title}</button></td>
+      <td className={`${adminChrome.td} min-w-0`}><span className="block truncate" title={row.classType.name}>{row.classType.name}</span><div className={`${adminChrome.metaText} truncate`}>{row.classFormat ?? "—"}</div></td>
+      <td className={`${adminChrome.td} min-w-0 whitespace-nowrap`}>{formatDateForUi(row.startsAt)}</td>
+      <td className={`${adminChrome.td} min-w-0`}><span className="block truncate" title={timeRange}>{timeRange}</span></td>
+      <td className={`${adminChrome.td} whitespace-nowrap`}>{durationMinutes(row)}m</td>
+      <td className={`${adminChrome.td} min-w-0`}><span className="block truncate" title={coachName(row.coach)}>{coachName(row.coach)}</span></td>
+      <td className={`${adminChrome.td} min-w-0 whitespace-nowrap`}>{row._count.bookings}/{row.capacity}<div className={adminChrome.metaText}>{t("fields.spotsLeft", { count: spotsLeft(row) })}</div></td>
+      <td className={`${adminChrome.tdMuted} min-w-0`}><span className="block truncate">{row.level ?? "—"}</span></td>
+      <td className={`${adminChrome.td} min-w-0`}><Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} /></td>
+      <td className="min-w-0 px-2 py-3 align-middle">
+        <div className="flex items-center justify-center">
+          <AdminScheduleSessionActions
+            row={row}
+            busy={busy}
+            includeDelete
+            onDetails={onDetails}
+            onEdit={onEdit}
+            onDuplicate={onDuplicate}
+            onCancel={onCancel}
+            onActivate={onActivate}
+            onDelete={onDelete}
+          />
+        </div>
+      </td>
     </tr>
   );
 }
@@ -1096,15 +1110,16 @@ function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, o
         </div>
         <Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} />
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <OmmButton size="sm" variant="ghost" onClick={() => onDetails(row)}>{t("actions.view")}</OmmButton>
-        <OmmButton size="sm" variant="ghost" onClick={() => onEdit(row)}>{t("editButton")}</OmmButton>
-        <OmmButton size="sm" variant="subtle" onClick={() => onDuplicate(row)}>{t("duplicateButton")}</OmmButton>
-        {row.status === "CANCELLED" ? (
-          <OmmButton size="sm" variant="ghost" disabled={busy} onClick={() => onActivate(row)}>{t("activateAction")}</OmmButton>
-        ) : (
-          <OmmButton size="sm" variant="danger" disabled={busy} onClick={() => onCancel(row)}>{t("cancelAction")}</OmmButton>
-        )}
+      <div className="mt-4 flex justify-end">
+        <AdminScheduleSessionActions
+          row={row}
+          busy={busy}
+          onDetails={onDetails}
+          onEdit={onEdit}
+          onDuplicate={onDuplicate}
+          onCancel={onCancel}
+          onActivate={onActivate}
+        />
       </div>
     </article>
   );

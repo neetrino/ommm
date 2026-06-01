@@ -9,31 +9,16 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminScheduleForm } from "@/components/admin/admin-schedule-form";
 import type { AdminScheduleItem } from "@/components/admin/admin-schedule-types";
-import { EditActionButton } from "@/components/ui/edit-action-button";
-import { OmmButton } from "@/components/ui/omm-button";
+import {
+  ADMIN_ACTION_ICON_CLASS,
+  PencilGlyph,
+  ToggleOffGlyph,
+  ToggleOnGlyph,
+  TrashGlyph,
+} from "@/components/ui/admin-action-glyphs";
+import { AdminRowIconButton, AdminRowIconGroup } from "@/components/ui/admin-row-icon-button";
 
 const EDIT_SCHEDULE_QUERY_KEY = "editSchedule";
-
-function TrashGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M3 6h18" />
-      <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
-      <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
-      <path d="M10 11v6M14 11v6" />
-    </svg>
-  );
-}
 
 function CloseGlyph({ className }: { className?: string }) {
   return (
@@ -182,42 +167,46 @@ export function AdminScheduleRowActions({
     );
   }
 
+  const toggleLabel = item.isActive ? t("disableButton") : t("enableButton");
+
   return (
     <>
-      <div className="flex min-w-0 flex-col items-center gap-1">
-        <div className="flex items-center justify-center gap-1">
-          <EditActionButton
-            ariaLabel={t("editButtonAria")}
-            title={t("editButtonAria")}
-            onClick={openModal}
-            disabled={busy}
-          />
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-red-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-red-900 active:scale-95 active:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-50"
-            aria-label={t("deleteButtonAria")}
-            title={t("deleteButtonAria")}
-            onClick={() => {
-              void onDelete();
-            }}
-            disabled={busy}
-          >
-            <TrashGlyph className="h-4 w-4" />
-          </button>
-        </div>
-        <OmmButton
-          type="button"
-          size="sm"
-          variant="ghost"
-          className="h-7 rounded-lg px-2 text-[10px]"
+      <AdminRowIconGroup>
+        <AdminRowIconButton
+          ariaLabel={t("editButtonAria")}
+          title={t("editButtonAria")}
+          onClick={openModal}
+          disabled={busy}
+        >
+          <PencilGlyph className={ADMIN_ACTION_ICON_CLASS} />
+        </AdminRowIconButton>
+        <AdminRowIconButton
+          ariaLabel={toggleLabel}
+          title={toggleLabel}
+          variant="subtle"
           onClick={() => {
             void toggleStatus();
           }}
           disabled={busy}
         >
-          {item.isActive ? t("disableButton") : t("enableButton")}
-        </OmmButton>
-      </div>
+          {item.isActive ? (
+            <ToggleOffGlyph className={ADMIN_ACTION_ICON_CLASS} />
+          ) : (
+            <ToggleOnGlyph className={ADMIN_ACTION_ICON_CLASS} />
+          )}
+        </AdminRowIconButton>
+        <AdminRowIconButton
+          ariaLabel={t("deleteButtonAria")}
+          title={t("deleteButtonAria")}
+          variant="danger"
+          onClick={() => {
+            void onDelete();
+          }}
+          disabled={busy}
+        >
+          <TrashGlyph className={ADMIN_ACTION_ICON_CLASS} />
+        </AdminRowIconButton>
+      </AdminRowIconGroup>
 
       {message ? (
         <div

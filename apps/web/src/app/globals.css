@@ -370,6 +370,31 @@ html {
     @apply border-white/90 bg-white text-sage-900;
   }
 
+  .ommm-admin-row-icon-circle {
+    @apply relative mx-auto inline-flex shrink-0 items-center justify-center;
+  }
+
+  .ommm-admin-row-icon-circle-item {
+    @apply absolute left-1/2 top-1/2 z-[1] hover:z-10 focus-within:z-10;
+    transform: translate(-50%, -50%) rotate(var(--orbit-angle)) translateY(calc(-1 * var(--orbit-radius)))
+      rotate(calc(-1 * var(--orbit-angle)));
+  }
+
+  .ommm-admin-row-icon-button {
+    @apply inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/80 text-sage-700 shadow-sm backdrop-blur-sm transition-all;
+    @apply hover:bg-white hover:text-sage-900 active:scale-[0.97] active:bg-white/90;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .ommm-admin-row-icon-button-danger {
+    @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
+  }
+
+  .ommm-admin-row-icon-button-subtle {
+    @apply border-white/50 bg-white/60 text-sage-500 hover:border-white/70 hover:bg-white hover:text-sage-900;
+  }
+
   .ommm-admin-profile-chip {
     @apply inline-flex items-center gap-2 rounded-full py-0.5 pl-0.5 pr-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2;
   }
