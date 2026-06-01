@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateClientDto {
   @IsOptional()
@@ -24,4 +24,8 @@ export class UpdateClientDto {
   @IsString()
   @MaxLength(32)
   dateOfBirth?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isBlocked?: boolean;
 }

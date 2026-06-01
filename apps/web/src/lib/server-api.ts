@@ -21,6 +21,18 @@ type NextServerFetchInit = RequestInit & {
   next?: { revalidate?: number | false };
 };
 
+function isUpstreamConnectionError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  const cause = error.cause;
+  if (cause instanceof Error && "code" in cause) {
+    const code = (cause as NodeJS.ErrnoException).code;
+    return code === "ECONNREFUSED" || code === "ENOTFOUND" || code === "EHOSTUNREACH";
+  }
+  return error.message === "fetch failed";
+}
+
 async function fetchServerApi(
   path: string,
   init: NextServerFetchInit = {},
@@ -33,6 +45,9 @@ async function fetchServerApi(
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       return new Response("Upstream API timeout", { status: 504 });
+    }
+    if (isUpstreamConnectionError(error)) {
+      return new Response("Upstream API unavailable", { status: 503 });
     }
     throw error;
   } finally {

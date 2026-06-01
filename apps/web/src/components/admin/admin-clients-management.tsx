@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
+import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
@@ -121,6 +122,19 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
     setFilters((current) => ({ ...current, [key]: value }));
   }
 
+  function refetchClients(): void {
+    startTransition(() => {
+      void apiFetch<AdminClientsPayload>(`/clients?${apiQueryString}`)
+        .then((next) => {
+          setPayload(next);
+          setError(null);
+        })
+        .catch(() => {
+          setError("Could not load matching clients.");
+        });
+    });
+  }
+
   function resetFilters() {
     setFilters({
       search: "",
@@ -150,7 +164,12 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
       />
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">Loading...</p> : null}
-      <ClientsTable rows={payload.rows} locale={locale} onSelect={setSelected} />
+      <ClientsTable
+        rows={payload.rows}
+        locale={locale}
+        onSelect={setSelected}
+        onChanged={refetchClients}
+      />
       {payload.rows.length === 0 ? (
         <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
           No clients match the current search and filters.
@@ -207,36 +226,102 @@ function Filters(props: {
   );
 }
 
-function ClientsTable({ rows, locale, onSelect }: { rows: ClientRow[]; locale: string; onSelect: (row: ClientRow) => void }) {
+function ClientsTable({
+  rows,
+  locale,
+  onSelect,
+  onChanged,
+}: {
+  rows: ClientRow[];
+  locale: string;
+  onSelect: (row: ClientRow) => void;
+  onChanged: () => void;
+}) {
   return (
-    <div className={`${adminChrome.tableWrap} overflow-x-visible`}>
-      <table className="w-full table-fixed border-collapse text-left text-sm">
+    <div className={adminChrome.tableWrap}>
+      <table className={`${adminChrome.table} table-fixed min-w-[72rem]`}>
         <colgroup>
-          <col className="w-[8%]" />
+          <col className="w-16" />
           <col className="w-[24%]" />
-          <col className="w-[13%]" />
-          <col className="w-[10%]" />
-          <col className="w-[13%]" />
           <col className="w-[12%]" />
-          <col className="w-[20%]" />
+          <col className="w-[10%]" />
+          <col className="w-[12%]" />
+          <col className="w-[10%]" />
+          <col className="w-32" />
         </colgroup>
-        <thead className={adminChrome.thead}><tr><th className={adminChrome.th}>Photo</th><th className={adminChrome.th}>Name / Phone</th><th className={adminChrome.th}>Date of birth</th><th className={adminChrome.th}>Sessions</th><th className={adminChrome.th}>Register date</th><th className={adminChrome.th}>Notes</th><th className={adminChrome.th}>Actions</th></tr></thead>
-        <tbody>{rows.map((row) => <ClientTableRow key={row.id} row={row} locale={locale} onSelect={onSelect} />)}</tbody>
+        <thead className={adminChrome.thead}>
+          <tr>
+            <th className={adminChrome.th}>Photo</th>
+            <th className={adminChrome.th}>Name / Phone</th>
+            <th className={`${adminChrome.th} text-center`}>Date of birth</th>
+            <th className={`${adminChrome.th} text-center`}>Sessions</th>
+            <th className={`${adminChrome.th} text-center`}>Register date</th>
+            <th className={`${adminChrome.th} text-center`}>Notes</th>
+            <th className={`${adminChrome.th} text-center`}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <ClientTableRow
+              key={row.id}
+              row={row}
+              onSelect={onSelect}
+              onChanged={onChanged}
+            />
+          ))}
+        </tbody>
       </table>
     </div>
   );
 }
 
-function ClientTableRow({ row, locale, onSelect }: { row: ClientRow; locale: string; onSelect: (row: ClientRow) => void }) {
+function ClientTableRow({
+  row,
+  onSelect,
+  onChanged,
+}: {
+  row: ClientRow;
+  onSelect: (row: ClientRow) => void;
+  onChanged: () => void;
+}) {
   return (
     <tr className={adminChrome.tr}>
-      <td className={adminChrome.td}><Avatar row={row} /></td>
-      <td className={adminChrome.tdStrong}><button className="break-words text-left underline decoration-sage-300 underline-offset-4" onClick={() => onSelect(row)}>{fullName(row)}</button><div className="break-words text-xs font-normal text-sage-500">{row.phone ?? "—"}</div><div className="mt-1 flex flex-wrap gap-1">{row.tags.map((tag) => <Badge key={tag} label={tag} />)}</div></td>
-      <td className={adminChrome.tdMuted}>{row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}</td>
-      <td className={adminChrome.td}>{sessionText(row)}</td>
-      <td className={adminChrome.tdMuted}>{formatDateForUi(row.createdAt)}</td>
-      <td className={adminChrome.td}>{row.noteCount}{row.latestNote ? <div className="truncate text-xs text-sage-500">{row.latestNote.body}</div> : null}</td>
-      <td className={adminChrome.td}><div className="flex flex-wrap gap-1"><OmmButton size="sm" variant="ghost" onClick={() => onSelect(row)}>View</OmmButton><OmmButton size="sm" variant="subtle" onClick={() => onSelect(row)}>Edit</OmmButton><OmmButton size="sm" variant="subtle" onClick={() => onSelect(row)}>Note</OmmButton><OmmButton size="sm" variant="subtle" onClick={() => onSelect(row)}>More</OmmButton></div><div className="mt-1 text-xs text-sage-500">{formatAmdFromCents(row.lifetimeValueCents, locale)} LTV</div></td>
+      <td className={adminChrome.td}>
+        <Avatar row={row} />
+      </td>
+      <td className={adminChrome.tdStrong}>
+        <button
+          type="button"
+          className="break-words text-left underline decoration-sage-300 underline-offset-4"
+          onClick={() => onSelect(row)}
+        >
+          {fullName(row)}
+        </button>
+        <div className="break-words text-xs font-normal text-sage-500">{row.phone ?? "—"}</div>
+        <div className="mt-1 flex flex-wrap gap-1">
+          {row.tags.map((tag) => (
+            <Badge key={tag} label={tag} />
+          ))}
+        </div>
+      </td>
+      <td className={`${adminChrome.tdMuted} text-center`}>
+        {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
+      </td>
+      <td className={`${adminChrome.td} text-center`}>{sessionText(row)}</td>
+      <td className={`${adminChrome.tdMuted} text-center`}>
+        {formatDateForUi(row.createdAt)}
+      </td>
+      <td className={`${adminChrome.td} text-center`}>
+        {row.noteCount}
+        {row.latestNote ? (
+          <div className="truncate text-xs text-sage-500">{row.latestNote.body}</div>
+        ) : null}
+      </td>
+      <td className={`${adminChrome.td} overflow-hidden text-center`}>
+        <div className="mx-auto flex w-32 justify-center">
+          <AdminClientRowActions client={row} onChanged={onChanged} />
+        </div>
+      </td>
     </tr>
   );
 }

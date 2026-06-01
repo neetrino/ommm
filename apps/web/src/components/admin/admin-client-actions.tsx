@@ -13,6 +13,7 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 
 type AdminClientActionsProps = {
   clientId: string;
+  showEditTrigger?: boolean;
   initialEmail: string;
   initialName: string;
   initialLastName: string;
@@ -52,6 +53,7 @@ function CloseGlyph({ className }: { className?: string }) {
 
 export function AdminClientActions({
   clientId,
+  showEditTrigger = true,
   initialEmail,
   initialName,
   initialLastName,
@@ -207,13 +209,15 @@ export function AdminClientActions({
 
   return (
     <>
-      <div className="flex items-center justify-center">
-        <EditActionButton
-          ariaLabel={t("editClient")}
-          title={t("editClient")}
-          onClick={openModal}
-        />
-      </div>
+      {showEditTrigger ? (
+        <div className="flex items-center justify-center">
+          <EditActionButton
+            ariaLabel={t("editClient")}
+            title={t("editClient")}
+            onClick={openModal}
+          />
+        </div>
+      ) : null}
 
       {inlineMessage ? (
         <div

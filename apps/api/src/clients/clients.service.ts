@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import {
   PaymentStatus,
   Prisma,
   Role,
+  type User,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -60,7 +62,7 @@ const clientInclude = Prisma.validator<Prisma.UserInclude>()({
 
 type ClientRecord = Prisma.UserGetPayload<{ include: typeof clientInclude }>;
 type ClientTag = 'VIP' | 'New' | 'At Risk' | 'Beginner';
-type ClientStatus = 'Active' | 'Inactive' | 'Frozen';
+type ClientStatus = 'Active' | 'Inactive' | 'Frozen' | 'Blocked';
 type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
 type AttendanceBehavior =
   | 'regular'
@@ -156,7 +158,10 @@ export class ClientsService {
     };
   }
 
-  async updateBasicInfo(id: string, dto: UpdateClientDto) {
+  async updateBasicInfo(actor: User, id: string, dto: UpdateClientDto) {
+    if (dto.isBlocked !== undefined && actor.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can block or unblock clients');
+    }
     const user = await this.prisma.user.findFirst({
       where: { id, role: Role.USER },
       select: { id: true },
@@ -172,6 +177,7 @@ export class ClientsService {
       ...(dto.dateOfBirth !== undefined && {
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
       }),
+      ...(dto.isBlocked !== undefined && { isBlocked: dto.isBlocked }),
     };
     if (Object.keys(data).length === 0) {
       throw new BadRequestException('No updatable fields were provided');
@@ -188,12 +194,58 @@ export class ClientsService {
       },
     });
     await this.audit.log({
+      actorId: actor.id,
+      actorRole: actor.role,
       action: 'CLIENT_UPDATED',
       entityType: 'User',
       entityId: id,
       payload: data,
     });
     return updated;
+  }
+
+  async remove(actor: User, id: string): Promise<void> {
+    if (actor.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can delete clients');
+    }
+    const user = await this.prisma.user.findFirst({
+      where: { id, role: Role.USER },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new NotFoundException('Client not found');
+    }
+
+    const activeBookings = await this.prisma.booking.count({
+      where: { userId: id, status: BookingStatus.BOOKED },
+    });
+    if (activeBookings > 0) {
+      throw new BadRequestException(
+        'Cannot delete a client with active bookings. Cancel bookings or block the client instead.',
+      );
+    }
+
+    try {
+      await this.prisma.user.delete({ where: { id } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new BadRequestException(
+          'This client account has linked records and cannot be deleted. Block the client instead.',
+        );
+      }
+      throw error;
+    }
+
+    await this.audit.log({
+      actorId: actor.id,
+      actorRole: actor.role,
+      action: 'CLIENT_DELETED',
+      entityType: 'User',
+      entityId: id,
+    });
   }
 
   async listNotes(userId: string) {
@@ -287,6 +339,7 @@ export class ClientsService {
       lastVisitDate: latestBooking?.session.startsAt ?? null,
       birthdayMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : null,
       hasGiftCardActivity: this.hasGiftCardActivity(user),
+      isBlocked: user.isBlocked,
     };
   }
 
@@ -337,6 +390,9 @@ export class ClientsService {
   }
 
   private getClientStatus(user: ClientRecord): ClientStatus {
+    if (user.isBlocked) {
+      return 'Blocked';
+    }
     if (
       user.memberships.some(
         (membership) => membership.status === MembershipStatus.PAUSED,
@@ -520,7 +576,7 @@ export class ClientsService {
   }
 
   private matchesStatus(status: ClientStatus, filter: AdminClientStatusFilter) {
-    if (filter === AdminClientStatusFilter.BLOCKED) return false;
+    if (filter === AdminClientStatusFilter.BLOCKED) return status === 'Blocked';
     if (filter === AdminClientStatusFilter.FROZEN) return status === 'Frozen';
     if (filter === AdminClientStatusFilter.ACTIVE) return status === 'Active';
     return status === 'Inactive';
