@@ -955,6 +955,8 @@
       "fieldLastName": "Ազգանուն",
       "fieldPhone": "Հեռախոս",
       "fieldBirthday": "Ծննդյան ամսաթիվ",
+      "birthdayPlaceholder": "ՕՕ/ԱԱ/ՏՏՏՏ",
+      "birthdayInvalid": "Մուտքագրեք վավեր ծննդյան ամսաթիվ։",
       "emailRequired": "Էլ. փոստը պարտադիր է։",
       "emailInvalid": "Մուտքագրեք վավեր էլ. փոստ։",
       "saveButton": "Թարմացնել հաճախորդին",

@@ -959,6 +959,8 @@
       "fieldLastName": "Фамилия",
       "fieldPhone": "Телефон",
       "fieldBirthday": "Дата рождения",
+      "birthdayPlaceholder": "ДД/ММ/ГГГГ",
+      "birthdayInvalid": "Введите корректную дату рождения.",
       "emailRequired": "Email обязателен.",
       "emailInvalid": "Введите корректный email.",
       "saveButton": "Обновить клиента",

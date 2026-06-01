@@ -407,8 +407,7 @@ function ClientsTable({
     <div className={adminChrome.tableWrap}>
       <table className={`${adminChrome.table} table-fixed min-w-[72rem]`}>
         <colgroup>
-          <col className="w-16" />
-          <col className="w-[24%]" />
+          <col className="w-[28%]" />
           <col className="w-[12%]" />
           <col className="w-[10%]" />
           <col className="w-[12%]" />
@@ -417,8 +416,7 @@ function ClientsTable({
         </colgroup>
         <thead className={adminChrome.thead}>
           <tr>
-            <th className={adminChrome.th}>Photo</th>
-            <th className={adminChrome.th}>Name / Phone</th>
+            <th className={adminChrome.th}>Clients</th>
             <th className={`${adminChrome.th} text-center`}>Date of birth</th>
             <th className={`${adminChrome.th} text-center`}>Sessions</th>
             <th className={`${adminChrome.th} text-center`}>Register date</th>
@@ -452,22 +450,24 @@ function ClientTableRow({
 }) {
   return (
     <tr className={adminChrome.tr}>
-      <td className={adminChrome.td}>
-        <Avatar row={row} />
-      </td>
       <td className={adminChrome.tdStrong}>
-        <button
-          type="button"
-          className="break-words text-left underline decoration-sage-300 underline-offset-4"
-          onClick={() => onSelect(row)}
-        >
-          {fullName(row)}
-        </button>
-        <div className="break-words text-xs font-normal text-sage-500">{row.phone ?? "—"}</div>
-        <div className="mt-1 flex flex-wrap gap-1">
-          {row.tags.map((tag) => (
-            <Badge key={tag} label={tag} />
-          ))}
+        <div className="flex items-center gap-3">
+          <Avatar row={row} />
+          <div className="min-w-0">
+            <button
+              type="button"
+              className="break-words text-left underline decoration-sage-300 underline-offset-4"
+              onClick={() => onSelect(row)}
+            >
+              {fullName(row)}
+            </button>
+            <div className="break-words text-xs font-normal text-sage-500">{row.phone ?? "—"}</div>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {row.tags.map((tag) => (
+                <Badge key={tag} label={tag} />
+              ))}
+            </div>
+          </div>
         </div>
       </td>
       <td className={`${adminChrome.tdMuted} text-center`}>
@@ -526,12 +526,21 @@ function Avatar({ row }: { row: ClientRow }) {
         alt=""
         width={40}
         height={40}
-        className="h-10 w-10 rounded-full object-cover"
+        className="h-10 w-10 shrink-0 rounded-full object-cover"
         unoptimized
       />
     );
   }
-  return <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">{fullName(row).slice(0, 2).toUpperCase()}</div>;
+  const initials = fullName(row)
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+  return (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
+      {initials || "?"}
+    </div>
+  );
 }
 
 function Badge({ label }: { label: string }) {

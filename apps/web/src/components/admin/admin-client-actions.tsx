@@ -6,6 +6,11 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import {
+  formatBirthdayInput,
+  formatIsoDateToUi,
+  parseBirthdayDisplayToIso,
+} from "@/lib/date-display";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import { EditActionButton } from "@/components/ui/edit-action-button";
@@ -33,7 +38,12 @@ type FormState = {
 
 type FormErrors = {
   email?: string;
+  dateOfBirth?: string;
 };
+
+function toBirthdayDisplay(isoValue: string): string {
+  return formatIsoDateToUi(isoValue);
+}
 
 function CloseGlyph({ className }: { className?: string }) {
   return (
@@ -75,7 +85,7 @@ export function AdminClientActions({
     name: initialName,
     lastName: initialLastName,
     phone: initialPhone,
-    dateOfBirth: initialDateOfBirth,
+    dateOfBirth: toBirthdayDisplay(initialDateOfBirth),
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [note, setNote] = useState("");
@@ -90,7 +100,7 @@ export function AdminClientActions({
       name: initialName,
       lastName: initialLastName,
       phone: initialPhone,
-      dateOfBirth: initialDateOfBirth,
+      dateOfBirth: toBirthdayDisplay(initialDateOfBirth),
     });
     setErrors({});
   }, [initialDateOfBirth, initialEmail, initialLastName, initialName, initialPhone]);
@@ -99,6 +109,9 @@ export function AdminClientActions({
     setForm((prev) => ({ ...prev, [key]: value }));
     if (key === "email") {
       setErrors((prev) => ({ ...prev, email: undefined }));
+    }
+    if (key === "dateOfBirth") {
+      setErrors((prev) => ({ ...prev, dateOfBirth: undefined }));
     }
   }
 
@@ -198,6 +211,17 @@ export function AdminClientActions({
       return;
     }
 
+    const birthdayDisplay = form.dateOfBirth.trim();
+    let dateOfBirth = "";
+    if (birthdayDisplay !== "") {
+      const birthdayIso = parseBirthdayDisplayToIso(birthdayDisplay);
+      if (birthdayIso === null) {
+        setErrors({ dateOfBirth: t("birthdayInvalid") });
+        return;
+      }
+      dateOfBirth = birthdayIso;
+    }
+
     await run(
       () =>
         apiFetch(`/clients/${clientId}`, {
@@ -207,7 +231,7 @@ export function AdminClientActions({
             name: form.name.trim(),
             lastName: form.lastName.trim(),
             phone: form.phone.trim(),
-            dateOfBirth: form.dateOfBirth || "",
+            dateOfBirth,
           }),
         }),
       t("updateSuccess"),
@@ -365,12 +389,21 @@ export function AdminClientActions({
                 </label>
                 <input
                   id={`date-of-birth-${clientId}`}
-                  type="date"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="bday"
+                  maxLength={10}
+                  placeholder={t("birthdayPlaceholder")}
                   className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
                   value={form.dateOfBirth}
-                  onChange={(event) => updateField("dateOfBirth", event.target.value)}
+                  onChange={(event) =>
+                    updateField("dateOfBirth", formatBirthdayInput(event.target.value))
+                  }
                   disabled={busy}
                 />
+                {errors.dateOfBirth ? (
+                  <p className="text-xs text-red-800">{errors.dateOfBirth}</p>
+                ) : null}
               </div>
 
               <div className="border-t border-white/70 pt-4">

@@ -968,6 +968,8 @@
       "fieldLastName": "Last name",
       "fieldPhone": "Phone",
       "fieldBirthday": "Date of birth",
+      "birthdayPlaceholder": "DD/MM/YYYY",
+      "birthdayInvalid": "Enter a valid date of birth.",
       "emailRequired": "Email is required.",
       "emailInvalid": "Enter a valid email address.",
       "saveButton": "Update client",
