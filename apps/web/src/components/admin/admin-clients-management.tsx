@@ -507,36 +507,38 @@ function FiltersPanel(props: {
           />
         </FilterField>
       </div>
-      <FilterField label="Client segments" className="min-w-0 sm:max-w-xs lg:max-w-sm">
-        <OmmFilterMultiSelect
-          variant="accent"
-          wrapLabel
-          ariaLabel="Client segment filters"
-          allLabel="All clients"
-          selectedValues={selectedSegments}
-          onChange={(values) =>
-            props.onChange(
-              "quick",
-              serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]),
-            )
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <FilterField label="Client segments" className="w-full min-w-[14rem] max-w-sm shrink-0">
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            ariaLabel="Client segment filters"
+            allLabel="All clients"
+            selectedValues={selectedSegments}
+            onChange={(values) =>
+              props.onChange(
+                "quick",
+                serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]),
+              )
+            }
+            formatSelectedCount={(count) =>
+              count === 1 ? "1 segment selected" : `${count} segments selected`
+            }
+            options={segmentOptions}
+          />
+        </FilterField>
+        <AdminFilterResetBar
+          onReset={props.onReset}
+          label={t("resetFilters")}
+          meta={
+            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+              {props.loading
+                ? "Loading matching clients..."
+                : `${props.activeFilterCount} active filters`}
+            </p>
           }
-          formatSelectedCount={(count) =>
-            count === 1 ? "1 segment selected" : `${count} segments selected`
-          }
-          options={segmentOptions}
         />
-      </FilterField>
-      <AdminFilterResetBar
-        onReset={props.onReset}
-        label={t("resetFilters")}
-        meta={
-          <p className="text-xs text-sage-500" role="status">
-            {props.loading
-              ? "Loading matching clients..."
-              : `${props.activeFilterCount} active filters`}
-          </p>
-        }
-      />
+      </div>
     </div>
   );
 }

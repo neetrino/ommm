@@ -15,13 +15,22 @@ export function AdminFilterResetBar({
   meta,
   leading,
 }: AdminFilterResetBarProps) {
-  return (
-    <div className="flex w-full flex-wrap items-center gap-2 sm:gap-3">
-      {leading ? <div className="flex flex-wrap items-center gap-2">{leading}</div> : null}
-      <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-        {meta}
-        <AdminFilterResetButton onClick={onReset}>{label}</AdminFilterResetButton>
+  if (leading) {
+    return (
+      <div className="flex w-full flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2">{leading}</div>
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          {meta}
+          <AdminFilterResetButton onClick={onReset}>{label}</AdminFilterResetButton>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex shrink-0 items-center gap-2 sm:ml-auto sm:gap-3">
+      {meta}
+      <AdminFilterResetButton onClick={onReset}>{label}</AdminFilterResetButton>
     </div>
   );
 }

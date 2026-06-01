@@ -799,9 +799,9 @@ function QuickFilters({
 
   return (
     <div className="mt-3 border-t border-sage-700/10 pt-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-        <div className="flex min-w-0 flex-col gap-1 sm:max-w-xs sm:flex-1 lg:max-w-sm">
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="flex w-full min-w-[14rem] max-w-sm shrink-0 flex-col gap-1">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
             <QuickFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
             {t("filters.quickFilterLabel")}
           </span>
@@ -816,17 +816,15 @@ function QuickFilters({
             options={quickOptions}
           />
         </div>
-        <div className="w-full sm:ml-auto sm:max-w-none">
-          <AdminFilterResetBar
-            onReset={onReset}
-            label={t("filters.reset")}
-            meta={
-              <p className="text-xs text-sage-600">
-                {t("filters.activeCount", { count: activeCount })}
-              </p>
-            }
-          />
-        </div>
+        <AdminFilterResetBar
+          onReset={onReset}
+          label={t("filters.reset")}
+          meta={
+            <p className="whitespace-nowrap text-xs text-sage-600">
+              {t("filters.activeCount", { count: activeCount })}
+            </p>
+          }
+        />
       </div>
     </div>
   );
