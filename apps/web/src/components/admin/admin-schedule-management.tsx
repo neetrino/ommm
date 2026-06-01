@@ -499,7 +499,7 @@ function ViewToolbar({
         ))}
         </div>
         <div className="flex flex-wrap gap-2 self-start lg:self-auto">
-          <OmmButton size="md" variant="ghost" onClick={onManageTypes} className="gap-2">
+          <OmmButton size="md" variant="secondary" onClick={onManageTypes} className="gap-2">
             <ClassTypesGlyph className="h-4 w-4 shrink-0" />
             {t("classTypes.manageButton")}
           </OmmButton>

@@ -1255,7 +1255,7 @@
       "coachFallback": "Тренер",
       "addClassButton": "Добавить занятие",
       "classTypes": {
-        "manageButton": "Типы занятий",
+        "manageButton": "Добавить типы занятий",
         "modalTitle": "Типы занятий",
         "modalDescription": "Создавайте, редактируйте и управляйте каталогом типов занятий студии.",
         "modalCloseAria": "Закрыть",

@@ -1251,7 +1251,7 @@
       "coachFallback": "Մարզիչ",
       "addClassButton": "Ավելացնել դաս",
       "classTypes": {
-        "manageButton": "Դասերի տեսակներ",
+        "manageButton": "Ավելացնել դասի տեսակներ",
         "modalTitle": "Դասերի տեսակներ",
         "modalDescription": "Ստեղծեք, խմբագրեք և կառավարեք studio-ի դասերի տեսակները։",
         "modalCloseAria": "Փակել",
