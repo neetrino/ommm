@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -11,6 +11,7 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
@@ -36,6 +37,7 @@ export type AdminScheduleClassType = {
   id: string;
   name: string;
   slug: string;
+  description?: string | null;
 };
 
 export type AdminScheduleCoach = {
@@ -79,6 +81,8 @@ type FormState = {
 
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
 const SEARCH_DEBOUNCE_MS = 300;
+const CLASS_TYPES_MODAL_QUERY_KEY = "modal";
+const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 
 function isoDate(value: Date | string): string {
   return new Date(value).toISOString().slice(0, 10);
@@ -160,12 +164,13 @@ function matchesTimeOfDay(row: AdminScheduleSession, filter: TimeOfDayFilter): b
   return hour >= 17;
 }
 
-export function AdminScheduleManagement({ locale, sessions, classTypes, coaches, initialView }: Props) {
+export function AdminScheduleManagement({ locale, sessions, classTypes: initialClassTypes, coaches, initialView }: Props) {
   const t = useTranslations("adminPages.classes");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [rows, setRows] = useState(sessions);
+  const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [view, setView] = useState<ScheduleView>(initialView);
   const [filters, setFilters] = useState<Filters>(() => initialFilters());
   const [searchDraft, setSearchDraft] = useState("");
@@ -174,6 +179,28 @@ export function AdminScheduleManagement({ locale, sessions, classTypes, coaches,
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  const classTypesOpen =
+    searchParams.get(CLASS_TYPES_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE;
+
+  const openClassTypesModal = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(CLASS_TYPES_MODAL_QUERY_KEY, CLASS_TYPES_MODAL_QUERY_VALUE);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const closeClassTypesModal = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get(CLASS_TYPES_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
+      params.delete(CLASS_TYPES_MODAL_QUERY_KEY);
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  useEffect(() => {
+    setClassTypes(initialClassTypes);
+  }, [initialClassTypes]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -215,6 +242,14 @@ export function AdminScheduleManagement({ locale, sessions, classTypes, coaches,
       draft: filteredRows.filter((row) => row.status === "DRAFT").length,
     };
   }, [filteredRows]);
+
+  const sessionCountByTypeId = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const row of rows) {
+      counts[row.classType.id] = (counts[row.classType.id] ?? 0) + 1;
+    }
+    return counts;
+  }, [rows]);
 
   function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
     setFilters((current) => ({ ...current, [key]: value }));
@@ -260,7 +295,12 @@ export function AdminScheduleManagement({ locale, sessions, classTypes, coaches,
         onChange={updateFilter}
         onReset={resetFilters}
       />
-      <ViewToolbar view={view} onView={updateView} onCreate={() => setEditing("create")} />
+      <ViewToolbar
+        view={view}
+        onView={updateView}
+        onCreate={() => setEditing("create")}
+        onManageTypes={openClassTypesModal}
+      />
       {message ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{message}</div> : null}
       <ScheduleViews
         locale={locale}
@@ -307,6 +347,16 @@ export function AdminScheduleManagement({ locale, sessions, classTypes, coaches,
         />
       ) : null}
       {details ? <DetailsDrawer locale={locale} row={details} onClose={() => setDetails(null)} /> : null}
+      <AdminClassTypesModal
+        isOpen={classTypesOpen}
+        classTypes={classTypes}
+        sessionCountByTypeId={sessionCountByTypeId}
+        onClose={closeClassTypesModal}
+        onChanged={(nextTypes) => {
+          setClassTypes(nextTypes);
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
@@ -414,7 +464,17 @@ function ListGlyph({ className }: { className?: string }) {
   );
 }
 
-function ViewToolbar({ view, onView, onCreate }: { view: ScheduleView; onView: (view: ScheduleView) => void; onCreate: () => void }) {
+function ViewToolbar({
+  view,
+  onView,
+  onCreate,
+  onManageTypes,
+}: {
+  view: ScheduleView;
+  onView: (view: ScheduleView) => void;
+  onCreate: () => void;
+  onManageTypes: () => void;
+}) {
   const t = useTranslations("adminPages.classes");
   const options: readonly ScheduleView[] = ["list", "monthly", "weekly", "daily"];
   return (
@@ -439,12 +499,37 @@ function ViewToolbar({ view, onView, onCreate }: { view: ScheduleView; onView: (
           </button>
         ))}
         </div>
-        <OmmButton size="md" variant="secondary" onClick={onCreate} className="gap-2 self-start lg:self-auto">
-          <PlusIcon className="h-4 w-4 shrink-0" />
-          {t("addClassButton")}
-        </OmmButton>
+        <div className="flex flex-wrap gap-2 self-start lg:self-auto">
+          <OmmButton size="md" variant="ghost" onClick={onManageTypes} className="gap-2">
+            <ClassTypesGlyph className="h-4 w-4 shrink-0" />
+            {t("classTypes.manageButton")}
+          </OmmButton>
+          <OmmButton size="md" variant="secondary" onClick={onCreate} className="gap-2">
+            <PlusIcon className="h-4 w-4 shrink-0" />
+            {t("addClassButton")}
+          </OmmButton>
+        </div>
       </div>
     </div>
+  );
+}
+
+function ClassTypesGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.65}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M12 2 2 7l10 5 10-5-10-5Z" />
+      <path d="m2 17 10 5 10-5M2 12l10 5 10-5" />
+    </svg>
   );
 }
 

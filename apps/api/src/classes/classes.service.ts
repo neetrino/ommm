@@ -15,6 +15,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
+import type { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import type { UpdateSessionDto } from './dto/update-session.dto';
 
 type SessionRecurrencePayload = {
@@ -67,18 +68,91 @@ export class ClassesService {
     return this.prisma.classType.findMany({ orderBy: { name: 'asc' } });
   }
 
-  createType(dto: CreateClassTypeDto): Promise<ClassType> {
+  async createType(dto: CreateClassTypeDto): Promise<ClassType> {
+    const name = dto.name.trim();
+    const slug = dto.slug.trim().toLowerCase();
+    await this.assertClassTypeUnique({ name, slug });
     return this.prisma.classType.create({
       data: {
-        name: dto.name,
-        slug: dto.slug.toLowerCase(),
-        description: dto.description,
+        name,
+        slug,
+        description: this.normalizeOptional(dto.description),
+      },
+    });
+  }
+
+  async updateType(id: string, dto: UpdateClassTypeDto): Promise<ClassType> {
+    const current = await this.findTypeOrThrow(id);
+    const name = dto.name !== undefined ? dto.name.trim() : current.name;
+    const slug =
+      dto.slug !== undefined
+        ? dto.slug.trim().toLowerCase()
+        : dto.name !== undefined
+          ? this.buildSlugFromName(name)
+          : current.slug;
+    if (name.length === 0 || slug.length === 0) {
+      throw new BadRequestException('Class type name and slug are required.');
+    }
+    await this.assertClassTypeUnique({ name, slug, excludeId: id });
+    return this.prisma.classType.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+        ...(dto.description !== undefined && {
+          description: this.normalizeOptional(dto.description),
+        }),
       },
     });
   }
 
   async deleteType(id: string): Promise<void> {
+    await this.findTypeOrThrow(id);
+    const sessionCount = await this.prisma.classSession.count({
+      where: { classTypeId: id },
+    });
+    if (sessionCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete class type with ${sessionCount} linked class sessions.`,
+      );
+    }
     await this.prisma.classType.delete({ where: { id } });
+  }
+
+  private async findTypeOrThrow(id: string): Promise<ClassType> {
+    const row = await this.prisma.classType.findUnique({ where: { id } });
+    if (row === null) {
+      throw new NotFoundException('Class type not found.');
+    }
+    return row;
+  }
+
+  private async assertClassTypeUnique(params: {
+    name: string;
+    slug: string;
+    excludeId?: string;
+  }): Promise<void> {
+    const conflict = await this.prisma.classType.findFirst({
+      where: {
+        id: params.excludeId !== undefined ? { not: params.excludeId } : undefined,
+        OR: [
+          { slug: params.slug },
+          { name: { equals: params.name, mode: 'insensitive' } },
+        ],
+      },
+    });
+    if (conflict !== null) {
+      throw new BadRequestException('A class type with this name or slug already exists.');
+    }
+  }
+
+  private buildSlugFromName(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 120);
   }
 
   listSessionsPublic(params: {

@@ -17,6 +17,7 @@ import { ClassesService } from './classes.service';
 import { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import { CreateClassTypeDto } from './dto/create-class-type.dto';
 import { CreateSessionDto } from './dto/create-session.dto';
+import { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Controller('classes')
@@ -33,6 +34,13 @@ export class ClassesController {
   @Roles(Role.ADMIN, Role.MANAGER)
   createType(@Body() dto: CreateClassTypeDto) {
     return this.classes.createType(dto);
+  }
+
+  @Patch('types/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  updateType(@Param('id') id: string, @Body() dto: UpdateClassTypeDto) {
+    return this.classes.updateType(id, dto);
   }
 
   @Delete('types/:id')
