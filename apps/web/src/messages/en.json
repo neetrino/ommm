@@ -1719,6 +1719,8 @@
       "tabAllPackages": "All packages",
       "editCategory": "Edit category",
       "categoryEmpty": "No membership packages are linked to this class category yet.",
+      "noClassTypesInStudio": "No class types exist yet. Create them under Schedule → Class types, then add packages here.",
+      "noPackageCategoriesYet": "No packages yet. Use Add package and choose a class type when you are ready — categories appear here only after at least one package is linked.",
       "noCategoriesSelected": "Select one or more categories above to view their packages.",
       "selectCategoryHint": "Select this category above to view and manage its packages.",
       "tableSessions": "Sessions",

@@ -26,6 +26,8 @@ type AdminPackagesShellProps = {
   children: ReactNode;
   packages: readonly AdminPackageRow[];
   categoryOptions: readonly AdminPackagesCategoryOption[];
+  onPackageCreated?: (saved: AdminPackageRow) => void;
+  onPackageUpdated?: (saved: AdminPackageRow) => void;
 };
 
 export function AdminPackagesShell({
@@ -33,6 +35,8 @@ export function AdminPackagesShell({
   children,
   packages,
   categoryOptions,
+  onPackageCreated,
+  onPackageUpdated,
 }: AdminPackagesShellProps) {
   const t = useTranslations("adminPages.packages");
   const searchParams = useSearchParams();
@@ -88,17 +92,25 @@ export function AdminPackagesShell({
     [],
   );
 
-  const onCreated = useCallback(() => {
-    closeModal();
-    router.refresh();
-    showSuccessBanner(t("messages.createSuccess"));
-  }, [closeModal, router, showSuccessBanner, t]);
+  const onCreated = useCallback(
+    (saved: AdminPackageRow) => {
+      closeModal();
+      onPackageCreated?.(saved);
+      showSuccessBanner(t("messages.createSuccess"));
+      router.refresh();
+    },
+    [closeModal, onPackageCreated, router, showSuccessBanner, t],
+  );
 
-  const onUpdated = useCallback(() => {
-    closeModal();
-    router.refresh();
-    showSuccessBanner(t("messages.updateSuccess"));
-  }, [closeModal, router, showSuccessBanner, t]);
+  const onUpdated = useCallback(
+    (saved: AdminPackageRow) => {
+      closeModal();
+      onPackageUpdated?.(saved);
+      showSuccessBanner(t("messages.updateSuccess"));
+      router.refresh();
+    },
+    [closeModal, onPackageUpdated, router, showSuccessBanner, t],
+  );
 
   useEffect(() => {
     return () => {
@@ -196,7 +208,13 @@ export function AdminPackagesShell({
                 initialClassTypeId={effectiveClassTypeId}
                 categoryOptions={categoryOptions}
                 initialPackage={editingPackage}
-                onSaved={modalMode === "edit" ? onUpdated : onCreated}
+                onSaved={(saved) => {
+                  if (modalMode === "edit") {
+                    onUpdated(saved);
+                  } else {
+                    onCreated(saved);
+                  }
+                }}
                 onCancel={closeModal}
               />
             ) : (

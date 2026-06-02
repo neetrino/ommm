@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -17,7 +17,10 @@ import {
   PackagesAddButton,
 } from "@/components/admin/admin-packages-shell";
 import { AdminPackagesCategoryTable } from "@/components/admin/admin-packages-category-table";
-import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import {
+  type AdminPackageRow,
+  upsertAdminPackageRow,
+} from "@/components/admin/admin-packages-types";
 import {
   buildPackagesPathname,
   clearPackageModalQueryKeys,
@@ -34,8 +37,33 @@ type AdminPackagesManagementProps = {
   locale: string;
 };
 
+function toCategoryOptions(
+  types: readonly AdminClassTypeRow[],
+): readonly AdminPackagesCategoryOption[] {
+  return types.map((type) => ({ id: type.id, label: type.name }));
+}
+
+function PackagesEmptyState({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-[min(48vh,32rem)] w-full items-center justify-center px-4 py-16 sm:py-20">
+      <p className="max-w-xl text-center text-sm leading-relaxed text-sage-600">{children}</p>
+    </div>
+  );
+}
+
+function classTypeIdsUsedByPackages(packages: readonly AdminPackageRow[]): ReadonlySet<string> {
+  const ids = new Set<string>();
+  for (const pkg of packages) {
+    const classTypeId = pkg.classTypeId;
+    if (classTypeId !== null && classTypeId !== undefined && classTypeId.length > 0) {
+      ids.add(classTypeId);
+    }
+  }
+  return ids;
+}
+
 export function AdminPackagesManagement({
-  packages,
+  packages: packagesFromServer,
   classTypes,
   locale,
 }: AdminPackagesManagementProps) {
@@ -43,43 +71,81 @@ export function AdminPackagesManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [packageRows, setPackageRows] = useState<readonly AdminPackageRow[]>(packagesFromServer);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  useEffect(() => {
+    setPackageRows(packagesFromServer);
+  }, [packagesFromServer]);
   const editingClassTypeId = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
   const isEditCategoryOpen =
     editingClassTypeId !== null &&
     classTypes.some((type) => type.id === editingClassTypeId);
 
-  const categoryOptions = useMemo<readonly AdminPackagesCategoryOption[]>(
-    () => classTypes.map((type) => ({ id: type.id, label: type.name })),
+  const sortedPackages = useMemo(
+    () => [...packageRows].sort((left, right) => left.displayOrder - right.displayOrder),
+    [packageRows],
+  );
+
+  const classTypeIdsWithPackages = useMemo(
+    () => classTypeIdsUsedByPackages(sortedPackages),
+    [sortedPackages],
+  );
+
+  const allCategoryOptions = useMemo(
+    () => toCategoryOptions(classTypes),
     [classTypes],
   );
 
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<ReadonlySet<string>>(() =>
-    allPackageCategoryIds(categoryOptions),
+  const listedClassTypes = useMemo(
+    () => classTypes.filter((type) => classTypeIdsWithPackages.has(type.id)),
+    [classTypeIdsWithPackages, classTypes],
   );
-  const previousCategoryOptionsRef = useRef<readonly AdminPackagesCategoryOption[]>(categoryOptions);
+
+  const filterCategoryOptions = useMemo(
+    () => toCategoryOptions(listedClassTypes),
+    [listedClassTypes],
+  );
+
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<ReadonlySet<string>>(() =>
+    allPackageCategoryIds(filterCategoryOptions),
+  );
+  const previousCategoryOptionsRef =
+    useRef<readonly AdminPackagesCategoryOption[]>(filterCategoryOptions);
 
   useEffect(() => {
     setSelectedCategoryIds((current) =>
       syncPackageCategorySelection(
-        categoryOptions,
+        filterCategoryOptions,
         previousCategoryOptionsRef.current,
         current,
       ),
     );
-    previousCategoryOptionsRef.current = categoryOptions;
-  }, [categoryOptions]);
+    previousCategoryOptionsRef.current = filterCategoryOptions;
+  }, [filterCategoryOptions]);
 
-  const sortedPackages = useMemo(
-    () => [...packages].sort((left, right) => left.displayOrder - right.displayOrder),
-    [packages],
-  );
+  const handlePackageCreated = useCallback((saved: AdminPackageRow) => {
+    setPackageRows((current) => upsertAdminPackageRow(current, saved));
+    const classTypeId = saved.classTypeId;
+    if (classTypeId !== null && classTypeId.length > 0) {
+      setSelectedCategoryIds((current) => new Set([...current, classTypeId]));
+      setExpandedCategoryIds((current) => new Set([...current, classTypeId]));
+    }
+  }, []);
+
+  const handlePackageUpdated = useCallback((saved: AdminPackageRow) => {
+    setPackageRows((current) => upsertAdminPackageRow(current, saved));
+  }, []);
 
   const visibleCategories = useMemo(
-    () => classTypes.filter((type) => selectedCategoryIds.has(type.id)),
-    [classTypes, selectedCategoryIds],
+    () => listedClassTypes.filter((type) => selectedCategoryIds.has(type.id)),
+    [listedClassTypes, selectedCategoryIds],
   );
 
-  const defaultCategoryId = visibleCategories[0]?.id ?? categoryOptions[0]?.id ?? "";
+  const defaultCategoryId =
+    visibleCategories[0]?.id ?? allCategoryOptions[0]?.id ?? "";
 
   const openAddModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -121,10 +187,10 @@ export function AdminPackagesManagement({
   );
 
   const toolbar =
-    categoryOptions.length > 0 ? (
+    filterCategoryOptions.length > 0 ? (
       <div className="ommm-admin-packages-toolbar">
         <AdminPackagesCategoryMultiSelect
-          options={categoryOptions}
+          options={filterCategoryOptions}
           selectedIds={selectedCategoryIds}
           onChange={setSelectedCategoryIds}
         />
@@ -143,12 +209,16 @@ export function AdminPackagesManagement({
       <AdminPackagesShell
         toolbar={toolbar}
         packages={sortedPackages}
-        categoryOptions={categoryOptions}
+        categoryOptions={allCategoryOptions}
+        onPackageCreated={handlePackageCreated}
+        onPackageUpdated={handlePackageUpdated}
       >
         {classTypes.length === 0 ? (
-          <p className="text-sm text-sage-500">{t("categoryEmpty")}</p>
+          <PackagesEmptyState>{t("noClassTypesInStudio")}</PackagesEmptyState>
+        ) : listedClassTypes.length === 0 ? (
+          <PackagesEmptyState>{t("noPackageCategoriesYet")}</PackagesEmptyState>
         ) : visibleCategories.length === 0 ? (
-          <p className="text-sm text-sage-500">{t("noCategoriesSelected")}</p>
+          <PackagesEmptyState>{t("noCategoriesSelected")}</PackagesEmptyState>
         ) : (
           <div className="flex flex-col gap-5">
             {visibleCategories.map((classType) => (
@@ -157,6 +227,18 @@ export function AdminPackagesManagement({
                 classType={classType}
                 packages={sortedPackages}
                 locale={locale}
+                open={expandedCategoryIds.has(classType.id)}
+                onOpenChange={(nextOpen) => {
+                  setExpandedCategoryIds((current) => {
+                    const next = new Set(current);
+                    if (nextOpen) {
+                      next.add(classType.id);
+                    } else {
+                      next.delete(classType.id);
+                    }
+                    return next;
+                  });
+                }}
                 onEditCategory={() => openEditCategory(classType.id)}
                 onEditPackage={openEditPackage}
               />
@@ -191,6 +273,8 @@ type CategoryAccordionProps = {
   classType: AdminClassTypeRow;
   packages: readonly AdminPackageRow[];
   locale: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onEditCategory: () => void;
   onEditPackage: (packageId: string) => void;
 };
@@ -199,11 +283,12 @@ function CategoryAccordion({
   classType,
   packages,
   locale,
+  open,
+  onOpenChange,
   onEditCategory,
   onEditPackage,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
-  const [open, setOpen] = useState(false);
 
   const categoryPackages = useMemo(
     () => packages.filter((pkg) => pkg.classTypeId === classType.id),
@@ -225,7 +310,7 @@ function CategoryAccordion({
       editLabel={t("editCategory")}
       onEdit={onEditCategory}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={onOpenChange}
       contentVariant="table"
       emptyLabel={t("categoryEmpty")}
     >

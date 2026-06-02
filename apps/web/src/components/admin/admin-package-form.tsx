@@ -36,7 +36,7 @@ type AdminPackageFormProps = {
   initialClassTypeId: string;
   categoryOptions: readonly CategoryOption[];
   initialPackage?: AdminPackageRow;
-  onSaved: () => void;
+  onSaved: (saved: AdminPackageRow) => void;
   onCancel: () => void;
 };
 
@@ -170,18 +170,17 @@ export function AdminPackageForm({
     submitLockRef.current = true;
     setPending(true);
     try {
-      if (mode === "edit" && packageId !== undefined) {
-        await apiFetch(`/packages/plans/${packageId}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload),
-        });
-      } else {
-        await apiFetch("/packages/plans", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-      }
-      onSaved();
+      const saved =
+        mode === "edit" && packageId !== undefined
+          ? await apiFetch<AdminPackageRow>(`/packages/plans/${packageId}`, {
+              method: "PATCH",
+              body: JSON.stringify(payload),
+            })
+          : await apiFetch<AdminPackageRow>("/packages/plans", {
+              method: "POST",
+              body: JSON.stringify(payload),
+            });
+      onSaved(saved);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
