@@ -95,12 +95,13 @@ export function ProgressiveRevealSection({
   }, [preloadMarginPx, resolvedPrefetchPaths]);
 
   useEffect(() => {
-    if (!shouldMount) {
-      return;
+    if (shouldMount) {
+      return undefined;
     }
+
     const element = containerRef.current;
     if (!element) {
-      return;
+      return undefined;
     }
 
     const observer = new IntersectionObserver(
