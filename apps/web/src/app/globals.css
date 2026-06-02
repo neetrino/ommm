@@ -489,6 +489,20 @@ html {
     gap: 0.75rem;
   }
 
+  .ommm-public-packages-table-grid {
+    display: grid;
+    grid-template-columns:
+      minmax(6rem, 1.2fr)
+      minmax(4.5rem, 0.85fr)
+      minmax(5rem, 1fr)
+      minmax(5.5rem, 1fr)
+      minmax(5rem, 1fr)
+      minmax(4rem, 0.75fr)
+      minmax(7rem, auto);
+    align-items: center;
+    gap: 0.75rem;
+  }
+
   .ommm-admin-packages-table-header {
     @apply border-b border-[rgba(212,196,183,0.2)] px-1 pb-4 pt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[rgba(80,69,59,0.6)];
   }
@@ -517,8 +531,18 @@ html {
     @apply rounded-[25px] px-1 py-2 text-base text-[#1b1c1a] transition-colors;
   }
 
-  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid {
+  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid,
+  .ommm-admin-packages-table-row:hover .ommm-public-packages-table-grid {
     background-color: rgba(151, 144, 124, 0.26);
+  }
+
+  .ommm-admin-packages-table-row .ommm-public-packages-table-grid {
+    @apply rounded-[25px] px-1 py-2 text-base text-[#1b1c1a] transition-colors;
+  }
+
+  .ommm-package-table-row-selected .ommm-public-packages-table-grid {
+    background-color: rgba(151, 144, 124, 0.2);
+    @apply ring-1 ring-sand-500/40;
   }
 
   .ommm-admin-packages {
@@ -744,6 +768,59 @@ html {
     z-index: 1;
   }
 
+  .ommm-package-card-interactive {
+    @apply cursor-pointer;
+  }
+
+  .ommm-package-card-interactive:focus-within {
+    @apply outline-none ring-2 ring-sand-500/70 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-package-card-interactive.ommm-package-card-selected,
+  .ommm-package-card-interactive[data-selected="true"] {
+    @apply ring-2 ring-sand-500/80;
+  }
+
+  .ommm-package-card-interactive:active {
+    transform: translateY(-2px) scale(1.005);
+  }
+
+  .ommm-package-tier-row-interactive {
+    @apply transition-[background-color,border-color,box-shadow,transform] duration-200;
+  }
+
+  .ommm-package-tier-row-interactive:hover {
+    @apply border-white/80 bg-white/70;
+  }
+
+  .ommm-package-tier-row-interactive:focus-visible {
+    @apply outline-none ring-2 ring-sand-500 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-package-tier-row-interactive:active {
+    transform: scale(0.995);
+  }
+
+  .ommm-membership-row-interactive {
+    @apply cursor-pointer transition-[background-color,box-shadow,border-color] duration-200;
+  }
+
+  .ommm-membership-row-interactive:hover {
+    @apply border-sand-500/30 bg-white/80 shadow-[0_12px_30px_-22px_rgba(45,40,35,0.25)];
+  }
+
+  .ommm-membership-row-interactive:focus-visible {
+    @apply outline-none ring-2 ring-sand-500 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-membership-row-interactive[data-selected="true"] {
+    @apply border-sand-500/70 bg-sand-100/60 ring-1 ring-sand-500/50;
+  }
+
+  .ommm-membership-row-interactive:active {
+    transform: scale(0.998);
+  }
+
   @keyframes ommm-admin-center-toast-in {
     from {
       opacity: 0;
@@ -781,6 +858,12 @@ html {
     }
 
     .ommm-package-card-hover:hover {
+      transform: none;
+    }
+
+    .ommm-package-card-interactive:active,
+    .ommm-package-tier-row-interactive:active,
+    .ommm-membership-row-interactive:active {
       transform: none;
     }
 

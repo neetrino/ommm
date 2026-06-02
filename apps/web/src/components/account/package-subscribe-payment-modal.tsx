@@ -17,6 +17,7 @@ type PackageSubscribePaymentModalProps = {
   isOpen: boolean;
   locale: string;
   plans: readonly PackageSubscribePlanOption[];
+  initialPlanId?: string;
   onClose: () => void;
 };
 
@@ -26,6 +27,7 @@ export function PackageSubscribePaymentModal({
   isOpen,
   locale,
   plans,
+  initialPlanId,
   onClose,
 }: PackageSubscribePaymentModalProps) {
   const t = useTranslations("forms.manualPackagePayment");
@@ -41,12 +43,16 @@ export function PackageSubscribePaymentModal({
     if (!isOpen) {
       return;
     }
+    const defaultPlanId =
+      initialPlanId !== undefined && plans.some((plan) => plan.id === initialPlanId)
+        ? initialPlanId
+        : (plans[0]?.id ?? "");
     setStep("form");
-    setSelectedPlanId(plans[0]?.id ?? "");
+    setSelectedPlanId(defaultPlanId);
     setPaymentMethod("CARD");
     setBusy(false);
     setError(null);
-  }, [isOpen, plans]);
+  }, [isOpen, plans, initialPlanId]);
 
   if (!isOpen || plans.length === 0) {
     return null;
