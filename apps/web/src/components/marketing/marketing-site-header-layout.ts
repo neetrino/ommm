@@ -1,5 +1,22 @@
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
+/** Figma mobile HEADER `97:5670` sizing tokens. */
+export const MARKETING_MOBILE_HEADER = {
+  paddingXPx: 16,
+  paddingTopPx: 16,
+  rowHeightPx: 35,
+  menuIconSizePx: 35,
+  brandFontSizePx: 20,
+  brandLineHeightPx: 28,
+  brandColor: "#fbf5d5",
+  authIconGapPx: 6,
+  actionsEdgeNudgePx: 4,
+  menuEdgeNudgePx: 4,
+  globeIconSizePx: 26,
+  userIconWidthPx: 24,
+  userIconHeightPx: 24,
+} as const;
+
 /** Figma TopNavBar `196:1410` sizing tokens. */
 const MARKETING_NAV_PILL_HEIGHT_CLASS = "min-h-[53px]";
 const MARKETING_NAV_PILL_RADIUS_CLASS = "rounded-[80px]";
@@ -25,14 +42,48 @@ export function marketingHeaderShellClass(): string {
 
 export function marketingHeaderContainerClass(): string {
   return [
-    "ommm-container grid min-h-[53px] min-w-0 items-center overflow-x-clip",
-    "pb-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
-    "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3 sm:gap-4",
+    "ommm-container relative min-w-0 overflow-x-clip",
+    "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))] px-4",
+    "lg:grid lg:min-h-[53px] lg:items-center",
+    "lg:px-[var(--ommm-container-padding-x,1rem)]",
+    "lg:pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
+    "lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-3 sm:gap-4",
   ].join(" ");
 }
 
+export function marketingHeaderMobileRowClass(): string {
+  return "relative flex min-h-[35px] w-full items-center justify-between lg:hidden";
+}
+
+export function marketingHeaderMobileBrandLinkClass(): string {
+  return [
+    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+    "flex shrink-0 items-center",
+  ].join(" ");
+}
+
+export function marketingHeaderMobileBrandTextClass(): string {
+  return [
+    "font-serif text-[20px] font-bold leading-7 tracking-[-0.05em]",
+    "whitespace-nowrap text-[#fbf5d5]",
+  ].join(" ");
+}
+
+export function marketingHeaderMobileMenuButtonClass(): string {
+  return [
+    "ml-[-4px] inline-flex shrink-0 cursor-pointer items-center justify-center",
+    "h-[35px] w-[35px] text-[#fbf5d5]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+  ].join(" ");
+}
+
+export function marketingHeaderMobileActionsClass(): string {
+  return "mr-[-4px] flex shrink-0 items-center gap-[6px]";
+}
+
 export function marketingHeaderBrandLinkClass(): string {
-  return "justify-self-start flex min-w-0 shrink-0 items-center";
+  return "hidden lg:flex justify-self-start min-w-0 shrink-0 items-center";
 }
 
 export function marketingHeaderBrandTextClass(): string {
@@ -64,7 +115,7 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
 }
 
 export function marketingHeaderActionsClass(): string {
-  return "justify-self-end flex shrink-0 items-center gap-3 sm:gap-4";
+  return "hidden lg:flex justify-self-end shrink-0 items-center gap-3 sm:gap-4";
 }
 
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
@@ -131,17 +182,29 @@ export function marketingHeaderIconAccountClass(): string {
 }
 
 export function marketingHeaderMenuButtonClass(): string {
-  return [
-    "inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full lg:hidden",
-    "text-white",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
-    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-  ].join(" ");
+  return marketingHeaderMobileMenuButtonClass();
 }
 
 export function marketingHeaderMobilePanelClass(open: boolean): string {
   if (!open) return "hidden";
   return ["lg:hidden", marketingMontserrat.className].join(" ");
+}
+
+export function marketingHeaderMobileLanguageTriggerClass(): string {
+  return [
+    "ommm-dropdown-trigger !h-[26px] !min-h-[26px] !w-[26px] !min-w-[26px] !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+    "text-[#fbf5d5] cursor-pointer",
+    "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
+    "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+  ].join(" ");
+}
+
+export function marketingHeaderMobileIconAccountClass(): string {
+  return [
+    marketingHeaderIconButtonClass(),
+    "inline-flex h-[26px] w-[26px] items-center justify-center",
+  ].join(" ");
 }
 
 export function marketingHeaderLanguageTriggerClass(): string {

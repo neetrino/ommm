@@ -22,6 +22,28 @@ export function MarketingHeaderUserIcon({ className }: MarketingHeaderIconProps)
   );
 }
 
+/** Figma mobile HEADER `108:6841` — menu affordance. */
+export function MarketingHeaderMenuIcon({ className }: MarketingHeaderIconProps) {
+  return (
+    <svg
+      width={35}
+      height={35}
+      viewBox="0 0 35 35"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      className={className}
+    >
+      <path
+        d="M7.5 10.25h20M7.5 17.5h20M7.5 24.75h20"
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /** Figma `196:1453` — language switcher affordance. */
 export function MarketingHeaderGlobeIcon({ className }: MarketingHeaderIconProps) {
   return (

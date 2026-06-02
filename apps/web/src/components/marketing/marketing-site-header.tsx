@@ -5,6 +5,7 @@ import { useState, type MouseEvent } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   MarketingHeaderGlobeIcon,
+  MarketingHeaderMenuIcon,
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
@@ -17,8 +18,14 @@ import {
   marketingHeaderContainerClass,
   marketingHeaderIconAccountClass,
   marketingHeaderLanguageTriggerClass,
-  marketingHeaderMenuButtonClass,
+  marketingHeaderMobileActionsClass,
+  marketingHeaderMobileBrandLinkClass,
+  marketingHeaderMobileBrandTextClass,
+  marketingHeaderMobileIconAccountClass,
+  marketingHeaderMobileLanguageTriggerClass,
+  marketingHeaderMobileMenuButtonClass,
   marketingHeaderMobilePanelClass,
+  marketingHeaderMobileRowClass,
   marketingHeaderNavClass,
   marketingHeaderNavLinkClass,
   marketingHeaderNavLinksClass,
@@ -42,7 +49,7 @@ export type MarketingSiteHeaderProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
 };
 
-/** Public marketing header — Figma hero `196:1404` (wordmark, TopNavBar pill, globe, user). */
+/** Public marketing header — desktop Figma `196:1404`; mobile HEADER `97:5670`. */
 export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const locale = useLocale();
   const compact = isCompactMarketingHeaderLocale(locale);
@@ -70,6 +77,65 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
       className={`${marketingHeaderShellClass()} ${navPillStyles.headerShell}`}
     >
       <div className={marketingHeaderContainerClass()}>
+        <div className={marketingHeaderMobileRowClass()}>
+          <button
+            type="button"
+            className={marketingHeaderMobileMenuButtonClass()}
+            aria-expanded={open}
+            aria-controls="marketing-mobile-nav"
+            aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="sr-only">{tUi("menuSr")}</span>
+            {open ? (
+              <svg
+                width="35"
+                height="35"
+                viewBox="0 0 35 35"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.25"
+                aria-hidden
+              >
+                <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <MarketingHeaderMenuIcon className="h-[35px] w-[35px] shrink-0" />
+            )}
+          </button>
+
+          <Link
+            href="/"
+            className={marketingHeaderMobileBrandLinkClass()}
+            onClick={handleBrandClick}
+          >
+            <span className={marketingHeaderMobileBrandTextClass()}>
+              {tNav("spaceBrand")}
+            </span>
+          </Link>
+
+          <div className={marketingHeaderMobileActionsClass()}>
+            <LanguageSwitcher
+              context="marketing"
+              appearance="icon"
+              className="min-w-0 shrink-0"
+              triggerClassName={marketingHeaderMobileLanguageTriggerClass()}
+              onAfterSelect={() => setOpen(false)}
+              renderIconTrigger={() => (
+                <MarketingHeaderGlobeIcon className="h-[26px] w-[26px] shrink-0" />
+              )}
+            />
+            <Link
+              href="/login"
+              className={marketingHeaderMobileIconAccountClass()}
+              aria-label={tCommon("login")}
+              onClick={() => setOpen(false)}
+            >
+              <MarketingHeaderUserIcon className="h-6 w-6 shrink-0" />
+            </Link>
+          </div>
+        </div>
+
         <Link
           href="/"
           className={marketingHeaderBrandLinkClass()}
@@ -123,35 +189,6 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               <MarketingHeaderUserIcon className="h-[29px] w-[26px] shrink-0" />
             </Link>
           </div>
-          <button
-            type="button"
-            className={`${marketingHeaderMenuButtonClass()} ${navPillStyles.menuButton}`}
-            aria-expanded={open}
-            aria-controls="marketing-mobile-nav"
-            aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span className="sr-only">{tUi("menuSr")}</span>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
-            >
-              {open ? (
-                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-              ) : (
-                <path
-                  d="M4 7h16M4 12h16M4 17h16"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-            </svg>
-          </button>
         </div>
       </div>
 
