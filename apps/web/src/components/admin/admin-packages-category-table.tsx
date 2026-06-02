@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPackageRowMenu } from "@/components/admin/admin-package-row-menu";
 import {
@@ -22,6 +23,26 @@ function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
 }
 
+function TableCell({
+  children,
+  emphasis = false,
+}: {
+  children: ReactNode;
+  emphasis?: boolean;
+}) {
+  return (
+    <div
+      className={
+        emphasis
+          ? "ommm-admin-packages-table-cell ommm-admin-packages-table-cell--emphasis"
+          : "ommm-admin-packages-table-cell"
+      }
+    >
+      {children}
+    </div>
+  );
+}
+
 export function AdminPackagesCategoryTable({
   packages,
   locale,
@@ -38,7 +59,7 @@ export function AdminPackagesCategoryTable({
         <div>{t("tablePricePerSession")}</div>
         <div>{t("tableValidity")}</div>
         <div>{t("tableGuests")}</div>
-        <div className="sr-only">{t("rowActionsAria")}</div>
+        <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
       <div className="min-w-[52rem]">
         {packages.map((pkg) => {
@@ -53,16 +74,14 @@ export function AdminPackagesCategoryTable({
           return (
             <div key={pkg.id} className="ommm-admin-packages-table-row">
               <div className="ommm-admin-packages-table-grid">
-                <div className="font-semibold text-[#1b1c1a]">
+                <TableCell emphasis>
                   {sessions !== null ? sessions : <EmptyCell />}
-                </div>
-                <div className="text-[#1b1c1a]">{formatPackagePriceLabel(pkg, locale)}</div>
-                <div>{pricePerSession ?? <EmptyCell />}</div>
-                <div className="text-[#1b1c1a]">{validityLabel}</div>
-                <div className="text-[#1b1c1a]">
-                  {guestCount !== null ? guestCount : <EmptyCell />}
-                </div>
-                <div className="flex items-center justify-end">
+                </TableCell>
+                <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
+                <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>
+                <TableCell>{validityLabel}</TableCell>
+                <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                <div className="ommm-admin-packages-table-actions">
                   <AdminPackageRowMenu
                     packageId={pkg.id}
                     isActive={pkg.isActive}
