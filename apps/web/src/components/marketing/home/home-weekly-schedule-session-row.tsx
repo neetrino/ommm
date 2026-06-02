@@ -6,6 +6,8 @@ import {
   HOME_WEEKLY_SCHEDULE_ASSETS,
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
+  HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA,
+  HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -32,15 +34,23 @@ export function HomeWeeklyScheduleSessionRow({
 }: HomeWeeklyScheduleSessionRowProps) {
   const timeLabel = formatScheduleTime(locale, item.startTime);
   const spotsUrgent = item.availableSpots <= HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgentThreshold;
-  const rowGradient = getHomeWeeklyScheduleRowGradient(item.classType);
+  const rowGradientDesktop = getHomeWeeklyScheduleRowGradient(item.classType, "desktop");
+  const rowGradientMobile = getHomeWeeklyScheduleRowGradient(item.classType, "mobile");
 
   return (
     <article
       className={`${marketingMontserrat.className} ${styles.row} group w-full min-w-0`}
       style={{
-        background: rowGradient,
+        background: rowGradientDesktop,
+        ["--home-schedule-row-gradient" as string]: rowGradientMobile,
         ["--home-schedule-row-min-h" as string]: `${HOME_WEEKLY_SCHEDULE_FIGMA.sessionRowMinHeightPx}px`,
         ["--home-schedule-row-radius" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowRadius,
+        ["--home-schedule-row-radius-mobile" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
+        ["--home-schedule-row-padding" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowPadding,
+        ["--home-schedule-reserve-height" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.reserveButtonHeightPx}px`,
+        ["--home-schedule-reserve-font-size" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.reserveButtonFontSizePx / 16}rem`,
+        ["--home-schedule-reserve-tracking" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.reserveButtonLetterSpacingPx}px`,
       }}
     >
       <div className={styles.info}>

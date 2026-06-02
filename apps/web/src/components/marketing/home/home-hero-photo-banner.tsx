@@ -12,7 +12,10 @@ import {
   HOME_HERO_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingFullBleedHeroHeaderOverlapClass } from "@/components/marketing/marketing-site-header-layout";
-import { HOME_WEEKLY_SCHEDULE_LAYOUT } from "@/components/marketing/home/home-weekly-schedule-tokens";
+import {
+  HOME_WEEKLY_SCHEDULE_LAYOUT,
+  HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
+} from "@/components/marketing/home/home-weekly-schedule-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
@@ -33,7 +36,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
       aria-labelledby="home-hero-heading"
       className={`${marketingMontserrat.variable} ${styles.homeHeroSection} ${marketingFullBleedHeroHeaderOverlapClass()} relative w-full min-w-0 overflow-x-clip`}
       style={{
-        backgroundColor: HOME_HERO_FIGMA.sectionBackground,
+        ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
         ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
         ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,
@@ -74,16 +77,20 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ["--home-hero-subtitle-max-width" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleMaxWidth,
         ["--home-hero-subtitle-max-width-lg" as string]: `${HOME_HERO_LAYOUT.subtitleMaxWidthPx}px`,
         ["--home-hero-subtitle-margin-top" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleMarginTop,
+        ["--home-hero-text-stack-offset-top" as string]: HOME_HERO_MOBILE_LAYOUT.textStackOffsetTop,
+        ["--home-hero-content-down-offset" as string]: HOME_HERO_MOBILE_LAYOUT.contentDownOffset,
         ["--home-hero-cta-gap" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonGap,
         ["--home-hero-cta-gap-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonGap,
-        ["--home-hero-cta-margin-top" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsMarginTop,
+        ["--home-hero-cta-bottom" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsBottomOffset,
+        ["--home-hero-cta-down-offset" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsDownOffset,
         ["--home-hero-cta-margin-top-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonsMarginTop,
+        ["--home-schedule-hero-overlap" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
+        ["--home-schedule-hero-overlap-lg" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
       }}
     >
-      <div
-        className={`${styles.homeHeroFrame} relative w-full min-w-0`}
-        style={{ paddingBottom: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap }}
-      >
+      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
         <div className={styles.homeHeroBackgroundLayer} aria-hidden>
           <div className={styles.homeHeroBackgroundCrop}>
             <Image
@@ -114,9 +121,9 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         </div>
 
         <div
-          className={`${styles.homeHeroContent} relative z-10 mx-auto flex w-full min-w-0 max-w-[90rem] flex-col items-center px-4 pb-10 sm:px-6 sm:pb-12 md:pb-14`}
+          className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
         >
-          <div className={`${styles.homeHeroLogoMark} relative mb-1 shrink-0 sm:mb-2`}>
+          <div className={`${styles.homeHeroLogoMark} lg:mb-1 lg:shrink-0`}>
             <div className={styles.homeHeroLogoInner}>
               <div className={styles.homeHeroLogoCrop}>
                 <Image

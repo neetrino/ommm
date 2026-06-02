@@ -1,8 +1,16 @@
 import {
   HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS,
+  HOME_WEEKLY_SCHEDULE_MOBILE_ROW_GRADIENT_BLUE,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 
 const CLASS_TYPE_GRADIENTS: Readonly<Record<string, string>> = {
+  yoga: HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS[0],
+  pilates: HOME_WEEKLY_SCHEDULE_MOBILE_ROW_GRADIENT_BLUE,
+  dances: HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS[2],
+  dance: HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS[2],
+};
+
+const CLASS_TYPE_GRADIENTS_DESKTOP: Readonly<Record<string, string>> = {
   yoga: HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS[0],
   pilates: HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS[1],
   dances: HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS[2],
@@ -10,9 +18,13 @@ const CLASS_TYPE_GRADIENTS: Readonly<Record<string, string>> = {
 };
 
 /** Stable gradient pick for a schedule row — Figma-mapped types first, then hash fallback. */
-export function getHomeWeeklyScheduleRowGradient(classType: string): string {
+export function getHomeWeeklyScheduleRowGradient(
+  classType: string,
+  viewport: "mobile" | "desktop" = "mobile",
+): string {
   const normalized = classType.trim().toLowerCase();
-  const mapped = CLASS_TYPE_GRADIENTS[normalized];
+  const map = viewport === "desktop" ? CLASS_TYPE_GRADIENTS_DESKTOP : CLASS_TYPE_GRADIENTS;
+  const mapped = map[normalized];
   if (mapped !== undefined) {
     return mapped;
   }

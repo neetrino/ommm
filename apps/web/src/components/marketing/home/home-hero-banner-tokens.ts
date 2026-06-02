@@ -51,6 +51,12 @@ export const HOME_HERO_MOBILE_LAYOUT = {
   subtitleLineHeight: 20 / 14,
   subtitleMaxWidth: "clamp(16rem, calc(100svw * 346 / 394), 21.625rem)",
   subtitleMarginTop: "1rem",
+  /** Nudge headline block — mobile only; logo position unchanged. */
+  textStackOffsetTopPx: 5,
+  textStackOffsetTop: "clamp(-0.5rem, calc(100svw * -5 / 394), 0px)",
+  /** Shifts headline + CTAs down together on mobile. */
+  contentDownOffsetPx: 40,
+  contentDownOffset: "clamp(1.25rem, calc(100svw * 40 / 394), 2.5rem)",
   /** Figma `97:5655` hero photo crop — centers subject on mobile. */
   backgroundImageWidthPercent: 400.46,
   backgroundImageHeightPercent: 103.92,
@@ -131,7 +137,12 @@ export const HOME_HERO_MOBILE_CTA_LAYOUT = {
   artboardWidthPx: HOME_HERO_MOBILE_FIGMA.artboardWidthPx,
   buttonHeightPx: MOBILE_CTA_HEIGHT_PX,
   buttonGapPx: 10.25,
-  buttonsTopOffsetPx: 182,
+  /** Distance from artboard bottom to membership CTA — mobile hero only. */
+  buttonsBottomOffsetPx: 0,
+  buttonsBottomOffset: "0px",
+  /** Nudge CTAs down on mobile — headline position unchanged. */
+  buttonsDownOffsetPx: 20,
+  buttonsDownOffset: "clamp(1rem, calc(100svw * 20 / 394), 1.25rem)",
   labelFontSizePx: 16,
   labelFontSize: "clamp(0.9375rem, calc(100svw * 16 / 394), 1.0625rem)",
   booking: {
@@ -153,7 +164,9 @@ export const HOME_HERO_MOBILE_CTA_LAYOUT = {
     labelOffsetPx: 62,
   },
   buttonGap: "clamp(0.5rem, calc(100svw * 10.25 / 394), 0.75rem)",
-  buttonsMarginTop: "clamp(1.25rem, calc(100svw * 150 / 394), 9.375rem)",
+  /** Two stacked CTAs + gap — reserves space so title never overlaps buttons. */
+  buttonsBlockHeight:
+    "calc(2 * clamp(3.25rem, calc(100svw * 61.747 / 394), 3.875rem) + clamp(0.5rem, calc(100svw * 10.25 / 394), 0.75rem))",
 } as const;
 
 /** Figma hero CTAs — `196:1430` booking, `196:1440` membership, Featured Coaches `196:1149`. */

@@ -100,7 +100,7 @@ export function HomeWeeklyScheduleLiveGrid({ locale }: HomeWeeklyScheduleLiveGri
 
   return (
     <div
-      className={`${marketingMontserrat.variable} mt-6 w-full min-w-0 sm:mt-8 md:mt-10`}
+      className={`${marketingMontserrat.variable} w-full min-w-0 lg:mt-8 xl:mt-10`}
       role="region"
       aria-label={t("weeklyScheduleGridAria")}
     >

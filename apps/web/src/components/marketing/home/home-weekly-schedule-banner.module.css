@@ -1,0 +1,154 @@
+/**
+ * Mobile panel: Figma `97:5733`. Desktop (lg+): panel `196:1293`.
+ */
+
+.section {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  padding-inline: 0;
+  margin-top: calc(-1 * var(--home-schedule-hero-overlap, 0px));
+  padding-top: var(--home-schedule-panel-top-inset, 0px);
+  padding-bottom: var(--home-schedule-section-padding-bottom, 2rem);
+  background-color: transparent;
+}
+
+.shell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: var(--home-schedule-section-px, 1rem);
+  gap: var(--home-schedule-cta-below-gap, 1rem);
+}
+
+.panel {
+  position: relative;
+  isolation: isolate;
+  z-index: 10;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--home-schedule-panel-max-width, 21.9375rem);
+  overflow: hidden;
+  border-radius: var(--home-schedule-panel-radius, 2.5rem);
+  background-color: var(--home-schedule-panel-fill, #faf3cb);
+}
+
+.inner {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-schedule-panel-gap, 1.1875rem);
+  padding-inline: var(--home-schedule-panel-inner-px, 0);
+  padding-top: var(--home-schedule-panel-padding-y, 3rem);
+  padding-bottom: var(--home-schedule-panel-padding-y, 3rem);
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  max-width: var(--home-schedule-header-max-width, 19.625rem);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-schedule-header-subtitle-gap, 1rem);
+}
+
+.title {
+  width: 100%;
+  font-size: var(--home-schedule-title-size, 2.875rem);
+  line-height: var(--home-schedule-title-line-height, 0.87);
+  color: var(--home-schedule-heading-color, #695f00);
+}
+
+.subtitle {
+  width: 100%;
+  max-width: var(--home-schedule-subtitle-max-width, 19.625rem);
+  font-size: var(--home-schedule-subtitle-size, 0.875rem);
+  line-height: var(--home-schedule-subtitle-line-height, 1.43);
+  color: var(--home-schedule-heading-color, #695f00);
+}
+
+.gridWrap {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--home-schedule-panel-content-width, 21.9375rem);
+  flex-direction: column;
+}
+
+.ctaMobile {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  padding-inline: var(--home-schedule-panel-inner-px, 0);
+  justify-content: center;
+}
+
+.ctaDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    margin-top: calc(-1 * var(--home-schedule-hero-overlap-lg, 12rem));
+    padding-top: var(--home-schedule-panel-top-inset-lg, 12rem);
+    padding-bottom: var(--home-schedule-section-padding-bottom-lg, 4rem);
+    padding-inline: 0;
+  }
+
+  .shell {
+    padding-inline: 0;
+    gap: 0;
+  }
+
+  .panel {
+    max-width: none;
+    border-radius: var(--home-schedule-panel-radius-lg, 3.125rem);
+    border: 1px solid rgb(255 255 255 / 0.55);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35);
+  }
+
+  .inner {
+    max-width: none;
+    gap: var(--home-schedule-panel-gap-lg, 1.75rem);
+    padding-inline: var(--home-schedule-inner-px-lg, 5rem);
+    padding-top: var(--home-schedule-panel-padding-top-lg, 3.5rem);
+    padding-bottom: var(--home-schedule-panel-padding-bottom-lg, 3.5rem);
+  }
+
+  .header {
+    max-width: var(--home-schedule-heading-max-width-lg, 52rem);
+    gap: var(--home-schedule-panel-gap-lg, 1.75rem);
+  }
+
+  .title {
+    font-size: var(--home-schedule-title-size-lg, 4.375rem);
+    line-height: var(--home-schedule-title-line-height-lg, 1.1);
+  }
+
+  .subtitle {
+    max-width: var(--home-schedule-subtitle-max-width-lg, 39.25rem);
+    font-size: var(--home-schedule-subtitle-size-lg, 1rem);
+    line-height: var(--home-schedule-subtitle-line-height-lg, 1.6);
+  }
+
+  .gridWrap {
+    max-width: none;
+  }
+
+  .ctaMobile {
+    display: none;
+  }
+
+  .ctaDesktop {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+}
