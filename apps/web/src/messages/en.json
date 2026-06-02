@@ -220,6 +220,8 @@
         "body": "Log in to see your upcoming classes, waitlists, and studio tools."
       },
       "greeting": "Welcome back,",
+      "welcomeSubtitleBefore": "Our dear ",
+      "welcomeSubtitleAfter": " Ommm welcomes you.",
       "titleStart": "Find your",
       "titleAccent": "center today.",
       "lead": "Your next session, waitlists, and studio notes — in one calm flow.",

@@ -90,10 +90,16 @@ export async function MemberDashboard({
       <div className="space-y-10 pb-4 sm:space-y-12">
         <div className="grid w-full grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
-            <p className={`${memberChrome.greeting} text-base sm:text-lg`}>
-              {t("greeting")}{" "}
-              <span className="font-medium text-sage-800">{greetingName}</span>
-            </p>
+            <div className="space-y-2">
+              <p className={`${memberChrome.greeting} text-base sm:text-lg`}>
+                {t("greeting")}
+              </p>
+              <p className={`${memberChrome.greeting} max-w-xl text-base sm:text-lg`}>
+                {t("welcomeSubtitleBefore")}
+                <span className="font-medium text-sage-800">{greetingName}</span>
+                {t("welcomeSubtitleAfter")}
+              </p>
+            </div>
 
             <h1 className={`${memberChrome.heroTitle} mt-8`}>
               {t("titleStart")}{" "}
