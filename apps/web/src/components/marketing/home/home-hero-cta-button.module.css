@@ -143,88 +143,6 @@
   }
 }
 
-.coachesDetails {
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.glassLayers {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  transition: filter 220ms ease;
-  mask-image: url("/marketing/home/sections/home-coaches-cta-shape.svg");
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: url("/marketing/home/sections/home-coaches-cta-shape.svg");
-  -webkit-mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-}
-
-.cta:hover .glassLayers {
-  filter: brightness(1.06);
-}
-
-.glassBase {
-  position: absolute;
-  inset: 0;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.38);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 8px 18px rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(1.5px);
-  -webkit-backdrop-filter: blur(1.5px);
-  transition:
-    background-color 300ms ease,
-    border-color 300ms ease;
-}
-
-.coachesDetails:hover .glassBase {
-  background: rgba(255, 255, 255, 0.45);
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
-.glassRadial {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    120% 90% at 28% 18%,
-    rgba(255, 255, 255, 0.75) 0%,
-    rgba(255, 255, 255, 0.32) 28%,
-    rgba(255, 255, 255, 0) 58%
-  );
-  opacity: 0.9;
-  animation: heroCtaGlassPulseSlow 2.1s ease-in-out infinite;
-  transition: opacity 300ms ease;
-}
-
-.coachesDetails:hover .glassRadial {
-  opacity: 1;
-}
-
-.glassLinear {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.05) 18%,
-    rgba(255, 255, 255, 0.62) 48%,
-    rgba(255, 255, 255, 0.05) 78%
-  );
-  opacity: 0.45;
-  animation: heroCtaGlassPulseFast 2.6s ease-in-out infinite;
-  transition: opacity 300ms ease;
-}
-
-.coachesDetails:hover .glassLinear {
-  opacity: 0.7;
-}
-
 .coachesDetails .label {
   z-index: 1;
   color: #97907c;
@@ -238,49 +156,6 @@
   box-shadow:
     0 0 0 2px #97907c,
     0 0 0 4px rgba(255, 255, 255, 0.55);
-}
-
-@keyframes heroCtaGlassPulseSlow {
-  0%,
-  100% {
-    opacity: 0.9;
-  }
-
-  50% {
-    opacity: 0.55;
-  }
-}
-
-@keyframes heroCtaGlassPulseFast {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-
-  50% {
-    opacity: 0.25;
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .coachesDetails .glassBase {
-    background: rgba(255, 255, 255, 0.45);
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .coachesDetails .glassBase {
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .coachesDetails .glassRadial,
-  .coachesDetails .glassLinear {
-    animation: none;
-  }
 }
 
 .plansDetails .label {

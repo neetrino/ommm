@@ -12,6 +12,11 @@
   height: 2.75rem;
 }
 
+.sizeCoachCardInline {
+  width: 4rem;
+  height: 4rem;
+}
+
 @media (min-width: 768px) {
   .sizeCoachNav {
     width: 4rem;

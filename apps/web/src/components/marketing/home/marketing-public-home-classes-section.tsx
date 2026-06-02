@@ -8,7 +8,10 @@ import {
   HOME_CLASSES_SECTION_BACKGROUND,
   HOME_CLASSES_SECTION_FIGMA,
   HOME_CLASSES_SECTION_LAYOUT,
+  HOME_CLASSES_SECTION_MOBILE_FIGMA,
+  HOME_CLASSES_SECTION_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-classes-section-tokens";
+import styles from "@/components/marketing/home/marketing-public-home-classes-section.module.css";
 import { HOME_WEEKLY_SCHEDULE_LAYOUT } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
@@ -22,7 +25,7 @@ type MarketingPublicHomeClassesSectionProps = {
 };
 
 /**
- * Figma **Classes Section** `196:1074` — five practice cards + membership CTA `196:1113`.
+ * Figma **Classes Section** `196:1074` (desktop), mobile container `97:5683`.
  */
 export async function MarketingPublicHomeClassesSection({
   locale,
@@ -32,44 +35,102 @@ export async function MarketingPublicHomeClassesSection({
 
   return (
     <section
-      className={`${marketingMontserrat.variable} relative z-[1] w-full px-4 sm:px-6 md:px-10 lg:px-20`}
+      aria-labelledby="home-classes-heading"
+      aria-describedby="home-classes-subtitle"
+      className={`${marketingMontserrat.variable} ${styles.section}`}
       style={{
-        background: HOME_CLASSES_SECTION_BACKGROUND,
-        marginTop: `calc(-1 * ${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap})`,
-        paddingTop: `calc(${HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY} + ${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap} + ${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionToClassesHeadingGapAdjustPx}px)`,
-        paddingBottom: HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY,
+        ["--home-classes-section-bg" as string]: HOME_CLASSES_SECTION_BACKGROUND,
+        ["--home-classes-schedule-overlap" as string]:
+          HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionClassesOverlap,
+        ["--home-classes-schedule-overlap-lg" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap,
+        ["--home-classes-section-py" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionPaddingY,
+        ["--home-classes-section-py-lg" as string]: HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY,
+        ["--home-classes-section-px" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionPaddingX,
+        ["--home-classes-section-gap" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionGap,
+        ["--home-classes-heading-gap-adjust" as string]:
+          `${HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionToClassesHeadingGapAdjustPx}px`,
+        ["--home-classes-heading-gap-adjust-lg" as string]:
+          `${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionToClassesHeadingGapAdjustPx}px`,
+        ["--home-classes-heading-color" as string]: HOME_CLASSES_SECTION_FIGMA.headingColor,
+        ["--home-classes-subtitle-color" as string]: HOME_CLASSES_SECTION_FIGMA.subtitleColor,
+        ["--home-classes-title-size" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.titleFontSize,
+        ["--home-classes-title-size-lg" as string]: HOME_CLASSES_SECTION_LAYOUT.titleFontSize,
+        ["--home-classes-title-line-height" as string]: String(
+          HOME_CLASSES_SECTION_MOBILE_LAYOUT.titleLineHeight,
+        ),
+        ["--home-classes-title-line-height-lg" as string]: String(
+          HOME_CLASSES_SECTION_LAYOUT.titleLineHeight,
+        ),
+        ["--home-classes-subtitle-size" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.subtitleFontSize,
+        ["--home-classes-subtitle-max-width" as string]:
+          HOME_CLASSES_SECTION_MOBILE_LAYOUT.subtitleMaxWidth,
+        ["--home-classes-subtitle-max-width-lg" as string]:
+          HOME_CLASSES_SECTION_LAYOUT.subtitleMaxWidth,
+        ["--home-classes-header-subtitle-gap" as string]:
+          HOME_CLASSES_SECTION_MOBILE_LAYOUT.headerSubtitleGap,
+        ["--home-classes-carousel-height" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.carouselHeight,
+        ["--home-classes-carousel-gap" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.carouselGap,
+        ["--home-classes-carousel-card-width" as string]:
+          HOME_CLASSES_SECTION_MOBILE_LAYOUT.carouselCardWidth,
+        ["--home-classes-carousel-trailing-pad" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionPaddingX,
+        ["--home-classes-grid-gap" as string]: HOME_CLASSES_SECTION_LAYOUT.gridGap,
+        ["--home-classes-content-max-width-lg" as string]: `${HOME_CLASSES_SECTION_LAYOUT.contentMaxWidthPx}px`,
       }}
     >
-      <div
-        className="mx-auto flex flex-col gap-8 md:gap-10"
-        style={{ maxWidth: HOME_CLASSES_SECTION_LAYOUT.contentMaxWidthPx }}
-      >
-        <header className="flex flex-col gap-4 text-center md:gap-7">
+      <div className={styles.shell}>
+        <header className={styles.header}>
           <h2
-            className="font-serif font-semibold tracking-tight text-balance"
-            style={{
-              color: HOME_CLASSES_SECTION_FIGMA.headingColor,
-              fontSize: HOME_CLASSES_SECTION_LAYOUT.titleFontSize,
-              lineHeight: HOME_CLASSES_SECTION_LAYOUT.titleLineHeight,
-            }}
+            id="home-classes-heading"
+            className={`${styles.title} font-serif font-semibold tracking-tight text-balance`}
           >
             {t("classesTitle")}
           </h2>
           <p
-            className={`${marketingMontserrat.className} mx-auto text-base font-normal leading-[25.6px] tracking-[0.01em]`}
-            style={{
-              color: HOME_CLASSES_SECTION_FIGMA.subtitleColor,
-              maxWidth: HOME_CLASSES_SECTION_LAYOUT.subtitleMaxWidth,
-            }}
+            id="home-classes-subtitle"
+            className={`${styles.subtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
           >
             {t("classesSubtitle")}
           </p>
         </header>
 
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12"
-          style={{ gap: HOME_CLASSES_SECTION_LAYOUT.gridGap }}
+          className={styles.carouselViewport}
+          aria-label={t("classesTitle")}
+          tabIndex={0}
+          style={{
+            ["--home-class-card-min-h" as string]: `${HOME_CLASSES_SECTION_MOBILE_LAYOUT.cardMinHeightPx}px`,
+            ["--home-class-card-radius" as string]: `${HOME_CLASSES_SECTION_MOBILE_LAYOUT.cardRadiusPx}px`,
+            ["--home-class-card-title-size" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardTitleFontSizePx}px`,
+            ["--home-class-card-title-line-height" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardTitleLineHeightPx}px`,
+            ["--home-class-card-body-size" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardBodyFontSizePx}px`,
+            ["--home-class-card-body-line-height" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardBodyLineHeightPx}px`,
+            ["--home-class-card-image-rotation" as string]: `${HOME_CLASSES_SECTION_MOBILE_LAYOUT.cardImageRotationDeg}deg`,
+          }}
         >
+          <div className={styles.carouselTrack}>
+            {HOME_CLASS_CARD_VISUALS.map((visual, index) => {
+              const copy = cards[index];
+              if (copy === undefined) {
+                return null;
+              }
+
+              return (
+                <div key={visual.id} className={styles.carouselSlide}>
+                  <HomeClassPracticeCard
+                    visual={visual}
+                    titleLines={copy.titleLines}
+                    body={copy.body}
+                    gridClassName=""
+                    imageIndex={index}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={styles.grid}>
           {HOME_CLASS_CARD_VISUALS.map((visual, index) => {
             const copy = cards[index];
             if (copy === undefined) {
@@ -84,12 +145,16 @@ export async function MarketingPublicHomeClassesSection({
                 body={copy.body}
                 gridClassName={`${HOME_CLASS_CARD_GRID_CLASS} ${HOME_CLASS_CARD_GRID_OFFSETS[index] ?? ""}`}
                 imageIndex={index}
+                style={{
+                  ["--home-class-card-min-h" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardMinHeightPx}px`,
+                  ["--home-class-card-radius" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardRadiusPx}px`,
+                }}
               />
             );
           })}
         </div>
 
-        <div className="flex justify-center pt-2 md:pt-4">
+        <div className={styles.cta}>
           <HomeHeroCtaButton
             href="/packages"
             label={t("viewMembership")}

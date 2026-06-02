@@ -2,7 +2,7 @@
   position: relative;
   min-height: var(--home-class-card-min-h, 20.4375rem);
   overflow: hidden;
-  border-radius: 2.5rem;
+  border-radius: var(--home-class-card-radius, 2.5rem);
 }
 
 .copy {
@@ -10,6 +10,17 @@
   z-index: 20;
   max-width: 13.5rem;
   padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 3vw, 2.125rem) 1.5rem;
+}
+
+.title {
+  font-size: var(--home-class-card-title-size, 1.5rem);
+  line-height: var(--home-class-card-title-line-height, 1.3);
+}
+
+.body {
+  margin-top: 0.75rem;
+  font-size: var(--home-class-card-body-size, 1rem);
+  line-height: var(--home-class-card-body-line-height, 1.5);
 }
 
 .imageZone {
@@ -42,7 +53,73 @@
   object-position: center top;
 }
 
-@media (min-width: 640px) {
+@media (max-width: 1023px) {
+  .card {
+    display: flex;
+    min-height: var(--home-class-card-min-h, 26.1875rem);
+    flex-direction: column;
+    border-radius: var(--home-class-card-radius, 1.5rem);
+  }
+
+  .copy {
+    max-width: none;
+    flex-shrink: 0;
+    padding: 1.5rem 1.5rem 0;
+  }
+
+  .title {
+    font-size: var(--home-class-card-title-size, 1.5rem);
+    line-height: var(--home-class-card-title-line-height, 2rem);
+  }
+
+  .body {
+    margin-top: 0;
+    font-size: var(--home-class-card-body-size, 0.875rem);
+    line-height: var(--home-class-card-body-line-height, 1.25rem);
+  }
+
+  .imageZone {
+    position: absolute;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    height: 55%;
+  }
+
+  .imageZoneWide {
+    width: 100%;
+    max-width: none;
+    height: 58%;
+  }
+
+  .image {
+    position: absolute;
+    right: -8%;
+    bottom: -6%;
+    height: 115%;
+    width: 108%;
+    object-fit: cover;
+    object-position: top center;
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg));
+  }
+
+  .imageFlipY {
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg)) scaleY(-1);
+  }
+
+  .imageZoneWide .image {
+    right: -12%;
+    bottom: -8%;
+    height: 120%;
+    width: 112%;
+    object-position: center top;
+  }
+}
+
+@media (min-width: 1024px) {
   .imageZone {
     max-width: 15rem;
   }

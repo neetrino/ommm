@@ -35,6 +35,7 @@ export type MarketingGlassCircleButtonProps = {
   arrow: MarketingGlassCircleArrow;
   label: string;
   onPress: () => void;
+  size?: "coachNav" | "coachCardInline";
 };
 
 /** Glass circle nav control — Featured Coaches `163:898` / `163:899`. */
@@ -42,11 +43,14 @@ export function MarketingGlassCircleButton({
   arrow,
   label,
   onPress,
+  size = "coachNav",
 }: MarketingGlassCircleButtonProps) {
+  const sizeClass = size === "coachCardInline" ? styles.sizeCoachCardInline : styles.sizeCoachNav;
+
   return (
     <button
       type="button"
-      className={`${styles.root} ${styles.button} ${styles.sizeCoachNav}`}
+      className={`${styles.root} ${styles.button} ${sizeClass}`}
       aria-label={label}
       onClick={onPress}
     >

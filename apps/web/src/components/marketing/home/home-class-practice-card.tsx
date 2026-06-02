@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import styles from "@/components/marketing/home/home-class-practice-card.module.css";
 import {
   HOME_CLASSES_SECTION_FIGMA,
@@ -13,6 +14,7 @@ type HomeClassPracticeCardProps = {
   body: string;
   gridClassName: string;
   imageIndex: number;
+  style?: CSSProperties;
 };
 
 export function HomeClassPracticeCard({
@@ -21,6 +23,7 @@ export function HomeClassPracticeCard({
   body,
   gridClassName,
   imageIndex,
+  style,
 }: HomeClassPracticeCardProps) {
   const imageZoneClass =
     visual.imageVariant === "wide"
@@ -39,12 +42,12 @@ export function HomeClassPracticeCard({
         borderWidth: visual.bordered ? 1 : 0,
         borderStyle: visual.bordered ? "solid" : undefined,
         borderColor: visual.bordered ? HOME_CLASSES_SECTION_FIGMA.cardBorder : undefined,
-        ["--home-class-card-min-h" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardMinHeightPx}px`,
+        ...style,
       }}
     >
       <div className={styles.copy}>
         <h3
-          className={`${marketingMontserrat.className} text-2xl font-extrabold leading-[1.3] tracking-[0.045rem]`}
+          className={`${styles.title} ${marketingMontserrat.className} font-extrabold tracking-[0.045rem]`}
           style={{ color: HOME_CLASSES_SECTION_FIGMA.cardTitleColor }}
         >
           {titleLines.map((line) => (
@@ -54,7 +57,7 @@ export function HomeClassPracticeCard({
           ))}
         </h3>
         <p
-          className={`${marketingMontserrat.className} mt-3 text-base font-normal leading-6`}
+          className={`${styles.body} ${marketingMontserrat.className} font-normal`}
           style={{ color: HOME_CLASSES_SECTION_FIGMA.cardBodyColor }}
         >
           {body}

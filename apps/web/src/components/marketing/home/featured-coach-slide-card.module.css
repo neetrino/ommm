@@ -1,0 +1,57 @@
+/**
+ * Desktop Featured Coaches card — portrait Figma `196:1123` in card `163:879`.
+ */
+
+@media (min-width: 768px) {
+  .cardShell {
+    grid-template-columns: minmax(0, 1fr) var(--ommm-coach-image-column-width, min(21.375rem, 46%));
+  }
+}
+
+.textColumn {
+  position: relative;
+  z-index: 1;
+}
+
+.imageColumn {
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.imageViewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.imageFlip {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform: rotate(180deg) scaleY(-1);
+  transform-origin: center center;
+}
+
+.imageCrop {
+  pointer-events: none;
+  position: absolute;
+  left: var(--ommm-coach-portrait-crop-left, calc(-4% + 6px));
+  top: var(--ommm-coach-portrait-crop-top, 3%);
+  width: var(--ommm-coach-portrait-crop-width, 114%);
+  height: var(--ommm-coach-portrait-crop-height, 98%);
+  max-width: none;
+}
+
+.imageFrame {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.image {
+  object-fit: cover;
+  object-position: var(--ommm-coach-portrait-object-position, 45% 18%);
+}

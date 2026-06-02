@@ -14,17 +14,18 @@ export type HomeHeroCtaButtonProps = {
   href: string;
   label: string;
   variant: HomeHeroCtaVariant;
+  /** Override mobile label inset (px) — e.g. optical nudge for section-specific CTAs. */
+  labelOffsetPx?: number;
 };
 
 /** Figma hero CTAs — desktop Union `196:1430` / `196:1440`; mobile `108:6562` / `108:6572`. */
-export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonProps) {
+export function HomeHeroCtaButton({ href, label, variant, labelOffsetPx }: HomeHeroCtaButtonProps) {
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const desktopLayout = HOME_HERO_CTA_LAYOUT[variant];
   const mobileLayout =
     variant === "booking" || variant === "membership"
       ? HOME_HERO_MOBILE_CTA_LAYOUT[variant]
       : null;
-  const isGlassCta = variant === "coachesDetails";
   const variantClass =
     variant === "booking"
       ? styles.booking
@@ -37,6 +38,7 @@ export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonPro
             : undefined;
   const shapeMobile = "shapeMobile" in assets ? assets.shapeMobile : undefined;
   const arrowMobile = "arrowMobile" in assets ? assets.arrowMobile : undefined;
+  const mobileLabelOffsetPx = labelOffsetPx ?? mobileLayout?.labelOffsetPx ?? desktopLayout.labelOffsetPx;
 
   return (
     <Link
@@ -51,40 +53,30 @@ export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonPro
         ["--hero-cta-label-width-lg" as string]: `${desktopLayout.labelWidthRatio * 100}%`,
         ["--hero-cta-arrow-zone-width" as string]: `${(mobileLayout?.arrowZoneWidthRatio ?? desktopLayout.arrowZoneWidthRatio) * 100}%`,
         ["--hero-cta-arrow-zone-width-lg" as string]: `${desktopLayout.arrowZoneWidthRatio * 100}%`,
-        ["--hero-cta-label-offset" as string]: `${mobileLayout?.labelOffsetPx ?? desktopLayout.labelOffsetPx}px`,
+        ["--hero-cta-label-offset" as string]: `${mobileLabelOffsetPx}px`,
         ["--hero-cta-label-offset-lg" as string]: `${desktopLayout.labelOffsetPx}px`,
         ["--hero-cta-label-font-size" as string]:
           mobileLayout !== null ? HOME_HERO_MOBILE_CTA_LAYOUT.labelFontSize : undefined,
       }}
     >
-      {isGlassCta ? (
-        <span className={styles.glassLayers} aria-hidden>
-          <span className={styles.glassBase} />
-          <span className={styles.glassRadial} />
-          <span className={styles.glassLinear} />
-        </span>
-      ) : (
-        <>
-          {shapeMobile ? (
-            <Image
-              src={shapeMobile}
-              alt=""
-              fill
-              unoptimized
-              className={`${styles.shape} ${styles.shapeMobile}`}
-              aria-hidden
-            />
-          ) : null}
-          <Image
-            src={assets.shape}
-            alt=""
-            fill
-            unoptimized
-            className={`${styles.shape} ${styles.shapeDesktop}`}
-            aria-hidden
-          />
-        </>
-      )}
+      {shapeMobile ? (
+        <Image
+          src={shapeMobile}
+          alt=""
+          fill
+          unoptimized
+          className={`${styles.shape} ${styles.shapeMobile}`}
+          aria-hidden
+        />
+      ) : null}
+      <Image
+        src={assets.shape}
+        alt=""
+        fill
+        unoptimized
+        className={`${styles.shape} ${styles.shapeDesktop}`}
+        aria-hidden
+      />
       <span className={styles.label}>{label}</span>
       <span className={styles.arrowZone} aria-hidden>
         {arrowMobile ? (
