@@ -19,6 +19,7 @@ import {
 } from "@/components/shell/member-dashboard-header";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
   avatarRingClass,
@@ -165,6 +166,8 @@ export function DashboardAppShell({
       document.body.style.overflow = prev;
     };
   }, [drawerOpen]);
+
+  useCloseOnEscape(drawerOpen, () => setDrawerOpen(false));
 
   function persistCollapsed(next: boolean) {
     try {

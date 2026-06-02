@@ -6,6 +6,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
 type AdminWaitlistRow = {
   id: string;
@@ -127,6 +128,14 @@ export function AdminWaitlistManagement({
   }
 
   const hasRows = rows.length > 0;
+
+  const closeRemoveConfirm = useCallback(() => {
+    setPendingRemove(null);
+  }, []);
+
+  useCloseOnEscape(pendingRemove !== null, closeRemoveConfirm, {
+    disabled: busyAction !== null,
+  });
 
   const confirmRemoveLabel = useMemo(() => {
     if (pendingRemove === null) {

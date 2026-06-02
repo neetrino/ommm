@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -67,6 +68,8 @@ export function AdminUserDetailsDrawer({
       document.body.style.overflow = previousOverflow;
     };
   }, [userId]);
+
+  useCloseOnEscape(userId !== null, onClose);
 
   if (userId === null || typeof document === "undefined") {
     return null;

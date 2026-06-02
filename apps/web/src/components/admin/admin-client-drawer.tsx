@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { EditActionButton } from "@/components/ui/edit-action-button";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -112,6 +113,8 @@ export function AdminClientDrawer({ client, packages, locale, onClose, onChanged
       document.body.style.overflow = previous;
     };
   }, [client]);
+
+  useCloseOnEscape(client !== null, onClose);
 
   if (!client || typeof document === "undefined") return null;
 

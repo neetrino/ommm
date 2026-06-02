@@ -15,6 +15,7 @@ import {
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
 type AdminBookingSessionSlot = {
   id: string;
@@ -619,6 +620,7 @@ function WeeklyPanel({
 
 function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }) {
   const t = useTranslations("adminPages.bookings");
+  useCloseOnEscape(true, onClose);
   const [data, setData] = useState<null | {
     name: string | null;
     email: string;
@@ -631,6 +633,7 @@ function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }
 }
 function BookingDrawer({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
   const t = useTranslations("adminPages.bookings");
+  useCloseOnEscape(true, onClose);
   const [data, setData] = useState<null | {
     status: string;
     paymentStatus?: string;
@@ -646,6 +649,7 @@ function BookingDrawer({ bookingId, onClose }: { bookingId: string; onClose: () 
 }
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {
   const t = useTranslations("adminPages.bookings");
+  useCloseOnEscape(true, onClose);
   const [targetSessionId, setTargetSessionId] = useState("");
   const [options, setOptions] = useState<Array<{ id: string; startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }>>([]);
   useEffect(() => {

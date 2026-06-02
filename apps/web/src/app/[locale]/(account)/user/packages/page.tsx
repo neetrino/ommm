@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { PackageCheckoutButton } from "@/components/account/package-checkout-button";
+import { PackageCheckoutButton, PackageCheckoutModalHost } from "@/components/account/package-checkout-button";
 import { PackageLifecycleButtons } from "@/components/account/package-lifecycle-buttons";
 import { PackagePlanSwitchButton } from "@/components/account/package-plan-switch-button";
 import { AccountSection } from "@/components/layout/account-page-frame";
@@ -86,6 +86,22 @@ export default async function UserPackagesPage({
     serverApiJson<UserPackageRow[]>("/packages/me", cookie),
     serverApiJson<PaymentRow[]>("/payments/me", cookie),
   ]);
+
+  const activePlans = plansRes.ok
+    ? plansRes.data
+        .filter((plan) => plan.isActive)
+        .map((plan) => ({
+          id: plan.id,
+          name: plan.name,
+          description: plan.description,
+          priceCents: plan.priceCents,
+          currency: plan.currency,
+          billingPeriod: plan.billingPeriod,
+          isUnlimited: plan.isUnlimited,
+          sessionsPerMonth: plan.sessionsPerMonth,
+          periodDays: plan.periodDays,
+        }))
+    : [];
 
   return (
     <MemberContentFrame description={t("description")}>
@@ -255,6 +271,7 @@ export default async function UserPackagesPage({
           )}
         </AccountSection>
       </div>
+      <PackageCheckoutModalHost plans={activePlans} locale={locale} />
     </MemberContentFrame>
   );
 }

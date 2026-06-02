@@ -3,7 +3,10 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import {
+  OMM_MODAL_OVERLAY_CLASS,
+  OmmModalPortal,
+} from "@/components/ui/omm-modal";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
@@ -93,7 +96,8 @@ export function PackageManualPaymentModal({
       onClose={handleClose}
       backdropAriaLabel={t("closeModal")}
       closeDisabled={busy}
-      panelClassName="max-w-lg rounded-2xl border border-white/80 bg-sand-50 p-6 shadow-xl"
+      overlayClassName={`${OMM_MODAL_OVERLAY_CLASS} [&_.ommm-modal-backdrop]:bg-sage-900/65 [&_.ommm-modal-backdrop]:backdrop-blur-sm`}
+      panelClassName="max-w-lg rounded-2xl border border-sage-200 bg-white p-6 shadow-[0_24px_64px_-12px_rgba(45,40,35,0.35)] ring-1 ring-sage-900/10"
     >
       <div className="space-y-5">
         <div className="flex items-start justify-between gap-3">
@@ -103,7 +107,7 @@ export function PackageManualPaymentModal({
           </div>
           <button
             type="button"
-            className="rounded-lg px-2 py-1 text-sage-500 hover:bg-sage-100 disabled:opacity-50"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-2xl leading-none text-sage-500 hover:bg-sage-100 disabled:opacity-50"
             onClick={handleClose}
             disabled={busy}
             aria-label={t("closeModal")}
@@ -112,7 +116,7 @@ export function PackageManualPaymentModal({
           </button>
         </div>
 
-        <div className="ommm-stack-card space-y-2 text-sm">
+        <div className="space-y-2 rounded-2xl border border-sage-200 bg-sand-50 p-4 text-sm">
           <p className="font-semibold text-sage-800">{plan.name}</p>
           {plan.description ? (
             <p className="text-sage-600">{plan.description}</p>
@@ -163,7 +167,7 @@ export function PackageManualPaymentModal({
                       className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 disabled:opacity-50 ${
                         selected
                           ? "border-sage-700 bg-sage-800 text-white shadow-sm"
-                          : "border-sage-200 bg-white text-sage-800 hover:border-sage-400 hover:bg-sand-50"
+                          : "border-sage-300 bg-white text-sage-900 shadow-sm hover:border-sage-500 hover:bg-sand-50"
                       }`}
                       onClick={() => setMethod(value)}
                     >
