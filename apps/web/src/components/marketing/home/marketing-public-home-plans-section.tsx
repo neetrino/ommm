@@ -4,15 +4,14 @@ import { Link } from "@/i18n/navigation";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
+import { buildHomeCategoryCardsFromPlans } from "@/components/marketing/home/home-public-plan-card-copy";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
-
-type PlanCardCopy = {
-  planName: string;
-  details: string;
-  price: string;
-  ctaAria: string;
-};
+import {
+  normalizePublicPackagePlan,
+  type PublicPackagePlan,
+} from "@/lib/public-package-plan";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type MarketingPublicHomePlansSectionProps = {
   locale: string;
@@ -25,7 +24,21 @@ export async function MarketingPublicHomePlansSection({
   locale,
 }: MarketingPublicHomePlansSectionProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const cards = t.raw("planCards") as PlanCardCopy[];
+  const plansRes = await serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans");
+  const activePlans = plansRes.ok
+    ? plansRes.data
+        .filter((plan) => plan.isActive)
+        .map(normalizePublicPackagePlan)
+        .sort((left, right) => left.displayOrder - right.displayOrder)
+    : [];
+  const cards = buildHomeCategoryCardsFromPlans(activePlans, locale, {
+      sessionsUnlimited: t("planCardSessionsUnlimited"),
+      sessionsCount: (count) => t("planCardSessionsCount", { count }),
+      guestCount: (count) => t("planCardGuestCount", { count }),
+      ctaAria: (planName) => t("planCardCtaAria", { planName }),
+      categoryPackages: (count) => t("planCardCategoryPackages", { count }),
+      priceFrom: (amount) => t("planCardPriceFrom", { amount }),
+    });
 
   return (
     <section
@@ -52,59 +65,84 @@ export async function MarketingPublicHomePlansSection({
             {t("plansSectionTitle")}
           </h2>
 
-          <div className="mx-auto mt-16 flex max-w-[1332px] flex-col flex-wrap items-center justify-center gap-8 sm:mt-20 md:mt-24 lg:flex-row lg:gap-[60px]">
-            {cards.map((card, index) => (
-              <Link
-                key={`plan-card-${index}`}
-                href="/schedule"
-                aria-label={card.ctaAria}
-                className="group relative block h-[531px] w-full max-w-[404px] shrink-0 overflow-hidden rounded-[40px] bg-[#97907c] shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#577f91] focus-visible:ring-offset-2"
-              >
-                <Image
-                  src={HOME_SECTION_ASSETS.planBackground}
-                  alt=""
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 404px"
-                  className="object-cover"
-                  {...belowFoldImageProps()}
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/25" />
-                <p
-                  className="pointer-events-none absolute left-6 top-14 z-10 font-serif text-[28px] font-extrabold italic leading-6 text-white"
-                  style={{ letterSpacing: "0.18px" }}
+          {!plansRes.ok ? (
+            <p
+              className={`${marketingMontserrat.className} mx-auto mt-16 max-w-xl text-center text-base text-[#4a4738]`}
+              role="status"
+            >
+              {t("plansLoadFailed", { status: plansRes.status })}
+            </p>
+          ) : cards.length === 0 ? (
+            <p
+              className={`${marketingMontserrat.className} mx-auto mt-16 max-w-xl text-center text-base text-[#4a4738]`}
+              role="status"
+            >
+              {t("plansEmpty")}
+            </p>
+          ) : (
+            <div className="mx-auto mt-16 flex max-w-[1332px] flex-col flex-wrap items-center justify-center gap-8 sm:mt-20 md:mt-24 lg:flex-row lg:gap-[60px]">
+              {cards.map((card) => (
+                <Link
+                  key={card.id}
+                  href="/packages"
+                  aria-label={card.ctaAria}
+                  className="group relative block h-[531px] w-full max-w-[404px] shrink-0 overflow-hidden rounded-[40px] bg-[#97907c] shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#577f91] focus-visible:ring-offset-2"
                 >
-                  {card.planName}
-                </p>
-                <div
-                  className="absolute bottom-6 left-1/2 z-10 h-[136px] w-[min(268px,calc(100%-3rem))] -translate-x-1/2 rounded-[40px]"
-                  style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
-                />
-                <p
-                  className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[7.25rem] left-1/2 z-10 -translate-x-1/2 text-lg font-normal leading-6 text-white`}
-                  style={{ letterSpacing: "0.18px" }}
-                >
-                  {card.details}
-                </p>
-                <p
-                  className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[4.25rem] left-1/2 z-10 -translate-x-1/2 text-[28px] font-extrabold leading-6 text-white`}
-                  style={{ letterSpacing: "0.18px" }}
-                >
-                  {card.price}
-                </p>
-                <span className="sr-only">{card.ctaAria}</span>
-                <span className="absolute bottom-[4.5rem] right-8 z-10 inline-flex size-16 items-center justify-center" aria-hidden>
                   <Image
-                    src={HOME_SECTION_ASSETS.planCtaIcon}
+                    src={HOME_SECTION_ASSETS.planBackground}
                     alt=""
-                    width={64}
-                    height={64}
-                    unoptimized
-                    className="size-16 transition-transform group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 404px"
+                    className="object-cover"
+                    {...belowFoldImageProps()}
                   />
-                </span>
-              </Link>
-            ))}
-          </div>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/25" />
+                  {card.isPopular ? (
+                    <span
+                      className={`${marketingMontserrat.className} pointer-events-none absolute right-6 top-6 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#577f91]`}
+                    >
+                      {t("planPopularBadge")}
+                    </span>
+                  ) : null}
+                  <p
+                    className="pointer-events-none absolute left-6 top-14 z-10 max-w-[calc(100%-3rem)] font-serif text-[28px] font-extrabold italic leading-6 text-white"
+                    style={{ letterSpacing: "0.18px" }}
+                  >
+                    {card.planName}
+                  </p>
+                  <div
+                    className="absolute bottom-6 left-1/2 z-10 h-[136px] w-[min(268px,calc(100%-3rem))] -translate-x-1/2 rounded-[40px]"
+                    style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+                  />
+                  {card.details.length > 0 ? (
+                    <p
+                      className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[7.25rem] left-1/2 z-10 line-clamp-2 w-[min(240px,calc(100%-4rem))] -translate-x-1/2 text-center text-lg font-normal leading-6 text-white`}
+                      style={{ letterSpacing: "0.18px" }}
+                    >
+                      {card.details}
+                    </p>
+                  ) : null}
+                  <p
+                    className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[4.25rem] left-1/2 z-10 -translate-x-1/2 text-[28px] font-extrabold leading-6 text-white`}
+                    style={{ letterSpacing: "0.18px" }}
+                  >
+                    {card.price}
+                  </p>
+                  <span className="sr-only">{card.ctaAria}</span>
+                  <span className="absolute bottom-[4.5rem] right-8 z-10 inline-flex size-16 items-center justify-center" aria-hidden>
+                    <Image
+                      src={HOME_SECTION_ASSETS.planCtaIcon}
+                      alt=""
+                      width={64}
+                      height={64}
+                      unoptimized
+                      className="size-16 transition-transform group-hover:scale-105"
+                    />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
 
           <div className="mt-16 flex justify-center sm:mt-20 md:mt-24">
             <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />

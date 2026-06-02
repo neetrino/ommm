@@ -176,26 +176,15 @@
         }
       ],
       "plansSectionTitle": "Տաճար ամեն մարմնի համար",
-      "planCards": [
-        {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
-        },
-        {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
-        },
-        {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
-        }
-      ],
+      "planCardCtaAria": "Բացել «{planName}» պլանի մանրամասները",
+      "planCardSessionsUnlimited": "Անսահմանափակ դասեր",
+      "planCardSessionsCount": "{count, plural, one {# դաս} other {# դաս}}",
+      "planCardGuestCount": "{count, plural, one {# հյուր} other {# հյուր}}",
+      "planCardCategoryPackages": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
+      "planCardPriceFrom": "{amount}-ից",
+      "planPopularBadge": "Հանրաճանաչ",
+      "plansEmpty": "Փաթեթները կհայտնվեն այստեղ ադմին վահանակում հրապարակելուց հետո։",
+      "plansLoadFailed": "Չհաջողվեց բեռնել փաթեթները ({status})։",
       "eventsTitle": "Միջոցառումներ",
       "eventWideTitle": "Գլխավոր հավաքում",
       "eventWideDetails": "Մանրամասներ",
@@ -313,7 +302,10 @@
     "packagesPeriodDays": "{days} օրյա վճարման ցիկլ",
     "packagesSessionsUnlimited": "Անսահմանափակ դասեր ժամանակաշրջանում",
     "packagesSessionsCount": "{count} դաս ժամանակաշրջանում",
+    "packagesGuestCount": "{count, plural, one {# հյուր ներառված} other {# հյուր ներառված}}",
     "packagesPriceLine": "{amount} ժամանակաշրջանի համար",
+    "packagesPriceFromLine": "{amount}-ից ժամանակաշրջանի համար",
+    "packagesCategoryTierCount": "{count, plural, one {# տարբերակ} other {# տարբերակ}}",
     "packagesCompareTitle": "Պլանների համեմատություն",
     "packagesTablePlan": "Պլան",
     "packagesTablePrice": "Գին",

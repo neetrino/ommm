@@ -251,6 +251,7 @@ export class PackagesService {
     if (!existing) {
       throw new NotFoundException('Plan not found');
     }
+    await this.assertPlansDeletable([planId]);
     await this.prisma.packagePlan.delete({ where: { id: planId } });
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_DELETED',
@@ -260,6 +261,52 @@ export class PackagesService {
     });
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
     return { ok: true };
+  }
+
+  async deletePlansByCategory(categoryName: string): Promise<{ deletedIds: string[] }> {
+    const planIds = await this.findPlanIdsByCategoryName(categoryName);
+    if (planIds.length === 0) {
+      return { deletedIds: [] };
+    }
+    await this.assertPlansDeletable(planIds);
+    await this.prisma.packagePlan.deleteMany({ where: { id: { in: planIds } } });
+    await this.audit.log({
+      action: 'MEMBERSHIP_PLAN_CATEGORY_DELETED',
+      entityType: 'PackagePlan',
+      entityId: planIds[0],
+      payload: { categoryName, deletedIds: planIds },
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
+    return { deletedIds: planIds };
+  }
+
+  private async findPlanIdsByCategoryName(categoryName: string): Promise<string[]> {
+    const targetKey = this.categoryComparisonKey(
+      this.normalizeCategoryName(categoryName),
+    );
+    const plans = await this.prisma.packagePlan.findMany({
+      select: { id: true, categoryName: true },
+    });
+    return plans
+      .filter(
+        (plan) =>
+          this.categoryComparisonKey(plan.categoryName) === targetKey,
+      )
+      .map((plan) => plan.id);
+  }
+
+  private async assertPlansDeletable(planIds: readonly string[]): Promise<void> {
+    if (planIds.length === 0) {
+      return;
+    }
+    const assignedCount = await this.prisma.userPackage.count({
+      where: { planId: { in: [...planIds] } },
+    });
+    if (assignedCount > 0) {
+      throw new ConflictException(
+        'Cannot delete package plans that are assigned to members.',
+      );
+    }
   }
 
   async assignManual(userId: string, planId: string) {

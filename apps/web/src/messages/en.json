@@ -176,26 +176,15 @@
         }
       ],
       "plansSectionTitle": "A Sanctuary for Every Body",
-      "planCards": [
-        {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
-        },
-        {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
-        },
-        {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
-        }
-      ],
+      "planCardCtaAria": "View {planName} details",
+      "planCardSessionsUnlimited": "Unlimited sessions",
+      "planCardSessionsCount": "{count, plural, one {# session} other {# sessions}}",
+      "planCardGuestCount": "{count, plural, one {# guest} other {# guests}}",
+      "planCardCategoryPackages": "{count, plural, one {# package} other {# packages}}",
+      "planCardPriceFrom": "From {amount}",
+      "planPopularBadge": "Popular",
+      "plansEmpty": "Packages will appear here once they are published in the admin panel.",
+      "plansLoadFailed": "Could not load packages ({status}).",
       "eventsTitle": "Events",
       "eventWideTitle": "Featured gathering",
       "eventWideDetails": "Details",
@@ -313,7 +302,10 @@
     "packagesPeriodDays": "{days}-day billing cycle",
     "packagesSessionsUnlimited": "Unlimited classes per period",
     "packagesSessionsCount": "{count} classes per period",
+    "packagesGuestCount": "{count, plural, one {# guest included} other {# guests included}}",
     "packagesPriceLine": "{amount} per period",
+    "packagesPriceFromLine": "From {amount} per period",
+    "packagesCategoryTierCount": "{count, plural, one {# option} other {# options}}",
     "packagesCompareTitle": "Compare plans",
     "packagesTablePlan": "Plan",
     "packagesTablePrice": "Price",

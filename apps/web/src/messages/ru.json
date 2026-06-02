@@ -176,26 +176,15 @@
         }
       ],
       "plansSectionTitle": "Убежище для каждого тела",
-      "planCards": [
-        {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
-        },
-        {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
-        },
-        {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
-        }
-      ],
+      "planCardCtaAria": "Открыть детали «{planName}»",
+      "planCardSessionsUnlimited": "Безлимитные занятия",
+      "planCardSessionsCount": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
+      "planCardGuestCount": "{count, plural, one {# гость} few {# гостя} many {# гостей} other {# гостя}}",
+      "planCardCategoryPackages": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
+      "planCardPriceFrom": "От {amount}",
+      "planPopularBadge": "Популярный",
+      "plansEmpty": "Пакеты появятся здесь после публикации в админ-панели.",
+      "plansLoadFailed": "Не удалось загрузить пакеты ({status}).",
       "eventsTitle": "События",
       "eventWideTitle": "Главная встреча",
       "eventWideDetails": "Подробнее",
@@ -313,7 +302,10 @@
     "packagesPeriodDays": "Период списания: {days} дн.",
     "packagesSessionsUnlimited": "Безлимитные занятия за период",
     "packagesSessionsCount": "{count} занятий за период",
+    "packagesGuestCount": "{count, plural, one {# гость включён} few {# гостя включено} many {# гостей включено} other {# гостя включено}}",
     "packagesPriceLine": "{amount} за период",
+    "packagesPriceFromLine": "От {amount} за период",
+    "packagesCategoryTierCount": "{count, plural, one {# вариант} few {# варианта} many {# вариантов} other {# варианта}}",
     "packagesCompareTitle": "Сравнение планов",
     "packagesTablePlan": "План",
     "packagesTablePrice": "Цена",

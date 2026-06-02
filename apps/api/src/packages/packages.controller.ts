@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { ChangePackagePlanDto } from './dto/change-package-plan.dto';
+import { DeleteCategoryDto } from './dto/delete-category.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { PackagesService } from './packages.service';
 
@@ -61,6 +62,13 @@ export class PackagesController {
   @Roles(Role.ADMIN)
   deletePlan(@Param('id') id: string) {
     return this.packages.deletePlan(id);
+  }
+
+  @Delete('admin/categories')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  deleteCategory(@Body() dto: DeleteCategoryDto) {
+    return this.packages.deletePlansByCategory(dto.categoryName);
   }
 
   @Get('me')

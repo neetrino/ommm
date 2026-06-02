@@ -193,11 +193,10 @@ export function AdminPackagesManagement({
 
   const handleCategoryDeleted = useCallback(
     (_categoryName: string, deletedPackageIds: readonly string[]) => {
-      if (deletedPackageIds.length === 0) {
-        return;
+      if (deletedPackageIds.length > 0) {
+        const removed = new Set(deletedPackageIds);
+        setPackageRows((current) => current.filter((row) => !removed.has(row.id)));
       }
-      const removed = new Set(deletedPackageIds);
-      setPackageRows((current) => current.filter((row) => !removed.has(row.id)));
       router.refresh();
     },
     [router],

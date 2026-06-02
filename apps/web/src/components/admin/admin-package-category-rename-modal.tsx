@@ -90,20 +90,14 @@ export function AdminPackageCategoryRenameModal({
     if (!confirmed) {
       return;
     }
-    if (count === 0) {
-      onDeleted(trimmedName, []);
-      onClose();
-      return;
-    }
     setPending(true);
     setError(null);
     try {
-      const deletedIds: string[] = [];
-      for (const pkg of categoryPackages) {
-        await apiFetch(`/packages/plans/${pkg.id}`, { method: "DELETE" });
-        deletedIds.push(pkg.id);
-      }
-      onDeleted(trimmedName, deletedIds);
+      const result = await apiFetch<{ deletedIds: string[] }>("/packages/admin/categories", {
+        method: "DELETE",
+        body: JSON.stringify({ categoryName: trimmedName }),
+      });
+      onDeleted(trimmedName, result.deletedIds);
       onClose();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("genericError"));
