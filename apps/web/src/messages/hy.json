@@ -2082,6 +2082,8 @@
         "sortAttendanceAsc": "Ամենացածր ներկայություն",
         "sortNameAsc": "Անուն (Ա–Ֆ)",
         "quickFilterLabel": "Վերլուծության տեսք",
+        "allQuickFilters": "Բոլոր տեսակները",
+        "selectedCount": "{count} ընտրված",
         "quickToday": "Այսօր",
         "quickWeek": "Այս շաբաթ",
         "quickMonth": "Այս ամիս",

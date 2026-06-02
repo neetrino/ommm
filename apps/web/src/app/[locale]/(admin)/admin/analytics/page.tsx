@@ -8,12 +8,12 @@ import {
   buildCoachAttendance,
   buildCoachBookings,
   parseAnalyticsBookingStatus,
-  parseAnalyticsQuickFilter,
+  parseAnalyticsQuickFilters,
   parseAnalyticsRangeDays,
   parseAnalyticsSortKey,
   parseAnalyticsViewMode,
   resolveAnalyticsDateRange,
-  resolveQuickFilterSort,
+  resolveQuickFiltersSort,
 } from "@/components/admin/admin-analytics-helpers";
 import type {
   AdminAnalyticsPayload,
@@ -93,12 +93,12 @@ export default async function AdminAnalyticsPage({
   const cookie = (await headers()).get("cookie") ?? "";
 
   const rangeDays = parseAnalyticsRangeDays(search.rangeDays);
-  const quickFilter = parseAnalyticsQuickFilter(search.quick);
-  const { fromIso, toIso } = resolveAnalyticsDateRange({ rangeDays, quickFilter });
+  const quickFilters = parseAnalyticsQuickFilters(search.quick);
+  const { fromIso, toIso } = resolveAnalyticsDateRange({ rangeDays, quickFilters });
   const coachId = search.coachId ?? "";
   const classTypeId = search.classTypeId ?? "";
   const bookingStatus = parseAnalyticsBookingStatus(search.bookingStatus);
-  const sortFromQuick = resolveQuickFilterSort(quickFilter);
+  const sortFromQuick = resolveQuickFiltersSort(quickFilters);
   const sortKey = sortFromQuick ?? parseAnalyticsSortKey(search.sort);
 
   const bookingsQuery = buildBookingsQuery(fromIso, toIso, coachId, classTypeId, bookingStatus);
@@ -157,7 +157,7 @@ export default async function AdminAnalyticsPage({
     coachId,
     classTypeId,
     bookingStatus,
-    quickFilter,
+    quickFilters,
     dashboard: dashboardRes.data,
     finance: financeRes.data,
     bookings: {

@@ -5,20 +5,33 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type {
   AnalyticsBookingStatusFilter,
-  AnalyticsQuickFilter,
+  AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
 } from "@/components/admin/admin-analytics-types";
+import {
+  ANALYTICS_QUICK_FILTER_VALUES,
+  parseAnalyticsQuickFilters,
+  serializeAnalyticsQuickFilters,
+} from "@/components/admin/admin-analytics-helpers";
 import { AdminFilterResetButton } from "@/components/ui/admin-filter-reset-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
-
-type AnalyticsQuickFilterOption = Exclude<AnalyticsQuickFilter, "none">;
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 
 type AdminAnalyticsFiltersProps = {
   filterOptions: {
     classTypes: Array<{ id: string; name: string }>;
     coaches: Array<{ id: string; name: string }>;
   };
+};
+
+const QUICK_FILTER_LABEL_KEYS: Record<AnalyticsQuickFilterOption, string> = {
+  today: "quickToday",
+  week: "quickWeek",
+  month: "quickMonth",
+  last30: "quickLast30",
+  topCoaches: "quickTopCoaches",
+  popularClasses: "quickPopularClasses",
 };
 
 export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersProps) {
@@ -34,7 +47,7 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       classTypeId: searchParams.get("classTypeId") ?? "",
       bookingStatus: (searchParams.get("bookingStatus") ?? "") as AnalyticsBookingStatusFilter,
       sort: (searchParams.get("sort") ?? "revenue-desc") as AnalyticsSortKey,
-      quick: (searchParams.get("quick") ?? "today") as AnalyticsQuickFilter,
+      quickFilters: parseAnalyticsQuickFilters(searchParams.get("quick") ?? undefined),
     }),
     [searchParams],
   );
@@ -45,18 +58,6 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       params.delete(key);
     } else {
       params.set(key, value);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  };
-
-  const updateMany = (entries: Record<string, string>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(entries)) {
-      if (value.length === 0) {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
     }
     router.replace(`${pathname}?${params.toString()}`);
   };
@@ -114,29 +115,31 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
     [t],
   );
 
-  const quickFilterOptions = useMemo<
-    readonly DropdownOption<AnalyticsQuickFilterOption>[]
-  >(
-    () => [
-      { value: "today", label: t("quickToday") },
-      { value: "week", label: t("quickWeek") },
-      { value: "month", label: t("quickMonth") },
-      { value: "last30", label: t("quickLast30") },
-      { value: "topCoaches", label: t("quickTopCoaches") },
-      { value: "popularClasses", label: t("quickPopularClasses") },
-    ],
+  const quickFilterOptions = useMemo(
+    () =>
+      ANALYTICS_QUICK_FILTER_VALUES.map((value) => ({
+        value,
+        label: t(QUICK_FILTER_LABEL_KEYS[value]),
+      })),
     [t],
   );
 
-  const quickFilterValue: AnalyticsQuickFilterOption =
-    values.quick === "none" ? "today" : values.quick;
+  const handleQuickFiltersChange = (selectedValues: string[]) => {
+    const next = selectedValues as AnalyticsQuickFilterOption[];
+    const params = new URLSearchParams(searchParams.toString());
+    const serialized = serializeAnalyticsQuickFilters(next);
 
-  const handleQuickFilterChange = (value: AnalyticsQuickFilterOption) => {
-    if (value === "topCoaches" || value === "popularClasses") {
-      updateMany({ quick: value, sort: "bookings-desc" });
-      return;
+    if (serialized.length === 0) {
+      params.delete("quick");
+    } else {
+      params.set("quick", serialized);
     }
-    update("quick", value);
+
+    if (next.includes("topCoaches") || next.includes("popularClasses")) {
+      params.set("sort", "bookings-desc");
+    }
+
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const bookingStatusOptions = useMemo<
@@ -163,12 +166,15 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       <div className="mt-3 max-w-md">
         <label className="text-sm text-sage-700">
           <span className="mb-1 block text-xs text-sage-500">{t("quickFilterLabel")}</span>
-          <DropdownSelect
-            label={t("quickFilterLabel")}
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
             ariaLabel={t("quickFilterLabel")}
-            value={quickFilterValue}
+            allLabel={t("allQuickFilters")}
+            selectedValues={values.quickFilters}
+            onChange={handleQuickFiltersChange}
+            formatSelectedCount={(count) => t("selectedCount", { count })}
             options={quickFilterOptions}
-            onChange={handleQuickFilterChange}
           />
         </label>
       </div>

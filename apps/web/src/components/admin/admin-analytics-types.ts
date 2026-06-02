@@ -11,14 +11,16 @@ export type AnalyticsSortKey =
   | "attendance-asc"
   | "name-asc";
 
-export type AnalyticsQuickFilter =
-  | "none"
+export type AnalyticsQuickFilterOption =
   | "today"
   | "week"
   | "month"
   | "last30"
   | "topCoaches"
   | "popularClasses";
+
+/** @deprecated Legacy single-value filter; prefer `AnalyticsQuickFilterOption[]`. */
+export type AnalyticsQuickFilter = AnalyticsQuickFilterOption | "none";
 
 export type AnalyticsBookingStatusFilter =
   | ""
@@ -125,7 +127,7 @@ export type AdminAnalyticsPayload = {
   coachId: string;
   classTypeId: string;
   bookingStatus: AnalyticsBookingStatusFilter;
-  quickFilter: AnalyticsQuickFilter;
+  quickFilters: AnalyticsQuickFilterOption[];
   dashboard: AnalyticsDashboardOverview;
   finance: AnalyticsFinanceSummary;
   bookings: AnalyticsBookingsPayload;

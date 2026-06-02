@@ -2086,6 +2086,8 @@
         "sortAttendanceAsc": "Наименьшая посещаемость",
         "sortNameAsc": "Имя (А–Я)",
         "quickFilterLabel": "Вид аналитики",
+        "allQuickFilters": "Все виды",
+        "selectedCount": "{count} выбрано",
         "quickToday": "Сегодня",
         "quickWeek": "Эта неделя",
         "quickMonth": "Этот месяц",

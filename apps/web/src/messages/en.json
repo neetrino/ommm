@@ -2020,6 +2020,8 @@
         "sortAttendanceAsc": "Lowest attendance",
         "sortNameAsc": "Name (A–Z)",
         "quickFilterLabel": "Analytics view",
+        "allQuickFilters": "All views",
+        "selectedCount": "{count} selected",
         "quickToday": "Today",
         "quickWeek": "This week",
         "quickMonth": "This month",
