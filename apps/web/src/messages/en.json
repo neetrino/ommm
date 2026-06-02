@@ -307,6 +307,7 @@
     "packagesPriceLine": "{amount} per period",
     "packagesPriceFromLine": "From {amount} per period",
     "packagesCategoryTierCount": "{count, plural, one {# option} other {# options}}",
+    "packagesViewAllCta": "View all options",
     "packagesViewDetailsHint": "View all options",
     "packagesBackToList": "Back to packages",
     "packagesOpenDetailsAria": "View package details for {name}",

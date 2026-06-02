@@ -6,7 +6,8 @@ import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/
 type PackageCategoryCardFooterProps = {
   audience: PublicPackageCategoryCardsAudience;
   subscribeLabel: string;
-  accountLabel: string;
+  secondaryLabel: string;
+  secondaryHref: string;
   hint: string;
   onSubscribe?: () => void;
 };
@@ -14,12 +15,11 @@ type PackageCategoryCardFooterProps = {
 export function PackageCategoryCardFooter({
   audience,
   subscribeLabel,
-  accountLabel,
+  secondaryLabel,
+  secondaryHref,
   hint,
   onSubscribe,
 }: PackageCategoryCardFooterProps) {
-  const accountHref = audience === "member" ? "#your-packages" : "/user/packages";
-
   return (
     <div className="mt-8 border-t border-white/50 pt-6">
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -40,11 +40,11 @@ export function PackageCategoryCardFooter({
           </Link>
         )}
         <Link
-          href={accountHref}
+          href={secondaryHref}
           className="ommm-cta-ghost flex-1 text-center"
           onClick={(event) => event.stopPropagation()}
         >
-          {accountLabel}
+          {secondaryLabel}
         </Link>
       </div>
       <p className="mt-4 text-center text-xs text-sage-500">{hint}</p>

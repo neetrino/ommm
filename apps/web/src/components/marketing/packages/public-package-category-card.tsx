@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import {
   formatPublicPackagePriceParts,
   formatPublicPackageTierPriceLine,
@@ -49,15 +48,12 @@ export function PublicPackageCategoryCard({
 
   return (
     <li
-      className={`ommm-card ommm-package-card-hover ommm-package-card-interactive flex h-full min-h-0 flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ${
+      className={`ommm-card ommm-package-card-hover flex h-full min-h-0 flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ${
         isPopular ? "ring-2 ring-sand-400/70" : ""
       }`}
     >
       <div className="flex flex-1 flex-col">
-        <Link
-          href={categoryHref}
-          className="block text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-        >
+        <div>
           <h2 className="ommm-h3 text-sage-800">{category.label}</h2>
           {description ? (
             <p className="mt-3 text-sm leading-relaxed text-sage-500">{description}</p>
@@ -73,10 +69,7 @@ export function PublicPackageCategoryCard({
           <p className="mt-2 text-sm text-sage-500">
             {t("packagesCategoryTierCount", { count: displayPlans.length })}
           </p>
-          <p className="mt-1 text-xs font-medium uppercase tracking-[0.08em] text-sand-600">
-            {t("packagesViewDetailsHint")}
-          </p>
-        </Link>
+        </div>
         <ul className="mt-6 flex-1 space-y-4 border-t border-white/50 pt-6">
           {displayPlans.map((plan) => {
             const sessionsLabel = plan.isUnlimited
@@ -90,26 +83,24 @@ export function PublicPackageCategoryCard({
             );
 
             return (
-              <li key={plan.id}>
-                <Link
-                  href={buildPackageCategoryHref(category.id, audience, plan.id)}
-                  className="ommm-package-tier-row-interactive block w-full rounded-2xl border border-white/60 bg-white/40 p-4 text-left"
-                >
-                  {shouldShowPublicPackageTierName(plan.name, category.label) ? (
-                    <p className="text-sm font-semibold text-sage-800">{plan.name}</p>
-                  ) : null}
-                  <p className="mt-1 text-sm font-medium text-sage-700">{tierPriceLine}</p>
+              <li
+                key={plan.id}
+                className="rounded-2xl border border-white/60 bg-white/40 p-4"
+              >
+                {shouldShowPublicPackageTierName(plan.name, category.label) ? (
+                  <p className="text-sm font-semibold text-sage-800">{plan.name}</p>
+                ) : null}
+                <p className="mt-1 text-sm font-medium text-sage-700">{tierPriceLine}</p>
+                <p className="mt-1 text-sm text-sage-500">
+                  {plan.billingPeriod} ·{" "}
+                  {t("packagesPeriodDaysShort", { days: plan.periodDays })}
+                </p>
+                <p className="mt-2 text-sm text-sage-600">{sessionsLabel}</p>
+                {guestCount > 0 ? (
                   <p className="mt-1 text-sm text-sage-500">
-                    {plan.billingPeriod} ·{" "}
-                    {t("packagesPeriodDaysShort", { days: plan.periodDays })}
+                    {t("packagesGuestCount", { count: guestCount })}
                   </p>
-                  <p className="mt-2 text-sm text-sage-600">{sessionsLabel}</p>
-                  {guestCount > 0 ? (
-                    <p className="mt-1 text-sm text-sage-500">
-                      {t("packagesGuestCount", { count: guestCount })}
-                    </p>
-                  ) : null}
-                </Link>
+                ) : null}
               </li>
             );
           })}
@@ -118,7 +109,10 @@ export function PublicPackageCategoryCard({
       <PackageCategoryCardFooter
         audience={audience}
         subscribeLabel={t("packagesSubscribeCta")}
-        accountLabel={t("packagesAccountCta")}
+        secondaryLabel={
+          audience === "member" ? t("packagesViewAllCta") : t("packagesAccountCta")
+        }
+        secondaryHref={audience === "member" ? categoryHref : "/user/packages"}
         hint={audience === "member" ? t("packagesMemberHint") : t("packagesLoginHint")}
         onSubscribe={audience === "member" ? () => setPaymentOpen(true) : undefined}
       />

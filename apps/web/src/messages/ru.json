@@ -307,6 +307,7 @@
     "packagesPriceLine": "{amount} за период",
     "packagesPriceFromLine": "От {amount} за период",
     "packagesCategoryTierCount": "{count, plural, one {# вариант} few {# варианта} many {# вариантов} other {# варианта}}",
+    "packagesViewAllCta": "Смотреть все варианты",
     "packagesViewDetailsHint": "Смотреть все варианты",
     "packagesBackToList": "Назад к пакетам",
     "packagesOpenDetailsAria": "Открыть детали пакета {name}",
