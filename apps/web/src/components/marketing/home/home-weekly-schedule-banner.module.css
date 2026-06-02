@@ -22,7 +22,6 @@
   flex-direction: column;
   align-items: center;
   padding-inline: var(--home-schedule-section-px, 1rem);
-  gap: var(--home-schedule-cta-below-gap, 1rem);
 }
 
 .panel {
@@ -82,16 +81,10 @@
   flex-direction: column;
 }
 
-.ctaMobile {
+.cta {
   display: flex;
   width: 100%;
-  max-width: none;
-  padding-inline: var(--home-schedule-panel-inner-px, 0);
   justify-content: center;
-}
-
-.ctaDesktop {
-  display: none;
 }
 
 @media (min-width: 1024px) {
@@ -104,7 +97,6 @@
 
   .shell {
     padding-inline: 0;
-    gap: 0;
   }
 
   .panel {
@@ -142,13 +134,4 @@
     max-width: none;
   }
 
-  .ctaMobile {
-    display: none;
-  }
-
-  .ctaDesktop {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-  }
 }

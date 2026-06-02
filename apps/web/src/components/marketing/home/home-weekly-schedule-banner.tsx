@@ -44,7 +44,6 @@ export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBan
         ["--home-schedule-section-px" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionPaddingX,
         ["--home-schedule-panel-inner-px" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelInnerPaddingX,
-        ["--home-schedule-cta-below-gap" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.ctaBelowPanelGap,
         ["--home-schedule-panel-max-width" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelMaxWidth,
         ["--home-schedule-panel-content-width" as string]:
           HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelContentWidth,
@@ -102,11 +101,9 @@ export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBan
               <HomeWeeklyScheduleGridDeferred locale={locale} />
             </div>
 
-            <div className={styles.ctaDesktop}>{scheduleCta}</div>
+            <div className={styles.cta}>{scheduleCta}</div>
           </div>
         </div>
-
-        <div className={styles.ctaMobile}>{scheduleCta}</div>
       </div>
     </section>
   );
