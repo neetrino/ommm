@@ -102,7 +102,7 @@
       "weeklyScheduleSessionsPanelAria": "Занятия на {day}",
       "weeklyScheduleEmptyDay": "Нет занятий",
       "weeklyScheduleLoadFailed": "Не удалось загрузить расписание ({status}).",
-      "weeklyScheduleBookSessionAria": "Открыть {className} в расписании",
+      "weeklyScheduleBookSessionAria": "Забронировать {className}",
       "weeklyScheduleDays": {
         "MONDAY": "ПН",
         "TUESDAY": "ВТ",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
@@ -9,7 +10,10 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
-import { homePathForRole } from "@/lib/role-home";
+import {
+  REGISTER_REDIRECT_PARAM,
+  resolvePostAuthPath,
+} from "@/lib/auth-redirect";
 
 function buildGoogleAuthStartUrl(): string {
   const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
@@ -23,6 +27,8 @@ function buildGoogleAuthStartUrl(): string {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectAfterAuth = searchParams.get(REGISTER_REDIRECT_PARAM);
   const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.login");
@@ -53,7 +59,9 @@ export default function LoginPage() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      router.push(homePathForRole(user.role), { locale: nextLocale });
+      router.push(resolvePostAuthPath(user.role, redirectAfterAuth), {
+        locale: nextLocale,
+      });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : tAuth("loginFailed"));
     } finally {

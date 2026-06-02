@@ -102,7 +102,7 @@
       "weeklyScheduleSessionsPanelAria": "{day} class sessions",
       "weeklyScheduleEmptyDay": "No sessions",
       "weeklyScheduleLoadFailed": "Could not load schedule ({status}).",
-      "weeklyScheduleBookSessionAria": "View {className} on the schedule",
+      "weeklyScheduleBookSessionAria": "Book {className}",
       "weeklyScheduleDays": {
         "MONDAY": "MON",
         "TUESDAY": "TUES",

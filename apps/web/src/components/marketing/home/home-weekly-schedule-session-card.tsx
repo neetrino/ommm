@@ -13,6 +13,7 @@ type HomeWeeklyScheduleSessionCardProps = {
   item: MarketingScheduleItem;
   locale: string;
   bookAriaLabel: string;
+  registerHref: string;
   variant?: HomeWeeklyScheduleSessionCardVariant;
 };
 
@@ -29,6 +30,7 @@ export function HomeWeeklyScheduleSessionCard({
   item,
   locale,
   bookAriaLabel,
+  registerHref,
   variant = "desktop",
 }: HomeWeeklyScheduleSessionCardProps) {
   const startLabel = formatScheduleTime(locale, item.startTime);
@@ -55,7 +57,7 @@ export function HomeWeeklyScheduleSessionCard({
 
   return (
     <Link
-      href="/schedule"
+      href={registerHref}
       aria-label={bookAriaLabel}
       className={`${SESSION_CARD_BASE_CLASS} ${SESSION_CARD_VARIANT_CLASS[variant]}`}
       style={{

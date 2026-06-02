@@ -102,7 +102,7 @@
       "weeklyScheduleSessionsPanelAria": "{day} օրվա սեսիաներ",
       "weeklyScheduleEmptyDay": "Սեսիաներ չկան",
       "weeklyScheduleLoadFailed": "Դասացուցակը բեռնել չհաջողվեց ({status})։",
-      "weeklyScheduleBookSessionAria": "Դիտել {className} դասացուցակում",
+      "weeklyScheduleBookSessionAria": "Ամրագրել {className}",
       "weeklyScheduleDays": {
         "MONDAY": "ԵՐԿ",
         "TUESDAY": "ԵՐՔ",
