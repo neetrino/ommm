@@ -576,7 +576,17 @@
   "userPages": {
     "packages": {
       "title": "Փաթեթներ",
-      "description": "Բաժանորդագրվեք Stripe-ով, երբ բանալիները կարգավորված են. Ընդհատում կամ չեղարկում՝ ձեր հաշվից։",
+      "description": "Ընտրեք պլան և կատարեք վճարումը ձեր նախընտրած եղանակով։ Փաթեթը կհայտնվի այստեղ վճարումից հետո։",
+      "statusPending": "Վճարումը կատարված է",
+      "awaitingPaymentConfirmation": "Ձեր վճարումը հաջողությամբ ավարտվել է։",
+      "paymentStatusSucceeded": "Ավարտված",
+      "paymentStatusFailed": "Ձախողված",
+      "paymentMethods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
       "yourPackages": "Ձեր փաթեթները",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",
       "noActivePackage": "Դեռ ակտիվ փաթեթ չկա։",
@@ -590,7 +600,8 @@
       "perPeriod": "{days} օրյա ժամանակաշրջանի համար",
       "unlimitedClassesShort": "Անսահմանափակ դասեր",
       "sessionsPerPeriodShort": "{count} դաս / ժամանակաշրջան",
-      "logInToSubscribe": "Մուտք գործեք՝ բաժանորդագրվելու համար։"
+      "logInToSubscribe": "Մուտք գործեք՝ բաժանորդագրվելու համար։",
+      "currentPlan": "Ձեր ընթացիկ պլանը"
     },
     "progress": {
       "title": "Առաջընթաց",
@@ -1886,13 +1897,29 @@
         "searchLabel": "Որոնում",
         "searchPlaceholder": "Հաճախորդ, email, վճարման ID, հղում"
       },
+      "paymentMethods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
+      "paymentActions": {
+        "markPaid": "Նշել որպես վճարված",
+        "reject": "Մերժել",
+        "markedPaid": "Նշված է որպես վճարված։",
+        "markedRejected": "Հայտը մերժված է։",
+        "actionFailed": "Չհաջողվեց թարմացնել վճարումը։"
+      },
       "table": {
         "empty": "Ընտրված ֆիլտրերով վճարումներ չեն գտնվել։",
         "colDate": "Ամսաթիվ",
         "colUser": "Օգտատեր",
         "colAmount": "Գումար",
+        "colPlan": "Փաթեթ",
+        "colPaymentMethod": "Վճարման եղանակ",
         "colSource": "Աղբյուր",
         "colStatus": "Կարգավիճակ",
+        "colActions": "Գործողություններ",
         "colDescription": "Նկարագրություն"
       }
     },
@@ -2300,9 +2327,30 @@
       "failed": "Չհաջողվեց միանալ սպասման ցուցակին"
     },
     "packageCheckout": {
-      "subscribe": "Բաժանորդագրվել",
-      "checkoutFailed": "Չհաջողվեց սկսել վճարման գործընթացը",
-      "checkoutUnavailable": "Վճարումը հասանելի չէ"
+      "subscribe": "Բաժանորդագրվել"
+    },
+    "manualPackagePayment": {
+      "title": "Հաստատել բաժանորդագրությունը",
+      "lead": "Ընտրեք վճարման եղանակը։ Այս էկրանին քարտի տվյալներ չեն հավաքվում։",
+      "closeModal": "Փակել",
+      "methodLegend": "Վճարման եղանակ",
+      "methods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
+      "unlimitedClasses": "Անսահմանափակ դասեր",
+      "sessionsPerPeriod": "{count} դաս ժամանակաշրջանում",
+      "periodDays": "{days} օրյա ժամանակաշրջան",
+      "confirm": "Հաստատել վճարումը",
+      "submitting": "Մշակվում է…",
+      "cancel": "Չեղարկել",
+      "submitFailed": "Չհաջողվեց ավարտել վճարումը։",
+      "successTitle": "Վճարումը հաջող էր",
+      "successLead": "Ձեր վճարումը հաջողությամբ ավարտվել է։",
+      "successMethod": "Վճարման եղանակ՝ {method}",
+      "done": "Պատրաստ է"
     },
     "packageLifecycle": {
       "pause": "Դադարեցնել",

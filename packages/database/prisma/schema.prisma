@@ -64,6 +64,15 @@ enum MembershipStatus {
   PAUSED
   CANCELLED
   EXPIRED
+  /** Awaiting manual / offline payment confirmation by admin. */
+  PENDING
+}
+
+enum ManualPaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  OTHER
 }
 
 enum PaymentStatus {
@@ -344,6 +353,7 @@ model MembershipPlan {
   updatedAt        DateTime @updatedAt
 
   memberships UserMembership[]
+  payments    Payment[]
 }
 
 model UserMembership {
@@ -360,25 +370,32 @@ model UserMembership {
   stripeSubscriptionId String?         @unique
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
+  pendingPayment     Payment?
 
   @@index([userId])
 }
 
 model Payment {
-  id              String        @id @default(cuid())
+  id              String               @id @default(cuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   amountCents     Int
-  currency        String        @default("amd")
-  status          PaymentStatus @default(PENDING)
-  stripePaymentId String?       @unique
+  currency        String               @default("amd")
+  status          PaymentStatus        @default(PENDING)
+  stripePaymentId String?              @unique
   description     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  planId          String?
+  plan            MembershipPlan?      @relation(fields: [planId], references: [id], onDelete: SetNull)
+  paymentMethod   ManualPaymentMethod?
+  membershipId    String?              @unique
+  membership      UserMembership?      @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   @@index([userId])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([planId, status])
 }
 
 model GiftCard {

@@ -576,7 +576,17 @@
   "userPages": {
     "packages": {
       "title": "Пакеты",
-      "description": "Оформите подписку через Stripe, когда ключи настроены; пауза или отмена из личного кабинета.",
+      "description": "Выберите план и оплатите удобным способом. Пакет появится здесь после оплаты.",
+      "statusPending": "Оплата завершена",
+      "awaitingPaymentConfirmation": "Ваш платёж успешно завершён.",
+      "paymentStatusSucceeded": "Завершён",
+      "paymentStatusFailed": "Ошибка",
+      "paymentMethods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
       "yourPackages": "Ваши пакеты",
       "signInToView": "Войдите, чтобы просмотреть.",
       "noActivePackage": "Пока нет активного пакета.",
@@ -590,7 +600,8 @@
       "perPeriod": "за период {days} дн.",
       "unlimitedClassesShort": "Безлимитные занятия",
       "sessionsPerPeriodShort": "{count} занятий / период",
-      "logInToSubscribe": "Войдите, чтобы оформить подписку."
+      "logInToSubscribe": "Войдите, чтобы оформить подписку.",
+      "currentPlan": "Ваш текущий план"
     },
     "progress": {
       "title": "Прогресс",
@@ -1890,13 +1901,29 @@
         "searchLabel": "Поиск",
         "searchPlaceholder": "Клиент, email, ID платежа, референс"
       },
+      "paymentMethods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
+      "paymentActions": {
+        "markPaid": "Отметить оплаченным",
+        "reject": "Отклонить",
+        "markedPaid": "Отмечено как оплаченное.",
+        "markedRejected": "Заявка отклонена.",
+        "actionFailed": "Не удалось обновить платёж."
+      },
       "table": {
         "empty": "Для выбранных фильтров платежи не найдены.",
         "colDate": "Дата",
         "colUser": "Пользователь",
         "colAmount": "Сумма",
+        "colPlan": "Пакет",
+        "colPaymentMethod": "Способ оплаты",
         "colSource": "Источник",
         "colStatus": "Статус",
+        "colActions": "Действия",
         "colDescription": "Описание"
       }
     },
@@ -2304,9 +2331,30 @@
       "failed": "Не удалось встать в лист ожидания"
     },
     "packageCheckout": {
-      "subscribe": "Оформить",
-      "checkoutFailed": "Не удалось начать оплату",
-      "checkoutUnavailable": "Оплата недоступна"
+      "subscribe": "Оформить"
+    },
+    "manualPackagePayment": {
+      "title": "Подтвердить подписку",
+      "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
+      "closeModal": "Закрыть",
+      "methodLegend": "Способ оплаты",
+      "methods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
+      "unlimitedClasses": "Безлимитные занятия",
+      "sessionsPerPeriod": "{count} занятий за период",
+      "periodDays": "Период {days} дн.",
+      "confirm": "Подтвердить оплату",
+      "submitting": "Обработка…",
+      "cancel": "Отмена",
+      "submitFailed": "Не удалось завершить оплату.",
+      "successTitle": "Оплата прошла успешно",
+      "successLead": "Ваш платёж успешно завершён.",
+      "successMethod": "Способ оплаты: {method}",
+      "done": "Готово"
     },
     "packageLifecycle": {
       "pause": "Пауза",

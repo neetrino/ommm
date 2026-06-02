@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +11,7 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
+  ManualPaymentMethod,
   MembershipStatus,
   Prisma,
   PaymentStatus,
@@ -21,6 +24,7 @@ import {
   AdminListPaymentsQueryDto,
   PaymentSourceFilter,
 } from './dto/admin-list-payments-query.dto';
+import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 
 type StripeClient = InstanceType<typeof Stripe>;
 
@@ -405,9 +409,176 @@ export class PaymentsService {
     }
   }
 
+  /**
+   * Offline / manual package subscription request.
+   * Replace with a real payment gateway checkout when Stripe (or similar) is enabled.
+   */
+  async createManualPackagePayment(
+    userId: string,
+    planId: string,
+    paymentMethod: ManualPaymentMethod,
+  ) {
+    const plan = await this.prisma.membershipPlan.findUnique({
+      where: { id: planId },
+    });
+    if (!plan?.isActive) {
+      throw new BadRequestException('Plan not available');
+    }
+
+    const activeSamePlan = await this.prisma.userMembership.findFirst({
+      where: {
+        userId,
+        planId,
+        status: MembershipStatus.ACTIVE,
+      },
+    });
+    if (activeSamePlan) {
+      throw new ConflictException('You already have an active package for this plan');
+    }
+
+    const pendingRequest = await this.prisma.payment.findFirst({
+      where: {
+        userId,
+        planId,
+        status: PaymentStatus.PENDING,
+        paymentMethod: { not: null },
+      },
+    });
+    if (pendingRequest) {
+      throw new ConflictException(
+        'A pending subscription request already exists for this plan',
+      );
+    }
+
+    const start = new Date();
+    const end = new Date(start);
+    end.setDate(end.getDate() + plan.periodDays);
+    const sessionsRemaining = plan.isUnlimited
+      ? null
+      : (plan.sessionsPerMonth ?? 0);
+
+    const membership = await this.prisma.userMembership.create({
+      data: {
+        userId,
+        planId,
+        status: MembershipStatus.PENDING,
+        sessionsRemaining,
+        currentPeriodStart: start,
+        currentPeriodEnd: end,
+      },
+    });
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        userId,
+        planId,
+        membershipId: membership.id,
+        paymentMethod,
+        amountCents: plan.priceCents,
+        currency: plan.currency.toLowerCase(),
+        status: PaymentStatus.PENDING,
+        description: `Package subscription (manual): ${plan.name}`,
+      },
+      include: {
+        plan: { select: { id: true, name: true } },
+      },
+    });
+
+    return payment;
+  }
+
+  async adminUpdatePaymentStatus(
+    paymentId: string,
+    status: AdminUpdatablePaymentStatus,
+  ) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: {
+        membership: { include: { plan: true } },
+        plan: true,
+      },
+    });
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (!payment.paymentMethod || !payment.planId) {
+      throw new BadRequestException('Not a manual package payment');
+    }
+    if (payment.status !== PaymentStatus.PENDING) {
+      throw new BadRequestException('Payment is no longer pending');
+    }
+
+    if (status === PaymentStatus.SUCCEEDED) {
+      const plan = payment.plan ?? payment.membership?.plan;
+      if (!plan) {
+        throw new BadRequestException('Plan not found for payment');
+      }
+      const start = new Date();
+      const end = new Date(start);
+      end.setDate(end.getDate() + plan.periodDays);
+      const sessionsRemaining = plan.isUnlimited
+        ? null
+        : (plan.sessionsPerMonth ?? 0);
+
+      await this.prisma.$transaction([
+        this.prisma.payment.update({
+          where: { id: paymentId },
+          data: { status: PaymentStatus.SUCCEEDED },
+        }),
+        ...(payment.membershipId
+          ? [
+              this.prisma.userMembership.update({
+                where: { id: payment.membershipId },
+                data: {
+                  status: MembershipStatus.ACTIVE,
+                  currentPeriodStart: start,
+                  currentPeriodEnd: end,
+                  sessionsRemaining,
+                },
+              }),
+            ]
+          : []),
+      ]);
+    } else {
+      await this.prisma.$transaction([
+        this.prisma.payment.update({
+          where: { id: paymentId },
+          data: { status: PaymentStatus.FAILED },
+        }),
+        ...(payment.membershipId
+          ? [
+              this.prisma.userMembership.update({
+                where: { id: payment.membershipId },
+                data: { status: MembershipStatus.CANCELLED },
+              }),
+            ]
+          : []),
+      ]);
+    }
+
+    return this.prisma.payment.findUniqueOrThrow({
+      where: { id: paymentId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            lastName: true,
+            phone: true,
+          },
+        },
+        plan: { select: { id: true, name: true, priceCents: true } },
+      },
+    });
+  }
+
   listPayments(userId: string) {
     return this.prisma.payment.findMany({
       where: { userId },
+      include: {
+        plan: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
@@ -444,9 +615,11 @@ export class PaymentsService {
               email: true,
               name: true,
               lastName: true,
+              phone: true,
               role: true,
             },
           },
+          plan: { select: { id: true, name: true, priceCents: true } },
         },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take,
@@ -458,7 +631,7 @@ export class PaymentsService {
     return {
       items: items.map((payment) => ({
         ...payment,
-        source: this.detectPaymentSource(payment.description),
+        source: this.detectPaymentSource(payment.description, payment.planId),
       })),
       total,
       take,
@@ -475,6 +648,7 @@ export class PaymentsService {
     if (source === PaymentSourceFilter.PACKAGE) {
       return {
         OR: [
+          { planId: { not: null } },
           { description: { startsWith: 'Membership' } },
           { description: { startsWith: 'Package' } },
         ],
@@ -501,7 +675,13 @@ export class PaymentsService {
     };
   }
 
-  private detectPaymentSource(description: string | null): PaymentSource {
+  private detectPaymentSource(
+    description: string | null,
+    planId?: string | null,
+  ): PaymentSource {
+    if (planId) {
+      return 'package';
+    }
     const normalized = (description ?? '').toLowerCase();
     if (
       normalized.startsWith('membership') ||

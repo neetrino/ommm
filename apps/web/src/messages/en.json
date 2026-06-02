@@ -576,7 +576,17 @@
   "userPages": {
     "packages": {
       "title": "Packages",
-      "description": "Subscribe with Stripe when keys are configured; pause or cancel from your account.",
+      "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
+      "statusPending": "Payment completed",
+      "awaitingPaymentConfirmation": "Your payment was completed successfully.",
+      "paymentStatusSucceeded": "Completed",
+      "paymentStatusFailed": "Failed",
+      "paymentMethods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
       "yourPackages": "Your packages",
       "signInToView": "Sign in to view.",
       "noActivePackage": "No active package yet.",
@@ -590,7 +600,8 @@
       "perPeriod": "per {days}-day period",
       "unlimitedClassesShort": "Unlimited classes",
       "sessionsPerPeriodShort": "{count} classes / period",
-      "logInToSubscribe": "Log in to subscribe."
+      "logInToSubscribe": "Log in to subscribe.",
+      "currentPlan": "Your current plan"
     },
     "progress": {
       "title": "Progress",
@@ -2062,13 +2073,29 @@
         "searchLabel": "Search",
         "searchPlaceholder": "Client, email, payment ID, reference"
       },
+      "paymentMethods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
+      "paymentActions": {
+        "markPaid": "Mark paid",
+        "reject": "Reject",
+        "markedPaid": "Marked as paid.",
+        "markedRejected": "Request rejected.",
+        "actionFailed": "Could not update payment."
+      },
       "table": {
         "empty": "No payments found for selected filters.",
         "colDate": "Date",
         "colUser": "User",
         "colAmount": "Amount",
+        "colPlan": "Package",
+        "colPaymentMethod": "Payment method",
         "colSource": "Source",
         "colStatus": "Status",
+        "colActions": "Actions",
         "colDescription": "Description"
       },
       "actions": {
@@ -2415,9 +2442,30 @@
       "failed": "Could not join waitlist"
     },
     "packageCheckout": {
-      "subscribe": "Subscribe",
-      "checkoutFailed": "Could not start checkout",
-      "checkoutUnavailable": "Checkout unavailable"
+      "subscribe": "Subscribe"
+    },
+    "manualPackagePayment": {
+      "title": "Confirm subscription",
+      "lead": "Select how you will pay. No card details are collected on this screen.",
+      "closeModal": "Close",
+      "methodLegend": "Payment method",
+      "methods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
+      "unlimitedClasses": "Unlimited classes",
+      "sessionsPerPeriod": "{count} classes per period",
+      "periodDays": "{days}-day period",
+      "confirm": "Confirm payment",
+      "submitting": "Processing…",
+      "cancel": "Cancel",
+      "submitFailed": "Could not complete payment.",
+      "successTitle": "Payment successful",
+      "successLead": "Your payment was completed successfully.",
+      "successMethod": "Payment method: {method}",
+      "done": "Done"
     },
     "packageLifecycle": {
       "pause": "Pause",

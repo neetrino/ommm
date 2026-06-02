@@ -8,12 +8,15 @@ export type FinancePaymentItem = {
   currency: string;
   status: string;
   description: string | null;
+  paymentMethod: string | null;
   source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
+  plan: { id: string; name: string; priceCents: number } | null;
   user: {
     email: string;
     name: string | null;
     lastName: string | null;
+    phone?: string | null;
   };
 };
 

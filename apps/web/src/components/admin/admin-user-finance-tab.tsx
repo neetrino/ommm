@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
+import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
 import { AdminFinanceUserActions } from "@/components/admin/admin-finance-user-actions";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type {
@@ -113,10 +114,11 @@ export function AdminUserFinanceTab({
   initialRows,
   initialPayments,
   packages,
+  paymentsFrom,
 }: Props) {
   const t = useTranslations("adminPages.finance.userTab");
   const [rows, setRows] = useState(initialRows);
-  const [payments] = useState(initialPayments);
+  const [payments, setPayments] = useState(initialPayments);
   const [filters, setFilters] = useState<UserFinanceFilters>(defaultFilters);
   const [selected, setSelected] = useState<ClientRow | null>(null);
   const [loading, startTransition] = useTransition();
@@ -328,7 +330,16 @@ export function AdminUserFinanceTab({
       <section className="space-y-2">
         <h3 className="text-base font-semibold text-sage-900">{t("billingHistory")}</h3>
         <p className="text-xs text-sage-500">{t("billingHint")}</p>
-        <BillingHistoryTable items={payments} locale={locale} />
+        <BillingHistoryTable
+          items={payments}
+          locale={locale}
+          paymentsFrom={paymentsFrom}
+          onPaymentChanged={(reload) => {
+            void reload().then((items) => {
+              setPayments(items);
+            });
+          }}
+        />
       </section>
       <AdminClientDrawer
         client={selected}
@@ -376,11 +387,18 @@ function QuickFilters(props: {
 function BillingHistoryTable({
   items,
   locale,
+  paymentsFrom,
+  onPaymentChanged,
 }: {
   items: FinancePaymentItem[];
   locale: string;
+  paymentsFrom: string;
+  onPaymentChanged: (
+    reload: () => Promise<FinancePaymentItem[]>,
+  ) => void;
 }) {
   const t = useTranslations("adminPages.finance.table");
+  const tMethods = useTranslations("adminPages.finance.paymentMethods");
   if (items.length === 0) {
     return <p className="text-sm text-sage-600">{t("empty")}</p>;
   }
@@ -392,8 +410,11 @@ function BillingHistoryTable({
             <th className={adminChrome.th}>{t("colDate")}</th>
             <th className={adminChrome.th}>{t("colUser")}</th>
             <th className={adminChrome.th}>{t("colAmount")}</th>
+            <th className={adminChrome.th}>{t("colPlan")}</th>
+            <th className={adminChrome.th}>{t("colPaymentMethod")}</th>
             <th className={adminChrome.th}>{t("colSource")}</th>
             <th className={adminChrome.th}>{t("colStatus")}</th>
+            <th className={adminChrome.th}>{t("colActions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -401,11 +422,35 @@ function BillingHistoryTable({
             <tr key={row.id} className={adminChrome.tr}>
               <td className={adminChrome.td}>{formatDateForUi(row.createdAt)}</td>
               <td className={adminChrome.td}>
-                {[row.user.name, row.user.lastName].filter(Boolean).join(" ") || row.user.email}
+                <p>
+                  {[row.user.name, row.user.lastName].filter(Boolean).join(" ") ||
+                    row.user.email}
+                </p>
+                <p className="text-xs text-sage-500">
+                  {row.user.phone ?? row.user.email}
+                </p>
               </td>
               <td className={adminChrome.td}>{formatAmdFromCents(row.amountCents, locale)}</td>
+              <td className={adminChrome.td}>{row.plan?.name ?? "—"}</td>
+              <td className={adminChrome.td}>
+                {row.paymentMethod
+                  ? tMethods(row.paymentMethod as "CASH")
+                  : "—"}
+              </td>
               <td className={adminChrome.td}>{row.source}</td>
               <td className={adminChrome.td}>{row.status}</td>
+              <td className={adminChrome.td}>
+                <AdminFinancePaymentActions
+                  payment={row}
+                  onChanged={() =>
+                    onPaymentChanged(() =>
+                      apiFetch<{ items: FinancePaymentItem[] }>(
+                        `/payments/admin?from=${encodeURIComponent(paymentsFrom)}&take=100&offset=0`,
+                      ).then((payload) => payload.items),
+                    )
+                  }
+                />
+              </td>
             </tr>
           ))}
         </tbody>

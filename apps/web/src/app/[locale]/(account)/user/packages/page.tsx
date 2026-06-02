@@ -38,8 +38,39 @@ type PaymentRow = {
   currency: string;
   status: string;
   description: string | null;
+  paymentMethod: string | null;
   createdAt: string;
+  plan: { id: string; name: string } | null;
 };
+
+function formatUserPaymentStatus(
+  status: string,
+  paymentMethod: string | null,
+  labels: {
+    succeeded: string;
+    failed: string;
+    pending: string;
+  },
+): string {
+  if (paymentMethod !== null) {
+    if (status === "PENDING" || status === "SUCCEEDED") {
+      return labels.succeeded;
+    }
+    if (status === "FAILED") {
+      return labels.failed;
+    }
+  }
+  if (status === "SUCCEEDED") {
+    return labels.succeeded;
+  }
+  if (status === "FAILED") {
+    return labels.failed;
+  }
+  if (status === "PENDING") {
+    return labels.pending;
+  }
+  return status;
+}
 
 export default async function UserPackagesPage({
   params,
@@ -70,7 +101,9 @@ export default async function UserPackagesPage({
                 <li key={m.id} className="ommm-stack-card">
                   <p className="font-medium text-sage-800">{m.plan.name}</p>
                   <p className="text-sm text-sage-500">
-                    {m.status}
+                    {m.status === "PENDING"
+                      ? t("statusPending")
+                      : m.status}
                     {m.sessionsRemaining != null
                       ? ` · ${t("sessionsLeft", { count: m.sessionsRemaining })}`
                       : ""}
@@ -80,10 +113,16 @@ export default async function UserPackagesPage({
                       date: formatDateForUi(m.currentPeriodEnd),
                     })}
                   </p>
-                  <PackageLifecycleButtons
-                    userPackageId={m.id}
-                    status={m.status}
-                  />
+                  {m.status !== "PENDING" ? (
+                    <PackageLifecycleButtons
+                      userPackageId={m.id}
+                      status={m.status}
+                    />
+                  ) : (
+                    <p className="mt-2 text-xs text-sage-500">
+                      {t("awaitingPaymentConfirmation")}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
@@ -103,8 +142,21 @@ export default async function UserPackagesPage({
                     <span className="text-black">֏</span>{" "}
                     {formatAmdFromCents(p.amountCents, locale).replace(/^֏\s*/, "")}
                   </span>
-                  <span className="ml-2 text-sage-500">{p.status}</span>
-                  {p.description ? (
+                  <span className="ml-2 text-sage-500">
+                    {formatUserPaymentStatus(p.status, p.paymentMethod, {
+                      succeeded: t("paymentStatusSucceeded"),
+                      failed: t("paymentStatusFailed"),
+                      pending: t("paymentStatusSucceeded"),
+                    })}
+                  </span>
+                  {p.paymentMethod ? (
+                    <span className="ml-2 text-sage-500">
+                      {t(`paymentMethods.${p.paymentMethod}`)}
+                    </span>
+                  ) : null}
+                  {p.plan ? (
+                    <span className="ml-2 text-sage-500">{p.plan.name}</span>
+                  ) : p.description ? (
                     <span className="ml-2 text-sage-500">{p.description}</span>
                   ) : null}
                   <span className="ml-2 text-xs text-sage-500">
@@ -128,7 +180,18 @@ export default async function UserPackagesPage({
                     : null;
                 return plansRes.data
                   .filter((p) => p.isActive)
-                  .map((plan) => (
+                  .map((plan) => {
+                    const pendingThisPlan =
+                      mineRes.ok &&
+                      mineRes.data.some(
+                        (row) =>
+                          row.status === "PENDING" && row.planId === plan.id,
+                      );
+                    const activeThisPlan =
+                      activePackage !== null &&
+                      activePackage.planId === plan.id &&
+                      activePackage.status === "ACTIVE";
+                    return (
                     <li key={plan.id} className="ommm-stack-card">
                       <p className="font-semibold text-sage-800">{plan.name}</p>
                       {plan.description ? (
@@ -148,14 +211,35 @@ export default async function UserPackagesPage({
                       </p>
                       {mineRes.ok ? (
                         <div className="mt-4">
-                          {activePackage !== null &&
-                          activePackage.planId !== plan.id ? (
+                          {pendingThisPlan ? (
+                            <p className="text-xs text-sage-600">
+                              {t("awaitingPaymentConfirmation")}
+                            </p>
+                          ) : activeThisPlan ? (
+                            <p className="text-xs text-sage-600">
+                              {t("currentPlan")}
+                            </p>
+                          ) : activePackage !== null &&
+                            activePackage.planId !== plan.id ? (
                             <PackagePlanSwitchButton
                               userPackageId={activePackage.id}
                               planId={plan.id}
                             />
                           ) : (
-                            <PackageCheckoutButton planId={plan.id} />
+                            <PackageCheckoutButton
+                              plan={{
+                                id: plan.id,
+                                name: plan.name,
+                                description: plan.description,
+                                priceCents: plan.priceCents,
+                                currency: plan.currency,
+                                billingPeriod: plan.billingPeriod,
+                                isUnlimited: plan.isUnlimited,
+                                sessionsPerMonth: plan.sessionsPerMonth,
+                                periodDays: plan.periodDays,
+                              }}
+                              locale={locale}
+                            />
                           )}
                         </div>
                       ) : (
@@ -164,7 +248,8 @@ export default async function UserPackagesPage({
                         </p>
                       )}
                     </li>
-                  ));
+                    );
+                  });
               })()}
             </ul>
           )}
