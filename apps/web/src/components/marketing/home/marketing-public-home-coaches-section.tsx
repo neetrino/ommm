@@ -136,6 +136,11 @@ export function MarketingPublicHomeCoachesSection() {
       HOME_COACHES_SECTION_MOBILE_LAYOUT.subtitleMaxWidth,
     ["--home-coaches-header-subtitle-gap" as string]:
       HOME_COACHES_SECTION_MOBILE_LAYOUT.headerSubtitleGap,
+    ["--home-coaches-dot-size" as string]: HOME_COACHES_SECTION_MOBILE_LAYOUT.sectionDotSize,
+    ["--home-coaches-dot-gap" as string]: HOME_COACHES_SECTION_MOBILE_LAYOUT.sectionDotGap,
+    ["--home-coaches-dot-active-scale" as string]: String(
+      HOME_COACHES_SECTION_MOBILE_LAYOUT.sectionDotActiveScale,
+    ),
   };
 
   return (

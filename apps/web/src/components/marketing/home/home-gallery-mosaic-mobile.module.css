@@ -1,29 +1,41 @@
 .root {
   display: flex;
   width: 100%;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
 }
 
-.stage {
-  position: relative;
-  width: var(--home-gallery-mobile-mosaic-size);
+.viewport {
+  width: 100%;
+  min-width: 0;
   height: var(--home-gallery-mobile-mosaic-size);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: max(0px, calc(50% - var(--home-gallery-mobile-mosaic-size) / 2));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  min-height: 100%;
+  align-items: stretch;
+  gap: var(--home-gallery-mobile-carousel-gap);
+  padding-inline: max(0px, calc(50% - var(--home-gallery-mobile-mosaic-size) / 2));
 }
 
 .slide {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 420ms ease;
-  pointer-events: none;
-}
-
-.slideActive {
-  z-index: 1;
-  opacity: 1;
-  pointer-events: auto;
+  flex-shrink: 0;
+  width: var(--home-gallery-mobile-mosaic-size);
+  height: var(--home-gallery-mobile-mosaic-size);
+  scroll-snap-align: center;
 }
 
 .mosaic {
@@ -96,10 +108,4 @@
 .dot:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slide {
-    transition: none;
-  }
 }

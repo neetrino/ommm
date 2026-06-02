@@ -20,6 +20,7 @@ export type HomePackagePlanCardProps = {
 function planCardStyleVars(): CSSProperties {
   return {
     ["--home-plan-card-max-width" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardWidthPx}px`,
+    ["--home-plan-card-aspect-ratio" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardWidthPx} / ${HOME_PLANS_SECTION_LAYOUT.cardHeightPx}`,
     ["--home-plan-card-radius" as string]: `${HOME_PLANS_SECTION_FIGMA.cardRadiusPx}px`,
     ["--home-plan-card-fallback-bg" as string]: HOME_PLANS_SECTION_FIGMA.cardFallbackBg,
     ["--home-plan-glass-height" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardGlassHeightPx}px`,
@@ -46,14 +47,18 @@ export function HomePackagePlanCard({
       style={planCardStyleVars()}
     >
       <div className={styles.cardMedia}>
-        <Image
-          src={HOME_PLANS_SECTION_ASSETS.cardBackground}
-          alt=""
-          fill
-          sizes="(max-width: 1332px) 33vw, 404px"
-          className={styles.image}
-          {...belowFoldImageProps()}
-        />
+        <div className={styles.imageCrop}>
+          <div className={styles.imageFrame}>
+            <Image
+              src={HOME_PLANS_SECTION_ASSETS.cardBackground}
+              alt=""
+              fill
+              sizes="(max-width: 1332px) 33vw, 404px"
+              className={styles.image}
+              {...belowFoldImageProps()}
+            />
+          </div>
+        </div>
         <p className={styles.category}>{planName}</p>
       </div>
 

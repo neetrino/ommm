@@ -12,6 +12,7 @@ import {
   HOME_GALLERY_SECTION_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-gallery-section-tokens";
 import { HOME_FOOTER_MOBILE_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
+import { HOME_HERO_MOBILE_MORE_DETAILS_CTA } from "@/components/marketing/home/home-hero-banner-tokens";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import styles from "@/components/marketing/home/marketing-public-home-gallery-section.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -78,6 +79,7 @@ export function MarketingPublicHomeGallerySection() {
 
           <div className={styles.mobileMosaic}>
             <HomeGalleryMosaicMobile
+              carouselAriaLabel={t("galleryTitle")}
               getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
             />
           </div>
@@ -87,6 +89,7 @@ export function MarketingPublicHomeGallerySection() {
               href="/explore"
               label={t("galleryMoreDetails")}
               variant="booking"
+              labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
             />
           </div>
         </div>

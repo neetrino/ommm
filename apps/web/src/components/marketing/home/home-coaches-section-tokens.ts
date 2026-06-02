@@ -4,6 +4,7 @@
  * Desktop portrait `-427 1` `196:1123` (342×597 in card).
  */
 
+import { HOME_HERO_MOBILE_MORE_DETAILS_CTA } from "@/components/marketing/home/home-hero-banner-tokens";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 
 /** Figma desktop coach portrait `196:1123` inside card `163:879`. */
@@ -67,6 +68,8 @@ export const HOME_COACHES_SECTION_MOBILE_FIGMA = {
   cardBodyFontSizePx: 14,
   cardBodyLineHeightPx: 20,
   cardNavSizePx: 64,
+  sectionDotSizePx: 6,
+  sectionDotGapPx: 6,
 } as const;
 
 /** Mobile layout from Figma `97:5826`. */
@@ -91,8 +94,11 @@ export const HOME_COACHES_SECTION_MOBILE_LAYOUT = {
   cardRadiusPx: HOME_COACHES_SECTION_MOBILE_FIGMA.cardRadiusPx,
   cardMinHeightPx: HOME_COACHES_SECTION_MOBILE_FIGMA.cardHeightPx,
   cardNavSizePx: HOME_COACHES_SECTION_MOBILE_FIGMA.cardNavSizePx,
+  sectionDotSize: "0.375rem",
+  sectionDotGap: "0.375rem",
+  sectionDotActiveScale: 1.1,
   /** Mobile “More Details” — label nudged right vs booking default (67px). */
-  ctaLabelOffsetPx: 80,
+  ctaLabelOffsetPx: HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx,
 } as const;
 
 export const HOME_COACHES_CAROUSEL_DESKTOP_GAP_REM = 2.25 as const;

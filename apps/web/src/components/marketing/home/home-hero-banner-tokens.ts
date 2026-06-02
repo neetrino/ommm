@@ -169,6 +169,11 @@ export const HOME_HERO_MOBILE_CTA_LAYOUT = {
     "calc(2 * clamp(3.25rem, calc(100svw * 61.747 / 394), 3.875rem) + clamp(0.5rem, calc(100svw * 10.25 / 394), 0.75rem))",
 } as const;
 
+/** Mobile section “More Details” — Featured Coaches `108:6664`, Gallery `108:6677`. */
+export const HOME_HERO_MOBILE_MORE_DETAILS_CTA = {
+  labelOffsetPx: 80,
+} as const;
+
 /** Figma hero CTAs — `196:1430` booking, `196:1440` membership, Featured Coaches `196:1149`. */
 export const HOME_HERO_CTA_ASSETS = {
   booking: {

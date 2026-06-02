@@ -69,6 +69,7 @@ export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
   headerSubtitleGap: "1.5rem",
   mosaicSize: "clamp(17rem, calc(100svw * 346 / 394), 21.625rem)",
   mosaicGap: "1rem",
+  carouselGap: "1rem",
   mosaicToDotsGap: "2rem",
   dotsToCtaGap: "2rem",
   tileRadiusPx: HOME_GALLERY_SECTION_MOBILE_FIGMA.tileRadiusPx,

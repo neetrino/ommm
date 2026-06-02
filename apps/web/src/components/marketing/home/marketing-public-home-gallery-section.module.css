@@ -69,9 +69,8 @@
 }
 
 .mobileMosaic {
-  display: flex;
   width: 100%;
-  justify-content: center;
+  min-width: 0;
 }
 
 .mobileCta {

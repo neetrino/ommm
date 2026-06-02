@@ -50,9 +50,6 @@ export async function MarketingPublicHomePlansSection({
     ["--home-plans-carousel-height" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselHeight,
     ["--home-plans-carousel-gap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselGap,
     ["--home-plans-carousel-card-width" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselCardWidth,
-    ["--home-plan-mobile-card-width" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselCardWidth,
-    ["--home-plan-mobile-card-height" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselCardHeight,
-    ["--home-plan-mobile-card-radius" as string]: `${HOME_PLANS_SECTION_MOBILE_LAYOUT.cardRadiusPx}px`,
   };
 
   return (

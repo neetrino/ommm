@@ -26,15 +26,30 @@ export const HOME_PLANS_SECTION_MOBILE_FIGMA = {
   cardWidthPx: 292,
   cardHeightPx: 440,
   cardRadiusPx: 40,
+  cardImageFrameLeftPx: 2,
+  cardImageFrameTopPx: 0.96,
+  cardImageFrameWidthPx: 290,
+  cardImageFrameHeightPx: 439,
   cardImageCropLeftPercent: -7.59,
   cardImageCropTopPercent: 0.07,
   cardImageCropWidthPercent: 115.17,
   cardImageCropHeightPercent: 100.04,
-  glassHeightPx: 136,
   glassWidthPx: 291,
+  glassHeightPx: 136,
+  glassOverhangPx: 34,
+  /** Lifts price panel slightly above card bottom edge. */
+  glassBottomInsetPx: 20,
+  glassPaddingRightPx: 12,
+  glassPaddingLeftPx: 20,
+  categoryLeftPx: 54,
+  categoryTopPx: 55.58,
   categoryFontSizePx: 28,
+  categoryLineHeightPx: 24,
   detailsFontSizePx: 18,
+  detailsLineHeightPx: 24,
   priceFontSizePx: 28,
+  priceLineHeightPx: 24,
+  letterSpacingPx: 0.18,
   ctaIconSizePx: 64,
 } as const;
 
@@ -58,7 +73,9 @@ export const HOME_PLANS_SECTION_MOBILE_LAYOUT = {
   carouselHeight: "29.625rem",
   carouselCardWidth: "clamp(18.25rem, calc(100svw * 292 / 394), 18.25rem)",
   carouselCardHeight: "27.5rem",
+  carouselCardTotalHeight: "29.625rem",
   cardRadiusPx: HOME_PLANS_SECTION_MOBILE_FIGMA.cardRadiusPx,
+  cardGlassOverhangPx: HOME_PLANS_SECTION_MOBILE_FIGMA.glassOverhangPx,
 } as const;
 
 export const HOME_PLANS_SECTION_FIGMA = {
