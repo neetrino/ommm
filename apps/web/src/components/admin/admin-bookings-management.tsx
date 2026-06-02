@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
@@ -85,25 +85,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
   const [rows, setRows] = useState<BookingRow[]>(initial.rows);
   const sessionSlots = initial.sessionSlots;
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [view, setView] = useState<BookingsView>(() => {
-    if (typeof window === "undefined") {
-      return "list";
-    }
-    try {
-      const saved = window.localStorage.getItem(VIEW_KEY);
-      if (
-        saved === "list" ||
-        saved === "monthly" ||
-        saved === "weekly" ||
-        saved === "daily"
-      ) {
-        return saved;
-      }
-    } catch {
-      /* ignore */
-    }
-    return "list";
-  });
+  const [view, setView] = useState<BookingsView>("list");
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -119,13 +101,29 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 
   useEffect(() => {
     try {
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(VIEW_KEY, view);
+      const saved = window.localStorage.getItem(VIEW_KEY);
+      if (
+        saved === "monthly" ||
+        saved === "weekly" ||
+        saved === "daily"
+      ) {
+        startTransition(() => {
+          setView(saved);
+        });
       }
     } catch {
       /* ignore */
     }
-  }, [view]);
+  }, []);
+
+  const setViewAndPersist = useCallback((nextView: BookingsView) => {
+    setView(nextView);
+    try {
+      window.localStorage.setItem(VIEW_KEY, nextView);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const uniqueClients = useMemo(() => {
     const map = new Map<string, string>();
@@ -259,7 +257,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
                 size="sm"
                 variant={view === nextView ? "primary" : "ghost"}
                 className="gap-1.5"
-                onClick={() => setView(nextView)}
+                onClick={() => setViewAndPersist(nextView)}
               >
                 <AdminBookingsViewIcon view={nextView} className="h-4 w-4 shrink-0" />
                 {t(
