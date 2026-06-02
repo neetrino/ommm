@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ScheduleDayOfWeek, type ScheduleItem } from '@prisma/client';
+import { ClassSessionStatus, ScheduleDayOfWeek, type ScheduleItem } from '@prisma/client';
 import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
@@ -12,6 +12,10 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateScheduleItemDto } from './dto/create-schedule-item.dto';
 import { UpdateScheduleItemDto } from './dto/update-schedule-item.dto';
+import {
+  mapSessionsToPublicScheduleItems,
+  PUBLIC_SCHEDULE_SESSION_INCLUDE,
+} from './map-sessions-to-public-schedule-items';
 
 const DAY_ORDER: Record<ScheduleDayOfWeek, number> = {
   SUNDAY: 0,
@@ -76,15 +80,20 @@ export class ScheduleService {
     );
   }
 
+  /** Clears cached public schedule after class session mutations. */
+  async invalidatePublicCache(): Promise<void> {
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.schedule);
+  }
+
   private async loadPublicActiveFromDb() {
-    const items = await this.prisma.scheduleItem.findMany({
-      where: { isActive: true },
-      orderBy: [
-        { dayOfWeek: 'asc' },
-        { startTime: 'asc' },
-        { createdAt: 'desc' },
-      ],
+    const sessions = await this.prisma.classSession.findMany({
+      where: {
+        status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
+      },
+      include: PUBLIC_SCHEDULE_SESSION_INCLUDE,
+      orderBy: [{ startsAt: 'asc' }, { createdAt: 'desc' }],
     });
+    const items = mapSessionsToPublicScheduleItems(sessions);
     return this.sortByDayAndTime(items);
   }
 

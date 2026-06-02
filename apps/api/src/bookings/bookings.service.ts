@@ -479,7 +479,14 @@ export class BookingsService {
           }
         : undefined;
 
-    const [bookingsRaw, waitlistsRaw, classTypes, coaches] = await Promise.all([
+    const adminSessionStatuses: ClassSessionStatus[] = [
+      ClassSessionStatus.DRAFT,
+      ClassSessionStatus.ACTIVE,
+      ClassSessionStatus.FULL,
+    ];
+
+    const [bookingsRaw, waitlistsRaw, classTypes, coaches, sessionsRaw] =
+      await Promise.all([
       this.prisma.booking.findMany({
         where: {
           ...(params.query.status ? { status: params.query.status } : {}),
@@ -556,6 +563,25 @@ export class BookingsService {
         select: { id: true, user: { select: { id: true, name: true } } },
         where: { isActive: true },
         orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.classSession.findMany({
+        where: {
+          ...(sessionFilter ?? {}),
+          status: { in: adminSessionStatuses },
+        },
+        include: {
+          classType: { select: { id: true, name: true } },
+          coach: {
+            include: { user: { select: { id: true, name: true } } },
+          },
+          _count: {
+            select: {
+              bookings: { where: { status: BookingStatus.BOOKED } },
+            },
+          },
+        },
+        orderBy: { startsAt: 'asc' },
+        take: 1000,
       }),
     ]);
 
@@ -693,8 +719,39 @@ export class BookingsService {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    const sessionSlots = sessionsRaw.map((session) => {
+      const bookedCount = session._count.bookings;
+      const spotsLeft = Math.max(session.capacity - bookedCount, 0);
+      const status =
+        session.status === ClassSessionStatus.ACTIVE &&
+        bookedCount >= session.capacity
+          ? ClassSessionStatus.FULL
+          : session.status;
+      return {
+        id: session.id,
+        title: session.title,
+        status,
+        startsAt: session.startsAt.toISOString(),
+        endsAt: session.endsAt.toISOString(),
+        capacity: session.capacity,
+        bookedCount,
+        spotsLeft,
+        level: session.level,
+        classFormat: session.classFormat,
+        classType: {
+          id: session.classType.id,
+          name: session.classType.name,
+        },
+        coach: {
+          id: session.coach.id,
+          name: session.coach.user.name,
+        },
+      };
+    });
+
     return {
       rows,
+      sessionSlots,
       filterOptions: {
         classTypes,
         coaches: coaches.map((coach) => ({

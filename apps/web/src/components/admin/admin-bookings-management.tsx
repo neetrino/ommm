@@ -16,6 +16,21 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
+type AdminBookingSessionSlot = {
+  id: string;
+  title: string;
+  status: "DRAFT" | "ACTIVE" | "FULL" | "CANCELLED";
+  startsAt: string;
+  endsAt: string;
+  capacity: number;
+  bookedCount: number;
+  spotsLeft: number;
+  level: string | null;
+  classFormat: string | null;
+  classType: { id: string; name: string };
+  coach: { id: string; name: string | null };
+};
+
 type BookingRow = {
   id: string;
   recordType: "BOOKING" | "WAITLIST";
@@ -57,6 +72,7 @@ type Props = {
       classTypes: Array<{ id: string; name: string }>;
       coaches: Array<{ id: string; name: string }>;
     };
+    sessionSlots: AdminBookingSessionSlot[];
   };
 };
 
@@ -66,6 +82,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
   const t = useTranslations("adminPages.bookings");
   const router = useRouter();
   const [rows, setRows] = useState<BookingRow[]>(initial.rows);
+  const sessionSlots = initial.sessionSlots;
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [view, setView] = useState<BookingsView>(() => {
     if (typeof window === "undefined") {
@@ -116,6 +133,28 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     }
     return Array.from(map.entries()).map(([id, label]) => ({ id, label }));
   }, [rows]);
+
+  const filteredSessions = useMemo(() => {
+    return sessionSlots.filter((session) => {
+      if (from) {
+        if (new Date(session.startsAt) < new Date(`${from}T00:00:00`)) {
+          return false;
+        }
+      }
+      if (to) {
+        if (new Date(session.startsAt) > new Date(`${to}T23:59:59`)) {
+          return false;
+        }
+      }
+      if (classTypeId && session.classType.id !== classTypeId) {
+        return false;
+      }
+      if (coachId && session.coach.id !== coachId) {
+        return false;
+      }
+      return true;
+    });
+  }, [sessionSlots, from, to, classTypeId, coachId]);
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -180,8 +219,13 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
   }
 
   const dayRows = filteredRows
-    .filter((row) => row.session.startsAt.slice(0, 10) === selectedDay)
+    .filter((row) => sessionDayKey(row.session.startsAt) === selectedDay)
     .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
+  const daySessions = filteredSessions
+    .filter((session) => sessionDayKey(session.startsAt) === selectedDay)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const bookedSessionIdsForDay = new Set(dayRows.map((row) => row.session.id));
+  const openDaySessions = daySessions.filter((session) => !bookedSessionIdsForDay.has(session.id));
 
   return (
     <div className="space-y-4">
@@ -244,6 +288,17 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
       </div>
 
       {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
+
+      {view === "daily" && openDaySessions.length > 0 ? (
+        <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
+          <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
+          <div className="grid gap-2 md:grid-cols-2">
+            {openDaySessions.map((session) => (
+              <SessionSlotCard key={session.id} session={session} locale={locale} />
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {(view === "list" || view === "daily") && (
         <div className="rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
@@ -319,8 +374,26 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         </div>
       )}
 
-      {view === "monthly" ? <MonthlyPanel rows={filteredRows} selectedDay={selectedDay} onSelect={setSelectedDay} locale={locale} title={t("viewMonthly")} /> : null}
-      {view === "weekly" ? <WeeklyPanel rows={filteredRows} selectedDay={selectedDay} onSelect={setSelectedDay} locale={locale} title={t("viewWeekly")} /> : null}
+      {view === "monthly" ? (
+        <MonthlyPanel
+          rows={filteredRows}
+          sessions={filteredSessions}
+          selectedDay={selectedDay}
+          onSelect={setSelectedDay}
+          locale={locale}
+          title={t("viewMonthly")}
+        />
+      ) : null}
+      {view === "weekly" ? (
+        <WeeklyPanel
+          rows={filteredRows}
+          sessions={filteredSessions}
+          selectedDay={selectedDay}
+          onSelect={setSelectedDay}
+          locale={locale}
+          title={t("viewWeekly")}
+        />
+      ) : null}
 
       {activeUserId ? <UserDrawer userId={activeUserId} onClose={() => setActiveUserId(null)} /> : null}
       {activeBookingId ? <BookingDrawer bookingId={activeBookingId} onClose={() => setActiveBookingId(null)} /> : null}
@@ -340,22 +413,156 @@ function statusLabel(t: ReturnType<typeof useTranslations<"adminPages.bookings">
 function paymentLabel(t: ReturnType<typeof useTranslations<"adminPages.bookings">>, value: BookingRow["paymentStatus"]) { return value === "PAID" ? t("paymentPaid") : value === "CASH" ? t("paymentCash") : value === "REFUNDED" ? t("paymentRefunded") : t("paymentUnpaid"); }
 function attendanceLabel(t: ReturnType<typeof useTranslations<"adminPages.bookings">>, value: BookingRow["attendanceStatus"]) { if (value === "ATTENDED") return t("attendanceAttended"); if (value === "NO_SHOW") return t("attendanceNoShow"); if (value === "LATE_CANCEL") return t("attendanceLateCancel"); return t("attendanceNotAttended"); }
 
-function CalendarGrid({ rows, selectedDay, onSelect, title }: { rows: BookingRow[]; selectedDay: string; onSelect: (value: string) => void; title: string }) {
+function sessionDayKey(startsAt: string): string {
+  return startsAt.slice(0, 10);
+}
+
+function CalendarGrid({
+  rows,
+  sessions,
+  selectedDay,
+  onSelect,
+  title,
+}: {
+  rows: BookingRow[];
+  sessions: readonly AdminBookingSessionSlot[];
+  selectedDay: string;
+  onSelect: (value: string) => void;
+  title: string;
+}) {
   const days = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { bookings: number; sessions: number }>();
+    for (const session of sessions) {
+      const day = sessionDayKey(session.startsAt);
+      const current = map.get(day) ?? { bookings: 0, sessions: 0 };
+      current.sessions += 1;
+      map.set(day, current);
+    }
     for (const row of rows) {
-      const day = row.session.startsAt.slice(0, 10);
-      map.set(day, (map.get(day) ?? 0) + 1);
+      const day = sessionDayKey(row.session.startsAt);
+      const current = map.get(day) ?? { bookings: 0, sessions: 0 };
+      current.bookings += 1;
+      map.set(day, current);
     }
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-  }, [rows]);
-  return <div className="rounded-2xl border border-white/60 bg-white/70 p-4"><p className="text-sm font-medium text-sage-900">{title}</p><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">{days.map(([day, count]) => <button key={day} className={`rounded-xl border px-3 py-2 text-left ${day === selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`} onClick={() => onSelect(day)}><p className="text-sm text-sage-900">{formatDateForUi(day)}</p><p className="text-xs text-sage-600">{count}</p></button>)}</div></div>;
+  }, [rows, sessions]);
+
+  return (
+    <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
+      <p className="text-sm font-medium text-sage-900">{title}</p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+        {days.map(([day, counts]) => (
+          <button
+            key={day}
+            className={`rounded-xl border px-3 py-2 text-left ${day === selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`}
+            onClick={() => onSelect(day)}
+          >
+            <p className="text-sm text-sage-900">{formatDateForUi(day)}</p>
+            <p className="text-xs text-sage-600">
+              {counts.sessions} · {counts.bookings}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
-function MonthlyPanel({ rows, selectedDay, onSelect, locale, title }: { rows: BookingRow[]; selectedDay: string; onSelect: (value: string) => void; locale: string; title: string }) {
-  const dayRows = rows.filter((row) => row.session.startsAt.slice(0, 10) === selectedDay).sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
-  return <div className="space-y-3"><CalendarGrid rows={rows} selectedDay={selectedDay} onSelect={onSelect} title={title} /><div className="rounded-2xl border border-white/60 bg-white/70 p-3"><p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p><div className="mt-2 space-y-2">{dayRows.length === 0 ? <p className="text-sm text-sage-500">—</p> : dayRows.map((row) => <div key={`${row.recordType}-${row.id}`} className="rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm"><div className="font-medium text-sage-900">{row.user.name ?? row.user.email}</div><div className="text-xs text-sage-600">{formatDateTimeForUi(row.session.startsAt, locale)} · {row.session.classType.name}</div></div>)}</div></div></div>;
+
+function SessionSlotCard({
+  session,
+  locale,
+}: {
+  session: AdminBookingSessionSlot;
+  locale: string;
+}) {
+  return (
+    <div className="rounded-xl border border-mint-200/80 bg-mint-50/60 px-3 py-2 text-sm">
+      <div className="font-medium text-sage-900">{session.title}</div>
+      <div className="text-xs text-sage-600">
+        {formatDateTimeForUi(session.startsAt, locale)} · {session.classType.name} ·{" "}
+        {session.coach.name ?? "—"} · {session.spotsLeft}/{session.capacity}
+      </div>
+    </div>
+  );
 }
-function WeeklyPanel({ rows, selectedDay, onSelect, locale, title }: { rows: BookingRow[]; selectedDay: string; onSelect: (value: string) => void; locale: string; title: string }) {
+
+function MonthlyPanel({
+  rows,
+  sessions,
+  selectedDay,
+  onSelect,
+  locale,
+  title,
+}: {
+  rows: BookingRow[];
+  sessions: readonly AdminBookingSessionSlot[];
+  selectedDay: string;
+  onSelect: (value: string) => void;
+  locale: string;
+  title: string;
+}) {
+  const dayRows = rows
+    .filter((row) => sessionDayKey(row.session.startsAt) === selectedDay)
+    .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
+  const daySessions = sessions
+    .filter((session) => sessionDayKey(session.startsAt) === selectedDay)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const bookedSessionIds = new Set(dayRows.map((row) => row.session.id));
+  const openSessions = daySessions.filter((session) => !bookedSessionIds.has(session.id));
+
+  return (
+    <div className="space-y-3">
+      <CalendarGrid
+        rows={rows}
+        sessions={sessions}
+        selectedDay={selectedDay}
+        onSelect={onSelect}
+        title={title}
+      />
+      <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
+        <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
+        <div className="mt-2 space-y-2">
+          {dayRows.length === 0 && openSessions.length === 0 ? (
+            <p className="text-sm text-sage-500">—</p>
+          ) : (
+            <>
+              {openSessions.map((session) => (
+                <SessionSlotCard key={session.id} session={session} locale={locale} />
+              ))}
+              {dayRows.map((row) => (
+                <div
+                  key={`${row.recordType}-${row.id}`}
+                  className="rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm"
+                >
+                  <div className="font-medium text-sage-900">{row.user.name ?? row.user.email}</div>
+                  <div className="text-xs text-sage-600">
+                    {formatDateTimeForUi(row.session.startsAt, locale)} · {row.session.classType.name}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WeeklyPanel({
+  rows,
+  sessions,
+  selectedDay,
+  onSelect,
+  locale,
+  title,
+}: {
+  rows: BookingRow[];
+  sessions: readonly AdminBookingSessionSlot[];
+  selectedDay: string;
+  onSelect: (value: string) => void;
+  locale: string;
+  title: string;
+}) {
   const selected = new Date(`${selectedDay}T00:00:00`);
   const mondayOffset = (selected.getDay() + 6) % 7;
   const monday = new Date(selected);
@@ -364,9 +571,50 @@ function WeeklyPanel({ rows, selectedDay, onSelect, locale, title }: { rows: Boo
     const day = new Date(monday);
     day.setDate(monday.getDate() + index);
     const iso = day.toISOString().slice(0, 10);
-    return { iso, rows: rows.filter((row) => row.session.startsAt.slice(0, 10) === iso).sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt)) };
+    const dayRows = rows
+      .filter((row) => sessionDayKey(row.session.startsAt) === iso)
+      .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
+    const daySessions = sessions
+      .filter((session) => sessionDayKey(session.startsAt) === iso)
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+    return { iso, rows: dayRows, sessions: daySessions };
   });
-  return <div className="rounded-2xl border border-white/60 bg-white/70 p-4"><p className="text-sm font-medium text-sage-900">{title}</p><div className="mt-3 grid gap-2 lg:grid-cols-7">{days.map((day) => <button key={day.iso} className={`rounded-xl border px-2 py-2 text-left align-top ${day.iso === selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`} onClick={() => onSelect(day.iso)}><p className="text-xs font-medium text-sage-700">{formatDateForUi(day.iso)}</p><div className="mt-1 space-y-1">{day.rows.slice(0, 6).map((row) => <div key={`${row.recordType}-${row.id}`} className="rounded-md bg-white/70 px-2 py-1 text-[11px] text-sage-700">{formatDateTimeForUi(row.session.startsAt, locale).split(" ")[1]} · {row.user.name ?? row.user.email}</div>)}</div></button>)}</div></div>;
+
+  return (
+    <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
+      <p className="text-sm font-medium text-sage-900">{title}</p>
+      <div className="mt-3 grid gap-2 lg:grid-cols-7">
+        {days.map((day) => (
+          <button
+            key={day.iso}
+            className={`rounded-xl border px-2 py-2 text-left align-top ${day.iso === selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`}
+            onClick={() => onSelect(day.iso)}
+          >
+            <p className="text-xs font-medium text-sage-700">{formatDateForUi(day.iso)}</p>
+            <div className="mt-1 space-y-1">
+              {day.sessions.slice(0, 4).map((session) => (
+                <div
+                  key={session.id}
+                  className="rounded-md border border-mint-200/70 bg-mint-50/70 px-2 py-1 text-[11px] text-sage-700"
+                >
+                  {formatDateTimeForUi(session.startsAt, locale).split(" ")[1]} · {session.title}
+                </div>
+              ))}
+              {day.rows.slice(0, 6).map((row) => (
+                <div
+                  key={`${row.recordType}-${row.id}`}
+                  className="rounded-md bg-white/70 px-2 py-1 text-[11px] text-sage-700"
+                >
+                  {formatDateTimeForUi(row.session.startsAt, locale).split(" ")[1]} ·{" "}
+                  {row.user.name ?? row.user.email}
+                </div>
+              ))}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }) {
@@ -405,7 +653,33 @@ function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow
     const to = new Date();
     to.setDate(to.getDate() + 30);
     const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&typeId=${encodeURIComponent(booking.session.classType.id)}`;
-    void apiFetch(`/classes/sessions?${q}`).then((payload) => setOptions((payload as Array<{ id: string; startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }>).filter((row) => row.id !== booking.session.id))).catch(() => setOptions([]));
+    void apiFetch(`/classes/admin/sessions?${q}`)
+      .then((payload) =>
+        setOptions(
+          (
+            payload as Array<{
+              id: string;
+              startsAt: string;
+              status: AdminBookingSessionSlot["status"];
+              classType: { name: string };
+              coach: { user: { name: string | null } };
+            }>
+          )
+            .filter(
+              (row) =>
+                row.id !== booking.session.id &&
+                row.status !== "CANCELLED" &&
+                row.status !== "DRAFT",
+            )
+            .map((row) => ({
+              id: row.id,
+              startsAt: row.startsAt,
+              classType: row.classType,
+              coach: { user: { name: row.coach.user.name } },
+            })),
+        ),
+      )
+      .catch(() => setOptions([]));
   }, [booking.session.classType.id, booking.session.id]);
   const slotOptions = options.map((row) => ({
     value: row.id,
