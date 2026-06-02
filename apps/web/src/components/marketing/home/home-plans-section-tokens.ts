@@ -26,7 +26,7 @@ export const HOME_PLANS_SECTION_LAYOUT = {
   contentMaxWidthPx: 1332,
   sectionPaddingX: "clamp(1rem, 5vw, 5rem)",
   sectionPaddingTop: "clamp(3rem, 11vw, 6.5rem)",
-  sectionPaddingBottom: "clamp(4rem, 14vw, 12.5rem)",
+  sectionPaddingBottom: "clamp(2.5rem, 8vw, 4.5rem)",
   headerGapPx: 41,
   sectionGapPx: 65,
   cardsGapPx: 60,

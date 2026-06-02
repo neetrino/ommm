@@ -85,7 +85,7 @@ export async function MarketingPublicHomePlansSection({
           <HomeHeroCtaButton
             href="/packages"
             label={t("plansMoreDetails")}
-            variant="plansDetails"
+            variant="membership"
           />
         </div>
       </div>

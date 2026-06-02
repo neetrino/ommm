@@ -73,7 +73,7 @@ export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   },
 ] as const;
 
-/** 12-column desktop placement — top row spans 4; bottom row offset per Figma `196:1081`. */
+/** 12-column desktop — row 1: three `col-span-4`; row 2: two cards centered with the same inter-card gap. */
 export const HOME_CLASS_CARD_GRID_CLASS =
   "col-span-1 lg:col-span-4";
 
@@ -81,6 +81,6 @@ export const HOME_CLASS_CARD_GRID_OFFSETS = [
   "lg:col-start-auto",
   "lg:col-start-auto",
   "lg:col-start-auto",
-  "lg:col-start-2",
+  "lg:col-start-3",
   "lg:col-start-7",
 ] as const;

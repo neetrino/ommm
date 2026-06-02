@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 import { MarketingPublicHomeClassesSection } from "@/components/marketing/home/marketing-public-home-classes-section";
 import { MarketingPublicHomeCoachesSection } from "@/components/marketing/home/marketing-public-home-coaches-section";
-import { MarketingPublicHomeEventsSection } from "@/components/marketing/home/marketing-public-home-events-section";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
+import { MarketingPublicHomeGallerySection } from "@/components/marketing/home/marketing-public-home-gallery-section";
 import { MarketingPublicHomePlansSection } from "@/components/marketing/home/marketing-public-home-plans-section";
 import { MarketingHomeScrollReveal } from "@/components/marketing/home/marketing-home-scroll-reveal";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
@@ -38,7 +38,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
         <MarketingPublicHomePlansSection locale={locale} />
       </MarketingHomeScrollReveal>
       <MarketingHomeScrollReveal>
-        <MarketingPublicHomeEventsSection locale={locale} />
+        <MarketingPublicHomeGallerySection />
       </MarketingHomeScrollReveal>
       <MarketingHomeScrollReveal>
         <MarketingPublicHomeFooter locale={locale} />

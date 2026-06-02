@@ -201,6 +201,12 @@
           "ctaAria": "Открыть детали пакета йоги"
         }
       ],
+      "galleryTitle": "Убежище для каждого тела",
+      "gallerySubtitle": "Продуманные занятия для заботы о вашем физическом и душевном благополучии.",
+      "galleryMoreDetails": "Подробнее",
+      "galleryPrevAria": "Предыдущий слайд галереи",
+      "galleryNextAria": "Следующий слайд галереи",
+      "galleryGoToSlideAria": "Показать слайд галереи {slide}",
       "eventsTitle": "События",
       "eventWideTitle": "Главная встреча",
       "eventWideDetails": "Подробнее",
@@ -208,14 +214,21 @@
       "eventNarrowBTitle": "Вечер ретрита",
       "eventCardCtaAria": "Открыть детали события",
       "footerWordmark": "Ommm.Space",
-      "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
-      "footerIllustrationAlt": "Декоративная иллюстрация",
-      "footerLinks": [
-        { "href": "/contact", "label": "Конфиденциальность" },
-        { "href": "/contact", "label": "Условия" },
-        { "href": "/explore", "label": "Журнал" },
-        { "href": "/contact", "label": "Контакты" }
-      ]
+      "footerTopNavAria": "Навигация в подвале",
+      "footerContactTitle": "Связаться с нами",
+      "footerPhone": "+ 33333333",
+      "footerEmail": "ommmm@mail.com",
+      "footerAddress": "Ереван 00000",
+      "footerSocialTitle": "Соцсети",
+      "footerSocialAria": "Профиль {network}",
+      "footerLegalNavAria": "Юридические ссылки",
+      "footerPrivacy": "Конфиденциальность",
+      "footerTerms": "Условия",
+      "footerRefund": "Возврат",
+      "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
+      "footerCopyrightCompany": "NEETRINO IT COMPANY",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }
   },
   "account": {

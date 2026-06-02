@@ -201,6 +201,12 @@
           "ctaAria": "Բացել յոգայի փաթեթի մանրամասները"
         }
       ],
+      "galleryTitle": "Բռնակայություն յուրաքանչյուր մարմնի համար",
+      "gallerySubtitle": "Մշակված դասեր՝ ձեր ֆիզիկական և հոգեկան բարեկեցությունը խնամելու համար։",
+      "galleryMoreDetails": "Մանրամասներ",
+      "galleryPrevAria": "Նախորդ պատկերասրահի սлайդ",
+      "galleryNextAria": "Հաջորդ պատկերասրահի սлайդ",
+      "galleryGoToSlideAria": "Ցույց տալ պատկերասրահի սлайդ {slide}",
       "eventsTitle": "Միջոցառումներ",
       "eventWideTitle": "Գլխավոր հավաքում",
       "eventWideDetails": "Մանրամասներ",
@@ -208,14 +214,21 @@
       "eventNarrowBTitle": "Երեկոյան ռիթրիտ",
       "eventCardCtaAria": "Բացել միջոցառման մանրամասները",
       "footerWordmark": "Ommm.Space",
-      "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
-      "footerIllustrationAlt": "Զարդարանք",
-      "footerLinks": [
-        { "href": "/contact", "label": "Գաղտնիություն" },
-        { "href": "/contact", "label": "Պայմաններ" },
-        { "href": "/explore", "label": "Ամսագիր" },
-        { "href": "/contact", "label": "Կապ" }
-      ]
+      "footerTopNavAria": "Վերջնամասի նավիգացիա",
+      "footerContactTitle": "Կապ",
+      "footerPhone": "+ 33333333",
+      "footerEmail": "ommmm@mail.com",
+      "footerAddress": "Երևան 00000",
+      "footerSocialTitle": "Սոցիալական ցանցեր",
+      "footerSocialAria": "{network} էջ",
+      "footerLegalNavAria": "Իրավական հղումներ",
+      "footerPrivacy": "Գաղտնիություն",
+      "footerTerms": "Պայմաններ",
+      "footerRefund": "Վերադարձ",
+      "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
+      "footerCopyrightCompany": "NEETRINO IT COMPANY",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerIllustrationAlt": "Օմ նշանի դեկորատիվ նկար"
     }
   },
   "account": {

@@ -1,75 +1,242 @@
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
+import {
+  HOME_FOOTER_ASSETS,
+  HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
+  HOME_FOOTER_FIGMA,
+  HOME_FOOTER_FIGMA_POSITIONS,
+  HOME_FOOTER_LAYOUT,
+  HOME_FOOTER_LEGAL_LINKS,
+  HOME_FOOTER_NAV_LINKS,
+  HOME_FOOTER_SOCIAL_LINKS,
+} from "@/components/marketing/home/home-footer-section-tokens";
+import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
-
-type FooterLink = {
-  href: string;
-  label: string;
-};
 
 type MarketingPublicHomeFooterProps = {
   locale: string;
 };
 
+function pct(value: number): string {
+  return `${value * 100}%`;
+}
+
+function footerStyleVars(): CSSProperties {
+  const pos = HOME_FOOTER_FIGMA_POSITIONS;
+  const layout = HOME_FOOTER_LAYOUT;
+  return {
+    ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
+    ["--home-footer-wrap-bg" as string]: HOME_FOOTER_FIGMA.wrapBackground,
+    ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
+    ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
+    ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
+    ["--home-footer-max-width" as string]: `${HOME_FOOTER_LAYOUT.maxWidthPx}px`,
+    ["--home-footer-min-height" as string]: `clamp(36rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
+    ["--home-footer-wordmark-left" as string]: pct(pos.wordmark.left),
+    ["--home-footer-wordmark-top" as string]: pct(pos.wordmark.top),
+    ["--home-footer-nav-left" as string]: pct(pos.nav.left),
+    ["--home-footer-nav-top" as string]: pct(pos.nav.top),
+    ["--home-footer-illustration-left" as string]: pct(pos.illustration.left),
+    ["--home-footer-illustration-top" as string]: pct(pos.illustration.top),
+    ["--home-footer-illustration-width" as string]: pct(pos.illustration.width),
+    ["--home-footer-illustration-height" as string]: pct(pos.illustration.height),
+    ["--home-footer-contact-left" as string]: pct(pos.contact.left),
+    ["--home-footer-contact-top" as string]: pct(pos.contact.top),
+    ["--home-footer-social-left" as string]: pct(pos.social.left),
+    ["--home-footer-social-top" as string]: pct(pos.social.top),
+    ["--home-footer-legal-left" as string]: pct(pos.legal.left),
+    ["--home-footer-legal-top" as string]: pct(pos.legal.top),
+    ["--home-footer-copyright-left" as string]: pct(pos.copyright.left),
+    ["--home-footer-copyright-top" as string]: pct(pos.copyright.top),
+    ["--home-footer-copyright-width" as string]: pct(pos.copyright.width),
+    ["--home-footer-nav-link-padding" as string]: `${layout.navLinkPaddingLeftPx}px`,
+    ["--home-footer-contact-gap" as string]: `${layout.contactSectionGapPx}px`,
+    ["--home-footer-contact-row-gap" as string]: `${layout.contactRowGapPx}px`,
+    ["--home-footer-social-title-gap" as string]: `${layout.socialTitleGapPx}px`,
+    ["--home-footer-social-icon-gap" as string]: `${layout.socialIconGapPx}px`,
+    ["--home-footer-legal-gap" as string]: `${layout.legalLinkGapPx}px`,
+    ["--home-footer-wordmark-size" as string]: `${layout.wordmarkFontSizePx}px`,
+    ["--home-footer-wordmark-line-height" as string]: `${layout.wordmarkLineHeightPx}px`,
+    ["--home-footer-body-size" as string]: `${layout.bodyFontSizePx}px`,
+    ["--home-footer-body-line-height" as string]: `${layout.bodyLineHeightPx}px`,
+    ["--home-footer-body-tracking" as string]: `${layout.bodyLetterSpacingPx}px`,
+    ["--home-footer-copyright-size" as string]: `${layout.copyrightFontSizePx}px`,
+    ["--home-footer-copyright-line-height" as string]: `${layout.copyrightLineHeightPx}px`,
+    ["--home-footer-copyright-tracking" as string]: `${layout.copyrightLetterSpacingPx}px`,
+  };
+}
+
+type FooterContentProps = {
+  wordmark: ReactNode;
+  topNav: ReactNode;
+  illustration: ReactNode;
+  contact: ReactNode;
+  social: ReactNode;
+  legal: ReactNode;
+  copyright: ReactNode;
+};
+
+type FooterDesktopLayerProps = FooterContentProps & {
+  topNavAria: string;
+};
+
+function FooterDesktopLayer({
+  wordmark,
+  topNav,
+  illustration,
+  contact,
+  social,
+  legal,
+  copyright,
+  topNavAria,
+}: FooterDesktopLayerProps) {
+  return (
+    <div className={styles.desktopLayer}>
+      <div className={styles.wordmarkSlot}>{wordmark}</div>
+      <nav className={styles.navSlot} aria-label={topNavAria}>
+        {topNav}
+      </nav>
+      <div className={styles.illustrationSlot}>{illustration}</div>
+      <div className={styles.contactSlot}>{contact}</div>
+      <div className={styles.socialSlot}>{social}</div>
+      <div className={styles.legalSlot}>{legal}</div>
+      <div className={styles.copyrightSlot}>{copyright}</div>
+    </div>
+  );
+}
+
 /**
- * Figma **Footer** `79:433` + illustration `181:1096` (home route only; see `MarketingFooterGate`).
+ * Figma **Footer** `196:1191` — home route only (see `MarketingFooterGate`).
  */
 export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeFooterProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const links = t.raw("footerLinks") as FooterLink[];
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+
+  const topNav = (
+    <div className={styles.topNav}>
+      {HOME_FOOTER_NAV_LINKS.map((item) => (
+        <Link key={item.href} href={item.href} className={styles.topNavLink}>
+          {tNav(item.navKey)}
+        </Link>
+      ))}
+    </div>
+  );
+
+  const wordmark = <p className={styles.wordmark}>{t("footerWordmark")}</p>;
+
+  const illustration = (
+    <div className={`${styles.illustrationFrame}`}>
+      <Image
+        src={HOME_FOOTER_ASSETS.illustration}
+        alt={t("footerIllustrationAlt")}
+        fill
+        sizes="(max-width: 1024px) 100vw, 596px"
+        className={styles.illustration}
+        {...belowFoldImageProps()}
+      />
+    </div>
+  );
+
+  const contact = (
+    <div>
+      <p className={styles.sectionTitle}>{t("footerContactTitle")}</p>
+      <ul className={styles.contactList}>
+        <li className={styles.contactRow}>
+          <Image src={HOME_FOOTER_ASSETS.phone} alt="" width={24} height={24} unoptimized className={styles.contactIcon} aria-hidden />
+          <a href={`tel:${t("footerPhone").replace(/\s/g, "")}`} className={styles.contactText}>
+            {t("footerPhone")}
+          </a>
+        </li>
+        <li className={styles.contactRow}>
+          <Image src={HOME_FOOTER_ASSETS.mail} alt="" width={25} height={24} unoptimized className={styles.contactIcon} aria-hidden />
+          <a href={`mailto:${t("footerEmail")}`} className={styles.contactText}>
+            {t("footerEmail")}
+          </a>
+        </li>
+        <li className={styles.contactRow}>
+          <Image src={HOME_FOOTER_ASSETS.location} alt="" width={24} height={24} unoptimized className={styles.contactIcon} aria-hidden />
+          <span className={styles.contactText}>{t("footerAddress")}</span>
+        </li>
+      </ul>
+    </div>
+  );
+
+  const social = (
+    <div className={styles.socialBlock}>
+      <p className={styles.sectionTitle}>{t("footerSocialTitle")}</p>
+      <div className={styles.socialList}>
+        {HOME_FOOTER_SOCIAL_LINKS.map((item) => (
+          <a
+            key={item.id}
+            href={item.href}
+            className={styles.socialLink}
+            aria-label={t("footerSocialAria", { network: item.id })}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image src={item.asset} alt="" width={item.width} height={item.height} unoptimized />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+
+  const legal = (
+    <nav className={styles.legalNav} aria-label={t("footerLegalNavAria")}>
+      {HOME_FOOTER_LEGAL_LINKS.map((item) => (
+        <Link key={item.labelKey} href={item.href} className={styles.legalLink}>
+          {t(item.labelKey)}
+        </Link>
+      ))}
+    </nav>
+  );
+
+  const copyright = (
+    <p className={styles.copyright}>
+      {t("footerCopyrightPrefix")}
+      <a
+        href={HOME_FOOTER_COPYRIGHT_COMPANY_HREF}
+        className={styles.copyrightCompany}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {t("footerCopyrightCompany")}
+      </a>
+      {t("footerCopyrightSuffix")}
+    </p>
+  );
 
   return (
-    <footer className="w-full overflow-x-hidden" style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}>
-      <div
-        className="mx-auto w-full max-w-[1440px] rounded-t-[64px] px-8 py-12 sm:px-12 md:px-16"
-        style={{ backgroundColor: HOME_PAGE_SURFACE.footerSurface }}
-      >
-        <div className="grid grid-cols-1 items-center gap-8 text-center md:grid-cols-[1fr_auto_1fr] md:gap-10 md:text-left">
-          <p
-            className="text-xl font-semibold leading-7 md:justify-self-start"
-            style={{ color: HOME_PAGE_SURFACE.footerWordmark }}
-          >
-            {t("footerWordmark")}
-          </p>
-          <nav
-            className="flex flex-wrap items-center justify-center gap-6 md:justify-self-center md:gap-10"
-            aria-label="Legal and journal"
-          >
-            {links.map((item) => (
-              <Link
-                key={item.href + item.label}
-                href={item.href}
-                className="text-xs font-normal uppercase leading-4 tracking-[2.4px] transition-colors hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#64748b] focus-visible:ring-offset-2"
-                style={{ color: HOME_PAGE_SURFACE.footerLinks }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <p
-            className="text-xs font-normal uppercase leading-4 tracking-[2.4px] md:justify-self-end md:text-right"
-            style={{ color: HOME_PAGE_SURFACE.footerLinks }}
-          >
-            {t("footerCopyright")}
-          </p>
-        </div>
-      </div>
+    <section className={styles.sectionWrap} style={footerStyleVars()}>
+      <footer className={`${marketingMontserrat.variable} ${styles.shell}`}>
+        <div className={styles.inner}>
+        <FooterDesktopLayer
+          topNavAria={t("footerTopNavAria")}
+          wordmark={wordmark}
+          topNav={topNav}
+          illustration={illustration}
+          contact={contact}
+          social={social}
+          legal={legal}
+          copyright={copyright}
+        />
 
-      <div className="mx-auto flex max-w-[1440px] flex-col items-center px-4 pb-10 pt-4 sm:px-8 md:px-16">
-        <div className="relative w-full max-w-[662px]" style={{ aspectRatio: "662 / 523" }}>
-          <Image
-            src={HOME_SECTION_ASSETS.footerIllustration}
-            alt={t("footerIllustrationAlt")}
-            fill
-            sizes="(max-width: 768px) 100vw, 662px"
-            className="object-contain"
-            {...belowFoldImageProps()}
-          />
+        <div className={styles.mobileStack}>
+          <div className={styles.mobileHeader}>
+            {wordmark}
+            <nav aria-label={t("footerTopNavAria")}>{topNav}</nav>
+          </div>
+          <div className={styles.mobileIllustration}>{illustration}</div>
+          {contact}
+          {social}
+          {legal}
+          {copyright}
         </div>
-      </div>
-    </footer>
+        </div>
+      </footer>
+    </section>
   );
 }

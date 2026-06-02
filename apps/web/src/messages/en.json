@@ -201,6 +201,12 @@
           "ctaAria": "View Yoga package details"
         }
       ],
+      "galleryTitle": "A Sanctuary for Every Body",
+      "gallerySubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "galleryMoreDetails": "More Details",
+      "galleryPrevAria": "Previous gallery slide",
+      "galleryNextAria": "Next gallery slide",
+      "galleryGoToSlideAria": "Show gallery slide {slide}",
       "eventsTitle": "Events",
       "eventWideTitle": "Featured gathering",
       "eventWideDetails": "Details",
@@ -208,14 +214,21 @@
       "eventNarrowBTitle": "Retreat evening",
       "eventCardCtaAria": "Open event details",
       "footerWordmark": "Ommm.Space",
-      "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
-      "footerIllustrationAlt": "Decorative wellness illustration",
-      "footerLinks": [
-        { "href": "/contact", "label": "Privacy" },
-        { "href": "/contact", "label": "Terms" },
-        { "href": "/explore", "label": "Journal" },
-        { "href": "/contact", "label": "Contact" }
-      ]
+      "footerTopNavAria": "Footer navigation",
+      "footerContactTitle": "Contact Us",
+      "footerPhone": "+ 33333333",
+      "footerEmail": "ommmm@mail.com",
+      "footerAddress": "Yerevan 00000",
+      "footerSocialTitle": "Social Media",
+      "footerSocialAria": "{network} profile",
+      "footerLegalNavAria": "Legal links",
+      "footerPrivacy": "Privacy",
+      "footerTerms": "Terms",
+      "footerRefund": "Refound",
+      "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
+      "footerCopyrightCompany": "NEETRINO IT COMPANY",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerIllustrationAlt": "Decorative Om symbol illustration"
     }
   },
   "account": {
