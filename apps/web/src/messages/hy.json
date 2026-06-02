@@ -13,7 +13,7 @@
     "home": "Գլխավոր",
     "story": "Պատմություն",
     "coaches": "Մարզիչներ",
-    "memberships": "Փաթեթներ",
+    "packages": "Փաթեթներ",
     "explore": "Բացահայտել",
     "schedule": "Ժամանակացույց",
     "contact": "Կապ"
@@ -102,7 +102,7 @@
       "weeklyScheduleSessionsPanelAria": "{day} օրվա սեսիաներ",
       "weeklyScheduleEmptyDay": "Սեսիաներ չկան",
       "weeklyScheduleLoadFailed": "Դասացուցակը բեռնել չհաջողվեց ({status})։",
-      "weeklyScheduleBookSessionAria": "Դիտել {className} դասացուցակում",
+      "weeklyScheduleBookSessionAria": "Ամրագրել {className}",
       "weeklyScheduleDays": {
         "MONDAY": "ԵՐԿ",
         "TUESDAY": "ԵՐՔ",
@@ -176,26 +176,15 @@
         }
       ],
       "plansSectionTitle": "Տաճար ամեն մարմնի համար",
-      "planCards": [
-        {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
-        },
-        {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
-        },
-        {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
-        }
-      ],
+      "planCardCtaAria": "Բացել «{planName}» պլանի մանրամասները",
+      "planCardSessionsUnlimited": "Անսահմանափակ դասեր",
+      "planCardSessionsCount": "{count, plural, one {# դաս} other {# դաս}}",
+      "planCardGuestCount": "{count, plural, one {# հյուր} other {# հյուր}}",
+      "planCardCategoryPackages": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
+      "planCardPriceFrom": "{amount}-ից",
+      "planPopularBadge": "Հանրաճանաչ",
+      "plansEmpty": "Փաթեթները կհայտնվեն այստեղ ադմին վահանակում հրապարակելուց հետո։",
+      "plansLoadFailed": "Չհաջողվեց բեռնել փաթեթները ({status})։",
       "eventsTitle": "Միջոցառումներ",
       "eventWideTitle": "Գլխավոր հավաքում",
       "eventWideDetails": "Մանրամասներ",
@@ -206,10 +195,22 @@
       "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
       "footerIllustrationAlt": "Զարդարանք",
       "footerLinks": [
-        { "href": "/contact", "label": "Գաղտնիություն" },
-        { "href": "/contact", "label": "Պայմաններ" },
-        { "href": "/explore", "label": "Ամսագիր" },
-        { "href": "/contact", "label": "Կապ" }
+        {
+          "href": "/contact",
+          "label": "Գաղտնիություն"
+        },
+        {
+          "href": "/contact",
+          "label": "Պայմաններ"
+        },
+        {
+          "href": "/explore",
+          "label": "Ամսագիր"
+        },
+        {
+          "href": "/contact",
+          "label": "Կապ"
+        }
       ]
     }
   },
@@ -220,11 +221,13 @@
         "body": "Մուտք գործեք՝ տեսնելու առաջիկա դասերը, սպասման ցուցակը և ստուդիայի գործիքները։"
       },
       "greeting": "Բարի վերադարձ,",
+      "welcomeSubtitleBefore": "Մեր սիրելի ",
+      "welcomeSubtitleAfter": " Ommm-ը ողջունում է քեզ․",
       "titleStart": "Գտիր քո",
       "titleAccent": "կենտրոնը այսօր։",
       "lead": "Հաջորդ դասը, սպասման ցուցակը և ստուդիայի նշումները — մեկ հանգիստ հոսքում։",
       "primaryCta": "Գրանցվել դասի",
-      "secondaryCta": "Իմ աբոնեմենտները",
+      "secondaryCta": "Իմ փաթեթները",
       "nextClass": {
         "eyebrow": "Հաջորդը",
         "openLabel": "Բացել ժամանակացույցը",
@@ -261,7 +264,7 @@
     "heroTitle": "Հանգիստ ստուդիա, անձնական փորձ",
     "heroSubtitle": "Մտածված պլանավորում, փաթեթներ և դասերի գրանցում — ամբողջական ստուդիայի փորձ վեբում։",
     "heroCta": "Գրանցվել դասի",
-    "membershipsCta": "Դիտել փաթեթները",
+    "packagesCta": "Դիտել փաթեթները",
     "featureScheduleTitle": "Ժամանակացույց",
     "featureScheduleBody": "Տեսեք առաջիկա սեսիաները, տարողությունը և մարզիչներին — գրանցվեք մի քանի հպումով, երբ մուտք եք գործել։",
     "featureMembershipsTitle": "Փաթեթներ",
@@ -289,30 +292,55 @@
     "coachesModalBioLabel": "Մարզչի մասին",
     "coachesModalBasicInfoLabel": "Հիմնական տվյալներ",
     "coachesModalBioFallback": "Մարզչի այս պրոֆիլը շուտով կթարմացվի լրացուցիչ տեղեկությամբ։",
-    "membershipsPageTitle": "Փաթեթներ",
-    "membershipsPageLead": "Ընտրեք պլան, որը համապատասխանում է ձեր պրակտիկայի հաճախականությանը։",
-    "membershipsEmpty": "Դեռ հրապարակված պլաններ չկան։ Վերադարձեք ավելի ուշ կամ կապվեք ստուդիայի հետ։",
-    "membershipsError": "Չհաջողվեց բեռնել պլանները։ Փորձեք ավելի ուշ։",
-    "membershipsSubscribeCta": "Բաժանորդագրվել",
-    "membershipsAccountCta": "Իմ փաթեթները",
-    "membershipsLoginHint": "Մուտք գործեք կամ ստեղծեք հաշիվ՝ բաժանորդագրվելու համար։",
-    "membershipsPeriodDays": "{days} օրյա վճարման ցիկլ",
-    "membershipsSessionsUnlimited": "Անսահմանափակ դասեր ժամանակաշրջանում",
-    "membershipsSessionsCount": "{count} դաս ժամանակաշրջանում",
-    "membershipsPriceLine": "{amount} ժամանակաշրջանի համար",
-    "membershipsCompareTitle": "Պլանների համեմատություն",
-    "membershipsTablePlan": "Պլան",
-    "membershipsTablePrice": "Գին",
-    "membershipsTablePeriod": "Ժամանակաշրջան",
-    "membershipsTableSessions": "Դասեր",
-    "membershipsPeriodDaysShort": "{days} օր",
-    "membershipsFaqTitle": "Հաճախ տրվող հարցեր",
-    "membershipsFaqPauseQuestion": "Կարո՞ղ եմ դադարեցնել աբոնեմենտը։",
-    "membershipsFaqPauseAnswer": "Այո - անդամները կարող են իրենց հաշվից դադարեցնել աբոնեմենտը, եթե պլանը դա թույլ է տալիս, իսկ ստուդիայի թիմը կարող է օգնել նաև ընդունարանից։",
-    "membershipsFaqBillingQuestion": "Ինչպե՞ս է աշխատում վճարումը։",
-    "membershipsFaqBillingAnswer": "Վճարումը կատարվում է Stripe-ով, երբ այն միացված է ձեր միջավայրում։ Հաջող վճարումները երևում են ձեր հաշվի վճարումների պատմությունում։",
-    "membershipsFaqWaitlistQuestion": "Ի՞նչ անել, եթե դասը լիքն է։",
-    "membershipsFaqWaitlistAnswer": "Միացեք սպասման ցուցակին ժամանակացույցից - մենք կտեղեկացնենք, երբ տեղ բացվի, և կունենաք սահմանափակ ժամանակ հաստատելու համար։",
+    "packagesPageTitle": "Փաթեթներ",
+    "packagesPageLead": "Ընտրեք պլան, որը համապատասխանում է ձեր պրակտիկայի հաճախականությանը։",
+    "packagesEmpty": "Դեռ հրապարակված պլաններ չկան։ Վերադարձեք ավելի ուշ կամ կապվեք ստուդիայի հետ։",
+    "packagesError": "Չհաջողվեց բեռնել պլանները։ Փորձեք ավելի ուշ։",
+    "packagesSubscribeCta": "Բաժանորդագրվել",
+    "packagesAccountCta": "Իմ փաթեթները",
+    "packagesLoginHint": "Մուտք գործեք կամ ստեղծեք հաշիվ՝ բաժանորդագրվելու համար։",
+    "packagesMemberHint": "Բաժանորդագրվեք՝ փաթեթն ձեր հաշվին ավելացնելու համար։",
+    "packagesPeriodDays": "{days} օրյա վճարման ցիկլ",
+    "packagesSessionsUnlimited": "Անսահմանափակ դասեր ժամանակաշրջանում",
+    "packagesSessionsCount": "{count} դաս ժամանակաշրջանում",
+    "packagesGuestCount": "{count, plural, one {# հյուր ներառված} other {# հյուր ներառված}}",
+    "packagesPriceLine": "{amount} ժամանակաշրջանի համար",
+    "packagesPriceFromLine": "{amount}-ից ժամանակաշրջանի համար",
+    "packagesCategoryTierCount": "{count, plural, one {# տարբերակ} other {# տարբերակ}}",
+    "packagesViewAllCta": "Դիտել բոլոր տարբերակները",
+    "packagesViewDetailsHint": "Դիտել բոլոր տարբերակները",
+    "packagesBackToList": "Վերադառնալ փաթեթներ",
+    "packagesOpenDetailsAria": "Դիտել {name} փաթեթի մանրամասները",
+    "packagesDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
+    "packagesDetailsClose": "Փակել",
+    "packagesDetailsTierCount": "{count, plural, one {# փաթեթ հասանելի} other {# փաթեթ հասանելի}}",
+    "packagesDetailsPriceLabel": "Գին",
+    "packagesDetailsBillingLabel": "Վճարման ժամանակաշրջան",
+    "packagesDetailsDurationLabel": "Տևողություն",
+    "packagesDetailsSessionsLabel": "Դասեր",
+    "packagesDetailsGuestsLabel": "Հյուրեր",
+    "packagesDetailsStatusLabel": "Կարգավիճակ",
+    "packagesDetailsStatusAvailable": "Հասանելի",
+    "packagesTablePricePerSession": "Մեկ դաս",
+    "packagesTableValidity": "Վավերականություն",
+    "packagesTableGuests": "Հյուրեր",
+    "packagesTableAction": "Գործողություն",
+    "packagesValidityDays": "{count} օր",
+    "packagesValidityMonths": "{count, plural, one {# ամիս} other {# ամիս}}",
+    "packagesSessionsUnlimitedShort": "Անսահման",
+    "packagesCompareTitle": "Պլանների համեմատություն",
+    "packagesTablePlan": "Պլան",
+    "packagesTablePrice": "Գին",
+    "packagesTablePeriod": "Ժամանակաշրջան",
+    "packagesTableSessions": "Դասեր",
+    "packagesPeriodDaysShort": "{days} օր",
+    "packagesFaqTitle": "Հաճախ տրվող հարցեր",
+    "packagesFaqPauseQuestion": "Կարո՞ղ եմ դադարեցնել աբոնեմենտը։",
+    "packagesFaqPauseAnswer": "Այո - անդամները կարող են իրենց հաշվից դադարեցնել աբոնեմենտը, եթե պլանը դա թույլ է տալիս, իսկ ստուդիայի թիմը կարող է օգնել նաև ընդունարանից։",
+    "packagesFaqBillingQuestion": "Ինչպե՞ս է աշխատում վճարումը։",
+    "packagesFaqBillingAnswer": "Վճարումը կատարվում է Stripe-ով, երբ այն միացված է ձեր միջավայրում։ Հաջող վճարումները երևում են ձեր հաշվի վճարումների պատմությունում։",
+    "packagesFaqWaitlistQuestion": "Ի՞նչ անել, եթե դասը լիքն է։",
+    "packagesFaqWaitlistAnswer": "Միացեք սպասման ցուցակին ժամանակացույցից - մենք կտեղեկացնենք, երբ տեղ բացվի, և կունենաք սահմանափակ ժամանակ հաստատելու համար։",
     "homeMembershipsTitle": "Փաթեթներ",
     "homeMembershipsLead": "Ընտրեք պլան հստակ գնով և օգուտներով՝ պրակտիկան կայուն պահելու համար։",
     "homeMembershipPopularBadge": "Հանրաճանաչ",
@@ -350,7 +378,15 @@
       "globalSearchPlaceholder": "Որոնել դասեր, մարզիչներ կամ հաճախորդներ…",
       "globalSearchAria": "Ընդհանուր որոնում",
       "globalSearchHint": "Ընդհանուր որոնումը դեռ հասանելի չէ։",
-      "adminProfileLabel": "Ադմին"
+      "adminProfileLabel": "Ադմին",
+      "memberProfileLabel": "Պրոֆիլ",
+      "roles": {
+        "USER": "Անդամ",
+        "COACH": "Մարզիչ",
+        "MANAGER": "Մենեջեր",
+        "CONTENT_ADMIN": "Բովանդակության ադմին",
+        "ADMIN": "Ադմին"
+      }
     },
     "brand": {
       "member": {
@@ -384,14 +420,18 @@
     },
     "nav": {
       "USER": {
+        "dashboard": "Վահանակ",
         "home": "Գլխավոր",
         "progress": "Առաջընթաց",
         "classes": "Դասեր",
+        "schedule": "Ժամանակացույց",
         "bookings": "Իմ ամրագրումները",
-        "memberships": "Աբոնեմենտներ",
+        "packages": "Փաթեթներ",
+        "payments": "Վճարումներ",
         "giftCards": "Նվեր քարտեր",
         "notifications": "Ծանուցումներ",
-        "profile": "Պրոֆիլ"
+        "profile": "Պրոֆիլ",
+        "settings": "Կարգավորումներ"
       },
       "COACH": {
         "dashboard": "Վահանակ",
@@ -432,7 +472,6 @@
         "settings": "Կարգավորումներ",
         "feedback": "Հետադարձ կապ",
         "guestUsers": "Հյուր օգտատերեր",
-        "memberships": "Աբոնեմենտներ",
         "classes": "Դասեր",
         "notifications": "Ծանուցումներ",
         "reports": "Հաշվետվություններ",
@@ -450,7 +489,6 @@
         "coaches": "Մարզիչների ցանկ և պրոֆիլներ։",
         "schedule": "Հանրային ժամանակացույցի քարտերը Home և Schedule էջերի համար։",
         "packages": "Աբոնեմենտային փաթեթներ, գին և հանրային կայքում ցուցադրում։",
-        "memberships": "Աբոնեմենտային պլաններ (նույնը, ինչ Փաթեթներ)։",
         "giftCards": "Տրված քարտեր և փոխարժման կարգավիճակ։",
         "finance": "Վճարումներ, եկամուտ և գործարքների վիճակ ստուդիայի մասշտաբով։",
         "analytics": "Կատարողական միտումներ, գրաֆիկներ և արտահանման համար պատրաստ անալիտիկա։",
@@ -467,8 +505,9 @@
         "home": "Ձեր առաջիկա դասերը, ամրագրումները և անդամի գործիքները։",
         "progress": "Նվաճումներ և կարևոր քայլեր։",
         "classes": "Դիտել և գրանցվել սեսիաների։",
+        "schedule": "Դիտեք շաբաթվա ժամանակացույցը և ամրագրեք հաջորդ սեսիան։",
         "bookings": "Առաջիկա և անցյալ ամրագրումներ։",
-        "memberships": "Ակտիվ պլաններ և թարմացումներ։",
+        "packages": "Ակտիվ փաթեթներ, պլաններ և վճարումների պատմություն։",
         "giftCards": "Մնացորդներ և փոխարժում։",
         "profile": "Անդամի տվյալներ, գաղտնաբառ, տան պատկեր և ծանուցման կարգավորումներ։",
         "notifications": "Զգուշացումներ և ստուդիայի հաղորդագրություններ։"
@@ -568,12 +607,22 @@
     "lead": "Դուք մուտք եք գործել Google-ով։ Սահմանեք գաղտնաբառ՝ նաև email-ով մուտք գործելու համար։"
   },
   "userPages": {
-    "memberships": {
-      "title": "Աբոնեմենտներ",
-      "description": "Բաժանորդագրվեք Stripe-ով, երբ բանալիները կարգավորված են. Ընդհատում կամ չեղարկում՝ API-ով կամ ապագա ադմին գործիքներով։",
-      "yourMemberships": "Ձեր աբոնեմենտները",
+    "packages": {
+      "title": "Փաթեթներ",
+      "description": "Ընտրեք պլան և կատարեք վճարումը ձեր նախընտրած եղանակով։ Փաթեթը կհայտնվի այստեղ վճարումից հետո։",
+      "statusPending": "Վճարումը կատարված է",
+      "awaitingPaymentConfirmation": "Ձեր վճարումը հաջողությամբ ավարտվել է։",
+      "paymentStatusSucceeded": "Ավարտված",
+      "paymentStatusFailed": "Ձախողված",
+      "paymentMethods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
+      "yourPackages": "Ձեր փաթեթները",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",
-      "noActiveMembership": "Դեռ ակտիվ աբոնեմենտ չկա։",
+      "noActivePackage": "Դեռ ակտիվ փաթեթ չկա։",
       "sessionsLeft": "Մնացել է {count} դաս",
       "renewsEnds": "Թարմանում է / ավարտվում է {date}",
       "paymentHistory": "Վճարումների պատմություն",
@@ -584,22 +633,42 @@
       "perPeriod": "{days} օրյա ժամանակաշրջանի համար",
       "unlimitedClassesShort": "Անսահմանափակ դասեր",
       "sessionsPerPeriodShort": "{count} դաս / ժամանակաշրջան",
-      "logInToSubscribe": "Մուտք գործեք՝ բաժանորդագրվելու համար։"
+      "logInToSubscribe": "Մուտք գործեք՝ բաժանորդագրվելու համար։",
+      "currentPlan": "Ձեր ընթացիկ պլանը",
+      "fromPrice": "{amount}-ից",
+      "browsePlanCta": "Դիտել և բաժանորդագրվել",
+      "emptyPlans": "Այս պահին հասանելի փաթեթներ չկան։",
+      "membershipStatus": {
+        "ACTIVE": "Ակտիվ",
+        "PAUSED": "Դադար",
+        "CANCELLED": "Չեղարկված",
+        "EXPIRED": "Սպառված",
+        "PENDING": "Սպասում է վճարման"
+      },
+      "membershipViewDetailsHint": "Սեղմեք ամբողջական տվյալների համար",
+      "membershipDetailsLead": "Դիտեք փաթեթի մանրամասները և կառավարեք բաժանորդագրությունը։",
+      "membershipDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
+      "membershipDetailsClose": "Փակել",
+      "membershipDetailsCategory": "Կատեգորիա",
+      "membershipDetailsPrice": "Գին",
+      "membershipDetailsDuration": "Տևողություն",
+      "membershipDetailsSessions": "Դասեր",
+      "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
+      "membershipDetailsStatus": "Կարգավիճակ"
     },
     "progress": {
       "title": "Առաջընթաց",
       "descriptionSignedOut": "Մուտք գործեք՝ ձեր հաճախումները, ծախսերը և նվաճումները հետևելու համար։",
       "signInPrompt": "Մուտք գործեք՝ առաջընթացը տեսնելու համար։",
-      "descriptionSignedIn": "Հաճախման միտումներ, աբոնեմենտի օգտագործում և նվաճումներ։",
+      "descriptionSignedIn": "Հաճախման միտումներ, ծախսեր և նվաճումներ։",
       "activitySummary": "Ակտիվության ամփոփում",
       "completedClasses": "Ավարտված դասեր",
       "allTime": "Ամբողջ ժամանակում",
       "recentAttendance": "Վերջին հաճախումներ",
       "recentSpend": "Վերջին ծախսեր",
       "last7Days": "Վերջին 7 օրը",
-      "membershipUsage": "Membership օգտագործում",
-      "membershipPlanLabel": "Փլան՝ {plan}",
-      "unlimitedLabel": "Անսահմանափակ",
+      "totalSpend": "Ընդհանուր ծախս",
+      "last90Days": "Վերջին 90 օրը",
       "performanceMetrics": "Կատարողականի ցուցանիշներ",
       "totalHours": "Ընդհանուր ժամեր",
       "activeDays": "Ակտիվ օրեր",
@@ -883,6 +952,7 @@
       "filterClientAll": "Բոլոր հաճախորդները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
       "resetFilters": "Reset Filters",
+      "activeCount": "{count} ակտիվ ֆիլտր",
       "viewList": "Բոլոր ամրագրումները",
       "viewMonthly": "Ամսական տեսք",
       "viewWeekly": "Շաբաթական տեսք",
@@ -926,7 +996,7 @@
       "bookingDetailsTitle": "Ամրագրման տվյալներ",
       "emptyUserData": "Հաճախորդի տվյալներ չեն գտնվել։",
       "emptyBookingData": "Ամրագրման տվյալներ չեն գտնվել։",
-      "membershipInfo": "Աբոնեմենտ / փաթեթ",
+      "packageInfo": "Փաթեթ",
       "bookingHistory": "Ամրագրման պատմություն",
       "selectClassSlot": "Ընտրեք նպատակային դասի սլոթը",
       "emptyMoveOptions": "Տեղափոխման համար հասանելի դասեր չկան։",
@@ -943,8 +1013,8 @@
       "colJoined": "Գրանցում",
       "colMembership": "Աբոնեմենտ",
       "colActions": "Գործողություններ",
-      "membershipActiveBadge": "Ակտիվ",
-      "membershipInactiveBadge": "Ակտիվ չէ",
+      "packageActiveBadge": "Ակտիվ",
+      "packageInactiveBadge": "Ակտիվ չէ",
       "editClient": "Խմբագրել հաճախորդին",
       "editModalTitle": "Խմբագրել հաճախորդին",
       "editModalDescription": "Թարմացրեք ընտրված հաճախորդի տվյալները։",
@@ -978,10 +1048,10 @@
       "filters": {
         "searchLabel": "Որոնում",
         "searchPlaceholder": "Անուն, էլ. փոստ կամ հեռախոս",
-        "membershipLabel": "Աբոնեմենտ",
-        "membershipAll": "Բոլոր հաճախորդները",
-        "membershipActive": "Ակտիվ անդամներ",
-        "membershipInactive": "Առանց ակտիվ աբոնեմենտի",
+        "packageLabel": "Աբոնեմենտ",
+        "packageAll": "Բոլոր հաճախորդները",
+        "packageActive": "Ակտիվ անդամներ",
+        "packageInactive": "Առանց ակտիվ աբոնեմենտի",
         "orderLabel": "Դասավորություն",
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
@@ -1285,6 +1355,7 @@
         "listHeading": "Ցուցակ",
         "addButton": "Ավելացնել տեսակ",
         "editButtonAria": "Խմբագրել «{name}»",
+        "deleteButtonAria": "Ջնջել «{name}»",
         "emptyTitle": "Տեսակներ դեռ չկան",
         "emptyBody": "Վերևի «Ավելացնել տեսակ» կոճակով ստեղծեք առաջին տեսակը՝ Reformer, Yoga և այլն։",
         "formCreateTitle": "Նոր տեսակ",
@@ -1593,15 +1664,20 @@
     },
     "packages": {
       "title": "Փաթեթներ",
-      "description": "Ստեղծեք և կառավարեք կայքում և անդամների հաշիվներում ցուցադրվող աբոնեմենտային փաթեթները։",
+      "description": "Աբոնեմենտային պլաններ, գներ և հանրային կայքում ցուցադրվող փաթեթներ։",
+      "emptyState": "Դեռ փաթեթների կարգավորում չկա։",
       "errorAuth": "Պահանջվում է ստուդիայի ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել փաթեթները ({status})։",
       "addPackageButton": "Ավելացնել փաթեթ",
       "addClassTypeButton": "Ավելացնել դասի տեսակ",
       "createTitle": "Ավելացնել փաթեթ",
       "createDescription": "Ստեղծեք հանրային աբոնեմենտ Home, Փաթեթներ և անդամների վճարման համար։",
+      "editTitle": "Խմբագրել փաթեթ",
+      "editDescription": "Թարմացրեք այս փաթեթը ընտրված դասի կատեգորիայի համար։",
       "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պատուհանը",
+      "modalNeedsClassCategory": "Փաթեթ ավելացնելուց առաջ ստեղծեք առնվազն մեկ դասի կատեգորիա (ադմինի Schedule կամ դասի տեսակների գործիքներ), ապա կրկին փորձեք։",
+      "fieldCategory": "Դասի կատեգորիա",
       "fieldName": "Փաթեթի անվանում",
       "fieldDescription": "Նկարագրություն",
       "fieldPrice": "Գին",
@@ -1611,7 +1687,8 @@
         "weekly": "Շաբաթական",
         "monthly": "Ամսական",
         "quarterly": "Եռամսյակային",
-        "yearly": "Տարեկան"
+        "yearly": "Տարեկան",
+        "session": "Նիսի համար"
       },
       "fieldPeriodDays": "Վճարման ցիկլ (օր)",
       "fieldFeatures": "Առավելություններ",
@@ -1640,9 +1717,14 @@
         "visibility": {
           "heading": "Տեսանելիություն",
           "description": "«Հանրաճանաչ» նշան և ակտիվ կարգավիճակ"
+        },
+        "session": {
+          "heading": "Session",
+          "description": "Որքան ժամանակով է փաթեթը վավեր անդամի համար"
         }
       },
       "nameRequired": "Փաթեթի անվանումը պարտադիր է։",
+      "categoryRequired": "Ընտրեք դասի կատեգորիա։",
       "nameTooLong": "Փաթեթի անվանումը չափազանց երկար է։",
       "descriptionTooLong": "Նկարագրությունը չափազանց երկար է։",
       "priceInvalid": "Մուտքագրեք վավեր գին։",
@@ -1653,6 +1735,7 @@
       "buttonLabelInvalid": "Մուտքագրեք վավեր կոճակի տեքստ։",
       "displayOrderInvalid": "Ցուցադրման հերթականությունը պետք է լինի 0 կամ ավելի։",
       "saveButton": "Պահպանել",
+      "createButton": "Ստեղծել փաթեթ",
       "savingButton": "Պահպանում...",
       "cancelButton": "Չեղարկել",
       "colName": "Փաթեթ",
@@ -1666,6 +1749,7 @@
       "popularBadge": "Հանրաճանաչ",
       "disableButton": "Անջատել",
       "enableButton": "Միացնել",
+      "editButton": "Խմբագրել",
       "deleteButton": "Ջնջել",
       "deleteConfirm": "Ջնջե՞լ այս փաթեթը։",
       "noFeatures": "Առավելություններ դեռ նշված չեն։",
@@ -1673,6 +1757,8 @@
       "tabAllPackages": "Բոլոր փաթեթները",
       "editCategory": "Խմբագրել կատեգորիան",
       "categoryEmpty": "Այս դասի կատեգորիային դեռ կապված աբոնեմենտային փաթեթներ չկան։",
+      "noClassTypesInStudio": "Դասի տեսակներ դեռ չկան։ Ստեղծեք Schedule → Class types բաժնում, ապա այստեղ ավելացրեք փաթեթներ։",
+      "noPackageCategoriesYet": "Դեռ փաթեթներ չկան։ Սեղմեք Add Package՝ առաջին պլանը ստեղծելու համար։",
       "noCategoriesSelected": "Փաթեթները դիտելու համար վերևից ընտրեք մեկ կամ մի քանի կատեգորիա։",
       "selectCategoryHint": "Փաթեթները դիտելու և կառավարելու համար վերևից ընտրեք այս կատեգորիան։",
       "tableSessions": "Սեսիաներ",
@@ -1683,6 +1769,8 @@
       "validityDays": "{count} օր",
       "validityMonths": "{count} ամիս",
       "rowActionsAria": "Փաթեթի գործողություններ",
+      "configurePricingAria": "Կարգավորել փաթեթի գինը",
+      "configurePricingButton": "Կարգավորել գինը",
       "cardSessions": "Սեսիաներ",
       "sessionsUnlimited": "Անսահմանա",
       "sessionsPerMonth": "{count} վճարման պարբերության համար",
@@ -1711,12 +1799,51 @@
       },
       "messages": {
         "createSuccess": "Փաթեթը ստեղծվեց։",
+        "updateSuccess": "Փաթեթը թարմացվեց։",
         "enabledSuccess": "Փաթեթը միացվեց։",
         "disabledSuccess": "Փաթեթը անջատվեց։",
-        "deleteSuccess": "Փաթեթը ջնջվեց։"
-      }
+        "deleteSuccess": "Փաթեթը ջնջվեց։",
+        "tierAddedSuccess": "Գնային տարբերակը ավելացվեց։"
+      },
+      "pricingTitle": "Գին և վճարում",
+      "pricingDescription": "Կառավարեք այս փաթեթի վճարման կարգավորումները։",
+      "categoryTooLong": "Կատեգորիայի անունը չափազանց երկար է։",
+      "fieldCategoryPlaceholder": "օր. Reformer, Mat",
+      "categoryLoading": "Կատեգորիաները բեռնվում են…",
+      "categorySearchLabel": "Որոնել կամ ստեղծել դասի կատեգորիա",
+      "categorySearchPlaceholder": "Որոնել կամ մուտքագրել նոր կատեգորիա",
+      "categoryNoMatches": "Համընկնումներ չկան։ Մուտքագրեք անունը նոր կատեգորիա ստեղծելու համար։",
+      "categoryCreateOption": "Ստեղծել «{name}»",
+      "categoryCreateHint": "Նոր կատեգորիան կստեղծվի, երբ պահպանեք այս փաթեթը։",
+      "renameCategoryTitle": "Խմբագրել կատեգորիան",
+      "renameCategoryDescription": "Անվանափոխումը կկիրառվի այս խմբի բոլոր փաթեթների վրա։",
+      "editCategoryDescription": "Անվանափոխումը կկիրառվի այս կատեգորիայի բոլոր {count} փաթեթի վրա։ Delete category-ն հեռացնում է կատեգորիան և դրանում եղած բոլոր փաթեթները։",
+      "editCategoryDescriptionEmpty": "Այս կատեգորիայում փաթեթներ չկան։",
+      "deleteCategoryButton": "Ջնջել կատեգորիան",
+      "deleteCategoryConfirm": "Ջնջե՞լ «{name}» կատեգորիան և դրա {count} փաթեթը։ Գործողությունը հետարկելի չէ։",
+      "deleteCategoryConfirmEmpty": "Հեռացնե՞լ դատարկ «{name}» կատեգորիան։",
+      "durationMonthsInvalid": "Մուտքագրեք ամիսների ամբողջ թիվ 1-ից 120-ի սահմաններում։",
+      "fieldDurationMonths": "Փաթեթի տևողություն (ամիս)",
+      "fieldDurationMonthsPlaceholder": "օր. 6",
+      "fieldDurationMonthsHint": "Ցուցադրվում է աղյուսակի «Session» սյունակում (1 ամիս = 30 օր)։",
+      "fieldGuestCount": "Հյուրեր",
+      "fieldGuestCountPlaceholder": "օր. 2",
+      "fieldGuestCountHint": "Այս փաթեթով թույլատրված հյուրերի առավելագույն քանակ (աղյուսակի Guests սյունակ)։",
+      "guestCountInvalid": "Մուտքագրեք հյուրերի ամբողջ թիվ 1-ից 99-ի սահմաններում։",
+      "savePricingButton": "Պահպանել գնի կարգավորումները",
+      "addTierTitle": "Ավելացնել գնային տարբերակ",
+      "addTierDescription": "Ավելացրեք seans-ների տարբերակ այս package-ում։",
+      "addTierButton": "Ավելացնել",
+      "addTierAria": "Ավելացնել գնային տարբերակ package-ում",
+      "addTierFormHeading": "Գնային տարբերակ",
+      "addTierFormDescription": "Seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը ցուցադրվում են ցանկում։",
+      "fieldSessionsCount": "Seans-ներ",
+      "fieldSessionsCountPlaceholder": "օր. 10",
+      "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
+      "fieldValidityHint": "Ցուցադրվում է Validity սյունակում (1 ամիս = 30 օր)։",
+      "saveTierButton": "Ավելացնել"
     },
-    "membershipPlans": {
+    "packagePlans": {
       "title": "Աբոնեմենտային պլաններ",
       "description": "Ստեղծեք և կառավարեք կայքում ցուցադրվող հանրային աբոնեմենտները։",
       "errorAuth": "Պահանջվում է ստուդիայի ադմինի մուտք։",
@@ -1815,7 +1942,7 @@
         "loading": "Բեռնվում են օգտատիրոջ տվյալները...",
         "error": "Չհաջողվեց բեռնել օգտատիրոջ տվյալները։",
         "empty": "Օգտատիրոջ տվյալները անհասանելի են։",
-        "memberships": "Աբոնեմենտներ",
+        "packages": "Աբոնեմենտներ",
         "bookings": "Վերջին ամրագրումներ"
       }
     },
@@ -1854,7 +1981,7 @@
       "exportPaymentsCsv": "Արտահանել payments CSV",
       "exportGiftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV",
       "sources": {
-        "membership": "Աբոնեմենտներ",
+        "package": "Աբոնեմենտներ",
         "dropin": "Ամրագրումներ",
         "gift": "Նվեր քարտեր",
         "other": "Այլ վճարումներ"
@@ -1866,7 +1993,7 @@
         "range90": "Վերջին 90 օրը",
         "sourceLabel": "Աղբյուր",
         "sourceAll": "Բոլոր աղբյուրները",
-        "sourceMembership": "Membership",
+        "sourcePackage": "Փաթեթ",
         "sourceDropIn": "Drop-in",
         "sourceGift": "Gift",
         "sourceOther": "Այլ",
@@ -1879,13 +2006,29 @@
         "searchLabel": "Որոնում",
         "searchPlaceholder": "Հաճախորդ, email, վճարման ID, հղում"
       },
+      "paymentMethods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
+      "paymentActions": {
+        "markPaid": "Նշել որպես վճարված",
+        "reject": "Մերժել",
+        "markedPaid": "Նշված է որպես վճարված։",
+        "markedRejected": "Հայտը մերժված է։",
+        "actionFailed": "Չհաջողվեց թարմացնել վճարումը։"
+      },
       "table": {
         "empty": "Ընտրված ֆիլտրերով վճարումներ չեն գտնվել։",
         "colDate": "Ամսաթիվ",
         "colUser": "Օգտատեր",
         "colAmount": "Գումար",
+        "colPlan": "Փաթեթ",
+        "colPaymentMethod": "Վճարման եղանակ",
         "colSource": "Աղբյուր",
         "colStatus": "Կարգավիճակ",
+        "colActions": "Գործողություններ",
         "colDescription": "Նկարագրություն"
       }
     },
@@ -1907,7 +2050,7 @@
       "kpiNewUsersToday": "Նոր օգտատերեր այսօր",
       "kpiAttendanceRate": "Ներկայության տոկոս (միջակայք)",
       "sources": {
-        "membership": "Աբոնեմենտներ",
+        "package": "Աբոնեմենտներ",
         "dropin": "Drop-in",
         "gift": "Նվեր քարտեր",
         "other": "Այլ"
@@ -1975,7 +2118,7 @@
           "missed": "Բաց թողնված",
           "chartAria": "Ներկայության գրաֆիկ"
         },
-        "memberships": {
+        "packages": {
           "title": "Աբոնեմենտների հաշվետվություն",
           "hint": "Ակտիվ անդամներ dashboard-ից. կարգավիճակ/պլան՝ մինչև {limit} աբոնեմենտից։",
           "activeDashboard": "Ակտիվ անդամներ (dashboard)",
@@ -2292,12 +2435,34 @@
       "action": "Միանալ սպասման ցուցակին",
       "failed": "Չհաջողվեց միանալ սպասման ցուցակին"
     },
-    "membershipCheckout": {
-      "subscribe": "Բաժանորդագրվել",
-      "checkoutFailed": "Չհաջողվեց սկսել վճարման գործընթացը",
-      "checkoutUnavailable": "Վճարումը հասանելի չէ"
+    "packageCheckout": {
+      "subscribe": "Բաժանորդագրվել"
     },
-    "membershipLifecycle": {
+    "manualPackagePayment": {
+      "title": "Հաստատել բաժանորդագրությունը",
+      "lead": "Ընտրեք վճարման եղանակը։ Այս էկրանին քարտի տվյալներ չեն հավաքվում։",
+      "selectPlanLegend": "Փաթեթի մակարդակ",
+      "closeModal": "Փակել",
+      "methodLegend": "Վճարման եղանակ",
+      "methods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
+      "unlimitedClasses": "Անսահմանափակ դասեր",
+      "sessionsPerPeriod": "{count} դաս ժամանակաշրջանում",
+      "periodDays": "{days} օրյա ժամանակաշրջան",
+      "confirm": "Հաստատել վճարումը",
+      "submitting": "Մշակվում է…",
+      "cancel": "Չեղարկել",
+      "submitFailed": "Չհաջողվեց ավարտել վճարումը։",
+      "successTitle": "Վճարումը հաջող էր",
+      "successLead": "Ձեր վճարումը հաջողությամբ ավարտվել է։",
+      "successMethod": "Վճարման եղանակ՝ {method}",
+      "done": "Պատրաստ է"
+    },
+    "packageLifecycle": {
       "pause": "Դադարեցնել",
       "cancelAction": "Չեղարկել",
       "renew": "Թարմացնել",

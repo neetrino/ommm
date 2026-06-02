@@ -7,23 +7,6 @@ export type AttendanceBehavior =
   | "often-cancels"
   | "low-attendance";
 
-export type ClientMembership = {
-  id: string;
-  status: string;
-  sessionsRemaining: number | null;
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
-  plan: {
-    id: string;
-    name: string;
-    slug: string;
-    sessionsPerMonth: number | null;
-    isUnlimited: boolean;
-    billingPeriod: string;
-    priceCents: number;
-  };
-};
-
 export type ClientRow = {
   id: string;
   email: string;
@@ -37,9 +20,6 @@ export type ClientRow = {
   isBlocked: boolean;
   source: "website" | "mobile-app" | "admin" | null;
   preferredCoach: { id: string; name: string; count: number } | null;
-  memberships: ClientMembership[];
-  activeMembership: ClientMembership | null;
-  packageType: "single-class" | "monthly-package" | "vip-package" | null;
   paymentBehavior: PaymentBehavior;
   attendanceBehavior: AttendanceBehavior;
   classLevels: string[];
@@ -73,15 +53,6 @@ export type AdminClientsPayload = {
   pagination: { total: number; take: number; offset: number };
 };
 
-export type PackageOption = {
-  id: string;
-  name: string;
-  isActive: boolean;
-  priceCents: number;
-  sessionsPerMonth: number | null;
-  isUnlimited: boolean;
-};
-
 export type ClientDetail = {
   id: string;
   email: string;
@@ -91,7 +62,6 @@ export type ClientDetail = {
   dateOfBirth: string | null;
   avatarUrl: string | null;
   createdAt: string;
-  memberships: ClientMembership[];
   bookings: Array<{
     id: string;
     status: string;

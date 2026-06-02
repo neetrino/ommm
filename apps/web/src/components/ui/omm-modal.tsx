@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, type ReactNode } from "react";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export const OMM_MODAL_BACKDROP_CLASS = "ommm-modal-backdrop";
@@ -49,6 +50,8 @@ export function OmmModalPortal({
 }: OmmModalPortalProps) {
   const portalReady = useIsClientMounted();
 
+  useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
+
   useEffect(() => {
     if (!isOpen) {
       return undefined;
@@ -87,6 +90,7 @@ type OmmDrawerPortalProps = {
   isOpen: boolean;
   onClose: () => void;
   backdropAriaLabel: string;
+  closeDisabled?: boolean;
   panelClassName?: string;
   children: ReactNode;
 };
@@ -95,10 +99,13 @@ export function OmmDrawerPortal({
   isOpen,
   onClose,
   backdropAriaLabel,
+  closeDisabled = false,
   panelClassName = "relative z-10 h-full w-full max-w-md overflow-auto bg-white p-5 shadow-xl",
   children,
 }: OmmDrawerPortalProps) {
   const portalReady = useIsClientMounted();
+
+  useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
 
   useEffect(() => {
     if (!isOpen) {
@@ -117,7 +124,11 @@ export function OmmDrawerPortal({
 
   return createPortal(
     <div className={OMM_DRAWER_OVERLAY_CLASS} role="presentation">
-      <OmmModalBackdrop onClose={onClose} ariaLabel={backdropAriaLabel} />
+      <OmmModalBackdrop
+        onClose={onClose}
+        ariaLabel={backdropAriaLabel}
+        disabled={closeDisabled}
+      />
       <aside className={panelClassName}>{children}</aside>
     </div>,
     document.body,

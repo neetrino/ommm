@@ -13,7 +13,7 @@
     "home": "Home",
     "story": "Story",
     "coaches": "Coaches",
-    "memberships": "Packages",
+    "packages": "Packages",
     "explore": "Explore",
     "schedule": "Schedule",
     "contact": "Contact"
@@ -102,7 +102,7 @@
       "weeklyScheduleSessionsPanelAria": "{day} class sessions",
       "weeklyScheduleEmptyDay": "No sessions",
       "weeklyScheduleLoadFailed": "Could not load schedule ({status}).",
-      "weeklyScheduleBookSessionAria": "View {className} on the schedule",
+      "weeklyScheduleBookSessionAria": "Book {className}",
       "weeklyScheduleDays": {
         "MONDAY": "MON",
         "TUESDAY": "TUES",
@@ -176,26 +176,15 @@
         }
       ],
       "plansSectionTitle": "A Sanctuary for Every Body",
-      "planCards": [
-        {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
-        },
-        {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
-        },
-        {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
-        }
-      ],
+      "planCardCtaAria": "View {planName} details",
+      "planCardSessionsUnlimited": "Unlimited sessions",
+      "planCardSessionsCount": "{count, plural, one {# session} other {# sessions}}",
+      "planCardGuestCount": "{count, plural, one {# guest} other {# guests}}",
+      "planCardCategoryPackages": "{count, plural, one {# package} other {# packages}}",
+      "planCardPriceFrom": "From {amount}",
+      "planPopularBadge": "Popular",
+      "plansEmpty": "Packages will appear here once they are published in the admin panel.",
+      "plansLoadFailed": "Could not load packages ({status}).",
       "eventsTitle": "Events",
       "eventWideTitle": "Featured gathering",
       "eventWideDetails": "Details",
@@ -206,10 +195,22 @@
       "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
       "footerIllustrationAlt": "Decorative wellness illustration",
       "footerLinks": [
-        { "href": "/contact", "label": "Privacy" },
-        { "href": "/contact", "label": "Terms" },
-        { "href": "/explore", "label": "Journal" },
-        { "href": "/contact", "label": "Contact" }
+        {
+          "href": "/contact",
+          "label": "Privacy"
+        },
+        {
+          "href": "/contact",
+          "label": "Terms"
+        },
+        {
+          "href": "/explore",
+          "label": "Journal"
+        },
+        {
+          "href": "/contact",
+          "label": "Contact"
+        }
       ]
     }
   },
@@ -220,11 +221,13 @@
         "body": "Log in to see your upcoming classes, waitlists, and studio tools."
       },
       "greeting": "Welcome back,",
+      "welcomeSubtitleBefore": "Our dear ",
+      "welcomeSubtitleAfter": " Ommm welcomes you.",
       "titleStart": "Find your",
       "titleAccent": "center today.",
       "lead": "Your next session, waitlists, and studio notes — in one calm flow.",
       "primaryCta": "Book a class",
-      "secondaryCta": "My memberships",
+      "secondaryCta": "My packages",
       "nextClass": {
         "eyebrow": "Coming up next",
         "openLabel": "Open schedule",
@@ -261,7 +264,7 @@
     "heroTitle": "Calm studio, personal experience",
     "heroSubtitle": "Thoughtful scheduling, packages, and class booking — a full studio experience on the web.",
     "heroCta": "Book a class",
-    "membershipsCta": "View packages",
+    "packagesCta": "View packages",
     "featureScheduleTitle": "Live schedule",
     "featureScheduleBody": "See upcoming sessions, capacity, and coaches — book in a few taps when you are signed in.",
     "featureMembershipsTitle": "Packages",
@@ -289,30 +292,55 @@
     "coachesModalBioLabel": "About",
     "coachesModalBasicInfoLabel": "Basic Information",
     "coachesModalBioFallback": "This coach profile will be updated with more details soon.",
-    "membershipsPageTitle": "Packages",
-    "membershipsPageLead": "Choose a plan that fits how often you want to practice.",
-    "membershipsEmpty": "No plans are published yet. Check back soon or contact the studio.",
-    "membershipsError": "We could not load plans. Please try again later.",
-    "membershipsSubscribeCta": "Subscribe",
-    "membershipsAccountCta": "Go to my packages",
-    "membershipsLoginHint": "Log in or create an account to subscribe.",
-    "membershipsPeriodDays": "{days}-day billing cycle",
-    "membershipsSessionsUnlimited": "Unlimited classes per period",
-    "membershipsSessionsCount": "{count} classes per period",
-    "membershipsPriceLine": "{amount} per period",
-    "membershipsCompareTitle": "Compare plans",
-    "membershipsTablePlan": "Plan",
-    "membershipsTablePrice": "Price",
-    "membershipsTablePeriod": "Period",
-    "membershipsTableSessions": "Sessions",
-    "membershipsPeriodDaysShort": "{days} days",
-    "membershipsFaqTitle": "FAQ",
-    "membershipsFaqPauseQuestion": "Can I pause my membership?",
-    "membershipsFaqPauseAnswer": "Yes - members can pause from their account when the plan supports it; the studio team can also help from the desk.",
-    "membershipsFaqBillingQuestion": "How does billing work?",
-    "membershipsFaqBillingAnswer": "Checkout runs through Stripe when enabled in your environment. You will see successful charges in your account payment history.",
-    "membershipsFaqWaitlistQuestion": "What if a class is full?",
-    "membershipsFaqWaitlistAnswer": "Join the waitlist from the schedule - we notify you when a spot opens, with a limited time to confirm.",
+    "packagesPageTitle": "Packages",
+    "packagesPageLead": "Choose a plan that fits how often you want to practice.",
+    "packagesEmpty": "No plans are published yet. Check back soon or contact the studio.",
+    "packagesError": "We could not load plans. Please try again later.",
+    "packagesSubscribeCta": "Subscribe",
+    "packagesAccountCta": "Go to my packages",
+    "packagesMemberHint": "Subscribe to add a package to your account.",
+    "packagesLoginHint": "Log in or create an account to subscribe.",
+    "packagesPeriodDays": "{days}-day billing cycle",
+    "packagesSessionsUnlimited": "Unlimited classes per period",
+    "packagesSessionsCount": "{count} classes per period",
+    "packagesGuestCount": "{count, plural, one {# guest included} other {# guests included}}",
+    "packagesPriceLine": "{amount} per period",
+    "packagesPriceFromLine": "From {amount} per period",
+    "packagesCategoryTierCount": "{count, plural, one {# option} other {# options}}",
+    "packagesViewAllCta": "View all options",
+    "packagesViewDetailsHint": "View all options",
+    "packagesBackToList": "Back to packages",
+    "packagesOpenDetailsAria": "View package details for {name}",
+    "packagesDetailsCloseBackdrop": "Close package details",
+    "packagesDetailsClose": "Close",
+    "packagesDetailsTierCount": "{count, plural, one {# package available} other {# packages available}}",
+    "packagesDetailsPriceLabel": "Price",
+    "packagesDetailsBillingLabel": "Billing period",
+    "packagesDetailsDurationLabel": "Duration",
+    "packagesDetailsSessionsLabel": "Sessions",
+    "packagesDetailsGuestsLabel": "Guests",
+    "packagesDetailsStatusLabel": "Status",
+    "packagesDetailsStatusAvailable": "Available",
+    "packagesTablePricePerSession": "Per session",
+    "packagesTableValidity": "Validity",
+    "packagesTableGuests": "Guests",
+    "packagesTableAction": "Action",
+    "packagesValidityDays": "{count} days",
+    "packagesValidityMonths": "{count, plural, one {# month} other {# months}}",
+    "packagesSessionsUnlimitedShort": "Unlimited",
+    "packagesCompareTitle": "Compare plans",
+    "packagesTablePlan": "Plan",
+    "packagesTablePrice": "Price",
+    "packagesTablePeriod": "Period",
+    "packagesTableSessions": "Sessions",
+    "packagesPeriodDaysShort": "{days} days",
+    "packagesFaqTitle": "FAQ",
+    "packagesFaqPauseQuestion": "Can I pause my package?",
+    "packagesFaqPauseAnswer": "Yes - members can pause from their account when the plan supports it; the studio team can also help from the desk.",
+    "packagesFaqBillingQuestion": "How does billing work?",
+    "packagesFaqBillingAnswer": "Checkout runs through Stripe when enabled in your environment. You will see successful charges in your account payment history.",
+    "packagesFaqWaitlistQuestion": "What if a class is full?",
+    "packagesFaqWaitlistAnswer": "Join the waitlist from the schedule - we notify you when a spot opens, with a limited time to confirm.",
     "homeMembershipsTitle": "Packages",
     "homeMembershipsLead": "Choose a plan and keep your practice steady with clear pricing and benefits.",
     "homeMembershipPopularBadge": "Popular",
@@ -350,7 +378,15 @@
       "globalSearchPlaceholder": "Search sessions, coaches, or clients…",
       "globalSearchAria": "Global search",
       "globalSearchHint": "Global search is not available yet.",
-      "adminProfileLabel": "Admin"
+      "adminProfileLabel": "Admin",
+      "memberProfileLabel": "Profile",
+      "roles": {
+        "USER": "Member",
+        "COACH": "Coach",
+        "MANAGER": "Manager",
+        "CONTENT_ADMIN": "Content admin",
+        "ADMIN": "Admin"
+      }
     },
     "brand": {
       "member": {
@@ -384,14 +420,18 @@
     },
     "nav": {
       "USER": {
+        "dashboard": "Dashboard",
         "home": "Home",
         "progress": "Progress",
         "classes": "Classes",
+        "schedule": "Schedule",
         "bookings": "My bookings",
-        "memberships": "Memberships",
+        "packages": "Packages",
+        "payments": "Payments",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
-        "profile": "Profile"
+        "profile": "Profile",
+        "settings": "Settings"
       },
       "COACH": {
         "dashboard": "Dashboard",
@@ -432,7 +472,6 @@
         "settings": "Settings",
         "feedback": "Feedback",
         "guestUsers": "Guest users",
-        "memberships": "Memberships",
         "classes": "Classes",
         "notifications": "Notifications",
         "reports": "Reports",
@@ -450,7 +489,6 @@
         "coaches": "Coach roster and profile records.",
         "schedule": "Public schedule cards shown on Home and Schedule pages.",
         "packages": "Membership plans, pricing, and packages shown on the public site.",
-        "memberships": "Membership plans (same as Packages).",
         "giftCards": "Issued cards and redemption status.",
         "finance": "Payments, revenue, and transaction health across the studio.",
         "analytics": "Performance trends, charts, and export-ready analytics.",
@@ -467,8 +505,9 @@
         "home": "Your upcoming classes, bookings, and member tools.",
         "progress": "Achievements and milestones.",
         "classes": "Browse and book sessions.",
+        "schedule": "Browse the weekly schedule and book your next session.",
         "bookings": "Upcoming and past reservations.",
-        "memberships": "Active plans and renewals.",
+        "packages": "Active packages, plans, and payment history.",
         "giftCards": "Balances and redemption.",
         "profile": "Your member details, password, home image, and notification preferences.",
         "notifications": "Alerts and studio messages."
@@ -513,7 +552,7 @@
       "loginFailed": "Login failed"
     },
     "register": {
-      "lead": "Create a member account to book classes and manage memberships.",
+      "lead": "Create a member account to book classes and manage packages.",
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",
@@ -568,12 +607,22 @@
     "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
-    "memberships": {
-      "title": "Memberships",
-      "description": "Subscribe with Stripe when keys are configured; pause or cancel from the API or future admin tools.",
-      "yourMemberships": "Your memberships",
+    "packages": {
+      "title": "Packages",
+      "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
+      "statusPending": "Payment completed",
+      "awaitingPaymentConfirmation": "Your payment was completed successfully.",
+      "paymentStatusSucceeded": "Completed",
+      "paymentStatusFailed": "Failed",
+      "paymentMethods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
+      "yourPackages": "Your packages",
       "signInToView": "Sign in to view.",
-      "noActiveMembership": "No active membership yet.",
+      "noActivePackage": "No active package yet.",
       "sessionsLeft": "{count} sessions left",
       "renewsEnds": "Renews / ends {date}",
       "paymentHistory": "Payment history",
@@ -584,22 +633,42 @@
       "perPeriod": "per {days}-day period",
       "unlimitedClassesShort": "Unlimited classes",
       "sessionsPerPeriodShort": "{count} classes / period",
-      "logInToSubscribe": "Log in to subscribe."
+      "logInToSubscribe": "Log in to subscribe.",
+      "currentPlan": "Your current plan",
+      "fromPrice": "From {amount}",
+      "browsePlanCta": "View & subscribe",
+      "emptyPlans": "No packages are available right now.",
+      "membershipStatus": {
+        "ACTIVE": "Active",
+        "PAUSED": "Paused",
+        "CANCELLED": "Cancelled",
+        "EXPIRED": "Expired",
+        "PENDING": "Pending payment"
+      },
+      "membershipViewDetailsHint": "Tap for full details",
+      "membershipDetailsLead": "Review your package details and manage your subscription.",
+      "membershipDetailsCloseBackdrop": "Close package details",
+      "membershipDetailsClose": "Close",
+      "membershipDetailsCategory": "Category",
+      "membershipDetailsPrice": "Price",
+      "membershipDetailsDuration": "Duration",
+      "membershipDetailsSessions": "Sessions",
+      "membershipDetailsPeriodEnd": "Renews / ends",
+      "membershipDetailsStatus": "Status"
     },
     "progress": {
       "title": "Progress",
       "descriptionSignedOut": "Sign in to track your attendance, spending, and milestones.",
       "signInPrompt": "Sign in to view your progress.",
-      "descriptionSignedIn": "Attendance trends, membership usage, and achievements.",
+      "descriptionSignedIn": "Attendance trends, spending, and achievements.",
       "activitySummary": "Activity summary",
       "completedClasses": "Completed classes",
       "allTime": "All time",
       "recentAttendance": "Recent attendance",
       "recentSpend": "Recent spend",
       "last7Days": "Last 7 days",
-      "membershipUsage": "Membership usage",
-      "membershipPlanLabel": "Plan: {plan}",
-      "unlimitedLabel": "Unlimited",
+      "totalSpend": "Total spend",
+      "last90Days": "Last 90 days",
       "performanceMetrics": "Performance metrics",
       "totalHours": "Total hours",
       "activeDays": "Active days",
@@ -632,7 +701,7 @@
       "coachFallback": "Coach",
       "spotsBooked": "{booked}/{capacity} booked",
       "paidShort": "Paid ({amount})",
-      "includedShort": "Included / membership",
+      "includedShort": "Included / package",
       "myBookingsLink": "My bookings"
     },
     "notifications": {
@@ -896,6 +965,7 @@
       "filterClientAll": "All clients",
       "filterStatusAll": "All statuses",
       "resetFilters": "Reset Filters",
+      "activeCount": "{count} active filters",
       "viewList": "All bookings",
       "viewMonthly": "Monthly view",
       "viewWeekly": "Weekly view",
@@ -939,7 +1009,7 @@
       "bookingDetailsTitle": "Booking details",
       "emptyUserData": "No user data found.",
       "emptyBookingData": "No booking data found.",
-      "membershipInfo": "Membership / package",
+      "packageInfo": "Package",
       "bookingHistory": "Booking history",
       "selectClassSlot": "Select a target class slot",
       "emptyMoveOptions": "No available classes for moving this booking.",
@@ -956,8 +1026,8 @@
       "colJoined": "Joined",
       "colMembership": "Membership",
       "colActions": "Actions",
-      "membershipActiveBadge": "Active",
-      "membershipInactiveBadge": "No active",
+      "packageActiveBadge": "Active",
+      "packageInactiveBadge": "No active",
       "editClient": "Edit client",
       "editModalTitle": "Edit client",
       "editModalDescription": "Update the selected client details.",
@@ -991,10 +1061,10 @@
       "filters": {
         "searchLabel": "Search",
         "searchPlaceholder": "Name, email, or phone",
-        "membershipLabel": "Membership",
-        "membershipAll": "All clients",
-        "membershipActive": "Active members",
-        "membershipInactive": "Without active membership",
+        "packageLabel": "Membership",
+        "packageAll": "All clients",
+        "packageActive": "Active members",
+        "packageInactive": "Without active package",
         "orderLabel": "Order",
         "orderNewest": "Newest first",
         "orderOldest": "Oldest first",
@@ -1298,6 +1368,7 @@
         "listHeading": "Catalog",
         "addButton": "Add type",
         "editButtonAria": "Edit {name}",
+        "deleteButtonAria": "Delete {name}",
         "emptyTitle": "No class types yet",
         "emptyBody": "Use Add type above to create your first one — for example Reformer, Yoga, or Mat Pilates.",
         "formCreateTitle": "New class type",
@@ -1606,15 +1677,20 @@
     },
     "packages": {
       "title": "Packages",
-      "description": "Create and manage membership plans shown on the website and in member accounts.",
+      "description": "Membership plans, pricing, and packages shown on the public site.",
+      "emptyState": "No package configuration available yet.",
       "errorAuth": "Studio admin sign-in required.",
       "errorLoad": "Could not load packages ({status}).",
-      "addPackageButton": "Add package",
+      "addPackageButton": "Add Package",
       "addClassTypeButton": "Add class type",
       "createTitle": "Add package",
       "createDescription": "Create a public membership plan for Home, Packages, and member checkout.",
+      "editTitle": "Edit package",
+      "editDescription": "Update this package for the selected class category.",
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
+      "modalNeedsClassCategory": "Create at least one class category before adding a package. Use Schedule or class-type tools in admin, then try again.",
+      "fieldCategory": "Class category",
       "fieldName": "Package name",
       "fieldDescription": "Description",
       "fieldPrice": "Price",
@@ -1624,7 +1700,8 @@
         "weekly": "Weekly",
         "monthly": "Monthly",
         "quarterly": "Quarterly",
-        "yearly": "Yearly"
+        "yearly": "Yearly",
+        "session": "Per session"
       },
       "fieldPeriodDays": "Billing cycle (days)",
       "fieldFeatures": "Features",
@@ -1653,9 +1730,14 @@
         "visibility": {
           "heading": "Visibility",
           "description": "Popular badge and active status"
+        },
+        "session": {
+          "heading": "Session",
+          "description": "How long the package lasts for the member"
         }
       },
       "nameRequired": "Package name is required.",
+      "categoryRequired": "Select a class category.",
       "nameTooLong": "Package name is too long.",
       "descriptionTooLong": "Description is too long.",
       "priceInvalid": "Enter a valid price.",
@@ -1666,6 +1748,7 @@
       "buttonLabelInvalid": "Enter a valid button label.",
       "displayOrderInvalid": "Display order must be 0 or greater.",
       "saveButton": "Save",
+      "createButton": "Create package",
       "savingButton": "Saving...",
       "cancelButton": "Cancel",
       "colName": "Package",
@@ -1679,6 +1762,7 @@
       "popularBadge": "Popular",
       "disableButton": "Disable",
       "enableButton": "Enable",
+      "editButton": "Edit",
       "deleteButton": "Delete",
       "deleteConfirm": "Delete this package?",
       "noFeatures": "No features listed yet.",
@@ -1686,6 +1770,8 @@
       "tabAllPackages": "All packages",
       "editCategory": "Edit category",
       "categoryEmpty": "No membership packages are linked to this class category yet.",
+      "noClassTypesInStudio": "No class types exist yet. Create them under Schedule → Class types, then add packages here.",
+      "noPackageCategoriesYet": "No packages yet. Click Add Package to create your first plan.",
       "noCategoriesSelected": "Select one or more categories above to view their packages.",
       "selectCategoryHint": "Select this category above to view and manage its packages.",
       "tableSessions": "Sessions",
@@ -1696,6 +1782,8 @@
       "validityDays": "{count} Days",
       "validityMonths": "{count} Months",
       "rowActionsAria": "Package actions",
+      "configurePricingAria": "Configure package pricing",
+      "configurePricingButton": "Configure pricing",
       "cardSessions": "Sessions",
       "sessionsUnlimited": "Unlimited",
       "sessionsPerMonth": "{count} per billing period",
@@ -1724,12 +1812,51 @@
       },
       "messages": {
         "createSuccess": "Package created.",
+        "updateSuccess": "Package updated.",
         "enabledSuccess": "Package enabled.",
         "disabledSuccess": "Package disabled.",
-        "deleteSuccess": "Package deleted."
-      }
+        "deleteSuccess": "Package deleted.",
+        "tierAddedSuccess": "Pricing option added."
+      },
+      "pricingTitle": "Pricing & Billing",
+      "pricingDescription": "Manage billing settings for this package.",
+      "categoryTooLong": "Category name is too long.",
+      "fieldCategoryPlaceholder": "e.g. Reformer, Mat",
+      "categoryLoading": "Loading categories…",
+      "categorySearchLabel": "Search or create a class category",
+      "categorySearchPlaceholder": "Search or type a new category",
+      "categoryNoMatches": "No matching categories. Type a name to create one.",
+      "categoryCreateOption": "Create \"{name}\"",
+      "categoryCreateHint": "A new category is created when you save this package.",
+      "renameCategoryTitle": "Edit category",
+      "renameCategoryDescription": "Renames this category for all packages in the group.",
+      "editCategoryDescription": "Rename applies to all {count} packages in this category. Delete removes the category and every package in it.",
+      "editCategoryDescriptionEmpty": "This category has no packages. You can close or delete the empty category.",
+      "deleteCategoryButton": "Delete category",
+      "deleteCategoryConfirm": "Delete category \"{name}\" and all {count} packages in it? This cannot be undone.",
+      "deleteCategoryConfirmEmpty": "Remove empty category \"{name}\"?",
+      "durationMonthsInvalid": "Enter a whole number of months from 1 to 120.",
+      "fieldDurationMonths": "Package duration (months)",
+      "fieldDurationMonthsPlaceholder": "e.g. 6",
+      "fieldDurationMonthsHint": "Shown in the packages table in the Session column (1 month = 30 days).",
+      "fieldGuestCount": "Guests",
+      "fieldGuestCountPlaceholder": "e.g. 2",
+      "fieldGuestCountHint": "Maximum guests allowed on this package (shown in the Guests column).",
+      "guestCountInvalid": "Enter a whole number of guests from 1 to 99.",
+      "savePricingButton": "Save pricing",
+      "addTierTitle": "Add pricing option",
+      "addTierDescription": "Add a session bundle to this package.",
+      "addTierButton": "Add option",
+      "addTierAria": "Add pricing option to package",
+      "addTierFormHeading": "Pricing option",
+      "addTierFormDescription": "Session count, price, validity, and guest limit appear in the package list.",
+      "fieldSessionsCount": "Sessions",
+      "fieldSessionsCountPlaceholder": "e.g. 10",
+      "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
+      "fieldValidityHint": "Shown in the Validity column (1 month = 30 days).",
+      "saveTierButton": "Add option"
     },
-    "membershipPlans": {
+    "packagePlans": {
       "title": "Membership plans",
       "description": "Create and manage public membership plans shown on the website.",
       "errorAuth": "Studio admin sign-in required.",
@@ -1828,7 +1955,7 @@
         "loading": "Loading user details...",
         "error": "Could not load user details.",
         "empty": "User data is unavailable.",
-        "memberships": "Memberships",
+        "packages": "Memberships",
         "bookings": "Recent bookings"
       }
     },
@@ -1861,7 +1988,7 @@
       "kpiNewUsersToday": "New users today",
       "kpiAttendanceRate": "Attendance rate (range)",
       "sources": {
-        "membership": "Memberships",
+        "package": "Memberships",
         "dropin": "Drop-ins",
         "gift": "Gift cards",
         "other": "Other"
@@ -1929,9 +2056,9 @@
           "missed": "Missed",
           "chartAria": "Attendance chart"
         },
-        "memberships": {
+        "packages": {
           "title": "Membership report",
-          "hint": "Active members from dashboard; status/plan counts from up to {limit} membership records.",
+          "hint": "Active members from dashboard; status/plan counts from up to {limit} package records.",
           "activeDashboard": "Active members (dashboard)",
           "chartAria": "Membership plan distribution"
         },
@@ -2030,7 +2157,7 @@
       "exportPaymentsCsv": "Export payments CSV",
       "exportGiftCreditsCsv": "Export gift credits CSV",
       "sources": {
-        "membership": "Memberships",
+        "package": "Memberships",
         "dropin": "Bookings",
         "gift": "Gift cards",
         "other": "Other payments"
@@ -2042,7 +2169,7 @@
         "range90": "Last 90 days",
         "sourceLabel": "Source",
         "sourceAll": "All sources",
-        "sourceMembership": "Membership",
+        "sourcePackage": "Package",
         "sourceDropIn": "Drop-in",
         "sourceGift": "Gift",
         "sourceOther": "Other",
@@ -2055,22 +2182,38 @@
         "searchLabel": "Search",
         "searchPlaceholder": "Client, email, payment ID, reference"
       },
+      "paymentMethods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
+      "paymentActions": {
+        "markPaid": "Mark paid",
+        "reject": "Reject",
+        "markedPaid": "Marked as paid.",
+        "markedRejected": "Request rejected.",
+        "actionFailed": "Could not update payment."
+      },
       "table": {
         "empty": "No payments found for selected filters.",
         "colDate": "Date",
         "colUser": "User",
         "colAmount": "Amount",
+        "colPlan": "Package",
+        "colPaymentMethod": "Payment method",
         "colSource": "Source",
         "colStatus": "Status",
+        "colActions": "Actions",
         "colDescription": "Description"
       },
       "actions": {
         "openMenu": "Open actions menu",
         "edit": "Edit client",
-        "pauseMembership": "Pause membership",
+        "pausePackage": "Pause package",
         "sendNotification": "Send notification",
         "refundUnsupported": "Refund requests are not supported by the API yet.",
-        "membershipUpdated": "Membership updated.",
+        "packageUpdated": "Package updated.",
         "actionFailed": "Action failed.",
         "notifyTitle": "Notify client",
         "notifyLead": "Send a one-off email to {email} using an existing broadcast template.",
@@ -2084,7 +2227,7 @@
       "userTab": {
         "searchPlaceholder": "Search name, phone, or email",
         "filterPaymentStatus": "Payment status",
-        "filterPackage": "Membership plan",
+        "filterPackage": "Package plan",
         "filterAll": "All",
         "statusPaid": "Paid",
         "statusUnpaid": "Unpaid",
@@ -2114,7 +2257,7 @@
         "colPaymentStatus": "Payment status",
         "colGiftCard": "Gift card",
         "colActions": "Actions",
-        "noMembership": "No active membership",
+        "noActivePackage": "No active package",
         "giftCardYes": "Yes",
         "giftCardNo": "No",
         "billingHistory": "Billing history",
@@ -2123,7 +2266,7 @@
         "quickPending": "Pending payments",
         "quickOverdue": "Overdue",
         "quickGiftCard": "Gift card used",
-        "quickActive": "Active memberships"
+        "quickActive": "Active packages"
       },
       "coachTab": {
         "unsupportedNote": "Coach payout status and salary totals use the existing coach salary formula (session-based estimates). Payroll records, monthly salary fields, edit/pause actions, and paid/canceled/cash statuses are not stored in the backend.",
@@ -2407,12 +2550,34 @@
       "action": "Join waitlist",
       "failed": "Could not join waitlist"
     },
-    "membershipCheckout": {
-      "subscribe": "Subscribe",
-      "checkoutFailed": "Could not start checkout",
-      "checkoutUnavailable": "Checkout unavailable"
+    "packageCheckout": {
+      "subscribe": "Subscribe"
     },
-    "membershipLifecycle": {
+    "manualPackagePayment": {
+      "title": "Confirm subscription",
+      "lead": "Select how you will pay. No card details are collected on this screen.",
+      "selectPlanLegend": "Package tier",
+      "closeModal": "Close",
+      "methodLegend": "Payment method",
+      "methods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
+      "unlimitedClasses": "Unlimited classes",
+      "sessionsPerPeriod": "{count} classes per period",
+      "periodDays": "{days}-day period",
+      "confirm": "Confirm payment",
+      "submitting": "Processing…",
+      "cancel": "Cancel",
+      "submitFailed": "Could not complete payment.",
+      "successTitle": "Payment successful",
+      "successLead": "Your payment was completed successfully.",
+      "successMethod": "Payment method: {method}",
+      "done": "Done"
+    },
+    "packageLifecycle": {
       "pause": "Pause",
       "cancelAction": "Cancel",
       "renew": "Renew",
@@ -2421,10 +2586,10 @@
       "cancelledSuccess": "Membership cancelled.",
       "renewedSuccess": "Membership renewed.",
       "planChangedSuccess": "Plan updated successfully.",
-      "pauseFailed": "Could not pause membership.",
-      "cancelFailed": "Could not cancel membership.",
-      "renewFailed": "Could not renew membership.",
-      "planChangeFailed": "Could not switch membership plan."
+      "pauseFailed": "Could not pause package.",
+      "cancelFailed": "Could not cancel package.",
+      "renewFailed": "Could not renew package.",
+      "planChangeFailed": "Could not switch package plan."
     },
     "changePassword": {
       "setTitle": "Set password",

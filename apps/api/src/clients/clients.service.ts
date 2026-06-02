@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import {
   BookingStatus,
-  MembershipStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -18,7 +17,6 @@ import {
   AdminClientQuickFilter,
   AdminClientStatusFilter,
   AdminClientTagFilter,
-  AdminClientMembershipFilter,
   AdminClientOrder,
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
@@ -28,11 +26,6 @@ const NEW_CLIENT_DAYS = 30;
 const INACTIVE_CLIENT_DAYS = 30;
 
 const clientInclude = Prisma.validator<Prisma.UserInclude>()({
-  memberships: {
-    include: { plan: true },
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-  },
   bookings: {
     include: {
       session: {
@@ -62,7 +55,7 @@ const clientInclude = Prisma.validator<Prisma.UserInclude>()({
 
 type ClientRecord = Prisma.UserGetPayload<{ include: typeof clientInclude }>;
 type ClientTag = 'VIP' | 'New' | 'At Risk' | 'Beginner';
-type ClientStatus = 'Active' | 'Inactive' | 'Frozen' | 'Blocked';
+type ClientStatus = 'Active' | 'Inactive' | 'Blocked';
 type PaymentBehavior = 'paid' | 'unpaid' | 'overdue' | 'partial';
 type AttendanceBehavior =
   | 'regular'
@@ -90,26 +83,6 @@ export class ClientsService {
               { lastName: { contains: q, mode: Prisma.QueryMode.insensitive } },
               { phone: { contains: q, mode: Prisma.QueryMode.insensitive } },
             ],
-          }
-        : {}),
-      ...(query.membership === AdminClientMembershipFilter.ACTIVE
-        ? {
-            memberships: {
-              some: {
-                status: MembershipStatus.ACTIVE,
-                currentPeriodEnd: { gt: new Date() },
-              },
-            },
-          }
-        : {}),
-      ...(query.membership === AdminClientMembershipFilter.INACTIVE
-        ? {
-            memberships: {
-              none: {
-                status: MembershipStatus.ACTIVE,
-                currentPeriodEnd: { gt: new Date() },
-              },
-            },
           }
         : {}),
     };
@@ -299,7 +272,6 @@ export class ClientsService {
   }
 
   private toClientRow(user: ClientRecord) {
-    const activeMembership = this.getActiveMembership(user);
     const latestBooking = this.getLatestVisit(user);
     const totals = this.getBookingTotals(user);
     const lifetimeValueCents = user.payments
@@ -322,9 +294,6 @@ export class ClientsService {
       status: this.getClientStatus(user),
       source: this.getSource(user),
       preferredCoach,
-      memberships: user.memberships,
-      activeMembership,
-      packageType: this.getPackageType(activeMembership),
       paymentBehavior,
       attendanceBehavior,
       classLevels,
@@ -350,17 +319,6 @@ export class ClientsService {
     return user.giftCardsPurchased.some(
       (card) =>
         card.balanceCents < card.amountCents || card.status === 'REDEEMED',
-    );
-  }
-
-  private getActiveMembership(user: ClientRecord) {
-    const now = new Date();
-    return (
-      user.memberships.find(
-        (membership) =>
-          membership.status === MembershipStatus.ACTIVE &&
-          membership.currentPeriodEnd > now,
-      ) ?? null
     );
   }
 
@@ -393,14 +351,14 @@ export class ClientsService {
     if (user.isBlocked) {
       return 'Blocked';
     }
-    if (
-      user.memberships.some(
-        (membership) => membership.status === MembershipStatus.PAUSED,
-      )
-    ) {
-      return 'Frozen';
+    const latestVisit = this.getLatestVisit(user);
+    if (!latestVisit) {
+      return 'Inactive';
     }
-    return this.getActiveMembership(user) ? 'Active' : 'Inactive';
+    const inactiveMs = INACTIVE_CLIENT_DAYS * 24 * 60 * 60 * 1000;
+    return Date.now() - latestVisit.session.startsAt.getTime() <= inactiveMs
+      ? 'Active'
+      : 'Inactive';
   }
 
   private getSource(
@@ -410,23 +368,9 @@ export class ClientsService {
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     )[0];
     if (!firstBooking) {
-      return user.memberships.length > 0 ? 'admin' : null;
+      return null;
     }
     return firstBooking.channel === 'APP' ? 'mobile-app' : 'website';
-  }
-
-  private getPackageType(
-    membership: ClientRecord['memberships'][number] | null,
-  ): 'single-class' | 'monthly-package' | 'vip-package' | null {
-    if (!membership) {
-      return 'single-class';
-    }
-    const marker =
-      `${membership.plan.name} ${membership.plan.slug}`.toLowerCase();
-    if (marker.includes('vip')) {
-      return 'vip-package';
-    }
-    return 'monthly-package';
   }
 
   private getPaymentBehavior(user: ClientRecord): PaymentBehavior {
@@ -487,12 +431,6 @@ export class ClientsService {
     const createdMs = params.user.createdAt.getTime();
     const isNew =
       Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
-    const hasVip = params.user.memberships.some((membership) =>
-      `${membership.plan.name} ${membership.plan.slug}`
-        .toLowerCase()
-        .includes('vip'),
-    );
-    if (hasVip) tags.push('VIP');
     if (isNew) tags.push('New');
     if (
       params.paymentBehavior === 'overdue' ||
@@ -537,8 +475,6 @@ export class ClientsService {
     if (query.tag && !this.matchesTag(row.tags, query.tag)) return false;
     if (query.status && !this.matchesStatus(row.status, query.status))
       return false;
-    if (query.packageType && row.packageType !== query.packageType)
-      return false;
     if (
       query.classLevel &&
       !this.matchesClassLevel(row.classLevels, query.classLevel)
@@ -582,7 +518,7 @@ export class ClientsService {
 
   private matchesStatus(status: ClientStatus, filter: AdminClientStatusFilter) {
     if (filter === AdminClientStatusFilter.BLOCKED) return status === 'Blocked';
-    if (filter === AdminClientStatusFilter.FROZEN) return status === 'Frozen';
+    if (filter === AdminClientStatusFilter.FROZEN) return false;
     if (filter === AdminClientStatusFilter.ACTIVE) return status === 'Active';
     return status === 'Inactive';
   }

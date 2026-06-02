@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
@@ -7,6 +8,7 @@ import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
+import { USER_DASHBOARD_PATH } from "@/lib/role-home";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -26,7 +28,11 @@ export default async function ManagerSectionLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { role, userLocale } = await requireAuthForLayout(locale);
+  const authOutcome = await requireAuthForLayout(locale);
+  if (authOutcome.kind === "api_unavailable") {
+    return <ApiUnavailablePanel />;
+  }
+  const { role, userLocale } = authOutcome.auth;
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, MANAGER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
@@ -46,7 +52,7 @@ export default async function ManagerSectionLayout({
         <>
           <LogoutButton className={`${trailingClass} lg:w-auto`} />
           <Link
-            href="/user/home"
+            href={USER_DASHBOARD_PATH}
             className={`${trailingClass} text-center lg:text-left`}
           >
             {tDash("links.memberZone")}

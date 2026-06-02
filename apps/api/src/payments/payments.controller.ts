@@ -42,15 +42,6 @@ export class PaymentsController {
     return { received: true };
   }
 
-  @Post('checkout/membership/:planId')
-  @UseGuards(JwtAuthGuard)
-  checkoutMembership(
-    @CurrentUser() user: { id: string },
-    @Param('planId') planId: string,
-  ) {
-    return this.payments.createMembershipCheckout(user.id, planId);
-  }
-
   @Post('checkout/gift')
   @UseGuards(JwtAuthGuard)
   checkoutGift(

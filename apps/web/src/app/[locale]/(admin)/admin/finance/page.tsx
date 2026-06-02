@@ -6,7 +6,7 @@ import type {
   CoachFinanceRow,
   FinanceTab,
 } from "@/components/admin/admin-finance-types";
-import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
+import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -28,7 +28,7 @@ type FinanceSummary = {
     count: number;
     amountCents: number;
   }>;
-  bySource: Record<"membership" | "dropin" | "gift" | "other", { count: number; amountCents: number }>;
+  bySource: Record<"package" | "dropin" | "gift" | "other", { count: number; amountCents: number }>;
   giftCredits: {
     issuedCents: number;
     issuedCount: number;
@@ -47,12 +47,14 @@ type PaymentsResponse = {
     currency: string;
     status: string;
     description: string | null;
-    source: "membership" | "dropin" | "gift" | "other";
+    paymentMethod: string | null;
+    source: "package" | "dropin" | "gift" | "other";
     createdAt: string;
     user: {
       email: string;
       name: string | null;
       lastName: string | null;
+      phone: string | null;
     };
   }>;
   total: number;
@@ -163,7 +165,6 @@ export default async function AdminFinancePage({
     clientsRes,
     coachesRes,
     salariesRes,
-    packagesRes,
   ] = await Promise.all([
     serverApiJson<Dashboard>("/reports/dashboard?includeRevenue=true", cookie),
     serverApiJson<FinanceSummary>(
@@ -181,7 +182,6 @@ export default async function AdminFinancePage({
     serverApiJson<AdminClientsPayload>("/clients?meta=true", cookie),
     serverApiJson<CoachListRow[]>("/coaches/admin/list", cookie),
     serverApiJson<CoachSalaryPayload>("/coaches/admin/salary-summaries", cookie),
-    serverApiJson<PackageOption[]>("/memberships/admin/plans", cookie),
   ]);
 
   if (
@@ -191,8 +191,7 @@ export default async function AdminFinancePage({
     !paymentsRes.ok ||
     !clientsRes.ok ||
     !coachesRes.ok ||
-    !salariesRes.ok ||
-    !packagesRes.ok
+    !salariesRes.ok
   ) {
     const status = !dashboardRes.ok
       ? dashboardRes.status
@@ -208,9 +207,7 @@ export default async function AdminFinancePage({
                 ? coachesRes.status
                 : !salariesRes.ok
                   ? salariesRes.status
-                  : !packagesRes.ok
-                    ? packagesRes.status
-                    : 500;
+                  : 500;
     return (
       <div className="app-alert-warn max-w-xl">
         {status === 401 || status === 403 ? t("errorAuth") : t("errorLoad", { status })}
@@ -266,7 +263,7 @@ export default async function AdminFinancePage({
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-sage-900">{t("revenueBySource")}</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {(["membership", "dropin", "gift", "other"] as const).map((sourceKey) => (
+          {(["package", "dropin", "gift", "other"] as const).map((sourceKey) => (
             <article key={sourceKey} className="ommm-stack-card">
               <p className="text-xs uppercase tracking-wide text-sage-500">{t(`sources.${sourceKey}`)}</p>
               <p className="mt-2 text-2xl font-semibold text-sage-900">
@@ -350,7 +347,6 @@ export default async function AdminFinancePage({
             initialUserRows={clientsRes.data.rows}
             initialCoachRows={coachRows}
             initialPayments={paymentsRes.data}
-            packages={packagesRes.data}
             paymentsFrom={from}
           />
         </Suspense>

@@ -247,22 +247,25 @@ export function allPackageCategoryIds(
   return new Set(options.map((option) => option.id));
 }
 
-/** Keeps selection valid when categories are added or removed. */
+/** Keeps selection valid; defaults to all categories when options appear or selection is empty. */
 export function syncPackageCategorySelection(
   options: readonly AdminPackagesCategoryOption[],
   previousOptions: readonly AdminPackagesCategoryOption[],
   selectedIds: ReadonlySet<string>,
 ): ReadonlySet<string> {
-  const currentIds = options.map((option) => option.id);
+  if (options.length === 0) {
+    return new Set();
+  }
+
   const hadAllSelected =
     previousOptions.length > 0 &&
     previousOptions.every((option) => selectedIds.has(option.id));
+  const isFirstCategoryLoad = previousOptions.length === 0;
+  const filtered = buildSelectionFromIds(options, selectedIds);
 
-  const next = new Set(buildSelectionFromIds(options, selectedIds));
-  if (hadAllSelected) {
-    for (const id of currentIds) {
-      next.add(id);
-    }
+  if (isFirstCategoryLoad || hadAllSelected || filtered.size === 0) {
+    return allPackageCategoryIds(options);
   }
-  return next;
+
+  return filtered;
 }

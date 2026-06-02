@@ -13,7 +13,7 @@
     "home": "Главная",
     "story": "История",
     "coaches": "Тренеры",
-    "memberships": "Пакеты",
+    "packages": "Пакеты",
     "explore": "Материалы",
     "schedule": "Расписание",
     "contact": "Контакты"
@@ -102,7 +102,7 @@
       "weeklyScheduleSessionsPanelAria": "Занятия на {day}",
       "weeklyScheduleEmptyDay": "Нет занятий",
       "weeklyScheduleLoadFailed": "Не удалось загрузить расписание ({status}).",
-      "weeklyScheduleBookSessionAria": "Открыть {className} в расписании",
+      "weeklyScheduleBookSessionAria": "Забронировать {className}",
       "weeklyScheduleDays": {
         "MONDAY": "ПН",
         "TUESDAY": "ВТ",
@@ -176,26 +176,15 @@
         }
       ],
       "plansSectionTitle": "Убежище для каждого тела",
-      "planCards": [
-        {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
-        },
-        {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
-        },
-        {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
-        }
-      ],
+      "planCardCtaAria": "Открыть детали «{planName}»",
+      "planCardSessionsUnlimited": "Безлимитные занятия",
+      "planCardSessionsCount": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
+      "planCardGuestCount": "{count, plural, one {# гость} few {# гостя} many {# гостей} other {# гостя}}",
+      "planCardCategoryPackages": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
+      "planCardPriceFrom": "От {amount}",
+      "planPopularBadge": "Популярный",
+      "plansEmpty": "Пакеты появятся здесь после публикации в админ-панели.",
+      "plansLoadFailed": "Не удалось загрузить пакеты ({status}).",
       "eventsTitle": "События",
       "eventWideTitle": "Главная встреча",
       "eventWideDetails": "Подробнее",
@@ -206,10 +195,22 @@
       "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
       "footerIllustrationAlt": "Декоративная иллюстрация",
       "footerLinks": [
-        { "href": "/contact", "label": "Конфиденциальность" },
-        { "href": "/contact", "label": "Условия" },
-        { "href": "/explore", "label": "Журнал" },
-        { "href": "/contact", "label": "Контакты" }
+        {
+          "href": "/contact",
+          "label": "Конфиденциальность"
+        },
+        {
+          "href": "/contact",
+          "label": "Условия"
+        },
+        {
+          "href": "/explore",
+          "label": "Журнал"
+        },
+        {
+          "href": "/contact",
+          "label": "Контакты"
+        }
       ]
     }
   },
@@ -220,11 +221,13 @@
         "body": "Войдите, чтобы увидеть ближайшие занятия, лист ожидания и инструменты студии."
       },
       "greeting": "С возвращением,",
+      "welcomeSubtitleBefore": "Наш дорогой ",
+      "welcomeSubtitleAfter": " Ommm приветствует тебя.",
       "titleStart": "Найди свой",
       "titleAccent": "центр сегодня.",
       "lead": "Следующее занятие, лист ожидания и заметки студии — в одном спокойном потоке.",
       "primaryCta": "Записаться на класс",
-      "secondaryCta": "Мои абонементы",
+      "secondaryCta": "Мои пакеты",
       "nextClass": {
         "eyebrow": "Скоро",
         "openLabel": "Открыть расписание",
@@ -261,7 +264,7 @@
     "heroTitle": "Спокойная студия, личный опыт",
     "heroSubtitle": "Продуманное расписание, пакеты и запись на занятия — полноценный опыт студии в вебе.",
     "heroCta": "Записаться на класс",
-    "membershipsCta": "Смотреть пакеты",
+    "packagesCta": "Смотреть пакеты",
     "featureScheduleTitle": "Расписание",
     "featureScheduleBody": "Смотрите ближайшие занятия, вместимость и тренеров — запишитесь в пару шагов после входа.",
     "featureMembershipsTitle": "Пакеты",
@@ -289,30 +292,55 @@
     "coachesModalBioLabel": "О тренере",
     "coachesModalBasicInfoLabel": "Основная информация",
     "coachesModalBioFallback": "Профиль этого тренера скоро будет дополнен подробной информацией.",
-    "membershipsPageTitle": "Пакеты",
-    "membershipsPageLead": "Выберите план под вашу регулярность практики.",
-    "membershipsEmpty": "Пока нет опубликованных планов. Загляните позже или свяжитесь со студией.",
-    "membershipsError": "Не удалось загрузить планы. Попробуйте позже.",
-    "membershipsSubscribeCta": "Оформить",
-    "membershipsAccountCta": "Мои пакеты",
-    "membershipsLoginHint": "Войдите или создайте аккаунт, чтобы оформить подписку.",
-    "membershipsPeriodDays": "Период списания: {days} дн.",
-    "membershipsSessionsUnlimited": "Безлимитные занятия за период",
-    "membershipsSessionsCount": "{count} занятий за период",
-    "membershipsPriceLine": "{amount} за период",
-    "membershipsCompareTitle": "Сравнение планов",
-    "membershipsTablePlan": "План",
-    "membershipsTablePrice": "Цена",
-    "membershipsTablePeriod": "Период",
-    "membershipsTableSessions": "Занятия",
-    "membershipsPeriodDaysShort": "{days} дн.",
-    "membershipsFaqTitle": "FAQ",
-    "membershipsFaqPauseQuestion": "Можно ли поставить абонемент на паузу?",
-    "membershipsFaqPauseAnswer": "Да - участники могут поставить абонемент на паузу из аккаунта, если это поддерживает план; команда студии также может помочь на ресепшене.",
-    "membershipsFaqBillingQuestion": "Как работает списание?",
-    "membershipsFaqBillingAnswer": "Оплата проходит через Stripe, если он включен в вашем окружении. Успешные списания отображаются в истории платежей аккаунта.",
-    "membershipsFaqWaitlistQuestion": "Что делать, если класс заполнен?",
-    "membershipsFaqWaitlistAnswer": "Встаньте в лист ожидания из расписания - мы сообщим, когда освободится место, и дадим ограниченное время на подтверждение.",
+    "packagesPageTitle": "Пакеты",
+    "packagesPageLead": "Выберите план под вашу регулярность практики.",
+    "packagesEmpty": "Пока нет опубликованных планов. Загляните позже или свяжитесь со студией.",
+    "packagesError": "Не удалось загрузить планы. Попробуйте позже.",
+    "packagesSubscribeCta": "Оформить",
+    "packagesAccountCta": "Мои пакеты",
+    "packagesLoginHint": "Войдите или создайте аккаунт, чтобы оформить подписку.",
+    "packagesMemberHint": "Оформите подписку, чтобы добавить пакет в аккаунт.",
+    "packagesPeriodDays": "Период списания: {days} дн.",
+    "packagesSessionsUnlimited": "Безлимитные занятия за период",
+    "packagesSessionsCount": "{count} занятий за период",
+    "packagesGuestCount": "{count, plural, one {# гость включён} few {# гостя включено} many {# гостей включено} other {# гостя включено}}",
+    "packagesPriceLine": "{amount} за период",
+    "packagesPriceFromLine": "От {amount} за период",
+    "packagesCategoryTierCount": "{count, plural, one {# вариант} few {# варианта} many {# вариантов} other {# варианта}}",
+    "packagesViewAllCta": "Смотреть все варианты",
+    "packagesViewDetailsHint": "Смотреть все варианты",
+    "packagesBackToList": "Назад к пакетам",
+    "packagesOpenDetailsAria": "Открыть детали пакета {name}",
+    "packagesDetailsCloseBackdrop": "Закрыть детали пакета",
+    "packagesDetailsClose": "Закрыть",
+    "packagesDetailsTierCount": "{count, plural, one {# пакет доступен} few {# пакета доступно} many {# пакетов доступно} other {# пакета доступно}}",
+    "packagesDetailsPriceLabel": "Цена",
+    "packagesDetailsBillingLabel": "Период оплаты",
+    "packagesDetailsDurationLabel": "Длительность",
+    "packagesDetailsSessionsLabel": "Занятия",
+    "packagesDetailsGuestsLabel": "Гости",
+    "packagesDetailsStatusLabel": "Статус",
+    "packagesDetailsStatusAvailable": "Доступен",
+    "packagesTablePricePerSession": "За занятие",
+    "packagesTableValidity": "Срок",
+    "packagesTableGuests": "Гости",
+    "packagesTableAction": "Действие",
+    "packagesValidityDays": "{count} дн.",
+    "packagesValidityMonths": "{count, plural, one {# мес.} few {# мес.} many {# мес.} other {# мес.}}",
+    "packagesSessionsUnlimitedShort": "Безлимит",
+    "packagesCompareTitle": "Сравнение планов",
+    "packagesTablePlan": "План",
+    "packagesTablePrice": "Цена",
+    "packagesTablePeriod": "Период",
+    "packagesTableSessions": "Занятия",
+    "packagesPeriodDaysShort": "{days} дн.",
+    "packagesFaqTitle": "FAQ",
+    "packagesFaqPauseQuestion": "Можно ли поставить абонемент на паузу?",
+    "packagesFaqPauseAnswer": "Да - участники могут поставить абонемент на паузу из аккаунта, если это поддерживает план; команда студии также может помочь на ресепшене.",
+    "packagesFaqBillingQuestion": "Как работает списание?",
+    "packagesFaqBillingAnswer": "Оплата проходит через Stripe, если он включен в вашем окружении. Успешные списания отображаются в истории платежей аккаунта.",
+    "packagesFaqWaitlistQuestion": "Что делать, если класс заполнен?",
+    "packagesFaqWaitlistAnswer": "Встаньте в лист ожидания из расписания - мы сообщим, когда освободится место, и дадим ограниченное время на подтверждение.",
     "homeMembershipsTitle": "Пакеты",
     "homeMembershipsLead": "Выберите план с понятной ценой и преимуществами, чтобы практиковать стабильно.",
     "homeMembershipPopularBadge": "Популярно",
@@ -350,7 +378,15 @@
       "globalSearchPlaceholder": "Поиск занятий, тренеров или клиентов…",
       "globalSearchAria": "Глобальный поиск",
       "globalSearchHint": "Глобальный поиск пока недоступен.",
-      "adminProfileLabel": "Админ"
+      "adminProfileLabel": "Админ",
+      "memberProfileLabel": "Профиль",
+      "roles": {
+        "USER": "Участник",
+        "COACH": "Тренер",
+        "MANAGER": "Менеджер",
+        "CONTENT_ADMIN": "Контент-админ",
+        "ADMIN": "Админ"
+      }
     },
     "brand": {
       "member": {
@@ -384,14 +420,18 @@
     },
     "nav": {
       "USER": {
+        "dashboard": "Панель",
         "home": "Главная",
         "progress": "Прогресс",
         "classes": "Классы",
+        "schedule": "Расписание",
         "bookings": "Мои бронирования",
-        "memberships": "Абонементы",
+        "packages": "Пакеты",
+        "payments": "Платежи",
         "giftCards": "Подарочные карты",
         "notifications": "Уведомления",
-        "profile": "Профиль"
+        "profile": "Профиль",
+        "settings": "Настройки"
       },
       "COACH": {
         "dashboard": "Панель",
@@ -432,7 +472,6 @@
         "settings": "Настройки",
         "feedback": "Обратная связь",
         "guestUsers": "Гостевые пользователи",
-        "memberships": "Абонементы",
         "classes": "Классы",
         "notifications": "Уведомления",
         "reports": "Отчёты",
@@ -450,7 +489,6 @@
         "coaches": "Состав тренеров и профили.",
         "schedule": "Публичные карточки расписания для Home и Schedule.",
         "packages": "Тарифы абонементов, цены и пакеты на публичном сайте.",
-        "memberships": "Тарифы абонементов (то же, что Пакеты).",
         "giftCards": "Выпущенные карты и статус погашения.",
         "finance": "Платежи, выручка и состояние транзакций по студии.",
         "analytics": "Тренды эффективности, графики и аналитика для экспорта.",
@@ -467,8 +505,9 @@
         "home": "Ближайшие занятия, бронирования и инструменты участника.",
         "progress": "Достижения и вехи.",
         "classes": "Просмотр и запись на сессии.",
+        "schedule": "Недельное расписание и запись на следующую сессию.",
         "bookings": "Предстоящие и прошлые бронирования.",
-        "memberships": "Активные планы и продления.",
+        "packages": "Активные пакеты, тарифы и история платежей.",
         "giftCards": "Балансы и погашение.",
         "profile": "Данные участника, пароль, домашнее изображение и настройки уведомлений.",
         "notifications": "Оповещения и сообщения студии."
@@ -568,12 +607,22 @@
     "lead": "Вы вошли через Google. Установите пароль, чтобы входить также по email."
   },
   "userPages": {
-    "memberships": {
-      "title": "Абонементы",
-      "description": "Оформите подписку через Stripe, когда ключи настроены; пауза или отмена через API или будущие админ-инструменты.",
-      "yourMemberships": "Ваши абонементы",
+    "packages": {
+      "title": "Пакеты",
+      "description": "Выберите план и оплатите удобным способом. Пакет появится здесь после оплаты.",
+      "statusPending": "Оплата завершена",
+      "awaitingPaymentConfirmation": "Ваш платёж успешно завершён.",
+      "paymentStatusSucceeded": "Завершён",
+      "paymentStatusFailed": "Ошибка",
+      "paymentMethods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
+      "yourPackages": "Ваши пакеты",
       "signInToView": "Войдите, чтобы просмотреть.",
-      "noActiveMembership": "Пока нет активного абонемента.",
+      "noActivePackage": "Пока нет активного пакета.",
       "sessionsLeft": "Осталось занятий: {count}",
       "renewsEnds": "Продление / окончание {date}",
       "paymentHistory": "История платежей",
@@ -584,22 +633,42 @@
       "perPeriod": "за период {days} дн.",
       "unlimitedClassesShort": "Безлимитные занятия",
       "sessionsPerPeriodShort": "{count} занятий / период",
-      "logInToSubscribe": "Войдите, чтобы оформить подписку."
+      "logInToSubscribe": "Войдите, чтобы оформить подписку.",
+      "currentPlan": "Ваш текущий план",
+      "fromPrice": "От {amount}",
+      "browsePlanCta": "Смотреть и оформить",
+      "emptyPlans": "Сейчас нет доступных пакетов.",
+      "membershipStatus": {
+        "ACTIVE": "Активен",
+        "PAUSED": "На паузе",
+        "CANCELLED": "Отменён",
+        "EXPIRED": "Истёк",
+        "PENDING": "Ожидает оплаты"
+      },
+      "membershipViewDetailsHint": "Нажмите для подробностей",
+      "membershipDetailsLead": "Просмотрите детали пакета и управляйте подпиской.",
+      "membershipDetailsCloseBackdrop": "Закрыть детали пакета",
+      "membershipDetailsClose": "Закрыть",
+      "membershipDetailsCategory": "Категория",
+      "membershipDetailsPrice": "Цена",
+      "membershipDetailsDuration": "Длительность",
+      "membershipDetailsSessions": "Занятия",
+      "membershipDetailsPeriodEnd": "Продление / окончание",
+      "membershipDetailsStatus": "Статус"
     },
     "progress": {
       "title": "Прогресс",
       "descriptionSignedOut": "Войдите, чтобы отслеживать посещаемость, траты и достижения.",
       "signInPrompt": "Войдите, чтобы открыть раздел прогресса.",
-      "descriptionSignedIn": "Динамика посещений, использование абонемента и достижения.",
+      "descriptionSignedIn": "Динамика посещений, траты и достижения.",
       "activitySummary": "Сводка активности",
       "completedClasses": "Завершённые занятия",
       "allTime": "За всё время",
       "recentAttendance": "Недавняя посещаемость",
       "recentSpend": "Недавние траты",
       "last7Days": "Последние 7 дней",
-      "membershipUsage": "Использование membership",
-      "membershipPlanLabel": "План: {plan}",
-      "unlimitedLabel": "Безлимит",
+      "totalSpend": "Общие траты",
+      "last90Days": "Последние 90 дней",
       "performanceMetrics": "Показатели эффективности",
       "totalHours": "Всего часов",
       "activeDays": "Активные дни",
@@ -887,6 +956,7 @@
       "filterClientAll": "Все клиенты",
       "filterStatusAll": "Все статусы",
       "resetFilters": "Reset Filters",
+      "activeCount": "{count} активных фильтров",
       "viewList": "Все бронирования",
       "viewMonthly": "Месячный вид",
       "viewWeekly": "Недельный вид",
@@ -930,7 +1000,7 @@
       "bookingDetailsTitle": "Детали бронирования",
       "emptyUserData": "Данные клиента не найдены.",
       "emptyBookingData": "Данные бронирования не найдены.",
-      "membershipInfo": "Абонемент / пакет",
+      "packageInfo": "Пакет",
       "bookingHistory": "История бронирований",
       "selectClassSlot": "Выберите целевой слот занятия",
       "emptyMoveOptions": "Нет доступных классов для переноса бронирования.",
@@ -947,8 +1017,8 @@
       "colJoined": "Регистрация",
       "colMembership": "Абонемент",
       "colActions": "Действия",
-      "membershipActiveBadge": "Активен",
-      "membershipInactiveBadge": "Неактивен",
+      "packageActiveBadge": "Активен",
+      "packageInactiveBadge": "Неактивен",
       "editClient": "Редактировать клиента",
       "editModalTitle": "Редактировать клиента",
       "editModalDescription": "Обновите данные выбранного клиента.",
@@ -982,10 +1052,10 @@
       "filters": {
         "searchLabel": "Поиск",
         "searchPlaceholder": "Имя, email или телефон",
-        "membershipLabel": "Абонемент",
-        "membershipAll": "Все клиенты",
-        "membershipActive": "С активным абонементом",
-        "membershipInactive": "Без активного абонемента",
+        "packageLabel": "Абонемент",
+        "packageAll": "Все клиенты",
+        "packageActive": "С активным абонементом",
+        "packageInactive": "Без активного абонемента",
         "orderLabel": "Сортировка",
         "orderNewest": "Сначала новые",
         "orderOldest": "Сначала старые",
@@ -1289,6 +1359,7 @@
         "listHeading": "Каталог",
         "addButton": "Добавить тип",
         "editButtonAria": "Редактировать «{name}»",
+        "deleteButtonAria": "Удалить «{name}»",
         "emptyTitle": "Типов занятий пока нет",
         "emptyBody": "Нажмите «Добавить тип» выше, чтобы создать первый — например Reformer, Yoga или Mat Pilates.",
         "formCreateTitle": "Новый тип",
@@ -1597,15 +1668,20 @@
     },
     "packages": {
       "title": "Пакеты",
-      "description": "Создавайте и управляйте тарифами абонементов на сайте и в кабинетах участников.",
+      "description": "Тарифы, цены и пакеты, отображаемые на публичном сайте.",
+      "emptyState": "Конфигурация пакетов пока недоступна.",
       "errorAuth": "Нужен вход администратора студии.",
       "errorLoad": "Не удалось загрузить пакеты ({status}).",
       "addPackageButton": "Добавить пакет",
       "addClassTypeButton": "Добавить тип класса",
       "createTitle": "Добавить пакет",
       "createDescription": "Создайте публичный тариф для Home, Пакетов и оплаты участниками.",
+      "editTitle": "Редактировать пакет",
+      "editDescription": "Обновите этот пакет для выбранной категории занятий.",
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть диалог",
+      "modalNeedsClassCategory": "Сначала создайте хотя бы одну категорию классов (Schedule или инструменты типов классов в админке), затем повторите попытку.",
+      "fieldCategory": "Категория занятия",
       "fieldName": "Название пакета",
       "fieldDescription": "Описание",
       "fieldPrice": "Цена",
@@ -1615,7 +1691,8 @@
         "weekly": "Еженедельно",
         "monthly": "Ежемесячно",
         "quarterly": "Ежеквартально",
-        "yearly": "Ежегодно"
+        "yearly": "Ежегодно",
+        "session": "За занятие"
       },
       "fieldPeriodDays": "Цикл оплаты (дней)",
       "fieldFeatures": "Преимущества",
@@ -1644,9 +1721,14 @@
         "visibility": {
           "heading": "Видимость",
           "description": "Значок «Популярный» и статус активности"
+        },
+        "session": {
+          "heading": "Session",
+          "description": "На сколько месяцев действует пакет для участника"
         }
       },
       "nameRequired": "Название пакета обязательно.",
+      "categoryRequired": "Выберите категорию занятия.",
       "nameTooLong": "Название пакета слишком длинное.",
       "descriptionTooLong": "Описание слишком длинное.",
       "priceInvalid": "Введите корректную цену.",
@@ -1657,6 +1739,7 @@
       "buttonLabelInvalid": "Введите корректный текст кнопки.",
       "displayOrderInvalid": "Порядок отображения должен быть 0 или больше.",
       "saveButton": "Сохранить",
+      "createButton": "Создать пакет",
       "savingButton": "Сохранение...",
       "cancelButton": "Отмена",
       "colName": "Пакет",
@@ -1670,6 +1753,7 @@
       "popularBadge": "Популярный",
       "disableButton": "Отключить",
       "enableButton": "Включить",
+      "editButton": "Редактировать",
       "deleteButton": "Удалить",
       "deleteConfirm": "Удалить этот пакет?",
       "noFeatures": "Преимущества пока не указаны.",
@@ -1677,6 +1761,8 @@
       "tabAllPackages": "Все пакеты",
       "editCategory": "Изменить категорию",
       "categoryEmpty": "К этой категории занятий пока не привязаны абонементные пакеты.",
+      "noClassTypesInStudio": "Типов занятий пока нет. Создайте их в Schedule → Class types, затем добавьте пакеты здесь.",
+      "noPackageCategoriesYet": "Пакетов пока нет. Нажмите Add Package, чтобы создать первый план.",
       "noCategoriesSelected": "Выберите одну или несколько категорий выше, чтобы просмотреть пакеты.",
       "selectCategoryHint": "Выберите эту категорию выше, чтобы просмотреть и управлять её пакетами.",
       "tableSessions": "Сессии",
@@ -1687,6 +1773,8 @@
       "validityDays": "{count} дн.",
       "validityMonths": "{count} мес.",
       "rowActionsAria": "Действия с пакетом",
+      "configurePricingAria": "Настроить цену пакета",
+      "configurePricingButton": "Настроить цену",
       "cardSessions": "Сессии",
       "sessionsUnlimited": "Безлимит",
       "sessionsPerMonth": "{count} за период оплаты",
@@ -1715,12 +1803,51 @@
       },
       "messages": {
         "createSuccess": "Пакет создан.",
+        "updateSuccess": "Пакет обновлён.",
         "enabledSuccess": "Пакет включён.",
         "disabledSuccess": "Пакет отключён.",
-        "deleteSuccess": "Пакет удалён."
-      }
+        "deleteSuccess": "Пакет удалён.",
+        "tierAddedSuccess": "Ценовой вариант добавлен."
+      },
+      "pricingTitle": "Цена и оплата",
+      "pricingDescription": "Настройте параметры оплаты для этого пакета.",
+      "categoryTooLong": "Название категории слишком длинное.",
+      "fieldCategoryPlaceholder": "напр. Reformer, Mat",
+      "categoryLoading": "Загрузка категорий…",
+      "categorySearchLabel": "Найти или создать категорию занятия",
+      "categorySearchPlaceholder": "Поиск или новая категория",
+      "categoryNoMatches": "Нет совпадений. Введите название для новой категории.",
+      "categoryCreateOption": "Создать «{name}»",
+      "categoryCreateHint": "Новая категория будет создана при сохранении пакета.",
+      "renameCategoryTitle": "Изменить категорию",
+      "renameCategoryDescription": "Новое имя будет применено ко всем пакетам в этой группе.",
+      "editCategoryDescription": "Переименование затронет все {count} пакетов в категории. Удаление категории удалит и все пакеты в ней.",
+      "editCategoryDescriptionEmpty": "В этой категории нет пакетов.",
+      "deleteCategoryButton": "Удалить категорию",
+      "deleteCategoryConfirm": "Удалить категорию «{name}» и все {count} пакетов в ней? Это нельзя отменить.",
+      "deleteCategoryConfirmEmpty": "Удалить пустую категорию «{name}»?",
+      "durationMonthsInvalid": "Введите целое число месяцев от 1 до 120.",
+      "fieldDurationMonths": "Длительность пакета (месяцев)",
+      "fieldDurationMonthsPlaceholder": "напр. 6",
+      "fieldDurationMonthsHint": "Отображается в таблице в колонке «Session» (1 месяц = 30 дней).",
+      "fieldGuestCount": "Гости",
+      "fieldGuestCountPlaceholder": "напр. 2",
+      "fieldGuestCountHint": "Максимум гостей по этому пакету (колонка Guests в таблице).",
+      "guestCountInvalid": "Введите целое число гостей от 1 до 99.",
+      "savePricingButton": "Сохранить цену",
+      "addTierTitle": "Добавить ценовой вариант",
+      "addTierDescription": "Добавьте пакет сеансов в этот пакет.",
+      "addTierButton": "Добавить",
+      "addTierAria": "Добавить ценовой вариант в пакет",
+      "addTierFormHeading": "Ценовой вариант",
+      "addTierFormDescription": "Количество сеансов, цена, срок и лимит гостей отображаются в списке.",
+      "fieldSessionsCount": "Сеансы",
+      "fieldSessionsCountPlaceholder": "напр. 10",
+      "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
+      "fieldValidityHint": "Отображается в колонке «Срок» (1 месяц = 30 дней).",
+      "saveTierButton": "Добавить"
     },
-    "membershipPlans": {
+    "packagePlans": {
       "title": "Тарифы абонементов",
       "description": "Создавайте и управляйте публичными тарифами на сайте.",
       "errorAuth": "Нужен вход администратора студии.",
@@ -1819,7 +1946,7 @@
         "loading": "Загрузка данных пользователя...",
         "error": "Не удалось загрузить данные пользователя.",
         "empty": "Данные пользователя недоступны.",
-        "memberships": "Абонементы",
+        "packages": "Абонементы",
         "bookings": "Последние бронирования"
       }
     },
@@ -1858,7 +1985,7 @@
       "exportPaymentsCsv": "Экспорт CSV платежей",
       "exportGiftCreditsCsv": "Экспорт CSV подарочных кредитов",
       "sources": {
-        "membership": "Абонементы",
+        "package": "Абонементы",
         "dropin": "Бронирования",
         "gift": "Подарочные карты",
         "other": "Другие платежи"
@@ -1870,7 +1997,7 @@
         "range90": "Последние 90 дней",
         "sourceLabel": "Источник",
         "sourceAll": "Все источники",
-        "sourceMembership": "Membership",
+        "sourcePackage": "Пакет",
         "sourceDropIn": "Drop-in",
         "sourceGift": "Gift",
         "sourceOther": "Другое",
@@ -1883,13 +2010,29 @@
         "searchLabel": "Поиск",
         "searchPlaceholder": "Клиент, email, ID платежа, референс"
       },
+      "paymentMethods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
+      "paymentActions": {
+        "markPaid": "Отметить оплаченным",
+        "reject": "Отклонить",
+        "markedPaid": "Отмечено как оплаченное.",
+        "markedRejected": "Заявка отклонена.",
+        "actionFailed": "Не удалось обновить платёж."
+      },
       "table": {
         "empty": "Для выбранных фильтров платежи не найдены.",
         "colDate": "Дата",
         "colUser": "Пользователь",
         "colAmount": "Сумма",
+        "colPlan": "Пакет",
+        "colPaymentMethod": "Способ оплаты",
         "colSource": "Источник",
         "colStatus": "Статус",
+        "colActions": "Действия",
         "colDescription": "Описание"
       }
     },
@@ -1911,7 +2054,7 @@
       "kpiNewUsersToday": "Новые пользователи сегодня",
       "kpiAttendanceRate": "Посещаемость (период)",
       "sources": {
-        "membership": "Абонементы",
+        "package": "Абонементы",
         "dropin": "Разовые",
         "gift": "Подарочные карты",
         "other": "Прочее"
@@ -1979,7 +2122,7 @@
           "missed": "Пропущено",
           "chartAria": "График посещаемости"
         },
-        "memberships": {
+        "packages": {
           "title": "Отчёт по абонементам",
           "hint": "Активные из dashboard; статусы/планы — до {limit} записей абонементов.",
           "activeDashboard": "Активные абонементы (dashboard)",
@@ -2296,12 +2439,34 @@
       "action": "В лист ожидания",
       "failed": "Не удалось встать в лист ожидания"
     },
-    "membershipCheckout": {
-      "subscribe": "Оформить",
-      "checkoutFailed": "Не удалось начать оплату",
-      "checkoutUnavailable": "Оплата недоступна"
+    "packageCheckout": {
+      "subscribe": "Оформить"
     },
-    "membershipLifecycle": {
+    "manualPackagePayment": {
+      "title": "Подтвердить подписку",
+      "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
+      "selectPlanLegend": "Тариф пакета",
+      "closeModal": "Закрыть",
+      "methodLegend": "Способ оплаты",
+      "methods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
+      "unlimitedClasses": "Безлимитные занятия",
+      "sessionsPerPeriod": "{count} занятий за период",
+      "periodDays": "Период {days} дн.",
+      "confirm": "Подтвердить оплату",
+      "submitting": "Обработка…",
+      "cancel": "Отмена",
+      "submitFailed": "Не удалось завершить оплату.",
+      "successTitle": "Оплата прошла успешно",
+      "successLead": "Ваш платёж успешно завершён.",
+      "successMethod": "Способ оплаты: {method}",
+      "done": "Готово"
+    },
+    "packageLifecycle": {
       "pause": "Пауза",
       "cancelAction": "Отменить",
       "renew": "Продлить",

@@ -21,7 +21,6 @@ import type {
   AnalyticsCoachRow,
   AnalyticsDashboardOverview,
   AnalyticsFinanceSummary,
-  AnalyticsMembershipRow,
 } from "@/components/admin/admin-analytics-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
@@ -58,8 +57,6 @@ type BookingsManagementResponse = {
     coaches: Array<{ id: string; name: string }>;
   };
 };
-
-const MEMBERSHIPS_SAMPLE_LIMIT = 500;
 
 function buildBookingsQuery(
   fromIso: string,
@@ -106,7 +103,7 @@ export default async function AdminAnalyticsPage({
 
   const bookingsQuery = buildBookingsQuery(fromIso, toIso, coachId, classTypeId, bookingStatus);
 
-  const [dashboardRes, financeRes, bookingsRes, clientsRes, coachesRes, membershipsRes] =
+  const [dashboardRes, financeRes, bookingsRes, clientsRes, coachesRes] =
     await Promise.all([
       serverApiJson<AnalyticsDashboardOverview>(
         "/reports/dashboard?includeRevenue=true&includeOverview=true",
@@ -119,10 +116,6 @@ export default async function AdminAnalyticsPage({
       serverApiJson<BookingsManagementResponse>(bookingsQuery, cookie),
       serverApiJson<{ summary: AnalyticsClientsSummary }>("/clients?meta=true", cookie),
       serverApiJson<AnalyticsCoachRow[]>("/coaches/admin/list", cookie),
-      serverApiJson<AnalyticsMembershipRow[]>(
-        `/memberships/admin/all?take=${MEMBERSHIPS_SAMPLE_LIMIT}`,
-        cookie,
-      ),
     ]);
 
   if (
@@ -130,8 +123,7 @@ export default async function AdminAnalyticsPage({
     !financeRes.ok ||
     !bookingsRes.ok ||
     !clientsRes.ok ||
-    !coachesRes.ok ||
-    !membershipsRes.ok
+    !coachesRes.ok
   ) {
     const failed = [
       dashboardRes,
@@ -139,7 +131,6 @@ export default async function AdminAnalyticsPage({
       bookingsRes,
       clientsRes,
       coachesRes,
-      membershipsRes,
     ].find((res) => !res.ok);
     const status = failed && !failed.ok ? failed.status : 500;
     return (
@@ -182,8 +173,6 @@ export default async function AdminAnalyticsPage({
     },
     clients: clientsRes.data.summary,
     coaches: coachesRes.data,
-    memberships: membershipsRes.data,
-    membershipsSampledLimit: MEMBERSHIPS_SAMPLE_LIMIT,
   };
 
   return (

@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import type { CSSProperties } from "react";
+import { buildRegisterHrefForScheduleBooking } from "@/lib/auth-redirect";
 import {
   SCHEDULE_BOOK_BTN,
   SCHEDULE_INK,
@@ -45,7 +46,7 @@ export function ScheduleSessionRow({
       <p className={`hidden text-sm sm:block ${SCHEDULE_MUTED} sm:text-right`}>{studioLabel}</p>
       <div className="flex items-center justify-between gap-4 sm:justify-end">
         <p className={`text-sm sm:hidden ${SCHEDULE_MUTED}`}>{studioLabel}</p>
-        <Link href="/register" className={SCHEDULE_BOOK_BTN}>
+        <Link href={buildRegisterHrefForScheduleBooking(row)} className={SCHEDULE_BOOK_BTN}>
           {bookLabel}
         </Link>
       </div>

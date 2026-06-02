@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "PackagePlan" ADD COLUMN IF NOT EXISTS "guestCount" INTEGER NOT NULL DEFAULT 0;

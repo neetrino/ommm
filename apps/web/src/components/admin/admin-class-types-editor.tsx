@@ -29,7 +29,7 @@ type AdminClassTypesEditorProps = {
   onNameBlur: () => void;
   onDescriptionBlur: () => void;
   onReset: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 };
 
@@ -143,7 +143,7 @@ export function AdminClassTypesEditor({
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/60 pt-4">
         <div>
-          {mode === "edit" ? (
+          {mode === "edit" && onDelete !== undefined ? (
             <OmmButton
               type="button"
               size="sm"

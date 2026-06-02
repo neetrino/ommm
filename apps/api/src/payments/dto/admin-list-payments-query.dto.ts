@@ -11,7 +11,7 @@ import {
 import { PaymentStatus } from '@prisma/client';
 
 export enum PaymentSourceFilter {
-  MEMBERSHIP = 'membership',
+  PACKAGE = 'package',
   DROPIN = 'dropin',
   GIFT = 'gift',
   OTHER = 'other',

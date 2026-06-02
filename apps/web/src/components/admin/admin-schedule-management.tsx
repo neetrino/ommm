@@ -283,7 +283,7 @@ function initialForm(
     endTime: timeValue(end),
     capacity: String(row?.capacity ?? 10),
     level: row?.level ?? "",
-    status: row?.status ?? "DRAFT",
+    status: row?.status ?? "ACTIVE",
   };
 }
 

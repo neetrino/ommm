@@ -34,7 +34,7 @@ type DashboardOverview = {
   };
   upcomingCancellations?: Array<{
     id: string;
-    type: "booking" | "membership";
+    type: "booking" | "package";
     userName: string;
     itemName: string;
     dateTime: string;

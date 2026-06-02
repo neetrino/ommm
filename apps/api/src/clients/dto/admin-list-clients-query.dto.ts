@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-export enum AdminClientMembershipFilter {
+export enum AdminClientPackageFilter {
   ALL = 'all',
   ACTIVE = 'active',
   INACTIVE = 'inactive',
@@ -105,8 +105,8 @@ export class AdminListClientsQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsIn(Object.values(AdminClientMembershipFilter))
-  membership?: AdminClientMembershipFilter;
+  @IsIn(Object.values(AdminClientPackageFilter))
+  package?: AdminClientPackageFilter;
 
   @IsOptional()
   @IsIn(Object.values(AdminClientOrder))

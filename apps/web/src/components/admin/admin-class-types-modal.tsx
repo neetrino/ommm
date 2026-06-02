@@ -11,6 +11,7 @@ import {
   type ClassTypeFormState,
 } from "@/components/admin/admin-class-types-editor";
 import { EditActionButton } from "@/components/ui/edit-action-button";
+import { DeleteActionButton } from "@/components/ui/delete-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -27,6 +28,10 @@ export type AdminClassTypeRow = {
   updatedAt?: string;
 };
 
+type AdminSessionClassTypeRef = {
+  classType: { id: string };
+};
+
 type AdminClassTypesModalProps = {
   isOpen: boolean;
   classTypes: readonly AdminClassTypeRow[];
@@ -39,6 +44,8 @@ type AdminClassTypesModalProps = {
   onSelectedTypeIdChange?: (typeId: string | null) => void;
   /** When false, hides create actions (e.g. Packages edit-category flow). */
   allowCreate?: boolean;
+  /** When false, hides delete (Packages must not remove shared Schedule class types). */
+  allowDelete?: boolean;
 };
 
 type LoadState = "idle" | "loading" | "error";
@@ -114,6 +121,7 @@ export function AdminClassTypesModal({
   initialSelectedId = null,
   onSelectedTypeIdChange,
   allowCreate = true,
+  allowDelete = true,
 }: AdminClassTypesModalProps) {
   const t = useTranslations("adminPages.classes.classTypes");
   const titleId = useId();
@@ -129,6 +137,10 @@ export function AdminClassTypesModal({
   const [error, setError] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState(false);
+  const [pendingDeleteTargetId, setPendingDeleteTargetId] = useState<string | null>(null);
+  const [resolvedSessionCounts, setResolvedSessionCounts] = useState<
+    Record<string, number>
+  >(() => ({ ...sessionCountByTypeId }));
   const portalReady = useIsClientMounted();
   const submitLockRef = useRef(false);
   const onChangedRef = useRef(onChanged);
@@ -143,8 +155,14 @@ export function AdminClassTypesModal({
 
   const slugPreview = useMemo(() => buildClassTypeSlugFromName(form.name), [form.name]);
   const selectedType = types.find((row) => row.id === selectedId) ?? null;
+  const pendingDeleteType =
+    types.find((row) => row.id === pendingDeleteTargetId) ?? null;
   const selectedSessionCount =
-    selectedId !== null ? (sessionCountByTypeId[selectedId] ?? 0) : 0;
+    selectedId !== null ? (resolvedSessionCounts[selectedId] ?? 0) : 0;
+  const pendingDeleteSessionCount =
+    pendingDeleteTargetId !== null
+      ? (resolvedSessionCounts[pendingDeleteTargetId] ?? 0)
+      : 0;
 
   const filteredTypes = useMemo(() => {
     const query = listFilter.trim().toLowerCase();
@@ -184,6 +202,38 @@ export function AdminClassTypesModal({
 
   useEffect(() => {
     if (!isOpen) {
+      return undefined;
+    }
+    let cancelled = false;
+    queueMicrotask(() => {
+      setResolvedSessionCounts({ ...sessionCountByTypeId });
+    });
+    void (async () => {
+      try {
+        const sessions = await apiFetch<AdminSessionClassTypeRef[]>(
+          "/classes/admin/sessions",
+        );
+        if (cancelled) {
+          return;
+        }
+        const counts: Record<string, number> = {};
+        for (const session of sessions) {
+          counts[session.classType.id] = (counts[session.classType.id] ?? 0) + 1;
+        }
+        setResolvedSessionCounts(counts);
+      } catch {
+        if (!cancelled) {
+          setResolvedSessionCounts({ ...sessionCountByTypeId });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, sessionCountByTypeId]);
+
+  useEffect(() => {
+    if (!isOpen) {
       queueMicrotask(() => {
         setTypes(sortTypes(classTypes));
       });
@@ -206,6 +256,7 @@ export function AdminClassTypesModal({
     queueMicrotask(() => {
       setListFilter("");
       setPendingDelete(false);
+      setPendingDeleteTargetId(null);
       setFieldErrors({});
       setError(null);
       setBanner(null);
@@ -331,6 +382,17 @@ export function AdminClassTypesModal({
     return nextErrors.name === undefined && nextErrors.description === undefined;
   }
 
+  function requestDelete(type: AdminClassTypeRow) {
+    setPendingDeleteTargetId(type.id);
+    setPendingDelete(true);
+    setError(null);
+  }
+
+  function cancelDelete() {
+    setPendingDelete(false);
+    setPendingDeleteTargetId(null);
+  }
+
   async function saveType(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || submitLockRef.current || !validateForm()) {
@@ -392,25 +454,29 @@ export function AdminClassTypesModal({
   }
 
   async function confirmDelete() {
-    if (pending || selectedId === null || selectedType === null) {
+    if (pending || pendingDeleteTargetId === null || pendingDeleteType === null) {
       return;
     }
-    if (selectedSessionCount > 0) {
-      setError(t("deleteBlocked", { count: selectedSessionCount }));
+    if (pendingDeleteSessionCount > 0) {
+      setError(t("deleteBlocked", { count: pendingDeleteSessionCount }));
       setPendingDelete(false);
+      setPendingDeleteTargetId(null);
       return;
     }
 
     setPending(true);
     setError(null);
     try {
-      await apiFetch(`/classes/types/${selectedId}`, { method: "DELETE" });
-      const nextTypes = types.filter((row) => row.id !== selectedId);
+      await apiFetch(`/classes/types/${pendingDeleteTargetId}`, { method: "DELETE" });
+      const nextTypes = types.filter((row) => row.id !== pendingDeleteTargetId);
       setTypes(nextTypes);
       onChanged(nextTypes);
       setBanner(t("messages.deleteSuccess"));
       setPendingDelete(false);
-      resetEditor();
+      setPendingDeleteTargetId(null);
+      if (selectedId === pendingDeleteTargetId) {
+        resetEditor();
+      }
     } catch (requestError) {
       setError(
         requestError instanceof ApiError
@@ -418,6 +484,7 @@ export function AdminClassTypesModal({
           : t("messages.genericError"),
       );
       setPendingDelete(false);
+      setPendingDeleteTargetId(null);
     } finally {
       setPending(false);
     }
@@ -546,7 +613,15 @@ export function AdminClassTypesModal({
                       }))
                     }
                     onReset={resetEditor}
-                    onDelete={() => setPendingDelete(true)}
+                    onDelete={
+                      allowDelete
+                        ? () => {
+                            if (selectedType !== null) {
+                              requestDelete(selectedType);
+                            }
+                          }
+                        : undefined
+                    }
                     onSubmit={(event) => {
                       void saveType(event);
                     }}
@@ -597,7 +672,7 @@ export function AdminClassTypesModal({
                 <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
                   {filteredTypes.map((type) => {
                     const isActive = selectedId === type.id && mode === "edit";
-                    const count = sessionCountByTypeId[type.id] ?? 0;
+                    const count = resolvedSessionCounts[type.id] ?? 0;
                     const description = type.description?.trim();
                     const updatedLabel =
                       type.updatedAt !== undefined
@@ -636,17 +711,32 @@ export function AdminClassTypesModal({
                               {updatedLabel ? ` · ${t("updatedLabel", { date: updatedLabel })}` : null}
                             </span>
                           </div>
-                          <EditActionButton
-                            ariaLabel={t("editButtonAria", { name: type.name })}
-                            title={t("editButtonAria", { name: type.name })}
-                            onClick={() => beginEdit(type)}
-                            disabled={listBusy || pending}
-                            className={
-                              isActive
-                                ? "shrink-0 border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white focus-visible:ring-white/50 focus-visible:ring-offset-sage-800"
-                                : "shrink-0"
-                            }
-                          />
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            {allowDelete ? (
+                              <DeleteActionButton
+                                ariaLabel={t("deleteButtonAria", { name: type.name })}
+                                title={t("deleteButtonAria", { name: type.name })}
+                                onClick={() => requestDelete(type)}
+                                disabled={listBusy || pending}
+                                className={
+                                  isActive
+                                    ? "border-white/40 bg-red-500/20 text-white hover:bg-red-500/30 hover:text-white focus-visible:ring-white/50 focus-visible:ring-offset-sage-800"
+                                    : undefined
+                                }
+                              />
+                            ) : null}
+                            <EditActionButton
+                              ariaLabel={t("editButtonAria", { name: type.name })}
+                              title={t("editButtonAria", { name: type.name })}
+                              onClick={() => beginEdit(type)}
+                              disabled={listBusy || pending}
+                              className={
+                                isActive
+                                  ? "shrink-0 border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white focus-visible:ring-white/50 focus-visible:ring-offset-sage-800"
+                                  : "shrink-0"
+                              }
+                            />
+                          </div>
                         </div>
                       </li>
                     );
@@ -658,12 +748,12 @@ export function AdminClassTypesModal({
         </div>
       </div>
 
-      {pendingDelete && selectedType !== null ? (
+      {pendingDelete && pendingDeleteType !== null ? (
         <AdminClassTypesDeleteDialog
-          typeName={selectedType.name}
-          sessionCount={selectedSessionCount}
+          typeName={pendingDeleteType.name}
+          sessionCount={pendingDeleteSessionCount}
           pending={pending}
-          onCancel={() => setPendingDelete(false)}
+          onCancel={cancelDelete}
           onConfirm={() => {
             void confirmDelete();
           }}

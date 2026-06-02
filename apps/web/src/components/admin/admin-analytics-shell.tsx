@@ -9,8 +9,6 @@ import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-li
 import { AdminAnalyticsFilters } from "@/components/admin/admin-analytics-filters";
 import {
   computeAttendanceRate,
-  countMembershipPlans,
-  countMembershipStatuses,
   sortBarItems,
 } from "@/components/admin/admin-analytics-helpers";
 import type {
@@ -140,7 +138,7 @@ export function AdminAnalyticsShell({ data }: Props) {
 
   const revenueSourceItems = useMemo(() => {
     const items: AnalyticsBarItem[] = (
-      ["membership", "dropin", "gift", "other"] as const
+      ["package", "dropin", "gift", "other"] as const
     ).map((key) => ({
       key,
       label: t(`sources.${key}`),
@@ -196,8 +194,6 @@ export function AdminAnalyticsShell({ data }: Props) {
     return sortBarItems(items, sortKey).slice(0, 10);
   }, [data.coaches, sortKey]);
 
-  const membershipStatuses = countMembershipStatuses(data.memberships);
-  const membershipPlans = sortBarItems(countMembershipPlans(data.memberships), sortKey);
 
   const rangeAttendanceRate = computeAttendanceRate(
     data.bookings.summary.completed,
@@ -362,33 +358,6 @@ export function AdminAnalyticsShell({ data }: Props) {
             ]}
             emptyLabel={t("empty")}
             ariaLabel={t("sections.attendance.chartAria")}
-          />
-        )}
-      </SectionShell>
-
-      <SectionShell
-        title={t("sections.memberships.title")}
-        hint={t("sections.memberships.hint", { limit: data.membershipsSampledLimit })}
-      >
-        {viewMode === "table" ? (
-          <MetricTable
-            labels={tableLabels}
-            rows={[
-              {
-                label: t("sections.memberships.activeDashboard"),
-                value: String(data.dashboard.activeMembers),
-              },
-              ...membershipStatuses.map((row) => ({
-                label: row.status,
-                value: String(row.count),
-              })),
-            ]}
-          />
-        ) : (
-          <AdminAnalyticsBarList
-            items={membershipPlans.slice(0, 10)}
-            emptyLabel={t("empty")}
-            ariaLabel={t("sections.memberships.chartAria")}
           />
         )}
       </SectionShell>

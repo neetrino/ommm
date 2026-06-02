@@ -59,18 +59,27 @@ enum ContentStatus {
   HIDDEN
 }
 
-enum MembershipStatus {
-  ACTIVE
-  PAUSED
-  CANCELLED
-  EXPIRED
-}
-
 enum PaymentStatus {
   PENDING
   SUCCEEDED
   FAILED
   REFUNDED
+}
+
+enum PackageStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+  /** Awaiting manual / offline payment confirmation by admin. */
+  PENDING
+}
+
+enum ManualPaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  OTHER
 }
 
 enum GiftCardStatus {
@@ -127,8 +136,8 @@ model User {
   coachProfile      CoachProfile?
   bookings          Booking[]
   waitlistEntries   WaitlistEntry[]
-  memberships       UserMembership[]
   payments          Payment[]
+  userPackages      UserPackage[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
   giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
   achievements      UserAchievement[]
@@ -230,7 +239,7 @@ model ClassType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sessions ClassSession[]
+  sessions        ClassSession[]
 }
 
 model ClassSession {
@@ -323,9 +332,10 @@ model WaitlistEntry {
   @@index([sessionId])
 }
 
-model MembershipPlan {
+model PackagePlan {
   id               String   @id @default(cuid())
   name             String
+  categoryName     String   @default("General")
   slug             String   @unique
   description      String?
   priceCents       Int
@@ -338,47 +348,56 @@ model MembershipPlan {
   buttonLabel      String   @default("Choose plan")
   isPopular        Boolean  @default(false)
   displayOrder     Int      @default(0)
+  guestCount       Int      @default(0)
   isActive         Boolean  @default(true)
   stripePriceId    String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  memberships UserMembership[]
+  userPackages UserPackage[]
+  payments     Payment[]
 }
 
-model UserMembership {
-  id                 String            @id @default(cuid())
-  userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId             String
-  plan               MembershipPlan    @relation(fields: [planId], references: [id])
-  status             MembershipStatus  @default(ACTIVE)
-  sessionsRemaining  Int?
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  pausedUntil        DateTime?
-  stripeSubscriptionId String?         @unique
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+model UserPackage {
+  id                   String        @id @default(cuid())
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId               String
+  plan                 PackagePlan   @relation(fields: [planId], references: [id])
+  status               PackageStatus @default(ACTIVE)
+  sessionsRemaining    Int?
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  pausedUntil          DateTime?
+  stripeSubscriptionId String?       @unique
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  pendingPayment       Payment?
 
   @@index([userId])
 }
 
 model Payment {
-  id              String        @id @default(cuid())
+  id              String               @id @default(cuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   amountCents     Int
-  currency        String        @default("amd")
-  status          PaymentStatus @default(PENDING)
-  stripePaymentId String?       @unique
+  currency        String               @default("amd")
+  status          PaymentStatus        @default(PENDING)
+  stripePaymentId String?              @unique
   description     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  planId          String?
+  plan            PackagePlan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
+  paymentMethod   ManualPaymentMethod?
+  userPackageId   String?              @unique
+  userPackage     UserPackage?         @relation(fields: [userPackageId], references: [id], onDelete: SetNull)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   @@index([userId])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([planId, status])
 }
 
 model GiftCard {

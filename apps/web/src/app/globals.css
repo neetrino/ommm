@@ -210,6 +210,24 @@ html {
     @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
   }
 
+  .ommm-package-card-footer-cta {
+    @apply cursor-pointer transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out;
+    @apply hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-14px_rgba(45,40,35,0.38)];
+    @apply active:translate-y-0 active:scale-[0.985] active:shadow-[0_8px_20px_-14px_rgba(45,40,35,0.32)];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .ommm-package-card-footer-cta.ommm-cta-ghost {
+    @apply border border-sand-500/25 bg-white/85 shadow-[0_6px_18px_-12px_rgba(45,40,35,0.35)];
+    @apply hover:border-sand-500/50 hover:bg-white hover:text-sage-900;
+    @apply active:bg-sand-100/90;
+  }
+
+  .ommm-package-card-footer-cta.ommm-cta-primary {
+    @apply shadow-[0_8px_24px_-12px_rgba(107,92,76,0.45)];
+    @apply hover:bg-sand-700 active:bg-sand-700;
+  }
+
   .ommm-cta-pill {
     font-family: var(--font-serif);
     @apply inline-flex items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 italic text-white shadow-sm transition-colors;
@@ -479,18 +497,48 @@ html {
   .ommm-admin-packages-table-grid {
     display: grid;
     grid-template-columns:
-      minmax(7rem, 1.15fr)
-      minmax(7rem, 1.35fr)
-      minmax(7rem, 1.25fr)
-      minmax(5rem, 0.95fr)
-      minmax(5rem, 0.85fr)
+      minmax(5rem, 1fr)
+      minmax(5rem, 1fr)
+      minmax(5.5rem, 1.1fr)
+      minmax(5rem, 1fr)
+      minmax(4.5rem, 0.9fr)
       2.75rem;
     align-items: center;
     gap: 0.75rem;
   }
 
+  .ommm-public-packages-table-grid {
+    display: grid;
+    grid-template-columns:
+      minmax(6rem, 1.2fr)
+      minmax(4.5rem, 0.85fr)
+      minmax(5rem, 1fr)
+      minmax(5.5rem, 1fr)
+      minmax(5rem, 1fr)
+      minmax(4rem, 0.75fr)
+      minmax(7rem, auto);
+    align-items: center;
+    gap: 0.75rem;
+  }
+
   .ommm-admin-packages-table-header {
-    @apply border-b border-[rgba(212,196,183,0.2)] pb-4 text-xs font-semibold uppercase tracking-[0.12em] text-[rgba(80,69,59,0.6)];
+    @apply border-b border-[rgba(212,196,183,0.2)] px-1 pb-4 pt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[rgba(80,69,59,0.6)];
+  }
+
+  .ommm-admin-packages-table-header > div:not(.ommm-admin-packages-table-actions) {
+    @apply text-center leading-snug;
+  }
+
+  .ommm-admin-packages-table-cell {
+    @apply flex min-h-11 items-center justify-center px-2 text-center text-sm font-medium text-[#1b1c1a] sm:text-base;
+  }
+
+  .ommm-admin-packages-table-cell--emphasis {
+    @apply font-semibold;
+  }
+
+  .ommm-admin-packages-table-actions {
+    @apply flex items-center justify-end;
   }
 
   .ommm-admin-packages-table-row {
@@ -498,11 +546,21 @@ html {
   }
 
   .ommm-admin-packages-table-row .ommm-admin-packages-table-grid {
-    @apply rounded-[25px] px-1 py-3 text-base text-[#1b1c1a] transition-colors;
+    @apply rounded-[25px] px-1 py-2 text-base text-[#1b1c1a] transition-colors;
   }
 
-  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid {
+  .ommm-admin-packages-table-row:hover .ommm-admin-packages-table-grid,
+  .ommm-admin-packages-table-row:hover .ommm-public-packages-table-grid {
     background-color: rgba(151, 144, 124, 0.26);
+  }
+
+  .ommm-admin-packages-table-row .ommm-public-packages-table-grid {
+    @apply rounded-[25px] px-1 py-2 text-base text-[#1b1c1a] transition-colors;
+  }
+
+  .ommm-package-table-row-selected .ommm-public-packages-table-grid {
+    background-color: rgba(151, 144, 124, 0.2);
+    @apply ring-1 ring-sand-500/40;
   }
 
   .ommm-admin-packages {
@@ -691,12 +749,12 @@ html {
     @apply transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-28px_rgba(45,40,35,0.35)];
   }
 
-  .ommm-membership-card-hover {
+  .ommm-package-card-hover {
     @apply relative isolate overflow-hidden transition-[transform,box-shadow] duration-300 ease-out;
     will-change: transform, box-shadow;
   }
 
-  .ommm-membership-card-hover::after {
+  .ommm-package-card-hover::after {
     content: "";
     position: absolute;
     inset: -70% -45%;
@@ -713,19 +771,72 @@ html {
     z-index: 0;
   }
 
-  .ommm-membership-card-hover:hover {
+  .ommm-package-card-hover:hover {
     transform: translateY(-6px) scale(1.01);
     box-shadow: 0 30px 60px -30px rgba(45, 40, 35, 0.36);
   }
 
-  .ommm-membership-card-hover:hover::after {
+  .ommm-package-card-hover:hover::after {
     opacity: 1;
     transform: translateX(24%) rotate(8deg);
   }
 
-  .ommm-membership-card-hover > * {
+  .ommm-package-card-hover > * {
     position: relative;
     z-index: 1;
+  }
+
+  .ommm-package-card-interactive {
+    @apply cursor-pointer;
+  }
+
+  .ommm-package-card-interactive:focus-within {
+    @apply outline-none ring-2 ring-sand-500/70 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-package-card-interactive.ommm-package-card-selected,
+  .ommm-package-card-interactive[data-selected="true"] {
+    @apply ring-2 ring-sand-500/80;
+  }
+
+  .ommm-package-card-interactive:active {
+    transform: translateY(-2px) scale(1.005);
+  }
+
+  .ommm-package-tier-row-interactive {
+    @apply transition-[background-color,border-color,box-shadow,transform] duration-200;
+  }
+
+  .ommm-package-tier-row-interactive:hover {
+    @apply border-white/80 bg-white/70;
+  }
+
+  .ommm-package-tier-row-interactive:focus-visible {
+    @apply outline-none ring-2 ring-sand-500 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-package-tier-row-interactive:active {
+    transform: scale(0.995);
+  }
+
+  .ommm-membership-row-interactive {
+    @apply cursor-pointer transition-[background-color,box-shadow,border-color] duration-200;
+  }
+
+  .ommm-membership-row-interactive:hover {
+    @apply border-sand-500/30 bg-white/80 shadow-[0_12px_30px_-22px_rgba(45,40,35,0.25)];
+  }
+
+  .ommm-membership-row-interactive:focus-visible {
+    @apply outline-none ring-2 ring-sand-500 ring-offset-2 ring-offset-paper;
+  }
+
+  .ommm-membership-row-interactive[data-selected="true"] {
+    @apply border-sand-500/70 bg-sand-100/60 ring-1 ring-sand-500/50;
+  }
+
+  .ommm-membership-row-interactive:active {
+    transform: scale(0.998);
   }
 
   @keyframes ommm-admin-center-toast-in {
@@ -759,12 +870,23 @@ html {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ommm-membership-card-hover,
-    .ommm-membership-card-hover::after {
+    .ommm-package-card-hover,
+    .ommm-package-card-hover::after {
       transition: none;
     }
 
-    .ommm-membership-card-hover:hover {
+    .ommm-package-card-hover:hover {
+      transform: none;
+    }
+
+    .ommm-package-card-interactive:active,
+    .ommm-package-tier-row-interactive:active,
+    .ommm-membership-row-interactive:active,
+    .ommm-package-card-footer-cta:active {
+      transform: none;
+    }
+
+    .ommm-package-card-footer-cta:hover {
       transform: none;
     }
 

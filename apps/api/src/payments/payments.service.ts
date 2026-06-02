@@ -9,7 +9,6 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
-  MembershipStatus,
   Prisma,
   PaymentStatus,
 } from '@prisma/client';
@@ -24,7 +23,7 @@ import {
 
 type StripeClient = InstanceType<typeof Stripe>;
 
-type PaymentSource = 'membership' | 'dropin' | 'gift' | 'other';
+type PaymentSource = 'package' | 'dropin' | 'gift' | 'other';
 
 /** Narrow shape used after `checkout.session.completed` (avoids brittle SDK namespace types). */
 type StripeCheckoutSessionLike = {
@@ -77,47 +76,6 @@ export class PaymentsService {
     return customer.id;
   }
 
-  async createMembershipCheckout(
-    userId: string,
-    planId: string,
-  ): Promise<{ url: string | null }> {
-    const plan = await this.prisma.membershipPlan.findUnique({
-      where: { id: planId },
-    });
-    if (!plan?.isActive) {
-      throw new BadRequestException('Plan not available');
-    }
-    const stripe = this.ensureStripe();
-    const customerId = await this.getOrCreateStripeCustomer(userId);
-    const web =
-      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const currency = (
-      this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
-    ).toLowerCase();
-
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer: customerId,
-      success_url: `${web}/hy/account/memberships?success=1`,
-      cancel_url: `${web}/hy/memberships?canceled=1`,
-      metadata: { type: 'membership', userId, planId },
-      line_items: plan.stripePriceId
-        ? [{ price: plan.stripePriceId, quantity: 1 }]
-        : [
-            {
-              price_data: {
-                currency,
-                unit_amount: plan.priceCents,
-                recurring: { interval: 'month' },
-                product_data: { name: plan.name },
-              },
-              quantity: 1,
-            },
-          ],
-    });
-    return { url: session.url };
-  }
-
   async createGiftCheckout(params: {
     purchaserId: string;
     amountCents: number;
@@ -137,7 +95,7 @@ export class PaymentsService {
       mode: 'payment',
       customer: customerId,
       success_url: `${web}/hy/account/gift-cards?success=1`,
-      cancel_url: `${web}/hy/memberships?gift_canceled=1`,
+      cancel_url: `${web}/hy/account/gift-cards?gift_canceled=1`,
       metadata: {
         type: 'gift',
         purchaserId: params.purchaserId,
@@ -240,77 +198,12 @@ export class PaymentsService {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as StripeCheckoutSessionLike;
       const type = session.metadata?.type;
-      if (type === 'membership') {
-        await this.fulfillMembership(session);
-      } else if (type === 'gift') {
+      if (type === 'gift') {
         await this.fulfillGift(session);
       } else if (type === 'dropin') {
         await this.fulfillDropIn(session);
       }
     }
-  }
-
-  private async fulfillMembership(
-    session: StripeCheckoutSessionLike,
-  ): Promise<void> {
-    const userId = session.metadata?.userId;
-    const planId = session.metadata?.planId;
-    if (!userId || !planId) {
-      return;
-    }
-    const plan = await this.prisma.membershipPlan.findUnique({
-      where: { id: planId },
-    });
-    if (!plan) {
-      return;
-    }
-    const subId =
-      typeof session.subscription === 'string'
-        ? session.subscription
-        : session.subscription?.id;
-    const start = new Date();
-    const end = new Date(start);
-    end.setDate(end.getDate() + plan.periodDays);
-    const sessionsRemaining = plan.isUnlimited
-      ? null
-      : (plan.sessionsPerMonth ?? 0);
-    await this.prisma.userMembership.create({
-      data: {
-        userId,
-        planId,
-        status: MembershipStatus.ACTIVE,
-        sessionsRemaining,
-        currentPeriodStart: start,
-        currentPeriodEnd: end,
-        stripeSubscriptionId: subId ?? undefined,
-      },
-    });
-    const paidCents = session.amount_total ?? plan.priceCents;
-    const payId =
-      (typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id) ?? `sub_${session.id}`;
-    const existing = await this.prisma.payment.findFirst({
-      where: {
-        OR: [
-          { stripePaymentId: payId },
-          { stripePaymentId: `sub_${session.id}` },
-        ],
-      },
-      select: { id: true },
-    });
-    if (existing) {
-      return;
-    }
-    await this.prisma.payment.create({
-      data: {
-        userId,
-        amountCents: paidCents,
-        status: PaymentStatus.SUCCEEDED,
-        stripePaymentId: payId,
-        description: 'Membership subscription',
-      },
-    });
   }
 
   private async fulfillGift(session: StripeCheckoutSessionLike): Promise<void> {
@@ -444,6 +337,7 @@ export class PaymentsService {
               email: true,
               name: true,
               lastName: true,
+              phone: true,
               role: true,
             },
           },
@@ -472,8 +366,13 @@ export class PaymentsService {
     if (!source) {
       return undefined;
     }
-    if (source === PaymentSourceFilter.MEMBERSHIP) {
-      return { description: { startsWith: 'Membership' } };
+    if (source === PaymentSourceFilter.PACKAGE) {
+      return {
+        OR: [
+          { description: { startsWith: 'Membership' } },
+          { description: { startsWith: 'Package' } },
+        ],
+      };
     }
     if (source === PaymentSourceFilter.DROPIN) {
       return { description: { startsWith: 'Drop-in' } };
@@ -487,6 +386,7 @@ export class PaymentsService {
         {
           AND: [
             { description: { not: { startsWith: 'Membership' } } },
+            { description: { not: { startsWith: 'Package' } } },
             { description: { not: { startsWith: 'Drop-in' } } },
             { description: { not: { startsWith: 'Gift' } } },
           ],
@@ -497,8 +397,11 @@ export class PaymentsService {
 
   private detectPaymentSource(description: string | null): PaymentSource {
     const normalized = (description ?? '').toLowerCase();
-    if (normalized.startsWith('membership')) {
-      return 'membership';
+    if (
+      normalized.startsWith('membership') ||
+      normalized.startsWith('package')
+    ) {
+      return 'package';
     }
     if (normalized.startsWith('drop-in')) {
       return 'dropin';

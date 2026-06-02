@@ -1,5 +1,8 @@
 /** Member dashboard (Prisma `Role.USER`). */
-export const USER_HOME_PATH = "/user/home";
+export const USER_DASHBOARD_PATH = "/user/home";
+
+/** @deprecated Use {@link USER_DASHBOARD_PATH}. */
+export const USER_HOME_PATH = USER_DASHBOARD_PATH;
 
 /** Backoffice home for studio administrators (`Role.ADMIN`). */
 export const ADMIN_HOME_PATH = "/admin/dashboard";
@@ -29,7 +32,7 @@ export function homePathForRole(role: string): string {
   if (role === "COACH") {
     return COACH_HOME_PATH;
   }
-  return USER_HOME_PATH;
+  return USER_DASHBOARD_PATH;
 }
 
 export function isUserDashboardRole(role: string): boolean {

@@ -18,7 +18,6 @@ import { ContactModule } from './contact/contact.module';
 import { ContentModule } from './content/content.module';
 import { GiftCardsModule } from './gift-cards/gift-cards.module';
 import { MailModule } from './mail/mail.module';
-import { MembershipsModule } from './memberships/memberships.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -27,6 +26,7 @@ import { ScheduleItemsModule } from './schedule/schedule.module';
 import { StudioModule } from './studio/studio.module';
 import { UsersModule } from './users/users.module';
 import { WaitlistModule } from './waitlist/waitlist.module';
+import { PackagesModule } from './packages/packages.module';
 import { createHttpAccessLogSerializers } from './logging/http-log-serializers';
 
 const apiPackageRoot = process.cwd();
@@ -92,9 +92,9 @@ function createPinoHttpConfig(): Record<string, unknown> {
     ClassesModule,
     BookingsModule,
     WaitlistModule,
-    MembershipsModule,
     PaymentsModule,
     GiftCardsModule,
+    PackagesModule,
     ContentModule,
     ReportsModule,
     NotificationsModule,

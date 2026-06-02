@@ -11,6 +11,24 @@ function createServiceWithPrisma(
   return new ReportsService(prismaMock as never);
 }
 
+type DashboardOverviewResult = {
+  sessionsToday: number;
+  upcomingClasses: Array<{ id: string }>;
+};
+
+function assertDashboardOverview(
+  result: unknown,
+): asserts result is DashboardOverviewResult {
+  if (
+    typeof result !== 'object' ||
+    result === null ||
+    !('upcomingClasses' in result) ||
+    !Array.isArray((result as DashboardOverviewResult).upcomingClasses)
+  ) {
+    throw new Error('Expected dashboard overview payload');
+  }
+}
+
 describe('ReportsService', () => {
   it('dashboard returns base counters without overview details', async () => {
     const prismaMock = {
@@ -23,7 +41,7 @@ describe('ReportsService', () => {
       waitlistEntry: {
         count: jest.fn().mockResolvedValue(6),
       },
-      userMembership: {
+      user: {
         count: jest.fn().mockResolvedValue(120),
       },
       payment: {
@@ -42,6 +60,85 @@ describe('ReportsService', () => {
     expect(result.activeMembers).toBe(120);
     expect(result.revenueCentsTotal).toBe(500_000);
     expect(result).not.toHaveProperty('upcomingClasses');
+  });
+
+  it('dashboard overview lists all non-cancelled classes scheduled today', async () => {
+    const { todayStart } = (() => {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      return { todayStart: start };
+    })();
+    const earlierToday = new Date(todayStart);
+    earlierToday.setHours(9, 0, 0, 0);
+    const laterToday = new Date(todayStart);
+    laterToday.setHours(18, 0, 0, 0);
+
+    const prismaMock = {
+      classSession: {
+        count: jest
+          .fn()
+          .mockResolvedValueOnce(2)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'past-today',
+            startsAt: earlierToday,
+            capacity: 10,
+            status: ClassSessionStatus.ACTIVE,
+            classType: { name: 'Morning Flow' },
+            coach: {
+              user: { name: 'Anna', lastName: 'Lee', email: 'anna@test.com' },
+            },
+            _count: { bookings: 4 },
+          },
+          {
+            id: 'later-today',
+            startsAt: laterToday,
+            capacity: 12,
+            status: ClassSessionStatus.ACTIVE,
+            classType: { name: 'Evening Restore' },
+            coach: {
+              user: { name: 'Leo', lastName: 'Park', email: 'leo@test.com' },
+            },
+            _count: { bookings: 6 },
+          },
+        ]),
+      },
+      booking: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      waitlistEntry: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+      },
+      payment: {
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountCents: 0 }, _count: { id: 0 } }),
+      },
+      user: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.dashboard({
+      includeRevenue: true,
+      includeOverview: true,
+    });
+    assertDashboardOverview(result);
+
+    expect(result.sessionsToday).toBe(2);
+    expect(result.upcomingClasses).toHaveLength(2);
+    expect(result.upcomingClasses.map((session) => session.id)).toEqual([
+      'past-today',
+      'later-today',
+    ]);
   });
 
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {
@@ -103,7 +200,7 @@ describe('ReportsService', () => {
 
     expect(result.totals.revenueCents).toBe(15_000);
     expect(result.totals.averageOrderValueCents).toBe(5_000);
-    expect(result.bySource.membership.amountCents).toBe(5_000);
+    expect(result.bySource.package.amountCents).toBe(5_000);
     expect(result.bySource.dropin.amountCents).toBe(7_000);
     expect(result.bySource.gift.amountCents).toBe(3_000);
     expect(result.giftCredits.issuedCents).toBe(4_000);

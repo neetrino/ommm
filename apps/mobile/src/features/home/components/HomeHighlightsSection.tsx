@@ -12,7 +12,7 @@ import { homeMarketingCopy } from "../content/homeMarketingCopy";
 const CARD_GAP = 20;
 const CARD_MIN_WIDTH = 158;
 
-export type HighlightCardKey = "schedule" | "memberships" | "journal";
+export type HighlightCardKey = "schedule" | "packages" | "journal";
 
 type HomeHighlightsSectionProps = {
   onCardPress: (key: HighlightCardKey) => void;

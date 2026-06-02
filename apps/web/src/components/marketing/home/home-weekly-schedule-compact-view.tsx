@@ -21,6 +21,7 @@ export type HomeWeeklyScheduleCompactDay = {
   sessions: readonly {
     id: string;
     item: MarketingScheduleItem;
+    registerHref: string;
     bookAriaLabel: string;
   }[];
 };
@@ -131,6 +132,7 @@ export function HomeWeeklyScheduleCompactView({
                 key={session.id}
                 item={session.item}
                 locale={locale}
+                registerHref={session.registerHref}
                 bookAriaLabel={session.bookAriaLabel}
                 variant="compact"
               />

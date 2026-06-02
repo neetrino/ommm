@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "postinstall": "pnpm run db:generate",
-    "dev": "pnpm --parallel --filter \"./apps/*\" run dev",
+    "dev": "pnpm run dev:stack",
+    "dev:all": "pnpm --parallel --filter \"./apps/*\" run dev",
+    "dev:stack": "pnpm --filter web run dev:stack",
     "dev:web": "pnpm --filter web dev",
     "build": "pnpm run build:web",
     "build:web": "pnpm --filter web build",

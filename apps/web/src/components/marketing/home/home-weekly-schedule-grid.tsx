@@ -17,6 +17,7 @@ import {
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import { buildRegisterHrefForScheduleBooking } from "@/lib/auth-redirect";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type HomeWeeklyScheduleGridProps = {
@@ -37,6 +38,7 @@ export async function HomeWeeklyScheduleGrid({ locale, items }: HomeWeeklySchedu
       sessions: byDay[day].map((item) => ({
         id: item.id,
         item,
+        registerHref: buildRegisterHrefForScheduleBooking(item),
         bookAriaLabel: t("weeklyScheduleBookSessionAria", { className: item.className }),
       })),
     }),
@@ -123,6 +125,7 @@ function WeeklyScheduleDesktopColumn({
               key={item.id}
               item={item}
               locale={locale}
+              registerHref={buildRegisterHrefForScheduleBooking(item)}
               bookAriaLabel={formatBookAria(item.className)}
               variant="desktop"
             />

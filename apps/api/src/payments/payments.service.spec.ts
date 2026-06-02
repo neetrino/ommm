@@ -1,7 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
 import { PaymentsService } from './payments.service';
-import { PaymentSourceFilter } from './dto/admin-list-payments-query.dto';
+import {
+  AdminListPaymentsQueryDto,
+  PaymentSourceFilter,
+} from './dto/admin-list-payments-query.dto';
 
 describe('PaymentsService', () => {
   function createService() {
@@ -14,25 +17,31 @@ describe('PaymentsService', () => {
         count: jest.fn().mockResolvedValue(0),
       },
       payment: {
+        findFirst: jest.fn(),
+        findUnique: jest.fn(),
         findMany: jest.fn().mockResolvedValue([
           {
             id: 'p1',
             amountCents: 10_000,
             currency: 'amd',
             status: PaymentStatus.SUCCEEDED,
-            description: 'Membership subscription',
+            description: 'Package subscription',
             createdAt: new Date(),
             user: {
               id: 'u1',
               email: 'u1@test.com',
               name: 'User',
               lastName: 'One',
+              phone: null,
               role: 'USER',
             },
           },
         ]),
+        create: jest.fn(),
+        update: jest.fn(),
         count: jest.fn().mockResolvedValue(1),
       },
+      $transaction: jest.fn((ops: unknown[]) => Promise.all(ops)),
     };
     const config = { get: jest.fn().mockReturnValue(undefined) };
     const mail = { sendEmail: jest.fn() };
@@ -58,15 +67,16 @@ describe('PaymentsService', () => {
 
   it('adminListPayments returns mapped source and pagination', async () => {
     const { service, prisma } = createService();
-    const result = await service.adminListPayments({
-      source: PaymentSourceFilter.MEMBERSHIP,
+    const query: AdminListPaymentsQueryDto = {
+      source: PaymentSourceFilter.PACKAGE,
       take: 10,
       offset: 0,
-    });
+    };
+    const result = await service.adminListPayments(query);
 
     expect(prisma.payment.findMany).toHaveBeenCalled();
     expect(result.total).toBe(1);
-    expect(result.items[0]?.source).toBe('membership');
+    expect(result.items[0]?.source).toBe('package');
   });
 
   it('createDropInCheckout rejects when session is already booked', async () => {

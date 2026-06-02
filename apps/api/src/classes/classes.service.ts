@@ -12,6 +12,7 @@ import {
   type ScheduleDayOfWeek,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
@@ -62,7 +63,10 @@ type AdminSessionRow = Prisma.ClassSessionGetPayload<{
 
 @Injectable()
 export class ClassesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly schedule: ScheduleService,
+  ) {}
 
   listTypes() {
     return this.prisma.classType.findMany({ orderBy: { name: 'asc' } });
@@ -351,7 +355,7 @@ export class ClassesService {
       classFormat: this.normalizeOptional(dto.classFormat),
       priceCents: dto.priceCents ?? 0,
       sessionRequirement: dto.sessionRequirement ?? null,
-      status: dto.status ?? ClassSessionStatus.DRAFT,
+      status: dto.status ?? ClassSessionStatus.ACTIVE,
       recurrencePattern: recurrence.recurrencePattern,
       recurrenceWeekdays: recurrence.recurrenceWeekdays,
       recurrenceEndsAt: recurrence.recurrenceEndsAt,
@@ -361,6 +365,7 @@ export class ClassesService {
     const created = await this.prisma.classSession.create({
       data: createData,
     });
+    await this.schedule.invalidatePublicCache();
     return this.findSessionAdminOrThrow(created.id);
   }
 
@@ -415,6 +420,7 @@ export class ClassesService {
       where: { id },
       data: updateData,
     });
+    await this.schedule.invalidatePublicCache();
     return this.findSessionAdminOrThrow(id);
   }
 
@@ -425,6 +431,7 @@ export class ClassesService {
       where: { id },
       data: { status },
     });
+    await this.schedule.invalidatePublicCache();
     return this.findSessionAdminOrThrow(id);
   }
 
@@ -434,6 +441,7 @@ export class ClassesService {
 
   async deleteSession(id: string): Promise<void> {
     await this.prisma.classSession.delete({ where: { id } });
+    await this.schedule.invalidatePublicCache();
   }
 
   private async findSessionAdminOrThrow(id: string): Promise<AdminSessionRow> {

@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "predev": "pnpm -w run db:generate",
     "dev": "pnpm exec nest start --watch",
     "build": "pnpm exec nest build",
     "format": "pnpm exec prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

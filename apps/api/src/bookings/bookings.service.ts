@@ -9,7 +9,6 @@ import {
   BookingChannel,
   type ClassSession,
   ClassSessionStatus,
-  MembershipStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -35,14 +34,6 @@ type ManagementBooking = {
     name: string | null;
     email: string;
     phone: string | null;
-    memberships: Array<{
-      sessionsRemaining: number | null;
-      plan: {
-        name: string;
-        sessionsPerMonth: number | null;
-        isUnlimited: boolean;
-      };
-    }>;
   };
   session: {
     id: string;
@@ -110,58 +101,41 @@ export class BookingsService {
       const requiredSessions =
         session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
       if (requiredSessions > 0) {
-        const m = await tx.userMembership.findFirst({
-          where: {
-            userId,
-            status: MembershipStatus.ACTIVE,
-            currentPeriodEnd: { gt: new Date() },
-          },
-          include: { plan: true },
-        });
-        if (m) {
-          if (!m.plan.isUnlimited) {
-            if (
-              m.sessionsRemaining == null ||
-              m.sessionsRemaining < requiredSessions
-            ) {
+        if (session.priceCents > 0) {
+          const dropInPayment = await tx.payment.findFirst({
+            where: {
+              userId,
+              description: `Drop-in session ${sessionId}`,
+              status: PaymentStatus.SUCCEEDED,
+            },
+            select: { id: true },
+          });
+          if (!dropInPayment) {
+            const user = await tx.user.findUnique({
+              where: { id: userId },
+              select: { giftCreditsCents: true },
+            });
+            const credits = user?.giftCreditsCents ?? 0;
+            if (credits < session.priceCents) {
               throw new BadRequestException(
-                'No sessions remaining on your plan',
+                'Payment or gift credits required for this class',
               );
             }
-            await tx.userMembership.update({
-              where: { id: m.id },
+            await tx.user.update({
+              where: { id: userId },
+              data: { giftCreditsCents: { decrement: session.priceCents } },
+            });
+            await tx.payment.create({
               data: {
-                sessionsRemaining: m.sessionsRemaining - requiredSessions,
+                userId,
+                amountCents: session.priceCents,
+                status: PaymentStatus.SUCCEEDED,
+                description: `Gift credit spend ${sessionId}`,
               },
             });
           }
-        } else if (session.priceCents > 0) {
-          const user = await tx.user.findUnique({
-            where: { id: userId },
-            select: { giftCreditsCents: true },
-          });
-          const credits = user?.giftCreditsCents ?? 0;
-          if (credits < session.priceCents) {
-            throw new BadRequestException(
-              'Active membership, payment, or gift credits required for this class',
-            );
-          }
-          await tx.user.update({
-            where: { id: userId },
-            data: { giftCreditsCents: { decrement: session.priceCents } },
-          });
-          await tx.payment.create({
-            data: {
-              userId,
-              amountCents: session.priceCents,
-              status: PaymentStatus.SUCCEEDED,
-              description: `Gift credit spend ${sessionId}`,
-            },
-          });
         } else {
-          throw new BadRequestException(
-            'Active membership or payment required for this class',
-          );
+          throw new BadRequestException('Payment required for this class');
         }
       }
       const existingBooking = await tx.booking.findUnique({
@@ -255,30 +229,6 @@ export class BookingsService {
       if (hasDropInPayment) {
         return;
       }
-      const membership = await tx.userMembership.findFirst({
-        where: {
-          userId: booking.userId,
-          status: MembershipStatus.ACTIVE,
-          currentPeriodEnd: { gt: new Date() },
-        },
-        include: { plan: true },
-      });
-      if (
-        !membership ||
-        membership.plan.isUnlimited ||
-        membership.sessionsRemaining == null
-      ) {
-        return;
-      }
-      const maxSessions = membership.plan.sessionsPerMonth;
-      const restored = membership.sessionsRemaining + requiredSessions;
-      await tx.userMembership.update({
-        where: { id: membership.id },
-        data: {
-          sessionsRemaining:
-            maxSessions == null ? restored : Math.min(restored, maxSessions),
-        },
-      });
     });
     await this.prisma.classSession.updateMany({
       where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
@@ -479,85 +429,103 @@ export class BookingsService {
           }
         : undefined;
 
-    const [bookingsRaw, waitlistsRaw, classTypes, coaches] = await Promise.all([
-      this.prisma.booking.findMany({
-        where: {
-          ...(params.query.status ? { status: params.query.status } : {}),
-          ...(params.query.channel ? { channel: params.query.channel } : {}),
-          ...(sessionFilter ? { session: sessionFilter } : {}),
-          ...(userSearch ? { user: userSearch } : {}),
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-              memberships: {
-                where: {
-                  status: MembershipStatus.ACTIVE,
-                  currentPeriodEnd: { gt: new Date() },
+    const adminSessionStatuses: ClassSessionStatus[] = [
+      ClassSessionStatus.DRAFT,
+      ClassSessionStatus.ACTIVE,
+      ClassSessionStatus.FULL,
+    ];
+
+    const [bookingsRaw, waitlistsRaw, classTypes, coaches, sessionsRaw] =
+      await Promise.all([
+        this.prisma.booking.findMany({
+          where: {
+            ...(params.query.status ? { status: params.query.status } : {}),
+            ...(params.query.channel ? { channel: params.query.channel } : {}),
+            ...(sessionFilter ? { session: sessionFilter } : {}),
+            ...(userSearch ? { user: userSearch } : {}),
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+            session: {
+              include: {
+                classType: true,
+                coach: {
+                  include: { user: { select: { id: true, name: true } } },
                 },
-                take: 1,
-                include: { plan: true },
+              },
+            },
+            notes: {
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              include: { author: { select: { id: true, name: true } } },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1000,
+        }),
+        this.prisma.waitlistEntry.findMany({
+          where: {
+            status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+            ...(sessionFilter ? { session: sessionFilter } : {}),
+            ...(userSearch ? { user: userSearch } : {}),
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+            session: {
+              include: {
+                classType: true,
+                coach: {
+                  include: { user: { select: { id: true, name: true } } },
+                },
               },
             },
           },
-          session: {
-            include: {
-              classType: true,
-              coach: {
-                include: { user: { select: { id: true, name: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: 500,
+        }),
+        this.prisma.classType.findMany({
+          select: { id: true, name: true },
+          orderBy: { name: 'asc' },
+        }),
+        this.prisma.coachProfile.findMany({
+          select: { id: true, user: { select: { id: true, name: true } } },
+          where: { isActive: true },
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.classSession.findMany({
+          where: {
+            ...(sessionFilter ?? {}),
+            status: { in: adminSessionStatuses },
+          },
+          include: {
+            classType: { select: { id: true, name: true } },
+            coach: {
+              include: { user: { select: { id: true, name: true } } },
+            },
+            _count: {
+              select: {
+                bookings: { where: { status: BookingStatus.BOOKED } },
               },
             },
           },
-          notes: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            include: { author: { select: { id: true, name: true } } },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 1000,
-      }),
-      this.prisma.waitlistEntry.findMany({
-        where: {
-          status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
-          ...(sessionFilter ? { session: sessionFilter } : {}),
-          ...(userSearch ? { user: userSearch } : {}),
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-            },
-          },
-          session: {
-            include: {
-              classType: true,
-              coach: {
-                include: { user: { select: { id: true, name: true } } },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 500,
-      }),
-      this.prisma.classType.findMany({
-        select: { id: true, name: true },
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.coachProfile.findMany({
-        select: { id: true, user: { select: { id: true, name: true } } },
-        where: { isActive: true },
-        orderBy: { createdAt: 'desc' },
-      }),
-    ]);
+          orderBy: { startsAt: 'asc' },
+          take: 1000,
+        }),
+      ]);
 
     const bookings = bookingsRaw as ManagementBooking[];
     const waitlists = waitlistsRaw as ManagementWaitlist[];
@@ -617,17 +585,7 @@ export class BookingsService {
             name: booking.session.coach.user.name,
           },
         },
-        membership:
-          booking.user.memberships[0] === undefined
-            ? null
-            : {
-                planName: booking.user.memberships[0].plan.name,
-                sessionsRemaining:
-                  booking.user.memberships[0].sessionsRemaining,
-                sessionsPerMonth:
-                  booking.user.memberships[0].plan.sessionsPerMonth,
-                isUnlimited: booking.user.memberships[0].plan.isUnlimited,
-              },
+        package: null,
         latestNote:
           booking.notes[0] === undefined
             ? null
@@ -667,7 +625,7 @@ export class BookingsService {
           name: row.session.coach.user.name,
         },
       },
-      membership: null,
+      package: null,
       latestNote: null,
       waitlistPosition: row.position,
     }));
@@ -693,8 +651,39 @@ export class BookingsService {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    const sessionSlots = sessionsRaw.map((session) => {
+      const bookedCount = session._count.bookings;
+      const spotsLeft = Math.max(session.capacity - bookedCount, 0);
+      const status =
+        session.status === ClassSessionStatus.ACTIVE &&
+        bookedCount >= session.capacity
+          ? ClassSessionStatus.FULL
+          : session.status;
+      return {
+        id: session.id,
+        title: session.title,
+        status,
+        startsAt: session.startsAt.toISOString(),
+        endsAt: session.endsAt.toISOString(),
+        capacity: session.capacity,
+        bookedCount,
+        spotsLeft,
+        level: session.level,
+        classFormat: session.classFormat,
+        classType: {
+          id: session.classType.id,
+          name: session.classType.name,
+        },
+        coach: {
+          id: session.coach.id,
+          name: session.coach.user.name,
+        },
+      };
+    });
+
     return {
       rows,
+      sessionSlots,
       filterOptions: {
         classTypes,
         coaches: coaches.map((coach) => ({
@@ -724,12 +713,12 @@ export class BookingsService {
       where: { id: bookingId },
       include: {
         user: {
-          include: {
-            memberships: {
-              include: { plan: true },
-              orderBy: { createdAt: 'desc' },
-              take: 5,
-            },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            lastName: true,
+            phone: true,
           },
         },
         session: {
@@ -867,7 +856,6 @@ export class BookingsService {
   private resolvePaymentStatus(params: {
     booking: {
       sessionId: string;
-      user: { memberships?: Array<unknown> };
       status: BookingStatus;
     };
     payments: Array<{
@@ -888,9 +876,6 @@ export class BookingsService {
       return 'CASH';
     }
     if (sessionPayment?.status === PaymentStatus.SUCCEEDED) {
-      return 'PAID';
-    }
-    if ((params.booking.user.memberships?.length ?? 0) > 0) {
       return 'PAID';
     }
     if (params.booking.status === BookingStatus.CANCELLED) {

@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPackagesManagement } from "@/components/admin/admin-packages-management";
-import type { AdminClassTypeRow } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -15,10 +14,7 @@ export default async function AdminPackagesPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminPages.packages" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [packagesRes, classTypesRes] = await Promise.all([
-    serverApiJson<AdminPackageRow[]>("/memberships/admin/plans", cookie),
-    serverApiJson<AdminClassTypeRow[]>("/classes/types", cookie),
-  ]);
+  const packagesRes = await serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie);
 
   if (!packagesRes.ok) {
     return (
@@ -32,16 +28,10 @@ export default async function AdminPackagesPage({
     );
   }
 
-  const classTypes = classTypesRes.ok ? classTypesRes.data : [];
-
   return (
-    <AdminContentFrame>
+    <AdminContentFrame description={t("description")}>
       <Suspense fallback={null}>
-        <AdminPackagesManagement
-          packages={packagesRes.data}
-          classTypes={classTypes}
-          locale={locale}
-        />
+        <AdminPackagesManagement packages={packagesRes.data} locale={locale} />
       </Suspense>
     </AdminContentFrame>
   );
