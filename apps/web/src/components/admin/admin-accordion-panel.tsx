@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 
 type AdminAccordionPanelProps = {
   title: string;
@@ -67,8 +67,14 @@ export function AdminAccordionPanel({
 }: AdminAccordionPanelProps) {
   const panelId = useId();
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const [prevDefaultOpen, setPrevDefaultOpen] = useState(defaultOpen);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
+
+  if (!isControlled && prevDefaultOpen !== defaultOpen) {
+    setPrevDefaultOpen(defaultOpen);
+    setInternalOpen(defaultOpen);
+  }
 
   function setOpen(next: boolean) {
     if (!isControlled) {
@@ -76,12 +82,6 @@ export function AdminAccordionPanel({
     }
     onOpenChange?.(next);
   }
-
-  useEffect(() => {
-    if (!isControlled) {
-      setInternalOpen(defaultOpen);
-    }
-  }, [defaultOpen, isControlled]);
 
   const hasBody = children !== undefined && children !== null;
   const showEmpty = open && !hasBody && emptyLabel !== undefined;

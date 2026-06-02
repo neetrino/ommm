@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
@@ -108,7 +109,7 @@ export function AdminCoachesFilters({
   }
 
   return (
-    <div className="mt-2 flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <label className="flex flex-col gap-1 text-xs text-sage-700 sm:col-span-2 xl:col-span-1">
           <span>{t("searchLabel")}</span>
@@ -174,34 +175,39 @@ export function AdminCoachesFilters({
           />
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <OmmButton
-          type="button"
-          size="sm"
-          variant={values.isActive === "active" ? "primary" : "ghost"}
-          onClick={() =>
-            updateField("isActive", values.isActive === "active" ? "all" : "active")
-          }
-        >
-          {t("quickActive")}
-        </OmmButton>
-        <OmmButton
-          type="button"
-          size="sm"
-          variant={values.isActive === "inactive" ? "primary" : "ghost"}
-          onClick={() =>
-            updateField("isActive", values.isActive === "inactive" ? "all" : "inactive")
-          }
-        >
-          {t("quickInactive")}
-        </OmmButton>
-        <OmmButton type="button" size="sm" variant="subtle" onClick={resetFilters}>
-          {t("clear")}
-        </OmmButton>
-        <p className="text-xs text-sage-500" role="status">
-          {isPending ? t("loading") : t("activeCount", { count: activeFilterCount })}
-        </p>
-      </div>
+      <AdminFilterResetBar
+        onReset={resetFilters}
+        label={t("resetFilters")}
+        meta={
+          <p className="text-xs text-sage-500" role="status">
+            {isPending ? t("loading") : t("activeCount", { count: activeFilterCount })}
+          </p>
+        }
+        leading={
+          <>
+            <OmmButton
+              type="button"
+              size="sm"
+              variant={values.isActive === "active" ? "primary" : "ghost"}
+              onClick={() =>
+                updateField("isActive", values.isActive === "active" ? "all" : "active")
+              }
+            >
+              {t("quickActive")}
+            </OmmButton>
+            <OmmButton
+              type="button"
+              size="sm"
+              variant={values.isActive === "inactive" ? "primary" : "ghost"}
+              onClick={() =>
+                updateField("isActive", values.isActive === "inactive" ? "all" : "inactive")
+              }
+            >
+              {t("quickInactive")}
+            </OmmButton>
+          </>
+        }
+      />
     </div>
   );
 }

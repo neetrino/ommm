@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateTimeForUi } from "@/lib/date-display";
+import { combineIsoDateAndTime, formatDateTimeForUi, splitIsoDateTime } from "@/lib/date-display";
 import {
   AdminScheduledBroadcastEditModal,
-  toDateTimeLocalValue,
   type ScheduledEditDraft,
 } from "@/components/admin/admin-scheduled-broadcast-edit-modal";
 import type {
@@ -62,7 +62,8 @@ export function AdminNotificationsScheduledSection({
     html: "",
     audience: "users",
     onlyPromotionsOptIn: false,
-    scheduleAt: "",
+    scheduleDate: "",
+    scheduleTime: "",
   });
 
   const filtered = useMemo(() => {
@@ -108,13 +109,15 @@ export function AdminNotificationsScheduledSection({
   }
 
   function openEdit(row: ScheduledBroadcast) {
+    const { date, time } = splitIsoDateTime(row.scheduleAt);
     setEditing(row);
     setEditDraft({
       subject: row.subject,
       html: row.html,
       audience: row.audience,
       onlyPromotionsOptIn: row.onlyPromotionsOptIn,
-      scheduleAt: toDateTimeLocalValue(row.scheduleAt),
+      scheduleDate: date,
+      scheduleTime: time,
     });
     setMessage(null);
   }
@@ -137,7 +140,8 @@ export function AdminNotificationsScheduledSection({
     if (!editing) {
       return;
     }
-    if (editDraft.scheduleAt.trim() === "") {
+    const scheduleIso = combineIsoDateAndTime(editDraft.scheduleDate, editDraft.scheduleTime);
+    if (scheduleIso === null) {
       setMessage(t("messages.chooseScheduleFirst"));
       return;
     }
@@ -151,7 +155,7 @@ export function AdminNotificationsScheduledSection({
           html: editDraft.html,
           audience: editDraft.audience,
           onlyPromotionsOptIn: editDraft.onlyPromotionsOptIn,
-          scheduleAt: new Date(editDraft.scheduleAt).toISOString(),
+          scheduleAt: scheduleIso,
         }),
       });
       setMessage(t("messages.scheduleUpdated"));
@@ -250,12 +254,15 @@ export function AdminNotificationsScheduledSection({
           />
         </label>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <button type="button" className="ommm-cta-ghost text-xs" onClick={resetFilters}>
-          {t("filters.reset")}
-        </button>
-        <span className={adminChrome.metaText}>{t("filters.resultCount", { count: filtered.length })}</span>
-      </div>
+      <AdminFilterResetBar
+        onReset={resetFilters}
+        label={t("filters.reset")}
+        meta={
+          <span className={adminChrome.metaText}>
+            {t("filters.resultCount", { count: filtered.length })}
+          </span>
+        }
+      />
       <div className={adminChrome.tableWrap}>
         <table className={adminChrome.table}>
           <thead className={adminChrome.thead}>

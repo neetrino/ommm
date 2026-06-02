@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
+import { adminChrome } from "@/components/admin/admin-chrome";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 
 type BookingRow = {
@@ -192,39 +194,81 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         <div className="md:col-span-2">
           <OmmFilterDropdown allValue="" value={clientId} ariaLabel={t("filterClientAll")} allLabel={t("filterClientAll")} onChange={setClientId} options={uniqueClients.map((item) => ({ value: item.id, label: item.label }))} />
         </div>
-        <div className="flex flex-wrap items-center gap-2 md:col-span-2">
-          <OmmButton size="sm" variant={view === "list" ? "primary" : "ghost"} onClick={() => setView("list")}>{t("viewList")}</OmmButton>
-          <OmmButton size="sm" variant={view === "monthly" ? "primary" : "ghost"} onClick={() => setView("monthly")}>{t("viewMonthly")}</OmmButton>
-          <OmmButton size="sm" variant={view === "weekly" ? "primary" : "ghost"} onClick={() => setView("weekly")}>{t("viewWeekly")}</OmmButton>
-          <OmmButton size="sm" variant={view === "daily" ? "primary" : "ghost"} onClick={() => setView("daily")}>{t("viewDaily")}</OmmButton>
-          <OmmButton size="sm" variant="subtle" onClick={resetFilters}>{t("resetFilters")}</OmmButton>
+        <div className="md:col-span-2 xl:col-span-6">
+          <AdminFilterResetBar
+            onReset={resetFilters}
+            label={t("resetFilters")}
+            leading={
+              <>
+                <OmmButton size="sm" variant={view === "list" ? "primary" : "ghost"} onClick={() => setView("list")}>{t("viewList")}</OmmButton>
+                <OmmButton size="sm" variant={view === "monthly" ? "primary" : "ghost"} onClick={() => setView("monthly")}>{t("viewMonthly")}</OmmButton>
+                <OmmButton size="sm" variant={view === "weekly" ? "primary" : "ghost"} onClick={() => setView("weekly")}>{t("viewWeekly")}</OmmButton>
+                <OmmButton size="sm" variant={view === "daily" ? "primary" : "ghost"} onClick={() => setView("daily")}>{t("viewDaily")}</OmmButton>
+              </>
+            }
+          />
         </div>
       </div>
 
       {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
 
       {(view === "list" || view === "daily") && (
-        <div className="overflow-x-auto rounded-2xl border border-white/60 bg-white/65">
-          <table className="min-w-[72rem] w-full text-left text-sm">
-            <thead className="border-b border-white/60 bg-white/40 text-xs uppercase text-sage-500">
+        <div className="rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
+          <table className="w-full table-fixed border-collapse text-left text-sm">
+            <colgroup>
+              <col className="w-[15%]" />
+              <col className="w-[16%]" />
+              <col className="w-[9%]" />
+              <col className="w-[10%]" />
+              <col className="w-[11%]" />
+              <col className="w-[9%]" />
+              <col className="w-[8%]" />
+              <col className="w-[8%]" />
+              <col className="w-[14%]" />
+            </colgroup>
+            <thead className={adminChrome.thead}>
               <tr>
-                <th className="px-3 py-2">{t("colUserPhone")}</th><th className="px-3 py-2">{t("colClassType")}</th><th className="px-3 py-2">{t("colSessionCount")}</th>
-                <th className="px-3 py-2">{t("colPaymentStatus")}</th><th className="px-3 py-2">{t("colAttendanceStatus")}</th><th className="px-3 py-2">{t("colRegisterDate")}</th>
-                <th className="px-3 py-2">{t("colChannel")}</th><th className="px-3 py-2">{t("colStatus")}</th><th className="px-3 py-2">{t("colActions")}</th>
+                <th className={adminChrome.th}>{t("colUserPhone")}</th>
+                <th className={adminChrome.th}>{t("colClassType")}</th>
+                <th className={adminChrome.th}>{t("colSessionCount")}</th>
+                <th className={adminChrome.th}>{t("colPaymentStatus")}</th>
+                <th className={adminChrome.th}>{t("colAttendanceStatus")}</th>
+                <th className={adminChrome.th}>{t("colRegisterDate")}</th>
+                <th className={adminChrome.th}>{t("colChannel")}</th>
+                <th className={adminChrome.th}>{t("colStatus")}</th>
+                <th className={adminChrome.th}>{t("colActions")}</th>
               </tr>
             </thead>
             <tbody>
               {(view === "daily" ? dayRows : filteredRows).map((row) => (
-                <tr key={`${row.recordType}-${row.id}`} className="border-b border-white/50">
-                  <td className="px-3 py-2"><button className="font-medium text-sage-900 underline underline-offset-2" onClick={() => setActiveUserId(row.user.id)}>{row.user.name ?? row.user.email}</button><div className="text-xs text-sage-500">{row.user.phone ?? "—"}</div></td>
-                  <td className="px-3 py-2">{row.session.classType.name}<div className="text-xs text-sage-500">{formatDateTimeForUi(row.session.startsAt, locale)}</div></td>
-                  <td className="px-3 py-2 text-xs">{row.membership?.isUnlimited ? t("sessionUnlimited") : row.membership?.sessionsRemaining != null ? `${row.membership.sessionsRemaining}${row.membership.sessionsPerMonth != null ? ` / ${row.membership.sessionsPerMonth}` : ""}` : t("sessionNotTracked")}</td>
-                  <td className="px-3 py-2"><Badge tone="slate" label={paymentLabel(t, row.paymentStatus)} /></td>
-                  <td className="px-3 py-2"><Badge tone="sand" label={attendanceLabel(t, row.attendanceStatus)} /></td>
-                  <td className="px-3 py-2">{formatDateForUi(row.registerDate)}</td>
-                  <td className="px-3 py-2"><Badge tone="mint" label={row.channel === "APP" ? t("channelApp") : t("channelWebsite")} /></td>
-                  <td className="px-3 py-2"><Badge tone="indigo" label={statusLabel(t, row.status)} /></td>
-                  <td className="px-3 py-2"><div className="flex flex-wrap gap-1">
+                <tr key={`${row.recordType}-${row.id}`} className={adminChrome.tr}>
+                  <td className={adminChrome.tdStrong}>
+                    <button
+                      type="button"
+                      className="break-words text-left font-medium text-sage-900 underline underline-offset-2"
+                      onClick={() => setActiveUserId(row.user.id)}
+                    >
+                      {row.user.name ?? row.user.email}
+                    </button>
+                    <div className={adminChrome.metaText}>{row.user.phone ?? "—"}</div>
+                  </td>
+                  <td className={adminChrome.td}>
+                    <span className="break-words">{row.session.classType.name}</span>
+                    <div className={adminChrome.metaText}>{formatDateTimeForUi(row.session.startsAt, locale)}</div>
+                  </td>
+                  <td className={`${adminChrome.td} text-xs`}>
+                    {row.membership?.isUnlimited
+                      ? t("sessionUnlimited")
+                      : row.membership?.sessionsRemaining != null
+                        ? `${row.membership.sessionsRemaining}${row.membership.sessionsPerMonth != null ? ` / ${row.membership.sessionsPerMonth}` : ""}`
+                        : t("sessionNotTracked")}
+                  </td>
+                  <td className={adminChrome.td}><Badge tone="slate" label={paymentLabel(t, row.paymentStatus)} /></td>
+                  <td className={adminChrome.td}><Badge tone="sand" label={attendanceLabel(t, row.attendanceStatus)} /></td>
+                  <td className={adminChrome.td}>{formatDateForUi(row.registerDate)}</td>
+                  <td className={adminChrome.td}><Badge tone="mint" label={row.channel === "APP" ? t("channelApp") : t("channelWebsite")} /></td>
+                  <td className={adminChrome.td}><Badge tone="indigo" label={statusLabel(t, row.status)} /></td>
+                  <td className={adminChrome.td}><div className="flex flex-wrap gap-1">
                     <OmmButton size="sm" variant="ghost" onClick={() => setActiveBookingId(row.id)}>{t("actionView")}</OmmButton>
                     {row.recordType === "BOOKING" ? <>
                       <OmmButton size="sm" variant="ghost" disabled={busyId === row.id} onClick={() => runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: "COMPLETED" }) }); }, t("successMarkedAttended"))}>{t("actionMarkAttended")}</OmmButton>

@@ -1,6 +1,6 @@
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 
-export default function AdminHomeLoading() {
+export default function AdminDashboardLoading() {
   return (
     <AdminContentFrame>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

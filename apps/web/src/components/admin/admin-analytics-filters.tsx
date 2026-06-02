@@ -9,6 +9,7 @@ import type {
   AnalyticsRangeDays,
   AnalyticsSortKey,
 } from "@/components/admin/admin-analytics-types";
+import { AdminFilterResetButton } from "@/components/ui/admin-filter-reset-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
 type AdminAnalyticsFiltersProps = {
@@ -140,13 +141,9 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
     <section className="rounded-[20px] border border-white/60 bg-white/70 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-medium text-sage-900">{t("heading")}</p>
-        <button
-          type="button"
-          onClick={reset}
-          className="rounded-xl border border-sage-300 bg-white px-3 py-1.5 text-xs font-medium text-sage-700"
-        >
+        <AdminFilterResetButton onClick={reset}>
           {t("reset")}
-        </button>
+        </AdminFilterResetButton>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {quickDateFilters.map((item) => (

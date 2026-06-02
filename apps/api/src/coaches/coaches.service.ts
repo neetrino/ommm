@@ -12,6 +12,11 @@ import { join } from 'node:path';
 import { Prisma } from '@prisma/client';
 import { BookingStatus, Role, WaitlistStatus, type User } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import {
+  PUBLIC_CACHE_KEYS,
+  PUBLIC_CACHE_TTL_SEC,
+} from '../cache/public-cache-keys';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { hashPassword } from '../common/password-crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
@@ -101,23 +106,29 @@ export class CoachesService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly r2Storage: R2HomeImageStorage,
+    private readonly cache: RedisCacheService,
   ) {}
 
   listPublic() {
-    return this.prisma.coachProfile.findMany({
-      where: { isActive: true },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            email: true,
-            avatarUrl: true,
+    return this.cache.getOrSet(
+      PUBLIC_CACHE_KEYS.coaches,
+      PUBLIC_CACHE_TTL_SEC.coaches,
+      () =>
+        this.prisma.coachProfile.findMany({
+          where: { isActive: true },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                lastName: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
           },
-        },
-      },
-    });
+        }),
+    );
   }
 
   getPublic(id: string) {
@@ -170,7 +181,7 @@ export class CoachesService {
       dto.birthday,
     );
 
-    return this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email,
@@ -230,6 +241,8 @@ export class CoachesService {
         select: coachCreateSelect,
       });
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
+    return created;
   }
 
   async uploadCoachPhotoJson(
@@ -279,6 +292,7 @@ export class CoachesService {
       data: { avatarUrl },
     });
     await this.removeOldCoachPhoto(profile.user.avatarUrl, avatarUrl);
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
     return { avatarUrl };
   }
 
@@ -513,7 +527,59 @@ export class CoachesService {
       entityId: coachProfileId,
       payload: dto,
     });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
     return updated;
+  }
+
+  async remove(actor: User, coachProfileId: string): Promise<void> {
+    const profile = await this.prisma.coachProfile.findUnique({
+      where: { id: coachProfileId },
+      include: {
+        user: { select: { id: true, avatarUrl: true } },
+        _count: { select: { sessions: true } },
+      },
+    });
+    if (!profile) {
+      throw new NotFoundException('Coach profile not found');
+    }
+    if (profile._count.sessions > 0) {
+      throw new BadRequestException(
+        'Cannot delete a coach assigned to class sessions. Deactivate the coach instead.',
+      );
+    }
+
+    const avatarUrl = profile.user.avatarUrl;
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.classSession.updateMany({
+          where: { substituteCoachId: coachProfileId },
+          data: { substituteCoachId: null },
+        });
+        await tx.coachProfile.delete({ where: { id: coachProfileId } });
+        await tx.user.delete({ where: { id: profile.user.id } });
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new BadRequestException(
+          'This coach account has linked records and cannot be deleted. Deactivate instead.',
+        );
+      }
+      throw error;
+    }
+
+    await this.removeOldCoachPhoto(avatarUrl, '');
+    await this.audit.log({
+      actorId: actor.id,
+      actorRole: actor.role,
+      action: 'COACH_DELETED',
+      entityType: 'CoachProfile',
+      entityId: coachProfileId,
+    });
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
   }
 
   listAdmin(query: AdminListCoachesQueryDto = {}) {

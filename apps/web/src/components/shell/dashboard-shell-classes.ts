@@ -6,6 +6,10 @@ export const DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS = "min-h-[5.5rem]";
 /** Main column heading bar: stays visible at the top of the viewport while the page scrolls. */
 export const DASHBOARD_MAIN_HEADER_STICKY_CLASS = "sticky top-0 z-10";
 
+/** Admin shell header — opaque sticky surface so page content does not show through on scroll. */
+export const DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS =
+  "ommm-admin-sticky-header sticky top-0 z-20 px-4 pt-4 sm:px-6 lg:px-8";
+
 export function brandInitial(label: string) {
   const t = label.trim();
   return t.length > 0 ? t.charAt(0).toUpperCase() : "O";
@@ -94,7 +98,7 @@ export function sidebarBrandStripClass(variant: DashboardShellVariant) {
 /** Mobile drawer panel (matches desktop sidebar tone per variant). */
 export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
   if (variant === "admin") {
-    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col bg-[#97907c] text-[#fbf5d5] shadow-xl";
+    return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col rounded-br-[40px] bg-[var(--ommm-admin-olive)] text-[var(--ommm-admin-cream)] shadow-[var(--ommm-admin-shadow-soft)]";
   }
   if (variant === "wellness") {
     return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col border-r border-white/50 bg-white/90 shadow-xl backdrop-blur-md";
@@ -106,22 +110,28 @@ export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
 }
 
 export function mobileDrawerBrandTitleClass(variant: DashboardShellVariant) {
+  if (variant === "admin") return "ommm-admin-sidebar-brand-title text-xl";
   if (variant === "wellness") return "block truncate text-sm font-semibold text-sage-900";
   if (variant === "indigo") return "block truncate text-sm font-semibold text-indigo-950";
   return "block truncate text-sm font-semibold text-zinc-900";
 }
 
 export function mobileDrawerBrandSublineClass(variant: DashboardShellVariant) {
+  if (variant === "admin") return "ommm-admin-sidebar-brand-subline";
   if (variant === "wellness") return "block truncate text-xs text-sage-600";
   if (variant === "indigo") return "block truncate text-xs text-indigo-900/70";
   return "block truncate text-xs text-zinc-500";
 }
 
 export function mobileDrawerHeaderBorderClass(variant: DashboardShellVariant) {
+  if (variant === "admin") return "border-b border-white/15";
   return `border-b ${sidebarShellBorderClass(variant)}`;
 }
 
 export function mobileDrawerFooterClass(variant: DashboardShellVariant) {
+  if (variant === "admin") {
+    return "shrink-0 space-y-3 border-t border-white/15 p-4";
+  }
   if (variant === "wellness") {
     return "shrink-0 space-y-3 border-t border-white/50 p-4";
   }

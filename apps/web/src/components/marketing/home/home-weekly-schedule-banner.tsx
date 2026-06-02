@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
 import { HomeWeeklyScheduleGrid } from "@/components/marketing/home/home-weekly-schedule-grid";
@@ -20,8 +19,7 @@ type HomeWeeklyScheduleBannerProps = {
  */
 export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const cookie = (await headers()).get("cookie") ?? "";
-  const { items, loadErrorStatus } = await fetchPublicScheduleItems(cookie);
+  const { items, loadErrorStatus } = await fetchPublicScheduleItems();
 
   return (
     <section

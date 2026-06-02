@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { OmmButton } from "@/components/ui/omm-button";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type {
   GiftCardExpirationFilter,
@@ -149,16 +149,17 @@ export function AdminGiftCardsFilters({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        {activeFilterCount > 0 ? (
-          <span className="text-xs text-sage-500">
-            {t("activeCount", { count: activeFilterCount })}
-          </span>
-        ) : null}
-        <OmmButton type="button" variant="ghost" size="sm" onClick={onReset}>
-          {t("reset")}
-        </OmmButton>
-      </div>
+      <AdminFilterResetBar
+        onReset={onReset}
+        label={t("reset")}
+        meta={
+          activeFilterCount > 0 ? (
+            <span className="text-xs text-sage-500">
+              {t("activeCount", { count: activeFilterCount })}
+            </span>
+          ) : null
+        }
+      />
     </div>
   );
 }

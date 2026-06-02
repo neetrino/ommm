@@ -1,12 +1,11 @@
 /**
  * Maps dashboard hrefs to nested keys under `dashboard.subtitles` (next-intl).
- * Example: `/admin/home` → `admin.home` → messages.dashboard.subtitles.admin.home
+ * Example: `/admin/dashboard` → `admin.home` → messages.dashboard.subtitles.admin.home
  */
 const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
-  "/admin/home": "admin.home",
+  "/admin/dashboard": "admin.home",
   "/admin/clients": "admin.clients",
   "/admin/bookings": "admin.bookings",
-  "/admin/waitlist": "admin.waitlists",
   "/admin/waitlists": "admin.waitlists",
   "/admin/coaches": "admin.coaches",
   "/admin/schedule": "admin.schedule",

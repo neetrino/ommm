@@ -15,6 +15,7 @@ export type OmmSelectDropdownProps<T extends string> = {
   required?: boolean;
   triggerClassName?: string;
   menuClassName?: string;
+  wrapLabel?: boolean;
 };
 
 /** Converts `[value, label]` tuples into dropdown options. */
@@ -35,6 +36,7 @@ export function OmmSelectDropdown<T extends string>({
   required = false,
   triggerClassName,
   menuClassName,
+  wrapLabel = false,
 }: OmmSelectDropdownProps<T>) {
   const selected = options.find((option) => option.value === value);
   const triggerLabel = label ?? selected?.label ?? ariaLabel;
@@ -51,6 +53,7 @@ export function OmmSelectDropdown<T extends string>({
       disabled={disabled}
       triggerClassName={triggerClassName}
       menuClassName={menuClassName}
+      wrapLabel={wrapLabel}
     />
   );
 }
@@ -64,6 +67,7 @@ export type OmmFilterDropdownProps = {
   onChange: (value: string) => void;
   disabled?: boolean;
   triggerClassName?: string;
+  wrapLabel?: boolean;
 };
 
 /** Filter select with a dedicated “all” option (sand highlight + dot when open). */
@@ -76,6 +80,7 @@ export function OmmFilterDropdown({
   onChange,
   disabled = false,
   triggerClassName,
+  wrapLabel = false,
 }: OmmFilterDropdownProps) {
   const dropdownOptions: OmmSelectOption<string>[] = [
     { value: allValue, label: allLabel },
@@ -92,6 +97,7 @@ export function OmmFilterDropdown({
       onChange={onChange}
       disabled={disabled}
       triggerClassName={triggerClassName}
+      wrapLabel={wrapLabel}
     />
   );
 }

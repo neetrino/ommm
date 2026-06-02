@@ -1,9 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { DateTimePickerFields } from "@/components/ui/date-time-picker-fields";
 import { ApiError, apiFetch } from "@/lib/api";
+import { combineIsoDateAndTime, formatDateTimeForUi } from "@/lib/date-display";
 
 type BroadcastResponse = {
   ok: boolean;
@@ -27,6 +29,7 @@ export function AdminNotificationBroadcastForm({
   onSuccess,
 }: AdminNotificationBroadcastFormProps) {
   const t = useTranslations("forms.adminBroadcast");
+  const locale = useLocale();
   const getTemplateBody = (key: string) => {
     const value = t.raw(key);
     return typeof value === "string" ? value : "";
@@ -37,7 +40,8 @@ export function AdminNotificationBroadcastForm({
   const [testTo, setTestTo] = useState("");
   const [audience, setAudience] = useState<BroadcastAudience>("users");
   const [onlyPromotionsOptIn, setOnlyPromotionsOptIn] = useState(false);
-  const [scheduleAt, setScheduleAt] = useState("");
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const templates: Record<Exclude<BroadcastTemplateKey, "custom">, BroadcastTemplate> = {
@@ -79,18 +83,25 @@ export function AdminNotificationBroadcastForm({
       if (testTo.trim() !== "") {
         body.testTo = testTo.trim();
       }
-      if (scheduleAt.trim() !== "") {
-        body.scheduleAt = new Date(scheduleAt).toISOString();
+      if (scheduleDate.trim() !== "" || scheduleTime.trim() !== "") {
+        const scheduleIso = combineIsoDateAndTime(scheduleDate, scheduleTime);
+        if (scheduleIso === null) {
+          setStatus(t("scheduleInvalid"));
+          return;
+        }
+        body.scheduleAt = scheduleIso;
       }
       const res = await apiFetch<BroadcastResponse>(
         "/notifications/admin/broadcast",
         { method: "POST", body: JSON.stringify(body) },
       );
+      const scheduledIso =
+        typeof body.scheduleAt === "string" ? body.scheduleAt : undefined;
       setStatus(
         res.mode === "test"
           ? t("testSent")
-          : res.mode === "scheduled"
-            ? t("scheduled", { when: scheduleAt })
+          : res.mode === "scheduled" && scheduledIso !== undefined
+            ? t("scheduled", { when: formatDateTimeForUi(scheduledIso, locale) })
             : t("queued", { count: res.count ?? 0 }),
       );
       onSuccess?.();
@@ -212,11 +223,15 @@ export function AdminNotificationBroadcastForm({
         <span className="ommm-label text-xs uppercase tracking-wide">
           {t("scheduleAtLabel")}
         </span>
-        <input
-          className="ommm-input"
-          type="datetime-local"
-          value={scheduleAt}
-          onChange={(ev) => setScheduleAt(ev.target.value)}
+        <DateTimePickerFields
+          dateName="scheduleDate"
+          dateValue={scheduleDate}
+          timeValue={scheduleTime}
+          dateAriaLabel={t("scheduleAtLabel")}
+          timeAriaLabel={t("scheduleAtLabel")}
+          onDateChange={setScheduleDate}
+          onTimeChange={setScheduleTime}
+          disabled={pending}
         />
         <span className="text-xs text-sage-500">
           {t("scheduleAtHint")}

@@ -882,7 +882,7 @@
       "filterCoachAll": "Բոլոր մարզիչները",
       "filterClientAll": "Բոլոր հաճախորդները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
-      "resetFilters": "Զրոյացնել ֆիլտրերը",
+      "resetFilters": "Reset Filters",
       "viewList": "Բոլոր ամրագրումները",
       "viewMonthly": "Ամսական տեսք",
       "viewWeekly": "Շաբաթական տեսք",
@@ -954,6 +954,9 @@
       "fieldName": "Անուն",
       "fieldLastName": "Ազգանուն",
       "fieldPhone": "Հեռախոս",
+      "fieldBirthday": "Ծննդյան ամսաթիվ",
+      "birthdayPlaceholder": "ՕՕ/ԱԱ/ՏՏՏՏ",
+      "birthdayInvalid": "Մուտքագրեք վավեր ծննդյան ամսաթիվ։",
       "emailRequired": "Էլ. փոստը պարտադիր է։",
       "emailInvalid": "Մուտքագրեք վավեր էլ. փոստ։",
       "saveButton": "Թարմացնել հաճախորդին",
@@ -961,6 +964,13 @@
       "cancelButton": "Չեղարկել",
       "updateSuccess": "Հաճախորդը թարմացվեց",
       "genericError": "Գործողությունը ձախողվեց",
+      "activateClient": "Ակտիվացնել",
+      "deactivateClient": "Ապաակտիվացնել",
+      "activateSuccess": "Հաճախորդը ակտիվացվեց",
+      "deactivateSuccess": "Հաճախորդը ապաակտիվացվեց",
+      "deleteClient": "Ջնջել հաճախորդին",
+      "deleteConfirm": "Ջնջե՞լ այս հաճախորդին մշտապես։ Գործողությունը հետարկելի չէ։",
+      "deleteSuccess": "Հաճախորդը ջնջվեց",
       "noteLabel": "Ներքին նշում",
       "notePlaceholder": "Գրեք նշում այս հաճախորդի համար",
       "addNote": "Ավելացնել նշում",
@@ -975,7 +985,8 @@
         "orderLabel": "Դասավորություն",
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
-        "apply": "Կիրառել ֆիլտրերը"
+        "apply": "Կիրառել ֆիլտրերը",
+        "resetFilters": "Reset Filters"
       }
     },
     "coaches": {
@@ -983,6 +994,7 @@
       "description": "Մարզիչների պրոֆիլներ՝ մասնագիտացմամբ և կապի տվյալներով։",
       "errorAuth": "Պահանջվում է ադմինի կամ մենեջերի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել մարզիչներին ({status})։",
+      "colCoaches": "Մարզիչներ",
       "colName": "Անուն",
       "colEmail": "Էլ. փոստ",
       "colPhone": "Հեռախոս",
@@ -1006,7 +1018,8 @@
         "orderNewest": "Նորերը սկզբում",
         "orderOldest": "Հները սկզբում",
         "apply": "Կիրառել ֆիլտրերը",
-        "clear": "Մաքրել ֆիլտրերը",
+        "clear": "Reset Filters",
+        "resetFilters": "Reset Filters",
         "loading": "Բեռնում ենք համապատասխան մարզիչներին...",
         "activeCount": "Ակտիվ ֆիլտրեր՝ {count}",
         "quickActive": "Ակտիվ",
@@ -1078,6 +1091,9 @@
       "confirmDeactivate": "Ապաակտիվացնե՞լ այս մարզիչին։ Գոյություն ունեցող դասերն ու ամրագրումները չեն ջնջվի։",
       "activateSuccess": "Մարզիչը ակտիվացվեց",
       "deactivateSuccess": "Մարզիչը ապաակտիվացվեց",
+      "deleteCoach": "Ջնջել մարզիչին",
+      "deleteConfirm": "Ջնջե՞լ այս մարզիչին մշտապես։ Գործողությունը հետարկելի չէ։",
+      "deleteSuccess": "Մարզիչը ջնջվեց",
       "drawer": {
         "eyebrow": "Մարզիչի պրոֆիլ",
         "close": "Փակել",
@@ -1260,12 +1276,15 @@
       "addClassButton": "Ավելացնել դաս",
       "classTypes": {
         "manageButton": "Ավելացնել դասի տեսակներ",
+        "revealButtonAria": "Ցույց տալ «Ավելացնել դասի տեսակներ»",
+        "hideButtonAria": "Թաքցնել «Ավելացնել դասի տեսակներ»",
         "modalTitle": "Դասերի տեսակներ",
         "modalDescription": "Ստեղծեք, խմբագրեք և կառավարեք studio-ի դասերի տեսակները։",
         "modalCloseAria": "Փակել",
         "modalBackdropClose": "Փակել պատուհանը",
         "listHeading": "Ցուցակ",
         "addButton": "Ավելացնել տեսակ",
+        "editButtonAria": "Խմբագրել «{name}»",
         "emptyTitle": "Տեսակներ դեռ չկան",
         "emptyBody": "Վերևի «Ավելացնել տեսակ» կոճակով ստեղծեք առաջին տեսակը՝ Reformer, Yoga և այլն։",
         "formCreateTitle": "Նոր տեսակ",
@@ -1335,7 +1354,7 @@
         "levelLabel": "Մակարդակ",
         "fromDateLabel": "Սկսած ամսաթվից",
         "toDateLabel": "Մինչև ամսաթիվ",
-        "reset": "Վերակայել ֆիլտրերը",
+        "reset": "Reset Filters",
         "allStatuses": "Բոլոր կարգավիճակները",
         "allCoaches": "Բոլոր մարզիչները",
         "allTypes": "Բոլոր տեսակները",
@@ -1349,7 +1368,10 @@
         "morning": "Առավոտ",
         "afternoon": "Կեսօր",
         "evening": "Երեկո",
-        "activeCount": "{count} ակտիվ ֆիլտր"
+        "activeCount": "{count} ակտիվ ֆիլտր",
+        "selectedCount": "{count} ընտրված",
+        "quickFilterLabel": "Արագ ֆիլտրեր",
+        "allQuickFilters": "Բոլոր արագ ֆիլտրերը"
       },
       "quick": {
         "today": "Այսօրվա դասեր",
@@ -1554,7 +1576,7 @@
         "quickActive": "Ակտիվ նվեր քարտեր",
         "quickExpired": "Ժամկետանց քարտեր",
         "quickUnredeemed": "Չփոխարժված քարտեր",
-        "reset": "Մաքրել ֆիլտրերը",
+        "reset": "Reset Filters",
         "activeCount": "{count} ակտիվ ֆիլտր"
       },
       "actions": {
@@ -1684,7 +1706,7 @@
         "sortOldest": "Հիներից",
         "sortPriceHigh": "Առավելագույն գին",
         "sortPriceLow": "Նվազագույն գին",
-        "reset": "Մաքրել զտիչները",
+        "reset": "Reset Filters",
         "activeCount": "{count} ակտիվ զտիչ"
       },
       "messages": {
@@ -1899,7 +1921,7 @@
       },
       "filters": {
         "heading": "Ֆիլտրեր",
-        "reset": "Մաքրել ֆիլտրերը",
+        "reset": "Reset Filters",
         "rangeLabel": "Միջակայք",
         "range7": "Վերջին 7 օրը",
         "range30": "Վերջին 30 օրը",
@@ -2082,7 +2104,7 @@
         "timing": "Timing",
         "timingAll": "Բոլոր timing-ները",
         "sort": "Դասավորել",
-        "reset": "Մաքրել filter-ները",
+        "reset": "Reset Filters",
         "resultCount": "{count} արդյունք",
         "noMatches": "Filter-ներին համապատասխան տարրեր չկան։"
       },
@@ -2354,6 +2376,7 @@
       "testRecipientPlaceholder": "you@example.com",
       "scheduleAtLabel": "Ժամանակացույցել (ըստ ցանկության)",
       "scheduleAtHint": "Եթե ընտրեք ապագա ժամանակ, հաղորդագրությունը կդրվի հերթ և կուղարկվի ֆոնային ժամանակացույցով։",
+      "scheduleInvalid": "Մուտքագրեք վավեր ամսաթիվ և ժամ։",
       "deliveryMethodNote": "Admin broadcast-ները ուղարկվում են միայն էլ. փոստով։ Push-ը օգտագործվում է ավտոմատ booking հիշեցումների համար, ոչ թե ձեռքով broadcast-ների։",
       "sending": "Ուղարկում…",
       "submit": "Ուղարկել հաղորդագրությունը",

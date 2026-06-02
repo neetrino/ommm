@@ -65,7 +65,7 @@ export default async function AdminSchedulePage({
   }
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminScheduleManagement
           locale={locale}
@@ -73,6 +73,7 @@ export default async function AdminSchedulePage({
           classTypes={classTypesRes.data}
           coaches={coachesRes.data}
           initialView={initialView}
+          description={t("description")}
         />
       </Suspense>
     </AdminContentFrame>

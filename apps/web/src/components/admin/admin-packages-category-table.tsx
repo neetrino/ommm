@@ -56,7 +56,7 @@ export function AdminPackagesCategoryTable({
               </div>
             </div>
           );
-        })}
+          })}
       </div>
     </div>
   );

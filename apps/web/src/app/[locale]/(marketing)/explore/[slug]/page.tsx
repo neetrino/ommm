@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { formatDateForUi } from "@/lib/date-display";
-import { serverApiJson } from "@/lib/server-api";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type ContentPost = {
   slug: string;
@@ -19,7 +19,7 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const res = await serverApiJson<ContentPost>(`/content/posts/${slug}`, "");
+  const res = await serverApiJsonPublic<ContentPost>(`/content/posts/${slug}`);
   if (!res.ok) {
     return { title: "Post" };
   }
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ExplorePostPage({ params }: Props) {
   const { locale, slug } = await params;
-  const res = await serverApiJson<ContentPost>(`/content/posts/${slug}`, "");
+  const res = await serverApiJsonPublic<ContentPost>(`/content/posts/${slug}`);
   const tNav = await getTranslations({ locale, namespace: "nav" });
 
   if (!res.ok || !res.data) {

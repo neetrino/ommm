@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type AdminCreateGiftCardFormProps = {
@@ -98,11 +99,11 @@ export function AdminCreateGiftCardForm({ onSaved, onCancel }: AdminCreateGiftCa
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
-        <input
-          type="date"
-          className="ommm-input"
+        <DatePickerInput
+          name="expiresAt"
+          ariaLabel={t("fieldExpiration")}
           value={expiresAt}
-          onChange={(event) => setExpiresAt(event.target.value)}
+          onChange={setExpiresAt}
           disabled={busy}
         />
       </label>

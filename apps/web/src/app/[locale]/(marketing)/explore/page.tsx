@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import { formatDateForUi } from "@/lib/date-display";
-import { serverApiJson } from "@/lib/server-api";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type ContentPost = {
   slug: string;
@@ -34,7 +34,7 @@ export default async function ExplorePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "marketingPages.explore" });
-  const res = await serverApiJson<ContentPost[]>("/content/posts", "");
+  const res = await serverApiJsonPublic<ContentPost[]>("/content/posts");
 
   return (
     <MarketingPageFrame

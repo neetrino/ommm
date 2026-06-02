@@ -10,11 +10,13 @@ import {
   type ClassTypeEditorMode,
   type ClassTypeFormState,
 } from "@/components/admin/admin-class-types-editor";
+import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import { formatDateForUi } from "@/lib/date-display";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type AdminClassTypeRow = {
   id: string;
@@ -33,6 +35,8 @@ type AdminClassTypesModalProps = {
   onChanged: (types: AdminClassTypeRow[]) => void;
   /** Opens the editor for this type when the modal is shown. */
   initialSelectedId?: string | null;
+  /** Syncs the selected catalog type to the URL (or parent state) for refresh-safe edit mode. */
+  onSelectedTypeIdChange?: (typeId: string | null) => void;
   /** When false, hides create actions (e.g. Packages edit-category flow). */
   allowCreate?: boolean;
 };
@@ -108,6 +112,7 @@ export function AdminClassTypesModal({
   onClose,
   onChanged,
   initialSelectedId = null,
+  onSelectedTypeIdChange,
   allowCreate = true,
 }: AdminClassTypesModalProps) {
   const t = useTranslations("adminPages.classes.classTypes");
@@ -124,14 +129,17 @@ export function AdminClassTypesModal({
   const [error, setError] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState(false);
-  const [portalReady, setPortalReady] = useState(false);
+  const portalReady = useIsClientMounted();
   const submitLockRef = useRef(false);
   const onChangedRef = useRef(onChanged);
-  onChangedRef.current = onChanged;
   const tRef = useRef(t);
-  tRef.current = t;
   const fetchGenerationRef = useRef(0);
   const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    onChangedRef.current = onChanged;
+    tRef.current = t;
+  }, [onChanged, t]);
 
   const slugPreview = useMemo(() => buildClassTypeSlugFromName(form.name), [form.name]);
   const selectedType = types.find((row) => row.id === selectedId) ?? null;
@@ -176,7 +184,9 @@ export function AdminClassTypesModal({
 
   useEffect(() => {
     if (!isOpen) {
-      setTypes(sortTypes(classTypes));
+      queueMicrotask(() => {
+        setTypes(sortTypes(classTypes));
+      });
     }
   }, [classTypes, isOpen]);
 
@@ -184,35 +194,39 @@ export function AdminClassTypesModal({
     if (!isOpen) {
       wasOpenRef.current = false;
       fetchGenerationRef.current += 1;
-      setLoadState("idle");
+      queueMicrotask(() => {
+        setLoadState("idle");
+      });
       return;
     }
     if (wasOpenRef.current) {
       return;
     }
     wasOpenRef.current = true;
-    setListFilter("");
-    setPendingDelete(false);
-    setFieldErrors({});
-    setError(null);
-    setBanner(null);
-    setTypes(sortTypes(classTypes));
-    setLoadState("idle");
+    queueMicrotask(() => {
+      setListFilter("");
+      setPendingDelete(false);
+      setFieldErrors({});
+      setError(null);
+      setBanner(null);
+      setTypes(sortTypes(classTypes));
+      setLoadState("idle");
 
-    const initialType =
-      initialSelectedId !== null
-        ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
-        : null;
+      const initialType =
+        initialSelectedId !== null
+          ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
+          : null;
 
-    if (initialType !== null) {
-      setMode("edit");
-      setSelectedId(initialType.id);
-      setForm(formFromType(initialType));
-    } else {
-      setMode("idle");
-      setSelectedId(null);
-      setForm(emptyForm());
-    }
+      if (initialType !== null) {
+        setMode("edit");
+        setSelectedId(initialType.id);
+        setForm(formFromType(initialType));
+      } else {
+        setMode("idle");
+        setSelectedId(null);
+        setForm(emptyForm());
+      }
+    });
   }, [classTypes, initialSelectedId, isOpen]);
 
   useEffect(() => {
@@ -237,10 +251,6 @@ export function AdminClassTypesModal({
   }, [banner]);
 
   useEffect(() => {
-    setPortalReady(true);
-  }, []);
-
-  useEffect(() => {
     if (!isOpen) {
       return undefined;
     }
@@ -261,6 +271,7 @@ export function AdminClassTypesModal({
     setForm(emptyForm());
     setFieldErrors({});
     setError(null);
+    onSelectedTypeIdChange?.(null);
   }
 
   function beginEdit(type: AdminClassTypeRow) {
@@ -269,6 +280,7 @@ export function AdminClassTypesModal({
     setForm(formFromType(type));
     setFieldErrors({});
     setError(null);
+    onSelectedTypeIdChange?.(type.id);
   }
 
   function resetEditor() {
@@ -277,6 +289,7 @@ export function AdminClassTypesModal({
     setForm(emptyForm());
     setFieldErrors({});
     setError(null);
+    onSelectedTypeIdChange?.(null);
   }
 
   function validateNameFor(formState: ClassTypeFormState): string | undefined {
@@ -592,38 +605,49 @@ export function AdminClassTypesModal({
                         : null;
                     return (
                       <li key={type.id}>
-                        <button
-                          type="button"
-                          onClick={() => beginEdit(type)}
-                          className={`w-full rounded-2xl border px-4 py-3 text-left transition-all ${
+                        <div
+                          className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${
                             isActive
                               ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_16px_34px_-22px_rgba(45,40,35,0.55)]"
-                              : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white"
+                              : "border-white/70 bg-white/75 text-sage-800"
                           }`}
                         >
-                          <span className="block font-medium">{type.name}</span>
-                          {description ? (
+                          <div className="min-w-0 flex-1 text-left">
+                            <span className="block font-medium">{type.name}</span>
+                            {description ? (
+                              <span
+                                className={`mt-1 block text-sm line-clamp-2 ${
+                                  isActive ? "text-white/80" : "text-sage-600"
+                                }`}
+                              >
+                                {truncateDescription(description)}
+                              </span>
+                            ) : null}
                             <span
-                              className={`mt-1 block text-sm line-clamp-2 ${
-                                isActive ? "text-white/80" : "text-sage-600"
+                              className={`mt-1.5 block text-xs ${
+                                isActive ? "text-white/70" : "text-sage-500"
                               }`}
                             >
-                              {truncateDescription(description)}
+                              {type.slug}
+                              {" · "}
+                              {count > 0
+                                ? t("sessionCount", { count })
+                                : t("sessionCountNone")}
+                              {updatedLabel ? ` · ${t("updatedLabel", { date: updatedLabel })}` : null}
                             </span>
-                          ) : null}
-                          <span
-                            className={`mt-1.5 block text-xs ${
-                              isActive ? "text-white/70" : "text-sage-500"
-                            }`}
-                          >
-                            {type.slug}
-                            {" · "}
-                            {count > 0
-                              ? t("sessionCount", { count })
-                              : t("sessionCountNone")}
-                            {updatedLabel ? ` · ${t("updatedLabel", { date: updatedLabel })}` : null}
-                          </span>
-                        </button>
+                          </div>
+                          <EditActionButton
+                            ariaLabel={t("editButtonAria", { name: type.name })}
+                            title={t("editButtonAria", { name: type.name })}
+                            onClick={() => beginEdit(type)}
+                            disabled={listBusy || pending}
+                            className={
+                              isActive
+                                ? "shrink-0 border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white focus-visible:ring-white/50 focus-visible:ring-offset-sage-800"
+                                : "shrink-0"
+                            }
+                          />
+                        </div>
                       </li>
                     );
                   })}

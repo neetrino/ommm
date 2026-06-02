@@ -134,7 +134,10 @@ export class ClassesService {
   }): Promise<void> {
     const conflict = await this.prisma.classType.findFirst({
       where: {
-        id: params.excludeId !== undefined ? { not: params.excludeId } : undefined,
+        id:
+          params.excludeId !== undefined
+            ? { not: params.excludeId }
+            : undefined,
         OR: [
           { slug: params.slug },
           { name: { equals: params.name, mode: 'insensitive' } },
@@ -142,7 +145,9 @@ export class ClassesService {
       },
     });
     if (conflict !== null) {
-      throw new BadRequestException('A class type with this name or slug already exists.');
+      throw new BadRequestException(
+        'A class type with this name or slug already exists.',
+      );
     }
   }
 

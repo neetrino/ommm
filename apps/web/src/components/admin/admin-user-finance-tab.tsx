@@ -10,8 +10,10 @@ import type {
   UserFinanceFilters,
 } from "@/components/admin/admin-finance-types";
 import type { AdminClientsPayload, ClientRow, PackageOption } from "@/components/admin/admin-clients-types";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -214,20 +216,20 @@ export function AdminUserFinanceTab({
         />
         <label className="text-xs text-sage-600">
           <span className="mb-1 block">{t("expirationFrom")}</span>
-          <input
-            type="date"
-            className="ommm-input h-10 w-full"
+          <DatePickerInput
+            name="expirationFrom"
+            ariaLabel={t("expirationFrom")}
             value={filters.expirationFrom}
-            onChange={(event) => updateFilter("expirationFrom", event.target.value)}
+            onChange={(value) => updateFilter("expirationFrom", value)}
           />
         </label>
         <label className="text-xs text-sage-600">
           <span className="mb-1 block">{t("expirationTo")}</span>
-          <input
-            type="date"
-            className="ommm-input h-10 w-full"
+          <DatePickerInput
+            name="expirationTo"
+            ariaLabel={t("expirationTo")}
             value={filters.expirationTo}
-            onChange={(event) => updateFilter("expirationTo", event.target.value)}
+            onChange={(value) => updateFilter("expirationTo", value)}
           />
         </label>
         <OmmSelectDropdown
@@ -251,10 +253,8 @@ export function AdminUserFinanceTab({
           />
           {t("giftCardOnly")}
         </label>
-        <OmmButton size="sm" variant="subtle" onClick={resetFilters}>
-          {t("clearFilters")}
-        </OmmButton>
       </div>
+      <AdminFilterResetBar onReset={resetFilters} label={t("clearFilters")} />
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
       <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>

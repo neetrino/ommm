@@ -89,7 +89,7 @@ export default async function AdminCoachesPage({
     apiSearch.size > 0 ? `/coaches/admin/list?${apiSearch.toString()}` : "/coaches/admin/list";
   const [res, scheduleData, classTypesRes] = await Promise.all([
     serverApiJson<CoachAdminRow[]>(coachesEndpoint, cookie),
-    fetchPublicScheduleItems(cookie),
+    fetchPublicScheduleItems(),
     serverApiJson<ClassTypeRow[]>("/classes/types", cookie),
   ]);
   const classTypeOptions = scheduleData.classTypes;

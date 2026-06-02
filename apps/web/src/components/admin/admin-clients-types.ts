@@ -1,5 +1,5 @@
 export type ClientTag = "VIP" | "New" | "At Risk" | "Beginner";
-export type ClientStatus = "Active" | "Inactive" | "Frozen";
+export type ClientStatus = "Active" | "Inactive" | "Frozen" | "Blocked";
 export type PaymentBehavior = "paid" | "unpaid" | "overdue" | "partial";
 export type AttendanceBehavior =
   | "regular"
@@ -34,6 +34,7 @@ export type ClientRow = {
   avatarUrl: string | null;
   createdAt: string;
   status: ClientStatus;
+  isBlocked: boolean;
   source: "website" | "mobile-app" | "admin" | null;
   preferredCoach: { id: string; name: string; count: number } | null;
   memberships: ClientMembership[];
