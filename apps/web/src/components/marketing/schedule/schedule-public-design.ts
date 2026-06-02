@@ -2,8 +2,9 @@
 export const SCHEDULE_PAGE_BG = "relative overflow-hidden";
 export const SCHEDULE_INK = "text-sage-800";
 export const SCHEDULE_MUTED = "text-sage-500";
-export const SCHEDULE_BOOK_BTN =
-  "ommm-btn-compact-primary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm";
+export const SCHEDULE_INTERACTIVE_LIFT =
+  "transition-transform duration-300 ease-out hover:-translate-y-0.5 motion-reduce:transform-none";
+export const SCHEDULE_BOOK_BTN = `ommm-btn-compact-primary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
 export const SCHEDULE_ROW_DIVIDER = "border-b border-white/55";
 /** Full-width week strip surface in wellness card tone. */
 export const SCHEDULE_DATE_STRIP_PANEL =

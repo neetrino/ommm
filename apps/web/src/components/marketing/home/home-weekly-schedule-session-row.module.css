@@ -103,13 +103,24 @@
   align-self: flex-start;
   isolation: isolate;
   transition-property: background-color, border-color, transform;
-  transition-duration: 150ms;
+  transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .reserve:hover {
   background-color: var(--home-schedule-reserve-hover-fill, rgba(255, 255, 255, 0.42));
   border-color: rgba(255, 255, 255, 0.68);
+  transform: translateY(-0.125rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reserve {
+    transition-duration: 150ms;
+  }
+
+  .reserve:hover {
+    transform: none;
+  }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
