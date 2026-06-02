@@ -1,5 +1,8 @@
 import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 
+/** Default grouping label for new packages when no category is selected yet. */
+export const DEFAULT_PACKAGE_CATEGORY = "General";
+
 /** Normalized key for safe category comparison (trim, collapse spaces, case-insensitive). */
 export function normalizePackageCategoryKey(name: string): string {
   return name.trim().replace(/\s+/g, " ").toLocaleLowerCase();

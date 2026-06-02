@@ -26,6 +26,7 @@ import { ScheduleItemsModule } from './schedule/schedule.module';
 import { StudioModule } from './studio/studio.module';
 import { UsersModule } from './users/users.module';
 import { WaitlistModule } from './waitlist/waitlist.module';
+import { PackagesModule } from './packages/packages.module';
 import { createHttpAccessLogSerializers } from './logging/http-log-serializers';
 
 const apiPackageRoot = process.cwd();
@@ -93,6 +94,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     WaitlistModule,
     PaymentsModule,
     GiftCardsModule,
+    PackagesModule,
     ContentModule,
     ReportsModule,
     NotificationsModule,

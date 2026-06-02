@@ -7,6 +7,8 @@ export const MIN_PACKAGE_DURATION_MONTHS = 1;
 export const MAX_PACKAGE_DURATION_MONTHS = 120;
 export const MIN_PACKAGE_GUEST_COUNT = 1;
 export const MAX_PACKAGE_GUEST_COUNT = 99;
+export const MIN_PACKAGE_SESSIONS = 1;
+export const MAX_PACKAGE_SESSIONS = 999;
 
 export const BILLING_PERIOD_OPTIONS = ["monthly", "session"] as const;
 export type BillingPeriodOption = (typeof BILLING_PERIOD_OPTIONS)[number];
@@ -74,6 +76,18 @@ export function parseGuestCount(raw: string): number | null {
   return count;
 }
 
+export function parseSessionsCount(raw: string): number | null {
+  const normalized = raw.trim();
+  if (normalized.length === 0) {
+    return null;
+  }
+  const count = Number.parseInt(normalized, 10);
+  if (!Number.isInteger(count)) {
+    return null;
+  }
+  return count;
+}
+
 export function parseDurationMonths(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {
@@ -92,6 +106,7 @@ export type AdminPackageFormValues = {
   description: string;
   price: string;
   durationMonths: string;
+  sessionsCount: string;
   guestCount: string;
   billingPeriod: BillingPeriodOption;
   isPopular: boolean;
@@ -105,6 +120,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     description: "",
     price: "",
     durationMonths: "1",
+    sessionsCount: "1",
     guestCount: "1",
     billingPeriod: "monthly",
     isPopular: false,
@@ -123,16 +139,22 @@ export function packageRowToFormValues(
   isPopular: boolean;
   isActive: boolean;
   guestCount?: number;
+  sessionsPerMonth?: number | null;
 },
   fallbackCategoryName = "",
 ): AdminPackageFormValues {
   const billingPeriod = isBillingPeriodOption(pkg.billingPeriod) ? pkg.billingPeriod : "monthly";
+  const sessions =
+    typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0
+      ? pkg.sessionsPerMonth
+      : MIN_PACKAGE_SESSIONS;
   return {
     name: pkg.name,
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: (pkg.priceCents / 100).toFixed(2),
     durationMonths: periodDaysToDurationMonths(pkg.periodDays),
+    sessionsCount: String(sessions),
     guestCount: String(
       typeof pkg.guestCount === "number" && pkg.guestCount >= 0 ? pkg.guestCount : 0,
     ),

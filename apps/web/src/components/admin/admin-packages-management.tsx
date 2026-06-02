@@ -4,7 +4,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -13,25 +12,24 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
-import { buildPackageCategoryOptions, packagesInCategory } from "@/components/admin/admin-packages-categories";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
+import { AdminPillTabs } from "@/components/admin/admin-pill-tabs";
 import {
-  AdminPackagesCategoryMultiSelect,
-  allPackageCategoryIds,
-  syncPackageCategorySelection,
-  type AdminPackagesCategoryOption,
-} from "@/components/admin/admin-packages-category-multi-select";
+  buildPackageCategoryOptions,
+  packagesInCategory,
+} from "@/components/admin/admin-packages-categories";
 import {
   AdminPackagesShell,
   PackagesAddButton,
 } from "@/components/admin/admin-packages-shell";
 import { AdminPackagesCategoryTable } from "@/components/admin/admin-packages-category-table";
+import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
 import {
   type AdminPackageRow,
   mergeAdminPackageRowsFromServer,
   normalizeAdminPackageRow,
   upsertAdminPackageRow,
 } from "@/components/admin/admin-packages-types";
+import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import {
   buildPackagesPathname,
   clearPackageModalQueryKeys,
@@ -40,6 +38,7 @@ import {
   PACKAGE_EDIT_QUERY_KEY,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
+  PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
 } from "@/components/admin/admin-packages-url";
@@ -69,16 +68,6 @@ export function AdminPackagesManagement({
     packagesFromServer.map(normalizeAdminPackageRow),
   );
 
-  const editingCategoryName = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
-  const isEditCategoryOpen =
-    editingCategoryName !== null &&
-    editingCategoryName.trim().length > 0 &&
-    packageRows.some(
-      (pkg) =>
-        normalizePackageCategoryKey(pkg.categoryName) ===
-        normalizePackageCategoryKey(editingCategoryName),
-    );
-
   useEffect(() => {
     setPackageRows((current) =>
       mergeAdminPackageRowsFromServer(
@@ -88,52 +77,98 @@ export function AdminPackagesManagement({
     );
   }, [packagesFromServer]);
 
-  const categoryOptions = useMemo(
-    () => buildPackageCategoryOptions(packageRows),
-    [packageRows],
-  );
-
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<ReadonlySet<string>>(() =>
-    allPackageCategoryIds(categoryOptions),
-  );
-  const previousCategoryOptionsRef = useRef<readonly AdminPackagesCategoryOption[]>(categoryOptions);
-
-  useEffect(() => {
-    setSelectedCategoryIds((current) => {
-      const synced = syncPackageCategorySelection(
-        categoryOptions,
-        previousCategoryOptionsRef.current,
-        current,
-      );
-      if (categoryOptions.length > 0 && synced.size === 0) {
-        return allPackageCategoryIds(categoryOptions);
-      }
-      return synced;
-    });
-    previousCategoryOptionsRef.current = categoryOptions;
-  }, [categoryOptions]);
-
   const sortedPackages = useMemo(
     () => [...packageRows].sort((left, right) => left.displayOrder - right.displayOrder),
     [packageRows],
   );
 
-  const visibleCategories = useMemo(
-    () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
-    [categoryOptions, selectedCategoryIds],
+  const categoryOptions = useMemo(
+    () => buildPackageCategoryOptions(sortedPackages),
+    [sortedPackages],
   );
 
-  const defaultCategoryId = visibleCategories[0]?.id ?? categoryOptions[0]?.id ?? "";
+  const [activeCategoryId, setActiveCategoryId] = useState(
+    () => categoryOptions[0]?.id ?? "",
+  );
+  const [expandedCategoryKeys, setExpandedCategoryKeys] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  useEffect(() => {
+    if (categoryOptions.length === 0) {
+      setActiveCategoryId("");
+      return;
+    }
+    setActiveCategoryId((current) => {
+      if (categoryOptions.some((option) => option.id === current)) {
+        return current;
+      }
+      return categoryOptions[0]?.id ?? "";
+    });
+  }, [categoryOptions]);
+
+  const editingCategoryName = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+  const isEditCategoryOpen =
+    editingCategoryName !== null &&
+    editingCategoryName.trim().length > 0 &&
+    sortedPackages.some(
+      (pkg) =>
+        normalizePackageCategoryKey(pkg.categoryName) ===
+        normalizePackageCategoryKey(editingCategoryName),
+    );
+
+  const visibleCategories = useMemo(
+    () =>
+      activeCategoryId.length > 0
+        ? categoryOptions.filter((option) => option.id === activeCategoryId)
+        : categoryOptions,
+    [activeCategoryId, categoryOptions],
+  );
+
+  const defaultCategoryId = activeCategoryId || categoryOptions[0]?.id || "";
 
   const handlePackageCreated = useCallback((saved: AdminPackageRow) => {
-    const normalizedSaved = normalizeAdminPackageRow(saved);
-    setPackageRows((current) => upsertAdminPackageRow(current, normalizedSaved));
-    setSelectedCategoryIds((current) => {
+    const normalized = normalizeAdminPackageRow(saved);
+    setPackageRows((current) => upsertAdminPackageRow(current, normalized));
+    setActiveCategoryId(normalized.categoryName);
+    setExpandedCategoryKeys((current) => {
       const next = new Set(current);
-      next.add(normalizedSaved.categoryName);
+      next.add(normalizePackageCategoryKey(normalized.categoryName));
       return next;
     });
   }, []);
+
+  const openConfigurePricing = useCallback(
+    (packageId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      clearPackageModalQueryKeys(params);
+      params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_PRICING_VALUE);
+      params.set(PACKAGE_PRICING_QUERY_KEY, packageId);
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const openAddTier = useCallback(
+    (categoryId: string) => {
+      const categoryKey = normalizePackageCategoryKey(categoryId);
+      const shellPlan = sortedPackages.find(
+        (pkg) =>
+          normalizePackageCategoryKey(pkg.categoryName) === categoryKey && pkg.priceCents <= 0,
+      );
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      clearPackageModalQueryKeys(params);
+      params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_ADD_TIER_VALUE);
+      params.set(PACKAGE_CATEGORY_QUERY_KEY, categoryId);
+      if (shellPlan !== undefined) {
+        params.set(PACKAGE_PRICING_QUERY_KEY, shellPlan.id);
+      }
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router, searchParams, sortedPackages],
+  );
 
   const handlePackageUpdated = useCallback((saved: AdminPackageRow) => {
     setPackageRows((current) => upsertAdminPackageRow(current, normalizeAdminPackageRow(saved)));
@@ -171,11 +206,9 @@ export function AdminPackagesManagement({
     params.delete(PACKAGE_EDIT_QUERY_KEY);
     clearPackageModalQueryKeys(params);
     params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_CREATE_VALUE);
-    if (defaultCategoryId.length > 0) {
-      params.set(PACKAGE_CATEGORY_QUERY_KEY, defaultCategoryId);
-    }
+    params.delete(PACKAGE_CATEGORY_QUERY_KEY);
     router.replace(buildPackagesPathname(pathname, params));
-  }, [defaultCategoryId, pathname, router, searchParams]);
+  }, [pathname, router, searchParams]);
 
   const openEditCategory = useCallback(
     (categoryId: string) => {
@@ -193,46 +226,23 @@ export function AdminPackagesManagement({
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [pathname, router, searchParams]);
 
-  const openEditPackage = useCallback(
-    (packageId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
-      clearPackageModalQueryKeys(params);
-      params.set(PACKAGE_EDIT_QUERY_KEY, packageId);
-      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const openConfigurePricing = useCallback(
-    (packageId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
-      clearPackageModalQueryKeys(params);
-      params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_PRICING_VALUE);
-      params.set(PACKAGE_PRICING_QUERY_KEY, packageId);
-      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const toolbar =
-    categoryOptions.length > 0 ? (
-      <div className="ommm-admin-packages-toolbar">
-        <AdminPackagesCategoryMultiSelect
-          options={categoryOptions}
-          selectedIds={selectedCategoryIds}
-          onChange={setSelectedCategoryIds}
+  const toolbar = (
+    <div className="ommm-admin-packages-toolbar">
+      {categoryOptions.length > 0 ? (
+        <AdminPillTabs
+          items={categoryOptions}
+          activeId={activeCategoryId}
+          onChange={setActiveCategoryId}
+          ariaLabel={t("filters.categoriesLabel")}
         />
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
-          <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
-        </div>
-      </div>
-    ) : (
-      <div className="flex flex-wrap justify-end gap-3">
+      ) : (
+        <div className="min-w-0 flex-1" />
+      )}
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
         <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
       </div>
-    );
+    </div>
+  );
 
   return (
     <>
@@ -240,6 +250,7 @@ export function AdminPackagesManagement({
         toolbar={toolbar}
         packages={sortedPackages}
         categoryOptions={categoryOptions}
+        defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}
         onPackageUpdated={handlePackageUpdated}
       >
@@ -255,9 +266,22 @@ export function AdminPackagesManagement({
                 category={category}
                 packages={sortedPackages}
                 locale={locale}
+                open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
+                onOpenChange={(next) => {
+                  const categoryKey = normalizePackageCategoryKey(category.id);
+                  setExpandedCategoryKeys((current) => {
+                    const updated = new Set(current);
+                    if (next) {
+                      updated.add(categoryKey);
+                    } else {
+                      updated.delete(categoryKey);
+                    }
+                    return updated;
+                  });
+                }}
                 onEditCategory={() => openEditCategory(category.id)}
-                onEditPackage={openEditPackage}
-                onConfigurePricing={openConfigurePricing}
+                onEditPackage={openConfigurePricing}
+                onAddTier={() => openAddTier(category.id)}
               />
             ))}
           </div>
@@ -281,56 +305,54 @@ type CategoryAccordionProps = {
   category: AdminPackagesCategoryOption;
   packages: readonly AdminPackageRow[];
   locale: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onEditCategory: () => void;
   onEditPackage: (packageId: string) => void;
-  onConfigurePricing: (packageId: string) => void;
+  onAddTier: () => void;
 };
 
 function CategoryAccordion({
   category,
   packages,
   locale,
+  open,
+  onOpenChange,
   onEditCategory,
   onEditPackage,
-  onConfigurePricing,
+  onAddTier,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
-  const [open, setOpen] = useState(false);
 
   const categoryPackages = useMemo(
     () => packagesInCategory(packages, category.id),
     [category.id, packages],
   );
-  const latestPackage = categoryPackages.at(-1);
+
+  const configuredPackages = useMemo(
+    () => categoryPackages.filter((pkg) => pkg.priceCents > 0),
+    [categoryPackages],
+  );
 
   const body =
     categoryPackages.length > 0 ? (
       <AdminPackagesCategoryTable
-        packages={categoryPackages}
+        packages={configuredPackages}
         locale={locale}
+        onAddTier={onAddTier}
         onEditPackage={onEditPackage}
-        onConfigurePricing={onConfigurePricing}
       />
     ) : undefined;
 
   return (
     <AdminAccordionPanel
       title={category.label}
-      onAdd={
-        latestPackage
-          ? () => {
-              onConfigurePricing(latestPackage.id);
-            }
-          : undefined
-      }
-      addDisabled={latestPackage === undefined}
-      addAriaLabel={t("configurePricingAria")}
       editLabel={t("editCategory")}
       onEdit={onEditCategory}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={onOpenChange}
       contentVariant="table"
-      emptyLabel={t("categoryEmpty")}
+      emptyLabel={categoryPackages.length === 0 ? t("categoryEmpty") : undefined}
     >
       {body}
     </AdminAccordionPanel>

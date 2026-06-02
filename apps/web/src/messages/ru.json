@@ -206,10 +206,22 @@
       "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
       "footerIllustrationAlt": "Декоративная иллюстрация",
       "footerLinks": [
-        { "href": "/contact", "label": "Конфиденциальность" },
-        { "href": "/contact", "label": "Условия" },
-        { "href": "/explore", "label": "Журнал" },
-        { "href": "/contact", "label": "Контакты" }
+        {
+          "href": "/contact",
+          "label": "Конфиденциальность"
+        },
+        {
+          "href": "/contact",
+          "label": "Условия"
+        },
+        {
+          "href": "/explore",
+          "label": "Журнал"
+        },
+        {
+          "href": "/contact",
+          "label": "Контакты"
+        }
       ]
     }
   },
@@ -1622,7 +1634,7 @@
     },
     "packages": {
       "title": "Пакеты",
-      "description": "Настройка пакетов недоступна в этом релизе.",
+      "description": "Тарифы, цены и пакеты, отображаемые на публичном сайте.",
       "emptyState": "Конфигурация пакетов пока недоступна.",
       "errorAuth": "Нужен вход администратора студии.",
       "errorLoad": "Не удалось загрузить пакеты ({status}).",
@@ -1645,7 +1657,8 @@
         "weekly": "Еженедельно",
         "monthly": "Ежемесячно",
         "quarterly": "Ежеквартально",
-        "yearly": "Ежегодно"
+        "yearly": "Ежегодно",
+        "session": "За занятие"
       },
       "fieldPeriodDays": "Цикл оплаты (дней)",
       "fieldFeatures": "Преимущества",
@@ -1674,6 +1687,10 @@
         "visibility": {
           "heading": "Видимость",
           "description": "Значок «Популярный» и статус активности"
+        },
+        "session": {
+          "heading": "Session",
+          "description": "На сколько месяцев действует пакет для участника"
         }
       },
       "nameRequired": "Название пакета обязательно.",
@@ -1711,7 +1728,7 @@
       "editCategory": "Изменить категорию",
       "categoryEmpty": "К этой категории занятий пока не привязаны абонементные пакеты.",
       "noClassTypesInStudio": "Типов занятий пока нет. Создайте их в Schedule → Class types, затем добавьте пакеты здесь.",
-      "noPackageCategoriesYet": "Пакетов пока нет. Когда будете готовы, нажмите Add package и выберите тип занятия — категория появится на экране только после привязки хотя бы одного пакета.",
+      "noPackageCategoriesYet": "Пакетов пока нет. Нажмите Add Package, чтобы создать первый план.",
       "noCategoriesSelected": "Выберите одну или несколько категорий выше, чтобы просмотреть пакеты.",
       "selectCategoryHint": "Выберите эту категорию выше, чтобы просмотреть и управлять её пакетами.",
       "tableSessions": "Сессии",
@@ -1722,6 +1739,8 @@
       "validityDays": "{count} дн.",
       "validityMonths": "{count} мес.",
       "rowActionsAria": "Действия с пакетом",
+      "configurePricingAria": "Настроить цену пакета",
+      "configurePricingButton": "Настроить цену",
       "cardSessions": "Сессии",
       "sessionsUnlimited": "Безлимит",
       "sessionsPerMonth": "{count} за период оплаты",
@@ -1753,8 +1772,46 @@
         "updateSuccess": "Пакет обновлён.",
         "enabledSuccess": "Пакет включён.",
         "disabledSuccess": "Пакет отключён.",
-        "deleteSuccess": "Пакет удалён."
-      }
+        "deleteSuccess": "Пакет удалён.",
+        "tierAddedSuccess": "Ценовой вариант добавлен."
+      },
+      "pricingTitle": "Цена и оплата",
+      "pricingDescription": "Настройте параметры оплаты для этого пакета.",
+      "categoryTooLong": "Название категории слишком длинное.",
+      "fieldCategoryPlaceholder": "напр. Reformer, Mat",
+      "categoryLoading": "Загрузка категорий…",
+      "categorySearchLabel": "Найти или создать категорию занятия",
+      "categorySearchPlaceholder": "Поиск или новая категория",
+      "categoryNoMatches": "Нет совпадений. Введите название для новой категории.",
+      "categoryCreateOption": "Создать «{name}»",
+      "categoryCreateHint": "Новая категория будет создана при сохранении пакета.",
+      "renameCategoryTitle": "Изменить категорию",
+      "renameCategoryDescription": "Новое имя будет применено ко всем пакетам в этой группе.",
+      "editCategoryDescription": "Переименование затронет все {count} пакетов в категории. Удаление категории удалит и все пакеты в ней.",
+      "editCategoryDescriptionEmpty": "В этой категории нет пакетов.",
+      "deleteCategoryButton": "Удалить категорию",
+      "deleteCategoryConfirm": "Удалить категорию «{name}» и все {count} пакетов в ней? Это нельзя отменить.",
+      "deleteCategoryConfirmEmpty": "Удалить пустую категорию «{name}»?",
+      "durationMonthsInvalid": "Введите целое число месяцев от 1 до 120.",
+      "fieldDurationMonths": "Длительность пакета (месяцев)",
+      "fieldDurationMonthsPlaceholder": "напр. 6",
+      "fieldDurationMonthsHint": "Отображается в таблице в колонке «Session» (1 месяц = 30 дней).",
+      "fieldGuestCount": "Гости",
+      "fieldGuestCountPlaceholder": "напр. 2",
+      "fieldGuestCountHint": "Максимум гостей по этому пакету (колонка Guests в таблице).",
+      "guestCountInvalid": "Введите целое число гостей от 1 до 99.",
+      "savePricingButton": "Сохранить цену",
+      "addTierTitle": "Добавить ценовой вариант",
+      "addTierDescription": "Добавьте пакет сеансов в этот пакет.",
+      "addTierButton": "Добавить",
+      "addTierAria": "Добавить ценовой вариант в пакет",
+      "addTierFormHeading": "Ценовой вариант",
+      "addTierFormDescription": "Количество сеансов, цена, срок и лимит гостей отображаются в списке.",
+      "fieldSessionsCount": "Сеансы",
+      "fieldSessionsCountPlaceholder": "напр. 10",
+      "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
+      "fieldValidityHint": "Отображается в колонке «Срок» (1 месяц = 30 дней).",
+      "saveTierButton": "Добавить"
     },
     "packagePlans": {
       "title": "Тарифы абонементов",

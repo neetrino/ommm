@@ -206,10 +206,22 @@
       "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
       "footerIllustrationAlt": "Զարդարանք",
       "footerLinks": [
-        { "href": "/contact", "label": "Գաղտնիություն" },
-        { "href": "/contact", "label": "Պայմաններ" },
-        { "href": "/explore", "label": "Ամսագիր" },
-        { "href": "/contact", "label": "Կապ" }
+        {
+          "href": "/contact",
+          "label": "Գաղտնիություն"
+        },
+        {
+          "href": "/contact",
+          "label": "Պայմաններ"
+        },
+        {
+          "href": "/explore",
+          "label": "Ամսագիր"
+        },
+        {
+          "href": "/contact",
+          "label": "Կապ"
+        }
       ]
     }
   },
@@ -1618,7 +1630,7 @@
     },
     "packages": {
       "title": "Փաթեթներ",
-      "description": "Այս թողարկումում փաթեթների կարգավորումը հասանելի չէ։",
+      "description": "Աբոնեմենտային պլաններ, գներ և հանրային կայքում ցուցադրվող փաթեթներ։",
       "emptyState": "Դեռ փաթեթների կարգավորում չկա։",
       "errorAuth": "Պահանջվում է ստուդիայի ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել փաթեթները ({status})։",
@@ -1641,7 +1653,8 @@
         "weekly": "Շաբաթական",
         "monthly": "Ամսական",
         "quarterly": "Եռամսյակային",
-        "yearly": "Տարեկան"
+        "yearly": "Տարեկան",
+        "session": "Նիսի համար"
       },
       "fieldPeriodDays": "Վճարման ցիկլ (օր)",
       "fieldFeatures": "Առավելություններ",
@@ -1670,6 +1683,10 @@
         "visibility": {
           "heading": "Տեսանելիություն",
           "description": "«Հանրաճանաչ» նշան և ակտիվ կարգավիճակ"
+        },
+        "session": {
+          "heading": "Session",
+          "description": "Որքան ժամանակով է փաթեթը վավեր անդամի համար"
         }
       },
       "nameRequired": "Փաթեթի անվանումը պարտադիր է։",
@@ -1707,7 +1724,7 @@
       "editCategory": "Խմբագրել կատեգորիան",
       "categoryEmpty": "Այս դասի կատեգորիային դեռ կապված աբոնեմենտային փաթեթներ չկան։",
       "noClassTypesInStudio": "Դասի տեսակներ դեռ չկան։ Ստեղծեք Schedule → Class types բաժնում, ապա այստեղ ավելացրեք փաթեթներ։",
-      "noPackageCategoriesYet": "Դեռ փաթեթներ չկան։ Պատրաստ լինելիս սեղմեք Add package և ընտրեք դասի տեսակ — կատեգորիան էկրանին կհայտնվի միայն առնվազն մեկ փաթեթ կապելուց հետո։",
+      "noPackageCategoriesYet": "Դեռ փաթեթներ չկան։ Սեղմեք Add Package՝ առաջին պլանը ստեղծելու համար։",
       "noCategoriesSelected": "Փաթեթները դիտելու համար վերևից ընտրեք մեկ կամ մի քանի կատեգորիա։",
       "selectCategoryHint": "Փաթեթները դիտելու և կառավարելու համար վերևից ընտրեք այս կատեգորիան։",
       "tableSessions": "Սեսիաներ",
@@ -1718,6 +1735,8 @@
       "validityDays": "{count} օր",
       "validityMonths": "{count} ամիս",
       "rowActionsAria": "Փաթեթի գործողություններ",
+      "configurePricingAria": "Կարգավորել փաթեթի գինը",
+      "configurePricingButton": "Կարգավորել գինը",
       "cardSessions": "Սեսիաներ",
       "sessionsUnlimited": "Անսահմանա",
       "sessionsPerMonth": "{count} վճարման պարբերության համար",
@@ -1749,8 +1768,46 @@
         "updateSuccess": "Փաթեթը թարմացվեց։",
         "enabledSuccess": "Փաթեթը միացվեց։",
         "disabledSuccess": "Փաթեթը անջատվեց։",
-        "deleteSuccess": "Փաթեթը ջնջվեց։"
-      }
+        "deleteSuccess": "Փաթեթը ջնջվեց։",
+        "tierAddedSuccess": "Գնային տարբերակը ավելացվեց։"
+      },
+      "pricingTitle": "Գին և վճարում",
+      "pricingDescription": "Կառավարեք այս փաթեթի վճարման կարգավորումները։",
+      "categoryTooLong": "Կատեգորիայի անունը չափազանց երկար է։",
+      "fieldCategoryPlaceholder": "օր. Reformer, Mat",
+      "categoryLoading": "Կատեգորիաները բեռնվում են…",
+      "categorySearchLabel": "Որոնել կամ ստեղծել դասի կատեգորիա",
+      "categorySearchPlaceholder": "Որոնել կամ մուտքագրել նոր կատեգորիա",
+      "categoryNoMatches": "Համընկնումներ չկան։ Մուտքագրեք անունը նոր կատեգորիա ստեղծելու համար։",
+      "categoryCreateOption": "Ստեղծել «{name}»",
+      "categoryCreateHint": "Նոր կատեգորիան կստեղծվի, երբ պահպանեք այս փաթեթը։",
+      "renameCategoryTitle": "Խմբագրել կատեգորիան",
+      "renameCategoryDescription": "Անվանափոխումը կկիրառվի այս խմբի բոլոր փաթեթների վրա։",
+      "editCategoryDescription": "Անվանափոխումը կկիրառվի այս կատեգորիայի բոլոր {count} փաթեթի վրա։ Delete category-ն հեռացնում է կատեգորիան և դրանում եղած բոլոր փաթեթները։",
+      "editCategoryDescriptionEmpty": "Այս կատեգորիայում փաթեթներ չկան։",
+      "deleteCategoryButton": "Ջնջել կատեգորիան",
+      "deleteCategoryConfirm": "Ջնջե՞լ «{name}» կատեգորիան և դրա {count} փաթեթը։ Գործողությունը հետարկելի չէ։",
+      "deleteCategoryConfirmEmpty": "Հեռացնե՞լ դատարկ «{name}» կատեգորիան։",
+      "durationMonthsInvalid": "Մուտքագրեք ամիսների ամբողջ թիվ 1-ից 120-ի սահմաններում։",
+      "fieldDurationMonths": "Փաթեթի տևողություն (ամիս)",
+      "fieldDurationMonthsPlaceholder": "օր. 6",
+      "fieldDurationMonthsHint": "Ցուցադրվում է աղյուսակի «Session» սյունակում (1 ամիս = 30 օր)։",
+      "fieldGuestCount": "Հյուրեր",
+      "fieldGuestCountPlaceholder": "օր. 2",
+      "fieldGuestCountHint": "Այս փաթեթով թույլատրված հյուրերի առավելագույն քանակ (աղյուսակի Guests սյունակ)։",
+      "guestCountInvalid": "Մուտքագրեք հյուրերի ամբողջ թիվ 1-ից 99-ի սահմաններում։",
+      "savePricingButton": "Պահպանել գնի կարգավորումները",
+      "addTierTitle": "Ավելացնել գնային տարբերակ",
+      "addTierDescription": "Ավելացրեք seans-ների տարբերակ այս package-ում։",
+      "addTierButton": "Ավելացնել",
+      "addTierAria": "Ավելացնել գնային տարբերակ package-ում",
+      "addTierFormHeading": "Գնային տարբերակ",
+      "addTierFormDescription": "Seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը ցուցադրվում են ցանկում։",
+      "fieldSessionsCount": "Seans-ներ",
+      "fieldSessionsCountPlaceholder": "օր. 10",
+      "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
+      "fieldValidityHint": "Ցուցադրվում է Validity սյունակում (1 ամիս = 30 օր)։",
+      "saveTierButton": "Ավելացնել"
     },
     "packagePlans": {
       "title": "Աբոնեմենտային պլաններ",

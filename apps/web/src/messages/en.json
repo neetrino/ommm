@@ -206,10 +206,22 @@
       "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
       "footerIllustrationAlt": "Decorative wellness illustration",
       "footerLinks": [
-        { "href": "/contact", "label": "Privacy" },
-        { "href": "/contact", "label": "Terms" },
-        { "href": "/explore", "label": "Journal" },
-        { "href": "/contact", "label": "Contact" }
+        {
+          "href": "/contact",
+          "label": "Privacy"
+        },
+        {
+          "href": "/contact",
+          "label": "Terms"
+        },
+        {
+          "href": "/explore",
+          "label": "Journal"
+        },
+        {
+          "href": "/contact",
+          "label": "Contact"
+        }
       ]
     }
   },
@@ -1631,11 +1643,11 @@
     },
     "packages": {
       "title": "Packages",
-      "description": "Package configuration is not available in this release.",
+      "description": "Membership plans, pricing, and packages shown on the public site.",
       "emptyState": "No package configuration available yet.",
       "errorAuth": "Studio admin sign-in required.",
       "errorLoad": "Could not load packages ({status}).",
-      "addPackageButton": "Add package",
+      "addPackageButton": "Add Package",
       "addClassTypeButton": "Add class type",
       "createTitle": "Add package",
       "createDescription": "Create a public membership plan for Home, Packages, and member checkout.",
@@ -1654,7 +1666,8 @@
         "weekly": "Weekly",
         "monthly": "Monthly",
         "quarterly": "Quarterly",
-        "yearly": "Yearly"
+        "yearly": "Yearly",
+        "session": "Per session"
       },
       "fieldPeriodDays": "Billing cycle (days)",
       "fieldFeatures": "Features",
@@ -1683,6 +1696,10 @@
         "visibility": {
           "heading": "Visibility",
           "description": "Popular badge and active status"
+        },
+        "session": {
+          "heading": "Session",
+          "description": "How long the package lasts for the member"
         }
       },
       "nameRequired": "Package name is required.",
@@ -1720,7 +1737,7 @@
       "editCategory": "Edit category",
       "categoryEmpty": "No membership packages are linked to this class category yet.",
       "noClassTypesInStudio": "No class types exist yet. Create them under Schedule → Class types, then add packages here.",
-      "noPackageCategoriesYet": "No packages yet. Use Add package and choose a class type when you are ready — categories appear here only after at least one package is linked.",
+      "noPackageCategoriesYet": "No packages yet. Click Add Package to create your first plan.",
       "noCategoriesSelected": "Select one or more categories above to view their packages.",
       "selectCategoryHint": "Select this category above to view and manage its packages.",
       "tableSessions": "Sessions",
@@ -1731,6 +1748,8 @@
       "validityDays": "{count} Days",
       "validityMonths": "{count} Months",
       "rowActionsAria": "Package actions",
+      "configurePricingAria": "Configure package pricing",
+      "configurePricingButton": "Configure pricing",
       "cardSessions": "Sessions",
       "sessionsUnlimited": "Unlimited",
       "sessionsPerMonth": "{count} per billing period",
@@ -1762,8 +1781,46 @@
         "updateSuccess": "Package updated.",
         "enabledSuccess": "Package enabled.",
         "disabledSuccess": "Package disabled.",
-        "deleteSuccess": "Package deleted."
-      }
+        "deleteSuccess": "Package deleted.",
+        "tierAddedSuccess": "Pricing option added."
+      },
+      "pricingTitle": "Pricing & Billing",
+      "pricingDescription": "Manage billing settings for this package.",
+      "categoryTooLong": "Category name is too long.",
+      "fieldCategoryPlaceholder": "e.g. Reformer, Mat",
+      "categoryLoading": "Loading categories…",
+      "categorySearchLabel": "Search or create a class category",
+      "categorySearchPlaceholder": "Search or type a new category",
+      "categoryNoMatches": "No matching categories. Type a name to create one.",
+      "categoryCreateOption": "Create \"{name}\"",
+      "categoryCreateHint": "A new category is created when you save this package.",
+      "renameCategoryTitle": "Edit category",
+      "renameCategoryDescription": "Renames this category for all packages in the group.",
+      "editCategoryDescription": "Rename applies to all {count} packages in this category. Delete removes the category and every package in it.",
+      "editCategoryDescriptionEmpty": "This category has no packages. You can close or delete the empty category.",
+      "deleteCategoryButton": "Delete category",
+      "deleteCategoryConfirm": "Delete category \"{name}\" and all {count} packages in it? This cannot be undone.",
+      "deleteCategoryConfirmEmpty": "Remove empty category \"{name}\"?",
+      "durationMonthsInvalid": "Enter a whole number of months from 1 to 120.",
+      "fieldDurationMonths": "Package duration (months)",
+      "fieldDurationMonthsPlaceholder": "e.g. 6",
+      "fieldDurationMonthsHint": "Shown in the packages table in the Session column (1 month = 30 days).",
+      "fieldGuestCount": "Guests",
+      "fieldGuestCountPlaceholder": "e.g. 2",
+      "fieldGuestCountHint": "Maximum guests allowed on this package (shown in the Guests column).",
+      "guestCountInvalid": "Enter a whole number of guests from 1 to 99.",
+      "savePricingButton": "Save pricing",
+      "addTierTitle": "Add pricing option",
+      "addTierDescription": "Add a session bundle to this package.",
+      "addTierButton": "Add option",
+      "addTierAria": "Add pricing option to package",
+      "addTierFormHeading": "Pricing option",
+      "addTierFormDescription": "Session count, price, validity, and guest limit appear in the package list.",
+      "fieldSessionsCount": "Sessions",
+      "fieldSessionsCountPlaceholder": "e.g. 10",
+      "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
+      "fieldValidityHint": "Shown in the Validity column (1 month = 30 days).",
+      "saveTierButton": "Add option"
     },
     "packagePlans": {
       "title": "Membership plans",

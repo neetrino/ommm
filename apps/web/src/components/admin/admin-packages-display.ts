@@ -21,7 +21,19 @@ export function formatPackageValidityLabel(
   return labels.days(pkg.periodDays);
 }
 
-/** Price per month (Session column) — total price divided by package duration in months. */
+/** Session count for the packages table; null when unset. */
+export function formatPackageSessionsLabel(pkg: AdminPackageRow): number | null {
+  if (pkg.isUnlimited) {
+    return null;
+  }
+  const sessions = pkg.sessionsPerMonth;
+  if (sessions !== null && sessions > 0) {
+    return sessions;
+  }
+  return null;
+}
+
+/** Price per session — total price divided by session count when available. */
 export function formatPackagePricePerSession(
   pkg: AdminPackageRow,
   locale: string,
@@ -29,13 +41,13 @@ export function formatPackagePricePerSession(
   if (pkg.isUnlimited) {
     return null;
   }
-  const months = resolvePackageDurationMonths(pkg.periodDays);
-  if (months >= 1) {
-    return formatAmdFromCents(Math.round(pkg.priceCents / months), locale);
-  }
   const sessions = pkg.sessionsPerMonth;
   if (sessions !== null && sessions >= MIN_SESSIONS_FOR_PER_SESSION_PRICE) {
     return formatAmdFromCents(Math.round(pkg.priceCents / sessions), locale);
+  }
+  const months = resolvePackageDurationMonths(pkg.periodDays);
+  if (months >= 1) {
+    return formatAmdFromCents(Math.round(pkg.priceCents / months), locale);
   }
   return null;
 }

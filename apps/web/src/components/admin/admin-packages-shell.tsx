@@ -24,6 +24,7 @@ import {
   PACKAGE_EDIT_QUERY_KEY,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
+  PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
 } from "@/components/admin/admin-packages-url";
@@ -36,6 +37,7 @@ type AdminPackagesShellProps = {
   children: ReactNode;
   packages: readonly AdminPackageRow[];
   categoryOptions: readonly AdminPackagesCategoryOption[];
+  defaultCategoryName?: string;
   onPackageCreated?: (saved: AdminPackageRow) => void;
   onPackageUpdated?: (saved: AdminPackageRow) => void;
 };
@@ -45,6 +47,7 @@ export function AdminPackagesShell({
   children,
   packages,
   categoryOptions,
+  defaultCategoryName = "",
   onPackageCreated,
   onPackageUpdated,
 }: AdminPackagesShellProps) {
@@ -61,14 +64,26 @@ export function AdminPackagesShell({
   const isCreateModalOpen = searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_CREATE_VALUE;
   const editingPackageId = searchParams.get(PACKAGE_EDIT_QUERY_KEY);
   const pricingPackageId = searchParams.get(PACKAGE_PRICING_QUERY_KEY);
+  const categoryIdFromQuery = searchParams.get(PACKAGE_CATEGORY_QUERY_KEY);
+  const addTierCategoryName = categoryIdFromQuery?.trim() ?? "";
+  const isAddTierModalOpen =
+    searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_ADD_TIER_VALUE &&
+    addTierCategoryName.length > 0;
   const isPricingModalOpen =
     searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_PRICING_VALUE &&
     pricingPackageId !== null &&
     packages.some((pkg) => pkg.id === pricingPackageId);
   const isEditModalOpen =
     editingPackageId !== null && packages.some((pkg) => pkg.id === editingPackageId);
-  const isModalOpen = isCreateModalOpen || isEditModalOpen || isPricingModalOpen;
-  const modalMode = isEditModalOpen ? "edit" : isPricingModalOpen ? "pricing" : "create";
+  const isModalOpen =
+    isCreateModalOpen || isEditModalOpen || isPricingModalOpen || isAddTierModalOpen;
+  const modalMode = isEditModalOpen
+    ? "edit"
+    : isPricingModalOpen
+      ? "pricing"
+      : isAddTierModalOpen
+        ? "add-tier"
+        : "create";
   const editingPackage =
     isEditModalOpen && editingPackageId !== null
       ? packages.find((pkg) => pkg.id === editingPackageId)
@@ -77,13 +92,38 @@ export function AdminPackagesShell({
     isPricingModalOpen && pricingPackageId !== null
       ? packages.find((pkg) => pkg.id === pricingPackageId)
       : undefined;
-  const categoryIdFromQuery = searchParams.get(PACKAGE_CATEGORY_QUERY_KEY);
+  const addTierShellPlan =
+    isAddTierModalOpen && pricingPackageId !== null
+      ? packages.find((pkg) => pkg.id === pricingPackageId && pkg.priceCents <= 0)
+      : undefined;
+  const addTierCategoryAnchor = useMemo(() => {
+    if (!isAddTierModalOpen) {
+      return undefined;
+    }
+    const categoryKey = normalizePackageCategoryKey(addTierCategoryName);
+    return packages.find(
+      (pkg) => normalizePackageCategoryKey(pkg.categoryName) === categoryKey,
+    );
+  }, [addTierCategoryName, isAddTierModalOpen, packages]);
+  const configuredTierCount = useMemo(() => {
+    if (!isAddTierModalOpen) {
+      return 0;
+    }
+    const categoryKey = normalizePackageCategoryKey(addTierCategoryName);
+    return packages.filter(
+      (pkg) =>
+        normalizePackageCategoryKey(pkg.categoryName) === categoryKey && pkg.priceCents > 0,
+    ).length;
+  }, [addTierCategoryName, isAddTierModalOpen, packages]);
   const initialCategoryName = useMemo(() => {
     if (editingPackage !== undefined && editingPackage.categoryName.trim().length > 0) {
       return editingPackage.categoryName.trim();
     }
     if (pricingPackage !== undefined && pricingPackage.categoryName.trim().length > 0) {
       return pricingPackage.categoryName.trim();
+    }
+    if (categoryIdFromQuery !== null && categoryIdFromQuery.trim().length > 0) {
+      return categoryIdFromQuery.trim();
     }
     if (
       categoryIdFromQuery !== null &&
@@ -97,8 +137,8 @@ export function AdminPackagesShell({
       );
       return matched?.id ?? categoryIdFromQuery;
     }
-    return categoryOptions[0]?.id ?? "";
-  }, [categoryIdFromQuery, categoryOptions, editingPackage, pricingPackage]);
+    return categoryOptions[0]?.id ?? defaultCategoryName;
+  }, [categoryIdFromQuery, categoryOptions, defaultCategoryName, editingPackage, pricingPackage]);
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -122,22 +162,32 @@ export function AdminPackagesShell({
 
   const onCreated = useCallback(
     (saved: AdminPackageRow) => {
-      closeModal();
       onPackageCreated?.(saved);
       showSuccessBanner(t("messages.createSuccess"));
-      router.refresh();
+      const params = new URLSearchParams(searchParams.toString());
+      clearPackageModalQueryKeys(params);
+      router.replace(buildPackagesPathname(pathname, params));
+      window.setTimeout(() => {
+        router.refresh();
+      }, 0);
     },
-    [closeModal, onPackageCreated, router, showSuccessBanner, t],
+    [onPackageCreated, pathname, router, searchParams, showSuccessBanner, t],
   );
 
   const onUpdated = useCallback(
     (saved: AdminPackageRow) => {
-      closeModal();
       onPackageUpdated?.(saved);
-      showSuccessBanner(t("messages.updateSuccess"));
-      router.refresh();
+      showSuccessBanner(
+        modalMode === "add-tier" ? t("messages.tierAddedSuccess") : t("messages.updateSuccess"),
+      );
+      const params = new URLSearchParams(searchParams.toString());
+      clearPackageModalQueryKeys(params);
+      router.replace(buildPackagesPathname(pathname, params));
+      window.setTimeout(() => {
+        router.refresh();
+      }, 0);
     },
-    [closeModal, onPackageUpdated, router, showSuccessBanner, t],
+    [modalMode, onPackageUpdated, pathname, router, searchParams, showSuccessBanner, t],
   );
 
   useEffect(() => {
@@ -161,13 +211,17 @@ export function AdminPackagesShell({
       ? t("editTitle")
       : modalMode === "pricing"
         ? t("pricingTitle")
-        : t("createTitle");
+        : modalMode === "add-tier"
+          ? t("addTierTitle")
+          : t("createTitle");
   const modalDescription =
     modalMode === "edit"
       ? t("editDescription")
       : modalMode === "pricing"
         ? t("pricingDescription")
-        : t("createDescription");
+        : modalMode === "add-tier"
+          ? t("addTierDescription")
+          : t("createDescription");
   const packageModalPanelClass =
     "mt-auto flex max-h-[min(92vh,760px)] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
@@ -231,12 +285,25 @@ export function AdminPackagesShell({
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
             <AdminPackageForm
               mode={modalMode}
-              packageId={modalMode === "pricing" ? pricingPackage?.id : editingPackage?.id}
+              packageId={
+                modalMode === "pricing"
+                  ? pricingPackage?.id
+                  : modalMode === "add-tier"
+                    ? addTierShellPlan?.id
+                    : editingPackage?.id
+              }
               initialCategoryName={initialCategoryName}
               categoryOptions={categoryOptions}
-              initialPackage={modalMode === "pricing" ? pricingPackage : editingPackage}
+              initialPackage={
+                modalMode === "pricing"
+                  ? pricingPackage
+                  : modalMode === "add-tier"
+                    ? addTierShellPlan ?? addTierCategoryAnchor
+                    : editingPackage
+              }
+              configuredTierCount={configuredTierCount}
               onSaved={(saved) => {
-                if (modalMode === "edit" || modalMode === "pricing") {
+                if (modalMode === "edit" || modalMode === "pricing" || modalMode === "add-tier") {
                   onUpdated(saved);
                 } else {
                   onCreated(saved);
