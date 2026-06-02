@@ -1,4 +1,4 @@
-import { MembershipStatus } from '@prisma/client';
+import { PackageStatus } from '@prisma/client';
 import { PackagesService } from './packages.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -9,12 +9,12 @@ describe('PackagesService', () => {
       payment: {
         create: jest.fn().mockResolvedValue({ id: 'p1' }),
       },
-      userMembership: {
+      userPackage: {
         findFirst: jest.fn(),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
-      membershipPlan: {
+      packagePlan: {
         findUnique: jest.fn(),
       },
     };
@@ -31,11 +31,11 @@ describe('PackagesService', () => {
     const now = Date.now();
     const periodStart = new Date(now - 5 * DAY_MS);
     const periodEnd = new Date(now + 10 * DAY_MS);
-    prisma.userMembership.findFirst.mockResolvedValue({
+    prisma.userPackage.findFirst.mockResolvedValue({
       id: 'm1',
       userId: 'u1',
       planId: 'old-plan',
-      status: MembershipStatus.ACTIVE,
+      status: PackageStatus.ACTIVE,
       currentPeriodStart: periodStart,
       currentPeriodEnd: periodEnd,
       plan: {
@@ -46,7 +46,7 @@ describe('PackagesService', () => {
         priceCents: 20_000,
       },
     });
-    prisma.membershipPlan.findUnique.mockResolvedValue({
+    prisma.packagePlan.findUnique.mockResolvedValue({
       id: 'new-plan',
       isActive: true,
       isUnlimited: false,
@@ -55,15 +55,15 @@ describe('PackagesService', () => {
       priceCents: 35_000,
       currency: 'AMD',
     });
-    prisma.userMembership.update.mockResolvedValue({
+    prisma.userPackage.update.mockResolvedValue({
       id: 'm1',
       planId: 'new-plan',
     });
 
     await service.changePlan('u1', 'm1', 'new-plan');
 
-    expect(prisma.userMembership.update).toHaveBeenCalled();
-    const firstUpdateCall = prisma.userMembership.update.mock.calls[0] as [
+    expect(prisma.userPackage.update).toHaveBeenCalled();
+    const firstUpdateCall = prisma.userPackage.update.mock.calls[0] as [
       {
         data: {
           currentPeriodStart: Date;
@@ -103,11 +103,11 @@ describe('PackagesService', () => {
   it('resets cycle when changing plan outside active period', async () => {
     const { service, prisma, audit } = createService();
     const now = Date.now();
-    prisma.userMembership.findFirst.mockResolvedValue({
+    prisma.userPackage.findFirst.mockResolvedValue({
       id: 'm2',
       userId: 'u1',
       planId: 'old-plan',
-      status: MembershipStatus.PAUSED,
+      status: PackageStatus.PAUSED,
       currentPeriodStart: new Date(now - 20 * DAY_MS),
       currentPeriodEnd: new Date(now + 10 * DAY_MS),
       plan: {
@@ -118,7 +118,7 @@ describe('PackagesService', () => {
         priceCents: 20_000,
       },
     });
-    prisma.membershipPlan.findUnique.mockResolvedValue({
+    prisma.packagePlan.findUnique.mockResolvedValue({
       id: 'new-plan',
       isActive: true,
       isUnlimited: false,
@@ -127,14 +127,14 @@ describe('PackagesService', () => {
       priceCents: 12_000,
       currency: 'AMD',
     });
-    prisma.userMembership.update.mockResolvedValue({
+    prisma.userPackage.update.mockResolvedValue({
       id: 'm2',
       planId: 'new-plan',
     });
 
     await service.changePlan('u1', 'm2', 'new-plan');
 
-    const secondUpdateCall = prisma.userMembership.update.mock.calls[0] as [
+    const secondUpdateCall = prisma.userPackage.update.mock.calls[0] as [
       {
         data: {
           currentPeriodStart: Date;
@@ -169,11 +169,11 @@ describe('PackagesService', () => {
   it('creates credit adjustment when active plan change is a downgrade', async () => {
     const { service, prisma } = createService();
     const now = Date.now();
-    prisma.userMembership.findFirst.mockResolvedValue({
+    prisma.userPackage.findFirst.mockResolvedValue({
       id: 'm3',
       userId: 'u1',
       planId: 'old-plan',
-      status: MembershipStatus.ACTIVE,
+      status: PackageStatus.ACTIVE,
       currentPeriodStart: new Date(now - 10 * DAY_MS),
       currentPeriodEnd: new Date(now + 10 * DAY_MS),
       plan: {
@@ -184,7 +184,7 @@ describe('PackagesService', () => {
         priceCents: 30_000,
       },
     });
-    prisma.membershipPlan.findUnique.mockResolvedValue({
+    prisma.packagePlan.findUnique.mockResolvedValue({
       id: 'new-plan',
       isActive: true,
       isUnlimited: false,
@@ -193,7 +193,7 @@ describe('PackagesService', () => {
       priceCents: 15_000,
       currency: 'AMD',
     });
-    prisma.userMembership.update.mockResolvedValue({
+    prisma.userPackage.update.mockResolvedValue({
       id: 'm3',
       planId: 'new-plan',
     });

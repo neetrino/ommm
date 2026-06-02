@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   BookingStatus,
-  MembershipStatus,
+  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -28,7 +28,7 @@ const NEW_CLIENT_DAYS = 30;
 const INACTIVE_CLIENT_DAYS = 30;
 
 const clientInclude = Prisma.validator<Prisma.UserInclude>()({
-  memberships: {
+  userPackages: {
     include: { plan: true },
     orderBy: { createdAt: 'desc' },
     take: 20,
@@ -94,9 +94,9 @@ export class ClientsService {
         : {}),
       ...(query.package === AdminClientPackageFilter.ACTIVE
         ? {
-            memberships: {
+            userPackages: {
               some: {
-                status: MembershipStatus.ACTIVE,
+                status: PackageStatus.ACTIVE,
                 currentPeriodEnd: { gt: new Date() },
               },
             },
@@ -104,9 +104,9 @@ export class ClientsService {
         : {}),
       ...(query.package === AdminClientPackageFilter.INACTIVE
         ? {
-            memberships: {
+            userPackages: {
               none: {
-                status: MembershipStatus.ACTIVE,
+                status: PackageStatus.ACTIVE,
                 currentPeriodEnd: { gt: new Date() },
               },
             },
@@ -322,7 +322,7 @@ export class ClientsService {
       status: this.getClientStatus(user),
       source: this.getSource(user),
       preferredCoach,
-      packages: user.memberships,
+      packages: user.userPackages,
       activePackage,
       packageType: this.getPackageType(activePackage),
       paymentBehavior,
@@ -356,9 +356,9 @@ export class ClientsService {
   private getActivePackage(user: ClientRecord) {
     const now = new Date();
     return (
-      user.memberships.find(
+      user.userPackages.find(
         (membership) =>
-          membership.status === MembershipStatus.ACTIVE &&
+          membership.status === PackageStatus.ACTIVE &&
           membership.currentPeriodEnd > now,
       ) ?? null
     );
@@ -394,8 +394,8 @@ export class ClientsService {
       return 'Blocked';
     }
     if (
-      user.memberships.some(
-        (membership) => membership.status === MembershipStatus.PAUSED,
+      user.userPackages.some(
+        (membership) => membership.status === PackageStatus.PAUSED,
       )
     ) {
       return 'Frozen';
@@ -410,13 +410,13 @@ export class ClientsService {
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     )[0];
     if (!firstBooking) {
-      return user.memberships.length > 0 ? 'admin' : null;
+      return user.userPackages.length > 0 ? 'admin' : null;
     }
     return firstBooking.channel === 'APP' ? 'mobile-app' : 'website';
   }
 
   private getPackageType(
-    userPackage: ClientRecord['memberships'][number] | null,
+    userPackage: ClientRecord['userPackages'][number] | null,
   ): 'single-class' | 'monthly-package' | 'vip-package' | null {
     if (!userPackage) {
       return 'single-class';
@@ -487,7 +487,7 @@ export class ClientsService {
     const createdMs = params.user.createdAt.getTime();
     const isNew =
       Date.now() - createdMs <= NEW_CLIENT_DAYS * 24 * 60 * 60 * 1000;
-    const hasVip = params.user.memberships.some((membership) =>
+    const hasVip = params.user.userPackages.some((membership) =>
       `${membership.plan.name} ${membership.plan.slug}`
         .toLowerCase()
         .includes('vip'),

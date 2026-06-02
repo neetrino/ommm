@@ -1629,8 +1629,11 @@
       "addClassTypeButton": "Добавить тип класса",
       "createTitle": "Добавить пакет",
       "createDescription": "Создайте публичный тариф для Home, Пакетов и оплаты участниками.",
+      "editTitle": "Редактировать пакет",
+      "editDescription": "Обновите этот пакет для выбранной категории занятий.",
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть диалог",
+      "fieldCategory": "Категория занятия",
       "fieldName": "Название пакета",
       "fieldDescription": "Описание",
       "fieldPrice": "Цена",
@@ -1672,6 +1675,7 @@
         }
       },
       "nameRequired": "Название пакета обязательно.",
+      "categoryRequired": "Выберите категорию занятия.",
       "nameTooLong": "Название пакета слишком длинное.",
       "descriptionTooLong": "Описание слишком длинное.",
       "priceInvalid": "Введите корректную цену.",
@@ -1682,6 +1686,7 @@
       "buttonLabelInvalid": "Введите корректный текст кнопки.",
       "displayOrderInvalid": "Порядок отображения должен быть 0 или больше.",
       "saveButton": "Сохранить",
+      "createButton": "Создать пакет",
       "savingButton": "Сохранение...",
       "cancelButton": "Отмена",
       "colName": "Пакет",
@@ -1695,6 +1700,7 @@
       "popularBadge": "Популярный",
       "disableButton": "Отключить",
       "enableButton": "Включить",
+      "editButton": "Редактировать",
       "deleteButton": "Удалить",
       "deleteConfirm": "Удалить этот пакет?",
       "noFeatures": "Преимущества пока не указаны.",
@@ -1740,6 +1746,7 @@
       },
       "messages": {
         "createSuccess": "Пакет создан.",
+        "updateSuccess": "Пакет обновлён.",
         "enabledSuccess": "Пакет включён.",
         "disabledSuccess": "Пакет отключён.",
         "deleteSuccess": "Пакет удалён."

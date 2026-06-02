@@ -17,6 +17,7 @@ type MenuPosition = {
 type AdminPackageRowMenuProps = {
   packageId: string;
   isActive: boolean;
+  onEdit: () => void;
 };
 
 function MoreGlyph() {
@@ -35,7 +36,7 @@ function MoreGlyph() {
   );
 }
 
-export function AdminPackageRowMenu({ packageId, isActive }: AdminPackageRowMenuProps) {
+export function AdminPackageRowMenu({ packageId, isActive, onEdit }: AdminPackageRowMenuProps) {
   const t = useTranslations("adminPages.packages");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -152,6 +153,18 @@ export function AdminPackageRowMenu({ packageId, isActive }: AdminPackageRowMenu
               transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
             }}
           >
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full px-4 py-2 text-left text-sm text-sage-800 transition-colors hover:bg-sand-50/80"
+              disabled={pending}
+              onClick={() => {
+                setOpen(false);
+                onEdit();
+              }}
+            >
+              {t("editButton")}
+            </button>
             <button
               type="button"
               role="menuitem"

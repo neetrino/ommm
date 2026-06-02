@@ -85,4 +85,9 @@ export class CreatePlanDto {
   @IsString()
   @MaxLength(120)
   stripePriceId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  classTypeId?: string;
 }

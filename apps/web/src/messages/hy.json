@@ -1625,8 +1625,11 @@
       "addClassTypeButton": "Ավելացնել դասի տեսակ",
       "createTitle": "Ավելացնել փաթեթ",
       "createDescription": "Ստեղծեք հանրային աբոնեմենտ Home, Փաթեթներ և անդամների վճարման համար։",
+      "editTitle": "Խմբագրել փաթեթ",
+      "editDescription": "Թարմացրեք այս փաթեթը ընտրված դասի կատեգորիայի համար։",
       "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պատուհանը",
+      "fieldCategory": "Դասի կատեգորիա",
       "fieldName": "Փաթեթի անվանում",
       "fieldDescription": "Նկարագրություն",
       "fieldPrice": "Գին",
@@ -1668,6 +1671,7 @@
         }
       },
       "nameRequired": "Փաթեթի անվանումը պարտադիր է։",
+      "categoryRequired": "Ընտրեք դասի կատեգորիա։",
       "nameTooLong": "Փաթեթի անվանումը չափազանց երկար է։",
       "descriptionTooLong": "Նկարագրությունը չափազանց երկար է։",
       "priceInvalid": "Մուտքագրեք վավեր գին։",
@@ -1678,6 +1682,7 @@
       "buttonLabelInvalid": "Մուտքագրեք վավեր կոճակի տեքստ։",
       "displayOrderInvalid": "Ցուցադրման հերթականությունը պետք է լինի 0 կամ ավելի։",
       "saveButton": "Պահպանել",
+      "createButton": "Ստեղծել փաթեթ",
       "savingButton": "Պահպանում...",
       "cancelButton": "Չեղարկել",
       "colName": "Փաթեթ",
@@ -1691,6 +1696,7 @@
       "popularBadge": "Հանրաճանաչ",
       "disableButton": "Անջատել",
       "enableButton": "Միացնել",
+      "editButton": "Խմբագրել",
       "deleteButton": "Ջնջել",
       "deleteConfirm": "Ջնջե՞լ այս փաթեթը։",
       "noFeatures": "Առավելություններ դեռ նշված չեն։",
@@ -1736,6 +1742,7 @@
       },
       "messages": {
         "createSuccess": "Փաթեթը ստեղծվեց։",
+        "updateSuccess": "Փաթեթը թարմացվեց։",
         "enabledSuccess": "Փաթեթը միացվեց։",
         "disabledSuccess": "Փաթեթը անջատվեց։",
         "deleteSuccess": "Փաթեթը ջնջվեց։"

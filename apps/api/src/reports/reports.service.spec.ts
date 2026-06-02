@@ -41,7 +41,7 @@ describe('ReportsService', () => {
       waitlistEntry: {
         count: jest.fn().mockResolvedValue(6),
       },
-      userMembership: {
+      userPackage: {
         count: jest.fn().mockResolvedValue(120),
       },
       payment: {
@@ -115,7 +115,7 @@ describe('ReportsService', () => {
         count: jest.fn().mockResolvedValue(0),
         groupBy: jest.fn().mockResolvedValue([]),
       },
-      userMembership: {
+      userPackage: {
         count: jest.fn().mockResolvedValue(0),
         findMany: jest.fn().mockResolvedValue([]),
       },

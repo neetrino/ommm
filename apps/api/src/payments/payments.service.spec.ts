@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import {
   ManualPaymentMethod,
-  MembershipStatus,
+  PackageStatus,
   PaymentStatus,
 } from '@prisma/client';
 import { PaymentsService } from './payments.service';
@@ -20,10 +20,10 @@ describe('PaymentsService', () => {
         findUnique: jest.fn(),
         count: jest.fn().mockResolvedValue(0),
       },
-      membershipPlan: {
+      packagePlan: {
         findUnique: jest.fn(),
       },
-      userMembership: {
+      userPackage: {
         findFirst: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
@@ -95,7 +95,7 @@ describe('PaymentsService', () => {
 
   it('createManualPackagePayment creates pending payment and membership', async () => {
     const { service, prisma } = createService();
-    prisma.membershipPlan.findUnique.mockResolvedValue({
+    prisma.packagePlan.findUnique.mockResolvedValue({
       id: 'plan1',
       name: 'Monthly',
       isActive: true,
@@ -105,9 +105,9 @@ describe('PaymentsService', () => {
       isUnlimited: false,
       sessionsPerMonth: 8,
     });
-    prisma.userMembership.findFirst.mockResolvedValue(null);
+    prisma.userPackage.findFirst.mockResolvedValue(null);
     prisma.payment.findFirst.mockResolvedValue(null);
-    prisma.userMembership.create.mockResolvedValue({ id: 'm1' });
+    prisma.userPackage.create.mockResolvedValue({ id: 'm1' });
     prisma.payment.create.mockResolvedValue({
       id: 'pay1',
       paymentMethod: ManualPaymentMethod.CASH,
@@ -121,10 +121,10 @@ describe('PaymentsService', () => {
       ManualPaymentMethod.CASH,
     );
 
-    expect(prisma.userMembership.create).toHaveBeenCalledWith(
+    expect(prisma.userPackage.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: MembershipStatus.PENDING,
+          status: PackageStatus.PENDING,
           userId: 'u1',
           planId: 'plan1',
         }),
@@ -135,7 +135,7 @@ describe('PaymentsService', () => {
 
   it('createManualPackagePayment rejects duplicate pending request', async () => {
     const { service, prisma } = createService();
-    prisma.membershipPlan.findUnique.mockResolvedValue({
+    prisma.packagePlan.findUnique.mockResolvedValue({
       id: 'plan1',
       isActive: true,
       priceCents: 1000,
@@ -144,7 +144,7 @@ describe('PaymentsService', () => {
       isUnlimited: true,
       sessionsPerMonth: null,
     });
-    prisma.userMembership.findFirst.mockResolvedValue(null);
+    prisma.userPackage.findFirst.mockResolvedValue(null);
     prisma.payment.findFirst.mockResolvedValue({ id: 'existing' });
 
     await expect(

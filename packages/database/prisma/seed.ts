@@ -72,7 +72,7 @@ async function main(): Promise<void> {
     });
   }
 
-  await prisma.membershipPlan.upsert({
+  await prisma.packagePlan.upsert({
     where: { slug: "monthly-8" },
     update: {},
     create: {

@@ -3,7 +3,7 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
-  MembershipStatus,
+  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -73,7 +73,7 @@ export class ReportsService {
       this.prisma.waitlistEntry.count({
         where: { status: 'ACTIVE' },
       }),
-      this.prisma.userMembership.count({
+      this.prisma.userPackage.count({
         where: { status: 'ACTIVE', currentPeriodEnd: { gt: new Date() } },
       }),
       includeRevenue
@@ -190,9 +190,9 @@ export class ReportsService {
         orderBy: [{ session: { startsAt: 'asc' } }, { cancelledAt: 'desc' }],
         take: UPCOMING_ITEMS_LIMIT,
       }),
-      this.prisma.userMembership.findMany({
+      this.prisma.userPackage.findMany({
         where: {
-          status: MembershipStatus.CANCELLED,
+          status: PackageStatus.CANCELLED,
           currentPeriodEnd: { gte: now },
         },
         include: {
@@ -888,7 +888,7 @@ export class ReportsService {
         },
         select: { amountCents: true, createdAt: true, description: true },
       }),
-      this.prisma.userMembership.findMany({
+      this.prisma.userPackage.findMany({
         where: {
           userId,
           createdAt: { lte: range.to },

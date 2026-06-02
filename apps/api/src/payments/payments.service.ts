@@ -12,7 +12,7 @@ import {
   ClassSessionStatus,
   GiftCardStatus,
   ManualPaymentMethod,
-  MembershipStatus,
+  PackageStatus,
   Prisma,
   PaymentStatus,
 } from '@prisma/client';
@@ -85,7 +85,7 @@ export class PaymentsService {
     userId: string,
     planId: string,
   ): Promise<{ url: string | null }> {
-    const plan = await this.prisma.membershipPlan.findUnique({
+    const plan = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
     });
     if (!plan?.isActive) {
@@ -262,7 +262,7 @@ export class PaymentsService {
     if (!userId || !planId) {
       return;
     }
-    const plan = await this.prisma.membershipPlan.findUnique({
+    const plan = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
     });
     if (!plan) {
@@ -278,11 +278,11 @@ export class PaymentsService {
     const sessionsRemaining = plan.isUnlimited
       ? null
       : (plan.sessionsPerMonth ?? 0);
-    await this.prisma.userMembership.create({
+    await this.prisma.userPackage.create({
       data: {
         userId,
         planId,
-        status: MembershipStatus.ACTIVE,
+        status: PackageStatus.ACTIVE,
         sessionsRemaining,
         currentPeriodStart: start,
         currentPeriodEnd: end,
@@ -418,18 +418,18 @@ export class PaymentsService {
     planId: string,
     paymentMethod: ManualPaymentMethod,
   ) {
-    const plan = await this.prisma.membershipPlan.findUnique({
+    const plan = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
     });
     if (!plan?.isActive) {
       throw new BadRequestException('Plan not available');
     }
 
-    const activeSamePlan = await this.prisma.userMembership.findFirst({
+    const activeSamePlan = await this.prisma.userPackage.findFirst({
       where: {
         userId,
         planId,
-        status: MembershipStatus.ACTIVE,
+        status: PackageStatus.ACTIVE,
       },
     });
     if (activeSamePlan) {
@@ -457,11 +457,11 @@ export class PaymentsService {
       ? null
       : (plan.sessionsPerMonth ?? 0);
 
-    const membership = await this.prisma.userMembership.create({
+    const membership = await this.prisma.userPackage.create({
       data: {
         userId,
         planId,
-        status: MembershipStatus.PENDING,
+        status: PackageStatus.PENDING,
         sessionsRemaining,
         currentPeriodStart: start,
         currentPeriodEnd: end,
@@ -472,7 +472,7 @@ export class PaymentsService {
       data: {
         userId,
         planId,
-        membershipId: membership.id,
+        userPackageId: membership.id,
         paymentMethod,
         amountCents: plan.priceCents,
         currency: plan.currency.toLowerCase(),
@@ -494,7 +494,7 @@ export class PaymentsService {
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
-        membership: { include: { plan: true } },
+        userPackage: { include: { plan: true } },
         plan: true,
       },
     });
@@ -509,7 +509,7 @@ export class PaymentsService {
     }
 
     if (status === PaymentStatus.SUCCEEDED) {
-      const plan = payment.plan ?? payment.membership?.plan;
+      const plan = payment.plan ?? payment.userPackage?.plan;
       if (!plan) {
         throw new BadRequestException('Plan not found for payment');
       }
@@ -525,12 +525,12 @@ export class PaymentsService {
           where: { id: paymentId },
           data: { status: PaymentStatus.SUCCEEDED },
         }),
-        ...(payment.membershipId
+        ...(payment.userPackageId
           ? [
-              this.prisma.userMembership.update({
-                where: { id: payment.membershipId },
+              this.prisma.userPackage.update({
+                where: { id: payment.userPackageId },
                 data: {
-                  status: MembershipStatus.ACTIVE,
+                  status: PackageStatus.ACTIVE,
                   currentPeriodStart: start,
                   currentPeriodEnd: end,
                   sessionsRemaining,
@@ -545,11 +545,11 @@ export class PaymentsService {
           where: { id: paymentId },
           data: { status: PaymentStatus.FAILED },
         }),
-        ...(payment.membershipId
+        ...(payment.userPackageId
           ? [
-              this.prisma.userMembership.update({
-                where: { id: payment.membershipId },
-                data: { status: MembershipStatus.CANCELLED },
+              this.prisma.userPackage.update({
+                where: { id: payment.userPackageId },
+                data: { status: PackageStatus.CANCELLED },
               }),
             ]
           : []),

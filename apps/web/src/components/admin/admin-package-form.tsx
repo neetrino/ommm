@@ -5,59 +5,96 @@ import { useRef, useState } from "react";
 import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
 import {
   BILLING_PERIOD_OPTIONS,
+  createEmptyPackageFormValues,
   isBillingPeriodOption,
   MAX_BILLING_PERIOD_LENGTH,
   MAX_BUTTON_LABEL_LENGTH,
   MAX_DESCRIPTION_LENGTH,
   MAX_FEATURES_LENGTH,
   MAX_NAME_LENGTH,
+  packageRowToFormValues,
   parsePriceToCents,
   preventNumberArrowStep,
+  type AdminPackageFormValues,
   type BillingPeriodOption,
 } from "@/components/admin/admin-package-form-utils";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
+export type AdminPackageFormMode = "create" | "edit";
+
+type CategoryOption = {
+  id: string;
+  label: string;
+};
+
 type AdminPackageFormProps = {
+  mode: AdminPackageFormMode;
+  packageId?: string;
+  initialClassTypeId: string;
+  categoryOptions: readonly CategoryOption[];
+  initialPackage?: AdminPackageRow;
   onSaved: () => void;
   onCancel: () => void;
 };
 
-export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
+function buildInitialValues(
+  mode: AdminPackageFormMode,
+  initialClassTypeId: string,
+  initialPackage?: AdminPackageRow,
+): AdminPackageFormValues {
+  if (mode === "edit" && initialPackage !== undefined) {
+    return packageRowToFormValues(initialPackage, initialClassTypeId);
+  }
+  return createEmptyPackageFormValues(initialClassTypeId);
+}
+
+export function AdminPackageForm({
+  mode,
+  packageId,
+  initialClassTypeId,
+  categoryOptions,
+  initialPackage,
+  onSaved,
+  onCancel,
+}: AdminPackageFormProps) {
   const t = useTranslations("adminPages.packages");
+  const formKey = mode === "edit" && packageId !== undefined ? `edit-${packageId}` : `create-${initialClassTypeId}`;
+  const [values, setValues] = useState<AdminPackageFormValues>(() =>
+    buildInitialValues(mode, initialClassTypeId, initialPackage),
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [billingPeriodValue, setBillingPeriodValue] = useState<BillingPeriodOption>("monthly");
   const submitLockRef = useRef(false);
+
   const billingPeriodOptions: readonly DropdownOption<BillingPeriodOption>[] = BILLING_PERIOD_OPTIONS.map(
     (option) => ({
       value: option,
       label: t(`billingPeriodOptions.${option}`),
     }),
   );
+  const categoryDropdownOptions: readonly DropdownOption<string>[] = categoryOptions.map((option) => ({
+    value: option.id,
+    label: option.label,
+  }));
+
+  function updateValues(patch: Partial<AdminPackageFormValues>) {
+    setValues((current) => ({ ...current, ...patch }));
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || submitLockRef.current) {
       return;
     }
-    const form = event.currentTarget;
-    const fd = new FormData(form);
-
-    const name = String(fd.get("name") ?? "").trim();
-    const description = String(fd.get("description") ?? "").trim();
-    const priceRaw = String(fd.get("price") ?? "");
-    const currency = "AMD";
-    const billingPeriod = String(fd.get("billingPeriod") ?? "").trim().toLowerCase();
-    const periodDaysRaw = String(fd.get("periodDays") ?? "").trim();
-    const featuresRaw = String(fd.get("features") ?? "").trim();
-    const buttonLabel = String(fd.get("buttonLabel") ?? "").trim();
-    const displayOrderRaw = String(fd.get("displayOrder") ?? "").trim();
-    const isPopular = fd.get("isPopular") === "on";
-    const isActive = fd.get("isActive") === "on";
 
     setError(null);
+
+    const name = values.name.trim();
+    const description = values.description.trim();
+    const classTypeId = values.classTypeId.trim();
 
     if (name.length === 0) {
       setError(t("nameRequired"));
@@ -71,11 +108,16 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
       setError(t("descriptionTooLong"));
       return;
     }
-    const priceCents = parsePriceToCents(priceRaw);
+    if (classTypeId.length === 0) {
+      setError(t("categoryRequired"));
+      return;
+    }
+    const priceCents = parsePriceToCents(values.price);
     if (priceCents === null) {
       setError(t("priceInvalid"));
       return;
     }
+    const billingPeriod = values.billingPeriod.trim().toLowerCase();
     if (
       billingPeriod.length === 0 ||
       billingPeriod.length > MAX_BILLING_PERIOD_LENGTH ||
@@ -84,51 +126,61 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
       setError(t("billingPeriodInvalid"));
       return;
     }
-    const periodDays = Number.parseInt(periodDaysRaw, 10);
+    const periodDays = Number.parseInt(values.periodDays, 10);
     if (!Number.isInteger(periodDays) || periodDays < 1) {
       setError(t("periodDaysInvalid"));
       return;
     }
-    if (featuresRaw.length > MAX_FEATURES_LENGTH) {
+    if (values.features.trim().length > MAX_FEATURES_LENGTH) {
       setError(t("featuresTooLong"));
       return;
     }
-    if (buttonLabel.length === 0 || buttonLabel.length > MAX_BUTTON_LABEL_LENGTH) {
+    if (values.buttonLabel.trim().length === 0 || values.buttonLabel.trim().length > MAX_BUTTON_LABEL_LENGTH) {
       setError(t("buttonLabelInvalid"));
       return;
     }
-    const displayOrder = Number.parseInt(displayOrderRaw, 10);
+    const displayOrder = Number.parseInt(values.displayOrder, 10);
     if (!Number.isInteger(displayOrder) || displayOrder < 0) {
       setError(t("displayOrderInvalid"));
       return;
     }
 
-    const features = featuresRaw
+    const features = values.features
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
+    const payload = {
+      name,
+      description: description.length > 0 ? description : null,
+      priceCents,
+      currency: "AMD",
+      isUnlimited: false,
+      sessionsPerMonth: 0,
+      periodDays,
+      billingPeriod,
+      features,
+      buttonLabel: values.buttonLabel.trim(),
+      isPopular: values.isPopular,
+      isActive: values.isActive,
+      displayOrder,
+      classTypeId,
+    };
+
     submitLockRef.current = true;
     setPending(true);
     try {
-      await apiFetch("/packages/plans", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          description: description.length > 0 ? description : null,
-          priceCents,
-          currency,
-          isUnlimited: false,
-          sessionsPerMonth: 0,
-          periodDays,
-          billingPeriod,
-          features,
-          buttonLabel,
-          isPopular,
-          isActive,
-          displayOrder,
-        }),
-      });
+      if (mode === "edit" && packageId !== undefined) {
+        await apiFetch(`/packages/plans/${packageId}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await apiFetch("/packages/plans", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      }
       onSaved();
     } catch (err) {
       if (err instanceof ApiError) {
@@ -146,6 +198,7 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
 
   return (
     <form
+      key={formKey}
       onSubmit={(ev) => {
         void onSubmit(ev);
       }}
@@ -156,12 +209,28 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
         description={t("formSections.details.description")}
       >
         <div className="flex flex-col gap-4">
+          {categoryOptions.length > 0 ? (
+            <label className="flex flex-col gap-1.5">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldCategory")}</span>
+              <DropdownSelect
+                label={t("fieldCategory")}
+                ariaLabel={t("fieldCategory")}
+                value={values.classTypeId}
+                options={categoryDropdownOptions}
+                onChange={(next) => updateValues({ classTypeId: next })}
+                required
+                disabled={pending}
+              />
+            </label>
+          ) : null}
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
             <input
               name="name"
               className="ommm-input"
               maxLength={MAX_NAME_LENGTH}
+              value={values.name}
+              onChange={(event) => updateValues({ name: event.target.value })}
               required
               disabled={pending}
             />
@@ -172,6 +241,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
               name="description"
               className="ommm-input min-h-24 resize-y"
               maxLength={MAX_DESCRIPTION_LENGTH}
+              value={values.description}
+              onChange={(event) => updateValues({ description: event.target.value })}
               disabled={pending}
             />
           </label>
@@ -196,6 +267,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
                 min={0}
                 step="0.01"
                 inputMode="decimal"
+                value={values.price}
+                onChange={(event) => updateValues({ price: event.target.value })}
                 onKeyDown={preventNumberArrowStep}
                 required
                 disabled={pending}
@@ -210,7 +283,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
               className="ommm-input"
               min={1}
               step={1}
-              defaultValue={30}
+              value={values.periodDays}
+              onChange={(event) => updateValues({ periodDays: event.target.value })}
               required
               disabled={pending}
             />
@@ -223,10 +297,9 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
             <DropdownSelect
               label={t("fieldBillingPeriod")}
               ariaLabel={t("fieldBillingPeriod")}
-              value={billingPeriodValue}
+              value={values.billingPeriod}
               options={billingPeriodOptions}
-              onChange={setBillingPeriodValue}
-              name="billingPeriod"
+              onChange={(next) => updateValues({ billingPeriod: next })}
               required
               disabled={pending}
             />
@@ -246,6 +319,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
               className="ommm-input min-h-28 resize-y"
               placeholder={t("featuresPlaceholder")}
               maxLength={MAX_FEATURES_LENGTH}
+              value={values.features}
+              onChange={(event) => updateValues({ features: event.target.value })}
               disabled={pending}
             />
           </label>
@@ -257,8 +332,9 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
               <input
                 name="buttonLabel"
                 className="ommm-input"
-                defaultValue="Choose plan"
                 maxLength={MAX_BUTTON_LABEL_LENGTH}
+                value={values.buttonLabel}
+                onChange={(event) => updateValues({ buttonLabel: event.target.value })}
                 required
                 disabled={pending}
               />
@@ -273,7 +349,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
                 className="ommm-input"
                 min={0}
                 step={1}
-                defaultValue={0}
+                value={values.displayOrder}
+                onChange={(event) => updateValues({ displayOrder: event.target.value })}
                 required
                 disabled={pending}
               />
@@ -292,6 +369,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
             <input
               type="checkbox"
               name="isPopular"
+              checked={values.isPopular}
+              onChange={(event) => updateValues({ isPopular: event.target.checked })}
               className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
               disabled={pending}
             />
@@ -304,7 +383,8 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
             <input
               type="checkbox"
               name="isActive"
-              defaultChecked
+              checked={values.isActive}
+              onChange={(event) => updateValues({ isActive: event.target.checked })}
               className="mt-0.5 h-4 w-4 shrink-0 rounded border-sage-300 text-sand-600 focus:ring-sand-500/30"
               disabled={pending}
             />
@@ -327,7 +407,7 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
           {t("cancelButton")}
         </OmmButton>
         <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
-          {pending ? t("savingButton") : t("saveButton")}
+          {pending ? t("savingButton") : mode === "edit" ? t("saveButton") : t("createButton")}
         </OmmButton>
       </div>
     </form>

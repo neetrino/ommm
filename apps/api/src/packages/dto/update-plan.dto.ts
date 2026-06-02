@@ -89,4 +89,9 @@ export class UpdatePlanDto {
   @IsInt()
   @Min(0)
   displayOrder?: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  classTypeId?: string;
 }

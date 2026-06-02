@@ -13,6 +13,7 @@ export type AdminPackageRow = {
   displayOrder: number;
   sessionsPerMonth: number | null;
   isUnlimited: boolean;
+  classTypeId: string | null;
   createdAt: string;
 };
 

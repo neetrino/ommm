@@ -8,7 +8,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { MembershipStatus, PaymentStatus, Prisma } from '@prisma/client';
+import { PackageStatus, PaymentStatus, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import {
   PUBLIC_CACHE_KEYS,
@@ -41,7 +41,7 @@ export class PackagesService {
 
   private async loadActivePlansFromDb() {
     try {
-      return await this.prisma.membershipPlan.findMany({
+      return await this.prisma.packagePlan.findMany({
         where: { isActive: true },
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
@@ -62,7 +62,7 @@ export class PackagesService {
 
   async listPlansAdmin() {
     try {
-      return await this.prisma.membershipPlan.findMany({
+      return await this.prisma.packagePlan.findMany({
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
     } catch (error) {
@@ -81,8 +81,11 @@ export class PackagesService {
 
   async createPlan(dto: CreatePlanDto) {
     const slug = this.resolveSlug(dto.name, dto.slug);
+    if (dto.classTypeId !== undefined) {
+      await this.assertClassTypeExists(dto.classTypeId);
+    }
     try {
-      const plan = await this.prisma.membershipPlan.create({
+      const plan = await this.prisma.packagePlan.create({
         data: {
           name: dto.name,
           slug,
@@ -99,6 +102,7 @@ export class PackagesService {
           isActive: dto.isActive ?? true,
           displayOrder: dto.displayOrder ?? 0,
           stripePriceId: dto.stripePriceId,
+          classTypeId: dto.classTypeId ?? null,
         },
       });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
@@ -121,6 +125,9 @@ export class PackagesService {
   async updatePlan(planId: string, dto: UpdatePlanDto) {
     if (dto.name === undefined && dto.slug !== undefined) {
       this.assertValidSlug(dto.slug);
+    }
+    if (dto.classTypeId !== undefined) {
+      await this.assertClassTypeExists(dto.classTypeId);
     }
     const data = {
       ...(dto.name !== undefined && { name: dto.name }),
@@ -147,6 +154,7 @@ export class PackagesService {
       }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       ...(dto.displayOrder !== undefined && { displayOrder: dto.displayOrder }),
+      ...(dto.classTypeId !== undefined && { classTypeId: dto.classTypeId }),
     };
     if (dto.name !== undefined && dto.slug === undefined) {
       Object.assign(data, { slug: this.resolveSlug(dto.name) });
@@ -161,7 +169,7 @@ export class PackagesService {
     }
     let updated;
     try {
-      updated = await this.prisma.membershipPlan.update({
+      updated = await this.prisma.packagePlan.update({
         where: { id: planId },
         data,
       });
@@ -175,7 +183,7 @@ export class PackagesService {
     }
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_UPDATED',
-      entityType: 'MembershipPlan',
+      entityType: 'PackagePlan',
       entityId: planId,
       payload: data,
     });
@@ -184,17 +192,17 @@ export class PackagesService {
   }
 
   async deletePlan(planId: string) {
-    const existing = await this.prisma.membershipPlan.findUnique({
+    const existing = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
       select: { id: true },
     });
     if (!existing) {
       throw new NotFoundException('Plan not found');
     }
-    await this.prisma.membershipPlan.delete({ where: { id: planId } });
+    await this.prisma.packagePlan.delete({ where: { id: planId } });
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_DELETED',
-      entityType: 'MembershipPlan',
+      entityType: 'PackagePlan',
       entityId: planId,
       payload: {},
     });
@@ -203,7 +211,7 @@ export class PackagesService {
   }
 
   async assignManual(userId: string, planId: string) {
-    const plan = await this.prisma.membershipPlan.findUnique({
+    const plan = await this.prisma.packagePlan.findUnique({
       where: { id: planId },
     });
     if (!plan) {
@@ -215,11 +223,11 @@ export class PackagesService {
     const sessionsRemaining = plan.isUnlimited
       ? null
       : (plan.sessionsPerMonth ?? 0);
-    return this.prisma.userMembership.create({
+    return this.prisma.userPackage.create({
       data: {
         userId,
         planId,
-        status: MembershipStatus.ACTIVE,
+        status: PackageStatus.ACTIVE,
         sessionsRemaining,
         currentPeriodStart: start,
         currentPeriodEnd: end,
@@ -230,7 +238,7 @@ export class PackagesService {
 
   listMine(userId: string) {
     return this.syncExpiredMemberships(userId).then(() =>
-      this.prisma.userMembership.findMany({
+      this.prisma.userPackage.findMany({
         where: { userId },
         include: { plan: true },
         orderBy: { createdAt: 'desc' },
@@ -238,44 +246,44 @@ export class PackagesService {
     );
   }
 
-  async pause(userId: string, membershipId: string) {
+  async pause(userId: string, userPackageId: string) {
     await this.syncExpiredMemberships(userId);
-    const m = await this.prisma.userMembership.findFirst({
-      where: { id: membershipId, userId },
+    const m = await this.prisma.userPackage.findFirst({
+      where: { id: userPackageId, userId },
     });
     if (!m) {
       throw new NotFoundException();
     }
-    return this.prisma.userMembership.update({
-      where: { id: membershipId },
-      data: { status: MembershipStatus.PAUSED },
+    return this.prisma.userPackage.update({
+      where: { id: userPackageId },
+      data: { status: PackageStatus.PAUSED },
     });
   }
 
-  async cancel(userId: string, membershipId: string) {
+  async cancel(userId: string, userPackageId: string) {
     await this.syncExpiredMemberships(userId);
-    const m = await this.prisma.userMembership.findFirst({
-      where: { id: membershipId, userId },
+    const m = await this.prisma.userPackage.findFirst({
+      where: { id: userPackageId, userId },
     });
     if (!m) {
       throw new NotFoundException();
     }
-    return this.prisma.userMembership.update({
-      where: { id: membershipId },
-      data: { status: MembershipStatus.CANCELLED },
+    return this.prisma.userPackage.update({
+      where: { id: userPackageId },
+      data: { status: PackageStatus.CANCELLED },
     });
   }
 
-  async renew(userId: string, membershipId: string) {
+  async renew(userId: string, userPackageId: string) {
     await this.syncExpiredMemberships(userId);
-    const membership = await this.prisma.userMembership.findFirst({
-      where: { id: membershipId, userId },
+    const membership = await this.prisma.userPackage.findFirst({
+      where: { id: userPackageId, userId },
       include: { plan: true },
     });
     if (!membership) {
       throw new NotFoundException();
     }
-    if (membership.status === MembershipStatus.ACTIVE) {
+    if (membership.status === PackageStatus.ACTIVE) {
       throw new BadRequestException('Membership is already active');
     }
     const start = new Date();
@@ -284,10 +292,10 @@ export class PackagesService {
     const sessionsRemaining = membership.plan.isUnlimited
       ? null
       : (membership.plan.sessionsPerMonth ?? 0);
-    const renewed = await this.prisma.userMembership.update({
-      where: { id: membershipId },
+    const renewed = await this.prisma.userPackage.update({
+      where: { id: userPackageId },
       data: {
-        status: MembershipStatus.ACTIVE,
+        status: PackageStatus.ACTIVE,
         currentPeriodStart: start,
         currentPeriodEnd: end,
         sessionsRemaining,
@@ -298,21 +306,21 @@ export class PackagesService {
       actorId: userId,
       actorRole: 'USER',
       action: 'MEMBERSHIP_RENEWED',
-      entityType: 'UserMembership',
-      entityId: membershipId,
+      entityType: 'UserPackage',
+      entityId: userPackageId,
       payload: { planId: renewed.planId },
     });
     return renewed;
   }
 
-  async changePlan(userId: string, membershipId: string, nextPlanId: string) {
+  async changePlan(userId: string, userPackageId: string, nextPlanId: string) {
     await this.syncExpiredMemberships(userId);
     const [membership, plan] = await Promise.all([
-      this.prisma.userMembership.findFirst({
-        where: { id: membershipId, userId },
+      this.prisma.userPackage.findFirst({
+        where: { id: userPackageId, userId },
         include: { plan: true },
       }),
-      this.prisma.membershipPlan.findUnique({ where: { id: nextPlanId } }),
+      this.prisma.packagePlan.findUnique({ where: { id: nextPlanId } }),
     ]);
     if (!membership) {
       throw new NotFoundException();
@@ -329,11 +337,11 @@ export class PackagesService {
       plan,
       now,
     });
-    const updated = await this.prisma.userMembership.update({
-      where: { id: membershipId },
+    const updated = await this.prisma.userPackage.update({
+      where: { id: userPackageId },
       data: {
         planId: plan.id,
-        status: MembershipStatus.ACTIVE,
+        status: PackageStatus.ACTIVE,
         currentPeriodStart: planChangePolicy.currentPeriodStart,
         currentPeriodEnd: planChangePolicy.currentPeriodEnd,
         sessionsRemaining: planChangePolicy.sessionsRemaining,
@@ -364,8 +372,8 @@ export class PackagesService {
       actorId: userId,
       actorRole: 'USER',
       action: 'MEMBERSHIP_PLAN_CHANGED',
-      entityType: 'UserMembership',
-      entityId: membershipId,
+      entityType: 'UserPackage',
+      entityId: userPackageId,
       payload: {
         fromPlanId: membership.planId,
         toPlanId: plan.id,
@@ -380,7 +388,7 @@ export class PackagesService {
     const take = Math.min(Math.max(options?.take ?? 500, 1), 1000);
     const skip = Math.max(options?.offset ?? 0, 0);
     return this.syncExpiredMemberships().then(() =>
-      this.prisma.userMembership.findMany({
+      this.prisma.userPackage.findMany({
         include: {
           plan: true,
           user: { select: { id: true, email: true, name: true } },
@@ -393,29 +401,43 @@ export class PackagesService {
   }
 
   private async syncExpiredMemberships(userId?: string) {
-    await this.prisma.userMembership.updateMany({
+    await this.prisma.userPackage.updateMany({
       where: {
         ...(userId ? { userId } : {}),
-        status: MembershipStatus.ACTIVE,
+        status: PackageStatus.ACTIVE,
         currentPeriodEnd: { lte: new Date() },
       },
-      data: { status: MembershipStatus.EXPIRED },
+      data: { status: PackageStatus.EXPIRED },
     });
   }
 
-  async adminSetStatus(membershipId: string, status: MembershipStatus) {
-    const updated = await this.prisma.userMembership.update({
-      where: { id: membershipId },
+  async adminSetStatus(userPackageId: string, status: PackageStatus) {
+    const updated = await this.prisma.userPackage.update({
+      where: { id: userPackageId },
       data: { status },
       include: { plan: true, user: { select: { email: true } } },
     });
     await this.audit.log({
       action: 'MEMBERSHIP_STATUS_UPDATED',
-      entityType: 'UserMembership',
-      entityId: membershipId,
+      entityType: 'UserPackage',
+      entityId: userPackageId,
       payload: { status },
     });
     return updated;
+  }
+
+  private async assertClassTypeExists(classTypeId: string): Promise<void> {
+    const trimmed = classTypeId.trim();
+    if (trimmed.length === 0) {
+      throw new BadRequestException('Class category is required');
+    }
+    const classType = await this.prisma.classType.findUnique({
+      where: { id: trimmed },
+      select: { id: true },
+    });
+    if (classType === null) {
+      throw new NotFoundException('Class category not found');
+    }
   }
 
   private resolveSlug(name: string, rawSlug?: string): string {
@@ -477,7 +499,7 @@ export class PackagesService {
 
   private resolvePlanChangePolicy(params: {
     membership: {
-      status: MembershipStatus;
+      status: PackageStatus;
       currentPeriodStart: Date;
       currentPeriodEnd: Date;
     };
@@ -495,7 +517,7 @@ export class PackagesService {
     remainingRatio: number;
   } {
     const shouldProrate =
-      params.membership.status === MembershipStatus.ACTIVE &&
+      params.membership.status === PackageStatus.ACTIVE &&
       params.membership.currentPeriodEnd > params.now &&
       params.membership.currentPeriodEnd > params.membership.currentPeriodStart;
     if (!shouldProrate) {
@@ -591,7 +613,7 @@ export class PackagesService {
     if (typeof column !== 'string') {
       return false;
     }
-    const normalizedColumn = column.replace(/^MembershipPlan\./, '');
+    const normalizedColumn = column.replace(/^PackagePlan\./, '');
     return [
       'currency',
       'billingPeriod',
@@ -622,7 +644,7 @@ export class PackagesService {
           updatedAt: Date;
         }>
       >(Prisma.sql`
-        INSERT INTO "MembershipPlan" (
+        INSERT INTO "PackagePlan" (
           "id",
           "name",
           "slug",
@@ -746,7 +768,7 @@ export class PackagesService {
         "stripePriceId",
         "createdAt",
         "updatedAt"
-      FROM "MembershipPlan"
+      FROM "PackagePlan"
     `;
     const where = options.onlyActive
       ? Prisma.sql` WHERE "isActive" = true`

@@ -18,10 +18,15 @@ import {
 } from "@/components/admin/admin-packages-shell";
 import { AdminPackagesCategoryTable } from "@/components/admin/admin-packages-category-table";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-
-const MODAL_QUERY_KEY = "modal";
-const MODAL_QUERY_VALUE = "add-package";
-const EDIT_CATEGORY_QUERY_KEY = "editCategory";
+import {
+  buildPackagesPathname,
+  clearPackageModalQueryKeys,
+  PACKAGE_CATEGORY_QUERY_KEY,
+  PACKAGE_EDIT_CATEGORY_QUERY_KEY,
+  PACKAGE_EDIT_QUERY_KEY,
+  PACKAGE_MODAL_CREATE_VALUE,
+  PACKAGE_MODAL_QUERY_KEY,
+} from "@/components/admin/admin-packages-url";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
@@ -38,7 +43,7 @@ export function AdminPackagesManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const editingClassTypeId = searchParams.get(EDIT_CATEGORY_QUERY_KEY);
+  const editingClassTypeId = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
   const isEditCategoryOpen =
     editingClassTypeId !== null &&
     classTypes.some((type) => type.id === editingClassTypeId);
@@ -74,27 +79,46 @@ export function AdminPackagesManagement({
     [classTypes, selectedCategoryIds],
   );
 
-  function openAddModal() {
+  const defaultCategoryId = visibleCategories[0]?.id ?? categoryOptions[0]?.id ?? "";
+
+  const openAddModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
-    router.replace(`${pathname}?${params.toString()}`);
-  }
+    params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+    params.delete(PACKAGE_EDIT_QUERY_KEY);
+    clearPackageModalQueryKeys(params);
+    params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_CREATE_VALUE);
+    if (defaultCategoryId.length > 0) {
+      params.set(PACKAGE_CATEGORY_QUERY_KEY, defaultCategoryId);
+    }
+    router.replace(buildPackagesPathname(pathname, params));
+  }, [defaultCategoryId, pathname, router, searchParams]);
 
   const openEditCategory = useCallback(
     (classTypeId: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set(EDIT_CATEGORY_QUERY_KEY, classTypeId);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      clearPackageModalQueryKeys(params);
+      params.set(PACKAGE_EDIT_CATEGORY_QUERY_KEY, classTypeId);
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
     },
     [pathname, router, searchParams],
   );
 
   const closeEditCategory = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete(EDIT_CATEGORY_QUERY_KEY);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [pathname, router, searchParams]);
+
+  const openEditPackage = useCallback(
+    (packageId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      clearPackageModalQueryKeys(params);
+      params.set(PACKAGE_EDIT_QUERY_KEY, packageId);
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const toolbar =
     categoryOptions.length > 0 ? (
@@ -116,7 +140,11 @@ export function AdminPackagesManagement({
 
   return (
     <>
-      <AdminPackagesShell toolbar={toolbar}>
+      <AdminPackagesShell
+        toolbar={toolbar}
+        packages={sortedPackages}
+        categoryOptions={categoryOptions}
+      >
         {classTypes.length === 0 ? (
           <p className="text-sm text-sage-500">{t("categoryEmpty")}</p>
         ) : visibleCategories.length === 0 ? (
@@ -130,6 +158,7 @@ export function AdminPackagesManagement({
                 packages={sortedPackages}
                 locale={locale}
                 onEditCategory={() => openEditCategory(classType.id)}
+                onEditPackage={openEditPackage}
               />
             ))}
           </div>
@@ -162,6 +191,7 @@ type CategoryAccordionProps = {
   packages: readonly AdminPackageRow[];
   locale: string;
   onEditCategory: () => void;
+  onEditPackage: (packageId: string) => void;
 };
 
 function CategoryAccordion({
@@ -169,13 +199,23 @@ function CategoryAccordion({
   packages,
   locale,
   onEditCategory,
+  onEditPackage,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
   const [open, setOpen] = useState(true);
 
+  const categoryPackages = useMemo(
+    () => packages.filter((pkg) => pkg.classTypeId === classType.id),
+    [classType.id, packages],
+  );
+
   const body =
-    packages.length > 0 ? (
-      <AdminPackagesCategoryTable packages={packages} locale={locale} />
+    categoryPackages.length > 0 ? (
+      <AdminPackagesCategoryTable
+        packages={categoryPackages}
+        locale={locale}
+        onEditPackage={onEditPackage}
+      />
     ) : undefined;
 
   return (

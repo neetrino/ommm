@@ -59,7 +59,7 @@ enum ContentStatus {
   HIDDEN
 }
 
-enum MembershipStatus {
+enum PackageStatus {
   ACTIVE
   PAUSED
   CANCELLED
@@ -136,7 +136,7 @@ model User {
   coachProfile      CoachProfile?
   bookings          Booking[]
   waitlistEntries   WaitlistEntry[]
-  memberships       UserMembership[]
+  userPackages      UserPackage[]
   payments          Payment[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
   giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
@@ -239,7 +239,8 @@ model ClassType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sessions ClassSession[]
+  sessions        ClassSession[]
+  packagePlans PackagePlan[]
 }
 
 model ClassSession {
@@ -332,7 +333,7 @@ model WaitlistEntry {
   @@index([sessionId])
 }
 
-model MembershipPlan {
+model PackagePlan {
   id               String   @id @default(cuid())
   name             String
   slug             String   @unique
@@ -349,27 +350,31 @@ model MembershipPlan {
   displayOrder     Int      @default(0)
   isActive         Boolean  @default(true)
   stripePriceId    String?
+  classTypeId      String?
+  classType        ClassType? @relation(fields: [classTypeId], references: [id], onDelete: SetNull)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  memberships UserMembership[]
-  payments    Payment[]
+  userPackages UserPackage[]
+  payments     Payment[]
+
+  @@index([classTypeId])
 }
 
-model UserMembership {
-  id                 String            @id @default(cuid())
+model UserPackage {
+  id                 String        @id @default(cuid())
   userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   planId             String
-  plan               MembershipPlan    @relation(fields: [planId], references: [id])
-  status             MembershipStatus  @default(ACTIVE)
+  plan               PackagePlan   @relation(fields: [planId], references: [id])
+  status             PackageStatus @default(ACTIVE)
   sessionsRemaining  Int?
   currentPeriodStart DateTime
   currentPeriodEnd   DateTime
   pausedUntil        DateTime?
-  stripeSubscriptionId String?         @unique
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  stripeSubscriptionId String?     @unique
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
   pendingPayment     Payment?
 
   @@index([userId])
@@ -385,10 +390,10 @@ model Payment {
   stripePaymentId String?              @unique
   description     String?
   planId          String?
-  plan            MembershipPlan?      @relation(fields: [planId], references: [id], onDelete: SetNull)
+  plan            PackagePlan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
   paymentMethod   ManualPaymentMethod?
-  membershipId    String?              @unique
-  membership      UserMembership?      @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  userPackageId   String?              @unique
+  userPackage     UserPackage?         @relation(fields: [userPackageId], references: [id], onDelete: SetNull)
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
 

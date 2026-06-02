@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { MembershipStatus, Role } from '@prisma/client';
+import { PackageStatus, Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -112,7 +112,7 @@ export class PackagesController {
   @Roles(Role.ADMIN)
   adminStatus(
     @Param('id') id: string,
-    @Body('status') status: MembershipStatus,
+    @Body('status') status: PackageStatus,
   ) {
     return this.packages.adminSetStatus(id, status);
   }

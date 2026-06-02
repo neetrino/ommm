@@ -2,21 +2,36 @@
 
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminPackageForm } from "@/components/admin/admin-package-form";
+import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import {
+  buildPackagesPathname,
+  clearPackageModalQueryKeys,
+  PACKAGE_CATEGORY_QUERY_KEY,
+  PACKAGE_EDIT_QUERY_KEY,
+  PACKAGE_MODAL_CREATE_VALUE,
+  PACKAGE_MODAL_QUERY_KEY,
+} from "@/components/admin/admin-packages-url";
 
-const MODAL_QUERY_KEY = "modal";
-const MODAL_QUERY_VALUE = "add-package";
 const BANNER_MS = 8000;
 
 type AdminPackagesShellProps = {
   toolbar?: ReactNode;
   children: ReactNode;
+  packages: readonly AdminPackageRow[];
+  categoryOptions: readonly AdminPackagesCategoryOption[];
 };
 
-export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProps) {
+export function AdminPackagesShell({
+  toolbar,
+  children,
+  packages,
+  categoryOptions,
+}: AdminPackagesShellProps) {
   const t = useTranslations("adminPages.packages");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -27,27 +42,61 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isModalOpen = searchParams.get(MODAL_QUERY_KEY) === MODAL_QUERY_VALUE;
+  const isCreateModalOpen = searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_CREATE_VALUE;
+  const editingPackageId = searchParams.get(PACKAGE_EDIT_QUERY_KEY);
+  const isEditModalOpen =
+    editingPackageId !== null && packages.some((pkg) => pkg.id === editingPackageId);
+  const isModalOpen = isCreateModalOpen || isEditModalOpen;
+  const modalMode = isEditModalOpen ? "edit" : "create";
+  const editingPackage =
+    isEditModalOpen && editingPackageId !== null
+      ? packages.find((pkg) => pkg.id === editingPackageId)
+      : undefined;
+  const categoryIdFromQuery = searchParams.get(PACKAGE_CATEGORY_QUERY_KEY);
+  const initialClassTypeId = useMemo(() => {
+    if (editingPackage?.classTypeId !== null && editingPackage?.classTypeId !== undefined) {
+      return editingPackage.classTypeId;
+    }
+    if (
+      categoryIdFromQuery !== null &&
+      categoryOptions.some((option) => option.id === categoryIdFromQuery)
+    ) {
+      return categoryIdFromQuery;
+    }
+    return categoryOptions[0]?.id ?? "";
+  }, [categoryIdFromQuery, categoryOptions, editingPackage?.classTypeId]);
 
   const closeModal = useCallback(() => {
-    const p = new URLSearchParams(searchParams.toString());
-    p.delete(MODAL_QUERY_KEY);
-    const qs = p.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname);
+    const params = new URLSearchParams(searchParams.toString());
+    clearPackageModalQueryKeys(params);
+    router.replace(buildPackagesPathname(pathname, params));
   }, [pathname, router, searchParams]);
 
+  const showSuccessBanner = useCallback(
+    (message: string) => {
+      if (bannerTimerRef.current !== null) {
+        clearTimeout(bannerTimerRef.current);
+      }
+      setBanner(message);
+      bannerTimerRef.current = setTimeout(() => {
+        setBanner(null);
+        bannerTimerRef.current = null;
+      }, BANNER_MS);
+    },
+    [],
+  );
+
   const onCreated = useCallback(() => {
-    if (bannerTimerRef.current !== null) {
-      clearTimeout(bannerTimerRef.current);
-    }
     closeModal();
     router.refresh();
-    setBanner(t("messages.createSuccess"));
-    bannerTimerRef.current = setTimeout(() => {
-      setBanner(null);
-      bannerTimerRef.current = null;
-    }, BANNER_MS);
-  }, [closeModal, router, t]);
+    showSuccessBanner(t("messages.createSuccess"));
+  }, [closeModal, router, showSuccessBanner, t]);
+
+  const onUpdated = useCallback(() => {
+    closeModal();
+    router.refresh();
+    showSuccessBanner(t("messages.updateSuccess"));
+  }, [closeModal, router, showSuccessBanner, t]);
 
   useEffect(() => {
     return () => {
@@ -89,7 +138,10 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
     }
     const focusable = panelRef.current.querySelector<HTMLElement>('input[name="name"]');
     focusable?.focus();
-  }, [isModalOpen]);
+  }, [isModalOpen, modalMode, editingPackageId, initialClassTypeId]);
+
+  const modalTitle = modalMode === "edit" ? t("editTitle") : t("createTitle");
+  const modalDescription = modalMode === "edit" ? t("editDescription") : t("createDescription");
 
   return (
     <>
@@ -106,7 +158,7 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
         {children}
       </div>
 
-      {isModalOpen ? (
+      {isModalOpen && initialClassTypeId.length > 0 ? (
         <div className="ommm-modal-overlay z-50" role="presentation">
           <button
             type="button"
@@ -125,10 +177,10 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
             <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
               <div>
                 <h2 id={titleId} className={adminChrome.panelHeading}>
-                  {t("createTitle")}
+                  {modalTitle}
                 </h2>
                 <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                  {t("createDescription")}
+                  {modalDescription}
                 </p>
               </div>
               <button
@@ -152,7 +204,15 @@ export function AdminPackagesShell({ toolbar, children }: AdminPackagesShellProp
               </button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-              <AdminPackageForm onSaved={onCreated} onCancel={closeModal} />
+              <AdminPackageForm
+                mode={modalMode}
+                packageId={editingPackage?.id}
+                initialClassTypeId={initialClassTypeId}
+                categoryOptions={categoryOptions}
+                initialPackage={editingPackage}
+                onSaved={modalMode === "edit" ? onUpdated : onCreated}
+                onCancel={closeModal}
+              />
             </div>
           </div>
         </div>

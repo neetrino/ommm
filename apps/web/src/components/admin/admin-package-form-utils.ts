@@ -28,3 +28,65 @@ export function preventNumberArrowStep(event: React.KeyboardEvent<HTMLInputEleme
 export function isBillingPeriodOption(value: string): value is BillingPeriodOption {
   return BILLING_PERIOD_OPTIONS.includes(value as BillingPeriodOption);
 }
+
+export type AdminPackageFormValues = {
+  name: string;
+  description: string;
+  price: string;
+  periodDays: string;
+  billingPeriod: BillingPeriodOption;
+  features: string;
+  buttonLabel: string;
+  displayOrder: string;
+  isPopular: boolean;
+  isActive: boolean;
+  classTypeId: string;
+};
+
+export function createEmptyPackageFormValues(classTypeId: string): AdminPackageFormValues {
+  return {
+    name: "",
+    description: "",
+    price: "",
+    periodDays: "30",
+    billingPeriod: "monthly",
+    features: "",
+    buttonLabel: "Choose plan",
+    displayOrder: "0",
+    isPopular: false,
+    isActive: true,
+    classTypeId,
+  };
+}
+
+export function packageRowToFormValues(
+  pkg: {
+    name: string;
+    description: string | null;
+    priceCents: number;
+    periodDays: number;
+    billingPeriod: string;
+    features: string[];
+    buttonLabel: string;
+    displayOrder: number;
+    isPopular: boolean;
+    isActive: boolean;
+    classTypeId: string | null;
+  },
+  fallbackClassTypeId: string,
+): AdminPackageFormValues {
+  const billingPeriod = isBillingPeriodOption(pkg.billingPeriod) ? pkg.billingPeriod : "monthly";
+  return {
+    name: pkg.name,
+    description: pkg.description ?? "",
+    price: (pkg.priceCents / 100).toFixed(2),
+    periodDays: String(pkg.periodDays),
+    billingPeriod,
+    features: pkg.features.join("\n"),
+    buttonLabel: pkg.buttonLabel,
+    displayOrder: String(pkg.displayOrder),
+    isPopular: pkg.isPopular,
+    isActive: pkg.isActive,
+    classTypeId: pkg.classTypeId ?? fallbackClassTypeId,
+  };
+}

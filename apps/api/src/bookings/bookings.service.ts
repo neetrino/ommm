@@ -9,7 +9,7 @@ import {
   BookingChannel,
   type ClassSession,
   ClassSessionStatus,
-  MembershipStatus,
+  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -35,7 +35,7 @@ type ManagementBooking = {
     name: string | null;
     email: string;
     phone: string | null;
-    memberships: Array<{
+    userPackages: Array<{
       sessionsRemaining: number | null;
       plan: {
         name: string;
@@ -110,10 +110,10 @@ export class BookingsService {
       const requiredSessions =
         session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
       if (requiredSessions > 0) {
-        const m = await tx.userMembership.findFirst({
+        const m = await tx.userPackage.findFirst({
           where: {
             userId,
-            status: MembershipStatus.ACTIVE,
+            status: PackageStatus.ACTIVE,
             currentPeriodEnd: { gt: new Date() },
           },
           include: { plan: true },
@@ -128,7 +128,7 @@ export class BookingsService {
                 'No sessions remaining on your plan',
               );
             }
-            await tx.userMembership.update({
+            await tx.userPackage.update({
               where: { id: m.id },
               data: {
                 sessionsRemaining: m.sessionsRemaining - requiredSessions,
@@ -255,10 +255,10 @@ export class BookingsService {
       if (hasDropInPayment) {
         return;
       }
-      const membership = await tx.userMembership.findFirst({
+      const membership = await tx.userPackage.findFirst({
         where: {
           userId: booking.userId,
-          status: MembershipStatus.ACTIVE,
+          status: PackageStatus.ACTIVE,
           currentPeriodEnd: { gt: new Date() },
         },
         include: { plan: true },
@@ -272,7 +272,7 @@ export class BookingsService {
       }
       const maxSessions = membership.plan.sessionsPerMonth;
       const restored = membership.sessionsRemaining + requiredSessions;
-      await tx.userMembership.update({
+      await tx.userPackage.update({
         where: { id: membership.id },
         data: {
           sessionsRemaining:
@@ -501,9 +501,9 @@ export class BookingsService {
                 name: true,
                 email: true,
                 phone: true,
-                memberships: {
+                userPackages: {
                   where: {
-                    status: MembershipStatus.ACTIVE,
+                    status: PackageStatus.ACTIVE,
                     currentPeriodEnd: { gt: new Date() },
                   },
                   take: 1,
@@ -644,15 +644,15 @@ export class BookingsService {
           },
         },
         package:
-          booking.user.memberships[0] === undefined
+          booking.user.userPackages[0] === undefined
             ? null
             : {
-                planName: booking.user.memberships[0].plan.name,
+                planName: booking.user.userPackages[0].plan.name,
                 sessionsRemaining:
-                  booking.user.memberships[0].sessionsRemaining,
+                  booking.user.userPackages[0].sessionsRemaining,
                 sessionsPerMonth:
-                  booking.user.memberships[0].plan.sessionsPerMonth,
-                isUnlimited: booking.user.memberships[0].plan.isUnlimited,
+                  booking.user.userPackages[0].plan.sessionsPerMonth,
+                isUnlimited: booking.user.userPackages[0].plan.isUnlimited,
               },
         latestNote:
           booking.notes[0] === undefined
@@ -782,7 +782,7 @@ export class BookingsService {
       include: {
         user: {
           include: {
-            memberships: {
+            userPackages: {
               include: { plan: true },
               orderBy: { createdAt: 'desc' },
               take: 5,
@@ -924,7 +924,7 @@ export class BookingsService {
   private resolvePaymentStatus(params: {
     booking: {
       sessionId: string;
-      user: { memberships?: Array<unknown> };
+      user: { userPackages?: Array<unknown> };
       status: BookingStatus;
     };
     payments: Array<{
@@ -947,7 +947,7 @@ export class BookingsService {
     if (sessionPayment?.status === PaymentStatus.SUCCEEDED) {
       return 'PAID';
     }
-    if ((params.booking.user.memberships?.length ?? 0) > 0) {
+    if ((params.booking.user.userPackages?.length ?? 0) > 0) {
       return 'PAID';
     }
     if (params.booking.status === BookingStatus.CANCELLED) {

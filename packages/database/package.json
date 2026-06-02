@@ -17,6 +17,7 @@
     "migrate:dev": "dotenv -e ../../.env -- pnpm -w exec prisma migrate dev --schema packages/database/prisma/schema.prisma",
     "migrate:deploy": "dotenv -e ../../.env -- pnpm -w exec prisma migrate deploy --schema packages/database/prisma/schema.prisma",
     "apply:manual-payments": "node scripts/apply-manual-payments-schema.mjs",
+    "apply:package-rename": "node scripts/apply-package-rename-schema.mjs",
     "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma/schema.prisma",
     "seed": "dotenv -e ../../.env -- pnpm -w exec prisma db seed --schema packages/database/prisma/schema.prisma"
   },

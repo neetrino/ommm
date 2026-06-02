@@ -4,6 +4,12 @@ import type {
   PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
 
+export const PACKAGE_MODAL_QUERY_KEY = "modal";
+export const PACKAGE_MODAL_CREATE_VALUE = "add-package";
+export const PACKAGE_EDIT_QUERY_KEY = "editPackage";
+export const PACKAGE_CATEGORY_QUERY_KEY = "categoryId";
+export const PACKAGE_EDIT_CATEGORY_QUERY_KEY = "editCategory";
+
 export const PACKAGE_FILTER_QUERY_KEYS = ["search", "status", "order"] as const;
 
 const SORT_ORDERS: readonly PackageSortOrder[] = [
@@ -67,4 +73,18 @@ export function buildPackageFiltersQuery(values: PackageFilterValues): string {
 
 export function packageFiltersQueryKey(values: PackageFilterValues): string {
   return [values.search, values.status, values.order].join("|");
+}
+
+export function clearPackageModalQueryKeys(params: URLSearchParams): void {
+  params.delete(PACKAGE_MODAL_QUERY_KEY);
+  params.delete(PACKAGE_EDIT_QUERY_KEY);
+  params.delete(PACKAGE_CATEGORY_QUERY_KEY);
+}
+
+export function buildPackagesPathname(
+  pathname: string,
+  params: URLSearchParams,
+): string {
+  const qs = params.toString();
+  return qs ? `${pathname}?${qs}` : pathname;
 }
