@@ -100,17 +100,17 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/account/memberships",
-        destination: "/:locale/user/packages",
+        destination: "/:locale/user/classes",
         permanent: false,
       },
       {
         source: "/:locale/account/packages",
-        destination: "/:locale/user/packages",
+        destination: "/:locale/user/classes",
         permanent: false,
       },
       {
         source: "/:locale/user/memberships",
-        destination: "/:locale/user/packages",
+        destination: "/:locale/user/classes",
         permanent: false,
       },
       {
@@ -120,7 +120,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/memberships",
-        destination: "/:locale/packages",
+        destination: "/:locale/schedule",
         permanent: false,
       },
       {

@@ -4,7 +4,6 @@ import {
   Get,
   Headers,
   Param,
-  Patch,
   Post,
   Query,
   Req,
@@ -20,9 +19,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
-import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
-import { CreateManualPackagePaymentDto } from './dto/create-manual-package-payment.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -43,29 +40,6 @@ export class PaymentsController {
     }
     await this.payments.handleStripeWebhook(raw, signature);
     return { received: true };
-  }
-
-  @Post('checkout/package/:planId')
-  @UseGuards(JwtAuthGuard)
-  checkoutPackage(
-    @CurrentUser() user: { id: string },
-    @Param('planId') planId: string,
-  ) {
-    return this.payments.createPackageCheckout(user.id, planId);
-  }
-
-  /** Manual / offline package payment — no card data collected. */
-  @Post('manual/package')
-  @UseGuards(JwtAuthGuard)
-  createManualPackagePayment(
-    @CurrentUser() user: { id: string },
-    @Body() body: CreateManualPackagePaymentDto,
-  ) {
-    return this.payments.createManualPackagePayment(
-      user.id,
-      body.planId,
-      body.paymentMethod,
-    );
   }
 
   @Post('checkout/gift')
@@ -103,15 +77,5 @@ export class PaymentsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
-  }
-
-  @Patch('admin/:paymentId/status')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER)
-  adminUpdateStatus(
-    @Param('paymentId') paymentId: string,
-    @Body() body: AdminUpdatePaymentStatusDto,
-  ) {
-    return this.payments.adminUpdatePaymentStatus(paymentId, body.status);
   }
 }

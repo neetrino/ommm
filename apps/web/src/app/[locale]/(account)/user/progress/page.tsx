@@ -32,13 +32,6 @@ type UserAnalyticsResponse = {
     favoriteClassType: string | null;
     spendCents: number;
   };
-  package: {
-    planName: string;
-    sessionsRemaining: number | null;
-    sessionsPerMonth: number | null;
-    isUnlimited: boolean;
-    currentPeriodEnd: string;
-  } | null;
   trend: {
     attendance: Array<{ date: string; count: number }>;
     spend: Array<{ date: string; amountCents: number }>;
@@ -101,19 +94,11 @@ export default async function UserProgressPage({
               <p className="mt-1 text-xs text-sage-500">{t("last7Days")}</p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">{t("packageUsage")}</p>
+              <p className="font-semibold text-sage-800">{t("totalSpend")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {analytics.package
-                  ? analytics.package.isUnlimited
-                    ? t("unlimitedLabel")
-                    : analytics.package.sessionsRemaining ?? 0
-                  : "—"}
+                {formatAmdFromCents(analytics.totals.spendCents, locale)}
               </p>
-              <p className="mt-1 text-xs text-sage-500">
-                {analytics.package
-                  ? t("packagePlanLabel", { plan: analytics.package.planName })
-                  : t("favoriteFallback")}
-              </p>
+              <p className="mt-1 text-xs text-sage-500">{t("last90Days")}</p>
             </li>
           </ul>
         </AccountSection>

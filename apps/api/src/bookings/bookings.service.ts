@@ -9,7 +9,6 @@ import {
   BookingChannel,
   type ClassSession,
   ClassSessionStatus,
-  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -35,14 +34,6 @@ type ManagementBooking = {
     name: string | null;
     email: string;
     phone: string | null;
-    userPackages: Array<{
-      sessionsRemaining: number | null;
-      plan: {
-        name: string;
-        sessionsPerMonth: number | null;
-        isUnlimited: boolean;
-      };
-    }>;
   };
   session: {
     id: string;
@@ -110,58 +101,41 @@ export class BookingsService {
       const requiredSessions =
         session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
       if (requiredSessions > 0) {
-        const m = await tx.userPackage.findFirst({
-          where: {
-            userId,
-            status: PackageStatus.ACTIVE,
-            currentPeriodEnd: { gt: new Date() },
-          },
-          include: { plan: true },
-        });
-        if (m) {
-          if (!m.plan.isUnlimited) {
-            if (
-              m.sessionsRemaining == null ||
-              m.sessionsRemaining < requiredSessions
-            ) {
+        if (session.priceCents > 0) {
+          const dropInPayment = await tx.payment.findFirst({
+            where: {
+              userId,
+              description: `Drop-in session ${sessionId}`,
+              status: PaymentStatus.SUCCEEDED,
+            },
+            select: { id: true },
+          });
+          if (!dropInPayment) {
+            const user = await tx.user.findUnique({
+              where: { id: userId },
+              select: { giftCreditsCents: true },
+            });
+            const credits = user?.giftCreditsCents ?? 0;
+            if (credits < session.priceCents) {
               throw new BadRequestException(
-                'No sessions remaining on your plan',
+                'Payment or gift credits required for this class',
               );
             }
-            await tx.userPackage.update({
-              where: { id: m.id },
+            await tx.user.update({
+              where: { id: userId },
+              data: { giftCreditsCents: { decrement: session.priceCents } },
+            });
+            await tx.payment.create({
               data: {
-                sessionsRemaining: m.sessionsRemaining - requiredSessions,
+                userId,
+                amountCents: session.priceCents,
+                status: PaymentStatus.SUCCEEDED,
+                description: `Gift credit spend ${sessionId}`,
               },
             });
           }
-        } else if (session.priceCents > 0) {
-          const user = await tx.user.findUnique({
-            where: { id: userId },
-            select: { giftCreditsCents: true },
-          });
-          const credits = user?.giftCreditsCents ?? 0;
-          if (credits < session.priceCents) {
-            throw new BadRequestException(
-              'Active membership, payment, or gift credits required for this class',
-            );
-          }
-          await tx.user.update({
-            where: { id: userId },
-            data: { giftCreditsCents: { decrement: session.priceCents } },
-          });
-          await tx.payment.create({
-            data: {
-              userId,
-              amountCents: session.priceCents,
-              status: PaymentStatus.SUCCEEDED,
-              description: `Gift credit spend ${sessionId}`,
-            },
-          });
         } else {
-          throw new BadRequestException(
-            'Active membership or payment required for this class',
-          );
+          throw new BadRequestException('Payment required for this class');
         }
       }
       const existingBooking = await tx.booking.findUnique({
@@ -255,30 +229,6 @@ export class BookingsService {
       if (hasDropInPayment) {
         return;
       }
-      const membership = await tx.userPackage.findFirst({
-        where: {
-          userId: booking.userId,
-          status: PackageStatus.ACTIVE,
-          currentPeriodEnd: { gt: new Date() },
-        },
-        include: { plan: true },
-      });
-      if (
-        !membership ||
-        membership.plan.isUnlimited ||
-        membership.sessionsRemaining == null
-      ) {
-        return;
-      }
-      const maxSessions = membership.plan.sessionsPerMonth;
-      const restored = membership.sessionsRemaining + requiredSessions;
-      await tx.userPackage.update({
-        where: { id: membership.id },
-        data: {
-          sessionsRemaining:
-            maxSessions == null ? restored : Math.min(restored, maxSessions),
-        },
-      });
     });
     await this.prisma.classSession.updateMany({
       where: { id: booking.sessionId, status: ClassSessionStatus.FULL },
@@ -501,14 +451,6 @@ export class BookingsService {
                 name: true,
                 email: true,
                 phone: true,
-                userPackages: {
-                  where: {
-                    status: PackageStatus.ACTIVE,
-                    currentPeriodEnd: { gt: new Date() },
-                  },
-                  take: 1,
-                  include: { plan: true },
-                },
               },
             },
             session: {
@@ -643,17 +585,7 @@ export class BookingsService {
             name: booking.session.coach.user.name,
           },
         },
-        package:
-          booking.user.userPackages[0] === undefined
-            ? null
-            : {
-                planName: booking.user.userPackages[0].plan.name,
-                sessionsRemaining:
-                  booking.user.userPackages[0].sessionsRemaining,
-                sessionsPerMonth:
-                  booking.user.userPackages[0].plan.sessionsPerMonth,
-                isUnlimited: booking.user.userPackages[0].plan.isUnlimited,
-              },
+        package: null,
         latestNote:
           booking.notes[0] === undefined
             ? null
@@ -781,12 +713,12 @@ export class BookingsService {
       where: { id: bookingId },
       include: {
         user: {
-          include: {
-            userPackages: {
-              include: { plan: true },
-              orderBy: { createdAt: 'desc' },
-              take: 5,
-            },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            lastName: true,
+            phone: true,
           },
         },
         session: {
@@ -924,7 +856,6 @@ export class BookingsService {
   private resolvePaymentStatus(params: {
     booking: {
       sessionId: string;
-      user: { userPackages?: Array<unknown> };
       status: BookingStatus;
     };
     payments: Array<{
@@ -945,9 +876,6 @@ export class BookingsService {
       return 'CASH';
     }
     if (sessionPayment?.status === PaymentStatus.SUCCEEDED) {
-      return 'PAID';
-    }
-    if ((params.booking.user.userPackages?.length ?? 0) > 0) {
       return 'PAID';
     }
     if (params.booking.status === BookingStatus.CANCELLED) {

@@ -12,12 +12,6 @@ type UserDetailsPayload = {
   lastName: string | null;
   email: string;
   phone: string | null;
-  packages?: Array<{
-    id: string;
-    status: string;
-    plan: { name: string };
-    sessionsRemaining: number | null;
-  }>;
   bookings?: Array<{
     id: string;
     status: string;
@@ -106,23 +100,6 @@ export function AdminUserDetailsDrawer({
               <p className="font-medium text-sage-900">{fullName(data.name, data.lastName)}</p>
               <p className="text-sage-700">{data.phone ?? "—"}</p>
               <p className="text-sage-600">{data.email}</p>
-            </section>
-            <section>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">
-                {t("drawer.packages")}
-              </p>
-              <div className="space-y-1">
-                {(data.packages ?? []).length === 0 ? (
-                  <p className="text-sage-500">—</p>
-                ) : (
-                  (data.packages ?? []).slice(0, 6).map((userPackage) => (
-                    <p key={userPackage.id} className="rounded-lg bg-sand-50 px-2 py-1 text-xs text-sage-800">
-                      {userPackage.plan.name} · {userPackage.status} ·{" "}
-                      {userPackage.sessionsRemaining ?? "∞"}
-                    </p>
-                  ))
-                )}
-              </div>
             </section>
             <section>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">

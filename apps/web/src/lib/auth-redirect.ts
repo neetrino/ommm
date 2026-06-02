@@ -4,11 +4,11 @@ import { homePathForRole } from "@/lib/role-home";
 /** Query param on `/register` (and `/login`) for post-auth destination. */
 export const REGISTER_REDIRECT_PARAM = "redirect";
 
-/** Redirect target: member dashboard Packages sidebar section. */
-export const REGISTER_REDIRECT_PACKAGES = "packages";
+/** Redirect target: member schedule after booking from public schedule. */
+export const REGISTER_REDIRECT_SCHEDULE = "schedule";
 
-/** Member packages route — matches `dashboard-nav` USER nav. */
-export const USER_PACKAGES_PATH = "/user/packages";
+/** Member schedule route — matches `dashboard-nav` USER nav. */
+export const USER_SCHEDULE_PATH = "/user/classes";
 
 const BOOKING_QUERY_KEYS = {
   classId: "classId",
@@ -20,7 +20,7 @@ const BOOKING_QUERY_KEYS = {
 
 /**
  * Register URL for guests booking a class from the public schedule.
- * Preserves booking context and opens Packages after account creation.
+ * Preserves booking context and opens Schedule after account creation.
  */
 export function buildRegisterHrefForScheduleBooking(
   item: Pick<
@@ -29,7 +29,7 @@ export function buildRegisterHrefForScheduleBooking(
   >,
 ): string {
   const params = new URLSearchParams();
-  params.set(REGISTER_REDIRECT_PARAM, REGISTER_REDIRECT_PACKAGES);
+  params.set(REGISTER_REDIRECT_PARAM, REGISTER_REDIRECT_SCHEDULE);
   params.set(BOOKING_QUERY_KEYS.classId, item.id);
   params.set(BOOKING_QUERY_KEYS.className, item.className);
   params.set(BOOKING_QUERY_KEYS.dayOfWeek, item.dayOfWeek);
@@ -45,10 +45,10 @@ export function buildRegisterHrefForScheduleBooking(
  */
 export function resolvePostAuthPath(role: string, redirectParam: string | null): string {
   if (
-    redirectParam === REGISTER_REDIRECT_PACKAGES &&
-    role === "USER"
+    role === "USER" &&
+    (redirectParam === REGISTER_REDIRECT_SCHEDULE || redirectParam === "packages")
   ) {
-    return USER_PACKAGES_PATH;
+    return USER_SCHEDULE_PATH;
   }
   return homePathForRole(role);
 }

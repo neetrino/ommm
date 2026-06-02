@@ -54,7 +54,7 @@ export async function UserMemberShellLayout({
           authUser.lastName,
           authUser.email,
         ),
-        imageSrc: resolveApiAssetUrl(authUser.homeImageUrl),
+        imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
         displayName: userDisplayName(
           authUser.name,
           authUser.lastName,

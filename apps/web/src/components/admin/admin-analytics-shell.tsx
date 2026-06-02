@@ -9,8 +9,6 @@ import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-li
 import { AdminAnalyticsFilters } from "@/components/admin/admin-analytics-filters";
 import {
   computeAttendanceRate,
-  countPackagePlans,
-  countPackageStatuses,
   sortBarItems,
 } from "@/components/admin/admin-analytics-helpers";
 import type {
@@ -196,8 +194,6 @@ export function AdminAnalyticsShell({ data }: Props) {
     return sortBarItems(items, sortKey).slice(0, 10);
   }, [data.coaches, sortKey]);
 
-  const packageStatuses = countPackageStatuses(data.packages);
-  const packagePlans = sortBarItems(countPackagePlans(data.packages), sortKey);
 
   const rangeAttendanceRate = computeAttendanceRate(
     data.bookings.summary.completed,
@@ -362,33 +358,6 @@ export function AdminAnalyticsShell({ data }: Props) {
             ]}
             emptyLabel={t("empty")}
             ariaLabel={t("sections.attendance.chartAria")}
-          />
-        )}
-      </SectionShell>
-
-      <SectionShell
-        title={t("sections.packages.title")}
-        hint={t("sections.packages.hint", { limit: data.packagesSampledLimit })}
-      >
-        {viewMode === "table" ? (
-          <MetricTable
-            labels={tableLabels}
-            rows={[
-              {
-                label: t("sections.packages.activeDashboard"),
-                value: String(data.dashboard.activeMembers),
-              },
-              ...packageStatuses.map((row) => ({
-                label: row.status,
-                value: String(row.count),
-              })),
-            ]}
-          />
-        ) : (
-          <AdminAnalyticsBarList
-            items={packagePlans.slice(0, 10)}
-            emptyLabel={t("empty")}
-            ariaLabel={t("sections.packages.chartAria")}
           />
         )}
       </SectionShell>

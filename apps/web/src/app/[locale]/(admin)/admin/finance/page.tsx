@@ -6,7 +6,7 @@ import type {
   CoachFinanceRow,
   FinanceTab,
 } from "@/components/admin/admin-finance-types";
-import type { AdminClientsPayload, PackageOption } from "@/components/admin/admin-clients-types";
+import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -50,7 +50,6 @@ type PaymentsResponse = {
     paymentMethod: string | null;
     source: "package" | "dropin" | "gift" | "other";
     createdAt: string;
-    plan: { id: string; name: string; priceCents: number } | null;
     user: {
       email: string;
       name: string | null;
@@ -166,7 +165,6 @@ export default async function AdminFinancePage({
     clientsRes,
     coachesRes,
     salariesRes,
-    packagesRes,
   ] = await Promise.all([
     serverApiJson<Dashboard>("/reports/dashboard?includeRevenue=true", cookie),
     serverApiJson<FinanceSummary>(
@@ -184,7 +182,6 @@ export default async function AdminFinancePage({
     serverApiJson<AdminClientsPayload>("/clients?meta=true", cookie),
     serverApiJson<CoachListRow[]>("/coaches/admin/list", cookie),
     serverApiJson<CoachSalaryPayload>("/coaches/admin/salary-summaries", cookie),
-    serverApiJson<PackageOption[]>("/packages/admin/plans", cookie),
   ]);
 
   if (
@@ -194,8 +191,7 @@ export default async function AdminFinancePage({
     !paymentsRes.ok ||
     !clientsRes.ok ||
     !coachesRes.ok ||
-    !salariesRes.ok ||
-    !packagesRes.ok
+    !salariesRes.ok
   ) {
     const status = !dashboardRes.ok
       ? dashboardRes.status
@@ -211,9 +207,7 @@ export default async function AdminFinancePage({
                 ? coachesRes.status
                 : !salariesRes.ok
                   ? salariesRes.status
-                  : !packagesRes.ok
-                    ? packagesRes.status
-                    : 500;
+                  : 500;
     return (
       <div className="app-alert-warn max-w-xl">
         {status === 401 || status === 403 ? t("errorAuth") : t("errorLoad", { status })}
@@ -353,7 +347,6 @@ export default async function AdminFinancePage({
             initialUserRows={clientsRes.data.rows}
             initialCoachRows={coachRows}
             initialPayments={paymentsRes.data}
-            packages={packagesRes.data}
             paymentsFrom={from}
           />
         </Suspense>

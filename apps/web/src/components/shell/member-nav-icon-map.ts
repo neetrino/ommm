@@ -4,7 +4,6 @@ import type { AdminNavIconSlug } from "@/components/shell/admin-nav-icon-map";
 const MEMBER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
   "/dashboard": "dashboard",
   "/user/home": "dashboard",
-  "/user/packages": "packages",
   "/user/bookings": "bookings",
   "/user/classes": "schedule",
   "/user/gift-cards": "giftCards",

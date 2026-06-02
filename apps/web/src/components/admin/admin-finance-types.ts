@@ -1,4 +1,4 @@
-import type { ClientRow, PackageOption } from "./admin-clients-types";
+import type { ClientRow } from "./admin-clients-types";
 
 export type FinanceTab = "user" | "coach";
 
@@ -11,7 +11,6 @@ export type FinancePaymentItem = {
   paymentMethod: string | null;
   source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
-  plan: { id: string; name: string; priceCents: number } | null;
   user: {
     email: string;
     name: string | null;
@@ -64,9 +63,6 @@ export type CoachSessionRow = {
 export type UserFinanceFilters = {
   search: string;
   paymentStatus: string;
-  packageType: string;
-  expirationFrom: string;
-  expirationTo: string;
   giftCardOnly: boolean;
   order: string;
   quick: string;
@@ -86,6 +82,5 @@ export type AdminFinanceManagementProps = {
   initialUserRows: ClientRow[];
   initialCoachRows: CoachFinanceRow[];
   initialPayments: FinancePaymentsPayload;
-  packages: PackageOption[];
   paymentsFrom: string;
 };

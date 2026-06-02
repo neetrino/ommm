@@ -72,20 +72,6 @@ async function main(): Promise<void> {
     });
   }
 
-  await prisma.packagePlan.upsert({
-    where: { slug: "monthly-8" },
-    update: {},
-    create: {
-      name: "Monthly 8",
-      slug: "monthly-8",
-      description: "8 sessions / month",
-      priceCents: 480_000,
-      sessionsPerMonth: 8,
-      isUnlimited: false,
-      periodDays: 30,
-    },
-  });
-
   for (const a of [
     { key: "first_class", title: "First class", threshold: 1 },
     { key: "classes_5", title: "5 classes", threshold: 5 },

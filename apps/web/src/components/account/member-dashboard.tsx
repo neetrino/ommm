@@ -115,7 +115,7 @@ export async function MemberDashboard({
                 {t("primaryCta")}
               </Link>
               <Link
-                href="/user/packages"
+                href="/user/classes"
                 className="ommm-admin-pill-tab shrink-0 px-5 py-2.5 normal-case tracking-normal"
               >
                 {t("secondaryCta")}

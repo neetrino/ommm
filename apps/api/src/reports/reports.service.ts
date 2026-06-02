@@ -3,7 +3,6 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
-  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -73,8 +72,20 @@ export class ReportsService {
       this.prisma.waitlistEntry.count({
         where: { status: 'ACTIVE' },
       }),
-      this.prisma.userPackage.count({
-        where: { status: 'ACTIVE', currentPeriodEnd: { gt: new Date() } },
+      this.prisma.user.count({
+        where: {
+          role: Role.USER,
+          bookings: {
+            some: {
+              status: BookingStatus.COMPLETED,
+              session: {
+                startsAt: {
+                  gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                },
+              },
+            },
+          },
+        },
       }),
       includeRevenue
         ? this.prisma.payment.aggregate({
@@ -113,7 +124,6 @@ export class ReportsService {
       previousMonthRevenueAgg,
       pendingPaymentsAgg,
       upcomingBookingCancellations,
-      upcomingMembershipCancellations,
       newUsersToday,
       recentUsers,
       fullClassesToday,
@@ -190,18 +200,6 @@ export class ReportsService {
         orderBy: [{ session: { startsAt: 'asc' } }, { cancelledAt: 'desc' }],
         take: UPCOMING_ITEMS_LIMIT,
       }),
-      this.prisma.userPackage.findMany({
-        where: {
-          status: PackageStatus.CANCELLED,
-          currentPeriodEnd: { gte: now },
-        },
-        include: {
-          user: { select: { name: true, lastName: true, email: true } },
-          plan: { select: { name: true } },
-        },
-        orderBy: { currentPeriodEnd: 'asc' },
-        take: UPCOMING_ITEMS_LIMIT,
-      }),
       this.prisma.user.count({
         where: {
           role: Role.USER,
@@ -265,8 +263,8 @@ export class ReportsService {
       pendingPaymentsAgg._count.id ?? 0,
     );
 
-    const upcomingCancellations = [
-      ...upcomingBookingCancellations.map((booking) => ({
+    const upcomingCancellations = upcomingBookingCancellations
+      .map((booking) => ({
         id: booking.id,
         type: 'booking' as const,
         userName: this.joinName(
@@ -277,20 +275,7 @@ export class ReportsService {
         itemName: booking.session.classType.name,
         dateTime: booking.session.startsAt.toISOString(),
         status: booking.status,
-      })),
-      ...upcomingMembershipCancellations.map((membership) => ({
-        id: membership.id,
-        type: 'package' as const,
-        userName: this.joinName(
-          membership.user.name,
-          membership.user.lastName,
-          membership.user.email,
-        ),
-        itemName: membership.plan.name,
-        dateTime: membership.currentPeriodEnd.toISOString(),
-        status: membership.status,
-      })),
-    ]
+      }))
       .sort((a, b) => a.dateTime.localeCompare(b.dateTime))
       .slice(0, UPCOMING_ITEMS_LIMIT);
 
@@ -862,7 +847,7 @@ export class ReportsService {
 
   async userAnalytics(userId: string, days: number) {
     const range = this.resolveRelativeDays(days);
-    const [bookings, payments, memberships] = await Promise.all([
+    const [bookings, payments] = await Promise.all([
       this.prisma.booking.findMany({
         where: {
           userId,
@@ -887,19 +872,6 @@ export class ReportsService {
           status: PaymentStatus.SUCCEEDED,
         },
         select: { amountCents: true, createdAt: true, description: true },
-      }),
-      this.prisma.userPackage.findMany({
-        where: {
-          userId,
-          createdAt: { lte: range.to },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        include: {
-          plan: {
-            select: { name: true, sessionsPerMonth: true, isUnlimited: true },
-          },
-        },
       }),
     ]);
 
@@ -941,7 +913,6 @@ export class ReportsService {
       attendanceTrendMap.set(key, (attendanceTrendMap.get(key) ?? 0) + 1);
     }
 
-    const currentMembership = memberships[0] ?? null;
     return {
       range,
       totals: {
@@ -951,15 +922,6 @@ export class ReportsService {
         favoriteClassType,
         spendCents,
       },
-      package: currentMembership
-        ? {
-            planName: currentMembership.plan.name,
-            sessionsRemaining: currentMembership.sessionsRemaining,
-            sessionsPerMonth: currentMembership.plan.sessionsPerMonth,
-            isUnlimited: currentMembership.plan.isUnlimited,
-            currentPeriodEnd: currentMembership.currentPeriodEnd,
-          }
-        : null,
       trend: {
         attendance: [...attendanceTrendMap.entries()].map(([date, count]) => ({
           date,

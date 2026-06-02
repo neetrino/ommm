@@ -115,12 +115,6 @@ export type AnalyticsCoachRow = {
   };
 };
 
-export type AnalyticsPackageRow = {
-  id: string;
-  status: string;
-  plan: { id: string; name: string };
-};
-
 export type AdminAnalyticsPayload = {
   locale: string;
   rangeDays: AnalyticsRangeDays;
@@ -137,6 +131,4 @@ export type AdminAnalyticsPayload = {
   bookings: AnalyticsBookingsPayload;
   clients: AnalyticsClientsSummary;
   coaches: AnalyticsCoachRow[];
-  packages: AnalyticsPackageRow[];
-  packagesSampledLimit: number;
 };

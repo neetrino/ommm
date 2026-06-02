@@ -37,11 +37,10 @@ import {
   mergeAdminClientsUrlQuery,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
-import type { AdminClientsPayload, ClientDetail, ClientRow, PackageOption } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientDetail, ClientRow } from "./admin-clients-types";
 
 type Props = {
   initial: AdminClientsPayload;
-  packages: PackageOption[];
   locale: string;
   initialFilters: Record<string, string>;
 };
@@ -58,7 +57,7 @@ const segmentFilterOptions: ReadonlyArray<readonly [AdminClientSegmentFilter, st
   ["no-show", "No-show Clients"],
 ];
 
-export function AdminClientsManagement({ initial, packages, locale, initialFilters }: Props) {
+export function AdminClientsManagement({ initial, locale, initialFilters }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -69,7 +68,6 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
     search: initialFilters.search ?? "",
     tag: initialFilters.tag ?? "",
     status: initialFilters.status ?? "",
-    packageType: initialFilters.packageType ?? "",
     classLevel: initialFilters.classLevel ?? "",
     paymentStatus: initialFilters.paymentStatus ?? "",
     source: initialFilters.source ?? "",
@@ -238,7 +236,6 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
       search: "",
       tag: "",
       status: "",
-      packageType: "",
       classLevel: "",
       paymentStatus: "",
       source: "",
@@ -276,7 +273,6 @@ export function AdminClientsManagement({ initial, packages, locale, initialFilte
       ) : null}
       <AdminClientDrawer
         client={selected}
-        packages={packages}
         locale={locale}
         onClose={closeClientView}
         onChanged={() => router.refresh()}
@@ -313,7 +309,6 @@ function countActiveClientFilters(
     filters.search.trim(),
     filters.tag,
     filters.status,
-    filters.packageType,
     filters.classLevel,
     filters.paymentStatus,
     filters.source,
@@ -402,19 +397,6 @@ function FiltersPanel(props: {
               ["blocked", "Blocked"],
             ]}
             ariaLabel="Status"
-          />
-        </FilterField>
-        <FilterField label="Package">
-          <FilterSelect
-            value={props.filters.packageType}
-            onChange={(value) => props.onChange("packageType", value)}
-            options={[
-              ["", "All packages"],
-              ["single-class", "Single class"],
-              ["monthly-package", "Monthly package"],
-              ["vip-package", "VIP package"],
-            ]}
-            ariaLabel="Package"
           />
         </FilterField>
         <FilterField label="Payment">
@@ -607,20 +589,18 @@ function ClientsTable({
 
   return (
     <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[72rem]`}>
+      <table className={`${adminChrome.table} table-fixed min-w-[60rem]`}>
         <colgroup>
-          <col className="w-[32%]" />
-          <col className="w-[14%]" />
-          <col className="w-[12%]" />
-          <col className="w-[14%]" />
-          <col className="w-[14%]" />
-          <col className="w-[14%]" />
+          <col className="w-[36%]" />
+          <col className="w-[16%]" />
+          <col className="w-[16%]" />
+          <col className="w-[16%]" />
+          <col className="w-[16%]" />
         </colgroup>
         <thead className={adminChrome.thead}>
           <tr>
             <th className={adminChrome.th}>{t("title")}</th>
             <th className={`${adminChrome.th} text-center`}>Date of birth</th>
-            <th className={`${adminChrome.th} text-center`}>Sessions</th>
             <th className={`${adminChrome.th} text-center`}>Register date</th>
             <th className={`${adminChrome.th} text-center`}>Notes</th>
             <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
@@ -682,7 +662,6 @@ function ClientTableRow({
       <td className={`${adminChrome.td} text-center ${rowDivider}`}>
         {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
       </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>{sessionText(row)}</td>
       <td className={`${adminChrome.td} text-center ${rowDivider}`}>
         {formatDateForUi(row.createdAt)}
       </td>
@@ -733,13 +712,6 @@ function ClientBadge({ label }: { label: string }) {
       {label}
     </span>
   );
-}
-
-function sessionText(row: ClientRow) {
-  const activePackage = row.activePackage;
-  if (!activePackage) return "—";
-  if (activePackage.plan.isUnlimited) return "∞";
-  return `${activePackage.sessionsRemaining ?? 0}/${activePackage.plan.sessionsPerMonth ?? "—"}`;
 }
 
 function fullName(row: { name: string | null; lastName: string | null; email: string }) {

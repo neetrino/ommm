@@ -128,29 +128,6 @@ export function sortBarItems(
   }
 }
 
-export function countPackageStatuses(
-  rows: Array<{ status: string; plan: { name: string } }>,
-): Array<{ status: string; count: number }> {
-  const counts = new Map<string, number>();
-  for (const row of rows) {
-    counts.set(row.status, (counts.get(row.status) ?? 0) + 1);
-  }
-  return [...counts.entries()]
-    .map(([status, count]) => ({ status, count }))
-    .sort((a, b) => b.count - a.count);
-}
-
-export function countPackagePlans(
-  rows: Array<{ plan: { name: string } }>,
-): AnalyticsBarItem[] {
-  const counts = new Map<string, number>();
-  for (const row of rows) {
-    counts.set(row.plan.name, (counts.get(row.plan.name) ?? 0) + 1);
-  }
-  return [...counts.entries()]
-    .map(([label, value]) => ({ key: label, label, value }))
-    .sort((a, b) => b.value - a.value);
-}
 
 export function buildClassPopularity(
   rows: Array<{ session: { classType: { id: string; name: string } } }>,

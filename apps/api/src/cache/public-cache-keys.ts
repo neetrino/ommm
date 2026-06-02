@@ -2,7 +2,6 @@
 export const PUBLIC_CACHE_TTL_SEC = {
   schedule: 120,
   coaches: 120,
-  packages: 300,
   contentPosts: 300,
   contentPost: 300,
   studio: 600,
@@ -20,7 +19,6 @@ export function publicCacheKey(segment: string): string {
 export const PUBLIC_CACHE_KEYS = {
   schedule: publicCacheKey('schedule'),
   coaches: publicCacheKey('coaches'),
-  packages: publicCacheKey('packages'),
   contentPosts: (type?: string) =>
     publicCacheKey(type ? `content:posts:${type}` : 'content:posts'),
   contentPost: (slug: string) => publicCacheKey(`content:post:${slug}`),
