@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { memberChrome } from "@/components/account/member-chrome";
 import { MemberNextClassCard } from "@/components/account/member-next-class-card";
@@ -7,8 +6,7 @@ import { MemberWaitlistSection } from "@/components/account/member-waitlist-sect
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatSessionRange } from "@/lib/format-session-time";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
-import { userDisplayInitials } from "@/lib/user-display-initials";
+import { userDisplayName } from "@/lib/user-display-name";
 
 type NextBooking = {
   id: string;
@@ -27,29 +25,15 @@ type AchievementRow = { title: string; unlockedAt: string };
 
 export type MemberDashboardProps = {
   locale: string;
-  displayName: string;
   name: string | null;
   lastName: string | null;
   email: string;
-  homeImageSrc?: string | null;
   nextBooking: NextBooking | null;
   waitlistOk: boolean;
   waitlistRows: WaitlistRow[];
   achievements: AchievementRow[];
   coachProfileId: string | null;
 };
-
-function memberGreetingName(
-  name: string | null,
-  lastName: string | null,
-  displayName: string,
-): string {
-  const full = [name?.trim(), lastName?.trim()].filter(Boolean).join(" ");
-  if (full.length > 0) {
-    return full;
-  }
-  return displayName.trim();
-}
 
 function minutesBetween(startIso: string, endIso: string): number {
   const ms = new Date(endIso).getTime() - new Date(startIso).getTime();
@@ -70,11 +54,9 @@ function formatDateTimeLabel(value: string, locale: string): string {
 
 export async function MemberDashboard({
   locale,
-  displayName,
   name,
   lastName,
   email,
-  homeImageSrc,
   nextBooking,
   waitlistOk,
   waitlistRows,
@@ -82,8 +64,7 @@ export async function MemberDashboard({
   coachProfileId,
 }: MemberDashboardProps) {
   const t = await getTranslations({ locale, namespace: "account.dashboard" });
-  const greetingName = memberGreetingName(name, lastName, displayName);
-  const initial = userDisplayInitials(name, lastName, email);
+  const greetingName = userDisplayName(name, lastName, email);
 
   const nextHref = "/user/classes";
   const nextImage = "/marketing/home/next-class.jpg";
@@ -109,27 +90,10 @@ export async function MemberDashboard({
       <div className="space-y-10 pb-4 sm:space-y-12">
         <div className="grid w-full grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
-            <div className="flex items-center gap-4">
-              <span className={memberChrome.avatar}>
-                {homeImageSrc ? (
-                  <Image
-                    src={homeImageSrc}
-                    alt=""
-                    width={56}
-                    height={56}
-                    sizes="56px"
-                    className="h-full w-full object-cover"
-                    {...belowFoldImageProps()}
-                  />
-                ) : (
-                  initial
-                )}
-              </span>
-              <p className={`${memberChrome.greeting} text-base sm:text-lg`}>
-                {t("greeting")}{" "}
-                <span className="font-medium text-sage-800">{greetingName}</span>
-              </p>
-            </div>
+            <p className={`${memberChrome.greeting} text-base sm:text-lg`}>
+              {t("greeting")}{" "}
+              <span className="font-medium text-sage-800">{greetingName}</span>
+            </p>
 
             <h1 className={`${memberChrome.heroTitle} mt-8`}>
               {t("titleStart")}{" "}

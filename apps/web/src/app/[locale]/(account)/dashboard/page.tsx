@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import { MemberDashboard } from "@/components/account/member-dashboard";
 import { isUserDashboardRole } from "@/lib/role-home";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -81,9 +80,6 @@ export default async function UserDashboardPage({
     .slice(0, 5);
 
   const achievements = meRes.data.achievements.slice(0, 6);
-  const displayName =
-    meRes.data.user.name?.trim() || meRes.data.user.email;
-  const homeImageSrc = resolveApiAssetUrl(meRes.data.user.homeImageUrl ?? null);
   const first = upcoming[0];
   const nextBooking = first
     ? {
@@ -97,11 +93,9 @@ export default async function UserDashboardPage({
   return (
     <MemberDashboard
       locale={locale}
-      displayName={displayName}
       name={meRes.data.user.name}
       lastName={meRes.data.user.lastName}
       email={meRes.data.user.email}
-      homeImageSrc={homeImageSrc}
       nextBooking={nextBooking}
       waitlistOk={waitRes.ok}
       waitlistRows={waitRes.ok ? waitRes.data : []}

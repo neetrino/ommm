@@ -351,7 +351,14 @@
       "globalSearchAria": "Global search",
       "globalSearchHint": "Global search is not available yet.",
       "adminProfileLabel": "Admin",
-      "memberProfileLabel": "Profile"
+      "memberProfileLabel": "Profile",
+      "roles": {
+        "USER": "Member",
+        "COACH": "Coach",
+        "MANAGER": "Manager",
+        "CONTENT_ADMIN": "Content admin",
+        "ADMIN": "Admin"
+      }
     },
     "brand": {
       "member": {

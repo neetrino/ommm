@@ -321,7 +321,12 @@ export function DashboardAppShell({
                   drawerOpen={drawerOpen}
                   onMenuToggle={() => setDrawerOpen((open) => !open)}
                   profile={
-                    memberProfile ?? { initials: "?", imageSrc: null }
+                    memberProfile ?? {
+                      initials: "?",
+                      imageSrc: null,
+                      displayName: "—",
+                      roleKey: "USER",
+                    }
                   }
                   notificationHref={notificationRoute?.href}
                   notificationLabel={notificationsLabel ?? undefined}

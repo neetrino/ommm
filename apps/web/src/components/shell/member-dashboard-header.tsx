@@ -9,6 +9,8 @@ import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 export type MemberHeaderProfile = {
   initials: string;
   imageSrc: string | null;
+  displayName: string;
+  roleKey: string;
 };
 
 type MemberDashboardHeaderProps = {
@@ -31,6 +33,8 @@ export function MemberDashboardHeader({
   notificationsActive = false,
 }: MemberDashboardHeaderProps) {
   const tShell = useTranslations("dashboard.shell");
+  const tRoles = useTranslations("dashboard.shell.roles");
+  const roleLabel = (tRoles as (key: string) => string)(profile.roleKey);
 
   const notificationClass = notificationsActive
     ? "ommm-admin-icon-button ommm-admin-icon-button-active"
@@ -93,13 +97,22 @@ export function MemberDashboardHeader({
         ) : null}
         <LanguageSwitcher context="dashboard" dashboardVariant="member" />
         <div className="ommm-admin-account-cluster">
-          <Link href="/user/profile" className="ommm-admin-profile-chip">
+          <Link
+            href="/user/profile"
+            className="ommm-admin-profile-chip"
+            aria-label={`${profile.displayName}, ${roleLabel}`}
+          >
             <MemberProfileAvatar
               initials={profile.initials}
               imageSrc={profile.imageSrc}
             />
-            <span className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 sm:inline">
-              {tShell("memberProfileLabel")}
+            <span className="hidden min-w-0 max-w-[9rem] flex-col text-left leading-tight sm:flex md:max-w-[11rem]">
+              <span className="truncate text-xs font-semibold text-sage-800">
+                {profile.displayName}
+              </span>
+              <span className="truncate text-[10px] font-medium text-sage-500">
+                {roleLabel}
+              </span>
             </span>
           </Link>
           <LogoutButton className="ommm-admin-account-logout" />

@@ -351,7 +351,14 @@
       "globalSearchAria": "Глобальный поиск",
       "globalSearchHint": "Глобальный поиск пока недоступен.",
       "adminProfileLabel": "Админ",
-      "memberProfileLabel": "Профиль"
+      "memberProfileLabel": "Профиль",
+      "roles": {
+        "USER": "Участник",
+        "COACH": "Тренер",
+        "MANAGER": "Менеджер",
+        "CONTENT_ADMIN": "Контент-админ",
+        "ADMIN": "Админ"
+      }
     },
     "brand": {
       "member": {
