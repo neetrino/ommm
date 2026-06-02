@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -12,7 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
-import { AdminPillTabs } from "@/components/admin/admin-pill-tabs";
+import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
   buildPackageCategoryOptions,
   packagesInCategory,
@@ -22,7 +23,10 @@ import {
   PackagesAddButton,
 } from "@/components/admin/admin-packages-shell";
 import { AdminPackagesCategoryTable } from "@/components/admin/admin-packages-category-table";
-import type { AdminPackagesCategoryOption } from "@/components/admin/admin-packages-category-multi-select";
+import {
+  syncPackageCategorySelection,
+  type AdminPackagesCategoryOption,
+} from "@/components/admin/admin-packages-category-multi-select";
 import {
   type AdminPackageRow,
   mergeAdminPackageRowsFromServer,
@@ -87,24 +91,19 @@ export function AdminPackagesManagement({
     [sortedPackages],
   );
 
-  const [activeCategoryId, setActiveCategoryId] = useState(
-    () => categoryOptions[0]?.id ?? "",
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
   );
+  const prevCategoryOptionsRef = useRef<readonly AdminPackagesCategoryOption[]>([]);
   const [expandedCategoryKeys, setExpandedCategoryKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
 
   useEffect(() => {
-    if (categoryOptions.length === 0) {
-      setActiveCategoryId("");
-      return;
-    }
-    setActiveCategoryId((current) => {
-      if (categoryOptions.some((option) => option.id === current)) {
-        return current;
-      }
-      return categoryOptions[0]?.id ?? "";
-    });
+    setSelectedCategoryIds((current) =>
+      syncPackageCategorySelection(categoryOptions, prevCategoryOptionsRef.current, current),
+    );
+    prevCategoryOptionsRef.current = categoryOptions;
   }, [categoryOptions]);
 
   const editingCategoryName = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
@@ -118,19 +117,23 @@ export function AdminPackagesManagement({
     );
 
   const visibleCategories = useMemo(
-    () =>
-      activeCategoryId.length > 0
-        ? categoryOptions.filter((option) => option.id === activeCategoryId)
-        : categoryOptions,
-    [activeCategoryId, categoryOptions],
+    () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
+    [categoryOptions, selectedCategoryIds],
   );
 
-  const defaultCategoryId = activeCategoryId || categoryOptions[0]?.id || "";
+  const defaultCategoryId = useMemo(() => {
+    const firstSelected = categoryOptions.find((option) => selectedCategoryIds.has(option.id));
+    return firstSelected?.id ?? categoryOptions[0]?.id ?? "";
+  }, [categoryOptions, selectedCategoryIds]);
 
   const handlePackageCreated = useCallback((saved: AdminPackageRow) => {
     const normalized = normalizeAdminPackageRow(saved);
     setPackageRows((current) => upsertAdminPackageRow(current, normalized));
-    setActiveCategoryId(normalized.categoryName);
+    setSelectedCategoryIds((current) => {
+      const next = new Set(current);
+      next.add(normalized.categoryName);
+      return next;
+    });
     setExpandedCategoryKeys((current) => {
       const next = new Set(current);
       next.add(normalizePackageCategoryKey(normalized.categoryName));
@@ -229,11 +232,10 @@ export function AdminPackagesManagement({
   const toolbar = (
     <div className="ommm-admin-packages-toolbar">
       {categoryOptions.length > 0 ? (
-        <AdminPillTabs
-          items={categoryOptions}
-          activeId={activeCategoryId}
-          onChange={setActiveCategoryId}
-          ariaLabel={t("filters.categoriesLabel")}
+        <AdminPackagesCategoryDropdown
+          options={categoryOptions}
+          selectedIds={selectedCategoryIds}
+          onChange={setSelectedCategoryIds}
         />
       ) : (
         <div className="min-w-0 flex-1" />
