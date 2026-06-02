@@ -5,13 +5,7 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
-  transition:
-    filter 220ms ease,
-    transform 220ms ease;
-}
-
-.cta:hover {
-  filter: brightness(1.06);
+  transition: transform 220ms ease;
 }
 
 .cta:active {
@@ -28,6 +22,11 @@
 .shape {
   pointer-events: none;
   object-fit: fill;
+  transition: filter 220ms ease;
+}
+
+.cta:hover .shape {
+  filter: brightness(1.06);
 }
 
 .label {
@@ -75,28 +74,23 @@
   isolation: isolate;
 }
 
-.coachesDetails.cta:hover {
-  filter: none;
-  transform: translateY(-0.125rem) scale(1.02);
-  box-shadow: 0 10px 24px rgba(255, 255, 255, 0.24);
-}
-
-.coachesDetails.cta:active {
-  transform: translateY(0) scale(0.98);
-}
-
 .glassLayers {
   pointer-events: none;
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  transition: filter 220ms ease;
   mask-image: url("/marketing/home/sections/home-coaches-cta-shape.svg");
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
   -webkit-mask-image: url("/marketing/home/sections/home-coaches-cta-shape.svg");
   -webkit-mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
+}
+
+.cta:hover .glassLayers {
+  filter: brightness(1.06);
 }
 
 .glassBase {
@@ -157,25 +151,6 @@
   opacity: 0.7;
 }
 
-.glassSweep {
-  pointer-events: none;
-  position: absolute;
-  inset-block: 0;
-  left: -80%;
-  width: 42%;
-  rotate: 22deg;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
-  opacity: 0;
-  transition:
-    left 700ms ease-out,
-    opacity 700ms ease-out;
-}
-
-.coachesDetails:hover .glassSweep {
-  left: 125%;
-  opacity: 1;
-}
-
 .coachesDetails .label {
   z-index: 1;
   color: #97907c;
@@ -231,14 +206,6 @@
   .coachesDetails .glassRadial,
   .coachesDetails .glassLinear {
     animation: none;
-  }
-
-  .coachesDetails .glassSweep {
-    display: none;
-  }
-
-  .coachesDetails.cta:hover {
-    transform: none;
   }
 }
 

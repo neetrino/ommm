@@ -5,13 +5,14 @@ import {
   type HomeClassCardVisual,
 } from "@/components/marketing/home/home-classes-section-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { visibleRowImageProps } from "@/lib/image-loading-props";
 
 type HomeClassPracticeCardProps = {
   visual: HomeClassCardVisual;
   titleLines: readonly string[];
   body: string;
   gridClassName: string;
+  imageIndex: number;
 };
 
 export function HomeClassPracticeCard({
@@ -19,6 +20,7 @@ export function HomeClassPracticeCard({
   titleLines,
   body,
   gridClassName,
+  imageIndex,
 }: HomeClassPracticeCardProps) {
   const imageZoneClass =
     visual.imageVariant === "wide"
@@ -66,7 +68,7 @@ export function HomeClassPracticeCard({
           height={640}
           sizes="(max-width: 768px) 45vw, 240px"
           className={imageClass}
-          {...belowFoldImageProps()}
+          {...visibleRowImageProps(imageIndex)}
         />
       </div>
     </article>

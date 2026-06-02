@@ -91,7 +91,10 @@
       "primaryCta": "Записаться",
       "secondaryCta": "Пакеты",
       "heroImageAlt": "Человек в позе медитации в светлой минималистичной студии с овальным проёмом к морю",
-      "logoAlt": "Эмблема студии Ommm"
+      "logoAlt": "Эмблема студии Ommm",
+      "junctionNavAria": "Навигация по фото hero",
+      "junctionNavPrevAria": "Предыдущее фото hero",
+      "junctionNavNextAria": "Следующее фото hero"
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",

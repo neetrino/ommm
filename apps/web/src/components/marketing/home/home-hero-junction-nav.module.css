@@ -1,0 +1,77 @@
+.junctionNav {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  transform: translateX(-50%);
+  gap: var(--home-hero-junction-gap);
+}
+
+.button {
+  pointer-events: auto;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--home-hero-junction-button-size);
+  height: var(--home-hero-junction-button-size);
+  border: none;
+  border-radius: 9999px;
+  padding: 0;
+  cursor: pointer;
+  background-color: var(--home-hero-junction-button-fill, #ffffff);
+  box-shadow: 0 4px 14px rgba(45, 40, 35, 0.12);
+  transition:
+    transform 220ms ease,
+    filter 220ms ease;
+}
+
+.button:hover {
+  transform: translateY(-0.125rem);
+  filter: brightness(1.04);
+}
+
+.button:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.button:disabled {
+  cursor: default;
+}
+
+.button:disabled:hover {
+  transform: none;
+  filter: none;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(87, 127, 145, 0.45);
+  border-radius: 9999px;
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+}
+
+.iconUp {
+  transform: rotate(-135deg);
+}
+
+.iconDown {
+  transform: rotate(-45deg) scaleY(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .button:hover,
+  .button:active {
+    transform: none;
+    transition: none;
+  }
+}

@@ -83,6 +83,7 @@ export async function MarketingPublicHomeClassesSection({
                 titleLines={copy.titleLines}
                 body={copy.body}
                 gridClassName={`${HOME_CLASS_CARD_GRID_CLASS} ${HOME_CLASS_CARD_GRID_OFFSETS[index] ?? ""}`}
+                imageIndex={index}
               />
             );
           })}

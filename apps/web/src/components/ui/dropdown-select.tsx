@@ -122,7 +122,7 @@ export function DropdownSelect<T extends string>({
     if (!open || disabled) {
       return undefined;
     }
-    const closeOnOutside = (event: MouseEvent | TouchEvent) => {
+    const closeOnOutside = (event: MouseEvent) => {
       if (!(event.target instanceof Node)) {
         return;
       }
@@ -132,11 +132,12 @@ export function DropdownSelect<T extends string>({
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", closeOnOutside);
-    document.addEventListener("touchstart", closeOnOutside);
+    const listenerId = window.setTimeout(() => {
+      document.addEventListener("click", closeOnOutside);
+    }, 0);
     return () => {
-      document.removeEventListener("mousedown", closeOnOutside);
-      document.removeEventListener("touchstart", closeOnOutside);
+      window.clearTimeout(listenerId);
+      document.removeEventListener("click", closeOnOutside);
     };
   }, [disabled, open]);
 

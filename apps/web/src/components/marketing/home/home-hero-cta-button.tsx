@@ -43,7 +43,6 @@ export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonPro
           <span className={styles.glassBase} />
           <span className={styles.glassRadial} />
           <span className={styles.glassLinear} />
-          <span className={styles.glassSweep} />
         </span>
       ) : (
         <Image src={assets.shape} alt="" fill unoptimized className={styles.shape} aria-hidden />

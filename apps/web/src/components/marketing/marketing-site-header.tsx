@@ -179,6 +179,11 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             ))}
           </nav>
           <div className={`flex flex-col gap-2 ${navPillStyles.mobileDivider}`}>
+            <LanguageSwitcher
+              context="marketing"
+              className="w-full"
+              onAfterSelect={() => setOpen(false)}
+            />
             <Link
               href="/schedule"
               className={navPillStyles.mobileCtaPrimary}

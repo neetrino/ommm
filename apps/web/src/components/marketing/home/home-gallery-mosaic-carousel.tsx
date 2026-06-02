@@ -94,6 +94,18 @@ export function HomeGalleryMosaicCarousel({
   const slideCount = HOME_GALLERY_SLIDES.length;
   const lastIndex = Math.max(0, slideCount - 1);
   const [active, setActive] = useState(0);
+  const [mountedSlides, setMountedSlides] = useState<ReadonlySet<number>>(() => new Set([0]));
+
+  useEffect(() => {
+    setMountedSlides((prev) => {
+      if (prev.has(active)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(active);
+      return next;
+    });
+  }, [active]);
 
   const goPrev = useCallback(() => {
     setActive((prev) => (prev - 1 + slideCount) % slideCount);
@@ -156,7 +168,7 @@ export function HomeGalleryMosaicCarousel({
               className={`${styles.slide} ${index === active ? styles.slideActive : ""}`}
               aria-hidden={index !== active}
             >
-              <GalleryMosaicSlide slide={slide} />
+              {mountedSlides.has(index) ? <GalleryMosaicSlide slide={slide} /> : null}
             </div>
           ))}
         </div>

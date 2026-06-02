@@ -91,7 +91,10 @@
       "primaryCta": "Ամրագրել",
       "secondaryCta": "Փաթեթներ",
       "heroImageAlt": "Մարդ է մեդիտացիայի դիրքում՝ լուսավոր մինիմալիստ ստուդիայում, օվալ պատուհանով դեպի ծով",
-      "logoAlt": "Ommm ստուդիայի նշան"
+      "logoAlt": "Ommm ստուդիայի նշան",
+      "junctionNavAria": "Hero նկարների navigation",
+      "junctionNavPrevAria": "Նախորդ hero նկար",
+      "junctionNavNextAria": "Հաջորդ hero նկար"
     },
     "home": {
       "weeklyScheduleTitle": "Շաբաթական դասացուցակ",

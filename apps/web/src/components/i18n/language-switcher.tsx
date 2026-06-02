@@ -1,9 +1,10 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState, useTransition, type ReactNode } from "react";
+import { useTransition, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
+import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
@@ -44,8 +45,6 @@ export function LanguageSwitcher({
   const locale = useLocale();
   const t = useTranslations("language");
   const [pending, startTransition] = useTransition();
-  const [persisting, setPersisting] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
 
   const current: LanguageSwitcherLocaleCode | null = isLanguageSwitcherLocale(
     locale,
@@ -67,36 +66,27 @@ export function LanguageSwitcher({
       onAfterSelect?.();
       return;
     }
-    const previous = locale;
+
     setUiLocaleCookie(next);
-    setPersisting(true);
-    void (async () => {
-      try {
-        await apiFetch<{ user: { locale: string } }>("/users/me", {
-          method: "PATCH",
-          body: JSON.stringify({ locale: next }),
-        });
-      } catch (err) {
-        const isGuest = err instanceof ApiError && err.status === 401;
-        if (!isGuest) {
-          setUiLocaleCookie(previous);
-          setPersisting(false);
-          return;
-        }
-      }
-      setPersisting(false);
-      startTransition(() => {
-        router.replace(pathname, { locale: next });
-        onAfterSelect?.();
-      });
-    })();
+    captureLocaleSwitchScroll();
+    startTransition(() => {
+      router.replace(pathname, { locale: next, scroll: false });
+      onAfterSelect?.();
+    });
+
+    void apiFetch<{ user: { locale: string } }>("/users/me", {
+      method: "PATCH",
+      body: JSON.stringify({ locale: next }),
+    }).catch(() => {
+      // Guest or offline — cookie + URL are the source of truth for marketing UI.
+    });
   }
 
   const triggerLabel = `${t("switcherAria")}: ${t(`optionNames.${effectiveLocale}`)}`;
   const options: readonly DropdownOption<LanguageSwitcherLocaleCode>[] = LANGUAGE_SWITCHER_ORDER.map(
     (code) => ({
       value: code,
-      label: code,
+      label: t(`optionNames.${code}`),
     }),
   );
 
@@ -104,7 +94,6 @@ export function LanguageSwitcher({
 
   return (
     <div
-      ref={rootRef}
       className={`ommm-dropdown-root shrink-0 ${rootMinWidth} ${className}`.trim()}
     >
       <DropdownSelect<LanguageSwitcherLocaleCode>
@@ -113,7 +102,7 @@ export function LanguageSwitcher({
         value={effectiveLocale}
         options={options}
         onChange={select}
-        disabled={pending || persisting}
+        disabled={pending}
         triggerClassName={
           triggerClassName ??
           (compact
@@ -132,17 +121,15 @@ export function LanguageSwitcher({
           ) : (
             <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
               <LocaleFlagIcon code={effectiveLocale} />
-              <span>{effectiveLocale}</span>
+              <span>{t(`optionNames.${effectiveLocale}`)}</span>
             </span>
           )
         }
         renderOption={(option, selected) => (
           <>
             <LocaleFlagIcon code={option.value} />
-            <span className="min-w-0 flex-1">
-              {isIconMarketing ? t(`optionNames.${option.value}`) : option.label}
-            </span>
-            <span className="sr-only">{t(`optionNames.${option.value}`)}</span>
+            <span className="min-w-0 flex-1">{option.label}</span>
+            {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
         )}
       />

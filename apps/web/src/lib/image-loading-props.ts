@@ -35,3 +35,11 @@ export function firstRowGridImageProps(index: number, rowSize = 4): ImageLoading
   }
   return belowFoldImageProps();
 }
+
+/** First visible row inside a lazily mounted section (not the page LCP). */
+export function visibleRowImageProps(index: number, rowSize = 2): ImageLoadingProps {
+  if (index < rowSize) {
+    return aboveFoldImageProps();
+  }
+  return belowFoldImageProps();
+}
