@@ -6,16 +6,16 @@ import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
-type MembershipPlanSwitchButtonProps = {
-  membershipId: string;
+type PackagePlanSwitchButtonProps = {
+  userPackageId: string;
   planId: string;
 };
 
-export function MembershipPlanSwitchButton({
-  membershipId,
+export function PackagePlanSwitchButton({
+  userPackageId,
   planId,
-}: MembershipPlanSwitchButtonProps) {
-  const t = useTranslations("forms.membershipLifecycle");
+}: PackagePlanSwitchButtonProps) {
+  const t = useTranslations("forms.packageLifecycle");
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function MembershipPlanSwitchButton({
     setBusy(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/me/${membershipId}/change-plan`, {
+      await apiFetch(`/packages/me/${userPackageId}/change-plan`, {
         method: "PATCH",
         body: JSON.stringify({ planId }),
       });

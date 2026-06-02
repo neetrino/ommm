@@ -22,8 +22,8 @@ import type { UpdatePlanDto } from './dto/update-plan.dto';
 const MIN_PRORATED_SESSIONS = 1;
 
 @Injectable()
-export class MembershipsService {
-  private readonly logger = new Logger(MembershipsService.name);
+export class PackagesService {
+  private readonly logger = new Logger(PackagesService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -33,8 +33,8 @@ export class MembershipsService {
 
   async listPlans() {
     return this.cache.getOrSet(
-      PUBLIC_CACHE_KEYS.memberships,
-      PUBLIC_CACHE_TTL_SEC.memberships,
+      PUBLIC_CACHE_KEYS.packages,
+      PUBLIC_CACHE_TTL_SEC.packages,
       () => this.loadActivePlansFromDb(),
     );
   }
@@ -101,7 +101,7 @@ export class MembershipsService {
           stripePriceId: dto.stripePriceId,
         },
       });
-      await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
+      await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return plan;
     } catch (error) {
       if (this.isUniquePlanConflict(error)) {
@@ -113,7 +113,7 @@ export class MembershipsService {
         throw error;
       }
       const legacyPlan = await this.createPlanLegacy(dto, slug);
-      await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
+      await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
       return legacyPlan;
     }
   }
@@ -179,7 +179,7 @@ export class MembershipsService {
       entityId: planId,
       payload: data,
     });
-    await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
     return updated;
   }
 
@@ -198,7 +198,7 @@ export class MembershipsService {
       entityId: planId,
       payload: {},
     });
-    await this.cache.invalidate(PUBLIC_CACHE_KEYS.memberships);
+    await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
     return { ok: true };
   }
 

@@ -33,10 +33,10 @@ function fullName(client: { name: string | null; lastName: string | null; email:
   return value || client.email;
 }
 
-function sessionsLabel(membership: ClientDetail["memberships"][number] | null) {
-  if (!membership) return "—";
-  if (membership.plan.isUnlimited) return "∞";
-  return `${membership.sessionsRemaining ?? 0}/${membership.plan.sessionsPerMonth ?? "—"}`;
+function sessionsLabel(userPackage: ClientDetail["packages"][number] | null) {
+  if (!userPackage) return "—";
+  if (userPackage.plan.isUnlimited) return "∞";
+  return `${userPackage.sessionsRemaining ?? 0}/${userPackage.plan.sessionsPerMonth ?? "—"}`;
 }
 
 export function AdminClientDrawer({ client, packages, locale, onClose, onChanged }: Props) {
@@ -235,7 +235,7 @@ function BasicInfo({ data, locale }: { data: ClientDetail; locale: string }) {
           <Field label="Status" value={data.activity.status} />
           <Field label="Source" value={data.activity.source ?? "—"} />
           <Field label="Preferred coach" value={data.activity.preferredCoach?.name ?? "—"} />
-          <Field label="Sessions remaining" value={sessionsLabel(data.activity.activeMembership)} />
+          <Field label="Sessions remaining" value={sessionsLabel(data.activity.activePackage)} />
           <Field label="Lifetime value" value={formatAmdFromCents(data.activity.lifetimeValueCents, locale)} />
         </div>
       </div>

@@ -10,8 +10,8 @@ type Props = {
   label?: string;
 };
 
-export function MembershipCheckoutButton({ planId, label }: Props) {
-  const t = useTranslations("forms.membershipCheckout");
+export function PackageCheckoutButton({ planId, label }: Props) {
+  const t = useTranslations("forms.packageCheckout");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const cta = label ?? t("subscribe");
@@ -21,7 +21,7 @@ export function MembershipCheckoutButton({ planId, label }: Props) {
     setMsg(null);
     try {
       const { url } = await apiFetch<{ url: string | null }>(
-        `/payments/checkout/membership/${planId}`,
+        `/payments/checkout/package/${planId}`,
         { method: "POST" },
       );
       if (url) {

@@ -9,8 +9,8 @@ import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-li
 import { AdminAnalyticsFilters } from "@/components/admin/admin-analytics-filters";
 import {
   computeAttendanceRate,
-  countMembershipPlans,
-  countMembershipStatuses,
+  countPackagePlans,
+  countPackageStatuses,
   sortBarItems,
 } from "@/components/admin/admin-analytics-helpers";
 import type {
@@ -140,7 +140,7 @@ export function AdminAnalyticsShell({ data }: Props) {
 
   const revenueSourceItems = useMemo(() => {
     const items: AnalyticsBarItem[] = (
-      ["membership", "dropin", "gift", "other"] as const
+      ["package", "dropin", "gift", "other"] as const
     ).map((key) => ({
       key,
       label: t(`sources.${key}`),
@@ -196,8 +196,8 @@ export function AdminAnalyticsShell({ data }: Props) {
     return sortBarItems(items, sortKey).slice(0, 10);
   }, [data.coaches, sortKey]);
 
-  const membershipStatuses = countMembershipStatuses(data.memberships);
-  const membershipPlans = sortBarItems(countMembershipPlans(data.memberships), sortKey);
+  const packageStatuses = countPackageStatuses(data.packages);
+  const packagePlans = sortBarItems(countPackagePlans(data.packages), sortKey);
 
   const rangeAttendanceRate = computeAttendanceRate(
     data.bookings.summary.completed,
@@ -367,18 +367,18 @@ export function AdminAnalyticsShell({ data }: Props) {
       </SectionShell>
 
       <SectionShell
-        title={t("sections.memberships.title")}
-        hint={t("sections.memberships.hint", { limit: data.membershipsSampledLimit })}
+        title={t("sections.packages.title")}
+        hint={t("sections.packages.hint", { limit: data.packagesSampledLimit })}
       >
         {viewMode === "table" ? (
           <MetricTable
             labels={tableLabels}
             rows={[
               {
-                label: t("sections.memberships.activeDashboard"),
+                label: t("sections.packages.activeDashboard"),
                 value: String(data.dashboard.activeMembers),
               },
-              ...membershipStatuses.map((row) => ({
+              ...packageStatuses.map((row) => ({
                 label: row.status,
                 value: String(row.count),
               })),
@@ -386,9 +386,9 @@ export function AdminAnalyticsShell({ data }: Props) {
           />
         ) : (
           <AdminAnalyticsBarList
-            items={membershipPlans.slice(0, 10)}
+            items={packagePlans.slice(0, 10)}
             emptyLabel={t("empty")}
-            ariaLabel={t("sections.memberships.chartAria")}
+            ariaLabel={t("sections.packages.chartAria")}
           />
         )}
       </SectionShell>

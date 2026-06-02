@@ -34,7 +34,7 @@ type UserAnalyticsResponse = {
     favoriteClassType: string | null;
     spendCents: number;
   };
-  membership: {
+  package: {
     planName: string;
     sessionsRemaining: number | null;
     sessionsPerMonth: number | null;
@@ -103,17 +103,17 @@ export default async function UserProgressPage({
               <p className="mt-1 text-xs text-sage-500">{t("last7Days")}</p>
             </li>
             <li className="ommm-stack-card text-sm text-sage-700">
-              <p className="font-semibold text-sage-800">{t("membershipUsage")}</p>
+              <p className="font-semibold text-sage-800">{t("packageUsage")}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-sage-900">
-                {analytics.membership
-                  ? analytics.membership.isUnlimited
+                {analytics.package
+                  ? analytics.package.isUnlimited
                     ? t("unlimitedLabel")
-                    : analytics.membership.sessionsRemaining ?? 0
+                    : analytics.package.sessionsRemaining ?? 0
                   : "—"}
               </p>
               <p className="mt-1 text-xs text-sage-500">
-                {analytics.membership
-                  ? t("membershipPlanLabel", { plan: analytics.membership.planName })
+                {analytics.package
+                  ? t("packagePlanLabel", { plan: analytics.package.planName })
                   : t("favoriteFallback")}
               </p>
             </li>

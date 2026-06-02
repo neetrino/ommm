@@ -128,7 +128,7 @@ export function sortBarItems(
   }
 }
 
-export function countMembershipStatuses(
+export function countPackageStatuses(
   rows: Array<{ status: string; plan: { name: string } }>,
 ): Array<{ status: string; count: number }> {
   const counts = new Map<string, number>();
@@ -140,7 +140,7 @@ export function countMembershipStatuses(
     .sort((a, b) => b.count - a.count);
 }
 
-export function countMembershipPlans(
+export function countPackagePlans(
   rows: Array<{ plan: { name: string } }>,
 ): AnalyticsBarItem[] {
   const counts = new Map<string, number>();

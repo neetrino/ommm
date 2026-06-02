@@ -47,7 +47,7 @@ type BookingRow = {
     classType: { id: string; name: string };
     coach: { id: string; name: string | null };
   };
-  membership: {
+  package: {
     planName: string;
     sessionsRemaining: number | null;
     sessionsPerMonth: number | null;
@@ -345,10 +345,10 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
                     <div className={adminChrome.metaText}>{formatDateTimeForUi(row.session.startsAt, locale)}</div>
                   </td>
                   <td className={`${adminChrome.td} text-xs`}>
-                    {row.membership?.isUnlimited
+                    {row.package?.isUnlimited
                       ? t("sessionUnlimited")
-                      : row.membership?.sessionsRemaining != null
-                        ? `${row.membership.sessionsRemaining}${row.membership.sessionsPerMonth != null ? ` / ${row.membership.sessionsPerMonth}` : ""}`
+                      : row.package?.sessionsRemaining != null
+                        ? `${row.package.sessionsRemaining}${row.package.sessionsPerMonth != null ? ` / ${row.package.sessionsPerMonth}` : ""}`
                         : t("sessionNotTracked")}
                   </td>
                   <td className={adminChrome.td}><Badge tone="slate" label={paymentLabel(t, row.paymentStatus)} /></td>
@@ -623,11 +623,11 @@ function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }
     name: string | null;
     email: string;
     phone: string | null;
-    memberships?: Array<{ id: string; status: string; sessionsRemaining: number | null; plan: { name: string } }>;
+    packages?: Array<{ id: string; status: string; sessionsRemaining: number | null; plan: { name: string } }>;
     bookings?: Array<{ id: string; status: string; session: { startsAt: string; classType: { name: string } } }>;
   }>(null);
-  useEffect(() => { void apiFetch(`/clients/${userId}`).then((payload) => setData(payload as { name: string | null; email: string; phone: string | null; memberships?: Array<{ id: string; status: string; sessionsRemaining: number | null; plan: { name: string } }>; bookings?: Array<{ id: string; status: string; session: { startsAt: string; classType: { name: string } } }> })).catch(() => setData(null)); }, [userId]);
-  return <div className="ommm-drawer-overlay z-40"><button className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} /><aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4"><div className="mb-3 flex items-center justify-between"><h3 className="font-semibold">{t("userDetailsTitle")}</h3><button onClick={onClose}>x</button></div>{data === null ? <p className="text-sm text-sage-500">{t("emptyUserData")}</p> : <div className="space-y-3 text-sm"><div><p className="font-medium text-sage-900">{data.name ?? data.email}</p><p className="text-sage-600">{data.phone ?? "—"}</p><p className="text-sage-600">{data.email}</p></div><div><p className="text-xs uppercase text-sage-500">{t("membershipInfo")}</p><div className="mt-1 space-y-1">{(data.memberships ?? []).length === 0 ? <p className="text-sage-500">—</p> : (data.memberships ?? []).map((membership) => <p key={membership.id} className="rounded-md bg-sand-50 px-2 py-1 text-xs">{membership.plan.name} · {membership.status} · {membership.sessionsRemaining ?? "∞"}</p>)}</div></div><div><p className="text-xs uppercase text-sage-500">{t("bookingHistory")}</p><div className="mt-1 space-y-1">{(data.bookings ?? []).slice(0, 8).map((booking) => <p key={booking.id} className="rounded-md bg-white/80 px-2 py-1 text-xs">{formatDateTimeForUi(booking.session.startsAt)} · {booking.session.classType.name} · {booking.status}</p>)}</div></div></div>}</aside></div>;
+  useEffect(() => { void apiFetch(`/clients/${userId}`).then((payload) => setData(payload as { name: string | null; email: string; phone: string | null; packages?: Array<{ id: string; status: string; sessionsRemaining: number | null; plan: { name: string } }>; bookings?: Array<{ id: string; status: string; session: { startsAt: string; classType: { name: string } } }> })).catch(() => setData(null)); }, [userId]);
+  return <div className="ommm-drawer-overlay z-40"><button className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} /><aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4"><div className="mb-3 flex items-center justify-between"><h3 className="font-semibold">{t("userDetailsTitle")}</h3><button onClick={onClose}>x</button></div>{data === null ? <p className="text-sm text-sage-500">{t("emptyUserData")}</p> : <div className="space-y-3 text-sm"><div><p className="font-medium text-sage-900">{data.name ?? data.email}</p><p className="text-sage-600">{data.phone ?? "—"}</p><p className="text-sage-600">{data.email}</p></div><div><p className="text-xs uppercase text-sage-500">{t("packageInfo")}</p><div className="mt-1 space-y-1">{(data.packages ?? []).length === 0 ? <p className="text-sage-500">—</p> : (data.packages ?? []).map((membership) => <p key={membership.id} className="rounded-md bg-sand-50 px-2 py-1 text-xs">{membership.plan.name} · {membership.status} · {membership.sessionsRemaining ?? "∞"}</p>)}</div></div><div><p className="text-xs uppercase text-sage-500">{t("bookingHistory")}</p><div className="mt-1 space-y-1">{(data.bookings ?? []).slice(0, 8).map((booking) => <p key={booking.id} className="rounded-md bg-white/80 px-2 py-1 text-xs">{formatDateTimeForUi(booking.session.startsAt)} · {booking.session.classType.name} · {booking.status}</p>)}</div></div></div>}</aside></div>;
 }
 function BookingDrawer({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
   const t = useTranslations("adminPages.bookings");

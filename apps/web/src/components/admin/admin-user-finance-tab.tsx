@@ -60,21 +60,21 @@ function sortRows(rows: ClientRow[], order: string): ClientRow[] {
   if (order === "highest-cost") {
     return copy.sort(
       (a, b) =>
-        (b.activeMembership?.plan.priceCents ?? 0) -
-        (a.activeMembership?.plan.priceCents ?? 0),
+        (b.activePackage?.plan.priceCents ?? 0) -
+        (a.activePackage?.plan.priceCents ?? 0),
     );
   }
   if (order === "lowest-cost") {
     return copy.sort(
       (a, b) =>
-        (a.activeMembership?.plan.priceCents ?? 0) -
-        (b.activeMembership?.plan.priceCents ?? 0),
+        (a.activePackage?.plan.priceCents ?? 0) -
+        (b.activePackage?.plan.priceCents ?? 0),
     );
   }
   if (order === "nearest-expiration") {
     return copy.sort((a, b) => {
-      const aEnd = a.activeMembership?.currentPeriodEnd ?? "";
-      const bEnd = b.activeMembership?.currentPeriodEnd ?? "";
+      const aEnd = a.activePackage?.currentPeriodEnd ?? "";
+      const bEnd = b.activePackage?.currentPeriodEnd ?? "";
       if (!aEnd && !bEnd) return 0;
       if (!aEnd) return 1;
       if (!bEnd) return -1;
@@ -89,13 +89,13 @@ function applyLocalFilters(rows: ClientRow[], filters: UserFinanceFilters): Clie
     if (filters.giftCardOnly && !row.hasGiftCardActivity) {
       return false;
     }
-    if (filters.expirationFrom && row.activeMembership) {
-      if (row.activeMembership.currentPeriodEnd.slice(0, 10) < filters.expirationFrom) {
+    if (filters.expirationFrom && row.activePackage) {
+      if (row.activePackage.currentPeriodEnd.slice(0, 10) < filters.expirationFrom) {
         return false;
       }
     }
-    if (filters.expirationTo && row.activeMembership) {
-      if (row.activeMembership.currentPeriodEnd.slice(0, 10) > filters.expirationTo) {
+    if (filters.expirationTo && row.activePackage) {
+      if (row.activePackage.currentPeriodEnd.slice(0, 10) > filters.expirationTo) {
         return false;
       }
     }
@@ -286,16 +286,16 @@ export function AdminUserFinanceTab({
                     <p className="text-xs font-normal text-sage-500">{row.phone ?? "—"}</p>
                   </td>
                   <td className={adminChrome.td}>
-                    {row.activeMembership?.plan.name ?? t("noMembership")}
+                    {row.activePackage?.plan.name ?? t("noActivePackage")}
                   </td>
                   <td className={adminChrome.td}>
-                    {row.activeMembership
-                      ? formatAmdFromCents(row.activeMembership.plan.priceCents, locale)
+                    {row.activePackage
+                      ? formatAmdFromCents(row.activePackage.plan.priceCents, locale)
                       : "—"}
                   </td>
                   <td className={adminChrome.td}>
-                    {row.activeMembership
-                      ? formatDateForUi(row.activeMembership.currentPeriodEnd)
+                    {row.activePackage
+                      ? formatDateForUi(row.activePackage.currentPeriodEnd)
                       : "—"}
                   </td>
                   <td className={adminChrome.td}>

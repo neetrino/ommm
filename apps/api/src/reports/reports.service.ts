@@ -280,7 +280,7 @@ export class ReportsService {
       })),
       ...upcomingMembershipCancellations.map((membership) => ({
         id: membership.id,
-        type: 'membership' as const,
+        type: 'package' as const,
         userName: this.joinName(
           membership.user.name,
           membership.user.lastName,
@@ -567,7 +567,7 @@ export class ReportsService {
 
     const bySource = payments.reduce<
       Record<
-        'membership' | 'dropin' | 'gift' | 'other',
+        'package' | 'dropin' | 'gift' | 'other',
         { count: number; amountCents: number }
       >
     >(
@@ -580,7 +580,7 @@ export class ReportsService {
         return acc;
       },
       {
-        membership: { count: 0, amountCents: 0 },
+        package: { count: 0, amountCents: 0 },
         dropin: { count: 0, amountCents: 0 },
         gift: { count: 0, amountCents: 0 },
         other: { count: 0, amountCents: 0 },
@@ -951,7 +951,7 @@ export class ReportsService {
         favoriteClassType,
         spendCents,
       },
-      membership: currentMembership
+      package: currentMembership
         ? {
             planName: currentMembership.plan.name,
             sessionsRemaining: currentMembership.sessionsRemaining,
@@ -1004,10 +1004,13 @@ export class ReportsService {
 
   private detectPaymentSource(
     description: string | null,
-  ): 'membership' | 'dropin' | 'gift' | 'other' {
+  ): 'package' | 'dropin' | 'gift' | 'other' {
     const normalized = (description ?? '').toLowerCase();
-    if (normalized.startsWith('membership')) {
-      return 'membership';
+    if (
+      normalized.startsWith('membership') ||
+      normalized.startsWith('package')
+    ) {
+      return 'package';
     }
     if (normalized.startsWith('drop-in')) {
       return 'dropin';

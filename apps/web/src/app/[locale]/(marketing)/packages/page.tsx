@@ -26,25 +26,25 @@ export default async function PackagesMarketingPage({
 }) {
   const { locale } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await serverApiJsonPublic<Plan[]>("/memberships/plans");
+  const res = await serverApiJsonPublic<Plan[]>("/packages/plans");
 
   const activePlans = res.ok ? res.data.filter((p) => p.isActive) : [];
 
   return (
     <MarketingPageFrame
-      title={m("membershipsPageTitle")}
-      lede={m("membershipsPageLead")}
+      title={m("packagesPageTitle")}
+      lede={m("packagesPageLead")}
     >
       {!res.ok ? (
         <p className="app-alert-warn mt-12" role="status">
-          {m("membershipsError")}
+          {m("packagesError")}
         </p>
       ) : activePlans.length === 0 ? (
         <p
           className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
           role="status"
         >
-          {m("membershipsEmpty")}
+          {m("packagesEmpty")}
         </p>
       ) : (
         <>
@@ -52,14 +52,14 @@ export default async function PackagesMarketingPage({
             {activePlans.map((plan) => {
               const amount = formatAmdFromCents(plan.priceCents, locale);
               const sessionsLabel = plan.isUnlimited
-                ? m("membershipsSessionsUnlimited")
-                : m("membershipsSessionsCount", {
+                ? m("packagesSessionsUnlimited")
+                : m("packagesSessionsCount", {
                     count: plan.sessionsPerMonth ?? 0,
                   });
               return (
                 <li
                   key={plan.id}
-                  className={`ommm-card ommm-membership-card-hover flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
+                  className={`ommm-card ommm-package-card-hover flex flex-col p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8 ${plan.isPopular ? "ring-2 ring-sand-400/70" : ""}`}
                 >
                   <h2 className="ommm-h3 text-sage-800">{plan.name}</h2>
                   {plan.description ? (
@@ -69,12 +69,12 @@ export default async function PackagesMarketingPage({
                   ) : null}
                   <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
                     <span className="mr-1.5 text-black">{amount.startsWith("֏") ? "֏" : ""}</span>
-                    {m("membershipsPriceLine", {
+                    {m("packagesPriceLine", {
                       amount: amount.startsWith("֏") ? amount.slice(1).trimStart() : amount,
                     })}
                   </p>
                   <p className="mt-2 text-sm text-sage-500">
-                    {plan.billingPeriod} · {m("membershipsPeriodDaysShort", { days: plan.periodDays })}
+                    {plan.billingPeriod} · {m("packagesPeriodDaysShort", { days: plan.periodDays })}
                   </p>
                   <p className="mt-4 text-sm font-medium text-sage-700">
                     {sessionsLabel}
@@ -84,47 +84,47 @@ export default async function PackagesMarketingPage({
                       href="/login"
                       className="ommm-cta-primary flex-1 text-center"
                     >
-                      {plan.buttonLabel || m("membershipsSubscribeCta")}
+                      {plan.buttonLabel || m("packagesSubscribeCta")}
                     </Link>
                     <Link
-                      href="/user/memberships"
+                      href="/user/packages"
                       className="ommm-cta-ghost flex-1 text-center"
                     >
-                      {m("membershipsAccountCta")}
+                      {m("packagesAccountCta")}
                     </Link>
                   </div>
                   <p className="mt-4 text-center text-xs text-sage-500">
-                    {m("membershipsLoginHint")}
+                    {m("packagesLoginHint")}
                   </p>
                 </li>
               );
             })}
           </ul>
           <section className="mt-16 max-w-3xl">
-            <h2 className="ommm-h2 text-sage-800">{m("membershipsFaqTitle")}</h2>
+            <h2 className="ommm-h2 text-sage-800">{m("packagesFaqTitle")}</h2>
             <dl className="mt-6 space-y-6 text-sm text-sage-700">
               <div>
                 <dt className="font-semibold text-sage-800">
-                  {m("membershipsFaqPauseQuestion")}
+                  {m("packagesFaqPauseQuestion")}
                 </dt>
                 <dd className="mt-1 text-sage-600">
-                  {m("membershipsFaqPauseAnswer")}
+                  {m("packagesFaqPauseAnswer")}
                 </dd>
               </div>
               <div>
                 <dt className="font-semibold text-sage-800">
-                  {m("membershipsFaqBillingQuestion")}
+                  {m("packagesFaqBillingQuestion")}
                 </dt>
                 <dd className="mt-1 text-sage-600">
-                  {m("membershipsFaqBillingAnswer")}
+                  {m("packagesFaqBillingAnswer")}
                 </dd>
               </div>
               <div>
                 <dt className="font-semibold text-sage-800">
-                  {m("membershipsFaqWaitlistQuestion")}
+                  {m("packagesFaqWaitlistQuestion")}
                 </dt>
                 <dd className="mt-1 text-sage-600">
-                  {m("membershipsFaqWaitlistAnswer")}
+                  {m("packagesFaqWaitlistAnswer")}
                 </dd>
               </div>
             </dl>

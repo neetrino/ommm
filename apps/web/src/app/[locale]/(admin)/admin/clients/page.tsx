@@ -24,7 +24,7 @@ export default async function AdminClientsPage({
   const endpoint = `/clients?${apiSearch.toString()}`;
   const [clientsRes, packagesRes] = await Promise.all([
     serverApiJson<AdminClientsPayload>(endpoint, cookie),
-    serverApiJson<PackageOption[]>("/memberships/admin/plans", cookie),
+    serverApiJson<PackageOption[]>("/packages/admin/plans", cookie),
   ]);
 
   if (!clientsRes.ok) {

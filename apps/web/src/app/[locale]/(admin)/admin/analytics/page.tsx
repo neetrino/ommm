@@ -59,7 +59,7 @@ type BookingsManagementResponse = {
   };
 };
 
-const MEMBERSHIPS_SAMPLE_LIMIT = 500;
+const PACKAGES_SAMPLE_LIMIT = 500;
 
 function buildBookingsQuery(
   fromIso: string,
@@ -106,7 +106,7 @@ export default async function AdminAnalyticsPage({
 
   const bookingsQuery = buildBookingsQuery(fromIso, toIso, coachId, classTypeId, bookingStatus);
 
-  const [dashboardRes, financeRes, bookingsRes, clientsRes, coachesRes, membershipsRes] =
+  const [dashboardRes, financeRes, bookingsRes, clientsRes, coachesRes, packagesRes] =
     await Promise.all([
       serverApiJson<AnalyticsDashboardOverview>(
         "/reports/dashboard?includeRevenue=true&includeOverview=true",
@@ -120,7 +120,7 @@ export default async function AdminAnalyticsPage({
       serverApiJson<{ summary: AnalyticsClientsSummary }>("/clients?meta=true", cookie),
       serverApiJson<AnalyticsCoachRow[]>("/coaches/admin/list", cookie),
       serverApiJson<AnalyticsMembershipRow[]>(
-        `/memberships/admin/all?take=${MEMBERSHIPS_SAMPLE_LIMIT}`,
+        `/packages/admin/all?take=${PACKAGES_SAMPLE_LIMIT}`,
         cookie,
       ),
     ]);
@@ -131,7 +131,7 @@ export default async function AdminAnalyticsPage({
     !bookingsRes.ok ||
     !clientsRes.ok ||
     !coachesRes.ok ||
-    !membershipsRes.ok
+    !packagesRes.ok
   ) {
     const failed = [
       dashboardRes,
@@ -139,7 +139,7 @@ export default async function AdminAnalyticsPage({
       bookingsRes,
       clientsRes,
       coachesRes,
-      membershipsRes,
+      packagesRes,
     ].find((res) => !res.ok);
     const status = failed && !failed.ok ? failed.status : 500;
     return (
@@ -182,8 +182,8 @@ export default async function AdminAnalyticsPage({
     },
     clients: clientsRes.data.summary,
     coaches: coachesRes.data,
-    memberships: membershipsRes.data,
-    membershipsSampledLimit: MEMBERSHIPS_SAMPLE_LIMIT,
+    packages: packagesRes.data,
+    packagesSampledLimit: PACKAGES_SAMPLE_LIMIT,
   };
 
   return (

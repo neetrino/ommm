@@ -17,7 +17,7 @@ export const ADMIN_CLIENTS_FILTER_KEYS = [
 const ADMIN_CLIENTS_API_QUERY_KEYS = [
   ...ADMIN_CLIENTS_FILTER_KEYS,
   "q",
-  "membership",
+  "package",
   "take",
   "offset",
 ] as const;

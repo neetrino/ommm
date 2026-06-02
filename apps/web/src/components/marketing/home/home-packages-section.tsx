@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJsonPublic } from "@/lib/server-api";
 
-type PublicMembershipPlan = {
+type PublicPackagePlan = {
   id: string;
   name: string;
   description: string | null;
@@ -17,7 +17,7 @@ type PublicMembershipPlan = {
   isActive: boolean;
 };
 
-type HomeMembershipCard = {
+type HomePackageCard = {
   id: string;
   name: string;
   description: string;
@@ -28,7 +28,7 @@ type HomeMembershipCard = {
   isPopular: boolean;
 };
 
-function fallbackCards(t: Awaited<ReturnType<typeof getTranslations>>): HomeMembershipCard[] {
+function fallbackCards(t: Awaited<ReturnType<typeof getTranslations>>): HomePackageCard[] {
   return [
     {
       id: "starter",
@@ -62,17 +62,17 @@ function fallbackCards(t: Awaited<ReturnType<typeof getTranslations>>): HomeMemb
 }
 
 function toHomeCards(
-  plans: PublicMembershipPlan[],
+  plans: PublicPackagePlan[],
   locale: string,
   t: Awaited<ReturnType<typeof getTranslations>>,
-): HomeMembershipCard[] {
+): HomePackageCard[] {
   return plans.map((plan) => {
     const amount = formatAmdFromCents(plan.priceCents, locale);
 
     const features =
       plan.features.length > 0
         ? plan.features
-        : [t("membershipsSessionsCount", { count: 0 })];
+        : [t("packagesSessionsCount", { count: 0 })];
 
     return {
       id: plan.id,
@@ -82,7 +82,7 @@ function toHomeCards(
       periodLabel:
         plan.billingPeriod.length > 0
           ? plan.billingPeriod
-          : t("membershipsPeriodDaysShort", { days: plan.periodDays }),
+          : t("packagesPeriodDaysShort", { days: plan.periodDays }),
       features,
       buttonLabel: plan.buttonLabel,
       isPopular: plan.isPopular,
@@ -90,9 +90,9 @@ function toHomeCards(
   });
 }
 
-export async function HomeMembershipsSection({ locale }: { locale: string }) {
+export async function HomePackagesSection({ locale }: { locale: string }) {
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await serverApiJsonPublic<PublicMembershipPlan[]>("/memberships/plans");
+  const res = await serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans");
   const activePlans = res.ok ? res.data.filter((plan) => plan.isActive) : [];
   const cards =
     activePlans.length > 0 ? toHomeCards(activePlans, locale, m) : fallbackCards(m);

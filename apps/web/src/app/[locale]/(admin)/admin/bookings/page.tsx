@@ -30,7 +30,7 @@ export default async function AdminBookingsPage({
         classType: { id: string; name: string };
         coach: { id: string; name: string | null };
       };
-      membership: {
+      package: {
         planName: string;
         sessionsRemaining: number | null;
         sessionsPerMonth: number | null;

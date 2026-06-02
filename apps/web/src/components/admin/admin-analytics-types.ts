@@ -61,7 +61,7 @@ export type AnalyticsFinanceSummary = {
   };
   byStatus: Array<{ status: string; count: number; amountCents: number }>;
   bySource: Record<
-    "membership" | "dropin" | "gift" | "other",
+    "package" | "dropin" | "gift" | "other",
     { count: number; amountCents: number }
   >;
   giftCredits?: {
@@ -115,7 +115,7 @@ export type AnalyticsCoachRow = {
   };
 };
 
-export type AnalyticsMembershipRow = {
+export type AnalyticsPackageRow = {
   id: string;
   status: string;
   plan: { id: string; name: string };
@@ -137,6 +137,6 @@ export type AdminAnalyticsPayload = {
   bookings: AnalyticsBookingsPayload;
   clients: AnalyticsClientsSummary;
   coaches: AnalyticsCoachRow[];
-  memberships: AnalyticsMembershipRow[];
-  membershipsSampledLimit: number;
+  packages: AnalyticsPackageRow[];
+  packagesSampledLimit: number;
 };

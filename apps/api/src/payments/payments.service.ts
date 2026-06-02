@@ -24,7 +24,7 @@ import {
 
 type StripeClient = InstanceType<typeof Stripe>;
 
-type PaymentSource = 'membership' | 'dropin' | 'gift' | 'other';
+type PaymentSource = 'package' | 'dropin' | 'gift' | 'other';
 
 /** Narrow shape used after `checkout.session.completed` (avoids brittle SDK namespace types). */
 type StripeCheckoutSessionLike = {
@@ -77,7 +77,7 @@ export class PaymentsService {
     return customer.id;
   }
 
-  async createMembershipCheckout(
+  async createPackageCheckout(
     userId: string,
     planId: string,
   ): Promise<{ url: string | null }> {
@@ -98,9 +98,9 @@ export class PaymentsService {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
-      success_url: `${web}/hy/account/memberships?success=1`,
-      cancel_url: `${web}/hy/memberships?canceled=1`,
-      metadata: { type: 'membership', userId, planId },
+      success_url: `${web}/hy/user/packages?success=1`,
+      cancel_url: `${web}/hy/packages?canceled=1`,
+      metadata: { type: 'package', userId, planId },
       line_items: plan.stripePriceId
         ? [{ price: plan.stripePriceId, quantity: 1 }]
         : [
@@ -137,7 +137,7 @@ export class PaymentsService {
       mode: 'payment',
       customer: customerId,
       success_url: `${web}/hy/account/gift-cards?success=1`,
-      cancel_url: `${web}/hy/memberships?gift_canceled=1`,
+      cancel_url: `${web}/hy/packages?gift_canceled=1`,
       metadata: {
         type: 'gift',
         purchaserId: params.purchaserId,
@@ -240,8 +240,8 @@ export class PaymentsService {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as StripeCheckoutSessionLike;
       const type = session.metadata?.type;
-      if (type === 'membership') {
-        await this.fulfillMembership(session);
+      if (type === 'package' || type === 'membership') {
+        await this.fulfillPackage(session);
       } else if (type === 'gift') {
         await this.fulfillGift(session);
       } else if (type === 'dropin') {
@@ -250,7 +250,7 @@ export class PaymentsService {
     }
   }
 
-  private async fulfillMembership(
+  private async fulfillPackage(
     session: StripeCheckoutSessionLike,
   ): Promise<void> {
     const userId = session.metadata?.userId;
@@ -308,7 +308,7 @@ export class PaymentsService {
         amountCents: paidCents,
         status: PaymentStatus.SUCCEEDED,
         stripePaymentId: payId,
-        description: 'Membership subscription',
+        description: 'Package subscription',
       },
     });
   }
@@ -472,8 +472,13 @@ export class PaymentsService {
     if (!source) {
       return undefined;
     }
-    if (source === PaymentSourceFilter.MEMBERSHIP) {
-      return { description: { startsWith: 'Membership' } };
+    if (source === PaymentSourceFilter.PACKAGE) {
+      return {
+        OR: [
+          { description: { startsWith: 'Membership' } },
+          { description: { startsWith: 'Package' } },
+        ],
+      };
     }
     if (source === PaymentSourceFilter.DROPIN) {
       return { description: { startsWith: 'Drop-in' } };
@@ -487,6 +492,7 @@ export class PaymentsService {
         {
           AND: [
             { description: { not: { startsWith: 'Membership' } } },
+            { description: { not: { startsWith: 'Package' } } },
             { description: { not: { startsWith: 'Drop-in' } } },
             { description: { not: { startsWith: 'Gift' } } },
           ],
@@ -497,8 +503,11 @@ export class PaymentsService {
 
   private detectPaymentSource(description: string | null): PaymentSource {
     const normalized = (description ?? '').toLowerCase();
-    if (normalized.startsWith('membership')) {
-      return 'membership';
+    if (
+      normalized.startsWith('membership') ||
+      normalized.startsWith('package')
+    ) {
+      return 'package';
     }
     if (normalized.startsWith('drop-in')) {
       return 'dropin';

@@ -3,7 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ClassSessionStatus, ScheduleDayOfWeek, type ScheduleItem } from '@prisma/client';
+import {
+  ClassSessionStatus,
+  ScheduleDayOfWeek,
+  type ScheduleItem,
+} from '@prisma/client';
 import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,

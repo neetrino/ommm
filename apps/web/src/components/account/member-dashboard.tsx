@@ -149,7 +149,7 @@ export async function MemberDashboard({
               <Link href="/user/classes" className="ommm-cta-primary">
                 {t("primaryCta")}
               </Link>
-              <Link href="/user/memberships" className="ommm-cta-ghost">
+              <Link href="/user/packages" className="ommm-cta-ghost">
                 {t("secondaryCta")}
               </Link>
             </div>

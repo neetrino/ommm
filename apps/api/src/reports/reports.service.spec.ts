@@ -11,6 +11,24 @@ function createServiceWithPrisma(
   return new ReportsService(prismaMock as never);
 }
 
+type DashboardOverviewResult = {
+  sessionsToday: number;
+  upcomingClasses: Array<{ id: string }>;
+};
+
+function assertDashboardOverview(
+  result: unknown,
+): asserts result is DashboardOverviewResult {
+  if (
+    typeof result !== 'object' ||
+    result === null ||
+    !('upcomingClasses' in result) ||
+    !Array.isArray((result as DashboardOverviewResult).upcomingClasses)
+  ) {
+    throw new Error('Expected dashboard overview payload');
+  }
+}
+
 describe('ReportsService', () => {
   it('dashboard returns base counters without overview details', async () => {
     const prismaMock = {
@@ -117,10 +135,11 @@ describe('ReportsService', () => {
       includeRevenue: true,
       includeOverview: true,
     });
+    assertDashboardOverview(result);
 
     expect(result.sessionsToday).toBe(2);
     expect(result.upcomingClasses).toHaveLength(2);
-    expect(result.upcomingClasses?.map((session) => session.id)).toEqual([
+    expect(result.upcomingClasses.map((session) => session.id)).toEqual([
       'past-today',
       'later-today',
     ]);
@@ -185,7 +204,7 @@ describe('ReportsService', () => {
 
     expect(result.totals.revenueCents).toBe(15_000);
     expect(result.totals.averageOrderValueCents).toBe(5_000);
-    expect(result.bySource.membership.amountCents).toBe(5_000);
+    expect(result.bySource.package.amountCents).toBe(5_000);
     expect(result.bySource.dropin.amountCents).toBe(7_000);
     expect(result.bySource.gift.amountCents).toBe(3_000);
     expect(result.giftCredits.issuedCents).toBe(4_000);

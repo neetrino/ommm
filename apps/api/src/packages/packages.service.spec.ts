@@ -1,9 +1,9 @@
 import { MembershipStatus } from '@prisma/client';
-import { MembershipsService } from './memberships.service';
+import { PackagesService } from './packages.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-describe('MembershipsService', () => {
+describe('PackagesService', () => {
   function createService() {
     const prisma = {
       payment: {
@@ -20,7 +20,7 @@ describe('MembershipsService', () => {
     };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
     return {
-      service: new MembershipsService(prisma as never, audit as never),
+      service: new PackagesService(prisma as never, audit as never),
       prisma,
       audit,
     };

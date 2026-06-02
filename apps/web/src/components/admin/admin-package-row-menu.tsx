@@ -105,7 +105,7 @@ export function AdminPackageRowMenu({ packageId, isActive }: AdminPackageRowMenu
     }
     setPending(true);
     try {
-      await apiFetch(`/memberships/plans/${packageId}`, {
+      await apiFetch(`/packages/plans/${packageId}`, {
         method: "PATCH",
         body: JSON.stringify({ isActive: nextActive }),
       });
@@ -128,7 +128,7 @@ export function AdminPackageRowMenu({ packageId, isActive }: AdminPackageRowMenu
     }
     setPending(true);
     try {
-      await apiFetch(`/memberships/plans/${packageId}`, { method: "DELETE" });
+      await apiFetch(`/packages/plans/${packageId}`, { method: "DELETE" });
       window.location.reload();
     } catch (error) {
       window.alert(error instanceof ApiError ? error.message : t("genericError"));

@@ -130,7 +130,7 @@ export function HomeScreen() {
                   router.push("/login");
                   return;
                 }
-                if (key === "memberships") {
+                if (key === "packages") {
                   router.push(guestPublicTabPath.plans);
                   return;
                 }

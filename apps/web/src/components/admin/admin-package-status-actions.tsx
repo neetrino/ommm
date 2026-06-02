@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
-type AdminMembershipActionsProps = {
-  membershipId: string;
+type AdminPackageStatusActionsProps = {
+  userPackageId: string;
 };
 
-export function AdminMembershipActions({
-  membershipId,
-}: AdminMembershipActionsProps) {
+export function AdminPackageStatusActions({
+  userPackageId,
+}: AdminPackageStatusActionsProps) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -21,12 +21,12 @@ export function AdminMembershipActions({
     setBusy(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/admin/${membershipId}/status`, {
+      await apiFetch(`/packages/admin/${userPackageId}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
       });
       setTone("ok");
-      setMessage("Membership updated");
+      setMessage("Package updated");
       window.location.reload();
     } catch (error) {
       setTone("err");

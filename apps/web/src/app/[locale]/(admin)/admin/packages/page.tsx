@@ -16,7 +16,7 @@ export default async function AdminPackagesPage({
   const t = await getTranslations({ locale, namespace: "adminPages.packages" });
   const cookie = (await headers()).get("cookie") ?? "";
   const [packagesRes, classTypesRes] = await Promise.all([
-    serverApiJson<AdminPackageRow[]>("/memberships/admin/plans", cookie),
+    serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
     serverApiJson<AdminClassTypeRow[]>("/classes/types", cookie),
   ]);
 

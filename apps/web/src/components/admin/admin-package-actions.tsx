@@ -23,7 +23,7 @@ export function AdminPackageActions({ packageId, isActive }: AdminPackageActions
     setPending(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/plans/${packageId}`, {
+      await apiFetch(`/packages/plans/${packageId}`, {
         method: "PATCH",
         body: JSON.stringify({ isActive: nextActive }),
       });
@@ -49,7 +49,7 @@ export function AdminPackageActions({ packageId, isActive }: AdminPackageActions
     setPending(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/plans/${packageId}`, { method: "DELETE" });
+      await apiFetch(`/packages/plans/${packageId}`, { method: "DELETE" });
       setTone("ok");
       setMessage(t("messages.deleteSuccess"));
       window.location.reload();

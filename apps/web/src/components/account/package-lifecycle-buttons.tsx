@@ -4,16 +4,16 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
-type MembershipLifecycleButtonsProps = {
-  membershipId: string;
+type PackageLifecycleButtonsProps = {
+  userPackageId: string;
   status: string;
 };
 
-export function MembershipLifecycleButtons({
-  membershipId,
+export function PackageLifecycleButtons({
+  userPackageId,
   status,
-}: MembershipLifecycleButtonsProps) {
-  const t = useTranslations("forms.membershipLifecycle");
+}: PackageLifecycleButtonsProps) {
+  const t = useTranslations("forms.packageLifecycle");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -21,7 +21,7 @@ export function MembershipLifecycleButtons({
     setMessage(null);
     setPending(true);
     try {
-      await apiFetch(`/memberships/me/${membershipId}/pause`, {
+      await apiFetch(`/packages/me/${userPackageId}/pause`, {
         method: "PATCH",
         body: JSON.stringify({}),
       });
@@ -39,7 +39,7 @@ export function MembershipLifecycleButtons({
     setMessage(null);
     setPending(true);
     try {
-      await apiFetch(`/memberships/me/${membershipId}/cancel`, {
+      await apiFetch(`/packages/me/${userPackageId}/cancel`, {
         method: "PATCH",
         body: JSON.stringify({}),
       });
@@ -57,7 +57,7 @@ export function MembershipLifecycleButtons({
     setMessage(null);
     setPending(true);
     try {
-      await apiFetch(`/memberships/me/${membershipId}/renew`, {
+      await apiFetch(`/packages/me/${userPackageId}/renew`, {
         method: "PATCH",
         body: JSON.stringify({}),
       });

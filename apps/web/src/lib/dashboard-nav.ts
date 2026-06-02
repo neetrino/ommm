@@ -49,7 +49,7 @@ const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/classes", icon: "layoutGrid", labelKey: "classes" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/user/progress", icon: "trendingUp", labelKey: "progress" },
-  { href: "/user/memberships", icon: "tag", labelKey: "memberships" },
+  { href: "/user/packages", icon: "tag", labelKey: "packages" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards" },
   { href: "/user/profile", icon: "user", labelKey: "profile" },
 ];

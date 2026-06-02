@@ -13,7 +13,7 @@
     "home": "Home",
     "story": "Story",
     "coaches": "Coaches",
-    "memberships": "Packages",
+    "packages": "Packages",
     "explore": "Explore",
     "schedule": "Schedule",
     "contact": "Contact"
@@ -224,7 +224,7 @@
       "titleAccent": "center today.",
       "lead": "Your next session, waitlists, and studio notes — in one calm flow.",
       "primaryCta": "Book a class",
-      "secondaryCta": "My memberships",
+      "secondaryCta": "My packages",
       "nextClass": {
         "eyebrow": "Coming up next",
         "openLabel": "Open schedule",
@@ -261,7 +261,7 @@
     "heroTitle": "Calm studio, personal experience",
     "heroSubtitle": "Thoughtful scheduling, packages, and class booking — a full studio experience on the web.",
     "heroCta": "Book a class",
-    "membershipsCta": "View packages",
+    "packagesCta": "View packages",
     "featureScheduleTitle": "Live schedule",
     "featureScheduleBody": "See upcoming sessions, capacity, and coaches — book in a few taps when you are signed in.",
     "featureMembershipsTitle": "Packages",
@@ -289,30 +289,30 @@
     "coachesModalBioLabel": "About",
     "coachesModalBasicInfoLabel": "Basic Information",
     "coachesModalBioFallback": "This coach profile will be updated with more details soon.",
-    "membershipsPageTitle": "Packages",
-    "membershipsPageLead": "Choose a plan that fits how often you want to practice.",
-    "membershipsEmpty": "No plans are published yet. Check back soon or contact the studio.",
-    "membershipsError": "We could not load plans. Please try again later.",
-    "membershipsSubscribeCta": "Subscribe",
-    "membershipsAccountCta": "Go to my packages",
-    "membershipsLoginHint": "Log in or create an account to subscribe.",
-    "membershipsPeriodDays": "{days}-day billing cycle",
-    "membershipsSessionsUnlimited": "Unlimited classes per period",
-    "membershipsSessionsCount": "{count} classes per period",
-    "membershipsPriceLine": "{amount} per period",
-    "membershipsCompareTitle": "Compare plans",
-    "membershipsTablePlan": "Plan",
-    "membershipsTablePrice": "Price",
-    "membershipsTablePeriod": "Period",
-    "membershipsTableSessions": "Sessions",
-    "membershipsPeriodDaysShort": "{days} days",
-    "membershipsFaqTitle": "FAQ",
-    "membershipsFaqPauseQuestion": "Can I pause my membership?",
-    "membershipsFaqPauseAnswer": "Yes - members can pause from their account when the plan supports it; the studio team can also help from the desk.",
-    "membershipsFaqBillingQuestion": "How does billing work?",
-    "membershipsFaqBillingAnswer": "Checkout runs through Stripe when enabled in your environment. You will see successful charges in your account payment history.",
-    "membershipsFaqWaitlistQuestion": "What if a class is full?",
-    "membershipsFaqWaitlistAnswer": "Join the waitlist from the schedule - we notify you when a spot opens, with a limited time to confirm.",
+    "packagesPageTitle": "Packages",
+    "packagesPageLead": "Choose a plan that fits how often you want to practice.",
+    "packagesEmpty": "No plans are published yet. Check back soon or contact the studio.",
+    "packagesError": "We could not load plans. Please try again later.",
+    "packagesSubscribeCta": "Subscribe",
+    "packagesAccountCta": "Go to my packages",
+    "packagesLoginHint": "Log in or create an account to subscribe.",
+    "packagesPeriodDays": "{days}-day billing cycle",
+    "packagesSessionsUnlimited": "Unlimited classes per period",
+    "packagesSessionsCount": "{count} classes per period",
+    "packagesPriceLine": "{amount} per period",
+    "packagesCompareTitle": "Compare plans",
+    "packagesTablePlan": "Plan",
+    "packagesTablePrice": "Price",
+    "packagesTablePeriod": "Period",
+    "packagesTableSessions": "Sessions",
+    "packagesPeriodDaysShort": "{days} days",
+    "packagesFaqTitle": "FAQ",
+    "packagesFaqPauseQuestion": "Can I pause my package?",
+    "packagesFaqPauseAnswer": "Yes - members can pause from their account when the plan supports it; the studio team can also help from the desk.",
+    "packagesFaqBillingQuestion": "How does billing work?",
+    "packagesFaqBillingAnswer": "Checkout runs through Stripe when enabled in your environment. You will see successful charges in your account payment history.",
+    "packagesFaqWaitlistQuestion": "What if a class is full?",
+    "packagesFaqWaitlistAnswer": "Join the waitlist from the schedule - we notify you when a spot opens, with a limited time to confirm.",
     "homeMembershipsTitle": "Packages",
     "homeMembershipsLead": "Choose a plan and keep your practice steady with clear pricing and benefits.",
     "homeMembershipPopularBadge": "Popular",
@@ -388,7 +388,7 @@
         "progress": "Progress",
         "classes": "Classes",
         "bookings": "My bookings",
-        "memberships": "Memberships",
+        "packages": "Packages",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
         "profile": "Profile"
@@ -432,7 +432,7 @@
         "settings": "Settings",
         "feedback": "Feedback",
         "guestUsers": "Guest users",
-        "memberships": "Memberships",
+        "packages": "Memberships",
         "classes": "Classes",
         "notifications": "Notifications",
         "reports": "Reports",
@@ -450,7 +450,7 @@
         "coaches": "Coach roster and profile records.",
         "schedule": "Public schedule cards shown on Home and Schedule pages.",
         "packages": "Membership plans, pricing, and packages shown on the public site.",
-        "memberships": "Membership plans (same as Packages).",
+        "packages": "Membership plans (same as Packages).",
         "giftCards": "Issued cards and redemption status.",
         "finance": "Payments, revenue, and transaction health across the studio.",
         "analytics": "Performance trends, charts, and export-ready analytics.",
@@ -468,7 +468,7 @@
         "progress": "Achievements and milestones.",
         "classes": "Browse and book sessions.",
         "bookings": "Upcoming and past reservations.",
-        "memberships": "Active plans and renewals.",
+        "packages": "Active packages and renewals.",
         "giftCards": "Balances and redemption.",
         "profile": "Your member details, password, home image, and notification preferences.",
         "notifications": "Alerts and studio messages."
@@ -513,7 +513,7 @@
       "loginFailed": "Login failed"
     },
     "register": {
-      "lead": "Create a member account to book classes and manage memberships.",
+      "lead": "Create a member account to book classes and manage packages.",
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",
@@ -568,12 +568,12 @@
     "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
-    "memberships": {
-      "title": "Memberships",
-      "description": "Subscribe with Stripe when keys are configured; pause or cancel from the API or future admin tools.",
-      "yourMemberships": "Your memberships",
+    "packages": {
+      "title": "Packages",
+      "description": "Subscribe with Stripe when keys are configured; pause or cancel from your account.",
+      "yourPackages": "Your packages",
       "signInToView": "Sign in to view.",
-      "noActiveMembership": "No active membership yet.",
+      "noActivePackage": "No active package yet.",
       "sessionsLeft": "{count} sessions left",
       "renewsEnds": "Renews / ends {date}",
       "paymentHistory": "Payment history",
@@ -590,15 +590,15 @@
       "title": "Progress",
       "descriptionSignedOut": "Sign in to track your attendance, spending, and milestones.",
       "signInPrompt": "Sign in to view your progress.",
-      "descriptionSignedIn": "Attendance trends, membership usage, and achievements.",
+      "descriptionSignedIn": "Attendance trends, package usage, and achievements.",
       "activitySummary": "Activity summary",
       "completedClasses": "Completed classes",
       "allTime": "All time",
       "recentAttendance": "Recent attendance",
       "recentSpend": "Recent spend",
       "last7Days": "Last 7 days",
-      "membershipUsage": "Membership usage",
-      "membershipPlanLabel": "Plan: {plan}",
+      "packageUsage": "Membership usage",
+      "packagePlanLabel": "Plan: {plan}",
       "unlimitedLabel": "Unlimited",
       "performanceMetrics": "Performance metrics",
       "totalHours": "Total hours",
@@ -632,7 +632,7 @@
       "coachFallback": "Coach",
       "spotsBooked": "{booked}/{capacity} booked",
       "paidShort": "Paid ({amount})",
-      "includedShort": "Included / membership",
+      "includedShort": "Included / package",
       "myBookingsLink": "My bookings"
     },
     "notifications": {
@@ -940,7 +940,7 @@
       "bookingDetailsTitle": "Booking details",
       "emptyUserData": "No user data found.",
       "emptyBookingData": "No booking data found.",
-      "membershipInfo": "Membership / package",
+      "packageInfo": "Package",
       "bookingHistory": "Booking history",
       "selectClassSlot": "Select a target class slot",
       "emptyMoveOptions": "No available classes for moving this booking.",
@@ -957,8 +957,8 @@
       "colJoined": "Joined",
       "colMembership": "Membership",
       "colActions": "Actions",
-      "membershipActiveBadge": "Active",
-      "membershipInactiveBadge": "No active",
+      "packageActiveBadge": "Active",
+      "packageInactiveBadge": "No active",
       "editClient": "Edit client",
       "editModalTitle": "Edit client",
       "editModalDescription": "Update the selected client details.",
@@ -992,10 +992,10 @@
       "filters": {
         "searchLabel": "Search",
         "searchPlaceholder": "Name, email, or phone",
-        "membershipLabel": "Membership",
-        "membershipAll": "All clients",
-        "membershipActive": "Active members",
-        "membershipInactive": "Without active membership",
+        "packageLabel": "Membership",
+        "packageAll": "All clients",
+        "packageActive": "Active members",
+        "packageInactive": "Without active package",
         "orderLabel": "Order",
         "orderNewest": "Newest first",
         "orderOldest": "Oldest first",
@@ -1730,7 +1730,7 @@
         "deleteSuccess": "Package deleted."
       }
     },
-    "membershipPlans": {
+    "packagePlans": {
       "title": "Membership plans",
       "description": "Create and manage public membership plans shown on the website.",
       "errorAuth": "Studio admin sign-in required.",
@@ -1829,7 +1829,7 @@
         "loading": "Loading user details...",
         "error": "Could not load user details.",
         "empty": "User data is unavailable.",
-        "memberships": "Memberships",
+        "packages": "Memberships",
         "bookings": "Recent bookings"
       }
     },
@@ -1862,7 +1862,7 @@
       "kpiNewUsersToday": "New users today",
       "kpiAttendanceRate": "Attendance rate (range)",
       "sources": {
-        "membership": "Memberships",
+        "package": "Memberships",
         "dropin": "Drop-ins",
         "gift": "Gift cards",
         "other": "Other"
@@ -1930,9 +1930,9 @@
           "missed": "Missed",
           "chartAria": "Attendance chart"
         },
-        "memberships": {
+        "packages": {
           "title": "Membership report",
-          "hint": "Active members from dashboard; status/plan counts from up to {limit} membership records.",
+          "hint": "Active members from dashboard; status/plan counts from up to {limit} package records.",
           "activeDashboard": "Active members (dashboard)",
           "chartAria": "Membership plan distribution"
         },
@@ -2031,7 +2031,7 @@
       "exportPaymentsCsv": "Export payments CSV",
       "exportGiftCreditsCsv": "Export gift credits CSV",
       "sources": {
-        "membership": "Memberships",
+        "package": "Memberships",
         "dropin": "Bookings",
         "gift": "Gift cards",
         "other": "Other payments"
@@ -2043,7 +2043,7 @@
         "range90": "Last 90 days",
         "sourceLabel": "Source",
         "sourceAll": "All sources",
-        "sourceMembership": "Membership",
+        "sourcePackage": "Package",
         "sourceDropIn": "Drop-in",
         "sourceGift": "Gift",
         "sourceOther": "Other",
@@ -2068,10 +2068,10 @@
       "actions": {
         "openMenu": "Open actions menu",
         "edit": "Edit client",
-        "pauseMembership": "Pause membership",
+        "pausePackage": "Pause package",
         "sendNotification": "Send notification",
         "refundUnsupported": "Refund requests are not supported by the API yet.",
-        "membershipUpdated": "Membership updated.",
+        "packageUpdated": "Package updated.",
         "actionFailed": "Action failed.",
         "notifyTitle": "Notify client",
         "notifyLead": "Send a one-off email to {email} using an existing broadcast template.",
@@ -2085,7 +2085,7 @@
       "userTab": {
         "searchPlaceholder": "Search name, phone, or email",
         "filterPaymentStatus": "Payment status",
-        "filterPackage": "Membership plan",
+        "filterPackage": "Package plan",
         "filterAll": "All",
         "statusPaid": "Paid",
         "statusUnpaid": "Unpaid",
@@ -2115,7 +2115,7 @@
         "colPaymentStatus": "Payment status",
         "colGiftCard": "Gift card",
         "colActions": "Actions",
-        "noMembership": "No active membership",
+        "noActivePackage": "No active package",
         "giftCardYes": "Yes",
         "giftCardNo": "No",
         "billingHistory": "Billing history",
@@ -2124,7 +2124,7 @@
         "quickPending": "Pending payments",
         "quickOverdue": "Overdue",
         "quickGiftCard": "Gift card used",
-        "quickActive": "Active memberships"
+        "quickActive": "Active packages"
       },
       "coachTab": {
         "unsupportedNote": "Coach payout status and salary totals use the existing coach salary formula (session-based estimates). Payroll records, monthly salary fields, edit/pause actions, and paid/canceled/cash statuses are not stored in the backend.",
@@ -2408,12 +2408,12 @@
       "action": "Join waitlist",
       "failed": "Could not join waitlist"
     },
-    "membershipCheckout": {
+    "packageCheckout": {
       "subscribe": "Subscribe",
       "checkoutFailed": "Could not start checkout",
       "checkoutUnavailable": "Checkout unavailable"
     },
-    "membershipLifecycle": {
+    "packageLifecycle": {
       "pause": "Pause",
       "cancelAction": "Cancel",
       "renew": "Renew",
@@ -2422,10 +2422,10 @@
       "cancelledSuccess": "Membership cancelled.",
       "renewedSuccess": "Membership renewed.",
       "planChangedSuccess": "Plan updated successfully.",
-      "pauseFailed": "Could not pause membership.",
-      "cancelFailed": "Could not cancel membership.",
-      "renewFailed": "Could not renew membership.",
-      "planChangeFailed": "Could not switch membership plan."
+      "pauseFailed": "Could not pause package.",
+      "cancelFailed": "Could not cancel package.",
+      "renewFailed": "Could not renew package.",
+      "planChangeFailed": "Could not switch package plan."
     },
     "changePassword": {
       "setTitle": "Set password",

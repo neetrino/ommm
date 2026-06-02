@@ -8,7 +8,7 @@ export type FinancePaymentItem = {
   currency: string;
   status: string;
   description: string | null;
-  source: "membership" | "dropin" | "gift" | "other";
+  source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
   user: {
     email: string;

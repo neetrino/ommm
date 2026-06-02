@@ -19,7 +19,7 @@ export function ActionSection(props: {
   onGiftAmountChange: (value: string) => void;
   onRun: RunAction;
 }) {
-  const activeMembership = props.client.activity.activeMembership;
+  const activePackage = props.client.activity.activePackage;
   return (
     <section className="rounded-2xl border border-white/60 bg-white/70 p-4">
       <p className="font-medium text-sage-900">Client actions</p>
@@ -30,13 +30,13 @@ export function ActionSection(props: {
             <OmmButton
               size="sm"
               variant="ghost"
-              disabled={!activeMembership || props.busy !== null}
+              disabled={!activePackage || props.busy !== null}
               onClick={() => {
-                if (activeMembership && window.confirm("Pause this membership?")) {
+                if (activePackage && window.confirm("Pause this package?")) {
                   void props.onRun(
                     "pause",
                     () =>
-                      apiFetch(`/memberships/admin/${activeMembership.id}/status`, {
+                      apiFetch(`/packages/admin/${activePackage.id}/status`, {
                         method: "PATCH",
                         body: JSON.stringify({ status: "PAUSED" }),
                       }),
@@ -50,13 +50,13 @@ export function ActionSection(props: {
             <OmmButton
               size="sm"
               variant="danger"
-              disabled={!activeMembership || props.busy !== null}
+              disabled={!activePackage || props.busy !== null}
               onClick={() => {
-                if (activeMembership && window.confirm("Cancel this membership?")) {
+                if (activePackage && window.confirm("Cancel this package?")) {
                   void props.onRun(
                     "cancel",
                     () =>
-                      apiFetch(`/memberships/admin/${activeMembership.id}/status`, {
+                      apiFetch(`/packages/admin/${activePackage.id}/status`, {
                         method: "PATCH",
                         body: JSON.stringify({ status: "CANCELLED" }),
                       }),
@@ -88,7 +88,7 @@ export function ActionSection(props: {
                 void props.onRun(
                   "assign",
                   () =>
-                    apiFetch("/memberships/admin/assign", {
+                    apiFetch("/packages/admin/assign", {
                       method: "POST",
                       body: JSON.stringify({ userId: props.client.id, planId: props.packageId }),
                     }),
@@ -179,12 +179,12 @@ export function HistorySections({ data, locale }: { data: ClientDetail; locale: 
       />
       <HistoryList
         title="Membership history"
-        empty="No memberships."
-        items={data.memberships.map((membership) => ({
-          id: membership.id,
-          main: membership.plan.name,
-          meta: `${membership.status} · ${formatDateForUi(membership.currentPeriodStart)} - ${formatDateForUi(membership.currentPeriodEnd)}`,
-          extra: membership.plan.isUnlimited ? "Unlimited" : `${membership.sessionsRemaining ?? 0}/${membership.plan.sessionsPerMonth ?? "—"} sessions`,
+        empty="No packages."
+        items={data.packages.map((userPackage) => ({
+          id: userPackage.id,
+          main: userPackage.plan.name,
+          meta: `${userPackage.status} · ${formatDateForUi(userPackage.currentPeriodStart)} - ${formatDateForUi(userPackage.currentPeriodEnd)}`,
+          extra: userPackage.plan.isUnlimited ? "Unlimited" : `${userPackage.sessionsRemaining ?? 0}/${userPackage.plan.sessionsPerMonth ?? "—"} sessions`,
         }))}
       />
     </div>

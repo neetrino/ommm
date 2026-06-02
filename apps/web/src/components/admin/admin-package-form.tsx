@@ -111,7 +111,7 @@ export function AdminPackageForm({ onSaved, onCancel }: AdminPackageFormProps) {
     submitLockRef.current = true;
     setPending(true);
     try {
-      await apiFetch("/memberships/plans", {
+      await apiFetch("/packages/plans", {
         method: "POST",
         body: JSON.stringify({
           name,

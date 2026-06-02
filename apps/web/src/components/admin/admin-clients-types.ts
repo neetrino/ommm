@@ -7,7 +7,7 @@ export type AttendanceBehavior =
   | "often-cancels"
   | "low-attendance";
 
-export type ClientMembership = {
+export type ClientPackage = {
   id: string;
   status: string;
   sessionsRemaining: number | null;
@@ -37,8 +37,8 @@ export type ClientRow = {
   isBlocked: boolean;
   source: "website" | "mobile-app" | "admin" | null;
   preferredCoach: { id: string; name: string; count: number } | null;
-  memberships: ClientMembership[];
-  activeMembership: ClientMembership | null;
+  packages: ClientPackage[];
+  activePackage: ClientPackage | null;
   packageType: "single-class" | "monthly-package" | "vip-package" | null;
   paymentBehavior: PaymentBehavior;
   attendanceBehavior: AttendanceBehavior;
@@ -91,7 +91,7 @@ export type ClientDetail = {
   dateOfBirth: string | null;
   avatarUrl: string | null;
   createdAt: string;
-  memberships: ClientMembership[];
+  packages: ClientPackage[];
   bookings: Array<{
     id: string;
     status: string;

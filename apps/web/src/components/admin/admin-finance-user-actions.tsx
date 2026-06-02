@@ -20,23 +20,23 @@ export function AdminFinanceUserActions({ row, onEdit, onChanged }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const lockRef = useRef(false);
 
-  const membershipId = row.activeMembership?.id ?? null;
+  const userPackageId = row.activePackage?.id ?? null;
   const recipientName =
     [row.name, row.lastName].filter(Boolean).join(" ").trim() || row.email;
 
   async function updateMembershipStatus(status: "ACTIVE" | "PAUSED" | "CANCELLED") {
-    if (!membershipId || busy || lockRef.current) {
+    if (!userPackageId || busy || lockRef.current) {
       return;
     }
     lockRef.current = true;
     setBusy(true);
     setMessage(null);
     try {
-      await apiFetch(`/memberships/admin/${membershipId}/status`, {
+      await apiFetch(`/packages/admin/${userPackageId}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
       });
-      setMessage(t("membershipUpdated"));
+      setMessage(t("packageUpdated"));
       onChanged();
     } catch (error) {
       setMessage(error instanceof ApiError ? error.message : t("actionFailed"));
@@ -63,9 +63,9 @@ export function AdminFinanceUserActions({ row, onEdit, onChanged }: Props) {
       {menuOpen ? (
         <div className="absolute right-0 top-full z-20 mt-1 min-w-[11rem] rounded-xl border border-sage-200 bg-white p-1 shadow-lg">
           <MenuItem label={t("edit")} onClick={() => { setMenuOpen(false); onEdit(); }} />
-          {membershipId ? (
+          {userPackageId ? (
             <MenuItem
-              label={t("pauseMembership")}
+              label={t("pausePackage")}
               disabled={busy}
               onClick={() => void updateMembershipStatus("PAUSED")}
             />

@@ -18,7 +18,7 @@ import {
   AdminClientQuickFilter,
   AdminClientStatusFilter,
   AdminClientTagFilter,
-  AdminClientMembershipFilter,
+  AdminClientPackageFilter,
   AdminClientOrder,
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
@@ -92,7 +92,7 @@ export class ClientsService {
             ],
           }
         : {}),
-      ...(query.membership === AdminClientMembershipFilter.ACTIVE
+      ...(query.package === AdminClientPackageFilter.ACTIVE
         ? {
             memberships: {
               some: {
@@ -102,7 +102,7 @@ export class ClientsService {
             },
           }
         : {}),
-      ...(query.membership === AdminClientMembershipFilter.INACTIVE
+      ...(query.package === AdminClientPackageFilter.INACTIVE
         ? {
             memberships: {
               none: {
@@ -299,7 +299,7 @@ export class ClientsService {
   }
 
   private toClientRow(user: ClientRecord) {
-    const activeMembership = this.getActiveMembership(user);
+    const activePackage = this.getActivePackage(user);
     const latestBooking = this.getLatestVisit(user);
     const totals = this.getBookingTotals(user);
     const lifetimeValueCents = user.payments
@@ -322,9 +322,9 @@ export class ClientsService {
       status: this.getClientStatus(user),
       source: this.getSource(user),
       preferredCoach,
-      memberships: user.memberships,
-      activeMembership,
-      packageType: this.getPackageType(activeMembership),
+      packages: user.memberships,
+      activePackage,
+      packageType: this.getPackageType(activePackage),
       paymentBehavior,
       attendanceBehavior,
       classLevels,
@@ -353,7 +353,7 @@ export class ClientsService {
     );
   }
 
-  private getActiveMembership(user: ClientRecord) {
+  private getActivePackage(user: ClientRecord) {
     const now = new Date();
     return (
       user.memberships.find(
@@ -400,7 +400,7 @@ export class ClientsService {
     ) {
       return 'Frozen';
     }
-    return this.getActiveMembership(user) ? 'Active' : 'Inactive';
+    return this.getActivePackage(user) ? 'Active' : 'Inactive';
   }
 
   private getSource(
@@ -416,13 +416,13 @@ export class ClientsService {
   }
 
   private getPackageType(
-    membership: ClientRecord['memberships'][number] | null,
+    userPackage: ClientRecord['memberships'][number] | null,
   ): 'single-class' | 'monthly-package' | 'vip-package' | null {
-    if (!membership) {
+    if (!userPackage) {
       return 'single-class';
     }
     const marker =
-      `${membership.plan.name} ${membership.plan.slug}`.toLowerCase();
+      `${userPackage.plan.name} ${userPackage.plan.slug}`.toLowerCase();
     if (marker.includes('vip')) {
       return 'vip-package';
     }

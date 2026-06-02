@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { MembershipCheckoutButton } from "@/components/account/membership-checkout-button";
-import { MembershipLifecycleButtons } from "@/components/account/membership-lifecycle-buttons";
-import { MembershipPlanSwitchButton } from "@/components/account/membership-plan-switch-button";
+import { PackageCheckoutButton } from "@/components/account/package-checkout-button";
+import { PackageLifecycleButtons } from "@/components/account/package-lifecycle-buttons";
+import { PackagePlanSwitchButton } from "@/components/account/package-plan-switch-button";
 import {
   AccountPageFrame,
   AccountSection,
@@ -25,7 +25,7 @@ type Plan = {
   isActive: boolean;
 };
 
-type MembershipRow = {
+type UserPackageRow = {
   id: string;
   status: string;
   sessionsRemaining: number | null;
@@ -43,29 +43,29 @@ type PaymentRow = {
   createdAt: string;
 };
 
-export default async function UserMembershipsPage({
+export default async function UserPackagesPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "userPages.memberships" });
+  const t = await getTranslations({ locale, namespace: "userPages.packages" });
   const cookie = (await headers()).get("cookie") ?? "";
 
   const [plansRes, mineRes, payRes] = await Promise.all([
-    serverApiJson<Plan[]>("/memberships/plans", cookie),
-    serverApiJson<MembershipRow[]>("/memberships/me", cookie),
+    serverApiJson<Plan[]>("/packages/plans", cookie),
+    serverApiJson<UserPackageRow[]>("/packages/me", cookie),
     serverApiJson<PaymentRow[]>("/payments/me", cookie),
   ]);
 
   return (
     <AccountPageFrame title={t("title")} description={t("description")}>
       <div className="max-w-4xl space-y-10">
-        <AccountSection title={t("yourMemberships")}>
+        <AccountSection title={t("yourPackages")}>
           {!mineRes.ok ? (
             <p className="text-sm text-amber-900">{t("signInToView")}</p>
           ) : mineRes.data.length === 0 ? (
-            <p className="ommm-body-muted text-sm">{t("noActiveMembership")}</p>
+            <p className="ommm-body-muted text-sm">{t("noActivePackage")}</p>
           ) : (
             <ul className="space-y-3">
               {mineRes.data.map((m) => (
@@ -82,8 +82,8 @@ export default async function UserMembershipsPage({
                       date: formatDateForUi(m.currentPeriodEnd),
                     })}
                   </p>
-                  <MembershipLifecycleButtons
-                    membershipId={m.id}
+                  <PackageLifecycleButtons
+                    userPackageId={m.id}
                     status={m.status}
                   />
                 </li>
@@ -124,9 +124,9 @@ export default async function UserMembershipsPage({
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {(() => {
-                const activeMembership =
+                const activePackage =
                   mineRes.ok
-                    ? mineRes.data.find((membership) => membership.status === "ACTIVE") ?? null
+                    ? mineRes.data.find((row) => row.status === "ACTIVE") ?? null
                     : null;
                 return plansRes.data
                   .filter((p) => p.isActive)
@@ -150,14 +150,14 @@ export default async function UserMembershipsPage({
                       </p>
                       {mineRes.ok ? (
                         <div className="mt-4">
-                          {activeMembership !== null &&
-                          activeMembership.planId !== plan.id ? (
-                            <MembershipPlanSwitchButton
-                              membershipId={activeMembership.id}
+                          {activePackage !== null &&
+                          activePackage.planId !== plan.id ? (
+                            <PackagePlanSwitchButton
+                              userPackageId={activePackage.id}
                               planId={plan.id}
                             />
                           ) : (
-                            <MembershipCheckoutButton planId={plan.id} />
+                            <PackageCheckoutButton planId={plan.id} />
                           )}
                         </div>
                       ) : (

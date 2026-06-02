@@ -18,7 +18,7 @@ import { ContactModule } from './contact/contact.module';
 import { ContentModule } from './content/content.module';
 import { GiftCardsModule } from './gift-cards/gift-cards.module';
 import { MailModule } from './mail/mail.module';
-import { MembershipsModule } from './memberships/memberships.module';
+import { PackagesModule } from './packages/packages.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -92,7 +92,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
     ClassesModule,
     BookingsModule,
     WaitlistModule,
-    MembershipsModule,
+    PackagesModule,
     PaymentsModule,
     GiftCardsModule,
     ContentModule,

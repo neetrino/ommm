@@ -487,103 +487,103 @@ export class BookingsService {
 
     const [bookingsRaw, waitlistsRaw, classTypes, coaches, sessionsRaw] =
       await Promise.all([
-      this.prisma.booking.findMany({
-        where: {
-          ...(params.query.status ? { status: params.query.status } : {}),
-          ...(params.query.channel ? { channel: params.query.channel } : {}),
-          ...(sessionFilter ? { session: sessionFilter } : {}),
-          ...(userSearch ? { user: userSearch } : {}),
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-              memberships: {
-                where: {
-                  status: MembershipStatus.ACTIVE,
-                  currentPeriodEnd: { gt: new Date() },
+        this.prisma.booking.findMany({
+          where: {
+            ...(params.query.status ? { status: params.query.status } : {}),
+            ...(params.query.channel ? { channel: params.query.channel } : {}),
+            ...(sessionFilter ? { session: sessionFilter } : {}),
+            ...(userSearch ? { user: userSearch } : {}),
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                memberships: {
+                  where: {
+                    status: MembershipStatus.ACTIVE,
+                    currentPeriodEnd: { gt: new Date() },
+                  },
+                  take: 1,
+                  include: { plan: true },
                 },
-                take: 1,
-                include: { plan: true },
+              },
+            },
+            session: {
+              include: {
+                classType: true,
+                coach: {
+                  include: { user: { select: { id: true, name: true } } },
+                },
+              },
+            },
+            notes: {
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              include: { author: { select: { id: true, name: true } } },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1000,
+        }),
+        this.prisma.waitlistEntry.findMany({
+          where: {
+            status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+            ...(sessionFilter ? { session: sessionFilter } : {}),
+            ...(userSearch ? { user: userSearch } : {}),
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+            session: {
+              include: {
+                classType: true,
+                coach: {
+                  include: { user: { select: { id: true, name: true } } },
+                },
               },
             },
           },
-          session: {
-            include: {
-              classType: true,
-              coach: {
-                include: { user: { select: { id: true, name: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: 500,
+        }),
+        this.prisma.classType.findMany({
+          select: { id: true, name: true },
+          orderBy: { name: 'asc' },
+        }),
+        this.prisma.coachProfile.findMany({
+          select: { id: true, user: { select: { id: true, name: true } } },
+          where: { isActive: true },
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.classSession.findMany({
+          where: {
+            ...(sessionFilter ?? {}),
+            status: { in: adminSessionStatuses },
+          },
+          include: {
+            classType: { select: { id: true, name: true } },
+            coach: {
+              include: { user: { select: { id: true, name: true } } },
+            },
+            _count: {
+              select: {
+                bookings: { where: { status: BookingStatus.BOOKED } },
               },
             },
           },
-          notes: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            include: { author: { select: { id: true, name: true } } },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 1000,
-      }),
-      this.prisma.waitlistEntry.findMany({
-        where: {
-          status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
-          ...(sessionFilter ? { session: sessionFilter } : {}),
-          ...(userSearch ? { user: userSearch } : {}),
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-            },
-          },
-          session: {
-            include: {
-              classType: true,
-              coach: {
-                include: { user: { select: { id: true, name: true } } },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 500,
-      }),
-      this.prisma.classType.findMany({
-        select: { id: true, name: true },
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.coachProfile.findMany({
-        select: { id: true, user: { select: { id: true, name: true } } },
-        where: { isActive: true },
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.classSession.findMany({
-        where: {
-          ...(sessionFilter ?? {}),
-          status: { in: adminSessionStatuses },
-        },
-        include: {
-          classType: { select: { id: true, name: true } },
-          coach: {
-            include: { user: { select: { id: true, name: true } } },
-          },
-          _count: {
-            select: {
-              bookings: { where: { status: BookingStatus.BOOKED } },
-            },
-          },
-        },
-        orderBy: { startsAt: 'asc' },
-        take: 1000,
-      }),
-    ]);
+          orderBy: { startsAt: 'asc' },
+          take: 1000,
+        }),
+      ]);
 
     const bookings = bookingsRaw as ManagementBooking[];
     const waitlists = waitlistsRaw as ManagementWaitlist[];
@@ -643,7 +643,7 @@ export class BookingsService {
             name: booking.session.coach.user.name,
           },
         },
-        membership:
+        package:
           booking.user.memberships[0] === undefined
             ? null
             : {
@@ -693,7 +693,7 @@ export class BookingsService {
           name: row.session.coach.user.name,
         },
       },
-      membership: null,
+      package: null,
       latestNote: null,
       waitlistPosition: row.position,
     }));

@@ -1,7 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
 import { PaymentsService } from './payments.service';
-import { PaymentSourceFilter } from './dto/admin-list-payments-query.dto';
+import {
+  AdminListPaymentsQueryDto,
+  PaymentSourceFilter,
+} from './dto/admin-list-payments-query.dto';
 
 describe('PaymentsService', () => {
   function createService() {
@@ -20,7 +23,7 @@ describe('PaymentsService', () => {
             amountCents: 10_000,
             currency: 'amd',
             status: PaymentStatus.SUCCEEDED,
-            description: 'Membership subscription',
+            description: 'Package subscription',
             createdAt: new Date(),
             user: {
               id: 'u1',
@@ -58,15 +61,16 @@ describe('PaymentsService', () => {
 
   it('adminListPayments returns mapped source and pagination', async () => {
     const { service, prisma } = createService();
-    const result = await service.adminListPayments({
-      source: PaymentSourceFilter.MEMBERSHIP,
+    const query: AdminListPaymentsQueryDto = {
+      source: PaymentSourceFilter.PACKAGE,
       take: 10,
       offset: 0,
-    });
+    };
+    const result = await service.adminListPayments(query);
 
     expect(prisma.payment.findMany).toHaveBeenCalled();
     expect(result.total).toBe(1);
-    expect(result.items[0]?.source).toBe('membership');
+    expect(result.items[0]?.source).toBe('package');
   });
 
   it('createDropInCheckout rejects when session is already booked', async () => {

@@ -736,10 +736,10 @@ function ClientBadge({ label }: { label: string }) {
 }
 
 function sessionText(row: ClientRow) {
-  const membership = row.activeMembership;
-  if (!membership) return "—";
-  if (membership.plan.isUnlimited) return "∞";
-  return `${membership.sessionsRemaining ?? 0}/${membership.plan.sessionsPerMonth ?? "—"}`;
+  const activePackage = row.activePackage;
+  if (!activePackage) return "—";
+  if (activePackage.plan.isUnlimited) return "∞";
+  return `${activePackage.sessionsRemaining ?? 0}/${activePackage.plan.sessionsPerMonth ?? "—"}`;
 }
 
 function fullName(row: { name: string | null; lastName: string | null; email: string }) {

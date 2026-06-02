@@ -11,7 +11,7 @@ type UserDetailsPayload = {
   lastName: string | null;
   email: string;
   phone: string | null;
-  memberships?: Array<{
+  packages?: Array<{
     id: string;
     status: string;
     plan: { name: string };
@@ -106,16 +106,16 @@ export function AdminUserDetailsDrawer({
             </section>
             <section>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">
-                {t("drawer.memberships")}
+                {t("drawer.packages")}
               </p>
               <div className="space-y-1">
-                {(data.memberships ?? []).length === 0 ? (
+                {(data.packages ?? []).length === 0 ? (
                   <p className="text-sage-500">—</p>
                 ) : (
-                  (data.memberships ?? []).slice(0, 6).map((membership) => (
-                    <p key={membership.id} className="rounded-lg bg-sand-50 px-2 py-1 text-xs text-sage-800">
-                      {membership.plan.name} · {membership.status} ·{" "}
-                      {membership.sessionsRemaining ?? "∞"}
+                  (data.packages ?? []).slice(0, 6).map((userPackage) => (
+                    <p key={userPackage.id} className="rounded-lg bg-sand-50 px-2 py-1 text-xs text-sage-800">
+                      {userPackage.plan.name} · {userPackage.status} ·{" "}
+                      {userPackage.sessionsRemaining ?? "∞"}
                     </p>
                   ))
                 )}
