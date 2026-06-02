@@ -8,6 +8,7 @@ import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
+import { USER_DASHBOARD_PATH } from "@/lib/role-home";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -51,7 +52,7 @@ export default async function ManagerSectionLayout({
         <>
           <LogoutButton className={`${trailingClass} lg:w-auto`} />
           <Link
-            href="/dashboard"
+            href={USER_DASHBOARD_PATH}
             className={`${trailingClass} text-center lg:text-left`}
           >
             {tDash("links.memberZone")}

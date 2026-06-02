@@ -1,5 +1,5 @@
 /** Member dashboard (Prisma `Role.USER`). */
-export const USER_DASHBOARD_PATH = "/dashboard";
+export const USER_DASHBOARD_PATH = "/user/home";
 
 /** @deprecated Use {@link USER_DASHBOARD_PATH}. */
 export const USER_HOME_PATH = USER_DASHBOARD_PATH;

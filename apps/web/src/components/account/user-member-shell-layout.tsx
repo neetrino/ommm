@@ -18,7 +18,7 @@ import {
 
 const USER_ROLES = new Set<string>(["USER"]);
 
-/** Authenticated member (USER) dashboard chrome — shared by `/dashboard` and `/user/*`. */
+/** Authenticated member (USER) dashboard chrome — `/user/*` namespace. */
 export async function UserMemberShellLayout({
   children,
   params,

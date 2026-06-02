@@ -17,6 +17,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { ChangePackagePlanDto } from './dto/change-package-plan.dto';
 import { DeleteCategoryDto } from './dto/delete-category.dto';
+import { SubscribePackageDto } from './dto/subscribe-package.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { PackagesService } from './packages.service';
 
@@ -75,6 +76,19 @@ export class PackagesController {
   @UseGuards(JwtAuthGuard)
   mine(@CurrentUser() user: { id: string }) {
     return this.packages.listMine(user.id);
+  }
+
+  @Post('me/subscribe')
+  @UseGuards(JwtAuthGuard)
+  subscribe(
+    @CurrentUser() user: { id: string },
+    @Body() dto: SubscribePackageDto,
+  ) {
+    return this.packages.subscribeWithManualPayment(
+      user.id,
+      dto.planId,
+      dto.paymentMethod,
+    );
   }
 
   @Patch('me/:id/pause')

@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { USER_DASHBOARD_PATH } from "@/lib/role-home";
 
-/** Legacy member dashboard URL — canonical home is `/user/home`. */
-export default async function LegacyDashboardRedirect({
+export default async function UserIndexRedirect({
   params,
 }: {
   params: Promise<{ locale: string }>;

@@ -298,6 +298,7 @@
     "packagesError": "We could not load plans. Please try again later.",
     "packagesSubscribeCta": "Subscribe",
     "packagesAccountCta": "Go to my packages",
+    "packagesMemberHint": "Subscribe to add a package to your account.",
     "packagesLoginHint": "Log in or create an account to subscribe.",
     "packagesPeriodDays": "{days}-day billing cycle",
     "packagesSessionsUnlimited": "Unlimited classes per period",
@@ -612,7 +613,17 @@
       "unlimitedClassesShort": "Unlimited classes",
       "sessionsPerPeriodShort": "{count} classes / period",
       "logInToSubscribe": "Log in to subscribe.",
-      "currentPlan": "Your current plan"
+      "currentPlan": "Your current plan",
+      "fromPrice": "From {amount}",
+      "browsePlanCta": "View & subscribe",
+      "emptyPlans": "No packages are available right now.",
+      "membershipStatus": {
+        "ACTIVE": "Active",
+        "PAUSED": "Paused",
+        "CANCELLED": "Cancelled",
+        "EXPIRED": "Expired",
+        "PENDING": "Pending payment"
+      }
     },
     "progress": {
       "title": "Progress",
@@ -2514,6 +2525,7 @@
     "manualPackagePayment": {
       "title": "Confirm subscription",
       "lead": "Select how you will pay. No card details are collected on this screen.",
+      "selectPlanLegend": "Package tier",
       "closeModal": "Close",
       "methodLegend": "Payment method",
       "methods": {

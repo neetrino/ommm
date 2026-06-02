@@ -299,6 +299,7 @@
     "packagesSubscribeCta": "Оформить",
     "packagesAccountCta": "Мои пакеты",
     "packagesLoginHint": "Войдите или создайте аккаунт, чтобы оформить подписку.",
+    "packagesMemberHint": "Оформите подписку, чтобы добавить пакет в аккаунт.",
     "packagesPeriodDays": "Период списания: {days} дн.",
     "packagesSessionsUnlimited": "Безлимитные занятия за период",
     "packagesSessionsCount": "{count} занятий за период",
@@ -612,7 +613,17 @@
       "unlimitedClassesShort": "Безлимитные занятия",
       "sessionsPerPeriodShort": "{count} занятий / период",
       "logInToSubscribe": "Войдите, чтобы оформить подписку.",
-      "currentPlan": "Ваш текущий план"
+      "currentPlan": "Ваш текущий план",
+      "fromPrice": "От {amount}",
+      "browsePlanCta": "Смотреть и оформить",
+      "emptyPlans": "Сейчас нет доступных пакетов.",
+      "membershipStatus": {
+        "ACTIVE": "Активен",
+        "PAUSED": "На паузе",
+        "CANCELLED": "Отменён",
+        "EXPIRED": "Истёк",
+        "PENDING": "Ожидает оплаты"
+      }
     },
     "progress": {
       "title": "Прогресс",
@@ -2403,6 +2414,7 @@
     "manualPackagePayment": {
       "title": "Подтвердить подписку",
       "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
+      "selectPlanLegend": "Тариф пакета",
       "closeModal": "Закрыть",
       "methodLegend": "Способ оплаты",
       "methods": {

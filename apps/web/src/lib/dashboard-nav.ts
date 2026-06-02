@@ -45,9 +45,10 @@ export type DashboardRoleNotificationRoute = {
 
 /** Member (USER): dashboard, bookings, schedule, gift cards, profile — no admin routes. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/dashboard", icon: "layoutDashboard", labelKey: "dashboard" },
+  { href: "/user/home", icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/user/classes", icon: "layoutGrid", labelKey: "schedule" },
+  { href: "/user/packages", icon: "tag", labelKey: "packages" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards" },
   { href: "/user/profile", icon: "user", labelKey: "profile" },
 ];

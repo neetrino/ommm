@@ -21,7 +21,7 @@ export async function MarketingSiteFooter({ locale }: { locale: string }) {
         { href: "/explore", label: tNav("explore") },
         { href: "/contact", label: tNav("contact") },
         { href: "/login", label: tCommon("login") },
-        { href: "/dashboard", label: tCommon("account") },
+        { href: "/user/home", label: tCommon("account") },
       ],
     },
   ];

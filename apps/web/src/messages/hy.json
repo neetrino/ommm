@@ -299,6 +299,7 @@
     "packagesSubscribeCta": "Բաժանորդագրվել",
     "packagesAccountCta": "Իմ փաթեթները",
     "packagesLoginHint": "Մուտք գործեք կամ ստեղծեք հաշիվ՝ բաժանորդագրվելու համար։",
+    "packagesMemberHint": "Բաժանորդագրվեք՝ փաթեթն ձեր հաշվին ավելացնելու համար։",
     "packagesPeriodDays": "{days} օրյա վճարման ցիկլ",
     "packagesSessionsUnlimited": "Անսահմանափակ դասեր ժամանակաշրջանում",
     "packagesSessionsCount": "{count} դաս ժամանակաշրջանում",
@@ -612,7 +613,17 @@
       "unlimitedClassesShort": "Անսահմանափակ դասեր",
       "sessionsPerPeriodShort": "{count} դաս / ժամանակաշրջան",
       "logInToSubscribe": "Մուտք գործեք՝ բաժանորդագրվելու համար։",
-      "currentPlan": "Ձեր ընթացիկ պլանը"
+      "currentPlan": "Ձեր ընթացիկ պլանը",
+      "fromPrice": "{amount}-ից",
+      "browsePlanCta": "Դիտել և բաժանորդագրվել",
+      "emptyPlans": "Այս պահին հասանելի փաթեթներ չկան։",
+      "membershipStatus": {
+        "ACTIVE": "Ակտիվ",
+        "PAUSED": "Դադար",
+        "CANCELLED": "Չեղարկված",
+        "EXPIRED": "Սպառված",
+        "PENDING": "Սպասում է վճարման"
+      }
     },
     "progress": {
       "title": "Առաջընթաց",
@@ -2399,6 +2410,7 @@
     "manualPackagePayment": {
       "title": "Հաստատել բաժանորդագրությունը",
       "lead": "Ընտրեք վճարման եղանակը։ Այս էկրանին քարտի տվյալներ չեն հավաքվում։",
+      "selectPlanLegend": "Փաթեթի մակարդակ",
       "closeModal": "Փակել",
       "methodLegend": "Վճարման եղանակ",
       "methods": {

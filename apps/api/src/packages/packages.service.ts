@@ -8,7 +8,12 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { PackageStatus, PaymentStatus, Prisma } from '@prisma/client';
+import {
+  ManualPaymentMethod,
+  PackageStatus,
+  PaymentStatus,
+  Prisma,
+} from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import {
   PUBLIC_CACHE_KEYS,
@@ -333,6 +338,75 @@ export class PackagesService {
       },
       include: { plan: true },
     });
+  }
+
+  async subscribeWithManualPayment(
+    userId: string,
+    planId: string,
+    paymentMethod: ManualPaymentMethod,
+  ) {
+    const plan = await this.prisma.packagePlan.findUnique({
+      where: { id: planId },
+    });
+    if (!plan || !plan.isActive) {
+      throw new NotFoundException('Plan not found');
+    }
+    if (plan.priceCents <= 0) {
+      throw new BadRequestException('This plan is not available for purchase');
+    }
+    const existing = await this.prisma.userPackage.findFirst({
+      where: {
+        userId,
+        planId,
+        status: { in: [PackageStatus.ACTIVE, PackageStatus.PENDING] },
+      },
+    });
+    if (existing) {
+      throw new ConflictException(
+        'You already have an active subscription for this plan',
+      );
+    }
+    const start = new Date();
+    const end = new Date(start);
+    end.setDate(end.getDate() + plan.periodDays);
+    const sessionsRemaining = plan.isUnlimited
+      ? null
+      : (plan.sessionsPerMonth ?? 0);
+    const userPackage = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.userPackage.create({
+        data: {
+          userId,
+          planId,
+          status: PackageStatus.ACTIVE,
+          sessionsRemaining,
+          currentPeriodStart: start,
+          currentPeriodEnd: end,
+        },
+        include: { plan: true },
+      });
+      await tx.payment.create({
+        data: {
+          userId,
+          amountCents: plan.priceCents,
+          currency: plan.currency.toLowerCase(),
+          status: PaymentStatus.SUCCEEDED,
+          planId: plan.id,
+          userPackageId: created.id,
+          paymentMethod,
+          description: `Package subscription: ${plan.name}`,
+        },
+      });
+      return created;
+    });
+    await this.audit.log({
+      actorId: userId,
+      actorRole: 'USER',
+      action: 'MEMBERSHIP_SUBSCRIBED',
+      entityType: 'UserPackage',
+      entityId: userPackage.id,
+      payload: { planId, paymentMethod, amountCents: plan.priceCents },
+    });
+    return userPackage;
   }
 
   listMine(userId: string) {
