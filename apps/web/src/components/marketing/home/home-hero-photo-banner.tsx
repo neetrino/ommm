@@ -8,6 +8,7 @@ import {
   HOME_HERO_CTA_LAYOUT,
   HOME_HERO_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
+import { HOME_WEEKLY_SCHEDULE_LAYOUT } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
@@ -29,8 +30,6 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
       className={`${marketingMontserrat.variable} relative w-full min-w-0 overflow-x-clip`}
       style={{
         backgroundColor: HOME_HERO_FIGMA.sectionBackground,
-        borderBottomLeftRadius: HOME_HERO_FIGMA.sectionBottomRadiusPx,
-        borderBottomRightRadius: HOME_HERO_FIGMA.sectionBottomRadiusPx,
         ["--home-hero-min-h" as string]: HOME_HERO_LAYOUT.imageMinHeightMobile,
         ["--home-hero-max-h" as string]: HOME_HERO_LAYOUT.imageMaxHeightMobile,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,
@@ -49,7 +48,10 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ["--home-hero-cta-margin-top" as string]: HOME_HERO_CTA_LAYOUT.buttonsMarginTop,
       }}
     >
-      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
+      <div
+        className={`${styles.homeHeroFrame} relative w-full min-w-0`}
+        style={{ paddingBottom: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap }}
+      >
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
           <Image
             src={HOME_HERO_ASSETS.backgroundImage}

@@ -22,11 +22,6 @@ function planCardStyleVars(): CSSProperties {
     ["--home-plan-card-max-width" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardWidthPx}px`,
     ["--home-plan-card-radius" as string]: `${HOME_PLANS_SECTION_FIGMA.cardRadiusPx}px`,
     ["--home-plan-card-fallback-bg" as string]: HOME_PLANS_SECTION_FIGMA.cardFallbackBg,
-    ["--home-plan-glass-fill" as string]: HOME_PLANS_SECTION_FIGMA.cardGlassFill,
-    ["--home-plan-glass-tint" as string]: HOME_PLANS_SECTION_FIGMA.cardGlassTint,
-    ["--home-plan-glass-border" as string]: HOME_PLANS_SECTION_FIGMA.cardGlassBorder,
-    ["--home-plan-glass-highlight" as string]: HOME_PLANS_SECTION_FIGMA.cardGlassHighlight,
-    ["--home-plan-glass-blur" as string]: `${HOME_PLANS_SECTION_FIGMA.cardGlassBlurPx}px`,
     ["--home-plan-glass-height" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardGlassHeightPx}px`,
     ["--home-plan-glass-overhang" as string]: `${HOME_PLANS_SECTION_LAYOUT.cardGlassOverhangPx}px`,
     ["--home-plan-category-color" as string]: HOME_PLANS_SECTION_FIGMA.categoryColor,
@@ -63,18 +58,10 @@ export function HomePackagePlanCard({
       </div>
 
       <div className={styles.priceGlass}>
-        <span className={styles.priceGlassBlurPlate} aria-hidden>
-          <span className={styles.priceGlassBlurFrame}>
-            <Image
-              src={HOME_PLANS_SECTION_ASSETS.cardBackground}
-              alt=""
-              fill
-              sizes="(max-width: 1332px) 33vw, 404px"
-              className={styles.priceGlassBlurImage}
-              {...belowFoldImageProps()}
-            />
-          </span>
-        </span>
+        <span aria-hidden className={styles.priceGlassBase} />
+        <span aria-hidden className={styles.priceGlassRadial} />
+        <span aria-hidden className={styles.priceGlassLinear} />
+        <span aria-hidden className={styles.priceGlassSweep} />
         <div className={`${marketingMontserrat.className} ${styles.priceGlassContent}`}>
           <div className={styles.priceCopy}>
             <p className={styles.details}>{details}</p>

@@ -2,9 +2,12 @@
  * Figma home weekly schedule — panel `196:1293`, day tabs `196:1300`, session rows `196:1315`.
  */
 
+import { HOME_HERO_FIGMA } from "@/components/marketing/home/home-hero-banner-tokens";
+
 export const HOME_WEEKLY_SCHEDULE_FIGMA = {
-  panelFill: "rgba(255, 255, 255, 0.2)",
-  panelRadiusPx: 50,
+  /** Solid hero yellow — matches hero band `#faf3cb` (`196:1293`). */
+  panelFill: HOME_HERO_FIGMA.sectionBackground,
+  panelRadiusPx: HOME_HERO_FIGMA.frostPanelRadiusPx,
   headingColor: "#695f00",
   scheduleInk: "#4a4738",
   titleInk: "#1d1c15",
@@ -39,22 +42,63 @@ export const HOME_WEEKLY_SCHEDULE_ROW_GRADIENTS = [
   "linear-gradient(to right, #bbd2da, #e5f4f9)",
 ] as const;
 
+const weeklyScheduleSectionOuterPaddingBottom = "clamp(2rem, 6vw, 4rem)";
+
+/** Adjusts visible space between schedule panel bottom and Our Core Practices heading. */
+const weeklyScheduleToClassesHeadingGapAdjustPx = -15;
+
+const weeklyScheduleSectionTopGap = "clamp(1.5rem, 5vw, 4rem)";
+
+/** Extra drop below the hero overlap — panel sits lower while photo still fills the band above. */
+const weeklySchedulePanelLowerOffsetPx = 155;
+
+/** Extra lift so Our Core Practices covers bottom `rounded-[50px]` corner cutouts. */
+const weeklyScheduleClassesCornerCoverPx = HOME_WEEKLY_SCHEDULE_FIGMA.panelRadiusPx + 12;
+
+const weeklySchedulePanelTopInsetPx =
+  HOME_WEEKLY_SCHEDULE_FIGMA.panelRadiusPx + weeklySchedulePanelLowerOffsetPx;
+
+/** Extra space inside the yellow panel — above the Weekly Schedule title. */
+const weeklySchedulePanelHeadingTopExtraPx = 30;
+
+const weeklySchedulePanelPaddingTop = "clamp(1.5rem, 5vw, 3rem)";
+
 export const HOME_WEEKLY_SCHEDULE_LAYOUT = {
   titleFontSize: "clamp(1.75rem, 6.5vw, 4.375rem)",
   titleLineHeight: 1.1,
   subtitleMaxWidth: "39.25rem",
   headingMaxWidth: "52rem",
-  panelRadius: "clamp(1.25rem, 4vw, 3.125rem)",
   sessionRowRadius: "clamp(1.25rem, 2vw, 2rem)",
-  /** Space below hero background before weekly schedule content. */
-  sectionTopGap: "clamp(1.5rem, 5vw, 4rem)",
+  sectionPaddingX: "clamp(1rem, 5vw, 5rem)",
+  sectionPaddingTop: `calc(${weeklySchedulePanelPaddingTop} + ${weeklySchedulePanelHeadingTopExtraPx}px)`,
+  sectionPaddingBottom: "clamp(2rem, 5vw, 3.5rem)",
+  sectionOuterPaddingBottom: weeklyScheduleSectionOuterPaddingBottom,
+  /** Pull Our Core Practices through outer band + bottom corner cutouts of `rounded-[50px]` panel. */
+  sectionClassesOverlap: `calc(${weeklyScheduleSectionOuterPaddingBottom} + ${weeklyScheduleClassesCornerCoverPx}px)`,
+  /** Tweaks panel-bottom → Our Core Practices title spacing without changing hero overlap. */
+  sectionToClassesHeadingGapAdjustPx: weeklyScheduleToClassesHeadingGapAdjustPx,
+  headerGapPx: 28,
+  /** Base breathing room between hero CTAs and schedule panel content. */
+  sectionTopGap: weeklyScheduleSectionTopGap,
+  /** Hero photo extends under the transparent band above the panel (`196:1293`). */
+  sectionHeroOverlap: `calc(${weeklyScheduleSectionTopGap} + ${weeklySchedulePanelTopInsetPx}px)`,
+  /** Transparent band above panel — lowers the card while hero stays visible underneath. */
+  sectionPanelTopInset: `${weeklySchedulePanelTopInsetPx}px`,
   dayTabGap: "clamp(0.375rem, 1.2vw, 0.75rem)",
   sessionListGap: "clamp(1rem, 2vw, 1rem)",
 } as const;
 
-/** Side inset so rounded panel corners stay visible; scales down on large screens. */
+/** Overlaps hero — panel `z-10` sits on photo; Our Core Practices gradient overlaps from below. */
 export const HOME_WEEKLY_SCHEDULE_SECTION_CLASS =
-  "relative z-10 w-full min-w-0 overflow-x-clip px-3 pb-8 sm:px-4 sm:pb-10 md:px-5 md:pb-12 lg:px-6 xl:px-8";
+  "relative z-20 w-full min-w-0 overflow-x-clip px-0";
+
+/** Solid yellow panel — same shell border as Packages `196:1251`, no glass fill. */
+export const HOME_WEEKLY_SCHEDULE_PANEL_SHELL_CLASS =
+  "relative isolate z-10 w-full min-w-0 overflow-hidden rounded-[50px] border border-white/55 ring-1 ring-white/35";
+
+export const HOME_WEEKLY_SCHEDULE_PANEL_SURFACE = {
+  backgroundColor: HOME_WEEKLY_SCHEDULE_FIGMA.panelFill,
+} as const;
 
 /** Inner content padding — shared by banner shell and schedule list. */
 export const HOME_WEEKLY_SCHEDULE_INNER_CLASS =

@@ -78,45 +78,100 @@
   overflow: hidden;
   isolation: isolate;
   border-radius: var(--home-plan-card-radius);
-  border: 1px solid var(--home-plan-glass-border);
-  background: var(--home-plan-glass-fill);
-  box-shadow:
-    inset 0 1px 0 var(--home-plan-glass-highlight),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-    0 12px 32px -14px rgba(45, 55, 62, 0.32);
-  backdrop-filter: blur(var(--home-plan-glass-blur));
-  -webkit-backdrop-filter: blur(var(--home-plan-glass-blur));
   padding: 0 4% 0 8%;
 }
 
-.priceGlassBlurPlate {
+/* Layer 1 — base glass (Featured Coaches nav `163:898`). */
+.priceGlassBase {
   position: absolute;
   inset: 0;
   z-index: 0;
-  overflow: hidden;
   border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease;
+}
+
+.card:hover .priceGlassBase {
+  background: rgba(255, 255, 255, 0.45);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Layer 2 — radial highlight, pulse 2.1s. */
+.priceGlassRadial {
   pointer-events: none;
-  opacity: 0;
-}
-
-.priceGlassBlurFrame {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 139%;
-  height: 391%;
-  transform: translateX(-50%);
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 90% at 28% 18%,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.32) 28%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  opacity: 0.9;
+  animation: planPriceGlassPulseSlow 2.1s ease-in-out infinite;
+  transition: opacity 300ms ease;
 }
 
-.priceGlassBlurImage {
-  object-fit: cover;
-  filter: blur(var(--home-plan-glass-blur));
-  transform: scale(1.08);
+.card:hover .priceGlassRadial {
+  opacity: 1;
+}
+
+/* Layer 3 — linear shine, pulse 2.6s. */
+.priceGlassLinear {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.05) 18%,
+    rgba(255, 255, 255, 0.62) 48%,
+    rgba(255, 255, 255, 0.05) 78%
+  );
+  opacity: 0.45;
+  animation: planPriceGlassPulseFast 2.6s ease-in-out infinite;
+  transition: opacity 300ms ease;
+}
+
+.card:hover .priceGlassLinear {
+  opacity: 0.7;
+}
+
+/* Layer 4 — sweep on hover. */
+.priceGlassSweep {
+  pointer-events: none;
+  position: absolute;
+  inset-block: 0;
+  left: -80%;
+  z-index: 3;
+  width: 42%;
+  rotate: 22deg;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+  opacity: 0;
+  transition:
+    left 700ms ease-out,
+    opacity 700ms ease-out;
+}
+
+.card:hover .priceGlassSweep {
+  left: 125%;
+  opacity: 1;
 }
 
 .priceGlassContent {
   position: relative;
-  z-index: 1;
+  z-index: 4;
   display: flex;
   min-width: 0;
   flex: 1;
@@ -180,24 +235,49 @@
   margin-inline: auto;
 }
 
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .priceGlass {
-    background: var(--home-plan-glass-tint);
+@keyframes planPriceGlassPulseSlow {
+  0%,
+  100% {
+    opacity: 0.9;
   }
 
-  .priceGlassBlurPlate {
-    opacity: 1;
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes planPriceGlassPulseFast {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .priceGlassBase {
+    background: rgba(255, 255, 255, 0.45);
   }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .priceGlass {
-    background: rgba(255, 255, 255, 0.32);
+  .priceGlassBase {
+    background: rgba(255, 255, 255, 0.45);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+}
 
-  .priceGlassBlurPlate {
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+  .priceGlassRadial,
+  .priceGlassLinear {
+    animation: none;
+  }
+
+  .priceGlassSweep {
+    display: none;
   }
 }

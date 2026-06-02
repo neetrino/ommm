@@ -5,6 +5,9 @@
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
+/** Shared with weekly schedule outer bands — olive → teal (`196:1074`). */
+export const HOME_CLASSES_SECTION_BACKGROUND = `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.classesGradientFrom}, ${HOME_PAGE_SURFACE.classesGradientTo})`;
+
 export const HOME_CLASSES_SECTION_FIGMA = {
   gradientFrom: HOME_PAGE_SURFACE.classesGradientFrom,
   gradientTo: HOME_PAGE_SURFACE.classesGradientTo,

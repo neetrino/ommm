@@ -62,7 +62,7 @@ export function MarketingPublicHomeGallerySection() {
           <HomeHeroCtaButton
             href="/explore"
             label={t("galleryMoreDetails")}
-            variant="coachesDetails"
+            variant="membership"
           />
         </div>
       </div>

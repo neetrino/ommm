@@ -5,9 +5,11 @@ import {
   HOME_CLASS_CARD_GRID_CLASS,
   HOME_CLASS_CARD_GRID_OFFSETS,
   HOME_CLASS_CARD_VISUALS,
+  HOME_CLASSES_SECTION_BACKGROUND,
   HOME_CLASSES_SECTION_FIGMA,
   HOME_CLASSES_SECTION_LAYOUT,
 } from "@/components/marketing/home/home-classes-section-tokens";
+import { HOME_WEEKLY_SCHEDULE_LAYOUT } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type ClassCardCopy = {
@@ -30,10 +32,11 @@ export async function MarketingPublicHomeClassesSection({
 
   return (
     <section
-      className={`${marketingMontserrat.variable} w-full px-4 sm:px-6 md:px-10 lg:px-20`}
+      className={`${marketingMontserrat.variable} relative z-[1] w-full px-4 sm:px-6 md:px-10 lg:px-20`}
       style={{
-        background: `linear-gradient(to bottom, ${HOME_CLASSES_SECTION_FIGMA.gradientFrom}, ${HOME_CLASSES_SECTION_FIGMA.gradientTo})`,
-        paddingTop: HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY,
+        background: HOME_CLASSES_SECTION_BACKGROUND,
+        marginTop: `calc(-1 * ${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap})`,
+        paddingTop: `calc(${HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY} + ${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionClassesOverlap} + ${HOME_WEEKLY_SCHEDULE_LAYOUT.sectionToClassesHeadingGapAdjustPx}px)`,
         paddingBottom: HOME_CLASSES_SECTION_LAYOUT.sectionPaddingY,
       }}
     >

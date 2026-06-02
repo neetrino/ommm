@@ -1,0 +1,204 @@
+.root {
+  position: relative;
+  z-index: 20;
+  display: inline-flex;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+
+.sizeCoachNav {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+@media (min-width: 768px) {
+  .sizeCoachNav {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+.button {
+  pointer-events: auto;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  transition:
+    transform 300ms ease-out,
+    box-shadow 300ms ease-out,
+    opacity 300ms ease-out;
+}
+
+.button:hover {
+  transform: translateY(-0.125rem) scale(1.04);
+  box-shadow: 0 10px 24px rgba(255, 255, 255, 0.24);
+}
+
+.button:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px transparent;
+}
+
+.glassBase {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease;
+}
+
+.button:hover .glassBase {
+  background: rgba(255, 255, 255, 0.45);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.glassRadial {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 90% at 28% 18%,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.32) 28%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  opacity: 0.9;
+  animation: marketingGlassPulseSlow 2.1s ease-in-out infinite;
+  transition: opacity 300ms ease;
+}
+
+.button:hover .glassRadial {
+  opacity: 1;
+}
+
+.glassLinear {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.05) 18%,
+    rgba(255, 255, 255, 0.62) 48%,
+    rgba(255, 255, 255, 0.05) 78%
+  );
+  opacity: 0.45;
+  animation: marketingGlassPulseFast 2.6s ease-in-out infinite;
+  transition: opacity 300ms ease;
+}
+
+.button:hover .glassLinear {
+  opacity: 0.7;
+}
+
+.glassSweep {
+  pointer-events: none;
+  position: absolute;
+  inset-block: 0;
+  left: -80%;
+  width: 42%;
+  rotate: 22deg;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+  opacity: 0;
+  transition:
+    left 700ms ease-out,
+    opacity 700ms ease-out;
+}
+
+.button:hover .glassSweep {
+  left: 125%;
+  opacity: 1;
+}
+
+.arrowHorizontal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.15rem;
+  height: 0.82rem;
+  transform: translate(-50%, -50%);
+  transition:
+    transform 300ms ease,
+    filter 300ms ease;
+}
+
+.arrowHorizontalPrev {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.button:hover .arrowHorizontal {
+  transform: translate(-50%, -50%) scale(1.1);
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.35));
+}
+
+.button:hover .arrowHorizontalPrev {
+  transform: translate(-58%, -50%) rotate(180deg) scale(1.1);
+}
+
+.button:hover .arrowHorizontalNext {
+  transform: translate(-42%, -50%) scale(1.1);
+}
+
+@media (min-width: 768px) {
+  .arrowHorizontal {
+    width: 1.45rem;
+    height: 1.05rem;
+  }
+}
+
+@keyframes marketingGlassPulseSlow {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes marketingGlassPulseFast {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glassRadial,
+  .glassLinear {
+    animation: none;
+  }
+
+  .button,
+  .button:hover,
+  .button:active {
+    transform: none;
+    transition: none;
+  }
+
+  .glassSweep {
+    display: none;
+  }
+}

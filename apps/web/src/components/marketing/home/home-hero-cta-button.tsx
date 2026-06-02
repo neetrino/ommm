@@ -19,6 +19,7 @@ export type HomeHeroCtaButtonProps = {
 export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonProps) {
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const layout = HOME_HERO_CTA_LAYOUT[variant];
+  const isGlassCta = variant === "coachesDetails";
   const variantClass =
     variant === "coachesDetails"
       ? styles.coachesDetails
@@ -37,7 +38,16 @@ export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonPro
         ["--hero-cta-label-offset" as string]: `${layout.labelOffsetPx}px`,
       }}
     >
-      <Image src={assets.shape} alt="" fill unoptimized className={styles.shape} aria-hidden />
+      {isGlassCta ? (
+        <span className={styles.glassLayers} aria-hidden>
+          <span className={styles.glassBase} />
+          <span className={styles.glassRadial} />
+          <span className={styles.glassLinear} />
+          <span className={styles.glassSweep} />
+        </span>
+      ) : (
+        <Image src={assets.shape} alt="" fill unoptimized className={styles.shape} aria-hidden />
+      )}
       <span className={styles.label}>{label}</span>
       <span className={styles.arrowZone} aria-hidden>
         <Image

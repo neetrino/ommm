@@ -12,6 +12,9 @@ import {
 
 const FEATURED_COACHES_AUTO_ADVANCE_MS = 5000;
 
+/** Slightly tighter than `py-16` bottom — space above the section title. */
+const FEATURED_COACHES_SECTION_PADDING_TOP = "calc(4rem - 55px)";
+
 /**
  * Figma **Featured Coaches** `155:188` — carousel card **Frame 68** `163:879`, CTA `196:1149`.
  */
@@ -96,9 +99,10 @@ export function MarketingPublicHomeCoachesSection() {
 
   return (
     <section
-      className={`${marketingMontserrat.variable} w-full py-16`}
+      className={`${marketingMontserrat.variable} w-full pb-16`}
       style={{
         background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.coachesGradientFrom}, ${HOME_PAGE_SURFACE.coachesGradientTo})`,
+        paddingTop: FEATURED_COACHES_SECTION_PADDING_TOP,
       }}
     >
       <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 lg:px-20">
