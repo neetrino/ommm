@@ -1,12 +1,10 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-import { HomeWeeklyScheduleSessionCard } from "@/components/marketing/home/home-weekly-schedule-session-card";
+import { HomeWeeklyScheduleSessionRow } from "@/components/marketing/home/home-weekly-schedule-session-row";
 import {
-  HOME_WEEKLY_SCHEDULE_COMPACT_CHIP_CLASS,
-  HOME_WEEKLY_SCHEDULE_DAY_STRIP_CLASS,
+  HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS,
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
@@ -22,20 +20,23 @@ export type HomeWeeklyScheduleCompactDay = {
     id: string;
     item: MarketingScheduleItem;
     bookAriaLabel: string;
+    withInstructorLabel: string;
+    durationLabel: string;
+    spotsLeftLabel: string;
   }[];
 };
 
-type HomeWeeklyScheduleCompactViewProps = {
+type HomeWeeklyScheduleDayViewProps = {
   locale: string;
   days: readonly HomeWeeklyScheduleCompactDay[];
   initialDay: MarketingScheduleDayOfWeek;
 };
 
-export function HomeWeeklyScheduleCompactView({
+export function HomeWeeklyScheduleDayView({
   locale,
   days,
   initialDay,
-}: HomeWeeklyScheduleCompactViewProps) {
+}: HomeWeeklyScheduleDayViewProps) {
   const t = useTranslations("marketingPublic.home");
   const [selectedDay, setSelectedDay] = useState<MarketingScheduleDayOfWeek>(initialDay);
 
@@ -50,16 +51,13 @@ export function HomeWeeklyScheduleCompactView({
     return null;
   }
 
-  const panelStyle = {
-    "--home-schedule-card-min-h": HOME_WEEKLY_SCHEDULE_LAYOUT.cardMinHeightCompact,
-  } as CSSProperties;
-
   return (
-    <div className={`${marketingMontserrat.className} lg:hidden`}>
+    <div className={`${marketingMontserrat.className} w-full min-w-0`}>
       <div
         role="tablist"
         aria-label={t("weeklyScheduleDayTabsAria")}
-        className={HOME_WEEKLY_SCHEDULE_DAY_STRIP_CLASS}
+        className="flex flex-wrap items-center justify-center"
+        style={{ gap: HOME_WEEKLY_SCHEDULE_LAYOUT.dayTabGap }}
       >
         {days.map((entry) => {
           const isSelected = entry.day === selectedDay;
@@ -73,33 +71,26 @@ export function HomeWeeklyScheduleCompactView({
               aria-controls={`home-weekly-schedule-panel-${entry.day}`}
               id={`home-weekly-schedule-tab-${entry.day}`}
               onClick={() => selectDay(entry.day)}
-              className={`${HOME_WEEKLY_SCHEDULE_COMPACT_CHIP_CLASS} ${
-                isSelected ? "font-bold shadow-sm" : "font-semibold"
+              className={`${HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS} ${
+                isSelected ? "font-extrabold" : "bg-transparent font-semibold"
               }`}
               style={{
+                borderWidth: isSelected ? 0 : HOME_WEEKLY_SCHEDULE_FIGMA.dayChipBorderWidthPx,
+                borderStyle: "solid",
+                borderColor: HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleBorder,
                 color: isSelected
-                  ? HOME_WEEKLY_SCHEDULE_FIGMA.headingColor
-                  : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
+                  ? HOME_WEEKLY_SCHEDULE_FIGMA.dayChipActiveText
+                  : HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleText,
                 backgroundColor: isSelected
-                  ? "rgba(255, 255, 255, 0.55)"
-                  : "rgba(255, 255, 255, 0.2)",
-                borderColor: isSelected
-                  ? HOME_WEEKLY_SCHEDULE_FIGMA.headingColor
-                  : HOME_WEEKLY_SCHEDULE_FIGMA.cardBorder,
+                  ? HOME_WEEKLY_SCHEDULE_FIGMA.dayChipActiveFill
+                  : "transparent",
               }}
               aria-label={t("weeklyScheduleDayTabAria", {
                 day: entry.label,
                 count: sessionCount,
               })}
             >
-              <span className="w-full truncate text-center">{entry.label}</span>
-              {sessionCount > 0 ? (
-                <span
-                  className="mt-0.5 block h-0.5 w-0.5 rounded-full sm:mt-1 sm:h-1 sm:w-1"
-                  style={{ backgroundColor: HOME_WEEKLY_SCHEDULE_FIGMA.headingColor }}
-                  aria-hidden
-                />
-              ) : null}
+              {entry.label}
             </button>
           );
         })}
@@ -110,35 +101,35 @@ export function HomeWeeklyScheduleCompactView({
         role="tabpanel"
         aria-labelledby={`home-weekly-schedule-tab-${activeDay.day}`}
         aria-label={t("weeklyScheduleSessionsPanelAria", { day: activeDay.label })}
-        className="mt-5 min-w-0 sm:mt-6"
-        style={panelStyle}
+        className="mt-6 flex w-full min-w-0 flex-col sm:mt-8"
+        style={{ gap: HOME_WEEKLY_SCHEDULE_LAYOUT.sessionListGap }}
       >
         {activeDay.sessions.length === 0 ? (
           <div
-            className="flex min-h-[var(--home-schedule-card-min-h)] items-center justify-center rounded-[2.5rem] border border-dashed px-4 py-8 text-center text-sm font-semibold leading-6 sm:text-base"
+            className="flex min-h-[6.4375rem] items-center justify-center rounded-[2rem] border border-dashed px-4 py-8 text-center text-sm font-semibold leading-6 sm:text-base"
             style={{
-              borderColor: HOME_WEEKLY_SCHEDULE_FIGMA.cardBorder,
+              borderColor: HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleBorder,
               color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
-              borderRadius: HOME_WEEKLY_SCHEDULE_LAYOUT.cardRadius,
+              borderRadius: HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowRadius,
             }}
           >
             {activeDay.emptyLabel}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:gap-x-4 md:gap-y-5">
-            {activeDay.sessions.map((session) => (
-              <HomeWeeklyScheduleSessionCard
-                key={session.id}
-                item={session.item}
-                locale={locale}
-                bookAriaLabel={session.bookAriaLabel}
-                variant="compact"
-              />
-            ))}
-          </div>
+          activeDay.sessions.map((session) => (
+            <HomeWeeklyScheduleSessionRow
+              key={session.id}
+              item={session.item}
+              locale={locale}
+              reserveLabel={t("weeklyScheduleReserve")}
+              withInstructorLabel={session.withInstructorLabel}
+              durationLabel={session.durationLabel}
+              spotsLeftLabel={session.spotsLeftLabel}
+              bookAriaLabel={session.bookAriaLabel}
+            />
+          ))
         )}
       </div>
     </div>
   );
 }
-

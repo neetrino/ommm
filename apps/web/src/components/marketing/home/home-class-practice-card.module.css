@@ -1,0 +1,54 @@
+.card {
+  position: relative;
+  min-height: var(--home-class-card-min-h, 20.4375rem);
+  overflow: hidden;
+  border-radius: 2.5rem;
+}
+
+.copy {
+  position: relative;
+  z-index: 20;
+  max-width: 13.5rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 3vw, 2.125rem) 1.5rem;
+}
+
+.imageZone {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  max-width: 15rem;
+}
+
+.imageZoneWide {
+  width: 62%;
+  max-width: 18rem;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.imageFlipY {
+  transform: scaleY(-1) rotate(180deg);
+}
+
+.imageZoneWide .image {
+  object-position: center top;
+}
+
+@media (min-width: 640px) {
+  .imageZone {
+    max-width: 15rem;
+  }
+
+  .imageZoneWide {
+    max-width: 24.75rem;
+    width: 58%;
+  }
+}

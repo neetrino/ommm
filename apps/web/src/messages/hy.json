@@ -102,43 +102,45 @@
       "weeklyScheduleSessionsPanelAria": "{day} օրվա սեսիաներ",
       "weeklyScheduleEmptyDay": "Սեսիաներ չկան",
       "weeklyScheduleLoadFailed": "Դասացուցակը բեռնել չհաջողվեց ({status})։",
-      "weeklyScheduleBookSessionAria": "Դիտել {className} դասացուցակում",
+      "weeklyScheduleBookSessionAria": "Ամրագրել {className} դասացուցակում",
+      "weeklyScheduleReserve": "Ամրագրել",
+      "weeklyScheduleWithInstructor": "{name}-ի հետ",
+      "weeklyScheduleDuration": "{count} րոպե",
+      "weeklyScheduleDurationFallback": "—",
+      "weeklyScheduleSpotsLeft": "{count, plural, =1 {1 ազատ տեղ} other {# ազատ տեղ}}",
       "weeklyScheduleDays": {
-        "MONDAY": "ԵՐԿ",
-        "TUESDAY": "ԵՐՔ",
-        "WEDNESDAY": "ՉՐԿ",
-        "THURSDAY": "ՀԻՆԳ",
-        "FRIDAY": "ՈՒՐԲ",
-        "SATURDAY": "ՇԲԹ",
-        "SUNDAY": "ԿԻՐ"
+        "MONDAY": "Երկշաբթի",
+        "TUESDAY": "Երեքշաբթի",
+        "WEDNESDAY": "Չորեքշաբթի",
+        "THURSDAY": "Հինգշաբթի",
+        "FRIDAY": "Ուրբաթ",
+        "SATURDAY": "Շաբաթ",
+        "SUNDAY": "Կիրակի"
       },
       "classesTitle": "Մեր հիմնական պրակտիկաները",
       "classesSubtitle": "Մտածված սեսիաներ՝ ֆիզիկական և մտավոր բարօրության համար։",
+      "viewMembership": "Դիտել աբոնեմենտները",
       "viewSchedule": "Դասացուցակ",
       "classCards": [
         {
-          "title": "Գիտակից շնչառություն",
+          "titleLines": ["Reformer", "Group"],
           "body": "Տեխնիկաներ՝ ներկայությունը հաստատելու և շնչառությունը ընդլայնելու ուղղորդված շնչով։"
         },
         {
-          "title": "Հավասարակշռության աշխատանք",
+          "titleLines": ["Reformer", "Individual"],
           "body": "Ուշադրություն կորի կայունության և տարածական իրազեկման վրա՝ շարժման կենտրոնում հանգիստ գտնելու համար։"
         },
         {
-          "title": "Վերականգնող հանգիստ",
+          "titleLines": ["Yoga"],
           "body": "Խորը թուլացում նյարդային համակարգի համար՝ աջակցություններով, որ մեղմորեն պահում են մարմինը։"
         },
         {
-          "title": "Դինամիկ շարժում",
+          "titleLines": ["Mat Pilates"],
           "body": "Հեղուկ հաջորդականություններ, որոնք ստեղծում են ջերմություն և ուժ՝ պահելով ռիթմիկ հոսքը։"
         },
         {
-          "title": "Ճկունություն և երկարացում",
+          "titleLines": ["Dances"],
           "body": "Թիրախային ձգումներ՝ լարվածությունը արձակելու և հոդերում ու մկաններում տարածք ստեղծելու համար։"
-        },
-        {
-          "title": "Համայնքային սեսիաներ",
-          "body": "Խմբային պրակտիկաներ, որոնք ընդգծում են ընդհանուր էներգիան, կապը և հոգատար լինելը։"
         }
       ],
       "coachesTitle": "Ընտրյալ մարզիչներ",

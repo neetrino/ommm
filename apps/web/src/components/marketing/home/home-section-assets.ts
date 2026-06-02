@@ -1,11 +1,11 @@
-/** Local raster paths for Figma **Main** `155:107` sections (exported via MCP). */
+/** Local raster paths for Figma **Main** home sections. */
 export const HOME_SECTION_ASSETS = {
-  classPractice01: "/marketing/home/sections/home-class-practice-01.png",
-  classPractice02: "/marketing/home/sections/home-class-practice-02.png",
-  classPractice03: "/marketing/home/sections/home-class-practice-03.png",
-  classPractice04: "/marketing/home/sections/home-class-practice-04.png",
-  classPractice05: "/marketing/home/sections/home-class-practice-05.png",
-  classPractice06: "/marketing/home/sections/home-class-practice-06.png",
+  /** Figma Classes Section `196:1082`–`196:1106`. */
+  classReformerGroup: "/marketing/home/sections/classes/home-class-reformer-group.png",
+  classReformerIndividual: "/marketing/home/sections/classes/home-class-reformer-individual.png",
+  classYoga: "/marketing/home/sections/classes/home-class-yoga.png",
+  classMatPilates: "/marketing/home/sections/classes/home-class-mat-pilates.png",
+  classDances: "/marketing/home/sections/classes/home-class-dances.png",
   /** Figma portrait `-427 1` node `163:878` (Frame `163:879`). */
   coachPortrait: "/marketing/home/sections/home-coach-featured-427.png",
   /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */

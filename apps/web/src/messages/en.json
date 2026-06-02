@@ -102,43 +102,45 @@
       "weeklyScheduleSessionsPanelAria": "{day} class sessions",
       "weeklyScheduleEmptyDay": "No sessions",
       "weeklyScheduleLoadFailed": "Could not load schedule ({status}).",
-      "weeklyScheduleBookSessionAria": "View {className} on the schedule",
+      "weeklyScheduleBookSessionAria": "Reserve {className} on the schedule",
+      "weeklyScheduleReserve": "Reserve",
+      "weeklyScheduleWithInstructor": "with {name}",
+      "weeklyScheduleDuration": "{count} min",
+      "weeklyScheduleDurationFallback": "—",
+      "weeklyScheduleSpotsLeft": "{count, plural, =1 {1 spot left} other {# spots left}}",
       "weeklyScheduleDays": {
-        "MONDAY": "MON",
-        "TUESDAY": "TUES",
-        "WEDNESDAY": "WED",
-        "THURSDAY": "THUR",
-        "FRIDAY": "FRI",
-        "SATURDAY": "SAT",
-        "SUNDAY": "SUN"
+        "MONDAY": "Monday",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Wednesday",
+        "THURSDAY": "Thursday",
+        "FRIDAY": "Friday",
+        "SATURDAY": "Saturday",
+        "SUNDAY": "Sunday"
       },
       "classesTitle": "Our Core Practices",
       "classesSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "viewMembership": "View Membership",
       "viewSchedule": "View schedule",
       "classCards": [
         {
-          "title": "Mindfulness & Breathwork",
+          "titleLines": ["Reformer", "Group"],
           "body": "Techniques to anchor your presence and expand your lung capacity through guided breath."
         },
         {
-          "title": "Balance Work",
+          "titleLines": ["Reformer", "Individual"],
           "body": "Focus on core stability and spatial awareness to find steadiness in the center of movement."
         },
         {
-          "title": "Restorative Recovery",
+          "titleLines": ["Yoga"],
           "body": "Deep relaxation for the nervous system, using props to hold the body in gentle stillness."
         },
         {
-          "title": "Dynamic Movement",
+          "titleLines": ["Mat Pilates"],
           "body": "Fluid sequences that build heat and strength while maintaining a rhythmic, moving flow."
         },
         {
-          "title": "Flexibility & Lengthening",
+          "titleLines": ["Dances"],
           "body": "Targeted stretches designed to release tension and create space within the joints and muscles."
-        },
-        {
-          "title": "Community Sessions",
-          "body": "Group practices that emphasize shared energy, connection, and collective well-being."
         }
       ],
       "coachesTitle": "Featured Coaches",

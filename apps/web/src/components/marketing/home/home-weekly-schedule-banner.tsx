@@ -1,13 +1,12 @@
 import { getTranslations } from "next-intl/server";
-import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
-import { HomeWeeklyScheduleGrid } from "@/components/marketing/home/home-weekly-schedule-grid";
+import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomeWeeklyScheduleLiveGrid } from "@/components/marketing/home/home-weekly-schedule-live-grid";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_INNER_CLASS,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
   HOME_WEEKLY_SCHEDULE_SECTION_CLASS,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
-import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type HomeWeeklyScheduleBannerProps = {
@@ -15,29 +14,23 @@ type HomeWeeklyScheduleBannerProps = {
 };
 
 /**
- * Figma frosted weekly schedule — panel `161:301`, heading `270:128`, grid `271:184`, CTA `172:1067`.
+ * Figma weekly schedule panel `196:1293` — renders instantly with preview rows, live data hydrates client-side.
  */
 export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const { items, loadErrorStatus } = await fetchPublicScheduleItems();
+  const heroT = await getTranslations({ locale, namespace: "marketingPublic.hero" });
 
   return (
     <section
       aria-labelledby="home-weekly-schedule-heading"
       aria-describedby="home-weekly-schedule-subtitle"
       className={`${marketingMontserrat.variable} ${HOME_WEEKLY_SCHEDULE_SECTION_CLASS}`}
-      style={{ marginTop: `calc(-1 * ${HOME_WEEKLY_SCHEDULE_LAYOUT.heroOverlap})` }}
+      style={{ marginTop: HOME_WEEKLY_SCHEDULE_LAYOUT.sectionTopGap }}
     >
-      <div
-        className="w-full min-w-0 overflow-hidden py-8 sm:py-12 md:py-14"
-        style={{
-          backgroundColor: HOME_WEEKLY_SCHEDULE_FIGMA.panelFill,
-          borderRadius: HOME_WEEKLY_SCHEDULE_LAYOUT.panelRadius,
-        }}
-      >
+      <div className="w-full min-w-0 overflow-hidden pt-4 pb-10 sm:pt-6 sm:pb-12 md:pt-8 md:pb-16">
         <div className={HOME_WEEKLY_SCHEDULE_INNER_CLASS}>
           <header
-            className="mx-auto flex flex-col items-center gap-4 text-center sm:gap-6"
+            className="mx-auto flex flex-col items-center gap-4 text-center sm:gap-7"
             style={{ maxWidth: HOME_WEEKLY_SCHEDULE_LAYOUT.headingMaxWidth }}
           >
             <h2
@@ -63,22 +56,13 @@ export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBan
             </p>
           </header>
 
-          {loadErrorStatus !== null ? (
-            <p
-              className={`${marketingMontserrat.className} mx-auto mt-8 max-w-lg text-center text-sm font-semibold leading-6`}
-              style={{ color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk }}
-            >
-              {t("weeklyScheduleLoadFailed", { status: loadErrorStatus })}
-            </p>
-          ) : (
-            <HomeWeeklyScheduleGrid locale={locale} items={items} />
-          )}
+          <HomeWeeklyScheduleLiveGrid locale={locale} />
 
           <div className="mt-8 flex justify-center md:mt-10">
-            <HomeMarketingPillLink
+            <HomeHeroCtaButton
               href="/schedule"
-              label={t("viewSchedule")}
-              variant="silverSchedule"
+              label={heroT("primaryCta")}
+              variant="booking"
             />
           </div>
         </div>

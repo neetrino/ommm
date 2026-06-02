@@ -3,7 +3,7 @@ import type {
   MarketingScheduleItem,
 } from "@/components/marketing/schedule/marketing-schedule-types";
 
-/** Figma calendar column order — MON through SUN (`271:184`). */
+/** Figma day tab order — MON through SUN (`196:1300`). */
 export const HOME_WEEKLY_SCHEDULE_DAY_ORDER: readonly MarketingScheduleDayOfWeek[] = [
   "MONDAY",
   "TUESDAY",
@@ -23,7 +23,7 @@ function compareSessions(a: MarketingScheduleItem, b: MarketingScheduleItem): nu
   return a.startTime.localeCompare(b.startTime);
 }
 
-/** Groups active schedule rows by weekday for the home weekly grid. */
+/** Groups active schedule rows by weekday for the home weekly schedule day tabs. */
 export function groupScheduleByWeekday(
   items: readonly MarketingScheduleItem[],
 ): ScheduleItemsByWeekday {
