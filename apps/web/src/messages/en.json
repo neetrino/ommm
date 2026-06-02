@@ -299,6 +299,8 @@
     "coachesError": "We could not load coaches right now. Please try again shortly.",
     "coachesExperience": "{years}+ years experience",
     "coachesOpenCardAria": "Open profile for {name}",
+    "coachesCardExpandAria": "Show details for {name}",
+    "coachesCardCollapseAria": "Hide details for {name}",
     "coachesModalBackdropClose": "Close coach profile details",
     "coachesModalCloseAria": "Close coach profile",
     "coachesModalProfileLabel": "Coach profile",

@@ -5,25 +5,13 @@
   aspect-ratio: 428 / 617;
   min-height: clamp(22rem, 72vw, var(--coaches-page-card-design-height));
   overflow: hidden;
-  border: none;
-  padding: 0;
-  text-align: left;
-  cursor: pointer;
   background-color: var(--coaches-page-card-surface);
   border-radius: var(--coaches-page-card-radius);
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition: box-shadow 220ms ease;
 }
 
-.card:hover {
-  transform: translateY(-0.125rem);
-  box-shadow: 0 1.25rem 2.75rem -1.5rem rgba(45, 55, 60, 0.28);
-}
-
-.card:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 4px rgba(87, 127, 145, 0.55);
+.cardExpanded {
+  box-shadow: 0 1rem 2.25rem -1.25rem rgba(45, 55, 60, 0.22);
 }
 
 .header {
@@ -66,9 +54,14 @@
   top: var(--coaches-page-card-photo-top);
   left: var(--coaches-page-card-photo-left);
   right: 0;
-  bottom: var(--coaches-page-card-bottom-bar-height);
+  bottom: 0;
   overflow: hidden;
   pointer-events: none;
+  transition: left 280ms ease;
+}
+
+.cardExpanded .photoWrap {
+  left: 0;
 }
 
 .photoInner {
@@ -76,6 +69,7 @@
   height: 100%;
   width: 100%;
   transform: scaleY(-1) rotate(180deg);
+  transform-origin: center center;
 }
 
 .photoFrame {
@@ -93,35 +87,206 @@
   max-width: none;
 }
 
-.bottomBar {
+/* Figma `94:4071` — frosted glass drop-up over photo */
+.expandPanel {
+  --coach-glass-blur: var(--coaches-page-card-expand-glass-blur);
+  --coach-glass-saturate: var(--coaches-page-card-expand-glass-saturate);
+
   position: absolute;
   z-index: 3;
   right: 0;
   bottom: 0;
   left: 0;
+  overflow: hidden;
+  border-radius:
+    var(--coaches-page-card-bottom-bar-radius)
+    var(--coaches-page-card-bottom-bar-radius)
+    var(--coaches-page-card-radius)
+    var(--coaches-page-card-radius);
+  transition: min-height 280ms ease;
+}
+
+.expandPanelBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  border: 1px solid var(--coaches-page-card-expand-glass-border);
+  background-color: var(--coaches-page-card-expand-glass-fill);
+  backdrop-filter: blur(var(--coach-glass-blur)) saturate(var(--coach-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--coach-glass-blur)) saturate(var(--coach-glass-saturate));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transform: translateZ(0);
+  transition: backdrop-filter 280ms ease;
+}
+
+.expandPanelGlassBorder {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.12) 40%,
+    rgba(255, 255, 255, 0.08) 62%,
+    rgba(255, 255, 255, 0.32) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.expandPanelGlassGloss {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.06) 26%,
+    rgba(255, 255, 255, 0) 50%
+  );
+}
+
+.expandPanelCollapsed {
+  min-height: var(--coaches-page-card-bottom-bar-height);
+}
+
+.expandPanelExpanded {
+  min-height: var(--coaches-page-card-expand-panel-height);
+  --coach-glass-blur: var(--coaches-page-card-expand-glass-blur-expanded);
+}
+
+.expandPanelExpanded .expandPanelBackdrop {
+  --coach-glass-blur: var(--coaches-page-card-expand-glass-blur-expanded);
+  background-color: var(--coaches-page-card-expand-glass-fill-expanded);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.expandPanelBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  min-height: inherit;
+  flex-direction: column;
+}
+
+.expandPanelCollapsed .expandPanelBody {
+  align-items: stretch;
+  justify-content: center;
+}
+
+.expandPanelExpanded .expandPanelBody {
+  padding: var(--coaches-page-card-expand-panel-padding);
+  gap: clamp(0.5rem, 1.6vw, 0.75rem);
+}
+
+.expandBarTrigger {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: var(--coaches-page-card-bottom-bar-height);
-  padding-inline: clamp(1rem, 4vw, 1.5rem);
-  border-radius: var(--coaches-page-card-bottom-bar-radius);
-  background: var(--coaches-page-card-bottom-bar-fill);
-  pointer-events: none;
+  width: 100%;
+  min-height: inherit;
+  border: none;
+  padding: 0 var(--coaches-page-card-expand-trigger-inset);
+  cursor: pointer;
+  background: transparent;
+  color: var(--coaches-page-card-name-color);
+  transition: opacity 180ms ease;
 }
 
-.expandIcon {
+.expandBarTrigger:hover {
+  opacity: 0.72;
+}
+
+.expandBarTrigger:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(87, 127, 145, 0.55);
+}
+
+.expandHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.expandHeaderTrigger {
+  display: inline-flex;
   flex-shrink: 0;
-  width: clamp(1rem, 2.5vw, 1.4375rem);
-  height: auto;
-  rotate: -90deg;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.125rem;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  color: var(--coaches-page-card-name-color);
+  transition: opacity 180ms ease;
+}
+
+.expandHeaderTrigger:hover {
+  opacity: 0.72;
+}
+
+.expandHeaderTrigger:focus-visible {
+  outline: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 2px rgba(87, 127, 145, 0.55);
+}
+
+.expandArrow {
+  display: block;
+  flex-shrink: 0;
+  width: clamp(1.125rem, 2.6vw, 1.375rem);
+  height: clamp(1.125rem, 2.6vw, 1.375rem);
+}
+
+.expandArrowUp {
+  transform: rotate(0deg);
+}
+
+.expandArrowDown {
+  transform: rotate(180deg);
+}
+
+.experience {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.6vw, 1rem);
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--coaches-page-card-name-color);
+}
+
+.bio {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.8125rem, 1.4vw, 0.9375rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--coaches-page-card-expand-bio-color);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card {
+  .photoWrap,
+  .expandPanel,
+  .expandPanelBackdrop,
+  .expandBarTrigger,
+  .expandHeaderTrigger {
     transition: none;
-  }
-
-  .card:hover {
-    transform: none;
   }
 }

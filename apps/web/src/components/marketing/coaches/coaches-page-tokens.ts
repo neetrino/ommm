@@ -13,13 +13,13 @@ export const COACHES_PAGE_SURFACE = {
 export const COACHES_PAGE_LAYOUT = {
   artboardWidthPx: 1440,
   /** Title block top — node `62:2183`. */
-  heroTitleTopPx: 185,
+  heroTitleTopPx: 160,
   /** Lead top — node `62:2273`. */
   heroLeadTopPx: 239,
   /** First card row top — node `62:2206`. */
   gridTopPx: 294,
   /** Extra downward offset applied to hero + grid (post-design tweak). */
-  heroOffsetExtraPx: 36,
+  heroOffsetExtraPx: 0,
   gridColumns: 3,
   gridRows: 2,
 } as const;
@@ -33,6 +33,18 @@ export const COACHES_PAGE_CARD = {
   bottomBarFill: "rgba(255, 255, 255, 0.46)",
   bottomBarRadiusPx: 50,
   bottomBarHeightPx: 67,
+  /** Right inset for collapsed bar arrow — Figma `94:4071`. */
+  expandTriggerInsetPx: 28,
+  /** Expanded bottom panel — Figma `94:4071`. */
+  expandPanelMinHeightPx: 220,
+  expandPanelPaddingPx: 22,
+  expandPanelGlassBlurPx: 72,
+  expandPanelGlassBlurExpandedPx: 120,
+  expandPanelGlassSaturatePercent: 180,
+  expandPanelGlassFill: "rgba(255, 255, 255, 0.34)",
+  expandPanelGlassFillExpanded: "rgba(255, 255, 255, 0.36)",
+  expandPanelGlassBorder: "rgba(255, 255, 255, 0.42)",
+  expandBioColor: "#1d1c15",
   nameInsetTopPx: 20,
   nameInsetLeftPx: 30,
   roleInsetTopPx: 81,

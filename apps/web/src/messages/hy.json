@@ -299,6 +299,8 @@
     "coachesError": "Չհաջողվեց բեռնել մարզիչների ցանկը։ Փորձեք մի փոքր ուշ։",
     "coachesExperience": "{years}+ տարի փորձ",
     "coachesOpenCardAria": "Բացել {name}-ի պրոֆիլը",
+    "coachesCardExpandAria": "Ցուցադրել {name}-ի մանրամասները",
+    "coachesCardCollapseAria": "Թաքցնել {name}-ի մանրամասները",
     "coachesModalBackdropClose": "Փակել մարզչի պրոֆիլի պատուհանը",
     "coachesModalCloseAria": "Փակել մարզչի պրոֆիլը",
     "coachesModalProfileLabel": "Մարզչի պրոֆիլ",

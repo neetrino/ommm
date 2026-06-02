@@ -299,6 +299,8 @@
     "coachesError": "Не удалось загрузить список тренеров. Попробуйте позже.",
     "coachesExperience": "Опыт: {years}+ лет",
     "coachesOpenCardAria": "Открыть профиль {name}",
+    "coachesCardExpandAria": "Показать информацию о {name}",
+    "coachesCardCollapseAria": "Скрыть информацию о {name}",
     "coachesModalBackdropClose": "Закрыть карточку тренера",
     "coachesModalCloseAria": "Закрыть профиль тренера",
     "coachesModalProfileLabel": "Профиль тренера",
