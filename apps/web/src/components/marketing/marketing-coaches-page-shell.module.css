@@ -17,3 +17,18 @@
     var(--coaches-page-gradient-to)
   );
 }
+
+@media (max-width: 1023px) {
+  .shell {
+    background: linear-gradient(
+      to bottom,
+      var(--coaches-page-gradient-from),
+      var(--coaches-page-gradient-to)
+    );
+  }
+
+  .mainSurface {
+    background: transparent;
+    padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
+  }
+}
