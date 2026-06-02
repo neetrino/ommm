@@ -6,7 +6,7 @@ import type {
   CoachFinanceRow,
   FinanceTab,
 } from "@/components/admin/admin-finance-types";
-import type { AdminClientsPayload, ClientRow } from "@/components/admin/admin-clients-types";
+import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { formatAmdFromCents } from "@/lib/price-amd";

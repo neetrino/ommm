@@ -223,7 +223,8 @@ export class PackagesService {
         'guestCount' in data
       ) {
         const guestCountValue = data.guestCount as number;
-        const { guestCount: _removed, ...dataWithoutGuest } = data;
+        const dataWithoutGuest = { ...data };
+        delete dataWithoutGuest.guestCount;
         updated = await this.prisma.packagePlan.update({
           where: { id: planId },
           data: dataWithoutGuest,
@@ -268,13 +269,17 @@ export class PackagesService {
     return { ok: true };
   }
 
-  async deletePlansByCategory(categoryName: string): Promise<{ deletedIds: string[] }> {
+  async deletePlansByCategory(
+    categoryName: string,
+  ): Promise<{ deletedIds: string[] }> {
     const planIds = await this.findPlanIdsByCategoryName(categoryName);
     if (planIds.length === 0) {
       return { deletedIds: [] };
     }
     await this.assertPlansDeletable(planIds);
-    await this.prisma.packagePlan.deleteMany({ where: { id: { in: planIds } } });
+    await this.prisma.packagePlan.deleteMany({
+      where: { id: { in: planIds } },
+    });
     await this.audit.log({
       action: 'MEMBERSHIP_PLAN_CATEGORY_DELETED',
       entityType: 'PackagePlan',
@@ -285,7 +290,9 @@ export class PackagesService {
     return { deletedIds: planIds };
   }
 
-  private async findPlanIdsByCategoryName(categoryName: string): Promise<string[]> {
+  private async findPlanIdsByCategoryName(
+    categoryName: string,
+  ): Promise<string[]> {
     const targetKey = this.categoryComparisonKey(
       this.normalizeCategoryName(categoryName),
     );
@@ -294,13 +301,14 @@ export class PackagesService {
     });
     return plans
       .filter(
-        (plan) =>
-          this.categoryComparisonKey(plan.categoryName) === targetKey,
+        (plan) => this.categoryComparisonKey(plan.categoryName) === targetKey,
       )
       .map((plan) => plan.id);
   }
 
-  private async assertPlansDeletable(planIds: readonly string[]): Promise<void> {
+  private async assertPlansDeletable(
+    planIds: readonly string[],
+  ): Promise<void> {
     if (planIds.length === 0) {
       return;
     }
@@ -1052,7 +1060,8 @@ export class PackagesService {
         : 'General';
     return {
       ...plan,
-      categoryName: categoryRaw.trim().length > 0 ? categoryRaw.trim() : 'General',
+      categoryName:
+        categoryRaw.trim().length > 0 ? categoryRaw.trim() : 'General',
       currency: this.normalizeCurrency(plan.currency),
       billingPeriod: this.normalizeBillingPeriod(plan.billingPeriod),
       features: this.normalizeFeatures(plan.features),

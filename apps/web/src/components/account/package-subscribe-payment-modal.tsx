@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -23,7 +23,42 @@ type PackageSubscribePaymentModalProps = {
 
 type ModalStep = "form" | "success";
 
+function resolveDefaultPlanId(
+  plans: readonly PackageSubscribePlanOption[],
+  initialPlanId?: string,
+): string {
+  if (initialPlanId !== undefined && plans.some((plan) => plan.id === initialPlanId)) {
+    return initialPlanId;
+  }
+  return plans[0]?.id ?? "";
+}
+
 export function PackageSubscribePaymentModal({
+  isOpen,
+  locale,
+  plans,
+  initialPlanId,
+  onClose,
+}: PackageSubscribePaymentModalProps) {
+  if (!isOpen || plans.length === 0) {
+    return null;
+  }
+
+  const sessionKey = `${initialPlanId ?? ""}:${plans.map((plan) => plan.id).join(",")}`;
+
+  return (
+    <PackageSubscribePaymentModalSession
+      key={sessionKey}
+      isOpen={isOpen}
+      locale={locale}
+      plans={plans}
+      initialPlanId={initialPlanId}
+      onClose={onClose}
+    />
+  );
+}
+
+function PackageSubscribePaymentModalSession({
   isOpen,
   locale,
   plans,
@@ -34,29 +69,12 @@ export function PackageSubscribePaymentModal({
   const router = useRouter();
   const titleId = useId();
   const [step, setStep] = useState<ModalStep>("form");
-  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [selectedPlanId, setSelectedPlanId] = useState(() =>
+    resolveDefaultPlanId(plans, initialPlanId),
+  );
   const [paymentMethod, setPaymentMethod] = useState<ManualPaymentMethod>("CARD");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-    const defaultPlanId =
-      initialPlanId !== undefined && plans.some((plan) => plan.id === initialPlanId)
-        ? initialPlanId
-        : (plans[0]?.id ?? "");
-    setStep("form");
-    setSelectedPlanId(defaultPlanId);
-    setPaymentMethod("CARD");
-    setBusy(false);
-    setError(null);
-  }, [isOpen, plans, initialPlanId]);
-
-  if (!isOpen || plans.length === 0) {
-    return null;
-  }
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
   const showPlanPicker = plans.length > 1;

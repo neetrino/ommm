@@ -139,10 +139,7 @@ export class PackagesController {
   @Patch('admin/:id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  adminStatus(
-    @Param('id') id: string,
-    @Body('status') status: PackageStatus,
-  ) {
+  adminStatus(@Param('id') id: string, @Body('status') status: PackageStatus) {
     return this.packages.adminSetStatus(id, status);
   }
 }

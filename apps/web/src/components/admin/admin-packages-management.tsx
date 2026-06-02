@@ -71,15 +71,18 @@ export function AdminPackagesManagement({
   const [packageRows, setPackageRows] = useState<readonly AdminPackageRow[]>(() =>
     packagesFromServer.map(normalizeAdminPackageRow),
   );
+  const [prevPackagesFromServer, setPrevPackagesFromServer] =
+    useState(packagesFromServer);
 
-  useEffect(() => {
+  if (packagesFromServer !== prevPackagesFromServer) {
+    setPrevPackagesFromServer(packagesFromServer);
     setPackageRows((current) =>
       mergeAdminPackageRowsFromServer(
         current,
         packagesFromServer.map(normalizeAdminPackageRow),
       ),
     );
-  }, [packagesFromServer]);
+  }
 
   const sortedPackages = useMemo(
     () => [...packageRows].sort((left, right) => left.displayOrder - right.displayOrder),

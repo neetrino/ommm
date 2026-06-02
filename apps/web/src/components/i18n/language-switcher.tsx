@@ -25,7 +25,6 @@ export type LanguageSwitcherProps = {
 };
 
 export function LanguageSwitcher({
-  context,
   dashboardVariant = "neutral",
   compact = false,
   className = "",
@@ -89,7 +88,6 @@ export function LanguageSwitcher({
   }
 
   const triggerLabel = `${t("switcherAria")}: ${t(`optionNames.${effectiveLocale}`)}`;
-  const marketingTriggerLabel = triggerLabel;
   const options: readonly DropdownOption<LanguageSwitcherLocaleCode>[] = LANGUAGE_SWITCHER_ORDER.map(
     (code) => ({
       value: code,

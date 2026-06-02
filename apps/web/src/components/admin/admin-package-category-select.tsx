@@ -199,7 +199,6 @@ export function AdminPackageCategorySelect({
         aria-haspopup="listbox"
         aria-expanded={isMenuOpen}
         aria-controls={listboxId}
-        aria-required={required ? true : undefined}
         disabled={disabled || loading}
         onClick={() => (isMenuOpen ? closeMenu() : openMenu())}
         onKeyDown={(event) => {
@@ -261,6 +260,7 @@ export function AdminPackageCategorySelect({
                 id={listboxId}
                 role="listbox"
                 aria-label={ariaLabel}
+                aria-required={required ? true : undefined}
                 className="ommm-dropdown-menu-list"
                 style={{ maxHeight: Math.max(96, menuPosition.maxHeight - 64) }}
               >

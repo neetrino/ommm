@@ -104,5 +104,4 @@ export class UpdatePlanDto {
   @Min(0)
   @Max(MAX_PACKAGE_GUEST_COUNT)
   guestCount?: number;
-
 }

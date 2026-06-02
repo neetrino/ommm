@@ -124,7 +124,6 @@ export function AdminPackageForm({
 
   useEffect(() => {
     let cancelled = false;
-    setCategoriesLoading(true);
     void apiFetch<string[]>("/packages/admin/categories")
       .then((names) => {
         if (!cancelled) {
