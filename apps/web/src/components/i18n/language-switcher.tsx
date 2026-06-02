@@ -1,13 +1,12 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition, type ReactNode } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
-import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
@@ -16,18 +15,28 @@ import {
   isLanguageSwitcherLocale,
 } from "@/lib/language-switcher-locales";
 
+/** Icon-only marketing trigger is 44px; menu needs room for flag + label. */
+const MARKETING_ICON_MENU_MIN_WIDTH_PX = 168;
+
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
+  appearance?: "dropdown" | "icon";
   dashboardVariant?: DashboardShellVariant;
   compact?: boolean;
   className?: string;
+  triggerClassName?: string;
+  renderIconTrigger?: () => ReactNode;
   onAfterSelect?: () => void;
 };
 
 export function LanguageSwitcher({
+  context,
+  appearance = "dropdown",
   dashboardVariant = "neutral",
   compact = false,
   className = "",
+  triggerClassName,
+  renderIconTrigger,
   onAfterSelect,
 }: LanguageSwitcherProps) {
   const router = useRouter();
@@ -50,10 +59,8 @@ export function LanguageSwitcher({
       ? routing.defaultLocale
       : "hy");
 
-  const flagFrame =
-    dashboardVariant === "wellness" || dashboardVariant === "admin"
-      ? "warm"
-      : "default";
+  const isIconMarketing =
+    context === "marketing" && appearance === "icon";
 
   function select(next: LanguageSwitcherLocaleCode) {
     if (next === locale) {
@@ -93,8 +100,13 @@ export function LanguageSwitcher({
     }),
   );
 
+  const rootMinWidth = isIconMarketing ? "min-w-0" : "min-w-[5.5rem]";
+
   return (
-    <div ref={rootRef} className={`ommm-dropdown-root min-w-[5.5rem] shrink-0 ${className}`.trim()}>
+    <div
+      ref={rootRef}
+      className={`ommm-dropdown-root shrink-0 ${rootMinWidth} ${className}`.trim()}
+    >
       <DropdownSelect<LanguageSwitcherLocaleCode>
         label={effectiveLocale}
         ariaLabel={triggerLabel}
@@ -103,27 +115,33 @@ export function LanguageSwitcher({
         onChange={select}
         disabled={pending || persisting}
         triggerClassName={
-          compact
+          triggerClassName ??
+          (compact
             ? "ommm-dropdown-trigger--compact min-h-9 px-2.5 text-[11px]"
-            : "ommm-dropdown-trigger--compact"
+            : "ommm-dropdown-trigger--compact")
         }
-        renderValue={() => (
-          <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
-            <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
-            <span>{effectiveLocale}</span>
-          </span>
-        )}
+        showChevron={!isIconMarketing}
+        menuMinWidth={isIconMarketing ? MARKETING_ICON_MENU_MIN_WIDTH_PX : undefined}
+        menuAlign={isIconMarketing ? "end" : "start"}
+        menuClassName="ommm-language-switcher-menu"
+        renderValue={() =>
+          isIconMarketing ? (
+            <span className="inline-flex items-center justify-center">
+              {renderIconTrigger?.()}
+            </span>
+          ) : (
+            <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
+              <LocaleFlagIcon code={effectiveLocale} />
+              <span>{effectiveLocale}</span>
+            </span>
+          )
+        }
         renderOption={(option, selected) => (
           <>
-            <span
-              className="ommm-dropdown-checkbox"
-              data-checked={selected ? "true" : "false"}
-              aria-hidden
-            >
-              {selected ? <DropdownCheckGlyph className="h-3 w-3" /> : null}
+            <LocaleFlagIcon code={option.value} />
+            <span className="min-w-0 flex-1">
+              {isIconMarketing ? t(`optionNames.${option.value}`) : option.label}
             </span>
-            <LocaleFlagIcon code={option.value} frame={flagFrame} />
-            <span className="min-w-0 flex-1">{option.label}</span>
             <span className="sr-only">{t(`optionNames.${option.value}`)}</span>
           </>
         )}

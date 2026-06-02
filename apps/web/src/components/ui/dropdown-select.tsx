@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
-import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useFloatingMenuPosition, type FloatingMenuAlign } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type DropdownOption<T extends string> = {
@@ -28,6 +28,11 @@ export type DropdownSelectProps<T extends string> = {
   wrapLabel?: boolean;
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
+  showChevron?: boolean;
+  /** Minimum floating menu width in px when wider than the trigger. */
+  menuMinWidth?: number;
+  /** Horizontal alignment of the menu relative to the trigger. */
+  menuAlign?: FloatingMenuAlign;
 };
 
 function mergeClasses(...parts: Array<string | undefined>): string {
@@ -82,6 +87,9 @@ export function DropdownSelect<T extends string>({
   wrapLabel = false,
   renderValue,
   renderOption,
+  showChevron = true,
+  menuMinWidth,
+  menuAlign,
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -101,7 +109,14 @@ export function DropdownSelect<T extends string>({
     [options, value],
   );
   const isMenuOpen = open && !disabled && options.length > 0;
-  const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
+  const menuPosition = useFloatingMenuPosition(
+    triggerRef,
+    isMenuOpen,
+    disabled,
+    undefined,
+    menuMinWidth ?? 0,
+    menuAlign ?? "start",
+  );
 
   useEffect(() => {
     if (!open || disabled) {
@@ -231,9 +246,16 @@ export function DropdownSelect<T extends string>({
         onKeyDown={onTriggerKeyDown}
       >
         {triggerContent}
-        <span className={mergeClasses("ml-auto shrink-0 text-sage-500", wrapLabel ? "self-center" : undefined)}>
-          <ChevronDownIcon />
-        </span>
+        {showChevron ? (
+          <span
+            className={mergeClasses(
+              "ml-auto shrink-0 text-sage-500",
+              wrapLabel ? "self-center" : undefined,
+            )}
+          >
+            <ChevronDownIcon />
+          </span>
+        ) : null}
       </button>
 
       {isMenuOpen && menuPosition !== null && portalReady && typeof document !== "undefined"

@@ -1,3 +1,5 @@
+import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+
 /** Locales whose nav labels are longer than English — use tighter header spacing. */
 const COMPACT_HEADER_LOCALES = new Set(["hy", "ru"]);
 
@@ -9,109 +11,115 @@ export function marketingHeaderShellClass(): string {
   return [
     "fixed left-0 right-0 top-0 z-50 w-full min-w-0 overflow-x-clip",
     "pt-[env(safe-area-inset-top,0px)]",
-    "bg-transparent backdrop-blur-sm",
+    "bg-transparent",
+    marketingMontserrat.variable,
   ].join(" ");
 }
 
-export function marketingHeaderContainerClass(compact: boolean): string {
-  if (!compact) {
-    return "ommm-container flex h-16 min-w-0 items-center justify-between gap-4 overflow-x-clip sm:h-20";
-  }
-
+export function marketingHeaderContainerClass(): string {
   return [
-    "ommm-container grid h-16 min-w-0",
-    "grid-cols-[auto_minmax(0,1fr)_auto]",
-    "items-center gap-2 overflow-x-clip sm:h-20 sm:gap-3",
+    "ommm-container grid min-h-[53px] min-w-0 items-center overflow-x-clip py-3",
+    "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3 sm:gap-4",
   ].join(" ");
 }
 
-export function marketingHeaderBrandLinkClass(compact: boolean): string {
-  return compact
-    ? "flex min-w-0 shrink-0 items-center"
-    : "flex shrink-0 items-center";
+export function marketingHeaderBrandLinkClass(): string {
+  return "justify-self-start flex min-w-0 shrink-0 items-center";
 }
 
-export function marketingHeaderBrandTextClass(compact: boolean): string {
-  const base =
-    "font-sans text-xl font-semibold tracking-tight text-white sm:text-2xl";
-  return compact ? `truncate ${base}` : base;
+export function marketingHeaderBrandTextClass(): string {
+  return [
+    "font-serif text-2xl font-bold leading-8 tracking-[-0.05em] text-[#fbf5d5]",
+    "whitespace-nowrap",
+  ].join(" ");
 }
 
 export function marketingHeaderNavClass(compact: boolean): string {
-  if (!compact) {
-    return [
-      "hidden min-w-0 shrink items-center gap-10 overflow-hidden",
-      "lg:flex",
-    ].join(" ");
-  }
+  const pillPadding = compact ? "px-3 sm:px-4 md:px-5" : "px-[30px]";
 
   return [
-    "hidden min-w-0 max-w-full items-center justify-center justify-self-center lg:flex",
-    "gap-0.5 sm:gap-1 lg:gap-1.5 xl:gap-2 2xl:gap-3",
+    "relative isolate hidden min-h-[53px] min-w-0 max-w-full justify-self-center overflow-hidden lg:flex",
+    "rounded-[80px] border border-white/45 ring-1 ring-white/30 backdrop-blur-xl backdrop-saturate-150",
+    marketingMontserrat.className,
+    pillPadding,
   ].join(" ");
 }
 
-export function marketingHeaderActionsClass(compact: boolean): string {
-  if (!compact) {
-    return "ml-auto flex shrink-0 items-center gap-2 sm:gap-3 lg:ml-0";
-  }
+export function marketingHeaderNavPillGlossClass(): string {
+  return "pointer-events-none absolute inset-0 rounded-[inherit]";
+}
 
-  return "flex shrink-0 items-center justify-self-end gap-1.5 sm:gap-2 lg:gap-3";
+export function marketingHeaderNavLinksClass(compact: boolean): string {
+  const linkGap = compact
+    ? "gap-1 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-5"
+    : "gap-12";
+
+  return ["relative z-10 flex min-h-[53px] items-center justify-center", linkGap].join(
+    " ",
+  );
+}
+
+export function marketingHeaderActionsClass(): string {
+  return "justify-self-end flex shrink-0 items-center gap-3 sm:gap-4";
+}
+
+/** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
+export function marketingHeaderAuthClusterClass(): string {
+  return "flex shrink-0 items-center gap-1";
 }
 
 export function marketingHeaderNavLinkClass(
   active: boolean,
   compact: boolean,
 ): string {
-  if (!compact) {
-    return [
-      "rounded-full px-3 py-2 text-base font-light transition-colors",
-      active
-        ? "border-b-2 border-[rgba(250,204,21,0.5)] pb-1.5 text-white"
-        : "text-white hover:bg-white/10",
-    ].join(" ");
-  }
+  const typography = compact
+    ? "whitespace-nowrap text-[11px] font-bold leading-5 tracking-[-0.35px] sm:text-xs md:text-sm lg:text-base"
+    : "whitespace-nowrap text-base font-bold leading-5 tracking-[-0.35px]";
 
-  const sizing =
-    "whitespace-nowrap rounded-full px-1 py-2 text-[11px] font-light sm:px-1.5 sm:text-xs lg:px-2 lg:text-sm xl:px-2.5 xl:text-[15px] 2xl:px-3 2xl:text-base";
   const state = active
-    ? "border-b-2 border-[rgba(250,204,21,0.5)] pb-1.5 text-white"
-    : "text-white hover:bg-white/10";
+    ? "text-[#fbf5d5]"
+    : "text-white hover:bg-white/10 hover:text-white";
 
-  return [sizing, state, "transition-colors"].join(" ");
+  return [typography, state, "transition-colors"].join(" ");
 }
 
-export function marketingHeaderBookClass(compact: boolean): string {
-  if (!compact) {
-    return [
-      "hidden shrink-0 rounded-full bg-[#e8da74] font-medium text-white shadow-sm",
-      "whitespace-nowrap md:max-lg:inline-flex md:px-5 md:py-2.5 md:text-sm",
-      "lg:inline-flex lg:px-8 lg:py-3",
-      "transition-[filter,transform] hover:brightness-105",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-      "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
-    ].join(" ");
-  }
-
+export function marketingHeaderIconButtonClass(): string {
   return [
-    "hidden shrink-0 rounded-full bg-[#e8da74] font-medium text-white shadow-sm",
-    "whitespace-nowrap md:max-lg:inline-flex md:px-2.5 md:py-2 md:text-[10px]",
-    "lg:inline-flex lg:px-3 lg:py-2.5 lg:text-[11px]",
-    "xl:px-4 xl:py-3 xl:text-xs 2xl:px-5 2xl:text-sm",
-    "transition-[filter,transform] hover:brightness-105",
+    "inline-flex cursor-pointer items-center justify-center rounded-full text-[#fbf5d5]",
+    "transition-colors hover:bg-white/10",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+  ].join(" ");
+}
+
+export function marketingHeaderIconLanguageClass(): string {
+  return `${marketingHeaderIconButtonClass()} h-11 w-11`;
+}
+
+export function marketingHeaderIconAccountClass(): string {
+  return `${marketingHeaderIconButtonClass()} h-11 w-11`;
+}
+
+export function marketingHeaderMenuButtonClass(): string {
+  return [
+    "inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full lg:hidden",
+    "border border-white/50 bg-white/10 text-white shadow-sm",
+    "transition-colors hover:bg-white/15",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   ].join(" ");
 }
 
-export function marketingHeaderMenuButtonClass(): string {
-  return [
-    "inline-flex h-11 w-11 items-center justify-center rounded-full",
-    "border border-white/50 bg-white/10 text-white shadow-sm lg:hidden",
-  ].join(" ");
-}
-
 export function marketingHeaderMobilePanelClass(open: boolean): string {
   if (!open) return "hidden";
-  return "border-t border-white/30 bg-black/30 px-4 py-4 backdrop-blur-xl lg:hidden";
+  return ["px-4 py-4 lg:hidden", marketingMontserrat.className].join(" ");
+}
+
+export function marketingHeaderLanguageTriggerClass(): string {
+  return [
+    "ommm-dropdown-trigger !h-11 !min-h-11 !w-11 !min-w-11 !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+    "text-[#fbf5d5] cursor-pointer hover:!border-0 hover:!bg-transparent hover:!shadow-none",
+    "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+  ].join(" ");
 }
