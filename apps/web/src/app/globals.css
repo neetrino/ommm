@@ -210,6 +210,24 @@ html {
     @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
   }
 
+  .ommm-package-card-footer-cta {
+    @apply cursor-pointer transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out;
+    @apply hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-14px_rgba(45,40,35,0.38)];
+    @apply active:translate-y-0 active:scale-[0.985] active:shadow-[0_8px_20px_-14px_rgba(45,40,35,0.32)];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .ommm-package-card-footer-cta.ommm-cta-ghost {
+    @apply border border-sand-500/25 bg-white/85 shadow-[0_6px_18px_-12px_rgba(45,40,35,0.35)];
+    @apply hover:border-sand-500/50 hover:bg-white hover:text-sage-900;
+    @apply active:bg-sand-100/90;
+  }
+
+  .ommm-package-card-footer-cta.ommm-cta-primary {
+    @apply shadow-[0_8px_24px_-12px_rgba(107,92,76,0.45)];
+    @apply hover:bg-sand-700 active:bg-sand-700;
+  }
+
   .ommm-cta-pill {
     font-family: var(--font-serif);
     @apply inline-flex items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 italic text-white shadow-sm transition-colors;
@@ -863,7 +881,12 @@ html {
 
     .ommm-package-card-interactive:active,
     .ommm-package-tier-row-interactive:active,
-    .ommm-membership-row-interactive:active {
+    .ommm-membership-row-interactive:active,
+    .ommm-package-card-footer-cta:active {
+      transform: none;
+    }
+
+    .ommm-package-card-footer-cta:hover {
       transform: none;
     }
 
