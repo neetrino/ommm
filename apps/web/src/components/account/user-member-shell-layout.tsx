@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import {
   dashboardNavDefinitionsForRole,
@@ -26,7 +27,11 @@ export async function UserMemberShellLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { role, userLocale, authUser } = await requireAuthForLayout(locale);
+  const authOutcome = await requireAuthForLayout(locale);
+  if (authOutcome.kind === "api_unavailable") {
+    return <ApiUnavailablePanel />;
+  }
+  const { role, userLocale, authUser } = authOutcome.auth;
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, USER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);

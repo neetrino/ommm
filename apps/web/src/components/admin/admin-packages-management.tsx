@@ -171,6 +171,7 @@ export function AdminPackagesManagement({
         sessionCountByTypeId={{}}
         initialSelectedId={editingClassTypeId}
         allowCreate={false}
+        allowDelete={false}
         onClose={closeEditCategory}
         onChanged={(nextTypes) => {
           router.refresh();

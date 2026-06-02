@@ -6,8 +6,8 @@ import { ensureMonorepoEnvLoaded } from "@/lib/load-monorepo-env";
  */
 const SERVER_FETCH_TIMEOUT_MS = 10_000;
 const PUBLIC_REVALIDATE_SEC = 60;
-const DEV_API_RETRY_ATTEMPTS = 5;
-const DEV_API_RETRY_DELAY_MS = 800;
+const DEV_API_RETRY_ATTEMPTS = 12;
+const DEV_API_RETRY_DELAY_MS = 1_000;
 
 const UPSTREAM_UNAVAILABLE_STATUSES = new Set([503, 504]);
 
