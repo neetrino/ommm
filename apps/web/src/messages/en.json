@@ -2630,7 +2630,8 @@
       "cancel": "Cancel",
       "saveSuccess": "Profile updated successfully.",
       "saveFailed": "Could not update profile.",
-      "emailRequired": "Email is required."
+      "emailRequired": "Email is required.",
+      "dateOfBirthInvalid": "Enter the date of birth in DD/MM/YYYY format."
     },
     "contact": {
       "name": "Name",

@@ -2519,7 +2519,8 @@
       "cancel": "Отмена",
       "saveSuccess": "Профиль успешно обновлён.",
       "saveFailed": "Не удалось обновить профиль.",
-      "emailRequired": "Email обязателен."
+      "emailRequired": "Email обязателен.",
+      "dateOfBirthInvalid": "Введите дату рождения в формате ДД/ММ/ГГГГ."
     },
     "contact": {
       "name": "Имя",
