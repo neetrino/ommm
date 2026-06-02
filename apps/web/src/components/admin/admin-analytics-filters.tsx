@@ -12,6 +12,8 @@ import type {
 import { AdminFilterResetButton } from "@/components/ui/admin-filter-reset-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
+type AnalyticsQuickFilterOption = Exclude<AnalyticsQuickFilter, "none">;
+
 type AdminAnalyticsFiltersProps = {
   filterOptions: {
     classTypes: Array<{ id: string; name: string }>;
@@ -32,7 +34,7 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       classTypeId: searchParams.get("classTypeId") ?? "",
       bookingStatus: (searchParams.get("bookingStatus") ?? "") as AnalyticsBookingStatusFilter,
       sort: (searchParams.get("sort") ?? "revenue-desc") as AnalyticsSortKey,
-      quick: (searchParams.get("quick") ?? "none") as AnalyticsQuickFilter,
+      quick: (searchParams.get("quick") ?? "today") as AnalyticsQuickFilter,
     }),
     [searchParams],
   );
@@ -112,17 +114,30 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
     [t],
   );
 
-  const quickDateFilters: Array<{ key: AnalyticsQuickFilter; label: string }> = [
-    { key: "today", label: t("quickToday") },
-    { key: "week", label: t("quickWeek") },
-    { key: "month", label: t("quickMonth") },
-    { key: "last30", label: t("quickLast30") },
-  ];
+  const quickFilterOptions = useMemo<
+    readonly DropdownOption<AnalyticsQuickFilterOption>[]
+  >(
+    () => [
+      { value: "today", label: t("quickToday") },
+      { value: "week", label: t("quickWeek") },
+      { value: "month", label: t("quickMonth") },
+      { value: "last30", label: t("quickLast30") },
+      { value: "topCoaches", label: t("quickTopCoaches") },
+      { value: "popularClasses", label: t("quickPopularClasses") },
+    ],
+    [t],
+  );
 
-  const quickSortPresets: Array<{ key: AnalyticsQuickFilter; sort: AnalyticsSortKey }> = [
-    { key: "topCoaches", sort: "bookings-desc" },
-    { key: "popularClasses", sort: "bookings-desc" },
-  ];
+  const quickFilterValue: AnalyticsQuickFilterOption =
+    values.quick === "none" ? "today" : values.quick;
+
+  const handleQuickFilterChange = (value: AnalyticsQuickFilterOption) => {
+    if (value === "topCoaches" || value === "popularClasses") {
+      updateMany({ quick: value, sort: "bookings-desc" });
+      return;
+    }
+    update("quick", value);
+  };
 
   const bookingStatusOptions = useMemo<
     readonly DropdownOption<AnalyticsBookingStatusFilter>[]
@@ -145,45 +160,17 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
           {t("reset")}
         </AdminFilterResetButton>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {quickDateFilters.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={values.quick === item.key}
-            onClick={() => update("quick", values.quick === item.key ? "none" : item.key)}
-            className={
-              values.quick === item.key
-                ? "rounded-full bg-sand-500 px-3 py-1.5 text-xs font-medium text-white"
-                : "rounded-full border border-sage-200 bg-white px-3 py-1.5 text-xs font-medium text-sage-700"
-            }
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {quickSortPresets.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={values.quick === item.key}
-            onClick={() => {
-              const active = values.quick === item.key;
-              updateMany({
-                quick: active ? "none" : item.key,
-                sort: active ? values.sort : item.sort,
-              });
-            }}
-            className={
-              values.quick === item.key
-                ? "rounded-full bg-sand-500 px-3 py-1.5 text-xs font-medium text-white"
-                : "rounded-full border border-sage-200 bg-white px-3 py-1.5 text-xs font-medium text-sage-700"
-            }
-          >
-            {item.key === "topCoaches" ? t("quickTopCoaches") : t("quickPopularClasses")}
-          </button>
-        ))}
+      <div className="mt-3 max-w-md">
+        <label className="text-sm text-sage-700">
+          <span className="mb-1 block text-xs text-sage-500">{t("quickFilterLabel")}</span>
+          <DropdownSelect
+            label={t("quickFilterLabel")}
+            ariaLabel={t("quickFilterLabel")}
+            value={quickFilterValue}
+            options={quickFilterOptions}
+            onChange={handleQuickFilterChange}
+          />
+        </label>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <label className="text-sm text-sage-700">

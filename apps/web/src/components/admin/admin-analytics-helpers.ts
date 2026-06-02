@@ -38,8 +38,11 @@ export function parseAnalyticsSortKey(value?: string): AnalyticsSortKey {
 }
 
 export function parseAnalyticsQuickFilter(value?: string): AnalyticsQuickFilter {
+  if (!value || value === "none") {
+    return "today";
+  }
+
   const allowed: AnalyticsQuickFilter[] = [
-    "none",
     "today",
     "week",
     "month",
@@ -47,10 +50,10 @@ export function parseAnalyticsQuickFilter(value?: string): AnalyticsQuickFilter 
     "topCoaches",
     "popularClasses",
   ];
-  if (value && allowed.includes(value as AnalyticsQuickFilter)) {
+  if (allowed.includes(value as AnalyticsQuickFilter)) {
     return value as AnalyticsQuickFilter;
   }
-  return "none";
+  return "today";
 }
 
 export function parseAnalyticsBookingStatus(value?: string): AnalyticsBookingStatusFilter {

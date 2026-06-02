@@ -2085,6 +2085,7 @@
         "sortAttendanceDesc": "Наибольшая посещаемость",
         "sortAttendanceAsc": "Наименьшая посещаемость",
         "sortNameAsc": "Имя (А–Я)",
+        "quickFilterLabel": "Вид аналитики",
         "quickToday": "Сегодня",
         "quickWeek": "Эта неделя",
         "quickMonth": "Этот месяц",

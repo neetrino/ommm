@@ -2019,6 +2019,7 @@
         "sortAttendanceDesc": "Highest attendance",
         "sortAttendanceAsc": "Lowest attendance",
         "sortNameAsc": "Name (A–Z)",
+        "quickFilterLabel": "Analytics view",
         "quickToday": "Today",
         "quickWeek": "This week",
         "quickMonth": "This month",
