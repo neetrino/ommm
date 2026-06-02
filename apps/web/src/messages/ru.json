@@ -887,6 +887,7 @@
       "filterClientAll": "Все клиенты",
       "filterStatusAll": "Все статусы",
       "resetFilters": "Reset Filters",
+      "activeCount": "{count} активных фильтров",
       "viewList": "Все бронирования",
       "viewMonthly": "Месячный вид",
       "viewWeekly": "Недельный вид",

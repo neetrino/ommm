@@ -8,6 +8,10 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { PlusIcon } from "@/components/ui/plus-icon";
+import {
+  AdminBookingsViewIcon,
+  type BookingsView,
+} from "@/components/admin/admin-bookings-view-icons";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
@@ -63,7 +67,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState<BookingRow[]>(initial.rows);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [view, setView] = useState<"list" | "monthly" | "weekly" | "daily">(() => {
+  const [view, setView] = useState<BookingsView>(() => {
     if (typeof window === "undefined") {
       return "list";
     }
@@ -145,6 +149,12 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     };
   }, [filteredRows]);
 
+  const activeFilterCount = useMemo(
+    () =>
+      [search.trim(), from, to, classTypeId, coachId, clientId, status].filter(Boolean).length,
+    [search, from, to, classTypeId, coachId, clientId, status],
+  );
+
   async function runRowAction(id: string, action: () => Promise<void>, ok: string) {
     setBusyId(id);
     setStatusMessage(null);
@@ -184,29 +194,52 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         <Metric title={t("summaryToday")} value={summary.today} />
       </div>
 
-      <div className="grid gap-2 rounded-2xl border border-white/60 bg-white/70 p-3 md:grid-cols-7">
-        <input className="ommm-input h-10 md:col-span-2" placeholder={t("filterSearch")} value={search} onChange={(event) => setSearch(event.target.value)} />
-        <DatePickerInput name="from" value={from} onChange={setFrom} placeholder={t("filterDateFrom")} />
-        <DatePickerInput name="to" value={to} onChange={setTo} placeholder={t("filterDateTo")} />
-        <OmmFilterDropdown allValue="" value={classTypeId} ariaLabel={t("filterClassAll")} allLabel={t("filterClassAll")} onChange={setClassTypeId} options={initial.filterOptions.classTypes.map((item) => ({ value: item.id, label: item.name }))} />
-        <OmmFilterDropdown allValue="" value={coachId} ariaLabel={t("filterCoachAll")} allLabel={t("filterCoachAll")} onChange={setCoachId} options={initial.filterOptions.coaches.map((item) => ({ value: item.id, label: item.name }))} />
-        <OmmFilterDropdown allValue="" value={status} ariaLabel={t("filterStatusAll")} allLabel={t("filterStatusAll")} onChange={setStatus} options={[{ value: "BOOKED", label: t("statusBooked") }, { value: "COMPLETED", label: t("statusCompleted") }, { value: "CANCELLED", label: t("statusCancelled") }, { value: "WAITLISTED", label: t("statusWaitlisted") }]} />
-        <div className="md:col-span-2">
-          <OmmFilterDropdown allValue="" value={clientId} ariaLabel={t("filterClientAll")} allLabel={t("filterClientAll")} onChange={setClientId} options={uniqueClients.map((item) => ({ value: item.id, label: item.label }))} />
+      <div className="space-y-3 rounded-2xl border border-white/60 bg-white/70 p-3">
+        <div className="grid gap-2 md:grid-cols-7">
+          <input className="ommm-input h-10 md:col-span-2" placeholder={t("filterSearch")} value={search} onChange={(event) => setSearch(event.target.value)} />
+          <DatePickerInput name="from" value={from} onChange={setFrom} placeholder={t("filterDateFrom")} />
+          <DatePickerInput name="to" value={to} onChange={setTo} placeholder={t("filterDateTo")} />
+          <OmmFilterDropdown allValue="" value={classTypeId} ariaLabel={t("filterClassAll")} allLabel={t("filterClassAll")} onChange={setClassTypeId} options={initial.filterOptions.classTypes.map((item) => ({ value: item.id, label: item.name }))} />
+          <OmmFilterDropdown allValue="" value={coachId} ariaLabel={t("filterCoachAll")} allLabel={t("filterCoachAll")} onChange={setCoachId} options={initial.filterOptions.coaches.map((item) => ({ value: item.id, label: item.name }))} />
+          <OmmFilterDropdown allValue="" value={status} ariaLabel={t("filterStatusAll")} allLabel={t("filterStatusAll")} onChange={setStatus} options={[{ value: "BOOKED", label: t("statusBooked") }, { value: "COMPLETED", label: t("statusCompleted") }, { value: "CANCELLED", label: t("statusCancelled") }, { value: "WAITLISTED", label: t("statusWaitlisted") }]} />
+          <div className="md:col-span-2">
+            <OmmFilterDropdown allValue="" value={clientId} ariaLabel={t("filterClientAll")} allLabel={t("filterClientAll")} onChange={setClientId} options={uniqueClients.map((item) => ({ value: item.id, label: item.label }))} />
+          </div>
         </div>
-        <div className="md:col-span-2 xl:col-span-6">
-          <AdminFilterResetBar
-            onReset={resetFilters}
-            label={t("resetFilters")}
-            leading={
-              <>
-                <OmmButton size="sm" variant={view === "list" ? "primary" : "ghost"} onClick={() => setView("list")}>{t("viewList")}</OmmButton>
-                <OmmButton size="sm" variant={view === "monthly" ? "primary" : "ghost"} onClick={() => setView("monthly")}>{t("viewMonthly")}</OmmButton>
-                <OmmButton size="sm" variant={view === "weekly" ? "primary" : "ghost"} onClick={() => setView("weekly")}>{t("viewWeekly")}</OmmButton>
-                <OmmButton size="sm" variant={view === "daily" ? "primary" : "ghost"} onClick={() => setView("daily")}>{t("viewDaily")}</OmmButton>
-              </>
-            }
-          />
+        <div className="flex flex-col gap-3 border-t border-sage-700/10 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {(["list", "monthly", "weekly", "daily"] as const).map((nextView) => (
+              <OmmButton
+                key={nextView}
+                size="sm"
+                variant={view === nextView ? "primary" : "ghost"}
+                className="gap-1.5"
+                onClick={() => setView(nextView)}
+              >
+                <AdminBookingsViewIcon view={nextView} className="h-4 w-4 shrink-0" />
+                {t(
+                  nextView === "list"
+                    ? "viewList"
+                    : nextView === "monthly"
+                      ? "viewMonthly"
+                      : nextView === "weekly"
+                        ? "viewWeekly"
+                        : "viewDaily",
+                )}
+              </OmmButton>
+            ))}
+          </div>
+          <div className="w-full sm:ml-auto sm:w-auto">
+            <AdminFilterResetBar
+              onReset={resetFilters}
+              label={t("resetFilters")}
+              meta={
+                <p className="whitespace-nowrap text-xs text-sage-600" role="status">
+                  {t("activeCount", { count: activeFilterCount })}
+                </p>
+              }
+            />
+          </div>
         </div>
       </div>
 

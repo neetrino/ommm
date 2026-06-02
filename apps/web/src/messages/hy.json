@@ -883,6 +883,7 @@
       "filterClientAll": "Բոլոր հաճախորդները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
       "resetFilters": "Reset Filters",
+      "activeCount": "{count} ակտիվ ֆիլտր",
       "viewList": "Բոլոր ամրագրումները",
       "viewMonthly": "Ամսական տեսք",
       "viewWeekly": "Շաբաթական տեսք",

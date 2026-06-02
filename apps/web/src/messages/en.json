@@ -896,6 +896,7 @@
       "filterClientAll": "All clients",
       "filterStatusAll": "All statuses",
       "resetFilters": "Reset Filters",
+      "activeCount": "{count} active filters",
       "viewList": "All bookings",
       "viewMonthly": "Monthly view",
       "viewWeekly": "Weekly view",
