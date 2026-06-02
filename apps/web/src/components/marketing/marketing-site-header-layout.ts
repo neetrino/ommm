@@ -3,8 +3,8 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 /** Figma TopNavBar `196:1410` sizing tokens. */
 const MARKETING_NAV_PILL_HEIGHT_CLASS = "min-h-[53px]";
 const MARKETING_NAV_PILL_RADIUS_CLASS = "rounded-[80px]";
-const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-[30px]";
-const MARKETING_NAV_LINK_GAP_CLASS = "gap-12";
+const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-5";
+const MARKETING_NAV_LINK_GAP_CLASS = "gap-8";
 const MARKETING_NAV_LINK_GAP_COMPACT_CLASS =
   "gap-1 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-5";
 
@@ -107,7 +107,7 @@ export function marketingHeaderNavPillLinkClass(
 
   return [
     typography,
-    "rounded-full px-2.5 py-1.5",
+    "rounded-full px-1.5 py-1.5",
     state,
     "transition-[color,background-color] duration-250",
   ].join(" ");

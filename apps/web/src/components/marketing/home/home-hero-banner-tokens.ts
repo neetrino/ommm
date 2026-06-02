@@ -15,6 +15,8 @@ export const HOME_HERO_FIGMA = {
   secondaryCtaHighlight: "#fffec9",
   frostPanelFill: "rgba(255, 255, 255, 0.2)",
   frostPanelRadiusPx: 50,
+  /** Figma `196:1409` — hero subheading. */
+  subtitleColor: "rgba(74, 71, 56, 0.62)",
 } as const;
 
 /** Responsive layout derived from Figma artboard `155:108` (1440×924 photo area). */
@@ -29,14 +31,31 @@ export const HOME_HERO_LAYOUT = {
   imageMinHeightDesktop: "clamp(32.5rem, 64vw, 100svh)",
   heroPanelOverlap: "clamp(1.75rem, 3.4vw, 3.0625rem)",
   portalTop: "15.8%",
-  titleFontSize: "clamp(2.75rem, 11vw, 4.5rem)",
-  titleFontSizeDesktop: "clamp(2.75rem, 5.5vw, 8.0625rem)",
+  /** Figma `196:1408` inside portal chord `196:1406` at logo band (~39.2% of portal width). */
+  logoMarkWidthPx: 130,
+  logoMarkHeightPx: 129,
+  logoMarkBorderRadiusPx: 91,
+  portalWidthRatio: 0.872,
+  portalChordAtLogoRatio: 0.392,
+  /** Logo diameter ≈ inner visible portal circle (Figma chord × ~0.52). */
+  logoMarkPortalFillRatio: 0.52,
+  /** Figma `196:1407` — hero headline. */
+  titleFontSizePx: 129,
+  titleLineHeightPx: 107,
+  titleLetterSpacingPx: -1.28,
+  titleMaxWidthPx: 1031,
+  titleFontSize: "clamp(2.5rem, calc(100svw * 116 / 1440), 7.25rem)",
+  titleFontSizeDesktop: "7.25rem",
   titleLineHeight: 107 / 129,
+  titleLetterSpacingEm: -1.28 / 129,
+  /** Figma `196:1409` — hero subheading. */
+  subtitleFontSizePx: 18,
+  subtitleLineHeightPx: 24,
+  subtitleMaxWidthPx: 436,
+  subtitleFontSize: "clamp(1rem, calc(100svw * 18 / 1440), 1.125rem)",
+  subtitleLineHeight: 24 / 18,
   backgroundObjectPosition: "48% 42%",
 } as const;
-
-/** WCAG-friendly subcopy on the photographic hero (Figma export targets pale UI, not the photo). */
-export const HOME_HERO_SUBTITLE_ON_IMAGE = "rgba(255, 255, 255, 0.88)";
 
 const goldGradientSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 191 56" preserveAspectRatio="none"><defs><radialGradient id="g" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="10" gradientTransform="matrix(10.568 0.1 -0.027561 3.0985 98.893 32.5)"><stop offset="0.40385" stop-color="rgb(245,233,136)"/><stop offset="0.70192" stop-color="rgb(222,209,98)"/><stop offset="1" stop-color="rgb(200,185,59)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
 
