@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
+import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
 import {
   HOME_FOOTER_ASSETS,
   HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
@@ -10,6 +11,7 @@ import {
   HOME_FOOTER_FIGMA_POSITIONS,
   HOME_FOOTER_LAYOUT,
   HOME_FOOTER_LEGAL_LINKS,
+  HOME_FOOTER_MOBILE_LAYOUT,
   HOME_FOOTER_NAV_LINKS,
   HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -28,8 +30,38 @@ function footerStyleVars(): CSSProperties {
   const pos = HOME_FOOTER_FIGMA_POSITIONS;
   const layout = HOME_FOOTER_LAYOUT;
   return {
+    // --home-footer-wrap-bg: inherited from MarketingLayoutShell on inner routes; home falls back in CSS.
     ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
+    ["--home-footer-mobile-overlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
+    ["--home-footer-mobile-wrap-padding-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.wrapPaddingTop,
+    ["--home-footer-mobile-radius" as string]: HOME_FOOTER_MOBILE_LAYOUT.topRadius,
+    ["--home-footer-mobile-px" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingX,
+    ["--home-footer-mobile-py" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingTop,
+    ["--home-footer-mobile-pb" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingBottom,
+    ["--home-footer-mobile-wordmark-size" as string]: HOME_FOOTER_MOBILE_LAYOUT.wordmarkFontSize,
+    ["--home-footer-mobile-wordmark-line-height" as string]: String(HOME_FOOTER_MOBILE_LAYOUT.wordmarkLineHeight),
+    ["--home-footer-mobile-body-size" as string]: HOME_FOOTER_MOBILE_LAYOUT.bodyFontSize,
+    ["--home-footer-mobile-body-line-height" as string]: String(HOME_FOOTER_MOBILE_LAYOUT.bodyLineHeight),
+    ["--home-footer-mobile-nav-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.navGap,
+    ["--home-footer-mobile-wordmark-nav-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.wordmarkToNavGap,
+    ["--home-footer-mobile-contact-icon-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.contactIconGap,
+    ["--home-footer-mobile-contact-row-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.contactRowGap,
+    ["--home-footer-mobile-contact-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.contactSectionMarginTop,
+    ["--home-footer-mobile-social-title-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.socialTitleToIconsGap,
+    ["--home-footer-mobile-social-icon-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.socialIconGap,
+    ["--home-footer-mobile-social-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.socialSectionMarginTop,
+    ["--home-footer-mobile-legal-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.legalGap,
+    ["--home-footer-mobile-legal-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.legalSectionMarginTop,
+    ["--home-footer-mobile-copyright-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.copyrightMarginTop,
+    ["--home-footer-mobile-copyright-size" as string]: HOME_FOOTER_MOBILE_LAYOUT.copyrightFontSize,
+    ["--home-footer-mobile-copyright-line-height" as string]: String(HOME_FOOTER_MOBILE_LAYOUT.copyrightLineHeight),
+    ["--home-footer-mobile-copyright-tracking" as string]: HOME_FOOTER_MOBILE_LAYOUT.copyrightLetterSpacing,
+    ["--home-footer-mobile-illustration-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationTop,
+    ["--home-footer-mobile-illustration-left" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationLeft,
+    ["--home-footer-mobile-illustration-width" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationWidth,
+    ["--home-footer-mobile-illustration-height" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationHeight,
+    ["--home-footer-mobile-hero-min-height" as string]: HOME_FOOTER_MOBILE_LAYOUT.heroMinHeight,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
     ["--home-footer-max-width" as string]: `${HOME_FOOTER_LAYOUT.maxWidthPx}px`,
@@ -223,17 +255,33 @@ export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeF
           copyright={copyright}
         />
 
-        <div className={styles.mobileStack}>
-          <div className={styles.mobileHeader}>
-            {wordmark}
-            <nav aria-label={t("footerTopNavAria")}>{topNav}</nav>
-          </div>
-          <div className={styles.mobileIllustration}>{illustration}</div>
-          {contact}
-          {social}
-          {legal}
-          {copyright}
-        </div>
+        <MarketingPublicHomeFooterMobile
+          wordmarkLabel={t("footerWordmark")}
+          topNavAria={t("footerTopNavAria")}
+          navLabels={{
+            story: tNav("story"),
+            schedule: tNav("schedule"),
+            coaches: tNav("coaches"),
+            memberships: tNav("memberships"),
+            explore: tNav("explore"),
+            contact: tNav("contact"),
+          }}
+          illustrationAlt={t("footerIllustrationAlt")}
+          phone={t("footerPhone")}
+          email={t("footerEmail")}
+          address={t("footerAddress")}
+          socialTitle={t("footerSocialTitle")}
+          socialAria={(network) => t("footerSocialAria", { network })}
+          legalNavAria={t("footerLegalNavAria")}
+          legalLabels={{
+            footerPrivacy: t("footerPrivacy"),
+            footerTerms: t("footerTerms"),
+            footerRefund: t("footerRefund"),
+          }}
+          copyrightPrefix={t("footerCopyrightPrefix")}
+          copyrightCompany={t("footerCopyrightCompany")}
+          copyrightSuffix={t("footerCopyrightSuffix")}
+        />
         </div>
       </footer>
     </section>

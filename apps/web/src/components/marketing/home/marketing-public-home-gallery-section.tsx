@@ -2,68 +2,138 @@
 
 import { useTranslations } from "next-intl";
 import { HomeGalleryMosaicCarousel } from "@/components/marketing/home/home-gallery-mosaic-carousel";
+import { HomeGalleryMosaicMobile } from "@/components/marketing/home/home-gallery-mosaic-mobile";
 import {
   HOME_GALLERY_FIGMA,
   HOME_GALLERY_LAYOUT,
+  HOME_GALLERY_MOBILE_BACKGROUND,
+  HOME_GALLERY_MOBILE_GRADIENT_END,
+  HOME_GALLERY_SECTION_MOBILE_FIGMA,
+  HOME_GALLERY_SECTION_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-gallery-section-tokens";
+import { HOME_FOOTER_MOBILE_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import styles from "@/components/marketing/home/marketing-public-home-gallery-section.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 /**
- * Figma **Gallery** `196:1162` — heading `196:1187`, mosaic `196:1163`, CTA `196:1179`.
+ * Figma **Gallery** `196:1162` — desktop unchanged; mobile `97:5853` in inner layer.
  */
 export function MarketingPublicHomeGallerySection() {
   const t = useTranslations("marketingPublic.home");
 
+  const sectionStyle = {
+    ["--home-gallery-mobile-bg" as string]: HOME_GALLERY_MOBILE_BACKGROUND,
+    ["--home-gallery-mobile-top-radius" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionTopRadius,
+    ["--home-gallery-mobile-px" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionPaddingX,
+    ["--home-gallery-mobile-pt" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionPaddingTop,
+    ["--home-gallery-mobile-pb" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionPaddingBottom,
+    ["--home-gallery-mobile-section-gap" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionGap,
+    ["--home-gallery-mobile-heading-color" as string]: HOME_GALLERY_SECTION_MOBILE_FIGMA.headingColor,
+    ["--home-gallery-mobile-subtitle-color" as string]: HOME_GALLERY_SECTION_MOBILE_FIGMA.subtitleColor,
+    ["--home-gallery-mobile-title-size" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.titleFontSize,
+    ["--home-gallery-mobile-title-line-height" as string]: String(
+      HOME_GALLERY_SECTION_MOBILE_LAYOUT.titleLineHeight,
+    ),
+    ["--home-gallery-mobile-subtitle-size" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.subtitleFontSize,
+    ["--home-gallery-mobile-subtitle-line-height" as string]: String(
+      HOME_GALLERY_SECTION_MOBILE_LAYOUT.subtitleLineHeight,
+    ),
+    ["--home-gallery-mobile-header-max-width" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.headerMaxWidth,
+    ["--home-gallery-mobile-header-subtitle-gap" as string]:
+      HOME_GALLERY_SECTION_MOBILE_LAYOUT.headerSubtitleGap,
+    ["--home-gallery-mobile-dots-to-cta-gap" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.dotsToCtaGap,
+    ["--home-gallery-footer-underlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
+    ["--home-gallery-mobile-gradient-end" as string]: HOME_GALLERY_MOBILE_GRADIENT_END,
+    ["--home-gallery-desktop-bg" as string]: HOME_GALLERY_FIGMA.sectionBackground,
+    ["--home-gallery-desktop-pt" as string]: HOME_GALLERY_LAYOUT.sectionPaddingTop,
+    ["--home-gallery-desktop-pb" as string]: HOME_GALLERY_LAYOUT.sectionPaddingBottom,
+  };
+
   return (
     <section
-      className={`${marketingMontserrat.variable} w-full px-4 sm:px-6 md:px-10 lg:px-20`}
-      style={{
-        background: HOME_GALLERY_FIGMA.sectionBackground,
-        paddingTop: HOME_GALLERY_LAYOUT.sectionPaddingTop,
-        paddingBottom: HOME_GALLERY_LAYOUT.sectionPaddingBottom,
-      }}
+      className={`${marketingMontserrat.variable} ${styles.section} w-full px-4 sm:px-6 md:px-10 lg:px-20`}
+      style={sectionStyle}
     >
-      <div className="mx-auto flex w-full max-w-[min(82.375rem,calc(100%-2rem))] flex-col items-center">
-        <header
-          className="flex w-full max-w-[834px] flex-col items-center text-center"
-          style={{ gap: HOME_GALLERY_LAYOUT.headerGapPx }}
-        >
-          <h2
-            className="font-serif font-semibold tracking-tight text-balance"
-            style={{
-              color: HOME_GALLERY_FIGMA.headingColor,
-              fontSize: HOME_GALLERY_LAYOUT.titleFontSize,
-              lineHeight: HOME_GALLERY_LAYOUT.titleLineHeight,
-            }}
-          >
-            {t("galleryTitle")}
-          </h2>
-          <p
-            className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
-            style={{
-              color: HOME_GALLERY_FIGMA.subtitleColor,
-              maxWidth: HOME_GALLERY_LAYOUT.subtitleMaxWidth,
-            }}
-          >
-            {t("gallerySubtitle")}
-          </p>
-        </header>
+      <div
+        className={styles.mobileLayer}
+        aria-labelledby="home-gallery-heading-mobile"
+        aria-describedby="home-gallery-subtitle-mobile"
+      >
+        <div className={styles.mobileShell}>
+          <header className={styles.mobileHeader}>
+            <h2
+              id="home-gallery-heading-mobile"
+              className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
+            >
+              {t("galleryTitle")}
+            </h2>
+            <p
+              id="home-gallery-subtitle-mobile"
+              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+            >
+              {t("gallerySubtitle")}
+            </p>
+          </header>
 
-        <div style={{ marginTop: HOME_GALLERY_LAYOUT.headerToMosaicGapPx, width: "100%" }}>
-          <HomeGalleryMosaicCarousel
-            prevLabel={t("galleryPrevAria")}
-            nextLabel={t("galleryNextAria")}
-            getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
-          />
+          <div className={styles.mobileMosaic}>
+            <HomeGalleryMosaicMobile
+              getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
+            />
+          </div>
+
+          <div className={styles.mobileCta}>
+            <HomeHeroCtaButton
+              href="/explore"
+              label={t("galleryMoreDetails")}
+              variant="booking"
+            />
+          </div>
         </div>
+      </div>
 
-        <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
-          <HomeHeroCtaButton
-            href="/explore"
-            label={t("galleryMoreDetails")}
-            variant="membership"
-          />
+      <div className={styles.desktopLayer}>
+        <div className="mx-auto flex w-full max-w-[min(82.375rem,calc(100%-2rem))] flex-col items-center">
+          <header
+            className="flex w-full max-w-[834px] flex-col items-center text-center"
+            style={{ gap: HOME_GALLERY_LAYOUT.headerGapPx }}
+          >
+            <h2
+              className="font-serif font-semibold tracking-tight text-balance"
+              style={{
+                color: HOME_GALLERY_FIGMA.headingColor,
+                fontSize: HOME_GALLERY_LAYOUT.titleFontSize,
+                lineHeight: HOME_GALLERY_LAYOUT.titleLineHeight,
+              }}
+            >
+              {t("galleryTitle")}
+            </h2>
+            <p
+              className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
+              style={{
+                color: HOME_GALLERY_FIGMA.subtitleColor,
+                maxWidth: HOME_GALLERY_LAYOUT.subtitleMaxWidth,
+              }}
+            >
+              {t("gallerySubtitle")}
+            </p>
+          </header>
+
+          <div style={{ marginTop: HOME_GALLERY_LAYOUT.headerToMosaicGapPx, width: "100%" }}>
+            <HomeGalleryMosaicCarousel
+              prevLabel={t("galleryPrevAria")}
+              nextLabel={t("galleryNextAria")}
+              getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
+            />
+          </div>
+
+          <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
+            <HomeHeroCtaButton
+              href="/explore"
+              label={t("galleryMoreDetails")}
+              variant="membership"
+            />
+          </div>
         </div>
       </div>
     </section>

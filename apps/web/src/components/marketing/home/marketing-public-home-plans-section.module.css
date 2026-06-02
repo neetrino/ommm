@@ -1,0 +1,95 @@
+/**
+ * Mobile: Figma `97:5888`. Desktop (lg+): section `196:1251`.
+ */
+
+.mobileSection {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  background: var(--home-plans-section-bg, #ede9dd);
+  margin-top: calc(-1 * var(--home-plans-coaches-overlap, 3.125rem));
+  padding: var(--home-plans-section-py, 3rem) var(--home-plans-section-px, 1.5rem);
+}
+
+.mobileShell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-plans-section-gap, 2.25rem);
+}
+
+.mobileHeader {
+  display: flex;
+  width: 100%;
+  max-width: var(--home-plans-header-max-width, 19.625rem);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-plans-header-subtitle-gap, 1.5rem);
+}
+
+.mobileTitle {
+  font-size: var(--home-plans-title-size);
+  line-height: var(--home-plans-title-line-height);
+  color: var(--home-plans-heading-color, #577f91);
+}
+
+.mobileSubtitle {
+  font-size: var(--home-plans-subtitle-size);
+  line-height: var(--home-plans-subtitle-line-height);
+  color: var(--home-plans-subtitle-color, rgba(98, 98, 98, 0.84));
+}
+
+.carouselViewport {
+  width: 100%;
+  min-width: 0;
+  height: var(--home-plans-carousel-height, 29.625rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: max(0px, calc(50% - var(--home-plans-carousel-card-width, 18.25rem) / 2));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.carouselViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselTrack {
+  display: flex;
+  width: max-content;
+  min-height: 100%;
+  align-items: stretch;
+  gap: var(--home-plans-carousel-gap, 1.6875rem);
+  padding-inline: max(0px, calc(50% - var(--home-plans-carousel-card-width, 18.25rem) / 2));
+}
+
+.carouselSlide {
+  flex-shrink: 0;
+  width: var(--home-plans-carousel-card-width, 18.25rem);
+  scroll-snap-align: center;
+}
+
+.mobileCta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.desktopSection {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .mobileSection {
+    display: none;
+  }
+
+  .desktopSection {
+    display: block;
+  }
+}

@@ -1,5 +1,6 @@
 /**
  * Figma **Gallery** `196:1162` — mosaic `196:1163`, nav `196:1168`, dots `196:1175`, CTA `196:1179`, heading `196:1187`.
+ * Mobile container `97:5853`.
  */
 
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
@@ -14,6 +15,63 @@ const HOME_GALLERY_GRADIENT_BLEND = {
   mid: "#c5d8de",
   teal: "#94acb6",
   deep: "#729aa8",
+} as const;
+
+/** Figma mobile gallery — container `97:5853`. */
+export const HOME_GALLERY_SECTION_MOBILE_FIGMA = {
+  artboardWidthPx: 394,
+  sectionPaddingXPx: 24,
+  sectionPaddingTopPx: 64,
+  sectionPaddingBottomPx: 64,
+  sectionTopRadiusPx: 40,
+  sectionGapPx: 36,
+  headerMaxWidthPx: 346,
+  titleFontSizePx: 36,
+  titleLineHeightPx: 40,
+  subtitleFontSizePx: 14,
+  subtitleLineHeightPx: 20,
+  headerSubtitleGapPx: 24,
+  mosaicSizePx: 346,
+  mosaicGapPx: 16,
+  tileRadiusPx: 16,
+  leftTileWidthPx: 165,
+  rightTileSizePx: 165,
+  mosaicToDotsGapPx: 32,
+  dotsToCtaGapPx: 32,
+  dotSizePx: 9,
+  dotGapPx: 8,
+  headingColor: "#fbf5d5",
+  subtitleColor: "rgba(255, 255, 255, 0.84)",
+  dotActive: "#fbf5d5",
+  dotInactive: "rgba(251, 245, 213, 0.4)",
+} as const;
+
+/** Teal → cream ramp — Figma `97:5853` background stops. */
+export const HOME_GALLERY_MOBILE_BACKGROUND = `linear-gradient(to bottom, #598090 0%, #637b95 7.14%, #6e8e9b 14.29%, #7896a0 21.43%, #829da6 28.57%, #8da5ab 35.71%, #97acb1 42.86%, #a2b3b6 50%, #acbbbc 57.14%, #b7c3c1 64.29%, #c2cac8 71.43%, #ccd2cc 78.57%, #d7d9d2 85.71%, #e2e1d7 92.86%, ${HOME_GALLERY_GRADIENT_CREAM} 100%)`;
+
+/** Bottom stop — continues under the mobile footer cap. */
+export const HOME_GALLERY_MOBILE_GRADIENT_END = HOME_GALLERY_GRADIENT_CREAM;
+
+/** Mobile layout from Figma `97:5853`. */
+export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
+  sectionPaddingX: "1.5rem",
+  sectionPaddingTop: "4rem",
+  sectionPaddingBottom: "4rem",
+  sectionTopRadius: "2.5rem",
+  sectionGap: "2.25rem",
+  headerMaxWidth: "clamp(17rem, calc(100svw * 346 / 394), 21.625rem)",
+  titleFontSize: "clamp(2rem, calc(100svw * 36 / 394), 2.25rem)",
+  titleLineHeight:
+    HOME_GALLERY_SECTION_MOBILE_FIGMA.titleLineHeightPx / HOME_GALLERY_SECTION_MOBILE_FIGMA.titleFontSizePx,
+  subtitleFontSize: "clamp(0.8125rem, calc(100svw * 14 / 394), 0.875rem)",
+  subtitleLineHeight:
+    HOME_GALLERY_SECTION_MOBILE_FIGMA.subtitleLineHeightPx / HOME_GALLERY_SECTION_MOBILE_FIGMA.subtitleFontSizePx,
+  headerSubtitleGap: "1.5rem",
+  mosaicSize: "clamp(17rem, calc(100svw * 346 / 394), 21.625rem)",
+  mosaicGap: "1rem",
+  mosaicToDotsGap: "2rem",
+  dotsToCtaGap: "2rem",
+  tileRadiusPx: HOME_GALLERY_SECTION_MOBILE_FIGMA.tileRadiusPx,
 } as const;
 
 export const HOME_GALLERY_FIGMA = {
@@ -79,6 +137,41 @@ export const HOME_GALLERY_SLIDES: readonly HomeGallerySlide[] = [
       leftBottom: { src: HOME_SECTION_ASSETS.galleryVipMain },
       center: { src: HOME_SECTION_ASSETS.galleryCafe },
       side: { src: HOME_SECTION_ASSETS.galleryVipMain },
+    },
+  },
+] as const;
+
+export type HomeGalleryMobileTileKey = "left" | "rightTop" | "rightBottom";
+
+export type HomeGalleryMobileSlide = {
+  id: string;
+  tiles: Record<HomeGalleryMobileTileKey, { src: string }>;
+};
+
+/** Three-tile mosaic — Figma mobile `97:5865`. */
+export const HOME_GALLERY_MOBILE_SLIDES: readonly HomeGalleryMobileSlide[] = [
+  {
+    id: "studio-arches",
+    tiles: {
+      left: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryCafe },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryVipSide },
+    },
+  },
+  {
+    id: "reception-lounge",
+    tiles: {
+      left: { src: HOME_SECTION_ASSETS.galleryVipSide },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
+    },
+  },
+  {
+    id: "reformers-hall",
+    tiles: {
+      left: { src: HOME_SECTION_ASSETS.galleryCafe },
+      rightTop: { src: HOME_SECTION_ASSETS.galleryVipSide },
+      rightBottom: { src: HOME_SECTION_ASSETS.galleryVipMain },
     },
   },
 ] as const;

@@ -1,0 +1,105 @@
+/**
+ * Mobile: Figma `97:5853`. Desktop (lg+): section `196:1162` — single outer `<section>`.
+ */
+
+.section {
+  display: block;
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  background: var(--home-gallery-mobile-bg);
+  border-top-left-radius: var(--home-gallery-mobile-top-radius, 2.5rem);
+  border-top-right-radius: var(--home-gallery-mobile-top-radius, 2.5rem);
+  padding-top: var(--home-gallery-mobile-pt, 4rem);
+  padding-bottom: calc(var(--home-gallery-mobile-pb, 4rem) + var(--home-gallery-footer-underlap, 2.5rem));
+  padding-inline: var(--home-gallery-mobile-px, 1.5rem);
+}
+
+.section::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--home-gallery-footer-underlap, 2.5rem);
+  transform: translateY(100%);
+  background: var(--home-gallery-mobile-gradient-end, #ede9dd);
+  pointer-events: none;
+}
+
+.mobileLayer {
+  display: block;
+}
+
+.desktopLayer {
+  display: none;
+}
+
+.mobileShell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mobileHeader {
+  display: flex;
+  width: 100%;
+  max-width: var(--home-gallery-mobile-header-max-width, 21.625rem);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-gallery-mobile-header-subtitle-gap, 1.5rem);
+  margin-bottom: var(--home-gallery-mobile-section-gap, 2.25rem);
+}
+
+.mobileTitle {
+  font-size: var(--home-gallery-mobile-title-size);
+  line-height: var(--home-gallery-mobile-title-line-height);
+  color: var(--home-gallery-mobile-heading-color, #fbf5d5);
+}
+
+.mobileSubtitle {
+  font-size: var(--home-gallery-mobile-subtitle-size);
+  line-height: var(--home-gallery-mobile-subtitle-line-height);
+  color: var(--home-gallery-mobile-subtitle-color, rgba(255, 255, 255, 0.84));
+}
+
+.mobileMosaic {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.mobileCta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--home-gallery-mobile-dots-to-cta-gap, 0);
+}
+
+@media (min-width: 1024px) {
+  .section {
+    background: var(--home-gallery-desktop-bg);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding-top: var(--home-gallery-desktop-pt);
+    padding-bottom: var(--home-gallery-desktop-pb);
+    padding-inline: initial;
+  }
+
+  .section::after {
+    content: none;
+  }
+
+  .mobileLayer {
+    display: none;
+  }
+
+  .desktopLayer {
+    display: block;
+  }
+}
