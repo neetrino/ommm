@@ -5,6 +5,7 @@ import shellStyles from "@/components/marketing/marketing-coaches-page-shell.mod
 import {
   isMarketingCoachesPath,
   isMarketingHomePath,
+  isMarketingInnerPath,
 } from "@/components/marketing/marketing-route-utils";
 import { usePathname } from "@/i18n/navigation";
 
@@ -22,12 +23,12 @@ type MarketingLayoutMainProps = {
  */
 export function MarketingLayoutMain({ children }: MarketingLayoutMainProps) {
   const pathname = usePathname() ?? "";
+  const isHome = isMarketingHomePath(pathname);
   const isCoachesPage = isMarketingCoachesPath(pathname);
-  const usesFullBleedSurface =
-    isMarketingHomePath(pathname) || isCoachesPage;
+  const usesFullBleedSurface = isHome || isCoachesPage;
   const mainClassName = [
     MARKETING_MAIN_BASE_CLASS,
-    isCoachesPage ? shellStyles.mainSurface : "",
+    isMarketingInnerPath(pathname) ? shellStyles.mainSurface : "",
     usesFullBleedSurface ? "" : MARKETING_MAIN_INNER_TOP_PAD_CLASS,
   ]
     .filter(Boolean)

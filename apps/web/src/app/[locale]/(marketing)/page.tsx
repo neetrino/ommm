@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
+import { HomeCoachesSectionDeferred, HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
 import {
-  HomeCoachesSectionDeferred,
-  HomeGallerySectionDeferred,
-} from "@/components/marketing/home/home-deferred-client-sections";
+  HomeClassesSectionDeferred,
+  HomeFooterSectionDeferred,
+  HomePlansSectionDeferred,
+} from "@/components/marketing/home/home-deferred-server-sections";
 import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
-import { MarketingPublicHomeClassesSection } from "@/components/marketing/home/marketing-public-home-classes-section";
-import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
-import { MarketingPublicHomePlansSection } from "@/components/marketing/home/marketing-public-home-plans-section";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -36,7 +35,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
         mountMarginPx={HOME_LAZY_SECTION.classesMountMarginPx}
         placeholderClassName={HOME_LAZY_SECTION.placeholders.classes}
       >
-        <MarketingPublicHomeClassesSection locale={locale} />
+        <HomeClassesSectionDeferred locale={locale} />
       </ProgressiveRevealSection>
 
       <ProgressiveRevealSection
@@ -54,7 +53,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
         mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
         placeholderClassName={HOME_LAZY_SECTION.placeholders.plans}
       >
-        <MarketingPublicHomePlansSection locale={locale} />
+        <HomePlansSectionDeferred locale={locale} />
       </ProgressiveRevealSection>
 
       <ProgressiveRevealSection
@@ -72,7 +71,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
         mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
         placeholderClassName={HOME_LAZY_SECTION.placeholders.footer}
       >
-        <MarketingPublicHomeFooter locale={locale} />
+        <HomeFooterSectionDeferred locale={locale} />
       </ProgressiveRevealSection>
     </div>
   );

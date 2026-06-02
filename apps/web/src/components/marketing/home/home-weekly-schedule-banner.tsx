@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
-import { HomeWeeklyScheduleLiveGrid } from "@/components/marketing/home/home-weekly-schedule-live-grid";
+import { HomeWeeklyScheduleGridDeferred } from "@/components/marketing/home/home-deferred-sections";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
@@ -69,7 +69,7 @@ export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBan
             </p>
           </header>
 
-          <HomeWeeklyScheduleLiveGrid locale={locale} />
+          <HomeWeeklyScheduleGridDeferred locale={locale} />
 
           <HomeHeroCtaButton href="/schedule" label={heroT("primaryCta")} variant="booking" />
         </div>

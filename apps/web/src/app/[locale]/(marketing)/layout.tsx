@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
+import { MarketingFooterLoading } from "@/components/marketing/marketing-footer-loading";
 import { MarketingFooterGate } from "@/components/marketing/marketing-footer-gate";
 import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-shell";
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
@@ -26,7 +28,9 @@ export default async function MarketingLayout({
       <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
       <MarketingLayoutMain>{children}</MarketingLayoutMain>
       <MarketingFooterGate>
-        <MarketingPublicHomeFooter locale={locale} />
+        <Suspense fallback={<MarketingFooterLoading />}>
+          <MarketingPublicHomeFooter locale={locale} />
+        </Suspense>
       </MarketingFooterGate>
     </MarketingLayoutShell>
   );

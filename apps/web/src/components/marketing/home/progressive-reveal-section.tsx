@@ -61,7 +61,7 @@ export function ProgressiveRevealSection({
   placeholderClassName = "h-[clamp(24rem,48vw,44rem)]",
 }: ProgressiveRevealSectionProps) {
   const containerRef = useRef<HTMLElement | null>(null);
-  const [shouldMount, setShouldMount] = useState(() => isHomeLazySectionMounted(id));
+  const [shouldMount, setShouldMount] = useState(false);
 
   const resolvedPrefetchPaths = useMemo(
     () => Array.from(new Set(prefetchApiPaths)),
@@ -69,30 +69,10 @@ export function ProgressiveRevealSection({
   );
 
   useEffect(() => {
-    const element = containerRef.current;
-    if (!element || resolvedPrefetchPaths.length === 0) {
-      return;
+    if (isHomeLazySectionMounted(id)) {
+      setShouldMount(true);
     }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry?.isIntersecting) {
-          return;
-        }
-        void Promise.all(resolvedPrefetchPaths.map((path) => prefetchApiPath(path)));
-        observer.disconnect();
-      },
-      {
-        root: null,
-        rootMargin: `0px 0px ${preloadMarginPx}px 0px`,
-        threshold: 0,
-      },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [preloadMarginPx, resolvedPrefetchPaths]);
+  }, [id]);
 
   useEffect(() => {
     if (shouldMount) {
@@ -104,26 +84,63 @@ export function ProgressiveRevealSection({
       return undefined;
     }
 
+    let prefetchStarted = false;
+
+    const mountThreshold = () => window.innerHeight + mountMarginPx;
+
+    const tryMount = () => {
+      if (element.getBoundingClientRect().top <= mountThreshold()) {
+        setShouldMount(true);
+        markHomeLazySectionMounted(id);
+        return true;
+      }
+      return false;
+    };
+
+    const startPrefetch = () => {
+      if (prefetchStarted || resolvedPrefetchPaths.length === 0) {
+        return;
+      }
+      prefetchStarted = true;
+      void Promise.all(resolvedPrefetchPaths.map((path) => prefetchApiPath(path)));
+    };
+
+    const onScrollOrResize = () => {
+      if (tryMount()) {
+        cleanup();
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (!entry?.isIntersecting) {
           return;
         }
-        setShouldMount(true);
-        markHomeLazySectionMounted(id);
-        observer.disconnect();
+        startPrefetch();
+        if (tryMount()) {
+          cleanup();
+        }
       },
       {
         root: null,
-        rootMargin: `0px 0px ${mountMarginPx}px 0px`,
+        rootMargin: `0px 0px ${preloadMarginPx}px 0px`,
         threshold: 0,
       },
     );
 
+    const cleanup = () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+
     observer.observe(element);
-    return () => observer.disconnect();
-  }, [id, mountMarginPx, shouldMount]);
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize, { passive: true });
+
+    return cleanup;
+  }, [id, mountMarginPx, preloadMarginPx, resolvedPrefetchPaths, shouldMount]);
 
   return (
     <section ref={containerRef} data-home-section={id} className="relative">

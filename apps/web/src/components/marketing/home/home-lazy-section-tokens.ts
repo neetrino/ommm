@@ -12,5 +12,6 @@ export const HOME_LAZY_SECTION = {
     plans: "h-[clamp(22rem,42vw,40rem)]",
     gallery: "h-[clamp(24rem,50vw,46rem)]",
     footer: "h-[clamp(16rem,28vw,22rem)]",
+    scheduleGrid: "min-h-[clamp(16rem,32vw,24rem)] w-full",
   },
 } as const;
