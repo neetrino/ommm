@@ -51,6 +51,10 @@
   color: #97907c;
 }
 
+.membership .arrowZone {
+  z-index: 2;
+}
+
 .cta:hover .shape {
   filter: brightness(1.06);
 }

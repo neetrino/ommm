@@ -28,11 +28,13 @@ export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonPro
   const variantClass =
     variant === "booking"
       ? styles.booking
-      : variant === "coachesDetails"
-        ? styles.coachesDetails
-        : variant === "plansDetails"
-          ? styles.plansDetails
-          : undefined;
+      : variant === "membership"
+        ? styles.membership
+        : variant === "coachesDetails"
+          ? styles.coachesDetails
+          : variant === "plansDetails"
+            ? styles.plansDetails
+            : undefined;
   const shapeMobile = "shapeMobile" in assets ? assets.shapeMobile : undefined;
   const arrowMobile = "arrowMobile" in assets ? assets.arrowMobile : undefined;
 
