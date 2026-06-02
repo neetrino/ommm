@@ -81,3 +81,51 @@ export const HOME_HERO_ASSETS = {
   logoMark: "/marketing/home/hero/home-hero-logo-mark.png",
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
+
+/** Figma hero CTAs — `196:1430` booking, `196:1440` membership. */
+export const HOME_HERO_CTA_ASSETS = {
+  booking: {
+    shape: "/marketing/home/hero/home-hero-cta-booking-shape.svg",
+    arrow: "/marketing/home/hero/home-hero-cta-booking-arrow.svg",
+  },
+  membership: {
+    shape: "/marketing/home/hero/home-hero-cta-membership-shape.svg",
+    arrow: "/marketing/home/hero/home-hero-cta-membership-arrow.svg",
+  },
+} as const;
+
+export const HOME_HERO_CTA_LAYOUT = {
+  artboardWidthPx: HOME_HERO_FIGMA.artboardWidthPx,
+  buttonHeightPx: 61,
+  buttonGapPx: 16.375,
+  buttonsTopOffsetPx: 27,
+  arrowWidthPx: 32,
+  arrowHeightPx: 29,
+  labelFontSizePx: 16,
+  labelLineHeightPx: 28,
+  /** Visual scale tweak — slightly smaller than Figma export. */
+  buttonScale: 0.88,
+  booking: {
+    widthPx: 236.625,
+    heightPx: 61.136,
+    width: "clamp(10rem, calc(100svw * 236.625 * 0.88 / 1440), 13rem)",
+    height: "clamp(2.5rem, calc(100svw * 61.136 * 0.88 / 1440), 3.375rem)",
+    /** Left pill width / full button — Union `196:1430`. */
+    labelWidthRatio: 136.25 / 236.625,
+    /** Right circle diameter / full button — centers arrow in the cap. */
+    arrowZoneWidthRatio: (2 * (236.625 - 206)) / 236.625,
+    /** Optical label nudge within left pill. */
+    labelOffsetPx: 11,
+  },
+  membership: {
+    widthPx: 254.375,
+    heightPx: 61,
+    width: "clamp(10.5rem, calc(100svw * 254.375 * 0.88 / 1440), 14rem)",
+    height: "clamp(2.5rem, calc(100svw * 61 * 0.88 / 1440), 3.375rem)",
+    labelWidthRatio: 154 / 254.375,
+    arrowZoneWidthRatio: (2 * (254.375 - 223.75)) / 254.375,
+    labelOffsetPx: 14,
+  },
+  buttonGap: "clamp(0.625rem, calc(100svw * 16.375 * 0.88 / 1440), 0.9rem)",
+  buttonsMarginTop: "clamp(0.625rem, calc(100svw * 14 / 1440), 0.875rem)",
+} as const;

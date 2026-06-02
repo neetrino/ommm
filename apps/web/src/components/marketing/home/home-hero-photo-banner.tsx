@@ -1,10 +1,11 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
+import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import {
   HOME_HERO_ASSETS,
   HOME_HERO_FIGMA,
+  HOME_HERO_CTA_LAYOUT,
   HOME_HERO_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -15,7 +16,7 @@ type HomeHeroPhotoBannerProps = {
 };
 
 /**
- * Figma hero `196:1404` — logo `196:1408`, title `196:1407`, subheading `196:1409`.
+ * Figma hero `196:1404` — logo `196:1408`, title `196:1407`, subheading `196:1409`, CTAs `196:1430` / `196:1440`.
  */
 export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
@@ -44,6 +45,8 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ),
         ["--home-hero-subtitle-color" as string]: HOME_HERO_FIGMA.subtitleColor,
         ["--home-hero-subtitle-max-width" as string]: `${HOME_HERO_LAYOUT.subtitleMaxWidthPx}px`,
+        ["--home-hero-cta-gap" as string]: HOME_HERO_CTA_LAYOUT.buttonGap,
+        ["--home-hero-cta-margin-top" as string]: HOME_HERO_CTA_LAYOUT.buttonsMarginTop,
       }}
     >
       <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
@@ -116,13 +119,9 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
             <span className={styles.homeHeroSubtitleLine}>{t("subLine2")}</span>
           </p>
 
-          <div className="mt-6 flex w-full max-w-[35rem] shrink-0 flex-col items-stretch gap-4 sm:mt-8 sm:flex-row sm:items-center sm:justify-center sm:gap-[3.5625rem]">
-            <HomeMarketingPillLink href="/schedule" label={t("primaryCta")} variant="goldBooking" />
-            <HomeMarketingPillLink
-              href="/packages"
-              label={t("secondaryCta")}
-              variant="frostMembership"
-            />
+          <div className={styles.homeHeroCtas}>
+            <HomeHeroCtaButton href="/schedule" label={t("primaryCta")} variant="booking" />
+            <HomeHeroCtaButton href="/packages" label={t("secondaryCta")} variant="membership" />
           </div>
         </div>
       </div>

@@ -1,0 +1,71 @@
+.cta {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  transition:
+    filter 220ms ease,
+    transform 220ms ease;
+}
+
+.cta:hover {
+  filter: brightness(1.06);
+}
+
+.cta:active {
+  transform: translateY(1px);
+}
+
+.cta:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(87, 127, 145, 0.45);
+}
+
+.shape {
+  pointer-events: none;
+  object-fit: fill;
+}
+
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  width: var(--hero-cta-label-width);
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.25rem;
+  text-align: center;
+  font-size: clamp(0.8125rem, calc(100svw * 14 / 1440), 0.9375rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+  transform: translateX(var(--hero-cta-label-offset, 0));
+}
+
+.arrowZone {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  width: var(--hero-cta-arrow-zone-width);
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow {
+  width: clamp(1.125rem, calc(100svw * 28 / 1440), 1.625rem);
+  height: auto;
+  /* Arrow glyph reads left of its bbox — nudge into the circle cap. */
+  transform: translateX(6%);
+}
