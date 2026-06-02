@@ -44,6 +44,88 @@ describe('ReportsService', () => {
     expect(result).not.toHaveProperty('upcomingClasses');
   });
 
+  it('dashboard overview lists all non-cancelled classes scheduled today', async () => {
+    const { todayStart } = (() => {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      return { todayStart: start };
+    })();
+    const earlierToday = new Date(todayStart);
+    earlierToday.setHours(9, 0, 0, 0);
+    const laterToday = new Date(todayStart);
+    laterToday.setHours(18, 0, 0, 0);
+
+    const prismaMock = {
+      classSession: {
+        count: jest
+          .fn()
+          .mockResolvedValueOnce(2)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0)
+          .mockResolvedValueOnce(0),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'past-today',
+            startsAt: earlierToday,
+            capacity: 10,
+            status: ClassSessionStatus.ACTIVE,
+            classType: { name: 'Morning Flow' },
+            coach: {
+              user: { name: 'Anna', lastName: 'Lee', email: 'anna@test.com' },
+            },
+            _count: { bookings: 4 },
+          },
+          {
+            id: 'later-today',
+            startsAt: laterToday,
+            capacity: 12,
+            status: ClassSessionStatus.ACTIVE,
+            classType: { name: 'Evening Restore' },
+            coach: {
+              user: { name: 'Leo', lastName: 'Park', email: 'leo@test.com' },
+            },
+            _count: { bookings: 6 },
+          },
+        ]),
+      },
+      booking: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      waitlistEntry: {
+        count: jest.fn().mockResolvedValue(0),
+        groupBy: jest.fn().mockResolvedValue([]),
+      },
+      userMembership: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      payment: {
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountCents: 0 }, _count: { id: 0 } }),
+      },
+      user: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const service = createServiceWithPrisma(prismaMock);
+
+    const result = await service.dashboard({
+      includeRevenue: true,
+      includeOverview: true,
+    });
+
+    expect(result.sessionsToday).toBe(2);
+    expect(result.upcomingClasses).toHaveLength(2);
+    expect(result.upcomingClasses?.map((session) => session.id)).toEqual([
+      'past-today',
+      'later-today',
+    ]);
+  });
+
   it('financeSummary returns aggregated totals, status and source breakdown', async () => {
     const prismaMock = {
       payment: {

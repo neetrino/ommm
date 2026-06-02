@@ -29,10 +29,7 @@ export class ReportsService {
   async dashboard(options?: DashboardOptions) {
     const includeRevenue = options?.includeRevenue === true;
     const includeOverview = options?.includeOverview === true;
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date(todayStart);
-    todayEnd.setDate(todayEnd.getDate() + 1);
+    const { todayStart, todayEnd } = this.getLocalDayBounds();
     const now = new Date();
 
     const baseDashboard = await this.getBaseDashboard(
@@ -65,10 +62,7 @@ export class ReportsService {
       revenueAgg,
     ] = await Promise.all([
       this.prisma.classSession.count({
-        where: {
-          startsAt: { gte: todayStart, lt: todayEnd },
-          status: { not: ClassSessionStatus.CANCELLED },
-        },
+        where: this.buildTodaySessionsWhere(todayStart, todayEnd),
       }),
       this.prisma.booking.count({
         where: {
@@ -127,10 +121,7 @@ export class ReportsService {
       draftClassesUpcoming,
     ] = await Promise.all([
       this.prisma.classSession.findMany({
-        where: {
-          startsAt: { gte: todayStart, lt: todayEnd },
-          status: { not: ClassSessionStatus.CANCELLED },
-        },
+        where: this.buildTodaySessionsWhere(todayStart, todayEnd),
         include: {
           classType: { select: { name: true } },
           coach: {
@@ -251,7 +242,6 @@ export class ReportsService {
 
     const bookingsByStatus = this.mapBookingStatusCounts(bookingsByStatusRaw);
     const upcomingClasses = todayClasses
-      .filter((session) => session.startsAt >= now)
       .slice(0, UPCOMING_ITEMS_LIMIT)
       .map((session) => ({
         id: session.id,
@@ -433,6 +423,28 @@ export class ReportsService {
     }
 
     return alerts;
+  }
+
+  /** Local calendar day bounds — shared by dashboard stats and today's class list. */
+  private getLocalDayBounds(referenceDate: Date = new Date()): {
+    todayStart: Date;
+    todayEnd: Date;
+  } {
+    const todayStart = new Date(referenceDate);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    return { todayStart, todayEnd };
+  }
+
+  private buildTodaySessionsWhere(
+    todayStart: Date,
+    todayEnd: Date,
+  ): Prisma.ClassSessionWhereInput {
+    return {
+      startsAt: { gte: todayStart, lt: todayEnd },
+      status: { not: ClassSessionStatus.CANCELLED },
+    };
   }
 
   private getMonthStart(now: Date): Date {
