@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatSessionRange } from "@/lib/format-session-time";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -64,7 +64,7 @@ export default async function UserBookingsPage({
   );
 
   return (
-    <AccountPageFrame title={t("title")}>
+    <MemberContentFrame>
       <section className="max-w-4xl">
         <h2 className="ommm-h3 text-sage-800">{t("upcoming")}</h2>
         <BookingTable
@@ -109,7 +109,7 @@ export default async function UserBookingsPage({
           </ul>
         )}
       </section>
-    </AccountPageFrame>
+    </MemberContentFrame>
   );
 }
 

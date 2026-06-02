@@ -350,7 +350,8 @@
       "globalSearchPlaceholder": "Search sessions, coaches, or clients…",
       "globalSearchAria": "Global search",
       "globalSearchHint": "Global search is not available yet.",
-      "adminProfileLabel": "Admin"
+      "adminProfileLabel": "Admin",
+      "memberProfileLabel": "Profile"
     },
     "brand": {
       "member": {
@@ -384,14 +385,18 @@
     },
     "nav": {
       "USER": {
+        "dashboard": "Dashboard",
         "home": "Home",
         "progress": "Progress",
         "classes": "Classes",
+        "schedule": "Schedule",
         "bookings": "My bookings",
         "packages": "Packages",
+        "payments": "Payments",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
-        "profile": "Profile"
+        "profile": "Profile",
+        "settings": "Settings"
       },
       "COACH": {
         "dashboard": "Dashboard",
@@ -467,8 +472,9 @@
         "home": "Your upcoming classes, bookings, and member tools.",
         "progress": "Achievements and milestones.",
         "classes": "Browse and book sessions.",
+        "schedule": "Browse the weekly schedule and book your next session.",
         "bookings": "Upcoming and past reservations.",
-        "packages": "Active packages and renewals.",
+        "packages": "Active packages, plans, and payment history.",
         "giftCards": "Balances and redemption.",
         "profile": "Your member details, password, home image, and notification preferences.",
         "notifications": "Alerts and studio messages."

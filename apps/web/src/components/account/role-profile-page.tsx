@@ -9,6 +9,8 @@ import {
   AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -40,12 +42,15 @@ type RoleProfilePageProps = {
   locale: string;
   showRole?: boolean;
   workspaceNoteVariant?: WorkspaceNoteVariant;
+  /** When set, page title is shown in the dashboard shell header (no duplicate h1). */
+  shellChrome?: "member" | "admin";
 };
 
 export async function RoleProfilePage({
   locale,
   showRole = false,
   workspaceNoteVariant,
+  shellChrome,
 }: RoleProfilePageProps) {
   const t = await getTranslations({ locale, namespace: "userPages.profile" });
   const tStaff = await getTranslations({ locale, namespace: "staffProfile" });
@@ -71,8 +76,7 @@ export async function RoleProfilePage({
       ? tStaff(`workspace.${workspaceNoteVariant}.body`)
       : null;
 
-  return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
+  const body = (
       <div className="max-w-4xl space-y-10">
         <AccountSection title={t("accountInfo")}>
           <AccountProfileInfoForm initialUser={user} showRole={showRole} />
@@ -101,6 +105,21 @@ export async function RoleProfilePage({
           </AccountSection>
         ) : null}
       </div>
+  );
+
+  if (shellChrome === "admin" || workspaceNoteVariant === "admin") {
+    return (
+      <AdminContentFrame description={t("description")}>{body}</AdminContentFrame>
+    );
+  }
+  if (shellChrome === "member") {
+    return (
+      <MemberContentFrame description={t("description")}>{body}</MemberContentFrame>
+    );
+  }
+  return (
+    <AccountPageFrame title={t("title")} description={t("description")}>
+      {body}
     </AccountPageFrame>
   );
 }

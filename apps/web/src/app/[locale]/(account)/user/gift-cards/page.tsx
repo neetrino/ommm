@@ -2,10 +2,8 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
-import {
-  AccountPageFrame,
-  AccountSection,
-} from "@/components/layout/account-page-frame";
+import { AccountSection } from "@/components/layout/account-page-frame";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -37,8 +35,7 @@ export default async function UserGiftCardsPage({
   const credits = meRes.ok ? meRes.data.user.giftCreditsCents : null;
 
   return (
-    <AccountPageFrame
-      title={t("title")}
+    <MemberContentFrame
       description={
         credits != null
           ? t("giftBalance", { amount: formatAmdFromCents(credits, locale) })
@@ -104,6 +101,6 @@ export default async function UserGiftCardsPage({
           )}
         </section>
       </div>
-    </AccountPageFrame>
+    </MemberContentFrame>
   );
 }

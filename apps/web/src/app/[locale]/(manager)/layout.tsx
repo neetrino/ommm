@@ -46,7 +46,7 @@ export default async function ManagerSectionLayout({
         <>
           <LogoutButton className={`${trailingClass} lg:w-auto`} />
           <Link
-            href="/user/home"
+            href="/dashboard"
             className={`${trailingClass} text-center lg:text-left`}
           >
             {tDash("links.memberZone")}

@@ -3,10 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { PackageCheckoutButton } from "@/components/account/package-checkout-button";
 import { PackageLifecycleButtons } from "@/components/account/package-lifecycle-buttons";
 import { PackagePlanSwitchButton } from "@/components/account/package-plan-switch-button";
-import {
-  AccountPageFrame,
-  AccountSection,
-} from "@/components/layout/account-page-frame";
+import { AccountSection } from "@/components/layout/account-page-frame";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
@@ -59,7 +57,7 @@ export default async function UserPackagesPage({
   ]);
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
+    <MemberContentFrame description={t("description")}>
       <div className="max-w-4xl space-y-10">
         <AccountSection title={t("yourPackages")}>
           {!mineRes.ok ? (
@@ -172,6 +170,6 @@ export default async function UserPackagesPage({
           )}
         </AccountSection>
       </div>
-    </AccountPageFrame>
+    </MemberContentFrame>
   );
 }

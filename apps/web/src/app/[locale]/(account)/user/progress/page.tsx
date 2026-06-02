@@ -1,9 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import {
-  AccountPageFrame,
-  AccountSection,
-} from "@/components/layout/account-page-frame";
+import { AccountSection } from "@/components/layout/account-page-frame";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
@@ -63,9 +61,9 @@ export default async function UserProgressPage({
 
   if (!meRes.ok || !bookRes.ok || !analyticsRes.ok) {
     return (
-      <AccountPageFrame title={t("title")} description={t("descriptionSignedOut")}>
+      <MemberContentFrame description={t("descriptionSignedOut")}>
         <p className="text-sm text-amber-900">{t("signInPrompt")}</p>
-      </AccountPageFrame>
+      </MemberContentFrame>
     );
   }
 
@@ -74,7 +72,7 @@ export default async function UserProgressPage({
   const spendTrend = analytics.trend.spend.slice(-7);
 
   return (
-    <AccountPageFrame title={t("title")} description={t("descriptionSignedIn")}>
+    <MemberContentFrame description={t("descriptionSignedIn")}>
       <div className="max-w-4xl space-y-10">
         <AccountSection title={t("activitySummary")}>
           <ul className="grid gap-3 sm:grid-cols-2">
@@ -187,6 +185,6 @@ export default async function UserProgressPage({
           )}
         </AccountSection>
       </div>
-    </AccountPageFrame>
+    </MemberContentFrame>
   );
 }

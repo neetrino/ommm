@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { BookSessionButton } from "@/components/account/book-session-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { formatSessionRange } from "@/lib/format-session-time";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -55,8 +55,7 @@ export default async function UserClassesPage({
   );
 
   return (
-    <AccountPageFrame
-      title={t("title")}
+    <MemberContentFrame
       description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
     >
       <ul className="max-w-4xl space-y-4">
@@ -108,6 +107,6 @@ export default async function UserClassesPage({
           {t("myBookingsLink")}
         </Link>
       </p>
-    </AccountPageFrame>
+    </MemberContentFrame>
   );
 }

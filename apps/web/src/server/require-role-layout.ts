@@ -7,7 +7,23 @@ import { serverApiJson } from "@/lib/server-api";
 import { ServiceUnavailableError } from "@/server/service-unavailable-error";
 
 type MePayload = {
-  user: { role: string; locale?: string | null };
+  user: {
+    role: string;
+    locale?: string | null;
+    name?: string | null;
+    lastName?: string | null;
+    email?: string;
+    homeImageUrl?: string | null;
+  };
+};
+
+export type LayoutAuthUser = {
+  role: string;
+  locale: string | null;
+  name: string | null;
+  lastName: string | null;
+  email: string;
+  homeImageUrl: string | null;
 };
 
 function isRoutingLocale(value: string): value is (typeof routing.locales)[number] {
@@ -48,6 +64,7 @@ export async function requireAuthForLayout(locale: string): Promise<{
   cookie: string;
   role: string;
   userLocale: string | null;
+  authUser: LayoutAuthUser;
 }> {
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MePayload>("/users/me", cookie);
@@ -57,10 +74,19 @@ export async function requireAuthForLayout(locale: string): Promise<{
     }
     redirect(`/${locale}/login`);
   }
+  const { user } = res.data;
   return {
     cookie,
-    role: res.data.user.role,
-    userLocale: res.data.user.locale ?? null,
+    role: user.role,
+    userLocale: user.locale ?? null,
+    authUser: {
+      role: user.role,
+      locale: user.locale ?? null,
+      name: user.name ?? null,
+      lastName: user.lastName ?? null,
+      email: user.email ?? "",
+      homeImageUrl: user.homeImageUrl ?? null,
+    },
   };
 }
 

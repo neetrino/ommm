@@ -1,12 +1,14 @@
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { NextClassCardView } from "@/components/wellness/next-class-card-view";
-import { WaitlistCardsSection } from "@/components/wellness/waitlist-cards-section";
-import { waitlistToneAtIndex } from "@/components/wellness/waitlist-tone";
+import { memberChrome } from "@/components/account/member-chrome";
+import { MemberNextClassCard } from "@/components/account/member-next-class-card";
+import { MemberWaitlistSection } from "@/components/account/member-waitlist-section";
+import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatSessionRange } from "@/lib/format-session-time";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { userDisplayInitials } from "@/lib/user-display-initials";
 
 type NextBooking = {
   id: string;
@@ -26,7 +28,9 @@ type AchievementRow = { title: string; unlockedAt: string };
 export type MemberDashboardProps = {
   locale: string;
   displayName: string;
-  /** Absolute URL for optional member profile photo on Home. */
+  name: string | null;
+  lastName: string | null;
+  email: string;
   homeImageSrc?: string | null;
   nextBooking: NextBooking | null;
   waitlistOk: boolean;
@@ -34,11 +38,6 @@ export type MemberDashboardProps = {
   achievements: AchievementRow[];
   coachProfileId: string | null;
 };
-
-function memberInitial(display: string): string {
-  const ch = display.trim()[0];
-  return ch ? ch.toUpperCase() : "?";
-}
 
 function shortFirstName(display: string): string {
   const trimmed = display.trim();
@@ -66,6 +65,9 @@ function formatDateTimeLabel(value: string, locale: string): string {
 export async function MemberDashboard({
   locale,
   displayName,
+  name,
+  lastName,
+  email,
   homeImageSrc,
   nextBooking,
   waitlistOk,
@@ -75,7 +77,7 @@ export async function MemberDashboard({
 }: MemberDashboardProps) {
   const t = await getTranslations({ locale, namespace: "account.dashboard" });
   const shortName = shortFirstName(displayName);
-  const initial = memberInitial(shortName || displayName);
+  const initial = userDisplayInitials(name, lastName, email);
 
   const nextHref = "/user/classes";
   const nextImage = "/marketing/home/next-class.jpg";
@@ -89,7 +91,6 @@ export async function MemberDashboard({
         }),
         title: w.session.classType.name,
         timeLine: formatDateTimeLabel(w.session.startsAt, locale),
-        tone: waitlistToneAtIndex(index),
       }))
     : [];
 
@@ -98,22 +99,12 @@ export async function MemberDashboard({
     : t("waitlist.error");
 
   return (
-    <div className="space-y-0">
-      <section className="ommm-bg-wellness relative -mx-4 overflow-hidden px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          aria-hidden
-        >
-          <div className="absolute -left-24 top-12 h-72 w-72 rounded-full bg-cream-50/50 blur-3xl" />
-          <div className="absolute right-[-6rem] top-1/2 h-80 w-80 rounded-full bg-blue-100/70 blur-3xl" />
-          <div className="absolute left-1/3 top-[42%] h-72 w-72 rounded-full bg-peach-100/45 blur-3xl" />
-        </div>
-
-        <div className="relative space-y-12 pb-[clamp(3rem,6vw,5.5rem)] sm:space-y-14 lg:space-y-16">
-          <div className="grid w-full grid-cols-1 items-center gap-10 pb-2 pt-8 sm:gap-12 sm:pt-10 lg:grid-cols-12 lg:gap-14 lg:pt-12">
+    <MemberContentFrame>
+      <div className="space-y-10 pb-4 sm:space-y-12">
+        <div className="grid w-full grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
             <div className="flex items-center gap-4">
-              <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sand-500/30 text-sm font-medium text-sage-700 ring-1 ring-white/70 sm:h-14 sm:w-14">
+              <span className={memberChrome.avatar}>
                 {homeImageSrc ? (
                   <Image
                     src={homeImageSrc}
@@ -128,28 +119,31 @@ export async function MemberDashboard({
                   initial
                 )}
               </span>
-              <p className="font-serif italic text-sage-500">
+              <p className={memberChrome.greeting}>
                 <span className="block text-base sm:text-lg">{t("greeting")}</span>
-                <span className="block text-base font-medium text-sage-700 sm:text-lg">
+                <span className={`${memberChrome.greetingName} text-base sm:text-lg`}>
                   {shortName || displayName}
                 </span>
               </p>
             </div>
 
-            <h1 className="ommm-display mt-8 max-w-[18ch]">
+            <h1 className={`${memberChrome.heroTitle} mt-8`}>
               {t("titleStart")}{" "}
-              <span className="ommm-display-italic">{t("titleAccent")}</span>
+              <span className="font-serif italic text-[#97907c]">
+                {t("titleAccent")}
+              </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-sage-500 sm:text-lg">
-              {t("lead")}
-            </p>
+            <p className={memberChrome.heroLead}>{t("lead")}</p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link href="/user/classes" className="ommm-cta-primary">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/user/classes" className="ommm-admin-add-button">
                 {t("primaryCta")}
               </Link>
-              <Link href="/user/packages" className="ommm-cta-ghost">
+              <Link
+                href="/user/packages"
+                className="ommm-admin-pill-tab shrink-0 px-5 py-2.5 normal-case tracking-normal"
+              >
                 {t("secondaryCta")}
               </Link>
             </div>
@@ -157,7 +151,7 @@ export async function MemberDashboard({
 
           <div className="lg:col-span-5">
             {nextBooking ? (
-              <NextClassCardView
+              <MemberNextClassCard
                 variant="filled"
                 href={nextHref}
                 eyebrow={t("nextClass.eyebrow")}
@@ -181,7 +175,7 @@ export async function MemberDashboard({
                 priorityImage
               />
             ) : (
-              <NextClassCardView
+              <MemberNextClassCard
                 variant="empty"
                 href={nextHref}
                 eyebrow={t("nextClass.eyebrow")}
@@ -191,68 +185,64 @@ export async function MemberDashboard({
               />
             )}
           </div>
-          </div>
+        </div>
 
-        <WaitlistCardsSection
-          embedded
+        <MemberWaitlistSection
           title={t("waitlist.title")}
           lead={t("waitlist.lead")}
           emptyMessage={waitlistEmptyMessage}
           items={waitlistItems}
         />
 
-        <div className="w-full">
-          <h2 className="ommm-h2">{t("achievements.title")}</h2>
+        <section className="w-full">
+          <h2 className={memberChrome.sectionTitle}>{t("achievements.title")}</h2>
           {achievements.length === 0 ? (
-            <p className="mt-4 max-w-xl text-sm text-sage-500">
+            <p className={`${memberChrome.ledeTight} mt-4`}>
               {t("achievements.empty")}
             </p>
           ) : (
-            <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {achievements.map((a) => (
-                <li
-                  key={`${a.title}-${a.unlockedAt}`}
-                  className="rounded-[24px] border border-white/70 bg-white/70 p-5 backdrop-blur-md"
-                >
+                <li key={`${a.title}-${a.unlockedAt}`} className={memberChrome.panel}>
                   <p className="font-medium text-sage-900">{a.title}</p>
-                  <p className="mt-2 text-xs text-sage-500">
+                  <p className={`${memberChrome.metaText} mt-2`}>
                     {formatDateForUi(a.unlockedAt)}
                   </p>
                 </li>
               ))}
             </ul>
           )}
-        </div>
+        </section>
 
-        <div className="w-full">
-          <div className="flex flex-col gap-4 rounded-[28px] border border-white/60 bg-white/55 p-8 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
+        <section className="w-full">
+          <div
+            className={`${memberChrome.panel} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}
+          >
             <div>
-              <h2 className="font-serif text-xl font-semibold text-sage-800 sm:text-2xl">
-                {t("explore.title")}
-              </h2>
-              <p className="mt-2 max-w-xl text-sm text-sage-500">{t("explore.body")}</p>
+              <h2 className={memberChrome.panelHeading}>{t("explore.title")}</h2>
+              <p className={`${memberChrome.ledeTight} mt-2`}>{t("explore.body")}</p>
             </div>
-            <Link href="/explore" className="ommm-cta-ghost shrink-0">
+            <Link
+              href="/explore"
+              className="ommm-admin-pill-tab shrink-0 px-5 py-2.5 normal-case tracking-normal"
+            >
               {t("explore.cta")}
             </Link>
           </div>
 
           {coachProfileId ? (
-            <div className="mt-6 rounded-[28px] border border-indigo-200/80 bg-indigo-50/90 p-6 backdrop-blur-md">
-              <h2 className="font-serif text-lg font-semibold text-indigo-950">
-                {t("coach.title")}
-              </h2>
+            <div className={memberChrome.coachNotice}>
+              <h2 className={memberChrome.panelHeading}>{t("coach.title")}</h2>
               <Link
                 href="/coach/home"
-                className="mt-3 inline-block text-sm font-semibold text-indigo-900 underline-offset-4 hover:underline"
+                className="ommm-link-sage mt-3 inline-block text-sm font-semibold"
               >
                 {t("coach.cta")}
               </Link>
             </div>
           ) : null}
-        </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </MemberContentFrame>
   );
 }

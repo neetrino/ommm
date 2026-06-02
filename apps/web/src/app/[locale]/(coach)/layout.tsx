@@ -46,7 +46,7 @@ export default async function CoachSectionLayout({
       trailing={
         <>
           <LogoutButton className={`${trailingClass} text-left`} />
-          <Link href="/user/home" className={trailingClass}>
+          <Link href="/dashboard" className={trailingClass}>
             {tDash("links.memberZone")}
           </Link>
         </>

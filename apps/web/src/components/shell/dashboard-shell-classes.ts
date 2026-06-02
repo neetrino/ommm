@@ -47,7 +47,7 @@ export function collapseToggleClass(variant: DashboardShellVariant) {
 export function pageBackgroundClass(variant: DashboardShellVariant) {
   if (variant === "indigo") return "min-h-screen bg-indigo-50/50";
   if (variant === "wellness") return "min-h-screen ommm-bg-wellness";
-  if (variant === "admin") return "min-h-screen ommm-bg-admin";
+  if (variant === "admin" || variant === "member") return "min-h-screen ommm-bg-admin";
   return "min-h-screen bg-zinc-100";
 }
 
@@ -97,7 +97,7 @@ export function sidebarBrandStripClass(variant: DashboardShellVariant) {
 
 /** Mobile drawer panel (matches desktop sidebar tone per variant). */
 export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
-  if (variant === "admin") {
+  if (variant === "admin" || variant === "member") {
     return "relative z-50 flex h-full w-[min(20rem,88vw)] max-w-full flex-col rounded-br-[40px] bg-[var(--ommm-admin-olive)] text-[var(--ommm-admin-cream)] shadow-[var(--ommm-admin-shadow-soft)]";
   }
   if (variant === "wellness") {
@@ -110,26 +110,28 @@ export function mobileDrawerPanelClass(variant: DashboardShellVariant) {
 }
 
 export function mobileDrawerBrandTitleClass(variant: DashboardShellVariant) {
-  if (variant === "admin") return "ommm-admin-sidebar-brand-title text-xl";
+  if (variant === "admin" || variant === "member") {
+    return "ommm-admin-sidebar-brand-title text-xl";
+  }
   if (variant === "wellness") return "block truncate text-sm font-semibold text-sage-900";
   if (variant === "indigo") return "block truncate text-sm font-semibold text-indigo-950";
   return "block truncate text-sm font-semibold text-zinc-900";
 }
 
 export function mobileDrawerBrandSublineClass(variant: DashboardShellVariant) {
-  if (variant === "admin") return "ommm-admin-sidebar-brand-subline";
+  if (variant === "admin" || variant === "member") return "ommm-admin-sidebar-brand-subline";
   if (variant === "wellness") return "block truncate text-xs text-sage-600";
   if (variant === "indigo") return "block truncate text-xs text-indigo-900/70";
   return "block truncate text-xs text-zinc-500";
 }
 
 export function mobileDrawerHeaderBorderClass(variant: DashboardShellVariant) {
-  if (variant === "admin") return "border-b border-white/15";
+  if (variant === "admin" || variant === "member") return "border-b border-white/15";
   return `border-b ${sidebarShellBorderClass(variant)}`;
 }
 
 export function mobileDrawerFooterClass(variant: DashboardShellVariant) {
-  if (variant === "admin") {
+  if (variant === "admin" || variant === "member") {
     return "shrink-0 space-y-3 border-t border-white/15 p-4";
   }
   if (variant === "wellness") {
@@ -142,7 +144,7 @@ export function mobileDrawerFooterClass(variant: DashboardShellVariant) {
 }
 
 export function mobileDrawerOverlayScrimClass(variant: DashboardShellVariant) {
-  if (variant === "admin") return "absolute inset-0 bg-sage-900/45";
+  if (variant === "admin" || variant === "member") return "absolute inset-0 bg-sage-900/45";
   if (variant === "wellness") return "absolute inset-0 bg-sage-900/35";
   if (variant === "indigo") return "absolute inset-0 bg-indigo-950/40";
   return "absolute inset-0 bg-zinc-900/40";

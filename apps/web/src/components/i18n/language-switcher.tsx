@@ -51,7 +51,9 @@ export function LanguageSwitcher({
       : "hy");
 
   const flagFrame =
-    dashboardVariant === "wellness" || dashboardVariant === "admin"
+    dashboardVariant === "wellness" ||
+    dashboardVariant === "admin" ||
+    dashboardVariant === "member"
       ? "warm"
       : "default";
 

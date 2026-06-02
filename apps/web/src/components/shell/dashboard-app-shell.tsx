@@ -13,6 +13,11 @@ import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
+import {
+  MemberDashboardHeader,
+  type MemberHeaderProfile,
+} from "@/components/shell/member-dashboard-header";
+import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import {
@@ -60,6 +65,8 @@ export type DashboardAppShellProps = {
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
   trailing?: ReactNode;
+  /** Member header profile chip (initials or photo). */
+  memberProfile?: MemberHeaderProfile;
   children: ReactNode;
 };
 
@@ -73,6 +80,7 @@ export function DashboardAppShell({
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
   trailing,
+  memberProfile,
   children,
 }: DashboardAppShellProps) {
   const pathname = usePathname();
@@ -169,15 +177,14 @@ export function DashboardAppShell({
     setSidebarCollapsed(next);
   }
 
-  const asideWidth =
-    variant === "admin"
-      ? "lg:w-72"
-      : sidebarCollapsed
-        ? "lg:w-[4.5rem]"
-        : "lg:w-64";
-  const borderB = variant === "admin" ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
-  const isAdminShell = variant === "admin";
-  const adminHeaderRef = useAdminStickyHeaderOffset(isAdminShell);
+  const isOliveShell = isOliveDashboardShell(variant);
+  const asideWidth = isOliveShell
+    ? "lg:w-72"
+    : sidebarCollapsed
+      ? "lg:w-[4.5rem]"
+      : "lg:w-64";
+  const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
+  const adminHeaderRef = useAdminStickyHeaderOffset(isOliveShell);
 
   return (
     <div className={pageBackgroundClass(variant)}>
@@ -186,7 +193,7 @@ export function DashboardAppShell({
       >
         <aside
           className={`hidden shrink-0 flex-col shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${
-            isAdminShell
+            isOliveShell
               ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
               : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
           } transition-[width] duration-200 ease-out`}
@@ -194,7 +201,7 @@ export function DashboardAppShell({
         >
           <div
             className={
-              isAdminShell
+              isOliveShell
                 ? "px-8 pb-8"
                 : sidebarCollapsed
                   ? `flex flex-col-reverse items-center gap-2 px-1 py-3 ${borderB} ${sidebarBrandStripClass(variant)}`
@@ -204,7 +211,7 @@ export function DashboardAppShell({
             <Link
               href={brandHref}
               className={
-                isAdminShell
+                isOliveShell
                   ? "block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#97907c]"
                   : sidebarCollapsed
                     ? `flex items-center justify-center rounded-xl px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${variant === "indigo" ? "focus-visible:ring-indigo-600" : variant === "wellness" ? "focus-visible:ring-sand-500" : "focus-visible:ring-zinc-900"}`
@@ -212,20 +219,20 @@ export function DashboardAppShell({
               }
               onClick={() => setDrawerOpen(false)}
             >
-              {!isAdminShell ? (
+              {!isOliveShell ? (
                 <span
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
                 >
                   {brandInitial(brandLabel)}
                 </span>
               ) : null}
-              {sidebarCollapsed && !isAdminShell ? (
+              {sidebarCollapsed && !isOliveShell ? (
                 <span className="sr-only">{brandLabel}</span>
               ) : (
                 <span className="min-w-0 flex-1">
                   <span
                     className={
-                      isAdminShell
+                      isOliveShell
                         ? "ommm-admin-sidebar-brand-title"
                         : brandTitleClass(variant)
                     }
@@ -235,7 +242,7 @@ export function DashboardAppShell({
                   {brandSubline ? (
                     <span
                       className={
-                        isAdminShell
+                        isOliveShell
                           ? "ommm-admin-sidebar-brand-subline"
                           : brandSublineClass(variant)
                       }
@@ -246,7 +253,7 @@ export function DashboardAppShell({
                 </span>
               )}
             </Link>
-            {!isAdminShell ? (
+            {!isOliveShell ? (
               <button
                 type="button"
                 className={collapseToggleClass(variant)}
@@ -282,26 +289,40 @@ export function DashboardAppShell({
               items={navItems}
               variant={variant}
               pathname={pathname}
-              collapsed={isAdminShell ? false : sidebarCollapsed}
+              collapsed={isOliveShell ? false : sidebarCollapsed}
               onNavigate={() => undefined}
             />
           </div>
-          {isAdminShell && trailing ? (
+          {isOliveShell && trailing ? (
             <div className="mt-auto space-y-2 px-6 pb-2 pt-4">{trailing}</div>
           ) : null}
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header
-            ref={isAdminShell ? adminHeaderRef : undefined}
-            className={`${isAdminShell ? DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS : DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
+            ref={isOliveShell ? adminHeaderRef : undefined}
+            className={`${isOliveShell ? DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS : DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
           >
-            {isAdminShell ? (
+            {variant === "admin" ? (
               <div className="ommm-admin-content mx-auto w-full">
                 <AdminDashboardHeader
                   title={heading.title}
                   drawerOpen={drawerOpen}
                   onMenuToggle={() => setDrawerOpen((open) => !open)}
+                />
+              </div>
+            ) : variant === "member" ? (
+              <div className="ommm-admin-content mx-auto w-full">
+                <MemberDashboardHeader
+                  title={heading.title}
+                  drawerOpen={drawerOpen}
+                  onMenuToggle={() => setDrawerOpen((open) => !open)}
+                  profile={
+                    memberProfile ?? { initials: "?", imageSrc: null }
+                  }
+                  notificationHref={notificationRoute?.href}
+                  notificationLabel={notificationsLabel ?? undefined}
+                  notificationsActive={notificationsActive}
                 />
               </div>
             ) : (
@@ -386,7 +407,7 @@ export function DashboardAppShell({
 
           <main
             className={
-              isAdminShell
+              isOliveShell
                 ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
                 : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
             }
@@ -414,7 +435,7 @@ export function DashboardAppShell({
             <div
               className={`flex shrink-0 items-center gap-3 px-6 py-6 ${mobileDrawerHeaderBorderClass(variant)}`}
             >
-              {!isAdminShell ? (
+              {!isOliveShell ? (
                 <span
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${avatarRingClass(variant)}`}
                 >

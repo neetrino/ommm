@@ -22,6 +22,7 @@ function isAccountShellPath(pathname: string): boolean {
   const area = parts[1];
   return (
     area === "user" ||
+    area === "dashboard" ||
     area === "admin" ||
     area === "coach" ||
     area === "manager" ||
