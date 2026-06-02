@@ -15,6 +15,9 @@ export const MARKETING_MOBILE_HEADER = {
   globeIconSizePx: 26,
   userIconWidthPx: 24,
   userIconHeightPx: 24,
+  /** Matches `marketingHeaderContainerClass` mobile shell (pt + pb + row). */
+  shellHeight:
+    "calc(max(1rem, env(safe-area-inset-top, 0px)) + 0.75rem + 35px)",
 } as const;
 
 /** Figma TopNavBar `196:1410` sizing tokens. */
@@ -34,10 +37,15 @@ export function isCompactMarketingHeaderLocale(locale: string): boolean {
 
 export function marketingHeaderShellClass(): string {
   return [
-    "fixed left-0 right-0 top-0 z-50 w-full min-w-0 overflow-x-clip",
+    "sticky top-0 lg:fixed left-0 right-0 z-50 w-full min-w-0 overflow-x-clip",
     "bg-transparent",
     marketingMontserrat.variable,
   ].join(" ");
+}
+
+/** Pull full-bleed hero surfaces under the sticky mobile header shell. */
+export function marketingFullBleedHeroHeaderOverlapClass(): string {
+  return "max-lg:-mt-[var(--marketing-mobile-header-height)]";
 }
 
 export function marketingHeaderContainerClass(): string {

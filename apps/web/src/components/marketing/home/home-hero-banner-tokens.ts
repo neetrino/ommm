@@ -19,6 +19,45 @@ export const HOME_HERO_FIGMA = {
   subtitleColor: "rgba(74, 71, 56, 0.62)",
 } as const;
 
+/** Figma mobile hero container `97:5656` — artboard **394×772**. */
+export const HOME_HERO_MOBILE_FIGMA = {
+  artboardWidthPx: 394,
+  artboardHeightPx: 772,
+  /** Figma `108:6566` — primary pill label on white Union. */
+  bookingCtaLabelColor: "#97907c",
+} as const;
+
+/** Mobile layout from Figma `97:5656` (logo `97:5658`, title `97:5661`, CTAs `108:6561` / `108:6571`). */
+export const HOME_HERO_MOBILE_LAYOUT = {
+  imageMinHeight: "clamp(18rem, calc(100svw * 772 / 394), 48.25rem)",
+  imageMaxHeight: "min(48.25rem, 92dvh)",
+  contentPaddingX: "1.5rem",
+  /** Figma `97:5658` — frame 240×142, artboard 394. */
+  logoFrameWidthPx: 240,
+  logoFrameHeightPx: 142,
+  logoWidth: "clamp(8rem, calc(100svw * 240 / 394), 15rem)",
+  /** Hero image top → logo frame top; nudged ~24px above prior `68px`. */
+  logoTop: "clamp(2.5rem, calc(100svw * 44 / 394), 3.5rem)",
+  /** Figma `97:5658` inner raster crop (Dev Mode). */
+  logoImageHeightPercent: 292.23,
+  logoImageTopPercent: -96.11,
+  logoFrameHeightRatio: 142 / 240,
+  titleMarginTop: "0",
+  titleFontSize: "clamp(3rem, calc(100svw * 68 / 394), 4.25rem)",
+  titleLineHeight: 55 / 68,
+  titleLetterSpacingEm: -0.02,
+  titleMaxWidth: "clamp(16rem, calc(100svw * 346 / 394), 21.625rem)",
+  subtitleFontSize: "clamp(0.8125rem, calc(100svw * 14 / 394), 0.875rem)",
+  subtitleLineHeight: 20 / 14,
+  subtitleMaxWidth: "clamp(16rem, calc(100svw * 346 / 394), 21.625rem)",
+  subtitleMarginTop: "1rem",
+  /** Figma `97:5655` hero photo crop — centers subject on mobile. */
+  backgroundImageWidthPercent: 400.46,
+  backgroundImageHeightPercent: 103.92,
+  backgroundImageLeftPercent: -148.43,
+  backgroundImageTopPercent: -3.38,
+} as const;
+
 /** Responsive layout derived from Figma artboard `155:108` (1440×924 photo area). */
 export const HOME_HERO_LAYOUT = {
   imageAspectRatio: HOME_HERO_FIGMA.artboardWidthPx / HOME_HERO_FIGMA.imageHeightPx,
@@ -82,15 +121,54 @@ export const HOME_HERO_ASSETS = {
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
 
+const MOBILE_CTA_WIDTH_PX = 342.48;
+const MOBILE_CTA_HEIGHT_PX = 61.747;
+const MOBILE_CTA_LABEL_WIDTH_PX = 268.581;
+const MOBILE_CTA_ARROW_ZONE_PX = 60;
+
+/** Figma mobile hero CTAs — full-width Union `108:6562` / `108:6572` on artboard `394`. */
+export const HOME_HERO_MOBILE_CTA_LAYOUT = {
+  artboardWidthPx: HOME_HERO_MOBILE_FIGMA.artboardWidthPx,
+  buttonHeightPx: MOBILE_CTA_HEIGHT_PX,
+  buttonGapPx: 10.25,
+  buttonsTopOffsetPx: 182,
+  labelFontSizePx: 16,
+  labelFontSize: "clamp(0.9375rem, calc(100svw * 16 / 394), 1.0625rem)",
+  booking: {
+    widthPx: MOBILE_CTA_WIDTH_PX,
+    heightPx: MOBILE_CTA_HEIGHT_PX,
+    width: "100%",
+    height: "clamp(3.25rem, calc(100svw * 61.747 / 394), 3.875rem)",
+    labelWidthRatio: MOBILE_CTA_LABEL_WIDTH_PX / MOBILE_CTA_WIDTH_PX,
+    arrowZoneWidthRatio: MOBILE_CTA_ARROW_ZONE_PX / MOBILE_CTA_WIDTH_PX,
+    labelOffsetPx: 67,
+  },
+  membership: {
+    widthPx: MOBILE_CTA_WIDTH_PX,
+    heightPx: MOBILE_CTA_HEIGHT_PX,
+    width: "100%",
+    height: "clamp(3.25rem, calc(100svw * 61.747 / 394), 3.875rem)",
+    labelWidthRatio: MOBILE_CTA_LABEL_WIDTH_PX / MOBILE_CTA_WIDTH_PX,
+    arrowZoneWidthRatio: MOBILE_CTA_ARROW_ZONE_PX / MOBILE_CTA_WIDTH_PX,
+    labelOffsetPx: 62,
+  },
+  buttonGap: "clamp(0.5rem, calc(100svw * 10.25 / 394), 0.75rem)",
+  buttonsMarginTop: "clamp(1.25rem, calc(100svw * 150 / 394), 9.375rem)",
+} as const;
+
 /** Figma hero CTAs — `196:1430` booking, `196:1440` membership, Featured Coaches `196:1149`. */
 export const HOME_HERO_CTA_ASSETS = {
   booking: {
     shape: "/marketing/home/hero/home-hero-cta-booking-shape.svg",
     arrow: "/marketing/home/hero/home-hero-cta-booking-arrow.svg",
+    shapeMobile: "/marketing/home/hero/home-hero-cta-booking-shape-mobile.svg",
+    arrowMobile: "/marketing/home/hero/home-hero-cta-booking-arrow-mobile.svg",
   },
   membership: {
     shape: "/marketing/home/hero/home-hero-cta-membership-shape.svg",
     arrow: "/marketing/home/hero/home-hero-cta-membership-arrow.svg",
+    shapeMobile: "/marketing/home/hero/home-hero-cta-membership-shape-mobile.svg",
+    arrowMobile: "/marketing/home/hero/home-hero-cta-membership-arrow-mobile.svg",
   },
   coachesDetails: {
     shape: "/marketing/home/sections/home-coaches-cta-shape.svg",

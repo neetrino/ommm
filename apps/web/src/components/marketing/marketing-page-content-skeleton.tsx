@@ -18,10 +18,10 @@ export function MarketingPageContentSkeleton({
   );
 }
 
-/** Matches fixed marketing header offset on inner routes. */
+/** Matches fixed marketing header offset on inner routes (desktop only). */
 export function MarketingRouteLoadingSkeleton() {
   return (
-    <div className="ommm-section flex-1 w-full pt-16 sm:pt-20 animate-pulse">
+    <div className="ommm-section flex-1 w-full lg:pt-16 xl:pt-20 animate-pulse">
       <div className="ommm-container space-y-4">
         <div className="h-10 max-w-md rounded-lg bg-white/40" />
         <div className="h-5 max-w-xl rounded bg-white/30" />

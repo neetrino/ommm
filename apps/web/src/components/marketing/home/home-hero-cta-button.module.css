@@ -1,3 +1,7 @@
+/**
+ * Mobile default (<1024px). Desktop (lg+) — commit `61f3206` (button hover).
+ */
+
 .cta {
   position: relative;
   display: inline-flex;
@@ -5,6 +9,8 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
+  width: var(--hero-cta-width);
+  height: var(--hero-cta-height);
   transition: transform 220ms ease;
 }
 
@@ -25,6 +31,26 @@
   transition: filter 220ms ease;
 }
 
+.shapeDesktop {
+  display: none;
+}
+
+.shapeMobile {
+  display: block;
+}
+
+.arrowDesktop {
+  display: none;
+}
+
+.arrowMobile {
+  display: block;
+}
+
+.booking .label {
+  color: #97907c;
+}
+
 .cta:hover .shape {
   filter: brightness(1.06);
 }
@@ -38,15 +64,15 @@
   height: 100%;
   width: var(--hero-cta-label-width);
   align-items: center;
-  justify-content: center;
-  padding: 0 0.25rem;
-  text-align: center;
-  font-size: clamp(0.8125rem, calc(100svw * 14 / 1440), 0.9375rem);
+  justify-content: flex-start;
+  padding-left: var(--hero-cta-label-offset, 0);
+  padding-right: 0.25rem;
+  text-align: left;
+  font-size: var(--hero-cta-label-font-size, clamp(0.9375rem, calc(100svw * 16 / 394), 1.0625rem));
   font-weight: 700;
   line-height: 1;
   color: #fff;
   white-space: nowrap;
-  transform: translateX(var(--hero-cta-label-offset, 0));
 }
 
 .arrowZone {
@@ -63,10 +89,54 @@
 }
 
 .arrow {
-  width: clamp(1.125rem, calc(100svw * 28 / 1440), 1.625rem);
+  width: clamp(1.125rem, calc(100svw * 28 / 394), 1.625rem);
   height: auto;
   /* Arrow glyph reads left of its bbox — nudge into the circle cap. */
   transform: translateX(6%);
+}
+
+@media (min-width: 1024px) {
+  .cta {
+    width: var(--hero-cta-width-lg);
+    height: var(--hero-cta-height-lg);
+  }
+
+  .shapeDesktop {
+    display: block;
+  }
+
+  .shapeMobile {
+    display: none;
+  }
+
+  .arrowDesktop {
+    display: block;
+  }
+
+  .arrowMobile {
+    display: none;
+  }
+
+  .booking .label {
+    color: #fff;
+  }
+
+  .label {
+    width: var(--hero-cta-label-width-lg);
+    justify-content: center;
+    padding: 0 0.25rem;
+    text-align: center;
+    font-size: clamp(0.8125rem, calc(100svw * 14 / 1440), 0.9375rem);
+    transform: translateX(var(--hero-cta-label-offset-lg, 0));
+  }
+
+  .arrowZone {
+    width: var(--hero-cta-arrow-zone-width-lg);
+  }
+
+  .arrow {
+    width: clamp(1.125rem, calc(100svw * 28 / 1440), 1.625rem);
+  }
 }
 
 .coachesDetails {

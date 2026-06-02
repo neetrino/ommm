@@ -75,6 +75,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   return (
     <header
       className={`${marketingHeaderShellClass()} ${navPillStyles.headerShell}`}
+      data-elevated={elevated ? "true" : "false"}
     >
       <div className={marketingHeaderContainerClass()}>
         <div className={marketingHeaderMobileRowClass()}>
