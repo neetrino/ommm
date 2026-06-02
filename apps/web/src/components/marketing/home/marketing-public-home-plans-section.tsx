@@ -32,7 +32,7 @@ export async function MarketingPublicHomePlansSection({
   const cards = t.raw("planCards") as PlanCardCopy[];
 
   const mobileStyle = {
-    ["--home-plans-section-bg" as string]: HOME_PAGE_SURFACE.coachesGradientTo,
+    ["--home-plans-section-bg" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionBackground,
     ["--home-plans-coaches-overlap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.coachesSectionOverlap,
     ["--home-plans-section-px" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingX,
     ["--home-plans-section-py" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingY,

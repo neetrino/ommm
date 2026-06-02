@@ -34,7 +34,6 @@ export const HOME_COACHES_SECTION_BACKGROUND = `linear-gradient(to bottom, ${HOM
 export const HOME_COACHES_SECTION_FIGMA = {
   headingColor: "#fbf5d5",
   subtitleColor: "rgba(255, 255, 255, 0.84)",
-  sectionBottomRadiusPx: 50,
 } as const;
 
 export const HOME_COACHES_SECTION_LAYOUT = {
@@ -52,6 +51,7 @@ export const HOME_COACHES_SECTION_MOBILE_FIGMA = {
   sectionPaddingTopPx: 64,
   sectionPaddingBottomPx: 64,
   sectionGapPx: 36,
+  sectionBottomRadiusPx: 50,
   titleFontSizePx: 46,
   titleLineHeightPx: 40,
   subtitleFontSizePx: 14,
@@ -73,7 +73,7 @@ export const HOME_COACHES_SECTION_MOBILE_FIGMA = {
 export const HOME_COACHES_SECTION_MOBILE_LAYOUT = {
   sectionPaddingX: "1.5rem",
   sectionPaddingTop: "4rem",
-  sectionPaddingBottom: "4rem",
+  sectionPaddingBottom: "2.5rem",
   sectionGap: "2.25rem",
   sectionBottomRadius: "3.125rem",
   titleFontSize: "clamp(2.25rem, calc(100svw * 46 / 394), 2.875rem)",

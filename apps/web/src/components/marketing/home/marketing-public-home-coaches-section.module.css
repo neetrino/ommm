@@ -4,6 +4,8 @@
 
 .mobileSection {
   display: block;
+  position: relative;
+  z-index: 1;
   width: 100%;
   min-width: 0;
   overflow-x: clip;

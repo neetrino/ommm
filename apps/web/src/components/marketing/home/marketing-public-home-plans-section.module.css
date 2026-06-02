@@ -7,9 +7,13 @@
   width: 100%;
   min-width: 0;
   overflow-x: clip;
-  background: var(--home-plans-section-bg, #ede9dd);
+  background: var(--home-plans-section-bg, #fbf5d5);
   margin-top: calc(-1 * var(--home-plans-coaches-overlap, 3.125rem));
-  padding: var(--home-plans-section-py, 3rem) var(--home-plans-section-px, 1.5rem);
+  padding-top: calc(
+    var(--home-plans-section-py, 3rem) + var(--home-plans-coaches-overlap, 3.125rem)
+  );
+  padding-bottom: var(--home-plans-section-py, 3rem);
+  padding-inline: var(--home-plans-section-px, 1.5rem);
 }
 
 .mobileShell {

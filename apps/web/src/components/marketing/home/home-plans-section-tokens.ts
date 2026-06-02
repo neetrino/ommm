@@ -4,6 +4,7 @@
  */
 
 import { HOME_HERO_FIGMA } from "@/components/marketing/home/home-hero-banner-tokens";
+import { HOME_COACHES_SECTION_MOBILE_LAYOUT } from "@/components/marketing/home/home-coaches-section-tokens";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
@@ -42,9 +43,9 @@ export const HOME_PLANS_SECTION_MOBILE_LAYOUT = {
   sectionPaddingX: "1.5rem",
   sectionPaddingY: "3rem",
   sectionGap: "2.25rem",
-  sectionRadius: "2.5rem",
-  /** Pull up under coaches mobile bottom radius — seamless cream band. */
-  coachesSectionOverlap: "3.125rem",
+  /** Flat top; cream fills the pockets under coaches bottom pill. */
+  sectionBackground: HOME_PAGE_SURFACE.pageBackground,
+  coachesSectionOverlap: HOME_COACHES_SECTION_MOBILE_LAYOUT.sectionBottomRadius,
   headerMaxWidth: "clamp(17rem, calc(100svw * 314 / 394), 19.625rem)",
   titleFontSize: "clamp(2.25rem, calc(100svw * 46 / 394), 2.875rem)",
   titleLineHeight:
