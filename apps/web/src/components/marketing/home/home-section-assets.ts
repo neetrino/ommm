@@ -11,8 +11,15 @@ export const HOME_SECTION_ASSETS = {
   /** Featured Coaches nav buttons — Figma nodes `163:898` (prev), `163:899` (next). */
   coachNavPrev: "/marketing/home/sections/home-coach-nav-prev.png",
   coachNavNext: "/marketing/home/sections/home-coach-nav-next.png",
-  planBackground: "/marketing/home/sections/home-plan-bg.png",
-  planCtaIcon: "/marketing/home/sections/home-plan-cta-icon.png",
+  /** Featured Coaches CTA — Figma `196:1149` (Union `196:1150`, arrow `196:1155`). */
+  coachesCtaShape: "/marketing/home/sections/home-coaches-cta-shape.svg",
+  coachesCtaArrow: "/marketing/home/sections/home-coaches-cta-arrow.svg",
+  planBackground: "/marketing/home/sections/plans/home-package-card-bg.png",
+  /** Figma package card FAB `62:2348` — sphere + arrow. */
+  planCardFab: "/marketing/home/sections/plans/home-package-card-fab.svg",
+  /** Figma Packages CTA `196:1261` / `196:1266`. */
+  plansCtaShape: "/marketing/home/sections/plans/home-plans-cta-shape.svg",
+  plansCtaArrow: "/marketing/home/sections/plans/home-plans-cta-arrow.svg",
   eventsWide: "/marketing/home/sections/home-events-wide.jpg",
   eventsCardA: "/marketing/home/sections/home-events-card-a.png",
   eventsCardB: "/marketing/home/sections/home-events-card-b.png",

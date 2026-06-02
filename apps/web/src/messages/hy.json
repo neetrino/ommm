@@ -147,6 +147,7 @@
       "coachesPrevAria": "Նախորդ մարզիչ",
       "coachesNextAria": "Հաջորդ մարզիչ",
       "coachesGoToSlideAria": "Ցուցադրել՝ {name}",
+      "coachesMoreDetails": "Ավելի մանրամասն",
       "coachSlides": [
         {
           "name": "Jane Doe",
@@ -177,25 +178,27 @@
           "imageAlt": "Մարզիչի դիմանկար"
         }
       ],
-      "plansSectionTitle": "Տաճար ամեն մարմնի համար",
+      "plansSectionTitle": "Ընտրեք ձեր փաթեթը",
+      "plansSectionSubtitle": "Մշակված դասեր՝ ձեր ֆիզիկական և հոգեկան բարեկեցությունը խնամելու համար։",
+      "plansMoreDetails": "Ավելին",
       "planCards": [
         {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
+          "planName": "Յոգա",
+          "details": "1 դաս",
+          "price": "9000 AMD",
+          "ctaAria": "Բացել յոգայի փաթեթի մանրամասները"
         },
         {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
+          "planName": "Յոգա",
+          "details": "1 դաս",
+          "price": "9000 AMD",
+          "ctaAria": "Բացել յոգայի փաթեթի մանրամասները"
         },
         {
-          "planName": "Պլան",
-          "details": "Մանրամասներ",
-          "price": "1111 AMD",
-          "ctaAria": "Բացել պլանի մանրամասները"
+          "planName": "Յոգա",
+          "details": "1 դաս",
+          "price": "9000 AMD",
+          "ctaAria": "Բացել յոգայի փաթեթի մանրամասները"
         }
       ],
       "eventsTitle": "Միջոցառումներ",

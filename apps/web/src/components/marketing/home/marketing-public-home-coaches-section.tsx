@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
+import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import {
   FeaturedCoachesCarouselStrip,
@@ -13,7 +13,7 @@ import {
 const FEATURED_COACHES_AUTO_ADVANCE_MS = 5000;
 
 /**
- * Figma **Featured Coaches** `155:188` — carousel card **Frame 68** `163:879`, portrait `163:878`.
+ * Figma **Featured Coaches** `155:188` — carousel card **Frame 68** `163:879`, CTA `196:1149`.
  */
 export function MarketingPublicHomeCoachesSection() {
   const t = useTranslations("marketingPublic.home");
@@ -121,7 +121,7 @@ export function MarketingPublicHomeCoachesSection() {
       </div>
 
       <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 lg:px-20">
-        <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
+        <HomeHeroCtaButton href="/coaches" label={t("coachesMoreDetails")} variant="coachesDetails" />
       </div>
     </section>
   );

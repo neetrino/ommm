@@ -69,3 +69,23 @@
   /* Arrow glyph reads left of its bbox — nudge into the circle cap. */
   transform: translateX(6%);
 }
+
+.coachesDetails .label {
+  color: #97907c;
+}
+
+.coachesDetails:focus-visible {
+  box-shadow:
+    0 0 0 2px #97907c,
+    0 0 0 4px rgba(255, 255, 255, 0.55);
+}
+
+.plansDetails .label {
+  color: #fff;
+}
+
+.plansDetails:focus-visible {
+  box-shadow:
+    0 0 0 2px #598090,
+    0 0 0 4px rgba(255, 255, 255, 0.55);
+}

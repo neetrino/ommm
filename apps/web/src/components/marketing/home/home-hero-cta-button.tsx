@@ -7,7 +7,7 @@ import {
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { Link } from "@/i18n/navigation";
 
-export type HomeHeroCtaVariant = "booking" | "membership";
+export type HomeHeroCtaVariant = "booking" | "membership" | "coachesDetails" | "plansDetails";
 
 export type HomeHeroCtaButtonProps = {
   href: string;
@@ -15,14 +15,20 @@ export type HomeHeroCtaButtonProps = {
   variant: HomeHeroCtaVariant;
 };
 
-/** Figma hero CTAs — Union `196:1430` / `196:1440` with arrow chip. */
+/** Figma hero CTAs — Union `196:1430` / `196:1440`; Coaches `196:1149`; Packages `196:1260`. */
 export function HomeHeroCtaButton({ href, label, variant }: HomeHeroCtaButtonProps) {
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const layout = HOME_HERO_CTA_LAYOUT[variant];
+  const variantClass =
+    variant === "coachesDetails"
+      ? styles.coachesDetails
+      : variant === "plansDetails"
+        ? styles.plansDetails
+        : undefined;
   return (
     <Link
       href={href}
-      className={`${marketingMontserrat.className} ${styles.cta}`}
+      className={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""}`}
       style={{
         width: layout.width,
         height: layout.height,

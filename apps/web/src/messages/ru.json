@@ -147,6 +147,7 @@
       "coachesPrevAria": "Предыдущий преподаватель",
       "coachesNextAria": "Следующий преподаватель",
       "coachesGoToSlideAria": "Показать: {name}",
+      "coachesMoreDetails": "Подробнее",
       "coachSlides": [
         {
           "name": "Jane Doe",
@@ -177,25 +178,27 @@
           "imageAlt": "Портрет преподавателя"
         }
       ],
-      "plansSectionTitle": "Убежище для каждого тела",
+      "plansSectionTitle": "Выберите пакет",
+      "plansSectionSubtitle": "Продуманные занятия для заботы о вашем физическом и душевном благополучии.",
+      "plansMoreDetails": "Подробнее",
       "planCards": [
         {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
+          "planName": "Йога",
+          "details": "1 занятие",
+          "price": "9000 AMD",
+          "ctaAria": "Открыть детали пакета йоги"
         },
         {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
+          "planName": "Йога",
+          "details": "1 занятие",
+          "price": "9000 AMD",
+          "ctaAria": "Открыть детали пакета йоги"
         },
         {
-          "planName": "План",
-          "details": "Подробнее",
-          "price": "1111 AMD",
-          "ctaAria": "Открыть детали плана"
+          "planName": "Йога",
+          "details": "1 занятие",
+          "price": "9000 AMD",
+          "ctaAria": "Открыть детали пакета йоги"
         }
       ],
       "eventsTitle": "События",

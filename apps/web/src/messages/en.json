@@ -147,6 +147,7 @@
       "coachesPrevAria": "Previous coach",
       "coachesNextAria": "Next coach",
       "coachesGoToSlideAria": "Show {name}",
+      "coachesMoreDetails": "More Details",
       "coachSlides": [
         {
           "name": "Jane Doe",
@@ -177,25 +178,27 @@
           "imageAlt": "Coach portrait"
         }
       ],
-      "plansSectionTitle": "A Sanctuary for Every Body",
+      "plansSectionTitle": "Choose Your Package",
+      "plansSectionSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "plansMoreDetails": "More Details",
       "planCards": [
         {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
+          "planName": "Yoga",
+          "details": "1 Session",
+          "price": "9000 AMD",
+          "ctaAria": "View Yoga package details"
         },
         {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
+          "planName": "Yoga",
+          "details": "1 Session",
+          "price": "9000 AMD",
+          "ctaAria": "View Yoga package details"
         },
         {
-          "planName": "Plan Name",
-          "details": "Details",
-          "price": "1111 AMD",
-          "ctaAria": "View plan details"
+          "planName": "Yoga",
+          "details": "1 Session",
+          "price": "9000 AMD",
+          "ctaAria": "View Yoga package details"
         }
       ],
       "eventsTitle": "Events",

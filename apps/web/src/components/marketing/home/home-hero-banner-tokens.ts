@@ -82,7 +82,7 @@ export const HOME_HERO_ASSETS = {
   portalEllipse: "/marketing/home/hero/home-hero-portal-ellipse.svg",
 } as const;
 
-/** Figma hero CTAs — `196:1430` booking, `196:1440` membership. */
+/** Figma hero CTAs — `196:1430` booking, `196:1440` membership, Featured Coaches `196:1149`. */
 export const HOME_HERO_CTA_ASSETS = {
   booking: {
     shape: "/marketing/home/hero/home-hero-cta-booking-shape.svg",
@@ -91,6 +91,14 @@ export const HOME_HERO_CTA_ASSETS = {
   membership: {
     shape: "/marketing/home/hero/home-hero-cta-membership-shape.svg",
     arrow: "/marketing/home/hero/home-hero-cta-membership-arrow.svg",
+  },
+  coachesDetails: {
+    shape: "/marketing/home/sections/home-coaches-cta-shape.svg",
+    arrow: "/marketing/home/sections/home-coaches-cta-arrow.svg",
+  },
+  plansDetails: {
+    shape: "/marketing/home/sections/plans/home-plans-cta-shape.svg",
+    arrow: "/marketing/home/sections/plans/home-plans-cta-arrow.svg",
   },
 } as const;
 
@@ -125,6 +133,26 @@ export const HOME_HERO_CTA_LAYOUT = {
     labelWidthRatio: 154 / 254.375,
     arrowZoneWidthRatio: (2 * (254.375 - 223.75)) / 254.375,
     labelOffsetPx: 14,
+  },
+  /** Figma Featured Coaches CTA `196:1149` — same Union proportions as booking. */
+  coachesDetails: {
+    widthPx: 236.625,
+    heightPx: 61.136,
+    width: "clamp(10rem, calc(100svw * 236.625 * 0.88 / 1440), 13rem)",
+    height: "clamp(2.5rem, calc(100svw * 61.136 * 0.88 / 1440), 3.375rem)",
+    labelWidthRatio: 136.25 / 236.625,
+    arrowZoneWidthRatio: (2 * (236.625 - 206)) / 236.625,
+    labelOffsetPx: 11,
+  },
+  /** Figma Packages CTA `196:1260` — Union `196:1261`, arrow `196:1266`. */
+  plansDetails: {
+    widthPx: 236.625,
+    heightPx: 61.136,
+    width: "clamp(10rem, calc(100svw * 236.625 * 0.88 / 1440), 13rem)",
+    height: "clamp(2.5rem, calc(100svw * 61.136 * 0.88 / 1440), 3.375rem)",
+    labelWidthRatio: 136.25 / 236.625,
+    arrowZoneWidthRatio: (2 * (236.625 - 206)) / 236.625,
+    labelOffsetPx: 11,
   },
   buttonGap: "clamp(0.625rem, calc(100svw * 16.375 * 0.88 / 1440), 0.9rem)",
   buttonsMarginTop: "clamp(0.625rem, calc(100svw * 14 / 1440), 0.875rem)",

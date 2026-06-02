@@ -1,11 +1,12 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
+import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePackagePlanCardsRow } from "@/components/marketing/home/home-package-plan-card";
+import {
+  HOME_PLANS_SECTION_FIGMA,
+  HOME_PLANS_SECTION_LAYOUT,
+} from "@/components/marketing/home/home-plans-section-tokens";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type PlanCardCopy = {
   planName: string;
@@ -19,7 +20,7 @@ type MarketingPublicHomePlansSectionProps = {
 };
 
 /**
- * Figma plans strip — frosted panel `163:949`, heading `163:951`, cards `163:950`.
+ * Figma **Packages** `196:1251` — frosted panel, heading `196:1252`, cards `196:1256`, CTA `196:1260`.
  */
 export async function MarketingPublicHomePlansSection({
   locale,
@@ -35,6 +36,7 @@ export async function MarketingPublicHomePlansSection({
       <div
         className="relative isolate w-full min-w-0 overflow-hidden rounded-[50px] border border-white/55 ring-1 ring-white/35 backdrop-blur-[6px]"
         style={{
+          backgroundColor: HOME_PLANS_SECTION_FIGMA.panelFill,
           backgroundImage: HOME_PAGE_SURFACE.plansCardFill,
           boxShadow: HOME_PAGE_SURFACE.plansCardShadow,
         }}
@@ -44,71 +46,47 @@ export async function MarketingPublicHomePlansSection({
           className="pointer-events-none absolute inset-0"
           style={{ backgroundImage: HOME_PAGE_SURFACE.plansCardGlossOverlay }}
         />
-        <div className="relative z-10 px-4 pb-20 pt-20 sm:px-8 sm:pb-24 sm:pt-24 md:px-12 md:pb-28 md:pt-28">
-          <h2
-            className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[48px]"
-            style={{ color: HOME_PAGE_SURFACE.plansHeading }}
+        <div
+          className="relative z-10 flex flex-col items-center"
+          style={{
+            paddingInline: HOME_PLANS_SECTION_LAYOUT.sectionPaddingX,
+            paddingTop: HOME_PLANS_SECTION_LAYOUT.sectionPaddingTop,
+            paddingBottom: HOME_PLANS_SECTION_LAYOUT.sectionPaddingBottom,
+            gap: HOME_PLANS_SECTION_LAYOUT.sectionGapPx,
+          }}
+        >
+          <header
+            className="flex w-full max-w-[834px] flex-col items-center text-center"
+            style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
           >
-            {t("plansSectionTitle")}
-          </h2>
+            <h2
+              className="font-serif font-semibold tracking-tight text-balance"
+              style={{
+                color: HOME_PLANS_SECTION_FIGMA.headingColor,
+                fontSize: HOME_PLANS_SECTION_LAYOUT.titleFontSize,
+                lineHeight: HOME_PLANS_SECTION_LAYOUT.titleLineHeight,
+              }}
+            >
+              {t("plansSectionTitle")}
+            </h2>
+            <p
+              className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
+              style={{
+                color: HOME_PLANS_SECTION_FIGMA.subtitleColor,
+                maxWidth: HOME_PLANS_SECTION_LAYOUT.subtitleMaxWidth,
+              }}
+            >
+              {t("plansSectionSubtitle")}
+            </p>
+          </header>
 
-          <div className="mx-auto mt-16 flex max-w-[1332px] flex-col flex-wrap items-center justify-center gap-8 sm:mt-20 md:mt-24 lg:flex-row lg:gap-[60px]">
-            {cards.map((card, index) => (
-              <Link
-                key={`plan-card-${index}`}
-                href="/packages"
-                aria-label={card.ctaAria}
-                className="group relative block h-[531px] w-full max-w-[404px] shrink-0 overflow-hidden rounded-[40px] bg-[#97907c] shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#577f91] focus-visible:ring-offset-2"
-              >
-                <Image
-                  src={HOME_SECTION_ASSETS.planBackground}
-                  alt=""
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 404px"
-                  className="object-cover"
-                  {...belowFoldImageProps()}
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/25" />
-                <p
-                  className="pointer-events-none absolute left-6 top-14 z-10 font-serif text-[28px] font-extrabold italic leading-6 text-white"
-                  style={{ letterSpacing: "0.18px" }}
-                >
-                  {card.planName}
-                </p>
-                <div
-                  className="absolute bottom-6 left-1/2 z-10 h-[136px] w-[min(268px,calc(100%-3rem))] -translate-x-1/2 rounded-[40px]"
-                  style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
-                />
-                <p
-                  className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[7.25rem] left-1/2 z-10 -translate-x-1/2 text-lg font-normal leading-6 text-white`}
-                  style={{ letterSpacing: "0.18px" }}
-                >
-                  {card.details}
-                </p>
-                <p
-                  className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[4.25rem] left-1/2 z-10 -translate-x-1/2 text-[28px] font-extrabold leading-6 text-white`}
-                  style={{ letterSpacing: "0.18px" }}
-                >
-                  {card.price}
-                </p>
-                <span className="sr-only">{card.ctaAria}</span>
-                <span className="absolute bottom-[4.5rem] right-8 z-10 inline-flex size-16 items-center justify-center" aria-hidden>
-                  <Image
-                    src={HOME_SECTION_ASSETS.planCtaIcon}
-                    alt=""
-                    width={64}
-                    height={64}
-                    unoptimized
-                    className="size-16 transition-transform group-hover:scale-105"
-                  />
-                </span>
-              </Link>
-            ))}
-          </div>
+          <HomePackagePlanCardsRow cards={cards} />
 
-          <div className="mt-16 flex justify-center sm:mt-20 md:mt-24">
-            <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
-          </div>
+          <HomeHeroCtaButton
+            href="/packages"
+            label={t("plansMoreDetails")}
+            variant="plansDetails"
+          />
         </div>
       </div>
     </section>
