@@ -7,7 +7,7 @@ export type MarketingFooterGateProps = {
   children: ReactNode;
 };
 
-/** Hides marketing footer on the locale home route only (`/` in next-intl pathname). */
+/** Hides layout footer on home — the home page renders the same footer in-page. */
 export function MarketingFooterGate({ children }: MarketingFooterGateProps) {
   const pathname = usePathname();
   const isMarketingHome = pathname === "/" || pathname === "";

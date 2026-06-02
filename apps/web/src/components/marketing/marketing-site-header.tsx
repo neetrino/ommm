@@ -27,6 +27,10 @@ import {
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing-header-elevated";
+import {
+  isMarketingHeroHeaderPath,
+  isMarketingHomePath,
+} from "@/components/marketing/marketing-route-utils";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function isActive(pathname: string, href: string): boolean {
@@ -48,8 +52,8 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
-  const isMarketingHome = marketingPath === "/" || marketingPath === "";
-  const elevated = useMarketingHeaderElevated(isMarketingHome);
+  const isMarketingHome = isMarketingHomePath(marketingPath);
+  const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {

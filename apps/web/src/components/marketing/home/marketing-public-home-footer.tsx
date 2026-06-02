@@ -29,7 +29,6 @@ function footerStyleVars(): CSSProperties {
   const layout = HOME_FOOTER_LAYOUT;
   return {
     ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
-    ["--home-footer-wrap-bg" as string]: HOME_FOOTER_FIGMA.wrapBackground,
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
@@ -109,7 +108,7 @@ function FooterDesktopLayer({
 }
 
 /**
- * Figma **Footer** `196:1191` — home route only (see `MarketingFooterGate`).
+ * Figma **Footer** `196:1191` — marketing layout + home page.
  */
 export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeFooterProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });

@@ -1,15 +1,14 @@
 import { getTranslations } from "next-intl/server";
-import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
+import {
+  buildCoachesPageFallbackCoaches,
+  type CoachesPageSlideCopy,
+} from "@/components/marketing/coaches/coaches-page-fallback-coaches";
 import { MarketingPublicCoachesGrid } from "@/components/marketing/coaches/marketing-public-coaches-grid";
+import { MarketingPublicCoachesPageSection, marketingPublicCoachesPageSectionStyles } from "@/components/marketing/coaches/marketing-public-coaches-page-section";
+import type { CoachCardData } from "@/components/coaches/coach-card-display";
 import { serverApiJsonPublic } from "@/lib/server-api";
 
-type PublicCoach = {
-  id: string;
-  bio: string | null;
-  specialization: string | null;
-  experienceYears: number | null;
-  user: { name: string | null; lastName: string | null; email: string; avatarUrl: string | null };
-};
+type PublicCoach = CoachCardData;
 
 export default async function CoachesMarketingPage({
   params,
@@ -18,24 +17,27 @@ export default async function CoachesMarketingPage({
 }) {
   const { locale } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
+  const tHome = await getTranslations({ locale, namespace: "marketingPublic.home" });
   const res = await serverApiJsonPublic<PublicCoach[]>("/coaches");
+  const fallbackCoaches = buildCoachesPageFallbackCoaches(
+    tHome.raw("coachSlides") as CoachesPageSlideCopy[],
+  );
+
+  const coaches =
+    res.ok && res.data.length > 0 ? res.data : fallbackCoaches;
 
   return (
-    <MarketingPageFrame title={m("coachesPageTitle")} lede={m("coachesPageLead")}>
-      {!res.ok ? (
-        <p className="app-alert-warn mt-12" role="status">
-          {m("coachesError")}
-        </p>
-      ) : res.data.length === 0 ? (
-        <p
-          className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
-          role="status"
-        >
+    <MarketingPublicCoachesPageSection
+      title={m("coachesPageTitle")}
+      lead={m("coachesPageLead")}
+    >
+      {coaches.length > 0 ? (
+        <MarketingPublicCoachesGrid coaches={coaches} />
+      ) : (
+        <p className={marketingPublicCoachesPageSectionStyles.status} role="status">
           {m("coachesEmpty")}
         </p>
-      ) : (
-        <MarketingPublicCoachesGrid coaches={res.data} />
       )}
-    </MarketingPageFrame>
+    </MarketingPublicCoachesPageSection>
   );
 }

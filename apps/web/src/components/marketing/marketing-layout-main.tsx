@@ -1,6 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
+import shellStyles from "@/components/marketing/marketing-coaches-page-shell.module.css";
+import {
+  isMarketingCoachesPath,
+  isMarketingHomePath,
+} from "@/components/marketing/marketing-route-utils";
 import { usePathname } from "@/i18n/navigation";
 
 const MARKETING_MAIN_BASE_CLASS =
@@ -17,10 +22,16 @@ type MarketingLayoutMainProps = {
  */
 export function MarketingLayoutMain({ children }: MarketingLayoutMainProps) {
   const pathname = usePathname() ?? "";
-  const isMarketingHome = pathname === "/" || pathname === "";
-  const mainClassName = isMarketingHome
-    ? MARKETING_MAIN_BASE_CLASS
-    : [MARKETING_MAIN_BASE_CLASS, MARKETING_MAIN_INNER_TOP_PAD_CLASS].join(" ");
+  const isCoachesPage = isMarketingCoachesPath(pathname);
+  const usesFullBleedSurface =
+    isMarketingHomePath(pathname) || isCoachesPage;
+  const mainClassName = [
+    MARKETING_MAIN_BASE_CLASS,
+    isCoachesPage ? shellStyles.mainSurface : "",
+    usesFullBleedSurface ? "" : MARKETING_MAIN_INNER_TOP_PAD_CLASS,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return <main className={mainClassName}>{children}</main>;
 }

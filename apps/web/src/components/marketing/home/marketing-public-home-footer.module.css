@@ -1,7 +1,7 @@
 .sectionWrap {
   width: 100%;
   padding-top: var(--home-footer-wrap-padding-top);
-  background-color: var(--home-footer-wrap-bg);
+  background-color: var(--home-footer-wrap-bg, #598090);
 }
 
 .shell {

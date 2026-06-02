@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
+import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
 import { MarketingFooterGate } from "@/components/marketing/marketing-footer-gate";
+import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-shell";
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
 import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
-import { MarketingSiteFooter } from "@/components/marketing/marketing-site-footer";
 import { MarketingSiteHeader } from "@/components/marketing/marketing-site-header";
 import { routing } from "@/i18n/routing";
 
@@ -21,12 +22,12 @@ export default async function MarketingLayout({
   }
 
   return (
-    <div className="ommm-bg-wellness flex min-h-screen w-full flex-col">
+    <MarketingLayoutShell>
       <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
       <MarketingLayoutMain>{children}</MarketingLayoutMain>
       <MarketingFooterGate>
-        <MarketingSiteFooter locale={locale} />
+        <MarketingPublicHomeFooter locale={locale} />
       </MarketingFooterGate>
-    </div>
+    </MarketingLayoutShell>
   );
 }
