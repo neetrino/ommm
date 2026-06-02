@@ -12,7 +12,6 @@ export const memberChrome = {
   heroTitle: "ommm-h2 max-w-[20ch] text-sage-800",
   heroLead: "ommm-body-muted mt-6 max-w-xl text-base sm:text-lg",
   greeting: "font-serif italic text-sage-600",
-  greetingName: "block font-medium text-sage-800",
   avatar:
     "inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/60 bg-white/78 text-sm font-semibold text-sage-800 shadow-sm backdrop-blur-md sm:h-14 sm:w-14",
   statusPill:

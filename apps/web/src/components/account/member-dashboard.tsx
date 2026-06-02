@@ -39,10 +39,16 @@ export type MemberDashboardProps = {
   coachProfileId: string | null;
 };
 
-function shortFirstName(display: string): string {
-  const trimmed = display.trim();
-  const part = trimmed.split(/\s+/)[0];
-  return part ?? trimmed;
+function memberGreetingName(
+  name: string | null,
+  lastName: string | null,
+  displayName: string,
+): string {
+  const full = [name?.trim(), lastName?.trim()].filter(Boolean).join(" ");
+  if (full.length > 0) {
+    return full;
+  }
+  return displayName.trim();
 }
 
 function minutesBetween(startIso: string, endIso: string): number {
@@ -76,7 +82,7 @@ export async function MemberDashboard({
   coachProfileId,
 }: MemberDashboardProps) {
   const t = await getTranslations({ locale, namespace: "account.dashboard" });
-  const shortName = shortFirstName(displayName);
+  const greetingName = memberGreetingName(name, lastName, displayName);
   const initial = userDisplayInitials(name, lastName, email);
 
   const nextHref = "/user/classes";
@@ -119,11 +125,9 @@ export async function MemberDashboard({
                   initial
                 )}
               </span>
-              <p className={memberChrome.greeting}>
-                <span className="block text-base sm:text-lg">{t("greeting")}</span>
-                <span className={`${memberChrome.greetingName} text-base sm:text-lg`}>
-                  {shortName || displayName}
-                </span>
+              <p className={`${memberChrome.greeting} text-base sm:text-lg`}>
+                {t("greeting")}{" "}
+                <span className="font-medium text-sage-800">{greetingName}</span>
               </p>
             </div>
 
