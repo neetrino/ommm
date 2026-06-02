@@ -59,7 +59,7 @@ const weeklySchedulePanelTopInsetPx =
   HOME_WEEKLY_SCHEDULE_FIGMA.panelRadiusPx + weeklySchedulePanelLowerOffsetPx;
 
 /** Extra space inside the yellow panel — above the Weekly Schedule title. */
-const weeklySchedulePanelHeadingTopExtraPx = 30;
+const weeklySchedulePanelHeadingTopExtraPx = 56;
 
 const weeklySchedulePanelPaddingTop = "clamp(1.5rem, 5vw, 3rem)";
 
