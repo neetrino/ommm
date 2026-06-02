@@ -6,6 +6,7 @@ import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { parseAdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
 import { serverApiJson } from "@/lib/server-api";
 
 type CoachAdminRow = {
@@ -55,6 +56,7 @@ export default async function AdminCoachesPage({
     classType?: string;
     isActive?: string;
     order?: string;
+    view?: string | string[];
   }>;
 }) {
   const { locale } = await params;
@@ -69,6 +71,7 @@ export default async function AdminCoachesPage({
       ? search.isActive
       : "all";
   const order = search.order === "oldest" ? "oldest" : "newest";
+  const initialViewMode = parseAdminCoachesViewMode(search.view);
   const apiSearch = new URLSearchParams();
   if (q.length > 0) {
     apiSearch.set("q", q);
@@ -118,6 +121,7 @@ export default async function AdminCoachesPage({
         <AdminCoachesShell
           classTypeOptions={classTypeOptions}
           classOptions={classOptions}
+          initialViewMode={initialViewMode}
         >
           <AdminCoachesDirectory
             coaches={res.data}
