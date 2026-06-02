@@ -651,10 +651,12 @@ Never store real secret values in docs or code.
 ### Commands for dev/build/lint/test (from package.json files)
 
 #### Root (`package.json`)
-- `pnpm run dev`
-- `pnpm run dev:web`
-- `pnpm run dev:api`
-- `pnpm run dev:mobile`
+- `pnpm run dev` — web + API (`dev:stack`)
+- `pnpm run dev:stack` — same as `dev`
+- `pnpm run dev:all` — web + API + mobile in parallel
+- `pnpm run dev:web` — Next.js only
+- `pnpm run dev:api` — NestJS only
+- `pnpm run dev:mobile` — Expo only
 - `pnpm run build`
 - `pnpm run build:web`
 - `pnpm run build:api`

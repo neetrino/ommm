@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node ./scripts/dev-with-api.cjs",
-    "dev:web-only": "pnpm exec next dev",
+    "dev": "pnpm exec next dev",
+    "dev:stack": "node ./scripts/dev-with-api.cjs",
     "build": "pnpm exec next build",
     "start": "pnpm exec next start",
     "lint": "pnpm exec eslint",
