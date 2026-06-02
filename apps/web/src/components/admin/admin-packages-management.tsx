@@ -203,7 +203,7 @@ function CategoryAccordion({
   onEditPackage,
 }: CategoryAccordionProps) {
   const t = useTranslations("adminPages.packages");
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const categoryPackages = useMemo(
     () => packages.filter((pkg) => pkg.classTypeId === classType.id),
