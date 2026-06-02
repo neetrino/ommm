@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import {
   MarketingHeaderGlobeIcon,
@@ -22,10 +22,11 @@ import {
   marketingHeaderNavClass,
   marketingHeaderNavLinkClass,
   marketingHeaderNavLinksClass,
-  marketingHeaderNavPillGlossClass,
+  marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
+import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing-header-elevated";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function isActive(pathname: string, href: string): boolean {
@@ -47,14 +48,28 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
+  const isMarketingHome = marketingPath === "/" || marketingPath === "";
+  const elevated = useMarketingHeaderElevated(isMarketingHome);
+  const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
+
+  function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
+    setOpen(false);
+    if (!isMarketingHome) {
+      return;
+    }
+    event.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   return (
-    <header className={marketingHeaderShellClass()}>
+    <header
+      className={`${marketingHeaderShellClass()} ${navPillStyles.headerShell}`}
+    >
       <div className={marketingHeaderContainerClass()}>
         <Link
           href="/"
           className={marketingHeaderBrandLinkClass()}
-          onClick={() => setOpen(false)}
+          onClick={handleBrandClick}
         >
           <span className={marketingHeaderBrandTextClass()}>
             {tNav("studioBrand")}
@@ -62,19 +77,17 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         </Link>
 
         <nav
-          className={`${marketingHeaderNavClass(compact)} ${navPillStyles.pill}`}
+          className={`${marketingHeaderNavClass(compact)} ${navPillStyles.pill} ${pillSurfaceClass}`}
           aria-label={tUi("primaryNavAria")}
+          data-elevated={elevated ? "true" : "false"}
         >
-          <div
-            aria-hidden
-            className={`${marketingHeaderNavPillGlossClass()} ${navPillStyles.gloss}`}
-          />
+          <div aria-hidden className={navPillStyles.gloss} />
           <div className={marketingHeaderNavLinksClass(compact)}>
             {navLinks.map(({ href, key }) => (
               <Link
                 key={href}
                 href={href}
-                className={marketingHeaderNavLinkClass(
+                className={marketingHeaderNavPillLinkClass(
                   isActive(marketingPath, href),
                   compact,
                 )}
@@ -108,7 +121,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
           </div>
           <button
             type="button"
-            className={marketingHeaderMenuButtonClass()}
+            className={`${marketingHeaderMenuButtonClass()} ${navPillStyles.menuButton}`}
             aria-expanded={open}
             aria-controls="marketing-mobile-nav"
             aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
@@ -140,41 +153,43 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
 
       <div
         id="marketing-mobile-nav"
-        className={marketingHeaderMobilePanelClass(open)}
+        className={`${marketingHeaderMobilePanelClass(open)} ${open ? navPillStyles.mobilePanel : ""}`}
       >
-        <nav
-          className="flex flex-col gap-1"
-          aria-label={tUi("mobilePrimaryNavAria")}
-        >
-          {navLinks.map(({ href, key }) => (
+        <div className={navPillStyles.mobilePanelContent}>
+          <nav
+            className="flex flex-col gap-1"
+            aria-label={tUi("mobilePrimaryNavAria")}
+          >
+            {navLinks.map(({ href, key }) => (
+              <Link
+                key={href}
+                href={href}
+                className={marketingHeaderNavLinkClass(
+                  isActive(marketingPath, href),
+                  compact,
+                )}
+                onClick={() => setOpen(false)}
+              >
+                {tNav(key)}
+              </Link>
+            ))}
+          </nav>
+          <div className={`flex flex-col gap-2 ${navPillStyles.mobileDivider}`}>
             <Link
-              key={href}
-              href={href}
-              className={marketingHeaderNavLinkClass(
-                isActive(marketingPath, href),
-                compact,
-              )}
+              href="/schedule"
+              className={navPillStyles.mobileCtaPrimary}
               onClick={() => setOpen(false)}
             >
-              {tNav(key)}
+              {tUi("bookAClass")}
             </Link>
-          ))}
-        </nav>
-        <div className="mt-4 flex flex-col gap-2 border-t border-white/60 pt-4">
-          <Link
-            href="/schedule"
-            className="inline-flex w-full items-center justify-center rounded-full bg-[#e8da74] px-5 py-3 text-sm font-medium text-white"
-            onClick={() => setOpen(false)}
-          >
-            {tUi("bookAClass")}
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex w-full items-center justify-center rounded-full border border-white/50 px-5 py-3 text-sm font-medium text-white"
-            onClick={() => setOpen(false)}
-          >
-            {tCommon("login")}
-          </Link>
+            <Link
+              href="/login"
+              className={navPillStyles.mobileCtaSecondary}
+              onClick={() => setOpen(false)}
+            >
+              {tCommon("login")}
+            </Link>
+          </div>
         </div>
       </div>
     </header>
