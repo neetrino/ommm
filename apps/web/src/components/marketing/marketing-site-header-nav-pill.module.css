@@ -44,12 +44,6 @@
     inset 0 1px 0 var(--marketing-glass-inset-top),
     var(--marketing-glass-inset-glow),
     inset 0 -1px 0 var(--marketing-glass-inset-bottom);
-  transition:
-    background-color 260ms ease,
-    border-color 260ms ease,
-    box-shadow 260ms ease,
-    backdrop-filter 260ms ease,
-    -webkit-backdrop-filter 260ms ease;
 }
 
 .pill::before {
@@ -161,7 +155,6 @@
   z-index: 0;
   border-radius: inherit;
   opacity: 0.52;
-  transition: opacity 260ms ease;
   background-image:
     linear-gradient(
       155deg,

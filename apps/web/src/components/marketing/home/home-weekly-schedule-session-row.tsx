@@ -100,10 +100,19 @@ export function HomeWeeklyScheduleSessionRow({
       <Link
         href="/schedule"
         aria-label={bookAriaLabel}
-        className={`${styles.reserve} inline-flex h-12 min-w-[9.0625rem] shrink-0 items-center justify-center rounded-full px-4 text-xs font-semibold uppercase leading-[1.125rem] tracking-[0.0625rem] backdrop-blur-sm transition-[background-color,transform] hover:bg-white/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-2 active:scale-[0.99]`}
+        className={`${styles.reserve} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-2 active:scale-[0.99]`}
         style={{
-          backgroundColor: HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonFill,
-          color: HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonText,
+          ["--home-schedule-reserve-fill" as string]:
+            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonFill,
+          ["--home-schedule-reserve-hover-fill" as string]:
+            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonHoverFill,
+          ["--home-schedule-reserve-text" as string]:
+            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonText,
+          ["--home-schedule-reserve-border" as string]:
+            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonBorder,
+          ["--home-schedule-reserve-edge" as string]:
+            HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonEdgeHighlight,
+          ["--home-schedule-reserve-blur" as string]: `${HOME_WEEKLY_SCHEDULE_FIGMA.reserveButtonBlurPx}px`,
         }}
       >
         {reserveLabel}
