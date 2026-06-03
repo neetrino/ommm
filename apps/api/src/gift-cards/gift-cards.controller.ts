@@ -20,6 +20,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
+import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import { GIFT_CARD_IMAGE_MAX_BYTES } from './gift-card-image.constants';
 import { GiftCardsService } from './gift-cards.service';
 
@@ -80,6 +81,13 @@ export class GiftCardsController {
     @UploadedFile() image: Express.Multer.File | undefined,
   ) {
     return this.giftCards.createAdminCard(user.id, dto, image);
+  }
+
+  @Patch('admin/batches/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  updateBatch(@Param('id') id: string, @Body() dto: AdminUpdateGiftCardBatchDto) {
+    return this.giftCards.updateBatch(id, dto);
   }
 
   @Patch('admin/:id/deactivate')

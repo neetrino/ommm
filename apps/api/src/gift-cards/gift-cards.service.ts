@@ -16,6 +16,7 @@ import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
+import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import { absolutePathForStoredGiftCardUpload } from './gift-card-upload.helpers';
 import {
   ALLOWED_GIFT_CARD_IMAGE_MIMES,
@@ -374,6 +375,88 @@ export class GiftCardsService {
       }
       throw error;
     }
+  }
+
+  async updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {
+    const existing = (await this.giftCardBatchDelegate(this.prisma).findUnique({
+      where: { id: batchId },
+    })) as GiftCardBatchSnapshot | null;
+    if (!existing) {
+      throw new NotFoundException('Gift card batch not found');
+    }
+
+    const parsedExpiresAt = dto.expiresAt !== undefined ? new Date(dto.expiresAt) : null;
+    if (parsedExpiresAt !== null && Number.isNaN(parsedExpiresAt.getTime())) {
+      throw new BadRequestException('Invalid expiresAt date');
+    }
+
+    const recipient =
+      dto.recipientId !== undefined
+        ? await this.prisma.user.findUnique({
+            where: { id: dto.recipientId },
+            select: { id: true, role: true, email: true, name: true },
+          })
+        : null;
+    if (dto.recipientId !== undefined && (!recipient || recipient.role !== 'USER')) {
+      throw new BadRequestException('Recipient user not found');
+    }
+
+    const recipientEmail =
+      dto.recipientEmail !== undefined
+        ? dto.recipientEmail
+        : recipient?.email ?? existing.recipientEmail;
+    const recipientName =
+      dto.recipientName !== undefined
+        ? dto.recipientName
+        : recipient?.name ?? existing.recipientName;
+    const amountCents = dto.amountCents;
+    const amountDiff = amountCents - existing.amountCents;
+    const updateData: Record<string, unknown> = {
+      amountCents,
+      recipientId: dto.recipientId !== undefined ? recipient?.id ?? null : existing.recipientId,
+      recipientEmail,
+      recipientName,
+      message: dto.message !== undefined ? dto.message : existing.message,
+      expiresAt: dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
+    };
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const txBatchDelegate = this.giftCardBatchDelegate(tx);
+      const batch = (await txBatchDelegate.update({
+        where: { id: batchId },
+        data: updateData,
+      })) as GiftCardBatchSnapshot;
+
+      await tx.giftCard.updateMany(({
+        where: {
+          batchId,
+          status: GiftCardStatus.ACTIVE,
+        },
+        data: {
+          amountCents,
+          ...(amountDiff !== 0 ? { balanceCents: { increment: amountDiff } } : {}),
+          recipientId: dto.recipientId !== undefined ? recipient?.id ?? null : existing.recipientId,
+          recipientEmail,
+          recipientName,
+          message: dto.message !== undefined ? dto.message : existing.message,
+          expiresAt: dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
+        },
+      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0]);
+
+      return batch;
+    });
+
+    await this.audit.log({
+      action: 'GIFT_CARD_BATCH_UPDATED',
+      entityType: 'GiftCardBatch',
+      entityId: batchId,
+      payload: {
+        amountCents: updated.amountCents,
+        recipientId: updated.recipientId,
+        recipientEmail: updated.recipientEmail,
+      },
+    });
+    return updated;
   }
 
   async assignRecipient(giftCardId: string, userId: string) {

@@ -7,7 +7,7 @@ export class CreateGiftCheckoutDto {
   batchId?: string;
 
   @IsInt()
-  @Min(100)
+  @Min(1)
   amountCents!: number;
 
   @IsOptional()

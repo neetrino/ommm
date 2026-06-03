@@ -2,33 +2,54 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ApiError, apiFetchFormData } from "@/lib/api";
+import { ApiError, apiFetch, apiFetchFormData } from "@/lib/api";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 
+type AdminGiftCardFormMode = "create" | "edit";
+
+type AdminCreateGiftCardFormInitialValues = {
+  amountAmd: number;
+  quantity: number;
+  recipientEmail: string;
+  recipientName: string;
+  message: string;
+  expiresAt: string;
+};
+
 type AdminCreateGiftCardFormProps = {
   users: readonly AdminAssignableUser[];
   onSaved: (createdCount: number) => void;
   onCancel: () => void;
+  mode?: AdminGiftCardFormMode;
+  batchId?: string;
+  initialValues?: AdminCreateGiftCardFormInitialValues;
 };
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
-export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreateGiftCardFormProps) {
+export function AdminCreateGiftCardForm({
+  users,
+  onSaved,
+  onCancel,
+  mode = "create",
+  batchId,
+  initialValues,
+}: AdminCreateGiftCardFormProps) {
   const t = useTranslations("adminPages.giftCards");
   const submitLockRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const [amountCents, setAmountCents] = useState("10000");
-  const [quantity, setQuantity] = useState("1");
+  const [amountCents, setAmountCents] = useState(String(initialValues?.amountAmd ?? 10000));
+  const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
   const [showAssignedUser, setShowAssignedUser] = useState(false);
   const [recipientId, setRecipientId] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
-  const [recipientName, setRecipientName] = useState("");
-  const [message, setMessage] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState(initialValues?.recipientEmail ?? "");
+  const [recipientName, setRecipientName] = useState(initialValues?.recipientName ?? "");
+  const [message, setMessage] = useState(initialValues?.message ?? "");
+  const [expiresAt, setExpiresAt] = useState(initialValues?.expiresAt ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -54,14 +75,29 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
     };
   }, [imagePreviewUrl]);
 
+  useEffect(() => {
+    if (!initialValues) {
+      return;
+    }
+    setAmountCents(String(initialValues.amountAmd));
+    setQuantity(String(initialValues.quantity));
+    setRecipientEmail(initialValues.recipientEmail);
+    setRecipientName(initialValues.recipientName);
+    setMessage(initialValues.message);
+    setExpiresAt(initialValues.expiresAt);
+    setShowAssignedUser(
+      initialValues.recipientEmail.length > 0 || initialValues.recipientName.length > 0,
+    );
+  }, [initialValues]);
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || submitLockRef.current) {
       return;
     }
-    const parsedAmount = Number.parseInt(amountCents, 10);
+    const parsedAmountAmd = Number.parseInt(amountCents, 10);
     const parsedQuantity = Number.parseInt(quantity, 10);
-    if (!Number.isFinite(parsedAmount) || parsedAmount < 1) {
+    if (!Number.isFinite(parsedAmountAmd) || parsedAmountAmd < 1) {
       setTone("err");
       setResult(t("amountInvalid"));
       return;
@@ -88,8 +124,27 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
     setBusy(true);
     setResult(null);
     try {
+      if (mode === "edit") {
+        if (!batchId) {
+          throw new Error("Batch id is required for edit mode");
+        }
+        await apiFetch(`/gift-cards/admin/batches/${batchId}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            amountCents: parsedAmountAmd,
+            recipientId: recipientId.trim().length > 0 ? recipientId.trim() : undefined,
+            recipientEmail: recipientEmail.trim().length > 0 ? recipientEmail.trim() : undefined,
+            recipientName: recipientName.trim().length > 0 ? recipientName.trim() : undefined,
+            message: message.trim().length > 0 ? message.trim() : undefined,
+            expiresAt: expiresAt.trim().length > 0 ? expiresAt.trim() : undefined,
+          }),
+        });
+        onSaved(1);
+        return;
+      }
+
       const formData = new FormData();
-      formData.append("amountCents", String(parsedAmount));
+      formData.append("amountCents", String(parsedAmountAmd));
       formData.append("quantity", String(parsedQuantity));
       if (recipientId.trim().length > 0) {
         formData.append("recipientId", recipientId.trim());
@@ -219,7 +274,7 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           placeholder={t("fieldQuantityPlaceholder")}
           value={quantity}
           onChange={(event) => setQuantity(event.target.value)}
-          disabled={busy}
+          disabled={busy || mode === "edit"}
           required
         />
       </label>
@@ -285,7 +340,7 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
       ) : null}
       <div className="flex flex-wrap gap-3">
         <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
-          {busy ? t("savingButton") : t("saveButton")}
+          {busy ? t("savingButton") : mode === "edit" ? t("editSaveButton") : t("saveButton")}
         </OmmButton>
         <OmmButton type="button" variant="ghost" size="md" onClick={onCancel} disabled={busy}>
           {t("cancelButton")}

@@ -8,11 +8,15 @@ import { usePathname } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
 import { OmmButton } from "@/components/ui/omm-button";
-import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
+import type {
+  AdminAssignableUser,
+  AdminGiftCardBatchRow,
+} from "@/components/admin/admin-gift-cards-types";
 
 const BANNER_MS = 8000;
 const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "create-gift-card";
+const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
 function AddGiftCardGlyph({ className }: { className?: string }) {
   return (
@@ -34,10 +38,11 @@ function AddGiftCardGlyph({ className }: { className?: string }) {
 
 type AdminGiftCardsShellProps = {
   assignableUsers: readonly AdminAssignableUser[];
+  giftCards: readonly AdminGiftCardBatchRow[];
   children: ReactNode;
 };
 
-export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCardsShellProps) {
+export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: AdminGiftCardsShellProps) {
   const t = useTranslations("adminPages.giftCards");
   const router = useRouter();
   const pathname = usePathname();
@@ -46,11 +51,20 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
   const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isModalOpen = searchParams.get(MODAL_QUERY_KEY) === MODAL_QUERY_VALUE;
+  const modalMode = searchParams.get(MODAL_QUERY_KEY);
+  const editBatchId = searchParams.get("batchId");
+  const isCreateMode = modalMode === MODAL_QUERY_VALUE;
+  const isEditMode = modalMode === EDIT_MODAL_QUERY_VALUE && editBatchId !== null;
+  const isModalOpen = isCreateMode || isEditMode;
+  const editingBatch =
+    isEditMode && editBatchId !== null
+      ? giftCards.find((batch) => batch.id === editBatchId) ?? null
+      : null;
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(MODAL_QUERY_KEY);
+    params.delete("batchId");
     const query = params.toString();
     router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router, searchParams]);
@@ -138,7 +152,7 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
             variant="secondary"
             size="md"
             onClick={openModal}
-            className="inline-flex items-center gap-2"
+            className="inline-flex cursor-pointer items-center gap-2 shadow-sm transition-transform hover:-translate-y-px"
           >
             <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
             {t("createButton")}
@@ -169,7 +183,7 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id={titleId} className={adminChrome.panelHeading}>
-                  {t("createTitle")}
+                  {isEditMode ? t("editTitle") : t("createTitle")}
                 </h2>
               </div>
               <button
@@ -197,6 +211,20 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
                 users={assignableUsers}
                 onSaved={onCreated}
                 onCancel={closeModal}
+                mode={isEditMode ? "edit" : "create"}
+                batchId={editingBatch?.id}
+                initialValues={
+                  editingBatch
+                    ? {
+                        amountAmd: editingBatch.amountCents,
+                        quantity: editingBatch.totalQuantity,
+                        recipientEmail: editingBatch.recipientEmail ?? "",
+                        recipientName: editingBatch.recipientName ?? "",
+                        message: editingBatch.message ?? "",
+                        expiresAt: editingBatch.expiresAt ?? "",
+                      }
+                    : undefined
+                }
               />
             </div>
           </div>

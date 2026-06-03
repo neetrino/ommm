@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminGiftCardDrawer } from "@/components/admin/admin-gift-cards-drawer";
+import { ApiError, apiFetch } from "@/lib/api";
 import {
   countActiveGiftCardFilters,
   filterGiftCards,
@@ -34,6 +35,9 @@ type AdminGiftCardsManagementProps = {
 };
 
 const SEARCH_DEBOUNCE_MS = 300;
+const MODAL_QUERY_KEY = "modal";
+const MODAL_QUERY_VALUE = "create-gift-card";
+const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
 function displayDate(value: string | null): string {
   if (value === null) {
@@ -58,6 +62,8 @@ export function AdminGiftCardsManagement({
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
   const [selected, setSelected] = useState<AdminGiftCardBatchRow | null>(null);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
 
   const filtered = useMemo(
     () => sortGiftCards(filterGiftCards(giftCards, filters), filters.order),
@@ -137,8 +143,48 @@ export function AdminGiftCardsManagement({
     router.refresh();
   }
 
+  const openEditModal = useCallback(
+    (batchId: string) => {
+      const params = new URLSearchParams(searchParamsRef.current);
+      params.set(MODAL_QUERY_KEY, EDIT_MODAL_QUERY_VALUE);
+      params.set("batchId", batchId);
+      const qs = params.toString();
+      router.replace(`${pathname}?${qs}`, { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  const deleteBatch = useCallback(
+    async (batchId: string) => {
+      if (busyBatchId !== null) {
+        return;
+      }
+      if (!window.confirm(t("actions.deleteConfirm"))) {
+        return;
+      }
+      setBusyBatchId(batchId);
+      setFeedback(null);
+      try {
+        await apiFetch(`/gift-cards/admin/batches/${batchId}`, { method: "DELETE" });
+        setFeedback({ tone: "ok", text: t("actions.deleted") });
+        if (selected?.id === batchId) {
+          setSelected(null);
+        }
+        router.refresh();
+      } catch (error) {
+        setFeedback({
+          tone: "err",
+          text: error instanceof ApiError ? error.message : t("actions.failed"),
+        });
+      } finally {
+        setBusyBatchId(null);
+      }
+    },
+    [busyBatchId, router, selected?.id, t],
+  );
+
   return (
-    <AdminGiftCardsShell assignableUsers={assignableUsers}>
+    <AdminGiftCardsShell assignableUsers={assignableUsers} giftCards={giftCards}>
       <AdminGiftCardsFilters
         values={filters}
         activeFilterCount={activeFilterCount}
@@ -149,6 +195,14 @@ export function AdminGiftCardsManagement({
       {isFiltering ? (
         <p className="text-sm text-sage-500" role="status">
           {t("loading")}
+        </p>
+      ) : null}
+      {feedback ? (
+        <p
+          className={`text-sm ${feedback.tone === "ok" ? "text-sage-700" : "text-red-800"}`}
+          role="status"
+        >
+          {feedback.text}
         </p>
       ) : null}
 
@@ -182,9 +236,11 @@ export function AdminGiftCardsManagement({
                       <span className={statusBadgeClass(card.status)}>{t(`statusValues.${card.status}`)}</span>
                       <button
                         type="button"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/80 bg-white/90 text-sage-700 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                        aria-label={t("openActions")}
-                        onClick={() => setSelected(card)}
+                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-sage-200 bg-white text-sage-700 shadow-sm transition-all hover:-translate-y-px hover:bg-sage-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                        aria-label={t("editTitle")}
+                        title={t("editTitle")}
+                        onClick={() => openEditModal(card.id)}
+                        disabled={busyBatchId !== null}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -199,6 +255,31 @@ export function AdminGiftCardsManagement({
                         >
                           <path d="M12 20h9" />
                           <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-red-200 bg-white text-red-700 shadow-sm transition-all hover:-translate-y-px hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:opacity-60"
+                        aria-label={t("actions.delete")}
+                        title={t("actions.delete")}
+                        onClick={() => void deleteBatch(card.id)}
+                        disabled={busyBatchId !== null}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={1.8}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                          aria-hidden
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 11v6M14 11v6" />
                         </svg>
                       </button>
                     </div>
