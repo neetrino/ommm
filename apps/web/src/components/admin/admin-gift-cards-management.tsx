@@ -14,7 +14,11 @@ import {
 } from "@/components/admin/admin-gift-cards-filter-logic";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import { AdminGiftCardsShell } from "@/components/admin/admin-gift-cards-shell";
-import type { AdminGiftCardRow, GiftCardFilterValues } from "@/components/admin/admin-gift-cards-types";
+import type {
+  AdminAssignableUser,
+  AdminGiftCardRow,
+  GiftCardFilterValues,
+} from "@/components/admin/admin-gift-cards-types";
 import {
   buildGiftCardFiltersQuery,
   GIFT_CARD_FILTER_QUERY_KEYS,
@@ -24,6 +28,7 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardsManagementProps = {
   giftCards: readonly AdminGiftCardRow[];
+  assignableUsers: readonly AdminAssignableUser[];
   locale: string;
   initialFilters: GiftCardFilterValues;
 };
@@ -40,6 +45,7 @@ function displayDate(value: string | null): string {
 
 export function AdminGiftCardsManagement({
   giftCards,
+  assignableUsers,
   locale,
   initialFilters,
 }: AdminGiftCardsManagementProps) {
@@ -132,7 +138,7 @@ export function AdminGiftCardsManagement({
   }
 
   return (
-    <AdminGiftCardsShell>
+    <AdminGiftCardsShell assignableUsers={assignableUsers}>
       <AdminGiftCardsFilters
         values={filters}
         activeFilterCount={activeFilterCount}
@@ -158,6 +164,7 @@ export function AdminGiftCardsManagement({
                 <th className={adminChrome.th}>{t("colStatus")}</th>
                 <th className={adminChrome.th}>{t("colCreated")}</th>
                 <th className={adminChrome.th}>{t("colExpiration")}</th>
+                <th className={adminChrome.th}>{t("colActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -175,9 +182,20 @@ export function AdminGiftCardsManagement({
                   <td className={adminChrome.td}>
                     {formatAmdFromCents(card.amountCents, locale)}
                   </td>
-                  <td className={adminChrome.td}>{t(`statusValues.${card.status}`)}</td>
+                  <td className={adminChrome.td}>
+                    <span className={statusBadgeClass(card.status)}>{t(`statusValues.${card.status}`)}</span>
+                  </td>
                   <td className={adminChrome.td}>{displayDate(card.createdAt)}</td>
                   <td className={adminChrome.td}>{displayDate(card.expiresAt)}</td>
+                  <td className={adminChrome.td}>
+                    <button
+                      type="button"
+                      className="text-left text-sm text-sage-700 underline-offset-2 hover:underline"
+                      onClick={() => setSelected(card)}
+                    >
+                      {t("openActions")}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -188,9 +206,23 @@ export function AdminGiftCardsManagement({
       <AdminGiftCardDrawer
         card={selected}
         locale={locale}
+        assignableUsers={assignableUsers}
         onClose={() => setSelected(null)}
         onChanged={handleChanged}
       />
     </AdminGiftCardsShell>
   );
+}
+
+function statusBadgeClass(status: AdminGiftCardRow["status"]): string {
+  if (status === "ACTIVE") {
+    return "inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900";
+  }
+  if (status === "REDEEMED") {
+    return "inline-flex rounded-full border border-sand-200 bg-sand-50 px-2 py-0.5 text-xs text-sage-900";
+  }
+  if (status === "DEACTIVATED") {
+    return "inline-flex rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-xs text-red-700";
+  }
+  return "inline-flex rounded-full border border-sage-200 bg-sage-50 px-2 py-0.5 text-xs text-sage-700";
 }

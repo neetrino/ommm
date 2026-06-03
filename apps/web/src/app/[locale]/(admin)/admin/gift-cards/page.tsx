@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminGiftCardsManagement } from "@/components/admin/admin-gift-cards-management";
-import type { AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
+import type { AdminAssignableUser, AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
 import {
   giftCardFiltersQueryKey,
   parseGiftCardFiltersFromSearch,
@@ -21,7 +21,10 @@ export default async function AdminGiftCardsPage({
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<AdminGiftCardRow[]>("/gift-cards/admin", cookie);
+  const [res, usersRes] = await Promise.all([
+    serverApiJson<AdminGiftCardRow[]>("/gift-cards/admin", cookie),
+    serverApiJson<AdminAssignableUser[]>("/gift-cards/admin/users", cookie),
+  ]);
 
   if (!res.ok) {
     return (
@@ -41,6 +44,7 @@ export default async function AdminGiftCardsPage({
         <AdminGiftCardsManagement
           key={giftCardFiltersQueryKey(initialFilters)}
           giftCards={res.data}
+          assignableUsers={usersRes.ok ? usersRes.data : []}
           locale={locale}
           initialFilters={initialFilters}
         />

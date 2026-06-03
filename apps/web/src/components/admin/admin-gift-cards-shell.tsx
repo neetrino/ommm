@@ -1,16 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
 import { OmmButton } from "@/components/ui/omm-button";
+import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 
+const BANNER_MS = 8000;
 const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "create-gift-card";
-const BANNER_MS = 8000;
 
 function AddGiftCardGlyph({ className }: { className?: string }) {
   return (
@@ -31,33 +33,33 @@ function AddGiftCardGlyph({ className }: { className?: string }) {
 }
 
 type AdminGiftCardsShellProps = {
+  assignableUsers: readonly AdminAssignableUser[];
   children: ReactNode;
 };
 
-export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
+export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCardsShellProps) {
   const t = useTranslations("adminPages.giftCards");
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const titleId = useId();
   const descId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const isModalOpen = searchParams.get(MODAL_QUERY_KEY) === MODAL_QUERY_VALUE;
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(MODAL_QUERY_KEY);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname);
+    const query = params.toString();
+    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router, searchParams]);
 
   const openModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
   const onCreated = useCallback(() => {
@@ -192,7 +194,11 @@ export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
               </button>
             </div>
             <div className="mt-5">
-              <AdminCreateGiftCardForm onSaved={onCreated} onCancel={closeModal} />
+              <AdminCreateGiftCardForm
+                users={assignableUsers}
+                onSaved={onCreated}
+                onCancel={closeModal}
+              />
             </div>
           </div>
         </div>

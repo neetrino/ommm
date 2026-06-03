@@ -22,6 +22,28 @@ export type AdminGiftCardRow = {
   recipient: { email: string; name: string | null } | null;
 };
 
+export type AdminAssignableUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  lastName: string | null;
+};
+
+export type AdminGiftCardRedemptionEvent = {
+  type: "CREATED" | "ASSIGNED" | "REDEEMED" | "DEACTIVATED";
+  at: string;
+  description: string;
+};
+
+export type AdminGiftCardRedemptionHistory = {
+  cardId: string;
+  status: GiftCardStatus;
+  amountCents: number;
+  balanceCents: number;
+  events: AdminGiftCardRedemptionEvent[];
+  note: string;
+};
+
 export type GiftCardStatusFilter = "all" | GiftCardStatus;
 
 export type GiftCardExpirationFilter = "all" | "valid" | "expired";

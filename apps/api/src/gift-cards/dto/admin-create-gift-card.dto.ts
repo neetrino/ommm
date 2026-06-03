@@ -23,6 +23,11 @@ export class AdminCreateGiftCardDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(191)
+  recipientId?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(4000)
   message?: string;
 

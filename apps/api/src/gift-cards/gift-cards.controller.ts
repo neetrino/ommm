@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
+import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
 import { GiftCardsService } from './gift-cards.service';
 
 @Controller('gift-cards')
@@ -45,6 +46,13 @@ export class GiftCardsController {
     return this.giftCards.listAdmin();
   }
 
+  @Get('admin/users')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminUsers() {
+    return this.giftCards.listAssignableUsers();
+  }
+
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -62,10 +70,24 @@ export class GiftCardsController {
     return this.giftCards.deactivate(id);
   }
 
+  @Patch('admin/:id/assign')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  assign(@Param('id') id: string, @Body() dto: AdminAssignGiftCardDto) {
+    return this.giftCards.assignRecipient(id, dto.userId);
+  }
+
   @Post('admin/:id/resend')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   resend(@Param('id') id: string) {
     return this.giftCards.resendEmail(id);
+  }
+
+  @Get('admin/:id/redemptions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  redemptionHistory(@Param('id') id: string) {
+    return this.giftCards.getRedemptionHistory(id);
   }
 }

@@ -668,6 +668,15 @@ html {
     background-color: rgba(151, 144, 124, 0.32);
   }
 
+  .ommm-dropdown-menu-list-static {
+    @apply overflow-y-visible;
+    max-height: none !important;
+  }
+
+  .ommm-language-switcher-menu {
+    min-width: 7.25rem;
+  }
+
   .ommm-dropdown-menu-action {
     @apply rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-[0.08em] transition-colors;
     color: #97907c;

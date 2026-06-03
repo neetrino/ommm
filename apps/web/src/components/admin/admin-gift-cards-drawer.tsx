@@ -10,12 +10,14 @@ import {
   recipientLabel,
 } from "@/components/admin/admin-gift-cards-filter-logic";
 import type { AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
+import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardDrawerProps = {
   card: AdminGiftCardRow | null;
   locale: string;
+  assignableUsers: readonly AdminAssignableUser[];
   onClose: () => void;
   onChanged: () => void;
 };
@@ -31,6 +33,7 @@ function displayDate(value: string | null): string {
 export function AdminGiftCardDrawer({
   card,
   locale,
+  assignableUsers,
   onClose,
   onChanged,
 }: AdminGiftCardDrawerProps) {
@@ -112,6 +115,8 @@ export function AdminGiftCardDrawer({
           <AdminGiftCardActions
             giftCardId={card.id}
             allowDeactivate={card.status === "ACTIVE"}
+            locale={locale}
+            assignableUsers={assignableUsers}
             onChanged={onChanged}
           />
         </div>

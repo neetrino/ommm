@@ -26,6 +26,8 @@ export type DropdownSelectProps<T extends string> = {
   menuClassName?: string;
   /** When true, label text wraps instead of truncating with ellipsis. */
   wrapLabel?: boolean;
+  /** Disable viewport-constrained max height for short static menus (e.g. language switcher). */
+  disableMenuScroll?: boolean;
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
 };
@@ -80,6 +82,7 @@ export function DropdownSelect<T extends string>({
   triggerClassName,
   menuClassName,
   wrapLabel = false,
+  disableMenuScroll = false,
   renderValue,
   renderOption,
 }: DropdownSelectProps<T>) {
@@ -245,7 +248,7 @@ export function DropdownSelect<T extends string>({
                 top: menuPosition.top,
                 left: menuPosition.left,
                 width: menuPosition.width,
-                maxHeight: menuPosition.maxHeight,
+                maxHeight: disableMenuScroll ? undefined : menuPosition.maxHeight,
                 transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
               }}
             >
@@ -253,8 +256,15 @@ export function DropdownSelect<T extends string>({
                 id={listboxId}
                 role="listbox"
                 aria-label={ariaLabel}
-                className="ommm-dropdown-menu-list"
-                style={{ maxHeight: Math.max(96, menuPosition.maxHeight - 16) }}
+                className={mergeClasses(
+                  "ommm-dropdown-menu-list",
+                  disableMenuScroll ? "ommm-dropdown-menu-list-static" : undefined,
+                )}
+                style={
+                  disableMenuScroll
+                    ? undefined
+                    : { maxHeight: Math.max(96, menuPosition.maxHeight - 16) }
+                }
               >
                 {options.map((option, index) => {
                   const isSelected = option.value === value;
