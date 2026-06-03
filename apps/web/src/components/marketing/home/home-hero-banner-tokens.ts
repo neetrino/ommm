@@ -319,7 +319,7 @@ export const HOME_HERO_CTA_TABLET_HERO_LAYOUT = {
 
 /** Smaller label type for long hy/ru membership CTAs — fits pill without resizing button. */
 export const HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE = {
-  mobile: "clamp(0.75rem, calc(100svw * 13 / 394), 0.875rem)",
+  mobile: "clamp(0.875rem, calc(100svw * 15 / 394), 1rem)",
   desktop: "clamp(0.6875rem, calc(100svw * 11 / 1440), 0.75rem)",
   tablet: "clamp(0.75rem, calc(100svw * 12 / 1440), 0.8125rem)",
 } as const;

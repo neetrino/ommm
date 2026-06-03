@@ -36,9 +36,6 @@ export function HomeHeroCtaButton({
   labelOffsetPx,
 }: HomeHeroCtaButtonProps) {
   const locale = useLocale();
-  const usesLongMembershipLabel =
-    (variant === "membership" || variant === "coachesDetails") &&
-    isMarketingLongMembershipCtaLocale(locale);
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const desktopLayout = HOME_HERO_CTA_LAYOUT[variant];
   const tabletLayout =
@@ -49,6 +46,11 @@ export function HomeHeroCtaButton({
     variant === "booking" || variant === "membership"
       ? HOME_HERO_MOBILE_CTA_LAYOUT[variant]
       : null;
+  const isHyRuLocale = isMarketingLongMembershipCtaLocale(locale);
+  const usesLongMembershipLabel =
+    (variant === "membership" || variant === "coachesDetails") && isHyRuLocale;
+  const usesMobileCenteredLabel = isHyRuLocale && mobileLayout !== null;
+  const mobileLabelCenteredClass = usesMobileCenteredLabel ? styles.mobileLabelCentered : "";
   const variantClass =
     variant === "booking"
       ? styles.booking
@@ -66,7 +68,7 @@ export function HomeHeroCtaButton({
   return (
     <Link
       href={href}
-      className={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""}`}
+      className={`${marketingMontserrat.className} ${styles.cta} ${variantClass ?? ""} ${mobileLabelCenteredClass}`}
       style={{
         ["--hero-cta-width" as string]: mobileLayout?.width ?? desktopLayout.width,
         ["--hero-cta-width-lg" as string]: desktopLayout.width,
@@ -78,7 +80,7 @@ export function HomeHeroCtaButton({
         ["--hero-cta-label-width-lg" as string]: `${desktopLayout.labelWidthRatio * 100}%`,
         ["--hero-cta-arrow-zone-width" as string]: `${(mobileLayout?.arrowZoneWidthRatio ?? desktopLayout.arrowZoneWidthRatio) * 100}%`,
         ["--hero-cta-arrow-zone-width-lg" as string]: `${desktopLayout.arrowZoneWidthRatio * 100}%`,
-        ["--hero-cta-label-offset" as string]: `${mobileLabelOffsetPx}px`,
+        ["--hero-cta-label-offset" as string]: usesMobileCenteredLabel ? "0px" : `${mobileLabelOffsetPx}px`,
         ["--hero-cta-label-offset-lg" as string]: `${desktopLayout.labelOffsetPx}px`,
         ["--hero-cta-label-font-size" as string]: usesLongMembershipLabel
           ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.mobile

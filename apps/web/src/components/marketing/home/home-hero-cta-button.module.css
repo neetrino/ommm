@@ -182,3 +182,12 @@
     0 0 0 2px #598090,
     0 0 0 4px rgba(255, 255, 255, 0.55);
 }
+
+/* hy/ru mobile — center label in pill (left of circle cap). */
+@media (max-width: 743px) {
+  .mobileLabelCentered .label {
+    justify-content: center;
+    padding-inline: 0.25rem;
+    text-align: center;
+  }
+}
