@@ -211,8 +211,8 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
                   </p>
                   <p className="mt-1 text-xs text-sage-500">
                     {t("table.reference")}:{" "}
-                    {row.stripePaymentId ? (
-                      <span className="font-mono">{row.stripePaymentId}</span>
+                    {row.paymentReference ? (
+                      <span className="font-mono">{row.paymentReference}</span>
                     ) : (
                       t("common.notAvailable")
                     )}
@@ -263,8 +263,8 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
                         {relatedItem ?? t("common.notAvailable")}
                       </td>
                       <td className="px-3 py-3 align-top text-xs text-sage-600">
-                        {row.stripePaymentId ? (
-                          <span className="font-mono">{row.stripePaymentId}</span>
+                        {row.paymentReference ? (
+                          <span className="font-mono">{row.paymentReference}</span>
                         ) : (
                           t("common.notAvailable")
                         )}

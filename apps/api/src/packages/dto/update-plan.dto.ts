@@ -86,11 +86,6 @@ export class UpdatePlanDto {
   isPopular?: boolean;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(120)
-  stripePriceId?: string;
-
-  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 

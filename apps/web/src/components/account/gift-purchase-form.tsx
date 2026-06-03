@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
 import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -18,7 +19,12 @@ type GiftBatchMarketItem = {
   status: string;
 };
 
+type PendingPaymentResponse = {
+  paymentReference: string | null;
+};
+
 export function GiftPurchaseForm() {
+  const router = useRouter();
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const [items, setItems] = useState<GiftBatchMarketItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +64,7 @@ export function GiftPurchaseForm() {
     setBusyBatchId(item.id);
     setStatus(null);
     try {
-      const { url } = await apiFetch<{ url: string | null }>(
+      const payment = await apiFetch<PendingPaymentResponse>(
         "/payments/checkout/gift",
         {
           method: "POST",
@@ -68,11 +74,14 @@ export function GiftPurchaseForm() {
           }),
         },
       );
-      if (url) {
-        window.location.href = url;
-        return;
+      const params = new URLSearchParams({
+        batchId: item.id,
+        amountCents: item.amountCents.toString(),
+      });
+      if (payment.paymentReference !== null) {
+        params.set("reference", payment.paymentReference);
       }
-      setStatus(t("checkoutUnavailable"));
+      router.push(`/user/gift-cards/fake-payment?${params.toString()}`);
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
     } finally {

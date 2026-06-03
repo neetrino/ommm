@@ -268,7 +268,7 @@
     "featureScheduleTitle": "Live schedule",
     "featureScheduleBody": "See upcoming sessions, capacity, and coaches — book in a few taps when you are signed in.",
     "featureMembershipsTitle": "Packages",
-    "featureMembershipsBody": "Transparent packages with clear inclusions. Subscribe when Stripe is configured, or manage with the team.",
+    "featureMembershipsBody": "Transparent packages with clear inclusions. Submit a payment request online and the studio team will confirm it.",
     "featureUpdatesTitle": "Studio journal",
     "featureUpdatesBody": "Stories, events, and updates in Explore — published from your admin content tools.",
     "closingTitle": "Start with a single class",
@@ -338,7 +338,7 @@
     "packagesFaqPauseQuestion": "Can I pause my package?",
     "packagesFaqPauseAnswer": "Yes - members can pause from their account when the plan supports it; the studio team can also help from the desk.",
     "packagesFaqBillingQuestion": "How does billing work?",
-    "packagesFaqBillingAnswer": "Checkout runs through Stripe when enabled in your environment. You will see successful charges in your account payment history.",
+    "packagesFaqBillingAnswer": "Payment requests are created in your account and confirmed by the studio team. You can track pending and confirmed payments in your payment history.",
     "packagesFaqWaitlistQuestion": "What if a class is full?",
     "packagesFaqWaitlistAnswer": "Join the waitlist from the schedule - we notify you when a spot opens, with a limited time to confirm.",
     "homeMembershipsTitle": "Packages",
@@ -716,7 +716,6 @@
       "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
       "purchase": "Purchase",
-      "stripeNote": "Opens Stripe Checkout (configure {code}).",
       "purchasedHeading": "Purchased",
       "receivedHeading": "Received",
       "signInToView": "Sign in to view.",
@@ -776,10 +775,24 @@
         "recipientEmail": "Recipient email (optional)",
         "recipientName": "Recipient name (optional)",
         "message": "Message (optional)",
-        "submit": "Pay with Stripe",
+        "submit": "Request payment",
         "buyGiftCard": "Buy Gift Card",
-        "checkoutUnavailable": "Checkout unavailable",
-        "checkoutFailed": "Checkout failed"
+        "checkoutUnavailable": "Payment request unavailable",
+        "checkoutFailed": "Payment request failed",
+        "paymentPending": "Payment request created. The studio team will confirm it soon.",
+        "paymentPendingWithReference": "Payment request {reference} created. The studio team will confirm it soon."
+      },
+      "fakePayment": {
+        "description": "Complete your gift card purchase in this demo payment screen.",
+        "eyebrow": "Fake checkout",
+        "title": "Gift card payment",
+        "lead": "This is a test payment destination. No real charge will be made.",
+        "amountLabel": "Amount",
+        "referenceLabel": "Payment reference",
+        "missingAmount": "Unavailable",
+        "missingReference": "Pending",
+        "payButton": "Fake pay",
+        "backButton": "Back to gift cards"
       }
     },
     "payments": {
@@ -2705,8 +2718,10 @@
       "book": "Book",
       "dropIn": "Pay & book (drop-in)",
       "bookFailed": "Could not book",
-      "checkoutFailed": "Could not start checkout",
-      "checkoutUnavailable": "Checkout unavailable"
+      "checkoutFailed": "Could not create payment request",
+      "checkoutUnavailable": "Payment request unavailable",
+      "paymentPending": "Payment request created. The studio team will confirm your booking after payment is approved.",
+      "paymentPendingWithReference": "Payment request {reference} created. The studio team will confirm your booking after payment is approved."
     },
     "joinWaitlist": {
       "action": "Join waitlist",
@@ -2734,8 +2749,8 @@
       "submitting": "Processing…",
       "cancel": "Cancel",
       "submitFailed": "Could not complete payment.",
-      "successTitle": "Payment successful",
-      "successLead": "Your payment was completed successfully.",
+      "successTitle": "Payment request sent",
+      "successLead": "Your package is pending until the studio team confirms the payment.",
       "successMethod": "Payment method: {method}",
       "done": "Done"
     },

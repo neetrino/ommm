@@ -1,18 +1,18 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
-  Logger,
-  ServiceUnavailableException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
+  PackageStatus,
   Prisma,
   PaymentStatus,
 } from '@prisma/client';
-import Stripe from 'stripe';
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,29 +20,29 @@ import {
   AdminListPaymentsQueryDto,
   PaymentSourceFilter,
 } from './dto/admin-list-payments-query.dto';
+import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 
-type StripeClient = InstanceType<typeof Stripe>;
+type PaymentListSource = 'package' | 'dropin' | 'gift' | 'other';
 
-type PaymentSource = 'package' | 'dropin' | 'gift' | 'other';
+const INTERNAL_PAYMENT_SOURCE = {
+  PACKAGE: 'PACKAGE',
+  DROPIN: 'DROPIN',
+  GIFT: 'GIFT',
+  OTHER: 'OTHER',
+} as const;
 
-/** Narrow shape used after `checkout.session.completed` (avoids brittle SDK namespace types). */
-type StripeCheckoutSessionLike = {
-  id: string;
-  metadata?: Record<string, string> | null;
-  subscription?: string | { id: string } | null;
-  payment_intent?: string | { id: string } | null;
-  amount_total?: number | null;
+type InternalPaymentSource =
+  (typeof INTERNAL_PAYMENT_SOURCE)[keyof typeof INTERNAL_PAYMENT_SOURCE];
+
+type PaymentMetadata = {
+  recipientName?: string;
+  recipientEmail?: string;
+  message?: string;
 };
 
-type GiftCardBatchDelegateLike = {
-  findUnique: (args: {
-    where: { id: string };
-    select?: Record<string, boolean>;
-  }) => Promise<Record<string, unknown> | null>;
-  updateMany: (args: {
-    where: Record<string, unknown>;
-    data: Record<string, unknown>;
-  }) => Promise<{ count: number }>;
+type GiftEmailPayload = {
+  to: string;
+  code: string;
 };
 
 type GiftCardBatchSnapshot = {
@@ -57,51 +57,24 @@ type GiftCardBatchSnapshot = {
   status: GiftCardStatus;
 };
 
+type InternalPaymentRecord = {
+  id: string;
+  userId: string;
+  amountCents: number;
+  status: PaymentStatus;
+  source?: InternalPaymentSource;
+  sourceId?: string | null;
+  metadata?: Prisma.JsonValue | null;
+  userPackageId?: string | null;
+};
+
 @Injectable()
 export class PaymentsService {
-  private readonly logger = new Logger(PaymentsService.name);
-
-  private readonly stripe: StripeClient | null;
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly mail: MailService,
-  ) {
-    const key = config.get<string>('STRIPE_SECRET_KEY');
-    this.stripe = key ? new Stripe(key) : null;
-  }
-
-  private ensureStripe(): StripeClient {
-    if (!this.stripe) {
-      throw new ServiceUnavailableException('Stripe is not configured');
-    }
-    return this.stripe;
-  }
-
-  private giftCardBatchDelegate(client: unknown): GiftCardBatchDelegateLike {
-    return (client as { giftCardBatch: GiftCardBatchDelegateLike }).giftCardBatch;
-  }
-
-  async getOrCreateStripeCustomer(userId: string): Promise<string> {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-    });
-    if (user.stripeCustomerId) {
-      return user.stripeCustomerId;
-    }
-    const stripe = this.ensureStripe();
-    const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.name ?? undefined,
-      metadata: { userId },
-    });
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { stripeCustomerId: customer.id },
-    });
-    return customer.id;
-  }
+  ) {}
 
   async createGiftCheckout(params: {
     purchaserId: string;
@@ -110,67 +83,47 @@ export class PaymentsService {
     recipientName?: string;
     recipientEmail?: string;
     message?: string;
-  }): Promise<{ url: string | null }> {
-    const stripe = this.ensureStripe();
-    const customerId = await this.getOrCreateStripeCustomer(params.purchaserId);
-    const web =
-      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const currency = (
-      this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
-    ).toLowerCase();
-
-    const metadata: Record<string, string> = {
-      type: 'gift',
-      purchaserId: params.purchaserId,
-      amountCents: String(params.amountCents),
-      recipientName: params.recipientName ?? '',
-      recipientEmail: params.recipientEmail ?? '',
-      message: params.message ?? '',
+  }) {
+    const metadata: PaymentMetadata = {
+      ...(params.recipientName ? { recipientName: params.recipientName } : {}),
+      ...(params.recipientEmail ? { recipientEmail: params.recipientEmail } : {}),
+      ...(params.message ? { message: params.message } : {}),
     };
-
     if (params.batchId !== undefined) {
-      const batchDelegate = this.giftCardBatchDelegate(this.prisma);
-      const batch = (await batchDelegate.findUnique({
+      const batch = await this.prisma.giftCardBatch.findUnique({
         where: { id: params.batchId },
         select: { id: true, amountAmd: true, availableQuantity: true, status: true },
-      })) as Pick<GiftCardBatchSnapshot, 'id' | 'amountAmd' | 'availableQuantity' | 'status'> | null;
+      });
       if (!batch) {
         throw new BadRequestException('Gift-card batch not found');
       }
       if (batch.status !== GiftCardStatus.ACTIVE || batch.availableQuantity < 1) {
         throw new BadRequestException('Gift card is out of stock');
       }
-      metadata.batchId = String(batch.id);
-      metadata.amountCents = String(batch.amountAmd);
       if (params.amountCents !== Number(batch.amountAmd)) {
         throw new BadRequestException('Invalid gift-card amount for selected batch');
       }
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer: customerId,
-      success_url: `${web}/hy/account/gift-cards?success=1`,
-      cancel_url: `${web}/hy/account/gift-cards?gift_canceled=1`,
-      metadata,
-      line_items: [
-        {
-          price_data: {
-            currency,
-            unit_amount: params.amountCents,
-            product_data: { name: 'Gift card' },
-          },
-          quantity: 1,
-        },
-      ],
+    return this.prisma.payment.create({
+      data: this.withInternalPaymentCreateFields({
+        userId: params.purchaserId,
+        amountCents: params.amountCents,
+        currency: 'amd',
+        status: PaymentStatus.PENDING,
+        paymentReference: this.createPaymentReference('GIFT'),
+        source: INTERNAL_PAYMENT_SOURCE.GIFT,
+        sourceId: params.batchId,
+        description: 'Gift card purchase',
+        metadata: metadata as Prisma.InputJsonObject,
+      }),
     });
-    return { url: session.url };
   }
 
   async createDropInCheckout(
     userId: string,
     sessionId: string,
-  ): Promise<{ url: string | null }> {
+  ) {
     const classSession = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
     });
@@ -195,222 +148,112 @@ export class PaymentsService {
     if (booked >= classSession.capacity) {
       throw new BadRequestException('Session is full — join waitlist');
     }
-    const stripe = this.ensureStripe();
-    const customerId = await this.getOrCreateStripeCustomer(userId);
-    const web =
-      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-    const currency = (
-      this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
-    ).toLowerCase();
-
-    const checkout = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer: customerId,
-      success_url: `${web}/hy/account/classes/${sessionId}?paid=1`,
-      cancel_url: `${web}/hy/account/classes/${sessionId}?canceled=1`,
-      metadata: { type: 'dropin', userId, sessionId },
-      line_items: [
-        {
-          price_data: {
-            currency,
-            unit_amount: classSession.priceCents,
-            product_data: { name: 'Class drop-in' },
-          },
-          quantity: 1,
-        },
-      ],
-    });
-    return { url: checkout.url };
-  }
-
-  async handleStripeWebhook(
-    rawBody: Buffer,
-    signature: string | undefined,
-  ): Promise<void> {
-    const secret = this.config.get<string>('STRIPE_WEBHOOK_SECRET');
-    if (!this.stripe || !secret) {
-      this.logger.warn('Stripe webhook skipped — not configured');
-      return;
-    }
-    let event: { type: string; data: { object: unknown } };
-    try {
-      event = this.stripe.webhooks.constructEvent(
-        rawBody,
-        signature ?? '',
-        secret,
-      );
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'invalid signature';
-      throw new BadRequestException(`Webhook: ${msg}`);
+    if (classSession.priceCents <= 0) {
+      throw new BadRequestException('This session does not require payment');
     }
 
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as StripeCheckoutSessionLike;
-      const type = session.metadata?.type;
-      if (type === 'gift') {
-        await this.fulfillGift(session);
-      } else if (type === 'dropin') {
-        await this.fulfillDropIn(session);
-      }
-    }
-  }
-
-  private async fulfillGift(session: StripeCheckoutSessionLike): Promise<void> {
-    const purchaserId = session.metadata?.purchaserId;
-    const amount = Number(session.metadata?.amountCents ?? 0);
-    if (!purchaserId || !amount) {
-      return;
-    }
-    const code = randomBytes(8).toString('hex').toUpperCase();
-    const pi =
-      typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id;
-    const existing = pi
-      ? await this.prisma.giftCard.findUnique({
-          where: { stripePaymentId: pi },
-          select: { id: true },
-        })
-      : null;
-    if (existing) {
-      return;
-    }
-    const batchId = session.metadata?.batchId;
-    let recipientEmailToSend: string | undefined;
-    await this.prisma.$transaction(async (tx) => {
-      const batchDelegate = this.giftCardBatchDelegate(tx);
-      let selectedBatch:
-        | {
-            id: string;
-            amountAmd: number;
-            imageUrl: string | null;
-            expiresAt: Date | null;
-            message: string | null;
-            recipientName: string | null;
-            recipientEmail: string | null;
-            availableQuantity: number;
-            status: GiftCardStatus;
-          }
-        | null = null;
-
-      if (batchId) {
-        const decremented = await batchDelegate.updateMany({
-          where: {
-            id: batchId,
-            status: GiftCardStatus.ACTIVE,
-            availableQuantity: { gt: 0 },
-          },
-          data: { availableQuantity: { decrement: 1 } },
-        });
-        if (decremented.count !== 1) {
-          throw new BadRequestException('Gift card is out of stock');
-        }
-        selectedBatch = (await batchDelegate.findUnique({
-          where: { id: batchId },
-          select: {
-            id: true,
-            amountAmd: true,
-            imageUrl: true,
-            expiresAt: true,
-            message: true,
-            recipientName: true,
-            recipientEmail: true,
-            availableQuantity: true,
-            status: true,
-          },
-        })) as GiftCardBatchSnapshot | null;
-        if (!selectedBatch) {
-          throw new BadRequestException('Gift-card batch not found');
-        }
-      }
-
-      await tx.giftCard.create(({
-        data: {
-          batchId: selectedBatch?.id,
-          code,
-          amountAmd: selectedBatch?.amountAmd ?? amount,
-          balanceAmd: selectedBatch?.amountAmd ?? amount,
-          imageUrl: selectedBatch?.imageUrl ?? undefined,
-          status: GiftCardStatus.ACTIVE,
-          purchaserId,
-          recipientName:
-            session.metadata?.recipientName || selectedBatch?.recipientName || undefined,
-          recipientEmail:
-            session.metadata?.recipientEmail || selectedBatch?.recipientEmail || undefined,
-          message: session.metadata?.message || selectedBatch?.message || undefined,
-          stripePaymentId: pi ?? undefined,
-          expiresAt: selectedBatch?.expiresAt ?? undefined,
-        },
-      } as unknown) as Parameters<typeof tx.giftCard.create>[0]);
-      recipientEmailToSend =
-        session.metadata?.recipientEmail || selectedBatch?.recipientEmail || undefined;
-    });
-    const email = recipientEmailToSend;
-    if (email) {
-      const web =
-        this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
-      await this.mail.sendEmail({
-        to: email,
-        subject: 'Your Ommm gift card',
-        html: `<p>Your code: <strong>${code}</strong></p><p>Redeem at ${web}</p>`,
-      });
-    }
-  }
-
-  private async fulfillDropIn(
-    session: StripeCheckoutSessionLike,
-  ): Promise<void> {
-    const userId = session.metadata?.userId;
-    const sessionId = session.metadata?.sessionId;
-    if (!userId || !sessionId) {
-      return;
-    }
-    const classSession = await this.prisma.classSession.findUnique({
-      where: { id: sessionId },
-    });
-    if (!classSession) {
-      return;
-    }
-    const pi =
-      typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id;
-    const stripePaymentId = pi ?? `dropin_${session.id}`;
-    const existingPayment = await this.prisma.payment.findFirst({
+    const existingPending = await this.prisma.payment.findFirst({
       where: {
-        OR: [{ stripePaymentId }, { stripePaymentId: `dropin_${session.id}` }],
+        userId,
+        ...this.withInternalPaymentWhereFields({
+          source: INTERNAL_PAYMENT_SOURCE.DROPIN,
+          sourceId: sessionId,
+        }),
+        status: PaymentStatus.PENDING,
       },
-      select: { id: true },
     });
-    if (existingPayment) {
-      return;
+    if (existingPending) {
+      return existingPending;
     }
-    await this.prisma.payment.create({
-      data: {
+
+    return this.prisma.payment.create({
+      data: this.withInternalPaymentCreateFields({
         userId,
         amountCents: classSession.priceCents,
-        status: PaymentStatus.SUCCEEDED,
-        stripePaymentId,
+        status: PaymentStatus.PENDING,
+        paymentReference: this.createPaymentReference('DROPIN'),
+        source: INTERNAL_PAYMENT_SOURCE.DROPIN,
+        sourceId: sessionId,
         description: `Drop-in session ${sessionId}`,
-      },
+      }),
     });
-    const existing = await this.prisma.booking.findUnique({
-      where: { userId_sessionId: { userId, sessionId } },
-    });
-    if (!existing) {
-      const booked = await this.prisma.booking.count({
-        where: { sessionId, status: BookingStatus.BOOKED },
-      });
-      await this.prisma.booking.create({
-        data: { userId, sessionId, status: BookingStatus.BOOKED },
-      });
-      if (booked + 1 >= classSession.capacity) {
-        await this.prisma.classSession.update({
-          where: { id: sessionId },
-          data: { status: ClassSessionStatus.FULL },
-        });
-      }
+  }
+
+  async adminUpdatePaymentStatus(
+    paymentId: string,
+    status: AdminUpdatablePaymentStatus,
+    adminId: string,
+  ) {
+    if (status === PaymentStatus.SUCCEEDED) {
+      return this.confirmPayment(paymentId, adminId);
     }
+
+    return this.prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findUnique({ where: { id: paymentId } });
+      if (!payment) {
+        throw new NotFoundException('Payment not found');
+      }
+      if (payment.status !== PaymentStatus.PENDING) {
+        throw new ConflictException('Only pending payments can be updated');
+      }
+      return tx.payment.update({
+        where: { id: paymentId },
+        data: this.withInternalPaymentUpdateFields({
+          status,
+          confirmedAt: new Date(),
+          confirmedByAdminId: adminId,
+        }),
+      });
+    });
+  }
+
+  private async confirmPayment(paymentId: string, adminId: string) {
+    const giftEmails: GiftEmailPayload[] = [];
+    const payment = await this.prisma.$transaction(async (tx) => {
+      const existing = (await tx.payment.findUnique({
+        where: { id: paymentId },
+      })) as InternalPaymentRecord | null;
+      if (!existing) {
+        throw new NotFoundException('Payment not found');
+      }
+      if (existing.status !== PaymentStatus.PENDING) {
+        throw new ConflictException('Only pending payments can be confirmed');
+      }
+
+      if (existing.source === INTERNAL_PAYMENT_SOURCE.PACKAGE) {
+        await this.fulfillPackagePayment(tx, existing.userPackageId ?? null);
+      } else if (existing.source === INTERNAL_PAYMENT_SOURCE.DROPIN) {
+        await this.fulfillDropInPayment(
+          tx,
+          existing.userId,
+          existing.sourceId ?? null,
+        );
+      } else if (existing.source === INTERNAL_PAYMENT_SOURCE.GIFT) {
+        const email = await this.fulfillGiftPayment(tx, {
+          userId: existing.userId,
+          amountCents: existing.amountCents,
+          sourceId: existing.sourceId ?? null,
+          metadata: existing.metadata ?? null,
+        });
+        if (email) {
+          giftEmails.push(email);
+        }
+      }
+
+      return tx.payment.update({
+        where: { id: paymentId },
+        data: this.withInternalPaymentUpdateFields({
+          status: PaymentStatus.SUCCEEDED,
+          confirmedAt: new Date(),
+          confirmedByAdminId: adminId,
+        }),
+      });
+    });
+
+    for (const email of giftEmails) {
+      await this.sendGiftCardEmail(email.to, email.code);
+    }
+    return payment;
   }
 
   listPayments(userId: string) {
@@ -467,12 +310,142 @@ export class PaymentsService {
     return {
       items: items.map((payment) => ({
         ...payment,
-        source: this.detectPaymentSource(payment.description),
+        source: this.detectPaymentSource(
+          payment.description,
+          this.readPaymentSource(payment),
+        ),
       })),
       total,
       take,
       offset,
     };
+  }
+
+  private async fulfillPackagePayment(
+    tx: Prisma.TransactionClient,
+    userPackageId: string | null,
+  ) {
+    if (!userPackageId) {
+      throw new BadRequestException('Package payment is not linked to a package');
+    }
+    await tx.userPackage.update({
+      where: { id: userPackageId },
+      data: { status: PackageStatus.ACTIVE },
+    });
+  }
+
+  private async fulfillDropInPayment(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    sessionId: string | null,
+  ) {
+    if (!sessionId) {
+      throw new BadRequestException('Drop-in payment is missing session');
+    }
+    const classSession = await tx.classSession.findUnique({
+      where: { id: sessionId },
+    });
+    if (!classSession || classSession.status === ClassSessionStatus.CANCELLED) {
+      throw new BadRequestException('Session is not available');
+    }
+    if (classSession.startsAt < new Date()) {
+      throw new BadRequestException('Session already started');
+    }
+    const existing = await tx.booking.findUnique({
+      where: { userId_sessionId: { userId, sessionId } },
+    });
+    if (existing?.status === BookingStatus.BOOKED) {
+      return;
+    }
+    const booked = await tx.booking.count({
+      where: { sessionId, status: BookingStatus.BOOKED },
+    });
+    if (booked >= classSession.capacity) {
+      throw new BadRequestException('Session is full — join waitlist');
+    }
+    if (existing) {
+      await tx.booking.update({
+        where: { id: existing.id },
+        data: {
+          status: BookingStatus.BOOKED,
+          cancelledAt: null,
+          attendedAt: null,
+        },
+      });
+    } else {
+      await tx.booking.create({
+        data: { userId, sessionId, status: BookingStatus.BOOKED },
+      });
+    }
+    if (booked + 1 >= classSession.capacity) {
+      await tx.classSession.update({
+        where: { id: sessionId },
+        data: { status: ClassSessionStatus.FULL },
+      });
+    }
+  }
+
+  private async fulfillGiftPayment(
+    tx: Prisma.TransactionClient,
+    payment: {
+      userId: string;
+      amountCents: number;
+      sourceId: string | null;
+      metadata: Prisma.JsonValue | null;
+    },
+  ): Promise<{ to: string; code: string } | null> {
+    const metadata = this.parsePaymentMetadata(payment.metadata);
+    let selectedBatch: GiftCardBatchSnapshot | null = null;
+    if (payment.sourceId) {
+      const decremented = await tx.giftCardBatch.updateMany({
+        where: {
+          id: payment.sourceId,
+          status: GiftCardStatus.ACTIVE,
+          availableQuantity: { gt: 0 },
+        },
+        data: { availableQuantity: { decrement: 1 } },
+      });
+      if (decremented.count !== 1) {
+        throw new BadRequestException('Gift card is out of stock');
+      }
+      selectedBatch = await tx.giftCardBatch.findUnique({
+        where: { id: payment.sourceId },
+        select: {
+          id: true,
+          amountAmd: true,
+          imageUrl: true,
+          expiresAt: true,
+          message: true,
+          recipientName: true,
+          recipientEmail: true,
+          availableQuantity: true,
+          status: true,
+        },
+      });
+      if (!selectedBatch) {
+        throw new BadRequestException('Gift-card batch not found');
+      }
+    }
+    const code = randomBytes(8).toString('hex').toUpperCase();
+    const recipientEmail =
+      metadata.recipientEmail || selectedBatch?.recipientEmail || undefined;
+    await tx.giftCard.create({
+      data: {
+        batchId: selectedBatch?.id,
+        code,
+        amountAmd: selectedBatch?.amountAmd ?? payment.amountCents,
+        balanceAmd: selectedBatch?.amountAmd ?? payment.amountCents,
+        imageUrl: selectedBatch?.imageUrl ?? undefined,
+        status: GiftCardStatus.ACTIVE,
+        purchaserId: payment.userId,
+        recipientName:
+          metadata.recipientName || selectedBatch?.recipientName || undefined,
+        recipientEmail,
+        message: metadata.message || selectedBatch?.message || undefined,
+        expiresAt: selectedBatch?.expiresAt ?? undefined,
+      },
+    });
+    return recipientEmail ? { to: recipientEmail, code } : null;
   }
 
   private buildSourceFilter(
@@ -482,35 +455,32 @@ export class PaymentsService {
       return undefined;
     }
     if (source === PaymentSourceFilter.PACKAGE) {
-      return {
-        OR: [
-          { description: { startsWith: 'Membership' } },
-          { description: { startsWith: 'Package' } },
-        ],
-      };
+      return this.withInternalPaymentWhereFields({
+        source: INTERNAL_PAYMENT_SOURCE.PACKAGE,
+      });
     }
     if (source === PaymentSourceFilter.DROPIN) {
-      return { description: { startsWith: 'Drop-in' } };
+      return this.withInternalPaymentWhereFields({
+        source: INTERNAL_PAYMENT_SOURCE.DROPIN,
+      });
     }
     if (source === PaymentSourceFilter.GIFT) {
-      return { description: { startsWith: 'Gift' } };
+      return this.withInternalPaymentWhereFields({
+        source: INTERNAL_PAYMENT_SOURCE.GIFT,
+      });
     }
-    return {
-      OR: [
-        { description: null },
-        {
-          AND: [
-            { description: { not: { startsWith: 'Membership' } } },
-            { description: { not: { startsWith: 'Package' } } },
-            { description: { not: { startsWith: 'Drop-in' } } },
-            { description: { not: { startsWith: 'Gift' } } },
-          ],
-        },
-      ],
-    };
+    return this.withInternalPaymentWhereFields({
+      source: INTERNAL_PAYMENT_SOURCE.OTHER,
+    });
   }
 
-  private detectPaymentSource(description: string | null): PaymentSource {
+  private detectPaymentSource(
+    description: string | null,
+    source?: InternalPaymentSource,
+  ): PaymentListSource {
+    if (source === INTERNAL_PAYMENT_SOURCE.PACKAGE) return 'package';
+    if (source === INTERNAL_PAYMENT_SOURCE.DROPIN) return 'dropin';
+    if (source === INTERNAL_PAYMENT_SOURCE.GIFT) return 'gift';
     const normalized = (description ?? '').toLowerCase();
     if (
       normalized.startsWith('membership') ||
@@ -525,5 +495,68 @@ export class PaymentsService {
       return 'gift';
     }
     return 'other';
+  }
+
+  private createPaymentReference(prefix: string): string {
+    return `${prefix}-${randomBytes(6).toString('hex').toUpperCase()}`;
+  }
+
+  private withInternalPaymentCreateFields<T extends Record<string, unknown>>(
+    data: T,
+  ): Prisma.PaymentUncheckedCreateInput {
+    return data as unknown as Prisma.PaymentUncheckedCreateInput;
+  }
+
+  private withInternalPaymentUpdateFields<T extends Record<string, unknown>>(
+    data: T,
+  ): Prisma.PaymentUncheckedUpdateInput {
+    return data as unknown as Prisma.PaymentUncheckedUpdateInput;
+  }
+
+  private withInternalPaymentWhereFields<T extends Record<string, unknown>>(
+    where: T,
+  ): Prisma.PaymentWhereInput {
+    return where as unknown as Prisma.PaymentWhereInput;
+  }
+
+  private readPaymentSource(payment: object): InternalPaymentSource | undefined {
+    const value = (payment as { source?: unknown }).source;
+    return this.isInternalPaymentSource(value) ? value : undefined;
+  }
+
+  private isInternalPaymentSource(value: unknown): value is InternalPaymentSource {
+    return (
+      value === INTERNAL_PAYMENT_SOURCE.PACKAGE ||
+      value === INTERNAL_PAYMENT_SOURCE.DROPIN ||
+      value === INTERNAL_PAYMENT_SOURCE.GIFT ||
+      value === INTERNAL_PAYMENT_SOURCE.OTHER
+    );
+  }
+
+  private parsePaymentMetadata(value: Prisma.JsonValue | null): PaymentMetadata {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      return {};
+    }
+    return {
+      recipientName: this.readString(value, 'recipientName'),
+      recipientEmail: this.readString(value, 'recipientEmail'),
+      message: this.readString(value, 'message'),
+    };
+  }
+
+  private readString(value: object, key: keyof PaymentMetadata): string | undefined {
+    const candidate = (value as Record<string, unknown>)[key];
+    return typeof candidate === 'string' && candidate.trim().length > 0
+      ? candidate
+      : undefined;
+  }
+
+  private async sendGiftCardEmail(to: string, code: string): Promise<void> {
+    const web = this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
+    await this.mail.sendEmail({
+      to,
+      subject: 'Your Ommm gift card',
+      html: `<p>Your code: <strong>${code}</strong></p><p>Redeem at ${web}</p>`,
+    });
   }
 }

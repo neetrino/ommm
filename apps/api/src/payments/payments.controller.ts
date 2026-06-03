@@ -3,45 +3,25 @@ import {
   Body,
   Controller,
   Get,
-  Headers,
   Param,
+  Patch,
   Post,
   Query,
-  Req,
-  ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
-import type { RawBodyRequest } from '@nestjs/common';
-import type { Request } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
+import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly payments: PaymentsService) {}
-
-  @Post('webhook')
-  @SkipThrottle()
-  async webhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') signature: string | undefined,
-  ) {
-    const raw = req.rawBody;
-    if (!raw) {
-      throw new ServiceUnavailableException(
-        'Stripe webhook is not enabled (raw body not available on this deploy).',
-      );
-    }
-    await this.payments.handleStripeWebhook(raw, signature);
-    return { received: true };
-  }
 
   @Post('checkout/gift')
   @UseGuards(JwtAuthGuard)
@@ -83,5 +63,20 @@ export class PaymentsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   adminList(@Query() query: AdminListPaymentsQueryDto) {
     return this.payments.adminListPayments(query);
+  }
+
+  @Patch('admin/:paymentId/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminUpdateStatus(
+    @CurrentUser() user: { id: string },
+    @Param('paymentId') paymentId: string,
+    @Body() body: AdminUpdatePaymentStatusDto,
+  ) {
+    return this.payments.adminUpdatePaymentStatus(
+      paymentId,
+      body.status,
+      user.id,
+    );
   }
 }

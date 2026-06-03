@@ -32,7 +32,7 @@
 - Mobile: `Expo 54`, `expo-router`
 - Database: `PostgreSQL`
 - ORM: `Prisma 6`
-- Payments: `Stripe` (checkout + webhook)
+- Payments: internal/manual payment requests with admin confirmation
 - Email: `Resend` (transport abstraction)
 - Storage: Cloudflare R2 + որոշ հոսքերում local fallback
 - Testing: `Jest` (API), `Playwright` (web e2e)
@@ -61,7 +61,7 @@
 
 - package/plan catalog
 - package subscription/assignment/state changes
-- drop-in checkout
+- drop-in payment requests
 - gift card purchase/redeem/resend/deactivate
 - payment history and admin payment visibility
 
@@ -223,7 +223,7 @@ API prefix-ը `/v1` է, domain-ներով.
 - `bookings` — member/admin booking flows + notes + attendance
 - `waitlist` — join/leave/recent/active/promote/notify
 - `packages` — plans, categories, user packages, admin assignments/status
-- `payments` — checkout webhook, my payments, admin payments
+- `payments` — payment requests, admin confirmation, my payments, admin payments
 - `gift-cards` — my purchased/received, redeem, admin create/manage
 - `content` — public posts and admin content workflow
 - `coaches` — public listing, admin list, panel summary/salary, CRUD/photo
@@ -281,10 +281,10 @@ API prefix-ը `/v1` է, domain-ներով.
 - `PATCH /v1/packages/me/:id/(pause|cancel|renew|change-plan)`
 - `GET /v1/packages/admin/all`, `POST /v1/packages/admin/assign`
 - `PATCH /v1/packages/admin/:id/status`
-- `POST /v1/payments/webhook`
 - `POST /v1/payments/checkout/gift`
 - `POST /v1/payments/checkout/dropin/:sessionId`
 - `GET /v1/payments/me`, `GET /v1/payments/admin`
+- `PATCH /v1/payments/admin/:paymentId/status`
 - Gift cards: my purchased/received, redeem, admin list/create/deactivate/resend
 
 ### 9.7 Content/coaches/clients/notifications/reports
@@ -358,10 +358,10 @@ API prefix-ը `/v1` է, domain-ներով.
 
 ### 11.4 Package/payment flow
 
-1. User ընտրում է package/drop-in/gift checkout
-2. Stripe checkout session created
-3. Webhook confirmation
-4. DB side-effects (payment + package/gift/booking updates)
+1. User ընտրում է package/drop-in/gift payment request
+2. API creates a `PENDING` payment record
+3. Admin/Manager confirms or fails the payment
+4. Confirmed payments trigger DB side-effects (package/gift/booking updates)
 
 ### 11.5 Content workflow
 
@@ -372,7 +372,6 @@ API prefix-ը `/v1` է, domain-ներով.
 
 ## 12) Integrations and external dependencies
 
-- `Stripe` — checkout + webhook
 - `Google OAuth` — external auth login
 - `Resend` — email transport
 - `Cloudflare R2` — asset storage

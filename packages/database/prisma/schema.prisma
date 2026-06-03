@@ -66,6 +66,13 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum PaymentSource {
+  PACKAGE
+  DROPIN
+  GIFT
+  OTHER
+}
+
 enum PackageStatus {
   ACTIVE
   PAUSED
@@ -128,7 +135,6 @@ model User {
   emailVerified  DateTime?
   /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")
-  stripeCustomerId String?   @unique
   giftCreditsCents Int       @default(0)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -352,7 +358,6 @@ model PackagePlan {
   displayOrder     Int      @default(0)
   guestCount       Int      @default(0)
   isActive         Boolean  @default(true)
-  stripePriceId    String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -371,7 +376,6 @@ model UserPackage {
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime
   pausedUntil          DateTime?
-  stripeSubscriptionId String?       @unique
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
   pendingPayment       Payment?
@@ -386,8 +390,13 @@ model Payment {
   amountCents     Int
   currency        String               @default("amd")
   status          PaymentStatus        @default(PENDING)
-  stripePaymentId String?              @unique
+  paymentReference String?             @unique
+  source          PaymentSource        @default(OTHER)
+  sourceId        String?
   description     String?
+  metadata        Json?
+  confirmedAt     DateTime?
+  confirmedByAdminId String?
   planId          String?
   plan            PackagePlan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
   paymentMethod   ManualPaymentMethod?
@@ -400,6 +409,7 @@ model Payment {
   @@index([status, createdAt])
   @@index([createdAt])
   @@index([planId, status])
+  @@index([source, sourceId])
 }
 
 model GiftCard {
@@ -418,7 +428,6 @@ model GiftCard {
   recipientEmail  String?
   recipientName   String?
   message         String?
-  stripePaymentId String?        @unique
   expiresAt       DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

@@ -686,7 +686,7 @@ function BillingHistoryTable({
 
               <td className={adminChrome.td}>
 
-                <AdminFinancePaymentActions />
+                <AdminFinancePaymentActions paymentId={row.id} status={row.status} />
 
               </td>
 
