@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 
 type AdminCreateGiftCardFormProps = {
@@ -25,6 +26,17 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
+  const recipientOptions = useMemo<readonly DropdownOption<string>[]>(
+    () => [
+      { value: "", label: t("fieldAssignedUserPlaceholder") },
+      ...users.map((user) => {
+        const fullName = [user.name, user.lastName].filter(Boolean).join(" ").trim();
+        const label = fullName.length > 0 ? `${fullName} (${user.email})` : user.email;
+        return { value: user.id, label };
+      }),
+    ],
+    [t, users],
+  );
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -81,23 +93,14 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAssignedUser")}</span>
-        <select
-          className="ommm-input"
+        <DropdownSelect
+          label={t("fieldAssignedUserPlaceholder")}
+          ariaLabel={t("fieldAssignedUser")}
           value={recipientId}
-          onChange={(event) => setRecipientId(event.target.value)}
+          options={recipientOptions}
+          onChange={setRecipientId}
           disabled={busy}
-        >
-          <option value="">{t("fieldAssignedUserPlaceholder")}</option>
-          {users.map((user) => {
-            const fullName = [user.name, user.lastName].filter(Boolean).join(" ").trim();
-            const label = fullName.length > 0 ? `${fullName} (${user.email})` : user.email;
-            return (
-              <option key={user.id} value={user.id}>
-                {label}
-              </option>
-            );
-          })}
-        </select>
+        />
       </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientEmail")}</span>
