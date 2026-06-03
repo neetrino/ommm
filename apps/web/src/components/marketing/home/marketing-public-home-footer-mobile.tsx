@@ -50,7 +50,7 @@ export function MarketingPublicHomeFooterMobile({
   return (
     <div className={styles.mobileStack}>
       <div className={styles.mobileHero}>
-        <p className={styles.mobileWordmark}>{wordmarkLabel}</p>
+        <p className={styles.wordmark}>{wordmarkLabel}</p>
         <nav className={styles.mobileNav} aria-label={topNavAria}>
           {HOME_FOOTER_NAV_LINKS.map((item) => (
             <Link key={item.href} href={item.href} className={styles.mobileNavLink}>

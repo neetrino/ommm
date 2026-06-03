@@ -15,7 +15,6 @@ import {
   type CoachSlideCopy,
 } from "@/components/marketing/home/marketing-public-home-coaches-carousel";
 import { FeaturedCoachesMobileCarouselStrip } from "@/components/marketing/home/marketing-public-home-coaches-mobile-carousel";
-import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 const FEATURED_COACHES_AUTO_ADVANCE_MS = 5000;
@@ -220,7 +219,7 @@ export function MarketingPublicHomeCoachesSection() {
         aria-labelledby="home-coaches-heading"
         className={`${marketingMontserrat.variable} ${styles.desktopSection} w-full pb-16`}
         style={{
-          background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.coachesGradientFrom}, ${HOME_PAGE_SURFACE.coachesGradientTo})`,
+          background: HOME_COACHES_SECTION_BACKGROUND,
           paddingTop: FEATURED_COACHES_SECTION_PADDING_TOP,
         }}
       >

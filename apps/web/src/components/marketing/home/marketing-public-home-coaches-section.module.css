@@ -17,6 +17,13 @@
   padding-inline: var(--home-coaches-section-px, 1.5rem);
 }
 
+@media (max-width: 743px) {
+  .mobileSection {
+    /* Safari: subpixel gap above section — overlap classes band. */
+    margin-top: -1px;
+  }
+}
+
 .desktopSection {
   display: none;
 }

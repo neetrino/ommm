@@ -4,7 +4,7 @@
   width: 100%;
   aspect-ratio: 428 / 617;
   min-height: clamp(22rem, 72vw, var(--coaches-page-card-design-height));
-  overflow: visible;
+  overflow: hidden;
   border-radius: var(--coaches-page-card-radius);
   transition: box-shadow 220ms ease;
 }
@@ -19,15 +19,6 @@
   z-index: 0;
   border-radius: inherit;
   background-color: var(--coaches-page-card-surface);
-}
-
-.cardMedia {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  border-radius: inherit;
-  pointer-events: none;
 }
 
 .header {
@@ -103,74 +94,14 @@
   max-width: none;
 }
 
-/* Figma `94:4071` — frosted glass drop-up over photo */
-.photoWrapBlurSource {
-  --coach-glass-blur: var(--coaches-page-card-expand-glass-blur);
-  --coach-glass-saturate: var(--coaches-page-card-expand-glass-saturate);
-
-  position: absolute;
-  z-index: 2;
-  top: var(--coaches-page-card-photo-top);
-  left: var(--coaches-page-card-photo-left);
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-  filter: blur(var(--coach-glass-blur)) saturate(var(--coach-glass-saturate));
-  -webkit-filter: blur(var(--coach-glass-blur)) saturate(var(--coach-glass-saturate));
-  transform: scale3d(1.12, 1.12, 1);
-  transform-origin: center bottom;
-  -webkit-transform: scale3d(1.12, 1.12, 1);
-  clip-path: inset(
-    calc(100% - var(--coaches-page-card-bottom-bar-height)) 0 0 0
-    round
-      var(--coaches-page-card-bottom-bar-radius)
-      var(--coaches-page-card-bottom-bar-radius)
-      0
-      0
-  );
-  -webkit-clip-path: inset(
-    calc(100% - var(--coaches-page-card-bottom-bar-height)) 0 0 0
-    round
-      var(--coaches-page-card-bottom-bar-radius)
-      var(--coaches-page-card-bottom-bar-radius)
-      0
-      0
-  );
-  transition:
-    left 280ms ease,
-    clip-path 280ms ease,
-    filter 280ms ease,
-    -webkit-filter 280ms ease;
-}
-
-.cardExpanded .photoWrapBlurSource {
-  left: 0;
-  --coach-glass-blur: var(--coaches-page-card-expand-glass-blur-expanded);
-  clip-path: inset(
-    calc(100% - var(--coaches-page-card-expand-panel-height)) 0 0 0
-    round
-      var(--coaches-page-card-bottom-bar-radius)
-      var(--coaches-page-card-bottom-bar-radius)
-      0
-      0
-  );
-  -webkit-clip-path: inset(
-    calc(100% - var(--coaches-page-card-expand-panel-height)) 0 0 0
-    round
-      var(--coaches-page-card-bottom-bar-radius)
-      var(--coaches-page-card-bottom-bar-radius)
-      0
-      0
-  );
-}
-
+/* Figma `94:4071` — frosted pill; white glass layers over sharp photo (no filter blur / saturate). */
 .expandPanel {
   position: absolute;
   z-index: 3;
   right: 0;
   bottom: 0;
   left: 0;
+  overflow: hidden;
   border-radius:
     var(--coaches-page-card-bottom-bar-radius)
     var(--coaches-page-card-bottom-bar-radius)
@@ -185,9 +116,48 @@
   z-index: 0;
   border-radius: inherit;
   border: 1px solid var(--coaches-page-card-expand-glass-border);
-  background-color: var(--coaches-page-card-expand-glass-fill);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
-  transition: background-color 280ms ease, box-shadow 280ms ease;
+  background-color: var(--coaches-page-card-bottom-bar-fill);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(var(--coaches-page-card-glass-blur));
+  backdrop-filter: blur(var(--coaches-page-card-glass-blur));
+  transition:
+    background-color 280ms ease,
+    border-color 280ms ease,
+    box-shadow 280ms ease,
+    backdrop-filter 280ms ease,
+    -webkit-backdrop-filter 280ms ease;
+}
+
+.expandPanelGlassRadial {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 90% at 28% 18%,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.32) 28%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  opacity: 0.9;
+}
+
+.expandPanelGlassLinear {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.05) 18%,
+    rgba(255, 255, 255, 0.62) 48%,
+    rgba(255, 255, 255, 0.05) 78%
+  );
+  opacity: 0.45;
 }
 
 .expandPanelGlassBorder {
@@ -214,33 +184,31 @@
   mask-composite: exclude;
 }
 
-.expandPanelGlassGloss {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.22) 0%,
-    rgba(255, 255, 255, 0.06) 26%,
-    rgba(255, 255, 255, 0) 50%
-  );
-}
-
 .expandPanelCollapsed {
+  height: var(--coaches-page-card-bottom-bar-height);
   min-height: var(--coaches-page-card-bottom-bar-height);
 }
 
 .expandPanelExpanded {
-  min-height: var(--coaches-page-card-expand-panel-height);
+  min-height: max(var(--coaches-page-card-expand-panel-height), 35.65%);
 }
 
 .expandPanelExpanded .expandPanelBackdrop {
   background-color: var(--coaches-page-card-expand-glass-fill-expanded);
+  border-color: rgba(255, 255, 255, 0.48);
+  -webkit-backdrop-filter: blur(var(--coaches-page-card-glass-blur-expanded));
+  backdrop-filter: blur(var(--coaches-page-card-glass-blur-expanded));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.62),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.expandPanelExpanded .expandPanelGlassRadial {
+  opacity: 1;
+}
+
+.expandPanelExpanded .expandPanelGlassLinear {
+  opacity: 0.58;
 }
 
 .expandPanelBody {
@@ -254,7 +222,26 @@
 
 .expandPanelCollapsed .expandPanelBody {
   align-items: stretch;
-  justify-content: center;
+  justify-content: stretch;
+  height: var(--coaches-page-card-bottom-bar-height);
+  min-height: var(--coaches-page-card-bottom-bar-height);
+}
+
+.expandPanelCollapsed .expandBarTrigger {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  min-height: 100%;
+  padding-right: var(--coaches-page-card-expand-trigger-inset);
+}
+
+.expandPanelCollapsed .expandBarTrigger .expandArrow {
+  position: relative;
+  top: auto;
+  right: auto;
 }
 
 .expandPanelExpanded .expandPanelBody {
@@ -263,18 +250,19 @@
 }
 
 .expandBarTrigger {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  position: relative;
+  display: block;
   width: 100%;
-  min-height: inherit;
   border: none;
-  padding: 0 var(--coaches-page-card-expand-trigger-inset);
+  margin: 0;
+  padding: 0;
   cursor: pointer;
   background: transparent;
   color: var(--coaches-page-card-name-color);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
   transition: opacity 180ms ease;
 }
 
@@ -285,6 +273,14 @@
 .expandBarTrigger:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 2px rgba(87, 127, 145, 0.55);
+}
+
+.expandBarTrigger .expandArrowUp {
+  transform: none;
+}
+
+.expandBarTrigger .expandArrowDown {
+  transform: rotate(180deg);
 }
 
 .expandHeader {
@@ -323,15 +319,15 @@
 .expandArrow {
   display: block;
   flex-shrink: 0;
-  width: clamp(1.125rem, 2.6vw, 1.375rem);
-  height: clamp(1.125rem, 2.6vw, 1.375rem);
+  width: var(--coaches-page-card-expand-arrow-size);
+  height: var(--coaches-page-card-expand-arrow-size);
 }
 
-.expandArrowUp {
+.expandHeaderTrigger .expandArrowUp {
   transform: rotate(0deg);
 }
 
-.expandArrowDown {
+.expandHeaderTrigger .expandArrowDown {
   transform: rotate(180deg);
 }
 
@@ -355,11 +351,53 @@
 
 @media (prefers-reduced-motion: reduce) {
   .photoWrap,
-  .photoWrapBlurSource,
   .expandPanel,
   .expandPanelBackdrop,
   .expandBarTrigger,
   .expandHeaderTrigger {
     transition: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .expandPanelBackdrop {
+    background-color: rgba(255, 255, 255, 0.72);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .expandPanelExpanded .expandPanelBackdrop {
+    background-color: rgba(255, 255, 255, 0.78);
+  }
+
+  .expandPanelGlassRadial,
+  .expandPanelGlassLinear {
+    opacity: 0.2;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .expandPanelBackdrop {
+    background-color: var(--coaches-page-card-bottom-bar-fill);
+  }
+
+  .expandPanelExpanded .expandPanelBackdrop {
+    background-color: var(--coaches-page-card-expand-glass-fill-expanded);
+  }
+}
+
+@media (max-width: 743px) {
+  .card {
+    /* Safari: min-height + aspect-ratio diverges from Chrome DevTools. */
+    min-height: unset;
+  }
+
+  .expandPanelExpanded {
+    height: var(--coaches-page-card-expand-panel-height);
+    min-height: var(--coaches-page-card-expand-panel-height);
+  }
+
+  .expandPanelExpanded .expandPanelBody {
+    min-height: var(--coaches-page-card-expand-panel-height);
   }
 }

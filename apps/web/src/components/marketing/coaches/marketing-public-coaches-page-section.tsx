@@ -13,6 +13,7 @@ const SECTION_STYLE = {
   "--coaches-page-heading-color": COACHES_PAGE_SURFACE.heading,
   "--coaches-page-lead-color": COACHES_PAGE_SURFACE.lead,
   "--coaches-page-hero-padding-top": `clamp(5.75rem, ${((COACHES_PAGE_LAYOUT.heroTitleTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx) / COACHES_PAGE_LAYOUT.artboardWidthPx) * 100}vw, 10.5rem)`,
+  "--coaches-page-hero-mobile-gap": `${COACHES_PAGE_LAYOUT.heroTitleMobileGapBelowHeaderRem}rem`,
   "--coaches-page-hero-lead-gap": `clamp(0.75rem, ${((COACHES_PAGE_LAYOUT.heroLeadTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx - (COACHES_PAGE_LAYOUT.heroTitleTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx)) / COACHES_PAGE_LAYOUT.artboardWidthPx) * 100}vw, 1.75rem)`,
   "--coaches-page-content-margin-top": `clamp(1.25rem, ${((COACHES_PAGE_LAYOUT.gridTopPx + COACHES_PAGE_LAYOUT.heroOffsetExtraPx - COACHES_PAGE_LAYOUT.heroLeadTopPx - COACHES_PAGE_LAYOUT.heroOffsetExtraPx - 24) / COACHES_PAGE_LAYOUT.artboardWidthPx) * 100}vw, 2.25rem)`,
 } as CSSProperties;

@@ -38,7 +38,7 @@ export function MarketingLayoutShell({ children }: MarketingLayoutShellProps) {
   if (isMarketingHomePath(pathname)) {
     return (
       <div
-        className="marketing-layout-shell ommm-bg-wellness flex min-h-screen w-full flex-col"
+        className="marketing-layout-shell ommm-bg-wellness flex min-h-screen w-full min-w-0 flex-col overflow-x-clip"
         style={MARKETING_HOME_SHELL_STYLE}
       >
         {children}

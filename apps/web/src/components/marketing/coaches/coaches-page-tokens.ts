@@ -20,6 +20,8 @@ export const COACHES_PAGE_LAYOUT = {
   gridTopPx: 294,
   /** Extra downward offset applied to hero + grid (post-design tweak). */
   heroOffsetExtraPx: 0,
+  /** Space between sticky mobile header and hero title (<744px). */
+  heroTitleMobileGapBelowHeaderRem: 0.75,
   gridColumns: 3,
   gridRows: 2,
 } as const;
@@ -33,17 +35,17 @@ export const COACHES_PAGE_CARD = {
   bottomBarFill: "rgba(255, 255, 255, 0.46)",
   bottomBarRadiusPx: 50,
   bottomBarHeightPx: 67,
-  /** Right inset for collapsed bar arrow — Figma `94:4071`. */
+  /** Right inset for collapsed bar arrow — Figma `94:4071` / `62:2036`. */
   expandTriggerInsetPx: 28,
+  expandArrowSizePx: 23,
   /** Expanded bottom panel — Figma `94:4071`. */
   expandPanelMinHeightPx: 220,
   expandPanelPaddingPx: 22,
-  expandPanelGlassBlurPx: 72,
-  expandPanelGlassBlurExpandedPx: 120,
-  expandPanelGlassSaturatePercent: 180,
-  expandPanelGlassFill: "rgba(255, 255, 255, 0.34)",
-  expandPanelGlassFillExpanded: "rgba(255, 255, 255, 0.36)",
-  expandPanelGlassBorder: "rgba(255, 255, 255, 0.42)",
+  /** Backdrop blur only — no saturate (avoids warm/yellow tint). */
+  expandPanelGlassBlurPx: 10,
+  expandPanelGlassBlurExpandedPx: 14,
+  expandPanelGlassFillExpanded: "rgba(255, 255, 255, 0.52)",
+  expandPanelGlassBorder: "rgba(255, 255, 255, 0.45)",
   expandBioColor: "#1d1c15",
   nameInsetTopPx: 20,
   nameInsetLeftPx: 30,

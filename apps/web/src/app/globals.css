@@ -184,6 +184,9 @@ html {
   .ommm-container {
     @apply mx-auto w-full;
     width: min(1280px, calc(100% - 2rem));
+    box-sizing: border-box;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 
   .ommm-section {

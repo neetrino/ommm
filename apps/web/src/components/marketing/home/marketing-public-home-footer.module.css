@@ -27,7 +27,7 @@
   font-size: var(--home-footer-wordmark-size);
   font-weight: 600;
   line-height: var(--home-footer-wordmark-line-height);
-  color: var(--home-footer-text);
+  color: var(--home-footer-wordmark-color, var(--home-footer-text));
   white-space: nowrap;
 }
 
@@ -193,14 +193,6 @@
   display: none;
 }
 
-.mobileWordmark {
-  font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--home-footer-mobile-wordmark-size);
-  font-weight: 600;
-  line-height: var(--home-footer-mobile-wordmark-line-height);
-  color: var(--home-footer-text);
-}
-
 .mobileNav {
   display: flex;
   flex-direction: column;
@@ -330,6 +322,11 @@
 }
 
 @media (max-width: 743px) {
+  .wordmark {
+    font-size: var(--home-footer-mobile-wordmark-size);
+    line-height: var(--home-footer-mobile-wordmark-line-height);
+  }
+
   .mobileStack {
     display: flex;
     flex-direction: column;
@@ -339,6 +336,7 @@
   .shell {
     position: relative;
     z-index: 1;
+    overflow-x: clip;
     border-top-left-radius: var(--home-footer-mobile-radius);
     border-top-right-radius: var(--home-footer-mobile-radius);
   }
@@ -349,8 +347,6 @@
     margin-top: calc(-1 * var(--home-footer-mobile-overlap, 2.5rem));
     padding-top: var(--home-footer-mobile-wrap-padding-top, 2.5rem);
     background-color: transparent;
-    overflow-x: visible;
-    overflow-y: visible;
   }
 
   .inner {

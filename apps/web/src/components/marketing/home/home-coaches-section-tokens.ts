@@ -29,8 +29,8 @@ export const HOME_COACHES_DESKTOP_PORTRAIT_LAYOUT = {
   objectPosition: HOME_COACHES_DESKTOP_PORTRAIT_FIGMA.objectPosition,
 } as const;
 
-/** Shared coaches band gradient — teal → cream (`97:5826` / `155:188`). */
-export const HOME_COACHES_SECTION_BACKGROUND = `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.coachesGradientFrom}, ${HOME_PAGE_SURFACE.coachesGradientTo})`;
+/** Shared coaches band gradient — teal → cream; top matches classes section end. */
+export const HOME_COACHES_SECTION_BACKGROUND = `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.classesGradientTo}, ${HOME_PAGE_SURFACE.coachesGradientTo})`;
 
 export const HOME_COACHES_SECTION_FIGMA = {
   headingColor: "#fbf5d5",

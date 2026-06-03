@@ -92,10 +92,10 @@ function buildCardStyle(): CSSProperties {
     "--coaches-page-card-expand-panel-height": `${card.expandPanelMinHeightPx}px`,
     "--coaches-page-card-expand-panel-padding": `${card.expandPanelPaddingPx}px`,
     "--coaches-page-card-expand-trigger-inset": `${card.expandTriggerInsetPx}px`,
-    "--coaches-page-card-expand-glass-blur": `${card.expandPanelGlassBlurPx}px`,
-    "--coaches-page-card-expand-glass-blur-expanded": `${card.expandPanelGlassBlurExpandedPx}px`,
-    "--coaches-page-card-expand-glass-saturate": `${card.expandPanelGlassSaturatePercent}%`,
-    "--coaches-page-card-expand-glass-fill": card.expandPanelGlassFill,
+    "--coaches-page-card-expand-arrow-size": `${card.expandArrowSizePx}px`,
+    "--coaches-page-card-glass-blur": `${card.expandPanelGlassBlurPx}px`,
+    "--coaches-page-card-glass-blur-expanded": `${card.expandPanelGlassBlurExpandedPx}px`,
+    "--coaches-page-card-bottom-bar-fill": card.bottomBarFill,
     "--coaches-page-card-expand-glass-fill-expanded": card.expandPanelGlassFillExpanded,
     "--coaches-page-card-expand-glass-border": card.expandPanelGlassBorder,
     "--coaches-page-card-expand-bio-color": card.expandBioColor,
@@ -108,37 +108,6 @@ function buildCardStyle(): CSSProperties {
 
 function ExpandPanelBody({ children }: { children: ReactNode }) {
   return <div className={styles.expandPanelBody}>{children}</div>;
-}
-
-type CoachCardPortraitBlurSourceProps = {
-  imageSrc: string;
-  imageIndex: number;
-};
-
-/** Real blur layer — iOS Safari often ignores backdrop-filter behind clipped siblings. */
-function CoachCardPortraitBlurSource({
-  imageSrc,
-  imageIndex,
-}: CoachCardPortraitBlurSourceProps) {
-  return (
-    <div className={styles.photoWrapBlurSource} aria-hidden>
-      <div className={styles.photoInner}>
-        <div className={styles.photoFrame}>
-          <div className={styles.photoCrop}>
-            <Image
-              src={imageSrc}
-              alt=""
-              fill
-              sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
-              className="object-cover"
-              style={{ objectPosition: "42% 18%" }}
-              {...firstRowGridImageProps(imageIndex)}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export function CoachesPageCoachCard({
@@ -172,39 +141,36 @@ export function CoachesPageCoachCard({
     >
       <div className={styles.cardSurface} aria-hidden />
 
-      <div className={styles.cardMedia}>
-        <div className={styles.header}>
-          <p className={styles.name}>{displayName}</p>
-          <p className={styles.role}>{roleLine}</p>
-        </div>
-
-        <div className={styles.photoWrap} aria-hidden>
-          <div className={styles.photoInner}>
-            <div className={styles.photoFrame}>
-              <div className={styles.photoCrop}>
-                <Image
-                  src={imageSrc}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
-                  className="object-cover"
-                  style={{ objectPosition: "42% 18%" }}
-                  {...firstRowGridImageProps(imageIndex)}
-                />
-              </div>
+      <div className={styles.photoWrap} aria-hidden>
+        <div className={styles.photoInner}>
+          <div className={styles.photoFrame}>
+            <div className={styles.photoCrop}>
+              <Image
+                src={imageSrc}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
+                className="object-cover"
+                style={{ objectPosition: "42% 18%" }}
+                {...firstRowGridImageProps(imageIndex)}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      <CoachCardPortraitBlurSource imageSrc={imageSrc} imageIndex={imageIndex} />
+      <div className={styles.header}>
+        <p className={styles.name}>{displayName}</p>
+        <p className={styles.role}>{roleLine}</p>
+      </div>
 
       <div
         className={`${styles.expandPanel} ${expanded ? styles.expandPanelExpanded : styles.expandPanelCollapsed}`}
       >
         <span aria-hidden className={styles.expandPanelBackdrop} />
+        <span aria-hidden className={styles.expandPanelGlassRadial} />
+        <span aria-hidden className={styles.expandPanelGlassLinear} />
         <span aria-hidden className={styles.expandPanelGlassBorder} />
-        <span aria-hidden className={styles.expandPanelGlassGloss} />
         <ExpandPanelBody>
           {expanded ? (
             <>

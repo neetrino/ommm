@@ -25,8 +25,8 @@ export const MARKETING_MOBILE_HEADER = {
 export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   paddingY: "0.4375rem",
   paddingX: "1rem",
-  /** Pull pill outward for a wider capsule vs the container inset. */
-  inlineBleed: "0.5rem",
+  /** Keep pill inside container — bleed caused asymmetric right clip on pages. */
+  inlineBleed: "0",
   rowMinHeight: "2.625rem",
   menuIconSize: "2.25rem",
   brandFontSize: "1.25rem",
@@ -94,10 +94,9 @@ export function marketingFullBleedHeroHeaderOverlapClass(): string {
 
 export function marketingHeaderContainerClass(): string {
   return [
-    "ommm-container relative min-w-0 overflow-x-clip",
-    "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))] px-4",
+    "ommm-container relative min-w-0",
+    "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))]",
     "tablet:grid tablet:min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] tablet:items-center",
-    "tablet:px-[var(--ommm-container-padding-x,1rem)]",
     "tablet:pb-2 lg:pb-3",
     "tablet:pt-[max(0.5rem,env(safe-area-inset-top,0px))] nav-desktop:pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
     "tablet:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] tablet:gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4",
@@ -126,7 +125,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
     : "focus-visible:ring-white/80";
 
   return [
-    "ml-[-4px] inline-flex shrink-0 cursor-pointer items-center justify-center",
+    "inline-flex shrink-0 cursor-pointer items-center justify-center",
     iconColor,
     "focus-visible:outline-none focus-visible:ring-2",
     focusRing,
@@ -135,7 +134,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 }
 
 export function marketingHeaderMobileActionsClass(): string {
-  return "mr-[-4px] flex shrink-0 items-center gap-[6px]";
+  return "flex shrink-0 items-center gap-[6px]";
 }
 
 export function marketingHeaderMobileBrandLinkClass(): string {

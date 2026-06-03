@@ -18,6 +18,7 @@ import {
   HOME_FOOTER_SOCIAL_LINKS,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
+import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
@@ -72,6 +73,7 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-mobile-illustration-height" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationHeight,
     ["--home-footer-mobile-hero-min-height" as string]: HOME_FOOTER_MOBILE_LAYOUT.heroMinHeight,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
+    ["--home-footer-wordmark-color" as string]: HOME_PAGE_SURFACE.footerWordmark,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
     ["--home-footer-max-width" as string]: `${HOME_FOOTER_LAYOUT.maxWidthPx}px`,
     ["--home-footer-min-height" as string]: `clamp(36rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
