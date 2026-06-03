@@ -22,6 +22,7 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
   const submitLockRef = useRef(false);
   const [amountCents, setAmountCents] = useState("10000");
   const [quantity, setQuantity] = useState("1");
+  const [showAssignedUser, setShowAssignedUser] = useState(false);
   const [recipientId, setRecipientId] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");
@@ -135,17 +136,66 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           required
         />
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAssignedUser")}</span>
-        <DropdownSelect
-          label={t("fieldAssignedUserPlaceholder")}
-          ariaLabel={t("fieldAssignedUser")}
-          value={recipientId}
-          options={recipientOptions}
-          onChange={setRecipientId}
-          disabled={busy}
-        />
-      </label>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAssignedUser")}</span>
+          <OmmButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            onClick={() => {
+              setShowAssignedUser((current) => {
+                const next = !current;
+                if (!next) {
+                  setRecipientId("");
+                  setRecipientEmail("");
+                  setRecipientName("");
+                }
+                return next;
+              });
+            }}
+          >
+            {showAssignedUser ? t("hideAssignedUserButton") : t("showAssignedUserButton")}
+          </OmmButton>
+        </div>
+        {showAssignedUser ? (
+          <div className="grid gap-3">
+            <DropdownSelect
+              label={t("fieldAssignedUserPlaceholder")}
+              ariaLabel={t("fieldAssignedUser")}
+              value={recipientId}
+              options={recipientOptions}
+              onChange={setRecipientId}
+              disabled={busy}
+            />
+            <label className="flex flex-col gap-1">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientEmail")}</span>
+              <input
+                type="email"
+                className="ommm-input"
+                placeholder={t("fieldRecipientEmailPlaceholder")}
+                value={recipientEmail}
+                onChange={(event) => setRecipientEmail(event.target.value)}
+                disabled={busy}
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientName")}</span>
+              <input
+                type="text"
+                className="ommm-input"
+                placeholder={t("fieldRecipientNamePlaceholder")}
+                value={recipientName}
+                onChange={(event) => setRecipientName(event.target.value)}
+                disabled={busy}
+              />
+            </label>
+          </div>
+        ) : (
+          <p className="text-xs text-sage-500">{t("fieldAssignedUserHiddenHint")}</p>
+        )}
+      </div>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldQuantity")}</span>
         <input
@@ -188,28 +238,6 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           />
         </div>
       ) : null}
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientEmail")}</span>
-        <input
-          type="email"
-          className="ommm-input"
-          placeholder={t("fieldRecipientEmailPlaceholder")}
-          value={recipientEmail}
-          onChange={(event) => setRecipientEmail(event.target.value)}
-          disabled={busy}
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientName")}</span>
-        <input
-          type="text"
-          className="ommm-input"
-          placeholder={t("fieldRecipientNamePlaceholder")}
-          value={recipientName}
-          onChange={(event) => setRecipientName(event.target.value)}
-          disabled={busy}
-        />
-      </label>
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldExpiration")}</span>
         <DatePickerInput
