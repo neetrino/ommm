@@ -217,11 +217,6 @@ export function marketingHeaderMenuButtonClass(): string {
   return marketingHeaderMobileMenuButtonClass(false);
 }
 
-export function marketingHeaderMobilePanelClass(open: boolean): string {
-  if (!open) return "hidden";
-  return ["lg:hidden", marketingMontserrat.className].join(" ");
-}
-
 export function marketingHeaderMobileLanguageTriggerClass(): string {
   return [
     "ommm-dropdown-trigger !h-[26px] !min-h-[26px] !w-[26px] !min-w-[26px] !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",

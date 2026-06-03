@@ -9,6 +9,7 @@ import {
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
+import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobile-menu-modal";
 import {
   isCompactMarketingHeaderLocale,
   marketingHeaderActionsClass,
@@ -24,8 +25,6 @@ import {
   marketingHeaderMobileIconAccountClass,
   marketingHeaderMobileLanguageTriggerClass,
   marketingHeaderMobileMenuButtonClass,
-  marketingHeaderMobileMenuNavLinkClass,
-  marketingHeaderMobilePanelClass,
   marketingHeaderMobileRowClass,
   marketingHeaderNavClass,
   marketingHeaderNavLinksClass,
@@ -76,6 +75,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
     <header
       className={`${marketingHeaderShellClass()} ${navPillStyles.headerShell}`}
       data-elevated={elevated ? "true" : "false"}
+      data-menu-open={open ? "true" : "false"}
     >
       <div className={marketingHeaderContainerClass()}>
         <div className={marketingHeaderMobileRowClass()}>
@@ -193,47 +193,13 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         </div>
       </div>
 
-      <div
-        id="marketing-mobile-nav"
-        className={`${marketingHeaderMobilePanelClass(open)} ${open ? navPillStyles.mobilePanel : ""}`}
-      >
-        <div className={navPillStyles.mobilePanelContent}>
-          <nav
-            className="flex flex-col gap-1"
-            aria-label={tUi("mobilePrimaryNavAria")}
-          >
-            {navLinks.map(({ href, key }) => (
-              <Link
-                key={href}
-                href={href}
-                className={marketingHeaderMobileMenuNavLinkClass(
-                  isActive(marketingPath, href),
-                  compact,
-                )}
-                onClick={() => setOpen(false)}
-              >
-                {tNav(key)}
-              </Link>
-            ))}
-          </nav>
-          <div className={`flex flex-col gap-2 ${navPillStyles.mobileDivider}`}>
-            <Link
-              href="/schedule"
-              className={navPillStyles.mobileCtaPrimary}
-              onClick={() => setOpen(false)}
-            >
-              {tUi("bookAClass")}
-            </Link>
-            <Link
-              href="/login"
-              className={navPillStyles.mobileCtaSecondary}
-              onClick={() => setOpen(false)}
-            >
-              {tCommon("login")}
-            </Link>
-          </div>
-        </div>
-      </div>
+      <MarketingMobileMenuModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        navLinks={navLinks}
+        marketingPath={marketingPath}
+        isActive={isActive}
+      />
     </header>
   );
 }
