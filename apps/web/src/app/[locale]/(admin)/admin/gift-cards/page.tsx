@@ -8,6 +8,7 @@ import type {
 } from "@/components/admin/admin-gift-cards-types";
 import { parseGiftCardFiltersFromSearch } from "@/components/admin/admin-gift-cards-url";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { parseAdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminGiftCardsPage({
@@ -37,6 +38,7 @@ export default async function AdminGiftCardsPage({
   }
 
   const initialFilters = parseGiftCardFiltersFromSearch(search);
+  const initialViewMode = parseAdminGiftCardsViewMode(search.view);
 
   return (
     <AdminContentFrame description={t("description")}>
@@ -46,6 +48,7 @@ export default async function AdminGiftCardsPage({
           assignableUsers={usersRes.ok ? usersRes.data : []}
           locale={locale}
           initialFilters={initialFilters}
+          initialViewMode={initialViewMode}
         />
       </Suspense>
     </AdminContentFrame>

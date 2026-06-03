@@ -7,11 +7,20 @@ import { useRouter } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import {
+  AdminGiftCardsViewProvider,
+  useAdminGiftCardsView,
+} from "@/components/admin/admin-gift-cards-view-context";
+import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
 import type {
   AdminAssignableUser,
   AdminGiftCardBatchRow,
 } from "@/components/admin/admin-gift-cards-types";
+import {
+  ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
+  type AdminGiftCardsViewMode,
+} from "@/lib/admin-gift-cards-view-preference";
 
 const BANNER_MS = 8000;
 const MODAL_QUERY_KEY = "modal";
@@ -39,11 +48,32 @@ function AddGiftCardGlyph({ className }: { className?: string }) {
 type AdminGiftCardsShellProps = {
   assignableUsers: readonly AdminAssignableUser[];
   giftCards: readonly AdminGiftCardBatchRow[];
+  initialViewMode: AdminGiftCardsViewMode;
   children: ReactNode;
 };
 
-export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: AdminGiftCardsShellProps) {
+export function AdminGiftCardsShell({
+  assignableUsers,
+  giftCards,
+  initialViewMode,
+  children,
+}: AdminGiftCardsShellProps) {
+  return (
+    <AdminGiftCardsViewProvider key={initialViewMode} initialViewMode={initialViewMode}>
+      <AdminGiftCardsShellInner assignableUsers={assignableUsers} giftCards={giftCards}>
+        {children}
+      </AdminGiftCardsShellInner>
+    </AdminGiftCardsViewProvider>
+  );
+}
+
+function AdminGiftCardsShellInner({
+  assignableUsers,
+  giftCards,
+  children,
+}: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
   const t = useTranslations("adminPages.giftCards");
+  const { viewMode, setViewMode } = useAdminGiftCardsView();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -60,6 +90,16 @@ export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: Ad
     isEditMode && editBatchId !== null
       ? giftCards.find((batch) => batch.id === editBatchId) ?? null
       : null;
+
+  const setView = useCallback(
+    (mode: AdminGiftCardsViewMode) => {
+      setViewMode(mode);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(ADMIN_GIFT_CARDS_VIEW_QUERY_KEY, mode);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams, setViewMode],
+  );
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -146,17 +186,22 @@ export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: Ad
           </p>
         ) : null}
 
-        <div className="flex justify-end">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openModal}
-            className="inline-flex cursor-pointer items-center gap-2 shadow-sm transition-transform hover:-translate-y-px"
-          >
-            <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-            {t("createButton")}
-          </OmmButton>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex justify-start">
+            <AdminGiftCardsViewSwitcher value={viewMode} onChange={setView} />
+          </div>
+          <div className="flex justify-start sm:justify-end">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={openModal}
+              className="inline-flex cursor-pointer items-center gap-2 shadow-sm transition-transform hover:-translate-y-px"
+            >
+              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
+              {t("createButton")}
+            </OmmButton>
+          </div>
         </div>
 
         {children}
