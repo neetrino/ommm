@@ -81,13 +81,13 @@ export function isCompactMarketingHeaderLocale(locale: string): boolean {
 
 export function marketingHeaderShellClass(): string {
   return [
-    "sticky top-0 tablet:fixed left-0 right-0 z-50 w-full min-w-0 overflow-x-clip",
+    "fixed top-0 left-0 right-0 z-50 w-full min-w-0 overflow-x-clip",
     "bg-transparent",
     marketingMontserrat.variable,
   ].join(" ");
 }
 
-/** Pull full-bleed hero surfaces under the sticky mobile header shell. */
+/** Pull full-bleed hero surfaces under the fixed mobile header (legacy — header is fixed on all breakpoints). */
 export function marketingFullBleedHeroHeaderOverlapClass(): string {
   return "max-tablet:-mt-[var(--marketing-mobile-header-height)]";
 }

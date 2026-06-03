@@ -8,6 +8,7 @@
   min-height: 0;
   width: 100%;
   min-width: 0;
+  background-color: var(--home-page-bg, #fbf5d5);
 }
 
 .pageUpper {
@@ -22,6 +23,11 @@
 }
 
 @media (max-width: 743px) {
+  .page {
+    /* Hero photo is full-bleed — avoid cream band bleeding through under the header. */
+    background-color: transparent;
+  }
+
   .pageUpper {
     overflow-x: clip;
   }

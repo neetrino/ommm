@@ -27,7 +27,11 @@ export default async function MarketingHomePage({ params }: PageProps) {
   return (
     <div
       className={`${marketingMontserrat.variable} ${homePageStyles.page} flex-1`}
-      style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}
+      style={
+        {
+          "--home-page-bg": HOME_PAGE_SURFACE.pageBackground,
+        } as CSSProperties
+      }
     >
       <div className={homePageStyles.pageUpper}>
         <MarketingPublicHero locale={locale} />

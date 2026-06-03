@@ -3,6 +3,8 @@
  */
 
 .homeHeroFrame {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: calc(var(--home-hero-min-h) + var(--home-schedule-hero-overlap, 0px));
@@ -11,6 +13,7 @@
 }
 
 .homeHeroSection {
+  position: relative;
   overflow-x: clip;
   background-color: transparent;
 }
@@ -152,15 +155,27 @@
 
 @media (max-width: 743px) {
   .homeHeroSection {
-    margin-top: calc(-1 * var(--marketing-mobile-header-height, 4.25rem));
+    overflow: visible;
   }
 
   .homeHeroFrame {
     overflow: visible;
   }
 
-  .homeHeroSection {
-    overflow: visible;
+  .homeHeroBackgroundLayer {
+    inset: 0;
+  }
+
+  .homeHeroBackgroundCrop {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+
+  .homeHeroBackground {
+    object-position: center top;
   }
 
   .homeHeroTextStack {

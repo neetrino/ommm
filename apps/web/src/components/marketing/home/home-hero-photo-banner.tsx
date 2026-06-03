@@ -34,7 +34,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
   return (
     <section
       aria-labelledby="home-hero-heading"
-      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} relative w-full min-w-0 overflow-x-clip`}
+      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} relative w-full min-w-0`}
       style={{
         ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
         ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
@@ -103,20 +103,20 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
       }}
     >
-      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
-        <div className={styles.homeHeroBackgroundLayer} aria-hidden>
-          <div className={styles.homeHeroBackgroundCrop}>
-            <Image
-              src={HOME_HERO_ASSETS.backgroundImage}
-              alt={t("heroImageAlt")}
-              fill
-              sizes="100vw"
-              className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
-              {...lcpImageProps()}
-            />
-          </div>
+      <div className={styles.homeHeroBackgroundLayer} aria-hidden>
+        <div className={styles.homeHeroBackgroundCrop}>
+          <Image
+            src={HOME_HERO_ASSETS.backgroundImage}
+            alt={t("heroImageAlt")}
+            fill
+            sizes="100vw"
+            className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
+            {...lcpImageProps()}
+          />
         </div>
+      </div>
 
+      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
         <div
           className={`${styles.homeHeroPortal} pointer-events-none absolute inset-x-0 z-[1] flex justify-center px-4 sm:px-6`}
           style={{ top: HOME_HERO_LAYOUT.portalTop }}
@@ -187,8 +187,8 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
             />
           </div>
         </div>
-        <HomeHeroJunctionNavDeferred />
       </div>
+      <HomeHeroJunctionNavDeferred />
     </section>
   );
 }
