@@ -1664,7 +1664,7 @@
       "createHeading": "Create gift card",
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
-      "fieldAmount": "Amount (cents, AMD)",
+      "fieldAmount": "Amount (AMD)",
       "fieldAmountPlaceholder": "e.g. 10000",
       "fieldQuantity": "Quantity",
       "fieldQuantityPlaceholder": "e.g. 1",

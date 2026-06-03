@@ -1655,7 +1655,7 @@
       "createHeading": "Создать подарочную карту",
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть окно",
-      "fieldAmount": "Сумма (центы, AMD)",
+      "fieldAmount": "Сумма (AMD)",
       "fieldAmountPlaceholder": "напр. 10000",
       "fieldQuantity": "Количество",
       "fieldQuantityPlaceholder": "напр. 1",
