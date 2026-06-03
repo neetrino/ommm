@@ -3,6 +3,7 @@
  * Mobile container `97:5853`.
  */
 
+import { HOME_FOOTER_TABLET_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
@@ -102,6 +103,12 @@ export const HOME_GALLERY_LAYOUT = {
   navButtonSizePx: 64,
   dotSizePx: 12,
   dotGapPx: 17,
+} as const;
+
+/** iPad Pro — teal gallery band matches footer overlap (1024px–1366px). */
+export const HOME_GALLERY_TABLET_LAYOUT = {
+  footerUnderlap: HOME_FOOTER_TABLET_LAYOUT.galleryOverlap,
+  footerUnderlapBackground: HOME_GALLERY_GRADIENT_TEAL,
 } as const;
 
 export type HomeGalleryTileKey = "leftTop" | "leftBottom" | "center" | "side";

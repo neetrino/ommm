@@ -1,5 +1,7 @@
 .sectionWrap {
   width: 100%;
+  min-width: 0;
+  overflow-x: clip;
   padding-top: var(--home-footer-wrap-padding-top);
   background-color: var(--home-footer-wrap-bg, #598090);
 }
@@ -436,5 +438,23 @@
     left: var(--home-footer-copyright-left);
     top: var(--home-footer-copyright-top);
     width: var(--home-footer-copyright-width);
+  }
+}
+
+/* iPad Pro — rounded cap; full-bleed teal wrap covers corner cutouts (1024px–1366px). */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .sectionWrap {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--home-footer-tablet-overlap, 5.75rem));
+    padding-top: var(--home-footer-tablet-wrap-padding-top, 5.75rem);
+    background-color: var(--home-footer-wrap-bg, #598090);
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
+    border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
   }
 }

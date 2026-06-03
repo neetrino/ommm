@@ -12,6 +12,7 @@ import {
   HOME_FOOTER_LAYOUT,
   HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_MOBILE_LAYOUT,
+  HOME_FOOTER_TABLET_LAYOUT,
   HOME_FOOTER_NAV_LINKS,
   HOME_FOOTER_SOCIAL_LINKS,
 } from "@/components/marketing/home/home-footer-section-tokens";
@@ -35,6 +36,8 @@ function footerStyleVars(): CSSProperties {
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
     ["--home-footer-mobile-overlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
     ["--home-footer-mobile-wrap-padding-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.wrapPaddingTop,
+    ["--home-footer-tablet-overlap" as string]: HOME_FOOTER_TABLET_LAYOUT.galleryOverlap,
+    ["--home-footer-tablet-wrap-padding-top" as string]: HOME_FOOTER_TABLET_LAYOUT.wrapPaddingTop,
     ["--home-footer-mobile-radius" as string]: HOME_FOOTER_MOBILE_LAYOUT.topRadius,
     ["--home-footer-mobile-px" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingX,
     ["--home-footer-mobile-py" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingTop,

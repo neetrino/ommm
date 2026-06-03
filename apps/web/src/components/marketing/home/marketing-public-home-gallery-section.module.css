@@ -102,3 +102,24 @@
     display: block;
   }
 }
+
+/* iPad Pro — extend teal through footer cap corners (1024px–1366px). */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .section {
+    padding-bottom: calc(
+      var(--home-gallery-desktop-pb) + var(--home-gallery-tablet-footer-underlap, 5.75rem)
+    );
+  }
+
+  .section::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--home-gallery-tablet-footer-underlap, 5.75rem);
+    transform: translateY(100%);
+    background: var(--home-gallery-tablet-underlap-bg, #598090);
+    pointer-events: none;
+  }
+}

@@ -10,6 +10,7 @@ import {
   HOME_GALLERY_MOBILE_GRADIENT_END,
   HOME_GALLERY_SECTION_MOBILE_FIGMA,
   HOME_GALLERY_SECTION_MOBILE_LAYOUT,
+  HOME_GALLERY_TABLET_LAYOUT,
 } from "@/components/marketing/home/home-gallery-section-tokens";
 import { HOME_FOOTER_MOBILE_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
 import { HOME_HERO_MOBILE_MORE_DETAILS_CTA } from "@/components/marketing/home/home-hero-banner-tokens";
@@ -45,6 +46,8 @@ export function MarketingPublicHomeGallerySection() {
       HOME_GALLERY_SECTION_MOBILE_LAYOUT.headerSubtitleGap,
     ["--home-gallery-mobile-dots-to-cta-gap" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.dotsToCtaGap,
     ["--home-gallery-footer-underlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
+    ["--home-gallery-tablet-footer-underlap" as string]: HOME_GALLERY_TABLET_LAYOUT.footerUnderlap,
+    ["--home-gallery-tablet-underlap-bg" as string]: HOME_GALLERY_TABLET_LAYOUT.footerUnderlapBackground,
     ["--home-gallery-mobile-gradient-end" as string]: HOME_GALLERY_MOBILE_GRADIENT_END,
     ["--home-gallery-desktop-bg" as string]: HOME_GALLERY_FIGMA.sectionBackground,
     ["--home-gallery-desktop-pt" as string]: HOME_GALLERY_LAYOUT.sectionPaddingTop,

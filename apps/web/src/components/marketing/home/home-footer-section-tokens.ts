@@ -117,6 +117,15 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
   heroMinHeight: "clamp(11rem, calc(100svw * 267 / 394), 16.75rem)",
 } as const;
 
+/** Pull teal through rounded footer cap corners — same idea as Our Core Practices / schedule join. */
+const homeFooterTabletCornerCoverPx = HOME_FOOTER_SECTION_MOBILE_FIGMA.topRadiusPx + 12;
+
+/** iPad Pro — footer cap + gallery underlap (1024px–1366px). */
+export const HOME_FOOTER_TABLET_LAYOUT = {
+  galleryOverlap: `calc(${HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap} + ${homeFooterTabletCornerCoverPx}px)`,
+  wrapPaddingTop: `calc(${HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap} + ${homeFooterTabletCornerCoverPx}px)`,
+} as const;
+
 /** Top nav — Figma `196:1196`. Labels from `nav` namespace. */
 export const HOME_FOOTER_NAV_LINKS = [
   { href: "/story", navKey: "story" },
