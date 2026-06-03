@@ -3,6 +3,7 @@
  * Mobile container `97:5683`, carousel `97:6025`, card `97:6043`.
  */
 
+import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 import {
@@ -132,18 +133,18 @@ export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
 
 /** 12-column desktop — row 1: three `col-span-4`; row 2: two cards centered. */
 export const HOME_CLASS_CARD_GRID_CLASS =
-  "col-span-1 lg:col-span-6 nav-desktop:col-span-4";
+  "col-span-1 tablet:col-span-6 nav-desktop:col-span-4";
 
-/** iPad Pro (lg–nav-desktop): 2×2 grid + 5th card centered; full desktop offsets above 1366px. */
+/** iPad Air + Pro (tablet–nav-desktop): 2×2 grid + 5th card centered; full desktop offsets above 1366px. */
 export const HOME_CLASS_CARD_GRID_OFFSETS = [
   "",
   "",
   "",
   "nav-desktop:col-start-3",
-  "lg:col-start-4 nav-desktop:col-start-7",
+  "tablet:col-start-4 nav-desktop:col-start-7",
 ] as const;
 
-/** iPad Pro tier — 2-column grid; compact vertical footprint (1024px–1366px). */
+/** iPad Air + Pro tier — 2-column grid; compact vertical footprint (744px–1366px). */
 export const HOME_CLASSES_SECTION_TABLET_LAYOUT = {
   cardMinHeightPx: 300,
   cardTitleFontSizePx: 24,
@@ -152,4 +153,15 @@ export const HOME_CLASSES_SECTION_TABLET_LAYOUT = {
   cardBodyLineHeightPx: 20,
   gridGap: "1.5rem",
   contentMaxWidthPx: 920,
+} as const;
+
+/** iPad Air — scaled-down Pro tier (744px–1023px). */
+export const HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT = {
+  cardMinHeightPx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.cardMinHeightPx),
+  cardTitleFontSizePx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.cardTitleFontSizePx),
+  cardTitleLineHeightPx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.cardTitleLineHeightPx),
+  cardBodyFontSizePx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyFontSizePx),
+  cardBodyLineHeightPx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyLineHeightPx),
+  gridGap: "1.25rem",
+  contentMaxWidthPx: scaleIpadAirPx(HOME_CLASSES_SECTION_TABLET_LAYOUT.contentMaxWidthPx),
 } as const;

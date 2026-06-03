@@ -149,7 +149,7 @@
   gap: var(--home-hero-cta-gap);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 743px) {
   .homeHeroFrame {
     overflow: visible;
   }
@@ -167,13 +167,6 @@
     transform: translateY(var(--home-hero-cta-down-offset, 0));
   }
 }
-
-@media (min-width: 744px) and (max-width: 1023px) {
-  .homeHeroCtas {
-    gap: var(--home-hero-cta-gap-tablet, 0.75rem);
-  }
-}
-
 @media (min-width: 640px) {
   .homeHeroTitleLine {
     white-space: nowrap;
@@ -184,7 +177,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .homeHeroFrame {
     display: block;
     min-height: var(--home-hero-min-h-lg);
@@ -290,7 +283,7 @@
   }
 }
 
-@media (min-width: 1024px) and (max-width: 1366px) {
+@media (min-width: 744px) and (max-width: 1366px) {
   .homeHeroCtas {
     gap: clamp(0.875rem, calc(100svw * 18 / 1440), 1.125rem);
   }

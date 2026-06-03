@@ -119,7 +119,7 @@
   }
 }
 
-@media (min-width: 1024px) and (max-width: 1366px) {
+@media (min-width: 744px) and (max-width: 1366px) {
   .reserve {
     width: 11.5rem;
     height: 3.75rem;
@@ -147,7 +147,7 @@
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 743px) {
   .row {
     min-height: auto;
     flex-direction: column;

@@ -112,6 +112,22 @@ export const HOME_PLANS_SECTION_LAYOUT = {
   ctaIconSizePx: 64,
 } as const;
 
+/** iPad Air + Pro — price nudge inside glass (744px–1366px). */
+export const HOME_PLANS_SECTION_TABLET_LAYOUT = {
+  priceCopyOffsetPx: 10,
+} as const;
+
+/** iPad Air — CTA up only, no horizontal nudge (744px–1023px). */
+export const HOME_PLANS_SECTION_IPAD_AIR_LAYOUT = {
+  ctaOffsetYPx: -28,
+} as const;
+
+/** iPad Pro — CTA up and left (1024px–1366px). */
+export const HOME_PLANS_SECTION_IPAD_PRO_LAYOUT = {
+  ctaOffsetXPx: -3,
+  ctaOffsetYPx: -28,
+} as const;
+
 export const HOME_PLANS_SECTION_ASSETS = {
   cardBackground: HOME_SECTION_ASSETS.planBackground,
   cardFab: HOME_SECTION_ASSETS.planCardFab,

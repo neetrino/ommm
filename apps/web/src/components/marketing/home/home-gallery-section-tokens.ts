@@ -105,7 +105,7 @@ export const HOME_GALLERY_LAYOUT = {
   dotGapPx: 17,
 } as const;
 
-/** iPad Pro — teal gallery band matches footer overlap (1024px–1366px). */
+/** iPad Air + Pro — teal gallery band matches footer overlap (744px–1366px). */
 export const HOME_GALLERY_TABLET_LAYOUT = {
   footerUnderlap: HOME_FOOTER_TABLET_LAYOUT.galleryOverlap,
   footerUnderlapBackground: HOME_GALLERY_GRADIENT_TEAL,

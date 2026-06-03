@@ -34,7 +34,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.42);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 743px) {
   /* No glass bar behind the dropdown — page shows through; card keeps its own fill. */
   .headerShell[data-elevated="true"],
   .headerShell[data-menu-open="true"] {
@@ -54,7 +54,7 @@
   display: block;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .mobileMenuModal {
     display: none;
   }
@@ -83,21 +83,11 @@
   z-index: 1;
   pointer-events: none;
 }
-
-/* iPad tablet tier — slightly shorter mobile header (744px–1023px). */
-@media (min-width: 744px) and (max-width: 1023px) {
-  :global(.marketing-layout-shell) {
-    --marketing-mobile-header-height: calc(
-      max(1rem, env(safe-area-inset-top, 0px)) + 0.625rem + 32px
-    );
-  }
-}
-
 .mobileMenuCardSlot .mobilePanel {
   pointer-events: auto;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .headerShell[data-elevated="true"] {
     border-bottom: none;
     background-color: transparent;

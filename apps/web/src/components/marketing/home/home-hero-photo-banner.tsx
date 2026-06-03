@@ -7,7 +7,6 @@ import {
   HOME_HERO_ASSETS,
   HOME_HERO_FIGMA,
   HOME_HERO_CTA_LAYOUT,
-  HOME_HERO_CTA_TABLET_MOBILE_LAYOUT,
   HOME_HERO_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
@@ -81,7 +80,6 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ["--home-hero-text-stack-offset-top" as string]: HOME_HERO_MOBILE_LAYOUT.textStackOffsetTop,
         ["--home-hero-content-down-offset" as string]: HOME_HERO_MOBILE_LAYOUT.contentDownOffset,
         ["--home-hero-cta-gap" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonGap,
-        ["--home-hero-cta-gap-tablet" as string]: HOME_HERO_CTA_TABLET_MOBILE_LAYOUT.buttonGap,
         ["--home-hero-cta-gap-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonGap,
         ["--home-hero-cta-bottom" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsBottomOffset,
         ["--home-hero-cta-down-offset" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsDownOffset,
@@ -125,14 +123,14 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         <div
           className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
         >
-          <div className={`${styles.homeHeroLogoMark} lg:mb-1 lg:shrink-0`}>
+          <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
             <div className={styles.homeHeroLogoInner}>
               <div className={styles.homeHeroLogoCrop}>
                 <Image
                   src={HOME_HERO_ASSETS.logoMark}
                   alt={t("logoAlt")}
                   fill
-                  sizes="(max-width: 1023px) 61vw, 21rem"
+                  sizes="(max-width: 743px) 61vw, 21rem"
                   className={styles.homeHeroLogoImage}
                   {...aboveFoldImageProps()}
                 />

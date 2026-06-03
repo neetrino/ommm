@@ -103,7 +103,7 @@
   justify-content: center;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .mobileSection {
     display: none;
   }

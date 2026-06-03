@@ -10,6 +10,7 @@ import {
   HOME_CLASSES_SECTION_LAYOUT,
   HOME_CLASSES_SECTION_MOBILE_FIGMA,
   HOME_CLASSES_SECTION_MOBILE_LAYOUT,
+  HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT,
   HOME_CLASSES_SECTION_TABLET_LAYOUT,
 } from "@/components/marketing/home/home-classes-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-classes-section.module.css";
@@ -79,11 +80,18 @@ export async function MarketingPublicHomeClassesSection({
         ["--home-classes-grid-gap-tablet" as string]: HOME_CLASSES_SECTION_TABLET_LAYOUT.gridGap,
         ["--home-classes-content-max-width-lg" as string]: `${HOME_CLASSES_SECTION_LAYOUT.contentMaxWidthPx}px`,
         ["--home-classes-content-max-width-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.contentMaxWidthPx}px`,
+        ["--home-classes-content-max-width-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.contentMaxWidthPx}px`,
         ["--home-class-card-min-h-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardMinHeightPx}px`,
+        ["--home-class-card-min-h-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardMinHeightPx}px`,
         ["--home-class-card-title-size-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardTitleFontSizePx}px`,
+        ["--home-class-card-title-size-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardTitleFontSizePx}px`,
         ["--home-class-card-title-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardTitleLineHeightPx}px`,
+        ["--home-class-card-title-line-height-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardTitleLineHeightPx}px`,
         ["--home-class-card-body-size-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyFontSizePx}px`,
+        ["--home-class-card-body-size-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardBodyFontSizePx}px`,
         ["--home-class-card-body-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyLineHeightPx}px`,
+        ["--home-class-card-body-line-height-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardBodyLineHeightPx}px`,
+        ["--home-classes-grid-gap-air" as string]: HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.gridGap,
       }}
     >
       <div className={styles.shell}>

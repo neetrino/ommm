@@ -120,10 +120,26 @@ export const HOME_FOOTER_MOBILE_LAYOUT = {
 /** Pull teal through rounded footer cap corners — same idea as Our Core Practices / schedule join. */
 const homeFooterTabletCornerCoverPx = HOME_FOOTER_SECTION_MOBILE_FIGMA.topRadiusPx + 12;
 
-/** iPad Pro — footer cap + gallery underlap (1024px–1366px). */
+/** iPad Air + Pro — footer cap + gallery underlap (744px–1366px). */
 export const HOME_FOOTER_TABLET_LAYOUT = {
   galleryOverlap: `calc(${HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap} + ${homeFooterTabletCornerCoverPx}px)`,
   wrapPaddingTop: `calc(${HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap} + ${homeFooterTabletCornerCoverPx}px)`,
+} as const;
+
+/** iPad Air — footer grid; Contact us block sits under Explore (744px–1023px). */
+export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
+  desktopPadding: "2rem 1.5rem 1.5rem",
+  columnGap: "1.5rem",
+  rowGap: "0.75rem",
+  navLinkPaddingLeftPx: 0,
+  /** Flex spacer between nav and Contact us block. */
+  navToContactSpacerMin: "1rem",
+  contactToSocialGap: "1rem",
+  navLinkGap: "0.5rem",
+  navToContactBlockMarginPx: 48,
+  legalCopyrightGap: "0.75rem",
+  wordmarkFontSizePx: 36,
+  wordmarkLineHeightPx: 40,
 } as const;
 
 /** Top nav — Figma `196:1196`. Labels from `nav` namespace. */

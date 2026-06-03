@@ -53,7 +53,7 @@
   object-position: center top;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 743px) {
   .card {
     display: flex;
     min-height: var(--home-class-card-min-h, 26.1875rem);
@@ -119,7 +119,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .imageZone {
     max-width: 15rem;
   }
@@ -130,7 +130,7 @@
   }
 }
 
-@media (min-width: 1024px) and (max-width: 1366px) {
+@media (min-width: 744px) and (max-width: 1366px) {
   .copy {
     max-width: 15.5rem;
     padding: clamp(1.75rem, 2.5vw, 2.125rem) clamp(1.5rem, 2.5vw, 2rem) 1.125rem;

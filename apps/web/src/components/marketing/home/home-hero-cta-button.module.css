@@ -1,5 +1,5 @@
 /**
- * Mobile default (<1024px). Desktop (lg+) — commit `61f3206` (button hover).
+ * Mobile default (<744px). Desktop (tablet+) — commit `61f3206` (button hover).
  */
 
 .cta {
@@ -99,7 +99,7 @@
   transform: translateX(6%);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .cta {
     width: var(--hero-cta-width-lg);
     height: var(--hero-cta-height-lg);
@@ -143,8 +143,8 @@
   }
 }
 
-/* iPad Pro — Book / More Details CTAs slightly larger (1024px–1366px). */
-@media (min-width: 1024px) and (max-width: 1366px) {
+/* iPad Air + Pro — Book / More Details CTAs slightly larger (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
   .cta {
     width: var(--hero-cta-width-tablet, var(--hero-cta-width-lg));
     height: var(--hero-cta-height-tablet, var(--hero-cta-height-lg));
@@ -158,25 +158,6 @@
     width: clamp(1.125rem, calc(100svw * 28 / 1440), 1.625rem);
   }
 }
-
-/* iPad — Book / View Membership mobile shapes, taller buttons (744px–1023px). */
-@media (min-width: 744px) and (max-width: 1023px) {
-  .booking,
-  .membership {
-    height: var(--hero-cta-height-tablet-mobile, var(--hero-cta-height));
-  }
-
-  .booking .label,
-  .membership .label {
-    font-size: var(--hero-cta-label-font-size-tablet-mobile, var(--hero-cta-label-font-size));
-  }
-
-  .booking .arrowMobile,
-  .membership .arrowMobile {
-    width: clamp(1.125rem, calc(100svw * 28 / 394), 1.625rem);
-  }
-}
-
 .coachesDetails .label {
   z-index: 1;
   color: #97907c;

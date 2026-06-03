@@ -208,6 +208,7 @@
   flex-direction: column;
   justify-content: center;
   gap: var(--home-plan-price-copy-gap, 0.25rem);
+  transform: translateY(var(--home-plan-price-copy-offset-y, 0));
 }
 
 .details {
@@ -235,6 +236,8 @@
   justify-content: center;
   width: var(--home-plan-cta-size, clamp(2.75rem, 18%, 4rem));
   height: var(--home-plan-cta-size, clamp(2.75rem, 18%, 4rem));
+  transform: translateX(var(--home-plan-cta-offset-x, 0px))
+    translateY(var(--home-plan-cta-offset-y, 0px));
 }
 
 .ctaFabImage {
@@ -300,5 +303,32 @@
 
   .priceGlassSweep {
     display: none;
+  }
+}
+
+/* iPad Air + Pro — price slightly lower (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .priceGlass {
+    overflow: visible;
+  }
+
+  .card {
+    --home-plan-price-copy-offset-y: 10px;
+  }
+}
+
+/* iPad Air — CTA up only (744px–1023px). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .ctaFab {
+    --home-plan-cta-offset-x: 0px;
+    --home-plan-cta-offset-y: -28px;
+  }
+}
+
+/* iPad Pro — CTA up and left (1024px–1366px). */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .ctaFab {
+    --home-plan-cta-offset-x: -3px;
+    --home-plan-cta-offset-y: -28px;
   }
 }

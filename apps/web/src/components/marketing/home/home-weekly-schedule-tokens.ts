@@ -179,11 +179,11 @@ export const HOME_WEEKLY_SCHEDULE_PANEL_SURFACE = {
 
 /** Inner content padding — shared by banner shell and schedule list. */
 export const HOME_WEEKLY_SCHEDULE_INNER_CLASS =
-  "mx-auto w-full min-w-0 px-3 sm:px-5 md:px-6 lg:px-10 xl:px-14 2xl:px-16";
+  "mx-auto w-full min-w-0 px-3 sm:px-5 md:px-6 tablet:px-10 xl:px-14 2xl:px-16";
 
 /** Figma day-of-week pill — active fill or idle outline (`196:1301` / `196:1303`). */
 export const HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS =
-  "inline-flex h-[2.8125rem] shrink-0 items-center justify-center rounded-full border px-4 text-sm leading-[1.3125rem] tracking-[0.03125rem] transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out max-lg:hover:-translate-y-0.5 motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-1 sm:px-5 sm:text-sm";
+  "inline-flex h-[2.8125rem] shrink-0 items-center justify-center rounded-full border px-4 text-sm leading-[1.3125rem] tracking-[0.03125rem] transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out max-tablet:hover:-translate-y-0.5 motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-1 sm:px-5 sm:text-sm";
 
 export const HOME_WEEKLY_SCHEDULE_ASSETS = {
   clockIcon: "/marketing/home/schedule/home-weekly-schedule-clock.svg",

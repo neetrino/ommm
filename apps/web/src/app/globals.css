@@ -79,6 +79,8 @@ html {
 
   /* Full desktop marketing nav — above largest iPad Pro landscape (1366px). */
   --breakpoint-nav-desktop: 85.4375rem;
+  /* iPad Air portrait — desktop home layout from this width (744px). */
+  --breakpoint-tablet: 46.5rem;
 }
 
 @layer base {

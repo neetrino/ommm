@@ -5,8 +5,6 @@ import {
   HOME_HERO_CTA_LAYOUT,
   HOME_HERO_CTA_TABLET_HERO_LAYOUT,
   HOME_HERO_CTA_TABLET_LAYOUT,
-  HOME_HERO_CTA_TABLET_MOBILE_LAYOUT,
-  HOME_HERO_CTA_TABLET_MOBILE_SECTION_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -55,10 +53,6 @@ export function HomeHeroCtaButton({
   const shapeMobile = "shapeMobile" in assets ? assets.shapeMobile : undefined;
   const arrowMobile = "arrowMobile" in assets ? assets.arrowMobile : undefined;
   const mobileLabelOffsetPx = labelOffsetPx ?? mobileLayout?.labelOffsetPx ?? desktopLayout.labelOffsetPx;
-  const tabletMobileLayout =
-    sizeContext === "hero"
-      ? HOME_HERO_CTA_TABLET_MOBILE_LAYOUT
-      : HOME_HERO_CTA_TABLET_MOBILE_SECTION_LAYOUT;
 
   return (
     <Link
@@ -71,8 +65,6 @@ export function HomeHeroCtaButton({
         ["--hero-cta-height" as string]: mobileLayout?.height ?? desktopLayout.height,
         ["--hero-cta-height-lg" as string]: desktopLayout.height,
         ["--hero-cta-height-tablet" as string]: tabletLayout.height,
-        ["--hero-cta-height-tablet-mobile" as string]:
-          mobileLayout !== null ? tabletMobileLayout.height : undefined,
         ["--hero-cta-label-width" as string]: `${(mobileLayout?.labelWidthRatio ?? desktopLayout.labelWidthRatio) * 100}%`,
         ["--hero-cta-label-width-lg" as string]: `${desktopLayout.labelWidthRatio * 100}%`,
         ["--hero-cta-arrow-zone-width" as string]: `${(mobileLayout?.arrowZoneWidthRatio ?? desktopLayout.arrowZoneWidthRatio) * 100}%`,
@@ -81,8 +73,6 @@ export function HomeHeroCtaButton({
         ["--hero-cta-label-offset-lg" as string]: `${desktopLayout.labelOffsetPx}px`,
         ["--hero-cta-label-font-size" as string]:
           mobileLayout !== null ? HOME_HERO_MOBILE_CTA_LAYOUT.labelFontSize : undefined,
-        ["--hero-cta-label-font-size-tablet-mobile" as string]:
-          mobileLayout !== null ? tabletMobileLayout.labelFontSize : undefined,
       }}
     >
       {shapeMobile ? (

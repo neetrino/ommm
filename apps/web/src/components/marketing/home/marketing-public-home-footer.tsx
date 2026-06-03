@@ -167,7 +167,7 @@ export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeF
         src={HOME_FOOTER_ASSETS.illustration}
         alt={t("footerIllustrationAlt")}
         fill
-        sizes="(max-width: 1024px) 100vw, 596px"
+        sizes="(max-width: 743px) 100vw, 596px"
         className={styles.illustration}
         {...belowFoldImageProps()}
       />

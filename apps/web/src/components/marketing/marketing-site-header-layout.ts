@@ -37,7 +37,7 @@ export function isCompactMarketingHeaderLocale(locale: string): boolean {
 
 export function marketingHeaderShellClass(): string {
   return [
-    "sticky top-0 lg:fixed left-0 right-0 z-50 w-full min-w-0 overflow-x-clip",
+    "sticky top-0 tablet:fixed left-0 right-0 z-50 w-full min-w-0 overflow-x-clip",
     "bg-transparent",
     marketingMontserrat.variable,
   ].join(" ");
@@ -45,38 +45,27 @@ export function marketingHeaderShellClass(): string {
 
 /** Pull full-bleed hero surfaces under the sticky mobile header shell. */
 export function marketingFullBleedHeroHeaderOverlapClass(): string {
-  return "max-lg:-mt-[var(--marketing-mobile-header-height)]";
+  return "max-tablet:-mt-[var(--marketing-mobile-header-height)]";
 }
 
 export function marketingHeaderContainerClass(): string {
   return [
     "ommm-container relative min-w-0 overflow-x-clip",
     "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))] px-4",
-    "lg:grid lg:min-h-[44px] nav-desktop:min-h-[53px] lg:items-center",
-    "lg:px-[var(--ommm-container-padding-x,1rem)]",
-    "lg:pt-[max(0.5rem,env(safe-area-inset-top,0px))] nav-desktop:pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
-    "lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-2 nav-desktop:gap-3 sm:gap-4",
+    "tablet:grid tablet:min-h-[44px] nav-desktop:min-h-[53px] tablet:items-center",
+    "tablet:px-[var(--ommm-container-padding-x,1rem)]",
+    "tablet:pt-[max(0.5rem,env(safe-area-inset-top,0px))] nav-desktop:pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
+    "tablet:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] tablet:gap-2 nav-desktop:gap-3 sm:gap-4",
   ].join(" ");
 }
 
 export function marketingHeaderMobileRowClass(): string {
-  return [
-    "relative flex min-h-[35px] w-full items-center justify-between lg:hidden",
-    "max-lg:min-[744px]:min-h-[32px]",
-  ].join(" ");
-}
-
-export function marketingHeaderMobileBrandLinkClass(): string {
-  return [
-    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
-    "flex shrink-0 items-center",
-  ].join(" ");
+  return "relative flex min-h-[35px] w-full items-center justify-between tablet:hidden";
 }
 
 export function marketingHeaderMobileBrandTextClass(): string {
   return [
     "font-serif text-[20px] font-bold leading-7 tracking-[-0.05em]",
-    "max-lg:min-[744px]:text-[18px] max-lg:min-[744px]:leading-[25px]",
     "whitespace-nowrap text-[#fbf5d5]",
   ].join(" ");
 }
@@ -89,7 +78,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 
   return [
     "ml-[-4px] inline-flex shrink-0 cursor-pointer items-center justify-center",
-    "h-[35px] w-[35px] max-lg:min-[744px]:h-[32px] max-lg:min-[744px]:w-[32px]",
+    "h-[35px] w-[35px]",
     iconColor,
     "focus-visible:outline-none focus-visible:ring-2",
     focusRing,
@@ -101,8 +90,15 @@ export function marketingHeaderMobileActionsClass(): string {
   return "mr-[-4px] flex shrink-0 items-center gap-[6px]";
 }
 
+export function marketingHeaderMobileBrandLinkClass(): string {
+  return [
+    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+    "flex shrink-0 items-center",
+  ].join(" ");
+}
+
 export function marketingHeaderBrandLinkClass(): string {
-  return "hidden lg:flex justify-self-start min-w-0 shrink-0 items-center";
+  return "hidden tablet:flex justify-self-start min-w-0 shrink-0 items-center";
 }
 
 export function marketingHeaderBrandTextClass(): string {
@@ -119,7 +115,7 @@ export function marketingHeaderNavClass(compact: boolean): string {
     : MARKETING_NAV_PILL_PADDING_X_CLASS;
 
   return [
-    "relative isolate hidden min-w-0 max-w-full justify-self-center overflow-hidden lg:flex",
+    "relative isolate hidden min-w-0 max-w-full justify-self-center overflow-hidden tablet:flex",
     MARKETING_NAV_PILL_HEIGHT_CLASS,
     MARKETING_NAV_PILL_RADIUS_CLASS,
     marketingMontserrat.className,
@@ -137,7 +133,7 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
 }
 
 export function marketingHeaderActionsClass(): string {
-  return "hidden lg:flex justify-self-end shrink-0 items-center gap-2 nav-desktop:gap-3 sm:gap-4";
+  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-2 nav-desktop:gap-3 sm:gap-4";
 }
 
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
@@ -227,7 +223,6 @@ export function marketingHeaderMenuButtonClass(): string {
 export function marketingHeaderMobileLanguageTriggerClass(): string {
   return [
     "ommm-dropdown-trigger !h-[26px] !min-h-[26px] !w-[26px] !min-w-[26px] !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
-    "max-lg:min-[744px]:!h-[24px] max-lg:min-[744px]:!min-h-[24px] max-lg:min-[744px]:!w-[24px] max-lg:min-[744px]:!min-w-[24px]",
     "text-[#fbf5d5] cursor-pointer",
     "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
@@ -239,7 +234,6 @@ export function marketingHeaderMobileIconAccountClass(): string {
   return [
     marketingHeaderIconButtonClass(),
     "inline-flex h-[26px] w-[26px] items-center justify-center",
-    "max-lg:min-[744px]:h-[24px] max-lg:min-[744px]:w-[24px]",
   ].join(" ");
 }
 

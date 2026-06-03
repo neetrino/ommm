@@ -56,7 +56,7 @@ export function MarketingPublicHomeGallerySection() {
 
   return (
     <section
-      className={`${marketingMontserrat.variable} ${styles.section} w-full px-4 sm:px-6 md:px-10 lg:px-20`}
+      className={`${marketingMontserrat.variable} ${styles.section} w-full px-4 sm:px-6 md:px-10 tablet:px-20`}
       style={sectionStyle}
     >
       <div

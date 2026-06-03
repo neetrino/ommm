@@ -87,7 +87,7 @@
   justify-content: center;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .section {
     margin-top: calc(-1 * var(--home-schedule-hero-overlap-lg, 12rem));
     padding-top: var(--home-schedule-panel-top-inset-lg, 12rem);

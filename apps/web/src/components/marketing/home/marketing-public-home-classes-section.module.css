@@ -95,7 +95,7 @@
   justify-content: center;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .section {
     margin-top: calc(-1 * var(--home-classes-schedule-overlap-lg, 0px));
     padding-top: calc(
@@ -149,8 +149,8 @@
   }
 }
 
-/* iPad Pro — 2 cards per row, 5th centered; larger cards (1024px–1366px). */
-@media (min-width: 1024px) and (max-width: 1366px) {
+/* iPad Air + Pro — 2 cards per row, 5th centered (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
   .shell {
     max-width: var(--home-classes-content-max-width-tablet, 60rem);
   }
@@ -168,6 +168,25 @@
   }
 }
 
+/* iPad Air — scaled-down Pro tier (744px–1023px). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .shell {
+    max-width: var(--home-classes-content-max-width-air, 46.125rem);
+  }
+
+  .grid {
+    gap: var(--home-classes-grid-gap-air, 1.25rem);
+  }
+
+  .gridCard {
+    --home-class-card-min-h: var(--home-class-card-min-h-air, 15rem);
+    --home-class-card-title-size: var(--home-class-card-title-size-air, 1.1875rem);
+    --home-class-card-title-line-height: var(--home-class-card-title-line-height-air, 1.5rem);
+    --home-class-card-body-size: var(--home-class-card-body-size-air, 0.6875rem);
+    --home-class-card-body-line-height: var(--home-class-card-body-line-height-air, 1rem);
+  }
+}
+
 @media (min-width: 640px) {
   .section {
     padding-inline: 1.5rem;
@@ -180,12 +199,18 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .section {
-    padding-inline: 5rem;
+    padding-inline: 3rem;
   }
 
   .shell {
     gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-inline: 5rem;
   }
 }

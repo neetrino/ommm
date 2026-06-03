@@ -64,7 +64,7 @@ export function MarketingPublicHomeFooterMobile({
               src={HOME_FOOTER_ASSETS.illustration}
               alt={illustrationAlt}
               fill
-              sizes="(max-width: 1023px) 70vw, 0"
+              sizes="(max-width: 743px) 70vw, 0"
               className={`${styles.illustration} ${styles.mobileIllustrationImage}`}
               {...belowFoldImageProps()}
             />

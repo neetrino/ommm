@@ -8,8 +8,6 @@
 
 .shell {
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: visible;
   border-top-left-radius: var(--home-footer-radius);
   border-top-right-radius: var(--home-footer-radius);
   background-color: var(--home-footer-surface);
@@ -331,7 +329,7 @@
   text-transform: uppercase;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 743px) {
   .mobileStack {
     display: flex;
     flex-direction: column;
@@ -362,7 +360,7 @@
   display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .mobileStack {
     display: none;
   }
@@ -441,8 +439,8 @@
   }
 }
 
-/* iPad Pro — rounded cap; full-bleed teal wrap covers corner cutouts (1024px–1366px). */
-@media (min-width: 1024px) and (max-width: 1366px) {
+/* iPad Air + Pro — rounded cap; full-bleed teal wrap covers corner cutouts (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
   .sectionWrap {
     position: relative;
     z-index: 1;
@@ -456,5 +454,113 @@
     z-index: 1;
     border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
     border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
+  }
+}
+
+/* iPad Air — Contact us under Explore; left column + illustration (744px–1023px). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .inner {
+    min-height: 0;
+  }
+
+  .desktopLayer {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto auto;
+    gap: 0.75rem 1.5rem;
+    padding: 2rem 1.5rem 1.5rem;
+    inset: auto;
+  }
+
+  .wordmarkSlot,
+  .navSlot,
+  .contactSlot,
+  .socialSlot,
+  .illustrationSlot,
+  .legalSlot,
+  .copyrightSlot {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+  }
+
+  .wordmarkSlot {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .wordmarkSlot .wordmark {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+
+  .navSlot {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: none;
+    margin-bottom: 0;
+  }
+
+  .topNav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .topNavLink {
+    padding-left: 0;
+  }
+
+  .contactSlot {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    margin-top: 3rem;
+  }
+
+  .socialSlot {
+    grid-column: 1;
+    grid-row: 4;
+    align-self: end;
+    margin-top: 1rem;
+  }
+
+  .illustrationSlot {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: start;
+    justify-self: center;
+    width: min(100%, 20rem);
+    aspect-ratio: 596 / 471;
+    height: auto;
+  }
+
+  .legalSlot {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    align-self: end;
+    width: 16rem;
+  }
+
+  .legalSlot .legalNav {
+    justify-content: flex-start;
+  }
+
+  .copyrightSlot {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
+    align-self: end;
+    width: 16rem;
+    max-width: 16rem;
+    margin-top: 0.75rem;
+  }
+
+  .copyrightSlot .copyright {
+    width: 100%;
+    text-align: left;
   }
 }

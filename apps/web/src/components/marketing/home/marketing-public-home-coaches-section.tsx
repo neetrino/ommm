@@ -224,7 +224,7 @@ export function MarketingPublicHomeCoachesSection() {
           paddingTop: FEATURED_COACHES_SECTION_PADDING_TOP,
         }}
       >
-        <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 lg:px-20">
+        <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 tablet:px-20">
           <h2
             id="home-coaches-heading"
             className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05] text-[#fbf5d5]"
@@ -246,7 +246,7 @@ export function MarketingPublicHomeCoachesSection() {
           />
         </div>
 
-        <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 lg:px-20">
+        <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 tablet:px-20">
           <HomeHeroCtaButton href="/coaches" label={t("coachesMoreDetails")} variant="coachesDetails" />
         </div>
       </section>

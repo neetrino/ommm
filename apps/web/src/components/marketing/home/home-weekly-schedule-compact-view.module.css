@@ -76,7 +76,7 @@
   color: var(--home-schedule-schedule-ink, #4a4738);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .root {
     gap: 0;
   }

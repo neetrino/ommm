@@ -80,7 +80,7 @@
   margin-top: var(--home-gallery-mobile-dots-to-cta-gap, 0);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .section {
     background: var(--home-gallery-desktop-bg);
     border-top-left-radius: 0;
@@ -103,8 +103,8 @@
   }
 }
 
-/* iPad Pro — extend teal through footer cap corners (1024px–1366px). */
-@media (min-width: 1024px) and (max-width: 1366px) {
+/* iPad Air + Pro — extend teal through footer cap corners (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
   .section {
     padding-bottom: calc(
       var(--home-gallery-desktop-pb) + var(--home-gallery-tablet-footer-underlap, 5.75rem)

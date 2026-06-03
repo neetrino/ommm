@@ -68,7 +68,7 @@
   transform: rotate(-45deg) scaleY(-1);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 744px) {
   .junctionNav {
     bottom: var(--home-hero-junction-bottom-lg, 1.5rem);
     gap: var(--home-hero-junction-gap-lg, 1rem);
