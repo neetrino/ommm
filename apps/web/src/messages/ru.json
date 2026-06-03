@@ -723,6 +723,12 @@
       "emptyPurchased": "Подарочные карты не покупались.",
       "emptyReceived": "Подарков пока не было.",
       "giftFallbackName": "Подарок",
+      "cardImageAlt": "Изображение подарочной карты",
+      "cardImageFallback": "Подарочная карта",
+      "cardBalance": "Баланс",
+      "cardExpiration": "Срок",
+      "cardNoExpiration": "Без срока",
+      "cardCode": "Код",
       "rowPurchased": "{code} · баланс {balance}/{amount} · {status}",
       "rowReceived": "{name} · баланс {balance} · {status}"
     },
@@ -1651,8 +1657,13 @@
       "modalBackdropClose": "Закрыть окно",
       "fieldAmount": "Сумма (центы, AMD)",
       "fieldAmountPlaceholder": "напр. 10000",
+      "fieldQuantity": "Количество",
+      "fieldQuantityPlaceholder": "напр. 1",
       "fieldAssignedUser": "Назначенный пользователь",
       "fieldAssignedUserPlaceholder": "Необязательный назначенный пользователь",
+      "fieldImage": "Изображение подарочной карты",
+      "fieldImageHint": "Необязательный JPG/JPEG/PNG/WEBP (до 5 МБ).",
+      "fieldImagePreviewAlt": "Предпросмотр изображения подарочной карты",
       "fieldRecipientEmail": "Email получателя",
       "fieldRecipientEmailPlaceholder": "Необязательный email",
       "fieldRecipientName": "Имя получателя",
@@ -1661,6 +1672,9 @@
       "fieldMessage": "Сообщение",
       "fieldMessagePlaceholder": "Необязательное личное сообщение",
       "amountInvalid": "Введите корректную сумму в центах.",
+      "quantityInvalid": "Введите корректное количество (минимум 1).",
+      "imageTypeInvalid": "Разрешены только изображения JPG, JPEG, PNG или WEBP.",
+      "imageTooLarge": "Изображение слишком большое. Максимум 5 МБ.",
       "saveButton": "Создать",
       "savingButton": "Создание…",
       "cancelButton": "Отмена",
@@ -1726,7 +1740,8 @@
         "failed": "Действие не выполнено."
       },
       "messages": {
-        "createSuccess": "Подарочная карта создана."
+        "createSuccess": "Подарочная карта создана.",
+        "createSuccessMany": "Создано подарочных карт: {count}."
       }
     },
     "packages": {

@@ -12,6 +12,7 @@ export type AdminGiftCardRow = {
   code: string;
   amountCents: number;
   balanceCents: number;
+  imageUrl: string | null;
   status: GiftCardStatus;
   recipientEmail: string | null;
   recipientName: string | null;

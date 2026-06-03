@@ -76,7 +76,7 @@ export function parseAnalyticsQuickFilters(value?: string): AnalyticsQuickFilter
   }
 
   if (parsed.length === 0 && isAnalyticsQuickFilterOption(value.trim())) {
-    return [value.trim()];
+    return [value.trim() as AnalyticsQuickFilterOption];
   }
 
   return parsed;

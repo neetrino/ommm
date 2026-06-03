@@ -78,7 +78,7 @@ function AdminCoachesShellInner({
   classTypeOptions,
   classOptions,
   children,
-}: AdminCoachesShellProps) {
+}: Omit<AdminCoachesShellProps, "initialViewMode">) {
   const t = useTranslations("adminPages.coaches");
   const { viewMode, setViewMode } = useAdminCoachesView();
   const searchParams = useSearchParams();

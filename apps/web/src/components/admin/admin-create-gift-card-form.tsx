@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ApiError, apiFetch } from "@/lib/api";
+import { ApiError, apiFetchFormData } from "@/lib/api";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
@@ -10,19 +10,25 @@ import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-ty
 
 type AdminCreateGiftCardFormProps = {
   users: readonly AdminAssignableUser[];
-  onSaved: () => void;
+  onSaved: (createdCount: number) => void;
   onCancel: () => void;
 };
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreateGiftCardFormProps) {
   const t = useTranslations("adminPages.giftCards");
   const submitLockRef = useRef(false);
   const [amountCents, setAmountCents] = useState("10000");
+  const [quantity, setQuantity] = useState("1");
   const [recipientId, setRecipientId] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [message, setMessage] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -38,34 +44,72 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
     [t, users],
   );
 
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl !== null) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, [imagePreviewUrl]);
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || submitLockRef.current) {
       return;
     }
     const parsedAmount = Number.parseInt(amountCents, 10);
+    const parsedQuantity = Number.parseInt(quantity, 10);
     if (!Number.isFinite(parsedAmount) || parsedAmount < 1) {
       setTone("err");
       setResult(t("amountInvalid"));
       return;
+    }
+    if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1) {
+      setTone("err");
+      setResult(t("quantityInvalid"));
+      return;
+    }
+    if (imageFile !== null) {
+      if (!ACCEPTED_IMAGE_TYPES.includes(imageFile.type as (typeof ACCEPTED_IMAGE_TYPES)[number])) {
+        setTone("err");
+        setResult(t("imageTypeInvalid"));
+        return;
+      }
+      if (imageFile.size > MAX_IMAGE_BYTES) {
+        setTone("err");
+        setResult(t("imageTooLarge"));
+        return;
+      }
     }
 
     submitLockRef.current = true;
     setBusy(true);
     setResult(null);
     try {
-      await apiFetch("/gift-cards/admin", {
-        method: "POST",
-        body: JSON.stringify({
-          amountCents: parsedAmount,
-          recipientId: recipientId.trim() || undefined,
-          recipientEmail: recipientEmail.trim() || undefined,
-          recipientName: recipientName.trim() || undefined,
-          message: message.trim() || undefined,
-          expiresAt: expiresAt.trim() || undefined,
-        }),
-      });
-      onSaved();
+      const formData = new FormData();
+      formData.append("amountCents", String(parsedAmount));
+      formData.append("quantity", String(parsedQuantity));
+      if (recipientId.trim().length > 0) {
+        formData.append("recipientId", recipientId.trim());
+      }
+      if (recipientEmail.trim().length > 0) {
+        formData.append("recipientEmail", recipientEmail.trim());
+      }
+      if (recipientName.trim().length > 0) {
+        formData.append("recipientName", recipientName.trim());
+      }
+      if (message.trim().length > 0) {
+        formData.append("message", message.trim());
+      }
+      if (expiresAt.trim().length > 0) {
+        formData.append("expiresAt", expiresAt.trim());
+      }
+      if (imageFile !== null) {
+        formData.append("image", imageFile);
+      }
+      const created = await apiFetchFormData<unknown>("/gift-cards/admin", formData, "POST");
+      const createdCount = Array.isArray(created) ? created.length : 1;
+      onSaved(createdCount);
     } catch (error) {
       setTone("err");
       setResult(error instanceof ApiError ? error.message : t("genericError"));
@@ -102,6 +146,48 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           disabled={busy}
         />
       </label>
+      <label className="flex flex-col gap-1">
+        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldQuantity")}</span>
+        <input
+          name="quantity"
+          type="number"
+          min={1}
+          step={1}
+          className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          placeholder={t("fieldQuantityPlaceholder")}
+          value={quantity}
+          onChange={(event) => setQuantity(event.target.value)}
+          disabled={busy}
+          required
+        />
+      </label>
+      <label className="flex flex-col gap-2">
+        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldImage")}</span>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+          onChange={(event) => {
+            const file = event.target.files?.[0] ?? null;
+            if (imagePreviewUrl !== null) {
+              URL.revokeObjectURL(imagePreviewUrl);
+            }
+            setImageFile(file);
+            setImagePreviewUrl(file !== null ? URL.createObjectURL(file) : null);
+          }}
+          disabled={busy}
+        />
+        <span className="text-xs text-sage-500">{t("fieldImageHint")}</span>
+      </label>
+      {imagePreviewUrl !== null ? (
+        <div className="relative aspect-[16/10] w-full max-w-sm overflow-hidden rounded-2xl border border-white/70 bg-white/70">
+          {/* eslint-disable-next-line @next/next/no-img-element -- preview image supports blob/object URLs */}
+          <img
+            src={imagePreviewUrl}
+            alt={t("fieldImagePreviewAlt")}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      ) : null}
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldRecipientEmail")}</span>
         <input

@@ -719,6 +719,12 @@
       "emptyPurchased": "Նվեր քարտեր չեն գնվել։",
       "emptyReceived": "Դեռ նվերներ չեք ստացել։",
       "giftFallbackName": "Նվեր",
+      "cardImageAlt": "Նվեր քարտի պատկեր",
+      "cardImageFallback": "Նվեր քարտ",
+      "cardBalance": "Մնացորդ",
+      "cardExpiration": "Ժամկետ",
+      "cardNoExpiration": "Անժամկետ",
+      "cardCode": "Կոդ",
       "rowPurchased": "{code} · մնացորդ {balance}/{amount} · {status}",
       "rowReceived": "{name} · մնացորդ {balance} · {status}"
     },
@@ -1647,8 +1653,13 @@
       "modalBackdropClose": "Փակել պատուհանը",
       "fieldAmount": "Գումար (ցենտ, AMD)",
       "fieldAmountPlaceholder": "օր. 10000",
+      "fieldQuantity": "Քանակ",
+      "fieldQuantityPlaceholder": "օր. 1",
       "fieldAssignedUser": "Կցված օգտատեր",
       "fieldAssignedUserPlaceholder": "Ընտրովի կցված օգտատեր",
+      "fieldImage": "Նվեր քարտի պատկեր",
+      "fieldImageHint": "Ընտրովի JPG/JPEG/PNG/WEBP (մինչև 5 ՄԲ):",
+      "fieldImagePreviewAlt": "Նվեր քարտի պատկերի նախադիտում",
       "fieldRecipientEmail": "Ստացողի էլ. փոստ",
       "fieldRecipientEmailPlaceholder": "Ընտրովի ստացողի էլ. փոստ",
       "fieldRecipientName": "Ստացողի անուն",
@@ -1657,6 +1668,9 @@
       "fieldMessage": "Հաղորդագրություն",
       "fieldMessagePlaceholder": "Ընտրովի անձնական հաղորդագրություն",
       "amountInvalid": "Մուտքագրեք վավեր գումար ցենտներով։",
+      "quantityInvalid": "Մուտքագրեք վավեր քանակ (նվազագույնը 1):",
+      "imageTypeInvalid": "Թույլատրելի են միայն JPG, JPEG, PNG կամ WEBP պատկերներ։",
+      "imageTooLarge": "Պատկերը շատ մեծ է։ Առավելագույնը 5 ՄԲ։",
       "saveButton": "Ստեղծել",
       "savingButton": "Ստեղծվում է…",
       "cancelButton": "Չեղարկել",
@@ -1722,7 +1736,8 @@
         "failed": "Գործողությունը ձախողվեց։"
       },
       "messages": {
-        "createSuccess": "Նվեր քարտը ստեղծվեց։"
+        "createSuccess": "Նվեր քարտը ստեղծվեց։",
+        "createSuccessMany": "Ստեղծվեց {count} նվեր քարտ։"
       }
     },
     "packages": {

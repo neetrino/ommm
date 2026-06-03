@@ -62,13 +62,17 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
-  const onCreated = useCallback(() => {
+  const onCreated = useCallback((createdCount: number) => {
     if (bannerTimerRef.current !== null) {
       clearTimeout(bannerTimerRef.current);
     }
     closeModal();
     router.refresh();
-    setBanner(t("messages.createSuccess"));
+    setBanner(
+      createdCount > 1
+        ? t("messages.createSuccessMany", { count: createdCount })
+        : t("messages.createSuccess"),
+    );
     bannerTimerRef.current = setTimeout(() => {
       setBanner(null);
       bannerTimerRef.current = null;

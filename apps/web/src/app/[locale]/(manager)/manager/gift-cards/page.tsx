@@ -121,6 +121,10 @@ export default async function ManagerGiftCardsPage({
                     giftCardId={g.id}
                     allowDeactivate={false}
                     locale={locale}
+                    assignableUsers={[]}
+                    onChanged={() => {
+                      // Manager page is read-oriented; actions still run server-side.
+                    }}
                   />
                 </td>
               </tr>

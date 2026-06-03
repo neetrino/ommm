@@ -6,11 +6,18 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class AdminCreateGiftCardDto {
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   amountCents!: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  quantity = 1;
 
   @IsOptional()
   @IsString()
@@ -35,4 +42,9 @@ export class AdminCreateGiftCardDto {
   @IsString()
   @MaxLength(32)
   expiresAt?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  imageUrl?: string;
 }

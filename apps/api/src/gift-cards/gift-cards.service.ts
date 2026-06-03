@@ -2,22 +2,46 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { GiftCardStatus } from '@prisma/client';
+import { GiftCardStatus, Prisma } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'node:crypto';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import type { Express } from 'express';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
+import { absolutePathForStoredGiftCardUpload } from './gift-card-upload.helpers';
+import {
+  ALLOWED_GIFT_CARD_IMAGE_MIMES,
+  GIFT_CARD_IMAGE_MIME_TO_EXT,
+  normalizeGiftCardImageMime,
+} from './gift-card-image.constants';
 
 @Injectable()
 export class GiftCardsService {
+  private readonly logger = new Logger(GiftCardsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
     private readonly audit: AuditService,
+    private readonly config: ConfigService,
+    private readonly r2Storage: R2HomeImageStorage,
   ) {}
+
+  private get uploadRoot(): string {
+    const raw = this.config.get<string>('UPLOAD_DIR');
+    if (raw !== undefined && raw.trim() !== '') {
+      return raw.trim();
+    }
+    return join(process.cwd(), 'uploads');
+  }
 
   listMine(userId: string) {
     return this.prisma.giftCard.findMany({
@@ -118,12 +142,18 @@ export class GiftCardsService {
     return { ok: true };
   }
 
-  async createAdminCard(adminId: string, dto: AdminCreateGiftCardDto) {
-    const code = randomBytes(8).toString('hex').toUpperCase();
+  async createAdminCard(
+    adminId: string,
+    dto: AdminCreateGiftCardDto,
+    imageFile?: Express.Multer.File,
+  ) {
     const expiresAt =
       dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
     if (expiresAt && Number.isNaN(expiresAt.getTime())) {
       throw new BadRequestException('Invalid expiresAt date');
+    }
+    if (!Number.isInteger(dto.quantity) || dto.quantity < 1) {
+      throw new BadRequestException('quantity must be a positive integer');
     }
     const recipient =
       dto.recipientId !== undefined
@@ -137,37 +167,67 @@ export class GiftCardsService {
     }
     const recipientEmail = dto.recipientEmail ?? recipient?.email ?? null;
     const recipientName = dto.recipientName ?? recipient?.name ?? null;
+    const uploadedImageUrl =
+      imageFile !== undefined
+        ? await this.storeGiftCardImage(adminId, imageFile)
+        : null;
+    const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
 
-    const card = await this.prisma.giftCard.create({
-      data: {
-        code,
-        amountCents: dto.amountCents,
-        balanceCents: dto.amountCents,
-        status: GiftCardStatus.ACTIVE,
-        purchaserId: adminId,
-        recipientId: recipient?.id,
-        recipientName,
-        recipientEmail,
-        message: dto.message,
-        expiresAt,
-      },
-    });
-    if (card.recipientEmail) {
-      await this.sendGiftCardEmail(card.recipientEmail, card.code);
+    try {
+      const cards = await this.prisma.$transaction(async (tx) => {
+        const created = await Promise.all(
+          Array.from({ length: dto.quantity }, async () => {
+            const createData: Record<string, unknown> = {
+              code: randomBytes(8).toString('hex').toUpperCase(),
+              amountCents: dto.amountCents,
+              balanceCents: dto.amountCents,
+              status: GiftCardStatus.ACTIVE,
+              purchaserId: adminId,
+              recipientId: recipient?.id,
+              recipientName,
+              recipientEmail,
+              message: dto.message,
+              expiresAt,
+            };
+            if (imageUrl !== null) {
+              createData.imageUrl = imageUrl;
+            }
+            return tx.giftCard.create({
+              data: createData as unknown as Prisma.GiftCardUncheckedCreateInput,
+            });
+          }),
+        );
+        return created;
+      });
+      if (recipientEmail) {
+        await Promise.all(
+          cards.map((card) => this.sendGiftCardEmail(recipientEmail, card.code)),
+        );
+      }
+      await Promise.all(
+        cards.map((card) =>
+          this.audit.log({
+            actorId: adminId,
+            actorRole: 'ADMIN',
+            action: 'GIFT_CARD_CREATED_ADMIN',
+            entityType: 'GiftCard',
+            entityId: card.id,
+            payload: {
+              amountCents: card.amountCents,
+              recipientEmail: card.recipientEmail ?? null,
+              recipientId: card.recipientId ?? null,
+              imageUrl,
+            },
+          }),
+        ),
+      );
+      return dto.quantity === 1 ? cards[0] : cards;
+    } catch (error) {
+      if (uploadedImageUrl !== null) {
+        await this.removeStoredGiftCardImage(uploadedImageUrl);
+      }
+      throw error;
     }
-    await this.audit.log({
-      actorId: adminId,
-      actorRole: 'ADMIN',
-      action: 'GIFT_CARD_CREATED_ADMIN',
-      entityType: 'GiftCard',
-      entityId: card.id,
-      payload: {
-        amountCents: card.amountCents,
-        recipientEmail: card.recipientEmail ?? null,
-        recipientId: card.recipientId ?? null,
-      },
-    });
-    return card;
   }
 
   async assignRecipient(giftCardId: string, userId: string) {
@@ -273,5 +333,64 @@ export class GiftCardsService {
       subject: 'Your Ommm gift card',
       html: `<p>Code: <strong>${code}</strong></p><p>Redeem at ${web}</p>`,
     });
+  }
+
+  private assertGiftCardImageBuffer(file: Express.Multer.File): {
+    buffer: Buffer;
+    mime: string;
+  } {
+    const mime = normalizeGiftCardImageMime(file.mimetype);
+    if (!ALLOWED_GIFT_CARD_IMAGE_MIMES.has(mime)) {
+      throw new BadRequestException(
+        'Only JPG, JPEG, PNG, or WEBP images are allowed',
+      );
+    }
+    if (!GIFT_CARD_IMAGE_MIME_TO_EXT[mime]) {
+      throw new BadRequestException('Invalid image type');
+    }
+    if (!file.buffer?.length) {
+      throw new BadRequestException('Image file is required');
+    }
+    return { buffer: file.buffer, mime };
+  }
+
+  private async storeGiftCardImage(
+    adminId: string,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    const { buffer, mime } = this.assertGiftCardImageBuffer(file);
+    const ext = GIFT_CARD_IMAGE_MIME_TO_EXT[mime];
+    const filename = `${randomBytes(16).toString('hex')}.${ext}`;
+    if (this.r2Storage.isConfigured()) {
+      const key = `gift-cards/${adminId}/${filename}`;
+      return this.r2Storage.putObject({
+        key,
+        body: buffer,
+        contentType: mime,
+      });
+    }
+    const dir = join(this.uploadRoot, 'gift-cards', adminId);
+    await mkdir(dir, { recursive: true });
+    const diskPath = join(dir, filename);
+    await writeFile(diskPath, buffer);
+    return `/v1/uploads/gift-cards/${adminId}/${filename}`;
+  }
+
+  private async removeStoredGiftCardImage(stored: string): Promise<void> {
+    if (stored.startsWith('http://') || stored.startsWith('https://')) {
+      await this.r2Storage.deleteObjectIfOwned(stored);
+      return;
+    }
+    const absolute = absolutePathForStoredGiftCardUpload(this.uploadRoot, stored);
+    if (!absolute) {
+      return;
+    }
+    try {
+      await unlink(absolute);
+    } catch (error) {
+      this.logger.warn(
+        `Could not remove uploaded gift-card image (${stored}): ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

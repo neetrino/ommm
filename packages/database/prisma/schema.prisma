@@ -405,6 +405,7 @@ model GiftCard {
   code            String         @unique
   amountCents     Int
   balanceCents    Int
+  imageUrl        String?
   status          GiftCardStatus @default(ACTIVE)
   purchaserId     String
   purchaser       User           @relation("GiftCardPurchaser", fields: [purchaserId], references: [id])

@@ -5,8 +5,12 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Express } from 'express';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -15,6 +19,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
+import { GIFT_CARD_IMAGE_MAX_BYTES } from './gift-card-image.constants';
 import { GiftCardsService } from './gift-cards.service';
 
 @Controller('gift-cards')
@@ -56,11 +61,17 @@ export class GiftCardsController {
   @Post('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: { fileSize: GIFT_CARD_IMAGE_MAX_BYTES },
+    }),
+  )
   adminCreate(
     @CurrentUser() user: { id: string },
     @Body() dto: AdminCreateGiftCardDto,
+    @UploadedFile() image: Express.Multer.File | undefined,
   ) {
-    return this.giftCards.createAdminCard(user.id, dto);
+    return this.giftCards.createAdminCard(user.id, dto, image);
   }
 
   @Patch('admin/:id/deactivate')
