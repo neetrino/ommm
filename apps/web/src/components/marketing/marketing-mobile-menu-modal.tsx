@@ -33,30 +33,34 @@ export function MarketingMobileMenuModal({
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
   const isClientMounted = useIsClientMounted();
-  const [isVisible, setIsVisible] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [isExiting, setIsExiting] = useState(false);
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setIsExiting(false);
+    } else {
+      setIsExiting(true);
+    }
+  }
+
+  const isVisible = isOpen || isExiting;
+  const isClosing = isExiting && !isOpen;
 
   useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-      setIsClosing(false);
-      return;
+    if (!isExiting) {
+      return undefined;
     }
 
-    if (!isVisible) {
-      return;
-    }
-
-    setIsClosing(true);
     const closeTimer = window.setTimeout(() => {
-      setIsVisible(false);
-      setIsClosing(false);
+      setIsExiting(false);
     }, MARKETING_MOBILE_MENU_TRANSITION_MS);
 
     return () => {
       window.clearTimeout(closeTimer);
     };
-  }, [isOpen, isVisible]);
+  }, [isExiting]);
 
   useEffect(() => {
     if (!isVisible) {

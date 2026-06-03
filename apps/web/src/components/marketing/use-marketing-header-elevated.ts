@@ -1,34 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { useSyncExternalStore } from "react";
 
 /** Scroll past hero header before switching to elevated liquid-glass nav pill. */
 const MARKETING_HEADER_SCROLL_THRESHOLD_PX = 48;
 
+function subscribeToScroll(onStoreChange: () => void): () => void {
+  window.addEventListener("scroll", onStoreChange, { passive: true });
+  return () => window.removeEventListener("scroll", onStoreChange);
+}
+
+function getScrollElevatedSnapshot(): boolean {
+  return window.scrollY > MARKETING_HEADER_SCROLL_THRESHOLD_PX;
+}
+
 /** True when the header should use the elevated liquid-glass treatment. */
 export function useMarketingHeaderElevated(isHome: boolean): boolean {
-  const isClientMounted = useIsClientMounted();
-  const [elevated, setElevated] = useState(!isHome);
+  const scrollElevated = useSyncExternalStore(
+    isHome ? subscribeToScroll : () => () => undefined,
+    () => (isHome ? getScrollElevatedSnapshot() : false),
+    () => false,
+  );
 
-  useEffect(() => {
-    if (!isClientMounted) {
-      return undefined;
-    }
-
-    if (!isHome) {
-      setElevated(true);
-      return undefined;
-    }
-
-    const update = () => {
-      setElevated(window.scrollY > MARKETING_HEADER_SCROLL_THRESHOLD_PX);
-    };
-
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, [isClientMounted, isHome]);
-
-  return elevated;
+  return !isHome || scrollElevated;
 }
