@@ -7,8 +7,7 @@ function formatAmdNumber(amount: number, locale: string): string {
 }
 
 export function formatAmdFromCents(cents: number, locale: string): string {
-  const major = cents / 100;
-  return `${AMD_SYMBOL} ${formatAmdNumber(major, locale)}`;
+  return `${AMD_SYMBOL} ${formatAmdNumber(cents, locale)}`;
 }
 
 export function formatAmdFromMajor(amount: number, locale: string): string {

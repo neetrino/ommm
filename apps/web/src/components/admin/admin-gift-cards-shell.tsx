@@ -1,16 +1,31 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import {
+  AdminGiftCardsViewProvider,
+  useAdminGiftCardsView,
+} from "@/components/admin/admin-gift-cards-view-context";
+import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
+import type {
+  AdminAssignableUser,
+  AdminGiftCardBatchRow,
+} from "@/components/admin/admin-gift-cards-types";
+import {
+  ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
+  type AdminGiftCardsViewMode,
+} from "@/lib/admin-gift-cards-view-preference";
 
+const BANNER_MS = 8000;
 const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "create-gift-card";
-const BANNER_MS = 8000;
+const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
 function AddGiftCardGlyph({ className }: { className?: string }) {
   return (
@@ -31,42 +46,86 @@ function AddGiftCardGlyph({ className }: { className?: string }) {
 }
 
 type AdminGiftCardsShellProps = {
+  assignableUsers: readonly AdminAssignableUser[];
+  giftCards: readonly AdminGiftCardBatchRow[];
+  initialViewMode: AdminGiftCardsViewMode;
   children: ReactNode;
 };
 
-export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
+export function AdminGiftCardsShell({
+  assignableUsers,
+  giftCards,
+  initialViewMode,
+  children,
+}: AdminGiftCardsShellProps) {
+  return (
+    <AdminGiftCardsViewProvider key={initialViewMode} initialViewMode={initialViewMode}>
+      <AdminGiftCardsShellInner assignableUsers={assignableUsers} giftCards={giftCards}>
+        {children}
+      </AdminGiftCardsShellInner>
+    </AdminGiftCardsViewProvider>
+  );
+}
+
+function AdminGiftCardsShellInner({
+  assignableUsers,
+  giftCards,
+  children,
+}: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
   const t = useTranslations("adminPages.giftCards");
-  const searchParams = useSearchParams();
+  const { viewMode, setViewMode } = useAdminGiftCardsView();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const titleId = useId();
-  const descId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const modalMode = searchParams.get(MODAL_QUERY_KEY);
+  const editBatchId = searchParams.get("batchId");
+  const isCreateMode = modalMode === MODAL_QUERY_VALUE;
+  const isEditMode = modalMode === EDIT_MODAL_QUERY_VALUE && editBatchId !== null;
+  const isModalOpen = isCreateMode || isEditMode;
+  const editingBatch =
+    isEditMode && editBatchId !== null
+      ? giftCards.find((batch) => batch.id === editBatchId) ?? null
+      : null;
 
-  const isModalOpen = searchParams.get(MODAL_QUERY_KEY) === MODAL_QUERY_VALUE;
+  const setView = useCallback(
+    (mode: AdminGiftCardsViewMode) => {
+      setViewMode(mode);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(ADMIN_GIFT_CARDS_VIEW_QUERY_KEY, mode);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams, setViewMode],
+  );
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(MODAL_QUERY_KEY);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname);
+    params.delete("batchId");
+    const query = params.toString();
+    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router, searchParams]);
 
   const openModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
-  const onCreated = useCallback(() => {
+  const onCreated = useCallback((createdCount: number) => {
     if (bannerTimerRef.current !== null) {
       clearTimeout(bannerTimerRef.current);
     }
     closeModal();
     router.refresh();
-    setBanner(t("messages.createSuccess"));
+    setBanner(
+      createdCount > 1
+        ? t("messages.createSuccessMany", { count: createdCount })
+        : t("messages.createSuccess"),
+    );
     bannerTimerRef.current = setTimeout(() => {
       setBanner(null);
       bannerTimerRef.current = null;
@@ -111,7 +170,7 @@ export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
     if (!isModalOpen || panelRef.current === null) {
       return;
     }
-    const focusable = panelRef.current.querySelector<HTMLElement>('input[name="amountCents"]');
+    const focusable = panelRef.current.querySelector<HTMLElement>('input[name="amountAmd"]');
     focusable?.focus();
   }, [isModalOpen]);
 
@@ -127,17 +186,22 @@ export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
           </p>
         ) : null}
 
-        <div className="flex justify-end">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openModal}
-            className="inline-flex items-center gap-2"
-          >
-            <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-            {t("createButton")}
-          </OmmButton>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex justify-start">
+            <AdminGiftCardsViewSwitcher value={viewMode} onChange={setView} />
+          </div>
+          <div className="flex justify-start sm:justify-end">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={openModal}
+              className="inline-flex cursor-pointer items-center gap-2 shadow-sm transition-transform hover:-translate-y-px"
+            >
+              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
+              {t("createButton")}
+            </OmmButton>
+          </div>
         </div>
 
         {children}
@@ -159,17 +223,13 @@ export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            aria-describedby={descId}
             className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id={titleId} className={adminChrome.panelHeading}>
-                  {t("createTitle")}
+                  {isEditMode ? t("editTitle") : t("createTitle")}
                 </h2>
-                <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                  {t("createDescription")}
-                </p>
               </div>
               <button
                 type="button"
@@ -192,7 +252,31 @@ export function AdminGiftCardsShell({ children }: AdminGiftCardsShellProps) {
               </button>
             </div>
             <div className="mt-5">
-              <AdminCreateGiftCardForm onSaved={onCreated} onCancel={closeModal} />
+              <AdminCreateGiftCardForm
+                key={editingBatch?.id ?? "create-gift-card"}
+                users={assignableUsers}
+                onSaved={onCreated}
+                onCancel={closeModal}
+                mode={isEditMode ? "edit" : "create"}
+                batchId={editingBatch?.id}
+                initialValues={
+                  editingBatch
+                    ? {
+                        amountAmd: editingBatch.amountAmd,
+                        quantity: editingBatch.totalQuantity,
+                        availableQuantity: editingBatch.availableQuantity,
+                        minQuantity: Math.max(
+                          1,
+                          editingBatch.totalQuantity - editingBatch.availableQuantity,
+                        ),
+                        recipientEmail: editingBatch.recipientEmail ?? "",
+                        recipientName: editingBatch.recipientName ?? "",
+                        message: editingBatch.message ?? "",
+                        expiresAt: editingBatch.expiresAt ?? "",
+                      }
+                    : undefined
+                }
+              />
             </div>
           </div>
         </div>

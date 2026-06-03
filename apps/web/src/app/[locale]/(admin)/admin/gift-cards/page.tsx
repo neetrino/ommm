@@ -2,12 +2,13 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminGiftCardsManagement } from "@/components/admin/admin-gift-cards-management";
-import type { AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
-import {
-  giftCardFiltersQueryKey,
-  parseGiftCardFiltersFromSearch,
-} from "@/components/admin/admin-gift-cards-url";
+import type {
+  AdminAssignableUser,
+  AdminGiftCardBatchRow,
+} from "@/components/admin/admin-gift-cards-types";
+import { parseGiftCardFiltersFromSearch } from "@/components/admin/admin-gift-cards-url";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { parseAdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminGiftCardsPage({
@@ -21,7 +22,10 @@ export default async function AdminGiftCardsPage({
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<AdminGiftCardRow[]>("/gift-cards/admin", cookie);
+  const [res, usersRes] = await Promise.all([
+    serverApiJson<AdminGiftCardBatchRow[]>("/gift-cards/admin/batches", cookie),
+    serverApiJson<AdminAssignableUser[]>("/gift-cards/admin/users", cookie),
+  ]);
 
   if (!res.ok) {
     return (
@@ -34,15 +38,17 @@ export default async function AdminGiftCardsPage({
   }
 
   const initialFilters = parseGiftCardFiltersFromSearch(search);
+  const initialViewMode = parseAdminGiftCardsViewMode(search.view);
 
   return (
     <AdminContentFrame description={t("description")}>
       <Suspense fallback={null}>
         <AdminGiftCardsManagement
-          key={giftCardFiltersQueryKey(initialFilters)}
           giftCards={res.data}
+          assignableUsers={usersRes.ok ? usersRes.data : []}
           locale={locale}
           initialFilters={initialFilters}
+          initialViewMode={initialViewMode}
         />
       </Suspense>
     </AdminContentFrame>

@@ -10,7 +10,7 @@
 
 3. **`API_INTERNAL_URL`** — «Vercel-ի **սեփական սերվերը** (Next-ը) ներսից API-ին որտեղից է դիմում»։ `next.config`-ի rewrite-ը `/api/v1/...` հարցումները ուղարկում է այս հասցեին։ Տեղային մեքենայում դա `127.0.0.1:4000` է, բայց **Vercel-ի վրա դա չի աշխատի**՝ այնտեղ պետք է նույն հանրային API URL-ը, ինչ production-ում (սովորաբար նույնը, ինչ `NEXT_PUBLIC_API_URL`)-ը, առանց localhost-ի։
 
-**Այլ բաներ** (DB, JWT, Stripe, նամակ, R2) Vercel-ի Next պրոյեկտում **չես դնում**, եթե դրանք միայն Nest API-ն է օգտագործում՝ դնում ես API deploy-ի env-ում։
+**Այլ բաներ** (DB, JWT, նամակ, R2) Vercel-ի Next պրոյեկտում **չես դնում**, եթե դրանք միայն Nest API-ն է օգտագործում՝ դնում ես API deploy-ի env-ում։
 
 `NEXT_PUBLIC_`-ով սկսվող արժեքները **build**-ի ժամանակ են «կպչում» կոդին — փոխելուց հետո նոր deploy արա։
 
@@ -42,7 +42,6 @@ Keep these on the **API** host only, unless a future change reads them from Next
 
 - `DATABASE_URL`, `DIRECT_URL`, `DATABASE_CONNECTION_LIMIT`, `DATABASE_POOL_TIMEOUT`
 - `JWT_SECRET`, `JWT_EXPIRES_SEC`
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CURRENCY`
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 - `MAIL_TRANSPORT`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM`
 - `R2_*` (and optional `R2_HOME_IMAGE_REQUIRED`)
@@ -66,7 +65,7 @@ Keep these on the **API** host only, unless a future change reads them from Next
 | `NEXT_PUBLIC_API_URL` | Render-ի **Nest** service-ի հանրային URL (օր. `https://your-api.onrender.com`)։ |
 | `API_INTERNAL_URL` | Սովորաբար **նույնը**, ինչ `NEXT_PUBLIC_API_URL` (Vercel server → Nest proxy)։ |
 
-Մնացածը (DB, JWT, Stripe, …) **չի** գնում Vercel, եթե Next-ը դրանք ուղիղ չի կարդում։
+Մնացածը (DB, JWT, …) **չի** գնում Vercel, եթե Next-ը դրանք ուղիղ չի կարդում։
 
 ### Render (`apps/api`) — env
 
@@ -80,7 +79,6 @@ Keep these on the **API** host only, unless a future change reads them from Next
 | `DIRECT_URL` | Neon direct (migrations / Prisma)։ |
 | `DATABASE_CONNECTION_LIMIT`, `DATABASE_POOL_TIMEOUT` | Ըստ `.env.example` կամ ձեր pool-ի։ |
 | `JWT_SECRET`, `JWT_EXPIRES_SEC` | Auth։ |
-| `STRIPE_*` | Եթե վճարումներն ես միացնում։ |
 | `UPSTASH_REDIS_*` | Եթե cache-ը օգտագործում ես։ |
 | `MAIL_TRANSPORT`, `RESEND_*` | Եթե production-ում նամակ ես ուղարկում։ |
 | `R2_*` | Ֆայլերի / home image upload-ի համար (տես `.env.example`)։ |

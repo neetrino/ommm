@@ -1,13 +1,31 @@
 import type {
   AnalyticsBarItem,
   AnalyticsBookingStatusFilter,
-  AnalyticsQuickFilter,
+  AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
   AnalyticsViewMode,
 } from "@/components/admin/admin-analytics-types";
 
 export const ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000;
+
+export const ANALYTICS_QUICK_FILTER_VALUES: readonly AnalyticsQuickFilterOption[] = [
+  "today",
+  "week",
+  "month",
+  "last30",
+  "topCoaches",
+  "popularClasses",
+];
+
+const ANALYTICS_QUICK_FILTER_SET = new Set<string>(ANALYTICS_QUICK_FILTER_VALUES);
+
+const ANALYTICS_DATE_QUICK_FILTERS: readonly AnalyticsQuickFilterOption[] = [
+  "today",
+  "week",
+  "month",
+  "last30",
+];
 
 export function parseAnalyticsRangeDays(value?: string): AnalyticsRangeDays {
   const parsed = Number(value);
@@ -37,20 +55,38 @@ export function parseAnalyticsSortKey(value?: string): AnalyticsSortKey {
   return "revenue-desc";
 }
 
-export function parseAnalyticsQuickFilter(value?: string): AnalyticsQuickFilter {
-  const allowed: AnalyticsQuickFilter[] = [
-    "none",
-    "today",
-    "week",
-    "month",
-    "last30",
-    "topCoaches",
-    "popularClasses",
-  ];
-  if (value && allowed.includes(value as AnalyticsQuickFilter)) {
-    return value as AnalyticsQuickFilter;
+function isAnalyticsQuickFilterOption(value: string): value is AnalyticsQuickFilterOption {
+  return ANALYTICS_QUICK_FILTER_SET.has(value);
+}
+
+/** Parses comma-separated `quick` URL values. Empty array means all options are selected. */
+export function parseAnalyticsQuickFilters(value?: string): AnalyticsQuickFilterOption[] {
+  if (!value?.trim() || value === "none") {
+    return [];
   }
-  return "none";
+
+  const seen = new Set<AnalyticsQuickFilterOption>();
+  const parsed: AnalyticsQuickFilterOption[] = [];
+  for (const part of value.split(",")) {
+    const trimmed = part.trim();
+    if (isAnalyticsQuickFilterOption(trimmed) && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      parsed.push(trimmed);
+    }
+  }
+
+  if (parsed.length === 0 && isAnalyticsQuickFilterOption(value.trim())) {
+    return [value.trim() as AnalyticsQuickFilterOption];
+  }
+
+  return parsed;
+}
+
+/** Serializes selected quick filters for the `quick` URL param. Empty string means all selected. */
+export function serializeAnalyticsQuickFilters(
+  values: readonly AnalyticsQuickFilterOption[],
+): string {
+  return values.join(",");
 }
 
 export function parseAnalyticsBookingStatus(value?: string): AnalyticsBookingStatusFilter {
@@ -67,42 +103,82 @@ export function parseAnalyticsBookingStatus(value?: string): AnalyticsBookingSta
   return "";
 }
 
-export function resolveQuickFilterSort(quickFilter: AnalyticsQuickFilter): AnalyticsSortKey | null {
-  if (quickFilter === "topCoaches" || quickFilter === "popularClasses") {
+export function resolveQuickFiltersSort(
+  quickFilters: readonly AnalyticsQuickFilterOption[],
+): AnalyticsSortKey | null {
+  if (quickFilters.length === 0) {
+    return null;
+  }
+  if (quickFilters.includes("topCoaches") || quickFilters.includes("popularClasses")) {
     return "bookings-desc";
   }
   return null;
 }
 
+function quickFilterDateBreadthDays(filter: AnalyticsQuickFilterOption): number {
+  if (filter === "today") {
+    return 1;
+  }
+  if (filter === "week") {
+    return 7;
+  }
+  return 30;
+}
+
+function resolveRangeDaysFromBreadth(breadthDays: number): AnalyticsRangeDays {
+  if (breadthDays <= 7) {
+    return 7;
+  }
+  if (breadthDays >= 90) {
+    return 90;
+  }
+  return 30;
+}
+
+function buildDateRangeFromDays(
+  rangeDays: AnalyticsRangeDays,
+  now: Date,
+  to: Date,
+): { fromIso: string; toIso: string; rangeDays: AnalyticsRangeDays } {
+  const from = new Date(now);
+  from.setDate(from.getDate() - rangeDays + 1);
+  from.setHours(0, 0, 0, 0);
+  return {
+    fromIso: from.toISOString(),
+    toIso: to.toISOString(),
+    rangeDays,
+  };
+}
+
 export function resolveAnalyticsDateRange(input: {
   rangeDays: AnalyticsRangeDays;
-  quickFilter: AnalyticsQuickFilter;
+  quickFilters: readonly AnalyticsQuickFilterOption[];
 }): { fromIso: string; toIso: string; rangeDays: AnalyticsRangeDays } {
   const now = new Date();
   const to = new Date(now);
   to.setHours(23, 59, 59, 999);
 
-  if (input.quickFilter === "today") {
+  const selectedDateFilters = input.quickFilters.filter((filter) =>
+    ANALYTICS_DATE_QUICK_FILTERS.includes(filter),
+  );
+
+  if (input.quickFilters.length === 0 || selectedDateFilters.length === 0) {
+    return buildDateRangeFromDays(input.rangeDays, now, to);
+  }
+
+  const breadthDays = selectedDateFilters.reduce(
+    (max, filter) => Math.max(max, quickFilterDateBreadthDays(filter)),
+    0,
+  );
+
+  if (breadthDays === 1) {
     const from = new Date(now);
     from.setHours(0, 0, 0, 0);
     return { fromIso: from.toISOString(), toIso: to.toISOString(), rangeDays: 7 };
   }
 
-  const days =
-    input.quickFilter === "week"
-      ? 7
-      : input.quickFilter === "month" || input.quickFilter === "last30"
-        ? 30
-        : input.rangeDays;
-
-  const from = new Date(now);
-  from.setDate(from.getDate() - days + 1);
-  from.setHours(0, 0, 0, 0);
-  return {
-    fromIso: from.toISOString(),
-    toIso: to.toISOString(),
-    rangeDays: days === 7 ? 7 : days === 90 ? 90 : 30,
-  };
+  const resolvedRangeDays = resolveRangeDaysFromBreadth(breadthDays);
+  return buildDateRangeFromDays(resolvedRangeDays, now, to);
 }
 
 export function sortBarItems(

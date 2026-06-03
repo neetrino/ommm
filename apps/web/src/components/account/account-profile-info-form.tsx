@@ -4,10 +4,14 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateForUi } from "@/lib/date-display";
+import {
+  formatBirthdayInput,
+  formatDateForUi,
+  formatIsoDateToUi,
+  parseBirthdayDisplayToIso,
+} from "@/lib/date-display";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type ProfileFormUser = {
   email: string;
@@ -38,7 +42,7 @@ function initialFormState(user: ProfileFormUser): FormState {
     name: user.name ?? "",
     lastName: user.lastName ?? "",
     phone: user.phone ?? "",
-    dateOfBirth: user.dateOfBirth ? user.dateOfBirth.slice(0, 10) : "",
+    dateOfBirth: formatIsoDateToUi(user.dateOfBirth),
   };
 }
 
@@ -90,6 +94,14 @@ export function AccountProfileInfoForm({
         setMessage(tForm("emailRequired"));
         return;
       }
+      const dateOfBirthDisplay = form.dateOfBirth.trim();
+      const dateOfBirth =
+        dateOfBirthDisplay === "" ? null : parseBirthdayDisplayToIso(dateOfBirthDisplay);
+      if (dateOfBirthDisplay !== "" && dateOfBirth === null) {
+        setTone("err");
+        setMessage(tForm("dateOfBirthInvalid"));
+        return;
+      }
       await apiFetch<{ user: ProfileFormUser }>("/users/me", {
         method: "PATCH",
         body: JSON.stringify({
@@ -97,7 +109,7 @@ export function AccountProfileInfoForm({
           name: name === "" ? null : name,
           lastName: lastName === "" ? null : lastName,
           phone: phone === "" ? null : phone,
-          dateOfBirth: form.dateOfBirth === "" ? null : form.dateOfBirth,
+          dateOfBirth,
         }),
       });
       setTone("ok");
@@ -231,13 +243,16 @@ export function AccountProfileInfoForm({
         <label className="text-sm font-medium text-sage-700" htmlFor="profile-dob">
           {tProfile("labels.dateOfBirth")}
         </label>
-        <DatePickerInput
+        <input
           id="profile-dob"
           name="dateOfBirth"
-          ariaLabel={tProfile("labels.dateOfBirth")}
+          type="text"
+          inputMode="numeric"
+          autoComplete="bday"
           placeholder="DD/MM/YYYY"
+          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
           value={form.dateOfBirth}
-          onChange={(nextValue) => updateField("dateOfBirth", nextValue)}
+          onChange={(event) => updateField("dateOfBirth", formatBirthdayInput(event.target.value))}
           disabled={isSaving}
         />
       </div>

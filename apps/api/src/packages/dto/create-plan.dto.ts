@@ -94,9 +94,4 @@ export class CreatePlanDto {
   @Min(0)
   @Max(MAX_PACKAGE_GUEST_COUNT)
   guestCount?: number;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(120)
-  stripePriceId?: string;
 }

@@ -50,7 +50,7 @@ Use **one file**: the repo root **`.env`** (optional root **`.env.local`** for l
 | `apps/web/.env.local` | Next only | Next-specific overrides |
 | `apps/api/.env` | Nest only | Nest `envFilePath` precedence |
 
-For mobile, only add **safe public** `EXPO_PUBLIC_*` keys to the root `.env` (e.g. `EXPO_PUBLIC_API_URL`). Do not rely on “hiding” server secrets in the client — Expo inlines only `EXPO_PUBLIC_*` into the bundle; keep `JWT_SECRET`, `DATABASE_URL`, Stripe keys server-side only.
+For mobile, only add **safe public** `EXPO_PUBLIC_*` keys to the root `.env` (e.g. `EXPO_PUBLIC_API_URL`). Do not rely on “hiding” server secrets in the client — Expo inlines only `EXPO_PUBLIC_*` into the bundle; keep `JWT_SECRET` and `DATABASE_URL` server-side only.
 
 If you previously used `apps/mobile/.env`, you can delete it so it does not conflict with the single root file.
 

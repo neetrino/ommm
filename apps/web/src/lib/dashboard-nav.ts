@@ -43,14 +43,14 @@ export type DashboardRoleNotificationRoute = {
   labelKey: string;
 };
 
-/** Member (USER): dashboard, bookings, schedule, gift cards, profile — no admin routes. */
+/** Member (USER): dashboard, bookings, schedule, gift cards — no admin routes. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/home", icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/user/classes", icon: "layoutGrid", labelKey: "schedule" },
   { href: "/user/packages", icon: "tag", labelKey: "packages" },
+  { href: "/user/payments", icon: "wallet", labelKey: "payments" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards" },
-  { href: "/user/profile", icon: "user", labelKey: "profile" },
 ];
 
 /** Coach panel: Dashboard, My schedule, My groups, Salary, Analytics, Profile settings. */

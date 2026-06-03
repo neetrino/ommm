@@ -19,10 +19,19 @@ describe('PackagesService', () => {
       },
     };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
+    const cache = {
+      getOrSet: jest.fn(),
+      invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
+    };
     return {
-      service: new PackagesService(prisma as never, audit as never),
+      service: new PackagesService(
+        prisma as never,
+        audit as never,
+        cache as never,
+      ),
       prisma,
       audit,
+      cache,
     };
   }
 

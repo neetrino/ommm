@@ -109,6 +109,8 @@ export function LanguageSwitcher({
             ? "ommm-dropdown-trigger--compact min-h-9 px-2.5 text-[11px]"
             : "ommm-dropdown-trigger--compact"
         }
+        menuClassName="ommm-language-switcher-menu"
+        disableMenuScroll
         renderValue={() => (
           <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
             <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />

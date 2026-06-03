@@ -25,6 +25,7 @@ import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
 
 const MIN_PRORATED_SESSIONS = 1;
+const PACKAGE_PAYMENT_SOURCE = 'PACKAGE';
 
 @Injectable()
 export class PackagesService {
@@ -127,7 +128,6 @@ export class PackagesService {
           isActive: dto.isActive ?? true,
           displayOrder: dto.displayOrder ?? 0,
           guestCount: this.normalizeGuestCount(dto.guestCount),
-          stripePriceId: dto.stripePriceId,
         },
       });
       await this.cache.invalidate(PUBLIC_CACHE_KEYS.packages);
@@ -191,9 +191,6 @@ export class PackagesService {
         buttonLabel: this.normalizeButtonLabel(dto.buttonLabel),
       }),
       ...(dto.isPopular !== undefined && { isPopular: dto.isPopular }),
-      ...(dto.stripePriceId !== undefined && {
-        stripePriceId: dto.stripePriceId,
-      }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       ...(dto.displayOrder !== undefined && { displayOrder: dto.displayOrder }),
       ...(dto.guestCount !== undefined && {
@@ -385,7 +382,7 @@ export class PackagesService {
         data: {
           userId,
           planId,
-          status: PackageStatus.ACTIVE,
+          status: PackageStatus.PENDING,
           sessionsRemaining,
           currentPeriodStart: start,
           currentPeriodEnd: end,
@@ -393,23 +390,26 @@ export class PackagesService {
         include: { plan: true },
       });
       await tx.payment.create({
-        data: {
+        data: this.withInternalPaymentCreateFields({
           userId,
           amountCents: plan.priceCents,
           currency: plan.currency.toLowerCase(),
-          status: PaymentStatus.SUCCEEDED,
+          status: PaymentStatus.PENDING,
+          paymentReference: this.createPaymentReference('PACKAGE'),
+          source: PACKAGE_PAYMENT_SOURCE,
+          sourceId: created.id,
           planId: plan.id,
           userPackageId: created.id,
           paymentMethod,
           description: `Package subscription: ${plan.name}`,
-        },
+        }),
       });
       return created;
     });
     await this.audit.log({
       actorId: userId,
       actorRole: 'USER',
-      action: 'MEMBERSHIP_SUBSCRIBED',
+      action: 'MEMBERSHIP_PAYMENT_REQUESTED',
       entityType: 'UserPackage',
       entityId: userPackage.id,
       payload: { planId, paymentMethod, amountCents: plan.priceCents },
@@ -912,7 +912,6 @@ export class PackagesService {
         isPopular: dto.isPopular ?? false,
         isActive: dto.isActive ?? true,
         displayOrder: dto.displayOrder ?? 0,
-        stripePriceId: dto.stripePriceId,
       },
     });
     const persisted = await this.persistGuestCount(plan.id, guestCount);
@@ -942,7 +941,6 @@ export class PackagesService {
           isUnlimited: boolean;
           periodDays: number;
           isActive: boolean;
-          stripePriceId: string | null;
           createdAt: Date;
           updatedAt: Date;
         }>
@@ -959,7 +957,6 @@ export class PackagesService {
           "periodDays",
           "guestCount",
           "isActive",
-          "stripePriceId",
           "createdAt",
           "updatedAt"
         )
@@ -975,7 +972,6 @@ export class PackagesService {
           ${dto.periodDays},
           ${guestCount},
           ${dto.isActive ?? true},
-          ${dto.stripePriceId ?? null},
           ${now},
           ${now}
         )
@@ -989,7 +985,6 @@ export class PackagesService {
           "isUnlimited",
           "periodDays",
           "isActive",
-          "stripePriceId",
           "createdAt",
           "updatedAt"
       `);
@@ -1075,6 +1070,16 @@ export class PackagesService {
     };
   }
 
+  private createPaymentReference(prefix: string): string {
+    return `${prefix}-${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
+  }
+
+  private withInternalPaymentCreateFields<T extends Record<string, unknown>>(
+    data: T,
+  ): Prisma.PaymentUncheckedCreateInput {
+    return data as unknown as Prisma.PaymentUncheckedCreateInput;
+  }
+
   private fetchLegacyPlans(options: { onlyActive: boolean }) {
     const baseQuery = Prisma.sql`
       SELECT
@@ -1087,7 +1092,6 @@ export class PackagesService {
         "isUnlimited",
         "periodDays",
         "isActive",
-        "stripePriceId",
         "createdAt",
         "updatedAt"
       FROM "PackagePlan"
@@ -1107,7 +1111,6 @@ export class PackagesService {
         isUnlimited: boolean;
         periodDays: number;
         isActive: boolean;
-        stripePriceId: string | null;
         createdAt: Date;
         updatedAt: Date;
       }>
