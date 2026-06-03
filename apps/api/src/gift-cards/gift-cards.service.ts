@@ -407,7 +407,7 @@ export class GiftCardsService {
       const batchDelegate = this.giftCardBatchDelegate(this.prisma);
       const batch = (await batchDelegate.create({
         data: {
-          amountCents: amountAmd,
+          amountAmd,
           imageUrl,
           status: GiftCardStatus.ACTIVE,
           totalQuantity: dto.quantity,
@@ -486,7 +486,7 @@ export class GiftCardsService {
     const nextAmountAmd = amountAmd;
     const amountDiff = nextAmountAmd - this.readBatchAmount(existing);
     const updateData: Record<string, unknown> = {
-      amountCents: nextAmountAmd,
+      amountAmd: nextAmountAmd,
       recipientId:
         dto.recipientId !== undefined
           ? (recipient?.id ?? null)
@@ -497,6 +497,16 @@ export class GiftCardsService {
       expiresAt:
         dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
     };
+    if (dto.quantity !== undefined) {
+      const quantityUpdate = this.resolveBatchQuantityUpdate(
+        existing,
+        dto.quantity,
+      );
+      if (quantityUpdate !== null) {
+        updateData.totalQuantity = quantityUpdate.totalQuantity;
+        updateData.availableQuantity = quantityUpdate.availableQuantity;
+      }
+    }
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const txBatchDelegate = this.giftCardBatchDelegate(tx);
@@ -538,6 +548,8 @@ export class GiftCardsService {
       payload: {
         amountCents: this.readBatchAmount(updated),
         amountAmd: this.readBatchAmount(updated),
+        totalQuantity: updated.totalQuantity,
+        availableQuantity: updated.availableQuantity,
         recipientId: updated.recipientId,
         recipientEmail: updated.recipientEmail,
       },
@@ -907,6 +919,28 @@ export class GiftCardsService {
         `Could not remove uploaded gift-card image (${stored}): ${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
+
+  private resolveBatchQuantityUpdate(
+    existing: Pick<GiftCardBatchSnapshot, 'totalQuantity' | 'availableQuantity'>,
+    nextQuantity: number,
+  ): Pick<GiftCardBatchSnapshot, 'totalQuantity' | 'availableQuantity'> | null {
+    if (!Number.isInteger(nextQuantity) || nextQuantity < 1) {
+      throw new BadRequestException('quantity must be a positive integer');
+    }
+    if (nextQuantity === existing.totalQuantity) {
+      return null;
+    }
+    const issuedCount = existing.totalQuantity - existing.availableQuantity;
+    if (nextQuantity < issuedCount) {
+      throw new BadRequestException(
+        `quantity cannot be less than the number of issued cards (${issuedCount})`,
+      );
+    }
+    return {
+      totalQuantity: nextQuantity,
+      availableQuantity: nextQuantity - issuedCount,
+    };
   }
 
   private readGiftCardAmount(card: unknown): number {

@@ -218,6 +218,11 @@ export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: Ad
                     ? {
                         amountAmd: editingBatch.amountAmd,
                         quantity: editingBatch.totalQuantity,
+                        availableQuantity: editingBatch.availableQuantity,
+                        minQuantity: Math.max(
+                          1,
+                          editingBatch.totalQuantity - editingBatch.availableQuantity,
+                        ),
                         recipientEmail: editingBatch.recipientEmail ?? "",
                         recipientName: editingBatch.recipientName ?? "",
                         message: editingBatch.message ?? "",

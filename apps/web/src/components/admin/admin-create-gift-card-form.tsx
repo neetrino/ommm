@@ -13,6 +13,8 @@ type AdminGiftCardFormMode = "create" | "edit";
 type AdminCreateGiftCardFormInitialValues = {
   amountAmd: number;
   quantity: number;
+  availableQuantity?: number;
+  minQuantity?: number;
   recipientEmail: string;
   recipientName: string;
   message: string;
@@ -44,6 +46,13 @@ export function AdminCreateGiftCardForm({
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const [amountAmd, setAmountAmd] = useState(String(initialValues?.amountAmd ?? 10000));
   const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
+  const minQuantity = initialValues?.minQuantity ?? 1;
+  const issuedCount =
+    mode === "edit" &&
+    initialValues?.availableQuantity !== undefined &&
+    Number.isFinite(initialValues.quantity)
+      ? initialValues.quantity - initialValues.availableQuantity
+      : 0;
   const [showAssignedUser, setShowAssignedUser] = useState(false);
   const [recipientId, setRecipientId] = useState("");
   const [recipientEmail, setRecipientEmail] = useState(initialValues?.recipientEmail ?? "");
@@ -66,6 +75,17 @@ export function AdminCreateGiftCardForm({
     ],
     [t, users],
   );
+
+  const projectedRemaining = useMemo(() => {
+    const parsed = Number.parseInt(quantity, 10);
+    if (!Number.isFinite(parsed) || parsed < minQuantity) {
+      return initialValues?.availableQuantity ?? 0;
+    }
+    if (mode === "edit") {
+      return Math.max(0, parsed - issuedCount);
+    }
+    return parsed;
+  }, [quantity, minQuantity, mode, issuedCount, initialValues?.availableQuantity]);
 
   useEffect(() => {
     return () => {
@@ -102,9 +122,11 @@ export function AdminCreateGiftCardForm({
       setResult(t("amountInvalid"));
       return;
     }
-    if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1) {
+    if (!Number.isFinite(parsedQuantity) || parsedQuantity < minQuantity) {
       setTone("err");
-      setResult(t("quantityInvalid"));
+      setResult(
+        minQuantity > 1 ? t("quantityBelowIssued", { min: minQuantity }) : t("quantityInvalid"),
+      );
       return;
     }
     if (imageFile !== null) {
@@ -132,6 +154,7 @@ export function AdminCreateGiftCardForm({
           method: "PATCH",
           body: JSON.stringify({
             amountAmd: parsedAmountAmd,
+            quantity: parsedQuantity,
             recipientId: recipientId.trim().length > 0 ? recipientId.trim() : undefined,
             recipientEmail: recipientEmail.trim().length > 0 ? recipientEmail.trim() : undefined,
             recipientName: recipientName.trim().length > 0 ? recipientName.trim() : undefined,
@@ -263,21 +286,49 @@ export function AdminCreateGiftCardForm({
           <p className="text-xs text-sage-500">{t("fieldAssignedUserHiddenHint")}</p>
         )}
       </div>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldQuantity")}</span>
-        <input
-          name="quantity"
-          type="number"
-          min={1}
-          step={1}
-          className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          placeholder={t("fieldQuantityPlaceholder")}
-          value={quantity}
-          onChange={(event) => setQuantity(event.target.value)}
-          disabled={busy || mode === "edit"}
-          required
-        />
-      </label>
+      <div
+        className={
+          mode === "edit"
+            ? "grid gap-4 sm:grid-cols-2"
+            : "flex flex-col gap-1"
+        }
+      >
+        <label className="flex flex-col gap-1">
+          <span className="ommm-label text-xs uppercase tracking-wide">
+            {mode === "edit" ? t("fieldQuantityTotal") : t("fieldQuantity")}
+          </span>
+          <input
+            name="quantity"
+            type="number"
+            min={minQuantity}
+            step={1}
+            className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            placeholder={t("fieldQuantityPlaceholder")}
+            value={quantity}
+            onChange={(event) => setQuantity(event.target.value)}
+            disabled={busy}
+            required
+          />
+        </label>
+        {mode === "edit" ? (
+          <div className="flex flex-col gap-1">
+            <span className="ommm-label text-xs uppercase tracking-wide">
+              {t("fieldQuantityRemaining")}
+            </span>
+            <p
+              className="ommm-input flex min-h-[2.75rem] items-center bg-sage-50/80 text-sage-900"
+              aria-live="polite"
+            >
+              {projectedRemaining}
+            </p>
+            {issuedCount > 0 ? (
+              <p className="text-xs text-sage-500">
+                {t("fieldQuantityRemainingHint", { issued: issuedCount })}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
       <div className="flex flex-col gap-2">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldImage")}</span>
         <input

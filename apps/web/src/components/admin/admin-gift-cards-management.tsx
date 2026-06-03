@@ -58,8 +58,10 @@ export function AdminGiftCardsManagement({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchParamsRef = useRef(searchParams.toString());
+  const filtersRef = useRef(initialFilters);
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
+  filtersRef.current = filters;
   const [selected, setSelected] = useState<AdminGiftCardBatchRow | null>(null);
   const [isFiltering, setIsFiltering] = useState(false);
   const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
@@ -105,23 +107,32 @@ export function AdminGiftCardsManagement({
     }
     setIsFiltering(true);
     const handle = window.setTimeout(() => {
-      syncFiltersToUrl(filters);
+      syncFiltersToUrl(filtersRef.current);
       setIsFiltering(false);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [filters.search, filters, syncFiltersToUrl]);
+  }, [filters.search, syncFiltersToUrl]);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      return;
+    }
+    syncFiltersToUrl(filtersRef.current);
+  }, [
+    filters.status,
+    filters.expiration,
+    filters.amountMin,
+    filters.amountMax,
+    filters.order,
+    filters.quick,
+    syncFiltersToUrl,
+  ]);
 
   function updateFilter<K extends keyof GiftCardFilterValues>(
     key: K,
     value: GiftCardFilterValues[K],
   ) {
-    setFilters((current) => {
-      const next = { ...current, [key]: value };
-      if (key !== "search") {
-        syncFiltersToUrl(next);
-      }
-      return next;
-    });
+    setFilters((current) => ({ ...current, [key]: value }));
   }
 
   function resetFilters() {

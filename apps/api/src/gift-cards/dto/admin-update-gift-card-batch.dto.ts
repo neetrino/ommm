@@ -49,6 +49,12 @@ export class AdminUpdateGiftCardBatchDto {
   @MaxLength(32)
   expiresAt?: string;
 
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  quantity?: number;
+
   get resolvedAmountAmd(): number | undefined {
     return this.amountAmd ?? this.amountCents;
   }
