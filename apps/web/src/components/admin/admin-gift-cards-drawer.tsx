@@ -9,13 +9,13 @@ import {
   purchaserLabel,
   recipientLabel,
 } from "@/components/admin/admin-gift-cards-filter-logic";
-import type { AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
+import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardDrawerProps = {
-  card: AdminGiftCardRow | null;
+  card: AdminGiftCardBatchRow | null;
   locale: string;
   assignableUsers: readonly AdminAssignableUser[];
   onClose: () => void;
@@ -73,7 +73,9 @@ export function AdminGiftCardDrawer({
             <h3 className="font-serif text-xl font-semibold text-sage-900">
               {formatAmdFromCents(card.amountCents, locale)}
             </h3>
-            <p className="mt-1 font-mono text-xs text-sage-500">{card.code}</p>
+            <p className="mt-1 text-xs text-sage-500">
+              {t("colAvailableQuantity")}: {card.availableQuantity} / {card.totalQuantity}
+            </p>
           </div>
           <button
             type="button"
@@ -93,8 +95,8 @@ export function AdminGiftCardDrawer({
           />
           <DetailRow label={t("colAmount")} value={formatAmdFromCents(card.amountCents, locale)} />
           <DetailRow
-            label={t("colBalance")}
-            value={formatAmdFromCents(card.balanceCents, locale)}
+            label={t("colAvailableQuantity")}
+            value={`${card.availableQuantity} / ${card.totalQuantity}`}
           />
           <DetailRow label={t("colStatus")} value={t(`statusValues.${card.status}`)} />
           <DetailRow label={t("colCreated")} value={displayDate(card.createdAt)} />
@@ -113,7 +115,7 @@ export function AdminGiftCardDrawer({
         <div className="mt-6 border-t border-white/60 pt-4">
           <p className="mb-3 text-xs uppercase tracking-wide text-sage-500">{t("colActions")}</p>
           <AdminGiftCardActions
-            giftCardId={card.id}
+            batchId={card.id}
             allowDeactivate={card.status === "ACTIVE"}
             allowDelete
             locale={locale}

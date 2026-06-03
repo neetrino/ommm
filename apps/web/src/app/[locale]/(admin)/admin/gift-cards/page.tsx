@@ -2,7 +2,10 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminGiftCardsManagement } from "@/components/admin/admin-gift-cards-management";
-import type { AdminAssignableUser, AdminGiftCardRow } from "@/components/admin/admin-gift-cards-types";
+import type {
+  AdminAssignableUser,
+  AdminGiftCardBatchRow,
+} from "@/components/admin/admin-gift-cards-types";
 import {
   giftCardFiltersQueryKey,
   parseGiftCardFiltersFromSearch,
@@ -22,7 +25,7 @@ export default async function AdminGiftCardsPage({
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
   const [res, usersRes] = await Promise.all([
-    serverApiJson<AdminGiftCardRow[]>("/gift-cards/admin", cookie),
+    serverApiJson<AdminGiftCardBatchRow[]>("/gift-cards/admin/batches", cookie),
     serverApiJson<AdminAssignableUser[]>("/gift-cards/admin/users", cookie),
   ]);
 

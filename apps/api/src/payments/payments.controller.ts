@@ -50,6 +50,7 @@ export class PaymentsController {
   ) {
     return this.payments.createGiftCheckout({
       purchaserId: user.id,
+      batchId: body.batchId,
       amountCents: body.amountCents,
       recipientName: body.recipientName,
       recipientEmail: body.recipientEmail,

@@ -4,19 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminGiftCardDrawer } from "@/components/admin/admin-gift-cards-drawer";
 import {
   countActiveGiftCardFilters,
   filterGiftCards,
-  purchaserLabel,
+  recipientLabel,
   sortGiftCards,
 } from "@/components/admin/admin-gift-cards-filter-logic";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import { AdminGiftCardsShell } from "@/components/admin/admin-gift-cards-shell";
 import type {
   AdminAssignableUser,
-  AdminGiftCardRow,
+  AdminGiftCardBatchRow,
   GiftCardFilterValues,
 } from "@/components/admin/admin-gift-cards-types";
 import {
@@ -25,9 +24,10 @@ import {
 } from "@/components/admin/admin-gift-cards-url";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type AdminGiftCardsManagementProps = {
-  giftCards: readonly AdminGiftCardRow[];
+  giftCards: readonly AdminGiftCardBatchRow[];
   assignableUsers: readonly AdminAssignableUser[];
   locale: string;
   initialFilters: GiftCardFilterValues;
@@ -56,7 +56,7 @@ export function AdminGiftCardsManagement({
   const searchParamsRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
-  const [selected, setSelected] = useState<AdminGiftCardRow | null>(null);
+  const [selected, setSelected] = useState<AdminGiftCardBatchRow | null>(null);
   const [isFiltering, setIsFiltering] = useState(false);
 
   const filtered = useMemo(
@@ -152,56 +152,88 @@ export function AdminGiftCardsManagement({
         </p>
       ) : null}
 
-      {filtered.length === 0 ? (
-        <p className="text-sm text-sage-500">{t("empty")}</p>
-      ) : (
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colPurchaser")}</th>
-                <th className={adminChrome.th}>{t("colAmount")}</th>
-                <th className={adminChrome.th}>{t("colStatus")}</th>
-                <th className={adminChrome.th}>{t("colCreated")}</th>
-                <th className={adminChrome.th}>{t("colExpiration")}</th>
-                <th className={adminChrome.th}>{t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((card) => (
-                <tr key={card.id} className={adminChrome.tr}>
-                  <td className={adminChrome.td}>
-                    <button
-                      type="button"
-                      className="text-left font-medium text-sage-900 underline-offset-2 hover:underline"
-                      onClick={() => setSelected(card)}
-                    >
-                      {purchaserLabel(card)}
-                    </button>
-                  </td>
-                  <td className={adminChrome.td}>
-                    {formatAmdFromCents(card.amountCents, locale)}
-                  </td>
-                  <td className={adminChrome.td}>
-                    <span className={statusBadgeClass(card.status)}>{t(`statusValues.${card.status}`)}</span>
-                  </td>
-                  <td className={adminChrome.td}>{displayDate(card.createdAt)}</td>
-                  <td className={adminChrome.td}>{displayDate(card.expiresAt)}</td>
-                  <td className={adminChrome.td}>
-                    <button
-                      type="button"
-                      className="text-left text-sm text-sage-700 underline-offset-2 hover:underline"
-                      onClick={() => setSelected(card)}
-                    >
-                      {t("openActions")}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {filtered.length === 0 ? <p className="text-sm text-sage-500">{t("empty")}</p> : null}
+      {filtered.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((card) => {
+            const resolvedImage = resolveApiAssetUrl(card.imageUrl);
+            const available = `${card.availableQuantity} / ${card.totalQuantity}`;
+            return (
+              <article
+                key={card.id}
+                className="overflow-hidden rounded-3xl border border-white/65 bg-white/85 shadow-[0_18px_40px_-24px_rgba(45,40,35,0.28)]"
+              >
+                <div className="relative aspect-[16/9] w-full bg-sage-100">
+                  {resolvedImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- supports API and blob/image URLs
+                    <img src={resolvedImage} alt={t("cardImageAlt")} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100">
+                      <span className="text-sm font-medium text-sage-600">{t("cardImageFallback")}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-base font-semibold text-sage-900">
+                      {formatAmdFromCents(card.amountCents, locale)}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className={statusBadgeClass(card.status)}>{t(`statusValues.${card.status}`)}</span>
+                      <button
+                        type="button"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/80 bg-white/90 text-sage-700 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                        aria-label={t("openActions")}
+                        onClick={() => setSelected(card)}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={1.8}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                          aria-hidden
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <dl className="grid gap-1 text-sm text-sage-700">
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-sage-500">{t("colCreated")}</dt>
+                      <dd>{displayDate(card.createdAt)}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-sage-500">{t("colExpiration")}</dt>
+                      <dd>{displayDate(card.expiresAt)}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-sage-500">{t("colRecipient")}</dt>
+                      <dd className="truncate">{recipientLabel(card) || "—"}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <dt className="text-sage-500">{t("colAvailableQuantity")}</dt>
+                      <dd>{available}</dd>
+                    </div>
+                  </dl>
+                  <button
+                    type="button"
+                    className="text-left text-sm text-sage-700 underline-offset-2 hover:underline"
+                    onClick={() => setSelected(card)}
+                  >
+                    {t("openActions")}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
-      )}
+      ) : null}
 
       <AdminGiftCardDrawer
         card={selected}
@@ -214,7 +246,7 @@ export function AdminGiftCardsManagement({
   );
 }
 
-function statusBadgeClass(status: AdminGiftCardRow["status"]): string {
+function statusBadgeClass(status: AdminGiftCardBatchRow["status"]): string {
   if (status === "ACTIVE") {
     return "inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900";
   }

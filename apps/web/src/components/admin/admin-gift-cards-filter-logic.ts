@@ -1,10 +1,10 @@
 import type {
-  AdminGiftCardRow,
+  AdminGiftCardBatchRow,
   GiftCardFilterValues,
   GiftCardSortOrder,
 } from "@/components/admin/admin-gift-cards-types";
 
-export function isGiftCardExpired(card: AdminGiftCardRow, now = Date.now()): boolean {
+export function isGiftCardExpired(card: AdminGiftCardBatchRow, now = Date.now()): boolean {
   if (card.status === "EXPIRED") {
     return true;
   }
@@ -15,11 +15,11 @@ export function isGiftCardExpired(card: AdminGiftCardRow, now = Date.now()): boo
   return !Number.isNaN(expiresAt) && expiresAt < now;
 }
 
-export function purchaserLabel(card: AdminGiftCardRow): string {
+export function purchaserLabel(card: AdminGiftCardBatchRow): string {
   return card.purchaser.name?.trim() || card.purchaser.email;
 }
 
-export function recipientLabel(card: AdminGiftCardRow): string {
+export function recipientLabel(card: AdminGiftCardBatchRow): string {
   return (
     card.recipientName?.trim() ||
     card.recipient?.name?.trim() ||
@@ -38,7 +38,7 @@ function parseAmountFilter(value: string): number | null {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
-function matchesSearch(card: AdminGiftCardRow, search: string): boolean {
+function matchesSearch(card: AdminGiftCardBatchRow, search: string): boolean {
   if (search.length === 0) {
     return true;
   }
@@ -49,21 +49,22 @@ function matchesSearch(card: AdminGiftCardRow, search: string): boolean {
     card.recipientEmail ?? "",
     card.status,
     String(card.amountCents),
-    String(card.balanceCents),
+    String(card.availableQuantity),
+    String(card.totalQuantity),
   ]
     .join(" ")
     .toLowerCase();
   return haystack.includes(search);
 }
 
-function matchesQuickFilter(card: AdminGiftCardRow, quick: GiftCardFilterValues["quick"]): boolean {
+function matchesQuickFilter(card: AdminGiftCardBatchRow, quick: GiftCardFilterValues["quick"]): boolean {
   switch (quick) {
     case "active":
       return card.status === "ACTIVE";
     case "expired":
       return isGiftCardExpired(card);
     case "unredeemed":
-      return card.status === "ACTIVE" && card.balanceCents > 0;
+      return card.status === "ACTIVE" && card.availableQuantity > 0;
     default:
       return true;
   }
@@ -82,9 +83,9 @@ export function countActiveGiftCardFilters(values: GiftCardFilterValues): number
 }
 
 export function filterGiftCards(
-  cards: readonly AdminGiftCardRow[],
+  cards: readonly AdminGiftCardBatchRow[],
   values: GiftCardFilterValues,
-): AdminGiftCardRow[] {
+): AdminGiftCardBatchRow[] {
   const search = values.search.trim().toLowerCase();
   const minAmount = parseAmountFilter(values.amountMin);
   const maxAmount = parseAmountFilter(values.amountMax);
@@ -116,9 +117,9 @@ export function filterGiftCards(
 }
 
 export function sortGiftCards(
-  cards: readonly AdminGiftCardRow[],
+  cards: readonly AdminGiftCardBatchRow[],
   order: GiftCardSortOrder,
-): AdminGiftCardRow[] {
+): AdminGiftCardBatchRow[] {
   const rows = [...cards];
   rows.sort((a, b) => {
     switch (order) {

@@ -34,6 +34,29 @@ type StripeCheckoutSessionLike = {
   amount_total?: number | null;
 };
 
+type GiftCardBatchDelegateLike = {
+  findUnique: (args: {
+    where: { id: string };
+    select?: Record<string, boolean>;
+  }) => Promise<Record<string, unknown> | null>;
+  updateMany: (args: {
+    where: Record<string, unknown>;
+    data: Record<string, unknown>;
+  }) => Promise<{ count: number }>;
+};
+
+type GiftCardBatchSnapshot = {
+  id: string;
+  amountCents: number;
+  imageUrl: string | null;
+  expiresAt: Date | null;
+  message: string | null;
+  recipientName: string | null;
+  recipientEmail: string | null;
+  availableQuantity: number;
+  status: GiftCardStatus;
+};
+
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
@@ -54,6 +77,10 @@ export class PaymentsService {
       throw new ServiceUnavailableException('Stripe is not configured');
     }
     return this.stripe;
+  }
+
+  private giftCardBatchDelegate(client: unknown): GiftCardBatchDelegateLike {
+    return (client as { giftCardBatch: GiftCardBatchDelegateLike }).giftCardBatch;
   }
 
   async getOrCreateStripeCustomer(userId: string): Promise<string> {
@@ -78,6 +105,7 @@ export class PaymentsService {
 
   async createGiftCheckout(params: {
     purchaserId: string;
+    batchId?: string;
     amountCents: number;
     recipientName?: string;
     recipientEmail?: string;
@@ -91,19 +119,40 @@ export class PaymentsService {
       this.config.get<string>('STRIPE_CURRENCY') ?? 'usd'
     ).toLowerCase();
 
+    const metadata: Record<string, string> = {
+      type: 'gift',
+      purchaserId: params.purchaserId,
+      amountCents: String(params.amountCents),
+      recipientName: params.recipientName ?? '',
+      recipientEmail: params.recipientEmail ?? '',
+      message: params.message ?? '',
+    };
+
+    if (params.batchId !== undefined) {
+      const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+      const batch = (await batchDelegate.findUnique({
+        where: { id: params.batchId },
+        select: { id: true, amountCents: true, availableQuantity: true, status: true },
+      })) as Pick<GiftCardBatchSnapshot, 'id' | 'amountCents' | 'availableQuantity' | 'status'> | null;
+      if (!batch) {
+        throw new BadRequestException('Gift-card batch not found');
+      }
+      if (batch.status !== GiftCardStatus.ACTIVE || batch.availableQuantity < 1) {
+        throw new BadRequestException('Gift card is out of stock');
+      }
+      metadata.batchId = String(batch.id);
+      metadata.amountCents = String(batch.amountCents);
+      if (params.amountCents !== Number(batch.amountCents)) {
+        throw new BadRequestException('Invalid gift-card amount for selected batch');
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       customer: customerId,
       success_url: `${web}/hy/account/gift-cards?success=1`,
       cancel_url: `${web}/hy/account/gift-cards?gift_canceled=1`,
-      metadata: {
-        type: 'gift',
-        purchaserId: params.purchaserId,
-        amountCents: String(params.amountCents),
-        recipientName: params.recipientName ?? '',
-        recipientEmail: params.recipientEmail ?? '',
-        message: params.message ?? '',
-      },
+      metadata,
       line_items: [
         {
           price_data: {
@@ -217,20 +266,86 @@ export class PaymentsService {
       typeof session.payment_intent === 'string'
         ? session.payment_intent
         : session.payment_intent?.id;
-    await this.prisma.giftCard.create({
-      data: {
-        code,
-        amountCents: amount,
-        balanceCents: amount,
-        status: GiftCardStatus.ACTIVE,
-        purchaserId,
-        recipientName: session.metadata?.recipientName || undefined,
-        recipientEmail: session.metadata?.recipientEmail || undefined,
-        message: session.metadata?.message || undefined,
-        stripePaymentId: pi ?? undefined,
-      },
+    const existing = pi
+      ? await this.prisma.giftCard.findUnique({
+          where: { stripePaymentId: pi },
+          select: { id: true },
+        })
+      : null;
+    if (existing) {
+      return;
+    }
+    const batchId = session.metadata?.batchId;
+    let recipientEmailToSend: string | undefined;
+    await this.prisma.$transaction(async (tx) => {
+      const batchDelegate = this.giftCardBatchDelegate(tx);
+      let selectedBatch:
+        | {
+            id: string;
+            amountCents: number;
+            imageUrl: string | null;
+            expiresAt: Date | null;
+            message: string | null;
+            recipientName: string | null;
+            recipientEmail: string | null;
+            availableQuantity: number;
+            status: GiftCardStatus;
+          }
+        | null = null;
+
+      if (batchId) {
+        const decremented = await batchDelegate.updateMany({
+          where: {
+            id: batchId,
+            status: GiftCardStatus.ACTIVE,
+            availableQuantity: { gt: 0 },
+          },
+          data: { availableQuantity: { decrement: 1 } },
+        });
+        if (decremented.count !== 1) {
+          throw new BadRequestException('Gift card is out of stock');
+        }
+        selectedBatch = (await batchDelegate.findUnique({
+          where: { id: batchId },
+          select: {
+            id: true,
+            amountCents: true,
+            imageUrl: true,
+            expiresAt: true,
+            message: true,
+            recipientName: true,
+            recipientEmail: true,
+            availableQuantity: true,
+            status: true,
+          },
+        })) as GiftCardBatchSnapshot | null;
+        if (!selectedBatch) {
+          throw new BadRequestException('Gift-card batch not found');
+        }
+      }
+
+      await tx.giftCard.create(({
+        data: {
+          batchId: selectedBatch?.id,
+          code,
+          amountCents: selectedBatch?.amountCents ?? amount,
+          balanceCents: selectedBatch?.amountCents ?? amount,
+          imageUrl: selectedBatch?.imageUrl ?? undefined,
+          status: GiftCardStatus.ACTIVE,
+          purchaserId,
+          recipientName:
+            session.metadata?.recipientName || selectedBatch?.recipientName || undefined,
+          recipientEmail:
+            session.metadata?.recipientEmail || selectedBatch?.recipientEmail || undefined,
+          message: session.metadata?.message || selectedBatch?.message || undefined,
+          stripePaymentId: pi ?? undefined,
+          expiresAt: selectedBatch?.expiresAt ?? undefined,
+        },
+      } as unknown) as Parameters<typeof tx.giftCard.create>[0]);
+      recipientEmailToSend =
+        session.metadata?.recipientEmail || selectedBatch?.recipientEmail || undefined;
     });
-    const email = session.metadata?.recipientEmail;
+    const email = recipientEmailToSend;
     if (email) {
       const web =
         this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';

@@ -140,6 +140,8 @@ model User {
   userPackages      UserPackage[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
   giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
+  giftCardBatchesCreated GiftCardBatch[] @relation("GiftCardBatchPurchaser")
+  giftCardBatchesReceived GiftCardBatch[] @relation("GiftCardBatchRecipient")
   achievements      UserAchievement[]
   notificationPrefs NotificationPreference?
   bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
@@ -402,6 +404,8 @@ model Payment {
 
 model GiftCard {
   id              String         @id @default(cuid())
+  batchId         String?
+  batch           GiftCardBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
   code            String         @unique
   amountCents     Int
   balanceCents    Int
@@ -418,6 +422,33 @@ model GiftCard {
   expiresAt       DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+
+  @@index([batchId])
+}
+
+model GiftCardBatch {
+  id                String         @id @default(cuid())
+  amountCents       Int
+  imageUrl          String?
+  status            GiftCardStatus @default(ACTIVE)
+  totalQuantity     Int
+  availableQuantity Int
+  purchaserId       String
+  purchaser         User           @relation("GiftCardBatchPurchaser", fields: [purchaserId], references: [id], onDelete: Restrict)
+  recipientId       String?
+  recipient         User?          @relation("GiftCardBatchRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  recipientEmail    String?
+  recipientName     String?
+  message           String?
+  expiresAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  giftCards GiftCard[]
+
+  @@index([status, createdAt])
+  @@index([purchaserId])
+  @@index([recipientId])
 }
 
 model ContentPost {

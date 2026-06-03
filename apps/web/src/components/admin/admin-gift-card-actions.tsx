@@ -12,7 +12,8 @@ import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminGiftCardActionsProps = {
-  giftCardId: string;
+  giftCardId?: string;
+  batchId?: string;
   allowDeactivate: boolean;
   allowDelete: boolean;
   locale: string;
@@ -22,12 +23,15 @@ type AdminGiftCardActionsProps = {
 
 export function AdminGiftCardActions({
   giftCardId,
+  batchId,
   allowDeactivate,
   allowDelete,
   locale,
   assignableUsers,
   onChanged,
 }: AdminGiftCardActionsProps) {
+  const targetId = batchId ?? giftCardId ?? "";
+  const useBatchEndpoints = batchId !== undefined;
   const t = useTranslations("adminPages.giftCards.actions");
   const submitLockRef = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -37,11 +41,7 @@ export function AdminGiftCardActions({
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
 
-  async function run(
-    action: () => Promise<void>,
-    okLabel: string,
-    shouldRefresh = true,
-  ) {
+  async function run(action: () => Promise<void>, okLabel: string, shouldRefresh = true) {
     if (busy || submitLockRef.current) {
       return;
     }
@@ -93,10 +93,15 @@ export function AdminGiftCardActions({
           onClick={() =>
             void run(
               () =>
-                apiFetch(`/gift-cards/admin/${giftCardId}/assign`, {
-                  method: "PATCH",
-                  body: JSON.stringify({ userId: assignToUserId }),
-                }),
+                apiFetch(
+                  useBatchEndpoints
+                    ? `/gift-cards/admin/batches/${targetId}/assign`
+                    : `/gift-cards/admin/${targetId}/assign`,
+                  {
+                    method: "PATCH",
+                    body: JSON.stringify({ userId: assignToUserId }),
+                  },
+                ),
               t("assigned"),
             )
           }
@@ -114,7 +119,9 @@ export function AdminGiftCardActions({
             void run(
               async () => {
                 const result = await apiFetch<AdminGiftCardRedemptionHistory>(
-                  `/gift-cards/admin/${giftCardId}/redemptions`,
+                  useBatchEndpoints
+                    ? `/gift-cards/admin/batches/${targetId}/history`
+                    : `/gift-cards/admin/${targetId}/redemptions`,
                 );
                 setHistory(result);
                 setShowHistory(true);
@@ -133,7 +140,13 @@ export function AdminGiftCardActions({
           disabled={busy}
           onClick={() =>
             void run(
-              () => apiFetch(`/gift-cards/admin/${giftCardId}/resend`, { method: "POST" }),
+              () =>
+                apiFetch(
+                  useBatchEndpoints
+                    ? `/gift-cards/admin/batches/${targetId}/resend`
+                    : `/gift-cards/admin/${targetId}/resend`,
+                  { method: "POST" },
+                ),
               t("resent"),
             )
           }
@@ -153,9 +166,12 @@ export function AdminGiftCardActions({
               }
               void run(
                 () =>
-                  apiFetch(`/gift-cards/admin/${giftCardId}/deactivate`, {
-                    method: "PATCH",
-                  }),
+                  apiFetch(
+                    useBatchEndpoints
+                      ? `/gift-cards/admin/batches/${targetId}/deactivate`
+                      : `/gift-cards/admin/${targetId}/deactivate`,
+                    { method: "PATCH" },
+                  ),
                 t("deactivated"),
               );
             }}
@@ -176,9 +192,12 @@ export function AdminGiftCardActions({
               }
               void run(
                 () =>
-                  apiFetch(`/gift-cards/admin/${giftCardId}`, {
-                    method: "DELETE",
-                  }),
+                  apiFetch(
+                    useBatchEndpoints
+                      ? `/gift-cards/admin/batches/${targetId}`
+                      : `/gift-cards/admin/${targetId}`,
+                    { method: "DELETE" },
+                  ),
                 t("deleted"),
               );
             }}
@@ -205,12 +224,24 @@ export function AdminGiftCardActions({
               ×
             </button>
           </div>
-          <p className="mb-2">
-            {t("historySummary", {
-              amount: formatAmdFromCents(history.amountCents, locale),
-              balance: formatAmdFromCents(history.balanceCents, locale),
-            })}
-          </p>
+          {history.amountCents !== undefined && history.balanceCents !== undefined ? (
+            <p className="mb-2">
+              {t("historySummary", {
+                amount: formatAmdFromCents(history.amountCents, locale),
+                balance: formatAmdFromCents(history.balanceCents, locale),
+              })}
+            </p>
+          ) : null}
+          {history.totalQuantity !== undefined && history.availableQuantity !== undefined ? (
+            <p className="mb-2">
+              {t("historyInventorySummary", {
+                available: history.availableQuantity,
+                total: history.totalQuantity,
+                issued: history.issuedCount ?? history.totalQuantity - history.availableQuantity,
+                redeemed: history.redeemedCount ?? 0,
+              })}
+            </p>
+          ) : null}
           <ul className="space-y-1">
             {history.events.map((event) => (
               <li key={`${event.type}-${event.at}`}>
@@ -218,7 +249,7 @@ export function AdminGiftCardActions({
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-sage-500">{history.note}</p>
+          {history.note ? <p className="mt-2 text-sage-500">{history.note}</p> : null}
         </div>
       ) : null}
     </div>

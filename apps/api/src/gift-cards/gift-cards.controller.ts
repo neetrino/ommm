@@ -52,6 +52,13 @@ export class GiftCardsController {
     return this.giftCards.listAdmin();
   }
 
+  @Get('admin/batches')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  adminBatchList() {
+    return this.giftCards.listAdminBoard();
+  }
+
   @Get('admin/users')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
@@ -82,11 +89,25 @@ export class GiftCardsController {
     return this.giftCards.deactivate(id);
   }
 
+  @Patch('admin/batches/:id/deactivate')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  deactivateBatch(@Param('id') id: string) {
+    return this.giftCards.deactivateBatch(id);
+  }
+
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   deleteAdminCard(@CurrentUser() user: { id: string }, @Param('id') id: string) {
     return this.giftCards.deleteAdminCard(id, user.id);
+  }
+
+  @Delete('admin/batches/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  deleteBatch(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.giftCards.deleteBatch(id, user.id);
   }
 
   @Patch('admin/:id/assign')
@@ -96,6 +117,13 @@ export class GiftCardsController {
     return this.giftCards.assignRecipient(id, dto.userId);
   }
 
+  @Patch('admin/batches/:id/assign')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  assignBatch(@Param('id') id: string, @Body() dto: AdminAssignGiftCardDto) {
+    return this.giftCards.assignBatchRecipient(id, dto.userId);
+  }
+
   @Post('admin/:id/resend')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
@@ -103,10 +131,30 @@ export class GiftCardsController {
     return this.giftCards.resendEmail(id);
   }
 
+  @Post('admin/batches/:id/resend')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  resendBatch(@Param('id') id: string) {
+    return this.giftCards.resendBatchEmail(id);
+  }
+
   @Get('admin/:id/redemptions')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   redemptionHistory(@Param('id') id: string) {
     return this.giftCards.getRedemptionHistory(id);
+  }
+
+  @Get('admin/batches/:id/history')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  batchHistory(@Param('id') id: string) {
+    return this.giftCards.getBatchHistory(id);
+  }
+
+  @Get('market')
+  @UseGuards(JwtAuthGuard)
+  market() {
+    return this.giftCards.listMarketBatches();
   }
 }

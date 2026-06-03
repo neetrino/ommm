@@ -120,6 +120,7 @@ export default async function ManagerGiftCardsPage({
                   <AdminGiftCardActions
                     giftCardId={g.id}
                     allowDeactivate={false}
+                    allowDelete={false}
                     locale={locale}
                     assignableUsers={[]}
                     onChanged={() => {

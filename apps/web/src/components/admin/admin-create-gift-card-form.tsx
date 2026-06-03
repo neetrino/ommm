@@ -110,8 +110,10 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
         formData.append("image", imageFile);
       }
       const created = await apiFetchFormData<unknown>("/gift-cards/admin", formData, "POST");
-      const createdCount = Array.isArray(created) ? created.length : 1;
-      onSaved(createdCount);
+      if (created == null) {
+        throw new Error("Gift-card batch creation returned empty response");
+      }
+      onSaved(parsedQuantity);
     } catch (error) {
       setTone("err");
       setResult(error instanceof ApiError ? error.message : t("genericError"));

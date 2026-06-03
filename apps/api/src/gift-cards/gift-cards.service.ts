@@ -1,11 +1,11 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { GiftCardStatus, Prisma } from '@prisma/client';
+import { GiftCardStatus } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
@@ -23,6 +23,42 @@ import {
   normalizeGiftCardImageMime,
 } from './gift-card-image.constants';
 
+type GiftCardBatchDelegateLike = {
+  findMany: (args: {
+    where?: Record<string, unknown>;
+    include?: Record<string, unknown>;
+    orderBy?: Record<string, 'asc' | 'desc'>;
+    take?: number;
+  }) => Promise<Array<Record<string, unknown>>>;
+  findUnique: (args: {
+    where: { id: string };
+    select?: Record<string, boolean>;
+  }) => Promise<Record<string, unknown> | null>;
+  create: (args: { data: Record<string, unknown> }) => Promise<Record<string, unknown>>;
+  update: (args: { where: { id: string }; data: Record<string, unknown> }) => Promise<Record<string, unknown>>;
+  updateMany: (args: {
+    where: Record<string, unknown>;
+    data: Record<string, unknown>;
+  }) => Promise<{ count: number }>;
+  delete: (args: { where: { id: string } }) => Promise<Record<string, unknown>>;
+};
+
+type GiftCardBatchSnapshot = {
+  id: string;
+  amountCents: number;
+  imageUrl: string | null;
+  status: GiftCardStatus;
+  totalQuantity: number;
+  availableQuantity: number;
+  purchaserId: string;
+  recipientId: string | null;
+  recipientEmail: string | null;
+  recipientName: string | null;
+  message: string | null;
+  expiresAt: Date | null;
+  createdAt: Date;
+};
+
 @Injectable()
 export class GiftCardsService {
   private readonly logger = new Logger(GiftCardsService.name);
@@ -34,6 +70,10 @@ export class GiftCardsService {
     private readonly config: ConfigService,
     private readonly r2Storage: R2HomeImageStorage,
   ) {}
+
+  private giftCardBatchDelegate(client: unknown): GiftCardBatchDelegateLike {
+    return (client as { giftCardBatch: GiftCardBatchDelegateLike }).giftCardBatch;
+  }
 
   private get uploadRoot(): string {
     const raw = this.config.get<string>('UPLOAD_DIR');
@@ -54,6 +94,18 @@ export class GiftCardsService {
     return this.prisma.giftCard.findMany({
       where: { recipientId: userId },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  listMarketBatches() {
+    const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+    return batchDelegate.findMany({
+      where: {
+        status: GiftCardStatus.ACTIVE,
+        availableQuantity: { gt: 0 },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
     });
   }
 
@@ -95,6 +147,99 @@ export class GiftCardsService {
       orderBy: { createdAt: 'desc' },
       take: 500,
     });
+  }
+
+  listAdminBoard() {
+    return this.loadAdminBoardWithFallback();
+  }
+
+  private async loadAdminBoardWithFallback() {
+    try {
+      const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+      return await batchDelegate.findMany({
+        include: {
+          purchaser: { select: { email: true, name: true } },
+          recipient: { select: { email: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      });
+    } catch (error) {
+      if (!(error instanceof PrismaClientKnownRequestError) || error.code !== 'P2021') {
+        throw error;
+      }
+      this.logger.warn(
+        'GiftCardBatch table is missing; falling back to grouped GiftCard board response.',
+      );
+      const cards = await this.prisma.giftCard.findMany({
+        include: {
+          purchaser: { select: { email: true, name: true } },
+          recipient: { select: { email: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      });
+      const grouped = new Map<
+        string,
+        {
+          id: string;
+          amountCents: number;
+          imageUrl: string | null;
+          status: GiftCardStatus;
+          totalQuantity: number;
+          availableQuantity: number;
+          recipientEmail: string | null;
+          recipientName: string | null;
+          message: string | null;
+          expiresAt: Date | null;
+          createdAt: Date;
+          purchaser: { email: string; name: string | null };
+          recipient: { email: string; name: string | null } | null;
+        }
+      >();
+
+      for (const card of cards) {
+        const cardWithImage = card as typeof card & { imageUrl?: string | null };
+        const key = [
+          card.amountCents,
+          cardWithImage.imageUrl ?? '',
+          card.status,
+          card.purchaserId,
+          card.recipientId ?? '',
+          card.recipientEmail ?? '',
+          card.recipientName ?? '',
+          card.message ?? '',
+          card.expiresAt?.toISOString() ?? '',
+        ].join('|');
+        const existing = grouped.get(key);
+        const isAvailable = card.status === GiftCardStatus.ACTIVE && card.balanceCents > 0 ? 1 : 0;
+        if (!existing) {
+          grouped.set(key, {
+            id: card.id,
+            amountCents: card.amountCents,
+            imageUrl: cardWithImage.imageUrl ?? null,
+            status: card.status,
+            totalQuantity: 1,
+            availableQuantity: isAvailable,
+            recipientEmail: card.recipientEmail ?? null,
+            recipientName: card.recipientName ?? null,
+            message: card.message ?? null,
+            expiresAt: card.expiresAt ?? null,
+            createdAt: card.createdAt,
+            purchaser: card.purchaser,
+            recipient: card.recipient,
+          });
+          continue;
+        }
+        existing.totalQuantity += 1;
+        existing.availableQuantity += isAvailable;
+        if (card.createdAt > existing.createdAt) {
+          existing.createdAt = card.createdAt;
+        }
+      }
+
+      return [...grouped.values()].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
   }
 
   listAssignableUsers() {
@@ -192,54 +337,37 @@ export class GiftCardsService {
     const imageUrl = uploadedImageUrl ?? dto.imageUrl ?? null;
 
     try {
-      const cards = await this.prisma.$transaction(async (tx) => {
-        const created = await Promise.all(
-          Array.from({ length: dto.quantity }, async () => {
-            const createData: Record<string, unknown> = {
-              code: randomBytes(8).toString('hex').toUpperCase(),
-              amountCents: dto.amountCents,
-              balanceCents: dto.amountCents,
-              status: GiftCardStatus.ACTIVE,
-              purchaserId: adminId,
-              recipientId: recipient?.id,
-              recipientName,
-              recipientEmail,
-              message: dto.message,
-              expiresAt,
-            };
-            if (imageUrl !== null) {
-              createData.imageUrl = imageUrl;
-            }
-            return tx.giftCard.create({
-              data: createData as unknown as Prisma.GiftCardUncheckedCreateInput,
-            });
-          }),
-        );
-        return created;
+      const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+      const batch = (await batchDelegate.create({
+        data: {
+          amountCents: dto.amountCents,
+          imageUrl,
+          status: GiftCardStatus.ACTIVE,
+          totalQuantity: dto.quantity,
+          availableQuantity: dto.quantity,
+          purchaserId: adminId,
+          recipientId: recipient?.id,
+          recipientEmail,
+          recipientName,
+          message: dto.message,
+          expiresAt,
+        },
+      })) as GiftCardBatchSnapshot;
+      await this.audit.log({
+        actorId: adminId,
+        actorRole: 'ADMIN',
+        action: 'GIFT_CARD_BATCH_CREATED_ADMIN',
+        entityType: 'GiftCardBatch',
+        entityId: batch.id,
+        payload: {
+          amountCents: batch.amountCents,
+          totalQuantity: batch.totalQuantity,
+          recipientEmail: batch.recipientEmail ?? null,
+          recipientId: batch.recipientId ?? null,
+          imageUrl: batch.imageUrl ?? null,
+        },
       });
-      if (recipientEmail) {
-        await Promise.all(
-          cards.map((card) => this.sendGiftCardEmail(recipientEmail, card.code)),
-        );
-      }
-      await Promise.all(
-        cards.map((card) =>
-          this.audit.log({
-            actorId: adminId,
-            actorRole: 'ADMIN',
-            action: 'GIFT_CARD_CREATED_ADMIN',
-            entityType: 'GiftCard',
-            entityId: card.id,
-            payload: {
-              amountCents: card.amountCents,
-              recipientEmail: card.recipientEmail ?? null,
-              recipientId: card.recipientId ?? null,
-              imageUrl,
-            },
-          }),
-        ),
-      );
-      return dto.quantity === 1 ? cards[0] : cards;
+      return batch;
     } catch (error) {
       if (uploadedImageUrl !== null) {
         await this.removeStoredGiftCardImage(uploadedImageUrl);
@@ -283,6 +411,183 @@ export class GiftCardsService {
       payload: { recipientId: user.id },
     });
     return updated;
+  }
+
+  async assignBatchRecipient(batchId: string, userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true, email: true, name: true },
+    });
+    if (!user || user.role !== 'USER') {
+      throw new BadRequestException('Recipient user not found');
+    }
+
+    const created = await this.prisma.$transaction(async (tx) => {
+      const batchDelegate = this.giftCardBatchDelegate(tx);
+      const decremented = await batchDelegate.updateMany({
+        where: {
+          id: batchId,
+          status: GiftCardStatus.ACTIVE,
+          availableQuantity: { gt: 0 },
+        },
+        data: { availableQuantity: { decrement: 1 } },
+      });
+      if (decremented.count !== 1) {
+        throw new BadRequestException('Gift card is out of stock or inactive');
+      }
+
+      const batch = (await batchDelegate.findUnique({
+        where: { id: batchId },
+      })) as GiftCardBatchSnapshot | null;
+      if (!batch) {
+        throw new NotFoundException('Gift card batch not found');
+      }
+
+      const card = await tx.giftCard.create(({
+        data: {
+          batchId: batch.id,
+          code: randomBytes(8).toString('hex').toUpperCase(),
+          amountCents: batch.amountCents,
+          balanceCents: batch.amountCents,
+          imageUrl: batch.imageUrl ?? undefined,
+          status: GiftCardStatus.ACTIVE,
+          purchaserId: batch.purchaserId,
+          recipientId: user.id,
+          recipientEmail: user.email,
+          recipientName: user.name ?? batch.recipientName,
+          message: batch.message ?? undefined,
+          expiresAt: batch.expiresAt ?? undefined,
+        },
+      } as unknown) as Parameters<typeof tx.giftCard.create>[0]);
+
+      await batchDelegate.update({
+        where: { id: batch.id },
+        data: {
+          recipientId: user.id,
+          recipientEmail: user.email,
+          recipientName: user.name ?? batch.recipientName,
+        },
+      });
+      return card;
+    });
+
+    await this.audit.log({
+      action: 'GIFT_CARD_ASSIGNED',
+      entityType: 'GiftCardBatch',
+      entityId: batchId,
+      payload: { recipientId: user.id, issuedGiftCardId: created.id },
+    });
+    await this.sendGiftCardEmail(user.email, created.code);
+    return created;
+  }
+
+  async deactivateBatch(id: string) {
+    const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+    const existing = (await batchDelegate.findUnique({ where: { id } })) as GiftCardBatchSnapshot | null;
+    if (!existing) {
+      throw new NotFoundException('Gift card batch not found');
+    }
+    if (existing.status !== GiftCardStatus.ACTIVE) {
+      throw new BadRequestException('Only active gift-card batches can be deactivated');
+    }
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const txBatchDelegate = this.giftCardBatchDelegate(tx);
+      const batch = await txBatchDelegate.update({
+        where: { id },
+        data: { status: GiftCardStatus.DEACTIVATED },
+      });
+      await tx.giftCard.updateMany(({
+        where: { batchId: id, status: GiftCardStatus.ACTIVE },
+        data: { status: GiftCardStatus.DEACTIVATED },
+      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0]);
+      return batch;
+    });
+    await this.audit.log({
+      action: 'GIFT_CARD_BATCH_DEACTIVATED',
+      entityType: 'GiftCardBatch',
+      entityId: id,
+    });
+    return updated;
+  }
+
+  async deleteBatch(id: string, actorId: string) {
+    const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+    const existing = (await batchDelegate.findUnique({
+      where: { id },
+      select: { id: true, imageUrl: true, totalQuantity: true, availableQuantity: true },
+    })) as Pick<GiftCardBatchSnapshot, 'id' | 'imageUrl' | 'totalQuantity' | 'availableQuantity'> | null;
+    if (!existing) {
+      throw new NotFoundException('Gift card batch not found');
+    }
+    if (existing.availableQuantity !== existing.totalQuantity) {
+      throw new BadRequestException(
+        'Cannot delete a batch with issued gift cards. Deactivate it instead.',
+      );
+    }
+    await batchDelegate.delete({ where: { id } });
+    await this.audit.log({
+      actorId,
+      actorRole: 'ADMIN',
+      action: 'GIFT_CARD_BATCH_DELETED',
+      entityType: 'GiftCardBatch',
+      entityId: id,
+    });
+    if (existing.imageUrl !== null) {
+      await this.removeStoredGiftCardImage(existing.imageUrl);
+    }
+    return { ok: true };
+  }
+
+  async resendBatchEmail(id: string) {
+    const latest = await this.prisma.giftCard.findFirst(({
+      where: { batchId: id, recipientEmail: { not: null } },
+      orderBy: { createdAt: 'desc' },
+    } as unknown) as Parameters<typeof this.prisma.giftCard.findFirst>[0]);
+    if (!latest?.recipientEmail) {
+      throw new BadRequestException('No issued recipient email');
+    }
+    await this.sendGiftCardEmail(latest.recipientEmail, latest.code);
+    return { ok: true };
+  }
+
+  async getBatchHistory(batchId: string) {
+    const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+    const batch = (await batchDelegate.findUnique({
+      where: { id: batchId },
+    })) as GiftCardBatchSnapshot | null;
+    if (!batch) {
+      throw new NotFoundException('Gift card batch not found');
+    }
+    const issuedCards = await this.prisma.giftCard.findMany(({
+      where: { batchId },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    } as unknown) as Parameters<typeof this.prisma.giftCard.findMany>[0]);
+    const events = issuedCards.map((card) => ({
+      type: card.status === GiftCardStatus.REDEEMED ? 'REDEEMED' : 'ISSUED',
+      at: card.updatedAt.toISOString(),
+      description:
+        card.status === GiftCardStatus.REDEEMED
+          ? `Gift card ${card.code} redeemed`
+          : `Gift card ${card.code} issued to ${card.recipientName ?? card.recipientEmail ?? 'recipient'}`,
+    }));
+    return {
+      batchId: batch.id,
+      status: batch.status,
+      totalQuantity: batch.totalQuantity,
+      availableQuantity: batch.availableQuantity,
+      issuedCount: batch.totalQuantity - batch.availableQuantity,
+      redeemedCount: issuedCards.filter((card) => card.status === GiftCardStatus.REDEEMED)
+        .length,
+      events: [
+        {
+          type: 'CREATED',
+          at: batch.createdAt.toISOString(),
+          description: 'Gift-card batch created',
+        },
+        ...events,
+      ],
+    };
   }
 
   async getRedemptionHistory(giftCardId: string) {

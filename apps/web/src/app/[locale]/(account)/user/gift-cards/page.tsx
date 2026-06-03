@@ -135,6 +135,7 @@ export default async function UserGiftCardsPage({
           <p className="ommm-body-muted text-sm">
             {t("stripeNote", { code: "STRIPE_SECRET_KEY" })}
           </p>
+          <p className="ommm-body-muted mt-2 text-sm">{t("marketHeading")}</p>
           <div className="mt-4 max-w-sm">
             <GiftPurchaseForm />
           </div>
