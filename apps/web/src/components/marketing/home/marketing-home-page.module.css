@@ -1,0 +1,44 @@
+/**
+ * Home page — clip upper sections; gallery/footer seam stays unpainted for Safari radius.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.pageUpper {
+  overflow-x: clip;
+  min-width: 0;
+}
+
+.galleryFooterSeam {
+  position: relative;
+  z-index: 0;
+  min-width: 0;
+}
+
+@media (max-width: 743px) {
+  .pageUpper {
+    overflow-x: clip;
+  }
+
+  .galleryFooterSeam {
+    overflow: visible;
+    /* Contrast behind footer cap pockets — no padding-bottom (avoids strip under footer). */
+    background-color: var(--home-gallery-footer-seam-bg, #ede9dd);
+  }
+
+  .galleryFooterSeam :global([data-home-section="gallery"]) {
+    overflow: visible;
+  }
+}
+
+@media (min-width: 744px) {
+  .page {
+    overflow-x: clip;
+  }
+}

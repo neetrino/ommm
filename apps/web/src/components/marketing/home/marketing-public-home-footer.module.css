@@ -349,6 +349,8 @@
     margin-top: calc(-1 * var(--home-footer-mobile-overlap, 2.5rem));
     padding-top: var(--home-footer-mobile-wrap-padding-top, 2.5rem);
     background-color: transparent;
+    overflow-x: visible;
+    overflow-y: visible;
   }
 
   .inner {

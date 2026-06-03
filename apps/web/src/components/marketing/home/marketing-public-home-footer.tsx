@@ -37,7 +37,7 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
   const tabletLayout =
     surfaceVariant === "inner" ? HOME_FOOTER_INNER_TABLET_LAYOUT : HOME_FOOTER_TABLET_LAYOUT;
   return {
-    // --home-footer-wrap-bg: inherited from MarketingLayoutShell on inner routes; home falls back in CSS.
+    // --home-footer-wrap-bg: inherited from MarketingLayoutShell on home + inner routes.
     ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
     ["--home-footer-mobile-overlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,

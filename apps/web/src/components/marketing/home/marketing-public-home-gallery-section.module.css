@@ -29,6 +29,21 @@
   pointer-events: none;
 }
 
+@media (max-width: 743px) {
+  .section {
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-bottom: calc(
+      var(--home-gallery-mobile-pb, 4rem) + var(--marketing-footer-mobile-overlap, 2.5rem)
+    );
+  }
+
+  /* Cream underlap comes from gradient padding — ::after is unreliable on iOS Safari. */
+  .section::after {
+    content: none;
+  }
+}
+
 .mobileLayer {
   display: block;
 }

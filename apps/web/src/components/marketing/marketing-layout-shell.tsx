@@ -16,6 +16,11 @@ const MARKETING_SHELL_STYLE = {
   "--marketing-mobile-header-height": MARKETING_MOBILE_HEADER.shellHeight,
 } as CSSProperties;
 
+const MARKETING_HOME_SHELL_STYLE = {
+  ...MARKETING_SHELL_STYLE,
+  "--marketing-footer-mobile-overlap": HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
+} as CSSProperties;
+
 const MARKETING_INNER_SHELL_STYLE = {
   ...MARKETING_SHELL_STYLE,
   "--coaches-page-gradient-from": COACHES_PAGE_SURFACE.gradientFrom,
@@ -34,7 +39,7 @@ export function MarketingLayoutShell({ children }: MarketingLayoutShellProps) {
     return (
       <div
         className="marketing-layout-shell ommm-bg-wellness flex min-h-screen w-full flex-col"
-        style={MARKETING_SHELL_STYLE}
+        style={MARKETING_HOME_SHELL_STYLE}
       >
         {children}
       </div>

@@ -110,6 +110,37 @@ function ExpandPanelBody({ children }: { children: ReactNode }) {
   return <div className={styles.expandPanelBody}>{children}</div>;
 }
 
+type CoachCardPortraitBlurSourceProps = {
+  imageSrc: string;
+  imageIndex: number;
+};
+
+/** Real blur layer — iOS Safari often ignores backdrop-filter behind clipped siblings. */
+function CoachCardPortraitBlurSource({
+  imageSrc,
+  imageIndex,
+}: CoachCardPortraitBlurSourceProps) {
+  return (
+    <div className={styles.photoWrapBlurSource} aria-hidden>
+      <div className={styles.photoInner}>
+        <div className={styles.photoFrame}>
+          <div className={styles.photoCrop}>
+            <Image
+              src={imageSrc}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
+              className="object-cover"
+              style={{ objectPosition: "42% 18%" }}
+              {...firstRowGridImageProps(imageIndex)}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CoachesPageCoachCard({
   user,
   specialization,
@@ -139,28 +170,34 @@ export function CoachesPageCoachCard({
       className={`${marketingMontserrat.variable} ${styles.card} ${expanded ? styles.cardExpanded : ""}`}
       style={buildCardStyle()}
     >
-      <div className={styles.header}>
-        <p className={styles.name}>{displayName}</p>
-        <p className={styles.role}>{roleLine}</p>
-      </div>
+      <div className={styles.cardSurface} aria-hidden />
 
-      <div className={styles.photoWrap} aria-hidden>
-        <div className={styles.photoInner}>
-          <div className={styles.photoFrame}>
-            <div className={styles.photoCrop}>
-              <Image
-                src={imageSrc}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
-                className="object-cover"
-                style={{ objectPosition: "42% 18%" }}
-                {...firstRowGridImageProps(imageIndex)}
-              />
+      <div className={styles.cardMedia}>
+        <div className={styles.header}>
+          <p className={styles.name}>{displayName}</p>
+          <p className={styles.role}>{roleLine}</p>
+        </div>
+
+        <div className={styles.photoWrap} aria-hidden>
+          <div className={styles.photoInner}>
+            <div className={styles.photoFrame}>
+              <div className={styles.photoCrop}>
+                <Image
+                  src={imageSrc}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
+                  className="object-cover"
+                  style={{ objectPosition: "42% 18%" }}
+                  {...firstRowGridImageProps(imageIndex)}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <CoachCardPortraitBlurSource imageSrc={imageSrc} imageIndex={imageIndex} />
 
       <div
         className={`${styles.expandPanel} ${expanded ? styles.expandPanelExpanded : styles.expandPanelCollapsed}`}
