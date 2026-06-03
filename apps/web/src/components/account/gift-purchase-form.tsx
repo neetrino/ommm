@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { OmmButton } from "@/components/ui/omm-button";
+import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { ApiError, apiFetch } from "@/lib/api";
+import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type GiftBatchMarketItem = {
   id: string;
@@ -20,14 +21,10 @@ type GiftBatchMarketItem = {
 export function GiftPurchaseForm() {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const [items, setItems] = useState<GiftBatchMarketItem[]>([]);
-  const [selectedBatchId, setSelectedBatchId] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
-  const [recipientName, setRecipientName] = useState("");
-  const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
+  const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,9 +37,6 @@ export function GiftPurchaseForm() {
           return;
         }
         setItems(rows);
-        if (rows.length > 0) {
-          setSelectedBatchId(rows[0].id);
-        }
       } catch (err) {
         if (cancelled) {
           return;
@@ -60,15 +54,8 @@ export function GiftPurchaseForm() {
     };
   }, [t]);
 
-  const selectedBatch = items.find((item) => item.id === selectedBatchId) ?? null;
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (selectedBatch == null) {
-      setStatus(t("selectRequired"));
-      return;
-    }
-    setBusy(true);
+  async function onBuy(item: GiftBatchMarketItem) {
+    setBusyBatchId(item.id);
     setStatus(null);
     try {
       const { url } = await apiFetch<{ url: string | null }>(
@@ -76,11 +63,8 @@ export function GiftPurchaseForm() {
         {
           method: "POST",
           body: JSON.stringify({
-            batchId: selectedBatch.id,
-            amountCents: selectedBatch.amountCents,
-            recipientEmail: recipientEmail.trim() || undefined,
-            recipientName: recipientName.trim() || undefined,
-            message: message.trim() || undefined,
+            batchId: item.id,
+            amountCents: item.amountCents,
           }),
         },
       );
@@ -92,7 +76,7 @@ export function GiftPurchaseForm() {
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
     } finally {
-      setBusy(false);
+      setBusyBatchId(null);
     }
   }
 
@@ -109,75 +93,77 @@ export function GiftPurchaseForm() {
   }
 
   return (
-    <form onSubmit={(ev) => void onSubmit(ev)} className="flex flex-col gap-3">
-      <label className="ommm-label flex flex-col gap-2">
-        {t("selectLabel")}
-        <select
-          className="ommm-input"
-          value={selectedBatchId}
-          onChange={(ev) => setSelectedBatchId(ev.target.value)}
-          disabled={busy}
-          required
-        >
-          {items.map((item) => (
-            <option key={item.id} value={item.id}>
-              {formatAmdFromCents(item.amountCents, "hy")} - {t("availableShort", { available: item.availableQuantity })}
-            </option>
-          ))}
-        </select>
-      </label>
-      {selectedBatch ? (
-        <div className="rounded-2xl border border-white/60 bg-white/75 p-3">
-          <div className="mb-2 overflow-hidden rounded-xl border border-white/70 bg-sage-100">
-            {selectedBatch.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- supports API and R2 URLs
-              <img
-                src={resolveApiAssetUrl(selectedBatch.imageUrl) ?? selectedBatch.imageUrl}
-                alt={t("selectedImageAlt")}
-                className="h-28 w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-28 items-center justify-center text-sm text-sage-600">{t("noImage")}</div>
-            )}
-          </div>
-          <p className="text-sm text-sage-700">
-            {t("selectedSummary", {
-              amount: formatAmdFromCents(selectedBatch.amountCents, "hy"),
-              available: selectedBatch.availableQuantity,
-              total: selectedBatch.totalQuantity,
-            })}
-          </p>
-        </div>
-      ) : null}
-      <label className="ommm-label flex flex-col gap-2">
-        {t("recipientEmail")}
-        <input
-          value={recipientEmail}
-          onChange={(ev) => setRecipientEmail(ev.target.value)}
-          type="email"
-          className="ommm-input"
-        />
-      </label>
-      <label className="ommm-label flex flex-col gap-2">
-        {t("recipientName")}
-        <input
-          value={recipientName}
-          onChange={(ev) => setRecipientName(ev.target.value)}
-          className="ommm-input"
-        />
-      </label>
-      <label className="ommm-label flex flex-col gap-2">
-        {t("message")}
-        <input
-          value={message}
-          onChange={(ev) => setMessage(ev.target.value)}
-          className="ommm-input"
-        />
-      </label>
-      <OmmButton type="submit" variant="primary" disabled={busy}>
-        {t("submit")}
-      </OmmButton>
+    <div className="space-y-4">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {items.map((item) => (
+          <PurchaseGiftCardPreview
+            key={item.id}
+            item={item}
+            busy={busyBatchId !== null}
+            onBuy={onBuy}
+          />
+        ))}
+      </div>
       {status ? <p className="text-sm text-sage-500">{status}</p> : null}
-    </form>
+    </div>
+  );
+}
+
+function PurchaseGiftCardPreview({
+  item,
+  busy,
+  onBuy,
+}: {
+  item: GiftBatchMarketItem;
+  busy: boolean;
+  onBuy: (item: GiftBatchMarketItem) => Promise<void>;
+}) {
+  const t = useTranslations("userPages.giftCards.purchaseForm");
+  const giftCardsT = useTranslations("userPages.giftCards");
+  const amountLabel = formatAmdFromCents(item.amountCents, "hy");
+
+  return (
+    <article className="rounded-[32px] border border-white/80 bg-white/95 p-6 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] sm:p-7">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] border border-white/70 bg-sage-100 shadow-[0_14px_26px_-18px_rgba(45,40,35,0.45)]">
+        <GiftCardThumbnail
+          imageUrl={item.imageUrl}
+          alt={t("selectedImageAlt")}
+          fallbackLabel={t("noImage")}
+        />
+      </div>
+      <div className="mt-6 space-y-5">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-2xl font-semibold tracking-tight text-sage-950">{amountLabel}</p>
+          <span className="inline-flex rounded-full border border-sage-900/70 bg-white px-3 py-1 text-sm leading-none text-sage-900">
+            {giftCardsT(`statusValues.${item.status}`)}
+          </span>
+        </div>
+        <dl className="grid gap-2.5 text-lg text-sage-700">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-sage-600">{giftCardsT("cardExpiration")}</dt>
+            <dd className="text-right text-sage-800">
+              {item.expiresAt !== null
+                ? displayGiftCardDate(item.expiresAt)
+                : giftCardsT("cardNoExpiration")}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-sage-600">{t("availableLabel")}</dt>
+            <dd className="text-right text-sage-800">
+              {item.availableQuantity} / {item.totalQuantity}
+            </dd>
+          </div>
+        </dl>
+        <OmmButton
+          type="button"
+          variant="primary"
+          className="w-full"
+          disabled={busy || item.availableQuantity <= 0}
+          onClick={() => void onBuy(item)}
+        >
+          {t("buyGiftCard")}
+        </OmmButton>
+      </div>
+    </article>
   );
 }

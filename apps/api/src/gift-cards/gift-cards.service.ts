@@ -95,30 +95,20 @@ export class GiftCardsService {
     return this.prisma.giftCard
       .findMany({
         where: { purchaserId: userId },
+        include: { batch: { select: { imageUrl: true } } },
         orderBy: { createdAt: 'desc' },
       })
-      .then((cards) =>
-        cards.map((card) => ({
-          ...card,
-          amountCents: this.readGiftCardAmount(card),
-          balanceCents: this.readGiftCardBalance(card),
-        })),
-      );
+      .then((cards) => cards.map((card) => this.serializeUserGiftCard(card)));
   }
 
   listReceived(userId: string) {
     return this.prisma.giftCard
       .findMany({
         where: { recipientId: userId },
+        include: { batch: { select: { imageUrl: true } } },
         orderBy: { createdAt: 'desc' },
       })
-      .then((cards) =>
-        cards.map((card) => ({
-          ...card,
-          amountCents: this.readGiftCardAmount(card),
-          balanceCents: this.readGiftCardBalance(card),
-        })),
-      );
+      .then((cards) => cards.map((card) => this.serializeUserGiftCard(card)));
   }
 
   listMarketBatches() {
@@ -1000,6 +990,33 @@ export class GiftCardsService {
   private readGiftCardImage(card: unknown): string | null {
     const imageUrl = (card as Record<string, unknown>).imageUrl;
     return typeof imageUrl === 'string' ? imageUrl : null;
+  }
+
+  private serializeUserGiftCard(card: {
+    id: string;
+    code: string;
+    status: GiftCardStatus;
+    recipientEmail: string | null;
+    recipientName: string | null;
+    message: string | null;
+    expiresAt: Date | null;
+    createdAt: Date;
+    batch?: { imageUrl: string | null } | null;
+  }) {
+    return {
+      id: card.id,
+      code: card.code,
+      amountCents: this.readGiftCardAmount(card),
+      balanceCents: this.readGiftCardBalance(card),
+      status: card.status,
+      imageUrl:
+        this.readGiftCardImage(card) ?? card.batch?.imageUrl ?? null,
+      recipientEmail: card.recipientEmail,
+      recipientName: card.recipientName,
+      message: card.message,
+      expiresAt: card.expiresAt,
+      createdAt: card.createdAt,
+    };
   }
 
   private readBatchAmount(batch: unknown): number {

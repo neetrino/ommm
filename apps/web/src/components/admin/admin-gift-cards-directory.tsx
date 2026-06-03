@@ -11,8 +11,8 @@ import { AdminGiftCardRowActions } from "@/components/admin/admin-gift-card-row-
 import { recipientLabel } from "@/components/admin/admin-gift-cards-filter-logic";
 import { useAdminGiftCardsView } from "@/components/admin/admin-gift-cards-view-context";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
+import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type AdminGiftCardsDirectoryProps = {
   cards: readonly AdminGiftCardBatchRow[];
@@ -24,7 +24,7 @@ type AdminGiftCardsDirectoryProps = {
   onChanged?: () => void;
 };
 
-function GiftCardThumbnail({
+function AdminGiftCardThumbnail({
   card,
   className,
 }: {
@@ -32,25 +32,13 @@ function GiftCardThumbnail({
   className?: string;
 }) {
   const t = useTranslations("adminPages.giftCards");
-  const resolvedImage = resolveApiAssetUrl(card.imageUrl);
-
-  if (resolvedImage) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- supports API and blob/image URLs
-      <img
-        src={resolvedImage}
-        alt={t("cardImageAlt")}
-        className={className ?? "h-full w-full object-cover"}
-      />
-    );
-  }
-
   return (
-    <div
-      className={`flex items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 ${className ?? "h-full w-full"}`}
-    >
-      <span className="text-xs font-medium text-sage-600">{t("cardImageFallback")}</span>
-    </div>
+    <GiftCardThumbnail
+      imageUrl={card.imageUrl}
+      alt={t("cardImageAlt")}
+      fallbackLabel={t("cardImageFallback")}
+      className={className}
+    />
   );
 }
 
@@ -89,7 +77,7 @@ function AdminGiftCardsBoardView({
           className="cursor-pointer overflow-hidden rounded-3xl border border-white/65 bg-white/85 shadow-[0_18px_40px_-24px_rgba(45,40,35,0.28)] transition-all hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_22px_48px_-24px_rgba(45,40,35,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           <div className="relative aspect-[16/9] w-full bg-sage-100">
-            <GiftCardThumbnail card={card} />
+            <AdminGiftCardThumbnail card={card} />
           </div>
           <div className="space-y-3 p-4">
             <div className="flex items-center justify-between gap-3">
@@ -177,7 +165,7 @@ function AdminGiftCardsListView({
               <tr key={card.id}>
                 <td className={`${adminChrome.td} ${rowDivider}`}>
                   <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
-                    <GiftCardThumbnail card={card} className="h-full w-full object-cover" />
+                    <AdminGiftCardThumbnail card={card} className="h-full w-full object-cover" />
                   </div>
                 </td>
                 <td className={`${adminChrome.tdStrong} text-center ${rowDivider}`}>
