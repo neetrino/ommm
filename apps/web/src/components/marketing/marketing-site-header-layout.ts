@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 /** Figma mobile HEADER `97:5670` sizing tokens. */
@@ -19,6 +20,49 @@ export const MARKETING_MOBILE_HEADER = {
   shellHeight:
     "calc(max(1rem, env(safe-area-inset-top, 0px)) + 0.75rem + 35px)",
 } as const;
+
+/** Scrolled liquid-glass pill — mobile header row wrap. */
+export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
+  paddingY: "0.4375rem",
+  paddingX: "1rem",
+  /** Pull pill outward for a wider capsule vs the container inset. */
+  inlineBleed: "0.5rem",
+  rowMinHeight: "2.625rem",
+  menuIconSize: "2.25rem",
+  brandFontSize: "1.25rem",
+  brandLineHeight: "1.625rem",
+  actionIconSize: "1.625rem",
+  transitionDuration: "420ms",
+  transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
+} as const;
+
+/** Animated CSS vars for the mobile header row wrap (hero ↔ glass pill). */
+export function marketingHeaderMobileRowWrapStyle(glassActive: boolean): CSSProperties {
+  const pill = MARKETING_MOBILE_HEADER_GLASS_PILL;
+  const base = MARKETING_MOBILE_HEADER;
+  return {
+    ["--marketing-mobile-glass-pill-py" as string]: glassActive ? pill.paddingY : "0",
+    ["--marketing-mobile-glass-pill-px" as string]: glassActive ? pill.paddingX : "0",
+    ["--marketing-mobile-glass-pill-inline-bleed" as string]: glassActive ? pill.inlineBleed : "0",
+    ["--marketing-mobile-glass-pill-row-min-height" as string]: glassActive
+      ? pill.rowMinHeight
+      : `${base.rowHeightPx}px`,
+    ["--marketing-mobile-glass-pill-menu-icon-size" as string]: glassActive
+      ? pill.menuIconSize
+      : `${base.menuIconSizePx}px`,
+    ["--marketing-mobile-glass-pill-brand-size" as string]: glassActive
+      ? pill.brandFontSize
+      : `${base.brandFontSizePx}px`,
+    ["--marketing-mobile-glass-pill-brand-line-height" as string]: glassActive
+      ? pill.brandLineHeight
+      : `${base.brandLineHeightPx}px`,
+    ["--marketing-mobile-glass-pill-action-icon-size" as string]: glassActive
+      ? pill.actionIconSize
+      : `${base.globeIconSizePx}px`,
+    ["--marketing-mobile-glass-pill-transition-duration" as string]: pill.transitionDuration,
+    ["--marketing-mobile-glass-pill-transition-easing" as string]: pill.transitionEasing,
+  };
+}
 
 /** Figma TopNavBar `196:1410` sizing tokens. */
 const MARKETING_NAV_PILL_HEIGHT_CLASS = "min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px]";
@@ -60,13 +104,17 @@ export function marketingHeaderContainerClass(): string {
   ].join(" ");
 }
 
-export function marketingHeaderMobileRowClass(): string {
-  return "relative flex min-h-[35px] w-full items-center justify-between tablet:hidden";
+export function marketingHeaderMobileRowWrapClass(): string {
+  return "w-full min-w-0 tablet:hidden";
+}
+
+export function marketingHeaderMobileRowInnerClass(): string {
+  return "relative z-10 flex w-full items-center justify-between";
 }
 
 export function marketingHeaderMobileBrandTextClass(): string {
   return [
-    "font-serif text-[20px] font-bold leading-7 tracking-[-0.05em]",
+    "font-serif font-bold tracking-[-0.05em]",
     "whitespace-nowrap text-[#fbf5d5]",
   ].join(" ");
 }
@@ -79,7 +127,6 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 
   return [
     "ml-[-4px] inline-flex shrink-0 cursor-pointer items-center justify-center",
-    "h-[35px] w-[35px]",
     iconColor,
     "focus-visible:outline-none focus-visible:ring-2",
     focusRing,
@@ -217,7 +264,7 @@ export function marketingHeaderMenuButtonClass(): string {
 
 export function marketingHeaderMobileLanguageTriggerClass(): string {
   return [
-    "ommm-dropdown-trigger !h-[26px] !min-h-[26px] !w-[26px] !min-w-[26px] !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+    "ommm-dropdown-trigger !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
     "text-[#fbf5d5] cursor-pointer",
     "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
@@ -228,7 +275,7 @@ export function marketingHeaderMobileLanguageTriggerClass(): string {
 export function marketingHeaderMobileIconAccountClass(): string {
   return [
     marketingHeaderIconButtonClass(),
-    "inline-flex h-[26px] w-[26px] items-center justify-center",
+    "inline-flex items-center justify-center",
   ].join(" ");
 }
 

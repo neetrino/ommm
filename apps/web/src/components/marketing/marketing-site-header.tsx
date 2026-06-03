@@ -25,7 +25,9 @@ import {
   marketingHeaderMobileIconAccountClass,
   marketingHeaderMobileLanguageTriggerClass,
   marketingHeaderMobileMenuButtonClass,
-  marketingHeaderMobileRowClass,
+  marketingHeaderMobileRowInnerClass,
+  marketingHeaderMobileRowWrapClass,
+  marketingHeaderMobileRowWrapStyle,
   marketingHeaderNavClass,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
@@ -61,6 +63,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const isMarketingHome = isMarketingHomePath(marketingPath);
   const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
+  const showMobileGlassPill = elevated && !open;
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setOpen(false);
@@ -78,61 +81,74 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
       data-menu-open={open ? "true" : "false"}
     >
       <div className={marketingHeaderContainerClass()}>
-        <div className={marketingHeaderMobileRowClass()}>
-          <button
-            type="button"
-            className={marketingHeaderMobileMenuButtonClass(open)}
-            aria-expanded={open}
-            aria-controls="marketing-mobile-nav"
-            aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span className="sr-only">{tUi("menuSr")}</span>
-            {open ? (
-              <svg
-                className="h-[35px] w-[35px]"
-                viewBox="0 0 35 35"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.25"
-                aria-hidden
-              >
-                <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
-              </svg>
-            ) : (
-              <MarketingHeaderMenuIcon className="h-[35px] w-[35px] shrink-0" />
-            )}
-          </button>
-
-          <Link
-            href="/"
-            className={marketingHeaderMobileBrandLinkClass()}
-            onClick={handleBrandClick}
-          >
-            <span className={marketingHeaderMobileBrandTextClass()}>
-              {tNav("spaceBrand")}
-            </span>
-          </Link>
-
-          <div className={marketingHeaderMobileActionsClass()}>
-            <LanguageSwitcher
-              context="marketing"
-              appearance="icon"
-              className="min-w-0 shrink-0"
-              triggerClassName={marketingHeaderMobileLanguageTriggerClass()}
-              onAfterSelect={() => setOpen(false)}
-              renderIconTrigger={() => (
-                <MarketingHeaderGlobeIcon className="h-[26px] w-[26px] shrink-0" />
-              )}
-            />
-            <Link
-              href="/login"
-              className={marketingHeaderMobileIconAccountClass()}
-              aria-label={tCommon("login")}
-              onClick={() => setOpen(false)}
+        <div
+          className={`${marketingHeaderMobileRowWrapClass()} ${navPillStyles.mobileHeaderBar}`}
+          data-glass-active={showMobileGlassPill ? "true" : "false"}
+          style={marketingHeaderMobileRowWrapStyle(showMobileGlassPill)}
+        >
+          <div aria-hidden className={navPillStyles.mobileHeaderBarGloss} />
+          <div className={`${marketingHeaderMobileRowInnerClass()} ${navPillStyles.mobileHeaderRow}`}>
+            <button
+              type="button"
+              className={`${marketingHeaderMobileMenuButtonClass(open)} ${navPillStyles.mobileHeaderMenuButton}`}
+              aria-expanded={open}
+              aria-controls="marketing-mobile-nav"
+              aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
+              onClick={() => setOpen((v) => !v)}
             >
-              <MarketingHeaderUserIcon className="h-6 w-6 shrink-0" />
+              <span className="sr-only">{tUi("menuSr")}</span>
+              {open ? (
+                <svg
+                  className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`}
+                  viewBox="0 0 35 35"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.25"
+                  aria-hidden
+                >
+                  <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <MarketingHeaderMenuIcon className={`${navPillStyles.mobileHeaderMenuIcon} shrink-0`} />
+              )}
+            </button>
+
+            <Link
+              href="/"
+              className={marketingHeaderMobileBrandLinkClass()}
+              onClick={handleBrandClick}
+            >
+              <span
+                className={`${marketingHeaderMobileBrandTextClass()} ${navPillStyles.mobileHeaderBrandText}`}
+              >
+                {tNav("spaceBrand")}
+              </span>
             </Link>
+
+            <div className={marketingHeaderMobileActionsClass()}>
+              <LanguageSwitcher
+                context="marketing"
+                appearance="icon"
+                className="min-w-0 shrink-0"
+                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                onAfterSelect={() => setOpen(false)}
+                renderIconTrigger={() => (
+                  <MarketingHeaderGlobeIcon
+                    className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                  />
+                )}
+              />
+              <Link
+                href="/login"
+                className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                aria-label={tCommon("login")}
+                onClick={() => setOpen(false)}
+              >
+                <MarketingHeaderUserIcon
+                  className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                />
+              </Link>
+            </div>
           </div>
         </div>
 
