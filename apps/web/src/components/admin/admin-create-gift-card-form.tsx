@@ -42,7 +42,7 @@ export function AdminCreateGiftCardForm({
   const t = useTranslations("adminPages.giftCards");
   const submitLockRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const [amountCents, setAmountCents] = useState(String(initialValues?.amountAmd ?? 10000));
+  const [amountAmd, setAmountAmd] = useState(String(initialValues?.amountAmd ?? 10000));
   const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
   const [showAssignedUser, setShowAssignedUser] = useState(false);
   const [recipientId, setRecipientId] = useState("");
@@ -79,7 +79,7 @@ export function AdminCreateGiftCardForm({
     if (!initialValues) {
       return;
     }
-    setAmountCents(String(initialValues.amountAmd));
+    setAmountAmd(String(initialValues.amountAmd));
     setQuantity(String(initialValues.quantity));
     setRecipientEmail(initialValues.recipientEmail);
     setRecipientName(initialValues.recipientName);
@@ -95,7 +95,7 @@ export function AdminCreateGiftCardForm({
     if (busy || submitLockRef.current) {
       return;
     }
-    const parsedAmountAmd = Number.parseInt(amountCents, 10);
+    const parsedAmountAmd = Number.parseInt(amountAmd, 10);
     const parsedQuantity = Number.parseInt(quantity, 10);
     if (!Number.isFinite(parsedAmountAmd) || parsedAmountAmd < 1) {
       setTone("err");
@@ -131,7 +131,7 @@ export function AdminCreateGiftCardForm({
         await apiFetch(`/gift-cards/admin/batches/${batchId}`, {
           method: "PATCH",
           body: JSON.stringify({
-            amountCents: parsedAmountAmd,
+            amountAmd: parsedAmountAmd,
             recipientId: recipientId.trim().length > 0 ? recipientId.trim() : undefined,
             recipientEmail: recipientEmail.trim().length > 0 ? recipientEmail.trim() : undefined,
             recipientName: recipientName.trim().length > 0 ? recipientName.trim() : undefined,
@@ -144,7 +144,7 @@ export function AdminCreateGiftCardForm({
       }
 
       const formData = new FormData();
-      formData.append("amountCents", String(parsedAmountAmd));
+      formData.append("amountAmd", String(parsedAmountAmd));
       formData.append("quantity", String(parsedQuantity));
       if (recipientId.trim().length > 0) {
         formData.append("recipientId", recipientId.trim());
@@ -183,13 +183,13 @@ export function AdminCreateGiftCardForm({
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAmount")}</span>
         <input
-          name="amountCents"
+          name="amountAmd"
           type="number"
           min={1}
           className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           placeholder={t("fieldAmountPlaceholder")}
-          value={amountCents}
-          onChange={(event) => setAmountCents(event.target.value)}
+          value={amountAmd}
+          onChange={(event) => setAmountAmd(event.target.value)}
           disabled={busy}
           required
         />

@@ -230,7 +230,7 @@ export function AdminGiftCardsManagement({
                 <div className="space-y-3 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-base font-semibold text-sage-900">
-                      {formatAmdFromCents(card.amountCents, locale)}
+                      {formatAmdFromCents(card.amountAmd, locale)}
                     </p>
                     <div className="flex items-center gap-2">
                       <span className={statusBadgeClass(card.status)}>{t(`statusValues.${card.status}`)}</span>

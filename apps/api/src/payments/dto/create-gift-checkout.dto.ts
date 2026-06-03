@@ -1,4 +1,5 @@
-import { IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, MaxLength, Min, ValidateIf } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateGiftCheckoutDto {
   @IsOptional()
@@ -6,9 +7,20 @@ export class CreateGiftCheckoutDto {
   @MaxLength(191)
   batchId?: string;
 
+  @IsOptional()
+  @Type(() => Number)
+  @ValidateIf((value: CreateGiftCheckoutDto) => value.amountCents === undefined)
   @IsInt()
   @Min(1)
-  amountCents!: number;
+  amountAmd?: number;
+
+  /** Backward-compatible alias for older clients. */
+  @IsOptional()
+  @Type(() => Number)
+  @ValidateIf((value: CreateGiftCheckoutDto) => value.amountAmd === undefined)
+  @IsInt()
+  @Min(1)
+  amountCents?: number;
 
   @IsOptional()
   @IsString()
@@ -24,4 +36,8 @@ export class CreateGiftCheckoutDto {
   @IsString()
   @MaxLength(2000)
   message?: string;
+
+  get resolvedAmountAmd(): number | undefined {
+    return this.amountAmd ?? this.amountCents;
+  }
 }

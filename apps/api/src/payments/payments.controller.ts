@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -48,10 +49,14 @@ export class PaymentsController {
     @CurrentUser() user: { id: string },
     @Body() body: CreateGiftCheckoutDto,
   ) {
+    const amountAmd = body.resolvedAmountAmd;
+    if (amountAmd === undefined) {
+      throw new BadRequestException('Gift amount is required');
+    }
     return this.payments.createGiftCheckout({
       purchaserId: user.id,
       batchId: body.batchId,
-      amountCents: body.amountCents,
+      amountCents: amountAmd,
       recipientName: body.recipientName,
       recipientEmail: body.recipientEmail,
       message: body.message,

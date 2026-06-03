@@ -48,7 +48,7 @@ function matchesSearch(card: AdminGiftCardBatchRow, search: string): boolean {
     recipientLabel(card),
     card.recipientEmail ?? "",
     card.status,
-    String(card.amountCents),
+    String(card.amountAmd),
     String(card.availableQuantity),
     String(card.totalQuantity),
   ]
@@ -100,10 +100,10 @@ export function filterGiftCards(
     if (values.expiration === "expired" && !isGiftCardExpired(card)) {
       return false;
     }
-    if (minAmount !== null && card.amountCents < minAmount) {
+    if (minAmount !== null && card.amountAmd < minAmount) {
       return false;
     }
-    if (maxAmount !== null && card.amountCents > maxAmount) {
+    if (maxAmount !== null && card.amountAmd > maxAmount) {
       return false;
     }
     if (!matchesQuickFilter(card, values.quick)) {
@@ -126,9 +126,9 @@ export function sortGiftCards(
       case "oldest":
         return a.createdAt.localeCompare(b.createdAt);
       case "amountHigh":
-        return b.amountCents - a.amountCents || b.createdAt.localeCompare(a.createdAt);
+        return b.amountAmd - a.amountAmd || b.createdAt.localeCompare(a.createdAt);
       case "amountLow":
-        return a.amountCents - b.amountCents || b.createdAt.localeCompare(a.createdAt);
+        return a.amountAmd - b.amountAmd || b.createdAt.localeCompare(a.createdAt);
       case "expirationSoon": {
         const aTime = a.expiresAt ? new Date(a.expiresAt).getTime() : Number.POSITIVE_INFINITY;
         const bTime = b.expiresAt ? new Date(b.expiresAt).getTime() : Number.POSITIVE_INFINITY;

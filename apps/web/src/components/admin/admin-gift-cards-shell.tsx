@@ -130,7 +130,7 @@ export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: Ad
     if (!isModalOpen || panelRef.current === null) {
       return;
     }
-    const focusable = panelRef.current.querySelector<HTMLElement>('input[name="amountCents"]');
+    const focusable = panelRef.current.querySelector<HTMLElement>('input[name="amountAmd"]');
     focusable?.focus();
   }, [isModalOpen]);
 
@@ -216,7 +216,7 @@ export function AdminGiftCardsShell({ assignableUsers, giftCards, children }: Ad
                 initialValues={
                   editingBatch
                     ? {
-                        amountAmd: editingBatch.amountCents,
+                        amountAmd: editingBatch.amountAmd,
                         quantity: editingBatch.totalQuantity,
                         recipientEmail: editingBatch.recipientEmail ?? "",
                         recipientName: editingBatch.recipientName ?? "",

@@ -147,11 +147,22 @@ export class GiftCardsService {
       },
       orderBy: { createdAt: 'desc' },
       take: 500,
-    });
+    }).then((cards) =>
+      cards.map((card) => ({
+        ...card,
+        amountAmd: card.amountCents,
+        balanceAmd: card.balanceCents,
+      })),
+    );
   }
 
   listAdminBoard() {
-    return this.loadAdminBoardWithFallback();
+    return this.loadAdminBoardWithFallback().then((batches) =>
+      batches.map((batch) => ({
+        ...batch,
+        amountAmd: batch.amountCents,
+      })),
+    );
   }
 
   private async loadAdminBoardWithFallback() {
@@ -311,6 +322,10 @@ export class GiftCardsService {
     dto: AdminCreateGiftCardDto,
     imageFile?: Express.Multer.File,
   ) {
+    const amountAmd = dto.resolvedAmountAmd;
+    if (amountAmd === undefined) {
+      throw new BadRequestException('amountAmd is required');
+    }
     const expiresAt =
       dto.expiresAt !== undefined ? new Date(dto.expiresAt) : undefined;
     if (expiresAt && Number.isNaN(expiresAt.getTime())) {
@@ -341,7 +356,7 @@ export class GiftCardsService {
       const batchDelegate = this.giftCardBatchDelegate(this.prisma);
       const batch = (await batchDelegate.create({
         data: {
-          amountCents: dto.amountCents,
+          amountCents: amountAmd,
           imageUrl,
           status: GiftCardStatus.ACTIVE,
           totalQuantity: dto.quantity,
@@ -378,6 +393,10 @@ export class GiftCardsService {
   }
 
   async updateBatch(batchId: string, dto: AdminUpdateGiftCardBatchDto) {
+    const amountAmd = dto.resolvedAmountAmd;
+    if (amountAmd === undefined) {
+      throw new BadRequestException('amountAmd is required');
+    }
     const existing = (await this.giftCardBatchDelegate(this.prisma).findUnique({
       where: { id: batchId },
     })) as GiftCardBatchSnapshot | null;
@@ -409,7 +428,7 @@ export class GiftCardsService {
       dto.recipientName !== undefined
         ? dto.recipientName
         : recipient?.name ?? existing.recipientName;
-    const amountCents = dto.amountCents;
+    const amountCents = amountAmd;
     const amountDiff = amountCents - existing.amountCents;
     const updateData: Record<string, unknown> = {
       amountCents,
@@ -657,6 +676,7 @@ export class GiftCardsService {
     return {
       batchId: batch.id,
       status: batch.status,
+      amountAmd: batch.amountCents,
       totalQuantity: batch.totalQuantity,
       availableQuantity: batch.availableQuantity,
       issuedCount: batch.totalQuantity - batch.availableQuantity,
@@ -726,6 +746,8 @@ export class GiftCardsService {
       status: card.status,
       amountCents: card.amountCents,
       balanceCents: card.balanceCents,
+      amountAmd: card.amountCents,
+      balanceAmd: card.balanceCents,
       events,
       note:
         'Detailed redemption ledger is not stored yet; timeline shows available gift-card activity.',

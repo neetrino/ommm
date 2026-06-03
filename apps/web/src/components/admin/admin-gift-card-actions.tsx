@@ -224,11 +224,11 @@ export function AdminGiftCardActions({
               ×
             </button>
           </div>
-          {history.amountCents !== undefined && history.balanceCents !== undefined ? (
+          {history.amountAmd !== undefined && history.balanceAmd !== undefined ? (
             <p className="mb-2">
               {t("historySummary", {
-                amount: formatAmdFromCents(history.amountCents, locale),
-                balance: formatAmdFromCents(history.balanceCents, locale),
+                amount: formatAmdFromCents(history.amountAmd, locale),
+                balance: formatAmdFromCents(history.balanceAmd, locale),
               })}
             </p>
           ) : null}

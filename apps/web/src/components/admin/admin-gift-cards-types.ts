@@ -9,7 +9,7 @@ export type GiftCardStatus = (typeof GIFT_CARD_STATUSES)[number];
 
 export type AdminGiftCardBatchRow = {
   id: string;
-  amountCents: number;
+  amountAmd: number;
   imageUrl: string | null;
   status: GiftCardStatus;
   totalQuantity: number;
@@ -26,8 +26,8 @@ export type AdminGiftCardBatchRow = {
 export type AdminGiftCardRow = {
   id: string;
   code: string;
-  amountCents: number;
-  balanceCents: number;
+  amountAmd: number;
+  balanceAmd: number;
   imageUrl: string | null;
   status: GiftCardStatus;
   recipientEmail: string | null;
@@ -56,8 +56,8 @@ export type AdminGiftCardRedemptionHistory = {
   cardId?: string;
   batchId?: string;
   status: GiftCardStatus;
-  amountCents?: number;
-  balanceCents?: number;
+  amountAmd?: number;
+  balanceAmd?: number;
   totalQuantity?: number;
   availableQuantity?: number;
   issuedCount?: number;

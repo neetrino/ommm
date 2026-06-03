@@ -71,7 +71,7 @@ export function AdminGiftCardDrawer({
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h3 className="font-serif text-xl font-semibold text-sage-900">
-              {formatAmdFromCents(card.amountCents, locale)}
+              {formatAmdFromCents(card.amountAmd, locale)}
             </h3>
             <p className="mt-1 text-xs text-sage-500">
               {t("colAvailableQuantity")}: {card.availableQuantity} / {card.totalQuantity}
@@ -93,7 +93,7 @@ export function AdminGiftCardDrawer({
             label={t("colRecipient")}
             value={recipient.length > 0 ? recipient : "—"}
           />
-          <DetailRow label={t("colAmount")} value={formatAmdFromCents(card.amountCents, locale)} />
+          <DetailRow label={t("colAmount")} value={formatAmdFromCents(card.amountAmd, locale)} />
           <DetailRow
             label={t("colAvailableQuantity")}
             value={`${card.availableQuantity} / ${card.totalQuantity}`}

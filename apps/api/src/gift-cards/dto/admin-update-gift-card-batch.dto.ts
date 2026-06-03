@@ -3,16 +3,27 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  ValidateIf,
   MaxLength,
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AdminUpdateGiftCardBatchDto {
+  @IsOptional()
   @Type(() => Number)
+  @ValidateIf((value: AdminUpdateGiftCardBatchDto) => value.amountCents === undefined)
   @IsInt()
   @Min(1)
-  amountCents!: number;
+  amountAmd?: number;
+
+  /** Backward-compatible alias for older clients. */
+  @IsOptional()
+  @Type(() => Number)
+  @ValidateIf((value: AdminUpdateGiftCardBatchDto) => value.amountAmd === undefined)
+  @IsInt()
+  @Min(1)
+  amountCents?: number;
 
   @IsOptional()
   @IsString()
@@ -37,4 +48,8 @@ export class AdminUpdateGiftCardBatchDto {
   @IsString()
   @MaxLength(32)
   expiresAt?: string;
+
+  get resolvedAmountAmd(): number | undefined {
+    return this.amountAmd ?? this.amountCents;
+  }
 }
