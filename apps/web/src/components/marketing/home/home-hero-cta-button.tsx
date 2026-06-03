@@ -3,6 +3,10 @@ import styles from "@/components/marketing/home/home-hero-cta-button.module.css"
 import {
   HOME_HERO_CTA_ASSETS,
   HOME_HERO_CTA_LAYOUT,
+  HOME_HERO_CTA_TABLET_HERO_LAYOUT,
+  HOME_HERO_CTA_TABLET_LAYOUT,
+  HOME_HERO_CTA_TABLET_MOBILE_LAYOUT,
+  HOME_HERO_CTA_TABLET_MOBILE_SECTION_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -14,14 +18,26 @@ export type HomeHeroCtaButtonProps = {
   href: string;
   label: string;
   variant: HomeHeroCtaVariant;
+  /** Hero uses larger iPad Pro sizing than inline section CTAs. */
+  sizeContext?: "default" | "hero";
   /** Override mobile label inset (px) — e.g. optical nudge for section-specific CTAs. */
   labelOffsetPx?: number;
 };
 
 /** Figma hero CTAs — desktop Union `196:1430` / `196:1440`; mobile `108:6562` / `108:6572`. */
-export function HomeHeroCtaButton({ href, label, variant, labelOffsetPx }: HomeHeroCtaButtonProps) {
+export function HomeHeroCtaButton({
+  href,
+  label,
+  variant,
+  sizeContext = "default",
+  labelOffsetPx,
+}: HomeHeroCtaButtonProps) {
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const desktopLayout = HOME_HERO_CTA_LAYOUT[variant];
+  const tabletLayout =
+    sizeContext === "hero"
+      ? HOME_HERO_CTA_TABLET_HERO_LAYOUT[variant]
+      : HOME_HERO_CTA_TABLET_LAYOUT[variant];
   const mobileLayout =
     variant === "booking" || variant === "membership"
       ? HOME_HERO_MOBILE_CTA_LAYOUT[variant]
@@ -39,6 +55,10 @@ export function HomeHeroCtaButton({ href, label, variant, labelOffsetPx }: HomeH
   const shapeMobile = "shapeMobile" in assets ? assets.shapeMobile : undefined;
   const arrowMobile = "arrowMobile" in assets ? assets.arrowMobile : undefined;
   const mobileLabelOffsetPx = labelOffsetPx ?? mobileLayout?.labelOffsetPx ?? desktopLayout.labelOffsetPx;
+  const tabletMobileLayout =
+    sizeContext === "hero"
+      ? HOME_HERO_CTA_TABLET_MOBILE_LAYOUT
+      : HOME_HERO_CTA_TABLET_MOBILE_SECTION_LAYOUT;
 
   return (
     <Link
@@ -47,8 +67,12 @@ export function HomeHeroCtaButton({ href, label, variant, labelOffsetPx }: HomeH
       style={{
         ["--hero-cta-width" as string]: mobileLayout?.width ?? desktopLayout.width,
         ["--hero-cta-width-lg" as string]: desktopLayout.width,
+        ["--hero-cta-width-tablet" as string]: tabletLayout.width,
         ["--hero-cta-height" as string]: mobileLayout?.height ?? desktopLayout.height,
         ["--hero-cta-height-lg" as string]: desktopLayout.height,
+        ["--hero-cta-height-tablet" as string]: tabletLayout.height,
+        ["--hero-cta-height-tablet-mobile" as string]:
+          mobileLayout !== null ? tabletMobileLayout.height : undefined,
         ["--hero-cta-label-width" as string]: `${(mobileLayout?.labelWidthRatio ?? desktopLayout.labelWidthRatio) * 100}%`,
         ["--hero-cta-label-width-lg" as string]: `${desktopLayout.labelWidthRatio * 100}%`,
         ["--hero-cta-arrow-zone-width" as string]: `${(mobileLayout?.arrowZoneWidthRatio ?? desktopLayout.arrowZoneWidthRatio) * 100}%`,
@@ -57,6 +81,8 @@ export function HomeHeroCtaButton({ href, label, variant, labelOffsetPx }: HomeH
         ["--hero-cta-label-offset-lg" as string]: `${desktopLayout.labelOffsetPx}px`,
         ["--hero-cta-label-font-size" as string]:
           mobileLayout !== null ? HOME_HERO_MOBILE_CTA_LAYOUT.labelFontSize : undefined,
+        ["--hero-cta-label-font-size-tablet-mobile" as string]:
+          mobileLayout !== null ? tabletMobileLayout.labelFontSize : undefined,
       }}
     >
       {shapeMobile ? (

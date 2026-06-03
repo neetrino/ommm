@@ -10,6 +10,7 @@ import {
   HOME_CLASSES_SECTION_LAYOUT,
   HOME_CLASSES_SECTION_MOBILE_FIGMA,
   HOME_CLASSES_SECTION_MOBILE_LAYOUT,
+  HOME_CLASSES_SECTION_TABLET_LAYOUT,
 } from "@/components/marketing/home/home-classes-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-classes-section.module.css";
 import { HOME_WEEKLY_SCHEDULE_LAYOUT } from "@/components/marketing/home/home-weekly-schedule-tokens";
@@ -75,7 +76,14 @@ export async function MarketingPublicHomeClassesSection({
           HOME_CLASSES_SECTION_MOBILE_LAYOUT.carouselCardWidth,
         ["--home-classes-carousel-trailing-pad" as string]: HOME_CLASSES_SECTION_MOBILE_LAYOUT.sectionPaddingX,
         ["--home-classes-grid-gap" as string]: HOME_CLASSES_SECTION_LAYOUT.gridGap,
+        ["--home-classes-grid-gap-tablet" as string]: HOME_CLASSES_SECTION_TABLET_LAYOUT.gridGap,
         ["--home-classes-content-max-width-lg" as string]: `${HOME_CLASSES_SECTION_LAYOUT.contentMaxWidthPx}px`,
+        ["--home-classes-content-max-width-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.contentMaxWidthPx}px`,
+        ["--home-class-card-min-h-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardMinHeightPx}px`,
+        ["--home-class-card-title-size-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardTitleFontSizePx}px`,
+        ["--home-class-card-title-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardTitleLineHeightPx}px`,
+        ["--home-class-card-body-size-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyFontSizePx}px`,
+        ["--home-class-card-body-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyLineHeightPx}px`,
       }}
     >
       <div className={styles.shell}>
@@ -143,10 +151,9 @@ export async function MarketingPublicHomeClassesSection({
                 visual={visual}
                 titleLines={copy.titleLines}
                 body={copy.body}
-                gridClassName={`${HOME_CLASS_CARD_GRID_CLASS} ${HOME_CLASS_CARD_GRID_OFFSETS[index] ?? ""}`}
+                gridClassName={`${styles.gridCard} ${HOME_CLASS_CARD_GRID_CLASS} ${HOME_CLASS_CARD_GRID_OFFSETS[index] ?? ""}`}
                 imageIndex={index}
                 style={{
-                  ["--home-class-card-min-h" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardMinHeightPx}px`,
                   ["--home-class-card-radius" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardRadiusPx}px`,
                 }}
               />

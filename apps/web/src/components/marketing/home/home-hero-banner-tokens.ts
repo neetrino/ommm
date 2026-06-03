@@ -253,3 +253,64 @@ export const HOME_HERO_CTA_LAYOUT = {
   buttonGap: "clamp(0.625rem, calc(100svw * 16.375 * 0.88 / 1440), 0.9rem)",
   buttonsMarginTop: "clamp(0.625rem, calc(100svw * 14 / 1440), 0.875rem)",
 } as const;
+
+/** iPad Pro tier — uniform scale; membership keeps native Figma proportions (1024px–1366px). */
+const HOME_HERO_CTA_TABLET_SCALE = 1.28;
+
+/** iPad Pro tier — Book / More / View Membership CTAs (1024px–1366px). */
+export const HOME_HERO_CTA_TABLET_LAYOUT = {
+  buttonScale: HOME_HERO_CTA_TABLET_SCALE,
+  booking: {
+    width: `clamp(14rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 18rem)`,
+    height: `clamp(3.5rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 4.375rem)`,
+  },
+  membership: {
+    width: `clamp(15rem, calc(100svw * 254.375 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 19rem)`,
+    height: `clamp(3.5rem, calc(100svw * 61 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 4.375rem)`,
+  },
+  coachesDetails: {
+    width: `clamp(14rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 18rem)`,
+    height: `clamp(3.5rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 4.375rem)`,
+  },
+  plansDetails: {
+    width: `clamp(14rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 18rem)`,
+    height: `clamp(3.5rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_SCALE} / 1440), 4.375rem)`,
+  },
+} as const;
+
+/** Hero-only iPad Pro tier — same scale bump, slightly above sections (1024px–1366px). */
+const HOME_HERO_CTA_TABLET_HERO_SCALE = 1.32;
+
+/** Hero-only iPad Pro tier — slightly larger than section CTAs (1024px–1366px). */
+export const HOME_HERO_CTA_TABLET_HERO_LAYOUT = {
+  buttonScale: HOME_HERO_CTA_TABLET_HERO_SCALE,
+  booking: {
+    width: `clamp(14.25rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 18.5rem)`,
+    height: `clamp(3.625rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
+  },
+  membership: {
+    width: `clamp(15.25rem, calc(100svw * 254.375 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 19.5rem)`,
+    height: `clamp(3.625rem, calc(100svw * 61 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
+  },
+  coachesDetails: {
+    width: `clamp(14.25rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 18.5rem)`,
+    height: `clamp(3.625rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
+  },
+  plansDetails: {
+    width: `clamp(14.25rem, calc(100svw * 236.625 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 18.5rem)`,
+    height: `clamp(3.625rem, calc(100svw * 61.136 * ${HOME_HERO_CTA_TABLET_HERO_SCALE} / 1440), 4.5rem)`,
+  },
+} as const;
+
+/** Hero mobile layout on iPad — stacked CTAs, taller buttons (744px–1023px). */
+export const HOME_HERO_CTA_TABLET_MOBILE_LAYOUT = {
+  height: "clamp(4rem, calc(100svw * 61.747 * 1.28 / 394), 4.625rem)",
+  labelFontSize: "clamp(1rem, calc(100svw * 16.5 / 394), 1.125rem)",
+  buttonGap: "clamp(0.625rem, calc(100svw * 12 / 394), 0.875rem)",
+} as const;
+
+/** Section mobile CTAs on iPad — View Membership, More, etc. (744px–1023px). */
+export const HOME_HERO_CTA_TABLET_MOBILE_SECTION_LAYOUT = {
+  height: "clamp(3.875rem, calc(100svw * 61.747 * 1.22 / 394), 4.5rem)",
+  labelFontSize: "clamp(1rem, calc(100svw * 16.5 / 394), 1.125rem)",
+} as const;

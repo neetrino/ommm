@@ -76,6 +76,9 @@ html {
     Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-serif:
     var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Full desktop marketing nav — above largest iPad Pro landscape (1366px). */
+  --breakpoint-nav-desktop: 85.4375rem;
 }
 
 @layer base {

@@ -136,8 +136,35 @@
     gap: var(--home-classes-grid-gap, 2rem);
   }
 
+  .gridCard {
+    --home-class-card-min-h: 20.4375rem;
+    --home-class-card-title-size: 1.5rem;
+    --home-class-card-title-line-height: 1.3;
+    --home-class-card-body-size: 1rem;
+    --home-class-card-body-line-height: 1.5;
+  }
+
   .cta {
     padding-top: 1rem;
+  }
+}
+
+/* iPad Pro — 2 cards per row, 5th centered; larger cards (1024px–1366px). */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .shell {
+    max-width: var(--home-classes-content-max-width-tablet, 60rem);
+  }
+
+  .grid {
+    gap: var(--home-classes-grid-gap-tablet, 1.75rem);
+  }
+
+  .gridCard {
+    --home-class-card-min-h: var(--home-class-card-min-h-tablet, 18.75rem);
+    --home-class-card-title-size: var(--home-class-card-title-size-tablet, 1.5rem);
+    --home-class-card-title-line-height: var(--home-class-card-title-line-height-tablet, 1.875rem);
+    --home-class-card-body-size: var(--home-class-card-body-size-tablet, 0.875rem);
+    --home-class-card-body-line-height: var(--home-class-card-body-line-height-tablet, 1.25rem);
   }
 }
 

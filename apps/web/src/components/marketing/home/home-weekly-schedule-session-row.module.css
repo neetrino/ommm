@@ -119,6 +119,16 @@
   }
 }
 
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .reserve {
+    width: 11.5rem;
+    height: 3.75rem;
+    padding: 1rem 1.375rem;
+    font-size: 1rem;
+    line-height: 1.125rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reserve {
     transition-duration: 150ms;

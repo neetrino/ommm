@@ -129,3 +129,36 @@
     width: 58%;
   }
 }
+
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .copy {
+    max-width: 15.5rem;
+    padding: clamp(1.75rem, 2.5vw, 2.125rem) clamp(1.5rem, 2.5vw, 2rem) 1.125rem;
+  }
+
+  .body {
+    margin-top: 0.5rem;
+  }
+
+  .imageZone {
+    width: 56%;
+    max-width: 16rem;
+  }
+
+  .imageZoneWide {
+    width: 60%;
+    max-width: 24rem;
+  }
+
+  /* Card 2 — reformer individual: shift photo down. */
+  .card[data-card-id="reformer-individual"] .image {
+    object-position: center bottom;
+    transform: translateY(10%);
+  }
+
+  /* Card 3 — yoga: shift photo down. */
+  .card[data-card-id="yoga"] .imageFlipY {
+    object-position: center bottom;
+    transform: scaleY(-1) rotate(180deg) translateY(10%);
+  }
+}

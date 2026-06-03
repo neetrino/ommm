@@ -168,6 +168,12 @@
   }
 }
 
+@media (min-width: 744px) and (max-width: 1023px) {
+  .homeHeroCtas {
+    gap: var(--home-hero-cta-gap-tablet, 0.75rem);
+  }
+}
+
 @media (min-width: 640px) {
   .homeHeroTitleLine {
     white-space: nowrap;
@@ -281,5 +287,11 @@
     padding-top: 0;
     transform: none;
     gap: var(--home-hero-cta-gap-lg);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .homeHeroCtas {
+    gap: clamp(0.875rem, calc(100svw * 18 / 1440), 1.125rem);
   }
 }

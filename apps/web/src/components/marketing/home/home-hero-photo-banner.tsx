@@ -7,6 +7,7 @@ import {
   HOME_HERO_ASSETS,
   HOME_HERO_FIGMA,
   HOME_HERO_CTA_LAYOUT,
+  HOME_HERO_CTA_TABLET_MOBILE_LAYOUT,
   HOME_HERO_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
@@ -80,6 +81,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ["--home-hero-text-stack-offset-top" as string]: HOME_HERO_MOBILE_LAYOUT.textStackOffsetTop,
         ["--home-hero-content-down-offset" as string]: HOME_HERO_MOBILE_LAYOUT.contentDownOffset,
         ["--home-hero-cta-gap" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonGap,
+        ["--home-hero-cta-gap-tablet" as string]: HOME_HERO_CTA_TABLET_MOBILE_LAYOUT.buttonGap,
         ["--home-hero-cta-gap-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonGap,
         ["--home-hero-cta-bottom" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsBottomOffset,
         ["--home-hero-cta-down-offset" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsDownOffset,
@@ -160,8 +162,18 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           </div>
 
           <div className={styles.homeHeroCtas}>
-            <HomeHeroCtaButton href="/schedule" label={t("primaryCta")} variant="booking" />
-            <HomeHeroCtaButton href="/packages" label={t("secondaryCta")} variant="membership" />
+            <HomeHeroCtaButton
+              href="/schedule"
+              label={t("primaryCta")}
+              variant="booking"
+              sizeContext="hero"
+            />
+            <HomeHeroCtaButton
+              href="/packages"
+              label={t("secondaryCta")}
+              variant="membership"
+              sizeContext="hero"
+            />
           </div>
         </div>
         <HomeHeroJunctionNavDeferred />

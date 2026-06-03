@@ -130,14 +130,26 @@ export const HOME_CLASS_CARD_VISUALS: readonly HomeClassCardVisual[] = [
   },
 ] as const;
 
-/** 12-column desktop — row 1: three `col-span-4`; row 2: two cards centered with the same inter-card gap. */
+/** 12-column desktop — row 1: three `col-span-4`; row 2: two cards centered. */
 export const HOME_CLASS_CARD_GRID_CLASS =
-  "col-span-1 lg:col-span-4";
+  "col-span-1 lg:col-span-6 nav-desktop:col-span-4";
 
+/** iPad Pro (lg–nav-desktop): 2×2 grid + 5th card centered; full desktop offsets above 1366px. */
 export const HOME_CLASS_CARD_GRID_OFFSETS = [
-  "lg:col-start-auto",
-  "lg:col-start-auto",
-  "lg:col-start-auto",
-  "lg:col-start-3",
-  "lg:col-start-7",
+  "",
+  "",
+  "",
+  "nav-desktop:col-start-3",
+  "lg:col-start-4 nav-desktop:col-start-7",
 ] as const;
+
+/** iPad Pro tier — 2-column grid; compact vertical footprint (1024px–1366px). */
+export const HOME_CLASSES_SECTION_TABLET_LAYOUT = {
+  cardMinHeightPx: 300,
+  cardTitleFontSizePx: 24,
+  cardTitleLineHeightPx: 30,
+  cardBodyFontSizePx: 14,
+  cardBodyLineHeightPx: 20,
+  gridGap: "1.5rem",
+  contentMaxWidthPx: 920,
+} as const;

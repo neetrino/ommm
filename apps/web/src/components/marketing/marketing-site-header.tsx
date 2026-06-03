@@ -90,8 +90,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             <span className="sr-only">{tUi("menuSr")}</span>
             {open ? (
               <svg
-                width="35"
-                height="35"
+                className="h-[35px] w-[35px] max-lg:min-[744px]:h-[32px] max-lg:min-[744px]:w-[32px]"
                 viewBox="0 0 35 35"
                 fill="none"
                 stroke="currentColor"
@@ -101,7 +100,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
                 <path d="M10 10l15 15M25 10L10 25" strokeLinecap="round" />
               </svg>
             ) : (
-              <MarketingHeaderMenuIcon className="h-[35px] w-[35px] shrink-0" />
+              <MarketingHeaderMenuIcon className="h-[35px] w-[35px] shrink-0 max-lg:min-[744px]:h-[32px] max-lg:min-[744px]:w-[32px]" />
             )}
           </button>
 
@@ -123,7 +122,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               triggerClassName={marketingHeaderMobileLanguageTriggerClass()}
               onAfterSelect={() => setOpen(false)}
               renderIconTrigger={() => (
-                <MarketingHeaderGlobeIcon className="h-[26px] w-[26px] shrink-0" />
+                <MarketingHeaderGlobeIcon className="h-[26px] w-[26px] shrink-0 max-lg:min-[744px]:h-[24px] max-lg:min-[744px]:w-[24px]" />
               )}
             />
             <Link
@@ -132,7 +131,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               aria-label={tCommon("login")}
               onClick={() => setOpen(false)}
             >
-              <MarketingHeaderUserIcon className="h-6 w-6 shrink-0" />
+              <MarketingHeaderUserIcon className="h-6 w-6 shrink-0 max-lg:min-[744px]:h-[22px] max-lg:min-[744px]:w-[22px]" />
             </Link>
           </div>
         </div>
@@ -178,7 +177,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               triggerClassName={marketingHeaderLanguageTriggerClass()}
               onAfterSelect={() => setOpen(false)}
               renderIconTrigger={() => (
-                <MarketingHeaderGlobeIcon className="h-8 w-8 shrink-0" />
+                <MarketingHeaderGlobeIcon className="h-7 w-7 shrink-0 nav-desktop:h-8 nav-desktop:w-8" />
               )}
             />
             <Link
@@ -187,7 +186,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               aria-label={tCommon("login")}
               onClick={() => setOpen(false)}
             >
-              <MarketingHeaderUserIcon className="h-[29px] w-[26px] shrink-0" />
+              <MarketingHeaderUserIcon className="h-[26px] w-[23px] shrink-0 nav-desktop:h-[29px] nav-desktop:w-[26px]" />
             </Link>
           </div>
         </div>

@@ -37,6 +37,7 @@ export function HomeClassPracticeCard({
   return (
     <article
       className={`${gridClassName} ${styles.card}`}
+      data-card-id={visual.id}
       style={{
         backgroundColor: visual.background,
         borderWidth: visual.bordered ? 1 : 0,
@@ -69,7 +70,7 @@ export function HomeClassPracticeCard({
           alt=""
           width={480}
           height={640}
-          sizes="(max-width: 768px) 45vw, 240px"
+          sizes="(max-width: 768px) 45vw, (max-width: 1366px) 38vw, 240px"
           className={imageClass}
           {...visibleRowImageProps(imageIndex)}
         />
