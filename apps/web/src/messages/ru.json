@@ -1669,6 +1669,8 @@
       "colExpiration": "Срок",
       "colActions": "Действия",
       "openActions": "Открыть действия",
+      "openCardAria": "Просмотреть детали подарочной карты на {amount}",
+      "detailsModalTitle": "Детали подарочной карты",
       "cardImageAlt": "Изображение подарочной карты",
       "cardImageFallback": "Подарочная карта",
       "viewSwitcherAria": "Режим отображения подарочных карт",
@@ -1776,12 +1778,20 @@
         "resent": "Письмо с картой отправлено повторно.",
         "deactivated": "Подарочная карта деактивирована.",
         "deleted": "Подарочная карта удалена.",
-        "failed": "Действие не выполнено."
+        "failed": "Действие не выполнено.",
+        "assignSearchPlaceholder": "Поиск по имени или email…",
+        "assignSearchEmpty": "Нет пользователей по вашему запросу.",
+        "activated": "Подарочная карта активирована."
       },
       "messages": {
         "createSuccess": "Подарочная карта создана.",
         "createSuccessMany": "Создано подарочных карт: {count}."
-      }
+      },
+      "detailsModalEyebrow": "Подарочная карта",
+      "detailsModalLead": "{available} доступно · просмотрите детали и управляйте действиями ниже.",
+      "detailsModalInfoHeading": "Информация о карте",
+      "activateGiftCard": "Активировать",
+      "deactivateGiftCard": "Деактивировать"
     },
     "packages": {
       "title": "Пакеты",

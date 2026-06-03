@@ -5,6 +5,8 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "rea
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { DropdownSelectSearchHeader } from "@/components/ui/dropdown-select-search-header";
+import { filterDropdownOptions } from "@/components/ui/filter-dropdown-options";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type DropdownOption<T extends string> = {
@@ -28,6 +30,10 @@ export type DropdownSelectProps<T extends string> = {
   wrapLabel?: boolean;
   /** Disable viewport-constrained max height for short static menus (e.g. language switcher). */
   disableMenuScroll?: boolean;
+  /** Show a search field inside the menu to filter options by label. */
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noResultsLabel?: string;
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
 };
@@ -83,28 +89,59 @@ export function DropdownSelect<T extends string>({
   menuClassName,
   wrapLabel = false,
   disableMenuScroll = false,
+  searchable = false,
+  searchPlaceholder = "",
+  noResultsLabel = "",
   renderValue,
   renderOption,
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const portalReady = useIsClientMounted();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const listboxId = useId();
+
+  const visibleOptions = useMemo(
+    () => (searchable ? filterDropdownOptions(options, searchQuery) : [...options]),
+    [options, searchable, searchQuery],
+  );
 
   const selected = useMemo(
     () => options.find((option) => option.value === value),
     [options, value],
   );
-  const selectedIndex = useMemo(
-    () => Math.max(0, options.findIndex((option) => option.value === value)),
-    [options, value],
-  );
+  const selectedIndex = useMemo(() => {
+    const index = visibleOptions.findIndex((option) => option.value === value);
+    return Math.max(0, index);
+  }, [value, visibleOptions]);
   const isMenuOpen = open && !disabled && options.length > 0;
   const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
+  const searchHeaderHeight = searchable ? 56 : 0;
+  const listMaxHeight =
+    menuPosition === null || disableMenuScroll
+      ? undefined
+      : Math.max(96, menuPosition.maxHeight - 16 - searchHeaderHeight);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      setSearchQuery("");
+      return;
+    }
+    if (!searchable) {
+      return;
+    }
+    const handle = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+    return () => {
+      window.cancelAnimationFrame(handle);
+    };
+  }, [isMenuOpen, searchable]);
 
   useEffect(() => {
     if (!open || disabled) {
@@ -137,6 +174,7 @@ export function DropdownSelect<T extends string>({
 
   function closeAndFocusTrigger() {
     setOpen(false);
+    setSearchQuery("");
     window.requestAnimationFrame(() => {
       triggerRef.current?.focus();
     });
@@ -151,17 +189,27 @@ export function DropdownSelect<T extends string>({
     if (disabled || options.length === 0) {
       return;
     }
+    setSearchQuery("");
     setFocusedIndex(initialIndex);
     setOpen(true);
   }
 
-  function onTriggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
-    if (!isCharacterNavigationKey(event)) {
+  function onSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeAndFocusTrigger();
       return;
     }
-    event.preventDefault();
-    const startIndex = event.key === "ArrowUp" ? options.length - 1 : selectedIndex;
-    openMenu(startIndex);
+    if (event.key === "ArrowDown" && visibleOptions.length > 0) {
+      event.preventDefault();
+      setFocusedIndex(0);
+      optionRefs.current[0]?.focus();
+      return;
+    }
+    if (event.key === "Enter" && visibleOptions.length === 1) {
+      event.preventDefault();
+      selectValue(visibleOptions[0].value);
+    }
   }
 
   function onOptionKeyDown(
@@ -174,14 +222,21 @@ export function DropdownSelect<T extends string>({
       closeAndFocusTrigger();
       return;
     }
+    if (visibleOptions.length === 0) {
+      return;
+    }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setFocusedIndex((index + 1) % options.length);
+      setFocusedIndex((index + 1) % visibleOptions.length);
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setFocusedIndex((index - 1 + options.length) % options.length);
+      if (index === 0 && searchable) {
+        searchInputRef.current?.focus();
+        return;
+      }
+      setFocusedIndex((index - 1 + visibleOptions.length) % visibleOptions.length);
       return;
     }
     if (event.key === "Home") {
@@ -191,7 +246,7 @@ export function DropdownSelect<T extends string>({
     }
     if (event.key === "End") {
       event.preventDefault();
-      setFocusedIndex(options.length - 1);
+      setFocusedIndex(visibleOptions.length - 1);
       return;
     }
     if (event.key === "Enter" || event.key === " ") {
@@ -199,6 +254,24 @@ export function DropdownSelect<T extends string>({
       selectValue(option.value);
     }
   }
+
+  function onTriggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (!isCharacterNavigationKey(event)) {
+      return;
+    }
+    event.preventDefault();
+    const startIndex = event.key === "ArrowUp" ? visibleOptions.length - 1 : selectedIndex;
+    openMenu(startIndex);
+  }
+
+  useEffect(() => {
+    if (!searchable || !isMenuOpen) {
+      return;
+    }
+    setFocusedIndex((current) =>
+      current >= visibleOptions.length ? Math.max(0, visibleOptions.length - 1) : current,
+    );
+  }, [isMenuOpen, searchable, visibleOptions.length]);
 
   const triggerContent = renderValue ? (
     renderValue(selected)
@@ -252,6 +325,15 @@ export function DropdownSelect<T extends string>({
                 transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
               }}
             >
+              {searchable ? (
+                <DropdownSelectSearchHeader
+                  value={searchQuery}
+                  placeholder={searchPlaceholder}
+                  inputRef={searchInputRef}
+                  onChange={setSearchQuery}
+                  onKeyDown={onSearchKeyDown}
+                />
+              ) : null}
               <ul
                 id={listboxId}
                 role="listbox"
@@ -260,13 +342,14 @@ export function DropdownSelect<T extends string>({
                   "ommm-dropdown-menu-list",
                   disableMenuScroll ? "ommm-dropdown-menu-list-static" : undefined,
                 )}
-                style={
-                  disableMenuScroll
-                    ? undefined
-                    : { maxHeight: Math.max(96, menuPosition.maxHeight - 16) }
-                }
+                style={listMaxHeight === undefined ? undefined : { maxHeight: listMaxHeight }}
               >
-                {options.map((option, index) => {
+                {visibleOptions.length === 0 ? (
+                  <li className="px-3 py-2 text-sm text-sage-500" role="presentation">
+                    {noResultsLabel}
+                  </li>
+                ) : null}
+                {visibleOptions.map((option, index) => {
                   const isSelected = option.value === value;
                   return (
                     <li key={option.value} role="presentation">

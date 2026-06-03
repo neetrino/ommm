@@ -1665,6 +1665,8 @@
       "colExpiration": "Ժամկետ",
       "colActions": "Գործողություններ",
       "openActions": "Բացել գործողությունները",
+      "openCardAria": "Դիտել {amount} նվեր քարտի մանրամասները",
+      "detailsModalTitle": "Նվեր քարտի մանրամասներ",
       "cardImageAlt": "Նվեր քարտի պատկեր",
       "cardImageFallback": "Նվեր քարտ",
       "viewSwitcherAria": "Նվեր քարտերի ցուցադրման ռեժիմ",
@@ -1772,12 +1774,20 @@
         "resent": "Նվեր քարտի նամակը կրկին ուղարկվեց։",
         "deactivated": "Նվեր քարտը ապաակտիվացվեց։",
         "deleted": "Նվեր քարտը ջնջվեց։",
-        "failed": "Գործողությունը ձախողվեց։"
+        "failed": "Գործողությունը ձախողվեց։",
+        "assignSearchPlaceholder": "Փնտրել անունով կամ email-ով…",
+        "assignSearchEmpty": "Ձեր որոնմանը համապատասխան օգտատեր չկա։",
+        "activated": "Նվեր քարտը ակտիվացվեց։"
       },
       "messages": {
         "createSuccess": "Նվեր քարտը ստեղծվեց։",
         "createSuccessMany": "Ստեղծվեց {count} նվեր քարտ։"
-      }
+      },
+      "detailsModalEyebrow": "Նվեր քարտ",
+      "detailsModalLead": "{available} հասանելի · ստուգեք մանրամասները և կարավարեք գործություները ներցևֈմ։",
+      "detailsModalInfoHeading": "Քարտի տեղեկություն",
+      "activateGiftCard": "Ակտիվացնել",
+      "deactivateGiftCard": "Անջատել"
     },
     "packages": {
       "title": "Փաթեթներ",

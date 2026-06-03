@@ -104,6 +104,13 @@ export class GiftCardsController {
     return this.giftCards.deactivateBatch(id);
   }
 
+  @Patch('admin/batches/:id/activate')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  activateBatch(@Param('id') id: string) {
+    return this.giftCards.activateBatch(id);
+  }
+
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

@@ -21,6 +21,7 @@ type AdminGiftCardsDirectoryProps = {
   onOpenActions: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onDelete: (batchId: string) => void;
+  onChanged?: () => void;
 };
 
 function GiftCardThumbnail({
@@ -60,15 +61,32 @@ function AdminGiftCardsBoardView({
   onOpenActions,
   onEdit,
   onDelete,
+  onChanged,
 }: AdminGiftCardsDirectoryProps) {
   const t = useTranslations("adminPages.giftCards");
+
+  function openCardDetails(card: AdminGiftCardBatchRow) {
+    onOpenActions(card);
+  }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => (
         <article
           key={card.id}
-          className="overflow-hidden rounded-3xl border border-white/65 bg-white/85 shadow-[0_18px_40px_-24px_rgba(45,40,35,0.28)]"
+          role="button"
+          tabIndex={0}
+          aria-label={t("openCardAria", {
+            amount: formatAmdFromCents(card.amountAmd, locale),
+          })}
+          onClick={() => openCardDetails(card)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openCardDetails(card);
+            }
+          }}
+          className="cursor-pointer overflow-hidden rounded-3xl border border-white/65 bg-white/85 shadow-[0_18px_40px_-24px_rgba(45,40,35,0.28)] transition-all hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_22px_48px_-24px_rgba(45,40,35,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           <div className="relative aspect-[16/9] w-full bg-sage-100">
             <GiftCardThumbnail card={card} />
@@ -106,6 +124,8 @@ function AdminGiftCardsBoardView({
               onEdit={onEdit}
               onDelete={onDelete}
               onOpenActions={onOpenActions}
+              showOpenActionsLink={false}
+              onChanged={onChanged}
             />
           </div>
         </article>
@@ -121,6 +141,7 @@ function AdminGiftCardsListView({
   onOpenActions,
   onEdit,
   onDelete,
+  onChanged,
 }: AdminGiftCardsDirectoryProps) {
   const t = useTranslations("adminPages.giftCards");
 
@@ -183,6 +204,7 @@ function AdminGiftCardsListView({
                     onEdit={onEdit}
                     onDelete={onDelete}
                     onOpenActions={onOpenActions}
+                    onChanged={onChanged}
                   />
                 </td>
               </tr>

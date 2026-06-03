@@ -1,10 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminGiftCardDrawer } from "@/components/admin/admin-gift-cards-drawer";
+import { AdminGiftCardDetailsModal } from "@/components/admin/admin-gift-card-details-modal";
 import { AdminGiftCardsDirectory } from "@/components/admin/admin-gift-cards-directory";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
@@ -53,11 +60,18 @@ export function AdminGiftCardsManagement({
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
   filtersRef.current = filters;
-  const [selected, setSelected] = useState<AdminGiftCardBatchRow | null>(null);
+  const [selectedGiftCardId, setSelectedGiftCardId] = useState<string | null>(null);
   const [isDebouncingSearch, setIsDebouncingSearch] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+
+  const selectedGiftCard = useMemo(() => {
+    if (selectedGiftCardId === null) {
+      return null;
+    }
+    return giftCards.find((card) => card.id === selectedGiftCardId) ?? null;
+  }, [giftCards, selectedGiftCardId]);
 
   const filtered = useMemo(
     () => sortGiftCards(filterGiftCards(giftCards, filters), filters.order),
@@ -78,6 +92,16 @@ export function AdminGiftCardsManagement({
       setFilters(initialFilters);
     }
   }, [initialFilters]);
+
+  useEffect(() => {
+    if (selectedGiftCardId === null) {
+      return;
+    }
+    const stillExists = giftCards.some((card) => card.id === selectedGiftCardId);
+    if (!stillExists) {
+      setSelectedGiftCardId(null);
+    }
+  }, [giftCards, selectedGiftCardId]);
 
   const syncFiltersToUrl = useCallback(
     (values: GiftCardFilterValues) => {
@@ -155,13 +179,21 @@ export function AdminGiftCardsManagement({
     syncFiltersToUrl(cleared);
   }
 
-  function handleChanged() {
-    setSelected(null);
+  const openGiftCardDetails = useCallback((card: AdminGiftCardBatchRow) => {
+    setSelectedGiftCardId(card.id);
+  }, []);
+
+  const closeGiftCardDetails = useCallback(() => {
+    setSelectedGiftCardId(null);
+  }, []);
+
+  const handleChanged = useCallback(() => {
     router.refresh();
-  }
+  }, [router]);
 
   const openEditModal = useCallback(
     (batchId: string) => {
+      setSelectedGiftCardId(null);
       const params = new URLSearchParams(searchParamsRef.current);
       params.set(MODAL_QUERY_KEY, EDIT_MODAL_QUERY_VALUE);
       params.set("batchId", batchId);
@@ -184,8 +216,8 @@ export function AdminGiftCardsManagement({
       try {
         await apiFetch(`/gift-cards/admin/batches/${batchId}`, { method: "DELETE" });
         setFeedback({ tone: "ok", text: t("actions.deleted") });
-        if (selected?.id === batchId) {
-          setSelected(null);
+        if (selectedGiftCardId === batchId) {
+          setSelectedGiftCardId(null);
         }
         router.refresh();
       } catch (error) {
@@ -197,7 +229,7 @@ export function AdminGiftCardsManagement({
         setBusyBatchId(null);
       }
     },
-    [busyBatchId, router, selected?.id, t],
+    [busyBatchId, router, selectedGiftCardId, t],
   );
 
   return (
@@ -229,17 +261,18 @@ export function AdminGiftCardsManagement({
           cards={filtered}
           locale={locale}
           busyBatchId={busyBatchId}
-          onOpenActions={setSelected}
+          onOpenActions={openGiftCardDetails}
           onEdit={openEditModal}
           onDelete={(batchId) => void deleteBatch(batchId)}
+          onChanged={handleChanged}
         />
       ) : null}
 
-      <AdminGiftCardDrawer
-        card={selected}
+      <AdminGiftCardDetailsModal
+        card={selectedGiftCard}
         locale={locale}
         assignableUsers={assignableUsers}
-        onClose={() => setSelected(null)}
+        onClose={closeGiftCardDetails}
         onChanged={handleChanged}
       />
     </AdminGiftCardsShell>

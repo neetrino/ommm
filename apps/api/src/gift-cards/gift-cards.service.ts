@@ -699,6 +699,40 @@ export class GiftCardsService {
     return updated;
   }
 
+  async activateBatch(id: string) {
+    const batchDelegate = this.giftCardBatchDelegate(this.prisma);
+    const existing = (await batchDelegate.findUnique({
+      where: { id },
+    })) as GiftCardBatchSnapshot | null;
+    if (!existing) {
+      throw new NotFoundException('Gift card batch not found');
+    }
+    if (existing.status !== GiftCardStatus.DEACTIVATED) {
+      throw new BadRequestException(
+        'Only deactivated gift-card batches can be activated',
+      );
+    }
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const txBatchDelegate = this.giftCardBatchDelegate(tx);
+      const batch = await txBatchDelegate.update({
+        where: { id },
+        data: { status: GiftCardStatus.ACTIVE },
+      });
+      const activateCardsArgs = ({
+        where: { batchId: id, status: GiftCardStatus.DEACTIVATED },
+        data: { status: GiftCardStatus.ACTIVE },
+      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0];
+      await tx.giftCard.updateMany(activateCardsArgs);
+      return batch;
+    });
+    await this.audit.log({
+      action: 'GIFT_CARD_BATCH_ACTIVATED',
+      entityType: 'GiftCardBatch',
+      entityId: id,
+    });
+    return updated;
+  }
+
   async deleteBatch(id: string, actorId: string) {
     const batchDelegate = this.giftCardBatchDelegate(this.prisma);
     const existing = (await batchDelegate.findUnique({

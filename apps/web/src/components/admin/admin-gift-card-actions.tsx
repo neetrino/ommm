@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { OmmButton } from "@/components/ui/omm-button";
 import type {
   AdminAssignableUser,
@@ -41,6 +42,16 @@ export function AdminGiftCardActions({
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
 
+  const assignOptions = useMemo<readonly DropdownOption<string>[]>(
+    () =>
+      assignableUsers.map((user) => {
+        const fullName = [user.name, user.lastName].filter(Boolean).join(" ").trim();
+        const label = fullName.length > 0 ? `${fullName} (${user.email})` : user.email;
+        return { value: user.id, label };
+      }),
+    [assignableUsers],
+  );
+
   async function run(action: () => Promise<void>, okLabel: string, shouldRefresh = true) {
     if (busy || submitLockRef.current) {
       return;
@@ -65,30 +76,27 @@ export function AdminGiftCardActions({
   }
 
   return (
-    <div className="flex min-w-[11rem] flex-col gap-2">
-      <div className="flex flex-col gap-2 rounded-xl border border-white/60 bg-white/70 p-2">
-        <label className="text-xs text-sage-700">{t("assignLabel")}</label>
-        <select
+    <div className="flex min-w-[11rem] flex-col gap-3">
+      <div className="flex flex-col gap-3 rounded-[20px] border border-white/60 bg-white/70 p-4">
+        <label className="ommm-label text-xs uppercase tracking-wide">{t("assignLabel")}</label>
+        <DropdownSelect
+          className="w-full"
+          label={t("assignPlaceholder")}
+          ariaLabel={t("assignLabel")}
           value={assignToUserId}
-          className="ommm-input"
-          onChange={(event) => setAssignToUserId(event.target.value)}
+          options={assignOptions}
+          onChange={setAssignToUserId}
           disabled={busy}
-        >
-          <option value="">{t("assignPlaceholder")}</option>
-          {assignableUsers.map((user) => {
-            const fullName = [user.name, user.lastName].filter(Boolean).join(" ").trim();
-            const label = fullName.length > 0 ? `${fullName} (${user.email})` : user.email;
-            return (
-              <option key={user.id} value={user.id}>
-                {label}
-              </option>
-            );
-          })}
-        </select>
+          wrapLabel
+          searchable
+          searchPlaceholder={t("assignSearchPlaceholder")}
+          noResultsLabel={t("assignSearchEmpty")}
+        />
         <OmmButton
           type="button"
           variant="secondary"
           size="sm"
+          className="w-full sm:w-auto"
           disabled={busy || assignToUserId.length === 0}
           onClick={() =>
             void run(
