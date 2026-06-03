@@ -111,33 +111,34 @@ export type HomeGallerySlide = {
   tiles: Record<HomeGalleryTileKey, { src: string }>;
 };
 
-/** Four tiles — 2 stacked left, tall center, tall narrow right. */
+/** Shared left/right tiles — stable across slides. */
+const HOME_GALLERY_DESKTOP_SIDE_TILES = {
+  leftTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
+  leftBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
+  side: { src: HOME_SECTION_ASSETS.galleryVipSide },
+} as const satisfies Pick<HomeGallerySlide["tiles"], "leftTop" | "leftBottom" | "side">;
+
+/** Four tiles — 2 stacked left, tall center, tall narrow right. Center varies per slide. */
 export const HOME_GALLERY_SLIDES: readonly HomeGallerySlide[] = [
   {
     id: "studio-arches",
     tiles: {
-      leftTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
-      leftBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
+      ...HOME_GALLERY_DESKTOP_SIDE_TILES,
       center: { src: HOME_SECTION_ASSETS.galleryVipMain },
-      side: { src: HOME_SECTION_ASSETS.galleryVipSide },
     },
   },
   {
     id: "reception-lounge",
     tiles: {
-      leftTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
-      leftBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
-      center: { src: HOME_SECTION_ASSETS.galleryVipSide },
-      side: { src: HOME_SECTION_ASSETS.galleryCafe },
+      ...HOME_GALLERY_DESKTOP_SIDE_TILES,
+      center: { src: HOME_SECTION_ASSETS.galleryCafe },
     },
   },
   {
     id: "reformers-hall",
     tiles: {
-      leftTop: { src: HOME_SECTION_ASSETS.galleryVipSide },
-      leftBottom: { src: HOME_SECTION_ASSETS.galleryVipMain },
-      center: { src: HOME_SECTION_ASSETS.galleryCafe },
-      side: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      ...HOME_GALLERY_DESKTOP_SIDE_TILES,
+      center: { src: HOME_SECTION_ASSETS.galleryVipSide },
     },
   },
 ] as const;
@@ -149,30 +150,33 @@ export type HomeGalleryMobileSlide = {
   tiles: Record<HomeGalleryMobileTileKey, { src: string }>;
 };
 
-/** Three-tile mosaic — Figma mobile `97:5865`. */
+/** Shared mobile tiles — portrait left, square bottom-right; top-right varies per slide. */
+const HOME_GALLERY_MOBILE_SIDE_TILES = {
+  left: { src: HOME_SECTION_ASSETS.galleryVipSide },
+  rightBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
+} as const satisfies Pick<HomeGalleryMobileSlide["tiles"], "left" | "rightBottom">;
+
+/** Three-tile mosaic — Figma mobile `97:5865`. Tall left + square right tiles. */
 export const HOME_GALLERY_MOBILE_SLIDES: readonly HomeGalleryMobileSlide[] = [
   {
     id: "studio-arches",
     tiles: {
-      left: { src: HOME_SECTION_ASSETS.galleryVipMain },
-      rightTop: { src: HOME_SECTION_ASSETS.galleryCafe },
-      rightBottom: { src: HOME_SECTION_ASSETS.galleryVipSide },
+      ...HOME_GALLERY_MOBILE_SIDE_TILES,
+      rightTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
     },
   },
   {
     id: "reception-lounge",
     tiles: {
-      left: { src: HOME_SECTION_ASSETS.galleryVipSide },
+      ...HOME_GALLERY_MOBILE_SIDE_TILES,
       rightTop: { src: HOME_SECTION_ASSETS.galleryVipMain },
-      rightBottom: { src: HOME_SECTION_ASSETS.galleryCafe },
     },
   },
   {
     id: "reformers-hall",
     tiles: {
-      left: { src: HOME_SECTION_ASSETS.galleryCafe },
-      rightTop: { src: HOME_SECTION_ASSETS.galleryVipSide },
-      rightBottom: { src: HOME_SECTION_ASSETS.galleryVipMain },
+      ...HOME_GALLERY_MOBILE_SIDE_TILES,
+      rightTop: { src: HOME_SECTION_ASSETS.galleryCafe },
     },
   },
 ] as const;

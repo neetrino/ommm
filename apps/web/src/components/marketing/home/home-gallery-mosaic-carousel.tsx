@@ -22,6 +22,12 @@ const TILE_CLASS: Record<HomeGalleryTileKey, string> = {
   side: styles.tileSide,
 };
 
+const CONTAIN_TILE_KEYS: ReadonlySet<HomeGalleryTileKey> = new Set(["leftTop", "leftBottom", "side"]);
+
+function galleryTileImageClass(key: HomeGalleryTileKey): string {
+  return CONTAIN_TILE_KEYS.has(key) ? styles.tileImageContain : styles.tileImageCover;
+}
+
 type HomeGalleryMosaicCarouselProps = {
   prevLabel: string;
   nextLabel: string;
@@ -75,7 +81,7 @@ function GalleryMosaicSlide({ slide }: { slide: HomeGallerySlide }) {
               alt=""
               fill
               sizes="(max-width: 768px) 50vw, 33vw"
-              className={styles.tileImage}
+              className={galleryTileImageClass(key)}
               {...belowFoldImageProps()}
             />
           </div>

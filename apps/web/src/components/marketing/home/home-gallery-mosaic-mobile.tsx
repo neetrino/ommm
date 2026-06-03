@@ -78,7 +78,7 @@ function GalleryMobileMosaicSlide({ slide }: { slide: HomeGalleryMobileSlide }) 
               alt=""
               fill
               sizes="(max-width: 1023px) 45vw, 0"
-              className={styles.tileImage}
+              className={styles.tileImageCover}
               {...belowFoldImageProps()}
             />
           </div>

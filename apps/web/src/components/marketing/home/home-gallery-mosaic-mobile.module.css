@@ -49,12 +49,13 @@
 
 .tile {
   position: relative;
+  min-height: 0;
   overflow: hidden;
   border-radius: var(--home-gallery-mobile-tile-radius);
-  background-color: rgba(237, 233, 221, 0.55);
+  background-color: #ede9dd;
 }
 
-.tileImage {
+.tileImageCover {
   object-fit: cover;
   object-position: center center;
 }
