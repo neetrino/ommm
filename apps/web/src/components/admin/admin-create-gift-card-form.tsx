@@ -83,7 +83,7 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           name="amountCents"
           type="number"
           min={1}
-          className="ommm-input"
+          className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           placeholder={t("fieldAmountPlaceholder")}
           value={amountCents}
           onChange={(event) => setAmountCents(event.target.value)}
