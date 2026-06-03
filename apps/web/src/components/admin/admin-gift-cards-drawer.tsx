@@ -115,6 +115,7 @@ export function AdminGiftCardDrawer({
           <AdminGiftCardActions
             giftCardId={card.id}
             allowDeactivate={card.status === "ACTIVE"}
+            allowDelete
             locale={locale}
             assignableUsers={assignableUsers}
             onChanged={onChanged}

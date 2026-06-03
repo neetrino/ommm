@@ -14,6 +14,7 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 type AdminGiftCardActionsProps = {
   giftCardId: string;
   allowDeactivate: boolean;
+  allowDelete: boolean;
   locale: string;
   assignableUsers: readonly AdminAssignableUser[];
   onChanged: () => void;
@@ -22,6 +23,7 @@ type AdminGiftCardActionsProps = {
 export function AdminGiftCardActions({
   giftCardId,
   allowDeactivate,
+  allowDelete,
   locale,
   assignableUsers,
   onChanged,
@@ -56,8 +58,8 @@ export function AdminGiftCardActions({
     } catch (error) {
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("failed"));
-      submitLockRef.current = false;
     } finally {
+      submitLockRef.current = false;
       setBusy(false);
     }
   }
@@ -159,6 +161,29 @@ export function AdminGiftCardActions({
             }}
           >
             {t("deactivate")}
+          </OmmButton>
+        ) : null}
+        {allowDelete ? (
+          <OmmButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            className="text-red-700 hover:bg-red-50"
+            onClick={() => {
+              if (!window.confirm(t("deleteConfirm"))) {
+                return;
+              }
+              void run(
+                () =>
+                  apiFetch(`/gift-cards/admin/${giftCardId}`, {
+                    method: "DELETE",
+                  }),
+                t("deleted"),
+              );
+            }}
+          >
+            {t("delete")}
           </OmmButton>
         ) : null}
       </div>

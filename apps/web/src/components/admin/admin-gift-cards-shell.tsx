@@ -43,7 +43,6 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const titleId = useId();
-  const descId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -165,7 +164,6 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            aria-describedby={descId}
             className="relative z-10 mt-auto max-h-[min(92vh,760px)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] border border-white/60 bg-white/80 p-5 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] sm:p-6"
           >
             <div className="flex items-start justify-between gap-4">
@@ -173,9 +171,6 @@ export function AdminGiftCardsShell({ assignableUsers, children }: AdminGiftCard
                 <h2 id={titleId} className={adminChrome.panelHeading}>
                   {t("createTitle")}
                 </h2>
-                <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                  {t("createDescription")}
-                </p>
               </div>
               <button
                 type="button"

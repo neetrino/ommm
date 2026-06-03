@@ -126,6 +126,24 @@ export class GiftCardsService {
     return updated;
   }
 
+  async deleteAdminCard(id: string, actorId: string) {
+    const existing = await this.prisma.giftCard.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Gift card not found');
+    }
+
+    await this.prisma.giftCard.delete({ where: { id } });
+    await this.audit.log({
+      actorId,
+      actorRole: 'ADMIN',
+      action: 'GIFT_CARD_DELETED',
+      entityType: 'GiftCard',
+      entityId: id,
+    });
+
+    return { ok: true };
+  }
+
   async resendEmail(id: string) {
     const card = await this.prisma.giftCard.findUnique({
       where: { id },

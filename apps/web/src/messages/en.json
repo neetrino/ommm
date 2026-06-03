@@ -1746,9 +1746,12 @@
         "historySummary": "Amount: {amount} • Balance: {balance}",
         "resend": "Resend email",
         "deactivate": "Deactivate",
+        "delete": "Delete",
         "deactivateConfirm": "Deactivate this gift card? It can no longer be redeemed.",
+        "deleteConfirm": "Delete this gift card permanently?",
         "resent": "Gift card email resent.",
         "deactivated": "Gift card deactivated.",
+        "deleted": "Gift card deleted.",
         "failed": "Action failed."
       },
       "messages": {

@@ -20,6 +20,7 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreateGiftCardFormProps) {
   const t = useTranslations("adminPages.giftCards");
   const submitLockRef = useRef(false);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
   const [amountCents, setAmountCents] = useState("10000");
   const [quantity, setQuantity] = useState("1");
   const [showAssignedUser, setShowAssignedUser] = useState(false);
@@ -137,8 +138,7 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
         />
       </label>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAssignedUser")}</span>
+        <div className="flex items-center justify-start gap-3">
           <OmmButton
             type="button"
             variant="ghost"
@@ -156,7 +156,7 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
               });
             }}
           >
-            {showAssignedUser ? t("hideAssignedUserButton") : t("showAssignedUserButton")}
+            Assigne user
           </OmmButton>
         </div>
         {showAssignedUser ? (
@@ -191,6 +191,16 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
                 disabled={busy}
               />
             </label>
+            <label className="flex flex-col gap-1">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldMessage")}</span>
+              <textarea
+                className="ommm-input min-h-24 resize-y"
+                placeholder={t("fieldMessagePlaceholder")}
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                disabled={busy}
+              />
+            </label>
           </div>
         ) : (
           <p className="text-xs text-sage-500">{t("fieldAssignedUserHiddenHint")}</p>
@@ -211,11 +221,13 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           required
         />
       </label>
-      <label className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldImage")}</span>
         <input
+          ref={imageInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+          className="sr-only"
           onChange={(event) => {
             const file = event.target.files?.[0] ?? null;
             if (imagePreviewUrl !== null) {
@@ -226,10 +238,23 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           }}
           disabled={busy}
         />
+        <div className="flex flex-wrap items-center gap-3">
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="cursor-pointer shadow-sm transition-transform hover:-translate-y-px"
+            disabled={busy}
+            onClick={() => imageInputRef.current?.click()}
+          >
+            Choose File
+          </OmmButton>
+          <span className="text-sm text-sage-700">{imageFile?.name ?? "No file chosen"}</span>
+        </div>
         <span className="text-xs text-sage-500">{t("fieldImageHint")}</span>
-      </label>
+      </div>
       {imagePreviewUrl !== null ? (
-        <div className="relative aspect-[16/10] w-full max-w-sm overflow-hidden rounded-2xl border border-white/70 bg-white/70">
+        <div className="relative h-24 w-36 overflow-hidden rounded-xl border border-white/70 bg-white/70">
           {/* eslint-disable-next-line @next/next/no-img-element -- preview image supports blob/object URLs */}
           <img
             src={imagePreviewUrl}
@@ -245,16 +270,6 @@ export function AdminCreateGiftCardForm({ users, onSaved, onCancel }: AdminCreat
           ariaLabel={t("fieldExpiration")}
           value={expiresAt}
           onChange={setExpiresAt}
-          disabled={busy}
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldMessage")}</span>
-        <textarea
-          className="ommm-input min-h-24 resize-y"
-          placeholder={t("fieldMessagePlaceholder")}
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
           disabled={busy}
         />
       </label>

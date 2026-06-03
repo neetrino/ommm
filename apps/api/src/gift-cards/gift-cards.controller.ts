@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -79,6 +80,13 @@ export class GiftCardsController {
   @Roles(Role.ADMIN)
   deactivate(@Param('id') id: string) {
     return this.giftCards.deactivate(id);
+  }
+
+  @Delete('admin/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  deleteAdminCard(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+    return this.giftCards.deleteAdminCard(id, user.id);
   }
 
   @Patch('admin/:id/assign')
