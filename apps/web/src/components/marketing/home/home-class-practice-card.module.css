@@ -128,6 +128,12 @@
     max-width: 24.75rem;
     width: 58%;
   }
+
+  /* Card 3 — yoga: shift photo down on desktop grid. */
+  .card[data-card-id="yoga"] .imageFlipY {
+    object-position: center bottom;
+    transform: scaleY(-1) rotate(180deg) translateY(var(--home-class-yoga-image-offset-desktop, 1.25rem));
+  }
 }
 
 @media (min-width: 744px) and (max-width: 1366px) {
@@ -154,11 +160,5 @@
   .card[data-card-id="reformer-individual"] .image {
     object-position: center bottom;
     transform: translateY(10%);
-  }
-
-  /* Card 3 — yoga: shift photo down. */
-  .card[data-card-id="yoga"] .imageFlipY {
-    object-position: center bottom;
-    transform: scaleY(-1) rotate(180deg) translateY(10%);
   }
 }

@@ -1,11 +1,16 @@
+"use client";
+
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import styles from "@/components/marketing/home/home-hero-cta-button.module.css";
 import {
   HOME_HERO_CTA_ASSETS,
   HOME_HERO_CTA_LAYOUT,
+  HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE,
   HOME_HERO_CTA_TABLET_HERO_LAYOUT,
   HOME_HERO_CTA_TABLET_LAYOUT,
   HOME_HERO_MOBILE_CTA_LAYOUT,
+  isMarketingLongMembershipCtaLocale,
 } from "@/components/marketing/home/home-hero-banner-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { Link } from "@/i18n/navigation";
@@ -30,6 +35,10 @@ export function HomeHeroCtaButton({
   sizeContext = "default",
   labelOffsetPx,
 }: HomeHeroCtaButtonProps) {
+  const locale = useLocale();
+  const usesLongMembershipLabel =
+    (variant === "membership" || variant === "coachesDetails") &&
+    isMarketingLongMembershipCtaLocale(locale);
   const assets = HOME_HERO_CTA_ASSETS[variant];
   const desktopLayout = HOME_HERO_CTA_LAYOUT[variant];
   const tabletLayout =
@@ -71,8 +80,17 @@ export function HomeHeroCtaButton({
         ["--hero-cta-arrow-zone-width-lg" as string]: `${desktopLayout.arrowZoneWidthRatio * 100}%`,
         ["--hero-cta-label-offset" as string]: `${mobileLabelOffsetPx}px`,
         ["--hero-cta-label-offset-lg" as string]: `${desktopLayout.labelOffsetPx}px`,
-        ["--hero-cta-label-font-size" as string]:
-          mobileLayout !== null ? HOME_HERO_MOBILE_CTA_LAYOUT.labelFontSize : undefined,
+        ["--hero-cta-label-font-size" as string]: usesLongMembershipLabel
+          ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.mobile
+          : mobileLayout !== null
+            ? HOME_HERO_MOBILE_CTA_LAYOUT.labelFontSize
+            : undefined,
+        ["--hero-cta-label-font-size-lg" as string]: usesLongMembershipLabel
+          ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.desktop
+          : undefined,
+        ["--hero-cta-label-font-size-tablet" as string]: usesLongMembershipLabel
+          ? HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE.tablet
+          : undefined,
       }}
     >
       {shapeMobile ? (

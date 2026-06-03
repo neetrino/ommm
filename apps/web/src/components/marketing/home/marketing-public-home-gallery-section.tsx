@@ -25,6 +25,13 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 export function MarketingPublicHomeGallerySection() {
   const t = useTranslations("marketingPublic.home");
 
+  const galleryTitleLines = (
+    <>
+      <span className={styles.galleryTitleLine}>{t("galleryTitleLine1")}</span>
+      <span className={styles.galleryTitleLine}>{t("galleryTitleLine2")}</span>
+    </>
+  );
+
   const sectionStyle = {
     ["--home-gallery-mobile-bg" as string]: HOME_GALLERY_MOBILE_BACKGROUND,
     ["--home-gallery-mobile-top-radius" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.sectionTopRadius,
@@ -38,6 +45,7 @@ export function MarketingPublicHomeGallerySection() {
     ["--home-gallery-mobile-title-line-height" as string]: String(
       HOME_GALLERY_SECTION_MOBILE_LAYOUT.titleLineHeight,
     ),
+    ["--home-gallery-title-line-gap" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.titleLineGap,
     ["--home-gallery-mobile-subtitle-size" as string]: HOME_GALLERY_SECTION_MOBILE_LAYOUT.subtitleFontSize,
     ["--home-gallery-mobile-subtitle-line-height" as string]: String(
       HOME_GALLERY_SECTION_MOBILE_LAYOUT.subtitleLineHeight,
@@ -55,6 +63,7 @@ export function MarketingPublicHomeGallerySection() {
     ["--home-gallery-desktop-pb" as string]: HOME_GALLERY_LAYOUT.sectionPaddingBottom,
     ["--home-gallery-desktop-title-size" as string]: HOME_GALLERY_LAYOUT.titleFontSize,
     ["--home-gallery-desktop-title-line-height" as string]: String(HOME_GALLERY_LAYOUT.titleLineHeight),
+    ["--home-gallery-desktop-title-line-gap" as string]: HOME_GALLERY_LAYOUT.titleLineGap,
     ["--home-gallery-air-title-size" as string]: HOME_GALLERY_IPAD_AIR_LAYOUT.titleFontSize,
     ["--home-gallery-air-title-line-height" as string]: String(
       HOME_GALLERY_IPAD_AIR_LAYOUT.titleLineHeight,
@@ -78,7 +87,7 @@ export function MarketingPublicHomeGallerySection() {
               id="home-gallery-heading-mobile"
               className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
             >
-              {t("galleryTitle")}
+              {galleryTitleLines}
             </h2>
             <p
               id="home-gallery-subtitle-mobile"
@@ -116,7 +125,7 @@ export function MarketingPublicHomeGallerySection() {
               className={`${styles.desktopTitle} font-serif font-semibold tracking-tight text-balance`}
               style={{ color: HOME_GALLERY_FIGMA.headingColor }}
             >
-              {t("galleryTitle")}
+              {galleryTitleLines}
             </h2>
             <p
               className={`${styles.desktopSubtitle} ${marketingMontserrat.className} font-normal tracking-[0.01em]`}

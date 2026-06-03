@@ -26,6 +26,9 @@ export const HOME_CLASSES_SECTION_FIGMA = {
   cardMinHeightPx: 327,
 } as const;
 
+/** Card 3 (yoga) — desktop photo nudge down. */
+export const HOME_CLASS_CARD_YOGA_IMAGE_OFFSET_DESKTOP_PX = 20;
+
 export const HOME_CLASSES_SECTION_LAYOUT = {
   titleFontSize: "clamp(2.25rem, 5vw, 4.375rem)",
   titleLineHeight: 1.1,

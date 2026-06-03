@@ -317,6 +317,17 @@ export const HOME_HERO_CTA_TABLET_HERO_LAYOUT = {
   },
 } as const;
 
+/** Smaller label type for long hy/ru membership CTAs — fits pill without resizing button. */
+export const HOME_HERO_CTA_MEMBERSHIP_LONG_LABEL_TYPE = {
+  mobile: "clamp(0.75rem, calc(100svw * 13 / 394), 0.875rem)",
+  desktop: "clamp(0.6875rem, calc(100svw * 11 / 1440), 0.75rem)",
+  tablet: "clamp(0.75rem, calc(100svw * 12 / 1440), 0.8125rem)",
+} as const;
+
+export function isMarketingLongMembershipCtaLocale(locale: string): boolean {
+  return locale === "hy" || locale === "ru";
+}
+
 /** Hero mobile layout on iPad — stacked CTAs, taller buttons (744px–1023px). */
 export const HOME_HERO_CTA_TABLET_MOBILE_LAYOUT = {
   height: "clamp(4rem, calc(100svw * 61.747 * 1.28 / 394), 4.625rem)",

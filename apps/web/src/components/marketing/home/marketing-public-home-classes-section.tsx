@@ -4,6 +4,7 @@ import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-but
 import {
   HOME_CLASS_CARD_GRID_CLASS,
   HOME_CLASS_CARD_GRID_OFFSETS,
+  HOME_CLASS_CARD_YOGA_IMAGE_OFFSET_DESKTOP_PX,
   HOME_CLASS_CARD_VISUALS,
   HOME_CLASSES_SECTION_BACKGROUND,
   HOME_CLASSES_SECTION_FIGMA,
@@ -92,6 +93,7 @@ export async function MarketingPublicHomeClassesSection({
         ["--home-class-card-body-line-height-tablet" as string]: `${HOME_CLASSES_SECTION_TABLET_LAYOUT.cardBodyLineHeightPx}px`,
         ["--home-class-card-body-line-height-air" as string]: `${HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.cardBodyLineHeightPx}px`,
         ["--home-classes-grid-gap-air" as string]: HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT.gridGap,
+        ["--home-class-yoga-image-offset-desktop" as string]: `${HOME_CLASS_CARD_YOGA_IMAGE_OFFSET_DESKTOP_PX}px`,
       }}
     >
       <div className={styles.shell}>
