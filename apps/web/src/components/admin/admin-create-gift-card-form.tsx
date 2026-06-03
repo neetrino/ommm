@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch, apiFetchFormData } from "@/lib/api";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -32,6 +32,37 @@ type AdminCreateGiftCardFormProps = {
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+const IMAGE_PREVIEW_MAX_WIDTH = 288;
+const IMAGE_PREVIEW_MAX_HEIGHT = 192;
+
+function isAcceptedImageType(type: string): type is (typeof ACCEPTED_IMAGE_TYPES)[number] {
+  return ACCEPTED_IMAGE_TYPES.some((acceptedType) => acceptedType === type);
+}
+
+async function createImagePreviewDataUrl(file: File): Promise<string> {
+  const image = await createImageBitmap(file);
+  try {
+    const scale = Math.min(
+      IMAGE_PREVIEW_MAX_WIDTH / image.width,
+      IMAGE_PREVIEW_MAX_HEIGHT / image.height,
+      1,
+    );
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+    if (context === null) {
+      throw new Error("Image preview canvas is unavailable");
+    }
+    context.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL("image/png");
+  } finally {
+    image.close();
+  }
+}
 
 export function AdminCreateGiftCardForm({
   users,
@@ -44,6 +75,7 @@ export function AdminCreateGiftCardForm({
   const t = useTranslations("adminPages.giftCards");
   const submitLockRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const imagePreviewRequestRef = useRef(0);
   const [amountAmd, setAmountAmd] = useState(String(initialValues?.amountAmd ?? 10000));
   const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
   const minQuantity = initialValues?.minQuantity ?? 1;
@@ -87,13 +119,46 @@ export function AdminCreateGiftCardForm({
     return parsed;
   }, [quantity, minQuantity, mode, issuedCount, initialValues?.availableQuantity]);
 
-  useEffect(() => {
-    return () => {
-      if (imagePreviewUrl !== null) {
-        URL.revokeObjectURL(imagePreviewUrl);
+  async function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    const requestId = imagePreviewRequestRef.current + 1;
+    imagePreviewRequestRef.current = requestId;
+    setImageFile(null);
+    setImagePreviewUrl(null);
+
+    if (file === null) {
+      return;
+    }
+    if (!isAcceptedImageType(file.type)) {
+      setTone("err");
+      setResult(t("imageTypeInvalid"));
+      event.target.value = "";
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setTone("err");
+      setResult(t("imageTooLarge"));
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const previewUrl = await createImagePreviewDataUrl(file);
+      if (imagePreviewRequestRef.current !== requestId) {
+        return;
       }
-    };
-  }, [imagePreviewUrl]);
+      setImageFile(file);
+      setImagePreviewUrl(previewUrl);
+      setResult(null);
+    } catch {
+      if (imagePreviewRequestRef.current !== requestId) {
+        return;
+      }
+      setTone("err");
+      setResult(t("imageTypeInvalid"));
+      event.target.value = "";
+    }
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -115,7 +180,7 @@ export function AdminCreateGiftCardForm({
       return;
     }
     if (imageFile !== null) {
-      if (!ACCEPTED_IMAGE_TYPES.includes(imageFile.type as (typeof ACCEPTED_IMAGE_TYPES)[number])) {
+      if (!isAcceptedImageType(imageFile.type)) {
         setTone("err");
         setResult(t("imageTypeInvalid"));
         return;
@@ -321,14 +386,7 @@ export function AdminCreateGiftCardForm({
           type="file"
           accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
           className="sr-only"
-          onChange={(event) => {
-            const file = event.target.files?.[0] ?? null;
-            if (imagePreviewUrl !== null) {
-              URL.revokeObjectURL(imagePreviewUrl);
-            }
-            setImageFile(file);
-            setImagePreviewUrl(file !== null ? URL.createObjectURL(file) : null);
-          }}
+          onChange={handleImageChange}
           disabled={busy}
         />
         <div className="flex flex-wrap items-center gap-3">
