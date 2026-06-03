@@ -1746,6 +1746,7 @@
         "quickExpired": "Ժամկետանց քարտեր",
         "quickUnredeemed": "Չփոխարժված քարտեր",
         "reset": "Reset Filters",
+        "loading": "Արդյունքները թարմացվում են…",
         "activeCount": "{count} ակտիվ ֆիլտր"
       },
       "actions": {

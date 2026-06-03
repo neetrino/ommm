@@ -6,10 +6,7 @@ import type {
   AdminAssignableUser,
   AdminGiftCardBatchRow,
 } from "@/components/admin/admin-gift-cards-types";
-import {
-  giftCardFiltersQueryKey,
-  parseGiftCardFiltersFromSearch,
-} from "@/components/admin/admin-gift-cards-url";
+import { parseGiftCardFiltersFromSearch } from "@/components/admin/admin-gift-cards-url";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -45,7 +42,6 @@ export default async function AdminGiftCardsPage({
     <AdminContentFrame description={t("description")}>
       <Suspense fallback={null}>
         <AdminGiftCardsManagement
-          key={giftCardFiltersQueryKey(initialFilters)}
           giftCards={res.data}
           assignableUsers={usersRes.ok ? usersRes.data : []}
           locale={locale}

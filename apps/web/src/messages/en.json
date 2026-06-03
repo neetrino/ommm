@@ -1759,6 +1759,7 @@
         "quickExpired": "Expired gift cards",
         "quickUnredeemed": "Unredeemed cards",
         "reset": "Reset Filters",
+        "loading": "Updating results…",
         "activeCount": "{count} active filters"
       },
       "actions": {

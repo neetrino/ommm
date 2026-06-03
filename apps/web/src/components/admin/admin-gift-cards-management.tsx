@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -63,7 +63,8 @@ export function AdminGiftCardsManagement({
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
   filtersRef.current = filters;
   const [selected, setSelected] = useState<AdminGiftCardBatchRow | null>(null);
-  const [isFiltering, setIsFiltering] = useState(false);
+  const [isDebouncingSearch, setIsDebouncingSearch] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
 
@@ -73,10 +74,19 @@ export function AdminGiftCardsManagement({
   );
 
   const activeFilterCount = countActiveGiftCardFilters(filters);
+  const isUpdating = isDebouncingSearch || isPending;
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
   }, [searchParams]);
+
+  useEffect(() => {
+    const currentQuery = buildGiftCardFiltersQuery(filtersRef.current);
+    const urlQuery = buildGiftCardFiltersQuery(initialFilters);
+    if (currentQuery !== urlQuery) {
+      setFilters(initialFilters);
+    }
+  }, [initialFilters]);
 
   const syncFiltersToUrl = useCallback(
     (values: GiftCardFilterValues) => {
@@ -95,9 +105,11 @@ export function AdminGiftCardsManagement({
       if (qs === currentSearchParams) {
         return;
       }
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      startTransition(() => {
+        router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      });
     },
-    [pathname, router],
+    [pathname, router, startTransition],
   );
 
   useEffect(() => {
@@ -105,12 +117,15 @@ export function AdminGiftCardsManagement({
       hasMounted.current = true;
       return undefined;
     }
-    setIsFiltering(true);
+    setIsDebouncingSearch(true);
     const handle = window.setTimeout(() => {
       syncFiltersToUrl(filtersRef.current);
-      setIsFiltering(false);
+      setIsDebouncingSearch(false);
     }, SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(handle);
+    return () => {
+      window.clearTimeout(handle);
+      setIsDebouncingSearch(false);
+    };
   }, [filters.search, syncFiltersToUrl]);
 
   useEffect(() => {
@@ -199,15 +214,11 @@ export function AdminGiftCardsManagement({
       <AdminGiftCardsFilters
         values={filters}
         activeFilterCount={activeFilterCount}
+        isUpdating={isUpdating}
         onChange={updateFilter}
         onReset={resetFilters}
       />
 
-      {isFiltering ? (
-        <p className="text-sm text-sage-500" role="status">
-          {t("loading")}
-        </p>
-      ) : null}
       {feedback ? (
         <p
           className={`text-sm ${feedback.tone === "ok" ? "text-sage-700" : "text-red-800"}`}

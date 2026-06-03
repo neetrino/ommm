@@ -1750,6 +1750,7 @@
         "quickExpired": "Истекшие карты",
         "quickUnredeemed": "Непогашенные карты",
         "reset": "Сбросить фильтры",
+        "loading": "Обновление результатов…",
         "activeCount": "{count} активных фильтров"
       },
       "actions": {
