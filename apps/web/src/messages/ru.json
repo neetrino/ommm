@@ -792,7 +792,18 @@
         "missingAmount": "Недоступно",
         "missingReference": "В ожидании",
         "payButton": "Fake оплатить",
-        "backButton": "Назад к подарочным картам"
+        "payingButton": "Оплата...",
+        "backButton": "Назад к подарочным картам",
+        "doneButton": "Готово",
+        "methodLabel": "Выберите способ оплаты",
+        "missingReferenceError": "Номер платежа отсутствует.",
+        "payFailed": "Не удалось завершить fake-оплату.",
+        "successTitle": "Оплата завершена",
+        "successLead": "Оплата подарочной карты подтверждена, карта уже доступна в вашем аккаунте.",
+        "methods": {
+          "CARD": "Карта",
+          "CASH": "Наличные"
+        }
       }
     },
     "payments": {

@@ -21,6 +21,7 @@ import {
   PaymentSourceFilter,
 } from './dto/admin-list-payments-query.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
+import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 
 type PaymentListSource = 'package' | 'dropin' | 'gift' | 'other';
 
@@ -205,6 +206,49 @@ export class PaymentsService {
         }),
       });
     });
+  }
+
+  async confirmGiftPayment(
+    userId: string,
+    paymentReference: string,
+    paymentMethod: GiftPaymentMethod,
+  ) {
+    const giftEmails: GiftEmailPayload[] = [];
+    const payment = await this.prisma.$transaction(async (tx) => {
+      const existing = (await tx.payment.findFirst({
+        where: this.withInternalPaymentWhereFields({ paymentReference }),
+      })) as InternalPaymentRecord | null;
+      if (!existing || existing.userId !== userId) {
+        throw new NotFoundException('Payment not found');
+      }
+      if (existing.status !== PaymentStatus.PENDING) {
+        throw new ConflictException('Only pending payments can be confirmed');
+      }
+      if (existing.source !== INTERNAL_PAYMENT_SOURCE.GIFT) {
+        throw new BadRequestException('Payment is not a gift purchase');
+      }
+      const email = await this.fulfillGiftPayment(tx, {
+        userId: existing.userId,
+        amountCents: existing.amountCents,
+        sourceId: existing.sourceId ?? null,
+        metadata: existing.metadata ?? null,
+      });
+      if (email) {
+        giftEmails.push(email);
+      }
+      return tx.payment.update({
+        where: { id: existing.id },
+        data: this.withInternalPaymentUpdateFields({
+          status: PaymentStatus.SUCCEEDED,
+          confirmedAt: new Date(),
+          paymentMethod,
+        }),
+      });
+    });
+    for (const email of giftEmails) {
+      await this.sendGiftCardEmail(email.to, email.code);
+    }
+    return payment;
   }
 
   private async confirmPayment(paymentId: string, adminId: string) {

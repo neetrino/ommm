@@ -788,7 +788,18 @@
         "missingAmount": "Հասանելի չէ",
         "missingReference": "Սպասման մեջ",
         "payButton": "Fake վճարել",
-        "backButton": "Վերադառնալ նվեր քարտերին"
+        "payingButton": "Վճարվում է...",
+        "backButton": "Վերադառնալ նվեր քարտերին",
+        "doneButton": "Պատրաստ է",
+        "methodLabel": "Ընտրեք վճարման եղանակը",
+        "missingReferenceError": "Վճարման համարը բացակայում է։",
+        "payFailed": "Չհաջողվեց ավարտել fake վճարումը։",
+        "successTitle": "Վճարումն ավարտված է",
+        "successLead": "Ձեր նվեր քարտի վճարումը հաստատվեց, և քարտն արդեն հասանելի է ձեր հաշվում։",
+        "methods": {
+          "CARD": "Քարտ",
+          "CASH": "Կանխիկ"
+        }
       }
     },
     "payments": {

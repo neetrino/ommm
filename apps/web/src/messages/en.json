@@ -792,7 +792,18 @@
         "missingAmount": "Unavailable",
         "missingReference": "Pending",
         "payButton": "Fake pay",
-        "backButton": "Back to gift cards"
+        "payingButton": "Paying...",
+        "backButton": "Back to gift cards",
+        "doneButton": "Done",
+        "methodLabel": "Choose payment method",
+        "missingReferenceError": "Payment reference is missing.",
+        "payFailed": "Could not complete fake payment.",
+        "successTitle": "Payment completed",
+        "successLead": "Your gift card payment was confirmed and the card is now available in your account.",
+        "methods": {
+          "CARD": "Card",
+          "CASH": "Cash"
+        }
       }
     },
     "payments": {
