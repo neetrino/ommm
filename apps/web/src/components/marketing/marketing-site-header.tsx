@@ -177,7 +177,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               triggerClassName={marketingHeaderLanguageTriggerClass()}
               onAfterSelect={() => setOpen(false)}
               renderIconTrigger={() => (
-                <MarketingHeaderGlobeIcon className="h-7 w-7 shrink-0 nav-desktop:h-8 nav-desktop:w-8" />
+                <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
               )}
             />
             <Link
@@ -186,7 +186,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               aria-label={tCommon("login")}
               onClick={() => setOpen(false)}
             >
-              <MarketingHeaderUserIcon className="h-[26px] w-[23px] shrink-0 nav-desktop:h-[29px] nav-desktop:w-[26px]" />
+              <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
             </Link>
           </div>
         </div>

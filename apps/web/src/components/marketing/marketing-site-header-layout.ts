@@ -21,12 +21,12 @@ export const MARKETING_MOBILE_HEADER = {
 } as const;
 
 /** Figma TopNavBar `196:1410` sizing tokens. */
-const MARKETING_NAV_PILL_HEIGHT_CLASS = "min-h-[44px] nav-desktop:min-h-[53px]";
+const MARKETING_NAV_PILL_HEIGHT_CLASS = "min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px]";
 const MARKETING_NAV_PILL_RADIUS_CLASS = "rounded-[80px]";
-const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-3 nav-desktop:px-5";
-const MARKETING_NAV_LINK_GAP_CLASS = "gap-4 nav-desktop:gap-8";
+const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-2 lg:px-3 nav-desktop:px-5";
+const MARKETING_NAV_LINK_GAP_CLASS = "gap-3 lg:gap-4 nav-desktop:gap-8";
 const MARKETING_NAV_LINK_GAP_COMPACT_CLASS =
-  "gap-1 sm:gap-2 md:gap-3 lg:gap-3 nav-desktop:gap-4 xl:gap-5";
+  "gap-1 sm:gap-2 md:gap-2.5 lg:gap-3 nav-desktop:gap-4 xl:gap-5";
 
 /** Locales whose nav labels are longer than English — use tighter header spacing. */
 const COMPACT_HEADER_LOCALES = new Set(["hy", "ru"]);
@@ -52,10 +52,11 @@ export function marketingHeaderContainerClass(): string {
   return [
     "ommm-container relative min-w-0 overflow-x-clip",
     "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))] px-4",
-    "tablet:grid tablet:min-h-[44px] nav-desktop:min-h-[53px] tablet:items-center",
+    "tablet:grid tablet:min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] tablet:items-center",
     "tablet:px-[var(--ommm-container-padding-x,1rem)]",
+    "tablet:pb-2 lg:pb-3",
     "tablet:pt-[max(0.5rem,env(safe-area-inset-top,0px))] nav-desktop:pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
-    "tablet:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] tablet:gap-2 nav-desktop:gap-3 sm:gap-4",
+    "tablet:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] tablet:gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4",
   ].join(" ");
 }
 
@@ -103,7 +104,8 @@ export function marketingHeaderBrandLinkClass(): string {
 
 export function marketingHeaderBrandTextClass(): string {
   return [
-    "font-serif text-xl font-bold leading-7 tracking-[-0.05em] text-[#fbf5d5]",
+    "font-serif text-lg font-bold leading-6 tracking-[-0.05em] text-[#fbf5d5]",
+    "lg:text-xl lg:leading-7",
     "nav-desktop:text-2xl nav-desktop:leading-8",
     "whitespace-nowrap",
   ].join(" ");
@@ -127,13 +129,13 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
   const linkGap = compact ? MARKETING_NAV_LINK_GAP_COMPACT_CLASS : MARKETING_NAV_LINK_GAP_CLASS;
 
   return [
-    "relative z-10 flex min-h-[44px] nav-desktop:min-h-[53px] items-center justify-center",
+    "relative z-10 flex min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] items-center justify-center",
     linkGap,
   ].join(" ");
 }
 
 export function marketingHeaderActionsClass(): string {
-  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-2 nav-desktop:gap-3 sm:gap-4";
+  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4";
 }
 
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
@@ -164,7 +166,7 @@ export function marketingHeaderNavLinkClass(
 ): string {
   const typography = compact
     ? "whitespace-nowrap text-[11px] font-bold leading-5 tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-base"
-    : "whitespace-nowrap text-sm font-bold leading-5 tracking-[-0.35px] nav-desktop:text-base";
+    : "whitespace-nowrap text-xs font-bold leading-5 tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
 
   const state = active
     ? "text-[#fbf5d5]"
@@ -185,7 +187,7 @@ export function marketingHeaderNavPillLinkClass(
 ): string {
   const typography = compact
     ? "whitespace-nowrap text-[11px] font-bold leading-5 tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-base"
-    : "whitespace-nowrap text-sm font-bold leading-5 tracking-[-0.35px] nav-desktop:text-base";
+    : "whitespace-nowrap text-xs font-bold leading-5 tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
 
   const state = active
     ? "text-[#fbf5d5]"
@@ -193,7 +195,7 @@ export function marketingHeaderNavPillLinkClass(
 
   return [
     typography,
-    "rounded-full px-1 py-1 nav-desktop:px-1.5 nav-desktop:py-1.5",
+    "rounded-full px-0.5 py-0.5 lg:px-1 lg:py-1 nav-desktop:px-1.5 nav-desktop:py-1.5",
     state,
     "transition-[color,background-color] duration-250",
   ].join(" ");
@@ -209,11 +211,11 @@ export function marketingHeaderIconButtonClass(): string {
 }
 
 export function marketingHeaderIconLanguageClass(): string {
-  return `${marketingHeaderIconButtonClass()} h-9 w-9 nav-desktop:h-11 nav-desktop:w-11`;
+  return `${marketingHeaderIconButtonClass()} h-8 w-8 lg:h-9 lg:w-9 nav-desktop:h-11 nav-desktop:w-11`;
 }
 
 export function marketingHeaderIconAccountClass(): string {
-  return `${marketingHeaderIconButtonClass()} h-9 w-9 nav-desktop:h-11 nav-desktop:w-11`;
+  return `${marketingHeaderIconButtonClass()} h-8 w-8 lg:h-9 lg:w-9 nav-desktop:h-11 nav-desktop:w-11`;
 }
 
 export function marketingHeaderMenuButtonClass(): string {
@@ -239,7 +241,7 @@ export function marketingHeaderMobileIconAccountClass(): string {
 
 export function marketingHeaderLanguageTriggerClass(): string {
   return [
-    "ommm-dropdown-trigger !h-9 !min-h-9 !w-9 !min-w-9 nav-desktop:!h-11 nav-desktop:!min-h-11 nav-desktop:!w-11 nav-desktop:!min-w-11 !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+    "ommm-dropdown-trigger !h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-11 nav-desktop:!min-h-11 nav-desktop:!w-11 nav-desktop:!min-w-11 !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
     "text-[#fbf5d5] cursor-pointer",
     "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",

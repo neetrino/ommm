@@ -6,6 +6,7 @@
 import { HOME_FOOTER_TABLET_LAYOUT } from "@/components/marketing/home/home-footer-section-tokens";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
 
 const HOME_GALLERY_GRADIENT_CREAM = HOME_PAGE_SURFACE.coachesGradientTo;
 const HOME_GALLERY_GRADIENT_TEAL = HOME_PAGE_SURFACE.eventsGradientFrom;
@@ -103,6 +104,24 @@ export const HOME_GALLERY_LAYOUT = {
   navButtonSizePx: 64,
   dotSizePx: 12,
   dotGapPx: 17,
+} as const;
+
+/** iPad Air — gallery heading + carousel controls (744px–1023px). */
+export const HOME_GALLERY_IPAD_AIR_LAYOUT = {
+  titleFontSize: "clamp(1.875rem, 4.2vw, 3.25rem)",
+  titleLineHeight: 40 / 56,
+  subtitleFontSize: "0.9375rem",
+  navButtonSizePx: scaleIpadAirPx(HOME_GALLERY_LAYOUT.navButtonSizePx),
+  dotSizePx: scaleIpadAirPx(HOME_GALLERY_LAYOUT.dotSizePx),
+  dotGapPx: scaleIpadAirPx(HOME_GALLERY_LAYOUT.dotGapPx),
+  mosaicToDotsGapPx: scaleIpadAirPx(HOME_GALLERY_LAYOUT.mosaicToDotsGapPx),
+} as const;
+
+/** iPad Air + Pro — gallery carousel arrows (744px–1366px). */
+export const HOME_GALLERY_TABLET_NAV_LAYOUT = {
+  buttonEdgeInsetPx: 6,
+  /** Default desktop outward offset is 38%. */
+  buttonOutwardTranslatePercent: 32,
 } as const;
 
 /** iPad Air + Pro — teal gallery band matches footer overlap (744px–1366px). */

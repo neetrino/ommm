@@ -6,8 +6,10 @@ import { useCallback, useEffect, useState } from "react";
 import styles from "@/components/marketing/home/home-gallery-mosaic-carousel.module.css";
 import {
   HOME_GALLERY_FIGMA,
+  HOME_GALLERY_IPAD_AIR_LAYOUT,
   HOME_GALLERY_LAYOUT,
   HOME_GALLERY_SLIDES,
+  HOME_GALLERY_TABLET_NAV_LAYOUT,
   type HomeGallerySlide,
   type HomeGalleryTileKey,
 } from "@/components/marketing/home/home-gallery-section-tokens";
@@ -66,6 +68,13 @@ function mosaicStyleVars(): CSSProperties {
     ["--home-gallery-dot-inactive" as string]: HOME_GALLERY_FIGMA.dotInactive,
     ["--home-gallery-dot-active" as string]: HOME_GALLERY_FIGMA.dotActive,
     ["--home-gallery-dots-offset" as string]: `${HOME_GALLERY_LAYOUT.mosaicToDotsGapPx}px`,
+    ["--home-gallery-nav-size-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.navButtonSizePx}px`,
+    ["--home-gallery-dot-size-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.dotSizePx}px`,
+    ["--home-gallery-dot-gap-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.dotGapPx}px`,
+    ["--home-gallery-dots-offset-air" as string]: `${HOME_GALLERY_IPAD_AIR_LAYOUT.mosaicToDotsGapPx}px`,
+    ["--home-gallery-nav-edge-inset-tablet" as string]: `${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonEdgeInsetPx}px`,
+    ["--home-gallery-nav-prev-x-tablet" as string]: `-${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonOutwardTranslatePercent}%`,
+    ["--home-gallery-nav-next-x-tablet" as string]: `${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonOutwardTranslatePercent}%`,
   };
 }
 

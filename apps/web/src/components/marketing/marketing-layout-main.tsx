@@ -12,7 +12,8 @@ import { usePathname } from "@/i18n/navigation";
 const MARKETING_MAIN_BASE_CLASS =
   "flex min-h-0 w-full min-w-0 flex-1 flex-col";
 
-const MARKETING_MAIN_INNER_TOP_PAD_CLASS = "lg:pt-16 xl:pt-20";
+/** Clears fixed marketing header from tablet up (744px+); taller bar at nav-desktop (1367px+). */
+const MARKETING_MAIN_INNER_TOP_PAD_CLASS = "tablet:pt-14 lg:pt-16 nav-desktop:pt-20";
 
 type MarketingLayoutMainProps = {
   children: ReactNode;

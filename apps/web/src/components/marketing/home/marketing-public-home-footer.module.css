@@ -439,7 +439,7 @@
   }
 }
 
-/* iPad Air + Pro — rounded cap; full-bleed teal wrap covers corner cutouts (744px–1366px). */
+/* iPad Air + Pro — home gallery underlap (744px–1366px). */
 @media (min-width: 744px) and (max-width: 1366px) {
   .sectionWrap {
     position: relative;
@@ -454,6 +454,17 @@
     z-index: 1;
     border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
     border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
+  }
+
+  /* Inner routes — same as desktop: gradient wrap, no gallery pull-up. */
+  .sectionWrapInner {
+    margin-top: 0;
+    padding-top: var(--home-footer-wrap-padding-top);
+  }
+
+  .sectionWrapInner .shell {
+    border-top-left-radius: var(--home-footer-radius);
+    border-top-right-radius: var(--home-footer-radius);
   }
 }
 

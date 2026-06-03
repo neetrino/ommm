@@ -5,6 +5,7 @@ import { HomeGalleryMosaicCarousel } from "@/components/marketing/home/home-gall
 import { HomeGalleryMosaicMobile } from "@/components/marketing/home/home-gallery-mosaic-mobile";
 import {
   HOME_GALLERY_FIGMA,
+  HOME_GALLERY_IPAD_AIR_LAYOUT,
   HOME_GALLERY_LAYOUT,
   HOME_GALLERY_MOBILE_BACKGROUND,
   HOME_GALLERY_MOBILE_GRADIENT_END,
@@ -52,6 +53,13 @@ export function MarketingPublicHomeGallerySection() {
     ["--home-gallery-desktop-bg" as string]: HOME_GALLERY_FIGMA.sectionBackground,
     ["--home-gallery-desktop-pt" as string]: HOME_GALLERY_LAYOUT.sectionPaddingTop,
     ["--home-gallery-desktop-pb" as string]: HOME_GALLERY_LAYOUT.sectionPaddingBottom,
+    ["--home-gallery-desktop-title-size" as string]: HOME_GALLERY_LAYOUT.titleFontSize,
+    ["--home-gallery-desktop-title-line-height" as string]: String(HOME_GALLERY_LAYOUT.titleLineHeight),
+    ["--home-gallery-air-title-size" as string]: HOME_GALLERY_IPAD_AIR_LAYOUT.titleFontSize,
+    ["--home-gallery-air-title-line-height" as string]: String(
+      HOME_GALLERY_IPAD_AIR_LAYOUT.titleLineHeight,
+    ),
+    ["--home-gallery-air-subtitle-size" as string]: HOME_GALLERY_IPAD_AIR_LAYOUT.subtitleFontSize,
   };
 
   return (
@@ -105,17 +113,13 @@ export function MarketingPublicHomeGallerySection() {
             style={{ gap: HOME_GALLERY_LAYOUT.headerGapPx }}
           >
             <h2
-              className="font-serif font-semibold tracking-tight text-balance"
-              style={{
-                color: HOME_GALLERY_FIGMA.headingColor,
-                fontSize: HOME_GALLERY_LAYOUT.titleFontSize,
-                lineHeight: HOME_GALLERY_LAYOUT.titleLineHeight,
-              }}
+              className={`${styles.desktopTitle} font-serif font-semibold tracking-tight text-balance`}
+              style={{ color: HOME_GALLERY_FIGMA.headingColor }}
             >
               {t("galleryTitle")}
             </h2>
             <p
-              className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
+              className={`${styles.desktopSubtitle} ${marketingMontserrat.className} font-normal tracking-[0.01em]`}
               style={{
                 color: HOME_GALLERY_FIGMA.subtitleColor,
                 maxWidth: HOME_GALLERY_LAYOUT.subtitleMaxWidth,

@@ -80,6 +80,16 @@
   margin-top: var(--home-gallery-mobile-dots-to-cta-gap, 0);
 }
 
+.desktopTitle {
+  font-size: var(--home-gallery-desktop-title-size);
+  line-height: var(--home-gallery-desktop-title-line-height);
+}
+
+.desktopSubtitle {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
 @media (min-width: 744px) {
   .section {
     background: var(--home-gallery-desktop-bg);
@@ -100,6 +110,18 @@
 
   .desktopLayer {
     display: block;
+  }
+}
+
+@media (min-width: 744px) and (max-width: 1023px) {
+  .desktopTitle {
+    font-size: var(--home-gallery-air-title-size, var(--home-gallery-desktop-title-size));
+    line-height: var(--home-gallery-air-title-line-height, var(--home-gallery-desktop-title-line-height));
+  }
+
+  .desktopSubtitle {
+    font-size: var(--home-gallery-air-subtitle-size, 1rem);
+    line-height: 1.55;
   }
 }
 

@@ -9,35 +9,41 @@ import {
   HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_FIGMA_POSITIONS,
+  HOME_FOOTER_INNER_TABLET_LAYOUT,
   HOME_FOOTER_LAYOUT,
   HOME_FOOTER_LEGAL_LINKS,
   HOME_FOOTER_MOBILE_LAYOUT,
   HOME_FOOTER_TABLET_LAYOUT,
   HOME_FOOTER_NAV_LINKS,
   HOME_FOOTER_SOCIAL_LINKS,
+  type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type MarketingPublicHomeFooterProps = {
   locale: string;
+  /** Home page uses gallery underlap; inner routes blend layout gradient behind footer. */
+  surfaceVariant?: HomeFooterSurfaceVariant;
 };
 
 function pct(value: number): string {
   return `${value * 100}%`;
 }
 
-function footerStyleVars(): CSSProperties {
+function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSProperties {
   const pos = HOME_FOOTER_FIGMA_POSITIONS;
   const layout = HOME_FOOTER_LAYOUT;
+  const tabletLayout =
+    surfaceVariant === "inner" ? HOME_FOOTER_INNER_TABLET_LAYOUT : HOME_FOOTER_TABLET_LAYOUT;
   return {
     // --home-footer-wrap-bg: inherited from MarketingLayoutShell on inner routes; home falls back in CSS.
     ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
     ["--home-footer-mobile-overlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
     ["--home-footer-mobile-wrap-padding-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.wrapPaddingTop,
-    ["--home-footer-tablet-overlap" as string]: HOME_FOOTER_TABLET_LAYOUT.galleryOverlap,
-    ["--home-footer-tablet-wrap-padding-top" as string]: HOME_FOOTER_TABLET_LAYOUT.wrapPaddingTop,
+    ["--home-footer-tablet-overlap" as string]: tabletLayout.galleryOverlap,
+    ["--home-footer-tablet-wrap-padding-top" as string]: tabletLayout.wrapPaddingTop,
     ["--home-footer-mobile-radius" as string]: HOME_FOOTER_MOBILE_LAYOUT.topRadius,
     ["--home-footer-mobile-px" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingX,
     ["--home-footer-mobile-py" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingTop,
@@ -145,7 +151,10 @@ function FooterDesktopLayer({
 /**
  * Figma **Footer** `196:1191` — marketing layout + home page.
  */
-export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeFooterProps) {
+export async function MarketingPublicHomeFooter({
+  locale,
+  surfaceVariant = "home",
+}: MarketingPublicHomeFooterProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
 
@@ -244,7 +253,10 @@ export async function MarketingPublicHomeFooter({ locale }: MarketingPublicHomeF
   );
 
   return (
-    <section className={styles.sectionWrap} style={footerStyleVars()}>
+    <section
+      className={`${styles.sectionWrap}${surfaceVariant === "inner" ? ` ${styles.sectionWrapInner}` : ""}`}
+      style={footerStyleVars(surfaceVariant)}
+    >
       <footer className={`${marketingMontserrat.variable} ${styles.shell}`}>
         <div className={styles.inner}>
         <FooterDesktopLayer

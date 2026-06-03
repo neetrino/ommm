@@ -29,7 +29,7 @@ export default async function MarketingLayout({
       <MarketingLayoutMain>{children}</MarketingLayoutMain>
       <MarketingFooterGate>
         <Suspense fallback={<MarketingFooterLoading />}>
-          <MarketingPublicHomeFooter locale={locale} />
+          <MarketingPublicHomeFooter locale={locale} surfaceVariant="inner" />
         </Suspense>
       </MarketingFooterGate>
     </MarketingLayoutShell>

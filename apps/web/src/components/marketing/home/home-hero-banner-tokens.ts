@@ -1,7 +1,4 @@
-/**
- * Figma file `ommm`, frame **Hero Section** `155:108`, artboard **1440×924** for the photo stack.
- * Values are taken from Dev Mode exports (May 2026).
- */
+import { scaleIpadAirPx } from "@/lib/viewport-breakpoints";
 
 export const HOME_HERO_FIGMA = {
   artboardWidthPx: 1440,
@@ -252,6 +249,24 @@ export const HOME_HERO_CTA_LAYOUT = {
   },
   buttonGap: "clamp(0.625rem, calc(100svw * 16.375 * 0.88 / 1440), 0.9rem)",
   buttonsMarginTop: "clamp(0.625rem, calc(100svw * 14 / 1440), 0.875rem)",
+} as const;
+
+/** iPad Air — scaled-down hero type (744px–1023px). */
+const HOME_HERO_IPAD_AIR_TYPE_SCALE = 0.9;
+
+function scaleHeroIpadAirPx(valuePx: number): number {
+  return Math.round(scaleIpadAirPx(valuePx) * HOME_HERO_IPAD_AIR_TYPE_SCALE);
+}
+
+export const HOME_HERO_IPAD_AIR_LAYOUT = {
+  titleFontSizePx: scaleHeroIpadAirPx(HOME_HERO_LAYOUT.titleFontSizePx),
+  titleLineHeightPx: scaleHeroIpadAirPx(HOME_HERO_LAYOUT.titleLineHeightPx),
+  titleMaxWidthPx: scaleIpadAirPx(HOME_HERO_LAYOUT.titleMaxWidthPx),
+  titleMarginTopPx: scaleHeroIpadAirPx(-40),
+  subtitleFontSizePx: scaleHeroIpadAirPx(HOME_HERO_LAYOUT.subtitleFontSizePx),
+  subtitleLineHeightPx: scaleHeroIpadAirPx(HOME_HERO_LAYOUT.subtitleLineHeightPx),
+  logoMaxWidthPx: scaleIpadAirPx(HOME_HERO_LAYOUT.logoMarkWidthPx * 2.1),
+  logoMarginTopPx: scaleHeroIpadAirPx(-24),
 } as const;
 
 /** iPad Pro tier — uniform scale; membership keeps native Figma proportions (1024px–1366px). */

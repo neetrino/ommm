@@ -126,6 +126,14 @@ export const HOME_FOOTER_TABLET_LAYOUT = {
   wrapPaddingTop: `calc(${HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap} + ${homeFooterTabletCornerCoverPx}px)`,
 } as const;
 
+/** Inner marketing routes — gradient continues behind footer (no gallery underlap). */
+export const HOME_FOOTER_INNER_TABLET_LAYOUT = {
+  galleryOverlap: "0",
+  wrapPaddingTop: HOME_FOOTER_LAYOUT.sectionPaddingTop,
+} as const;
+
+export type HomeFooterSurfaceVariant = "home" | "inner";
+
 /** iPad Air — footer grid; Contact us block sits under Explore (744px–1023px). */
 export const HOME_FOOTER_IPAD_AIR_LAYOUT = {
   desktopPadding: "2rem 1.5rem 1.5rem",
