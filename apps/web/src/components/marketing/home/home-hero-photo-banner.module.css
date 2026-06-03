@@ -90,7 +90,8 @@
   position: relative;
   z-index: 20;
   margin-top: var(--home-hero-subtitle-margin-top);
-  width: 100%;
+  margin-inline: auto;
+  width: fit-content;
   max-width: var(--home-hero-subtitle-max-width);
   flex-shrink: 0;
   text-align: center;
