@@ -47,6 +47,7 @@ export function AdminGiftCardsManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
   const [selected, setSelected] = useState<AdminGiftCardRow | null>(null);
@@ -59,10 +60,14 @@ export function AdminGiftCardsManagement({
 
   const activeFilterCount = countActiveGiftCardFilters(filters);
 
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
+
   const syncFiltersToUrl = useCallback(
     (values: GiftCardFilterValues) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("modal");
+      const currentSearchParams = searchParamsRef.current;
+      const params = new URLSearchParams(currentSearchParams);
       for (const key of GIFT_CARD_FILTER_QUERY_KEYS) {
         params.delete(key);
       }
@@ -73,12 +78,12 @@ export function AdminGiftCardsManagement({
         }
       }
       const qs = params.toString();
-      if (qs === searchParams.toString()) {
+      if (qs === currentSearchParams) {
         return;
       }
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   useEffect(() => {
