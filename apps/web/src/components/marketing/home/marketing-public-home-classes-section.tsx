@@ -13,6 +13,7 @@ import {
   HOME_CLASSES_SECTION_MOBILE_LAYOUT,
   HOME_CLASSES_SECTION_IPAD_AIR_LAYOUT,
   HOME_CLASSES_SECTION_TABLET_LAYOUT,
+  homeClassCardMobileImageRotationDeg,
 } from "@/components/marketing/home/home-classes-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-classes-section.module.css";
 import { HOME_WEEKLY_SCHEDULE_LAYOUT } from "@/components/marketing/home/home-weekly-schedule-tokens";
@@ -123,7 +124,6 @@ export async function MarketingPublicHomeClassesSection({
             ["--home-class-card-title-line-height" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardTitleLineHeightPx}px`,
             ["--home-class-card-body-size" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardBodyFontSizePx}px`,
             ["--home-class-card-body-line-height" as string]: `${HOME_CLASSES_SECTION_MOBILE_FIGMA.cardBodyLineHeightPx}px`,
-            ["--home-class-card-image-rotation" as string]: `${HOME_CLASSES_SECTION_MOBILE_LAYOUT.cardImageRotationDeg}deg`,
           }}
         >
           <div className={styles.carouselTrack}>
@@ -133,8 +133,25 @@ export async function MarketingPublicHomeClassesSection({
                 return null;
               }
 
+              const mobileImageRotationDeg = homeClassCardMobileImageRotationDeg(visual.id);
+              const carouselSlideStyle: Record<string, string> = {
+                ["--home-class-card-image-rotation"]: `${mobileImageRotationDeg}deg`,
+              };
+              if (visual.id === "yoga") {
+                carouselSlideStyle["--home-class-yoga-image-offset-mobile"] =
+                  `-${HOME_CLASSES_SECTION_MOBILE_LAYOUT.yogaMobileImageOffsetUpPx}px`;
+              }
+              if (visual.id === "mat-pilates") {
+                carouselSlideStyle["--home-class-mat-pilates-image-offset-mobile"] =
+                  `-${HOME_CLASSES_SECTION_MOBILE_LAYOUT.matPilatesMobileImageOffsetUpPx}px`;
+              }
+
               return (
-                <div key={visual.id} className={styles.carouselSlide}>
+                <div
+                  key={visual.id}
+                  className={styles.carouselSlide}
+                  style={carouselSlideStyle}
+                >
                   <HomeClassPracticeCard
                     visual={visual}
                     titleLines={copy.titleLines}

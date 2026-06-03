@@ -1,8 +1,20 @@
+/**
+ * Layout tokens — keep in sync with `home-hero-junction-nav-tokens.ts` / schedule tokens.
+ * Defined here (not React `style={{}}`) to avoid SSR/client style serialization drift.
+ */
+
 .junctionNav {
+  --home-hero-junction-button-size: clamp(2.5rem, calc(100svw * 62 / 394), 3.875rem);
+  --home-hero-junction-gap: clamp(0.625rem, calc(100svw * 14 / 394), 0.875rem);
+  --home-hero-junction-button-fill: #ffffff;
+  --home-hero-junction-bottom: calc(
+    clamp(1rem, calc(100svw * 19 / 394), 1.25rem) - var(--home-hero-junction-button-size) / 2 + 10px
+  );
+
   pointer-events: none;
   position: absolute;
   left: 50%;
-  bottom: var(--home-hero-junction-bottom, 1rem);
+  bottom: var(--home-hero-junction-bottom);
   z-index: 30;
   display: flex;
   align-items: center;
@@ -22,16 +34,18 @@
   border-radius: 9999px;
   padding: 0;
   cursor: pointer;
-  background-color: var(--home-hero-junction-button-fill, #ffffff);
+  background-color: var(--home-hero-junction-button-fill);
   box-shadow: 0 4px 14px rgba(45, 40, 35, 0.12);
   transition:
     transform 220ms ease,
     filter 220ms ease;
 }
 
-.button:hover {
-  transform: translateY(-0.125rem);
-  filter: brightness(1.04);
+@media (hover: hover) {
+  .button:hover {
+    transform: translateY(-0.125rem);
+    filter: brightness(1.04);
+  }
 }
 
 .button:active {
@@ -70,13 +84,11 @@
 
 @media (min-width: 744px) {
   .junctionNav {
-    bottom: var(--home-hero-junction-bottom-lg, 1.5rem);
-    gap: var(--home-hero-junction-gap-lg, 1rem);
-  }
-
-  .button {
-    width: var(--home-hero-junction-button-size-lg, 3.375rem);
-    height: var(--home-hero-junction-button-size-lg, 3.375rem);
+    --home-hero-junction-button-size: clamp(2.125rem, calc(100svw * 54 / 1440), 3.375rem);
+    --home-hero-junction-gap: clamp(0.625rem, calc(100svw * 16 / 1440), 1rem);
+    --home-hero-junction-bottom: calc(
+      clamp(1.5rem, 5vw, 4rem) - var(--home-hero-junction-button-size) / 2
+    );
   }
 }
 

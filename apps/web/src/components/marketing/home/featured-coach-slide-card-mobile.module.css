@@ -6,8 +6,8 @@
   position: relative;
   min-width: 0;
   flex-shrink: 0;
-  width: var(--ommm-coach-card-width, clamp(20.75rem, calc(100svw * 332 / 394), 20.75rem));
-  max-width: var(--ommm-coach-card-width, clamp(20.75rem, calc(100svw * 332 / 394), 20.75rem));
+  width: var(--ommm-coach-card-width, clamp(20.75rem, calc(var(--ommm-layout-vw-px, 100svw) * 332 / 394), 20.75rem));
+  max-width: var(--ommm-coach-card-width, clamp(20.75rem, calc(var(--ommm-layout-vw-px, 100svw) * 332 / 394), 20.75rem));
 }
 
 .cardInner {

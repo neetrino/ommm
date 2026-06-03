@@ -151,6 +151,10 @@
 }
 
 @media (max-width: 743px) {
+  .homeHeroSection {
+    margin-top: calc(-1 * var(--marketing-mobile-header-height, 4.25rem));
+  }
+
   .homeHeroFrame {
     overflow: visible;
   }

@@ -143,17 +143,10 @@ export function marketingHeaderAuthClusterClass(): string {
   return "flex shrink-0 items-center gap-1";
 }
 
-/** Burger menu nav links — solid white panel. */
-export function marketingHeaderMobileMenuNavLinkClass(
-  active: boolean,
-  compact: boolean,
-): string {
-  const typography = compact
-    ? "whitespace-nowrap text-[11px] font-bold leading-5 tracking-[-0.35px] sm:text-xs"
-    : "whitespace-nowrap text-base font-bold leading-5 tracking-[-0.35px]";
-
+/** Burger menu nav links — solid white panel; always en-sized type (panel has room). */
+export function marketingHeaderMobileMenuNavLinkClass(active: boolean): string {
   return [
-    typography,
+    "whitespace-nowrap text-base font-bold leading-5 tracking-[-0.35px]",
     "rounded-xl px-3 py-2.5 text-sage-800",
     active ? "bg-sage-100 text-sage-900" : "hover:bg-sage-50",
     "transition-[color,background-color] duration-250",

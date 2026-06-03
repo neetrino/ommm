@@ -5,7 +5,7 @@
 .stage {
   position: relative;
   min-height: 29.5rem;
-  --ommm-coach-card-width: clamp(20.75rem, calc(100svw * 332 / 394), 20.75rem);
+  --ommm-coach-card-width: clamp(20.75rem, calc(var(--ommm-layout-vw-px, 100svw) * 332 / 394), 20.75rem);
   --ommm-coach-card-min-height: 29.5rem;
   --ommm-coach-card-radius: 1.5rem;
   --ommm-coach-name-size: 1.875rem;

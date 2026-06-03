@@ -55,8 +55,10 @@
   z-index: 2;
 }
 
-.cta:hover .shape {
-  filter: brightness(1.06);
+@media (hover: hover) {
+  .cta:hover .shape {
+    filter: brightness(1.06);
+  }
 }
 
 .label {
@@ -72,7 +74,7 @@
   padding-left: var(--hero-cta-label-offset, 0);
   padding-right: 0.25rem;
   text-align: left;
-  font-size: var(--hero-cta-label-font-size, clamp(0.9375rem, calc(100svw * 16 / 394), 1.0625rem));
+  font-size: var(--hero-cta-label-font-size, clamp(0.9375rem, calc(var(--ommm-layout-vw-px, 100svw) * 16 / 394), 1.0625rem));
   font-weight: 700;
   line-height: 1;
   color: #fff;
@@ -93,7 +95,7 @@
 }
 
 .arrow {
-  width: clamp(1.125rem, calc(100svw * 28 / 394), 1.625rem);
+  width: clamp(1.125rem, calc(var(--ommm-layout-vw-px, 100svw) * 28 / 394), 1.625rem);
   height: auto;
   /* Arrow glyph reads left of its bbox — nudge into the circle cap. */
   transform: translateX(6%);
@@ -183,7 +185,7 @@
     0 0 0 4px rgba(255, 255, 255, 0.55);
 }
 
-/* hy/ru mobile — center label in pill (left of circle cap). */
+/* Mobile hero pill CTAs — center label in pill (left of circle cap). */
 @media (max-width: 743px) {
   .mobileLabelCentered .label {
     justify-content: center;

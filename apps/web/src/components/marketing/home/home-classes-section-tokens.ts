@@ -59,7 +59,29 @@ export const HOME_CLASSES_SECTION_MOBILE_FIGMA = {
   cardBodyFontSizePx: 14,
   cardBodyLineHeightPx: 20,
   cardImageRotationDeg: 8.8,
+  /** Card 2 — upright portrait; no carousel tilt. */
+  uprightCardImageRotationDeg: 0,
+  /** Card 3 — rotated on mobile carousel. */
+  yogaMobileImageRotationDeg: 360,
+  /** Card 3 — nudge photo up in the image zone. */
+  yogaMobileImageOffsetUpPx: 16,
+  /** Card 4 — nudge photo up in the image zone. */
+  matPilatesMobileImageOffsetUpPx: 16,
 } as const;
+
+/** Mobile carousel cards whose photo sits upright (no 8.8° tilt). */
+export const HOME_CLASS_CARD_MOBILE_UPRIGHT_IDS = ["reformer-individual"] as const;
+
+/** Resolves per-card mobile image rotation for Our Core Practices carousel. */
+export function homeClassCardMobileImageRotationDeg(cardId: string): number {
+  if (cardId === "yoga") {
+    return HOME_CLASSES_SECTION_MOBILE_FIGMA.yogaMobileImageRotationDeg;
+  }
+  if ((HOME_CLASS_CARD_MOBILE_UPRIGHT_IDS as readonly string[]).includes(cardId)) {
+    return HOME_CLASSES_SECTION_MOBILE_FIGMA.uprightCardImageRotationDeg;
+  }
+  return HOME_CLASSES_SECTION_MOBILE_FIGMA.cardImageRotationDeg;
+}
 
 const mobileClassesCornerCoverPx = HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.panelRadiusPx + 12;
 
@@ -82,6 +104,10 @@ export const HOME_CLASSES_SECTION_MOBILE_LAYOUT = {
   cardMinHeightPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardHeightPx,
   cardRadiusPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardRadiusPx,
   cardImageRotationDeg: HOME_CLASSES_SECTION_MOBILE_FIGMA.cardImageRotationDeg,
+  uprightCardImageRotationDeg: HOME_CLASSES_SECTION_MOBILE_FIGMA.uprightCardImageRotationDeg,
+  yogaMobileImageRotationDeg: HOME_CLASSES_SECTION_MOBILE_FIGMA.yogaMobileImageRotationDeg,
+  yogaMobileImageOffsetUpPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.yogaMobileImageOffsetUpPx,
+  matPilatesMobileImageOffsetUpPx: HOME_CLASSES_SECTION_MOBILE_FIGMA.matPilatesMobileImageOffsetUpPx,
   /** Pull gradient through weekly schedule bottom corners on mobile. */
   sectionClassesOverlap: `calc(${HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionOuterPaddingBottom} + ${mobileClassesCornerCoverPx}px)`,
   sectionToClassesHeadingGapAdjustPx: -15,

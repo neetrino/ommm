@@ -49,7 +49,7 @@ export function HomeHeroCtaButton({
   const isHyRuLocale = isMarketingLongMembershipCtaLocale(locale);
   const usesLongMembershipLabel =
     (variant === "membership" || variant === "coachesDetails") && isHyRuLocale;
-  const usesMobileCenteredLabel = isHyRuLocale && mobileLayout !== null;
+  const usesMobileCenteredLabel = mobileLayout !== null;
   const mobileLabelCenteredClass = usesMobileCenteredLabel ? styles.mobileLabelCentered : "";
   const variantClass =
     variant === "booking"

@@ -1,13 +1,10 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
-import {
-  isCompactMarketingHeaderLocale,
-  marketingHeaderMobileMenuNavLinkClass,
-} from "@/components/marketing/marketing-site-header-layout";
+import { marketingHeaderMobileMenuNavLinkClass } from "@/components/marketing/marketing-site-header-layout";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
@@ -32,8 +29,6 @@ export function MarketingMobileMenuModal({
   marketingPath,
   isActive,
 }: MarketingMobileMenuModalProps) {
-  const locale = useLocale();
-  const compact = isCompactMarketingHeaderLocale(locale);
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
@@ -129,7 +124,6 @@ export function MarketingMobileMenuModal({
                 href={href}
                 className={marketingHeaderMobileMenuNavLinkClass(
                   isActive(marketingPath, href),
-                  compact,
                 )}
                 onClick={onClose}
               >

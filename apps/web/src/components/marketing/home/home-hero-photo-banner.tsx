@@ -12,7 +12,6 @@ import {
   HOME_HERO_MOBILE_CTA_LAYOUT,
   HOME_HERO_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
-import { marketingFullBleedHeroHeaderOverlapClass } from "@/components/marketing/marketing-site-header-layout";
 import {
   HOME_WEEKLY_SCHEDULE_LAYOUT,
   HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
@@ -35,7 +34,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
   return (
     <section
       aria-labelledby="home-hero-heading"
-      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} ${marketingFullBleedHeroHeaderOverlapClass()} relative w-full min-w-0 overflow-x-clip`}
+      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} relative w-full min-w-0 overflow-x-clip`}
       style={{
         ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
         ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,

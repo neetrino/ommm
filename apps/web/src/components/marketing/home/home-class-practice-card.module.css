@@ -117,6 +117,31 @@
     width: 112%;
     object-position: center top;
   }
+
+  /* Card 2 — upright portrait; cancel default carousel tilt. */
+  .card[data-card-id="reformer-individual"] .image {
+    transform: rotate(var(--home-class-card-image-rotation, 0deg));
+  }
+
+  /* Card 3 — rotated on mobile (replaces flipY + carousel tilt). */
+  .card[data-card-id="yoga"] .imageFlipY {
+    bottom: 0;
+    transform: rotate(var(--home-class-card-image-rotation, 90deg))
+      translateY(var(--home-class-yoga-image-offset-mobile, -1rem));
+  }
+
+  /*
+   * Card 4 — wide pose asset; keep bottom bleed and show full figure (cover + bottom:0 clipped limbs).
+   */
+  .card[data-card-id="mat-pilates"] .image {
+    bottom: -8%;
+    height: 125%;
+    width: 112%;
+    object-fit: contain;
+    object-position: center bottom;
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg))
+      translateY(var(--home-class-mat-pilates-image-offset-mobile, -1rem));
+  }
 }
 
 @media (min-width: 744px) {
