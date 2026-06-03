@@ -35,8 +35,13 @@ type GiftCardBatchDelegateLike = {
     where: { id: string };
     select?: Record<string, boolean>;
   }) => Promise<Record<string, unknown> | null>;
-  create: (args: { data: Record<string, unknown> }) => Promise<Record<string, unknown>>;
-  update: (args: { where: { id: string }; data: Record<string, unknown> }) => Promise<Record<string, unknown>>;
+  create: (args: {
+    data: Record<string, unknown>;
+  }) => Promise<Record<string, unknown>>;
+  update: (args: {
+    where: { id: string };
+    data: Record<string, unknown>;
+  }) => Promise<Record<string, unknown>>;
   updateMany: (args: {
     where: Record<string, unknown>;
     data: Record<string, unknown>;
@@ -46,7 +51,8 @@ type GiftCardBatchDelegateLike = {
 
 type GiftCardBatchSnapshot = {
   id: string;
-  amountCents: number;
+  amountAmd?: number;
+  amountCents?: number;
   imageUrl: string | null;
   status: GiftCardStatus;
   totalQuantity: number;
@@ -73,7 +79,8 @@ export class GiftCardsService {
   ) {}
 
   private giftCardBatchDelegate(client: unknown): GiftCardBatchDelegateLike {
-    return (client as { giftCardBatch: GiftCardBatchDelegateLike }).giftCardBatch;
+    return (client as { giftCardBatch: GiftCardBatchDelegateLike })
+      .giftCardBatch;
   }
 
   private get uploadRoot(): string {
@@ -85,29 +92,53 @@ export class GiftCardsService {
   }
 
   listMine(userId: string) {
-    return this.prisma.giftCard.findMany({
-      where: { purchaserId: userId },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.prisma.giftCard
+      .findMany({
+        where: { purchaserId: userId },
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((cards) =>
+        cards.map((card) => ({
+          ...card,
+          amountCents: this.readGiftCardAmount(card),
+          balanceCents: this.readGiftCardBalance(card),
+        })),
+      );
   }
 
   listReceived(userId: string) {
-    return this.prisma.giftCard.findMany({
-      where: { recipientId: userId },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.prisma.giftCard
+      .findMany({
+        where: { recipientId: userId },
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((cards) =>
+        cards.map((card) => ({
+          ...card,
+          amountCents: this.readGiftCardAmount(card),
+          balanceCents: this.readGiftCardBalance(card),
+        })),
+      );
   }
 
   listMarketBatches() {
     const batchDelegate = this.giftCardBatchDelegate(this.prisma);
-    return batchDelegate.findMany({
-      where: {
-        status: GiftCardStatus.ACTIVE,
-        availableQuantity: { gt: 0 },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-    });
+    return batchDelegate
+      .findMany({
+        where: {
+          status: GiftCardStatus.ACTIVE,
+          availableQuantity: { gt: 0 },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+      })
+      .then((batches) =>
+        batches.map((batch) => ({
+          ...batch,
+          amountAmd: this.readBatchAmount(batch),
+          amountCents: this.readBatchAmount(batch),
+        })),
+      );
   }
 
   async redeem(userId: string, code: string) {
@@ -118,19 +149,21 @@ export class GiftCardsService {
     if (!card || card.status !== GiftCardStatus.ACTIVE) {
       throw new NotFoundException('Invalid code');
     }
-    if (card.balanceCents <= 0) {
+    const balance = this.readGiftCardBalance(card);
+    if (balance <= 0) {
       throw new BadRequestException('Gift card has no balance');
     }
-    const amount = card.balanceCents;
+    const amount = balance;
+    const redeemCardUpdateArgs = ({
+      where: { id: card.id },
+      data: {
+        balanceAmd: 0,
+        status: GiftCardStatus.REDEEMED,
+        recipientId: userId,
+      },
+    } as unknown) as Parameters<typeof this.prisma.giftCard.update>[0];
     await this.prisma.$transaction([
-      this.prisma.giftCard.update({
-        where: { id: card.id },
-        data: {
-          balanceCents: 0,
-          status: GiftCardStatus.REDEEMED,
-          recipientId: userId,
-        },
-      }),
+      this.prisma.giftCard.update(redeemCardUpdateArgs),
       this.prisma.user.update({
         where: { id: userId },
         data: { giftCreditsCents: { increment: amount } },
@@ -140,27 +173,32 @@ export class GiftCardsService {
   }
 
   listAdmin() {
-    return this.prisma.giftCard.findMany({
-      include: {
-        purchaser: { select: { email: true, name: true } },
-        recipient: { select: { email: true, name: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 500,
-    }).then((cards) =>
-      cards.map((card) => ({
-        ...card,
-        amountAmd: card.amountCents,
-        balanceAmd: card.balanceCents,
-      })),
-    );
+    return this.prisma.giftCard
+      .findMany({
+        include: {
+          purchaser: { select: { email: true, name: true } },
+          recipient: { select: { email: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      })
+      .then((cards) =>
+        cards.map((card) => ({
+          ...card,
+          amountAmd: this.readGiftCardAmount(card),
+          balanceAmd: this.readGiftCardBalance(card),
+          amountCents: this.readGiftCardAmount(card),
+          balanceCents: this.readGiftCardBalance(card),
+        })),
+      );
   }
 
   listAdminBoard() {
     return this.loadAdminBoardWithFallback().then((batches) =>
       batches.map((batch) => ({
         ...batch,
-        amountAmd: batch.amountCents,
+        amountAmd: this.readBatchAmount(batch),
+        amountCents: this.readBatchAmount(batch),
       })),
     );
   }
@@ -177,7 +215,10 @@ export class GiftCardsService {
         take: 500,
       });
     } catch (error) {
-      if (!(error instanceof PrismaClientKnownRequestError) || error.code !== 'P2021') {
+      if (
+        !(error instanceof PrismaClientKnownRequestError) ||
+        error.code !== 'P2021'
+      ) {
         throw error;
       }
       this.logger.warn(
@@ -195,7 +236,7 @@ export class GiftCardsService {
         string,
         {
           id: string;
-          amountCents: number;
+          amountAmd: number;
           imageUrl: string | null;
           status: GiftCardStatus;
           totalQuantity: number;
@@ -211,10 +252,9 @@ export class GiftCardsService {
       >();
 
       for (const card of cards) {
-        const cardWithImage = card as typeof card & { imageUrl?: string | null };
         const key = [
-          card.amountCents,
-          cardWithImage.imageUrl ?? '',
+          this.readGiftCardAmount(card),
+          this.readGiftCardImage(card),
           card.status,
           card.purchaserId,
           card.recipientId ?? '',
@@ -224,12 +264,16 @@ export class GiftCardsService {
           card.expiresAt?.toISOString() ?? '',
         ].join('|');
         const existing = grouped.get(key);
-        const isAvailable = card.status === GiftCardStatus.ACTIVE && card.balanceCents > 0 ? 1 : 0;
+        const isAvailable =
+          card.status === GiftCardStatus.ACTIVE &&
+          this.readGiftCardBalance(card) > 0
+            ? 1
+            : 0;
         if (!existing) {
           grouped.set(key, {
             id: card.id,
-            amountCents: card.amountCents,
-            imageUrl: cardWithImage.imageUrl ?? null,
+            amountAmd: this.readGiftCardAmount(card),
+            imageUrl: this.readGiftCardImage(card),
             status: card.status,
             totalQuantity: 1,
             availableQuantity: isAvailable,
@@ -250,7 +294,9 @@ export class GiftCardsService {
         }
       }
 
-      return [...grouped.values()].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      return [...grouped.values()].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
     }
   }
 
@@ -269,7 +315,9 @@ export class GiftCardsService {
       throw new NotFoundException('Gift card not found');
     }
     if (existing.status !== GiftCardStatus.ACTIVE) {
-      throw new BadRequestException('Only active gift cards can be deactivated');
+      throw new BadRequestException(
+        'Only active gift cards can be deactivated',
+      );
     }
     const updated = await this.prisma.giftCard.update({
       where: { id },
@@ -341,7 +389,10 @@ export class GiftCardsService {
             select: { id: true, role: true, email: true, name: true },
           })
         : null;
-    if (dto.recipientId !== undefined && (!recipient || recipient.role !== 'USER')) {
+    if (
+      dto.recipientId !== undefined &&
+      (!recipient || recipient.role !== 'USER')
+    ) {
       throw new BadRequestException('Recipient user not found');
     }
     const recipientEmail = dto.recipientEmail ?? recipient?.email ?? null;
@@ -376,7 +427,7 @@ export class GiftCardsService {
         entityType: 'GiftCardBatch',
         entityId: batch.id,
         payload: {
-          amountCents: batch.amountCents,
+          amountCents: this.readBatchAmount(batch),
           totalQuantity: batch.totalQuantity,
           recipientEmail: batch.recipientEmail ?? null,
           recipientId: batch.recipientId ?? null,
@@ -404,7 +455,8 @@ export class GiftCardsService {
       throw new NotFoundException('Gift card batch not found');
     }
 
-    const parsedExpiresAt = dto.expiresAt !== undefined ? new Date(dto.expiresAt) : null;
+    const parsedExpiresAt =
+      dto.expiresAt !== undefined ? new Date(dto.expiresAt) : null;
     if (parsedExpiresAt !== null && Number.isNaN(parsedExpiresAt.getTime())) {
       throw new BadRequestException('Invalid expiresAt date');
     }
@@ -416,27 +468,34 @@ export class GiftCardsService {
             select: { id: true, role: true, email: true, name: true },
           })
         : null;
-    if (dto.recipientId !== undefined && (!recipient || recipient.role !== 'USER')) {
+    if (
+      dto.recipientId !== undefined &&
+      (!recipient || recipient.role !== 'USER')
+    ) {
       throw new BadRequestException('Recipient user not found');
     }
 
     const recipientEmail =
       dto.recipientEmail !== undefined
         ? dto.recipientEmail
-        : recipient?.email ?? existing.recipientEmail;
+        : (recipient?.email ?? existing.recipientEmail);
     const recipientName =
       dto.recipientName !== undefined
         ? dto.recipientName
-        : recipient?.name ?? existing.recipientName;
-    const amountCents = amountAmd;
-    const amountDiff = amountCents - existing.amountCents;
+        : (recipient?.name ?? existing.recipientName);
+    const nextAmountAmd = amountAmd;
+    const amountDiff = nextAmountAmd - this.readBatchAmount(existing);
     const updateData: Record<string, unknown> = {
-      amountCents,
-      recipientId: dto.recipientId !== undefined ? recipient?.id ?? null : existing.recipientId,
+      amountCents: nextAmountAmd,
+      recipientId:
+        dto.recipientId !== undefined
+          ? (recipient?.id ?? null)
+          : existing.recipientId,
       recipientEmail,
       recipientName,
       message: dto.message !== undefined ? dto.message : existing.message,
-      expiresAt: dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
+      expiresAt:
+        dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
     };
 
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -446,21 +505,28 @@ export class GiftCardsService {
         data: updateData,
       })) as GiftCardBatchSnapshot;
 
-      await tx.giftCard.updateMany(({
+      const updateIssuedCardsArgs = ({
         where: {
           batchId,
           status: GiftCardStatus.ACTIVE,
         },
         data: {
-          amountCents,
-          ...(amountDiff !== 0 ? { balanceCents: { increment: amountDiff } } : {}),
-          recipientId: dto.recipientId !== undefined ? recipient?.id ?? null : existing.recipientId,
+          amountAmd: nextAmountAmd,
+          ...(amountDiff !== 0
+            ? { balanceAmd: { increment: amountDiff } }
+            : {}),
+          recipientId:
+            dto.recipientId !== undefined
+              ? (recipient?.id ?? null)
+              : existing.recipientId,
           recipientEmail,
           recipientName,
           message: dto.message !== undefined ? dto.message : existing.message,
-          expiresAt: dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
+          expiresAt:
+            dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
         },
-      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0]);
+      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0];
+      await tx.giftCard.updateMany(updateIssuedCardsArgs);
 
       return batch;
     });
@@ -470,7 +536,8 @@ export class GiftCardsService {
       entityType: 'GiftCardBatch',
       entityId: batchId,
       payload: {
-        amountCents: updated.amountCents,
+        amountCents: this.readBatchAmount(updated),
+        amountAmd: this.readBatchAmount(updated),
         recipientId: updated.recipientId,
         recipientEmail: updated.recipientEmail,
       },
@@ -479,7 +546,9 @@ export class GiftCardsService {
   }
 
   async assignRecipient(giftCardId: string, userId: string) {
-    const card = await this.prisma.giftCard.findUnique({ where: { id: giftCardId } });
+    const card = await this.prisma.giftCard.findUnique({
+      where: { id: giftCardId },
+    });
     if (!card) {
       throw new NotFoundException('Gift card not found');
     }
@@ -545,12 +614,12 @@ export class GiftCardsService {
         throw new NotFoundException('Gift card batch not found');
       }
 
-      const card = await tx.giftCard.create(({
+      const createIssuedCardArgs = ({
         data: {
           batchId: batch.id,
           code: randomBytes(8).toString('hex').toUpperCase(),
-          amountCents: batch.amountCents,
-          balanceCents: batch.amountCents,
+          amountAmd: this.readBatchAmount(batch),
+          balanceAmd: this.readBatchAmount(batch),
           imageUrl: batch.imageUrl ?? undefined,
           status: GiftCardStatus.ACTIVE,
           purchaserId: batch.purchaserId,
@@ -560,7 +629,8 @@ export class GiftCardsService {
           message: batch.message ?? undefined,
           expiresAt: batch.expiresAt ?? undefined,
         },
-      } as unknown) as Parameters<typeof tx.giftCard.create>[0]);
+      } as unknown) as Parameters<typeof tx.giftCard.create>[0];
+      const card = await tx.giftCard.create(createIssuedCardArgs);
 
       await batchDelegate.update({
         where: { id: batch.id },
@@ -585,12 +655,16 @@ export class GiftCardsService {
 
   async deactivateBatch(id: string) {
     const batchDelegate = this.giftCardBatchDelegate(this.prisma);
-    const existing = (await batchDelegate.findUnique({ where: { id } })) as GiftCardBatchSnapshot | null;
+    const existing = (await batchDelegate.findUnique({
+      where: { id },
+    })) as GiftCardBatchSnapshot | null;
     if (!existing) {
       throw new NotFoundException('Gift card batch not found');
     }
     if (existing.status !== GiftCardStatus.ACTIVE) {
-      throw new BadRequestException('Only active gift-card batches can be deactivated');
+      throw new BadRequestException(
+        'Only active gift-card batches can be deactivated',
+      );
     }
     const updated = await this.prisma.$transaction(async (tx) => {
       const txBatchDelegate = this.giftCardBatchDelegate(tx);
@@ -598,10 +672,11 @@ export class GiftCardsService {
         where: { id },
         data: { status: GiftCardStatus.DEACTIVATED },
       });
-      await tx.giftCard.updateMany(({
+      const deactivateCardsArgs = ({
         where: { batchId: id, status: GiftCardStatus.ACTIVE },
         data: { status: GiftCardStatus.DEACTIVATED },
-      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0]);
+      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0];
+      await tx.giftCard.updateMany(deactivateCardsArgs);
       return batch;
     });
     await this.audit.log({
@@ -616,8 +691,16 @@ export class GiftCardsService {
     const batchDelegate = this.giftCardBatchDelegate(this.prisma);
     const existing = (await batchDelegate.findUnique({
       where: { id },
-      select: { id: true, imageUrl: true, totalQuantity: true, availableQuantity: true },
-    })) as Pick<GiftCardBatchSnapshot, 'id' | 'imageUrl' | 'totalQuantity' | 'availableQuantity'> | null;
+      select: {
+        id: true,
+        imageUrl: true,
+        totalQuantity: true,
+        availableQuantity: true,
+      },
+    })) as Pick<
+      GiftCardBatchSnapshot,
+      'id' | 'imageUrl' | 'totalQuantity' | 'availableQuantity'
+    > | null;
     if (!existing) {
       throw new NotFoundException('Gift card batch not found');
     }
@@ -641,10 +724,10 @@ export class GiftCardsService {
   }
 
   async resendBatchEmail(id: string) {
-    const latest = await this.prisma.giftCard.findFirst(({
+    const latest = await this.prisma.giftCard.findFirst({
       where: { batchId: id, recipientEmail: { not: null } },
       orderBy: { createdAt: 'desc' },
-    } as unknown) as Parameters<typeof this.prisma.giftCard.findFirst>[0]);
+    } as unknown as Parameters<typeof this.prisma.giftCard.findFirst>[0]);
     if (!latest?.recipientEmail) {
       throw new BadRequestException('No issued recipient email');
     }
@@ -660,11 +743,11 @@ export class GiftCardsService {
     if (!batch) {
       throw new NotFoundException('Gift card batch not found');
     }
-    const issuedCards = await this.prisma.giftCard.findMany(({
+    const issuedCards = await this.prisma.giftCard.findMany({
       where: { batchId },
       orderBy: { createdAt: 'desc' },
       take: 100,
-    } as unknown) as Parameters<typeof this.prisma.giftCard.findMany>[0]);
+    } as unknown as Parameters<typeof this.prisma.giftCard.findMany>[0]);
     const events = issuedCards.map((card) => ({
       type: card.status === GiftCardStatus.REDEEMED ? 'REDEEMED' : 'ISSUED',
       at: card.updatedAt.toISOString(),
@@ -676,12 +759,14 @@ export class GiftCardsService {
     return {
       batchId: batch.id,
       status: batch.status,
-      amountAmd: batch.amountCents,
+      amountAmd: batch.amountAmd,
+      amountCents: this.readBatchAmount(batch),
       totalQuantity: batch.totalQuantity,
       availableQuantity: batch.availableQuantity,
       issuedCount: batch.totalQuantity - batch.availableQuantity,
-      redeemedCount: issuedCards.filter((card) => card.status === GiftCardStatus.REDEEMED)
-        .length,
+      redeemedCount: issuedCards.filter(
+        (card) => card.status === GiftCardStatus.REDEEMED,
+      ).length,
       events: [
         {
           type: 'CREATED',
@@ -744,13 +829,12 @@ export class GiftCardsService {
     return {
       cardId: card.id,
       status: card.status,
-      amountCents: card.amountCents,
-      balanceCents: card.balanceCents,
-      amountAmd: card.amountCents,
-      balanceAmd: card.balanceCents,
+      amountCents: this.readGiftCardAmount(card),
+      balanceCents: this.readGiftCardBalance(card),
+      amountAmd: this.readGiftCardAmount(card),
+      balanceAmd: this.readGiftCardBalance(card),
       events,
-      note:
-        'Detailed redemption ledger is not stored yet; timeline shows available gift-card activity.',
+      note: 'Detailed redemption ledger is not stored yet; timeline shows available gift-card activity.',
     };
   }
 
@@ -809,7 +893,10 @@ export class GiftCardsService {
       await this.r2Storage.deleteObjectIfOwned(stored);
       return;
     }
-    const absolute = absolutePathForStoredGiftCardUpload(this.uploadRoot, stored);
+    const absolute = absolutePathForStoredGiftCardUpload(
+      this.uploadRoot,
+      stored,
+    );
     if (!absolute) {
       return;
     }
@@ -820,5 +907,40 @@ export class GiftCardsService {
         `Could not remove uploaded gift-card image (${stored}): ${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
+
+  private readGiftCardAmount(card: unknown): number {
+    const row = card as Record<string, unknown>;
+    const amountAmd = row.amountAmd;
+    if (typeof amountAmd === 'number') {
+      return amountAmd;
+    }
+    const amountCents = row.amountCents;
+    return typeof amountCents === 'number' ? amountCents : 0;
+  }
+
+  private readGiftCardBalance(card: unknown): number {
+    const row = card as Record<string, unknown>;
+    const balanceAmd = row.balanceAmd;
+    if (typeof balanceAmd === 'number') {
+      return balanceAmd;
+    }
+    const balanceCents = row.balanceCents;
+    return typeof balanceCents === 'number' ? balanceCents : 0;
+  }
+
+  private readGiftCardImage(card: unknown): string | null {
+    const imageUrl = (card as Record<string, unknown>).imageUrl;
+    return typeof imageUrl === 'string' ? imageUrl : null;
+  }
+
+  private readBatchAmount(batch: unknown): number {
+    const row = batch as Record<string, unknown>;
+    const amountAmd = row.amountAmd;
+    if (typeof amountAmd === 'number') {
+      return amountAmd;
+    }
+    const amountCents = row.amountCents;
+    return typeof amountCents === 'number' ? amountCents : 0;
   }
 }

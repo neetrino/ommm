@@ -407,8 +407,8 @@ model GiftCard {
   batchId         String?
   batch           GiftCardBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
   code            String         @unique
-  amountCents     Int
-  balanceCents    Int
+  amountAmd       Int            @map("amountCents")
+  balanceAmd      Int            @map("balanceCents")
   imageUrl        String?
   status          GiftCardStatus @default(ACTIVE)
   purchaserId     String
@@ -428,7 +428,7 @@ model GiftCard {
 
 model GiftCardBatch {
   id                String         @id @default(cuid())
-  amountCents       Int
+  amountAmd         Int            @map("amountCents")
   imageUrl          String?
   status            GiftCardStatus @default(ACTIVE)
   totalQuantity     Int

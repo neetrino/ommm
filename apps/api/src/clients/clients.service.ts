@@ -317,8 +317,7 @@ export class ClientsService {
       return true;
     }
     return user.giftCardsPurchased.some(
-      (card) =>
-        card.balanceCents < card.amountCents || card.status === 'REDEEMED',
+      (card) => card.balanceAmd < card.amountAmd || card.status === 'REDEEMED',
     );
   }
 

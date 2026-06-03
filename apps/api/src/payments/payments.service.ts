@@ -47,7 +47,7 @@ type GiftCardBatchDelegateLike = {
 
 type GiftCardBatchSnapshot = {
   id: string;
-  amountCents: number;
+  amountAmd: number;
   imageUrl: string | null;
   expiresAt: Date | null;
   message: string | null;
@@ -132,8 +132,8 @@ export class PaymentsService {
       const batchDelegate = this.giftCardBatchDelegate(this.prisma);
       const batch = (await batchDelegate.findUnique({
         where: { id: params.batchId },
-        select: { id: true, amountCents: true, availableQuantity: true, status: true },
-      })) as Pick<GiftCardBatchSnapshot, 'id' | 'amountCents' | 'availableQuantity' | 'status'> | null;
+        select: { id: true, amountAmd: true, availableQuantity: true, status: true },
+      })) as Pick<GiftCardBatchSnapshot, 'id' | 'amountAmd' | 'availableQuantity' | 'status'> | null;
       if (!batch) {
         throw new BadRequestException('Gift-card batch not found');
       }
@@ -141,8 +141,8 @@ export class PaymentsService {
         throw new BadRequestException('Gift card is out of stock');
       }
       metadata.batchId = String(batch.id);
-      metadata.amountCents = String(batch.amountCents);
-      if (params.amountCents !== Number(batch.amountCents)) {
+      metadata.amountCents = String(batch.amountAmd);
+      if (params.amountCents !== Number(batch.amountAmd)) {
         throw new BadRequestException('Invalid gift-card amount for selected batch');
       }
     }
@@ -282,7 +282,7 @@ export class PaymentsService {
       let selectedBatch:
         | {
             id: string;
-            amountCents: number;
+            amountAmd: number;
             imageUrl: string | null;
             expiresAt: Date | null;
             message: string | null;
@@ -309,7 +309,7 @@ export class PaymentsService {
           where: { id: batchId },
           select: {
             id: true,
-            amountCents: true,
+            amountAmd: true,
             imageUrl: true,
             expiresAt: true,
             message: true,
@@ -328,8 +328,8 @@ export class PaymentsService {
         data: {
           batchId: selectedBatch?.id,
           code,
-          amountCents: selectedBatch?.amountCents ?? amount,
-          balanceCents: selectedBatch?.amountCents ?? amount,
+          amountAmd: selectedBatch?.amountAmd ?? amount,
+          balanceAmd: selectedBatch?.amountAmd ?? amount,
           imageUrl: selectedBatch?.imageUrl ?? undefined,
           status: GiftCardStatus.ACTIVE,
           purchaserId,

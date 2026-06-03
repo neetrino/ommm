@@ -496,8 +496,8 @@ export class ReportsService {
       totals,
       byStatusRaw,
       payments,
-      giftIssuedAgg,
-      giftRedeemedAgg,
+      issuedGiftCards,
+      redeemedGiftCards,
       giftSpentAgg,
       giftLiabilityAgg,
     ] = await Promise.all([
@@ -521,20 +521,20 @@ export class ReportsService {
           status: true,
         },
       }),
-      this.prisma.giftCard.aggregate({
+      this.prisma.giftCard.findMany({
         where: {
           ...(dateFilter ? { createdAt: dateFilter } : {}),
         },
-        _sum: { amountCents: true },
-        _count: { id: true },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
       }),
-      this.prisma.giftCard.aggregate({
+      this.prisma.giftCard.findMany({
         where: {
           status: GiftCardStatus.REDEEMED,
           ...(dateFilter ? { updatedAt: dateFilter } : {}),
         },
-        _sum: { amountCents: true },
-        _count: { id: true },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
       }),
       this.prisma.payment.aggregate({
         where: {
@@ -582,6 +582,16 @@ export class ReportsService {
       (totals._count.id ?? 0) > 0
         ? Math.round((totals._sum.amountCents ?? 0) / (totals._count.id ?? 1))
         : 0;
+    const issuedCount = issuedGiftCards.length;
+    const redeemedCount = redeemedGiftCards.length;
+    const issuedCents = issuedGiftCards.reduce(
+      (sum, card) => sum + this.readGiftAmount(card),
+      0,
+    );
+    const redeemedCents = redeemedGiftCards.reduce(
+      (sum, card) => sum + this.readGiftAmount(card),
+      0,
+    );
 
     return {
       range: this.resolveRange(range),
@@ -593,10 +603,10 @@ export class ReportsService {
       byStatus,
       bySource,
       giftCredits: {
-        issuedCents: giftIssuedAgg._sum.amountCents ?? 0,
-        issuedCount: giftIssuedAgg._count.id ?? 0,
-        redeemedCents: giftRedeemedAgg._sum.amountCents ?? 0,
-        redeemedCount: giftRedeemedAgg._count.id ?? 0,
+        issuedCents,
+        issuedCount,
+        redeemedCents,
+        redeemedCount,
         spentCents: giftSpentAgg._sum.amountCents ?? 0,
         spendTransactionsCount: giftSpentAgg._count.id ?? 0,
         outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
@@ -696,7 +706,7 @@ export class ReportsService {
           card.purchaser.id,
           card.purchaser.email,
           `${card.purchaser.name ?? ''} ${card.purchaser.lastName ?? ''}`.trim(),
-          card.amountCents,
+          this.readGiftAmount(card),
           GIFT_CREDIT_CURRENCY,
           card.code,
           card.recipientEmail ??
@@ -714,7 +724,7 @@ export class ReportsService {
           card.recipient?.id ?? '',
           card.recipient?.email ?? '',
           `${card.recipient?.name ?? ''} ${card.recipient?.lastName ?? ''}`.trim(),
-          card.amountCents,
+          this.readGiftAmount(card),
           GIFT_CREDIT_CURRENCY,
           card.code,
           '',
@@ -991,6 +1001,13 @@ export class ReportsService {
       result.set(item.sessionId, (result.get(item.sessionId) ?? 0) + 1);
     }
     return result;
+  }
+
+  private readGiftAmount(card: { amountCents?: number; amountAmd?: number }): number {
+    if (typeof card.amountAmd === 'number') {
+      return card.amountAmd;
+    }
+    return card.amountCents ?? 0;
   }
 
   private toCsvRow(cells: ReadonlyArray<string | number>): string {
