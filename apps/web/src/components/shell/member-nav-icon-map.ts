@@ -7,6 +7,7 @@ const MEMBER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
   "/user/bookings": "bookings",
   "/user/classes": "schedule",
   "/user/packages": "packages",
+  "/user/payments": "finance",
   "/user/gift-cards": "giftCards",
   "/user/profile": "clients",
   "/user/settings": "settings",

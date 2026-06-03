@@ -508,6 +508,7 @@
         "schedule": "Browse the weekly schedule and book your next session.",
         "bookings": "Upcoming and past reservations.",
         "packages": "Active packages, plans, and payment history.",
+        "payments": "Your payment history and transaction details.",
         "giftCards": "Balances and redemption.",
         "profile": "Your member details, password, home image, and notification preferences.",
         "notifications": "Alerts and studio messages."
@@ -724,6 +725,56 @@
       "giftFallbackName": "Gift",
       "rowPurchased": "{code} · balance {balance}/{amount} · {status}",
       "rowReceived": "{name} · balance {balance} · {status}"
+    },
+    "payments": {
+      "title": "Payments",
+      "description": "Your complete payment history across packages, drop-ins, and gift purchases.",
+      "loading": "Loading your payments...",
+      "signInRequired": "Sign in to see your payments.",
+      "loadError": "Could not load payments ({status}).",
+      "unexpectedErrorTitle": "Could not open payments",
+      "unexpectedErrorDescription": "Something went wrong while loading your payment history. Please try again.",
+      "emptyTitle": "No payments yet",
+      "emptyDescription": "Your transactions will appear here after your first successful payment.",
+      "filteredEmptyTitle": "No matching payments",
+      "filteredEmptyDescription": "Try another filter or reset to see all payments.",
+      "common": {
+        "notAvailable": "—"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "type": "Payment type",
+        "allTypes": "All types",
+        "sort": "Sort"
+      },
+      "sort": {
+        "newest": "Newest first",
+        "oldest": "Oldest first"
+      },
+      "status": {
+        "SUCCEEDED": "Completed",
+        "PENDING": "Pending",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded"
+      },
+      "source": {
+        "package": "Package",
+        "membership": "Membership",
+        "dropin": "Drop-in",
+        "gift": "Gift card",
+        "other": "Other"
+      },
+      "table": {
+        "date": "Payment date",
+        "amount": "Amount",
+        "currency": "Currency",
+        "status": "Status",
+        "type": "Type",
+        "related": "Related item",
+        "reference": "Reference",
+        "updated": "Updated"
+      }
     },
     "profile": {
       "title": "Profile",

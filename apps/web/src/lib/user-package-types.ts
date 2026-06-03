@@ -31,5 +31,7 @@ export type UserPaymentRow = {
   status: string;
   description: string | null;
   paymentMethod: string | null;
+  stripePaymentId?: string | null;
   createdAt: string;
+  updatedAt?: string;
 };
