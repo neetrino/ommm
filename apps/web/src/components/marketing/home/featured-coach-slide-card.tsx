@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Image from "next/image";
 import styles from "@/components/marketing/home/featured-coach-slide-card.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -68,7 +69,7 @@ export function FeaturedCoachSlideCard({
   ariaHidden,
   instantCarouselSnap = false,
 }: FeaturedCoachSlideCardProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
 
   const showSideDrop = peekLayout && lane === "side" && !reduceMotion;
   const y = showSideDrop ? `${COACH_SIDE_DROP_REM}rem` : "0rem";

@@ -41,11 +41,9 @@ export const HomeWeeklyScheduleGridDeferred = dynamic(
   },
 );
 
-/** Hero junction nav — small client island; deferred from LCP path. */
-export const HomeHeroJunctionNavDeferred = dynamic(
-  () =>
-    import("@/components/marketing/home/home-hero-junction-nav").then(
-      (module) => module.HomeHeroJunctionNav,
-    ),
-  { ssr: false },
+/** Hero junction nav — client island; must SSR to match hydration (no `ssr: false`). */
+export const HomeHeroJunctionNavDeferred = dynamic(() =>
+  import("@/components/marketing/home/home-hero-junction-nav").then(
+    (module) => module.HomeHeroJunctionNav,
+  ),
 );

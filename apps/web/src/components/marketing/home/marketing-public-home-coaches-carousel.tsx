@@ -14,6 +14,8 @@ import {
   type CoachSlideLane,
 } from "@/components/marketing/home/featured-coach-slide-card";
 import { MarketingGlassCircleButton } from "@/components/marketing/home/marketing-glass-circle-button";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
@@ -39,24 +41,6 @@ function displayIndexToRealIndex(displayLength: number, displayIndex: number): n
     return 0;
   }
   return displayIndex - 1;
-}
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => {
-      setReduced(mq.matches);
-    };
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => {
-      mq.removeEventListener("change", onChange);
-    };
-  }, []);
-
-  return reduced;
 }
 
 type CarouselLayout = {
@@ -87,6 +71,7 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
     rootRemPx: 16,
   });
   const [canAnimateSlides, setCanAnimateSlides] = useState(false);
+  const isClientMounted = useIsClientMounted();
   const reducedMotion = usePrefersReducedMotion();
 
   useLayoutEffect(() => {
@@ -135,7 +120,7 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
   }, []);
 
   const { viewportWidth: vw, cardWidthRem, rootRemPx } = layout;
-  const layoutReady = vw > 0 && cardWidthRem > 0;
+  const layoutReady = isClientMounted && vw > 0 && cardWidthRem > 0;
   const cwPx = cardWidthRem * rootRemPx;
   const edgePadRem = layoutReady ? Math.max(0, (vw - cwPx) / 2 / rootRemPx) : 0;
   const translateRem =

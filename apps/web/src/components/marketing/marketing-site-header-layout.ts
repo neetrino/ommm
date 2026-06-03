@@ -77,11 +77,18 @@ export function marketingHeaderMobileBrandTextClass(): string {
   ].join(" ");
 }
 
-export function marketingHeaderMobileMenuButtonClass(): string {
+export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string {
+  const iconColor = menuOpen ? "text-sage-900" : "text-[#fbf5d5]";
+  const focusRing = menuOpen
+    ? "focus-visible:ring-sage-700/30"
+    : "focus-visible:ring-white/80";
+
   return [
     "ml-[-4px] inline-flex shrink-0 cursor-pointer items-center justify-center",
-    "h-[35px] w-[35px] text-[#fbf5d5]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+    "h-[35px] w-[35px]",
+    iconColor,
+    "focus-visible:outline-none focus-visible:ring-2",
+    focusRing,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   ].join(" ");
 }
@@ -129,6 +136,23 @@ export function marketingHeaderActionsClass(): string {
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
 export function marketingHeaderAuthClusterClass(): string {
   return "flex shrink-0 items-center gap-1";
+}
+
+/** Burger menu nav links — solid white panel. */
+export function marketingHeaderMobileMenuNavLinkClass(
+  active: boolean,
+  compact: boolean,
+): string {
+  const typography = compact
+    ? "whitespace-nowrap text-[11px] font-bold leading-5 tracking-[-0.35px] sm:text-xs"
+    : "whitespace-nowrap text-base font-bold leading-5 tracking-[-0.35px]";
+
+  return [
+    typography,
+    "rounded-xl px-3 py-2.5 text-sage-800",
+    active ? "bg-sage-100 text-sage-900" : "hover:bg-sage-50",
+    "transition-[color,background-color] duration-250",
+  ].join(" ");
 }
 
 export function marketingHeaderNavLinkClass(
@@ -190,7 +214,7 @@ export function marketingHeaderIconAccountClass(): string {
 }
 
 export function marketingHeaderMenuButtonClass(): string {
-  return marketingHeaderMobileMenuButtonClass();
+  return marketingHeaderMobileMenuButtonClass(false);
 }
 
 export function marketingHeaderMobilePanelClass(open: boolean): string {

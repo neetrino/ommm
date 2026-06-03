@@ -24,10 +24,10 @@ import {
   marketingHeaderMobileIconAccountClass,
   marketingHeaderMobileLanguageTriggerClass,
   marketingHeaderMobileMenuButtonClass,
+  marketingHeaderMobileMenuNavLinkClass,
   marketingHeaderMobilePanelClass,
   marketingHeaderMobileRowClass,
   marketingHeaderNavClass,
-  marketingHeaderNavLinkClass,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
@@ -81,7 +81,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         <div className={marketingHeaderMobileRowClass()}>
           <button
             type="button"
-            className={marketingHeaderMobileMenuButtonClass()}
+            className={marketingHeaderMobileMenuButtonClass(open)}
             aria-expanded={open}
             aria-controls="marketing-mobile-nav"
             aria-label={open ? tUi("closeMenu") : tUi("openMenu")}
@@ -206,7 +206,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
               <Link
                 key={href}
                 href={href}
-                className={marketingHeaderNavLinkClass(
+                className={marketingHeaderMobileMenuNavLinkClass(
                   isActive(marketingPath, href),
                   compact,
                 )}
@@ -217,11 +217,6 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
             ))}
           </nav>
           <div className={`flex flex-col gap-2 ${navPillStyles.mobileDivider}`}>
-            <LanguageSwitcher
-              context="marketing"
-              className="w-full"
-              onAfterSelect={() => setOpen(false)}
-            />
             <Link
               href="/schedule"
               className={navPillStyles.mobileCtaPrimary}

@@ -61,7 +61,9 @@ export function ProgressiveRevealSection({
   placeholderClassName = "h-[clamp(24rem,48vw,44rem)]",
 }: ProgressiveRevealSectionProps) {
   const containerRef = useRef<HTMLElement | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
+  const showChildren = hasHydrated && shouldMount;
 
   const resolvedPrefetchPaths = useMemo(
     () => Array.from(new Set(prefetchApiPaths)),
@@ -69,13 +71,21 @@ export function ProgressiveRevealSection({
   );
 
   useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return undefined;
+    }
     if (isHomeLazySectionMounted(id)) {
       setShouldMount(true);
     }
-  }, [id]);
+    return undefined;
+  }, [hasHydrated, id]);
 
   useEffect(() => {
-    if (shouldMount) {
+    if (!hasHydrated || shouldMount) {
       return undefined;
     }
 
@@ -140,11 +150,11 @@ export function ProgressiveRevealSection({
     window.addEventListener("resize", onScrollOrResize, { passive: true });
 
     return cleanup;
-  }, [id, mountMarginPx, preloadMarginPx, resolvedPrefetchPaths, shouldMount]);
+  }, [hasHydrated, id, mountMarginPx, preloadMarginPx, resolvedPrefetchPaths, shouldMount]);
 
   return (
     <section ref={containerRef} data-home-section={id} className="relative">
-      {shouldMount ? children : <div aria-hidden className={placeholderClassName} />}
+      {showChildren ? children : <div aria-hidden className={placeholderClassName} />}
     </section>
   );
 }
