@@ -87,22 +87,34 @@ export class PaymentsService {
   }) {
     const metadata: PaymentMetadata = {
       ...(params.recipientName ? { recipientName: params.recipientName } : {}),
-      ...(params.recipientEmail ? { recipientEmail: params.recipientEmail } : {}),
+      ...(params.recipientEmail
+        ? { recipientEmail: params.recipientEmail }
+        : {}),
       ...(params.message ? { message: params.message } : {}),
     };
     if (params.batchId !== undefined) {
       const batch = await this.prisma.giftCardBatch.findUnique({
         where: { id: params.batchId },
-        select: { id: true, amountAmd: true, availableQuantity: true, status: true },
+        select: {
+          id: true,
+          amountAmd: true,
+          availableQuantity: true,
+          status: true,
+        },
       });
       if (!batch) {
         throw new BadRequestException('Gift-card batch not found');
       }
-      if (batch.status !== GiftCardStatus.ACTIVE || batch.availableQuantity < 1) {
+      if (
+        batch.status !== GiftCardStatus.ACTIVE ||
+        batch.availableQuantity < 1
+      ) {
         throw new BadRequestException('Gift card is out of stock');
       }
       if (params.amountCents !== Number(batch.amountAmd)) {
-        throw new BadRequestException('Invalid gift-card amount for selected batch');
+        throw new BadRequestException(
+          'Invalid gift-card amount for selected batch',
+        );
       }
     }
 
@@ -116,15 +128,12 @@ export class PaymentsService {
         source: INTERNAL_PAYMENT_SOURCE.GIFT,
         sourceId: params.batchId,
         description: 'Gift card purchase',
-        metadata: metadata as Prisma.InputJsonObject,
+        metadata: metadata,
       }),
     });
   }
 
-  async createDropInCheckout(
-    userId: string,
-    sessionId: string,
-  ) {
+  async createDropInCheckout(userId: string, sessionId: string) {
     const classSession = await this.prisma.classSession.findUnique({
       where: { id: sessionId },
     });
@@ -370,7 +379,9 @@ export class PaymentsService {
     userPackageId: string | null,
   ) {
     if (!userPackageId) {
-      throw new BadRequestException('Package payment is not linked to a package');
+      throw new BadRequestException(
+        'Package payment is not linked to a package',
+      );
     }
     await tx.userPackage.update({
       where: { id: userPackageId },
@@ -554,21 +565,25 @@ export class PaymentsService {
   private withInternalPaymentUpdateFields<T extends Record<string, unknown>>(
     data: T,
   ): Prisma.PaymentUncheckedUpdateInput {
-    return data as unknown as Prisma.PaymentUncheckedUpdateInput;
+    return data;
   }
 
   private withInternalPaymentWhereFields<T extends Record<string, unknown>>(
     where: T,
   ): Prisma.PaymentWhereInput {
-    return where as unknown as Prisma.PaymentWhereInput;
+    return where;
   }
 
-  private readPaymentSource(payment: object): InternalPaymentSource | undefined {
+  private readPaymentSource(
+    payment: object,
+  ): InternalPaymentSource | undefined {
     const value = (payment as { source?: unknown }).source;
     return this.isInternalPaymentSource(value) ? value : undefined;
   }
 
-  private isInternalPaymentSource(value: unknown): value is InternalPaymentSource {
+  private isInternalPaymentSource(
+    value: unknown,
+  ): value is InternalPaymentSource {
     return (
       value === INTERNAL_PAYMENT_SOURCE.PACKAGE ||
       value === INTERNAL_PAYMENT_SOURCE.DROPIN ||
@@ -577,7 +592,9 @@ export class PaymentsService {
     );
   }
 
-  private parsePaymentMetadata(value: Prisma.JsonValue | null): PaymentMetadata {
+  private parsePaymentMetadata(
+    value: Prisma.JsonValue | null,
+  ): PaymentMetadata {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       return {};
     }
@@ -588,7 +605,10 @@ export class PaymentsService {
     };
   }
 
-  private readString(value: object, key: keyof PaymentMetadata): string | undefined {
+  private readString(
+    value: object,
+    key: keyof PaymentMetadata,
+  ): string | undefined {
     const candidate = (value as Record<string, unknown>)[key];
     return typeof candidate === 'string' && candidate.trim().length > 0
       ? candidate
@@ -596,7 +616,8 @@ export class PaymentsService {
   }
 
   private async sendGiftCardEmail(to: string, code: string): Promise<void> {
-    const web = this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
+    const web =
+      this.config.get<string>('WEB_APP_URL') ?? 'http://localhost:3000';
     await this.mail.sendEmail({
       to,
       subject: 'Your Ommm gift card',

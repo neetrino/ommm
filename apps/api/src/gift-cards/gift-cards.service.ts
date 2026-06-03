@@ -144,14 +144,14 @@ export class GiftCardsService {
       throw new BadRequestException('Gift card has no balance');
     }
     const amount = balance;
-    const redeemCardUpdateArgs = ({
+    const redeemCardUpdateArgs = {
       where: { id: card.id },
       data: {
         balanceAmd: 0,
         status: GiftCardStatus.REDEEMED,
         recipientId: userId,
       },
-    } as unknown) as Parameters<typeof this.prisma.giftCard.update>[0];
+    } as unknown as Parameters<typeof this.prisma.giftCard.update>[0];
     await this.prisma.$transaction([
       this.prisma.giftCard.update(redeemCardUpdateArgs),
       this.prisma.user.update({
@@ -505,7 +505,7 @@ export class GiftCardsService {
         data: updateData,
       })) as GiftCardBatchSnapshot;
 
-      const updateIssuedCardsArgs = ({
+      const updateIssuedCardsArgs = {
         where: {
           batchId,
           status: GiftCardStatus.ACTIVE,
@@ -525,7 +525,7 @@ export class GiftCardsService {
           expiresAt:
             dto.expiresAt !== undefined ? parsedExpiresAt : existing.expiresAt,
         },
-      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0];
+      } as unknown as Parameters<typeof tx.giftCard.updateMany>[0];
       await tx.giftCard.updateMany(updateIssuedCardsArgs);
 
       return batch;
@@ -616,7 +616,7 @@ export class GiftCardsService {
         throw new NotFoundException('Gift card batch not found');
       }
 
-      const createIssuedCardArgs = ({
+      const createIssuedCardArgs = {
         data: {
           batchId: batch.id,
           code: randomBytes(8).toString('hex').toUpperCase(),
@@ -631,7 +631,7 @@ export class GiftCardsService {
           message: batch.message ?? undefined,
           expiresAt: batch.expiresAt ?? undefined,
         },
-      } as unknown) as Parameters<typeof tx.giftCard.create>[0];
+      } as unknown as Parameters<typeof tx.giftCard.create>[0];
       const card = await tx.giftCard.create(createIssuedCardArgs);
 
       await batchDelegate.update({
@@ -674,10 +674,10 @@ export class GiftCardsService {
         where: { id },
         data: { status: GiftCardStatus.DEACTIVATED },
       });
-      const deactivateCardsArgs = ({
+      const deactivateCardsArgs = {
         where: { batchId: id, status: GiftCardStatus.ACTIVE },
         data: { status: GiftCardStatus.DEACTIVATED },
-      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0];
+      } as unknown as Parameters<typeof tx.giftCard.updateMany>[0];
       await tx.giftCard.updateMany(deactivateCardsArgs);
       return batch;
     });
@@ -708,10 +708,10 @@ export class GiftCardsService {
         where: { id },
         data: { status: GiftCardStatus.ACTIVE },
       });
-      const activateCardsArgs = ({
+      const activateCardsArgs = {
         where: { batchId: id, status: GiftCardStatus.DEACTIVATED },
         data: { status: GiftCardStatus.ACTIVE },
-      } as unknown) as Parameters<typeof tx.giftCard.updateMany>[0];
+      } as unknown as Parameters<typeof tx.giftCard.updateMany>[0];
       await tx.giftCard.updateMany(activateCardsArgs);
       return batch;
     });
@@ -946,7 +946,10 @@ export class GiftCardsService {
   }
 
   private resolveBatchQuantityUpdate(
-    existing: Pick<GiftCardBatchSnapshot, 'totalQuantity' | 'availableQuantity'>,
+    existing: Pick<
+      GiftCardBatchSnapshot,
+      'totalQuantity' | 'availableQuantity'
+    >,
     nextQuantity: number,
   ): Pick<GiftCardBatchSnapshot, 'totalQuantity' | 'availableQuantity'> | null {
     if (!Number.isInteger(nextQuantity) || nextQuantity < 1) {
@@ -1009,8 +1012,7 @@ export class GiftCardsService {
       amountCents: this.readGiftCardAmount(card),
       balanceCents: this.readGiftCardBalance(card),
       status: card.status,
-      imageUrl:
-        this.readGiftCardImage(card) ?? card.batch?.imageUrl ?? null,
+      imageUrl: this.readGiftCardImage(card) ?? card.batch?.imageUrl ?? null,
       recipientEmail: card.recipientEmail,
       recipientName: card.recipientName,
       message: card.message,

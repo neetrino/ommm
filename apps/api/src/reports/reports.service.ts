@@ -1003,7 +1003,10 @@ export class ReportsService {
     return result;
   }
 
-  private readGiftAmount(card: { amountCents?: number; amountAmd?: number }): number {
+  private readGiftAmount(card: {
+    amountCents?: number;
+    amountAmd?: number;
+  }): number {
     if (typeof card.amountAmd === 'number') {
       return card.amountAmd;
     }

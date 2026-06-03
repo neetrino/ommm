@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { PencilGlyph, TrashGlyph } from "@/components/ui/admin-action-glyphs";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";

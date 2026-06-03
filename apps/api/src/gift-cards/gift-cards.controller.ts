@@ -86,7 +86,10 @@ export class GiftCardsController {
   @Patch('admin/batches/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  updateBatch(@Param('id') id: string, @Body() dto: AdminUpdateGiftCardBatchDto) {
+  updateBatch(
+    @Param('id') id: string,
+    @Body() dto: AdminUpdateGiftCardBatchDto,
+  ) {
     return this.giftCards.updateBatch(id, dto);
   }
 
@@ -114,7 +117,10 @@ export class GiftCardsController {
   @Delete('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  deleteAdminCard(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+  deleteAdminCard(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ) {
     return this.giftCards.deleteAdminCard(id, user.id);
   }
 

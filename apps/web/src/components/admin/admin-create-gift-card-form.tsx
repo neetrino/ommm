@@ -95,21 +95,6 @@ export function AdminCreateGiftCardForm({
     };
   }, [imagePreviewUrl]);
 
-  useEffect(() => {
-    if (!initialValues) {
-      return;
-    }
-    setAmountAmd(String(initialValues.amountAmd));
-    setQuantity(String(initialValues.quantity));
-    setRecipientEmail(initialValues.recipientEmail);
-    setRecipientName(initialValues.recipientName);
-    setMessage(initialValues.message);
-    setExpiresAt(initialValues.expiresAt);
-    setShowAssignedUser(
-      initialValues.recipientEmail.length > 0 || initialValues.recipientName.length > 0,
-    );
-  }, [initialValues]);
-
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || submitLockRef.current) {

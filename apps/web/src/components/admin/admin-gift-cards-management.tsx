@@ -59,7 +59,6 @@ export function AdminGiftCardsManagement({
   const filtersRef = useRef(initialFilters);
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
-  filtersRef.current = filters;
   const [selectedGiftCardId, setSelectedGiftCardId] = useState<string | null>(null);
   const [isDebouncingSearch, setIsDebouncingSearch] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -86,22 +85,16 @@ export function AdminGiftCardsManagement({
   }, [searchParams]);
 
   useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  useEffect(() => {
     const currentQuery = buildGiftCardFiltersQuery(filtersRef.current);
     const urlQuery = buildGiftCardFiltersQuery(initialFilters);
     if (currentQuery !== urlQuery) {
       setFilters(initialFilters);
     }
   }, [initialFilters]);
-
-  useEffect(() => {
-    if (selectedGiftCardId === null) {
-      return;
-    }
-    const stillExists = giftCards.some((card) => card.id === selectedGiftCardId);
-    if (!stillExists) {
-      setSelectedGiftCardId(null);
-    }
-  }, [giftCards, selectedGiftCardId]);
 
   const syncFiltersToUrl = useCallback(
     (values: GiftCardFilterValues) => {

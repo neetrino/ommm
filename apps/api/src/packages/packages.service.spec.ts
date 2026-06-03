@@ -24,7 +24,11 @@ describe('PackagesService', () => {
       invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
     };
     return {
-      service: new PackagesService(prisma as never, audit as never, cache as never),
+      service: new PackagesService(
+        prisma as never,
+        audit as never,
+        cache as never,
+      ),
       prisma,
       audit,
       cache,

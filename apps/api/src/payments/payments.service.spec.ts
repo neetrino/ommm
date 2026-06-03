@@ -38,14 +38,34 @@ type PaymentsServiceTestPrisma = {
     findFirst: jest.Mock;
     findUnique: jest.Mock;
     findMany: jest.Mock;
-    create: jest.Mock;
-    update: jest.Mock;
+    create: jest.Mock<Promise<unknown>, [PaymentCreateCall]>;
+    update: jest.Mock<Promise<unknown>, [PaymentUpdateCall]>;
     count: jest.Mock;
   };
   userPackage: {
     update: jest.Mock;
   };
   $transaction: jest.Mock;
+};
+
+type PaymentCreateCall = {
+  data: {
+    userId: string;
+    amountCents: number;
+    status: PaymentStatus;
+    source: (typeof PAYMENT_SOURCE)[keyof typeof PAYMENT_SOURCE];
+    sourceId: string;
+  };
+};
+
+type PaymentUpdateCall = {
+  where: {
+    id: string;
+  };
+  data: {
+    status: PaymentStatus;
+    confirmedByAdminId: string;
+  };
 };
 
 describe('PaymentsService', () => {
@@ -101,8 +121,9 @@ describe('PaymentsService', () => {
       userPackage: {
         update: jest.fn(),
       },
-      $transaction: jest.fn((callback: (tx: PaymentsServiceTestPrisma) => unknown) =>
-        callback(prisma),
+      $transaction: jest.fn(
+        (callback: (tx: PaymentsServiceTestPrisma) => unknown) =>
+          callback(prisma),
       ),
     });
     const config = { get: jest.fn().mockReturnValue(undefined) };
@@ -191,17 +212,14 @@ describe('PaymentsService', () => {
 
     await service.createDropInCheckout('u1', 's1');
 
-    expect(prisma.payment.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          userId: 'u1',
-          amountCents: 5_000,
-          status: PaymentStatus.PENDING,
-          source: PAYMENT_SOURCE.DROPIN,
-          sourceId: 's1',
-        }),
-      }),
-    );
+    const paymentCreateCall = prisma.payment.create.mock.calls[0]?.[0];
+    expect(paymentCreateCall.data).toMatchObject({
+      userId: 'u1',
+      amountCents: 5_000,
+      status: PaymentStatus.PENDING,
+      source: PAYMENT_SOURCE.DROPIN,
+      sourceId: 's1',
+    });
   });
 
   it('adminUpdatePaymentStatus confirms drop-in payments transactionally', async () => {
@@ -236,15 +254,14 @@ describe('PaymentsService', () => {
       where: { id: 's1' },
       data: { status: ClassSessionStatus.FULL },
     });
-    expect(prisma.payment.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: 'p1' },
-        data: expect.objectContaining({
-          status: PaymentStatus.SUCCEEDED,
-          confirmedByAdminId: 'admin1',
-        }),
-      }),
-    );
+    const paymentUpdateCall = prisma.payment.update.mock.calls[0]?.[0];
+    expect(paymentUpdateCall).toMatchObject({
+      where: { id: 'p1' },
+    });
+    expect(paymentUpdateCall.data).toMatchObject({
+      status: PaymentStatus.SUCCEEDED,
+      confirmedByAdminId: 'admin1',
+    });
   });
 
   it('gift quantity decreases only when admin confirms payment', async () => {

@@ -12,7 +12,9 @@ import { Type } from 'class-transformer';
 export class AdminUpdateGiftCardBatchDto {
   @IsOptional()
   @Type(() => Number)
-  @ValidateIf((value: AdminUpdateGiftCardBatchDto) => value.amountCents === undefined)
+  @ValidateIf(
+    (value: AdminUpdateGiftCardBatchDto) => value.amountCents === undefined,
+  )
   @IsInt()
   @Min(1)
   amountAmd?: number;
@@ -20,7 +22,9 @@ export class AdminUpdateGiftCardBatchDto {
   /** Backward-compatible alias for older clients. */
   @IsOptional()
   @Type(() => Number)
-  @ValidateIf((value: AdminUpdateGiftCardBatchDto) => value.amountAmd === undefined)
+  @ValidateIf(
+    (value: AdminUpdateGiftCardBatchDto) => value.amountAmd === undefined,
+  )
   @IsInt()
   @Min(1)
   amountCents?: number;

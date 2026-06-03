@@ -12,7 +12,9 @@ import { Type } from 'class-transformer';
 export class AdminCreateGiftCardDto {
   @IsOptional()
   @Type(() => Number)
-  @ValidateIf((value: AdminCreateGiftCardDto) => value.amountCents === undefined)
+  @ValidateIf(
+    (value: AdminCreateGiftCardDto) => value.amountCents === undefined,
+  )
   @IsInt()
   @Min(1)
   amountAmd?: number;

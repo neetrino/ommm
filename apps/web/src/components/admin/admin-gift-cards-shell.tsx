@@ -253,6 +253,7 @@ function AdminGiftCardsShellInner({
             </div>
             <div className="mt-5">
               <AdminCreateGiftCardForm
+                key={editingBatch?.id ?? "create-gift-card"}
                 users={assignableUsers}
                 onSaved={onCreated}
                 onCancel={closeModal}

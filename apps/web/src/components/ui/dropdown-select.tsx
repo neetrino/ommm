@@ -120,6 +120,8 @@ export function DropdownSelect<T extends string>({
     return Math.max(0, index);
   }, [value, visibleOptions]);
   const isMenuOpen = open && !disabled && options.length > 0;
+  const visibleOptionLastIndex = Math.max(0, visibleOptions.length - 1);
+  const safeFocusedIndex = Math.min(focusedIndex, visibleOptionLastIndex);
   const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
   const searchHeaderHeight = searchable ? 56 : 0;
   const listMaxHeight =
@@ -129,7 +131,6 @@ export function DropdownSelect<T extends string>({
 
   useEffect(() => {
     if (!isMenuOpen) {
-      setSearchQuery("");
       return;
     }
     if (!searchable) {
@@ -154,6 +155,7 @@ export function DropdownSelect<T extends string>({
       const clickedTrigger = rootRef.current?.contains(event.target) ?? false;
       const clickedMenu = menuRef.current?.contains(event.target) ?? false;
       if (!clickedTrigger && !clickedMenu) {
+        setSearchQuery("");
         setOpen(false);
       }
     };
@@ -169,8 +171,8 @@ export function DropdownSelect<T extends string>({
     if (!isMenuOpen) {
       return;
     }
-    optionRefs.current[focusedIndex]?.focus();
-  }, [focusedIndex, isMenuOpen]);
+    optionRefs.current[safeFocusedIndex]?.focus();
+  }, [isMenuOpen, safeFocusedIndex]);
 
   function closeAndFocusTrigger() {
     setOpen(false);
@@ -264,15 +266,6 @@ export function DropdownSelect<T extends string>({
     openMenu(startIndex);
   }
 
-  useEffect(() => {
-    if (!searchable || !isMenuOpen) {
-      return;
-    }
-    setFocusedIndex((current) =>
-      current >= visibleOptions.length ? Math.max(0, visibleOptions.length - 1) : current,
-    );
-  }, [isMenuOpen, searchable, visibleOptions.length]);
-
   const triggerContent = renderValue ? (
     renderValue(selected)
   ) : (
@@ -359,7 +352,7 @@ export function DropdownSelect<T extends string>({
                         }}
                         type="button"
                         role="option"
-                        tabIndex={index === focusedIndex ? 0 : -1}
+                        tabIndex={index === safeFocusedIndex ? 0 : -1}
                         aria-selected={isSelected}
                         className={mergeClasses(
                           "ommm-dropdown-option",
