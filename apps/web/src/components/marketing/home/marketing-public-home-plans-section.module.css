@@ -53,8 +53,8 @@
   height: var(--home-plans-carousel-height, 29.625rem);
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: max(0px, calc(50% - var(--home-plans-carousel-card-width, 18.25rem) / 2));
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -69,13 +69,18 @@
   min-height: 100%;
   align-items: stretch;
   gap: var(--home-plans-carousel-gap, 1.6875rem);
-  padding-inline: max(0px, calc(50% - var(--home-plans-carousel-card-width, 18.25rem) / 2));
+  padding-inline-end: var(--home-plans-carousel-trailing-pad, 1.5rem);
 }
 
 .carouselSlide {
+  display: flex;
   flex-shrink: 0;
   width: var(--home-plans-carousel-card-width, 18.25rem);
-  scroll-snap-align: center;
+  scroll-snap-align: start;
+}
+
+.carouselSlide > * {
+  width: 100%;
 }
 
 .mobileCta {

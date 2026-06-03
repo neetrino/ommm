@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomePackagePlanCardMobile } from "@/components/marketing/home/home-package-plan-card-mobile";
 import { HomePackagePlanCardsRow } from "@/components/marketing/home/home-package-plan-card";
+import { HOME_HERO_MOBILE_MORE_DETAILS_CTA } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
   HOME_PLANS_SECTION_FIGMA,
   HOME_PLANS_SECTION_LAYOUT,
@@ -50,6 +51,7 @@ export async function MarketingPublicHomePlansSection({
     ["--home-plans-carousel-height" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselHeight,
     ["--home-plans-carousel-gap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselGap,
     ["--home-plans-carousel-card-width" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselCardWidth,
+    ["--home-plans-carousel-trailing-pad" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingX,
   };
 
   return (
@@ -87,7 +89,12 @@ export async function MarketingPublicHomePlansSection({
             </div>
 
             <div className={styles.mobileCta}>
-              <HomeHeroCtaButton href="/packages" label={t("plansMoreDetails")} variant="membership" />
+              <HomeHeroCtaButton
+                href="/packages"
+                label={t("plansMoreDetails")}
+                variant="booking"
+                labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
+              />
             </div>
         </div>
       </section>
@@ -150,7 +157,7 @@ export async function MarketingPublicHomePlansSection({
             <HomeHeroCtaButton
               href="/packages"
               label={t("plansMoreDetails")}
-              variant="membership"
+              variant="plansDetails"
             />
           </div>
         </div>
