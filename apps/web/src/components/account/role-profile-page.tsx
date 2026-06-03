@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { AccountProfileInfoForm } from "@/components/account/account-profile-info-form";
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
-import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
 import {
   AccountPageFrame,
   AccountSection,
@@ -12,13 +11,6 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
-
-type NotificationPrefs = {
-  bookingReminders: boolean;
-  waitlistAlerts: boolean;
-  promotions: boolean;
-  communityUpdates: boolean;
-};
 
 type MeResponse = {
   user: {
@@ -32,7 +24,6 @@ type MeResponse = {
     homeImageUrl?: string | null;
     dateOfBirth?: string | null;
   };
-  notificationPrefs: NotificationPrefs;
 };
 
 type WorkspaceNoteVariant = "admin" | "coach" | "manager";
@@ -64,7 +55,7 @@ export async function RoleProfilePage({
     );
   }
 
-  const { user, notificationPrefs } = res.data;
+  const { user } = res.data;
   const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null);
   const workspaceHeading =
     workspaceNoteVariant !== undefined
@@ -87,12 +78,6 @@ export async function RoleProfilePage({
 
         <AccountSection title={t("homeImage")}>
           <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
-        </AccountSection>
-
-        <AccountSection title={t("preferences")}>
-          <div className="max-w-md">
-            <NotificationPrefsForm initial={notificationPrefs} />
-          </div>
         </AccountSection>
 
         {workspaceHeading !== null && workspaceBody !== null ? (
