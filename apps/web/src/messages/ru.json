@@ -191,7 +191,7 @@
       "planCardSessionsCount": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
       "planCardGuestCount": "{count, plural, one {# гость} few {# гостя} many {# гостей} other {# гостя}}",
       "planCardCategoryPackages": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
-      "planCardPriceFrom": "От {amount}",
+      "planCardPriceFromPrefix": "От",
       "planPopularBadge": "Популярный",
       "plansEmpty": "Пакеты появятся здесь после публикации в админ-панели.",
       "plansLoadFailed": "Не удалось загрузить пакеты ({status}).",

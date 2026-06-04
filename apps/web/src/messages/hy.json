@@ -203,7 +203,7 @@
       "planCardSessionsCount": "{count, plural, one {# դաս} other {# դաս}}",
       "planCardGuestCount": "{count, plural, one {# հյուր} other {# հյուր}}",
       "planCardCategoryPackages": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
-      "planCardPriceFrom": "{amount}-ից",
+      "planCardPriceFromPrefix": "Սկսած",
       "planPopularBadge": "Հանրաճանաչ",
       "plansEmpty": "Փաթեթները կհայտնվեն այստեղ ադմին վահանակում հրապարակելուց հետո։",
       "plansLoadFailed": "Չհաջողվեց բեռնել փաթեթները ({status})։",

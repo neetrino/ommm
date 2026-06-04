@@ -1,7 +1,10 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import styles from "@/components/marketing/home/home-package-plan-card.module.css";
-import type { HomePackagePlanCardProps } from "@/components/marketing/home/home-package-plan-card";
+import {
+  HomePackagePlanCardPriceCopy,
+  type HomePackagePlanCardProps,
+} from "@/components/marketing/home/home-package-plan-card";
 import {
   HOME_PLANS_SECTION_ASSETS,
   HOME_PLANS_SECTION_FIGMA,
@@ -60,7 +63,8 @@ function mobilePlanCardStyleVars(): CSSProperties {
 export function HomePackagePlanCardMobile({
   planName,
   details,
-  price,
+  priceAmount,
+  priceFromPrefix,
   ctaAria,
 }: HomePackagePlanCardProps) {
   return (
@@ -92,10 +96,11 @@ export function HomePackagePlanCardMobile({
         <span aria-hidden className={styles.priceGlassLinear} />
         <span aria-hidden className={styles.priceGlassSweep} />
         <div className={`${marketingMontserrat.className} ${styles.priceGlassContent}`}>
-          <div className={styles.priceCopy}>
-            <p className={styles.details}>{details}</p>
-            <p className={styles.price}>{price}</p>
-          </div>
+          <HomePackagePlanCardPriceCopy
+            details={details}
+            priceAmount={priceAmount}
+            priceFromPrefix={priceFromPrefix}
+          />
           <span className={styles.ctaFab} aria-hidden>
             <Image
               src={HOME_PLANS_SECTION_ASSETS.cardFab}

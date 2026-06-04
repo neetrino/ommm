@@ -13,9 +13,35 @@ import { Link } from "@/i18n/navigation";
 export type HomePackagePlanCardProps = {
   planName: string;
   details: string;
-  price: string;
+  priceAmount: string;
+  priceFromPrefix?: string;
   ctaAria: string;
 };
+
+type HomePackagePlanCardPriceCopyProps = Pick<
+  HomePackagePlanCardProps,
+  "details" | "priceAmount" | "priceFromPrefix"
+>;
+
+export function HomePackagePlanCardPriceCopy({
+  details,
+  priceAmount,
+  priceFromPrefix,
+}: HomePackagePlanCardPriceCopyProps) {
+  return (
+    <div className={styles.priceCopy}>
+      <p className={styles.details}>{details}</p>
+      {priceFromPrefix !== undefined ? (
+        <>
+          <p className={styles.priceFromPrefix}>{priceFromPrefix}</p>
+          <p className={styles.price}>{priceAmount}</p>
+        </>
+      ) : (
+        <p className={styles.price}>{priceAmount}</p>
+      )}
+    </div>
+  );
+}
 
 function planCardStyleVars(): CSSProperties {
   return {
@@ -36,7 +62,8 @@ function planCardStyleVars(): CSSProperties {
 export function HomePackagePlanCard({
   planName,
   details,
-  price,
+  priceAmount,
+  priceFromPrefix,
   ctaAria,
 }: HomePackagePlanCardProps) {
   return (
@@ -68,10 +95,11 @@ export function HomePackagePlanCard({
         <span aria-hidden className={styles.priceGlassLinear} />
         <span aria-hidden className={styles.priceGlassSweep} />
         <div className={`${marketingMontserrat.className} ${styles.priceGlassContent}`}>
-          <div className={styles.priceCopy}>
-            <p className={styles.details}>{details}</p>
-            <p className={styles.price}>{price}</p>
-          </div>
+          <HomePackagePlanCardPriceCopy
+            details={details}
+            priceAmount={priceAmount}
+            priceFromPrefix={priceFromPrefix}
+          />
           <span className={styles.ctaFab} aria-hidden>
             <Image
               src={HOME_PLANS_SECTION_ASSETS.cardFab}

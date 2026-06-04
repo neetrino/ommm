@@ -191,7 +191,7 @@
       "planCardSessionsCount": "{count, plural, one {# session} other {# sessions}}",
       "planCardGuestCount": "{count, plural, one {# guest} other {# guests}}",
       "planCardCategoryPackages": "{count, plural, one {# package} other {# packages}}",
-      "planCardPriceFrom": "From {amount}",
+      "planCardPriceFromPrefix": "From",
       "planPopularBadge": "Popular",
       "plansEmpty": "Packages will appear here once they are published in the admin panel.",
       "plansLoadFailed": "Could not load packages ({status}).",
