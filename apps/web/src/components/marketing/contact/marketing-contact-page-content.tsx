@@ -53,7 +53,7 @@ export async function MarketingContactPageContent({
   return (
     <>
       {studio !== null ? (
-        <section className="mt-12 grid gap-8 lg:grid-cols-2">
+        <section className="grid w-full min-w-0 gap-8 lg:grid-cols-2">
           <div className="ommm-card p-6 text-sm text-sage-700 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
             <h2 className="ommm-h3 text-sage-800">{t("studioHeading")}</h2>
             <dl className="mt-4 space-y-3">
@@ -139,7 +139,7 @@ export async function MarketingContactPageContent({
             ) : null}
           </div>
           <div>
-            <ContactMessageForm formClassName="ommm-card flex w-full max-w-lg flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8" />
+            <ContactMessageForm formClassName="ommm-card flex w-full min-w-0 flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8" />
           </div>
         </section>
       ) : (
@@ -148,7 +148,7 @@ export async function MarketingContactPageContent({
       {studio !== null &&
       studio.mapEmbedUrl !== null &&
       studio.mapEmbedUrl.trim() !== "" ? (
-        <section className="mt-12">
+        <section className="mt-16 w-full min-w-0">
           <h2 className="ommm-h3 text-sage-800">{t("mapHeading")}</h2>
           <div
             className="mt-4 overflow-hidden rounded-[24px] border border-white/60 bg-white shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]"

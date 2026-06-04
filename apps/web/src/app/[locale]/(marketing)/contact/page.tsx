@@ -13,7 +13,7 @@ export default async function ContactPage({
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
 
   return (
-    <MarketingPageFrame title={t("title")} lede={t("lede")} extendToFooter>
+    <MarketingPageFrame title={t("title")} lede={t("lede")}>
       <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
         <MarketingContactPageContent locale={locale} />
       </Suspense>

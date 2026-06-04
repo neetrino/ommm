@@ -24,7 +24,7 @@ export default async function MarketingPackageCategoryPage({
   if (!plansRes.ok) {
     return (
       <MarketingPageFrame title={m("packagesPageTitle")} lede={m("packagesPageLead")}>
-        <p className="app-alert-warn mt-12" role="status">
+        <p className="app-alert-warn" role="status">
           {m("packagesError")}
         </p>
       </MarketingPageFrame>
@@ -42,7 +42,7 @@ export default async function MarketingPackageCategoryPage({
 
   return (
     <MarketingPageFrame title={category.label} lede={m("packagesPageLead")}>
-      <div className="mt-12">
+      <div className="w-full min-w-0">
         <PublicPackageCategoryDetailSection
           locale={locale}
           category={category}

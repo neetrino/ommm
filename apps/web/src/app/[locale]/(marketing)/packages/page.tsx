@@ -16,7 +16,6 @@ export default async function PackagesMarketingPage({
     <MarketingPageFrame
       title={m("packagesPageTitle")}
       lede={m("packagesPageLead")}
-      extendToFooter
     >
       <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
         <MarketingPackagesPageContent locale={locale} />

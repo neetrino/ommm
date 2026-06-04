@@ -24,7 +24,7 @@ export async function MarketingPackagesPageContent({
 
   if (!res.ok) {
     return (
-      <p className="app-alert-warn mt-12" role="status">
+      <p className="app-alert-warn" role="status">
         {m("packagesError")}
       </p>
     );
@@ -32,10 +32,10 @@ export async function MarketingPackagesPageContent({
 
   return (
     <>
-      <div className="mt-12">
+      <div>
         <PublicPackageCategoryCards locale={locale} categories={categories} />
       </div>
-      <section className="mt-16 max-w-3xl">
+      <section className="mt-16 w-full min-w-0 max-w-3xl">
         <h2 className="ommm-h2 text-sage-800">{m("packagesFaqTitle")}</h2>
         <dl className="mt-6 space-y-6 text-sm text-sage-700">
           <div>

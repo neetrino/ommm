@@ -26,7 +26,7 @@ export async function PublicPackageCategoryCards({
   }
 
   return (
-    <ul className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
+    <ul className="grid w-full min-w-0 gap-6 lg:grid-cols-2 lg:items-stretch">
       {categories.map((category) => (
         <PublicPackageCategoryCard
           key={category.id}

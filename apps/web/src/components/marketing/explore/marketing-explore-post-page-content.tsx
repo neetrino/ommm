@@ -26,8 +26,8 @@ export async function MarketingExplorePostPageContent({
   const post = res.data;
 
   return (
-    <MarketingPageFrame eyebrow={post.type} title={post.title} extendToFooter>
-      <div className="mt-8 max-w-2xl">
+    <MarketingPageFrame eyebrow={post.type} title={post.title}>
+      <div className="w-full min-w-0 max-w-2xl">
         {post.publishedAt ? (
           <p className="text-sm text-sage-500">
             {formatDateForUi(post.publishedAt)}

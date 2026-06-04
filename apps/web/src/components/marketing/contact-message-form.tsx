@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 
 export function ContactMessageForm({
-  formClassName = "ommm-card mt-12 flex w-full max-w-lg flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8",
+  formClassName = "ommm-card flex w-full min-w-0 flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8",
 }: {
   formClassName?: string;
 }) {
