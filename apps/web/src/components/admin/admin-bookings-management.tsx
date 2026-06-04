@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType, ReactNode } from "react";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -222,20 +223,17 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric title={t("summaryTotal")} value={summary.total} />
         <Metric title={t("summaryBooked")} value={summary.booked} />
-        <Metric title={t("summaryCompleted")} value={summary.completed} />
-        <Metric title={t("summaryCancelled")} value={summary.cancelled} />
         <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
         <Metric title={t("summaryToday")} value={summary.today} />
       </div>
 
       <div className="space-y-3 rounded-2xl border border-white/60 bg-white/70 p-3">
-        <div className="grid gap-2 md:grid-cols-7">
+        <div className="grid gap-2 md:grid-cols-6">
           <input className="ommm-input h-10 md:col-span-2" placeholder={t("filterSearch")} value={search} onChange={(event) => setSearch(event.target.value)} />
           <DatePickerInput name="from" value={from} onChange={setFrom} placeholder={t("filterDateFrom")} />
-          <DatePickerInput name="to" value={to} onChange={setTo} placeholder={t("filterDateTo")} />
           <OmmFilterDropdown allValue="" value={classTypeId} ariaLabel={t("filterClassAll")} allLabel={t("filterClassAll")} onChange={setClassTypeId} options={initial.filterOptions.classTypes.map((item) => ({ value: item.id, label: item.name }))} />
           <OmmFilterDropdown allValue="" value={coachId} ariaLabel={t("filterCoachAll")} allLabel={t("filterCoachAll")} onChange={setCoachId} options={initial.filterOptions.coaches.map((item) => ({ value: item.id, label: item.name }))} />
           <OmmFilterDropdown allValue="" value={status} ariaLabel={t("filterStatusAll")} allLabel={t("filterStatusAll")} onChange={setStatus} options={[{ value: "BOOKED", label: t("statusBooked") }, { value: "COMPLETED", label: t("statusCompleted") }, { value: "CANCELLED", label: t("statusCancelled") }, { value: "WAITLISTED", label: t("statusWaitlisted") }]} />
@@ -294,29 +292,28 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
       ) : null}
 
       {(view === "list" || view === "daily") && (
-        <div className="rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
-          <table className="w-full table-fixed border-collapse text-left text-sm">
+        <div className="overflow-x-auto overflow-y-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
+          <table className="w-full min-w-[74rem] table-fixed border-collapse text-left text-sm">
             <colgroup>
-              <col className="w-[15%]" />
               <col className="w-[16%]" />
-              <col className="w-[9%]" />
+              <col className="w-[16%]" />
+              <col className="w-[12%]" />
+              <col className="w-[13%]" />
+              <col className="w-[12%]" />
               <col className="w-[10%]" />
-              <col className="w-[11%]" />
               <col className="w-[9%]" />
-              <col className="w-[8%]" />
-              <col className="w-[8%]" />
-              <col className="w-[14%]" />
+              <col className="w-[12%]" />
             </colgroup>
             <thead className={adminChrome.thead}>
               <tr>
-                <th className={adminChrome.th}>{t("colUserPhone")}</th>
-                <th className={adminChrome.th}>{t("colClassType")}</th>
-                <th className={adminChrome.th}>{t("colPaymentStatus")}</th>
-                <th className={adminChrome.th}>{t("colAttendanceStatus")}</th>
-                <th className={adminChrome.th}>{t("colRegisterDate")}</th>
-                <th className={adminChrome.th}>{t("colChannel")}</th>
-                <th className={adminChrome.th}>{t("colStatus")}</th>
-                <th className={adminChrome.th}>{t("colActions")}</th>
+                <th className={adminChrome.th}><HeaderLabel icon="user">{t("colUserPhone")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="class">{t("colClassType")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="payment">{t("colPaymentStatus")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="attendance">{t("colAttendanceStatus")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="sort">{t("colRegisterDate")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="channel">{t("colChannel")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="status">{t("colStatus")}</HeaderLabel></th>
+                <th className={adminChrome.th}><HeaderLabel icon="actions">{t("colActions")}</HeaderLabel></th>
               </tr>
             </thead>
             <tbody>
@@ -390,6 +387,98 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 function Metric({ title, value }: { title: string; value: number }) {
   return <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3"><p className="text-xs uppercase tracking-wide text-sage-500">{title}</p><p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p></div>;
 }
+
+type HeaderIconName = "user" | "class" | "payment" | "attendance" | "sort" | "channel" | "status" | "actions";
+
+function HeaderLabel({ icon, children }: { icon: HeaderIconName; children: ReactNode }) {
+  const Glyph = HEADER_GLYPHS[icon];
+  return (
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-sage-700/10 bg-white/60 text-sage-600">
+        <Glyph className="h-3.5 w-3.5" />
+      </span>
+      <span>{children}</span>
+    </span>
+  );
+}
+
+const HEADER_GLYPHS: Record<HeaderIconName, ComponentType<{ className: string }>> = {
+  user: UserHeaderGlyph,
+  class: ClassHeaderGlyph,
+  payment: PaymentHeaderGlyph,
+  attendance: AttendanceHeaderGlyph,
+  sort: SortHeaderGlyph,
+  channel: ChannelHeaderGlyph,
+  status: StatusHeaderGlyph,
+  actions: ActionsHeaderGlyph,
+};
+
+function UserHeaderGlyph({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M20 21a8 8 0 0 0-16 0" />
+      <circle cx="12" cy="8" r="4" />
+    </svg>
+  );
+}
+
+function ClassHeaderGlyph({ className }: { className: string }) {
+  return <HeaderSvg className={className} path="M4 6h16M4 12h16M4 18h10" />;
+}
+
+function PaymentHeaderGlyph({ className }: { className: string }) {
+  return (
+    <HeaderSvg className={className}>
+      <rect x="3" y="5" width="18" height="14" rx="3" />
+      <path d="M3 10h18M7 15h3" />
+    </HeaderSvg>
+  );
+}
+
+function AttendanceHeaderGlyph({ className }: { className: string }) {
+  return (
+    <HeaderSvg className={className}>
+      <path d="m5 12 4 4L19 6" />
+      <circle cx="12" cy="12" r="9" />
+    </HeaderSvg>
+  );
+}
+
+function SortHeaderGlyph({ className }: { className: string }) {
+  return <HeaderSvg className={className} path="M8 7h12M8 12h8M8 17h4M4 7v10m0 0 2-2m-2 2-2-2" />;
+}
+
+function ChannelHeaderGlyph({ className }: { className: string }) {
+  return (
+    <HeaderSvg className={className}>
+      <rect x="7" y="2" width="10" height="20" rx="2" />
+      <path d="M11 18h2" />
+    </HeaderSvg>
+  );
+}
+
+function StatusHeaderGlyph({ className }: { className: string }) {
+  return <HeaderSvg className={className} path="M12 3 3 7l9 4 9-4-9-4ZM3 17l9 4 9-4M3 12l9 4 9-4" />;
+}
+
+function ActionsHeaderGlyph({ className }: { className: string }) {
+  return (
+    <HeaderSvg className={className}>
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="19" cy="12" r="1" />
+      <circle cx="5" cy="12" r="1" />
+    </HeaderSvg>
+  );
+}
+
+function HeaderSvg({ className, path, children }: { className: string; path?: string; children?: ReactNode }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      {path ? <path d={path} /> : children}
+    </svg>
+  );
+}
+
 function Badge({ label, tone }: { label: string; tone: "slate" | "sand" | "mint" | "indigo" }) {
   const styles = tone === "mint" ? "border-mint-200 bg-mint-50 text-sage-900" : tone === "indigo" ? "border-indigo-200 bg-indigo-50 text-indigo-900" : tone === "sand" ? "border-sand-300 bg-sand-50 text-sage-900" : "border-zinc-200 bg-zinc-50 text-zinc-800";
   return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${styles}`}>{label}</span>;
