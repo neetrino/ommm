@@ -520,7 +520,7 @@ function buildSessionClassTypeOptions(
   classTypes: readonly AdminScheduleClassType[],
   packageOptions: readonly SchedulePackageOption[],
 ): SessionClassTypeOption[] {
-  const options = classTypes.map((type) => ({
+  const options: SessionClassTypeOption[] = classTypes.map((type) => ({
     value: type.id,
     label: type.name,
     classTypeId: type.id,
@@ -1901,7 +1901,11 @@ function DetailsDrawer({
     <OmmDrawerPortal isOpen onClose={onClose} backdropAriaLabel={t("modalCloseAria")}>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-sage-900">{row.title}</h3>
-        <button onClick={onClose} type="button">
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-sage-500 transition-[background-color,color,transform] hover:bg-sand-50 hover:text-sage-900 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 focus-visible:ring-offset-2"
+          onClick={onClose}
+        >
           x
         </button>
       </div>

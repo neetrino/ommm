@@ -48,7 +48,7 @@ export function PublicCoachCard({
     CARD_SURFACE,
     equalHeightLayout ? CARD_UNIFORM_HEIGHT : CARD_MIN_HEIGHT,
     isInteractive
-      ? "cursor-pointer transition-transform duration-200 hover:-translate-y-1"
+      ? "cursor-pointer transition-[box-shadow,transform] duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
       : "transition-shadow duration-200 hover:shadow-[0_28px_60px_-26px_rgba(45,40,35,0.28)]",
     className,
   ]
