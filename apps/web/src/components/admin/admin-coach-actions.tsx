@@ -107,6 +107,32 @@ const EDIT_COACH_QUERY_KEY = "editCoach";
 const MIN_PHONE_DIGITS = 8;
 const MAX_PHONE_DIGITS = 15;
 
+type UpdateCoachPayload = {
+  email: string;
+  name: string;
+  lastName: string;
+  phone: string;
+  age?: number;
+  birthday?: string | null;
+  bio: string | null;
+  specialization: string | null;
+  classType: string | null;
+  experienceYears: number | null;
+  assignedClassTypeIds: string[];
+  schedule: { date: string; time: string; spots: number }[];
+  photoUrl?: string;
+};
+
+function nonEmptyScheduleRows(rows: readonly CoachScheduleInput[]): CoachScheduleInput[] {
+  return rows.filter((row) => {
+    return (
+      row.date.trim() !== "" ||
+      row.time.trim() !== "" ||
+      row.spots.trim() !== ""
+    );
+  });
+}
+
 function getCoachActionLabels(locale: string) {
   if (locale === "hy") {
     return {
@@ -446,14 +472,18 @@ export function AdminCoachActions({
     const name = form.name.trim();
     const lastName = form.lastName.trim();
     const phone = form.phone.trim();
-    const age = Number(form.age.trim());
+    const ageRaw = form.age.trim();
+    const age = ageRaw.length > 0 ? Number(ageRaw) : null;
     const birthdayDisplay = form.birthday.trim();
     const birthday = parseBirthdayDisplayToIso(birthdayDisplay);
     const bio = form.bio.trim();
-    const experienceYears = Number(form.experienceYears.trim());
+    const experienceRaw = form.experienceYears.trim();
+    const experienceYears =
+      experienceRaw.length > 0 ? Number(experienceRaw) : null;
     const specialization = form.specialization.trim();
     const classType = form.classType.trim();
     const assignedClassTypeIds = form.assignedClassTypeIds;
+    const scheduleRows = nonEmptyScheduleRows(form.schedule);
     const nextErrors: FormErrors = {};
     if (email === "") {
       nextErrors.email = t("emailRequired");
@@ -473,53 +503,42 @@ export function AdminCoachActions({
       nextErrors.phone = t("phoneInvalid");
     }
     if (
-      form.age.trim().length === 0 ||
-      !Number.isInteger(age) ||
-      age < COACH_MIN_AGE ||
-      age > COACH_MAX_AGE
+      age !== null &&
+      (!Number.isInteger(age) || age < COACH_MIN_AGE || age > COACH_MAX_AGE)
     ) {
       nextErrors.age = t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE });
     }
-    if (birthdayDisplay === "") {
-      nextErrors.birthday = t("birthdayRequired");
-    } else {
+    if (birthdayDisplay !== "") {
       const derivedAge =
         birthday === null ? null : calculateAgeFromBirthday(birthday);
       if (birthday === null || derivedAge === null) {
         nextErrors.birthday = t("birthdayInvalid");
-      } else if (Math.abs(derivedAge - age) > 1) {
+      } else if (age !== null && Math.abs(derivedAge - age) > 1) {
         nextErrors.birthday = t("ageBirthdayMismatch");
       }
     }
-    if (bio.length === 0) {
-      nextErrors.bio = t("bioRequired");
-    } else if (bio.length > MAX_BIO_LENGTH) {
+    if (bio.length > MAX_BIO_LENGTH) {
       nextErrors.bio = t("bioTooLong");
     }
     if (
-      form.experienceYears.trim().length === 0 ||
-      !Number.isInteger(experienceYears) ||
-      experienceYears < 0 ||
-      experienceYears > MAX_EXPERIENCE_YEARS
+      experienceYears !== null &&
+      (!Number.isInteger(experienceYears) ||
+        experienceYears < 0 ||
+        experienceYears > MAX_EXPERIENCE_YEARS)
     ) {
       nextErrors.experienceYears = t("experienceInvalid");
     }
-    if (specialization.length === 0) {
-      nextErrors.specialization = t("specializationRequired");
-    } else if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
+    if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
       nextErrors.specialization = t("specializationTooLong");
     }
-    if (classType.length === 0) {
-      nextErrors.classType = t("classTypeRequired");
-    } else if (
+    if (
+      classType.length > 0 &&
       classTypeOptions.length > 0 &&
       !classTypeOptions.includes(classType)
     ) {
       nextErrors.classType = t("classTypeInvalid");
     }
-    if (assignedClassTypeIds.length === 0) {
-      nextErrors.assignedClassTypeIds = t("assignedClassesRequired");
-    } else if (classOptions.length > 0) {
+    if (classOptions.length > 0) {
       const allowedClassIds = new Set(classOptions.map((option) => option.id));
       if (assignedClassTypeIds.some((id) => !allowedClassIds.has(id))) {
         nextErrors.assignedClassTypeIds = t("assignedClassesInvalid");
@@ -528,7 +547,7 @@ export function AdminCoachActions({
     if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
       nextErrors.photo = t("photoTooLarge");
     }
-    const scheduleInvalid = form.schedule.some((row) => {
+    const scheduleInvalid = scheduleRows.some((row) => {
       if (row.date.trim() === "" || row.time.trim() === "" || row.spots.trim() === "") {
         return true;
       }
@@ -539,34 +558,34 @@ export function AdminCoachActions({
         spots < MIN_SCHEDULE_SPOTS
       );
     });
-    if (scheduleInvalid || hasDuplicateScheduleRows(form.schedule)) {
+    if (scheduleInvalid || hasDuplicateScheduleRows(scheduleRows)) {
       nextErrors.schedule = t("scheduleInvalid");
     }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
     }
-    const birthdayIso = birthday === null ? "" : birthday;
+    const payload: UpdateCoachPayload = {
+      email,
+      name,
+      lastName,
+      phone,
+      ...(age !== null ? { age } : {}),
+      birthday: birthdayDisplay === "" ? null : birthday,
+      bio: bio.length > 0 ? bio : null,
+      specialization: specialization.length > 0 ? specialization : null,
+      classType: classType.length > 0 ? classType : null,
+      experienceYears,
+      assignedClassTypeIds,
+      schedule: normalizeScheduleForApi(scheduleRows),
+      ...(photoRemoved ? { photoUrl: "" } : {}),
+    };
 
     await run(
       async () => {
         await apiFetch(`/coaches/${coachId}`, {
           method: "PATCH",
-          body: JSON.stringify({
-            email,
-            name,
-            lastName,
-            phone,
-            age,
-            birthday: birthdayIso,
-            bio,
-            specialization,
-            classType,
-            experienceYears,
-            assignedClassTypeIds,
-            schedule: normalizeScheduleForApi(form.schedule),
-            ...(photoRemoved ? { photoUrl: "" } : {}),
-          }),
+          body: JSON.stringify(payload),
         });
         if (photoFile !== null) {
           const payload = await readFileAsBase64Payload(photoFile);

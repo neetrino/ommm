@@ -5,12 +5,12 @@ import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminCoachBoardCard } from "@/components/admin/admin-coach-board-card";
 import { AdminCoachDetailsDrawer } from "@/components/admin/admin-coach-details-drawer";
 import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
 import { useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
-import { PublicCoachCard } from "@/components/coaches/public-coach-card";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
@@ -152,54 +152,22 @@ function AdminCoachesBoardView({
   classTypeOptions,
   classOptions,
   locale = "en",
-}: AdminCoachesDirectoryProps) {
-  const tMarketing = useTranslations("marketing");
-  const t = useTranslations("adminPages.coaches");
-
+  onSelect,
+}: AdminCoachesDirectoryProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   return (
-    <ul className="grid grid-cols-1 items-stretch gap-6 overflow-x-clip md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {coaches.map((coach, index) => {
-        const experienceText =
-          coach.experienceYears != null && coach.experienceYears > 0
-            ? tMarketing("coachesExperience", { years: coach.experienceYears })
-            : null;
-
-        return (
-          <li key={coach.id} className="list-none flex min-w-0">
-            <PublicCoachCard
-              user={coach.user}
-              specialization={coach.specialization}
-              experienceText={experienceText}
-              bio={coach.bio}
-              imageIndex={index}
-              equalHeightLayout
-              className="h-full w-full"
-              footer={
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="min-w-0 truncate text-xs text-sage-500">{coach.user.email}</p>
-                    <StatusBadge isActive={coach.isActive} />
-                  </div>
-                  <p className="text-xs text-sage-500">
-                    {t("workloadSummary", {
-                      classes: coach.totalClasses,
-                      slots: coach.schedule.length,
-                    })}
-                  </p>
-                  <div className="flex justify-center">
-                    <AdminCoachRowActions
-                      coach={coach}
-                      classTypeOptions={classTypeOptions}
-                      classOptions={classOptions}
-                      locale={locale}
-                    />
-                  </div>
-                </div>
-              }
-            />
-          </li>
-        );
-      })}
+    <ul className="grid grid-cols-1 items-start gap-6 overflow-x-clip sm:grid-cols-2 2xl:grid-cols-3">
+      {coaches.map((coach, index) => (
+        <li key={coach.id} className="flex min-w-0 list-none">
+          <AdminCoachBoardCard
+            coach={coach}
+            classTypeOptions={classTypeOptions}
+            classOptions={classOptions}
+            locale={locale}
+            imageIndex={index}
+            onSelect={onSelect}
+          />
+        </li>
+      ))}
     </ul>
   );
 }
@@ -255,7 +223,7 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
 
   const content =
     viewMode === "board" ? (
-      <AdminCoachesBoardView {...props} />
+      <AdminCoachesBoardView {...props} onSelect={openProfileDrawer} />
     ) : (
       <AdminCoachesListView {...props} onSelect={openProfileDrawer} />
     );

@@ -326,14 +326,17 @@ export class CoachesService {
   }
 
   private resolveDateOfBirthForUpdate(
-    age: number | undefined,
-    birthday: string | undefined,
+    age: number | null | undefined,
+    birthday: string | null | undefined,
     hasAge: boolean,
     hasBirthday: boolean,
-  ): Date | undefined {
+  ): Date | null | undefined {
     if (hasBirthday) {
+      if (birthday === null) {
+        return null;
+      }
       const date = this.parseBirthdayToDateOnly(birthday ?? '');
-      if (hasAge && age !== undefined) {
+      if (hasAge && age !== undefined && age !== null) {
         const computedAge = this.calculateAgeFromDateOfBirth(date);
         if (computedAge !== null && Math.abs(computedAge - age) > 1) {
           throw new BadRequestException('Age does not match birthday');
@@ -341,7 +344,7 @@ export class CoachesService {
       }
       return date;
     }
-    if (hasAge && age !== undefined) {
+    if (hasAge && age !== undefined && age !== null) {
       return this.approximateDateOfBirthFromAge(age);
     }
     return undefined;
@@ -370,9 +373,13 @@ export class CoachesService {
     const normalizedPhone =
       dto.phone === undefined ? undefined : this.normalizePhone(dto.phone);
     const normalizedSpecialization =
-      dto.specialization === undefined ? undefined : dto.specialization.trim();
+      dto.specialization === undefined
+        ? undefined
+        : this.normalizeOptionalText(dto.specialization);
     const normalizedClassType =
-      dto.classType === undefined ? undefined : dto.classType.trim();
+      dto.classType === undefined
+        ? undefined
+        : this.normalizeOptionalText(dto.classType);
     const normalizedPhotoUrl =
       dto.photoUrl === undefined
         ? undefined
@@ -385,16 +392,7 @@ export class CoachesService {
       dto.schedule === undefined
         ? undefined
         : this.normalizeSchedule(dto.schedule);
-    if (
-      normalizedSpecialization !== undefined &&
-      normalizedSpecialization.length === 0
-    ) {
-      throw new BadRequestException('Specialization is required');
-    }
-    if (normalizedClassType !== undefined && normalizedClassType.length === 0) {
-      throw new BadRequestException('Class type is required');
-    }
-    if (normalizedClassType !== undefined) {
+    if (normalizedClassType !== undefined && normalizedClassType !== null) {
       await this.assertValidCoachClassType(normalizedClassType);
     }
     if (normalizedAssignedClassTypeIds !== undefined) {
@@ -419,7 +417,7 @@ export class CoachesService {
       }),
     };
     const profileData = {
-      ...(dto.bio !== undefined && { bio: dto.bio }),
+      ...(dto.bio !== undefined && { bio: this.normalizeOptionalText(dto.bio) }),
       ...(dto.specialization !== undefined && {
         specialization: normalizedSpecialization,
       }),
@@ -490,9 +488,11 @@ export class CoachesService {
             ...(normalizedSchedule !== undefined && {
               availabilitySlots: {
                 deleteMany: {},
-                createMany: {
-                  data: normalizedSchedule,
-                },
+                ...(normalizedSchedule.length > 0 && {
+                  createMany: {
+                    data: normalizedSchedule,
+                  },
+                }),
               },
             }),
           },
@@ -741,6 +741,14 @@ export class CoachesService {
       ),
     );
     return normalized;
+  }
+
+  private normalizeOptionalText(value: string | null): string | null {
+    if (value === null) {
+      return null;
+    }
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : null;
   }
 
   private async assertValidAssignedClassTypeIds(
