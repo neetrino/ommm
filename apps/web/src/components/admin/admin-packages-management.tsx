@@ -181,12 +181,32 @@ export function AdminPackagesManagement({
   }, []);
 
   const handleCategoryRenamed = useCallback(
-    (_fromName: string, _toName: string, updated: readonly AdminPackageRow[]) => {
+    (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => {
+      const previousCategoryKey = normalizePackageCategoryKey(fromName);
+      const nextCategoryName = updated[0]?.categoryName ?? toName.trim();
       setPackageRows((current) => {
         let next = current;
         for (const row of updated) {
           next = upsertAdminPackageRow(next, row);
         }
+        return next;
+      });
+      setSelectedCategoryIds((current) => {
+        const next = new Set<string>();
+        for (const id of current) {
+          next.add(
+            normalizePackageCategoryKey(id) === previousCategoryKey ? nextCategoryName : id,
+          );
+        }
+        return next;
+      });
+      setExpandedCategoryKeys((current) => {
+        if (!current.has(previousCategoryKey)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.delete(previousCategoryKey);
+        next.add(normalizePackageCategoryKey(nextCategoryName));
         return next;
       });
       router.refresh();
