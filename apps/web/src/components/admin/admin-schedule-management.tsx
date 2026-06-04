@@ -14,6 +14,8 @@ import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { AdminScheduleSessionActions } from "@/components/admin/admin-schedule-session-actions";
 import {
   matchesScheduleQuickFilters,
@@ -67,6 +69,7 @@ type Props = {
   locale: string;
   sessions: AdminScheduleSession[];
   classTypes: AdminScheduleClassType[];
+  packages: AdminPackageRow[];
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
   description?: string;
@@ -111,6 +114,19 @@ type ScheduleToast = {
   message: string;
 };
 
+type SchedulePackageOption = {
+  id: string;
+  label: string;
+  classTypeIds: string[];
+};
+
+type SessionClassTypeOption = {
+  value: string;
+  label: string;
+  classTypeId: string | null;
+  packageLabel?: string;
+};
+
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
 const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
 const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
@@ -129,6 +145,7 @@ const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
 const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
 const SESSION_LEVEL_SEPARATOR = ", ";
+const PACKAGE_CLASS_TYPE_VALUE_PREFIX = "package:";
 
 function replaceScheduleModalInUrl(
   pathname: string,
@@ -330,7 +347,7 @@ function QuickFilterGlyph({ className }: { className?: string }) {
 }
 
 function initialForm(
-  classTypes: readonly AdminScheduleClassType[],
+  classTypeOptions: readonly SessionClassTypeOption[],
   coaches: readonly AdminScheduleCoach[],
   row?: AdminScheduleSession,
 ): FormState {
@@ -339,22 +356,22 @@ function initialForm(
   return {
     title: row?.title ?? "",
     description: row?.description ?? "",
-    classTypeId: row?.classType.id ?? classTypes[0]?.id ?? "",
+    classTypeId: row?.classType.id ?? classTypeOptions[0]?.value ?? "",
     coachId: row?.coach.id ?? coaches[0]?.id ?? "",
     date: isoDate(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
-    capacity: String(row?.capacity ?? 10),
+    capacity: row ? String(row.capacity) : "",
     levels: splitSessionLevels(row?.level),
     status: row?.status ?? "ACTIVE",
   };
 }
 
-function formPayload(form: FormState) {
+function formPayload(form: FormState, classTypeId: string) {
   return {
     title: form.title.trim(),
     description: form.description.trim() || undefined,
-    classTypeId: form.classTypeId,
+    classTypeId,
     coachId: form.coachId,
     startsAt: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
     endsAt: new Date(`${form.date}T${form.endTime}:00`).toISOString(),
@@ -366,6 +383,7 @@ function formPayload(form: FormState) {
 
 function batchFormPayload(
   form: FormState,
+  classTypeId: string,
   startDate: string,
   endDate: string,
   slots: readonly CalendarScheduleSlot[],
@@ -373,7 +391,7 @@ function batchFormPayload(
   return {
     title: form.title.trim(),
     description: form.description.trim() || undefined,
-    classTypeId: form.classTypeId,
+    classTypeId,
     coachId: form.coachId,
     capacity: Number(form.capacity),
     level: joinSessionLevels(form.levels),
@@ -414,10 +432,148 @@ function buildSessionLevelOptions(
   return options;
 }
 
+function buildPackageFilterOptions(
+  packages: readonly AdminPackageRow[],
+  classTypes: readonly AdminScheduleClassType[],
+): SchedulePackageOption[] {
+  const classTypeIdByCategoryKey = new Map(
+    classTypes.map((type) => [normalizePackageCategoryKey(type.name), type.id]),
+  );
+  const byCategoryKey = new Map<
+    string,
+    { label: string; classTypeIds: Set<string> }
+  >();
+  const shellLabelByCategoryKey = new Map<string, string>();
+
+  for (const pkg of packages) {
+    const categoryKey = normalizePackageCategoryKey(pkg.categoryName);
+    const name = pkg.name.trim();
+    if (pkg.isActive && pkg.priceCents <= 0 && categoryKey.length > 0 && name.length > 0) {
+      shellLabelByCategoryKey.set(categoryKey, name);
+    }
+  }
+
+  for (const pkg of packages) {
+    if (!pkg.isActive) {
+      continue;
+    }
+    const categoryLabel = pkg.categoryName.trim();
+    if (categoryLabel.length === 0) {
+      continue;
+    }
+    const categoryKey = normalizePackageCategoryKey(categoryLabel);
+    const label = shellLabelByCategoryKey.get(categoryKey) ?? categoryLabel;
+    const mappedClassTypeId =
+      pkg.classTypeId ?? classTypeIdByCategoryKey.get(categoryKey);
+    const current = byCategoryKey.get(categoryKey);
+    if (current === undefined) {
+      byCategoryKey.set(categoryKey, {
+        label,
+        classTypeIds: new Set(mappedClassTypeId === undefined ? [] : [mappedClassTypeId]),
+      });
+      continue;
+    }
+    if (mappedClassTypeId !== undefined) {
+      current.classTypeIds.add(mappedClassTypeId);
+    }
+  }
+
+  return [...byCategoryKey.entries()]
+    .map(([id, option]) => ({
+      id,
+      label: option.label,
+      classTypeIds: [...option.classTypeIds],
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+function resolveSelectedClassTypeIds(
+  selectedPackageIds: readonly string[],
+  packageOptions: readonly SchedulePackageOption[],
+): string[] {
+  if (selectedPackageIds.length === 0) {
+    return [];
+  }
+  const selected = new Set(selectedPackageIds);
+  const classTypeIds = new Set<string>();
+  for (const option of packageOptions) {
+    if (!selected.has(option.id)) {
+      continue;
+    }
+    for (const classTypeId of option.classTypeIds) {
+      classTypeIds.add(classTypeId);
+    }
+  }
+  return [...classTypeIds];
+}
+
+function buildSlugFromClassTypeName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120);
+}
+
+function buildSessionClassTypeOptions(
+  classTypes: readonly AdminScheduleClassType[],
+  packageOptions: readonly SchedulePackageOption[],
+): SessionClassTypeOption[] {
+  const options = classTypes.map((type) => ({
+    value: type.id,
+    label: type.name,
+    classTypeId: type.id,
+  }));
+  const classTypeIds = new Set(classTypes.map((type) => type.id));
+
+  for (const option of packageOptions) {
+    const linkedClassTypeId = option.classTypeIds.find((id) => classTypeIds.has(id)) ?? null;
+    if (linkedClassTypeId !== null) {
+      continue;
+    }
+    options.push({
+      value: `${PACKAGE_CLASS_TYPE_VALUE_PREFIX}${option.id}`,
+      label: option.label,
+      classTypeId: null,
+      packageLabel: option.label,
+    });
+  }
+
+  return options.sort((left, right) => left.label.localeCompare(right.label));
+}
+
+async function resolveSessionClassTypeId(
+  selectedValue: string,
+  options: readonly SessionClassTypeOption[],
+): Promise<{ classTypeId: string; created?: AdminScheduleClassType }> {
+  const option = options.find((item) => item.value === selectedValue);
+  if (option?.classTypeId !== null && option?.classTypeId !== undefined) {
+    return { classTypeId: option.classTypeId };
+  }
+  const name = option?.packageLabel?.trim() ?? "";
+  const existing = options.find(
+    (item) => item.classTypeId !== null && item.label.toLocaleLowerCase() === name.toLocaleLowerCase(),
+  );
+  if (existing?.classTypeId !== null && existing?.classTypeId !== undefined) {
+    return { classTypeId: existing.classTypeId };
+  }
+  const slug = buildSlugFromClassTypeName(name);
+  if (name.length === 0 || slug.length === 0) {
+    throw new Error("Class type is required.");
+  }
+  const created = await apiFetch<AdminScheduleClassType>("/classes/types", {
+    method: "POST",
+    body: JSON.stringify({ name, slug }),
+  });
+  return { classTypeId: created.id, created };
+}
+
 export function AdminScheduleManagement({
   locale,
   sessions,
   classTypes: initialClassTypes,
+  packages,
   coaches,
   initialView,
   description,
@@ -511,6 +667,26 @@ export function AdminScheduleManagement({
     ).sort();
   }, [rows]);
 
+  const packageOptions = useMemo(
+    () => buildPackageFilterOptions(packages, classTypes),
+    [classTypes, packages],
+  );
+
+  const validSelectedPackageIds = useMemo(() => {
+    const validPackageIds = new Set(packageOptions.map((option) => option.id));
+    return filters.typeIds.filter((id) => validPackageIds.has(id));
+  }, [filters.typeIds, packageOptions]);
+
+  const selectedClassTypeIds = useMemo(
+    () => resolveSelectedClassTypeIds(validSelectedPackageIds, packageOptions),
+    [packageOptions, validSelectedPackageIds],
+  );
+
+  const sessionClassTypeOptions = useMemo(
+    () => buildSessionClassTypeOptions(classTypes, packageOptions),
+    [classTypes, packageOptions],
+  );
+
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
     return rows.filter((row) => {
@@ -518,7 +694,7 @@ export function AdminScheduleManagement({
       if (filters.from && row.startsAt.slice(0, 10) < filters.from) return false;
       if (filters.to && row.startsAt.slice(0, 10) > filters.to) return false;
       if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
-      if (filters.typeIds.length > 0 && !filters.typeIds.includes(row.classType.id)) return false;
+      if (validSelectedPackageIds.length > 0 && !selectedClassTypeIds.includes(row.classType.id)) return false;
       if (
         filters.levels.length > 0 &&
         !splitSessionLevels(row.level).some((level) => filters.levels.includes(level))
@@ -528,7 +704,7 @@ export function AdminScheduleManagement({
       if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
       return matchesScheduleQuickFilters(row, quickFilters);
     });
-  }, [filters, quickFilters, rows]);
+  }, [filters, quickFilters, rows, selectedClassTypeIds, validSelectedPackageIds]);
 
   const summary = useMemo(() => {
     const now = new Date();
@@ -598,7 +774,8 @@ export function AdminScheduleManagement({
         values={filters}
         quickFilters={quickFilters}
         searchDraft={searchDraft}
-        classTypes={classTypes}
+        selectedPackageIds={validSelectedPackageIds}
+        packageOptions={packageOptions}
         coaches={coaches}
         levels={levels}
         onSearch={setSearchDraft}
@@ -654,7 +831,7 @@ export function AdminScheduleManagement({
           isOpen
           mode={sessionModalConfig.mode}
           row={sessionModalConfig.row}
-          classTypes={classTypes}
+          classTypeOptions={sessionClassTypeOptions}
           coaches={coaches}
           onClose={() => {
             if (addClassOpen) {
@@ -665,6 +842,24 @@ export function AdminScheduleManagement({
           }}
           onSaved={(saved) => {
             const savedRows = Array.isArray(saved) ? saved : [saved];
+            const createdClassTypes = savedRows
+              .map((row) => row.classType)
+              .filter((type) => !classTypes.some((item) => item.id === type.id));
+            if (createdClassTypes.length > 0) {
+              setClassTypes((current) => {
+                const byId = new Map(current.map((type) => [type.id, type]));
+                for (const type of createdClassTypes) {
+                  byId.set(type.id, {
+                    id: type.id,
+                    name: type.name,
+                    slug: buildSlugFromClassTypeName(type.name),
+                  });
+                }
+                return Array.from(byId.values()).sort((first, second) =>
+                  first.name.localeCompare(second.name),
+                );
+              });
+            }
             setRows((current) => {
               const byId = new Map(current.map((row) => [row.id, row]));
               for (const savedRow of savedRows) {
@@ -741,7 +936,8 @@ function FiltersPanel(props: {
   values: Filters;
   quickFilters: ScheduleQuickFilter[];
   searchDraft: string;
-  classTypes: readonly AdminScheduleClassType[];
+  selectedPackageIds: readonly string[];
+  packageOptions: readonly SchedulePackageOption[];
   coaches: readonly AdminScheduleCoach[];
   levels: readonly string[];
   onSearch: (value: string) => void;
@@ -803,9 +999,12 @@ function FiltersPanel(props: {
               {...scheduleMultiSelectProps}
               ariaLabel={t("filters.typeLabel")}
               allLabel={t("filters.allTypes")}
-              selectedValues={props.values.typeIds}
+              selectedValues={props.selectedPackageIds}
               onChange={(value) => props.onChange("typeIds", value)}
-              options={props.classTypes.map((type) => ({ value: type.id, label: type.name }))}
+              options={props.packageOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              }))}
             />
           </ScheduleFilterField>
           <ScheduleFilterField label={t("filters.levelLabel")}>
@@ -1055,9 +1254,9 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
           <col className="w-[9%]" />
           <col className="w-[9%]" />
           <col className="w-[9%]" />
-          <col className="w-[7%]" />
+          <col className="w-[9%]" />
           <col className="w-[8%]" />
-          <col className="w-[11%]" />
+          <col className="w-[9%]" />
         </colgroup>
         <thead className={adminChrome.thead}>
           <tr>
@@ -1129,7 +1328,7 @@ function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActiva
         </span>
       </td>
       <td className={scheduleTable.tdMuted}>
-        <span className="block truncate">{row.level ?? "—"}</span>
+        <span className="block whitespace-normal break-words">{row.level ?? "—"}</span>
       </td>
       <td className={scheduleTable.tdCompact}>
         <div className="flex justify-center">
@@ -1384,7 +1583,7 @@ function SessionModal({
   isOpen,
   mode,
   row,
-  classTypes,
+  classTypeOptions,
   coaches,
   onClose,
   onSaved,
@@ -1392,13 +1591,13 @@ function SessionModal({
   isOpen: boolean;
   mode: "create" | "edit" | "duplicate";
   row?: AdminScheduleSession;
-  classTypes: readonly AdminScheduleClassType[];
+  classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   onClose: () => void;
   onSaved: (row: AdminScheduleSession | AdminScheduleSession[]) => void;
 }) {
   const t = useTranslations("adminPages.classes");
-  const [form, setForm] = useState(() => initialForm(classTypes, coaches, row));
+  const [form, setForm] = useState(() => initialForm(classTypeOptions, coaches, row));
   const [calendarStartDate, setCalendarStartDate] = useState(form.date);
   const [calendarEndDate, setCalendarEndDate] = useState(isoDate(addDays(`${form.date}T00:00:00`, 29)));
   const [calendarSlots, setCalendarSlots] = useState<CalendarScheduleSlot[]>(() => [
@@ -1443,8 +1642,15 @@ function SessionModal({
     setPending(true);
     setError(null);
     try {
+      const resolvedClassType = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
       if (isBatchCreate) {
-        const payload = batchFormPayload(form, calendarStartDate, calendarEndDate, calendarSlots);
+        const payload = batchFormPayload(
+          form,
+          resolvedClassType.classTypeId,
+          calendarStartDate,
+          calendarEndDate,
+          calendarSlots,
+        );
         const saved = await apiFetch<AdminScheduleSession[]>("/classes/sessions/batch", {
           method: "POST",
           body: JSON.stringify(payload),
@@ -1454,7 +1660,7 @@ function SessionModal({
       }
       const saved = await apiFetch<AdminScheduleSession>(
         row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
-        { method: "PATCH", body: JSON.stringify(formPayload(form)) },
+        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId)) },
       );
       onSaved(saved);
     } catch (requestError) {
@@ -1512,7 +1718,7 @@ function SessionModal({
           value={form.classTypeId}
           ariaLabel={t("form.classType")}
           placeholderLabel={t("form.classType")}
-          options={classTypes.map((type) => ({ value: type.id, label: type.name }))}
+          options={classTypeOptions.map((type) => ({ value: type.value, label: type.label }))}
           onChange={(value) => setForm((current) => ({ ...current, classTypeId: value }))}
         />
         <OmmFormDropdown

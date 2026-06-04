@@ -9,6 +9,7 @@ import {
   type ScheduleView,
 } from "@/components/admin/admin-schedule-management";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { serverApiJson } from "@/lib/server-api";
 
 function isScheduleView(value: string | undefined): value is ScheduleView {
@@ -28,10 +29,11 @@ export default async function AdminSchedulePage({
   const initialView: ScheduleView = isScheduleView(requestedView) ? requestedView : "list";
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const [sessionsRes, classTypesRes, coachesRes] = await Promise.all([
+  const [sessionsRes, classTypesRes, coachesRes, packagesRes] = await Promise.all([
     serverApiJson<AdminScheduleSession[]>("/classes/admin/sessions", cookie),
     serverApiJson<AdminScheduleClassType[]>("/classes/types", cookie),
     serverApiJson<AdminScheduleCoach[]>("/coaches/admin/list", cookie),
+    serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
   ]);
 
   if (!sessionsRes.ok) {
@@ -64,6 +66,16 @@ export default async function AdminSchedulePage({
     );
   }
 
+  if (!packagesRes.ok) {
+    return (
+      <div className="app-alert-warn max-w-xl">
+        {packagesRes.status === 401 || packagesRes.status === 403
+          ? t("errorAuth")
+          : t("errorLoad", { status: packagesRes.status })}
+      </div>
+    );
+  }
+
   return (
     <AdminContentFrame>
       <Suspense fallback={null}>
@@ -71,6 +83,7 @@ export default async function AdminSchedulePage({
           locale={locale}
           sessions={sessionsRes.data}
           classTypes={classTypesRes.data}
+          packages={packagesRes.data}
           coaches={coachesRes.data}
           initialView={initialView}
           description={t("description")}
