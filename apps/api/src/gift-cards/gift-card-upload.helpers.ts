@@ -18,3 +18,5 @@ export function absolutePathForStoredGiftCardUpload(
   }
   return join(uploadRoot, normalized);
 }
+
+console.log("hello world");
