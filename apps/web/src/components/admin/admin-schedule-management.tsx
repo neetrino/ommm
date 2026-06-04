@@ -23,6 +23,14 @@ import {
 import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+type ScheduleDayOfWeek =
+  | "SUNDAY"
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY";
 export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
 type AvailabilityOption = "available" | "full";
 type TimeOfDayOption = "morning" | "afternoon" | "evening";
@@ -89,6 +97,13 @@ type FormState = {
   status: SessionStatus;
 };
 
+type CalendarScheduleSlot = {
+  id: string;
+  weekday: ScheduleDayOfWeek;
+  startTime: string;
+  endTime: string;
+};
+
 type ScheduleToastTone = "ok" | "err";
 
 type ScheduleToast = {
@@ -98,6 +113,15 @@ type ScheduleToast = {
 
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
 const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
+const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY",
+];
 const SEARCH_DEBOUNCE_MS = 300;
 const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
@@ -149,6 +173,30 @@ function isoDate(value: Date | string): string {
 
 function timeValue(value: Date | string): string {
   return new Date(value).toTimeString().slice(0, 5);
+}
+
+function addDays(value: Date | string, days: number): Date {
+  const next = new Date(value);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function createScheduleSlotId(): string {
+  return globalThis.crypto?.randomUUID?.() ?? `slot-${Date.now()}-${Math.random()}`;
+}
+
+function weekdayFromDate(value: Date | string): ScheduleDayOfWeek {
+  const day = new Date(value).getDay();
+  return (["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const)[day];
+}
+
+function initialCalendarSlot(form: FormState): CalendarScheduleSlot {
+  return {
+    id: createScheduleSlotId(),
+    weekday: weekdayFromDate(`${form.date}T00:00:00`),
+    startTime: form.startTime,
+    endTime: form.endTime,
+  };
 }
 
 function coachName(coach: AdminScheduleCoach | AdminScheduleSession["coach"]): string {
@@ -316,6 +364,27 @@ function formPayload(form: FormState) {
   };
 }
 
+function batchFormPayload(
+  form: FormState,
+  startDate: string,
+  endDate: string,
+  slots: readonly CalendarScheduleSlot[],
+) {
+  return {
+    title: form.title.trim(),
+    description: form.description.trim() || undefined,
+    classTypeId: form.classTypeId,
+    coachId: form.coachId,
+    capacity: Number(form.capacity),
+    level: joinSessionLevels(form.levels),
+    status: form.status,
+    startDate,
+    endDate,
+    timezoneOffsetMinutes: new Date().getTimezoneOffset(),
+    slots: slots.map(({ weekday, startTime, endTime }) => ({ weekday, startTime, endTime })),
+  };
+}
+
 function buildSessionLevelOptions(
   translate: (
     key: "form.levels.beginner" | "form.levels.intermediate" | "form.levels.advanced",
@@ -379,10 +448,6 @@ export function AdminScheduleManagement({
     classTypes.some((type) => type.id === editingClassTypeIdParam)
       ? editingClassTypeIdParam
       : null;
-
-  const openClassTypesModal = useCallback(() => {
-    replaceEditingClassTypeInUrl(pathname, searchParams, router, null);
-  }, [pathname, router, searchParams]);
 
   const closeClassTypesModal = useCallback(() => {
     if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
@@ -599,11 +664,16 @@ export function AdminScheduleManagement({
             setEditing(null);
           }}
           onSaved={(saved) => {
-            setRows((current) =>
-              current.some((row) => row.id === saved.id)
-                ? current.map((row) => (row.id === saved.id ? saved : row))
-                : [...current, saved],
-            );
+            const savedRows = Array.isArray(saved) ? saved : [saved];
+            setRows((current) => {
+              const byId = new Map(current.map((row) => [row.id, row]));
+              for (const savedRow of savedRows) {
+                byId.set(savedRow.id, savedRow);
+              }
+              return Array.from(byId.values()).sort((first, second) =>
+                first.startsAt.localeCompare(second.startsAt),
+              );
+            });
             setToast({
               tone: "ok",
               message:
@@ -849,12 +919,6 @@ function QuickFilters({
       </div>
     </div>
   );
-}
-
-function addDays(value: Date, days: number): Date {
-  const next = new Date(value);
-  next.setDate(next.getDate() + days);
-  return next;
 }
 
 function startOfWeek(value: Date): Date {
@@ -1331,26 +1395,66 @@ function SessionModal({
   classTypes: readonly AdminScheduleClassType[];
   coaches: readonly AdminScheduleCoach[];
   onClose: () => void;
-  onSaved: (row: AdminScheduleSession) => void;
+  onSaved: (row: AdminScheduleSession | AdminScheduleSession[]) => void;
 }) {
   const t = useTranslations("adminPages.classes");
   const [form, setForm] = useState(() => initialForm(classTypes, coaches, row));
+  const [calendarStartDate, setCalendarStartDate] = useState(form.date);
+  const [calendarEndDate, setCalendarEndDate] = useState(isoDate(addDays(`${form.date}T00:00:00`, 29)));
+  const [calendarSlots, setCalendarSlots] = useState<CalendarScheduleSlot[]>(() => [
+    initialCalendarSlot(form),
+  ]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isBatchCreate = mode !== "edit";
   const levelOptions = useMemo(
     () => buildSessionLevelOptions((key) => t(key), [...splitSessionLevels(row?.level), ...form.levels]),
     [form.levels, row?.level, t],
   );
+
+  function addCalendarSlot(): void {
+    setCalendarSlots((current) => [
+      ...current,
+      {
+        id: createScheduleSlotId(),
+        weekday: current.at(-1)?.weekday ?? weekdayFromDate(`${form.date}T00:00:00`),
+        startTime: form.startTime,
+        endTime: form.endTime,
+      },
+    ]);
+  }
+
+  function updateCalendarSlot<K extends keyof Omit<CalendarScheduleSlot, "id">>(
+    id: string,
+    key: K,
+    value: CalendarScheduleSlot[K],
+  ): void {
+    setCalendarSlots((current) =>
+      current.map((slot) => (slot.id === id ? { ...slot, [key]: value } : slot)),
+    );
+  }
+
+  function removeCalendarSlot(id: string): void {
+    setCalendarSlots((current) => current.filter((slot) => slot.id !== id));
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
     try {
-      const payload = formPayload(form);
+      if (isBatchCreate) {
+        const payload = batchFormPayload(form, calendarStartDate, calendarEndDate, calendarSlots);
+        const saved = await apiFetch<AdminScheduleSession[]>("/classes/sessions/batch", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        onSaved(saved);
+        return;
+      }
       const saved = await apiFetch<AdminScheduleSession>(
-        mode === "edit" && row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
-        { method: mode === "edit" ? "PATCH" : "POST", body: JSON.stringify(payload) },
+        row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
+        { method: "PATCH", body: JSON.stringify(formPayload(form)) },
       );
       onSaved(saved);
     } catch (requestError) {
@@ -1418,34 +1522,46 @@ function SessionModal({
           options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
           onChange={(value) => setForm((current) => ({ ...current, coachId: value }))}
         />
-        <DatePickerInput
-          name="date"
-          value={form.date}
-          onChange={(value) => setForm((current) => ({ ...current, date: value }))}
-          ariaLabel={t("form.date")}
-          required
-        />
-        <TimePickerInput
-          name="startTime"
-          value={form.startTime}
-          onChange={(value) => setForm((current) => ({ ...current, startTime: value }))}
-          required
-        />
-        <TimePickerInput
-          name="endTime"
-          value={form.endTime}
-          onChange={(value) => setForm((current) => ({ ...current, endTime: value }))}
-          required
-        />
-        <input
-          className="ommm-input"
-          type="number"
-          min={1}
-          value={form.capacity}
-          onChange={(event) => setForm((current) => ({ ...current, capacity: event.target.value }))}
-          placeholder={t("form.capacity")}
-          required
-        />
+        {!isBatchCreate ? (
+          <>
+            <DatePickerInput
+              name="date"
+              value={form.date}
+              onChange={(value) => setForm((current) => ({ ...current, date: value }))}
+              ariaLabel={t("form.date")}
+              required
+            />
+            <TimePickerInput
+              name="startTime"
+              value={form.startTime}
+              onChange={(value) => setForm((current) => ({ ...current, startTime: value }))}
+              required
+            />
+            <TimePickerInput
+              name="endTime"
+              value={form.endTime}
+              onChange={(value) => setForm((current) => ({ ...current, endTime: value }))}
+              required
+            />
+          </>
+        ) : null}
+        <label className="flex flex-col gap-1">
+          <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {t("form.capacityHint")}
+          </span>
+          <input
+            className="ommm-input"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={form.capacity}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, capacity: event.target.value.replace(/\D/g, "") }))
+            }
+            placeholder={t("form.capacity")}
+            required
+          />
+        </label>
         <OmmFilterMultiSelect
           ariaLabel={t("form.level")}
           allLabel={t("form.level")}
@@ -1456,6 +1572,95 @@ function SessionModal({
           triggerClassName="text-center"
           formatSelectedCount={(count) => t("filters.selectedCount", { count })}
         />
+        {isBatchCreate ? (
+          <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-sage-950">
+                {t("calendarSchedule.title")}
+              </h3>
+              <p className="text-sm text-sage-600">{t("calendarSchedule.description")}</p>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1">
+                <span className="text-sm font-semibold text-sage-950">
+                  {t("calendarSchedule.startDate")}
+                </span>
+                <DatePickerInput
+                  name="calendar-start-date"
+                  value={calendarStartDate}
+                  onChange={setCalendarStartDate}
+                  ariaLabel={t("calendarSchedule.startDate")}
+                  required
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-sm font-semibold text-sage-950">
+                  {t("calendarSchedule.endDate")}
+                </span>
+                <DatePickerInput
+                  name="calendar-end-date"
+                  value={calendarEndDate}
+                  onChange={setCalendarEndDate}
+                  ariaLabel={t("calendarSchedule.endDate")}
+                  required
+                />
+              </label>
+            </div>
+            <div className="mt-4 space-y-3">
+              <h4 className="text-sm font-semibold text-sage-950">
+                {t("calendarSchedule.weeklySlots")}
+              </h4>
+              <div className="space-y-2 rounded-2xl border border-sand-500/15 bg-white/75 p-2">
+                {calendarSlots.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="grid gap-2 rounded-xl border border-sand-500/15 bg-white/80 p-2 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_3.5rem]"
+                  >
+                    <OmmFormDropdown
+                      value={slot.weekday}
+                      ariaLabel={t("calendarSchedule.weekday")}
+                      placeholderLabel={t("calendarSchedule.weekday")}
+                      options={SCHEDULE_WEEKDAYS.map((weekday) => ({
+                        value: weekday,
+                        label: t(`weekday.${weekday}`),
+                      }))}
+                      onChange={(value) =>
+                        updateCalendarSlot(slot.id, "weekday", value as ScheduleDayOfWeek)
+                      }
+                    />
+                    <TimePickerInput
+                      name={`calendar-start-time-${slot.id}`}
+                      value={slot.startTime}
+                      onChange={(value) => updateCalendarSlot(slot.id, "startTime", value)}
+                      ariaLabel={t("calendarSchedule.startTime")}
+                      required
+                    />
+                    <TimePickerInput
+                      name={`calendar-end-time-${slot.id}`}
+                      value={slot.endTime}
+                      onChange={(value) => updateCalendarSlot(slot.id, "endTime", value)}
+                      ariaLabel={t("calendarSchedule.endTime")}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="inline-flex min-h-11 items-center justify-center rounded-xl border border-sand-500/25 bg-white/80 text-sage-600 transition-colors hover:bg-sand-50 disabled:opacity-45"
+                      onClick={() => removeCalendarSlot(slot.id)}
+                      disabled={calendarSlots.length === 1}
+                      aria-label={t("calendarSchedule.removeSlot")}
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+                <OmmButton type="button" variant="ghost" size="sm" onClick={addCalendarSlot}>
+                  <PlusIcon className="h-3.5 w-3.5" />
+                  {t("calendarSchedule.addSlot")}
+                </OmmButton>
+              </div>
+            </div>
+          </section>
+        ) : null}
         <textarea
           className="ommm-input min-h-24 sm:col-span-2"
           value={form.description}

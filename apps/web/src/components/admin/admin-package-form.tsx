@@ -476,8 +476,8 @@ export function AdminPackageForm({
                   type="number"
                   className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   min={0}
-                  step="0.01"
-                  inputMode="decimal"
+                  step={1}
+                  inputMode="numeric"
                   value={values.price}
                   onChange={(event) => updateValues({ price: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
@@ -545,8 +545,8 @@ export function AdminPackageForm({
                     type="number"
                     className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     min={0}
-                    step="0.01"
-                    inputMode="decimal"
+                    step={1}
+                    inputMode="numeric"
                     value={values.price}
                     onChange={(event) => updateValues({ price: event.target.value })}
                     onKeyDown={preventNumberArrowStep}

@@ -1681,6 +1681,18 @@
         "FRIDAY": "Friday",
         "SATURDAY": "Saturday"
       },
+      "calendarSchedule": {
+        "title": "Calendar schedule",
+        "description": "Generate lessons in the admin calendar for the date range below using weekly time slots.",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "weeklySlots": "Weekly time slots",
+        "weekday": "Weekday",
+        "startTime": "Start time",
+        "endTime": "End time",
+        "addSlot": "Add slot",
+        "removeSlot": "Remove slot"
+      },
       "form": {
         "className": "Class name",
         "description": "Description",
@@ -1690,6 +1702,7 @@
         "coach": "Coach",
         "classType": "Class type",
         "capacity": "Capacity",
+        "capacityHint": "Available spots per class",
         "level": "Level",
         "levels": {
           "beginner": "Beginner",

@@ -14,15 +14,18 @@ export const BILLING_PERIOD_OPTIONS = ["monthly", "session"] as const;
 export type BillingPeriodOption = (typeof BILLING_PERIOD_OPTIONS)[number];
 
 export function parsePriceToCents(raw: string): number | null {
-  const normalized = raw.trim().replace(",", ".");
+  const normalized = raw.trim();
   if (normalized.length === 0) {
     return null;
   }
-  const numeric = Number(normalized);
-  if (!Number.isFinite(numeric) || numeric < 0) {
+  if (!/^\d+$/.test(normalized)) {
     return null;
   }
-  return Math.round(numeric * 100);
+  const amount = Number.parseInt(normalized, 10);
+  if (!Number.isSafeInteger(amount)) {
+    return null;
+  }
+  return amount;
 }
 
 /** Hides browser increment/decrement controls on number inputs. */
@@ -152,7 +155,7 @@ export function packageRowToFormValues(
     name: pkg.name,
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
-    price: (pkg.priceCents / 100).toFixed(2),
+    price: String(pkg.priceCents),
     durationMonths: periodDaysToDurationMonths(pkg.periodDays),
     sessionsCount: String(sessions),
     guestCount: String(
