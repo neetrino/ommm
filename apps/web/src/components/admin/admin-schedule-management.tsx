@@ -7,7 +7,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
-import { OmmFilterDropdown, OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
@@ -85,7 +85,7 @@ type FormState = {
   startTime: string;
   endTime: string;
   capacity: string;
-  level: string;
+  levels: string[];
   status: SessionStatus;
 };
 
@@ -104,6 +104,7 @@ const SCHEDULE_MODAL_QUERY_KEY = "modal";
 const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
 const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
+const SESSION_LEVEL_SEPARATOR = ", ";
 
 function replaceScheduleModalInUrl(
   pathname: string,
@@ -209,6 +210,21 @@ function initialFilters(): Filters {
   };
 }
 
+function splitSessionLevels(level: string | null | undefined): string[] {
+  if (!level) {
+    return [];
+  }
+  return level
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function joinSessionLevels(levels: readonly string[]): string | undefined {
+  const uniqueLevels = Array.from(new Set(levels.map((value) => value.trim()).filter(Boolean)));
+  return uniqueLevels.length > 0 ? uniqueLevels.join(SESSION_LEVEL_SEPARATOR) : undefined;
+}
+
 function matchesAvailability(row: AdminScheduleSession, selected: readonly AvailabilityOption[]): boolean {
   if (selected.length === 0) {
     return true;
@@ -281,7 +297,7 @@ function initialForm(
     startTime: timeValue(start),
     endTime: timeValue(end),
     capacity: String(row?.capacity ?? 10),
-    level: row?.level ?? "",
+    levels: splitSessionLevels(row?.level),
     status: row?.status ?? "ACTIVE",
   };
 }
@@ -295,7 +311,7 @@ function formPayload(form: FormState) {
     startsAt: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
     endsAt: new Date(`${form.date}T${form.endTime}:00`).toISOString(),
     capacity: Number(form.capacity),
-    level: form.level.trim() || undefined,
+    level: joinSessionLevels(form.levels),
     status: form.status,
   };
 }
@@ -304,7 +320,7 @@ function buildSessionLevelOptions(
   translate: (
     key: "form.levels.beginner" | "form.levels.intermediate" | "form.levels.advanced",
   ) => string,
-  extraLevel?: string | null,
+  extraLevels?: readonly string[],
 ): Array<{ value: string; label: string }> {
   const options = SESSION_LEVEL_VALUES.map((value) => ({
     value,
@@ -315,13 +331,16 @@ function buildSessionLevelOptions(
           ? translate("form.levels.intermediate")
           : translate("form.levels.advanced"),
   }));
-  const trimmed = extraLevel?.trim();
-  if (
-    trimmed &&
-    trimmed.length > 0 &&
-    !SESSION_LEVEL_VALUES.includes(trimmed as (typeof SESSION_LEVEL_VALUES)[number])
-  ) {
-    return [{ value: trimmed, label: trimmed }, ...options];
+  const extraOptions = (extraLevels ?? [])
+    .map((level) => level.trim())
+    .filter(
+      (level) =>
+        level.length > 0 &&
+        !SESSION_LEVEL_VALUES.includes(level as (typeof SESSION_LEVEL_VALUES)[number]),
+    )
+    .map((level) => ({ value: level, label: level }));
+  if (extraOptions.length > 0) {
+    return [...extraOptions, ...options];
   }
   return options;
 }
@@ -423,7 +442,7 @@ export function AdminScheduleManagement({
 
   const levels = useMemo(() => {
     return Array.from(
-      new Set(rows.map((row) => row.level).filter((level): level is string => level !== null)),
+      new Set(rows.flatMap((row) => splitSessionLevels(row.level))),
     ).sort();
   }, [rows]);
 
@@ -435,7 +454,10 @@ export function AdminScheduleManagement({
       if (filters.to && row.startsAt.slice(0, 10) > filters.to) return false;
       if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
       if (filters.typeIds.length > 0 && !filters.typeIds.includes(row.classType.id)) return false;
-      if (filters.levels.length > 0 && (!row.level || !filters.levels.includes(row.level))) return false;
+      if (
+        filters.levels.length > 0 &&
+        !splitSessionLevels(row.level).some((level) => filters.levels.includes(level))
+      ) return false;
       if (filters.statuses.length > 0 && !filters.statuses.includes(row.status)) return false;
       if (!matchesAvailability(row, filters.availability)) return false;
       if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
@@ -1316,8 +1338,8 @@ function SessionModal({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const levelOptions = useMemo(
-    () => buildSessionLevelOptions((key) => t(key), row?.level ?? form.level),
-    [form.level, row?.level, t],
+    () => buildSessionLevelOptions((key) => t(key), [...splitSessionLevels(row?.level), ...form.levels]),
+    [form.levels, row?.level, t],
   );
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -1424,15 +1446,15 @@ function SessionModal({
           placeholder={t("form.capacity")}
           required
         />
-        <OmmFilterDropdown
-          allValue=""
-          value={form.level}
+        <OmmFilterMultiSelect
           ariaLabel={t("form.level")}
           allLabel={t("form.level")}
+          selectedValues={form.levels}
           options={levelOptions}
-          onChange={(value) => setForm((current) => ({ ...current, level: value }))}
+          onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
           className="sm:col-span-2"
           triggerClassName="text-center"
+          formatSelectedCount={(count) => t("filters.selectedCount", { count })}
         />
         <textarea
           className="ommm-input min-h-24 sm:col-span-2"

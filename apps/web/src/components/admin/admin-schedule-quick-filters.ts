@@ -39,6 +39,16 @@ function spotsLeft(row: ScheduleQuickFilterRow): number {
   return Math.max(row.capacity - row._count.bookings, 0);
 }
 
+function splitSessionLevels(level: string | null): string[] {
+  if (!level) {
+    return [];
+  }
+  return level
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
 /** Applies quick-filter presets on top of main schedule filters (AND). */
 export function matchesScheduleQuickFilters(
   row: ScheduleQuickFilterRow,
@@ -81,7 +91,7 @@ export function matchesScheduleQuickFilters(
   if (quickFilters.includes("cancelled") && row.status !== "CANCELLED") {
     return false;
   }
-  if (quickFilters.includes("beginner") && row.level !== "Beginner") {
+  if (quickFilters.includes("beginner") && !splitSessionLevels(row.level).includes("Beginner")) {
     return false;
   }
   if (quickFilters.includes("evening") && new Date(row.startsAt).getHours() < 17) {
