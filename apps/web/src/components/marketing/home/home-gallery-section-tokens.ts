@@ -39,7 +39,7 @@ export const HOME_GALLERY_SECTION_MOBILE_FIGMA = {
   tileRadiusPx: 16,
   leftTileWidthPx: 165,
   rightTileSizePx: 165,
-  mosaicToDotsGapPx: 32,
+  mosaicToDotsGapPx: 39,
   dotsToCtaGapPx: 32,
   dotSizePx: 9,
   dotGapPx: 8,
@@ -74,7 +74,7 @@ export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
   mosaicSize: "clamp(17rem, calc(100svw * 346 / 394), 21.625rem)",
   mosaicGap: "1rem",
   carouselGap: "1rem",
-  mosaicToDotsGap: "2rem",
+  mosaicToDotsGap: "2.4375rem",
   dotsToCtaGap: "2rem",
   tileRadiusPx: HOME_GALLERY_SECTION_MOBILE_FIGMA.tileRadiusPx,
 } as const;
@@ -97,7 +97,7 @@ export const HOME_GALLERY_LAYOUT = {
   sectionPaddingBottom: "clamp(1.5rem, 4vw, 3.5rem)",
   headerGapPx: 41,
   headerToMosaicGapPx: 60,
-  mosaicToDotsGapPx: 56,
+  mosaicToDotsGapPx: 63,
   dotsToCtaGapPx: 72,
   titleFontSize: "clamp(2.25rem, 5vw, 4.375rem)",
   titleLineHeight: 48 / 70,
@@ -105,6 +105,8 @@ export const HOME_GALLERY_LAYOUT = {
   subtitleMaxWidth: "39.25rem",
   mosaicGapPx: 36,
   navButtonSizePx: 64,
+  /** Nudge prev/next controls slightly below mosaic vertical center (Figma alignment). */
+  navVerticalOffsetPx: 12,
   dotSizePx: 12,
   dotGapPx: 17,
 } as const;

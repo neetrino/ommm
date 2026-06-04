@@ -24,7 +24,8 @@ const TILE_CLASS: Record<HomeGalleryTileKey, string> = {
   side: styles.tileSide,
 };
 
-const CONTAIN_TILE_KEYS: ReadonlySet<HomeGalleryTileKey> = new Set(["leftTop", "leftBottom", "side"]);
+/** Right narrow tile — `contain` keeps portrait asset readable; left + center use `cover`. */
+const CONTAIN_TILE_KEYS: ReadonlySet<HomeGalleryTileKey> = new Set(["side"]);
 
 function galleryTileImageClass(key: HomeGalleryTileKey): string {
   return CONTAIN_TILE_KEYS.has(key) ? styles.tileImageContain : styles.tileImageCover;
@@ -75,6 +76,7 @@ function mosaicStyleVars(): CSSProperties {
     ["--home-gallery-nav-edge-inset-tablet" as string]: `${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonEdgeInsetPx}px`,
     ["--home-gallery-nav-prev-x-tablet" as string]: `-${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonOutwardTranslatePercent}%`,
     ["--home-gallery-nav-next-x-tablet" as string]: `${HOME_GALLERY_TABLET_NAV_LAYOUT.buttonOutwardTranslatePercent}%`,
+    ["--home-gallery-nav-y-offset" as string]: `${HOME_GALLERY_LAYOUT.navVerticalOffsetPx}px`,
   };
 }
 
