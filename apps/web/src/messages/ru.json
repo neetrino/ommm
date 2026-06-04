@@ -9,10 +9,12 @@
     "loading": "Загрузка…"
   },
   "nav": {
-    "studioBrand": "Ommm.Space",
+    "studioBrand": "Ommm.",
+    "spaceBrand": "Ommm.",
     "home": "Главная",
     "story": "История",
     "coaches": "Тренеры",
+    "memberships": "Абонемент",
     "packages": "Пакеты",
     "explore": "Материалы",
     "schedule": "Расписание",
@@ -86,12 +88,15 @@
       "titleLine1": "Найди свой",
       "brandName": "Ommm",
       "titleLine2": "момент",
-      "subLine1": "Пространство для внутреннего спокойствия, баланса и осознанного",
-      "subLine2": "движения.",
+      "subLine1": "Пространство для внутреннего спокойствия,",
+      "subLine2": "баланса и осознанного движения.",
       "primaryCta": "Записаться",
-      "secondaryCta": "Пакеты",
+      "secondaryCta": "Посмотреть абонементы",
       "heroImageAlt": "Человек в позе медитации в светлой минималистичной студии с овальным проёмом к морю",
-      "logoAlt": "Эмблема студии Ommm"
+      "logoAlt": "Эмблема студии Ommm",
+      "junctionNavAria": "Навигация по фото hero",
+      "junctionNavPrevAria": "Предыдущее фото hero",
+      "junctionNavNextAria": "Следующее фото hero"
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",
@@ -102,49 +107,52 @@
       "weeklyScheduleSessionsPanelAria": "Занятия на {day}",
       "weeklyScheduleEmptyDay": "Нет занятий",
       "weeklyScheduleLoadFailed": "Не удалось загрузить расписание ({status}).",
-      "weeklyScheduleBookSessionAria": "Забронировать {className}",
+      "weeklyScheduleBookSessionAria": "Забронировать {className} в расписании",
+      "weeklyScheduleReserve": "Записаться",
+      "weeklyScheduleWithInstructor": "с {name}",
+      "weeklyScheduleDuration": "{count} мин",
+      "weeklyScheduleDurationFallback": "—",
+      "weeklyScheduleSpotsLeft": "{count, plural, =1 {Осталось 1 место} few {Осталось # места} many {Осталось # мест} other {Осталось # места}}",
       "weeklyScheduleDays": {
-        "MONDAY": "ПН",
-        "TUESDAY": "ВТ",
-        "WEDNESDAY": "СР",
-        "THURSDAY": "ЧТ",
-        "FRIDAY": "ПТ",
-        "SATURDAY": "СБ",
-        "SUNDAY": "ВС"
+        "MONDAY": "Понедельник",
+        "TUESDAY": "Вторник",
+        "WEDNESDAY": "Среда",
+        "THURSDAY": "Четверг",
+        "FRIDAY": "Пятница",
+        "SATURDAY": "Суббота",
+        "SUNDAY": "Воскресенье"
       },
       "classesTitle": "Наши ключевые практики",
       "classesSubtitle": "Тщательно подобранные занятия для физического и ментального благополучия.",
+      "viewMembership": "Посмотреть абонементы",
       "viewSchedule": "Расписание",
       "classCards": [
         {
-          "title": "Осознанность и дыхание",
+          "titleLines": ["Reformer", "Group"],
           "body": "Техники якорения внимания и расширения дыхания через направленную работу со вдохом и выдохом."
         },
         {
-          "title": "Баланс и устойчивость",
+          "titleLines": ["Reformer", "Individual"],
           "body": "Фокус на стабильности кора и пространственной осознанности, чтобы найти опору в центре движения."
         },
         {
-          "title": "Восстановительный отдых",
+          "titleLines": ["Yoga"],
           "body": "Глубокое расслабление нервной системы с опорами, которые мягко удерживают тело в покое."
         },
         {
-          "title": "Динамичное движение",
+          "titleLines": ["Mat Pilates"],
           "body": "Плавные последовательности, которые создают тепло и силу, сохраняя ритмичный поток."
         },
         {
-          "title": "Гибкость и удлинение",
+          "titleLines": ["Dances"],
           "body": "Целенаправленные растяжки, чтобы снять напряжение и создать пространство в суставах и мышцах."
-        },
-        {
-          "title": "Групповые практики",
-          "body": "Групповые занятия с общей энергией, связью и заботой о коллективном благополучии."
         }
       ],
       "coachesTitle": "Команда преподавателей",
       "coachesPrevAria": "Предыдущий преподаватель",
       "coachesNextAria": "Следующий преподаватель",
       "coachesGoToSlideAria": "Показать: {name}",
+      "coachesMoreDetails": "Подробнее",
       "coachSlides": [
         {
           "name": "Jane Doe",
@@ -175,7 +183,9 @@
           "imageAlt": "Портрет преподавателя"
         }
       ],
-      "plansSectionTitle": "Убежище для каждого тела",
+      "plansSectionTitle": "Выберите пакет",
+      "plansSectionSubtitle": "Продуманные занятия для заботы о вашем физическом и душевном благополучии.",
+      "plansMoreDetails": "Подробнее",
       "planCardCtaAria": "Открыть детали «{planName}»",
       "planCardSessionsUnlimited": "Безлимитные занятия",
       "planCardSessionsCount": "{count, plural, one {# занятие} few {# занятия} many {# занятий} other {# занятия}}",
@@ -185,33 +195,36 @@
       "planPopularBadge": "Популярный",
       "plansEmpty": "Пакеты появятся здесь после публикации в админ-панели.",
       "plansLoadFailed": "Не удалось загрузить пакеты ({status}).",
+      "galleryTitle": "Убежище для каждого тела",
+      "galleryTitleLine1": "Убежище для",
+      "galleryTitleLine2": "каждого тела",
+      "gallerySubtitle": "Продуманные занятия для заботы о вашем физическом и душевном благополучии.",
+      "galleryMoreDetails": "Подробнее",
+      "galleryPrevAria": "Предыдущий слайд галереи",
+      "galleryNextAria": "Следующий слайд галереи",
+      "galleryGoToSlideAria": "Показать слайд галереи {slide}",
       "eventsTitle": "События",
       "eventWideTitle": "Главная встреча",
       "eventWideDetails": "Подробнее",
       "eventNarrowATitle": "Мастер-класс",
       "eventNarrowBTitle": "Вечер ретрита",
       "eventCardCtaAria": "Открыть детали события",
-      "footerWordmark": "Ommm.Space",
-      "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
-      "footerIllustrationAlt": "Декоративная иллюстрация",
-      "footerLinks": [
-        {
-          "href": "/contact",
-          "label": "Конфиденциальность"
-        },
-        {
-          "href": "/contact",
-          "label": "Условия"
-        },
-        {
-          "href": "/explore",
-          "label": "Журнал"
-        },
-        {
-          "href": "/contact",
-          "label": "Контакты"
-        }
-      ]
+      "footerWordmark": "Ommm.",
+      "footerTopNavAria": "Навигация в подвале",
+      "footerContactTitle": "Связаться с нами",
+      "footerPhone": "+ 33333333",
+      "footerEmail": "ommmm@mail.com",
+      "footerAddress": "Ереван 00000",
+      "footerSocialTitle": "Соцсети",
+      "footerSocialAria": "Профиль {network}",
+      "footerLegalNavAria": "Юридические ссылки",
+      "footerPrivacy": "Конфиденциальность",
+      "footerTerms": "Условия",
+      "footerRefund": "Возврат",
+      "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
+      "footerCopyrightCompany": "NEETRINO IT COMPANY",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerIllustrationAlt": "Декоративная иллюстрация Om"
     }
   },
   "account": {
@@ -284,6 +297,8 @@
     "coachesError": "Не удалось загрузить список тренеров. Попробуйте позже.",
     "coachesExperience": "Опыт: {years}+ лет",
     "coachesOpenCardAria": "Открыть профиль {name}",
+    "coachesCardExpandAria": "Показать информацию о {name}",
+    "coachesCardCollapseAria": "Скрыть информацию о {name}",
     "coachesModalBackdropClose": "Закрыть карточку тренера",
     "coachesModalCloseAria": "Закрыть профиль тренера",
     "coachesModalProfileLabel": "Профиль тренера",
@@ -398,7 +413,7 @@
         "subline": "Инструменты и данные студии"
       },
       "admin": {
-        "title": "Ommm.Space",
+        "title": "Ommm.",
         "subline": "MANAGEMENT PORTAL"
       },
       "coach": {

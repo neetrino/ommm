@@ -1085,7 +1085,7 @@ function ScheduleViews(props: {
   if (props.view === "daily") return <DailyPanel {...props} />;
   return (
     <div className="space-y-3">
-      <CalendarSummaryCard rows={props.rows} selectedDay={props.selectedDay} onSelectDay={props.onSelectDay} />
+      <CalendarSummaryCard locale={props.locale} rows={props.rows} selectedDay={props.selectedDay} onSelectDay={props.onSelectDay} />
       <SessionTable {...props} rows={props.rows} />
     </div>
   );
@@ -1258,7 +1258,7 @@ function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, o
   );
 }
 
-function CalendarSummaryCard({ rows, selectedDay, onSelectDay }: { rows: readonly AdminScheduleSession[]; selectedDay: string; onSelectDay: (day: string) => void }) {
+function CalendarSummaryCard({ locale, rows, selectedDay, onSelectDay }: { locale: string; rows: readonly AdminScheduleSession[]; selectedDay: string; onSelectDay: (day: string) => void }) {
   const grouped = groupRowsByDay(rows);
   const days = Array.from(grouped.keys()).sort().slice(0, 14);
   if (days.length === 0) return null;
@@ -1266,16 +1266,16 @@ function CalendarSummaryCard({ rows, selectedDay, onSelectDay }: { rows: readonl
     <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
       <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
         {days.map((day) => (
-          <DayCard key={day} day={day} rows={grouped.get(day) ?? []} selected={day === selectedDay} onSelect={onSelectDay} compact />
+          <DayCard key={day} locale={locale} day={day} rows={grouped.get(day) ?? []} selected={day === selectedDay} onSelect={onSelectDay} compact />
         ))}
       </div>
     </div>
   );
 }
 
-function DayCard({ day, rows, selected, onSelect, muted = false, compact = false }: { day: string; rows: readonly AdminScheduleSession[]; selected: boolean; onSelect: (day: string) => void; muted?: boolean; compact?: boolean }) {
+function DayCard({ locale, day, rows, selected, onSelect, muted = false, compact = false }: { locale: string; day: string; rows: readonly AdminScheduleSession[]; selected: boolean; onSelect: (day: string) => void; muted?: boolean; compact?: boolean }) {
   const date = new Date(`${day}T00:00:00`);
-  const weekday = new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(date);
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const isToday = day === isoDate(new Date());
   return (
     <button
@@ -1329,7 +1329,7 @@ function MonthlyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
       <div className="grid gap-2 md:grid-cols-7">
         {days.map((day) => {
           const date = new Date(`${day}T00:00:00`);
-          return <DayCard key={day} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} muted={date.getMonth() !== selected.getMonth()} />;
+          return <DayCard key={day} locale={props.locale} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} muted={date.getMonth() !== selected.getMonth()} />;
         })}
       </div>
     </div>
@@ -1415,7 +1415,7 @@ function DailyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
           </div>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
-          {days.map((day) => <DayCard key={day} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} compact />)}
+          {days.map((day) => <DayCard key={day} locale={props.locale} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} compact />)}
         </div>
       </div>
       <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">

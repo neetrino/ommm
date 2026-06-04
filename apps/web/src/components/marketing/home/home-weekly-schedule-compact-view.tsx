@@ -1,14 +1,15 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
-import { HomeWeeklyScheduleSessionCard } from "@/components/marketing/home/home-weekly-schedule-session-card";
+import styles from "@/components/marketing/home/home-weekly-schedule-compact-view.module.css";
+import { HomeWeeklyScheduleSessionRow } from "@/components/marketing/home/home-weekly-schedule-session-row";
 import {
-  HOME_WEEKLY_SCHEDULE_COMPACT_CHIP_CLASS,
-  HOME_WEEKLY_SCHEDULE_DAY_STRIP_CLASS,
+  HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS,
   HOME_WEEKLY_SCHEDULE_FIGMA,
   HOME_WEEKLY_SCHEDULE_LAYOUT,
+  HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA,
+  HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleDayOfWeek } from "@/components/marketing/schedule/marketing-schedule-types";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
@@ -21,22 +22,24 @@ export type HomeWeeklyScheduleCompactDay = {
   sessions: readonly {
     id: string;
     item: MarketingScheduleItem;
-    registerHref: string;
     bookAriaLabel: string;
+    withInstructorLabel: string;
+    durationLabel: string;
+    spotsLeftLabel: string;
   }[];
 };
 
-type HomeWeeklyScheduleCompactViewProps = {
+type HomeWeeklyScheduleDayViewProps = {
   locale: string;
   days: readonly HomeWeeklyScheduleCompactDay[];
   initialDay: MarketingScheduleDayOfWeek;
 };
 
-export function HomeWeeklyScheduleCompactView({
+export function HomeWeeklyScheduleDayView({
   locale,
   days,
   initialDay,
-}: HomeWeeklyScheduleCompactViewProps) {
+}: HomeWeeklyScheduleDayViewProps) {
   const t = useTranslations("marketingPublic.home");
   const [selectedDay, setSelectedDay] = useState<MarketingScheduleDayOfWeek>(initialDay);
 
@@ -51,59 +54,83 @@ export function HomeWeeklyScheduleCompactView({
     return null;
   }
 
-  const panelStyle = {
-    "--home-schedule-card-min-h": HOME_WEEKLY_SCHEDULE_LAYOUT.cardMinHeightCompact,
-  } as CSSProperties;
-
   return (
-    <div className={`${marketingMontserrat.className} lg:hidden`}>
-      <div
-        role="tablist"
-        aria-label={t("weeklyScheduleDayTabsAria")}
-        className={HOME_WEEKLY_SCHEDULE_DAY_STRIP_CLASS}
-      >
-        {days.map((entry) => {
-          const isSelected = entry.day === selectedDay;
-          const sessionCount = entry.sessions.length;
-          return (
-            <button
-              key={entry.day}
-              type="button"
-              role="tab"
-              aria-selected={isSelected}
-              aria-controls={`home-weekly-schedule-panel-${entry.day}`}
-              id={`home-weekly-schedule-tab-${entry.day}`}
-              onClick={() => selectDay(entry.day)}
-              className={`${HOME_WEEKLY_SCHEDULE_COMPACT_CHIP_CLASS} ${
-                isSelected ? "font-bold shadow-sm" : "font-semibold"
-              }`}
-              style={{
-                color: isSelected
-                  ? HOME_WEEKLY_SCHEDULE_FIGMA.headingColor
-                  : HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
-                backgroundColor: isSelected
-                  ? "rgba(255, 255, 255, 0.55)"
-                  : "rgba(255, 255, 255, 0.2)",
-                borderColor: isSelected
-                  ? HOME_WEEKLY_SCHEDULE_FIGMA.headingColor
-                  : HOME_WEEKLY_SCHEDULE_FIGMA.cardBorder,
-              }}
-              aria-label={t("weeklyScheduleDayTabAria", {
-                day: entry.label,
-                count: sessionCount,
-              })}
-            >
-              <span className="w-full truncate text-center">{entry.label}</span>
-              {sessionCount > 0 ? (
-                <span
-                  className="mt-0.5 block h-0.5 w-0.5 rounded-full sm:mt-1 sm:h-1 sm:w-1"
-                  style={{ backgroundColor: HOME_WEEKLY_SCHEDULE_FIGMA.headingColor }}
-                  aria-hidden
-                />
-              ) : null}
-            </button>
-          );
-        })}
+    <div
+      className={`${marketingMontserrat.className} ${styles.root}`}
+      style={{
+        ["--home-schedule-panel-gap" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.panelGap,
+        ["--home-schedule-day-tabs-section-padding-top" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabsSectionPaddingTop,
+        ["--home-schedule-day-tab-gap" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabGap,
+        ["--home-schedule-day-tab-gap-lg" as string]: HOME_WEEKLY_SCHEDULE_LAYOUT.dayTabGap,
+        ["--home-schedule-day-tab-list-height" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabListHeight,
+        ["--home-schedule-day-tab-list-padding-bottom" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabListPaddingBottom,
+        ["--home-schedule-day-tab-strip-min-width" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabStripMinWidth,
+        ["--home-schedule-day-tab-height" as string]: HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabHeight,
+        ["--home-schedule-day-tab-font-size" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.dayTabFontSize,
+        ["--home-schedule-day-chip-border-width" as string]: `${HOME_WEEKLY_SCHEDULE_MOBILE_FIGMA.dayChipBorderWidthPx}px`,
+        ["--home-schedule-day-chip-border-width-lg" as string]: `${HOME_WEEKLY_SCHEDULE_FIGMA.dayChipBorderWidthPx}px`,
+        ["--home-schedule-session-list-gap" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionListGap,
+        ["--home-schedule-session-list-gap-lg" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionListGap,
+        ["--home-schedule-session-row-radius" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sessionRowRadius,
+        ["--home-schedule-session-row-radius-lg" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sessionRowRadius,
+        ["--home-schedule-day-chip-idle-border" as string]:
+          HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleBorder,
+        ["--home-schedule-schedule-ink" as string]: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
+      }}
+    >
+      <div className={styles.dayTabsSection}>
+        <div
+          role="tablist"
+          aria-label={t("weeklyScheduleDayTabsAria")}
+          className={styles.dayTabList}
+        >
+          <div className={styles.dayTabTrack}>
+            {days.map((entry) => {
+              const isSelected = entry.day === selectedDay;
+              const sessionCount = entry.sessions.length;
+              return (
+                <button
+                  key={entry.day}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  aria-controls={`home-weekly-schedule-panel-${entry.day}`}
+                  id={`home-weekly-schedule-tab-${entry.day}`}
+                  onClick={() => selectDay(entry.day)}
+                  className={`${HOME_WEEKLY_SCHEDULE_DAY_CHIP_CLASS} ${styles.dayTab} ${
+                    isSelected ? "font-extrabold" : "bg-transparent font-semibold"
+                  }`}
+                  style={{
+                    borderWidth: isSelected ? 0 : undefined,
+                    borderStyle: "solid",
+                    borderColor: HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleBorder,
+                    color: isSelected
+                      ? HOME_WEEKLY_SCHEDULE_FIGMA.dayChipActiveText
+                      : HOME_WEEKLY_SCHEDULE_FIGMA.dayChipIdleText,
+                    backgroundColor: isSelected
+                      ? HOME_WEEKLY_SCHEDULE_FIGMA.dayChipActiveFill
+                      : "transparent",
+                  }}
+                  aria-label={t("weeklyScheduleDayTabAria", {
+                    day: entry.label,
+                    count: sessionCount,
+                  })}
+                >
+                  {entry.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div
@@ -111,36 +138,25 @@ export function HomeWeeklyScheduleCompactView({
         role="tabpanel"
         aria-labelledby={`home-weekly-schedule-tab-${activeDay.day}`}
         aria-label={t("weeklyScheduleSessionsPanelAria", { day: activeDay.label })}
-        className="mt-5 min-w-0 sm:mt-6"
-        style={panelStyle}
+        className={styles.sessionPanel}
       >
         {activeDay.sessions.length === 0 ? (
-          <div
-            className="flex min-h-[var(--home-schedule-card-min-h)] items-center justify-center rounded-[2.5rem] border border-dashed px-4 py-8 text-center text-sm font-semibold leading-6 sm:text-base"
-            style={{
-              borderColor: HOME_WEEKLY_SCHEDULE_FIGMA.cardBorder,
-              color: HOME_WEEKLY_SCHEDULE_FIGMA.scheduleInk,
-              borderRadius: HOME_WEEKLY_SCHEDULE_LAYOUT.cardRadius,
-            }}
-          >
-            {activeDay.emptyLabel}
-          </div>
+          <div className={styles.emptyDay}>{activeDay.emptyLabel}</div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:gap-x-4 md:gap-y-5">
-            {activeDay.sessions.map((session) => (
-              <HomeWeeklyScheduleSessionCard
-                key={session.id}
-                item={session.item}
-                locale={locale}
-                registerHref={session.registerHref}
-                bookAriaLabel={session.bookAriaLabel}
-                variant="compact"
-              />
-            ))}
-          </div>
+          activeDay.sessions.map((session) => (
+            <HomeWeeklyScheduleSessionRow
+              key={session.id}
+              item={session.item}
+              locale={locale}
+              reserveLabel={t("weeklyScheduleReserve")}
+              withInstructorLabel={session.withInstructorLabel}
+              durationLabel={session.durationLabel}
+              spotsLeftLabel={session.spotsLeftLabel}
+              bookAriaLabel={session.bookAriaLabel}
+            />
+          ))
         )}
       </div>
     </div>
   );
 }
-

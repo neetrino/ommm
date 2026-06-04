@@ -1,0 +1,216 @@
+/**
+ * Mobile: Figma `97:5683`. Desktop (lg+): section `196:1074`.
+ */
+
+.section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  background: var(--home-classes-section-bg);
+  margin-top: calc(-1 * var(--home-classes-schedule-overlap, 0px));
+  padding-top: calc(
+    var(--home-classes-section-py, 4rem) + var(--home-classes-schedule-overlap, 0px) +
+      var(--home-classes-heading-gap-adjust, 0px)
+  );
+  padding-bottom: var(--home-classes-section-py, 4rem);
+  padding-inline: var(--home-classes-section-px, 1.5rem);
+}
+
+.shell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-classes-section-gap, 2.25rem);
+  margin-inline: auto;
+  max-width: var(--home-classes-content-max-width, none);
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-classes-header-subtitle-gap, 1rem);
+}
+
+.title {
+  font-size: var(--home-classes-title-size);
+  line-height: var(--home-classes-title-line-height);
+  color: var(--home-classes-heading-color, #fbf5d5);
+}
+
+.subtitle {
+  width: 100%;
+  max-width: var(--home-classes-subtitle-max-width, 100%);
+  font-size: var(--home-classes-subtitle-size);
+  line-height: var(--home-classes-subtitle-line-height);
+  color: var(--home-classes-subtitle-color, rgba(255, 255, 255, 0.84));
+}
+
+.carouselViewport {
+  width: 100%;
+  min-width: 0;
+  height: var(--home-classes-carousel-height, 26.1875rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.carouselViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselTrack {
+  display: flex;
+  width: max-content;
+  min-height: 100%;
+  align-items: stretch;
+  gap: var(--home-classes-carousel-gap, 1.25rem);
+  padding-inline-end: var(--home-classes-carousel-trailing-pad, 1.5rem);
+}
+
+.carouselSlide {
+  flex-shrink: 0;
+  width: var(--home-classes-carousel-card-width, 16.25rem);
+  scroll-snap-align: start;
+}
+
+.grid {
+  display: none;
+  width: 100%;
+  min-width: 0;
+}
+
+.cta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 744px) {
+  .section {
+    margin-top: calc(-1 * var(--home-classes-schedule-overlap-lg, 0px));
+    padding-top: calc(
+      var(--home-classes-section-py-lg, 10.875rem) + var(--home-classes-schedule-overlap-lg, 0px) +
+        var(--home-classes-heading-gap-adjust-lg, 0px)
+    );
+    padding-bottom: var(--home-classes-section-py-lg, 10.875rem);
+    padding-inline: 1rem;
+  }
+
+  .shell {
+    gap: 2rem;
+    max-width: var(--home-classes-content-max-width-lg, 80rem);
+  }
+
+  .header {
+    gap: 1.75rem;
+  }
+
+  .title {
+    font-size: var(--home-classes-title-size-lg);
+    line-height: var(--home-classes-title-line-height-lg);
+  }
+
+  .subtitle {
+    max-width: var(--home-classes-subtitle-max-width-lg, 39.25rem);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .carouselViewport {
+    display: none;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--home-classes-grid-gap, 2rem);
+  }
+
+  .gridCard {
+    --home-class-card-min-h: 20.4375rem;
+    --home-class-card-title-size: 1.5rem;
+    --home-class-card-title-line-height: 1.3;
+    --home-class-card-body-size: 1rem;
+    --home-class-card-body-line-height: 1.5;
+  }
+
+  .cta {
+    padding-top: 1rem;
+  }
+}
+
+/* iPad Air + Pro — 2 cards per row, 5th centered (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .shell {
+    max-width: var(--home-classes-content-max-width-tablet, 60rem);
+  }
+
+  .grid {
+    gap: var(--home-classes-grid-gap-tablet, 1.75rem);
+  }
+
+  .gridCard {
+    --home-class-card-min-h: var(--home-class-card-min-h-tablet, 18.75rem);
+    --home-class-card-title-size: var(--home-class-card-title-size-tablet, 1.5rem);
+    --home-class-card-title-line-height: var(--home-class-card-title-line-height-tablet, 1.875rem);
+    --home-class-card-body-size: var(--home-class-card-body-size-tablet, 0.875rem);
+    --home-class-card-body-line-height: var(--home-class-card-body-line-height-tablet, 1.25rem);
+  }
+}
+
+/* iPad Air — scaled-down Pro tier (744px–1023px). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .shell {
+    max-width: var(--home-classes-content-max-width-air, 46.125rem);
+  }
+
+  .grid {
+    gap: var(--home-classes-grid-gap-air, 1.25rem);
+  }
+
+  .gridCard {
+    --home-class-card-min-h: var(--home-class-card-min-h-air, 15rem);
+    --home-class-card-title-size: var(--home-class-card-title-size-air, 1.1875rem);
+    --home-class-card-title-line-height: var(--home-class-card-title-line-height-air, 1.5rem);
+    --home-class-card-body-size: var(--home-class-card-body-size-air, 0.6875rem);
+    --home-class-card-body-line-height: var(--home-class-card-body-line-height-air, 1rem);
+  }
+}
+
+@media (min-width: 640px) {
+  .section {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-inline: 2.5rem;
+  }
+}
+
+@media (min-width: 744px) {
+  .section {
+    padding-inline: 3rem;
+  }
+
+  .shell {
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-inline: 5rem;
+  }
+}

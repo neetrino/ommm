@@ -1,11 +1,15 @@
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
-import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
-import { MarketingPublicHomeClassesSection } from "@/components/marketing/home/marketing-public-home-classes-section";
-import { MarketingPublicHomeCoachesSection } from "@/components/marketing/home/marketing-public-home-coaches-section";
-import { MarketingPublicHomeEventsSection } from "@/components/marketing/home/marketing-public-home-events-section";
+import { HomeCoachesSectionDeferred, HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
+import {
+  HomeClassesSectionDeferred,
+  HomePlansSectionDeferred,
+} from "@/components/marketing/home/home-deferred-server-sections";
+import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
+import homePageStyles from "@/components/marketing/home/marketing-home-page.module.css";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
-import { MarketingPublicHomePlansSection } from "@/components/marketing/home/marketing-public-home-plans-section";
-import { MarketingHomeScrollReveal } from "@/components/marketing/home/marketing-home-scroll-reveal";
+import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
+import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { routing } from "@/i18n/routing";
@@ -22,27 +26,63 @@ export default async function MarketingHomePage({ params }: PageProps) {
 
   return (
     <div
-      className={`${marketingMontserrat.variable} min-h-0 w-full min-w-0 flex-1 overflow-x-clip`}
-      style={{ backgroundColor: HOME_PAGE_SURFACE.pageBackground }}
+      className={`${marketingMontserrat.variable} ${homePageStyles.page} flex-1`}
+      style={
+        {
+          "--home-page-bg": HOME_PAGE_SURFACE.pageBackground,
+        } as CSSProperties
+      }
     >
-      <MarketingHomeScrollReveal>
+      <div className={homePageStyles.pageUpper}>
         <MarketingPublicHero locale={locale} />
-      </MarketingHomeScrollReveal>
-      <MarketingHomeScrollReveal>
-        <MarketingPublicHomeClassesSection locale={locale} />
-      </MarketingHomeScrollReveal>
-      <MarketingHomeScrollReveal>
-        <MarketingPublicHomeCoachesSection />
-      </MarketingHomeScrollReveal>
-      <MarketingHomeScrollReveal>
-        <MarketingPublicHomePlansSection locale={locale} />
-      </MarketingHomeScrollReveal>
-      <MarketingHomeScrollReveal>
-        <MarketingPublicHomeEventsSection locale={locale} />
-      </MarketingHomeScrollReveal>
-      <MarketingHomeScrollReveal>
-        <MarketingPublicHomeFooter locale={locale} />
-      </MarketingHomeScrollReveal>
+
+        <ProgressiveRevealSection
+          id="classes"
+          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+          mountMarginPx={HOME_LAZY_SECTION.classesMountMarginPx}
+          placeholderClassName={HOME_LAZY_SECTION.placeholders.classes}
+        >
+          <HomeClassesSectionDeferred locale={locale} />
+        </ProgressiveRevealSection>
+
+        <ProgressiveRevealSection
+          id="coaches"
+          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+          mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
+          placeholderClassName={HOME_LAZY_SECTION.placeholders.coaches}
+        >
+          <HomeCoachesSectionDeferred />
+        </ProgressiveRevealSection>
+
+        <ProgressiveRevealSection
+          id="plans"
+          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+          mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
+          placeholderClassName={HOME_LAZY_SECTION.placeholders.plans}
+        >
+          <HomePlansSectionDeferred locale={locale} />
+        </ProgressiveRevealSection>
+      </div>
+
+      <div
+        className={homePageStyles.galleryFooterSeam}
+        style={
+          {
+            "--home-gallery-footer-seam-bg": HOME_PAGE_SURFACE.coachesGradientTo,
+          } as CSSProperties
+        }
+      >
+        <ProgressiveRevealSection
+          id="gallery"
+          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
+          mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
+          placeholderClassName={HOME_LAZY_SECTION.placeholders.gallery}
+        >
+          <HomeGallerySectionDeferred />
+        </ProgressiveRevealSection>
+
+        <MarketingPublicHomeFooter locale={locale} surfaceVariant="home" />
+      </div>
     </div>
   );
 }

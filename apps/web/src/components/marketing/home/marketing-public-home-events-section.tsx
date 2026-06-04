@@ -21,7 +21,7 @@ export async function MarketingPublicHomeEventsSection({
 
   return (
     <section
-      className={`${marketingMontserrat.variable} w-full px-4 pt-16 pb-28 sm:px-6 md:px-10 lg:px-20`}
+      className={`${marketingMontserrat.variable} w-full px-4 pt-16 pb-28 sm:px-6 md:px-10 tablet:px-20`}
       style={{
         background: `linear-gradient(to bottom, ${HOME_PAGE_SURFACE.eventsGradientTo}, ${HOME_PAGE_SURFACE.eventsGradientFrom})`,
       }}
@@ -31,7 +31,7 @@ export async function MarketingPublicHomeEventsSection({
           {t("eventsTitle")}
         </h2>
 
-        <div className="mt-24 flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-6">
+        <div className="mt-24 flex flex-col gap-6 tablet:flex-row tablet:items-stretch tablet:gap-6">
           <EventFeatureCard
             href="/explore"
             imageSrc={HOME_SECTION_ASSETS.eventsWide}
@@ -40,7 +40,7 @@ export async function MarketingPublicHomeEventsSection({
             ctaAria={t("eventCardCtaAria")}
             wide
           />
-          <div className="flex flex-1 flex-col gap-6 sm:flex-row lg:flex-col">
+          <div className="flex flex-1 flex-col gap-6 sm:flex-row tablet:flex-col">
             <EventFeatureCard
               href="/explore"
               imageSrc={HOME_SECTION_ASSETS.eventsCardA}
@@ -77,8 +77,8 @@ type EventFeatureCardProps = {
 
 function EventFeatureCard({ href, imageSrc, title, details, ctaAria, wide }: EventFeatureCardProps) {
   const heightClass = wide
-    ? "min-h-[320px] lg:min-h-[509px] lg:w-[58%]"
-    : "min-h-[260px] flex-1 lg:min-h-[250px]";
+    ? "min-h-[320px] tablet:min-h-[509px] tablet:w-[58%]"
+    : "min-h-[260px] flex-1 tablet:min-h-[250px]";
   return (
     <Link
       href={href}
@@ -89,7 +89,7 @@ function EventFeatureCard({ href, imageSrc, title, details, ctaAria, wide }: Eve
         src={imageSrc}
         alt=""
         fill
-        sizes={wide ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 1024px) 100vw, 340px"}
+        sizes={wide ? "(max-width: 743px) 100vw, 58vw" : "(max-width: 743px) 100vw, 340px"}
         className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         {...belowFoldImageProps()}
       />

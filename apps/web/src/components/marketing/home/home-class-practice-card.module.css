@@ -1,0 +1,189 @@
+.card {
+  position: relative;
+  min-height: var(--home-class-card-min-h, 20.4375rem);
+  overflow: hidden;
+  border-radius: var(--home-class-card-radius, 2.5rem);
+}
+
+.copy {
+  position: relative;
+  z-index: 20;
+  max-width: 13.5rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 3vw, 2.125rem) 1.5rem;
+}
+
+.title {
+  font-size: var(--home-class-card-title-size, 1.5rem);
+  line-height: var(--home-class-card-title-line-height, 1.3);
+}
+
+.body {
+  margin-top: 0.75rem;
+  font-size: var(--home-class-card-body-size, 1rem);
+  line-height: var(--home-class-card-body-line-height, 1.5);
+}
+
+.imageZone {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  max-width: 15rem;
+}
+
+.imageZoneWide {
+  width: 62%;
+  max-width: 18rem;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.imageFlipY {
+  transform: scaleY(-1) rotate(180deg);
+}
+
+.imageZoneWide .image {
+  object-position: center top;
+}
+
+@media (max-width: 743px) {
+  .card {
+    display: flex;
+    min-height: var(--home-class-card-min-h, 26.1875rem);
+    flex-direction: column;
+    border-radius: var(--home-class-card-radius, 1.5rem);
+  }
+
+  .copy {
+    max-width: none;
+    flex-shrink: 0;
+    padding: 1.5rem 1.5rem 0;
+  }
+
+  .title {
+    font-size: var(--home-class-card-title-size, 1.5rem);
+    line-height: var(--home-class-card-title-line-height, 2rem);
+  }
+
+  .body {
+    margin-top: 0;
+    font-size: var(--home-class-card-body-size, 0.875rem);
+    line-height: var(--home-class-card-body-line-height, 1.25rem);
+  }
+
+  .imageZone {
+    position: absolute;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    height: 55%;
+  }
+
+  .imageZoneWide {
+    width: 100%;
+    max-width: none;
+    height: 58%;
+  }
+
+  .image {
+    position: absolute;
+    right: -8%;
+    bottom: -6%;
+    height: 115%;
+    width: 108%;
+    object-fit: cover;
+    object-position: top center;
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg));
+  }
+
+  .imageFlipY {
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg)) scaleY(-1);
+  }
+
+  .imageZoneWide .image {
+    right: -12%;
+    bottom: -8%;
+    height: 120%;
+    width: 112%;
+    object-position: center top;
+  }
+
+  /* Card 2 — upright portrait; cancel default carousel tilt. */
+  .card[data-card-id="reformer-individual"] .image {
+    transform: rotate(var(--home-class-card-image-rotation, 0deg));
+  }
+
+  /* Card 3 — rotated on mobile (replaces flipY + carousel tilt). */
+  .card[data-card-id="yoga"] .imageFlipY {
+    bottom: 0;
+    transform: rotate(var(--home-class-card-image-rotation, 90deg))
+      translateY(var(--home-class-yoga-image-offset-mobile, -1rem));
+  }
+
+  /*
+   * Card 4 — wide pose asset; keep bottom bleed and show full figure (cover + bottom:0 clipped limbs).
+   */
+  .card[data-card-id="mat-pilates"] .image {
+    bottom: -8%;
+    height: 125%;
+    width: 112%;
+    object-fit: contain;
+    object-position: center bottom;
+    transform: rotate(var(--home-class-card-image-rotation, 8.8deg))
+      translateY(var(--home-class-mat-pilates-image-offset-mobile, -1rem));
+  }
+}
+
+@media (min-width: 744px) {
+  .imageZone {
+    max-width: 15rem;
+  }
+
+  .imageZoneWide {
+    max-width: 24.75rem;
+    width: 58%;
+  }
+
+  /* Card 3 — yoga: shift photo down on desktop grid. */
+  .card[data-card-id="yoga"] .imageFlipY {
+    object-position: center bottom;
+    transform: scaleY(-1) rotate(180deg) translateY(var(--home-class-yoga-image-offset-desktop, 1.25rem));
+  }
+}
+
+@media (min-width: 744px) and (max-width: 1366px) {
+  .copy {
+    max-width: 15.5rem;
+    padding: clamp(1.75rem, 2.5vw, 2.125rem) clamp(1.5rem, 2.5vw, 2rem) 1.125rem;
+  }
+
+  .body {
+    margin-top: 0.5rem;
+  }
+
+  .imageZone {
+    width: 56%;
+    max-width: 16rem;
+  }
+
+  .imageZoneWide {
+    width: 60%;
+    max-width: 24rem;
+  }
+
+  /* Card 2 — reformer individual: shift photo down. */
+  .card[data-card-id="reformer-individual"] .image {
+    object-position: center bottom;
+    transform: translateY(10%);
+  }
+}

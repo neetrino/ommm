@@ -1,6 +1,6 @@
 /**
  * Marketing design tokens — Figma **Main** `155:107`, Featured Coaches card **Frame 68** `163:879`
- * (portrait `163:878`). All spacing/typography use rem or fluid clamp(); no raw px for layout.
+ * (portrait `-427 1` `196:1123`). All spacing/typography use rem or fluid clamp(); no raw px for layout.
  */
 :root {
   --ommm-coach-card-surface: #e5f4f9;
@@ -28,9 +28,16 @@
   --ommm-coach-text-gutter: clamp(1.25rem, 5vw, 3.6875rem);
   --ommm-coach-text-block-gap: clamp(1rem, 3vw, 1.75rem);
 
-  /* Image column — Figma 342×597 within 729-wide card */
-  --ommm-coach-image-max-width: min(21.375rem, 46%);
+  /* Image column — Figma `196:1123` 342×597 within 729px card `163:879` */
+  --ommm-coach-image-column-width: min(21.375rem, 46%);
+  --ommm-coach-image-max-width: var(--ommm-coach-image-column-width);
   --ommm-coach-card-min-height: clamp(20rem, 52vw, 26.125rem);
+  /** Portrait tuning — slightly smaller, nudged 10px left from Figma `196:1123` base. */
+  --ommm-coach-portrait-object-position: 45% 18%;
+  --ommm-coach-portrait-crop-left: calc(-4% + 6px);
+  --ommm-coach-portrait-crop-width: 114%;
+  --ommm-coach-portrait-crop-height: 98%;
+  --ommm-coach-portrait-crop-top: 3%;
 
   --ommm-coach-nav-bg: rgba(255, 255, 255, 0.28);
   --ommm-coach-nav-bg-hover: rgba(255, 255, 255, 0.4);

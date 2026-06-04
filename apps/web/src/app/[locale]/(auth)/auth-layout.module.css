@@ -1,0 +1,27 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.main {
+  --auth-form-lift: 1rem;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  margin-top: calc(-1 * var(--auth-form-lift));
+  padding: 0 1rem 2.5rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 28rem;
+}
+
+@media (min-width: 768px) {
+  .main {
+    --auth-form-lift: 1.5rem;
+    padding-bottom: 3.5rem;
+  }
+}

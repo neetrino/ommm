@@ -13,6 +13,9 @@ import {
   type CoachSlideCopy,
   type CoachSlideLane,
 } from "@/components/marketing/home/featured-coach-slide-card";
+import { MarketingGlassCircleButton } from "@/components/marketing/home/marketing-glass-circle-button";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 export type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 
@@ -38,24 +41,6 @@ function displayIndexToRealIndex(displayLength: number, displayIndex: number): n
     return 0;
   }
   return displayIndex - 1;
-}
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => {
-      setReduced(mq.matches);
-    };
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => {
-      mq.removeEventListener("change", onChange);
-    };
-  }, []);
-
-  return reduced;
 }
 
 type CarouselLayout = {
@@ -86,6 +71,7 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
     rootRemPx: 16,
   });
   const [canAnimateSlides, setCanAnimateSlides] = useState(false);
+  const isClientMounted = useIsClientMounted();
   const reducedMotion = usePrefersReducedMotion();
 
   useLayoutEffect(() => {
@@ -134,7 +120,7 @@ function useCoachCarouselMetrics(visualSlideIndex: number) {
   }, []);
 
   const { viewportWidth: vw, cardWidthRem, rootRemPx } = layout;
-  const layoutReady = vw > 0 && cardWidthRem > 0;
+  const layoutReady = isClientMounted && vw > 0 && cardWidthRem > 0;
   const cwPx = cardWidthRem * rootRemPx;
   const edgePadRem = layoutReady ? Math.max(0, (vw - cwPx) / 2 / rootRemPx) : 0;
   const translateRem =
@@ -171,54 +157,6 @@ function resolveCoachSlideLane(
   if (dist === 0) return "center";
   if (peekLayout && dist === 1) return "side";
   return "far";
-}
-
-type CoachNavButtonProps = {
-  direction: "prev" | "next";
-  label: string;
-  onPress: () => void;
-};
-
-function CoachNavButton({ direction, label, onPress }: CoachNavButtonProps) {
-  return (
-    <button
-      type="button"
-      className="group pointer-events-auto relative z-20 h-11 w-11 shrink-0 overflow-hidden rounded-full transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:opacity-100 hover:shadow-[0_10px_24px_rgba(255,255,255,0.24)] active:translate-y-0 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-16 md:w-16"
-      aria-label={label}
-      onClick={onPress}
-    >
-      <span
-        aria-hidden
-        className="absolute inset-0 rounded-full border border-white/45 bg-white/38 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_rgba(255,255,255,0.18)] backdrop-blur-[1.5px] transition-all duration-300 group-hover:bg-white/45 group-hover:border-white/60"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(120%_90%_at_28%_18%,rgba(255,255,255,0.75)_0%,rgba(255,255,255,0.32)_28%,rgba(255,255,255,0)_58%)] opacity-90 animate-[pulse_2.1s_ease-in-out_infinite] transition-opacity duration-300 group-hover:opacity-100"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(120deg,rgba(255,255,255,0.05)_18%,rgba(255,255,255,0.62)_48%,rgba(255,255,255,0.05)_78%)] opacity-45 animate-[pulse_2.6s_ease-in-out_infinite] transition-opacity duration-300 group-hover:opacity-70"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 -left-[80%] w-[42%] rotate-[22deg] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:left-[125%] group-hover:opacity-100"
-      />
-      <svg
-        aria-hidden
-        viewBox="0 0 26 19"
-        className={`absolute left-1/2 top-1/2 h-[0.82rem] w-[1.15rem] -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_1px_3px_rgba(255,255,255,0.35)] md:h-[1.05rem] md:w-[1.45rem] ${
-          direction === "prev" ? "rotate-180 group-hover:-translate-x-[58%]" : "group-hover:-translate-x-[42%]"
-        }`}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M1.25 7.95495C0.559644 7.95495 0 8.5146 0 9.20495C0 9.89531 0.559644 10.455 1.25 10.455V9.20495V7.95495ZM25.3017 10.0888C25.7898 9.60068 25.7898 8.80922 25.3017 8.32107L17.3467 0.366117C16.8586 -0.122039 16.0671 -0.122039 15.5789 0.366117C15.0908 0.854272 15.0908 1.64573 15.5789 2.13388L22.65 9.20495L15.5789 16.276C15.0908 16.7642 15.0908 17.5556 15.5789 18.0438C16.0671 18.5319 16.8586 18.5319 17.3467 18.0438L25.3017 10.0888ZM1.25 9.20495V10.455H24.4178V9.20495V7.95495H1.25V9.20495Z"
-          fill="black"
-        />
-      </svg>
-    </button>
-  );
 }
 
 type FeaturedCoachesCarouselStripProps = {
@@ -458,7 +396,7 @@ export function FeaturedCoachesCarouselStrip({
             left: layoutReady ? `calc(50% - ${cardWidthRem / 2}rem)` : "1.125rem",
           }}
         >
-          <CoachNavButton direction="prev" label={prevLabel} onPress={handlePrevPress} />
+          <MarketingGlassCircleButton arrow="prev" label={prevLabel} onPress={handlePrevPress} />
         </div>
         <div
           className="absolute -translate-x-1/2"
@@ -466,7 +404,7 @@ export function FeaturedCoachesCarouselStrip({
             left: layoutReady ? `calc(50% + ${cardWidthRem / 2}rem)` : "calc(100% - 1.125rem)",
           }}
         >
-          <CoachNavButton direction="next" label={nextLabel} onPress={handleNextPress} />
+          <MarketingGlassCircleButton arrow="next" label={nextLabel} onPress={handleNextPress} />
         </div>
       </div>
     </div>

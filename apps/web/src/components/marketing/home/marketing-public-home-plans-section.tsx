@@ -1,12 +1,17 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
-import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
+import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePackagePlanCardMobile } from "@/components/marketing/home/home-package-plan-card-mobile";
+import { HomePackagePlanCardsRow } from "@/components/marketing/home/home-package-plan-card";
+import { HOME_HERO_MOBILE_MORE_DETAILS_CTA } from "@/components/marketing/home/home-hero-banner-tokens";
+import {
+  HOME_PLANS_SECTION_FIGMA,
+  HOME_PLANS_SECTION_LAYOUT,
+  HOME_PLANS_SECTION_MOBILE_LAYOUT,
+} from "@/components/marketing/home/home-plans-section-tokens";
+import styles from "@/components/marketing/home/marketing-public-home-plans-section.module.css";
 import { buildHomeCategoryCardsFromPlans } from "@/components/marketing/home/home-public-plan-card-copy";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
@@ -18,7 +23,7 @@ type MarketingPublicHomePlansSectionProps = {
 };
 
 /**
- * Figma plans strip — frosted panel `163:949`, heading `163:951`, cards `163:950`.
+ * Figma **Packages** — desktop `196:1251`, mobile container `97:5888`.
  */
 export async function MarketingPublicHomePlansSection({
   locale,
@@ -32,123 +37,168 @@ export async function MarketingPublicHomePlansSection({
         .sort((left, right) => left.displayOrder - right.displayOrder)
     : [];
   const cards = buildHomeCategoryCardsFromPlans(activePlans, locale, {
-      sessionsUnlimited: t("planCardSessionsUnlimited"),
-      sessionsCount: (count) => t("planCardSessionsCount", { count }),
-      guestCount: (count) => t("planCardGuestCount", { count }),
-      ctaAria: (planName) => t("planCardCtaAria", { planName }),
-      categoryPackages: (count) => t("planCardCategoryPackages", { count }),
-      priceFrom: (amount) => t("planCardPriceFrom", { amount }),
-    });
+    sessionsUnlimited: t("planCardSessionsUnlimited"),
+    sessionsCount: (count) => t("planCardSessionsCount", { count }),
+    guestCount: (count) => t("planCardGuestCount", { count }),
+    ctaAria: (planName) => t("planCardCtaAria", { planName }),
+    categoryPackages: (count) => t("planCardCategoryPackages", { count }),
+    priceFrom: (amount) => t("planCardPriceFrom", { amount }),
+  });
+
+  const mobileStyle = {
+    ["--home-plans-section-bg" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionBackground,
+    ["--home-plans-coaches-overlap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.coachesSectionOverlap,
+    ["--home-plans-section-px" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingX,
+    ["--home-plans-section-py" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingY,
+    ["--home-plans-section-gap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionGap,
+    ["--home-plans-heading-color" as string]: HOME_PLANS_SECTION_FIGMA.headingColor,
+    ["--home-plans-subtitle-color" as string]: HOME_PLANS_SECTION_FIGMA.subtitleColor,
+    ["--home-plans-title-size" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.titleFontSize,
+    ["--home-plans-title-line-height" as string]: String(HOME_PLANS_SECTION_MOBILE_LAYOUT.titleLineHeight),
+    ["--home-plans-subtitle-size" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.subtitleFontSize,
+    ["--home-plans-subtitle-line-height" as string]: String(
+      HOME_PLANS_SECTION_MOBILE_LAYOUT.subtitleLineHeight,
+    ),
+    ["--home-plans-header-max-width" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.headerMaxWidth,
+    ["--home-plans-header-subtitle-gap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.headerSubtitleGap,
+    ["--home-plans-carousel-height" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselHeight,
+    ["--home-plans-carousel-gap" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselGap,
+    ["--home-plans-carousel-card-width" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.carouselCardWidth,
+    ["--home-plans-carousel-trailing-pad" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingX,
+  };
+
+  const plansStatusMessage = !plansRes.ok
+    ? t("plansLoadFailed", { status: plansRes.status })
+    : cards.length === 0
+      ? t("plansEmpty")
+      : null;
 
   return (
-    <section
-      className={`${marketingMontserrat.variable} w-full min-w-0 px-0 py-16`}
-      style={{ backgroundColor: HOME_PAGE_SURFACE.coachesGradientTo }}
-    >
-      <div
-        className="relative isolate w-full min-w-0 overflow-hidden rounded-[50px] border border-white/55 ring-1 ring-white/35 backdrop-blur-[6px]"
-        style={{
-          backgroundImage: HOME_PAGE_SURFACE.plansCardFill,
-          boxShadow: HOME_PAGE_SURFACE.plansCardShadow,
-        }}
+    <>
+      <section
+        aria-labelledby="home-plans-heading-mobile"
+        aria-describedby="home-plans-subtitle-mobile"
+        className={`${marketingMontserrat.variable} ${styles.mobileSection}`}
+        style={mobileStyle}
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ backgroundImage: HOME_PAGE_SURFACE.plansCardGlossOverlay }}
-        />
-        <div className="relative z-10 px-4 pb-20 pt-20 sm:px-8 sm:pb-24 sm:pt-24 md:px-12 md:pb-28 md:pt-28">
-          <h2
-            className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[48px]"
-            style={{ color: HOME_PAGE_SURFACE.plansHeading }}
-          >
-            {t("plansSectionTitle")}
-          </h2>
-
-          {!plansRes.ok ? (
-            <p
-              className={`${marketingMontserrat.className} mx-auto mt-16 max-w-xl text-center text-base text-[#4a4738]`}
-              role="status"
+        <div className={styles.mobileShell}>
+          <header className={styles.mobileHeader}>
+            <h2
+              id="home-plans-heading-mobile"
+              className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
             >
-              {t("plansLoadFailed", { status: plansRes.status })}
+              {t("plansSectionTitle")}
+            </h2>
+            <p
+              id="home-plans-subtitle-mobile"
+              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+            >
+              {t("plansSectionSubtitle")}
             </p>
-          ) : cards.length === 0 ? (
+          </header>
+
+          {plansStatusMessage !== null ? (
             <p
-              className={`${marketingMontserrat.className} mx-auto mt-16 max-w-xl text-center text-base text-[#4a4738]`}
+              className={`${marketingMontserrat.className} text-center text-base text-[#4a4738]`}
               role="status"
             >
-              {t("plansEmpty")}
+              {plansStatusMessage}
             </p>
           ) : (
-            <div className="mx-auto mt-16 flex max-w-[1332px] flex-col flex-wrap items-center justify-center gap-8 sm:mt-20 md:mt-24 lg:flex-row lg:gap-[60px]">
-              {cards.map((card) => (
-                <Link
-                  key={card.id}
-                  href="/packages"
-                  aria-label={card.ctaAria}
-                  className="group relative block h-[531px] w-full max-w-[404px] shrink-0 overflow-hidden rounded-[40px] bg-[#97907c] shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#577f91] focus-visible:ring-offset-2"
-                >
-                  <Image
-                    src={HOME_SECTION_ASSETS.planBackground}
-                    alt=""
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 404px"
-                    className="object-cover"
-                    {...belowFoldImageProps()}
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/25" />
-                  {card.isPopular ? (
-                    <span
-                      className={`${marketingMontserrat.className} pointer-events-none absolute right-6 top-6 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#577f91]`}
-                    >
-                      {t("planPopularBadge")}
-                    </span>
-                  ) : null}
-                  <p
-                    className="pointer-events-none absolute left-6 top-14 z-10 max-w-[calc(100%-3rem)] font-serif text-[28px] font-extrabold italic leading-6 text-white"
-                    style={{ letterSpacing: "0.18px" }}
-                  >
-                    {card.planName}
-                  </p>
-                  <div
-                    className="absolute bottom-6 left-1/2 z-10 h-[136px] w-[min(268px,calc(100%-3rem))] -translate-x-1/2 rounded-[40px]"
-                    style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
-                  />
-                  {card.details.length > 0 ? (
-                    <p
-                      className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[7.25rem] left-1/2 z-10 line-clamp-2 w-[min(240px,calc(100%-4rem))] -translate-x-1/2 text-center text-lg font-normal leading-6 text-white`}
-                      style={{ letterSpacing: "0.18px" }}
-                    >
-                      {card.details}
-                    </p>
-                  ) : null}
-                  <p
-                    className={`${marketingMontserrat.className} pointer-events-none absolute bottom-[4.25rem] left-1/2 z-10 -translate-x-1/2 text-[28px] font-extrabold leading-6 text-white`}
-                    style={{ letterSpacing: "0.18px" }}
-                  >
-                    {card.price}
-                  </p>
-                  <span className="sr-only">{card.ctaAria}</span>
-                  <span className="absolute bottom-[4.5rem] right-8 z-10 inline-flex size-16 items-center justify-center" aria-hidden>
-                    <Image
-                      src={HOME_SECTION_ASSETS.planCtaIcon}
-                      alt=""
-                      width={64}
-                      height={64}
-                      unoptimized
-                      className="size-16 transition-transform group-hover:scale-105"
-                    />
-                  </span>
-                </Link>
-              ))}
+            <div className={styles.carouselViewport} aria-label={t("plansSectionTitle")} tabIndex={0}>
+              <div className={styles.carouselTrack}>
+                {cards.map((card, index) => (
+                  <div key={`plan-mobile-${index}`} className={styles.carouselSlide}>
+                    <HomePackagePlanCardMobile {...card} />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          <div className="mt-16 flex justify-center sm:mt-20 md:mt-24">
-            <HomeMarketingPillLink href="/schedule" label={t("viewSchedule")} variant="silverSchedule" />
+          <div className={styles.mobileCta}>
+            <HomeHeroCtaButton
+              href="/packages"
+              label={t("plansMoreDetails")}
+              variant="booking"
+              labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
+            />
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section
+        aria-labelledby="home-plans-heading"
+        className={`${marketingMontserrat.variable} ${styles.desktopSection} w-full min-w-0 px-0 py-16`}
+        style={{ backgroundColor: HOME_PAGE_SURFACE.coachesGradientTo }}
+      >
+        <div
+          className="relative isolate w-full min-w-0 overflow-hidden rounded-[50px] border border-white/55 ring-1 ring-white/35 backdrop-blur-[6px]"
+          style={{
+            backgroundColor: HOME_PLANS_SECTION_FIGMA.panelFill,
+            backgroundImage: HOME_PAGE_SURFACE.plansCardFill,
+            boxShadow: HOME_PAGE_SURFACE.plansCardShadow,
+          }}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ backgroundImage: HOME_PAGE_SURFACE.plansCardGlossOverlay }}
+          />
+          <div
+            className="relative z-10 flex flex-col items-center"
+            style={{
+              paddingInline: HOME_PLANS_SECTION_LAYOUT.sectionPaddingX,
+              paddingTop: HOME_PLANS_SECTION_LAYOUT.sectionPaddingTop,
+              paddingBottom: HOME_PLANS_SECTION_LAYOUT.sectionPaddingBottom,
+              gap: HOME_PLANS_SECTION_LAYOUT.sectionGapPx,
+            }}
+          >
+            <header
+              className="flex w-full max-w-[834px] flex-col items-center text-center"
+              style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
+            >
+              <h2
+                id="home-plans-heading"
+                className="font-serif font-semibold tracking-tight text-balance"
+                style={{
+                  color: HOME_PLANS_SECTION_FIGMA.headingColor,
+                  fontSize: HOME_PLANS_SECTION_LAYOUT.titleFontSize,
+                  lineHeight: HOME_PLANS_SECTION_LAYOUT.titleLineHeight,
+                }}
+              >
+                {t("plansSectionTitle")}
+              </h2>
+              <p
+                className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
+                style={{
+                  color: HOME_PLANS_SECTION_FIGMA.subtitleColor,
+                  maxWidth: HOME_PLANS_SECTION_LAYOUT.subtitleMaxWidth,
+                }}
+              >
+                {t("plansSectionSubtitle")}
+              </p>
+            </header>
+
+            {plansStatusMessage !== null ? (
+              <p
+                className={`${marketingMontserrat.className} max-w-xl text-center text-base text-[#4a4738]`}
+                role="status"
+              >
+                {plansStatusMessage}
+              </p>
+            ) : (
+              <HomePackagePlanCardsRow cards={cards} />
+            )}
+
+            <HomeHeroCtaButton
+              href="/packages"
+              label={t("plansMoreDetails")}
+              variant="membership"
+            />
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

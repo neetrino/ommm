@@ -1,10 +1,13 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Image from "next/image";
+import styles from "@/components/marketing/home/featured-coach-slide-card.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+
 export type CoachSlideCopy = {
   name: string;
   role: string;
@@ -66,7 +69,7 @@ export function FeaturedCoachSlideCard({
   ariaHidden,
   instantCarouselSnap = false,
 }: FeaturedCoachSlideCardProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
 
   const showSideDrop = peekLayout && lane === "side" && !reduceMotion;
   const y = showSideDrop ? `${COACH_SIDE_DROP_REM}rem` : "0rem";
@@ -108,14 +111,16 @@ export function FeaturedCoachSlideCard({
       transition={instantCarouselSnap ? { duration: 0 } : CARD_MOTION}
     >
       <div
-        className="relative grid min-h-0 w-full grid-cols-1 overflow-hidden md:min-h-[var(--ommm-coach-card-min-height)] md:grid-cols-[minmax(0,1fr)_min(21.375rem,46%)]"
+        className={`${styles.cardShell} relative grid min-h-0 w-full grid-cols-1 overflow-hidden md:min-h-[var(--ommm-coach-card-min-height)]`}
         style={{
           borderRadius: "var(--ommm-coach-card-radius)",
           backgroundColor: cardSurface,
           boxShadow: cardShadow,
         }}
       >
-        <div className="order-2 flex min-h-0 flex-col justify-center gap-y-[var(--ommm-coach-text-block-gap)] px-[var(--ommm-coach-text-gutter)] py-[clamp(1.5rem,4vw,2rem)] md:order-1 md:py-[clamp(1.5rem,4vw,2.5rem)]">
+        <div
+          className={`${styles.textColumn} order-2 flex min-h-0 flex-col justify-center gap-y-[var(--ommm-coach-text-block-gap)] px-[var(--ommm-coach-text-gutter)] py-[clamp(1.5rem,4vw,2rem)] md:order-1 md:py-[clamp(1.5rem,4vw,2.5rem)]`}
+        >
           <p
             className={`${marketingMontserrat.className} font-extrabold tracking-[0.045em]`}
             style={{
@@ -158,23 +163,23 @@ export function FeaturedCoachSlideCard({
           </p>
         </div>
 
-        <div className="relative order-1 aspect-[342/597] w-full max-md:max-h-[min(28rem,78vh)] overflow-hidden md:order-2 md:aspect-auto md:max-h-none md:self-stretch md:overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div
-              className="pointer-events-none absolute left-0 max-w-none overflow-hidden"
-              style={{ width: "120.17%", height: "103.34%", top: "-3.28%" }}
-              aria-hidden
-            >
-              <div className="relative h-full w-full">
-                <Image
-                  src={HOME_SECTION_ASSETS.coachPortrait}
-                  alt={slide.imageAlt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, min(21.375rem, 46vw)"
-                  className="object-cover"
-                  style={{ objectPosition: "42% 18%" }}
-                  {...belowFoldImageProps()}
-                />              </div>
+        <div
+          className={`${styles.imageColumn} relative order-1 aspect-[342/597] w-full max-md:max-h-[min(28rem,78vh)] md:order-2 md:aspect-auto md:max-h-none md:self-stretch`}
+        >
+          <div className={styles.imageViewport} aria-hidden>
+            <div className={styles.imageFlip}>
+              <div className={styles.imageCrop}>
+                <div className={styles.imageFrame}>
+                  <Image
+                    src={HOME_SECTION_ASSETS.coachPortrait}
+                    alt={slide.imageAlt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, min(21.375rem, 46vw)"
+                    className={styles.image}
+                    {...belowFoldImageProps()}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

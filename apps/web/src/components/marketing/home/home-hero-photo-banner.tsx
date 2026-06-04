@@ -1,13 +1,21 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { HomeMarketingPillLink } from "@/components/marketing/home/home-marketing-pill-link";
+import { HomeHeroJunctionNavDeferred } from "@/components/marketing/home/home-deferred-sections";
+import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import {
   HOME_HERO_ASSETS,
   HOME_HERO_FIGMA,
+  HOME_HERO_CTA_LAYOUT,
+  HOME_HERO_IPAD_AIR_LAYOUT,
   HOME_HERO_LAYOUT,
-  HOME_HERO_SUBTITLE_ON_IMAGE,
+  HOME_HERO_MOBILE_CTA_LAYOUT,
+  HOME_HERO_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-hero-banner-tokens";
+import {
+  HOME_WEEKLY_SCHEDULE_LAYOUT,
+  HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT,
+} from "@/components/marketing/home/home-weekly-schedule-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
@@ -16,41 +24,101 @@ type HomeHeroPhotoBannerProps = {
 };
 
 /**
- * Figma photo stack — background `155:297`, portal `155:300`, logo `155:104`, title `155:111`, copy `161:302`, CTAs `170:1050`.
+ * Figma hero `196:1404` (desktop) + mobile container `97:5656`.
  */
 export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.hero" });
+  const portalCircleWidth = `calc(100svw * ${HOME_HERO_LAYOUT.portalWidthRatio * HOME_HERO_LAYOUT.portalChordAtLogoRatio * HOME_HERO_LAYOUT.logoMarkPortalFillRatio})`;
+  const logoWidthDesktop = `clamp(8.125rem, ${portalCircleWidth}, 17rem)`;
 
   return (
     <section
       aria-labelledby="home-hero-heading"
-      className={`${marketingMontserrat.variable} relative w-full min-w-0 overflow-x-clip`}
+      className={`${marketingMontserrat.variable} ${styles.homeHeroSection} relative w-full min-w-0`}
       style={{
-        backgroundColor: HOME_HERO_FIGMA.sectionBackground,
-        borderBottomLeftRadius: HOME_HERO_FIGMA.sectionBottomRadiusPx,
-        borderBottomRightRadius: HOME_HERO_FIGMA.sectionBottomRadiusPx,
-        ["--home-hero-min-h" as string]: HOME_HERO_LAYOUT.imageMinHeightMobile,
-        ["--home-hero-max-h" as string]: HOME_HERO_LAYOUT.imageMaxHeightMobile,
+        ["--home-hero-section-bg" as string]: HOME_HERO_FIGMA.sectionBackground,
+        ["--home-hero-min-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMinHeight,
+        ["--home-hero-max-h" as string]: HOME_HERO_MOBILE_LAYOUT.imageMaxHeight,
         ["--home-hero-min-h-lg" as string]: HOME_HERO_LAYOUT.imageMinHeightDesktop,
-        ["--home-hero-title-size" as string]: HOME_HERO_LAYOUT.titleFontSize,
+        ["--home-hero-bg-width" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageWidthPercent}%`,
+        ["--home-hero-bg-height" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageHeightPercent}%`,
+        ["--home-hero-bg-left" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageLeftPercent}%`,
+        ["--home-hero-bg-top" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageTopPercent}%`,
+        ["--home-hero-bg-position-lg" as string]: HOME_HERO_LAYOUT.backgroundObjectPosition,
+        ["--home-hero-content-px" as string]: HOME_HERO_MOBILE_LAYOUT.contentPaddingX,
+        ["--home-hero-title-size" as string]: HOME_HERO_MOBILE_LAYOUT.titleFontSize,
         ["--home-hero-title-size-lg" as string]: HOME_HERO_LAYOUT.titleFontSizeDesktop,
+        ["--home-hero-title-size-air" as string]: `${HOME_HERO_IPAD_AIR_LAYOUT.titleFontSizePx}px`,
+        ["--home-hero-title-line-height" as string]: String(HOME_HERO_MOBILE_LAYOUT.titleLineHeight),
+        ["--home-hero-title-line-height-lg" as string]: String(HOME_HERO_LAYOUT.titleLineHeight),
+        ["--home-hero-title-line-height-air" as string]: String(
+          HOME_HERO_IPAD_AIR_LAYOUT.titleLineHeightPx / HOME_HERO_IPAD_AIR_LAYOUT.titleFontSizePx,
+        ),
+        ["--home-hero-title-tracking" as string]: `${HOME_HERO_MOBILE_LAYOUT.titleLetterSpacingEm}em`,
+        ["--home-hero-title-tracking-lg" as string]: `${HOME_HERO_LAYOUT.titleLetterSpacingEm}em`,
+        ["--home-hero-title-max-width" as string]: HOME_HERO_MOBILE_LAYOUT.titleMaxWidth,
+        ["--home-hero-title-max-width-lg" as string]: `${HOME_HERO_LAYOUT.titleMaxWidthPx}px`,
+        ["--home-hero-title-max-width-air" as string]: `${HOME_HERO_IPAD_AIR_LAYOUT.titleMaxWidthPx}px`,
+        ["--home-hero-title-margin-top" as string]: HOME_HERO_MOBILE_LAYOUT.titleMarginTop,
+        ["--home-hero-title-margin-top-lg" as string]: "-2.5rem",
+        ["--home-hero-title-margin-top-air" as string]: `${HOME_HERO_IPAD_AIR_LAYOUT.titleMarginTopPx}px`,
+        ["--home-hero-logo-width" as string]: HOME_HERO_MOBILE_LAYOUT.logoWidth,
+        ["--home-hero-logo-width-lg" as string]: logoWidthDesktop,
+        ["--home-hero-logo-width-air" as string]: `clamp(7.5rem, ${portalCircleWidth}, ${HOME_HERO_IPAD_AIR_LAYOUT.logoMaxWidthPx}px)`,
+        ["--home-hero-logo-top" as string]: HOME_HERO_MOBILE_LAYOUT.logoTop,
+        ["--home-hero-logo-image-height" as string]: `${HOME_HERO_MOBILE_LAYOUT.logoImageHeightPercent}%`,
+        ["--home-hero-logo-image-top" as string]: `${HOME_HERO_MOBILE_LAYOUT.logoImageTopPercent}%`,
+        ["--home-hero-logo-frame-height-ratio" as string]: String(
+          HOME_HERO_MOBILE_LAYOUT.logoFrameHeightRatio,
+        ),
+        ["--home-hero-logo-margin-top-lg" as string]: "-1.5rem",
+        ["--home-hero-logo-margin-top-air" as string]: `${HOME_HERO_IPAD_AIR_LAYOUT.logoMarginTopPx}px`,
+        ["--home-hero-subtitle-size" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleFontSize,
+        ["--home-hero-subtitle-size-lg" as string]: HOME_HERO_LAYOUT.subtitleFontSize,
+        ["--home-hero-subtitle-size-air" as string]: `${HOME_HERO_IPAD_AIR_LAYOUT.subtitleFontSizePx}px`,
+        ["--home-hero-subtitle-line-height" as string]: String(
+          HOME_HERO_MOBILE_LAYOUT.subtitleLineHeight,
+        ),
+        ["--home-hero-subtitle-line-height-lg" as string]: String(
+          HOME_HERO_LAYOUT.subtitleLineHeight,
+        ),
+        ["--home-hero-subtitle-line-height-air" as string]: String(
+          HOME_HERO_IPAD_AIR_LAYOUT.subtitleLineHeightPx /
+            HOME_HERO_IPAD_AIR_LAYOUT.subtitleFontSizePx,
+        ),
+        ["--home-hero-subtitle-color" as string]: HOME_HERO_FIGMA.subtitleColor,
+        ["--home-hero-subtitle-max-width" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleMaxWidth,
+        ["--home-hero-subtitle-max-width-lg" as string]: `${HOME_HERO_LAYOUT.subtitleMaxWidthPx}px`,
+        ["--home-hero-subtitle-margin-top" as string]: HOME_HERO_MOBILE_LAYOUT.subtitleMarginTop,
+        ["--home-hero-text-stack-offset-top" as string]: HOME_HERO_MOBILE_LAYOUT.textStackOffsetTop,
+        ["--home-hero-content-down-offset" as string]: HOME_HERO_MOBILE_LAYOUT.contentDownOffset,
+        ["--home-hero-cta-gap" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonGap,
+        ["--home-hero-cta-gap-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonGap,
+        ["--home-hero-cta-bottom" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsBottomOffset,
+        ["--home-hero-cta-down-offset" as string]: HOME_HERO_MOBILE_CTA_LAYOUT.buttonsDownOffset,
+        ["--home-hero-cta-margin-top-lg" as string]: HOME_HERO_CTA_LAYOUT.buttonsMarginTop,
+        ["--home-schedule-hero-overlap" as string]:
+          HOME_WEEKLY_SCHEDULE_MOBILE_LAYOUT.sectionHeroOverlap,
+        ["--home-schedule-hero-overlap-lg" as string]:
+          HOME_WEEKLY_SCHEDULE_LAYOUT.sectionHeroOverlap,
       }}
     >
-      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      <div className={styles.homeHeroBackgroundLayer} aria-hidden>
+        <div className={styles.homeHeroBackgroundCrop}>
           <Image
             src={HOME_HERO_ASSETS.backgroundImage}
             alt={t("heroImageAlt")}
             fill
             sizes="100vw"
-            className="pointer-events-none object-cover"
-            style={{ objectPosition: HOME_HERO_LAYOUT.backgroundObjectPosition }}
+            className={`${styles.homeHeroBackground} pointer-events-none object-cover`}
             {...lcpImageProps()}
           />
         </div>
+      </div>
 
+      <div className={`${styles.homeHeroFrame} relative w-full min-w-0`}>
         <div
-          className="pointer-events-none absolute inset-x-0 flex justify-center px-4 sm:px-6"
+          className={`${styles.homeHeroPortal} pointer-events-none absolute inset-x-0 z-[1] flex justify-center px-4 sm:px-6`}
           style={{ top: HOME_HERO_LAYOUT.portalTop }}
           aria-hidden
         >
@@ -66,57 +134,61 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         </div>
 
         <div
-          className={`${styles.homeHeroContent} relative z-10 mx-auto flex w-full min-w-0 max-w-[90rem] flex-col items-center px-4 pb-10 sm:px-6 sm:pb-12 md:pb-14`}
+          className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
         >
-          <div className="relative mb-4 w-[min(7.5rem,22vw)] shrink-0 sm:mb-6">
-            <div className="relative aspect-[130/129] w-full overflow-hidden rounded-[5.6875rem] ring-1 ring-white/25">
-              <Image
-                src={HOME_HERO_ASSETS.logoMark}
-                alt={t("logoAlt")}
-                fill
-                sizes="130px"
-                className="object-cover"
-                style={{ objectPosition: "44% 36%" }}
-                {...aboveFoldImageProps()}
-              />
+          <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
+            <div className={styles.homeHeroLogoInner}>
+              <div className={styles.homeHeroLogoCrop}>
+                <Image
+                  src={HOME_HERO_ASSETS.logoMark}
+                  alt={t("logoAlt")}
+                  fill
+                  sizes="(max-width: 743px) 61vw, 21rem"
+                  className={styles.homeHeroLogoImage}
+                  {...aboveFoldImageProps()}
+                />
+              </div>
             </div>
           </div>
 
-          <div
-            id="home-hero-heading"
-            className={`${styles.homeHeroTitle} w-full max-w-[64.375rem] shrink-0 text-center font-serif font-semibold tracking-[-0.08em] text-white`}
-            style={{
-              lineHeight: HOME_HERO_LAYOUT.titleLineHeight,
-            }}
-          >
-            <h1>
-              <span className="block">
-                <span>{t("titleLine1")}</span>
-                <span style={{ color: HOME_HERO_FIGMA.titleAccentSpace }}> </span>
-                <span>{t("brandName")}</span>
-              </span>
-              <span className="mt-0.5 block sm:mt-1">{t("titleLine2")}</span>
-            </h1>
+          <div className={styles.homeHeroTextStack}>
+            <div
+              id="home-hero-heading"
+              className={`${styles.homeHeroTitle} w-full shrink-0 text-center font-serif font-bold text-white`}
+            >
+              <h1>
+                <span className={`${styles.homeHeroTitleLine} mb-0`}>
+                  <span>{t("titleLine1")}</span>
+                  <span style={{ color: HOME_HERO_FIGMA.titleAccentSpace }}> </span>
+                  <span>{t("brandName")}</span>
+                </span>
+                <span className={`${styles.homeHeroTitleLine} mt-0`}>{t("titleLine2")}</span>
+              </h1>
+            </div>
+
+            <p className={`${styles.homeHeroSubtitle} ${marketingMontserrat.className}`}>
+              <span className={styles.homeHeroSubtitleLine}>{t("subLine1")}</span>
+              <span className={styles.homeHeroSubtitleLine}>{t("subLine2")}</span>
+            </p>
           </div>
 
-          <p
-            className={`${marketingMontserrat.className} mt-4 w-full max-w-[27.5rem] shrink-0 text-center text-[clamp(0.9375rem,2.2vw,1.125rem)] font-light leading-6 sm:mt-5`}
-            style={{ color: HOME_HERO_SUBTITLE_ON_IMAGE }}
-          >
-            <span className="block">{t("subLine1")}</span>
-            <span className="block">{t("subLine2")}</span>
-          </p>
-
-          <div className="mt-6 flex w-full max-w-[35rem] shrink-0 flex-col items-stretch gap-4 sm:mt-8 sm:flex-row sm:items-center sm:justify-center sm:gap-[3.5625rem]">
-            <HomeMarketingPillLink href="/schedule" label={t("primaryCta")} variant="goldBooking" />
-            <HomeMarketingPillLink
+          <div className={styles.homeHeroCtas}>
+            <HomeHeroCtaButton
               href="/schedule"
+              label={t("primaryCta")}
+              variant="booking"
+              sizeContext="hero"
+            />
+            <HomeHeroCtaButton
+              href="/packages"
               label={t("secondaryCta")}
-              variant="frostMembership"
+              variant="membership"
+              sizeContext="hero"
             />
           </div>
         </div>
       </div>
+      <HomeHeroJunctionNavDeferred />
     </section>
   );
 }

@@ -1,0 +1,112 @@
+.root {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.viewport {
+  width: 100%;
+  min-width: 0;
+  height: var(--home-gallery-mobile-mosaic-size);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: max(0px, calc(50% - var(--home-gallery-mobile-mosaic-size) / 2));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  min-height: 100%;
+  align-items: stretch;
+  gap: var(--home-gallery-mobile-carousel-gap);
+  padding-inline: max(0px, calc(50% - var(--home-gallery-mobile-mosaic-size) / 2));
+}
+
+.slide {
+  flex-shrink: 0;
+  width: var(--home-gallery-mobile-mosaic-size);
+  height: var(--home-gallery-mobile-mosaic-size);
+  scroll-snap-align: center;
+}
+
+.mosaic {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: minmax(0, 165fr) minmax(0, 165fr);
+  grid-template-rows: minmax(0, 165fr) minmax(0, 165fr);
+  gap: var(--home-gallery-mobile-mosaic-gap);
+}
+
+.tile {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--home-gallery-mobile-tile-radius);
+  background-color: #ede9dd;
+}
+
+.tileImageCover {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.tileLeft {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+.tileRightTop {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tileRightBottom {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.dotsWrap {
+  margin-top: var(--home-gallery-mobile-dots-offset);
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--home-gallery-mobile-dot-gap);
+}
+
+.dot {
+  width: var(--home-gallery-mobile-dot-size);
+  height: var(--home-gallery-mobile-dot-size);
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--home-gallery-mobile-dot-inactive);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 200ms ease, transform 200ms ease;
+}
+
+.dot:hover {
+  transform: scale(1.08);
+}
+
+.dotActive {
+  background-color: var(--home-gallery-mobile-dot-active);
+}
+
+.dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}

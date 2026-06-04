@@ -1,0 +1,134 @@
+/**
+ * Mobile coach card — Figma `97:6075`.
+ */
+
+.cardRoot {
+  position: relative;
+  min-width: 0;
+  flex-shrink: 0;
+  width: var(--ommm-coach-card-width, clamp(20.75rem, calc(var(--ommm-layout-vw-px, 100svw) * 332 / 394), 20.75rem));
+  max-width: var(--ommm-coach-card-width, clamp(20.75rem, calc(var(--ommm-layout-vw-px, 100svw) * 332 / 394), 20.75rem));
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  min-height: var(--ommm-coach-card-min-height, 29.5rem);
+  overflow: hidden;
+  border-radius: var(--ommm-coach-card-radius, 1.5rem);
+  background-color: var(--ommm-coach-card-surface, #e5f4f9);
+  box-shadow: var(--ommm-coach-card-shadow);
+}
+
+.nameHeader {
+  position: absolute;
+  top: var(--ommm-coach-card-padding, 1.6875rem);
+  left: var(--ommm-coach-card-padding, 1.6875rem);
+  right: var(--ommm-coach-card-padding, 1.6875rem);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.name {
+  overflow: hidden;
+  width: 100%;
+  font-size: var(--ommm-coach-name-size, 1.875rem);
+  line-height: var(--ommm-coach-name-leading, 2.25rem);
+  color: var(--ommm-coach-card-text-strong, #1d1c15);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role {
+  overflow: hidden;
+  font-size: var(--ommm-coach-body-size, 0.875rem);
+  line-height: var(--ommm-coach-body-leading, 1.25rem);
+  color: var(--ommm-coach-card-text-muted, #4a4738);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.textColumn {
+  position: absolute;
+  top: 4.25rem;
+  left: var(--ommm-coach-card-padding, 1.6875rem);
+  z-index: 2;
+  display: flex;
+  width: min(11.8125rem, calc(100% - 2 * var(--ommm-coach-card-padding, 1.6875rem)));
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.6875rem;
+  padding-top: 1rem;
+}
+
+.bio {
+  margin-top: 1rem;
+  font-size: var(--ommm-coach-body-size, 0.875rem);
+  line-height: var(--ommm-coach-body-leading, 1.25rem);
+  color: var(--ommm-coach-card-text-muted, #4a4738);
+}
+
+.experience {
+  margin-top: 0.3125rem;
+  font-size: var(--ommm-coach-body-size, 0.875rem);
+  line-height: var(--ommm-coach-body-leading, 1.25rem);
+  color: var(--ommm-coach-card-text-muted, #4a4738);
+}
+
+.imageColumn {
+  position: absolute;
+  top: 4.25rem;
+  left: var(--ommm-coach-image-left, 40%);
+  z-index: 1;
+  width: var(--ommm-coach-image-width, 76.8%);
+  height: calc(100% - 4.25rem);
+  overflow: visible;
+}
+
+.imageFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  height: 28rem;
+  width: 15.9375rem;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.imageFlip {
+  flex-shrink: 0;
+  transform: rotate(180deg) scaleY(-1);
+}
+
+.imageCrop {
+  position: relative;
+  width: 15.9375rem;
+  height: 27.8125rem;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  object-position: top center;
+}
+
+.activateOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: var(--ommm-coach-card-radius, 1.5rem);
+  touch-action: pan-x;
+}
+
+.activateOverlay:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(87, 127, 145, 0.45);
+}

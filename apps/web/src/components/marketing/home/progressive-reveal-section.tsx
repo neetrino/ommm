@@ -7,6 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import {
+  isHomeLazySectionMounted,
+  markHomeLazySectionMounted,
+} from "@/lib/home-lazy-section-mount-state";
 
 type ProgressiveRevealSectionProps = {
   id: string;
@@ -15,7 +19,6 @@ type ProgressiveRevealSectionProps = {
   mountMarginPx?: number;
   prefetchApiPaths?: readonly string[];
   placeholderClassName?: string;
-  revealDelayMs?: number;
 };
 
 const prefetchedApiPaths = new Set<string>();
@@ -48,6 +51,7 @@ function prefetchApiPath(path: string): Promise<void> {
   return request;
 }
 
+/** Mounts children when the section nears the viewport — no entrance animation. */
 export function ProgressiveRevealSection({
   id,
   children,
@@ -55,12 +59,11 @@ export function ProgressiveRevealSection({
   mountMarginPx = 380,
   prefetchApiPaths = [],
   placeholderClassName = "h-[clamp(24rem,48vw,44rem)]",
-  revealDelayMs = 0,
 }: ProgressiveRevealSectionProps) {
   const containerRef = useRef<HTMLElement | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const showChildren = hasHydrated && shouldMount;
 
   const resolvedPrefetchPaths = useMemo(
     () => Array.from(new Set(prefetchApiPaths)),
@@ -68,22 +71,55 @@ export function ProgressiveRevealSection({
   );
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncPreference = () => {
-      setPrefersReducedMotion(mediaQuery.matches);
-    };
-    syncPreference();
-    mediaQuery.addEventListener("change", syncPreference);
-    return () => {
-      mediaQuery.removeEventListener("change", syncPreference);
-    };
+    setHasHydrated(true);
   }, []);
 
   useEffect(() => {
-    const element = containerRef.current;
-    if (!element || resolvedPrefetchPaths.length === 0) {
-      return;
+    if (!hasHydrated) {
+      return undefined;
     }
+    if (isHomeLazySectionMounted(id)) {
+      setShouldMount(true);
+    }
+    return undefined;
+  }, [hasHydrated, id]);
+
+  useEffect(() => {
+    if (!hasHydrated || shouldMount) {
+      return undefined;
+    }
+
+    const element = containerRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    let prefetchStarted = false;
+
+    const mountThreshold = () => window.innerHeight + mountMarginPx;
+
+    const tryMount = () => {
+      if (element.getBoundingClientRect().top <= mountThreshold()) {
+        setShouldMount(true);
+        markHomeLazySectionMounted(id);
+        return true;
+      }
+      return false;
+    };
+
+    const startPrefetch = () => {
+      if (prefetchStarted || resolvedPrefetchPaths.length === 0) {
+        return;
+      }
+      prefetchStarted = true;
+      void Promise.all(resolvedPrefetchPaths.map((path) => prefetchApiPath(path)));
+    };
+
+    const onScrollOrResize = () => {
+      if (tryMount()) {
+        cleanup();
+      }
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -91,8 +127,10 @@ export function ProgressiveRevealSection({
         if (!entry?.isIntersecting) {
           return;
         }
-        void Promise.all(resolvedPrefetchPaths.map((path) => prefetchApiPath(path)));
-        observer.disconnect();
+        startPrefetch();
+        if (tryMount()) {
+          cleanup();
+        }
       },
       {
         root: null,
@@ -101,83 +139,22 @@ export function ProgressiveRevealSection({
       },
     );
 
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [preloadMarginPx, resolvedPrefetchPaths]);
-
-  useEffect(() => {
-    const element = containerRef.current;
-    if (!element) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry?.isIntersecting) {
-          return;
-        }
-        setShouldMount(true);
-        observer.disconnect();
-      },
-      {
-        root: null,
-        rootMargin: `0px 0px ${mountMarginPx}px 0px`,
-        threshold: 0,
-      },
-    );
+    const cleanup = () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
 
     observer.observe(element);
-    return () => observer.disconnect();
-  }, [mountMarginPx]);
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize, { passive: true });
 
-  useEffect(() => {
-    const element = containerRef.current;
-    if (!element || !shouldMount) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry?.isIntersecting) {
-          return;
-        }
-        setIsVisible(true);
-        observer.disconnect();
-      },
-      {
-        root: null,
-        rootMargin: prefersReducedMotion ? "0px 0px 0px 0px" : "0px 0px -10% 0px",
-        threshold: prefersReducedMotion ? 0 : 0.15,
-      },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [prefersReducedMotion, shouldMount]);
-
-  const revealClassName = prefersReducedMotion
-    ? "opacity-100 translate-y-0 scale-100 blur-0"
-    : isVisible
-      ? "opacity-100 translate-y-0 scale-100 blur-0"
-      : "opacity-0 translate-y-8 scale-[0.985] blur-[6px]";
+    return cleanup;
+  }, [hasHydrated, id, mountMarginPx, preloadMarginPx, resolvedPrefetchPaths, shouldMount]);
 
   return (
     <section ref={containerRef} data-home-section={id} className="relative">
-      {shouldMount ? (
-        <div
-          className={`will-change-[opacity,transform,filter] transform-gpu transition-[opacity,transform,filter] duration-[820ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${revealClassName}`}
-          style={{
-            transitionDelay:
-              !prefersReducedMotion && isVisible ? `${revealDelayMs}ms` : "0ms",
-          }}
-        >
-          {children}
-        </div>
-      ) : (
-        <div aria-hidden className={placeholderClassName} />
-      )}
+      {showChildren ? children : <div aria-hidden className={placeholderClassName} />}
     </section>
   );
 }

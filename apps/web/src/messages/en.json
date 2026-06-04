@@ -9,14 +9,16 @@
     "loading": "Loading…"
   },
   "nav": {
-    "studioBrand": "Ommm.Space",
+    "studioBrand": "Ommm.",
+    "spaceBrand": "Ommm.",
     "home": "Home",
     "story": "Story",
     "coaches": "Coaches",
+    "memberships": "Membership",
     "packages": "Packages",
     "explore": "Explore",
     "schedule": "Schedule",
-    "contact": "Contact"
+    "contact": "Contact Us"
   },
   "footer": {
     "tagline": "Studio classes, packages, and member tools — one calm place to plan your practice.",
@@ -89,9 +91,12 @@
       "subLine1": "A space for inner calmness, balance, and mindful",
       "subLine2": "movement.",
       "primaryCta": "Make a booking",
-      "secondaryCta": "View packages",
+      "secondaryCta": "View Membership",
       "heroImageAlt": "Person meditating in a bright minimal studio with an oval opening to the sea",
-      "logoAlt": "Ommm studio emblem"
+      "logoAlt": "Ommm studio emblem",
+      "junctionNavAria": "Hero photo navigation",
+      "junctionNavPrevAria": "Previous hero photo",
+      "junctionNavNextAria": "Next hero photo"
     },
     "home": {
       "weeklyScheduleTitle": "Weekly Schedule",
@@ -102,49 +107,52 @@
       "weeklyScheduleSessionsPanelAria": "{day} class sessions",
       "weeklyScheduleEmptyDay": "No sessions",
       "weeklyScheduleLoadFailed": "Could not load schedule ({status}).",
-      "weeklyScheduleBookSessionAria": "Book {className}",
+      "weeklyScheduleBookSessionAria": "Reserve {className} on the schedule",
+      "weeklyScheduleReserve": "Reserve",
+      "weeklyScheduleWithInstructor": "with {name}",
+      "weeklyScheduleDuration": "{count} min",
+      "weeklyScheduleDurationFallback": "—",
+      "weeklyScheduleSpotsLeft": "{count, plural, =1 {1 spot left} other {# spots left}}",
       "weeklyScheduleDays": {
-        "MONDAY": "MON",
-        "TUESDAY": "TUES",
-        "WEDNESDAY": "WED",
-        "THURSDAY": "THUR",
-        "FRIDAY": "FRI",
-        "SATURDAY": "SAT",
-        "SUNDAY": "SUN"
+        "MONDAY": "Monday",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Wednesday",
+        "THURSDAY": "Thursday",
+        "FRIDAY": "Friday",
+        "SATURDAY": "Saturday",
+        "SUNDAY": "Sunday"
       },
       "classesTitle": "Our Core Practices",
       "classesSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "viewMembership": "View Membership",
       "viewSchedule": "View schedule",
       "classCards": [
         {
-          "title": "Mindfulness & Breathwork",
+          "titleLines": ["Reformer", "Group"],
           "body": "Techniques to anchor your presence and expand your lung capacity through guided breath."
         },
         {
-          "title": "Balance Work",
+          "titleLines": ["Reformer", "Individual"],
           "body": "Focus on core stability and spatial awareness to find steadiness in the center of movement."
         },
         {
-          "title": "Restorative Recovery",
+          "titleLines": ["Yoga"],
           "body": "Deep relaxation for the nervous system, using props to hold the body in gentle stillness."
         },
         {
-          "title": "Dynamic Movement",
+          "titleLines": ["Mat Pilates"],
           "body": "Fluid sequences that build heat and strength while maintaining a rhythmic, moving flow."
         },
         {
-          "title": "Flexibility & Lengthening",
+          "titleLines": ["Dances"],
           "body": "Targeted stretches designed to release tension and create space within the joints and muscles."
-        },
-        {
-          "title": "Community Sessions",
-          "body": "Group practices that emphasize shared energy, connection, and collective well-being."
         }
       ],
       "coachesTitle": "Featured Coaches",
       "coachesPrevAria": "Previous coach",
       "coachesNextAria": "Next coach",
       "coachesGoToSlideAria": "Show {name}",
+      "coachesMoreDetails": "More Details",
       "coachSlides": [
         {
           "name": "Jane Doe",
@@ -175,7 +183,9 @@
           "imageAlt": "Coach portrait"
         }
       ],
-      "plansSectionTitle": "A Sanctuary for Every Body",
+      "plansSectionTitle": "Choose Your Package",
+      "plansSectionSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "plansMoreDetails": "More Details",
       "planCardCtaAria": "View {planName} details",
       "planCardSessionsUnlimited": "Unlimited sessions",
       "planCardSessionsCount": "{count, plural, one {# session} other {# sessions}}",
@@ -185,33 +195,36 @@
       "planPopularBadge": "Popular",
       "plansEmpty": "Packages will appear here once they are published in the admin panel.",
       "plansLoadFailed": "Could not load packages ({status}).",
+      "galleryTitle": "A Sanctuary for Every Body",
+      "galleryTitleLine1": "A Sanctuary",
+      "galleryTitleLine2": "for Every Body",
+      "gallerySubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "galleryMoreDetails": "More Details",
+      "galleryPrevAria": "Previous gallery slide",
+      "galleryNextAria": "Next gallery slide",
+      "galleryGoToSlideAria": "Show gallery slide {slide}",
       "eventsTitle": "Events",
       "eventWideTitle": "Featured gathering",
       "eventWideDetails": "Details",
       "eventNarrowATitle": "Workshop",
       "eventNarrowBTitle": "Retreat evening",
       "eventCardCtaAria": "Open event details",
-      "footerWordmark": "Ommm.Space",
-      "footerCopyright": "© 2024 OMMM.SPACE. THE SPACE BETWEEN.",
-      "footerIllustrationAlt": "Decorative wellness illustration",
-      "footerLinks": [
-        {
-          "href": "/contact",
-          "label": "Privacy"
-        },
-        {
-          "href": "/contact",
-          "label": "Terms"
-        },
-        {
-          "href": "/explore",
-          "label": "Journal"
-        },
-        {
-          "href": "/contact",
-          "label": "Contact"
-        }
-      ]
+      "footerWordmark": "Ommm.",
+      "footerTopNavAria": "Footer navigation",
+      "footerContactTitle": "Contact Us",
+      "footerPhone": "+ 33333333",
+      "footerEmail": "ommmm@mail.com",
+      "footerAddress": "Yerevan 00000",
+      "footerSocialTitle": "Social Media",
+      "footerSocialAria": "{network} profile",
+      "footerLegalNavAria": "Legal links",
+      "footerPrivacy": "Privacy",
+      "footerTerms": "Terms",
+      "footerRefund": "Refound",
+      "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
+      "footerCopyrightCompany": "NEETRINO IT COMPANY",
+      "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
+      "footerIllustrationAlt": "Decorative Om symbol illustration"
     }
   },
   "account": {
@@ -284,6 +297,8 @@
     "coachesError": "We could not load coaches right now. Please try again shortly.",
     "coachesExperience": "{years}+ years experience",
     "coachesOpenCardAria": "Open profile for {name}",
+    "coachesCardExpandAria": "Show details for {name}",
+    "coachesCardCollapseAria": "Hide details for {name}",
     "coachesModalBackdropClose": "Close coach profile details",
     "coachesModalCloseAria": "Close coach profile",
     "coachesModalProfileLabel": "Coach profile",
@@ -398,7 +413,7 @@
         "subline": "Studio tools and data"
       },
       "admin": {
-        "title": "Ommm.Space",
+        "title": "Ommm.",
         "subline": "Management portal"
       },
       "coach": {

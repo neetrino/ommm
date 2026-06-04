@@ -1,0 +1,575 @@
+.sectionWrap {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  padding-top: var(--home-footer-wrap-padding-top);
+  background-color: var(--home-footer-wrap-bg, #598090);
+}
+
+.shell {
+  width: 100%;
+  border-top-left-radius: var(--home-footer-radius);
+  border-top-right-radius: var(--home-footer-radius);
+  background-color: var(--home-footer-surface);
+  color: var(--home-footer-text);
+}
+
+.inner {
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--home-footer-max-width);
+  min-height: var(--home-footer-min-height);
+}
+
+.wordmark {
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--home-footer-wordmark-size);
+  font-weight: 600;
+  line-height: var(--home-footer-wordmark-line-height);
+  color: var(--home-footer-wordmark-color, var(--home-footer-text));
+  white-space: nowrap;
+}
+
+.topNav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.topNavLink {
+  padding-left: var(--home-footer-nav-link-padding);
+  font-size: var(--home-footer-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-body-line-height);
+  letter-spacing: var(--home-footer-body-tracking);
+  color: var(--home-footer-text);
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.topNavLink:hover {
+  opacity: 0.75;
+}
+
+.topNavLink:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.illustrationFrame {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.illustration {
+  object-fit: cover;
+}
+
+.sectionTitle {
+  font-size: var(--home-footer-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-body-line-height);
+  letter-spacing: var(--home-footer-body-tracking);
+  color: var(--home-footer-text);
+}
+
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-footer-contact-gap);
+  margin-top: var(--home-footer-contact-gap);
+  list-style: none;
+  padding: 0;
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--home-footer-contact-row-gap);
+}
+
+.contactIcon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.contactText {
+  font-size: var(--home-footer-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-body-line-height);
+  letter-spacing: var(--home-footer-body-tracking);
+  color: var(--home-footer-text);
+  white-space: nowrap;
+}
+
+.socialBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-footer-social-title-gap);
+}
+
+.socialList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--home-footer-social-icon-gap);
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 150ms ease;
+}
+
+.socialLink:hover {
+  opacity: 0.75;
+}
+
+.socialLink:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.legalNav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--home-footer-legal-gap);
+}
+
+.legalLink {
+  font-size: var(--home-footer-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-body-line-height);
+  letter-spacing: var(--home-footer-body-tracking);
+  color: var(--home-footer-text);
+  white-space: nowrap;
+  transition: opacity 150ms ease;
+}
+
+.legalLink:hover {
+  opacity: 0.75;
+}
+
+.legalLink:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.copyright {
+  font-size: var(--home-footer-copyright-size);
+  font-weight: 400;
+  line-height: var(--home-footer-copyright-line-height);
+  letter-spacing: var(--home-footer-copyright-tracking);
+  color: var(--home-footer-text);
+  text-transform: uppercase;
+}
+
+.copyrightCompany {
+  font-weight: 700;
+  color: inherit;
+  text-decoration: none;
+}
+
+.copyrightCompany:hover {
+  text-decoration: underline;
+}
+
+.copyrightCompany:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.mobileStack {
+  display: none;
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--home-footer-mobile-nav-gap);
+  margin-top: var(--home-footer-mobile-wordmark-nav-gap);
+}
+
+.mobileNavLink {
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
+  color: var(--home-footer-text);
+  transition: opacity 150ms ease;
+}
+
+.mobileNavLink:hover {
+  opacity: 0.75;
+}
+
+.mobileNavLink:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.mobileHero {
+  position: relative;
+  min-height: var(--home-footer-mobile-hero-min-height);
+}
+
+.mobileIllustration {
+  position: absolute;
+  top: var(--home-footer-mobile-illustration-top);
+  left: var(--home-footer-mobile-illustration-left);
+  width: var(--home-footer-mobile-illustration-width);
+  height: var(--home-footer-mobile-illustration-height);
+  pointer-events: none;
+}
+
+.mobileIllustrationImage {
+  object-fit: cover;
+  object-position: 25% center;
+}
+
+.mobileContact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-footer-mobile-contact-row-gap);
+  margin-top: var(--home-footer-mobile-contact-margin-top);
+}
+
+.mobileContactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--home-footer-mobile-contact-icon-gap);
+}
+
+.mobileContactIcon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.mobileContactText {
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
+  color: var(--home-footer-text);
+}
+
+.mobileSocial {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-footer-mobile-social-title-gap);
+  margin-top: var(--home-footer-mobile-social-margin-top);
+}
+
+.mobileSocialTitle {
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
+  color: var(--home-footer-text);
+}
+
+.mobileSocialList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--home-footer-mobile-social-icon-gap);
+}
+
+.mobileLegal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--home-footer-mobile-legal-gap);
+  margin-top: var(--home-footer-mobile-legal-margin-top);
+}
+
+.mobileLegalLink {
+  font-size: var(--home-footer-mobile-body-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-body-line-height);
+  color: var(--home-footer-text);
+  transition: opacity 150ms ease;
+}
+
+.mobileLegalLink:hover {
+  opacity: 0.75;
+}
+
+.mobileLegalLink:focus-visible {
+  outline: 2px solid var(--home-footer-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.mobileCopyright {
+  margin-top: var(--home-footer-mobile-copyright-margin-top);
+  font-size: var(--home-footer-mobile-copyright-size);
+  font-weight: 400;
+  line-height: var(--home-footer-mobile-copyright-line-height);
+  letter-spacing: var(--home-footer-mobile-copyright-tracking);
+  color: var(--home-footer-text);
+  text-transform: uppercase;
+}
+
+@media (max-width: 743px) {
+  .wordmark {
+    font-size: var(--home-footer-mobile-wordmark-size);
+    line-height: var(--home-footer-mobile-wordmark-line-height);
+  }
+
+  .mobileStack {
+    display: flex;
+    flex-direction: column;
+    padding: var(--home-footer-mobile-py) var(--home-footer-mobile-px) var(--home-footer-mobile-pb);
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    overflow-x: clip;
+    border-top-left-radius: var(--home-footer-mobile-radius);
+    border-top-right-radius: var(--home-footer-mobile-radius);
+  }
+
+  .sectionWrap {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--home-footer-mobile-overlap, 2.5rem));
+    padding-top: var(--home-footer-mobile-wrap-padding-top, 2.5rem);
+    background-color: transparent;
+  }
+
+  .inner {
+    min-height: 0;
+  }
+}
+
+.desktopLayer {
+  display: none;
+}
+
+@media (min-width: 744px) {
+  .mobileStack {
+    display: none;
+  }
+
+  .sectionWrap {
+    margin-top: 0;
+    padding-top: var(--home-footer-wrap-padding-top);
+    background-color: var(--home-footer-wrap-bg, #598090);
+  }
+
+  .shell {
+    position: static;
+    z-index: auto;
+    border-top-left-radius: var(--home-footer-radius);
+    border-top-right-radius: var(--home-footer-radius);
+  }
+
+  .inner {
+    min-height: var(--home-footer-min-height);
+  }
+
+  .desktopLayer {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
+  .wordmarkSlot {
+    position: absolute;
+    left: var(--home-footer-wordmark-left);
+    top: var(--home-footer-wordmark-top);
+    transform: translateY(-50%);
+  }
+
+  .navSlot {
+    position: absolute;
+    left: var(--home-footer-nav-left);
+    top: var(--home-footer-nav-top);
+    transform: translateY(-50%);
+    max-width: calc(100% - var(--home-footer-nav-left) - 1rem);
+  }
+
+  .illustrationSlot {
+    position: absolute;
+    left: var(--home-footer-illustration-left);
+    top: var(--home-footer-illustration-top);
+    width: var(--home-footer-illustration-width);
+    height: var(--home-footer-illustration-height);
+  }
+
+  .contactSlot {
+    position: absolute;
+    left: var(--home-footer-contact-left);
+    top: var(--home-footer-contact-top);
+    width: 14.8125rem;
+  }
+
+  .socialSlot {
+    position: absolute;
+    left: var(--home-footer-social-left);
+    top: var(--home-footer-social-top);
+    width: 15.1875rem;
+  }
+
+  .legalSlot {
+    position: absolute;
+    left: var(--home-footer-legal-left);
+    top: var(--home-footer-legal-top);
+  }
+
+  .copyrightSlot {
+    position: absolute;
+    left: var(--home-footer-copyright-left);
+    top: var(--home-footer-copyright-top);
+    width: var(--home-footer-copyright-width);
+  }
+}
+
+/* iPad Air + Pro — home gallery underlap (744px–1366px). */
+@media (min-width: 744px) and (max-width: 1366px) {
+  .sectionWrap {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--home-footer-tablet-overlap, 5.75rem));
+    padding-top: var(--home-footer-tablet-wrap-padding-top, 5.75rem);
+    background-color: var(--home-footer-wrap-bg, #598090);
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    border-top-left-radius: var(--home-footer-mobile-radius, 2.5rem);
+    border-top-right-radius: var(--home-footer-mobile-radius, 2.5rem);
+  }
+
+  /* Inner routes — same as desktop: gradient wrap, no gallery pull-up. */
+  .sectionWrapInner {
+    margin-top: 0;
+    padding-top: var(--home-footer-wrap-padding-top);
+  }
+
+  .sectionWrapInner .shell {
+    border-top-left-radius: var(--home-footer-radius);
+    border-top-right-radius: var(--home-footer-radius);
+  }
+}
+
+/* iPad Air — Contact us under Explore; left column + illustration (744px–1023px). */
+@media (min-width: 744px) and (max-width: 1023px) {
+  .inner {
+    min-height: 0;
+  }
+
+  .desktopLayer {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto auto;
+    gap: 0.75rem 1.5rem;
+    padding: 2rem 1.5rem 1.5rem;
+    inset: auto;
+  }
+
+  .wordmarkSlot,
+  .navSlot,
+  .contactSlot,
+  .socialSlot,
+  .illustrationSlot,
+  .legalSlot,
+  .copyrightSlot {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+  }
+
+  .wordmarkSlot {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .wordmarkSlot .wordmark {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+
+  .navSlot {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: none;
+    margin-bottom: 0;
+  }
+
+  .topNav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .topNavLink {
+    padding-left: 0;
+  }
+
+  .contactSlot {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    margin-top: 3rem;
+  }
+
+  .socialSlot {
+    grid-column: 1;
+    grid-row: 4;
+    align-self: end;
+    margin-top: 1rem;
+  }
+
+  .illustrationSlot {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: start;
+    justify-self: center;
+    width: min(100%, 20rem);
+    aspect-ratio: 596 / 471;
+    height: auto;
+  }
+
+  .legalSlot {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    align-self: end;
+    width: 16rem;
+  }
+
+  .legalSlot .legalNav {
+    justify-content: flex-start;
+  }
+
+  .copyrightSlot {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
+    align-self: end;
+    width: 16rem;
+    max-width: 16rem;
+    margin-top: 0.75rem;
+  }
+
+  .copyrightSlot .copyright {
+    width: 100%;
+    text-align: left;
+  }
+}

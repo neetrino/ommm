@@ -7,6 +7,7 @@ import {
   SCHEDULE_DATE_CHIP_IDLE,
   SCHEDULE_DATE_STRIP_PANEL,
   SCHEDULE_INK,
+  SCHEDULE_INTERACTIVE_LIFT,
   SCHEDULE_MUTED,
 } from "@/components/marketing/schedule/schedule-public-design";
 import {
@@ -93,7 +94,7 @@ export function ScheduleDateControls({
                   key={day.getTime()}
                   type="button"
                   onClick={() => onSelectDay(startOfLocalDay(day))}
-                  className="flex min-w-0 scale-100 flex-col items-center justify-center gap-2 rounded-2xl py-1 transition-transform duration-300 ease-out hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 motion-reduce:transform-none"
+                  className={`flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${SCHEDULE_INTERACTIVE_LIFT}`}
                 >
                   <span
                     className={`w-full truncate text-center text-[9px] font-medium uppercase tracking-wide transition-colors duration-300 ease-out sm:text-[10px] ${active ? "text-sage-700" : SCHEDULE_MUTED}`}

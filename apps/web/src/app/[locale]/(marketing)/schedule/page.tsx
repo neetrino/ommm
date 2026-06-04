@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { MarketingScheduleSection } from "@/components/marketing/schedule/marketing-schedule-section";
+import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
 import { SCHEDULE_PAGE_BG } from "@/components/marketing/schedule/schedule-public-design";
 
 export async function generateMetadata({
@@ -26,16 +28,13 @@ export default async function ScheduleMarketingPage({
 
   return (
     <section
-      className={`${SCHEDULE_PAGE_BG} ommm-section w-full min-h-[calc(100vh-10rem)]`}
+      className={`${SCHEDULE_PAGE_BG} ommm-section flex-1 w-full min-h-[calc(100vh-10rem)]`}
       aria-label={t("pageTitle")}
     >
-      <div className="pointer-events-none absolute inset-0 opacity-60" aria-hidden>
-        <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-cream-50/50 blur-3xl" />
-        <div className="absolute right-[-6rem] top-1/2 h-80 w-80 rounded-full bg-blue-100/65 blur-3xl" />
-        <div className="absolute bottom-[-5rem] left-1/3 h-72 w-72 rounded-full bg-peach-100/45 blur-3xl" />
-      </div>
       <div className="ommm-container relative">
-        <MarketingScheduleSection locale={locale} />
+        <Suspense fallback={<MarketingPageContentSkeleton cards={1} />}>
+          <MarketingScheduleSection locale={locale} />
+        </Suspense>
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-icons";
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
-import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useFloatingMenuPosition, type FloatingMenuAlign } from "@/components/ui/use-floating-menu-position";
 import { DropdownSelectSearchHeader } from "@/components/ui/dropdown-select-search-header";
 import { filterDropdownOptions } from "@/components/ui/filter-dropdown-options";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
@@ -36,6 +36,11 @@ export type DropdownSelectProps<T extends string> = {
   noResultsLabel?: string;
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   renderOption?: (option: DropdownOption<T>, selected: boolean) => ReactNode;
+  showChevron?: boolean;
+  /** Minimum floating menu width in px when wider than the trigger. */
+  menuMinWidth?: number;
+  /** Horizontal alignment of the menu relative to the trigger. */
+  menuAlign?: FloatingMenuAlign;
 };
 
 function mergeClasses(...parts: Array<string | undefined>): string {
@@ -94,6 +99,9 @@ export function DropdownSelect<T extends string>({
   noResultsLabel = "",
   renderValue,
   renderOption,
+  showChevron = true,
+  menuMinWidth,
+  menuAlign,
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,7 +130,14 @@ export function DropdownSelect<T extends string>({
   const isMenuOpen = open && !disabled && options.length > 0;
   const visibleOptionLastIndex = Math.max(0, visibleOptions.length - 1);
   const safeFocusedIndex = Math.min(focusedIndex, visibleOptionLastIndex);
-  const menuPosition = useFloatingMenuPosition(triggerRef, isMenuOpen, disabled);
+  const menuPosition = useFloatingMenuPosition(
+    triggerRef,
+    isMenuOpen,
+    disabled,
+    undefined,
+    menuMinWidth ?? 0,
+    menuAlign ?? "start",
+  );
   const searchHeaderHeight = searchable ? 56 : 0;
   const listMaxHeight =
     menuPosition === null || disableMenuScroll
@@ -148,7 +163,7 @@ export function DropdownSelect<T extends string>({
     if (!open || disabled) {
       return undefined;
     }
-    const closeOnOutside = (event: MouseEvent | TouchEvent) => {
+    const closeOnOutside = (event: MouseEvent) => {
       if (!(event.target instanceof Node)) {
         return;
       }
@@ -159,11 +174,12 @@ export function DropdownSelect<T extends string>({
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", closeOnOutside);
-    document.addEventListener("touchstart", closeOnOutside);
+    const listenerId = window.setTimeout(() => {
+      document.addEventListener("click", closeOnOutside);
+    }, 0);
     return () => {
-      document.removeEventListener("mousedown", closeOnOutside);
-      document.removeEventListener("touchstart", closeOnOutside);
+      window.clearTimeout(listenerId);
+      document.removeEventListener("click", closeOnOutside);
     };
   }, [disabled, open]);
 
@@ -300,9 +316,16 @@ export function DropdownSelect<T extends string>({
         onKeyDown={onTriggerKeyDown}
       >
         {triggerContent}
-        <span className={mergeClasses("ml-auto shrink-0 text-sage-500", wrapLabel ? "self-center" : undefined)}>
-          <ChevronDownIcon />
-        </span>
+        {showChevron ? (
+          <span
+            className={mergeClasses(
+              "ml-auto shrink-0 text-sage-500",
+              wrapLabel ? "self-center" : undefined,
+            )}
+          >
+            <ChevronDownIcon />
+          </span>
+        ) : null}
       </button>
 
       {isMenuOpen && menuPosition !== null && portalReady && typeof document !== "undefined"

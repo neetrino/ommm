@@ -1,15 +1,8 @@
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
-import { MarketingPublicCoachesGrid } from "@/components/marketing/coaches/marketing-public-coaches-grid";
-import { serverApiJsonPublic } from "@/lib/server-api";
-
-type PublicCoach = {
-  id: string;
-  bio: string | null;
-  specialization: string | null;
-  experienceYears: number | null;
-  user: { name: string | null; lastName: string | null; email: string; avatarUrl: string | null };
-};
+import { MarketingCoachesPageContent } from "@/components/marketing/coaches/marketing-coaches-page-content";
+import { MarketingPublicCoachesPageSection } from "@/components/marketing/coaches/marketing-public-coaches-page-section";
+import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
 
 export default async function CoachesMarketingPage({
   params,
@@ -18,24 +11,15 @@ export default async function CoachesMarketingPage({
 }) {
   const { locale } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await serverApiJsonPublic<PublicCoach[]>("/coaches");
 
   return (
-    <MarketingPageFrame title={m("coachesPageTitle")} lede={m("coachesPageLead")}>
-      {!res.ok ? (
-        <p className="app-alert-warn mt-12" role="status">
-          {m("coachesError")}
-        </p>
-      ) : res.data.length === 0 ? (
-        <p
-          className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
-          role="status"
-        >
-          {m("coachesEmpty")}
-        </p>
-      ) : (
-        <MarketingPublicCoachesGrid coaches={res.data} />
-      )}
-    </MarketingPageFrame>
+    <MarketingPublicCoachesPageSection
+      title={m("coachesPageTitle")}
+      lead={m("coachesPageLead")}
+    >
+      <Suspense fallback={<MarketingPageContentSkeleton cards={3} />}>
+        <MarketingCoachesPageContent locale={locale} />
+      </Suspense>
+    </MarketingPublicCoachesPageSection>
   );
 }

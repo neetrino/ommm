@@ -1,0 +1,104 @@
+/**
+ * Mobile: Figma `97:5888`. Desktop (lg+): section `196:1251`.
+ */
+
+.mobileSection {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  background: var(--home-plans-section-bg, #fbf5d5);
+  margin-top: calc(-1 * var(--home-plans-coaches-overlap, 3.125rem));
+  padding-top: calc(
+    var(--home-plans-section-py, 3rem) + var(--home-plans-coaches-overlap, 3.125rem)
+  );
+  padding-bottom: var(--home-plans-section-py, 3rem);
+  padding-inline: var(--home-plans-section-px, 1.5rem);
+}
+
+.mobileShell {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-plans-section-gap, 2.25rem);
+}
+
+.mobileHeader {
+  display: flex;
+  width: 100%;
+  max-width: var(--home-plans-header-max-width, 19.625rem);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--home-plans-header-subtitle-gap, 1.5rem);
+}
+
+.mobileTitle {
+  font-size: var(--home-plans-title-size);
+  line-height: var(--home-plans-title-line-height);
+  color: var(--home-plans-heading-color, #577f91);
+}
+
+.mobileSubtitle {
+  font-size: var(--home-plans-subtitle-size);
+  line-height: var(--home-plans-subtitle-line-height);
+  color: var(--home-plans-subtitle-color, rgba(98, 98, 98, 0.84));
+}
+
+.carouselViewport {
+  width: 100%;
+  min-width: 0;
+  height: var(--home-plans-carousel-height, 29.625rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.carouselViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselTrack {
+  display: flex;
+  width: max-content;
+  min-height: 100%;
+  align-items: stretch;
+  gap: var(--home-plans-carousel-gap, 1.6875rem);
+  padding-inline-end: var(--home-plans-carousel-trailing-pad, 1.5rem);
+}
+
+.carouselSlide {
+  display: flex;
+  flex-shrink: 0;
+  width: var(--home-plans-carousel-card-width, 18.25rem);
+  scroll-snap-align: start;
+}
+
+.carouselSlide > * {
+  width: 100%;
+}
+
+.mobileCta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.desktopSection {
+  display: none;
+}
+
+@media (min-width: 744px) {
+  .mobileSection {
+    display: none;
+  }
+
+  .desktopSection {
+    display: block;
+  }
+}

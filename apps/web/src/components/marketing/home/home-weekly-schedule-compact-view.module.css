@@ -1,0 +1,127 @@
+/**
+ * Mobile: Figma `97:5733` day tabs `97:5741` + session list `97:5756`.
+ */
+
+.root {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--home-schedule-panel-gap, 1.1875rem);
+}
+
+.dayTabsSection {
+  width: 100%;
+  min-width: 0;
+  padding-top: var(--home-schedule-day-tabs-section-padding-top, 2rem);
+}
+
+.dayTabList {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--home-schedule-day-tab-list-height, 3.6875rem);
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--home-schedule-day-tab-gap, 0.5rem);
+  overflow-x: auto;
+  overflow-y: clip;
+  padding-bottom: var(--home-schedule-day-tab-list-padding-bottom, 1rem);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.dayTabTrack {
+  display: flex;
+  min-width: var(--home-schedule-day-tab-strip-min-width, 24.25rem);
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: var(--home-schedule-day-tab-gap, 0.5rem);
+}
+
+.dayTabList::-webkit-scrollbar {
+  display: none;
+}
+
+.dayTab {
+  height: var(--home-schedule-day-tab-height, 2.6875rem);
+  flex-shrink: 0;
+  padding-inline: 1rem;
+  font-size: var(--home-schedule-day-tab-font-size, 0.75rem);
+  line-height: 1rem;
+  border-width: var(--home-schedule-day-chip-border-width, 1.438px);
+}
+
+.sessionPanel {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--home-schedule-session-list-gap, 1.0625rem);
+}
+
+.emptyDay {
+  display: flex;
+  min-height: 6.4375rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--home-schedule-session-row-radius, 1rem);
+  border: 1px dashed var(--home-schedule-day-chip-idle-border, #97907c);
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--home-schedule-schedule-ink, #4a4738);
+}
+
+@media (min-width: 744px) {
+  .root {
+    gap: 0;
+  }
+
+  .dayTabsSection {
+    padding-top: 0;
+  }
+
+  .dayTabList {
+    min-height: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+    padding-bottom: 0;
+    gap: var(--home-schedule-day-tab-gap-lg, 0.75rem);
+  }
+
+  .dayTabTrack {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .dayTab {
+    height: 2.8125rem;
+    padding-inline: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.3125rem;
+    border-width: var(--home-schedule-day-chip-border-width-lg, 1.7px);
+  }
+
+  .sessionPanel {
+    margin-top: 1.5rem;
+    gap: var(--home-schedule-session-list-gap-lg, 1rem);
+  }
+
+  .emptyDay {
+    border-radius: var(--home-schedule-session-row-radius-lg, 2rem);
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .sessionPanel {
+    margin-top: 2rem;
+  }
+}

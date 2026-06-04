@@ -1,0 +1,8 @@
+/**
+ * Fixed mobile header — pad inner routes; home/coaches use full-bleed hero surfaces.
+ */
+@media (max-width: 743px) {
+  .innerMainPad {
+    padding-top: var(--marketing-mobile-header-height, 4.25rem);
+  }
+}

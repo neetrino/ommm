@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type RefObject } from "react";
 
+export type FloatingMenuAlign = "start" | "end";
+
 export type FloatingMenuPosition = {
   top: number;
   left: number;
@@ -13,12 +15,21 @@ export type FloatingMenuPosition = {
 const MENU_SPACING = 8;
 const DEFAULT_MIN_MENU_HEIGHT = 140;
 
+const MENU_VIEWPORT_PADDING = 8;
+
+function clampMenuLeft(preferredLeft: number, width: number): number {
+  const minLeft = MENU_VIEWPORT_PADDING;
+  const maxLeft = Math.max(minLeft, window.innerWidth - width - MENU_VIEWPORT_PADDING);
+  return Math.min(Math.max(minLeft, preferredLeft), maxLeft);
+}
+
 export function useFloatingMenuPosition(
   triggerRef: RefObject<HTMLButtonElement | null>,
   open: boolean,
   disabled: boolean,
   minMenuHeight = DEFAULT_MIN_MENU_HEIGHT,
   minWidth = 0,
+  menuAlign: FloatingMenuAlign = "start",
 ): FloatingMenuPosition | null {
   const [menuPosition, setMenuPosition] = useState<FloatingMenuPosition | null>(null);
 
@@ -34,14 +45,16 @@ export function useFloatingMenuPosition(
       const rect = trigger.getBoundingClientRect();
       const width = Math.min(
         Math.max(rect.width, minWidth),
-        window.innerWidth - 16,
+        window.innerWidth - MENU_VIEWPORT_PADDING * 2,
       );
       const availableBelow = window.innerHeight - rect.bottom - MENU_SPACING;
       const availableAbove = rect.top - MENU_SPACING;
       const openAbove = availableBelow < minMenuHeight && availableAbove > availableBelow;
+      const preferredLeft =
+        menuAlign === "end" ? rect.right - width : rect.left;
       setMenuPosition({
         top: openAbove ? rect.top - MENU_SPACING : rect.bottom + MENU_SPACING,
-        left: Math.min(rect.left, Math.max(8, window.innerWidth - width - 8)),
+        left: clampMenuLeft(preferredLeft, width),
         width,
         maxHeight: Math.max(120, openAbove ? availableAbove : availableBelow),
         placement: openAbove ? "top" : "bottom",
@@ -54,7 +67,7 @@ export function useFloatingMenuPosition(
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [disabled, minMenuHeight, minWidth, open, triggerRef]);
+  }, [disabled, menuAlign, minMenuHeight, minWidth, open, triggerRef]);
 
   return menuPosition;
 }
