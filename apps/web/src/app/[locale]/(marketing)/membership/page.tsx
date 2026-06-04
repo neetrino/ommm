@@ -6,5 +6,5 @@ export default async function MembershipAliasPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/packages`);
+  redirect(`/${locale}/schedule`);
 }

@@ -1,1 +1,6 @@
-export type DashboardShellVariant = "neutral" | "indigo" | "wellness" | "admin";
+export type DashboardShellVariant =
+  | "neutral"
+  | "indigo"
+  | "wellness"
+  | "admin"
+  | "member";

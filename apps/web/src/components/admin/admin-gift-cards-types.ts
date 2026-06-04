@@ -7,11 +7,28 @@ export const GIFT_CARD_STATUSES = [
 
 export type GiftCardStatus = (typeof GIFT_CARD_STATUSES)[number];
 
+export type AdminGiftCardBatchRow = {
+  id: string;
+  amountAmd: number;
+  imageUrl: string | null;
+  status: GiftCardStatus;
+  totalQuantity: number;
+  availableQuantity: number;
+  recipientEmail: string | null;
+  recipientName: string | null;
+  message: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  purchaser: { email: string; name: string | null };
+  recipient: { email: string; name: string | null } | null;
+};
+
 export type AdminGiftCardRow = {
   id: string;
   code: string;
-  amountCents: number;
-  balanceCents: number;
+  amountAmd: number;
+  balanceAmd: number;
+  imageUrl: string | null;
   status: GiftCardStatus;
   recipientEmail: string | null;
   recipientName: string | null;
@@ -20,6 +37,33 @@ export type AdminGiftCardRow = {
   createdAt: string;
   purchaser: { email: string; name: string | null };
   recipient: { email: string; name: string | null } | null;
+};
+
+export type AdminAssignableUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  lastName: string | null;
+};
+
+export type AdminGiftCardRedemptionEvent = {
+  type: "CREATED" | "ASSIGNED" | "ISSUED" | "REDEEMED" | "DEACTIVATED";
+  at: string;
+  description: string;
+};
+
+export type AdminGiftCardRedemptionHistory = {
+  cardId?: string;
+  batchId?: string;
+  status: GiftCardStatus;
+  amountAmd?: number;
+  balanceAmd?: number;
+  totalQuantity?: number;
+  availableQuantity?: number;
+  issuedCount?: number;
+  redeemedCount?: number;
+  events: AdminGiftCardRedemptionEvent[];
+  note?: string;
 };
 
 export type GiftCardStatusFilter = "all" | GiftCardStatus;

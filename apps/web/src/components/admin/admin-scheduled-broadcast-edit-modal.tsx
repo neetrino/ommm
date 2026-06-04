@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { DateTimePickerFields } from "@/components/ui/date-time-picker-fields";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { BroadcastAudience, ScheduledBroadcast } from "./admin-notifications-types";
 
 export type ScheduledEditDraft = {
@@ -33,6 +34,8 @@ export function AdminScheduledBroadcastEditModal({
   onClose,
 }: Props) {
   const t = useTranslations("adminPages.notifications");
+
+  useCloseOnEscape(true, onClose, { disabled: busy });
 
   return (
     <div className="ommm-modal-overlay items-center p-4">

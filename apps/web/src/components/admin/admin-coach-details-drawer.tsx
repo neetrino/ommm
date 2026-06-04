@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { AdminCoachStatusAction } from "@/components/admin/admin-coach-status-action";
 import { OmmButton } from "@/components/ui/omm-button";
 import { coachCardDisplayName, coachCardInitials } from "@/components/coaches/coach-card-display";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -79,6 +80,8 @@ export function AdminCoachDetailsDrawer({
       document.body.style.overflow = previous;
     };
   }, [coach]);
+
+  useCloseOnEscape(coach !== null, onClose);
 
   if (coach === null || typeof document === "undefined") {
     return null;

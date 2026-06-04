@@ -12,13 +12,15 @@ pnpm install
 
 Root `postinstall` runs `pnpm run db:generate` (Prisma Client from `packages/database/prisma/schema.prisma`). If installs use `--ignore-scripts`, run `pnpm run db:generate` manually before `pnpm run dev` / `build:api`.
 
-## Run everything (web + API + mobile)
+## Run full monorepo (web + API + mobile)
 
 ```bash
-pnpm run dev
+pnpm run dev:all
 ```
 
-This runs `dev` in parallel for each package under `apps/*` (web, api, mobile). The Expo CLI opens in the same terminal multiplex — use a dedicated terminal for mobile if you prefer a clearer Metro log:
+This runs `dev` in parallel for each package under `apps/*` (web, api, mobile). For web + API only (typical frontend work), use `pnpm run dev` from the repo root.
+
+The Expo CLI opens in the same terminal multiplex — use a dedicated terminal for mobile if you prefer a clearer Metro log:
 
 ```bash
 pnpm run dev:mobile
@@ -26,11 +28,14 @@ pnpm run dev:mobile
 
 ## Run individual apps
 
-| Command            | Description                |
-| ------------------ | -------------------------- |
-| `pnpm run dev:web` | Next.js on port 3000       |
-| `pnpm run dev:api` | NestJS (default port 4000) |
-| `pnpm run dev:mobile` | Expo (Metro)            |
+| Command               | Description                          |
+| --------------------- | ------------------------------------ |
+| `pnpm run dev`        | Web + API together (`[web]` / `[api]` logs) |
+| `pnpm run dev:stack`  | Same as `dev`                        |
+| `pnpm run dev:web`    | Next.js only (port 3000)             |
+| `pnpm run dev:api`    | NestJS only (default port 4000)      |
+| `pnpm run dev:all`    | Web + API + mobile in parallel       |
+| `pnpm run dev:mobile` | Expo (Metro) only                    |
 
 Ensure the API is running before testing the mobile health screen.
 
@@ -45,7 +50,7 @@ Use **one file**: the repo root **`.env`** (optional root **`.env.local`** for l
 | `apps/web/.env.local` | Next only | Next-specific overrides |
 | `apps/api/.env` | Nest only | Nest `envFilePath` precedence |
 
-For mobile, only add **safe public** `EXPO_PUBLIC_*` keys to the root `.env` (e.g. `EXPO_PUBLIC_API_URL`). Do not rely on “hiding” server secrets in the client — Expo inlines only `EXPO_PUBLIC_*` into the bundle; keep `JWT_SECRET`, `DATABASE_URL`, Stripe keys server-side only.
+For mobile, only add **safe public** `EXPO_PUBLIC_*` keys to the root `.env` (e.g. `EXPO_PUBLIC_API_URL`). Do not rely on “hiding” server secrets in the client — Expo inlines only `EXPO_PUBLIC_*` into the bundle; keep `JWT_SECRET` and `DATABASE_URL` server-side only.
 
 If you previously used `apps/mobile/.env`, you can delete it so it does not conflict with the single root file.
 

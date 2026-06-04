@@ -13,7 +13,7 @@ export async function MarketingHighlights({ locale }: { locale: string }) {
     {
       title: m("featureMembershipsTitle"),
       body: m("featureMembershipsBody"),
-      href: "/packages" as const,
+      href: "/schedule" as const,
     },
     {
       title: m("featureUpdatesTitle"),

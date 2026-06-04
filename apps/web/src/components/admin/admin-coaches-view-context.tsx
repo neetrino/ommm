@@ -2,19 +2,13 @@
 
 import {
   createContext,
-  startTransition,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import {
-  persistAdminCoachesViewPreference,
-  readAdminCoachesViewPreference,
-  type AdminCoachesViewMode,
-} from "@/lib/admin-coaches-view-preference";
+import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
 
 type AdminCoachesViewContextValue = {
   viewMode: AdminCoachesViewMode;
@@ -25,25 +19,19 @@ const AdminCoachesViewContext = createContext<AdminCoachesViewContextValue | nul
   null,
 );
 
-export function AdminCoachesViewProvider({ children }: { children: ReactNode }) {
-  const [viewMode, setViewModeState] = useState<AdminCoachesViewMode>("list");
+type AdminCoachesViewProviderProps = {
+  initialViewMode: AdminCoachesViewMode;
+  children: ReactNode;
+};
 
-  useEffect(() => {
-    try {
-      const saved = readAdminCoachesViewPreference();
-      if (saved !== "list") {
-        startTransition(() => {
-          setViewModeState(saved);
-        });
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+export function AdminCoachesViewProvider({
+  initialViewMode,
+  children,
+}: AdminCoachesViewProviderProps) {
+  const [viewMode, setViewModeState] = useState<AdminCoachesViewMode>(initialViewMode);
 
   const setViewMode = useCallback((mode: AdminCoachesViewMode) => {
     setViewModeState(mode);
-    persistAdminCoachesViewPreference(mode);
   }, []);
 
   const value = useMemo(

@@ -89,6 +89,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/:locale/dashboard",
+        destination: "/:locale/user/home",
+        permanent: false,
+      },
+      {
+        source: "/:locale/user",
+        destination: "/:locale/user/home",
+        permanent: false,
+      },
+      {
         source: "/:locale/account/classes",
         destination: "/:locale/user/classes",
         permanent: false,
@@ -100,7 +110,27 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/account/memberships",
-        destination: "/:locale/user/memberships",
+        destination: "/:locale/user/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/account/packages",
+        destination: "/:locale/user/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/user/memberships",
+        destination: "/:locale/user/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/admin/memberships",
+        destination: "/:locale/admin/packages",
+        permanent: false,
+      },
+      {
+        source: "/:locale/memberships",
+        destination: "/:locale/schedule",
         permanent: false,
       },
       {

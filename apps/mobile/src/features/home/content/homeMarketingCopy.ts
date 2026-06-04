@@ -8,7 +8,7 @@ export const homeMarketingCopy = {
     titleLine1: "Practice with",
     titleAccent: "intention.",
     lead:
-      "Thoughtful scheduling, clear memberships, and a calm place to plan classes — built for studios that want the web to feel as grounded as the mat.",
+      "Thoughtful scheduling, clear packages, and a calm place to plan classes — built for studios that want the web to feel as grounded as the mat.",
     primaryCtaSignedIn: "Book a class",
     primaryCtaSignedOut: "Sign in",
     secondaryCta: "Create account",
@@ -23,7 +23,7 @@ export const homeMarketingCopy = {
   highlights: {
     title: "Everything in one calm flow",
     lead:
-      "Scheduling, memberships, and studio updates — organized so members always know what is next.",
+      "Scheduling, packages, and studio updates — organized so members always know what is next.",
     cta: "Learn more",
     cards: [
       {
@@ -33,8 +33,8 @@ export const homeMarketingCopy = {
           "See upcoming sessions, capacity, and coaches — book in a few taps when you are signed in.",
       },
       {
-        key: "memberships",
-        title: "Memberships",
+        key: "packages",
+        title: "Packages",
         body:
           "Transparent plans with clear inclusions. Pick what fits, then manage with the team.",
       },

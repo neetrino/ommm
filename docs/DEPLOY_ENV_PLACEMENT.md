@@ -56,7 +56,6 @@
 | Key | Ուր |
 |-----|-----|
 | `CORS_ORIGINS` | **Render** — Vercel preview origin-ներ, լրացուցիչ domain-ներ։ |
-| `STRIPE_*` | **Render** — երբ Stripe միացնես։ |
 
 ## Մեկ տողով
 

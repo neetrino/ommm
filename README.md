@@ -15,7 +15,7 @@ Cursor-ում AI-զարգացման կանոններով repo-ի կաղապար�
 3. **Տակտակություն** — `pnpm install`․ ավտոմատ կկանչվի `postinstall` → **Prisma Client** (`db:generate`)։
 4. **DB** — առաջին անգամ․ `pnpm --filter @ommm/database run migrate:dev` (կամ `db:push` dev-ի համար)։
 5. **Բիլդ ստուգում** — `pnpm run build:api` (նախ `@ommm/database` build, հետո Nest)։
-6. **Dev** — `pnpm run dev` (web + api + mobile) կամ `pnpm run dev:api` / `dev:web` / `dev:mobile`։ Մանրամասներ՝ [`MOBILE_SETUP.md`](./MOBILE_SETUP.md)։
+6. **Dev** — `pnpm run dev` (web + api), `pnpm run dev:web` / `dev:api` առանձին, `pnpm run dev:all` (web + api + mobile)։ Մանրամասներ՝ [`MOBILE_SETUP.md`](./MOBILE_SETUP.md)։
 
 **Ձեռքով Prisma client** (եթե `postinstall` անջատված է CI-ում)․ `pnpm run db:generate`։
 
@@ -33,7 +33,7 @@ Cursor-ում AI-զարգացման կանոններով repo-ի կաղապար�
 ## Մշակողի դերը
 
 - **Կոդից առաջ:** BRIEF, TECH_CARD, ճարտարապետություն — AI-ն առաջարկում է, դու հաստատում ես։
-- **Տվյալներ (AI-ն կխնդրի ըստ need-ի):** Neon (DATABASE_URL), R2 (bucket + բանալիներ), Vercel (env), Auth (OAuth), Resend/Stripe/Դոմեն — անհրաժեշտության դեպքում։
+- **Տվյալներ (AI-ն կխնդրի ըստ need-ի):** Neon (DATABASE_URL), R2 (bucket + բանալիներ), Vercel (env), Auth (OAuth), Resend/Դոմեն — անհրաժեշտության դեպքում։
 - **Env:** Ստեղծել `.env` + `.env.example` (առանց գաղտնիքների), `.gitignore`-ում — `.env`, `.env.local`. 
 Հերթականություն. 
 Neon → `.env`

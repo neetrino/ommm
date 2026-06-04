@@ -3,7 +3,6 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
-  MembershipStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -29,10 +28,7 @@ export class ReportsService {
   async dashboard(options?: DashboardOptions) {
     const includeRevenue = options?.includeRevenue === true;
     const includeOverview = options?.includeOverview === true;
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date(todayStart);
-    todayEnd.setDate(todayEnd.getDate() + 1);
+    const { todayStart, todayEnd } = this.getLocalDayBounds();
     const now = new Date();
 
     const baseDashboard = await this.getBaseDashboard(
@@ -65,10 +61,7 @@ export class ReportsService {
       revenueAgg,
     ] = await Promise.all([
       this.prisma.classSession.count({
-        where: {
-          startsAt: { gte: todayStart, lt: todayEnd },
-          status: { not: ClassSessionStatus.CANCELLED },
-        },
+        where: this.buildTodaySessionsWhere(todayStart, todayEnd),
       }),
       this.prisma.booking.count({
         where: {
@@ -79,8 +72,20 @@ export class ReportsService {
       this.prisma.waitlistEntry.count({
         where: { status: 'ACTIVE' },
       }),
-      this.prisma.userMembership.count({
-        where: { status: 'ACTIVE', currentPeriodEnd: { gt: new Date() } },
+      this.prisma.user.count({
+        where: {
+          role: Role.USER,
+          bookings: {
+            some: {
+              status: BookingStatus.COMPLETED,
+              session: {
+                startsAt: {
+                  gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                },
+              },
+            },
+          },
+        },
       }),
       includeRevenue
         ? this.prisma.payment.aggregate({
@@ -119,7 +124,6 @@ export class ReportsService {
       previousMonthRevenueAgg,
       pendingPaymentsAgg,
       upcomingBookingCancellations,
-      upcomingMembershipCancellations,
       newUsersToday,
       recentUsers,
       fullClassesToday,
@@ -127,10 +131,7 @@ export class ReportsService {
       draftClassesUpcoming,
     ] = await Promise.all([
       this.prisma.classSession.findMany({
-        where: {
-          startsAt: { gte: todayStart, lt: todayEnd },
-          status: { not: ClassSessionStatus.CANCELLED },
-        },
+        where: this.buildTodaySessionsWhere(todayStart, todayEnd),
         include: {
           classType: { select: { name: true } },
           coach: {
@@ -199,18 +200,6 @@ export class ReportsService {
         orderBy: [{ session: { startsAt: 'asc' } }, { cancelledAt: 'desc' }],
         take: UPCOMING_ITEMS_LIMIT,
       }),
-      this.prisma.userMembership.findMany({
-        where: {
-          status: MembershipStatus.CANCELLED,
-          currentPeriodEnd: { gte: now },
-        },
-        include: {
-          user: { select: { name: true, lastName: true, email: true } },
-          plan: { select: { name: true } },
-        },
-        orderBy: { currentPeriodEnd: 'asc' },
-        take: UPCOMING_ITEMS_LIMIT,
-      }),
       this.prisma.user.count({
         where: {
           role: Role.USER,
@@ -251,7 +240,6 @@ export class ReportsService {
 
     const bookingsByStatus = this.mapBookingStatusCounts(bookingsByStatusRaw);
     const upcomingClasses = todayClasses
-      .filter((session) => session.startsAt >= now)
       .slice(0, UPCOMING_ITEMS_LIMIT)
       .map((session) => ({
         id: session.id,
@@ -275,8 +263,8 @@ export class ReportsService {
       pendingPaymentsAgg._count.id ?? 0,
     );
 
-    const upcomingCancellations = [
-      ...upcomingBookingCancellations.map((booking) => ({
+    const upcomingCancellations = upcomingBookingCancellations
+      .map((booking) => ({
         id: booking.id,
         type: 'booking' as const,
         userName: this.joinName(
@@ -287,20 +275,7 @@ export class ReportsService {
         itemName: booking.session.classType.name,
         dateTime: booking.session.startsAt.toISOString(),
         status: booking.status,
-      })),
-      ...upcomingMembershipCancellations.map((membership) => ({
-        id: membership.id,
-        type: 'membership' as const,
-        userName: this.joinName(
-          membership.user.name,
-          membership.user.lastName,
-          membership.user.email,
-        ),
-        itemName: membership.plan.name,
-        dateTime: membership.currentPeriodEnd.toISOString(),
-        status: membership.status,
-      })),
-    ]
+      }))
       .sort((a, b) => a.dateTime.localeCompare(b.dateTime))
       .slice(0, UPCOMING_ITEMS_LIMIT);
 
@@ -435,6 +410,28 @@ export class ReportsService {
     return alerts;
   }
 
+  /** Local calendar day bounds — shared by dashboard stats and today's class list. */
+  private getLocalDayBounds(referenceDate: Date = new Date()): {
+    todayStart: Date;
+    todayEnd: Date;
+  } {
+    const todayStart = new Date(referenceDate);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    return { todayStart, todayEnd };
+  }
+
+  private buildTodaySessionsWhere(
+    todayStart: Date,
+    todayEnd: Date,
+  ): Prisma.ClassSessionWhereInput {
+    return {
+      startsAt: { gte: todayStart, lt: todayEnd },
+      status: { not: ClassSessionStatus.CANCELLED },
+    };
+  }
+
   private getMonthStart(now: Date): Date {
     return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   }
@@ -499,8 +496,8 @@ export class ReportsService {
       totals,
       byStatusRaw,
       payments,
-      giftIssuedAgg,
-      giftRedeemedAgg,
+      issuedGiftCards,
+      redeemedGiftCards,
       giftSpentAgg,
       giftLiabilityAgg,
     ] = await Promise.all([
@@ -524,20 +521,20 @@ export class ReportsService {
           status: true,
         },
       }),
-      this.prisma.giftCard.aggregate({
+      this.prisma.giftCard.findMany({
         where: {
           ...(dateFilter ? { createdAt: dateFilter } : {}),
         },
-        _sum: { amountCents: true },
-        _count: { id: true },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
       }),
-      this.prisma.giftCard.aggregate({
+      this.prisma.giftCard.findMany({
         where: {
           status: GiftCardStatus.REDEEMED,
           ...(dateFilter ? { updatedAt: dateFilter } : {}),
         },
-        _sum: { amountCents: true },
-        _count: { id: true },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 10_000,
       }),
       this.prisma.payment.aggregate({
         where: {
@@ -555,7 +552,7 @@ export class ReportsService {
 
     const bySource = payments.reduce<
       Record<
-        'membership' | 'dropin' | 'gift' | 'other',
+        'package' | 'dropin' | 'gift' | 'other',
         { count: number; amountCents: number }
       >
     >(
@@ -568,7 +565,7 @@ export class ReportsService {
         return acc;
       },
       {
-        membership: { count: 0, amountCents: 0 },
+        package: { count: 0, amountCents: 0 },
         dropin: { count: 0, amountCents: 0 },
         gift: { count: 0, amountCents: 0 },
         other: { count: 0, amountCents: 0 },
@@ -585,6 +582,16 @@ export class ReportsService {
       (totals._count.id ?? 0) > 0
         ? Math.round((totals._sum.amountCents ?? 0) / (totals._count.id ?? 1))
         : 0;
+    const issuedCount = issuedGiftCards.length;
+    const redeemedCount = redeemedGiftCards.length;
+    const issuedCents = issuedGiftCards.reduce(
+      (sum, card) => sum + this.readGiftAmount(card),
+      0,
+    );
+    const redeemedCents = redeemedGiftCards.reduce(
+      (sum, card) => sum + this.readGiftAmount(card),
+      0,
+    );
 
     return {
       range: this.resolveRange(range),
@@ -596,10 +603,10 @@ export class ReportsService {
       byStatus,
       bySource,
       giftCredits: {
-        issuedCents: giftIssuedAgg._sum.amountCents ?? 0,
-        issuedCount: giftIssuedAgg._count.id ?? 0,
-        redeemedCents: giftRedeemedAgg._sum.amountCents ?? 0,
-        redeemedCount: giftRedeemedAgg._count.id ?? 0,
+        issuedCents,
+        issuedCount,
+        redeemedCents,
+        redeemedCount,
         spentCents: giftSpentAgg._sum.amountCents ?? 0,
         spendTransactionsCount: giftSpentAgg._count.id ?? 0,
         outstandingCreditsCents: giftLiabilityAgg._sum.giftCreditsCents ?? 0,
@@ -699,7 +706,7 @@ export class ReportsService {
           card.purchaser.id,
           card.purchaser.email,
           `${card.purchaser.name ?? ''} ${card.purchaser.lastName ?? ''}`.trim(),
-          card.amountCents,
+          this.readGiftAmount(card),
           GIFT_CREDIT_CURRENCY,
           card.code,
           card.recipientEmail ??
@@ -717,7 +724,7 @@ export class ReportsService {
           card.recipient?.id ?? '',
           card.recipient?.email ?? '',
           `${card.recipient?.name ?? ''} ${card.recipient?.lastName ?? ''}`.trim(),
-          card.amountCents,
+          this.readGiftAmount(card),
           GIFT_CREDIT_CURRENCY,
           card.code,
           '',
@@ -850,7 +857,7 @@ export class ReportsService {
 
   async userAnalytics(userId: string, days: number) {
     const range = this.resolveRelativeDays(days);
-    const [bookings, payments, memberships] = await Promise.all([
+    const [bookings, payments] = await Promise.all([
       this.prisma.booking.findMany({
         where: {
           userId,
@@ -875,19 +882,6 @@ export class ReportsService {
           status: PaymentStatus.SUCCEEDED,
         },
         select: { amountCents: true, createdAt: true, description: true },
-      }),
-      this.prisma.userMembership.findMany({
-        where: {
-          userId,
-          createdAt: { lte: range.to },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        include: {
-          plan: {
-            select: { name: true, sessionsPerMonth: true, isUnlimited: true },
-          },
-        },
       }),
     ]);
 
@@ -929,7 +923,6 @@ export class ReportsService {
       attendanceTrendMap.set(key, (attendanceTrendMap.get(key) ?? 0) + 1);
     }
 
-    const currentMembership = memberships[0] ?? null;
     return {
       range,
       totals: {
@@ -939,15 +932,6 @@ export class ReportsService {
         favoriteClassType,
         spendCents,
       },
-      membership: currentMembership
-        ? {
-            planName: currentMembership.plan.name,
-            sessionsRemaining: currentMembership.sessionsRemaining,
-            sessionsPerMonth: currentMembership.plan.sessionsPerMonth,
-            isUnlimited: currentMembership.plan.isUnlimited,
-            currentPeriodEnd: currentMembership.currentPeriodEnd,
-          }
-        : null,
       trend: {
         attendance: [...attendanceTrendMap.entries()].map(([date, count]) => ({
           date,
@@ -992,10 +976,13 @@ export class ReportsService {
 
   private detectPaymentSource(
     description: string | null,
-  ): 'membership' | 'dropin' | 'gift' | 'other' {
+  ): 'package' | 'dropin' | 'gift' | 'other' {
     const normalized = (description ?? '').toLowerCase();
-    if (normalized.startsWith('membership')) {
-      return 'membership';
+    if (
+      normalized.startsWith('membership') ||
+      normalized.startsWith('package')
+    ) {
+      return 'package';
     }
     if (normalized.startsWith('drop-in')) {
       return 'dropin';
@@ -1014,6 +1001,16 @@ export class ReportsService {
       result.set(item.sessionId, (result.get(item.sessionId) ?? 0) + 1);
     }
     return result;
+  }
+
+  private readGiftAmount(card: {
+    amountCents?: number;
+    amountAmd?: number;
+  }): number {
+    if (typeof card.amountAmd === 'number') {
+      return card.amountAmd;
+    }
+    return card.amountCents ?? 0;
   }
 
   private toCsvRow(cells: ReadonlyArray<string | number>): string {

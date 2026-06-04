@@ -15,6 +15,7 @@ import { GIFT_CARD_STATUSES } from "@/components/admin/admin-gift-cards-types";
 type AdminGiftCardsFiltersProps = {
   values: GiftCardFilterValues;
   activeFilterCount: number;
+  isUpdating: boolean;
   onChange: <K extends keyof GiftCardFilterValues>(
     key: K,
     value: GiftCardFilterValues[K],
@@ -49,6 +50,7 @@ const QUICK_LABEL_KEYS: Record<Exclude<GiftCardQuickFilter, "">, string> = {
 export function AdminGiftCardsFilters({
   values,
   activeFilterCount,
+  isUpdating,
   onChange,
   onReset,
 }: AdminGiftCardsFiltersProps) {
@@ -153,11 +155,13 @@ export function AdminGiftCardsFilters({
         onReset={onReset}
         label={t("reset")}
         meta={
-          activeFilterCount > 0 ? (
-            <span className="text-xs text-sage-500">
-              {t("activeCount", { count: activeFilterCount })}
-            </span>
-          ) : null
+          <p
+            className="min-h-5 whitespace-nowrap text-xs text-sage-500"
+            role="status"
+            aria-live="polite"
+          >
+            {isUpdating ? t("loading") : t("activeCount", { count: activeFilterCount })}
+          </p>
         }
       />
     </div>

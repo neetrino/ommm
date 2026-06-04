@@ -59,18 +59,34 @@ enum ContentStatus {
   HIDDEN
 }
 
-enum MembershipStatus {
-  ACTIVE
-  PAUSED
-  CANCELLED
-  EXPIRED
-}
-
 enum PaymentStatus {
   PENDING
   SUCCEEDED
   FAILED
   REFUNDED
+}
+
+enum PaymentSource {
+  PACKAGE
+  DROPIN
+  GIFT
+  OTHER
+}
+
+enum PackageStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+  /** Awaiting manual / offline payment confirmation by admin. */
+  PENDING
+}
+
+enum ManualPaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  OTHER
 }
 
 enum GiftCardStatus {
@@ -119,7 +135,6 @@ model User {
   emailVerified  DateTime?
   /** Preferred UI locale for this user only (`hy` | `en` | `ru`). Updated via PATCH /users/me and language switcher. */
   locale           String    @default("hy")
-  stripeCustomerId String?   @unique
   giftCreditsCents Int       @default(0)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -127,10 +142,12 @@ model User {
   coachProfile      CoachProfile?
   bookings          Booking[]
   waitlistEntries   WaitlistEntry[]
-  memberships       UserMembership[]
   payments          Payment[]
+  userPackages      UserPackage[]
   giftCardsPurchased GiftCard[] @relation("GiftCardPurchaser")
   giftCardsReceived  GiftCard[] @relation("GiftCardRecipient")
+  giftCardBatchesCreated GiftCardBatch[] @relation("GiftCardBatchPurchaser")
+  giftCardBatchesReceived GiftCardBatch[] @relation("GiftCardBatchRecipient")
   achievements      UserAchievement[]
   notificationPrefs NotificationPreference?
   bookingNotesAuthored BookingNote[] @relation("BookingNoteAuthor")
@@ -230,7 +247,7 @@ model ClassType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sessions ClassSession[]
+  sessions        ClassSession[]
 }
 
 model ClassSession {
@@ -323,9 +340,10 @@ model WaitlistEntry {
   @@index([sessionId])
 }
 
-model MembershipPlan {
+model PackagePlan {
   id               String   @id @default(cuid())
   name             String
+  categoryName     String   @default("General")
   slug             String   @unique
   description      String?
   priceCents       Int
@@ -338,54 +356,70 @@ model MembershipPlan {
   buttonLabel      String   @default("Choose plan")
   isPopular        Boolean  @default(false)
   displayOrder     Int      @default(0)
+  guestCount       Int      @default(0)
   isActive         Boolean  @default(true)
-  stripePriceId    String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  memberships UserMembership[]
+  userPackages UserPackage[]
+  payments     Payment[]
 }
 
-model UserMembership {
-  id                 String            @id @default(cuid())
-  userId             String
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  planId             String
-  plan               MembershipPlan    @relation(fields: [planId], references: [id])
-  status             MembershipStatus  @default(ACTIVE)
-  sessionsRemaining  Int?
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  pausedUntil        DateTime?
-  stripeSubscriptionId String?         @unique
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+model UserPackage {
+  id                   String        @id @default(cuid())
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId               String
+  plan                 PackagePlan   @relation(fields: [planId], references: [id])
+  status               PackageStatus @default(ACTIVE)
+  sessionsRemaining    Int?
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  pausedUntil          DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  pendingPayment       Payment?
 
   @@index([userId])
 }
 
 model Payment {
-  id              String        @id @default(cuid())
+  id              String               @id @default(cuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   amountCents     Int
-  currency        String        @default("amd")
-  status          PaymentStatus @default(PENDING)
-  stripePaymentId String?       @unique
+  currency        String               @default("amd")
+  status          PaymentStatus        @default(PENDING)
+  paymentReference String?             @unique
+  source          PaymentSource        @default(OTHER)
+  sourceId        String?
   description     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  metadata        Json?
+  confirmedAt     DateTime?
+  confirmedByAdminId String?
+  planId          String?
+  plan            PackagePlan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
+  paymentMethod   ManualPaymentMethod?
+  userPackageId   String?              @unique
+  userPackage     UserPackage?         @relation(fields: [userPackageId], references: [id], onDelete: SetNull)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   @@index([userId])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([planId, status])
+  @@index([source, sourceId])
 }
 
 model GiftCard {
   id              String         @id @default(cuid())
+  batchId         String?
+  batch           GiftCardBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
   code            String         @unique
-  amountCents     Int
-  balanceCents    Int
+  amountAmd       Int            @map("amountCents")
+  balanceAmd      Int            @map("balanceCents")
+  imageUrl        String?
   status          GiftCardStatus @default(ACTIVE)
   purchaserId     String
   purchaser       User           @relation("GiftCardPurchaser", fields: [purchaserId], references: [id])
@@ -394,10 +428,36 @@ model GiftCard {
   recipientEmail  String?
   recipientName   String?
   message         String?
-  stripePaymentId String?        @unique
   expiresAt       DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+
+  @@index([batchId])
+}
+
+model GiftCardBatch {
+  id                String         @id @default(cuid())
+  amountAmd         Int            @map("amountCents")
+  imageUrl          String?
+  status            GiftCardStatus @default(ACTIVE)
+  totalQuantity     Int
+  availableQuantity Int
+  purchaserId       String
+  purchaser         User           @relation("GiftCardBatchPurchaser", fields: [purchaserId], references: [id], onDelete: Restrict)
+  recipientId       String?
+  recipient         User?          @relation("GiftCardBatchRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  recipientEmail    String?
+  recipientName     String?
+  message           String?
+  expiresAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  giftCards GiftCard[]
+
+  @@index([status, createdAt])
+  @@index([purchaserId])
+  @@index([recipientId])
 }
 
 model ContentPost {

@@ -18,7 +18,6 @@ export function AdminFinanceManagement({
   initialUserRows,
   initialCoachRows,
   initialPayments,
-  packages,
   paymentsFrom,
 }: AdminFinanceManagementProps) {
   const t = useTranslations("adminPages.finance");
@@ -53,7 +52,6 @@ export function AdminFinanceManagement({
           locale={locale}
           initialRows={initialUserRows}
           initialPayments={initialPayments.items}
-          packages={packages}
           paymentsFrom={paymentsFrom}
         />
       ) : (

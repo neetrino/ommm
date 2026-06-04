@@ -2,16 +2,14 @@ import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
 import { MemberDashboard } from "@/components/account/member-dashboard";
-import {
-  isUserDashboardRole,
-} from "@/lib/role-home";
+import { isUserDashboardRole } from "@/lib/role-home";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
   user: {
     name: string | null;
+    lastName: string | null;
     email: string;
     role: string;
     homeImageUrl?: string | null;
@@ -52,11 +50,11 @@ export default async function UserHomePage({
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
   if (!meRes.ok) {
     return (
-      <div className="pt-6 sm:pt-8">
+      <div className="ommm-admin-content pt-6 sm:pt-8">
         <div className="rounded-[28px] border border-amber-200/80 bg-amber-50/90 p-8 text-amber-950 backdrop-blur-md">
           <p className="font-serif text-lg font-semibold">{tDash("signIn.title")}</p>
           <p className="mt-2 text-sm text-amber-900/90">{tDash("signIn.body")}</p>
-          <Link href="/login" className="ommm-cta-primary mt-6 inline-flex">
+          <Link href="/login" className="ommm-admin-add-button mt-6 inline-flex">
             {tCommon("login")}
           </Link>
         </div>
@@ -82,9 +80,6 @@ export default async function UserHomePage({
     .slice(0, 5);
 
   const achievements = meRes.data.achievements.slice(0, 6);
-  const displayName =
-    meRes.data.user.name?.trim() || meRes.data.user.email;
-  const homeImageSrc = resolveApiAssetUrl(meRes.data.user.homeImageUrl ?? null);
   const first = upcoming[0];
   const nextBooking = first
     ? {
@@ -98,8 +93,9 @@ export default async function UserHomePage({
   return (
     <MemberDashboard
       locale={locale}
-      displayName={displayName}
-      homeImageSrc={homeImageSrc}
+      name={meRes.data.user.name}
+      lastName={meRes.data.user.lastName}
+      email={meRes.data.user.email}
       nextBooking={nextBooking}
       waitlistOk={waitRes.ok}
       waitlistRows={waitRes.ok ? waitRes.data : []}

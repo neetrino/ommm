@@ -60,6 +60,12 @@ export function LanguageSwitcher({
 
   const isIconMarketing =
     context === "marketing" && appearance === "icon";
+  const flagFrame =
+    dashboardVariant === "wellness" ||
+    dashboardVariant === "admin" ||
+    dashboardVariant === "member"
+      ? "warm"
+      : "default";
 
   function select(next: LanguageSwitcherLocaleCode) {
     if (next === locale) {
@@ -113,6 +119,7 @@ export function LanguageSwitcher({
         menuMinWidth={isIconMarketing ? MARKETING_ICON_MENU_MIN_WIDTH_PX : undefined}
         menuAlign={isIconMarketing ? "end" : "start"}
         menuClassName="ommm-language-switcher-menu"
+        disableMenuScroll
         renderValue={() =>
           isIconMarketing ? (
             <span className="inline-flex items-center justify-center">
@@ -120,7 +127,7 @@ export function LanguageSwitcher({
             </span>
           ) : (
             <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
-              <LocaleFlagIcon code={effectiveLocale} />
+              <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
               <span>{t(`optionNames.${effectiveLocale}`)}</span>
             </span>
           )

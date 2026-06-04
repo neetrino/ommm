@@ -3,7 +3,6 @@ export const ADMIN_CLIENTS_FILTER_KEYS = [
   "search",
   "tag",
   "status",
-  "packageType",
   "classLevel",
   "paymentStatus",
   "source",
@@ -17,7 +16,6 @@ export const ADMIN_CLIENTS_FILTER_KEYS = [
 const ADMIN_CLIENTS_API_QUERY_KEYS = [
   ...ADMIN_CLIENTS_FILTER_KEYS,
   "q",
-  "membership",
   "take",
   "offset",
 ] as const;

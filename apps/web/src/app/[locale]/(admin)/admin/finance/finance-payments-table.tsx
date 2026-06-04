@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -8,7 +9,7 @@ type PaymentItem = {
   currency: string;
   status: string;
   description: string | null;
-  source: "membership" | "dropin" | "gift" | "other";
+  source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
   user: {
     email: string;
@@ -91,6 +92,7 @@ export async function FinancePaymentsTable({ items, locale }: FinancePaymentsTab
               <th className="px-4 py-3">{t("colSource")}</th>
               <th className="px-4 py-3">{t("colStatus")}</th>
               <th className="px-4 py-3">{t("colDescription")}</th>
+              <th className="px-4 py-3">{t("colActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -118,6 +120,9 @@ export async function FinancePaymentsTable({ items, locale }: FinancePaymentsTab
                 </td>
                 <td className="px-4 py-3 align-top text-xs text-sage-500">
                   {row.description ?? "—"}
+                </td>
+                <td className="px-4 py-3 align-top">
+                  <AdminFinancePaymentActions paymentId={row.id} status={row.status} />
                 </td>
               </tr>
             ))}

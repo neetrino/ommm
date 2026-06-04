@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
+import { buildRegisterHrefForScheduleBooking } from "@/lib/auth-redirect";
 
 export async function MarketingScheduleLiveView({
   locale,
@@ -50,7 +51,10 @@ export async function MarketingScheduleLiveView({
                   </p>
                 </div>
                 <div className="shrink-0">
-                  <Link href="/register" className="ommm-cta-primary text-sm">
+                  <Link
+                    href={buildRegisterHrefForScheduleBooking(s)}
+                    className="ommm-cta-primary text-sm"
+                  >
                     {t("bookCta")}
                   </Link>
                 </div>

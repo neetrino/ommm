@@ -15,7 +15,7 @@
   - Public marketing and content pages
   - Authentication (email/password + Google OAuth)
   - Class scheduling, booking, waitlist, memberships
-  - Gift cards and payment processing (Stripe)
+  - Gift cards and internal/manual payment processing
   - Role-based dashboards (member, coach, manager, content admin, admin)
 
 ### Main user roles
@@ -36,7 +36,7 @@
   - Booking lifecycle: `apps/api/src/bookings/*`
   - Waitlist offer/promote flow with cron expiration: `apps/api/src/waitlist/waitlist.service.ts`
   - Membership management: `apps/api/src/memberships/*`
-  - Payments + webhook fulfillment: `apps/api/src/payments/payments.service.ts`
+  - Payments + admin-confirmed fulfillment: `apps/api/src/payments/payments.service.ts`
   - Notifications + reminders + scheduled broadcasts: `apps/api/src/notifications/*`
 
 ### Main user flows
@@ -59,15 +59,15 @@
 | Database | PostgreSQL | `packages/database/prisma/schema.prisma` datasource |
 | ORM | Prisma 6 | root/package database package scripts + Prisma schema/migrations |
 | Authentication | JWT (cookie and bearer), email/password, Google OAuth | `apps/api/src/auth/*`, `apps/api/src/common/constants.ts` |
-| Payment system | Stripe Checkout + Stripe Webhook | `apps/api/src/payments/*` |
+| Payment system | Internal/manual payment requests + admin confirmation | `apps/api/src/payments/*` |
 | Email system | Resend (or log transport fallback) | `apps/api/src/mail/mail.service.ts` |
 | Storage | Cloudflare R2 (S3 API) with local-disk fallback for uploads | `apps/api/src/storage/r2-home-image.storage.ts`, `apps/api/src/users/users.service.ts` |
-| External services | Google OAuth, Stripe, Resend, Expo Push | `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/payments/*`, `apps/api/src/mail/*`, `apps/api/src/notifications/expo-push.service.ts` |
+| External services | Google OAuth, Resend, Expo Push | `apps/api/src/auth/google-oauth.service.ts`, `apps/api/src/mail/*`, `apps/api/src/notifications/expo-push.service.ts` |
 | Deployment tools | Vercel (web), Render (API), Neon-compatible Postgres documented | `docs/DEPLOY_ENV_PLACEMENT.md`, `docs/TECH_CARD.md` |
 
 Notes:
 - Upstash Redis env vars are present in `.env.example`, but code usage was not found in this scan -> **Needs verification**.
-- Non-Stripe payment docs exist under `docs/reference/payment integration/`, but runtime implementation in `apps/api` is Stripe-based.
+- Provider payment docs under `docs/reference/payment integration/` are reference material only; runtime payments use internal/manual admin confirmation.
 
 ---
 
@@ -247,12 +247,11 @@ Notes:
 | `/v1/memberships/admin/all` | GET | Admin list all memberships | `take,offset` | paged list | none |
 | `/v1/memberships/admin/assign` | POST | Manual assign membership | body `userId,planId` | membership | Creates assignment |
 | `/v1/memberships/admin/:id/status` | PATCH | Set membership status | body `status` | updated membership | status updates |
-| `/v1/payments/webhook` | POST | Stripe webhook receiver | raw body + stripe signature | `{received:true}` | Fulfills membership/gift/drop-in effects |
-| `/v1/payments/checkout/membership/:planId` | POST | Start membership checkout | planId | `{url}` | Creates Stripe checkout session |
-| `/v1/payments/checkout/gift` | POST | Start gift checkout | `CreateGiftCheckoutDto` | `{url}` | Creates Stripe checkout session |
-| `/v1/payments/checkout/dropin/:sessionId` | POST | Start drop-in checkout | sessionId | `{url}` | Creates Stripe checkout session |
+| `/v1/payments/checkout/gift` | POST | Create gift payment request | `CreateGiftCheckoutDto` | `Payment` | Creates a pending internal payment |
+| `/v1/payments/checkout/dropin/:sessionId` | POST | Create drop-in payment request | sessionId | `Payment` | Creates a pending internal payment |
 | `/v1/payments/me` | GET | My payments | JWT | payment list | none |
 | `/v1/payments/admin` | GET | Admin payment list | `AdminListPaymentsQueryDto` | paged/list payload | none |
+| `/v1/payments/admin/:paymentId/status` | PATCH | Admin payment confirmation | `AdminUpdatePaymentStatusDto` | `Payment` | Confirms/fails pending payment and runs side effects |
 | `/v1/gift-cards/me/purchased` | GET | Purchased cards | JWT | gift cards | none |
 | `/v1/gift-cards/me/received` | GET | Received cards | JWT | gift cards | none |
 | `/v1/gift-cards/redeem` | POST | Redeem code | `RedeemGiftDto` | status/object | Updates card/user credits |
@@ -390,7 +389,7 @@ Notes:
 ### Important fields
 - `User.role` for RBAC.
 - `User.locale` for per-user UI locale.
-- `User.stripeCustomerId`, `MembershipPlan.stripePriceId`, `UserMembership.stripeSubscriptionId`, `Payment.stripePaymentId`.
+- `Payment.paymentReference`, `Payment.source`, `Payment.sourceId`, `Payment.confirmedAt`, `Payment.confirmedByAdminId`.
 - `ClassSession.capacity/status/startsAt/endsAt` for booking constraints.
 - `WaitlistEntry.status/position/offerExpiresAt` for waitlist mechanics.
 - `AuditLog` stores notification scheduling lifecycle and audit events.
@@ -415,24 +414,19 @@ Notes:
 ## 8) Payment flow
 
 ### How payment starts
-- Checkout endpoints in `apps/api/src/payments/payments.controller.ts`:
-  - membership checkout
-  - gift checkout
-  - drop-in checkout
-- Service creates Stripe checkout session URLs in `apps/api/src/payments/payments.service.ts`.
+- User package subscription, gift purchase, and drop-in payment actions create `PaymentStatus.PENDING` records.
+- Gift/drop-in endpoints keep their existing paths but now return internal payment records rather than external checkout URLs.
 
-### Success/failure/callback
-- Success/cancel URLs are included in Stripe checkout session creation and point to web routes.
-- Stripe callback endpoint:
-  - `POST /v1/payments/webhook`
-  - Requires raw body + `stripe-signature`.
+### Success/failure confirmation
+- Admin/Manager confirms or fails pending payments through `PATCH /v1/payments/admin/:paymentId/status`.
+- Normal users cannot mark their own payments as paid.
 
 ### Payment status update
-- Webhook handler dispatches by metadata `type`:
-  - `membership` -> create `UserMembership` + `Payment`
-  - `gift` -> create `GiftCard`, optionally send recipient email
-  - `dropin` -> create `Payment`, create booking if absent, update class status if full
-- Idempotency checks are done by querying existing `stripePaymentId` records.
+- Confirmation dispatches by `Payment.source`:
+  - `PACKAGE` -> activate pending `UserPackage`
+  - `GIFT` -> decrement batch quantity, create `GiftCard`, optionally send recipient email
+  - `DROPIN` -> create/reactivate booking and update class status if full
+- Gift inventory is decremented only during confirmed payment fulfillment.
 
 ### Responsible files
 - `apps/api/src/payments/payments.controller.ts`
@@ -440,8 +434,7 @@ Notes:
 - Related models in `packages/database/prisma/schema.prisma`.
 
 Notes:
-- If `STRIPE_SECRET_KEY` is not configured, checkout endpoints return unavailable (service guard).
-- Additional payment docs exist in docs reference tree but active backend wiring is Stripe.
+- Provider integration docs under `docs/reference/payment integration/` are reference material only.
 
 ---
 
@@ -501,9 +494,6 @@ Legend:
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID | Optional (required for Google login) | `apps/api/src/auth/google-oauth.service.ts` |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth secret | Optional (required for Google login) | `apps/api/src/auth/google-oauth.service.ts` |
 | `GOOGLE_CALLBACK_URL` | Google callback URL | Optional (required for Google login) | `apps/api/src/auth/google-oauth.service.ts` |
-| `STRIPE_SECRET_KEY` | Stripe API key | Optional (required for checkout) | `apps/api/src/payments/payments.service.ts` |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signature verification | Optional (required for webhook fulfillment) | `apps/api/src/payments/payments.service.ts` |
-| `STRIPE_CURRENCY` | Stripe default currency | Optional | `apps/api/src/payments/payments.service.ts` |
 | `MAIL_TRANSPORT` | email transport selection | Optional | `apps/api/src/mail/mail.service.ts` |
 | `RESEND_API_KEY` | Resend auth key | Optional (required when sending via Resend) | `apps/api/src/mail/mail.service.ts` |
 | `RESEND_FROM` | email from header | Optional | `apps/api/src/mail/mail.service.ts` |
@@ -586,8 +576,8 @@ Never store real secret values in docs or code.
 - **Role authorization**
   - Role guard coverage differs per endpoint; accidental changes can leak access.
   - Files: controllers with `@Roles`, `roles.guard.ts`.
-- **Payments + webhook idempotency**
-  - Checkout metadata/webhook processing must stay consistent.
+- **Payments + admin-confirmed fulfillment**
+  - Pending payment source metadata and confirmation side effects must stay consistent.
   - Files: `apps/api/src/payments/payments.service.ts`.
 - **Waitlist and booking concurrency**
   - Offer/promote/full-capacity transitions involve multiple modules and cron jobs.
@@ -635,7 +625,7 @@ Never store real secret values in docs or code.
 
 ### Areas not to touch without explicit instruction
 - Auth token/cookie semantics and JWT secret usage.
-- Stripe webhook flow and payment fulfillment logic.
+- Internal payment confirmation and fulfillment logic.
 - Prisma schema enums and role model semantics.
 - Role guard declarations on protected endpoints.
 - Global middleware locale redirection and route rewrites.
@@ -651,10 +641,12 @@ Never store real secret values in docs or code.
 ### Commands for dev/build/lint/test (from package.json files)
 
 #### Root (`package.json`)
-- `pnpm run dev`
-- `pnpm run dev:web`
-- `pnpm run dev:api`
-- `pnpm run dev:mobile`
+- `pnpm run dev` — web + API (`dev:stack`)
+- `pnpm run dev:stack` — same as `dev`
+- `pnpm run dev:all` — web + API + mobile in parallel
+- `pnpm run dev:web` — Next.js only
+- `pnpm run dev:api` — NestJS only
+- `pnpm run dev:mobile` — Expo only
 - `pnpm run build`
 - `pnpm run build:web`
 - `pnpm run build:api`

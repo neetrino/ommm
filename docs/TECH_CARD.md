@@ -17,4 +17,4 @@
 ## Notes
 
 - Push: Expo Push API + optional `EXPO_ACCESS_TOKEN`; device tokens in `PushDeviceToken` table.
-- Payments: Stripe (optional in env).
+- Payments: Internal/manual payment requests with admin confirmation.

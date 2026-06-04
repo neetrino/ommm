@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
+import { memberNavIconSlugForHref } from "@/components/shell/member-nav-icon-map";
+import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import type { DashboardNavItem } from "@/lib/dashboard-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 
@@ -29,12 +31,21 @@ function accentBorder(variant: DashboardShellVariant) {
   return "border-blue-600";
 }
 
+function oliveNavIconSlug(
+  variant: DashboardShellVariant,
+  href: string,
+): ReturnType<typeof adminNavIconSlugForHref> {
+  if (variant === "admin") return adminNavIconSlugForHref(href);
+  if (variant === "member") return memberNavIconSlugForHref(href);
+  return null;
+}
+
 function rowBase(
   variant: DashboardShellVariant,
   collapsed: boolean,
   muted: boolean,
 ) {
-  if (variant === "admin") {
+  if (isOliveDashboardShell(variant)) {
     return muted
       ? "ommm-admin-nav-link ommm-admin-nav-link-muted"
       : "ommm-admin-nav-link";
@@ -55,7 +66,7 @@ function rowActive(
   collapsed: boolean,
   muted: boolean,
 ) {
-  if (variant === "admin") {
+  if (isOliveDashboardShell(variant)) {
     return muted
       ? "ommm-admin-nav-link ommm-admin-nav-link-muted ommm-admin-nav-link-active"
       : "ommm-admin-nav-link ommm-admin-nav-link-active";
@@ -87,6 +98,7 @@ export function DashboardSidebarNav({
   onNavigate,
 }: DashboardSidebarNavProps) {
   const tShell = useTranslations("dashboard.shell");
+  const isOliveShell = isOliveDashboardShell(variant);
   const isAdmin = variant === "admin";
   const firstMutedIndex = isAdmin
     ? items.findIndex((item) => isAdminMutedNavItem(variant, item.href))
@@ -95,14 +107,16 @@ export function DashboardSidebarNav({
   return (
     <nav
       className={
-        isAdmin ? "ommm-admin-nav-list" : "flex flex-col gap-0.5 p-2"
+        isOliveShell ? "ommm-admin-nav-list" : "flex flex-col gap-0.5 p-2"
       }
       aria-label={tShell("dashboardNavAria")}
     >
       {items.map((item, index) => {
         const active = navActive(pathname, item.href);
         const muted = isAdminMutedNavItem(variant, item.href);
-        const adminIconSlug = isAdmin ? adminNavIconSlugForHref(item.href) : null;
+        const oliveIconSlug = isOliveShell
+          ? oliveNavIconSlug(variant, item.href)
+          : null;
         const showMutedDivider = isAdmin && index === firstMutedIndex;
 
         return (
@@ -119,9 +133,9 @@ export function DashboardSidebarNav({
               }
               onClick={onNavigate}
             >
-              {adminIconSlug ? (
+              {oliveIconSlug ? (
                 <span className="ommm-admin-nav-icon">
-                  <AdminNavIcon slug={adminIconSlug} />
+                  <AdminNavIcon slug={oliveIconSlug} />
                 </span>
               ) : (
                 <DashboardNavIcon name={item.icon} />

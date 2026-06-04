@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -11,12 +12,6 @@ type UserDetailsPayload = {
   lastName: string | null;
   email: string;
   phone: string | null;
-  memberships?: Array<{
-    id: string;
-    status: string;
-    plan: { name: string };
-    sessionsRemaining: number | null;
-  }>;
   bookings?: Array<{
     id: string;
     status: string;
@@ -68,6 +63,8 @@ export function AdminUserDetailsDrawer({
     };
   }, [userId]);
 
+  useCloseOnEscape(userId !== null, onClose);
+
   if (userId === null || typeof document === "undefined") {
     return null;
   }
@@ -103,23 +100,6 @@ export function AdminUserDetailsDrawer({
               <p className="font-medium text-sage-900">{fullName(data.name, data.lastName)}</p>
               <p className="text-sage-700">{data.phone ?? "—"}</p>
               <p className="text-sage-600">{data.email}</p>
-            </section>
-            <section>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">
-                {t("drawer.memberships")}
-              </p>
-              <div className="space-y-1">
-                {(data.memberships ?? []).length === 0 ? (
-                  <p className="text-sage-500">—</p>
-                ) : (
-                  (data.memberships ?? []).slice(0, 6).map((membership) => (
-                    <p key={membership.id} className="rounded-lg bg-sand-50 px-2 py-1 text-xs text-sage-800">
-                      {membership.plan.name} · {membership.status} ·{" "}
-                      {membership.sessionsRemaining ?? "∞"}
-                    </p>
-                  ))
-                )}
-              </div>
             </section>
             <section>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">

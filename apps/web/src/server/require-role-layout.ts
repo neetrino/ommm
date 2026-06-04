@@ -4,11 +4,37 @@ import { homePathForRole } from "@/lib/role-home";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { routing } from "@/i18n/routing";
 import { serverApiJson } from "@/lib/server-api";
-import { ServiceUnavailableError } from "@/server/service-unavailable-error";
 
 type MePayload = {
-  user: { role: string; locale?: string | null };
+  user: {
+    role: string;
+    locale?: string | null;
+    name?: string | null;
+    lastName?: string | null;
+    email?: string;
+    homeImageUrl?: string | null;
+  };
 };
+
+export type LayoutAuthUser = {
+  role: string;
+  locale: string | null;
+  name: string | null;
+  lastName: string | null;
+  email: string;
+  homeImageUrl: string | null;
+};
+
+export type LayoutAuthResult = {
+  cookie: string;
+  role: string;
+  userLocale: string | null;
+  authUser: LayoutAuthUser;
+};
+
+export type LayoutAuthOutcome =
+  | { kind: "ok"; auth: LayoutAuthResult }
+  | { kind: "api_unavailable" };
 
 function isRoutingLocale(value: string): value is (typeof routing.locales)[number] {
   return routing.locales.includes(value as (typeof routing.locales)[number]);
@@ -44,23 +70,31 @@ export async function redirectIfPreferredAccountLocale(
  * Ensures the session cookie yields a valid `/users/me` response.
  * Redirects unauthenticated visitors to login (localized).
  */
-export async function requireAuthForLayout(locale: string): Promise<{
-  cookie: string;
-  role: string;
-  userLocale: string | null;
-}> {
+export async function requireAuthForLayout(locale: string): Promise<LayoutAuthOutcome> {
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<MePayload>("/users/me", cookie);
   if (!res.ok) {
     if (res.status === 503 || res.status === 504) {
-      throw new ServiceUnavailableError();
+      return { kind: "api_unavailable" };
     }
     redirect(`/${locale}/login`);
   }
+  const { user } = res.data;
   return {
-    cookie,
-    role: res.data.user.role,
-    userLocale: res.data.user.locale ?? null,
+    kind: "ok",
+    auth: {
+      cookie,
+      role: user.role,
+      userLocale: user.locale ?? null,
+      authUser: {
+        role: user.role,
+        locale: user.locale ?? null,
+        name: user.name ?? null,
+        lastName: user.lastName ?? null,
+        email: user.email ?? "",
+        homeImageUrl: user.homeImageUrl ?? null,
+      },
+    },
   };
 }
 

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
 const DATE_RANGE_OPTIONS = [7, 30, 90] as const;
-const SOURCE_OPTIONS = ["all", "membership", "dropin", "gift", "other"] as const;
+const SOURCE_OPTIONS = ["all", "package", "dropin", "gift", "other"] as const;
 const STATUS_OPTIONS = ["all", "SUCCEEDED", "FAILED", "PENDING", "REFUNDED"] as const;
 
 type DateRangeOption = (typeof DATE_RANGE_OPTIONS)[number];
@@ -72,7 +72,7 @@ export function FinanceFilters() {
   const sourceOptions = useMemo<readonly FilterOption<SourceOption>[]>(
     () => [
       { value: "all", label: t("sourceAll") },
-      { value: "membership", label: t("sourceMembership") },
+      { value: "package", label: t("sourcePackage") },
       { value: "dropin", label: t("sourceDropIn") },
       { value: "gift", label: t("sourceGift") },
       { value: "other", label: t("sourceOther") },

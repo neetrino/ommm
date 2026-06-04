@@ -31,7 +31,7 @@ CRM ֆայլի սկզբում նկարագրված **Mobile APP** էկրաննե
 | 3 | Coaches + Class types + Sessions (CRUD admin, հանրային ցուցադրում) |
 | 4 | Bookings + cancellation policy + coach attendance + ներքին նշումներ |
 | 5 | Waitlist (queue, offer window, notify, admin actions) |
-| 6 | Membership plans + Stripe subscription + session debit |
+| 6 | Membership plans + internal payment confirmation + session debit |
 | 7 | Drop-in վճարով booking + Payment history |
 | 8 | Gift cards (գնում, redeem, balance, admin) |
 | 9 | Content CMS (events, blog, news, updates, knowledge) + marketing էջեր |
@@ -114,7 +114,7 @@ CRM՝ join waitlist, position, offer, expire, admin manual notify։
 
 CRM՝ plans, sessions remaining, renewal, pause, upgrade/downgrade, drop-in payment։
 
-- [x] Stripe products/prices sync (price IDs + fallback `price_data`)
+- [x] Internal package payment requests + admin confirmation
 - [x] Subscribe, pause, cancel
 - [x] Debit session per booking
 - [x] Drop-in checkout
@@ -125,7 +125,7 @@ CRM՝ plans, sessions remaining, renewal, pause, upgrade/downgrade, drop-in paym
 
 CRM՝ purchase flow, send, redeem, balance, admin list/resend/deactivate։
 
-- [x] Purchase + Stripe
+- [x] Purchase + internal payment confirmation
 - [x] Redeem + balance
 - [x] Admin management
 
@@ -148,7 +148,7 @@ CRM՝ Home, Story, Explore, knowledge։
 
 - [x] **Home (account)** — greeting, upcoming bookings, waitlists, explore preview, gift CTA
 - [x] **Classes** — list, book / waitlist (filters/calendar UX optional)
-- [x] **Booking flow** — login gate via session; Stripe drop-in when priced
+- [x] **Booking flow** — login gate via session; internal drop-in payment request when priced
 - [x] **My Bookings** — upcoming/past, cancel confirm; rebook/activity summary optional
 - [x] **My Account** — Achievements, Memberships & billing + payment history, Gift cards, Settings (notifications)
 
@@ -193,7 +193,7 @@ CRM Coach panel + Manager մատրից + Content role։
 2. Հանրային marketing էջերի կմախք (routing + թարգմանություն)։
 3. Classes + bookings MVP։
 4. Waitlist + notifications email։
-5. Stripe memberships + gift cards։
+5. Internal/manual payments for memberships + gift cards։
 6. Member zone ամբողջական UI։
 7. Admin + Manager։
 8. Coach + Content։

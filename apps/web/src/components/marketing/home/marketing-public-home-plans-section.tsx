@@ -9,15 +9,14 @@ import {
   HOME_PLANS_SECTION_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-plans-section-tokens";
 import styles from "@/components/marketing/home/marketing-public-home-plans-section.module.css";
+import { buildHomeCategoryCardsFromPlans } from "@/components/marketing/home/home-public-plan-card-copy";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-
-type PlanCardCopy = {
-  planName: string;
-  details: string;
-  price: string;
-  ctaAria: string;
-};
+import {
+  normalizePublicPackagePlan,
+  type PublicPackagePlan,
+} from "@/lib/public-package-plan";
+import { serverApiJsonPublic } from "@/lib/server-api";
 
 type MarketingPublicHomePlansSectionProps = {
   locale: string;
@@ -30,7 +29,21 @@ export async function MarketingPublicHomePlansSection({
   locale,
 }: MarketingPublicHomePlansSectionProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const cards = t.raw("planCards") as PlanCardCopy[];
+  const plansRes = await serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans");
+  const activePlans = plansRes.ok
+    ? plansRes.data
+        .filter((plan) => plan.isActive)
+        .map(normalizePublicPackagePlan)
+        .sort((left, right) => left.displayOrder - right.displayOrder)
+    : [];
+  const cards = buildHomeCategoryCardsFromPlans(activePlans, locale, {
+    sessionsUnlimited: t("planCardSessionsUnlimited"),
+    sessionsCount: (count) => t("planCardSessionsCount", { count }),
+    guestCount: (count) => t("planCardGuestCount", { count }),
+    ctaAria: (planName) => t("planCardCtaAria", { planName }),
+    categoryPackages: (count) => t("planCardCategoryPackages", { count }),
+    priceFrom: (amount) => t("planCardPriceFrom", { amount }),
+  });
 
   const mobileStyle = {
     ["--home-plans-section-bg" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionBackground,
@@ -54,6 +67,12 @@ export async function MarketingPublicHomePlansSection({
     ["--home-plans-carousel-trailing-pad" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionPaddingX,
   };
 
+  const plansStatusMessage = !plansRes.ok
+    ? t("plansLoadFailed", { status: plansRes.status })
+    : cards.length === 0
+      ? t("plansEmpty")
+      : null;
+
   return (
     <>
       <section
@@ -64,20 +83,28 @@ export async function MarketingPublicHomePlansSection({
       >
         <div className={styles.mobileShell}>
           <header className={styles.mobileHeader}>
-              <h2
-                id="home-plans-heading-mobile"
-                className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
-              >
-                {t("plansSectionTitle")}
-              </h2>
-              <p
-                id="home-plans-subtitle-mobile"
-                className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
-              >
-                {t("plansSectionSubtitle")}
-              </p>
-            </header>
+            <h2
+              id="home-plans-heading-mobile"
+              className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
+            >
+              {t("plansSectionTitle")}
+            </h2>
+            <p
+              id="home-plans-subtitle-mobile"
+              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+            >
+              {t("plansSectionSubtitle")}
+            </p>
+          </header>
 
+          {plansStatusMessage !== null ? (
+            <p
+              className={`${marketingMontserrat.className} text-center text-base text-[#4a4738]`}
+              role="status"
+            >
+              {plansStatusMessage}
+            </p>
+          ) : (
             <div className={styles.carouselViewport} aria-label={t("plansSectionTitle")} tabIndex={0}>
               <div className={styles.carouselTrack}>
                 {cards.map((card, index) => (
@@ -87,15 +114,16 @@ export async function MarketingPublicHomePlansSection({
                 ))}
               </div>
             </div>
+          )}
 
-            <div className={styles.mobileCta}>
-              <HomeHeroCtaButton
-                href="/packages"
-                label={t("plansMoreDetails")}
-                variant="booking"
-                labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
-              />
-            </div>
+          <div className={styles.mobileCta}>
+            <HomeHeroCtaButton
+              href="/packages"
+              label={t("plansMoreDetails")}
+              variant="booking"
+              labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
+            />
+          </div>
         </div>
       </section>
 
@@ -152,7 +180,16 @@ export async function MarketingPublicHomePlansSection({
               </p>
             </header>
 
-            <HomePackagePlanCardsRow cards={cards} />
+            {plansStatusMessage !== null ? (
+              <p
+                className={`${marketingMontserrat.className} max-w-xl text-center text-base text-[#4a4738]`}
+                role="status"
+              >
+                {plansStatusMessage}
+              </p>
+            ) : (
+              <HomePackagePlanCardsRow cards={cards} />
+            )}
 
             <HomeHeroCtaButton
               href="/packages"

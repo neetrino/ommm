@@ -11,14 +11,16 @@ export type AnalyticsSortKey =
   | "attendance-asc"
   | "name-asc";
 
-export type AnalyticsQuickFilter =
-  | "none"
+export type AnalyticsQuickFilterOption =
   | "today"
   | "week"
   | "month"
   | "last30"
   | "topCoaches"
   | "popularClasses";
+
+/** @deprecated Legacy single-value filter; prefer `AnalyticsQuickFilterOption[]`. */
+export type AnalyticsQuickFilter = AnalyticsQuickFilterOption | "none";
 
 export type AnalyticsBookingStatusFilter =
   | ""
@@ -61,7 +63,7 @@ export type AnalyticsFinanceSummary = {
   };
   byStatus: Array<{ status: string; count: number; amountCents: number }>;
   bySource: Record<
-    "membership" | "dropin" | "gift" | "other",
+    "package" | "dropin" | "gift" | "other",
     { count: number; amountCents: number }
   >;
   giftCredits?: {
@@ -115,12 +117,6 @@ export type AnalyticsCoachRow = {
   };
 };
 
-export type AnalyticsMembershipRow = {
-  id: string;
-  status: string;
-  plan: { id: string; name: string };
-};
-
 export type AdminAnalyticsPayload = {
   locale: string;
   rangeDays: AnalyticsRangeDays;
@@ -131,12 +127,10 @@ export type AdminAnalyticsPayload = {
   coachId: string;
   classTypeId: string;
   bookingStatus: AnalyticsBookingStatusFilter;
-  quickFilter: AnalyticsQuickFilter;
+  quickFilters: AnalyticsQuickFilterOption[];
   dashboard: AnalyticsDashboardOverview;
   finance: AnalyticsFinanceSummary;
   bookings: AnalyticsBookingsPayload;
   clients: AnalyticsClientsSummary;
   coaches: AnalyticsCoachRow[];
-  memberships: AnalyticsMembershipRow[];
-  membershipsSampledLimit: number;
 };

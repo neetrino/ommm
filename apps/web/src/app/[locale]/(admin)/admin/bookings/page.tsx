@@ -30,7 +30,7 @@ export default async function AdminBookingsPage({
         classType: { id: string; name: string };
         coach: { id: string; name: string | null };
       };
-      membership: {
+      package: {
         planName: string;
         sessionsRemaining: number | null;
         sessionsPerMonth: number | null;
@@ -55,6 +55,20 @@ export default async function AdminBookingsPage({
       classTypes: Array<{ id: string; name: string }>;
       coaches: Array<{ id: string; name: string }>;
     };
+    sessionSlots: Array<{
+      id: string;
+      title: string;
+      status: "DRAFT" | "ACTIVE" | "FULL" | "CANCELLED";
+      startsAt: string;
+      endsAt: string;
+      capacity: number;
+      bookedCount: number;
+      spotsLeft: number;
+      level: string | null;
+      classFormat: string | null;
+      classType: { id: string; name: string };
+      coach: { id: string; name: string | null };
+    }>;
   }>("/bookings/admin/management", cookie);
 
   if (!res.ok) {

@@ -1,56 +1,76 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminGiftCardDrawer } from "@/components/admin/admin-gift-cards-drawer";
+import { AdminGiftCardDetailsModal } from "@/components/admin/admin-gift-card-details-modal";
+import { AdminGiftCardsDirectory } from "@/components/admin/admin-gift-cards-directory";
+import { ApiError, apiFetch } from "@/lib/api";
 import {
   countActiveGiftCardFilters,
   filterGiftCards,
-  purchaserLabel,
   sortGiftCards,
 } from "@/components/admin/admin-gift-cards-filter-logic";
 import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import { AdminGiftCardsShell } from "@/components/admin/admin-gift-cards-shell";
-import type { AdminGiftCardRow, GiftCardFilterValues } from "@/components/admin/admin-gift-cards-types";
+import type {
+  AdminAssignableUser,
+  AdminGiftCardBatchRow,
+  GiftCardFilterValues,
+} from "@/components/admin/admin-gift-cards-types";
 import {
   buildGiftCardFiltersQuery,
   GIFT_CARD_FILTER_QUERY_KEYS,
 } from "@/components/admin/admin-gift-cards-url";
-import { formatDateForUi } from "@/lib/date-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 
 type AdminGiftCardsManagementProps = {
-  giftCards: readonly AdminGiftCardRow[];
+  giftCards: readonly AdminGiftCardBatchRow[];
+  assignableUsers: readonly AdminAssignableUser[];
   locale: string;
   initialFilters: GiftCardFilterValues;
+  initialViewMode: AdminGiftCardsViewMode;
 };
 
 const SEARCH_DEBOUNCE_MS = 300;
-
-function displayDate(value: string | null): string {
-  if (value === null) {
-    return "—";
-  }
-  const formatted = formatDateForUi(value);
-  return formatted.length > 0 ? formatted : "—";
-}
+const MODAL_QUERY_KEY = "modal";
+const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
 export function AdminGiftCardsManagement({
   giftCards,
+  assignableUsers,
   locale,
   initialFilters,
+  initialViewMode,
 }: AdminGiftCardsManagementProps) {
   const t = useTranslations("adminPages.giftCards");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams.toString());
+  const filtersRef = useRef(initialFilters);
   const hasMounted = useRef(false);
   const [filters, setFilters] = useState<GiftCardFilterValues>(initialFilters);
-  const [selected, setSelected] = useState<AdminGiftCardRow | null>(null);
-  const [isFiltering, setIsFiltering] = useState(false);
+  const [selectedGiftCardId, setSelectedGiftCardId] = useState<string | null>(null);
+  const [isDebouncingSearch, setIsDebouncingSearch] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+
+  const selectedGiftCard = useMemo(() => {
+    if (selectedGiftCardId === null) {
+      return null;
+    }
+    return giftCards.find((card) => card.id === selectedGiftCardId) ?? null;
+  }, [giftCards, selectedGiftCardId]);
 
   const filtered = useMemo(
     () => sortGiftCards(filterGiftCards(giftCards, filters), filters.order),
@@ -58,11 +78,28 @@ export function AdminGiftCardsManagement({
   );
 
   const activeFilterCount = countActiveGiftCardFilters(filters);
+  const isUpdating = isDebouncingSearch || isPending;
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
+
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  useEffect(() => {
+    const currentQuery = buildGiftCardFiltersQuery(filtersRef.current);
+    const urlQuery = buildGiftCardFiltersQuery(initialFilters);
+    if (currentQuery !== urlQuery) {
+      setFilters(initialFilters);
+    }
+  }, [initialFilters]);
 
   const syncFiltersToUrl = useCallback(
     (values: GiftCardFilterValues) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("modal");
+      const currentSearchParams = searchParamsRef.current;
+      const params = new URLSearchParams(currentSearchParams);
       for (const key of GIFT_CARD_FILTER_QUERY_KEYS) {
         params.delete(key);
       }
@@ -73,12 +110,14 @@ export function AdminGiftCardsManagement({
         }
       }
       const qs = params.toString();
-      if (qs === searchParams.toString()) {
+      if (qs === currentSearchParams) {
         return;
       }
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      startTransition(() => {
+        router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      });
     },
-    [pathname, router, searchParams],
+    [pathname, router, startTransition],
   );
 
   useEffect(() => {
@@ -86,25 +125,37 @@ export function AdminGiftCardsManagement({
       hasMounted.current = true;
       return undefined;
     }
-    setIsFiltering(true);
+    setIsDebouncingSearch(true);
     const handle = window.setTimeout(() => {
-      syncFiltersToUrl(filters);
-      setIsFiltering(false);
+      syncFiltersToUrl(filtersRef.current);
+      setIsDebouncingSearch(false);
     }, SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(handle);
-  }, [filters.search, filters, syncFiltersToUrl]);
+    return () => {
+      window.clearTimeout(handle);
+      setIsDebouncingSearch(false);
+    };
+  }, [filters.search, syncFiltersToUrl]);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      return;
+    }
+    syncFiltersToUrl(filtersRef.current);
+  }, [
+    filters.status,
+    filters.expiration,
+    filters.amountMin,
+    filters.amountMax,
+    filters.order,
+    filters.quick,
+    syncFiltersToUrl,
+  ]);
 
   function updateFilter<K extends keyof GiftCardFilterValues>(
     key: K,
     value: GiftCardFilterValues[K],
   ) {
-    setFilters((current) => {
-      const next = { ...current, [key]: value };
-      if (key !== "search") {
-        syncFiltersToUrl(next);
-      }
-      return next;
-    });
+    setFilters((current) => ({ ...current, [key]: value }));
   }
 
   function resetFilters() {
@@ -121,69 +172,100 @@ export function AdminGiftCardsManagement({
     syncFiltersToUrl(cleared);
   }
 
-  function handleChanged() {
-    setSelected(null);
+  const openGiftCardDetails = useCallback((card: AdminGiftCardBatchRow) => {
+    setSelectedGiftCardId(card.id);
+  }, []);
+
+  const closeGiftCardDetails = useCallback(() => {
+    setSelectedGiftCardId(null);
+  }, []);
+
+  const handleChanged = useCallback(() => {
     router.refresh();
-  }
+  }, [router]);
+
+  const openEditModal = useCallback(
+    (batchId: string) => {
+      setSelectedGiftCardId(null);
+      const params = new URLSearchParams(searchParamsRef.current);
+      params.set(MODAL_QUERY_KEY, EDIT_MODAL_QUERY_VALUE);
+      params.set("batchId", batchId);
+      const qs = params.toString();
+      router.replace(`${pathname}?${qs}`, { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  const deleteBatch = useCallback(
+    async (batchId: string) => {
+      if (busyBatchId !== null) {
+        return;
+      }
+      if (!window.confirm(t("actions.deleteConfirm"))) {
+        return;
+      }
+      setBusyBatchId(batchId);
+      setFeedback(null);
+      try {
+        await apiFetch(`/gift-cards/admin/batches/${batchId}`, { method: "DELETE" });
+        setFeedback({ tone: "ok", text: t("actions.deleted") });
+        if (selectedGiftCardId === batchId) {
+          setSelectedGiftCardId(null);
+        }
+        router.refresh();
+      } catch (error) {
+        setFeedback({
+          tone: "err",
+          text: error instanceof ApiError ? error.message : t("actions.failed"),
+        });
+      } finally {
+        setBusyBatchId(null);
+      }
+    },
+    [busyBatchId, router, selectedGiftCardId, t],
+  );
 
   return (
-    <AdminGiftCardsShell>
+    <AdminGiftCardsShell
+      assignableUsers={assignableUsers}
+      giftCards={giftCards}
+      initialViewMode={initialViewMode}
+    >
       <AdminGiftCardsFilters
         values={filters}
         activeFilterCount={activeFilterCount}
+        isUpdating={isUpdating}
         onChange={updateFilter}
         onReset={resetFilters}
       />
 
-      {isFiltering ? (
-        <p className="text-sm text-sage-500" role="status">
-          {t("loading")}
+      {feedback ? (
+        <p
+          className={`text-sm ${feedback.tone === "ok" ? "text-sage-700" : "text-red-800"}`}
+          role="status"
+        >
+          {feedback.text}
         </p>
       ) : null}
 
-      {filtered.length === 0 ? (
-        <p className="text-sm text-sage-500">{t("empty")}</p>
-      ) : (
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colPurchaser")}</th>
-                <th className={adminChrome.th}>{t("colAmount")}</th>
-                <th className={adminChrome.th}>{t("colStatus")}</th>
-                <th className={adminChrome.th}>{t("colCreated")}</th>
-                <th className={adminChrome.th}>{t("colExpiration")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((card) => (
-                <tr key={card.id} className={adminChrome.tr}>
-                  <td className={adminChrome.td}>
-                    <button
-                      type="button"
-                      className="text-left font-medium text-sage-900 underline-offset-2 hover:underline"
-                      onClick={() => setSelected(card)}
-                    >
-                      {purchaserLabel(card)}
-                    </button>
-                  </td>
-                  <td className={adminChrome.td}>
-                    {formatAmdFromCents(card.amountCents, locale)}
-                  </td>
-                  <td className={adminChrome.td}>{t(`statusValues.${card.status}`)}</td>
-                  <td className={adminChrome.td}>{displayDate(card.createdAt)}</td>
-                  <td className={adminChrome.td}>{displayDate(card.expiresAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {filtered.length === 0 ? <p className="text-sm text-sage-500">{t("empty")}</p> : null}
+      {filtered.length > 0 ? (
+        <AdminGiftCardsDirectory
+          cards={filtered}
+          locale={locale}
+          busyBatchId={busyBatchId}
+          onOpenActions={openGiftCardDetails}
+          onEdit={openEditModal}
+          onDelete={(batchId) => void deleteBatch(batchId)}
+          onChanged={handleChanged}
+        />
+      ) : null}
 
-      <AdminGiftCardDrawer
-        card={selected}
+      <AdminGiftCardDetailsModal
+        card={selectedGiftCard}
         locale={locale}
-        onClose={() => setSelected(null)}
+        assignableUsers={assignableUsers}
+        onClose={closeGiftCardDetails}
         onChanged={handleChanged}
       />
     </AdminGiftCardsShell>

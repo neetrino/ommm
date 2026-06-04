@@ -109,7 +109,7 @@ Key fields:
 - Profile: `name`, `lastName`, `dateOfBirth`, `avatarUrl`, `homeImageUrl`, `locale`
 - Role/status: `role` enum (`USER`, `COACH`, `MANAGER`, `CONTENT_ADMIN`, `ADMIN`)
 - Verification/status-ish: `emailVerified` datetime nullable
-- Billing-related: `stripeCustomerId`, `giftCreditsCents`
+- Billing-related: `giftCreditsCents`
 - Timestamps: `createdAt`, `updatedAt`
 
 ### Token model

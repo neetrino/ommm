@@ -5,18 +5,33 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type {
   AnalyticsBookingStatusFilter,
-  AnalyticsQuickFilter,
+  AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
 } from "@/components/admin/admin-analytics-types";
+import {
+  ANALYTICS_QUICK_FILTER_VALUES,
+  parseAnalyticsQuickFilters,
+  serializeAnalyticsQuickFilters,
+} from "@/components/admin/admin-analytics-helpers";
 import { AdminFilterResetButton } from "@/components/ui/admin-filter-reset-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
+import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 
 type AdminAnalyticsFiltersProps = {
   filterOptions: {
     classTypes: Array<{ id: string; name: string }>;
     coaches: Array<{ id: string; name: string }>;
   };
+};
+
+const QUICK_FILTER_LABEL_KEYS: Record<AnalyticsQuickFilterOption, string> = {
+  today: "quickToday",
+  week: "quickWeek",
+  month: "quickMonth",
+  last30: "quickLast30",
+  topCoaches: "quickTopCoaches",
+  popularClasses: "quickPopularClasses",
 };
 
 export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersProps) {
@@ -32,7 +47,7 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       classTypeId: searchParams.get("classTypeId") ?? "",
       bookingStatus: (searchParams.get("bookingStatus") ?? "") as AnalyticsBookingStatusFilter,
       sort: (searchParams.get("sort") ?? "revenue-desc") as AnalyticsSortKey,
-      quick: (searchParams.get("quick") ?? "none") as AnalyticsQuickFilter,
+      quickFilters: parseAnalyticsQuickFilters(searchParams.get("quick") ?? undefined),
     }),
     [searchParams],
   );
@@ -43,18 +58,6 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
       params.delete(key);
     } else {
       params.set(key, value);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  };
-
-  const updateMany = (entries: Record<string, string>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(entries)) {
-      if (value.length === 0) {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
     }
     router.replace(`${pathname}?${params.toString()}`);
   };
@@ -112,17 +115,32 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
     [t],
   );
 
-  const quickDateFilters: Array<{ key: AnalyticsQuickFilter; label: string }> = [
-    { key: "today", label: t("quickToday") },
-    { key: "week", label: t("quickWeek") },
-    { key: "month", label: t("quickMonth") },
-    { key: "last30", label: t("quickLast30") },
-  ];
+  const quickFilterOptions = useMemo(
+    () =>
+      ANALYTICS_QUICK_FILTER_VALUES.map((value) => ({
+        value,
+        label: t(QUICK_FILTER_LABEL_KEYS[value]),
+      })),
+    [t],
+  );
 
-  const quickSortPresets: Array<{ key: AnalyticsQuickFilter; sort: AnalyticsSortKey }> = [
-    { key: "topCoaches", sort: "bookings-desc" },
-    { key: "popularClasses", sort: "bookings-desc" },
-  ];
+  const handleQuickFiltersChange = (selectedValues: string[]) => {
+    const next = selectedValues as AnalyticsQuickFilterOption[];
+    const params = new URLSearchParams(searchParams.toString());
+    const serialized = serializeAnalyticsQuickFilters(next);
+
+    if (serialized.length === 0) {
+      params.delete("quick");
+    } else {
+      params.set("quick", serialized);
+    }
+
+    if (next.includes("topCoaches") || next.includes("popularClasses")) {
+      params.set("sort", "bookings-desc");
+    }
+
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const bookingStatusOptions = useMemo<
     readonly DropdownOption<AnalyticsBookingStatusFilter>[]
@@ -145,45 +163,20 @@ export function AdminAnalyticsFilters({ filterOptions }: AdminAnalyticsFiltersPr
           {t("reset")}
         </AdminFilterResetButton>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {quickDateFilters.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={values.quick === item.key}
-            onClick={() => update("quick", values.quick === item.key ? "none" : item.key)}
-            className={
-              values.quick === item.key
-                ? "rounded-full bg-sand-500 px-3 py-1.5 text-xs font-medium text-white"
-                : "rounded-full border border-sage-200 bg-white px-3 py-1.5 text-xs font-medium text-sage-700"
-            }
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {quickSortPresets.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={values.quick === item.key}
-            onClick={() => {
-              const active = values.quick === item.key;
-              updateMany({
-                quick: active ? "none" : item.key,
-                sort: active ? values.sort : item.sort,
-              });
-            }}
-            className={
-              values.quick === item.key
-                ? "rounded-full bg-sand-500 px-3 py-1.5 text-xs font-medium text-white"
-                : "rounded-full border border-sage-200 bg-white px-3 py-1.5 text-xs font-medium text-sage-700"
-            }
-          >
-            {item.key === "topCoaches" ? t("quickTopCoaches") : t("quickPopularClasses")}
-          </button>
-        ))}
+      <div className="mt-3 max-w-md">
+        <label className="text-sm text-sage-700">
+          <span className="mb-1 block text-xs text-sage-500">{t("quickFilterLabel")}</span>
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            ariaLabel={t("quickFilterLabel")}
+            allLabel={t("allQuickFilters")}
+            selectedValues={values.quickFilters}
+            onChange={handleQuickFiltersChange}
+            formatSelectedCount={(count) => t("selectedCount", { count })}
+            options={quickFilterOptions}
+          />
+        </label>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <label className="text-sm text-sage-700">

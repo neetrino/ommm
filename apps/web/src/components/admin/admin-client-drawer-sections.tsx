@@ -1,105 +1,24 @@
 "use client";
 
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import type { ClientDetail, PackageOption } from "./admin-clients-types";
+import type { ClientDetail } from "./admin-clients-types";
 
 type RunAction = (key: string, action: () => Promise<void>, ok: string) => Promise<void>;
 
 export function ActionSection(props: {
   client: ClientDetail;
-  packages: PackageOption[];
-  packageId: string;
   giftAmount: string;
   busy: string | null;
-  onPackageChange: (value: string) => void;
   onGiftAmountChange: (value: string) => void;
   onRun: RunAction;
 }) {
-  const activeMembership = props.client.activity.activeMembership;
   return (
     <section className="rounded-2xl border border-white/60 bg-white/70 p-4">
       <p className="font-medium text-sage-900">Client actions</p>
-      <div className="mt-3 grid gap-3 lg:grid-cols-2">
-        <div className="rounded-xl border border-white/70 bg-white/65 p-3">
-          <p className="text-xs uppercase tracking-wide text-sage-500">Membership</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <OmmButton
-              size="sm"
-              variant="ghost"
-              disabled={!activeMembership || props.busy !== null}
-              onClick={() => {
-                if (activeMembership && window.confirm("Pause this membership?")) {
-                  void props.onRun(
-                    "pause",
-                    () =>
-                      apiFetch(`/memberships/admin/${activeMembership.id}/status`, {
-                        method: "PATCH",
-                        body: JSON.stringify({ status: "PAUSED" }),
-                      }),
-                    "Membership paused",
-                  );
-                }
-              }}
-            >
-              Pause
-            </OmmButton>
-            <OmmButton
-              size="sm"
-              variant="danger"
-              disabled={!activeMembership || props.busy !== null}
-              onClick={() => {
-                if (activeMembership && window.confirm("Cancel this membership?")) {
-                  void props.onRun(
-                    "cancel",
-                    () =>
-                      apiFetch(`/memberships/admin/${activeMembership.id}/status`, {
-                        method: "PATCH",
-                        body: JSON.stringify({ status: "CANCELLED" }),
-                      }),
-                    "Membership cancelled",
-                  );
-                }
-              }}
-            >
-              Cancel
-            </OmmButton>
-          </div>
-          <div className="mt-3 flex gap-2">
-            <div className="min-w-0 flex-1">
-              <OmmFilterDropdown
-                allValue=""
-                value={props.packageId}
-                ariaLabel="Assign package"
-                allLabel="Assign package..."
-                onChange={props.onPackageChange}
-                options={props.packages
-                  .filter((pkg) => pkg.isActive)
-                  .map((pkg) => ({ value: pkg.id, label: pkg.name }))}
-              />
-            </div>
-            <OmmButton
-              size="sm"
-              disabled={props.packageId === "" || props.busy !== null}
-              onClick={() =>
-                void props.onRun(
-                  "assign",
-                  () =>
-                    apiFetch("/memberships/admin/assign", {
-                      method: "POST",
-                      body: JSON.stringify({ userId: props.client.id, planId: props.packageId }),
-                    }),
-                  "Package assigned",
-                )
-              }
-            >
-              Assign
-            </OmmButton>
-          </div>
-        </div>
+      <div className="mt-3">
         <div className="rounded-xl border border-white/70 bg-white/65 p-3">
           <p className="text-xs uppercase tracking-wide text-sage-500">Gift card and account</p>
           <div className="mt-2 flex gap-2">
@@ -175,16 +94,6 @@ export function HistorySections({ data, locale }: { data: ClientDetail; locale: 
           main: `${formatAmdFromCents(card.balanceCents, locale)} / ${formatAmdFromCents(card.amountCents, locale)}`,
           meta: `${card.status} · ${formatDateForUi(card.createdAt)}`,
           extra: card.recipientName ?? card.recipientEmail,
-        }))}
-      />
-      <HistoryList
-        title="Membership history"
-        empty="No memberships."
-        items={data.memberships.map((membership) => ({
-          id: membership.id,
-          main: membership.plan.name,
-          meta: `${membership.status} · ${formatDateForUi(membership.currentPeriodStart)} - ${formatDateForUi(membership.currentPeriodEnd)}`,
-          extra: membership.plan.isUnlimited ? "Unlimited" : `${membership.sessionsRemaining ?? 0}/${membership.plan.sessionsPerMonth ?? "—"} sessions`,
         }))}
       />
     </div>

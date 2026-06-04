@@ -10,6 +10,7 @@ export default async function AdminProfilePage({
     <RoleProfilePage
       locale={locale}
       showRole
+      shellChrome="admin"
       workspaceNoteVariant="admin"
     />
   );
