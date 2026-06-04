@@ -16,7 +16,7 @@ export default async function StoryPage({
       title={m("storyTitle")}
       lede={m("storyLead")}
     >
-      <div className="w-full min-w-0 max-w-2xl space-y-6">
+      <div className="w-full min-w-0 space-y-6">
         <p className="ommm-body">{m("storyP1")}</p>
         <p className="ommm-body">{m("storyP2")}</p>
       </div>

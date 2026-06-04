@@ -35,7 +35,7 @@ export async function MarketingPackagesPageContent({
       <div>
         <PublicPackageCategoryCards locale={locale} categories={categories} />
       </div>
-      <section className="mt-16 w-full min-w-0 max-w-3xl">
+      <section className="mt-16 w-full min-w-0">
         <h2 className="ommm-h2 text-sage-800">{m("packagesFaqTitle")}</h2>
         <dl className="mt-6 space-y-6 text-sm text-sage-700">
           <div>

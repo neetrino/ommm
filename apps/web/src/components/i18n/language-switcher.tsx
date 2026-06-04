@@ -128,7 +128,7 @@ export function LanguageSwitcher({
           ) : (
             <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
               <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
-              <span>{t(`optionNames.${effectiveLocale}`)}</span>
+              <span className="leading-none">{t(`optionNames.${effectiveLocale}`)}</span>
             </span>
           )
         }

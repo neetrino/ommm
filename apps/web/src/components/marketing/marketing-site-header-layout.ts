@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { MARKETING_PAGE_CONTAINER_CLASS } from "@/components/marketing/marketing-content-layout";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 /** Figma mobile HEADER `97:5670` sizing tokens. */
@@ -94,7 +95,7 @@ export function marketingFullBleedHeroHeaderOverlapClass(): string {
 
 export function marketingHeaderContainerClass(): string {
   return [
-    "ommm-container relative min-w-0",
+    `${MARKETING_PAGE_CONTAINER_CLASS} relative min-w-0`,
     "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))]",
     "tablet:grid tablet:min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] tablet:items-center",
     "tablet:pb-2 lg:pb-3",

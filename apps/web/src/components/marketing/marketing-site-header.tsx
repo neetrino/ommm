@@ -38,6 +38,7 @@ import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing
 import {
   isMarketingHeroHeaderPath,
   isMarketingHomePath,
+  isMarketingInnerPath,
 } from "@/components/marketing/marketing-route-utils";
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -61,9 +62,17 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
+  const isMarketingInnerPage =
+    isMarketingInnerPath(marketingPath) && !isMarketingHome;
   const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const showMobileGlassPill = elevated && !open;
+  const mobileGlassRowStyle = {
+    ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
+    ...(isMarketingInnerPage && showMobileGlassPill
+      ? { ["--marketing-mobile-glass-pill-px" as string]: "0" }
+      : {}),
+  };
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setOpen(false);
@@ -84,7 +93,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         <div
           className={`${marketingHeaderMobileRowWrapClass()} ${navPillStyles.mobileHeaderBar}`}
           data-glass-active={showMobileGlassPill ? "true" : "false"}
-          style={marketingHeaderMobileRowWrapStyle(showMobileGlassPill)}
+          style={mobileGlassRowStyle}
         >
           <div aria-hidden className={navPillStyles.mobileHeaderBarGloss} />
           <div className={`${marketingHeaderMobileRowInnerClass()} ${navPillStyles.mobileHeaderRow}`}>

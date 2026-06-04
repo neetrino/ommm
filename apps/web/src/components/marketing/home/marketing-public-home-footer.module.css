@@ -464,6 +464,25 @@
     border-top-left-radius: var(--home-footer-radius);
     border-top-right-radius: var(--home-footer-radius);
   }
+
+  .sectionWrapInner .mobileStack {
+    padding-top: var(--home-footer-mobile-py);
+    padding-bottom: var(--home-footer-mobile-pb);
+    padding-left: calc(
+      var(--home-footer-mobile-px) + var(--marketing-header-optical-inset-start, 0px)
+    );
+    padding-right: calc(
+      var(--home-footer-mobile-px) + var(--marketing-header-optical-inset-end, 0px)
+    );
+  }
+}
+
+@media (min-width: 46.5rem) {
+  .sectionWrapInner .inner {
+    padding-inline-start: var(--marketing-header-optical-inset-start, 0px);
+    padding-inline-end: var(--marketing-header-optical-inset-end, 0px);
+    box-sizing: border-box;
+  }
 }
 
 /* iPad Air — Contact us under Explore; left column + illustration (744px–1023px). */
