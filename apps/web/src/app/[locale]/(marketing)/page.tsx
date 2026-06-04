@@ -11,6 +11,7 @@ import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
+import { MARKETING_HOME_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { routing } from "@/i18n/routing";
 
@@ -26,6 +27,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
 
   return (
     <div
+      {...{ [MARKETING_HOME_PAGE_MARKER]: "" }}
       className={`${marketingMontserrat.variable} ${homePageStyles.page} flex-1`}
       style={
         {
@@ -68,7 +70,8 @@ export default async function MarketingHomePage({ params }: PageProps) {
         className={homePageStyles.galleryFooterSeam}
         style={
           {
-            "--home-gallery-footer-seam-bg": HOME_PAGE_SURFACE.coachesGradientTo,
+            "--home-gallery-seam-bg": HOME_PAGE_SURFACE.eventsGradientFrom,
+            "--home-footer-wrap-bg": HOME_PAGE_SURFACE.eventsGradientFrom,
           } as CSSProperties
         }
       >

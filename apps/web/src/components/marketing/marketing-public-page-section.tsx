@@ -6,6 +6,7 @@ import {
 import {
   MARKETING_INNER_PAGE_CONTAINER_CLASS,
 } from "@/components/marketing/marketing-content-layout";
+import { MARKETING_INNER_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
 import alignStyles from "@/components/marketing/marketing-inner-page-align.module.css";
 import styles from "@/components/marketing/marketing-public-page-section.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -43,6 +44,7 @@ export function MarketingPublicPageSection({
 
   return (
     <section
+      {...{ [MARKETING_INNER_PAGE_MARKER]: "" }}
       className={`${marketingMontserrat.variable} ${styles.section}`}
       style={MARKETING_PUBLIC_PAGE_SECTION_STYLE}
     >

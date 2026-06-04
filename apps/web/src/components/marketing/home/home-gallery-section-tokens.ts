@@ -49,11 +49,11 @@ export const HOME_GALLERY_SECTION_MOBILE_FIGMA = {
   dotInactive: "rgba(251, 245, 213, 0.4)",
 } as const;
 
-/** Teal → cream ramp — Figma `97:5853` background stops. */
-export const HOME_GALLERY_MOBILE_BACKGROUND = `linear-gradient(to bottom, #598090 0%, #637b95 7.14%, #6e8e9b 14.29%, #7896a0 21.43%, #829da6 28.57%, #8da5ab 35.71%, #97acb1 42.86%, #a2b3b6 50%, #acbbbc 57.14%, #b7c3c1 64.29%, #c2cac8 71.43%, #ccd2cc 78.57%, #d7d9d2 85.71%, #e2e1d7 92.86%, ${HOME_GALLERY_GRADIENT_CREAM} 100%)`;
+/** Teal → cream ramp — bottom holds teal (no light fade into footer seam). */
+export const HOME_GALLERY_MOBILE_BACKGROUND = `linear-gradient(to bottom, #598090 0%, #637b95 7.14%, #6e8e9b 14.29%, #7896a0 21.43%, #829da6 28.57%, #8da5ab 35.71%, #97acb1 42.86%, #598090 50%, #598090 100%)`;
 
-/** Bottom stop — continues under the mobile footer cap. */
-export const HOME_GALLERY_MOBILE_GRADIENT_END = HOME_GALLERY_GRADIENT_CREAM;
+/** Bottom stop — matches gallery band teal. */
+export const HOME_GALLERY_MOBILE_GRADIENT_END = HOME_GALLERY_GRADIENT_TEAL;
 
 /** Mobile layout from Figma `97:5853`. */
 export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
@@ -82,7 +82,7 @@ export const HOME_GALLERY_SECTION_MOBILE_LAYOUT = {
 export const HOME_GALLERY_FIGMA = {
   gradientFrom: HOME_PAGE_SURFACE.eventsGradientFrom,
   gradientTo: HOME_PAGE_SURFACE.eventsGradientTo,
-  /** Cream heading band; long smooth ramp to teal before the mosaic cards. */
+  /** Cream heading band; ramp to teal — teal holds through footer backdrop. */
   sectionBackground: `linear-gradient(to bottom, ${HOME_GALLERY_GRADIENT_CREAM} 0%, ${HOME_GALLERY_GRADIENT_CREAM} 8%, ${HOME_GALLERY_GRADIENT_BLEND.soft} 14%, ${HOME_GALLERY_GRADIENT_BLEND.mid} 22%, ${HOME_GALLERY_GRADIENT_BLEND.teal} 30%, ${HOME_GALLERY_GRADIENT_BLEND.deep} 36%, ${HOME_GALLERY_GRADIENT_TEAL} 42%, ${HOME_GALLERY_GRADIENT_TEAL} 100%)`,
   headingColor: HOME_PAGE_SURFACE.plansHeading,
   subtitleColor: "rgba(98, 98, 98, 0.84)",
@@ -94,7 +94,7 @@ export const HOME_GALLERY_FIGMA = {
 export const HOME_GALLERY_LAYOUT = {
   contentMaxWidthPx: 1326,
   sectionPaddingTop: "clamp(3.5rem, 6vw, 5.5rem)",
-  sectionPaddingBottom: "clamp(1.5rem, 4vw, 3.5rem)",
+  sectionPaddingBottom: "clamp(2rem, 5vw, 4rem)",
   headerGapPx: 41,
   headerToMosaicGapPx: 60,
   mosaicToDotsGapPx: 63,
