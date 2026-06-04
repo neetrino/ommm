@@ -1431,13 +1431,8 @@ function SessionModal({
           allLabel={t("form.level")}
           options={levelOptions}
           onChange={(value) => setForm((current) => ({ ...current, level: value }))}
-        />
-        <OmmFormDropdown
-          value={form.status}
-          ariaLabel={t("form.status")}
-          placeholderLabel={t("form.status")}
-          options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))}
-          onChange={(value) => setForm((current) => ({ ...current, status: value as SessionStatus }))}
+          className="sm:col-span-2"
+          triggerClassName="text-center"
         />
         <textarea
           className="ommm-input min-h-24 sm:col-span-2"
