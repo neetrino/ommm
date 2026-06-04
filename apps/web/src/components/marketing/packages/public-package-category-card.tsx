@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  formatPublicPackagePlanName,
   formatPublicPackagePriceParts,
   formatPublicPackageTierPriceLine,
   shouldShowPublicPackageTierName,
@@ -81,14 +82,18 @@ export function PublicPackageCategoryCard({
               locale,
               (values) => t("packagesPriceLine", values),
             );
+            const planName = formatPublicPackagePlanName(
+              plan.name,
+              plan.sessionsPerMonth,
+            );
 
             return (
               <li
                 key={plan.id}
                 className="rounded-2xl border border-white/60 bg-white/40 p-4"
               >
-                {shouldShowPublicPackageTierName(plan.name, category.label) ? (
-                  <p className="text-sm font-semibold text-sage-800">{plan.name}</p>
+                {shouldShowPublicPackageTierName(planName, category.label) ? (
+                  <p className="text-sm font-semibold text-sage-800">{planName}</p>
                 ) : null}
                 <p className="mt-1 text-sm font-medium text-sage-700">{tierPriceLine}</p>
                 <p className="mt-1 text-sm text-sage-500">

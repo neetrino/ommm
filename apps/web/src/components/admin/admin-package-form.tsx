@@ -35,10 +35,7 @@ import {
   mergePackageCategoryOptions,
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
-import {
-  buildPackageTierPlanName,
-  buildPackageTierSlug,
-} from "@/components/admin/admin-package-tier-utils";
+import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
@@ -91,6 +88,7 @@ function buildInitialValues(
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
     return {
       ...packageRowToFormValues(initialPackage, initialCategoryName),
+      sessionName: "",
       guestCount: "",
     };
   }
@@ -103,7 +101,6 @@ export function AdminPackageForm({
   initialCategoryName,
   categoryOptions,
   initialPackage,
-  configuredTierCount = 0,
   onSaved,
   onCancel,
 }: AdminPackageFormProps) {
@@ -186,6 +183,7 @@ export function AdminPackageForm({
     const isAddTierMode = mode === "add-tier";
     const isEditMode = mode === "edit";
     const name = values.name.trim();
+    const sessionName = values.sessionName.trim();
     const description = values.description.trim();
     const tierCategoryName = resolvePackageCategoryName(
       initialCategoryName.trim(),
@@ -237,6 +235,17 @@ export function AdminPackageForm({
     if (isAddTierMode && categoryName.length === 0) {
       setError(t("categoryRequired"));
       return;
+    }
+
+    if (isPricingMode || isAddTierMode) {
+      if (sessionName.length === 0) {
+        setError(t("sessionNameRequired"));
+        return;
+      }
+      if (sessionName.length > MAX_NAME_LENGTH) {
+        setError(t("sessionNameTooLong"));
+        return;
+      }
     }
 
     if (isPricingMode || isEditMode || isAddTierMode) {
@@ -306,15 +315,6 @@ export function AdminPackageForm({
       initialPackage !== undefined &&
       initialPackage.priceCents <= 0;
 
-    const tierOrdinal = configuredTierCount + 1;
-    const tierName = shellTierTarget
-      ? initialPackage.name
-      : buildPackageTierPlanName(
-          categoryName,
-          sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
-          tierOrdinal,
-        );
-
     const payload = isCreateMode
       ? {
           name,
@@ -333,9 +333,12 @@ export function AdminPackageForm({
         }
       : isAddTierMode
         ? shellTierTarget
-          ? pricingFields
+          ? {
+              name: sessionName,
+              ...pricingFields,
+            }
           : {
-              name: tierName,
+              name: sessionName,
               categoryName,
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
@@ -345,6 +348,7 @@ export function AdminPackageForm({
             }
         : isPricingMode
           ? {
+              name: sessionName,
               ...pricingFields,
               isPopular: values.isPopular,
               isActive: values.isActive,
@@ -450,6 +454,19 @@ export function AdminPackageForm({
           description={t("addTierFormDescription")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionName")}</span>
+              <input
+                name="sessionName"
+                className="ommm-input"
+                maxLength={MAX_NAME_LENGTH}
+                value={values.sessionName}
+                onChange={(event) => updateValues({ sessionName: event.target.value })}
+                placeholder={t("fieldSessionNamePlaceholder")}
+                required
+                disabled={pending}
+              />
+            </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
               <input
@@ -535,6 +552,23 @@ export function AdminPackageForm({
             description={t("formSections.pricing.description")}
           >
             <div className="grid gap-4 sm:grid-cols-2">
+              {mode === "pricing" ? (
+                <label className="flex flex-col gap-1.5 sm:col-span-2">
+                  <span className="ommm-label text-xs uppercase tracking-wide">
+                    {t("fieldSessionName")}
+                  </span>
+                  <input
+                    name="sessionName"
+                    className="ommm-input"
+                    maxLength={MAX_NAME_LENGTH}
+                    value={values.sessionName}
+                    onChange={(event) => updateValues({ sessionName: event.target.value })}
+                    placeholder={t("fieldSessionNamePlaceholder")}
+                    required
+                    disabled={pending}
+                  />
+                </label>
+              ) : null}
               <label className="flex flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
                 <div className="relative">

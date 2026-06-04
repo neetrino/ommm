@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { UserPackageLifecycleActions } from "@/components/account/user-package-lifecycle-actions";
+import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
@@ -29,6 +30,10 @@ export function UserMembershipListItem({
     membership.sessionsRemaining === null
       ? m("packagesSessionsUnlimited")
       : t("sessionsLeft", { count: membership.sessionsRemaining });
+  const sessionName = formatPackagePlanName(
+    membership.plan.name,
+    membership.plan.sessionsPerMonth,
+  );
 
   return (
     <li>
@@ -47,6 +52,7 @@ export function UserMembershipListItem({
           locale={locale}
           status={status}
           sessionsLabel={sessionsLabel}
+          sessionName={sessionName}
           statusLabel={formatMembershipStatus(status, t)}
         />
       </button>
@@ -62,7 +68,7 @@ export function UserMembershipListItem({
           <header className="space-y-2">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
-                {membership.plan.name}
+                {sessionName}
               </h2>
               <span className={memberStatusClass(status)}>
                 {formatMembershipStatus(status, t)}
@@ -72,6 +78,7 @@ export function UserMembershipListItem({
           </header>
 
           <dl className="space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4">
+            <DetailRow label={t("membershipDetailsSessionName")} value={sessionName} />
             <DetailRow label={t("membershipDetailsCategory")} value={membership.plan.categoryName} />
             <DetailRow
               label={t("membershipDetailsPrice")}
@@ -119,12 +126,14 @@ function MembershipSummary({
   locale,
   status,
   sessionsLabel,
+  sessionName,
   statusLabel,
 }: {
   membership: UserMembershipRow;
   locale: string;
   status: UserPackageStatus;
   sessionsLabel: string;
+  sessionName: string;
   statusLabel: string;
 }) {
   const t = useTranslations("userPages.packages");
@@ -133,7 +142,7 @@ function MembershipSummary({
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="font-medium text-sage-800">{membership.plan.name}</p>
+        <p className="font-medium text-sage-800">{sessionName}</p>
         <span className={memberStatusClass(status)}>{statusLabel}</span>
       </div>
       <p className="mt-1 text-sm text-sage-500">

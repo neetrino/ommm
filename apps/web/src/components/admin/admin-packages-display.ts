@@ -62,6 +62,20 @@ export function formatPackagePriceLabel(pkg: PackageTableDisplayRow, locale: str
   return formatAmdFromCents(pkg.priceCents, locale);
 }
 
+export function formatPackagePlanName(
+  planName: string,
+  sessionsPerMonth: number | null,
+): string {
+  const normalizedName = planName.trim();
+  if (sessionsPerMonth === null || sessionsPerMonth <= 0) {
+    return normalizedName;
+  }
+
+  return normalizedName
+    .replace(new RegExp(`\\s+[–—-]\\s+${sessionsPerMonth}$`), "")
+    .trim();
+}
+
 /** Guest count for the packages table; null when zero or unset. */
 export function formatPackageGuestCount(pkg: PackageTableDisplayRow): number | null {
   const count = pkg.guestCount ?? 0;

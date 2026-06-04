@@ -15,6 +15,7 @@ import {
 } from "@/components/admin/admin-bookings-view-icons";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
@@ -52,6 +53,12 @@ type BookingRow = {
     classType: { id: string; name: string };
     coach: { id: string; name: string | null };
   };
+  package: {
+    planName: string;
+    sessionsRemaining: number | null;
+    sessionsPerMonth: number | null;
+    isUnlimited: boolean;
+  } | null;
   latestNote: { id: string; body: string; authorName: string | null; createdAt: string } | null;
 };
 
@@ -335,6 +342,14 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
                   <td className={adminChrome.td}>
                     <span className="break-words">{row.session.classType.name}</span>
                     <div className={adminChrome.metaText}>{formatDateTimeForUi(row.session.startsAt, locale)}</div>
+                    {row.package !== null ? (
+                      <div className={adminChrome.metaText}>
+                        {formatPackagePlanName(
+                          row.package.planName,
+                          row.package.sessionsPerMonth,
+                        )}
+                      </div>
+                    ) : null}
                   </td>
                   <td className={adminChrome.td}><Badge tone="slate" label={paymentLabel(t, row.paymentStatus)} /></td>
                   <td className={adminChrome.td}><Badge tone="sand" label={attendanceLabel(t, row.attendanceStatus)} /></td>
