@@ -47,3 +47,7 @@
   max-width: none;
   overflow-x: clip;
 }
+
+.innerPageContent:has([data-packages-detail]) {
+  overflow-x: auto;
+}

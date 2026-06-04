@@ -3,12 +3,16 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PublicPackageCategoryListTable } from "@/components/marketing/packages/public-package-category-list-table";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import { isDancesPackageCategory } from "@/components/marketing/packages/public-package-category-dances";
+import { listDancesCategoryDisplayPlans } from "@/components/marketing/packages/public-package-dances-display-tiers";
 import {
   categoryHasMultiplePricedTiers,
+  listConfiguredPublicPackagePlans,
   resolveCategoryStartingPriceCents,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
 import { formatPublicPackagePriceParts } from "@/components/marketing/packages/public-package-card-format";
+import styles from "@/components/marketing/packages/public-package-category-detail-section.module.css";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type PublicPackageCategoryDetailSectionProps = {
@@ -25,16 +29,19 @@ export async function PublicPackageCategoryDetailSection({
   backHref,
 }: PublicPackageCategoryDetailSectionProps) {
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const startingPriceCents = resolveCategoryStartingPriceCents(category.plans);
+  const displayPlans = isDancesPackageCategory(category)
+    ? listDancesCategoryDisplayPlans(category.plans)
+    : listConfiguredPublicPackagePlans(category.plans);
+  const startingPriceCents = resolveCategoryStartingPriceCents(displayPlans);
   const amount = formatAmdFromCents(startingPriceCents, locale);
   const { symbol, value } = formatPublicPackagePriceParts(amount);
-  const showFromPrice = categoryHasMultiplePricedTiers(category.plans);
+  const showFromPrice = categoryHasMultiplePricedTiers(displayPlans);
   const description = category.plans
     .map((plan) => plan.description?.trim())
     .find((item) => item !== undefined && item.length > 0) ?? null;
 
   return (
-    <div className="space-y-6">
+    <div className={`${styles.root} space-y-6`} data-packages-detail="">
       <Link
         href={backHref}
         className="inline-flex items-center gap-2 text-sm font-medium text-sage-600 transition-colors hover:text-sage-800"
@@ -55,16 +62,16 @@ export async function PublicPackageCategoryDetailSection({
             : m("packagesPriceLine", { amount: value })}
         </p>
         <p className="mt-2 text-sm text-sage-500">
-          {m("packagesDetailsTierCount", { count: category.plans.length })}
+          {m("packagesDetailsTierCount", { count: displayPlans.length })}
         </p>
       </header>
 
-      <section className="ommm-card overflow-hidden p-4 sm:p-6">
+      <section className={`ommm-card ${styles.tableSection} p-4 sm:p-6`}>
         <Suspense fallback={null}>
           <PublicPackageCategoryListTable
             locale={locale}
             categoryLabel={category.label}
-            plans={category.plans}
+            plans={displayPlans}
             audience={audience}
           />
         </Suspense>

@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
+import { isDancesPackageCategory } from "@/components/marketing/packages/public-package-category-dances";
 import { PublicPackageCategoryCard } from "@/components/marketing/packages/public-package-category-card";
+import { PublicPackageCategoryPanel } from "@/components/marketing/packages/public-package-category-panel";
 import type { PublicPackageCategoryGroup } from "@/lib/public-package-categories";
 
 export type PublicPackageCategoryCardsAudience = "guest" | "member";
@@ -27,14 +29,25 @@ export async function PublicPackageCategoryCards({
 
   return (
     <ul className="grid w-full min-w-0 gap-6 lg:grid-cols-2 lg:items-stretch">
-      {categories.map((category) => (
-        <PublicPackageCategoryCard
-          key={category.id}
-          locale={locale}
-          category={category}
-          audience={audience}
-        />
-      ))}
+      {categories.map((category) =>
+        isDancesPackageCategory(category) ? (
+          <li key={category.id} className="list-none overflow-visible">
+            <PublicPackageCategoryPanel
+              locale={locale}
+              category={category}
+              audience={audience}
+              variant="list"
+            />
+          </li>
+        ) : (
+          <PublicPackageCategoryCard
+            key={category.id}
+            locale={locale}
+            category={category}
+            audience={audience}
+          />
+        ),
+      )}
     </ul>
   );
 }
