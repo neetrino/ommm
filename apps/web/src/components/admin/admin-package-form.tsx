@@ -89,7 +89,10 @@ function buildInitialValues(
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
-    return packageRowToFormValues(initialPackage, initialCategoryName);
+    return {
+      ...packageRowToFormValues(initialPackage, initialCategoryName),
+      guestCount: "",
+    };
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
@@ -267,9 +270,10 @@ export function AdminPackageForm({
         return;
       }
       if (
-        guestCount === null ||
-        guestCount < MIN_PACKAGE_GUEST_COUNT ||
-        guestCount > MAX_PACKAGE_GUEST_COUNT
+        values.guestCount.trim().length > 0 &&
+        (guestCount === null ||
+          guestCount < MIN_PACKAGE_GUEST_COUNT ||
+          guestCount > MAX_PACKAGE_GUEST_COUNT)
       ) {
         setError(t("guestCountInvalid"));
         return;
@@ -291,7 +295,7 @@ export function AdminPackageForm({
       currency: "AMD" as const,
       isUnlimited: false,
       sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
-      guestCount: guestCount ?? 1,
+      guestCount: guestCount ?? 0,
       periodDays: periodDays ?? durationMonthsToPeriodDays(1),
       billingPeriod: tierBillingPeriod,
     };
@@ -321,7 +325,7 @@ export function AdminPackageForm({
           currency: "AMD",
           isUnlimited: false,
           sessionsPerMonth: 0,
-          guestCount: 1,
+          guestCount: 0,
           periodDays: durationMonthsToPeriodDays(1),
           billingPeriod: "monthly",
           isPopular: false,
@@ -422,7 +426,6 @@ export function AdminPackageForm({
                 maxLength={MAX_NAME_LENGTH}
                 value={values.name}
                 onChange={(event) => updateValues({ name: event.target.value })}
-                required
                 disabled={pending}
               />
             </label>
@@ -481,7 +484,6 @@ export function AdminPackageForm({
                   value={values.price}
                   onChange={(event) => updateValues({ price: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
-                  required
                   disabled={pending}
                 />
               </div>
@@ -519,7 +521,6 @@ export function AdminPackageForm({
                 onChange={(event) => updateValues({ guestCount: event.target.value })}
                 onKeyDown={preventNumberArrowStep}
                 placeholder={t("fieldGuestCountPlaceholder")}
-                required
                 disabled={pending}
               />
             </label>
@@ -634,7 +635,6 @@ export function AdminPackageForm({
                   onChange={(event) => updateValues({ guestCount: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
                   placeholder={t("fieldGuestCountPlaceholder")}
-                  required
                   disabled={pending}
                 />
                 <span className="text-xs text-sage-500">{t("fieldGuestCountHint")}</span>

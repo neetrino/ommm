@@ -5,7 +5,7 @@ export const MAX_BILLING_PERIOD_LENGTH = 32;
 export const PACKAGE_DAYS_PER_MONTH = 30;
 export const MIN_PACKAGE_DURATION_MONTHS = 1;
 export const MAX_PACKAGE_DURATION_MONTHS = 120;
-export const MIN_PACKAGE_GUEST_COUNT = 1;
+export const MIN_PACKAGE_GUEST_COUNT = 0;
 export const MAX_PACKAGE_GUEST_COUNT = 99;
 export const MIN_PACKAGE_SESSIONS = 1;
 export const MAX_PACKAGE_SESSIONS = 999;
@@ -124,7 +124,7 @@ export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPac
     price: "",
     durationMonths: "1",
     sessionsCount: "1",
-    guestCount: "1",
+    guestCount: "",
     billingPeriod: "monthly",
     isPopular: false,
     isActive: true,
@@ -158,9 +158,8 @@ export function packageRowToFormValues(
     price: String(pkg.priceCents),
     durationMonths: periodDaysToDurationMonths(pkg.periodDays),
     sessionsCount: String(sessions),
-    guestCount: String(
-      typeof pkg.guestCount === "number" && pkg.guestCount >= 0 ? pkg.guestCount : 0,
-    ),
+    guestCount:
+      typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
     billingPeriod,
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
