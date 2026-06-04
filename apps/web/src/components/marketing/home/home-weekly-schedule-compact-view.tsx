@@ -22,7 +22,6 @@ export type HomeWeeklyScheduleCompactDay = {
   sessions: readonly {
     id: string;
     item: MarketingScheduleItem;
-    registerHref: string;
     bookAriaLabel: string;
     withInstructorLabel: string;
     durationLabel: string;
