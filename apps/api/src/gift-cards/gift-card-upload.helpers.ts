@@ -18,5 +18,3 @@ export function absolutePathForStoredGiftCardUpload(
   }
   return join(uploadRoot, normalized);
 }
-
-console.log(absolutePathForStoredGiftCardUpload(process.cwd(), '/v1/uploads/gift-cards/123.png'));
