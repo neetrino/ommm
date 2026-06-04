@@ -155,13 +155,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <div>
-      <AuthBackToHomeLink />
-      <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
-        {t("register")}
-      </h1>
-      <p className="ommm-body-muted mt-1.5 text-sm">{tAuth("lead")}</p>
-      <form onSubmit={onSubmit} noValidate className="mt-5 flex flex-col gap-3">
+    <div className="relative">
+      <div className="relative z-10">
+        <AuthBackToHomeLink />
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
+          {t("register")}
+        </h1>
+        <p className="ommm-body-muted mt-1.5 text-sm">{tAuth("lead")}</p>
+      </div>
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        className="relative z-10 mt-5 flex flex-col gap-3"
+      >
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">
             <span className="ommm-label">{tAuth("firstName")}</span>
