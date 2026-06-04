@@ -18,6 +18,9 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
+const DRAWER_CLOSE_BUTTON_CLASSES =
+  "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-sage-500 transition-[background-color,color,transform] hover:bg-sand-50 hover:text-sage-900 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 focus-visible:ring-offset-2";
+
 type AdminBookingSessionSlot = {
   id: string;
   title: string;
@@ -724,7 +727,7 @@ function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }
       <aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-semibold">{t("userDetailsTitle")}</h3>
-          <button type="button" onClick={onClose}>x</button>
+          <button type="button" className={DRAWER_CLOSE_BUTTON_CLASSES} onClick={onClose}>x</button>
         </div>
         {data === null ? (
           <p className="text-sm text-sage-500">{t("emptyUserData")}</p>
@@ -765,7 +768,7 @@ function BookingDrawer({ bookingId, onClose }: { bookingId: string; onClose: () 
     createdAt: string;
   }>(null);
   useEffect(() => { void apiFetch(`/bookings/admin/${bookingId}`).then((payload) => setData(payload as { status: string; paymentStatus?: string; attendanceStatus?: string; user: { name: string | null; email: string; phone: string | null }; session: { startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }; channel: "WEBSITE" | "APP"; notes?: Array<{ id: string; body: string; createdAt: string; author: { name: string | null } }>; createdAt: string })).catch(() => setData(null)); }, [bookingId]);
-  return <div className="ommm-drawer-overlay z-40"><button className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} /><aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4"><div className="mb-3 flex items-center justify-between"><h3 className="font-semibold">{t("bookingDetailsTitle")}</h3><button onClick={onClose}>x</button></div>{data === null ? <p className="text-sm text-sage-500">{t("emptyBookingData")}</p> : <div className="space-y-2 text-sm"><p><span className="text-sage-500">{t("colUserPhone")}:</span> {data.user.name ?? data.user.email} · {data.user.phone ?? "—"}</p><p><span className="text-sage-500">{t("colClassType")}:</span> {data.session.classType.name}</p><p><span className="text-sage-500">{t("filterCoachAll")}:</span> {data.session.coach.user.name ?? "—"}</p><p><span className="text-sage-500">{t("colRegisterDate")}:</span> {formatDateForUi(data.createdAt)}</p><p><span className="text-sage-500">{t("colStatus")}:</span> {data.status}</p><p><span className="text-sage-500">{t("colPaymentStatus")}:</span> {data.paymentStatus ?? "—"}</p><p><span className="text-sage-500">{t("colAttendanceStatus")}:</span> {data.attendanceStatus ?? "—"}</p><p><span className="text-sage-500">{t("colChannel")}:</span> {data.channel === "APP" ? t("channelApp") : t("channelWebsite")}</p><div><p className="text-xs uppercase text-sage-500">{t("actionAddNote")}</p><div className="mt-1 space-y-1">{(data.notes ?? []).slice(0, 6).map((note) => <p key={note.id} className="rounded-md bg-sand-50 px-2 py-1 text-xs">{note.author.name ?? "Staff"} · {formatDateForUi(note.createdAt)} · {note.body}</p>)}</div></div></div>}</aside></div>;
+  return <div className="ommm-drawer-overlay z-40"><button className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} /><aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4"><div className="mb-3 flex items-center justify-between"><h3 className="font-semibold">{t("bookingDetailsTitle")}</h3><button type="button" className={DRAWER_CLOSE_BUTTON_CLASSES} onClick={onClose}>x</button></div>{data === null ? <p className="text-sm text-sage-500">{t("emptyBookingData")}</p> : <div className="space-y-2 text-sm"><p><span className="text-sage-500">{t("colUserPhone")}:</span> {data.user.name ?? data.user.email} · {data.user.phone ?? "—"}</p><p><span className="text-sage-500">{t("colClassType")}:</span> {data.session.classType.name}</p><p><span className="text-sage-500">{t("filterCoachAll")}:</span> {data.session.coach.user.name ?? "—"}</p><p><span className="text-sage-500">{t("colRegisterDate")}:</span> {formatDateForUi(data.createdAt)}</p><p><span className="text-sage-500">{t("colStatus")}:</span> {data.status}</p><p><span className="text-sage-500">{t("colPaymentStatus")}:</span> {data.paymentStatus ?? "—"}</p><p><span className="text-sage-500">{t("colAttendanceStatus")}:</span> {data.attendanceStatus ?? "—"}</p><p><span className="text-sage-500">{t("colChannel")}:</span> {data.channel === "APP" ? t("channelApp") : t("channelWebsite")}</p><div><p className="text-xs uppercase text-sage-500">{t("actionAddNote")}</p><div className="mt-1 space-y-1">{(data.notes ?? []).slice(0, 6).map((note) => <p key={note.id} className="rounded-md bg-sand-50 px-2 py-1 text-xs">{note.author.name ?? "Staff"} · {formatDateForUi(note.createdAt)} · {note.body}</p>)}</div></div></div>}</aside></div>;
 }
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {
   const t = useTranslations("adminPages.bookings");

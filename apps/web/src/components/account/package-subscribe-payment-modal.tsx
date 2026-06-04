@@ -191,7 +191,7 @@ function PlanPicker({ plans, selectedPlanId, locale, onSelect }: PlanPickerProps
       {plans.map((plan) => (
         <label
           key={plan.id}
-          className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/60 bg-white/50 p-3"
+          className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/60 bg-white/50 p-3 transition-[background-color,border-color,box-shadow] hover:border-white/80 hover:bg-white/70 hover:shadow-sm focus-within:border-sand-500/40 focus-within:bg-sand-50/40 focus-within:ring-2 focus-within:ring-sand-500/20"
         >
           <input
             type="radio"
@@ -264,7 +264,7 @@ function PaymentMethodPicker({ value, onChange, disabled }: PaymentMethodPickerP
       {MANUAL_PAYMENT_METHODS.map((method) => (
         <label
           key={method}
-          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/50 px-3 py-2.5"
+          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/50 px-3 py-2.5 transition-[background-color,border-color,box-shadow] hover:border-white/80 hover:bg-white/70 hover:shadow-sm focus-within:border-sand-500/40 focus-within:bg-sand-50/40 focus-within:ring-2 focus-within:ring-sand-500/20 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50"
         >
           <input
             type="radio"

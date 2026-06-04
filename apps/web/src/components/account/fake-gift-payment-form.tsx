@@ -136,7 +136,7 @@ function PaymentMethodPicker({
         {GIFT_PAYMENT_METHODS.map((method) => (
           <label
             key={method}
-            className="flex cursor-pointer items-center gap-3 rounded-2xl border border-sage-100 bg-white/80 px-4 py-3 text-sm text-sage-800 transition-colors has-[:checked]:border-sage-700 has-[:checked]:bg-sage-50"
+            className="flex cursor-pointer items-center gap-3 rounded-2xl border border-sage-100 bg-white/80 px-4 py-3 text-sm text-sage-800 transition-[background-color,border-color,box-shadow] hover:border-sage-200 hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sage-500/20 has-[:checked]:border-sage-700 has-[:checked]:bg-sage-50 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50"
           >
             <input
               type="radio"

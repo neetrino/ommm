@@ -67,10 +67,10 @@ function TabButton(props: { active: boolean; onClick: () => void; label: string 
       type="button"
       role="tab"
       aria-selected={props.active}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 ${
+      className={`cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
         props.active
-          ? "bg-sage-800 text-white shadow-sm"
-          : "text-sage-700 hover:bg-white/70 hover:text-sage-900"
+          ? "bg-sage-800 text-white shadow-sm hover:bg-sage-900 hover:shadow-md"
+          : "text-sage-700 hover:bg-white/70 hover:text-sage-900 hover:shadow-sm"
       }`}
       onClick={props.onClick}
     >

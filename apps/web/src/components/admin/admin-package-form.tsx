@@ -648,7 +648,7 @@ export function AdminPackageForm({
             description={t("formSections.visibility.description")}
           >
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-colors has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60">
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
                 <input
                   type="checkbox"
                   name="isPopular"
@@ -662,7 +662,7 @@ export function AdminPackageForm({
                   <span className="text-xs text-sage-500">{t("fieldPopularHint")}</span>
                 </span>
               </label>
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-colors has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60">
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
                 <input
                   type="checkbox"
                   name="isActive"

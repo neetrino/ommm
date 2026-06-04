@@ -245,13 +245,18 @@ html {
   }
 
   .ommm-cta-primary {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sand-500 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-white shadow-[0_8px_24px_-12px_rgba(107,92,76,0.45)] transition-colors;
-    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sand-500 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-white shadow-[0_8px_24px_-12px_rgba(107,92,76,0.45)] transition-[background-color,box-shadow,transform,color,border-color];
+    @apply hover:bg-sand-700 hover:shadow-[0_12px_28px_-14px_rgba(107,92,76,0.5)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .ommm-cta-ghost {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-white/80 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-sage-700 backdrop-blur-md transition-colors;
-    @apply hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-white/80 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-sage-700 shadow-sm backdrop-blur-md transition-[background-color,box-shadow,transform,color,border-color];
+    @apply hover:bg-white hover:text-sage-900 hover:shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .ommm-cta-secondary {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-sand-500/25 bg-white/85 px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] text-sage-700 shadow-sm backdrop-blur-md transition-[background-color,border-color,box-shadow,transform,color];
+    @apply hover:border-sand-500/45 hover:bg-white hover:text-sage-900 hover:shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .ommm-package-card-footer-cta {
@@ -274,12 +279,12 @@ html {
 
   .ommm-cta-pill {
     font-family: var(--font-serif);
-    @apply inline-flex cursor-pointer items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 italic text-white shadow-sm transition-colors;
-    @apply hover:bg-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed;
+    @apply inline-flex cursor-pointer items-center justify-center rounded-full bg-sand-500 px-6 py-2.5 italic text-white shadow-sm transition-[background-color,box-shadow,transform];
+    @apply hover:bg-sand-700 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .ommm-modal-backdrop {
-    @apply absolute inset-0 z-0 cursor-pointer bg-sage-900/45 backdrop-blur-[2px] transition-opacity;
+    @apply absolute inset-0 z-0 cursor-pointer bg-sage-900/45 backdrop-blur-[2px] transition-opacity hover:bg-sage-900/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
   }
 
   .ommm-modal-overlay {
@@ -498,8 +503,8 @@ html {
   }
 
   .ommm-admin-account-logout {
-    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border border-white/70 bg-white text-sage-700 transition-colors;
-    @apply hover:bg-white hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/25;
+    @apply inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[14px] border border-white/70 bg-white text-sage-700 transition-[background-color,border-color,box-shadow,color,transform];
+    @apply hover:border-white hover:bg-red-50 hover:text-red-800 hover:shadow-sm active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .ommm-admin-profile-avatar {
@@ -507,7 +512,8 @@ html {
   }
 
   .ommm-admin-menu-button {
-    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm;
+    @apply inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm transition-[background-color,border-color,box-shadow,color,transform];
+    @apply hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .ommm-admin-pill-tab {
@@ -677,7 +683,7 @@ html {
   }
 
   .ommm-schedule-accent-button {
-    @apply inline-flex min-h-9 shrink-0 cursor-pointer items-center justify-center rounded-full border px-4 py-1.5 text-xs font-semibold transition-[border-color,background-color,box-shadow];
+    @apply inline-flex min-h-9 shrink-0 cursor-pointer items-center justify-center rounded-full border px-4 py-1.5 text-xs font-semibold transition-[border-color,background-color,box-shadow,transform];
     border-color: rgba(146, 144, 126, 0.85);
     background-color: #92907e;
     color: var(--ommm-admin-cream);
@@ -688,10 +694,15 @@ html {
   .ommm-schedule-accent-button:hover {
     border-color: #7a7869;
     background-color: #8a8876;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 22px -18px rgba(45, 40, 35, 0.45);
+  }
+
+  .ommm-schedule-accent-button:active {
+    transform: scale(0.985);
   }
 
   .ommm-schedule-accent-button:disabled {
-    @apply cursor-not-allowed opacity-45;
+    @apply pointer-events-none cursor-not-allowed opacity-45;
   }
 
   .ommm-dropdown-chip {
@@ -779,8 +790,8 @@ html {
   }
 
   .ommm-admin-add-button {
-    @apply inline-flex h-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#5f5a4a] px-5 text-xs font-semibold uppercase tracking-[0.12em] text-[#fbf5d5] transition-colors;
-    @apply hover:bg-[#4b4537] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed;
+    @apply inline-flex h-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#5f5a4a] px-5 text-xs font-semibold uppercase tracking-[0.12em] text-[#fbf5d5] shadow-sm transition-[background-color,box-shadow,transform,color];
+    @apply hover:bg-[#4b4537] hover:shadow-[0_12px_28px_-18px_rgba(45,40,35,0.42)] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .ommm-inset-row {
@@ -792,7 +803,7 @@ html {
   }
 
   .ommm-link-sage {
-    @apply cursor-pointer font-medium text-sage-700 underline decoration-sand-500/40 underline-offset-4 transition-colors hover:text-sand-700 hover:decoration-sand-500;
+    @apply cursor-pointer rounded-sm font-medium text-sage-700 underline decoration-sand-500/40 underline-offset-4 transition-colors hover:text-sand-700 hover:decoration-sand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
   }
 
   /* Compact actions (schedules, tables) */
@@ -948,7 +959,15 @@ html {
     .ommm-package-card-interactive:active,
     .ommm-package-tier-row-interactive:active,
     .ommm-membership-row-interactive:active,
-    .ommm-package-card-footer-cta:active {
+    .ommm-package-card-footer-cta:active,
+    .ommm-cta-primary:active,
+    .ommm-cta-ghost:active,
+    .ommm-cta-secondary:active,
+    .ommm-cta-pill:active,
+    .ommm-admin-account-logout:active,
+    .ommm-admin-menu-button:active,
+    .ommm-schedule-accent-button:active,
+    .ommm-admin-add-button:active {
       transform: none;
     }
 

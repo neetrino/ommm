@@ -16,8 +16,8 @@ import {
   isLanguageSwitcherLocale,
 } from "@/lib/language-switcher-locales";
 
-/** Icon-only marketing trigger is 44px; menu needs room for flag + label. */
-const MARKETING_ICON_MENU_MIN_WIDTH_PX = 168;
+/** Language menu needs room for flag + label, including icon-only triggers. */
+const LANGUAGE_MENU_MIN_WIDTH_PX = 168;
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
@@ -116,8 +116,8 @@ export function LanguageSwitcher({
             : "ommm-dropdown-trigger--compact")
         }
         showChevron={!isIconMarketing}
-        menuMinWidth={isIconMarketing ? MARKETING_ICON_MENU_MIN_WIDTH_PX : undefined}
-        menuAlign={isIconMarketing ? "end" : "start"}
+        menuMinWidth={LANGUAGE_MENU_MIN_WIDTH_PX}
+        menuAlign="end"
         menuClassName="ommm-language-switcher-menu"
         disableMenuScroll
         renderValue={() =>
