@@ -18,7 +18,7 @@ import {
 const MANAGER_ROLES = new Set<string>(["MANAGER"]);
 
 const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 export default async function ManagerSectionLayout({
   children,
