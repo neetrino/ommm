@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -104,7 +104,6 @@ const SCHEDULE_MODAL_QUERY_KEY = "modal";
 const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
 const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
-const CLASS_TYPES_VISIBLE_STORAGE_KEY = "ommm.admin.schedule.classTypesVisible";
 
 function replaceScheduleModalInUrl(
   pathname: string,
@@ -502,7 +501,7 @@ export function AdminScheduleManagement({
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4">
-        <SchedulePageActions onManageTypes={openClassTypesModal} onCreate={openAddClassModal} />
+        <SchedulePageActions onCreate={openAddClassModal} />
         {description ? (
           <p className="ommm-body-muted max-w-3xl text-sm">{description}</p>
         ) : null}
@@ -878,93 +877,10 @@ const SCHEDULE_TOOLBAR_BTN_IDLE =
 const SCHEDULE_TOOLBAR_BTN_ACTIVE =
   "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]";
 
-function EyeRevealGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.7}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M2.9 12.5C4.5 9.1 7.9 6 12 6s7.5 3.1 9.1 6.5a1.1 1.1 0 0 1 0 1c-1.6 3.4-5 6.5-9.1 6.5s-7.5-3.1-9.1-6.5a1.1 1.1 0 0 1 0-1Z" />
-      <circle cx="12" cy="12.5" r="3" />
-    </svg>
-  );
-}
-
-function EyeHideGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.7}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M2.9 12.5C4.5 9.1 7.9 6 12 6c2.2 0 4.2.9 5.8 2.1M21.1 13.5C19.5 16.9 16.1 20 12 20c-2.2 0-4.2-.9-5.8-2.1" />
-      <circle cx="12" cy="12.5" r="3" />
-      <path d="m4 4 16 16" />
-    </svg>
-  );
-}
-
-function readClassTypesVisiblePreference(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  try {
-    return window.localStorage.getItem(CLASS_TYPES_VISIBLE_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function persistClassTypesVisiblePreference(visible: boolean): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  try {
-    window.localStorage.setItem(CLASS_TYPES_VISIBLE_STORAGE_KEY, visible ? "1" : "0");
-  } catch {
-    /* ignore quota / privacy errors */
-  }
-}
-
-function SchedulePageActions({
-  onManageTypes,
-  onCreate,
-}: {
-  onManageTypes: () => void;
-  onCreate: () => void;
-}) {
+function SchedulePageActions({ onCreate }: { onCreate: () => void }) {
   const t = useTranslations("adminPages.classes");
-  const [visibleOverride, setVisibleOverride] = useState<boolean | null>(null);
-  const storedClassTypesVisible = useSyncExternalStore(
-    () => () => undefined,
-    readClassTypesVisiblePreference,
-    () => false,
-  );
-  const classTypesVisible = visibleOverride ?? storedClassTypesVisible;
-
-  function revealClassTypes(): void {
-    setVisibleOverride(true);
-    persistClassTypesVisiblePreference(true);
-  }
-
-  function hideClassTypes(): void {
-    setVisibleOverride(false);
-    persistClassTypesVisiblePreference(false);
-  }
-
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <OmmButton
         type="button"
         variant="secondary"
@@ -975,42 +891,6 @@ function SchedulePageActions({
         <PlusIcon className="h-5 w-5 shrink-0" />
         {t("addClassButton")}
       </OmmButton>
-
-      <div className="flex h-11 items-center justify-end gap-2 self-end sm:ml-auto sm:self-auto">
-        {!classTypesVisible ? (
-          <button
-            type="button"
-            onClick={revealClassTypes}
-            aria-label={t("classTypes.revealButtonAria")}
-            title={t("classTypes.revealButtonAria")}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-600 shadow-sm backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30"
-          >
-            <EyeRevealGlyph className="h-5 w-5 shrink-0" />
-          </button>
-        ) : (
-          <>
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={onManageTypes}
-              className="inline-flex h-11 min-w-[11rem] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full transition-all duration-300 ease-out"
-            >
-              <ClassTypesGlyph className="h-5 w-5 shrink-0" />
-              {t("classTypes.manageButton")}
-            </OmmButton>
-            <button
-              type="button"
-              onClick={hideClassTypes}
-              aria-label={t("classTypes.hideButtonAria")}
-              title={t("classTypes.hideButtonAria")}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-600 shadow-sm backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30"
-            >
-              <EyeHideGlyph className="h-5 w-5 shrink-0" />
-            </button>
-          </>
-        )}
-      </div>
     </div>
   );
 }
@@ -1044,25 +924,6 @@ function ViewToolbar({
         ))}
       </div>
     </div>
-  );
-}
-
-function ClassTypesGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 2 2 7l10 5 10-5-10-5Z" />
-      <path d="m2 17 10 5 10-5M2 12l10 5 10-5" />
-    </svg>
   );
 }
 
