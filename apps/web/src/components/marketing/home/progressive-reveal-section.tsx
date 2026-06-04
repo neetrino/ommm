@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -23,6 +24,18 @@ type ProgressiveRevealSectionProps = {
 
 const prefetchedApiPaths = new Set<string>();
 const inFlightPrefetches = new Map<string, Promise<void>>();
+
+function subscribeToHydrationStore(): () => void {
+  return () => undefined;
+}
+
+function getHydratedSnapshot(): boolean {
+  return true;
+}
+
+function getServerHydratedSnapshot(): boolean {
+  return false;
+}
 
 function prefetchApiPath(path: string): Promise<void> {
   if (prefetchedApiPaths.has(path)) {
@@ -61,9 +74,14 @@ export function ProgressiveRevealSection({
   placeholderClassName = "h-[clamp(24rem,48vw,44rem)]",
 }: ProgressiveRevealSectionProps) {
   const containerRef = useRef<HTMLElement | null>(null);
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useSyncExternalStore(
+    subscribeToHydrationStore,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
   const [shouldMount, setShouldMount] = useState(false);
-  const showChildren = hasHydrated && shouldMount;
+  const hasMountedBefore = hasHydrated && isHomeLazySectionMounted(id);
+  const showChildren = hasHydrated && (shouldMount || hasMountedBefore);
 
   const resolvedPrefetchPaths = useMemo(
     () => Array.from(new Set(prefetchApiPaths)),
@@ -71,21 +89,7 @@ export function ProgressiveRevealSection({
   );
 
   useEffect(() => {
-    setHasHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hasHydrated) {
-      return undefined;
-    }
-    if (isHomeLazySectionMounted(id)) {
-      setShouldMount(true);
-    }
-    return undefined;
-  }, [hasHydrated, id]);
-
-  useEffect(() => {
-    if (!hasHydrated || shouldMount) {
+    if (!hasHydrated || showChildren) {
       return undefined;
     }
 
@@ -150,7 +154,7 @@ export function ProgressiveRevealSection({
     window.addEventListener("resize", onScrollOrResize, { passive: true });
 
     return cleanup;
-  }, [hasHydrated, id, mountMarginPx, preloadMarginPx, resolvedPrefetchPaths, shouldMount]);
+  }, [hasHydrated, id, mountMarginPx, preloadMarginPx, resolvedPrefetchPaths, showChildren]);
 
   return (
     <section ref={containerRef} data-home-section={id} className="relative">
