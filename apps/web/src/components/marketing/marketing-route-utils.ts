@@ -13,7 +13,14 @@ export function isMarketingInnerPath(pathname: string): boolean {
   return !isMarketingHomePath(pathname);
 }
 
-/** Routes where the fixed header uses hero glass over a full-bleed marketing surface. */
+/**
+ * Routes where the fixed header starts flat over the page surface and elevates to the
+ * liquid-glass pill after scroll (home, coaches, and all other public marketing pages).
+ */
 export function isMarketingHeroHeaderPath(pathname: string): boolean {
-  return isMarketingHomePath(pathname) || isMarketingCoachesPath(pathname);
+  return (
+    isMarketingHomePath(pathname) ||
+    isMarketingCoachesPath(pathname) ||
+    isMarketingInnerPath(pathname)
+  );
 }

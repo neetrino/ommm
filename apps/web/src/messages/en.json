@@ -10,7 +10,7 @@
   },
   "nav": {
     "studioBrand": "Ommm.",
-    "spaceBrand": "Ommm.Space",
+    "spaceBrand": "Ommm.",
     "home": "Home",
     "story": "Story",
     "coaches": "Coaches",
@@ -219,7 +219,7 @@
       "eventNarrowATitle": "Workshop",
       "eventNarrowBTitle": "Retreat evening",
       "eventCardCtaAria": "Open event details",
-      "footerWordmark": "Ommm.Space",
+      "footerWordmark": "Ommm.",
       "footerTopNavAria": "Footer navigation",
       "footerContactTitle": "Contact Us",
       "footerPhone": "+ 33333333",
@@ -388,7 +388,7 @@
         "subline": "Studio tools and data"
       },
       "admin": {
-        "title": "Ommm.Space",
+        "title": "Ommm.",
         "subline": "Management portal"
       },
       "coach": {

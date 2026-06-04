@@ -15,12 +15,12 @@ function getScrollElevatedSnapshot(): boolean {
 }
 
 /** True when the header should use the elevated liquid-glass treatment. */
-export function useMarketingHeaderElevated(isHome: boolean): boolean {
+export function useMarketingHeaderElevated(usesScrollElevation: boolean): boolean {
   const scrollElevated = useSyncExternalStore(
-    isHome ? subscribeToScroll : () => () => undefined,
-    () => (isHome ? getScrollElevatedSnapshot() : false),
+    usesScrollElevation ? subscribeToScroll : () => () => undefined,
+    () => (usesScrollElevation ? getScrollElevatedSnapshot() : false),
     () => false,
   );
 
-  return !isHome || scrollElevated;
+  return !usesScrollElevation || scrollElevated;
 }

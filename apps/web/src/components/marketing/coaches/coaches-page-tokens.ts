@@ -21,7 +21,7 @@ export const COACHES_PAGE_LAYOUT = {
   /** Extra downward offset applied to hero + grid (post-design tweak). */
   heroOffsetExtraPx: 0,
   /** Space between sticky mobile header and hero title (<744px). */
-  heroTitleMobileGapBelowHeaderRem: 0.75,
+  heroTitleMobileGapBelowHeaderRem: 4,
   gridColumns: 3,
   gridRows: 2,
 } as const;

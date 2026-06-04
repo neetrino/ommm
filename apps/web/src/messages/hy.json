@@ -10,7 +10,7 @@
   },
   "nav": {
     "studioBrand": "Ommm.",
-    "spaceBrand": "Ommm.Space",
+    "spaceBrand": "Ommm.",
     "home": "Գլխավոր",
     "story": "Պատմություն",
     "coaches": "Մարզիչներ",
@@ -231,7 +231,7 @@
       "eventNarrowATitle": "Վարպետանոց",
       "eventNarrowBTitle": "Երեկոյան ռիթրիտ",
       "eventCardCtaAria": "Բացել միջոցառման մանրամասները",
-      "footerWordmark": "Ommm.Space",
+      "footerWordmark": "Ommm.",
       "footerTopNavAria": "Վերջնամասի նավիգացիա",
       "footerContactTitle": "Կապ",
       "footerPhone": "+ 33333333",
@@ -400,7 +400,7 @@
         "subline": "Ստուդիայի գործիքներ և տվյալներ"
       },
       "admin": {
-        "title": "Ommm.Space",
+        "title": "Ommm.",
         "subline": "MANAGEMENT PORTAL"
       },
       "coach": {

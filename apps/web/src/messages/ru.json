@@ -10,7 +10,7 @@
   },
   "nav": {
     "studioBrand": "Ommm.",
-    "spaceBrand": "Ommm.Space",
+    "spaceBrand": "Ommm.",
     "home": "Главная",
     "story": "История",
     "coaches": "Тренеры",
@@ -219,7 +219,7 @@
       "eventNarrowATitle": "Мастер-класс",
       "eventNarrowBTitle": "Вечер ретрита",
       "eventCardCtaAria": "Открыть детали события",
-      "footerWordmark": "Ommm.Space",
+      "footerWordmark": "Ommm.",
       "footerTopNavAria": "Навигация в подвале",
       "footerContactTitle": "Связаться с нами",
       "footerPhone": "+ 33333333",
@@ -388,7 +388,7 @@
         "subline": "Инструменты и данные студии"
       },
       "admin": {
-        "title": "Ommm.Space",
+        "title": "Ommm.",
         "subline": "MANAGEMENT PORTAL"
       },
       "coach": {
