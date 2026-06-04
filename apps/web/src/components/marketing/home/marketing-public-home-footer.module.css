@@ -95,7 +95,7 @@
 .contactIcon {
   flex-shrink: 0;
   width: 1.5rem;
-  height: 1.5rem;
+  height: auto;
 }
 
 .contactText {
@@ -254,7 +254,7 @@
 .mobileContactIcon {
   flex-shrink: 0;
   width: 1.25rem;
-  height: 1.25rem;
+  height: auto;
 }
 
 .mobileContactText {

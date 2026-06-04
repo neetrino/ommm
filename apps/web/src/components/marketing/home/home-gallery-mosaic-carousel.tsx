@@ -37,6 +37,11 @@ type HomeGalleryMosaicCarouselProps = {
   getGoToSlideAria: (index: number) => string;
 };
 
+type GalleryCarouselState = {
+  active: number;
+  mountedSlides: ReadonlySet<number>;
+};
+
 type GalleryNavArrowProps = {
   direction: "prev" | "next";
 };
@@ -102,6 +107,18 @@ function GalleryMosaicSlide({ slide }: { slide: HomeGallerySlide }) {
   );
 }
 
+function getGalleryCarouselState(
+  active: number,
+  mountedSlides: ReadonlySet<number>,
+): GalleryCarouselState {
+  if (mountedSlides.has(active)) {
+    return { active, mountedSlides };
+  }
+  const nextMountedSlides = new Set(mountedSlides);
+  nextMountedSlides.add(active);
+  return { active, mountedSlides: nextMountedSlides };
+}
+
 /** Figma Gallery mosaic `196:1163` with prev/next `196:1168` and dots `196:1175`. */
 export function HomeGalleryMosaicCarousel({
   prevLabel,
@@ -110,26 +127,21 @@ export function HomeGalleryMosaicCarousel({
 }: HomeGalleryMosaicCarouselProps) {
   const slideCount = HOME_GALLERY_SLIDES.length;
   const lastIndex = Math.max(0, slideCount - 1);
-  const [active, setActive] = useState(0);
-  const [mountedSlides, setMountedSlides] = useState<ReadonlySet<number>>(() => new Set([0]));
-
-  useEffect(() => {
-    setMountedSlides((prev) => {
-      if (prev.has(active)) {
-        return prev;
-      }
-      const next = new Set(prev);
-      next.add(active);
-      return next;
-    });
-  }, [active]);
+  const [{ active, mountedSlides }, setCarouselState] = useState<GalleryCarouselState>(() => ({
+    active: 0,
+    mountedSlides: new Set([0]),
+  }));
 
   const goPrev = useCallback(() => {
-    setActive((prev) => (prev - 1 + slideCount) % slideCount);
+    setCarouselState((prev) =>
+      getGalleryCarouselState((prev.active - 1 + slideCount) % slideCount, prev.mountedSlides),
+    );
   }, [slideCount]);
 
   const goNext = useCallback(() => {
-    setActive((prev) => (prev + 1) % slideCount);
+    setCarouselState((prev) =>
+      getGalleryCarouselState((prev.active + 1) % slideCount, prev.mountedSlides),
+    );
   }, [slideCount]);
 
   useEffect(() => {
@@ -220,7 +232,12 @@ export function HomeGalleryMosaicCarousel({
               aria-label={getGoToSlideAria(index)}
               className={`${styles.dot} ${index === active ? styles.dotActive : ""}`}
               onClick={() => {
-                setActive(Math.min(Math.max(0, index), lastIndex));
+                setCarouselState((prev) =>
+                  getGalleryCarouselState(
+                    Math.min(Math.max(0, index), lastIndex),
+                    prev.mountedSlides,
+                  ),
+                );
               }}
             />
           ))}

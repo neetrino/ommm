@@ -14,8 +14,8 @@ export default async function PackagesMarketingPage({
 
   return (
     <MarketingPageFrame
-      title={m("membershipsPageTitle")}
-      lede={m("membershipsPageLead")}
+      title={m("packagesPageTitle")}
+      lede={m("packagesPageLead")}
       extendToFooter
     >
       <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
