@@ -13,6 +13,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         startsAt: baseDate,
         endsAt: new Date('2026-06-02T10:00:00'),
         capacity: 12,
+        level: 'Beginner',
         status: ClassSessionStatus.ACTIVE,
         createdAt: baseDate,
         updatedAt: baseDate,
@@ -27,6 +28,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         startsAt: baseDate,
         endsAt: new Date('2026-06-02T10:00:00'),
         capacity: 8,
+        level: null,
         status: ClassSessionStatus.DRAFT,
         createdAt: baseDate,
         updatedAt: baseDate,
@@ -41,9 +43,12 @@ describe('mapSessionsToPublicScheduleItems', () => {
     expect(items[0]?.availableSpots).toBe(9);
     expect(items[0]?.dayOfWeek).toBe('TUESDAY');
     expect(items[0]?.startTime).toBe('09:00');
+    expect(items[0]?.level).toBe('Beginner');
+    expect(items[0]?.status).toBe(ClassSessionStatus.ACTIVE);
+    expect(items[0]?.sessionDate).toBe(baseDate.toISOString());
   });
 
-  it('deduplicates identical weekly slots', () => {
+  it('keeps repeated weekly slots as separate bookable sessions', () => {
     const secondWeek = new Date('2026-06-09T09:00:00');
     const items = mapSessionsToPublicScheduleItems([
       {
@@ -53,6 +58,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         startsAt: baseDate,
         endsAt: new Date('2026-06-02T10:00:00'),
         capacity: 10,
+        level: null,
         status: ClassSessionStatus.ACTIVE,
         createdAt: baseDate,
         updatedAt: baseDate,
@@ -67,6 +73,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
         startsAt: secondWeek,
         endsAt: new Date('2026-06-09T10:00:00'),
         capacity: 10,
+        level: null,
         status: ClassSessionStatus.ACTIVE,
         createdAt: secondWeek,
         updatedAt: secondWeek,
@@ -76,6 +83,7 @@ describe('mapSessionsToPublicScheduleItems', () => {
       },
     ]);
 
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(2);
+    expect(items.map((item) => item.id)).toEqual(['week-1', 'week-2']);
   });
 });

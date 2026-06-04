@@ -19,6 +19,7 @@ import { UpdateScheduleItemDto } from './dto/update-schedule-item.dto';
 import {
   mapSessionsToPublicScheduleItems,
   PUBLIC_SCHEDULE_SESSION_INCLUDE,
+  type PublicScheduleItem,
 } from './map-sessions-to-public-schedule-items';
 
 const DAY_ORDER: Record<ScheduleDayOfWeek, number> = {
@@ -65,6 +66,18 @@ export class ScheduleService {
     });
   }
 
+  private sortPublicByDateAndTime(items: PublicScheduleItem[]): PublicScheduleItem[] {
+    return [...items].sort((a, b) => {
+      if (a.sessionDate !== b.sessionDate) {
+        return a.sessionDate.localeCompare(b.sessionDate);
+      }
+      if (a.startTime !== b.startTime) {
+        return a.startTime.localeCompare(b.startTime);
+      }
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+  }
+
   async listAdmin() {
     const items = await this.prisma.scheduleItem.findMany({
       orderBy: [
@@ -98,7 +111,7 @@ export class ScheduleService {
       orderBy: [{ startsAt: 'asc' }, { createdAt: 'desc' }],
     });
     const items = mapSessionsToPublicScheduleItems(sessions);
-    return this.sortByDayAndTime(items);
+    return this.sortPublicByDateAndTime(items);
   }
 
   async create(dto: CreateScheduleItemDto) {
