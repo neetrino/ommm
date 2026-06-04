@@ -18,3 +18,4 @@ export function absolutePathForStoredGiftCardUpload(
   }
   return join(uploadRoot, normalized);
 }
+console.log(absolutePathForStoredGiftCardUpload('/Users/macbook/Desktop/neetrino/uploads', '/v1/uploads/gift-cards/1234567890.png'));
