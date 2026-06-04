@@ -3,6 +3,22 @@
   min-width: 0;
 }
 
+.categoryTableBlock {
+  width: 100%;
+  min-width: 0;
+}
+
+.categoryTableTitle {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #3a4f44;
+}
+
 .tableSection {
   width: 100%;
   min-width: 0;

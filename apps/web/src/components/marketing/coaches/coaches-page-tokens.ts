@@ -47,7 +47,7 @@ export const COACHES_PAGE_CARD = {
   expandPanelGlassFillExpanded: "rgba(255, 255, 255, 0.52)",
   expandPanelGlassBorder: "rgba(255, 255, 255, 0.45)",
   expandBioColor: "#1d1c15",
-  nameInsetTopPx: 20,
+  nameInsetTopPx: 32,
   nameInsetLeftPx: 30,
   roleInsetTopPx: 81,
   photoInsetLeftPx: 86,
@@ -60,4 +60,9 @@ export const COACHES_PAGE_CARD = {
   gridRowGapPx: 55,
   designWidthPx: 428,
   designHeightPx: 617,
+  /** Coach name — uniform size (up to two lines). */
+  nameFontSizeMinRem: 1.125,
+  nameFontSizePreferredVw: 2.75,
+  nameFontSizeMaxRem: 1.8125,
+  nameMaxLines: 2,
 } as const;

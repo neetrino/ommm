@@ -81,6 +81,7 @@ function cardInsetPercent(valuePx: number, basePx: number): string {
 
 function buildCardStyle(): CSSProperties {
   const card = COACHES_PAGE_CARD;
+  const nameFontSize = `clamp(${card.nameFontSizeMinRem}rem, ${card.nameFontSizePreferredVw}vw, ${card.nameFontSizeMaxRem}rem)`;
   return {
     "--coaches-page-card-surface": card.surface,
     "--coaches-page-card-radius": `${card.radiusPx}px`,
@@ -103,6 +104,8 @@ function buildCardStyle(): CSSProperties {
     "--coaches-page-card-name-left": cardInsetPercent(card.nameInsetLeftPx, card.designWidthPx),
     "--coaches-page-card-photo-top": cardInsetPercent(card.photoInsetTopPx, card.designHeightPx),
     "--coaches-page-card-photo-left": cardInsetPercent(card.photoInsetLeftPx, card.designWidthPx),
+    "--coaches-page-card-name-font-size": nameFontSize,
+    "--coaches-page-card-name-max-lines": String(card.nameMaxLines),
   } as CSSProperties;
 }
 

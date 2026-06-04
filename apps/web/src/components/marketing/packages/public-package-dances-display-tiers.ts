@@ -24,7 +24,7 @@ const DANCES_CANONICAL_1_SESSION: PublicPackagePlan = {
   isPopular: false,
   isActive: true,
   features: [],
-  guestCount: 0,
+  guestCount: 1,
   displayOrder: 1,
 };
 
@@ -72,7 +72,7 @@ function mergeDancesPlanWithCanonical(
     sessionsPerMonth: canonical.sessionsPerMonth,
     periodDays: canonical.periodDays,
     billingPeriod: canonical.billingPeriod,
-    guestCount: apiPlan.guestCount ?? 0,
+    guestCount: canonical.guestCount,
   };
 }
 

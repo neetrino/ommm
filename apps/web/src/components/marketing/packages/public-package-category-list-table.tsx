@@ -24,7 +24,13 @@ type PublicPackageCategoryListTableProps = {
   categoryLabel: string;
   plans: readonly PublicPackagePlan[];
   audience: PublicPackageCategoryCardsAudience;
+  showGuestsColumn?: boolean;
 };
+
+function formatGuestCellValue(guestCount: number | undefined): string | null {
+  const count = guestCount ?? 0;
+  return count > 0 ? String(count) : null;
+}
 
 function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
@@ -35,6 +41,7 @@ export function PublicPackageCategoryListTable({
   categoryLabel,
   plans,
   audience,
+  showGuestsColumn = false,
 }: PublicPackageCategoryListTableProps) {
   const t = useTranslations("marketing");
   const searchParams = useSearchParams();
@@ -51,13 +58,20 @@ export function PublicPackageCategoryListTable({
 
   return (
     <>
-      <div className={`ommm-public-packages-table ${styles.table}`}>
+      <div
+        className={`ommm-public-packages-table ${styles.table} ${
+          showGuestsColumn ? styles.tableWithGuests : ""
+        }`}
+      >
         <div className={styles.headerRow}>
           <div className={styles.headCell}>{t("packagesTablePlan")}</div>
           <div className={styles.headCell}>{t("packagesTableSessions")}</div>
           <div className={styles.headCell}>{t("packagesTablePrice")}</div>
           <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
           <div className={styles.headCell}>{t("packagesTableValidity")}</div>
+          {showGuestsColumn ? (
+            <div className={styles.headCell}>{t("packagesTableGuests")}</div>
+          ) : null}
           <div className={styles.headCell}>{t("packagesTableAction")}</div>
         </div>
 
@@ -70,6 +84,7 @@ export function PublicPackageCategoryListTable({
             months: (count) => t("packagesValidityMonths", { count }),
           });
           const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
+          const guestValue = formatGuestCellValue(plan.guestCount);
 
           return (
             <div
@@ -94,6 +109,11 @@ export function PublicPackageCategoryListTable({
               <div className={styles.cell}>{formatPackagePriceLabel(plan, locale)}</div>
               <div className={styles.cell}>{pricePerSession ?? <EmptyCell />}</div>
               <div className={styles.cell}>{validityLabel ?? <EmptyCell />}</div>
+              {showGuestsColumn ? (
+                <div className={styles.cell}>
+                  {guestValue !== null ? guestValue : <EmptyCell />}
+                </div>
+              ) : null}
               <div className={styles.cell}>
                 {audience === "member" ? (
                   <button

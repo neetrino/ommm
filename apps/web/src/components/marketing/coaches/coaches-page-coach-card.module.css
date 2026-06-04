@@ -37,12 +37,18 @@
 .name {
   margin: 0;
   max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--coaches-page-card-name-max-lines, 2);
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.5rem, 3.5vw, 2.375rem);
+  font-size: var(--coaches-page-card-name-font-size, clamp(1.125rem, 2.75vw, 1.8125rem));
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: 0.016em;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
   color: var(--coaches-page-card-name-color);
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .role {
