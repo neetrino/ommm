@@ -68,7 +68,7 @@ export async function PublicPackageCategoryDetailSection({
         ) : null}
 
         <section
-          className={`ommm-card ${styles.categoryTableBlock} p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8`}
+          className={`ommm-card ${styles.categoryTableBlock} p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-6 lg:p-8`}
         >
           <h2 className={styles.categoryTableTitle}>{category.label}</h2>
           <div className={styles.tableSection}>{tierTable}</div>
