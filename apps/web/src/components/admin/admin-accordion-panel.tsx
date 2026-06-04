@@ -1,11 +1,14 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
+import { TrashGlyph } from "@/components/ui/admin-action-glyphs";
 
 type AdminAccordionPanelProps = {
   title: string;
   editLabel?: string;
   onEdit?: () => void;
+  deleteLabel?: string;
+  onDelete?: () => void;
   children?: ReactNode;
   defaultOpen?: boolean;
   open?: boolean;
@@ -51,6 +54,10 @@ function EditGlyph() {
   );
 }
 
+function DeleteGlyph() {
+  return <TrashGlyph className="h-4 w-4" />;
+}
+
 /**
  * Collapsible admin row — Figma package category accordion pattern.
  */
@@ -58,6 +65,8 @@ export function AdminAccordionPanel({
   title,
   editLabel,
   onEdit,
+  deleteLabel,
+  onDelete,
   children,
   defaultOpen = false,
   open: controlledOpen,
@@ -101,7 +110,7 @@ export function AdminAccordionPanel({
         >
           {title}
         </h3>
-        <div className="flex shrink-0 items-center gap-5 sm:gap-7">
+        <div className="flex shrink-0 items-center justify-center gap-5">
           {editLabel && onEdit ? (
             <button
               type="button"
@@ -112,6 +121,18 @@ export function AdminAccordionPanel({
             >
               <span className="sr-only">{editLabel}</span>
               <EditGlyph />
+            </button>
+          ) : null}
+          {deleteLabel && onDelete ? (
+            <button
+              type="button"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-red-700/80 transition-colors hover:bg-red-50/90 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+              aria-label={deleteLabel}
+              title={deleteLabel}
+              onClick={onDelete}
+            >
+              <span className="sr-only">{deleteLabel}</span>
+              <DeleteGlyph />
             </button>
           ) : null}
           <button
