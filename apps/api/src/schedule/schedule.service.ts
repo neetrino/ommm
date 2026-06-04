@@ -66,7 +66,9 @@ export class ScheduleService {
     });
   }
 
-  private sortPublicByDateAndTime(items: PublicScheduleItem[]): PublicScheduleItem[] {
+  private sortPublicByDateAndTime(
+    items: PublicScheduleItem[],
+  ): PublicScheduleItem[] {
     return [...items].sort((a, b) => {
       if (a.sessionDate !== b.sessionDate) {
         return a.sessionDate.localeCompare(b.sessionDate);

@@ -417,7 +417,9 @@ export class CoachesService {
       }),
     };
     const profileData = {
-      ...(dto.bio !== undefined && { bio: this.normalizeOptionalText(dto.bio) }),
+      ...(dto.bio !== undefined && {
+        bio: this.normalizeOptionalText(dto.bio),
+      }),
       ...(dto.specialization !== undefined && {
         specialization: normalizedSpecialization,
       }),

@@ -328,7 +328,8 @@ export class ClassesService {
         date.getUTCDate(),
         Number(hourRaw),
         Number(minuteRaw),
-      ) + timezoneOffsetMinutes * 60_000;
+      ) +
+      timezoneOffsetMinutes * 60_000;
     return new Date(utcMs);
   }
 
@@ -338,7 +339,9 @@ export class ClassesService {
     const startDate = this.parseLocalDate(dto.startDate);
     const endDate = this.parseLocalDate(dto.endDate);
     if (endDate < startDate) {
-      throw new BadRequestException('Calendar schedule end date must be after start date');
+      throw new BadRequestException(
+        'Calendar schedule end date must be after start date',
+      );
     }
 
     const rows: Prisma.ClassSessionUncheckedCreateInput[] = [];
@@ -356,7 +359,9 @@ export class ClassesService {
     }
 
     if (rows.length === 0) {
-      throw new BadRequestException('Calendar schedule did not generate any classes');
+      throw new BadRequestException(
+        'Calendar schedule did not generate any classes',
+      );
     }
     if (rows.length > MAX_BATCH_SESSIONS) {
       throw new BadRequestException(
@@ -504,13 +509,17 @@ export class ClassesService {
     return this.findSessionAdminOrThrow(created.id);
   }
 
-  async createSessionBatch(dto: CreateSessionBatchDto): Promise<AdminSessionRow[]> {
+  async createSessionBatch(
+    dto: CreateSessionBatchDto,
+  ): Promise<AdminSessionRow[]> {
     const createRows = this.buildBatchSessionData(dto);
     const created = await this.prisma.$transaction(
       createRows.map((data) => this.prisma.classSession.create({ data })),
     );
     await this.schedule.invalidatePublicCache();
-    return Promise.all(created.map((session) => this.findSessionAdminOrThrow(session.id)));
+    return Promise.all(
+      created.map((session) => this.findSessionAdminOrThrow(session.id)),
+    );
   }
 
   async updateSession(
