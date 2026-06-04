@@ -105,10 +105,12 @@ export function AdminAccordionPanel({
           {editLabel && onEdit ? (
             <button
               type="button"
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#464646] transition-colors hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#464646] transition-colors hover:bg-white/60 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+              aria-label={editLabel}
+              title={editLabel}
               onClick={onEdit}
             >
-              {editLabel}
+              <span className="sr-only">{editLabel}</span>
               <EditGlyph />
             </button>
           ) : null}
