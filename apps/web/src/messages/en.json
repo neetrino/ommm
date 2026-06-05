@@ -10,7 +10,8 @@
     "sessionToday": "Today",
     "sessionTomorrow": "Tomorrow",
     "sessionUntil": "until",
-    "sessionDurationMinutes": "{minutes} min"
+    "sessionDurationMinutes": "{minutes} min",
+    "sessionCoach": "Coach"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -754,7 +755,8 @@
       "listHeaderClass": "Class",
       "listHeaderTime": "Time",
       "listHeaderStatus": "Status",
-      "listHeaderActions": "Actions"
+      "listHeaderActions": "Actions",
+      "coachFallback": "Coach"
     },
     "classes": {
       "title": "Classes",

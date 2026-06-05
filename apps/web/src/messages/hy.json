@@ -10,7 +10,8 @@
     "sessionToday": "Այսօր",
     "sessionTomorrow": "Վաղը",
     "sessionUntil": "մինչև",
-    "sessionDurationMinutes": "{minutes} ր"
+    "sessionDurationMinutes": "{minutes} ր",
+    "sessionCoach": "Մարզիչ"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -766,7 +767,8 @@
       "listHeaderClass": "Դաս",
       "listHeaderTime": "Ժամ",
       "listHeaderStatus": "Կարգավիճակ",
-      "listHeaderActions": "Գործողություններ"
+      "listHeaderActions": "Գործողություններ",
+      "coachFallback": "Մարզիչ"
     },
     "classes": {
       "title": "Դասեր",

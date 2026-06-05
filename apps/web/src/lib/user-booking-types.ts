@@ -6,6 +6,7 @@ export type UserBookingRow = {
     startsAt: string;
     endsAt: string;
     classType: { name: string };
+    coach: { user: { name: string | null } };
   };
 };
 
@@ -17,6 +18,7 @@ export type UserWaitlistRow = {
     startsAt: string;
     endsAt: string;
     classType: { name: string };
+    coach: { user: { name: string | null } };
   };
 };
 

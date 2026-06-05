@@ -1,7 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
+import {
+  resolveSessionCoachName,
+  SessionCoachLine,
+} from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import type { UserBookingRow } from "@/lib/user-booking-types";
@@ -27,15 +32,21 @@ export function UserBookingCompactRow({
   showCancel,
   showRebook,
 }: UserBookingCompactRowProps) {
+  const t = useTranslations("userPages.bookings");
+  const coachName = resolveSessionCoachName(booking.session.coach, t("coachFallback"));
+
   return (
     <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
       <SessionClassTitle variant="list" name={booking.session.classType.name} />
-      <SessionDateTimeHighlight
-        locale={locale}
-        startsAt={booking.session.startsAt}
-        endsAt={booking.session.endsAt}
-        variant="list"
-      />
+      <div className="min-w-0">
+        <SessionDateTimeHighlight
+          locale={locale}
+          startsAt={booking.session.startsAt}
+          endsAt={booking.session.endsAt}
+          variant="list"
+        />
+        <SessionCoachLine coachName={coachName} variant="list" className="mt-2" />
+      </div>
       <span
         className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
       >

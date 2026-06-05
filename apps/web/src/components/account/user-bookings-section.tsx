@@ -1,6 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import {
+  resolveSessionCoachName,
+  SessionCoachLine,
+} from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserBookingBoardCard } from "@/components/account/user-booking-board-card";
@@ -174,12 +178,19 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
                 className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)] md:items-center md:gap-4"
               >
                 <SessionClassTitle variant="list" name={item.session.classType.name} />
-                <SessionDateTimeHighlight
-                  locale={locale}
-                  startsAt={item.session.startsAt}
-                  endsAt={item.session.endsAt}
-                  variant="list"
-                />
+                <div className="min-w-0">
+                  <SessionDateTimeHighlight
+                    locale={locale}
+                    startsAt={item.session.startsAt}
+                    endsAt={item.session.endsAt}
+                    variant="list"
+                  />
+                  <SessionCoachLine
+                    coachName={resolveSessionCoachName(item.session.coach, t("coachFallback"))}
+                    variant="list"
+                    className="mt-2"
+                  />
+                </div>
                 <p className="text-xs uppercase tracking-wide text-sage-500/90">
                   {t("waitlistBadge", { pos: item.position, status: item.status })}
                 </p>

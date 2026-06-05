@@ -10,7 +10,8 @@
     "sessionToday": "Сегодня",
     "sessionTomorrow": "Завтра",
     "sessionUntil": "до",
-    "sessionDurationMinutes": "{minutes} мин"
+    "sessionDurationMinutes": "{minutes} мин",
+    "sessionCoach": "Тренер"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -754,7 +755,8 @@
       "listHeaderClass": "Занятие",
       "listHeaderTime": "Время",
       "listHeaderStatus": "Статус",
-      "listHeaderActions": "Действия"
+      "listHeaderActions": "Действия",
+      "coachFallback": "Тренер"
     },
     "classes": {
       "title": "Классы",

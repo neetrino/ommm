@@ -3,6 +3,10 @@
 import { useTranslations } from "next-intl";
 import { BookSessionButton } from "@/components/account/book-session-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
+import {
+  resolveSessionCoachName,
+  SessionCoachLine,
+} from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -17,7 +21,7 @@ export function UserSessionBoardCard({ locale, session }: UserSessionBoardCardPr
   const t = useTranslations("userPages.classes");
   const booked = session._count.bookings;
   const full = booked >= session.capacity;
-  const coachName = session.coach.user.name ?? t("coachFallback");
+  const coachName = resolveSessionCoachName(session.coach, t("coachFallback"));
   const spots = t("spotsBooked", { booked, capacity: session.capacity });
   const pricing =
     session.priceCents > 0
@@ -26,11 +30,7 @@ export function UserSessionBoardCard({ locale, session }: UserSessionBoardCardPr
 
   return (
     <article className="flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] sm:p-6">
-      <SessionClassTitle
-        variant="board"
-        name={session.classType.name}
-        eyebrow={coachName}
-      />
+      <SessionClassTitle variant="board" name={session.classType.name} />
 
       <SessionDateTimeHighlight
         locale={locale}
@@ -39,6 +39,7 @@ export function UserSessionBoardCard({ locale, session }: UserSessionBoardCardPr
         variant="board"
         className="mt-5"
       />
+      <SessionCoachLine coachName={coachName} variant="board" className="mt-3" />
 
       <div className="mt-4 rounded-2xl border border-white/70 bg-white/60 px-4 py-3">
         <p className="text-sm text-sage-700">

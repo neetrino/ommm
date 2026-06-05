@@ -3,6 +3,10 @@
 import { useTranslations } from "next-intl";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
+import {
+  resolveSessionCoachName,
+  SessionCoachLine,
+} from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import type { UserBookingRow } from "@/lib/user-booking-types";
@@ -29,13 +33,13 @@ export function UserBookingBoardCard({
   showRebook,
 }: UserBookingBoardCardProps) {
   const t = useTranslations("userPages.bookings");
+  const coachName = resolveSessionCoachName(booking.session.coach, t("coachFallback"));
 
   return (
     <article className="flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] sm:p-6">
       <SessionClassTitle
         variant="board"
         name={booking.session.classType.name}
-        eyebrow={t("listHeaderClass")}
         trailing={
           <span
             className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
@@ -52,6 +56,7 @@ export function UserBookingBoardCard({
         variant="board"
         className="mt-5"
       />
+      <SessionCoachLine coachName={coachName} variant="board" className="mt-3" />
 
       <div className="mt-auto border-t border-white/70 pt-4">
         {showCancel && booking.status === "BOOKED" ? (
