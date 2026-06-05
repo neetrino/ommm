@@ -134,25 +134,25 @@ export function AccountProfileInfoForm({
             onClick={startEdit}
           />
         </div>
-        <dl className="space-y-3 pr-14 text-sm">
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.email")}</dt>
-            <dd className="font-medium text-sage-800">{initialUser.email}</dd>
+        <dl className="grid grid-cols-1 gap-3 pr-12 sm:grid-cols-2">
+          <div className="ommm-inset-row">
+            <dt className="text-xs text-sage-500">{tProfile("labels.name")}</dt>
+            <dd className="font-medium text-sage-800">{initialUser.name ?? empty}</dd>
           </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.name")}</dt>
-            <dd className="text-sage-700">{initialUser.name ?? empty}</dd>
+          <div className="ommm-inset-row">
+            <dt className="text-xs text-sage-500">{tProfile("labels.lastName")}</dt>
+            <dd className="font-medium text-sage-800">{initialUser.lastName ?? empty}</dd>
           </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.lastName")}</dt>
-            <dd className="text-sage-700">{initialUser.lastName ?? empty}</dd>
+          <div className="ommm-inset-row sm:col-span-2">
+            <dt className="text-xs text-sage-500">{tProfile("labels.email")}</dt>
+            <dd className="text-sage-700">{initialUser.email}</dd>
           </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.phone")}</dt>
+          <div className="ommm-inset-row">
+            <dt className="text-xs text-sage-500">{tProfile("labels.phone")}</dt>
             <dd className="text-sage-700">{initialUser.phone ?? empty}</dd>
           </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.dateOfBirth")}</dt>
+          <div className="ommm-inset-row">
+            <dt className="text-xs text-sage-500">{tProfile("labels.dateOfBirth")}</dt>
             <dd className="text-sage-700">
               {initialUser.dateOfBirth
                 ? formatDateForUi(initialUser.dateOfBirth)
@@ -160,8 +160,8 @@ export function AccountProfileInfoForm({
             </dd>
           </div>
           {showRole ? (
-            <div>
-              <dt className="text-sage-500">{tStaff("role")}</dt>
+            <div className="ommm-inset-row sm:col-span-2">
+              <dt className="text-xs text-sage-500">{tStaff("role")}</dt>
               <dd className="text-sage-700">{initialUser.role ?? empty}</dd>
             </div>
           ) : null}
@@ -177,70 +177,70 @@ export function AccountProfileInfoForm({
 
   return (
     <form
-      className="flex max-w-xl flex-col gap-4"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
       onSubmit={(event) => {
         event.preventDefault();
         void save();
       }}
     >
       <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-email">
-          {tProfile("labels.email")}
-        </label>
-        <input
-          id="profile-email"
-          type="email"
-          autoComplete="email"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={form.email}
-          onChange={(event) => updateField("email", event.target.value)}
-          disabled={isSaving}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-name">
+        <label className="ommm-label" htmlFor="profile-name">
           {tProfile("labels.name")}
         </label>
         <input
           id="profile-name"
           type="text"
           autoComplete="given-name"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input"
           value={form.name}
           onChange={(event) => updateField("name", event.target.value)}
           disabled={isSaving}
         />
       </div>
       <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-last-name">
+        <label className="ommm-label" htmlFor="profile-last-name">
           {tProfile("labels.lastName")}
         </label>
         <input
           id="profile-last-name"
           type="text"
           autoComplete="family-name"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input"
           value={form.lastName}
           onChange={(event) => updateField("lastName", event.target.value)}
           disabled={isSaving}
         />
       </div>
+      <div className="space-y-1 sm:col-span-2">
+        <label className="ommm-label" htmlFor="profile-email">
+          {tProfile("labels.email")}
+        </label>
+        <input
+          id="profile-email"
+          type="email"
+          autoComplete="email"
+          className="ommm-input"
+          value={form.email}
+          onChange={(event) => updateField("email", event.target.value)}
+          disabled={isSaving}
+        />
+      </div>
       <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-phone">
+        <label className="ommm-label" htmlFor="profile-phone">
           {tProfile("labels.phone")}
         </label>
         <input
           id="profile-phone"
           type="tel"
           autoComplete="tel"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input"
           value={form.phone}
           onChange={(event) => updateField("phone", event.target.value)}
           disabled={isSaving}
         />
       </div>
       <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-dob">
+        <label className="ommm-label" htmlFor="profile-dob">
           {tProfile("labels.dateOfBirth")}
         </label>
         <input
@@ -250,14 +250,14 @@ export function AccountProfileInfoForm({
           inputMode="numeric"
           autoComplete="bday"
           placeholder="DD/MM/YYYY"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input"
           value={form.dateOfBirth}
           onChange={(event) => updateField("dateOfBirth", formatBirthdayInput(event.target.value))}
           disabled={isSaving}
         />
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 sm:col-span-2">
         <OmmButton type="submit" variant="primary" size="sm" disabled={isSaving}>
           {isSaving ? tForm("saving") : tForm("save")}
         </OmmButton>
@@ -273,7 +273,7 @@ export function AccountProfileInfoForm({
       </div>
 
       {message ? (
-        <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>
+        <p className={`sm:col-span-2 text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>
           {message}
         </p>
       ) : null}

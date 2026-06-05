@@ -12,10 +12,13 @@ const PASSWORD_MAX_LENGTH = 128;
 
 type AccountChangePasswordFormProps = {
   hasPassword: boolean;
+  /** When true, section title is provided by the parent card. */
+  embedded?: boolean;
 };
 
 export function AccountChangePasswordForm({
   hasPassword,
+  embedded = false,
 }: AccountChangePasswordFormProps) {
   const router = useRouter();
   const t = useTranslations("forms.changePassword");
@@ -83,24 +86,28 @@ export function AccountChangePasswordForm({
   }
 
   return (
-    <div className="flex max-w-md flex-col gap-4">
-      <div className="space-y-2">
-        <h3 className="text-base font-semibold text-sage-900">
-          {hasPassword ? t("changeTitle") : t("setTitle")}
-        </h3>
-        {!hasPassword ? (
-          <p className="text-sm text-sage-600">{t("setDescription")}</p>
-        ) : null}
-      </div>
+    <div className="flex flex-col gap-4">
+      {!embedded ? (
+        <div className="space-y-2">
+          <h3 className="text-base font-semibold text-sage-900">
+            {hasPassword ? t("changeTitle") : t("setTitle")}
+          </h3>
+          {!hasPassword ? (
+            <p className="text-sm text-sage-600">{t("setDescription")}</p>
+          ) : null}
+        </div>
+      ) : !hasPassword ? (
+        <p className="text-sm text-sage-600">{t("setDescription")}</p>
+      ) : null}
       {hasPassword ? (
         <div className="space-y-1">
-          <label className="text-sm font-medium text-sage-700" htmlFor="current-password">
+          <label className="ommm-label" htmlFor="current-password">
             {t("currentPasswordLabel")}
           </label>
           <PasswordInput
             id="current-password"
             autoComplete="current-password"
-            className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+            className="ommm-input"
             value={currentPassword}
             onChange={(ev) => setCurrentPassword(ev.target.value)}
             showPasswordLabel={t("showPassword")}
@@ -109,13 +116,13 @@ export function AccountChangePasswordForm({
         </div>
       ) : null}
       <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="new-password">
+        <label className="ommm-label" htmlFor="new-password">
           {t("newPasswordLabel")}
         </label>
         <PasswordInput
           id="new-password"
           autoComplete="new-password"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input"
           value={newPassword}
           onChange={(ev) => setNewPassword(ev.target.value)}
           showPasswordLabel={t("showPassword")}
@@ -123,13 +130,13 @@ export function AccountChangePasswordForm({
         />
       </div>
       <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="confirm-password">
+        <label className="ommm-label" htmlFor="confirm-password">
           {t("confirmPasswordLabel")}
         </label>
         <PasswordInput
           id="confirm-password"
           autoComplete="new-password"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
+          className="ommm-input"
           value={confirmPassword}
           onChange={(ev) => setConfirmPassword(ev.target.value)}
           showPasswordLabel={t("showPassword")}

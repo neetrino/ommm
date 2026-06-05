@@ -11,6 +11,7 @@ import {
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { userDisplayInitials } from "@/lib/user-display-initials";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -33,7 +34,6 @@ type RoleProfilePageProps = {
   locale: string;
   showRole?: boolean;
   workspaceNoteVariant?: WorkspaceNoteVariant;
-  /** When set, page title is shown in the dashboard shell header (no duplicate h1). */
   shellChrome?: "member" | "admin";
 };
 
@@ -57,7 +57,8 @@ export async function RoleProfilePage({
   }
 
   const { user } = res.data;
-  const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null);
+  const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null) ?? null;
+  const initials = userDisplayInitials(user.name, user.lastName, user.email);
   const workspaceHeading =
     workspaceNoteVariant !== undefined
       ? tStaff(`workspace.${workspaceNoteVariant}.heading`)
@@ -68,30 +69,33 @@ export async function RoleProfilePage({
       : null;
 
   const body = (
-      <div className="max-w-4xl space-y-10">
-        <AccountSection title={t("accountInfo")}>
-          <AccountProfileInfoForm initialUser={user} showRole={showRole} />
-        </AccountSection>
+    <div className="w-full space-y-8">
+      <AccountSection title={t("accountInfo")}>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+          <div className="mx-auto w-full max-w-[300px] lg:col-span-4 lg:mx-0 lg:max-w-none xl:col-span-3">
+            <AccountHomeImageForm
+              initialPreviewUrl={homePreviewUrl}
+              initials={initials}
+            />
+          </div>
+          <div className="min-w-0 lg:col-span-8 xl:col-span-9">
+            <AccountProfileInfoForm initialUser={user} showRole={showRole} />
+          </div>
+        </div>
+      </AccountSection>
 
-        <AccountSection title={t("security")}>
-          <AccountChangePasswordForm hasPassword={user.hasPassword} />
-        </AccountSection>
+      <AccountSection title={t("security")}>
+        <AccountChangePasswordForm hasPassword={user.hasPassword} embedded />
+      </AccountSection>
 
-        <AccountSection title={t("homeImage")}>
-          <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
+      {workspaceHeading !== null && workspaceBody !== null ? (
+        <AccountSection title={workspaceHeading}>
+          <p className="ommm-body-muted text-sm">{workspaceBody}</p>
         </AccountSection>
+      ) : null}
 
-        <AccountSection title={t("deleteAccount")}>
-          <p className="ommm-body-muted mb-4 max-w-2xl text-sm">{t("deleteAccountDescription")}</p>
-          <DeleteAccountRequestButton />
-        </AccountSection>
-
-        {workspaceHeading !== null && workspaceBody !== null ? (
-          <AccountSection title={workspaceHeading}>
-            <p className="ommm-body-muted">{workspaceBody}</p>
-          </AccountSection>
-        ) : null}
-      </div>
+      <DeleteAccountRequestButton />
+    </div>
   );
 
   if (shellChrome === "admin" || workspaceNoteVariant === "admin") {
