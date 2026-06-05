@@ -14,11 +14,11 @@ function classForVariant(
       primary: "ommm-btn-compact-primary",
       secondary: "ommm-btn-compact-secondary",
       ghost:
-        "inline-flex items-center justify-center rounded-full border border-white/75 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 backdrop-blur-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45",
+        "inline-flex cursor-pointer items-center justify-center rounded-full border border-white/75 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-700 shadow-sm backdrop-blur-sm transition-[background-color,box-shadow,transform,color,border-color] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
       subtle:
-        "inline-flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium text-sage-500 transition-colors hover:bg-white/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45",
+        "inline-flex cursor-pointer items-center justify-center rounded-full px-2 py-1 text-xs font-medium text-sage-500 transition-[background-color,transform,color] hover:bg-white/45 hover:text-sage-700 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
       danger:
-        "inline-flex items-center justify-center rounded-full border border-red-200 bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-800 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45",
+        "inline-flex cursor-pointer items-center justify-center rounded-full border border-red-200 bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-800 shadow-sm transition-[background-color,box-shadow,transform,color,border-color] hover:border-red-300 hover:bg-red-50 hover:text-red-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
     };
     return sm[variant];
   }
@@ -27,11 +27,11 @@ function classForVariant(
     primary: "ommm-cta-primary",
     secondary: "ommm-cta-ghost",
     ghost:
-      "inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-white/75 px-6 py-2.5 text-sm font-medium text-sage-700 shadow-sm backdrop-blur-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45",
+      "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/70 bg-white/75 px-6 py-2.5 text-sm font-medium text-sage-700 shadow-sm backdrop-blur-md transition-[background-color,box-shadow,transform,color,border-color] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
     subtle:
-      "inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-sage-500 transition-colors hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45",
+      "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-sage-500 transition-[background-color,transform,color] hover:bg-white/40 hover:text-sage-700 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
     danger:
-      "inline-flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white/90 px-6 py-2.5 text-sm font-medium text-red-800 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-45",
+      "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-red-200 bg-white/90 px-6 py-2.5 text-sm font-medium text-red-800 shadow-sm transition-[background-color,box-shadow,transform,color,border-color] hover:border-red-300 hover:bg-red-50 hover:text-red-900 hover:shadow-md active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45",
   };
   return md[variant];
 }

@@ -13,7 +13,10 @@ import {
   formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
-import { shouldShowPublicPackageTierName } from "@/components/marketing/packages/public-package-card-format";
+import {
+  formatPublicPackagePlanName,
+  shouldShowPublicPackageTierName,
+} from "@/components/marketing/packages/public-package-card-format";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -69,7 +72,11 @@ export function PublicPackageCategoryListTable({
               days: (count) => t("packagesValidityDays", { count }),
               months: (count) => t("packagesValidityMonths", { count }),
             });
-            const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
+            const planName = formatPublicPackagePlanName(
+              plan.name,
+              plan.sessionsPerMonth,
+            );
+            const showTierName = shouldShowPublicPackageTierName(planName, categoryLabel);
 
             return (
               <div
@@ -79,7 +86,7 @@ export function PublicPackageCategoryListTable({
               >
                 <div className="ommm-public-packages-table-grid">
                   <div className="ommm-admin-packages-table-cell ommm-admin-packages-table-cell--emphasis">
-                    {showTierName ? plan.name : categoryLabel}
+                    {showTierName ? planName : categoryLabel}
                   </div>
                   <div className="ommm-admin-packages-table-cell ommm-admin-packages-table-cell--emphasis">
                     {sessions !== null ? sessions : plan.isUnlimited ? t("packagesSessionsUnlimitedShort") : <EmptyCell />}

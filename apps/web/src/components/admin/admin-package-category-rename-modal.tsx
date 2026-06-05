@@ -15,7 +15,6 @@ type AdminPackageCategoryRenameModalProps = {
   packages: readonly AdminPackageRow[];
   onClose: () => void;
   onRenamed: (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => void;
-  onDeleted: (categoryName: string, deletedPackageIds: readonly string[]) => void;
 };
 
 export function AdminPackageCategoryRenameModal({
@@ -24,7 +23,6 @@ export function AdminPackageCategoryRenameModal({
   packages,
   onClose,
   onRenamed,
-  onDeleted,
 }: AdminPackageCategoryRenameModalProps) {
   const t = useTranslations("adminPages.packages");
   const titleId = useId();
@@ -76,36 +74,6 @@ export function AdminPackageCategoryRenameModal({
     }
   }
 
-  async function onDeleteCategory(): Promise<void> {
-    if (pending) {
-      return;
-    }
-    const trimmedName = categoryName.trim();
-    const count = categoryPackages.length;
-    const confirmed = window.confirm(
-      count > 0
-        ? t("deleteCategoryConfirm", { name: trimmedName, count })
-        : t("deleteCategoryConfirmEmpty", { name: trimmedName }),
-    );
-    if (!confirmed) {
-      return;
-    }
-    setPending(true);
-    setError(null);
-    try {
-      const result = await apiFetch<{ deletedIds: string[] }>("/packages/admin/categories", {
-        method: "DELETE",
-        body: JSON.stringify({ categoryName: trimmedName }),
-      });
-      onDeleted(trimmedName, result.deletedIds);
-      onClose();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("genericError"));
-    } finally {
-      setPending(false);
-    }
-  }
-
   return (
     <OmmModalPortal
       isOpen={isOpen}
@@ -140,24 +108,13 @@ export function AdminPackageCategoryRenameModal({
             {error}
           </p>
         ) : null}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <OmmButton
-            type="button"
-            variant="danger"
-            size="md"
-            onClick={() => void onDeleteCategory()}
-            disabled={pending}
-          >
-            {t("deleteCategoryButton")}
+        <div className="flex flex-wrap justify-end gap-3">
+          <OmmButton type="button" variant="secondary" size="md" onClick={onClose} disabled={pending}>
+            {t("cancelButton")}
           </OmmButton>
-          <div className="flex flex-wrap justify-end gap-3">
-            <OmmButton type="button" variant="secondary" size="md" onClick={onClose} disabled={pending}>
-              {t("cancelButton")}
-            </OmmButton>
-            <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
-              {pending ? t("savingButton") : t("saveButton")}
-            </OmmButton>
-          </div>
+          <OmmButton type="submit" variant="primary" size="md" disabled={pending}>
+            {pending ? t("savingButton") : t("saveButton")}
+          </OmmButton>
         </div>
       </form>
     </OmmModalPortal>

@@ -82,7 +82,7 @@ export default async function AdminBookingsPage({
   }
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <AdminSectionShell>
         <AdminBookingsManagement locale={locale} initial={res.data} />
       </AdminSectionShell>

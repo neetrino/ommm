@@ -13,6 +13,7 @@ export type OmmSelectDropdownProps<T extends string> = {
   disabled?: boolean;
   name?: string;
   required?: boolean;
+  className?: string;
   triggerClassName?: string;
   menuClassName?: string;
   wrapLabel?: boolean;
@@ -34,6 +35,7 @@ export function OmmSelectDropdown<T extends string>({
   disabled = false,
   name,
   required = false,
+  className,
   triggerClassName,
   menuClassName,
   wrapLabel = false,
@@ -51,6 +53,7 @@ export function OmmSelectDropdown<T extends string>({
       name={name}
       required={required}
       disabled={disabled}
+      className={className}
       triggerClassName={triggerClassName}
       menuClassName={menuClassName}
       wrapLabel={wrapLabel}
@@ -66,6 +69,7 @@ export type OmmFilterDropdownProps = {
   options: Array<{ value: string; label: string }>;
   onChange: (value: string) => void;
   disabled?: boolean;
+  className?: string;
   triggerClassName?: string;
   wrapLabel?: boolean;
 };
@@ -79,6 +83,7 @@ export function OmmFilterDropdown({
   options,
   onChange,
   disabled = false,
+  className,
   triggerClassName,
   wrapLabel = false,
 }: OmmFilterDropdownProps) {
@@ -96,6 +101,7 @@ export function OmmFilterDropdown({
       options={dropdownOptions}
       onChange={onChange}
       disabled={disabled}
+      className={className}
       triggerClassName={triggerClassName}
       wrapLabel={wrapLabel}
     />

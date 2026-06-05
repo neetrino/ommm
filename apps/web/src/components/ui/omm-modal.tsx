@@ -33,6 +33,9 @@ type OmmModalPortalProps = {
   isOpen: boolean;
   onClose: () => void;
   backdropAriaLabel: string;
+  dialogRole?: "dialog" | "alertdialog";
+  ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
   closeDisabled?: boolean;
   overlayClassName?: string;
   panelClassName?: string;
@@ -43,6 +46,9 @@ export function OmmModalPortal({
   isOpen,
   onClose,
   backdropAriaLabel,
+  dialogRole = "dialog",
+  ariaLabelledBy,
+  ariaDescribedBy,
   closeDisabled = false,
   overlayClassName = OMM_MODAL_OVERLAY_CLASS,
   panelClassName,
@@ -75,8 +81,10 @@ export function OmmModalPortal({
         disabled={closeDisabled}
       />
       <div
-        role="dialog"
+        role={dialogRole}
         aria-modal="true"
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
         className={`relative z-10 mt-auto w-full sm:mt-0 ${panelClassName ?? ""}`}
       >
         {children}

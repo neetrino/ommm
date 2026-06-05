@@ -96,7 +96,7 @@ function initialState(item?: AdminScheduleItem): FormState {
         ? ""
         : String(item.durationMinutes),
     availableSpots:
-      item?.availableSpots === undefined ? "10" : String(item.availableSpots),
+      item?.availableSpots === undefined ? "" : String(item.availableSpots),
     description: item?.description ?? "",
     isActive: item?.isActive ?? true,
   };

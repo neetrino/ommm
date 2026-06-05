@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { buildHomeWeeklyScheduleDays } from "@/components/marketing/home/build-home-weekly-schedule-days";
 import { getDefaultWeeklyScheduleDay } from "@/components/marketing/home/get-default-weekly-schedule-day";
 import { HomeWeeklyScheduleDayView } from "@/components/marketing/home/home-weekly-schedule-compact-view";
@@ -9,10 +9,9 @@ import { HOME_WEEKLY_SCHEDULE_FALLBACK_ITEMS } from "@/components/marketing/home
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
-const LIVE_SCHEDULE_FETCH_MS = 2_000;
-
 type HomeWeeklyScheduleLiveGridProps = {
   locale: string;
+  initialItems: readonly MarketingScheduleItem[];
 };
 
 function sortScheduleItems(items: readonly MarketingScheduleItem[]): MarketingScheduleItem[] {
@@ -38,13 +37,15 @@ function sortScheduleItems(items: readonly MarketingScheduleItem[]): MarketingSc
   });
 }
 
-/** Renders fallback schedule immediately, then swaps to live API data when available. */
-export function HomeWeeklyScheduleLiveGrid({ locale }: HomeWeeklyScheduleLiveGridProps) {
+/** Renders the shared public schedule data; fallback is used only when no live rows exist. */
+export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyScheduleLiveGridProps) {
   const t = useTranslations("marketingPublic.home");
-  const [items, setItems] = useState<readonly MarketingScheduleItem[]>(
-    HOME_WEEKLY_SCHEDULE_FALLBACK_ITEMS,
+  const activeItems = useMemo(
+    () => sortScheduleItems(initialItems.filter((item) => item.isActive)),
+    [initialItems],
   );
-  const [usingFallback, setUsingFallback] = useState(true);
+  const usingFallback = activeItems.length === 0;
+  const items = usingFallback ? HOME_WEEKLY_SCHEDULE_FALLBACK_ITEMS : activeItems;
 
   const labels = useMemo(
     () => ({
@@ -59,41 +60,6 @@ export function HomeWeeklyScheduleLiveGrid({ locale }: HomeWeeklyScheduleLiveGri
     }),
     [t],
   );
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), LIVE_SCHEDULE_FETCH_MS);
-
-    void (async () => {
-      try {
-        const response = await fetch("/api/v1/schedule/public", {
-          signal: controller.signal,
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          return;
-        }
-
-        const payload = (await response.json()) as MarketingScheduleItem[];
-        const activeItems = sortScheduleItems(payload.filter((item) => item.isActive));
-        if (activeItems.length === 0) {
-          return;
-        }
-
-        setItems(activeItems);
-        setUsingFallback(false);
-      } catch {
-        // Keep fallback rows silently when live schedule is unavailable.
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-    })();
-
-    return () => {
-      controller.abort();
-      window.clearTimeout(timeoutId);
-    };
-  }, []);
 
   const days = useMemo(() => buildHomeWeeklyScheduleDays(items, labels), [items, labels]);
   const initialDay = usingFallback ? "MONDAY" : getDefaultWeeklyScheduleDay();

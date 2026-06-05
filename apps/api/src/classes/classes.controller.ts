@@ -17,6 +17,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { ClassesService } from './classes.service';
 import { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import { CreateClassTypeDto } from './dto/create-class-type.dto';
+import { CreateSessionBatchDto } from './dto/create-session-batch.dto';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
@@ -88,6 +89,13 @@ export class ClassesController {
   @Roles(Role.ADMIN)
   createSession(@Body() dto: CreateSessionDto) {
     return this.classes.createSession(dto);
+  }
+
+  @Post('sessions/batch')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  createSessionBatch(@Body() dto: CreateSessionBatchDto) {
+    return this.classes.createSessionBatch(dto);
   }
 
   @Patch('sessions/:id')

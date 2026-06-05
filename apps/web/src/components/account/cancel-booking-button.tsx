@@ -9,6 +9,9 @@ type Props = {
   bookingId: string;
 };
 
+const CANCEL_BOOKING_BUTTON_CLASSES =
+  "inline-flex cursor-pointer items-center rounded-md px-1 py-0.5 text-xs font-medium text-red-700 transition-[background-color,color,box-shadow] hover:bg-red-50 hover:text-red-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
+
 export function CancelBookingButton({ bookingId }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.cancelBooking");
@@ -37,7 +40,7 @@ export function CancelBookingButton({ bookingId }: Props) {
         type="button"
         disabled={busy}
         onClick={() => void cancel()}
-        className="text-xs font-medium text-red-700 hover:underline disabled:opacity-50"
+        className={CANCEL_BOOKING_BUTTON_CLASSES}
       >
         {t("action")}
       </button>

@@ -49,7 +49,7 @@ export class UpdateCoachDto {
 
   @IsOptional()
   @IsDateString()
-  birthday?: string;
+  birthday?: string | null;
 
   @IsOptional()
   @IsString()
@@ -59,23 +59,21 @@ export class UpdateCoachDto {
   @IsOptional()
   @IsString()
   @MaxLength(4000)
-  bio?: string;
+  bio?: string | null;
 
   @IsOptional()
   @IsString()
-  @MinLength(1)
   @MaxLength(200)
-  specialization?: string;
+  specialization?: string | null;
 
   @IsOptional()
   @IsString()
-  @MinLength(1)
   @MaxLength(80)
-  classType?: string;
+  classType?: string | null;
 
   @IsOptional()
   @IsInt()
-  experienceYears?: number;
+  experienceYears?: number | null;
 
   @IsOptional()
   @IsArray()

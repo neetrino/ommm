@@ -10,6 +10,7 @@ export type AdminPackageRow = {
   id: string;
   name: string;
   categoryName: string;
+  classTypeId?: string | null;
   description: string | null;
   priceCents: number;
   currency: string;

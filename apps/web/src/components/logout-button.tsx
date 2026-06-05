@@ -31,6 +31,23 @@ function LogoutGlyph({ className }: { className?: string }) {
   );
 }
 
+function LogoutPendingOverlay({ label }: { label: string }) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-paper text-sage-700"
+      role="status"
+      aria-live="polite"
+      aria-label={label}
+    >
+      <span
+        className="h-8 w-8 animate-spin rounded-full border-2 border-sage-700/25 border-t-sage-700"
+        aria-hidden
+      />
+      <span className="sr-only">{label}</span>
+    </div>
+  );
+}
+
 export function LogoutButton({ className }: LogoutButtonProps) {
   const t = useTranslations("common");
   const locale = useLocale();
@@ -45,36 +62,38 @@ export function LogoutButton({ className }: LogoutButtonProps) {
     } catch {
       // Cookie clear is best-effort; still leave protected areas.
     } finally {
-      setPending(false);
       router.replace(POST_LOGOUT_PATH, { locale });
       router.refresh();
     }
   }
 
   return (
-    <button
-      type="button"
-      className={[
-        className ?? "",
-        "transition-[transform,opacity] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      onClick={() => {
-        void handleLogout();
-      }}
-      disabled={pending}
-      aria-label={label}
-      title={label}
-    >
-      {pending ? (
-        <span
-          className="inline-block h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-current/30 border-t-current align-middle opacity-80"
-          aria-hidden
-        />
-      ) : (
-        <LogoutGlyph className="inline-block h-5 w-5 shrink-0 align-middle" />
-      )}
-    </button>
+    <>
+      {pending ? <LogoutPendingOverlay label={label} /> : null}
+      <button
+        type="button"
+        className={[
+          className ?? "",
+          "transition-[transform,opacity] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        onClick={() => {
+          void handleLogout();
+        }}
+        disabled={pending}
+        aria-label={label}
+        title={label}
+      >
+        {pending ? (
+          <span
+            className="inline-block h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-current/30 border-t-current align-middle opacity-80"
+            aria-hidden
+          />
+        ) : (
+          <LogoutGlyph className="inline-block h-5 w-5 shrink-0 align-middle" />
+        )}
+      </button>
+    </>
   );
 }

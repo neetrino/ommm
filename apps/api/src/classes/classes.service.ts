@@ -15,6 +15,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
+import type {
+  CreateSessionBatchDto,
+  CreateSessionBatchSlotDto,
+} from './dto/create-session-batch.dto';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import type { UpdateClassTypeDto } from './dto/update-class-type.dto';
 import type { UpdateSessionDto } from './dto/update-session.dto';
@@ -32,6 +36,18 @@ const SESSION_RECURRENCE_PATTERN = {
   WEEKLY: 'WEEKLY',
   CUSTOM_WEEKDAYS: 'CUSTOM_WEEKDAYS',
 } as const;
+
+const SCHEDULE_DAY_INDEX: Record<ScheduleDayOfWeek, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+const MAX_BATCH_SESSIONS = 200;
 
 type SessionRecurrencePatternValue =
   (typeof SESSION_RECURRENCE_PATTERN)[keyof typeof SESSION_RECURRENCE_PATTERN];
@@ -265,6 +281,130 @@ export class ClassesService {
     }
   }
 
+  private assertTimeValue(value: string): void {
+    const [hourRaw, minuteRaw] = value.split(':');
+    const hour = Number(hourRaw);
+    const minute = Number(minuteRaw);
+    if (
+      !Number.isInteger(hour) ||
+      !Number.isInteger(minute) ||
+      hour < 0 ||
+      hour > 23 ||
+      minute < 0 ||
+      minute > 59
+    ) {
+      throw new BadRequestException('Invalid weekly slot time');
+    }
+  }
+
+  private parseLocalDate(value: string): Date {
+    const [yearRaw, monthRaw, dayRaw] = value.slice(0, 10).split('-');
+    const year = Number(yearRaw);
+    const month = Number(monthRaw);
+    const day = Number(dayRaw);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    if (
+      !Number.isInteger(year) ||
+      !Number.isInteger(month) ||
+      !Number.isInteger(day) ||
+      Number.isNaN(parsed.getTime())
+    ) {
+      throw new BadRequestException('Invalid calendar schedule date');
+    }
+    return parsed;
+  }
+
+  private localDateTimeToUtc(
+    date: Date,
+    time: string,
+    timezoneOffsetMinutes: number,
+  ): Date {
+    this.assertTimeValue(time);
+    const [hourRaw, minuteRaw] = time.split(':');
+    const utcMs =
+      Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        Number(hourRaw),
+        Number(minuteRaw),
+      ) +
+      timezoneOffsetMinutes * 60_000;
+    return new Date(utcMs);
+  }
+
+  private buildBatchSessionData(
+    dto: CreateSessionBatchDto,
+  ): Prisma.ClassSessionUncheckedCreateInput[] {
+    const startDate = this.parseLocalDate(dto.startDate);
+    const endDate = this.parseLocalDate(dto.endDate);
+    if (endDate < startDate) {
+      throw new BadRequestException(
+        'Calendar schedule end date must be after start date',
+      );
+    }
+
+    const rows: Prisma.ClassSessionUncheckedCreateInput[] = [];
+    for (
+      const cursor = new Date(startDate);
+      cursor <= endDate;
+      cursor.setUTCDate(cursor.getUTCDate() + 1)
+    ) {
+      for (const slot of dto.slots) {
+        if (cursor.getUTCDay() !== SCHEDULE_DAY_INDEX[slot.weekday]) {
+          continue;
+        }
+        rows.push(this.buildBatchSessionSlotData(dto, slot, cursor));
+      }
+    }
+
+    if (rows.length === 0) {
+      throw new BadRequestException(
+        'Calendar schedule did not generate any classes',
+      );
+    }
+    if (rows.length > MAX_BATCH_SESSIONS) {
+      throw new BadRequestException(
+        `Calendar schedule can generate at most ${MAX_BATCH_SESSIONS} classes`,
+      );
+    }
+    return rows;
+  }
+
+  private buildBatchSessionSlotData(
+    dto: CreateSessionBatchDto,
+    slot: CreateSessionBatchSlotDto,
+    date: Date,
+  ): Prisma.ClassSessionUncheckedCreateInput {
+    const startsAt = this.localDateTimeToUtc(
+      date,
+      slot.startTime,
+      dto.timezoneOffsetMinutes,
+    );
+    const endsAt = this.localDateTimeToUtc(
+      date,
+      slot.endTime,
+      dto.timezoneOffsetMinutes,
+    );
+    this.assertTimeRange(startsAt, endsAt);
+    return {
+      title: dto.title.trim(),
+      description: this.normalizeOptional(dto.description),
+      classTypeId: dto.classTypeId,
+      coachId: dto.coachId,
+      startsAt,
+      endsAt,
+      capacity: dto.capacity,
+      level: this.normalizeOptional(dto.level),
+      priceCents: 0,
+      status: dto.status ?? ClassSessionStatus.ACTIVE,
+      recurrencePattern: SESSION_RECURRENCE_PATTERN.NONE,
+      recurrenceWeekdays: [],
+      recurrenceEndsAt: null,
+      recurrenceCount: null,
+    };
+  }
+
   private buildRecurrencePayloadForCreate(
     dto: CreateSessionDto,
   ): SessionRecurrencePayload {
@@ -367,6 +507,19 @@ export class ClassesService {
     });
     await this.schedule.invalidatePublicCache();
     return this.findSessionAdminOrThrow(created.id);
+  }
+
+  async createSessionBatch(
+    dto: CreateSessionBatchDto,
+  ): Promise<AdminSessionRow[]> {
+    const createRows = this.buildBatchSessionData(dto);
+    const created = await this.prisma.$transaction(
+      createRows.map((data) => this.prisma.classSession.create({ data })),
+    );
+    await this.schedule.invalidatePublicCache();
+    return Promise.all(
+      created.map((session) => this.findSessionAdminOrThrow(session.id)),
+    );
   }
 
   async updateSession(

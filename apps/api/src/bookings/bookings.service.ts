@@ -9,6 +9,7 @@ import {
   BookingChannel,
   type ClassSession,
   ClassSessionStatus,
+  PackageStatus,
   PaymentStatus,
   Prisma,
   Role,
@@ -530,21 +531,52 @@ export class BookingsService {
     const bookings = bookingsRaw as ManagementBooking[];
     const waitlists = waitlistsRaw as ManagementWaitlist[];
 
-    const userIds = Array.from(new Set(bookings.map((row) => row.userId)));
-    const payments = userIds.length
-      ? await this.prisma.payment.findMany({
-          where: { userId: { in: userIds } },
-          select: {
-            id: true,
-            userId: true,
-            status: true,
-            description: true,
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 5000,
-        })
-      : [];
+    const userIds = Array.from(
+      new Set([
+        ...bookings.map((row) => row.userId),
+        ...waitlists.map((row) => row.user.id),
+      ]),
+    );
+    const [payments, memberships] = userIds.length
+      ? await Promise.all([
+          this.prisma.payment.findMany({
+            where: { userId: { in: userIds } },
+            select: {
+              id: true,
+              userId: true,
+              status: true,
+              description: true,
+              createdAt: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5000,
+          }),
+          this.prisma.userPackage.findMany({
+            where: {
+              userId: { in: userIds },
+              status: {
+                in: [
+                  PackageStatus.ACTIVE,
+                  PackageStatus.PENDING,
+                  PackageStatus.PAUSED,
+                ],
+              },
+            },
+            select: {
+              userId: true,
+              sessionsRemaining: true,
+              plan: {
+                select: {
+                  name: true,
+                  sessionsPerMonth: true,
+                  isUnlimited: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          }),
+        ])
+      : [[], []];
 
     const paymentByUser = new Map<string, typeof payments>();
     for (const row of payments) {
@@ -552,12 +584,19 @@ export class BookingsService {
       current.push(row);
       paymentByUser.set(row.userId, current);
     }
+    const membershipByUser = new Map<string, (typeof memberships)[number]>();
+    for (const membership of memberships) {
+      if (!membershipByUser.has(membership.userId)) {
+        membershipByUser.set(membership.userId, membership);
+      }
+    }
 
     const bookingRows = bookings.map((booking) => {
       const paymentStatus = this.resolvePaymentStatus({
         booking,
         payments: paymentByUser.get(booking.userId) ?? [],
       });
+      const membership = membershipByUser.get(booking.userId);
       return {
         id: booking.id,
         recordType: 'BOOKING',
@@ -585,7 +624,15 @@ export class BookingsService {
             name: booking.session.coach.user.name,
           },
         },
-        package: null,
+        package:
+          membership === undefined
+            ? null
+            : {
+                planName: membership.plan.name,
+                sessionsRemaining: membership.sessionsRemaining,
+                sessionsPerMonth: membership.plan.sessionsPerMonth,
+                isUnlimited: membership.plan.isUnlimited,
+              },
         latestNote:
           booking.notes[0] === undefined
             ? null
@@ -598,37 +645,48 @@ export class BookingsService {
       };
     });
 
-    const waitlistRows = waitlists.map((row) => ({
-      id: row.id,
-      recordType: 'WAITLIST',
-      status: 'WAITLISTED',
-      attendanceStatus: null,
-      paymentStatus: 'UNPAID',
-      channel: 'WEBSITE',
-      registerDate: row.createdAt.toISOString(),
-      user: {
-        id: row.user.id,
-        name: row.user.name,
-        email: row.user.email,
-        phone: row.user.phone,
-      },
-      session: {
-        id: row.session.id,
-        startsAt: row.session.startsAt.toISOString(),
-        endsAt: row.session.endsAt.toISOString(),
-        classType: {
-          id: row.session.classType.id,
-          name: row.session.classType.name,
+    const waitlistRows = waitlists.map((row) => {
+      const membership = membershipByUser.get(row.user.id);
+      return {
+        id: row.id,
+        recordType: 'WAITLIST',
+        status: 'WAITLISTED',
+        attendanceStatus: null,
+        paymentStatus: 'UNPAID',
+        channel: 'WEBSITE',
+        registerDate: row.createdAt.toISOString(),
+        user: {
+          id: row.user.id,
+          name: row.user.name,
+          email: row.user.email,
+          phone: row.user.phone,
         },
-        coach: {
-          id: row.session.coach.id,
-          name: row.session.coach.user.name,
+        session: {
+          id: row.session.id,
+          startsAt: row.session.startsAt.toISOString(),
+          endsAt: row.session.endsAt.toISOString(),
+          classType: {
+            id: row.session.classType.id,
+            name: row.session.classType.name,
+          },
+          coach: {
+            id: row.session.coach.id,
+            name: row.session.coach.user.name,
+          },
         },
-      },
-      package: null,
-      latestNote: null,
-      waitlistPosition: row.position,
-    }));
+        package:
+          membership === undefined
+            ? null
+            : {
+                planName: membership.plan.name,
+                sessionsRemaining: membership.sessionsRemaining,
+                sessionsPerMonth: membership.plan.sessionsPerMonth,
+                isUnlimited: membership.plan.isUnlimited,
+              },
+        latestNote: null,
+        waitlistPosition: row.position,
+      };
+    });
 
     let rows = [...bookingRows, ...waitlistRows];
     if (params.query.paymentStatus) {
