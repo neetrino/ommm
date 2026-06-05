@@ -21,7 +21,7 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/admin/guest-users": "admin.guestUsers",
   "/admin/content": "admin.content",
   "/admin/profile": "admin.profile",
-  "/user/home": "user.home",
+  "/user/dashboard": "user.home",
   "/dashboard": "user.home",
   "/user/progress": "user.progress",
   "/user/classes": "user.schedule",

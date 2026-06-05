@@ -37,7 +37,7 @@ type WaitRow = {
   };
 };
 
-export default async function UserHomePage({
+export default async function UserDashboardPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
