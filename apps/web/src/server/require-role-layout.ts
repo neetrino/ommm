@@ -13,6 +13,7 @@ type MePayload = {
     name?: string | null;
     lastName?: string | null;
     email?: string;
+    phone?: string | null;
     homeImageUrl?: string | null;
   };
 };
@@ -23,6 +24,7 @@ export type LayoutAuthUser = {
   name: string | null;
   lastName: string | null;
   email: string;
+  phone: string | null;
   homeImageUrl: string | null;
 };
 
@@ -93,6 +95,7 @@ export async function requireAuthForLayout(locale: string): Promise<LayoutAuthOu
         name: user.name ?? null,
         lastName: user.lastName ?? null,
         email: user.email ?? "",
+        phone: user.phone ?? null,
         homeImageUrl: user.homeImageUrl ?? null,
       },
     },
@@ -121,6 +124,7 @@ export const getOptionalLayoutAuthUser = cache(
       name: user.name ?? null,
       lastName: user.lastName ?? null,
       email: user.email ?? "",
+      phone: user.phone ?? null,
       homeImageUrl: user.homeImageUrl ?? null,
     };
   },

@@ -1,8 +1,11 @@
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
-import { homePathForRole, postAuthPathForRole } from "@/lib/role-home";
+import { postAuthPathForRole } from "@/lib/role-home";
 
 /** Query param on `/register` (and `/login`) for post-auth destination. */
 export const REGISTER_REDIRECT_PARAM = "redirect";
+
+/** Query param on `/login` — locale-free path to return to after auth (USER only). */
+export const RETURN_URL_PARAM = "returnUrl";
 
 /** Redirect target: member schedule after booking from public schedule. */
 export const REGISTER_REDIRECT_SCHEDULE = "schedule";
@@ -19,8 +22,8 @@ export const PACKAGES_SUBSCRIBE_PARAM = "subscribe";
 /** Public packages route (locale-free) used as the subscribe resume destination. */
 const PACKAGES_PATH = "/packages";
 
-/** Member schedule route — matches `dashboard-nav` USER nav. */
-export const USER_SCHEDULE_PATH = "/user/classes";
+/** Public marketing schedule — post-auth landing for schedule booking intents. */
+export const MARKETING_SCHEDULE_PATH = "/schedule";
 
 const BOOKING_QUERY_KEYS = {
   classId: "classId",
@@ -30,9 +33,22 @@ const BOOKING_QUERY_KEYS = {
   endTime: "endTime",
 } as const;
 
+function isSafeReturnPath(path: string): boolean {
+  return path.startsWith("/") && !path.startsWith("//");
+}
+
+/**
+ * Login URL that returns the visitor to a marketing page after authentication.
+ */
+export function buildLoginHrefWithReturnUrl(returnPath: string): string {
+  const params = new URLSearchParams();
+  params.set(RETURN_URL_PARAM, returnPath);
+  return `/login?${params.toString()}`;
+}
+
 /**
  * Register URL for guests booking a class from the public schedule.
- * Preserves booking context and opens Schedule after account creation.
+ * Preserves booking context and returns to `/schedule` after account creation.
  */
 export function buildRegisterHrefForScheduleBooking(
   item: Pick<
@@ -42,6 +58,7 @@ export function buildRegisterHrefForScheduleBooking(
 ): string {
   const params = new URLSearchParams();
   params.set(REGISTER_REDIRECT_PARAM, REGISTER_REDIRECT_SCHEDULE);
+  params.set(RETURN_URL_PARAM, MARKETING_SCHEDULE_PATH);
   params.set(BOOKING_QUERY_KEYS.classId, item.id);
   params.set(BOOKING_QUERY_KEYS.className, item.className);
   params.set(BOOKING_QUERY_KEYS.dayOfWeek, item.dayOfWeek);
@@ -55,12 +72,28 @@ export function buildRegisterHrefForScheduleBooking(
 /**
  * Landing path after successful auth for the given role and optional redirect param.
  */
+export function resolveReturnUrlFromParams(
+  params: Pick<URLSearchParams, "get">,
+): string | null {
+  const raw = params.get(RETURN_URL_PARAM);
+  if (raw === null) {
+    return null;
+  }
+  const trimmed = raw.trim();
+  if (trimmed.length === 0 || !isSafeReturnPath(trimmed)) {
+    return null;
+  }
+  return trimmed;
+}
+
 export function resolvePostAuthPath(role: string, redirectParam: string | null): string {
-  if (
-    role === "USER" &&
-    (redirectParam === REGISTER_REDIRECT_SCHEDULE || redirectParam === "packages")
-  ) {
-    return USER_SCHEDULE_PATH;
+  if (role === "USER") {
+    if (redirectParam === REGISTER_REDIRECT_SCHEDULE) {
+      return MARKETING_SCHEDULE_PATH;
+    }
+    if (redirectParam === "packages") {
+      return PACKAGES_PATH;
+    }
   }
   return postAuthPathForRole(role);
 }
@@ -107,6 +140,10 @@ export function resolveAuthDestination(
   );
   if (intentPath !== null) {
     return intentPath;
+  }
+  const returnUrl = resolveReturnUrlFromParams(params);
+  if (role === "USER" && returnUrl !== null) {
+    return returnUrl;
   }
   return resolvePostAuthPath(role, redirectParam);
 }

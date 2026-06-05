@@ -29,6 +29,7 @@ import {
   useScheduleDayTransition,
 } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
+import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 
 type ScheduleNavState = {
   windowStart: Date;
@@ -71,6 +72,7 @@ function shiftWeek(
 
 type MarketingScheduleViewProps = {
   initialItems: MarketingScheduleItem[];
+  audience: PublicPackageCategoryCardsAudience;
 };
 
 function mapDayToDate(
@@ -101,7 +103,7 @@ function toLocaleTime(locale: string, value: string): string {
   }).format(d);
 }
 
-export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {
+export function MarketingScheduleView({ initialItems, audience }: MarketingScheduleViewProps) {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const [items] = useState<MarketingScheduleItem[]>(initialItems);
@@ -214,6 +216,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                   row={row}
                   studioLabel={t("studioBrand")}
                   bookLabel={t("bookCta")}
+                  audience={audience}
                   subtitle={`${row.instructorName} • ${row.classType}`}
                   timeLabel={toLocaleTime(locale, row.startTime)}
                   durationLabel={

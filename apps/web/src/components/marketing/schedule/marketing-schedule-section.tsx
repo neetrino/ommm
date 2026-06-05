@@ -1,10 +1,17 @@
 import { getTranslations } from "next-intl/server";
 import { MarketingScheduleViewDeferred } from "@/components/marketing/marketing-deferred-sections";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
+import { resolveMarketingAudience } from "@/lib/marketing-audience";
+import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 export async function MarketingScheduleSection({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "marketingPages.schedule" });
-  const { items, loadErrorStatus } = await fetchPublicScheduleItems();
+  const [scheduleData, authUser] = await Promise.all([
+    fetchPublicScheduleItems(),
+    getOptionalLayoutAuthUser(),
+  ]);
+  const { items, loadErrorStatus } = scheduleData;
+  const audience = resolveMarketingAudience(authUser);
 
   if (loadErrorStatus !== null) {
     return (
@@ -14,5 +21,5 @@ export async function MarketingScheduleSection({ locale }: { locale: string }) {
     );
   }
 
-  return <MarketingScheduleViewDeferred initialItems={items} />;
+  return <MarketingScheduleViewDeferred initialItems={items} audience={audience} />;
 }

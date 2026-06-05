@@ -4,6 +4,7 @@ import { buildPackagesPageAccordionCategories } from "@/components/marketing/pac
 import { PackagesPageAccordion } from "@/components/marketing/packages/packages-page-accordion";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
+import { resolveMarketingAudience } from "@/lib/marketing-audience";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
@@ -24,7 +25,7 @@ export async function MarketingPackagesPageContent({
     }),
     getOptionalLayoutAuthUser(),
   ]);
-  const audience = authUser !== null ? "member" : "guest";
+  const audience = resolveMarketingAudience(authUser);
   const apiCategories = res.ok
     ? groupVisiblePublicPackageCategories(
         res.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
