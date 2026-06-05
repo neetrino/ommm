@@ -1,6 +1,9 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
+import { MarketingSiteHeaderFromAuth } from "@/components/marketing/marketing-site-header-from-auth";
+import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
+import { MARKETING_MOBILE_HEADER } from "@/components/marketing/marketing-site-header-layout";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import {
   dashboardNavDefinitionsForRole,
@@ -35,18 +38,29 @@ export async function UserMemberShellLayout({
   const notificationRoute = dashboardNotificationRouteForRole(role);
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
+  const marketingHeaderShellStyle = {
+    "--marketing-mobile-header-height": MARKETING_MOBILE_HEADER.shellHeight,
+  } as CSSProperties;
+
   return (
-    <DashboardAppShell
-      brandHref={USER_ACCOUNT_PATH}
-      brandLabel={tDash("brand.member.title")}
-      brandSubline={tDash("brand.member.subline")}
-      variant="member"
-      contentMaxClass="w-full"
-      navRole="USER"
-      navDefinitions={navDefinitions}
-      notificationRoute={notificationRoute}
+    <div
+      className={offsetStyles.shellWithMarketingHeader}
+      style={marketingHeaderShellStyle}
     >
-      {children}
-    </DashboardAppShell>
+      <MarketingSiteHeaderFromAuth />
+      <DashboardAppShell
+        brandHref={USER_ACCOUNT_PATH}
+        brandLabel={tDash("brand.member.title")}
+        brandSubline={tDash("brand.member.subline")}
+        variant="member"
+        contentMaxClass="w-full"
+        navRole="USER"
+        navDefinitions={navDefinitions}
+        notificationRoute={notificationRoute}
+        withMarketingSiteHeader
+      >
+        {children}
+      </DashboardAppShell>
+    </div>
   );
 }

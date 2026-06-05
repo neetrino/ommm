@@ -7,6 +7,11 @@ export function isMarketingHomePath(pathname: string): boolean {
   return pathname === "/" || pathname === "";
 }
 
+/** Authenticated member area — marketing hero header scroll treatment does not apply. */
+export function isUserAccountPath(pathname: string): boolean {
+  return pathname === "/user" || pathname.startsWith("/user/");
+}
+
 /** Figma **Coaches** `62:2182` — dedicated page surface and hero-style header. */
 export function isMarketingCoachesPath(pathname: string): boolean {
   return pathname === "/coaches" || pathname.startsWith("/coaches/");
@@ -22,6 +27,10 @@ export function isMarketingInnerPath(pathname: string): boolean {
  * liquid-glass pill after scroll (home, coaches, and all other public marketing pages).
  */
 export function isMarketingHeroHeaderPath(pathname: string): boolean {
+  if (isUserAccountPath(pathname)) {
+    return false;
+  }
+
   return (
     isMarketingHomePath(pathname) ||
     isMarketingCoachesPath(pathname) ||

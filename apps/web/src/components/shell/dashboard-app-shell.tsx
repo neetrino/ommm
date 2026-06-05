@@ -19,6 +19,7 @@ import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-varian
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
 import {
   avatarRingClass,
   brandInitial,
@@ -61,6 +62,8 @@ export type DashboardAppShellProps = {
   notificationRoute: DashboardRoleNotificationRoute | null;
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
+  /** Reserve space and adjust sticky regions for the fixed public marketing header. */
+  withMarketingSiteHeader?: boolean;
   trailing?: ReactNode;
   children: ReactNode;
 };
@@ -74,6 +77,7 @@ export function DashboardAppShell({
   notificationRoute,
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
+  withMarketingSiteHeader = false,
   trailing,
   children,
 }: DashboardAppShellProps) {
@@ -181,14 +185,26 @@ export function DashboardAppShell({
       : "lg:w-64";
   const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
   const adminHeaderRef = useAdminStickyHeaderOffset(isOliveShell);
+  const stickyTopClass = withMarketingSiteHeader
+    ? offsetStyles.stickyBelowMarketingHeader
+    : "top-0";
+  const mainHeaderStickyClass = isOliveShell
+    ? `${DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS} ${stickyTopClass}`
+    : `${DASHBOARD_MAIN_HEADER_STICKY_CLASS} ${stickyTopClass}`;
+  const rootClassName = withMarketingSiteHeader
+    ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader}`
+    : pageBackgroundClass(variant);
+  const sidebarStickyClass = withMarketingSiteHeader
+    ? `${offsetStyles.stickyBelowMarketingHeader} ${offsetStyles.sidebarBelowMarketingHeader}`
+    : "lg:top-0 lg:h-screen";
 
   return (
-    <div className={pageBackgroundClass(variant)}>
+    <div className={rootClassName}>
       <div
         className={`mx-auto flex min-h-screen w-full flex-col lg:flex-row ${contentMaxClass}`}
       >
         <aside
-          className={`hidden shrink-0 flex-col shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${
+          className={`hidden shrink-0 flex-col shadow-sm lg:sticky lg:flex ${sidebarStickyClass} ${asideWidth} ${
             isOliveShell
               ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
               : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
@@ -297,7 +313,7 @@ export function DashboardAppShell({
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header
             ref={isOliveShell ? adminHeaderRef : undefined}
-            className={`${isOliveShell ? DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS : DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
+            className={`${mainHeaderStickyClass} shrink-0`}
           >
             {variant === "admin" ? (
               <div className="ommm-admin-content mx-auto w-full">
