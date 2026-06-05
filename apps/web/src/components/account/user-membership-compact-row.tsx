@@ -6,10 +6,13 @@ import {
   buildMembershipDisplayModel,
   memberStatusClassName,
 } from "@/components/account/user-membership-display";
+import { UserPackageLifecycleActions } from "@/components/account/user-package-lifecycle-actions";
 import {
+  USER_PACKAGES_LIST_ACTIONS_CELL,
   USER_PACKAGES_LIST_CELL_CLASS,
   USER_PACKAGES_LIST_PERIOD_CELL,
   USER_PACKAGES_LIST_ROW_CLASS,
+  USER_PACKAGES_LIST_SPACER_CELL,
   USER_PACKAGES_LIST_STATUS_CELL,
 } from "@/components/account/user-packages-list-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -98,6 +101,21 @@ export function UserMembershipCompactRow({
       <div className={USER_PACKAGES_LIST_STATUS_CELL}>
         <MobileLabel label={t("listHeaderStatus")} />
         <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_SPACER_CELL} aria-hidden="true" />
+
+      <div
+        className={USER_PACKAGES_LIST_ACTIONS_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
+        <MobileLabel label={t("listHeaderActions")} />
+        <UserPackageLifecycleActions
+          userPackageId={membership.id}
+          status={status}
+          layout="list"
+        />
       </div>
     </article>
   );

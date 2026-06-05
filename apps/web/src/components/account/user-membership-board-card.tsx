@@ -1,6 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import {
+  hasPackageLifecycleActions,
+  UserPackageLifecycleActions,
+} from "@/components/account/user-package-lifecycle-actions";
 import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import { PackageUsageBar } from "@/components/account/package-usage-bar";
 import {
@@ -100,6 +104,20 @@ export function UserMembershipBoardCard({
 
       {status === "PENDING" ? (
         <p className="mt-4 text-sm text-sage-600">{t("awaitingPaymentConfirmation")}</p>
+      ) : null}
+
+      {hasPackageLifecycleActions(status) ? (
+        <div
+          className="mt-auto border-t border-white/70 pt-4"
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <UserPackageLifecycleActions
+            userPackageId={membership.id}
+            status={status}
+            layout="board"
+          />
+        </div>
       ) : null}
     </article>
   );
