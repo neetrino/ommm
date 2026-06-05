@@ -47,6 +47,8 @@ export const PACKAGES_PAGE_ACCORDION_FIGMA = {
   subscribeButtonHeightPx: 30,
   subscribeFontSizePx: 16,
   subscribeColumnOffsetPx: 10,
+  /** Collapsed panel bottom padding (5px) + FAB wrap padding (4px). */
+  fabFooterInsetPx: 9,
   transitionDurationMs: 450,
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;

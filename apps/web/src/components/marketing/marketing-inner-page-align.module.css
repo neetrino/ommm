@@ -48,7 +48,6 @@
   overflow-x: clip;
 }
 
-.innerPageContent:has([data-packages-detail]),
-.innerPageContent:has([data-packages-accordion]) {
+.innerPageContent:has([data-packages-detail]) {
   overflow-x: auto;
 }

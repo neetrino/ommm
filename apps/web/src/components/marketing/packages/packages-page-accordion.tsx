@@ -55,6 +55,7 @@ function panelStyleVars(categoryId: string, accentColor: string): CSSProperties 
     ["--packages-page-subscribe-height" as string]: `${accordion.subscribeButtonHeightPx}px`,
     ["--packages-page-subscribe-size" as string]: `${accordion.subscribeFontSizePx}px`,
     ["--packages-page-subscribe-offset" as string]: `${accordion.subscribeColumnOffsetPx}px`,
+    ["--packages-page-fab-footer-inset" as string]: `${accordion.fabFooterInsetPx}px`,
   };
 }
 
@@ -174,12 +175,9 @@ function CollapsedPanel({ category, onOpen, openLabel }: CollapsedPanelProps) {
   const accentColor = resolvePackagesPageCategoryAccentColor(category.id);
 
   return (
-    <button
-      type="button"
+    <div
       className={`${accordionStyles.panel} ${accordionStyles.panelCollapsed}`}
       style={panelStyleVars(category.id, accentColor)}
-      aria-label={openLabel}
-      onClick={() => onOpen(category.id)}
     >
       <div className={accordionStyles.collapsedTop}>
         <p className={accordionStyles.collapsedTitle}>{category.label}</p>
@@ -187,10 +185,15 @@ function CollapsedPanel({ category, onOpen, openLabel }: CollapsedPanelProps) {
           <p className={accordionStyles.collapsedPrice}>{category.priceAmount}</p>
         ) : null}
       </div>
-      <div className={accordionStyles.collapsedFabWrap}>
-        <PackagesPageCardFab direction="open" />
+      <div className={`${accordionStyles.panelFabFooter} ${accordionStyles.collapsedFabWrap}`}>
+        <PackagesPageCardFab
+          direction="open"
+          ariaLabel={openLabel}
+          className={accordionStyles.openFab}
+          onClick={() => onOpen(category.id)}
+        />
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -218,7 +221,7 @@ function ExpandedPanel({ locale, category, onClose, closeLabel }: ExpandedPanelP
           ) : null}
         </div>
       </div>
-      <div className={accordionStyles.expandedFooter}>
+      <div className={`${accordionStyles.panelFabFooter} ${accordionStyles.expandedFooter}`}>
         <button
           type="button"
           className={accordionStyles.closeFab}
@@ -246,13 +249,7 @@ function DefaultCategoryCard({
   detailsLabel,
 }: DefaultCategoryCardProps) {
   return (
-    <button
-      type="button"
-      className={cardStyles.card}
-      style={defaultCardStyleVars(category.id)}
-      aria-label={openLabel}
-      onClick={() => onOpen(category.id)}
-    >
+    <div className={cardStyles.card} style={defaultCardStyleVars(category.id)}>
       <div className={cardStyles.cardTop}>
         <h2 className={cardStyles.title}>{category.label}</h2>
         {category.priceAmount !== null ? (
@@ -266,9 +263,13 @@ function DefaultCategoryCard({
       </div>
       <div className={cardStyles.cardFooter}>
         <p className={cardStyles.detailsLabel}>{detailsLabel}</p>
-        <PackagesPageCardFab direction="open" />
+        <PackagesPageCardFab
+          direction="open"
+          ariaLabel={openLabel}
+          onClick={() => onOpen(category.id)}
+        />
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -282,16 +283,6 @@ function resolveAccordionSlotClass(
   return isExpanded
     ? `${accordionStyles.accordionSlot} ${accordionStyles.accordionSlotExpanded}`
     : `${accordionStyles.accordionSlot} ${accordionStyles.accordionSlotCollapsed}`;
-}
-
-function resolveAccordionSlotContentKey(
-  isAccordionMode: boolean,
-  isExpanded: boolean,
-): string {
-  if (!isAccordionMode) {
-    return "default";
-  }
-  return isExpanded ? "expanded" : "collapsed";
 }
 
 type DesktopAccordionSlotProps = {
@@ -317,7 +308,6 @@ function DesktopAccordionSlot({
 }: DesktopAccordionSlotProps) {
   const isAccordionMode = expandedCategory !== null;
   const isExpanded = expandedCategory?.id === category.id;
-  const contentKey = resolveAccordionSlotContentKey(isAccordionMode, isExpanded);
 
   let panel = (
     <DefaultCategoryCard
@@ -345,7 +335,7 @@ function DesktopAccordionSlot({
 
   return (
     <div className={resolveAccordionSlotClass(isAccordionMode, isExpanded)}>
-      <div key={contentKey} className={accordionStyles.slotContent}>
+      <div className={accordionStyles.slotContent}>
         {panel}
       </div>
     </div>

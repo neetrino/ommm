@@ -25,13 +25,26 @@ export function PackagesPageCardFabImage({ direction = "open" }: PackagesPageCar
 
 type PackagesPageCardFabProps = {
   direction?: "open" | "close";
+  ariaLabel: string;
+  onClick: () => void;
+  className?: string;
 };
 
 /** Figma Packages card FAB — node `395:1300` in row `395:1652`. */
-export function PackagesPageCardFab({ direction = "open" }: PackagesPageCardFabProps) {
+export function PackagesPageCardFab({
+  direction = "open",
+  ariaLabel,
+  onClick,
+  className,
+}: PackagesPageCardFabProps) {
   return (
-    <span className={cardStyles.fab} aria-hidden>
+    <button
+      type="button"
+      className={className ?? cardStyles.fab}
+      aria-label={ariaLabel}
+      onClick={onClick}
+    >
       <PackagesPageCardFabImage direction={direction} />
-    </span>
+    </button>
   );
 }

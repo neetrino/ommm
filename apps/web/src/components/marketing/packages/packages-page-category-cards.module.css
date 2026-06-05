@@ -2,6 +2,14 @@
  * Figma Packages page card row `395:1652`.
  */
 
+.packagesPageRoot {
+  padding-block: 2px;
+}
+
+.packagesAccordionScroll {
+  overflow-x: auto;
+}
+
 .grid {
   display: grid;
   width: 100%;
@@ -15,7 +23,8 @@
   width: 100%;
   min-width: 0;
   overflow-x: auto;
-  overflow-y: hidden;
+  padding-block: 2px;
+  margin-block: -2px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -46,7 +55,7 @@
   aspect-ratio: var(--packages-page-card-aspect-ratio);
   flex-direction: column;
   justify-content: space-between;
-  overflow: hidden;
+  overflow: visible;
   border: none;
   border-radius: var(--packages-page-card-radius);
   padding:
@@ -54,37 +63,23 @@
     clamp(0.75rem, 9.6%, 1.1875rem)
     clamp(1.25rem, 8%, 2rem);
   text-decoration: none;
-  cursor: pointer;
   text-align: left;
   background-color: transparent;
-  transition:
-    transform 200ms ease,
-    box-shadow 200ms ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px -12px rgba(45, 40, 35, 0.28);
-}
-
-.card:active {
-  transform: translateY(0);
-}
-
-.card:focus-visible {
-  outline: 2px solid #577f91;
-  outline-offset: 3px;
 }
 
 .cardTop {
   display: flex;
+  width: 100%;
   min-width: 0;
   flex-direction: column;
+  align-items: center;
   gap: clamp(0.5rem, 4%, 1.5rem);
+  text-align: center;
 }
 
 .title {
   margin: 0;
+  width: 100%;
   max-width: 10.375rem;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: clamp(1.25rem, 3vw, var(--packages-page-title-size));
@@ -93,12 +88,14 @@
   line-height: var(--packages-page-title-line-height);
   letter-spacing: var(--packages-page-title-letter-spacing);
   color: var(--packages-page-text-color);
+  text-align: center;
   text-wrap: balance;
 }
 
 .priceBlock {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.125rem;
 }
 
@@ -109,6 +106,7 @@
   font-weight: 700;
   line-height: 1.2;
   color: var(--packages-page-text-color);
+  text-align: center;
 }
 
 .price {
@@ -118,25 +116,29 @@
   font-weight: 700;
   line-height: 1.2;
   color: var(--packages-page-text-color);
+  text-align: center;
   white-space: nowrap;
 }
 
 .cardFooter {
   display: flex;
+  min-height: var(--packages-page-fab-size);
   align-items: center;
-  justify-content: space-between;
   gap: 0.5rem;
 }
 
 .detailsLabel {
+  flex: 1;
+  min-width: 0;
   margin: 0;
-  padding-left: calc(var(--packages-page-details-offset-left) - var(--packages-page-content-padding-left));
+  padding: 0;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: clamp(0.875rem, 2vw, var(--packages-page-details-size));
   font-weight: 600;
   font-style: italic;
   line-height: 1.2;
   color: var(--packages-page-text-color);
+  text-align: center;
 }
 
 .fab {
@@ -146,11 +148,16 @@
   justify-content: center;
   width: var(--packages-page-fab-size);
   height: var(--packages-page-fab-size);
-  transition: transform 150ms ease;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
-.card:hover .fab {
-  transform: scale(1.05);
+.fab:focus-visible {
+  outline: 2px solid #577f91;
+  outline-offset: 3px;
+  border-radius: 9999px;
 }
 
 .desktopOnly {
@@ -171,13 +178,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .card,
-  .fab {
-    transition: none;
-  }
-
-  .card:hover {
-    transform: none;
-  }
-}

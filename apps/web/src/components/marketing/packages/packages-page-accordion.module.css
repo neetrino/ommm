@@ -3,6 +3,7 @@
  */
 
 .accordionRow {
+  position: relative;
   display: flex;
   width: 100%;
   max-width: none;
@@ -13,6 +14,8 @@
 }
 
 .accordionSlot {
+  position: relative;
+  z-index: 0;
   display: flex;
   height: 100%;
   min-width: 0;
@@ -20,8 +23,7 @@
   transition:
     flex-grow var(--packages-page-transition-duration) var(--packages-page-transition-easing),
     flex-basis var(--packages-page-transition-duration) var(--packages-page-transition-easing),
-    flex-shrink var(--packages-page-transition-duration) var(--packages-page-transition-easing),
-    opacity var(--packages-page-transition-duration) var(--packages-page-transition-easing);
+    flex-shrink var(--packages-page-transition-duration) var(--packages-page-transition-easing);
 }
 
 .accordionSlotCollapsed {
@@ -29,6 +31,7 @@
 }
 
 .accordionSlotExpanded {
+  z-index: 1;
   flex: 1 1 0;
   min-width: 0;
 }
@@ -39,23 +42,16 @@
   height: 100%;
   min-height: 0;
   flex: 1;
-  animation: packagesSlotContentIn var(--packages-page-transition-duration)
-    var(--packages-page-transition-easing);
+}
+
+.accordionSlotExpanded .slotContent {
+  overflow: hidden;
 }
 
 .accordionRow .card {
   height: 100%;
   aspect-ratio: auto;
-}
-
-@keyframes packagesSlotContentIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  text-align: center;
 }
 
 .panel {
@@ -65,26 +61,18 @@
   height: 100%;
   min-width: 0;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   border: none;
   border-radius: var(--packages-page-card-radius);
   background-image: var(--packages-page-panel-gradient);
   text-align: left;
-  transition:
-    box-shadow 200ms ease,
-    transform 200ms ease;
 }
 
 .panelCollapsed {
-  overflow: hidden;
+  align-items: stretch;
   justify-content: space-between;
-  padding: 1.5625rem 1.25rem 0.3125rem;
-  cursor: pointer;
-}
-
-.panelCollapsed:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px -12px rgba(45, 40, 35, 0.22);
+  padding: 1.5625rem 0.75rem 0;
+  text-align: center;
 }
 
 .panelExpanded {
@@ -93,7 +81,7 @@
   padding:
     clamp(1.25rem, 2.5vw, 2.6875rem)
     clamp(1rem, 2vw, 2.6875rem)
-    clamp(1rem, 1.8vw, 1.25rem);
+    0;
 }
 
 .expandedBody {
@@ -111,19 +99,19 @@
   min-width: var(--packages-page-expanded-table-min-width);
 }
 
-.panel:focus-visible {
-  outline: 2px solid #577f91;
-  outline-offset: 3px;
-}
-
 .collapsedTop {
   display: flex;
+  width: 100%;
   flex-direction: column;
+  align-items: center;
   gap: 1.25rem;
+  text-align: center;
 }
 
 .collapsedTitle {
-  margin: 0;
+  margin: 0 auto;
+  width: auto;
+  max-width: 100%;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--packages-page-collapsed-title-size);
   font-weight: 700;
@@ -131,22 +119,32 @@
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--packages-page-text-color);
+  text-align: center;
   text-wrap: balance;
 }
 
 .collapsedPrice {
-  margin: 0;
+  margin: 0 auto;
+  width: auto;
+  max-width: 100%;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--packages-page-collapsed-price-size);
   font-weight: 700;
   line-height: 1.2;
   color: var(--packages-page-text-color);
+  text-align: center;
+}
+
+.panelFabFooter {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-end;
+  min-height: calc(var(--packages-page-fab-size) + var(--packages-page-fab-footer-inset));
+  padding-bottom: var(--packages-page-fab-footer-inset);
 }
 
 .collapsedFabWrap {
-  display: flex;
   justify-content: center;
-  padding-bottom: 0.25rem;
 }
 
 .expandedHeader {
@@ -303,12 +301,11 @@
 }
 
 .expandedFooter {
-  display: flex;
   justify-content: flex-end;
   margin-top: auto;
-  padding-top: 1.25rem;
 }
 
+.openFab,
 .closeFab {
   display: inline-flex;
   align-items: center;
@@ -319,40 +316,23 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: transform 150ms ease;
 }
 
-.closeFab:hover {
-  transform: scale(1.05);
+.openFab:focus-visible,
+.closeFab:focus-visible {
+  outline: 2px solid #577f91;
+  outline-offset: 3px;
+  border-radius: 9999px;
 }
 
 .fabImage {
   display: block;
   width: 100%;
   height: 100%;
-  transition: transform 150ms ease;
 }
 
 .fabImageClose {
   transform: rotate(180deg);
-}
-
-.closeFab:hover .fabImageClose {
-  transform: rotate(180deg);
-}
-
-.fab {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: var(--packages-page-fab-size);
-  height: var(--packages-page-fab-size);
-  transition: transform 150ms ease;
-}
-
-.panelCollapsed:hover .fab {
-  transform: scale(1.05);
 }
 
 .mobileExpanded {
@@ -362,35 +342,6 @@
   border-radius: var(--packages-page-card-radius);
   background-image: var(--packages-page-panel-gradient);
   padding: 1.5rem 1.25rem;
-  animation: packagesMobileExpand var(--packages-page-transition-duration)
-    var(--packages-page-transition-easing);
-}
-
-@keyframes packagesMobileExpand {
-  from {
-    opacity: 0;
-    transform: translateY(0.75rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.mobileCarouselViewport {
-  animation: packagesMobileCollapse var(--packages-page-transition-duration)
-    var(--packages-page-transition-easing);
-}
-
-@keyframes packagesMobileCollapse {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
 }
 
 .mobileExpandedHeader {
@@ -419,23 +370,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .accordionSlot,
-  .panel,
-  .fab,
-  .closeFab {
-    transition: none;
-  }
-
-  .slotContent,
-  .mobileExpanded,
-  .mobileCarouselViewport {
-    animation: none;
-  }
-
-  .panelCollapsed:hover,
-  .panelCollapsed:hover .fab,
-  .closeFab:hover {
-    transform: none;
-  }
-}

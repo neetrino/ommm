@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import { buildPackagesPageAccordionCategories } from "@/components/marketing/packages/packages-page-category-data";
 import { PackagesPageAccordion } from "@/components/marketing/packages/packages-page-accordion";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
@@ -28,13 +29,15 @@ export async function MarketingPackagesPageContent({
   });
 
   return (
-    <div className="w-full min-w-0" data-packages-accordion="">
+    <div className={`w-full min-w-0 ${cardStyles.packagesPageRoot}`} data-packages-accordion="">
       {!res.ok ? (
         <p className="app-alert-warn mb-6" role="status">
           {m("packagesError")}
         </p>
       ) : null}
-      <PackagesPageAccordion locale={locale} categories={categories} />
+      <div className={cardStyles.packagesAccordionScroll}>
+        <PackagesPageAccordion locale={locale} categories={categories} />
+      </div>
       <p className="mt-8 text-center text-xs text-sage-500">{m("packagesLoginHint")}</p>
     </div>
   );
