@@ -14,8 +14,9 @@ import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
-/** Side sheet occupies half the viewport width on larger screens. */
-const MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS = "w-full sm:w-1/2 sm:max-w-[50vw]";
+/** Side sheet — one quarter of the viewport width on larger screens. */
+const MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-1/4 sm:max-w-[25vw] sm:min-w-[18rem]";
 
 /** Side sheet height — 90% of the viewport, anchored to the bottom edge. */
 const MEMBERSHIP_DETAILS_SHEET_HEIGHT_CLASS = "h-[90dvh]";
@@ -146,11 +147,15 @@ export function UserMembershipDetailsSheet({
         {status === "PENDING" ? (
           <p className="mt-4 text-sm text-sage-600">{t("awaitingPaymentConfirmation")}</p>
         ) : null}
-
-        <div className="mt-5 border-t border-white/60 pt-5">
-          <UserPackageLifecycleActions userPackageId={membership.id} status={status} />
-        </div>
       </div>
+
+      <footer className="shrink-0 border-t border-white/60 px-5 py-5 sm:px-6">
+        <UserPackageLifecycleActions
+          userPackageId={membership.id}
+          status={status}
+          layout="sheetFooter"
+        />
+      </footer>
     </OmmDrawerPortal>
   );
 }
