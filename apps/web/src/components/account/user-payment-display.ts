@@ -42,6 +42,22 @@ export function resolvePaymentMethodLabel(
   return t(`paymentMethods.${paymentMethod}`);
 }
 
+export function toPaymentIso(value: Date | string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  return date.toISOString();
+}
+
+export function formatPaymentTime(value: Date | string, locale: string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
 export function statusSortRank(status: string): number {
   if (status === "PENDING") return 0;
   if (status === "FAILED") return 1;

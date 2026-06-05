@@ -98,7 +98,9 @@ type OmmDrawerPortalProps = {
   isOpen: boolean;
   onClose: () => void;
   backdropAriaLabel: string;
+  ariaLabelledBy?: string;
   closeDisabled?: boolean;
+  overlayClassName?: string;
   panelClassName?: string;
   children: ReactNode;
 };
@@ -107,7 +109,9 @@ export function OmmDrawerPortal({
   isOpen,
   onClose,
   backdropAriaLabel,
+  ariaLabelledBy,
   closeDisabled = false,
+  overlayClassName = OMM_DRAWER_OVERLAY_CLASS,
   panelClassName = "relative z-10 h-full w-full max-w-md overflow-auto bg-white p-5 shadow-xl",
   children,
 }: OmmDrawerPortalProps) {
@@ -131,13 +135,20 @@ export function OmmDrawerPortal({
   }
 
   return createPortal(
-    <div className={OMM_DRAWER_OVERLAY_CLASS} role="presentation">
+    <div className={overlayClassName} role="presentation">
       <OmmModalBackdrop
         onClose={onClose}
         ariaLabel={backdropAriaLabel}
         disabled={closeDisabled}
       />
-      <aside className={panelClassName}>{children}</aside>
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={ariaLabelledBy}
+        className={panelClassName}
+      >
+        {children}
+      </aside>
     </div>,
     document.body,
   );

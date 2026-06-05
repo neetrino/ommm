@@ -698,6 +698,7 @@
       "membershipDetailsSessionsRemaining": "Осталось занятий",
       "membershipDetailsUsage": "Использование",
       "membershipDetailsPeriodStart": "Начало периода",
+      "sheetTabGeneral": "Общее",
       "sessionsUsed": "Использовано: {count}",
       "viewSwitcherAria": "Режим отображения пакетов",
       "viewList": "Список",

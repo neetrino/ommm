@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { UserMembershipBoardCard } from "@/components/account/user-membership-board-card";
 import { UserMembershipCompactRow } from "@/components/account/user-membership-compact-row";
-import { UserMembershipDetailsModal } from "@/components/account/user-membership-details-modal";
+import { UserMembershipDetailsSheet } from "@/components/account/user-membership-details-sheet";
 import { normalizeUserPackageStatus } from "@/components/account/user-membership-display";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
 import { USER_PACKAGES_LIST_HEADER_CLASS, USER_PACKAGES_LIST_TABLE_CLASS } from "@/components/account/user-packages-list-layout";
@@ -91,8 +91,6 @@ export function UserPackagesSection({
             <span>{t("listHeaderSessions")}</span>
             <span>{t("listHeaderPeriod")}</span>
             <span>{t("listHeaderStatus")}</span>
-            <span aria-hidden="true" />
-            <span>{t("listHeaderActions")}</span>
           </div>
           {memberships.map((membership) => {
             const status = normalizeUserPackageStatus(membership.status);
@@ -109,7 +107,7 @@ export function UserPackagesSection({
         </div>
       )}
 
-      <UserMembershipDetailsModal
+      <UserMembershipDetailsSheet
         membership={selectedMembership}
         locale={locale}
         status={selectedStatus}

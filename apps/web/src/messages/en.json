@@ -698,6 +698,7 @@
       "membershipDetailsSessionsRemaining": "Sessions remaining",
       "membershipDetailsUsage": "Usage",
       "membershipDetailsPeriodStart": "Period start",
+      "sheetTabGeneral": "General",
       "sessionsUsed": "{count} used",
       "viewSwitcherAria": "Packages display mode",
       "viewList": "List",

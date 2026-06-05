@@ -7,6 +7,8 @@ import {
   resolvePaymentMethodLabel,
   resolveRelatedItemName,
   statusBadgeClass,
+  toPaymentIso,
+  formatPaymentTime,
 } from "@/components/account/user-payment-display";
 import {
   USER_PAYMENTS_LIST_CELL_CLASS,
@@ -23,22 +25,6 @@ type UserPaymentCompactRowProps = {
   locale: string;
   payment: UserPaymentRow;
 };
-
-function formatPaymentTime(value: Date | string, locale: string): string {
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-}
-
-function toPaymentIso(value: Date | string): string {
-  const date = value instanceof Date ? value : new Date(value);
-  return date.toISOString();
-}
 
 export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRowProps) {
   const t = useTranslations("userPages.payments");

@@ -7,7 +7,7 @@ type SessionDateTimeHighlightProps = {
   locale: string;
   startsAt: string;
   endsAt: string;
-  variant: "board" | "listDate" | "listDateYear" | "listTime";
+  variant: "board" | "boardDateYear" | "listDate" | "listDateYear" | "listTime";
   className?: string;
 };
 
@@ -82,6 +82,42 @@ export function SessionDateTimeHighlight({
               {display.durationMinutes > 0
                 ? ` · ${t("sessionDurationMinutes", { minutes: display.durationMinutes })}`
                 : null}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "boardDateYear") {
+    return (
+      <div className={`${BOARD_SHELL} ${className}`.trim()}>
+        <div className="flex items-center gap-4">
+          <div className={CALENDAR_CHIP_BOARD} aria-hidden="true">
+            <span className="text-[10px] font-bold tabular-nums tracking-[0.08em] text-sand-600">
+              {display.year}
+            </span>
+            <span className="font-serif text-[2rem] leading-none text-sage-950">
+              {display.dayNumber}
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-sage-600">
+              {display.monthShort}
+            </span>
+          </div>
+          <div className="min-w-0 flex-1">
+            {relativeLabel !== null ? (
+              <span
+                className={`mb-2 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${relativeBadgeClass(display.relativeDay as "today" | "tomorrow")}`}
+              >
+                {relativeLabel}
+              </span>
+            ) : (
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
+                {display.dateLine}
+              </p>
+            )}
+            <p className="mt-1 font-serif text-3xl leading-none tracking-tight text-sage-950 sm:text-[2rem]">
+              {display.startTime}
             </p>
           </div>
         </div>

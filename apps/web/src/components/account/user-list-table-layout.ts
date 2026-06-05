@@ -49,9 +49,9 @@ export const USER_BOOKINGS_LIST_GRID_COLS =
 export const USER_PAYMENTS_LIST_GRID_COLS =
   "minmax(0,11rem)_minmax(8.5rem,auto)_1fr_3.25rem_minmax(5.5rem,auto)_minmax(7rem,auto)_minmax(7.5rem,auto)";
 
-/** Package · Price · Sessions · Period · Status · ⟨flex⟩ · Action */
+/** Package · Price · Sessions · Period · Status · ⟨flex⟩ */
 export const USER_PACKAGES_LIST_GRID_COLS =
-  "minmax(0,11rem)_minmax(8rem,auto)_minmax(9rem,auto)_minmax(9.5rem,auto)_minmax(6.5rem,auto)_1fr_auto";
+  "minmax(0,11rem)_minmax(8rem,auto)_minmax(9rem,auto)_minmax(7.5rem,auto)_minmax(6.5rem,auto)_1fr";
 
 export const USER_LIST_TABLE_GRID_GAP = "md:gap-x-4";
 

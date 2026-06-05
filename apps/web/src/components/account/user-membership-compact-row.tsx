@@ -1,18 +1,16 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import {
   buildMembershipDisplayModel,
   memberStatusClassName,
 } from "@/components/account/user-membership-display";
 import {
-  USER_PACKAGES_LIST_ACTIONS_CLASS,
   USER_PACKAGES_LIST_CELL_CLASS,
+  USER_PACKAGES_LIST_PERIOD_CELL,
   USER_PACKAGES_LIST_ROW_CLASS,
-  USER_PACKAGES_LIST_SPACER_CELL,
 } from "@/components/account/user-packages-list-layout";
-import { OmmButton } from "@/components/ui/omm-button";
-import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
@@ -34,14 +32,23 @@ export function UserMembershipCompactRow({
   const display = buildMembershipDisplayModel(membership, status, t, m);
   const priceLabel = formatAmdFromCents(membership.plan.priceCents, locale);
   const durationLabel = m("packagesPeriodDaysShort", { days: membership.plan.periodDays });
-  const periodStartLabel = formatDateForUi(membership.currentPeriodStart);
-  const periodEndLabel = formatDateForUi(membership.currentPeriodEnd);
-  const periodRange = `${periodStartLabel} – ${periodEndLabel}`;
   const hasSessionLimit =
     display.totalSessions !== null && display.usedSessions !== null && display.totalSessions > 0;
 
   return (
-    <article className={USER_PACKAGES_LIST_ROW_CLASS}>
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={t("viewDetailsFor", { name: display.sessionName })}
+      onClick={onOpenDetails}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenDetails();
+        }
+      }}
+      className={USER_PACKAGES_LIST_ROW_CLASS}
+    >
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>
         <p className="truncate font-serif text-xl leading-snug tracking-tight text-sage-950">
           {display.sessionName}
@@ -77,22 +84,19 @@ export function UserMembershipCompactRow({
         )}
       </div>
 
-      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+      <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
         <MobileLabel label={t("listHeaderPeriod")} />
-        <p className="truncate text-sm font-medium text-sage-800">{periodRange}</p>
+        <MembershipPeriodHighlight
+          locale={locale}
+          periodStart={membership.currentPeriodStart}
+          periodEnd={membership.currentPeriodEnd}
+          variant="list"
+        />
       </div>
 
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>
         <MobileLabel label={t("listHeaderStatus")} />
         <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
-      </div>
-
-      <div className={USER_PACKAGES_LIST_SPACER_CELL} aria-hidden="true" />
-
-      <div className={USER_PACKAGES_LIST_ACTIONS_CLASS}>
-        <OmmButton type="button" variant="secondary" size="sm" onClick={onOpenDetails}>
-          {t("viewDetails")}
-        </OmmButton>
       </div>
     </article>
   );
