@@ -280,17 +280,19 @@ model ClassSession {
 }
 
 model Booking {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessionId   String
-  session     ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  status      BookingStatus @default(BOOKED)
-  channel     BookingChannel @default(WEBSITE)
-  attendedAt  DateTime?
-  cancelledAt DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId     String
+  session       ClassSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userPackageId String?
+  userPackage   UserPackage?  @relation(fields: [userPackageId], references: [id], onDelete: SetNull)
+  status        BookingStatus @default(BOOKED)
+  channel       BookingChannel @default(WEBSITE)
+  attendedAt    DateTime?
+  cancelledAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   notes BookingNote[]
   reminderLog ClassReminderSendLog?
@@ -298,6 +300,7 @@ model Booking {
   @@unique([userId, sessionId])
   @@index([sessionId])
   @@index([userId])
+  @@index([userPackageId])
   @@index([status, createdAt])
 }
 
@@ -372,6 +375,8 @@ model UserPackage {
   planId               String
   plan                 PackagePlan   @relation(fields: [planId], references: [id])
   status               PackageStatus @default(ACTIVE)
+  /** Total sessions included in the current billing period (null when unlimited). */
+  sessionsTotal        Int?
   sessionsRemaining    Int?
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime
@@ -379,6 +384,7 @@ model UserPackage {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
   pendingPayment       Payment?
+  bookings             Booking[]
 
   @@index([userId])
 }

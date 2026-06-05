@@ -1,0 +1,46 @@
+import type { ReactNode } from "react";
+
+type SessionClassTitleProps = {
+  name: string;
+  eyebrow?: string;
+  variant: "board" | "list";
+  trailing?: ReactNode;
+  className?: string;
+};
+
+export function SessionClassTitle({
+  name,
+  eyebrow,
+  variant,
+  trailing,
+  className = "",
+}: SessionClassTitleProps) {
+  if (variant === "board") {
+    return (
+      <div className={`flex items-start justify-between gap-3 ${className}`.trim()}>
+        <div className="min-w-0 flex-1">
+          {eyebrow ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sand-600">
+              {eyebrow}
+            </p>
+          ) : null}
+          <h3 className="font-serif text-[clamp(1.35rem,1.2vw+1rem,1.85rem)] font-normal leading-[1.15] tracking-tight text-sage-950">
+            {name}
+          </h3>
+        </div>
+        {trailing ? <div className="shrink-0">{trailing}</div> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`min-w-0 ${className}`.trim()}>
+      {eyebrow ? (
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sand-600">
+          {eyebrow}
+        </p>
+      ) : null}
+      <p className="font-serif text-lg leading-snug text-sage-950">{name}</p>
+    </div>
+  );
+}

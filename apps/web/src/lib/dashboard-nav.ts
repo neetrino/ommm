@@ -4,6 +4,7 @@
  * Labels are resolved via next-intl under `dashboard.nav.{ROLE}.{labelKey}`.
  * Source: CRM - Ommm - code.md (member app tabs, coach/manager/admin matrices).
  */
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 export type DashboardNavIcon =
   | "home"
   | "layoutDashboard"
@@ -45,7 +46,7 @@ export type DashboardRoleNotificationRoute = {
 
 /** Member (USER): dashboard, bookings, schedule, gift cards — no admin routes. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
-  { href: "/user/home", icon: "layoutDashboard", labelKey: "dashboard" },
+  { href: USER_ACCOUNT_PATH, icon: "layoutDashboard", labelKey: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/user/classes", icon: "layoutGrid", labelKey: "schedule" },
   { href: "/user/packages", icon: "tag", labelKey: "packages" },
@@ -135,4 +136,12 @@ export function dashboardNotificationRouteForRole(
     default:
       return null;
   }
+}
+
+/** Whether `pathname` matches a sidebar nav item (exact or nested), except account root. */
+export function dashboardNavPathActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  if (pathname === href) return true;
+  if (href === USER_ACCOUNT_PATH) return false;
+  return pathname.startsWith(`${href}/`);
 }

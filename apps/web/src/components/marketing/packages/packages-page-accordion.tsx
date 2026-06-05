@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
@@ -9,7 +9,9 @@ import { formatPackagePriceLabel } from "@/components/admin/admin-packages-displ
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import type { PackagesPageAccordionCategory } from "@/components/marketing/packages/packages-page-category-data";
+import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
+import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
   formatPublicPackageTierPricePerSession,
   formatPublicPackageTierSessionsHeadline,
@@ -25,12 +27,32 @@ import {
 } from "@/components/marketing/packages/packages-page-tokens";
 import { PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import {
+  buildPackagesSubscribeLoginHref,
+  PACKAGES_SUBSCRIBE_PARAM,
+} from "@/lib/auth-redirect";
+import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type PackagesPageAccordionProps = {
   locale: string;
   categories: readonly PackagesPageAccordionCategory[];
+  audience?: PublicPackageCategoryCardsAudience;
 };
+
+/** Locates a plan (and its category) by id across all accordion categories. */
+function findPlanById(
+  categories: readonly PackagesPageAccordionCategory[],
+  planId: string,
+): { plan: PublicPackagePlan; categoryId: string } | null {
+  for (const category of categories) {
+    const plan = category.plans.find((item) => item.id === planId);
+    if (plan !== undefined) {
+      return { plan, categoryId: category.id };
+    }
+  }
+  return null;
+}
 
 function panelStyleVars(categoryId: string, accentColor: string): CSSProperties {
   const figma = PACKAGES_PAGE_CARD_FIGMA;
@@ -121,9 +143,16 @@ function EmptyCell() {
 type ExpandedTierTableProps = {
   locale: string;
   category: PackagesPageAccordionCategory;
+  audience: PublicPackageCategoryCardsAudience;
+  onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
-function ExpandedTierTable({ locale, category }: ExpandedTierTableProps) {
+function ExpandedTierTable({
+  locale,
+  category,
+  audience,
+  onSubscribe,
+}: ExpandedTierTableProps) {
   const t = useTranslations("marketing");
 
   return (
@@ -139,7 +168,13 @@ function ExpandedTierTable({ locale, category }: ExpandedTierTableProps) {
 
       <div className={accordionStyles.tierTable}>
         {category.plans.map((plan) => (
-          <ExpandedTierRow key={plan.id} locale={locale} plan={plan} />
+          <ExpandedTierRow
+            key={plan.id}
+            locale={locale}
+            plan={plan}
+            audience={audience}
+            onSubscribe={onSubscribe}
+          />
         ))}
       </div>
     </div>
@@ -149,9 +184,11 @@ function ExpandedTierTable({ locale, category }: ExpandedTierTableProps) {
 type ExpandedTierRowProps = {
   locale: string;
   plan: PublicPackagePlan;
+  audience: PublicPackageCategoryCardsAudience;
+  onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
-function ExpandedTierRow({ locale, plan }: ExpandedTierRowProps) {
+function ExpandedTierRow({ locale, plan, audience, onSubscribe }: ExpandedTierRowProps) {
   const t = useTranslations("marketing");
   const sessions = formatPublicPackageTierSessionsHeadline(plan, {
     unlimited: t("packagesSessionsUnlimitedShort"),
@@ -180,9 +217,22 @@ function ExpandedTierRow({ locale, plan }: ExpandedTierRowProps) {
         {guestCount > 0 ? guestCount : <EmptyCell />}
       </div>
       <div className={`${accordionStyles.tierCell} ${accordionStyles.tierActionCell}`}>
-        <Link href="/login" className={accordionStyles.subscribeButton}>
-          {t("packagesSubscribeCta")}
-        </Link>
+        {audience === "member" ? (
+          <button
+            type="button"
+            className={accordionStyles.subscribeButton}
+            onClick={() => onSubscribe(plan)}
+          >
+            {t("packagesSubscribeCta")}
+          </button>
+        ) : (
+          <Link
+            href={buildPackagesSubscribeLoginHref(plan.id)}
+            className={accordionStyles.subscribeButton}
+          >
+            {t("packagesSubscribeCta")}
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -207,6 +257,8 @@ type DesktopAccordionPanelProps = {
   detailsLabel: string;
   openLabel: string;
   closeLabel: string;
+  audience: PublicPackageCategoryCardsAudience;
+  onSubscribe: (plan: PublicPackagePlan) => void;
   onOpen: (categoryId: string) => void;
   onClose: () => void;
 };
@@ -218,6 +270,8 @@ function DesktopAccordionPanel({
   detailsLabel,
   openLabel,
   closeLabel,
+  audience,
+  onSubscribe,
   onOpen,
   onClose,
 }: DesktopAccordionPanelProps) {
@@ -282,7 +336,12 @@ function DesktopAccordionPanel({
           <div className={accordionStyles.expandedBodyInner}>
             <h2 className={accordionStyles.expandedHeader}>{category.label}</h2>
             {category.plans.length > 0 ? (
-              <ExpandedTierTable locale={locale} category={category} />
+              <ExpandedTierTable
+                locale={locale}
+                category={category}
+                audience={audience}
+                onSubscribe={onSubscribe}
+              />
             ) : null}
           </div>
         </div>
@@ -313,6 +372,8 @@ type MobileAccordionSlotProps = {
   onClose: () => void;
   openLabel: string;
   closeLabel: string;
+  audience: PublicPackageCategoryCardsAudience;
+  onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
 function MobileAccordionSlot({
@@ -324,6 +385,8 @@ function MobileAccordionSlot({
   onClose,
   openLabel,
   closeLabel,
+  audience,
+  onSubscribe,
 }: MobileAccordionSlotProps) {
   return (
     <section
@@ -360,7 +423,13 @@ function MobileAccordionSlot({
               locale={locale}
               categoryLabel={category.label}
               plans={category.plans}
-              audience="guest"
+              audience={audience}
+              onSubscribe={(planId) => {
+                const plan = category.plans.find((item) => item.id === planId);
+                if (plan !== undefined) {
+                  onSubscribe(plan);
+                }
+              }}
             />
           ) : null}
         </div>
@@ -390,6 +459,8 @@ type DesktopAccordionSlotProps = {
   onClose: () => void;
   openLabel: string;
   closeLabel: string;
+  audience: PublicPackageCategoryCardsAudience;
+  onSubscribe: (plan: PublicPackagePlan) => void;
 };
 
 function DesktopAccordionSlot({
@@ -401,6 +472,8 @@ function DesktopAccordionSlot({
   onClose,
   openLabel,
   closeLabel,
+  audience,
+  onSubscribe,
 }: DesktopAccordionSlotProps) {
   const isAccordionMode = expandedCategory !== null;
   const isExpanded = expandedCategory?.id === category.id;
@@ -416,6 +489,8 @@ function DesktopAccordionSlot({
           detailsLabel={detailsLabel}
           openLabel={openLabel}
           closeLabel={closeLabel}
+          audience={audience}
+          onSubscribe={onSubscribe}
           onOpen={onOpen}
           onClose={onClose}
         />
@@ -440,16 +515,23 @@ function resolveExpandedCategoryId(
 }
 
 /** Figma Packages accordion — collapsed row `395:1652`, expanded panel `395:1341`. */
-export function PackagesPageAccordion({ locale, categories }: PackagesPageAccordionProps) {
+export function PackagesPageAccordion({
+  locale,
+  categories,
+  audience = "guest",
+}: PackagesPageAccordionProps) {
   const t = useTranslations("marketing");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const subscribeParam = searchParams.get(PACKAGES_SUBSCRIBE_PARAM);
   const expandedId = useMemo(
     () => resolveExpandedCategoryId(categories, categoryParam),
     [categories, categoryParam],
   );
+
+  const [subscribePlan, setSubscribePlan] = useState<PublicPackagePlan | null>(null);
 
   const updateExpandedCategory = useCallback(
     (categoryId: string | null) => {
@@ -464,6 +546,31 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
     },
     [pathname, router, searchParams],
   );
+
+  const clearSubscribeParam = useCallback(() => {
+    if (searchParams.get(PACKAGES_SUBSCRIBE_PARAM) === null) {
+      return;
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGES_SUBSCRIBE_PARAM);
+    const query = params.toString();
+    router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const handleCloseSubscribe = useCallback(() => {
+    setSubscribePlan(null);
+    clearSubscribeParam();
+  }, [clearSubscribeParam]);
+
+  // Resume a package-subscribe intent carried back from the login flow.
+  const intentSubscribePlan = useMemo(() => {
+    if (audience !== "member" || subscribeParam === null || subscribeParam.length === 0) {
+      return null;
+    }
+    return findPlanById(categories, subscribeParam)?.plan ?? null;
+  }, [audience, subscribeParam, categories]);
+
+  const activeSubscribePlan = subscribePlan ?? intentSubscribePlan;
 
   const expandedCategory = useMemo(
     () => categories.find((category) => category.id === expandedId) ?? null,
@@ -490,6 +597,8 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
             detailsLabel={t("packagesDetailsCta")}
             openLabel={t("packagesOpenDetailsAria", { name: category.label })}
             closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+            audience={audience}
+            onSubscribe={setSubscribePlan}
             onOpen={updateExpandedCategory}
             onClose={() => updateExpandedCategory(null)}
           />
@@ -510,6 +619,8 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
             detailsLabel={t("packagesDetailsCta")}
             openLabel={t("packagesOpenDetailsAria", { name: category.label })}
             closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+            audience={audience}
+            onSubscribe={setSubscribePlan}
             onOpen={updateExpandedCategory}
             onClose={() => updateExpandedCategory(null)}
           />
@@ -522,6 +633,15 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
     <>
       {desktopContent}
       {mobileContent}
+      {audience === "member" && activeSubscribePlan !== null ? (
+        <PackageSubscribePaymentModal
+          isOpen
+          locale={locale}
+          plans={toPackageSubscribePlanOptions([activeSubscribePlan])}
+          initialPlanId={activeSubscribePlan.id}
+          onClose={handleCloseSubscribe}
+        />
+      ) : null}
     </>
   );
 }

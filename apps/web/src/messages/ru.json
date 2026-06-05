@@ -6,7 +6,12 @@
     "logout": "Выход",
     "account": "Мой аккаунт",
     "admin": "Админ",
-    "loading": "Загрузка…"
+    "loading": "Загрузка…",
+    "sessionToday": "Сегодня",
+    "sessionTomorrow": "Завтра",
+    "sessionUntil": "до",
+    "sessionDurationMinutes": "{minutes} мин",
+    "sessionCoach": "Тренер"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -651,7 +656,12 @@
       "yourPackages": "Ваши пакеты",
       "signInToView": "Войдите, чтобы просмотреть.",
       "noActivePackage": "Пока нет активного пакета.",
+      "noPackagesYet": "Вы ещё не приобрели ни одного пакета.",
+      "browsePackagesCta": "Посмотреть пакеты",
       "sessionsLeft": "Осталось занятий: {count}",
+      "sessionsRemaining": "Осталось занятий: {count}",
+      "sessionsUsedOfTotal": "Использовано {used} из {total}",
+      "listSessionsCompact": "{used}/{total} исп. · {remaining} ост.",
       "renewsEnds": "Продление / окончание {date}",
       "paymentHistory": "История платежей",
       "signInPayments": "Войдите, чтобы видеть платежи.",
@@ -683,7 +693,24 @@
       "membershipDetailsDuration": "Длительность",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
-      "membershipDetailsStatus": "Статус"
+      "membershipDetailsStatus": "Статус",
+      "membershipDetailsSessionsUsed": "Использовано занятий",
+      "membershipDetailsSessionsRemaining": "Осталось занятий",
+      "membershipDetailsUsage": "Использование",
+      "membershipDetailsPeriodStart": "Начало периода",
+      "sessionsUsed": "Использовано: {count}",
+      "viewSwitcherAria": "Режим отображения пакетов",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "viewDetails": "Подробнее",
+      "viewDetailsFor": "Подробнее о {name}",
+      "packagesCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
+      "emptyPackagesHint": "Просмотрите доступные планы и оформите подписку, когда будете готовы.",
+      "listHeaderPackage": "Пакет",
+      "listHeaderPrice": "Цена",
+      "listHeaderSessions": "Занятия",
+      "listHeaderPeriod": "Период",
+      "listHeaderStatus": "Статус"
     },
     "progress": {
       "title": "Прогресс",
@@ -720,7 +747,16 @@
       "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Пока пусто.",
       "signInRequired": "Войдите, чтобы увидеть бронирования.",
-      "loadError": "Не удалось загрузить бронирования ({status})."
+      "loadError": "Не удалось загрузить бронирования ({status}).",
+      "viewSwitcherAria": "Режим отображения бронирований",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "bookingsCount": "{count, plural, one {# бронирование} few {# бронирования} many {# бронирований} other {# бронирования}}",
+      "listHeaderClass": "Занятие",
+      "listHeaderTime": "Время",
+      "listHeaderStatus": "Статус",
+      "listHeaderActions": "Действия",
+      "coachFallback": "Тренер"
     },
     "classes": {
       "title": "Классы",
@@ -731,7 +767,16 @@
       "spotsBooked": "{booked}/{capacity} занято",
       "paidShort": "Платно ({amount})",
       "includedShort": "Включено / абонемент",
-      "myBookingsLink": "Мои бронирования"
+      "myBookingsLink": "Мои бронирования",
+      "viewSwitcherAria": "Режим отображения расписания",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "sessionsCount": "{count, plural, one {# сессия} few {# сессии} many {# сессий} other {# сессии}}",
+      "listHeaderClass": "Занятие",
+      "listHeaderTime": "Время",
+      "listHeaderCoach": "Тренер",
+      "listHeaderSpots": "Места",
+      "listHeaderActions": "Действия"
     },
     "notifications": {
       "title": "Уведомления",
@@ -882,7 +927,11 @@
         "related": "Связанный объект",
         "reference": "Референс",
         "updated": "Обновлено"
-      }
+      },
+      "viewSwitcherAria": "Режим отображения платежей",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "paymentsCount": "{count, plural, one {# платёж} few {# платежа} many {# платежей} other {# платежа}}"
     },
     "profile": {
       "title": "Профиль",

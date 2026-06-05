@@ -4,10 +4,12 @@ import { buildPackagesPageAccordionCategories } from "@/components/marketing/pac
 import { PackagesPageAccordion } from "@/components/marketing/packages/packages-page-accordion";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
+import { resolveMarketingAudience } from "@/lib/marketing-audience";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
 } from "@/lib/public-package-plan";
+import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 type MarketingPackagesPageContentProps = {
   locale: string;
@@ -17,9 +19,13 @@ export async function MarketingPackagesPageContent({
   locale,
 }: MarketingPackagesPageContentProps) {
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans", {
-    cacheMode: "no-store",
-  });
+  const [res, authUser] = await Promise.all([
+    fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans", {
+      cacheMode: "no-store",
+    }),
+    getOptionalLayoutAuthUser(),
+  ]);
+  const audience = resolveMarketingAudience(authUser);
   const apiCategories = res.ok
     ? groupVisiblePublicPackageCategories(
         res.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
@@ -37,10 +43,12 @@ export async function MarketingPackagesPageContent({
           {m("packagesError")}
         </p>
       ) : null}
-      <PackagesPageAccordion locale={locale} categories={categories} />
-      <p className={`${cardStyles.packagesPageLoginHint} mt-8 text-center text-xs text-sage-500`}>
-        {m("packagesLoginHint")}
-      </p>
+      <PackagesPageAccordion locale={locale} categories={categories} audience={audience} />
+      {audience === "guest" ? (
+        <p className={`${cardStyles.packagesPageLoginHint} mt-8 text-center text-xs text-sage-500`}>
+          {m("packagesLoginHint")}
+        </p>
+      ) : null}
     </div>
   );
 }

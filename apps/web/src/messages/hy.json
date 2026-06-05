@@ -6,7 +6,12 @@
     "logout": "Ելք",
     "account": "Իմ հաշիվը",
     "admin": "Ադմին",
-    "loading": "Բեռնում…"
+    "loading": "Բեռնում…",
+    "sessionToday": "Այսօր",
+    "sessionTomorrow": "Վաղը",
+    "sessionUntil": "մինչև",
+    "sessionDurationMinutes": "{minutes} ր",
+    "sessionCoach": "Մարզիչ"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -663,7 +668,12 @@
       "yourPackages": "Ձեր փաթեթները",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",
       "noActivePackage": "Դեռ ակտիվ փաթեթ չկա։",
+      "noPackagesYet": "Դուք դեռ չեք գնել որևէ փաթեթ։",
+      "browsePackagesCta": "Դիտել փաթեթները",
       "sessionsLeft": "Մնացել է {count} դաս",
+      "sessionsRemaining": "Մնացել է {count} դաս",
+      "sessionsUsedOfTotal": "Օգտագործված է {used}/{total}",
+      "listSessionsCompact": "{used}/{total} օգտ. · {remaining} մնաց",
       "renewsEnds": "Թարմանում է / ավարտվում է {date}",
       "paymentHistory": "Վճարումների պատմություն",
       "signInPayments": "Մուտք գործեք՝ վճարումները տեսնելու համար։",
@@ -695,7 +705,24 @@
       "membershipDetailsDuration": "Տևողություն",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
-      "membershipDetailsStatus": "Կարգավիճակ"
+      "membershipDetailsStatus": "Կարգավիճակ",
+      "membershipDetailsSessionsUsed": "Օգտագործված դասեր",
+      "membershipDetailsSessionsRemaining": "Մնացած դասեր",
+      "membershipDetailsUsage": "Օգտագործում",
+      "membershipDetailsPeriodStart": "ժամանակաշրջանի սկիզբ",
+      "sessionsUsed": "{count} օգտագործված",
+      "viewSwitcherAria": "Փաթեթների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "viewDetails": "Մանրամասներ",
+      "viewDetailsFor": "Մանրամասներ {name}-ի մասին",
+      "packagesCount": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
+      "emptyPackagesHint": "Դիտեք հասանելի պլանները և բաժանորդագրվեք, երբ պատրաստ լինեք։",
+      "listHeaderPackage": "Փաթեթ",
+      "listHeaderPrice": "Գին",
+      "listHeaderSessions": "Դասեր",
+      "listHeaderPeriod": "ժամանակաշրջան",
+      "listHeaderStatus": "Կարգավիճակ"
     },
     "progress": {
       "title": "Առաջընթաց",
@@ -726,9 +753,22 @@
       "title": "Իմ ամրագրումները",
       "upcoming": "Առաջիկա",
       "pastOther": "Անցյալ և այլ",
+      "waitlists": "Սպասման ցուցակներ",
+      "waitlistsLoadError": "Չհաջողվեց բեռնել սպասման ցուցակները։",
+      "waitlistsEmpty": "Ակտիվ սպասման ցուցակներ չկան։",
+      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Այստեղ դեռ ոչինչ չկա։",
       "signInRequired": "Մուտք գործեք՝ ամրագրումները տեսնելու համար։",
-      "loadError": "Չհաջողվեց բեռնել ամրագրումները ({status})։"
+      "loadError": "Չհաջողվեց բեռնել ամրագրումները ({status})։",
+      "viewSwitcherAria": "Ամրագրումների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "bookingsCount": "{count, plural, one {# ամրագրում} other {# ամրագրում}}",
+      "listHeaderClass": "Դաս",
+      "listHeaderTime": "Ժամ",
+      "listHeaderStatus": "Կարգավիճակ",
+      "listHeaderActions": "Գործողություններ",
+      "coachFallback": "Մարզիչ"
     },
     "classes": {
       "title": "Դասեր",
@@ -739,7 +779,16 @@
       "spotsBooked": "{booked}/{capacity} ամրագրված",
       "paidShort": "Վճարովի ({amount})",
       "includedShort": "Ներառված / աբոնեմենտ",
-      "myBookingsLink": "Իմ ամրագրումները"
+      "myBookingsLink": "Իմ ամրագրումները",
+      "viewSwitcherAria": "Ժամանակացույցի ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "sessionsCount": "{count, plural, one {# սեսիա} other {# սեսիա}}",
+      "listHeaderClass": "Դաս",
+      "listHeaderTime": "Ժամ",
+      "listHeaderCoach": "Մարզիչ",
+      "listHeaderSpots": "Տեղեր",
+      "listHeaderActions": "Գործողություններ"
     },
     "notifications": {
       "title": "Ծանուցումներ",
@@ -890,7 +939,11 @@
         "related": "Կապված տարր",
         "reference": "Հղում",
         "updated": "Թարմացվել է"
-      }
+      },
+      "viewSwitcherAria": "Վճարումների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "paymentsCount": "{count, plural, one {# վճարում} other {# վճարում}}"
     },
     "profile": {
       "title": "Պրոֆիլ",

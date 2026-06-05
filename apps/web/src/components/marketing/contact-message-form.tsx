@@ -58,11 +58,18 @@ function ContactLockIcon() {
   );
 }
 
-type ContactMessageFormProps = {
-  formTitle?: string;
+type ContactMessagePrefill = {
+  name: string;
+  email: string;
+  phone: string;
 };
 
-export function ContactMessageForm({ formTitle }: ContactMessageFormProps) {
+type ContactMessageFormProps = {
+  formTitle?: string;
+  prefill?: ContactMessagePrefill;
+};
+
+export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormProps) {
   const t = useTranslations("forms.contact");
   const tPage = useTranslations("marketingPages.contact");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -115,6 +122,7 @@ export function ContactMessageForm({ formTitle }: ContactMessageFormProps) {
               required
               autoComplete="name"
               className={styles.input}
+              defaultValue={prefill?.name}
             />
           </label>
           <label className={styles.field}>
@@ -124,6 +132,7 @@ export function ContactMessageForm({ formTitle }: ContactMessageFormProps) {
               required
               autoComplete="tel"
               className={styles.input}
+              defaultValue={prefill?.phone}
             />
           </label>
         </div>
@@ -134,6 +143,7 @@ export function ContactMessageForm({ formTitle }: ContactMessageFormProps) {
             type="email"
             autoComplete="email"
             className={styles.input}
+            defaultValue={prefill?.email}
           />
         </label>
         <label className={styles.field}>

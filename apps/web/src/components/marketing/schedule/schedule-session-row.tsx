@@ -1,6 +1,6 @@
-import { Link } from "@/i18n/navigation";
 import type { CSSProperties } from "react";
-import { buildRegisterHrefForScheduleBooking } from "@/lib/auth-redirect";
+import { AuthAwareScheduleBookingAction } from "@/components/marketing/auth-aware/auth-aware-schedule-booking-action";
+import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   SCHEDULE_BOOK_BTN,
   SCHEDULE_INK,
@@ -16,6 +16,7 @@ export type ScheduleSessionRowProps = {
   subtitle: string;
   timeLabel: string;
   durationLabel: string;
+  audience: PublicPackageCategoryCardsAudience;
   className?: string;
   style?: CSSProperties;
 };
@@ -27,6 +28,7 @@ export function ScheduleSessionRow({
   subtitle,
   timeLabel,
   durationLabel,
+  audience,
   className,
   style,
 }: ScheduleSessionRowProps) {
@@ -46,9 +48,14 @@ export function ScheduleSessionRow({
       <p className={`hidden text-sm sm:block ${SCHEDULE_MUTED} sm:text-right`}>{studioLabel}</p>
       <div className="flex items-center justify-between gap-4 sm:justify-end">
         <p className={`text-sm sm:hidden ${SCHEDULE_MUTED}`}>{studioLabel}</p>
-        <Link href={buildRegisterHrefForScheduleBooking(row)} className={SCHEDULE_BOOK_BTN}>
-          {bookLabel}
-        </Link>
+        <AuthAwareScheduleBookingAction
+          sessionId={row.id}
+          availableSpots={row.availableSpots}
+          sessionStatus={row.status}
+          bookLabel={bookLabel}
+          audience={audience}
+          className={SCHEDULE_BOOK_BTN}
+        />
       </div>
     </li>
   );

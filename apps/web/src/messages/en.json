@@ -6,7 +6,12 @@
     "logout": "Log out",
     "account": "My account",
     "admin": "Admin",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "sessionToday": "Today",
+    "sessionTomorrow": "Tomorrow",
+    "sessionUntil": "until",
+    "sessionDurationMinutes": "{minutes} min",
+    "sessionCoach": "Coach"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -651,7 +656,12 @@
       "yourPackages": "Your packages",
       "signInToView": "Sign in to view.",
       "noActivePackage": "No active package yet.",
+      "noPackagesYet": "You have not purchased any packages yet.",
+      "browsePackagesCta": "Browse packages",
       "sessionsLeft": "{count} sessions left",
+      "sessionsRemaining": "{count} sessions remaining",
+      "sessionsUsedOfTotal": "Used {used} of {total}",
+      "listSessionsCompact": "{used}/{total} used · {remaining} left",
       "renewsEnds": "Renews / ends {date}",
       "paymentHistory": "Payment history",
       "signInPayments": "Sign in to view payments.",
@@ -683,7 +693,24 @@
       "membershipDetailsDuration": "Duration",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
-      "membershipDetailsStatus": "Status"
+      "membershipDetailsStatus": "Status",
+      "membershipDetailsSessionsUsed": "Sessions used",
+      "membershipDetailsSessionsRemaining": "Sessions remaining",
+      "membershipDetailsUsage": "Usage",
+      "membershipDetailsPeriodStart": "Period start",
+      "sessionsUsed": "{count} used",
+      "viewSwitcherAria": "Packages display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "viewDetails": "View details",
+      "viewDetailsFor": "View details for {name}",
+      "packagesCount": "{count, plural, one {# package} other {# packages}}",
+      "emptyPackagesHint": "Browse available plans and subscribe when you are ready.",
+      "listHeaderPackage": "Package",
+      "listHeaderPrice": "Price",
+      "listHeaderSessions": "Sessions",
+      "listHeaderPeriod": "Period",
+      "listHeaderStatus": "Status"
     },
     "progress": {
       "title": "Progress",
@@ -720,7 +747,16 @@
       "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Nothing here yet.",
       "signInRequired": "Sign in to see your bookings.",
-      "loadError": "Could not load bookings ({status})."
+      "loadError": "Could not load bookings ({status}).",
+      "viewSwitcherAria": "Bookings display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "bookingsCount": "{count, plural, one {# booking} other {# bookings}}",
+      "listHeaderClass": "Class",
+      "listHeaderTime": "Time",
+      "listHeaderStatus": "Status",
+      "listHeaderActions": "Actions",
+      "coachFallback": "Coach"
     },
     "classes": {
       "title": "Classes",
@@ -731,7 +767,16 @@
       "spotsBooked": "{booked}/{capacity} booked",
       "paidShort": "Paid ({amount})",
       "includedShort": "Included / package",
-      "myBookingsLink": "My bookings"
+      "myBookingsLink": "My bookings",
+      "viewSwitcherAria": "Schedule display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "sessionsCount": "{count, plural, one {# session} other {# sessions}}",
+      "listHeaderClass": "Class",
+      "listHeaderTime": "Time",
+      "listHeaderCoach": "Coach",
+      "listHeaderSpots": "Spots",
+      "listHeaderActions": "Actions"
     },
     "notifications": {
       "title": "Notifications",
@@ -882,7 +927,11 @@
         "related": "Related item",
         "reference": "Reference",
         "updated": "Updated"
-      }
+      },
+      "viewSwitcherAria": "Payments display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "paymentsCount": "{count, plural, one {# payment} other {# payments}}"
     },
     "profile": {
       "title": "Profile",

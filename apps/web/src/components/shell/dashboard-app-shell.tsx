@@ -4,23 +4,23 @@ import { startTransition, useEffect, useMemo, useState, type ReactNode } from "r
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
-import type {
-  DashboardNavDefinition,
-  DashboardNavItem,
-  DashboardRoleNotificationRoute,
+import {
+  dashboardNavPathActive,
+  type DashboardNavDefinition,
+  type DashboardNavItem,
+  type DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
-import {
-  MemberDashboardHeader,
-  type MemberHeaderProfile,
-} from "@/components/shell/member-dashboard-header";
+import { MemberMobileWorkspaceBar } from "@/components/shell/member-mobile-workspace-bar";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
+import { useMarketingHeaderOffsetSync } from "@/components/marketing/use-marketing-header-offset-sync";
 import {
   avatarRingClass,
   brandInitial,
@@ -50,9 +50,7 @@ export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-t
 const SIDEBAR_COLLAPSED_KEY = "ommm.dashboard.sidebarCollapsed";
 
 function pathMatchesNav(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  if (pathname === href) return true;
-  return pathname.startsWith(`${href}/`);
+  return dashboardNavPathActive(pathname, href);
 }
 
 export type DashboardAppShellProps = {
@@ -65,9 +63,9 @@ export type DashboardAppShellProps = {
   notificationRoute: DashboardRoleNotificationRoute | null;
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
+  /** Reserve space and adjust sticky regions for the fixed public marketing header. */
+  withMarketingSiteHeader?: boolean;
   trailing?: ReactNode;
-  /** Member header profile chip (initials or photo). */
-  memberProfile?: MemberHeaderProfile;
   children: ReactNode;
 };
 
@@ -80,8 +78,8 @@ export function DashboardAppShell({
   notificationRoute,
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
+  withMarketingSiteHeader = false,
   trailing,
-  memberProfile,
   children,
 }: DashboardAppShellProps) {
   const pathname = usePathname();
@@ -169,6 +167,8 @@ export function DashboardAppShell({
 
   useCloseOnEscape(drawerOpen, () => setDrawerOpen(false));
 
+  useMarketingHeaderOffsetSync(withMarketingSiteHeader);
+
   function persistCollapsed(next: boolean) {
     try {
       if (typeof window !== "undefined") {
@@ -188,14 +188,29 @@ export function DashboardAppShell({
       : "lg:w-64";
   const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
   const adminHeaderRef = useAdminStickyHeaderOffset(isOliveShell);
+  const stickyTopClass = withMarketingSiteHeader
+    ? offsetStyles.stickyBelowMarketingHeader
+    : "top-0";
+  const mainHeaderStickyClass = isOliveShell
+    ? `${DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS} ${stickyTopClass}`
+    : `${DASHBOARD_MAIN_HEADER_STICKY_CLASS} ${stickyTopClass}`;
+  const rootClassName = withMarketingSiteHeader
+    ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader}`
+    : pageBackgroundClass(variant);
+  const sidebarStickyClass = withMarketingSiteHeader
+    ? `${offsetStyles.sidebarFixedBelowMarketingHeader}`
+    : "lg:sticky lg:top-0 lg:h-screen lg:max-h-screen lg:self-start";
 
   return (
-    <div className={pageBackgroundClass(variant)}>
+    <div className={rootClassName}>
       <div
         className={`mx-auto flex min-h-screen w-full flex-col lg:flex-row ${contentMaxClass}`}
       >
+        {withMarketingSiteHeader ? (
+          <div className={`hidden shrink-0 lg:block ${asideWidth}`} aria-hidden />
+        ) : null}
         <aside
-          className={`hidden shrink-0 flex-col shadow-sm lg:sticky lg:top-0 lg:flex lg:h-screen ${asideWidth} ${
+          className={`hidden shrink-0 flex-col shadow-sm lg:flex ${withMarketingSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
             isOliveShell
               ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
               : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
@@ -302,9 +317,10 @@ export function DashboardAppShell({
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {variant !== "member" ? (
           <header
             ref={isOliveShell ? adminHeaderRef : undefined}
-            className={`${isOliveShell ? DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS : DASHBOARD_MAIN_HEADER_STICKY_CLASS} shrink-0`}
+            className={`${mainHeaderStickyClass} shrink-0`}
           >
             {variant === "admin" ? (
               <div className="ommm-admin-content mx-auto w-full">
@@ -312,25 +328,6 @@ export function DashboardAppShell({
                   title={heading.title}
                   drawerOpen={drawerOpen}
                   onMenuToggle={() => setDrawerOpen((open) => !open)}
-                />
-              </div>
-            ) : variant === "member" ? (
-              <div className="ommm-admin-content mx-auto w-full">
-                <MemberDashboardHeader
-                  title={heading.title}
-                  drawerOpen={drawerOpen}
-                  onMenuToggle={() => setDrawerOpen((open) => !open)}
-                  profile={
-                    memberProfile ?? {
-                      initials: "?",
-                      imageSrc: null,
-                      displayName: "—",
-                      roleKey: "USER",
-                    }
-                  }
-                  notificationHref={notificationRoute?.href}
-                  notificationLabel={notificationsLabel ?? undefined}
-                  notificationsActive={notificationsActive}
                 />
               </div>
             ) : (
@@ -412,6 +409,19 @@ export function DashboardAppShell({
               </div>
             )}
           </header>
+          ) : null}
+
+          {variant === "member" ? (
+            <MemberMobileWorkspaceBar
+              title={heading.title}
+              drawerOpen={drawerOpen}
+              onMenuToggle={() => setDrawerOpen((open) => !open)}
+              notificationHref={notificationRoute?.href ?? null}
+              notificationsLabel={notificationsLabel}
+              notificationsActive={notificationsActive}
+              onAfterNavigate={() => setDrawerOpen(false)}
+            />
+          ) : null}
 
           <main
             className={
@@ -427,7 +437,7 @@ export function DashboardAppShell({
 
       {drawerOpen ? (
         <div
-          className="fixed inset-0 z-40 flex lg:hidden"
+          className={`fixed inset-0 flex lg:hidden ${withMarketingSiteHeader ? "z-[60]" : "z-40"}`}
           id="dashboard-mobile-drawer"
           role="dialog"
           aria-modal="true"

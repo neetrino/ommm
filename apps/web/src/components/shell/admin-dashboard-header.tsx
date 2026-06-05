@@ -80,15 +80,19 @@ export function AdminDashboardHeader({
       <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-4">
         <LanguageSwitcher context="dashboard" dashboardVariant="admin" />
         <div className="ommm-admin-account-cluster">
-          <Link href="/admin/profile" className="ommm-admin-profile-chip">
-            <span className="ommm-admin-profile-avatar" aria-hidden>
-              A
-            </span>
-            <span className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 sm:inline">
-              {tShell("adminProfileLabel")}
-            </span>
-          </Link>
-          <LogoutButton className="ommm-admin-account-logout" />
+          <div className="ommm-admin-account-hover-anchor">
+            <Link href="/admin/profile" className="ommm-admin-profile-chip">
+              <span className="ommm-admin-profile-avatar" aria-hidden>
+                A
+              </span>
+              <span className="hidden text-xs font-semibold uppercase tracking-[0.12em] text-sage-800 sm:inline">
+                {tShell("adminProfileLabel")}
+              </span>
+            </Link>
+            <div className="ommm-admin-account-logout-popover">
+              <LogoutButton className="ommm-admin-account-logout" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

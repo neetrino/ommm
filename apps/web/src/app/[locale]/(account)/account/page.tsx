@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
-import { homePathForRole } from "@/lib/role-home";
+import { postAuthPathForRole } from "@/lib/role-home";
 import { serverApiJson } from "@/lib/server-api";
 import { redirect } from "next/navigation";
 
@@ -22,7 +22,7 @@ export default async function AccountHubPage({
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
 
   if (meRes.ok) {
-    redirect(`/${locale}${homePathForRole(meRes.data.user.role)}`);
+    redirect(`/${locale}${postAuthPathForRole(meRes.data.user.role)}`);
   }
 
   return (

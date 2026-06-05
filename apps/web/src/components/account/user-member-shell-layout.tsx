@@ -1,15 +1,15 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
+import { MarketingSiteHeaderFromAuth } from "@/components/marketing/marketing-site-header-from-auth";
+import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
+import { MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT } from "@/components/marketing/marketing-site-header-layout";
 import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
 import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
-import { USER_DASHBOARD_PATH } from "@/lib/role-home";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { userDisplayInitials } from "@/lib/user-display-initials";
-import { userDisplayName } from "@/lib/user-display-name";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -31,39 +31,37 @@ export async function UserMemberShellLayout({
   if (authOutcome.kind === "api_unavailable") {
     return <ApiUnavailablePanel />;
   }
-  const { role, userLocale, authUser } = authOutcome.auth;
+  const { role, userLocale } = authOutcome.auth;
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, USER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
   const notificationRoute = dashboardNotificationRouteForRole(role);
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
+  const marketingHeaderShellStyle = {
+    "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
+  } as CSSProperties;
+
   return (
-    <DashboardAppShell
-      brandHref={USER_DASHBOARD_PATH}
-      brandLabel={tDash("brand.member.title")}
-      brandSubline={tDash("brand.member.subline")}
-      variant="member"
-      contentMaxClass="w-full"
-      navRole="USER"
-      navDefinitions={navDefinitions}
-      notificationRoute={notificationRoute}
-      memberProfile={{
-        initials: userDisplayInitials(
-          authUser.name,
-          authUser.lastName,
-          authUser.email,
-        ),
-        imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
-        displayName: userDisplayName(
-          authUser.name,
-          authUser.lastName,
-          authUser.email,
-        ),
-        roleKey: authUser.role,
-      }}
+    <div
+      className={offsetStyles.shellWithMarketingHeader}
+      data-marketing-account-shell
+      style={marketingHeaderShellStyle}
     >
-      {children}
-    </DashboardAppShell>
+      <MarketingSiteHeaderFromAuth />
+      <DashboardAppShell
+        brandHref={USER_ACCOUNT_PATH}
+        brandLabel={tDash("brand.member.title")}
+        brandSubline={tDash("brand.member.subline")}
+        variant="member"
+        contentMaxClass="w-full"
+        navRole="USER"
+        navDefinitions={navDefinitions}
+        notificationRoute={notificationRoute}
+        withMarketingSiteHeader
+      >
+        {children}
+      </DashboardAppShell>
+    </div>
   );
 }

@@ -39,6 +39,14 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
+/**
+ * Mobile shell height for USER account pages — header always uses the elevated glass pill
+ * (`marketingHeaderContainerClass` pt + pb-3 + pill padding + pill row min-height).
+ */
+export const MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT = `calc(
+  max(1rem, env(safe-area-inset-top, 0px)) + 0.75rem + calc(${MARKETING_MOBILE_HEADER_GLASS_PILL.paddingY} * 2) + ${MARKETING_MOBILE_HEADER_GLASS_PILL.rowMinHeight}
+)`;
+
 /** Animated CSS vars for the mobile header row wrap (hero ↔ glass pill). */
 export function marketingHeaderMobileRowWrapStyle(glassActive: boolean): CSSProperties {
   const pill = MARKETING_MOBILE_HEADER_GLASS_PILL;
@@ -144,7 +152,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 }
 
 export function marketingHeaderMobileActionsClass(): string {
-  return "flex shrink-0 items-center gap-[6px]";
+  return "flex shrink-0 items-center gap-[6px] overflow-visible";
 }
 
 export function marketingHeaderMobileBrandLinkClass(): string {
@@ -191,12 +199,12 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
 }
 
 export function marketingHeaderActionsClass(): string {
-  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4";
+  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 overflow-visible lg:gap-2 nav-desktop:gap-3 sm:gap-4";
 }
 
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
 export function marketingHeaderAuthClusterClass(): string {
-  return "flex shrink-0 items-center gap-1";
+  return "flex shrink-0 items-center gap-1 overflow-visible";
 }
 
 /** Burger menu nav links — solid white panel; always en-sized type (panel has room). */

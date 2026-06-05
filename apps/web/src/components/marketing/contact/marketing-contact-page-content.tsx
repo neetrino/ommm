@@ -5,6 +5,9 @@ import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page
 import { MarketingContactAnimatedSections } from "@/components/marketing/contact/marketing-contact-animated-sections";
 import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
+import { isMarketingMemberUser } from "@/lib/marketing-audience";
+import { userDisplayName } from "@/lib/user-display-name";
+import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 type StudioPublic = {
   studioName: string;
@@ -58,7 +61,10 @@ export async function MarketingContactPageContent({
   locale,
 }: MarketingContactPageContentProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const studioRes = await fetchPublicJsonCached<StudioPublic>("/studio");
+  const [studioRes, authUser] = await Promise.all([
+    fetchPublicJsonCached<StudioPublic>("/studio"),
+    getOptionalLayoutAuthUser(),
+  ]);
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
 
@@ -103,6 +109,15 @@ export async function MarketingContactPageContent({
       <MarketingLazyMapEmbed heading={t("mapHeading")} embedHtml={studio.mapEmbedUrl} />
     ) : undefined;
 
+  const memberPrefill =
+    authUser !== null && isMarketingMemberUser(authUser)
+      ? {
+          name: userDisplayName(authUser.name, authUser.lastName, authUser.email),
+          email: authUser.email,
+          phone: authUser.phone ?? "",
+        }
+      : undefined;
+
   return (
     <MarketingContactAnimatedSections
       studioCard={
@@ -113,7 +128,7 @@ export async function MarketingContactPageContent({
           socialLinks={social}
         />
       }
-      messageForm={<ContactMessageFormDeferred />}
+      messageForm={<ContactMessageFormDeferred prefill={memberPrefill} />}
       mapEmbed={mapEmbed}
     />
   );

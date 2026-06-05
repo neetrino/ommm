@@ -86,7 +86,14 @@ export class WaitlistService {
         userId,
         status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
       },
-      include: { session: { include: { classType: true, coach: true } } },
+      include: {
+        session: {
+          include: {
+            classType: true,
+            coach: { include: { user: { select: { name: true } } } },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

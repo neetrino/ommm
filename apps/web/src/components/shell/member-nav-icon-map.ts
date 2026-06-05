@@ -2,7 +2,8 @@ import type { AdminNavIconSlug } from "@/components/shell/admin-nav-icon-map";
 
 /** Member sidebar routes mapped to the same Figma icon set as Admin where applicable. */
 const MEMBER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
-  "/user/home": "dashboard",
+  "/user/dashboard": "dashboard",
+  "/user": "dashboard",
   "/dashboard": "dashboard",
   "/user/bookings": "bookings",
   "/user/classes": "schedule",

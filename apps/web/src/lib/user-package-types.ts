@@ -19,6 +19,10 @@ export type UserMembershipRow = {
   id: string;
   status: UserPackageStatus;
   sessionsRemaining: number | null;
+  totalSessions: number | null;
+  usedSessions: number | null;
+  remainingSessions: number | null;
+  isUnlimited: boolean;
   currentPeriodStart: string;
   currentPeriodEnd: string;
   plan: UserPackagePlanSummary;

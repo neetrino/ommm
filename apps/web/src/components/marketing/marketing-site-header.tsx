@@ -10,6 +10,7 @@ import {
 } from "@/components/marketing/marketing-header-icons";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobile-menu-modal";
+import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
 import {
   isCompactMarketingHeaderLocale,
   marketingHeaderActionsClass,
@@ -39,6 +40,7 @@ import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing
 import {
   isMarketingHeroHeaderPath,
   isMarketingHomePath,
+  isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -47,12 +49,25 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Logged-in viewer summary used to swap the login icon for a profile avatar. */
+export type MarketingHeaderAccount = {
+  /** Locale-free destination for the avatar link (role home / member dashboard). */
+  href: string;
+  initials: string;
+  imageSrc: string | null;
+  displayName: string;
+};
+
 export type MarketingSiteHeaderProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
+  account?: MarketingHeaderAccount | null;
 };
 
 /** Public marketing header — desktop Figma `196:1404`; mobile HEADER `97:5670`. */
-export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
+export function MarketingSiteHeader({
+  navLinks,
+  account = null,
+}: MarketingSiteHeaderProps) {
   const locale = useLocale();
   const compact = isCompactMarketingHeaderLocale(locale);
   const tNav = useTranslations("nav");
@@ -62,6 +77,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
+  const isAccountShell = isUserAccountPath(marketingPath);
   const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const showMobileGlassPill = elevated && !open;
@@ -83,6 +99,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   return (
     <header
       className={`${marketingHeaderShellClass()} ${navPillStyles.headerShell}`}
+      data-account-shell={isAccountShell ? "true" : "false"}
       data-elevated={elevated ? "true" : "false"}
       data-menu-open={open ? "true" : "false"}
     >
@@ -144,16 +161,27 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
                   />
                 )}
               />
-              <Link
-                href="/login"
-                className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                aria-label={tCommon("login")}
-                onClick={() => setOpen(false)}
-              >
-                <MarketingHeaderUserIcon
-                  className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+              {account ? (
+                <MarketingAccountAvatarMenu
+                  initials={account.initials}
+                  imageSrc={account.imageSrc}
+                  displayName={account.displayName}
+                  profileHref={account.href}
+                  triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  onAfterSelect={() => setOpen(false)}
                 />
-              </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  aria-label={tCommon("login")}
+                  onClick={() => setOpen(false)}
+                >
+                  <MarketingHeaderUserIcon
+                    className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                  />
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -207,14 +235,25 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
                 <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
               )}
             />
-            <Link
-              href="/login"
-              className={marketingHeaderIconAccountClass()}
-              aria-label={tCommon("login")}
-              onClick={() => setOpen(false)}
-            >
-              <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
-            </Link>
+            {account ? (
+              <MarketingAccountAvatarMenu
+                initials={account.initials}
+                imageSrc={account.imageSrc}
+                displayName={account.displayName}
+                profileHref={account.href}
+                triggerClassName={marketingHeaderIconAccountClass()}
+                onAfterSelect={() => setOpen(false)}
+              />
+            ) : (
+              <Link
+                href="/login"
+                className={marketingHeaderIconAccountClass()}
+                aria-label={tCommon("login")}
+                onClick={() => setOpen(false)}
+              >
+                <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
+              </Link>
+            )}
           </div>
         </div>
       </div>
