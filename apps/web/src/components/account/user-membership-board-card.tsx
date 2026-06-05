@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { PackageUsageBar } from "@/components/account/package-usage-bar";
 import {
   buildMembershipDisplayModel,
   memberStatusClassName,
@@ -43,6 +44,21 @@ export function UserMembershipBoardCard({
         <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
       </div>
 
+      <div className="mt-5 space-y-3 rounded-2xl border border-white/70 bg-white/60 p-4">
+        <div>
+          <p className="text-sm font-medium text-sage-900">{display.sessionsSummary}</p>
+        </div>
+        {display.totalSessions !== null &&
+        display.usedSessions !== null &&
+        display.totalSessions > 0 ? (
+          <PackageUsageBar
+            used={display.usedSessions}
+            total={display.totalSessions}
+            ariaLabel={display.sessionsSummary}
+          />
+        ) : null}
+      </div>
+
       <div className="mt-5 flex items-end justify-between gap-4 border-b border-white/70 pb-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
@@ -54,13 +70,6 @@ export function UserMembershipBoardCard({
       </div>
 
       <dl className="mt-5 grid flex-1 gap-3 text-sm text-sage-700">
-        <MembershipFact label={t("membershipDetailsSessions")} value={display.sessionsLabel} />
-        {display.sessionsUsedLabel !== null ? (
-          <MembershipFact
-            label={t("membershipDetailsSessionsUsed")}
-            value={display.sessionsUsedLabel}
-          />
-        ) : null}
         <MembershipFact
           label={t("membershipDetailsPeriodStart")}
           value={formatDateForUi(membership.currentPeriodStart)}

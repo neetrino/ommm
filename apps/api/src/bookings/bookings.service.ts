@@ -17,6 +17,7 @@ import {
   type User,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PackageUsageService } from '../packages/package-usage.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
@@ -75,6 +76,7 @@ export class BookingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly waitlist: WaitlistService,
+    private readonly packageUsage: PackageUsageService,
   ) {}
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
@@ -101,17 +103,39 @@ export class BookingsService {
     const booking = await this.prisma.$transaction(async (tx) => {
       const requiredSessions =
         session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
-      if (requiredSessions > 0) {
-        if (session.priceCents > 0) {
-          const dropInPayment = await tx.payment.findFirst({
-            where: {
-              userId,
-              description: `Drop-in session ${sessionId}`,
-              status: PaymentStatus.SUCCEEDED,
-            },
-            select: { id: true },
-          });
-          if (!dropInPayment) {
+      let userPackageId: string | null = null;
+
+      const existingBooking = await tx.booking.findUnique({
+        where: { userId_sessionId: { userId, sessionId } },
+      });
+      if (existingBooking?.status === BookingStatus.BOOKED) {
+        throw new BadRequestException('Already booked');
+      }
+
+      const needsSessionCredit =
+        requiredSessions > 0 &&
+        (!existingBooking ||
+          existingBooking.status === BookingStatus.CANCELLED);
+
+      if (needsSessionCredit) {
+        const dropInPayment = await tx.payment.findFirst({
+          where: {
+            userId,
+            description: `Drop-in session ${sessionId}`,
+            status: PaymentStatus.SUCCEEDED,
+          },
+          select: { id: true },
+        });
+        if (!dropInPayment) {
+          await this.packageUsage.syncExpiredMemberships(userId);
+          const usablePackage = await this.packageUsage.findUsablePackage(
+            tx,
+            userId,
+          );
+          if (usablePackage) {
+            await this.packageUsage.consumeSession(tx, usablePackage.id);
+            userPackageId = usablePackage.id;
+          } else if (session.priceCents > 0) {
             const user = await tx.user.findUnique({
               where: { id: userId },
               select: { giftCreditsCents: true },
@@ -119,7 +143,7 @@ export class BookingsService {
             const credits = user?.giftCreditsCents ?? 0;
             if (credits < session.priceCents) {
               throw new BadRequestException(
-                'Payment or gift credits required for this class',
+                'Active package, payment, or gift credits required for this class',
               );
             }
             await tx.user.update({
@@ -134,14 +158,14 @@ export class BookingsService {
                 description: `Gift credit spend ${sessionId}`,
               },
             });
+          } else {
+            throw new BadRequestException(
+              'Active package or payment required for this class',
+            );
           }
-        } else {
-          throw new BadRequestException('Payment required for this class');
         }
       }
-      const existingBooking = await tx.booking.findUnique({
-        where: { userId_sessionId: { userId, sessionId } },
-      });
+
       if (existingBooking) {
         return tx.booking.update({
           where: { id: existingBooking.id },
@@ -150,6 +174,7 @@ export class BookingsService {
             channel: dto?.channel ?? BookingChannel.WEBSITE,
             cancelledAt: null,
             attendedAt: null,
+            ...(userPackageId !== null ? { userPackageId } : {}),
           },
           include: { session: { include: { classType: true } } },
         });
@@ -160,6 +185,7 @@ export class BookingsService {
           sessionId,
           status: BookingStatus.BOOKED,
           channel: dto?.channel ?? BookingChannel.WEBSITE,
+          userPackageId,
         },
         include: { session: { include: { classType: true } } },
       });
@@ -206,13 +232,26 @@ export class BookingsService {
     id: string;
     userId: string;
     sessionId: string;
+    userPackageId: string | null;
     session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
   }) {
     await this.prisma.$transaction(async (tx) => {
+      const current = await tx.booking.findUnique({
+        where: { id: booking.id },
+        select: { status: true, userPackageId: true },
+      });
+      if (!current || current.status !== BookingStatus.BOOKED) {
+        return;
+      }
       await tx.booking.update({
         where: { id: booking.id },
         data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
       });
+      const packageId = current.userPackageId ?? booking.userPackageId;
+      if (packageId) {
+        await this.packageUsage.restoreSession(tx, packageId);
+        return;
+      }
       const requiredSessions =
         booking.session.sessionRequirement ??
         (booking.session.priceCents > 0 ? 1 : 0);

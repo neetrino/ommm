@@ -38,8 +38,13 @@ export function memberStatusClassName(status: UserPackageStatus): string {
 
 export type MembershipDisplayModel = {
   sessionName: string;
-  sessionsLabel: string;
-  sessionsUsedLabel: string | null;
+  sessionsSummary: string;
+  sessionsUsedSummary: string | null;
+  sessionsRemainingSummary: string | null;
+  usagePercent: number | null;
+  totalSessions: number | null;
+  usedSessions: number | null;
+  remainingSessions: number | null;
   statusLabel: string;
 };
 
@@ -53,28 +58,40 @@ export function buildMembershipDisplayModel(
     membership.plan.name,
     membership.plan.sessionsPerMonth,
   );
-  const sessionsLabel =
-    membership.sessionsRemaining === null
-      ? m("packagesSessionsUnlimited")
-      : t("sessionsLeft", { count: membership.sessionsRemaining });
 
-  let sessionsUsedLabel: string | null = null;
-  if (
-    membership.sessionsRemaining !== null &&
-    membership.plan.sessionsPerMonth !== null &&
-    membership.plan.sessionsPerMonth > 0
-  ) {
-    const used = Math.max(
-      0,
-      membership.plan.sessionsPerMonth - membership.sessionsRemaining,
-    );
-    sessionsUsedLabel = t("sessionsUsed", { count: used });
+  if (membership.isUnlimited) {
+    return {
+      sessionName,
+      sessionsSummary: m("packagesSessionsUnlimited"),
+      sessionsUsedSummary: null,
+      sessionsRemainingSummary: null,
+      usagePercent: null,
+      totalSessions: null,
+      usedSessions: null,
+      remainingSessions: null,
+      statusLabel: formatMembershipStatusLabel(status, t),
+    };
   }
+
+  const total =
+    membership.totalSessions ??
+    membership.plan.sessionsPerMonth ??
+    0;
+  const remaining =
+    membership.remainingSessions ?? membership.sessionsRemaining ?? 0;
+  const used =
+    membership.usedSessions ?? Math.max(0, Math.min(total, total - remaining));
+  const usagePercent = total > 0 ? Math.round((used / total) * 100) : 0;
 
   return {
     sessionName,
-    sessionsLabel,
-    sessionsUsedLabel,
+    sessionsSummary: t("sessionsUsedOfTotal", { used, total }),
+    sessionsUsedSummary: t("sessionsUsed", { count: used }),
+    sessionsRemainingSummary: t("sessionsRemaining", { count: remaining }),
+    usagePercent,
+    totalSessions: total,
+    usedSessions: used,
+    remainingSessions: remaining,
     statusLabel: formatMembershipStatusLabel(status, t),
   };
 }

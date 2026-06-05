@@ -23,6 +23,7 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreatePlanDto } from './dto/create-plan.dto';
 import type { UpdatePlanDto } from './dto/update-plan.dto';
+import { PackageUsageService } from './package-usage.service';
 
 const MIN_PRORATED_SESSIONS = 1;
 const PACKAGE_PAYMENT_SOURCE = 'PACKAGE';
@@ -35,6 +36,7 @@ export class PackagesService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly cache: RedisCacheService,
+    private readonly packageUsage: PackageUsageService,
   ) {}
 
   async listPlans() {
@@ -329,15 +331,14 @@ export class PackagesService {
     const start = new Date();
     const end = new Date(start);
     end.setDate(end.getDate() + plan.periodDays);
-    const sessionsRemaining = plan.isUnlimited
-      ? null
-      : (plan.sessionsPerMonth ?? 0);
+    const sessionAllocation = this.packageUsage.resolveInitialSessions(plan);
     return this.prisma.userPackage.create({
       data: {
         userId,
         planId,
         status: PackageStatus.ACTIVE,
-        sessionsRemaining,
+        sessionsTotal: sessionAllocation.sessionsTotal,
+        sessionsRemaining: sessionAllocation.sessionsRemaining,
         currentPeriodStart: start,
         currentPeriodEnd: end,
       },
@@ -374,16 +375,15 @@ export class PackagesService {
     const start = new Date();
     const end = new Date(start);
     end.setDate(end.getDate() + plan.periodDays);
-    const sessionsRemaining = plan.isUnlimited
-      ? null
-      : (plan.sessionsPerMonth ?? 0);
+    const sessionAllocation = this.packageUsage.resolveInitialSessions(plan);
     const userPackage = await this.prisma.$transaction(async (tx) => {
       const created = await tx.userPackage.create({
         data: {
           userId,
           planId,
           status: PackageStatus.PENDING,
-          sessionsRemaining,
+          sessionsTotal: sessionAllocation.sessionsTotal,
+          sessionsRemaining: sessionAllocation.sessionsRemaining,
           currentPeriodStart: start,
           currentPeriodEnd: end,
         },
@@ -417,18 +417,45 @@ export class PackagesService {
     return userPackage;
   }
 
-  listMine(userId: string) {
-    return this.syncExpiredMemberships(userId).then(() =>
-      this.prisma.userPackage.findMany({
-        where: { userId },
-        include: { plan: true },
-        orderBy: { createdAt: 'desc' },
-      }),
+  async listMine(userId: string) {
+    await this.packageUsage.syncExpiredMemberships(userId);
+    const memberships = await this.prisma.userPackage.findMany({
+      where: { userId },
+      include: { plan: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return memberships.map((membership) =>
+      this.mapMembershipWithUsage(membership),
     );
   }
 
+  private mapMembershipWithUsage(
+    membership: Awaited<
+      ReturnType<PrismaService['userPackage']['findMany']>
+    >[number] & {
+      plan: {
+        isUnlimited: boolean;
+        sessionsPerMonth: number | null;
+        id: string;
+        name: string;
+        categoryName: string;
+        priceCents: number;
+        periodDays: number;
+      };
+    },
+  ) {
+    const usage = this.packageUsage.computeUsageStats(membership);
+    return {
+      ...membership,
+      totalSessions: usage.totalSessions,
+      usedSessions: usage.usedSessions,
+      remainingSessions: usage.remainingSessions,
+      isUnlimited: usage.isUnlimited,
+    };
+  }
+
   async pause(userId: string, userPackageId: string) {
-    await this.syncExpiredMemberships(userId);
+    await this.packageUsage.syncExpiredMemberships(userId);
     const m = await this.prisma.userPackage.findFirst({
       where: { id: userPackageId, userId },
     });
@@ -442,7 +469,7 @@ export class PackagesService {
   }
 
   async cancel(userId: string, userPackageId: string) {
-    await this.syncExpiredMemberships(userId);
+    await this.packageUsage.syncExpiredMemberships(userId);
     const m = await this.prisma.userPackage.findFirst({
       where: { id: userPackageId, userId },
     });
@@ -456,7 +483,7 @@ export class PackagesService {
   }
 
   async renew(userId: string, userPackageId: string) {
-    await this.syncExpiredMemberships(userId);
+    await this.packageUsage.syncExpiredMemberships(userId);
     const membership = await this.prisma.userPackage.findFirst({
       where: { id: userPackageId, userId },
       include: { plan: true },
@@ -470,16 +497,17 @@ export class PackagesService {
     const start = new Date();
     const end = new Date(start);
     end.setDate(end.getDate() + membership.plan.periodDays);
-    const sessionsRemaining = membership.plan.isUnlimited
-      ? null
-      : (membership.plan.sessionsPerMonth ?? 0);
+    const sessionAllocation = this.packageUsage.resolveInitialSessions(
+      membership.plan,
+    );
     const renewed = await this.prisma.userPackage.update({
       where: { id: userPackageId },
       data: {
         status: PackageStatus.ACTIVE,
         currentPeriodStart: start,
         currentPeriodEnd: end,
-        sessionsRemaining,
+        sessionsTotal: sessionAllocation.sessionsTotal,
+        sessionsRemaining: sessionAllocation.sessionsRemaining,
       },
       include: { plan: true },
     });
@@ -495,7 +523,7 @@ export class PackagesService {
   }
 
   async changePlan(userId: string, userPackageId: string, nextPlanId: string) {
-    await this.syncExpiredMemberships(userId);
+    await this.packageUsage.syncExpiredMemberships(userId);
     const [membership, plan] = await Promise.all([
       this.prisma.userPackage.findFirst({
         where: { id: userPackageId, userId },
@@ -525,6 +553,9 @@ export class PackagesService {
         status: PackageStatus.ACTIVE,
         currentPeriodStart: planChangePolicy.currentPeriodStart,
         currentPeriodEnd: planChangePolicy.currentPeriodEnd,
+        sessionsTotal: plan.isUnlimited
+          ? null
+          : planChangePolicy.sessionsRemaining,
         sessionsRemaining: planChangePolicy.sessionsRemaining,
       },
       include: { plan: true },
@@ -568,7 +599,7 @@ export class PackagesService {
   listAllAdmin(options?: { take?: number; offset?: number }) {
     const take = Math.min(Math.max(options?.take ?? 500, 1), 1000);
     const skip = Math.max(options?.offset ?? 0, 0);
-    return this.syncExpiredMemberships().then(() =>
+    return this.packageUsage.syncExpiredMemberships().then(() =>
       this.prisma.userPackage.findMany({
         include: {
           plan: true,
@@ -579,17 +610,6 @@ export class PackagesService {
         skip,
       }),
     );
-  }
-
-  private async syncExpiredMemberships(userId?: string) {
-    await this.prisma.userPackage.updateMany({
-      where: {
-        ...(userId ? { userId } : {}),
-        status: PackageStatus.ACTIVE,
-        currentPeriodEnd: { lte: new Date() },
-      },
-      data: { status: PackageStatus.EXPIRED },
-    });
   }
 
   async adminSetStatus(userPackageId: string, status: PackageStatus) {

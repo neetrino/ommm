@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { UserPackageLifecycleActions } from "@/components/account/user-package-lifecycle-actions";
+import { PackageUsageBar } from "@/components/account/package-usage-bar";
 import {
   buildMembershipDisplayModel,
   formatMembershipStatusLabel,
@@ -71,9 +72,28 @@ export function UserMembershipDetailsModal({
             label={t("membershipDetailsDuration")}
             value={m("packagesPeriodDaysShort", { days: membership.plan.periodDays })}
           />
-          <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsLabel} />
-          {display.sessionsUsedLabel !== null ? (
-            <DetailRow label={t("membershipDetailsSessionsUsed")} value={display.sessionsUsedLabel} />
+          <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
+          {display.sessionsRemainingSummary !== null ? (
+            <DetailRow
+              label={t("membershipDetailsSessionsRemaining")}
+              value={display.sessionsRemainingSummary}
+            />
+          ) : null}
+          {display.totalSessions !== null &&
+          display.usedSessions !== null &&
+          display.totalSessions > 0 ? (
+            <div className="space-y-2 py-1">
+              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+                {t("membershipDetailsUsage")}
+              </dt>
+              <dd>
+                <PackageUsageBar
+                  used={display.usedSessions}
+                  total={display.totalSessions}
+                  ariaLabel={display.sessionsSummary}
+                />
+              </dd>
+            </div>
           ) : null}
           <DetailRow
             label={t("membershipDetailsPeriodStart")}
@@ -82,10 +102,6 @@ export function UserMembershipDetailsModal({
           <DetailRow
             label={t("membershipDetailsPeriodEnd")}
             value={formatDateForUi(membership.currentPeriodEnd)}
-          />
-          <DetailRow
-            label={t("membershipDetailsStatus")}
-            value={formatMembershipStatusLabel(status, t)}
           />
         </dl>
 

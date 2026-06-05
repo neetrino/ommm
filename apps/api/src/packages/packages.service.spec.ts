@@ -1,4 +1,5 @@
 import { PackageStatus } from '@prisma/client';
+import { PackageUsageService } from './package-usage.service';
 import { PackagesService } from './packages.service';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -11,6 +12,7 @@ describe('PackagesService', () => {
       },
       userPackage: {
         findFirst: jest.fn(),
+        findMany: jest.fn(),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
@@ -23,15 +25,18 @@ describe('PackagesService', () => {
       getOrSet: jest.fn(),
       invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
     };
+    const packageUsage = new PackageUsageService(prisma as never);
     return {
       service: new PackagesService(
         prisma as never,
         audit as never,
         cache as never,
+        packageUsage,
       ),
       prisma,
       audit,
       cache,
+      packageUsage,
     };
   }
 

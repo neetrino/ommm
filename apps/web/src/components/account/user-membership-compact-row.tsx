@@ -30,6 +30,14 @@ export function UserMembershipCompactRow({
   const periodStartLabel = formatDateForUi(membership.currentPeriodStart);
   const periodEndLabel = formatDateForUi(membership.currentPeriodEnd);
   const periodLabel = `${periodStartLabel} – ${periodEndLabel}`;
+  const sessionsCompact =
+    display.totalSessions !== null && display.usedSessions !== null
+      ? t("listSessionsCompact", {
+          used: display.usedSessions,
+          total: display.totalSessions,
+          remaining: display.remainingSessions ?? 0,
+        })
+      : display.sessionsSummary;
 
   return (
     <>
@@ -46,6 +54,7 @@ export function UserMembershipCompactRow({
           priceLabel={priceLabel}
           durationLabel={durationLabel}
           periodLabel={periodLabel}
+          sessionsCompact={sessionsCompact}
           viewDetailsLabel={t("viewDetails")}
         />
       </button>
@@ -54,7 +63,7 @@ export function UserMembershipCompactRow({
         type="button"
         aria-label={t("viewDetailsFor", { name: display.sessionName })}
         onClick={onOpenDetails}
-        className="ommm-list-row ommm-membership-row-interactive hidden w-full items-center gap-4 text-left md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,1.1fr)_auto]"
+        className="ommm-list-row ommm-membership-row-interactive hidden w-full items-center gap-4 text-left md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1.1fr)_auto]"
       >
         <DesktopCell
           title={display.sessionName}
@@ -62,7 +71,7 @@ export function UserMembershipCompactRow({
           className="min-w-0"
         />
         <DesktopCell title={priceLabel} subtitle={durationLabel} />
-        <DesktopCell title={display.sessionsLabel} subtitle={display.sessionsUsedLabel ?? "—"} />
+        <DesktopCell title={sessionsCompact} subtitle={display.sessionsUsedSummary ?? "—"} />
         <DesktopCell title={periodStartLabel} subtitle={periodEndLabel} />
         <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
         <span className="text-xs font-medium uppercase tracking-[0.08em] text-sand-600">
@@ -80,6 +89,7 @@ type MobileRowContentProps = {
   priceLabel: string;
   durationLabel: string;
   periodLabel: string;
+  sessionsCompact: string;
   viewDetailsLabel: string;
 };
 
@@ -90,6 +100,7 @@ function MobileRowContent({
   priceLabel,
   durationLabel,
   periodLabel,
+  sessionsCompact,
   viewDetailsLabel,
 }: MobileRowContentProps) {
   return (
@@ -107,10 +118,7 @@ function MobileRowContent({
           <p className="font-medium text-sage-900">{durationLabel}</p>
         </div>
         <div>
-          <p className="text-sage-500">{display.sessionsLabel}</p>
-          {display.sessionsUsedLabel !== null ? (
-            <p className="font-medium text-sage-900">{display.sessionsUsedLabel}</p>
-          ) : null}
+          <p className="text-sage-500">{sessionsCompact}</p>
         </div>
       </div>
       <p className="mt-2 text-xs text-sage-500">{periodLabel}</p>
