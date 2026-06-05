@@ -71,22 +71,21 @@ export async function seedPackagePlans(prisma: PrismaClient): Promise<SeededPlan
   return bySlug;
 }
 
-const OBSOLETE_PAYMENT_REFERENCES = [
-  "seed-pay-active-reformer-8",
-  "seed-pay-pending-yoga-8",
-  "seed-pay-expired-mat-12",
-  "seed-pay-paused-dances-12",
-] as const;
-
 async function removeObsoleteSeedPackages(prisma: PrismaClient): Promise<void> {
-  for (const paymentReference of OBSOLETE_PAYMENT_REFERENCES) {
-    const payment = await prisma.payment.findUnique({
-      where: { paymentReference },
-      include: { userPackage: true },
-    });
-    if (payment === null) {
-      continue;
-    }
+  const payments = await prisma.payment.findMany({
+    where: {
+      OR: [
+        { paymentReference: { startsWith: "seed-sub-" } },
+        { paymentReference: { startsWith: "seed-pay-active-" } },
+        { paymentReference: { startsWith: "seed-pay-pending-" } },
+        { paymentReference: { startsWith: "seed-pay-expired-" } },
+        { paymentReference: { startsWith: "seed-pay-paused-" } },
+      ],
+    },
+    include: { userPackage: true },
+  });
+
+  for (const payment of payments) {
     if (payment.userPackage !== null) {
       await prisma.userPackage.delete({ where: { id: payment.userPackage.id } });
     }
