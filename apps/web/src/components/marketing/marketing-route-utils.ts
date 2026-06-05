@@ -1,6 +1,8 @@
 /** Page root markers — shell/footer styling follows mounted content via `:has()`, not URL. */
 export const MARKETING_HOME_PAGE_MARKER = "data-marketing-home";
 export const MARKETING_INNER_PAGE_MARKER = "data-marketing-inner";
+/** Coaches hero keeps cream header ink over the teal gradient (`62:2182`). */
+export const MARKETING_COACHES_HERO_MARKER = "data-marketing-coaches-hero";
 
 /** Locale-aware pathname from `@/i18n/navigation` (no locale prefix). */
 export function isMarketingHomePath(pathname: string): boolean {

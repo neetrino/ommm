@@ -14,6 +14,15 @@
 }
 
 .headerShell {
+  /* Default — cream/white ink over dark heroes and imagery. */
+  --ommm-marketing-header-ink: var(--ommm-admin-cream, #fbf5d5);
+  --ommm-marketing-header-ink-hover-surface: rgba(255, 255, 255, 0.12);
+  --ommm-marketing-header-focus-ring: rgba(255, 255, 255, 0.8);
+  --ommm-marketing-nav-ink: #ffffff;
+  --ommm-marketing-nav-ink-active: var(--ommm-admin-cream, #fbf5d5);
+  --ommm-marketing-nav-ink-hover: rgba(255, 255, 255, 0.9);
+  --marketing-nav-active-bar-color: var(--ommm-admin-cream, #fbf5d5);
+
   animation: marketing-header-enter 280ms ease-out both;
   transition:
     background-color 220ms ease,
@@ -23,12 +32,28 @@
     -webkit-backdrop-filter 220ms ease;
 }
 
+/* Light page surfaces — sage ink (workspace shell, inner marketing routes). */
+.headerShell[data-workspace-shell="true"],
+.headerShell[data-account-shell="true"],
+:global(.marketing-layout-shell:has([data-marketing-inner]):not(:has([data-marketing-coaches-hero])))
+  .headerShell,
+:global([data-workspace-shell]) .headerShell,
+:global([data-marketing-account-shell]) .headerShell {
+  --ommm-marketing-header-ink: var(--color-sage-800, #2e2e2e);
+  --ommm-marketing-header-ink-hover-surface: rgba(45, 40, 35, 0.08);
+  --ommm-marketing-header-focus-ring: rgba(51, 69, 55, 0.35);
+  --ommm-marketing-nav-ink: var(--color-sage-800, #2e2e2e);
+  --ommm-marketing-nav-ink-active: var(--color-sage-900, #1a1c1b);
+  --ommm-marketing-nav-ink-hover: var(--color-sage-900, #1a1c1b);
+  --marketing-nav-active-bar-color: var(--color-sage-700, #334537);
+}
+
 /* USER account shell — opaque backdrop masks scrolling dashboard content under the fixed header. */
 .headerShell[data-account-shell="true"] {
   isolation: isolate;
 }
 
-.headerShell[data-account-shell="true"]::before {
+.headerShell[data-account-shell="true"]:not([data-workspace-shell="true"])::before {
   content: "";
   position: absolute;
   inset: 0;

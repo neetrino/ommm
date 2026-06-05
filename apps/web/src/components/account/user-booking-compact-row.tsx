@@ -8,6 +8,14 @@ import {
 } from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
+import {
+  USER_BOOKINGS_LIST_CLASS_CELL,
+  USER_BOOKINGS_LIST_DATE_CELL,
+  USER_BOOKINGS_LIST_ROW_CLASS,
+  USER_BOOKINGS_LIST_SPACER_CELL,
+  USER_BOOKINGS_LIST_STATUS_CLASS,
+  USER_BOOKINGS_LIST_TIME_CELL,
+} from "@/components/account/user-bookings-list-layout";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 
 type UserBookingCompactRowProps = {
@@ -34,23 +42,38 @@ export function UserBookingCompactRow({
   const coachName = resolveSessionCoachName(booking.session.coach);
 
   return (
-    <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
-      <SessionClassTitle variant="list" name={booking.session.classType.name} />
-      <div className="min-w-0">
+    <div className={USER_BOOKINGS_LIST_ROW_CLASS}>
+      <div className={USER_BOOKINGS_LIST_DATE_CELL}>
         <SessionDateTimeHighlight
           locale={locale}
           startsAt={booking.session.startsAt}
           endsAt={booking.session.endsAt}
-          variant="list"
+          variant="listDate"
         />
-        <SessionCoachLine coachName={coachName} variant="list" className="mt-2" />
       </div>
-      <span
-        className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
-      >
-        {booking.status}
-      </span>
-      <div className="flex shrink-0 flex-wrap gap-2">
+
+      <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
+        <SessionClassTitle variant="list" name={booking.session.classType.name} />
+        <SessionCoachLine coachName={coachName} variant="list" className="mt-1" />
+      </div>
+
+      <div className={USER_BOOKINGS_LIST_TIME_CELL}>
+        <SessionDateTimeHighlight
+          locale={locale}
+          startsAt={booking.session.startsAt}
+          endsAt={booking.session.endsAt}
+          variant="listTime"
+        />
+      </div>
+
+      <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
+
+      <div className={USER_BOOKINGS_LIST_STATUS_CLASS}>
+        <span
+          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
+        >
+          {booking.status}
+        </span>
         {showCancel && booking.status === "BOOKED" ? (
           <CancelBookingButton bookingId={booking.id} />
         ) : null}

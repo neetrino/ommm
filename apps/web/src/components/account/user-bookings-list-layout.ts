@@ -1,0 +1,43 @@
+import {
+  USER_BOOKINGS_LIST_GRID_COLS,
+  USER_LIST_CLASS_CELL,
+  USER_LIST_DATE_CELL,
+  USER_LIST_SPACER_CELL,
+  USER_LIST_STATUS_CELL,
+  USER_LIST_TABLE_GRID_GAP,
+  USER_LIST_TABLE_HEADER_PAD,
+  USER_LIST_TABLE_HEADER_TEXT,
+  USER_LIST_TABLE_ROW_PAD,
+  USER_LIST_TIME_CELL,
+} from "@/components/account/user-list-table-layout";
+
+export { USER_BOOKINGS_LIST_GRID_COLS };
+
+export const USER_BOOKINGS_LIST_HEADER_CLASS = [
+  "hidden border-b border-sand-200/50",
+  USER_LIST_TABLE_HEADER_PAD,
+  USER_LIST_TABLE_HEADER_TEXT,
+  "md:grid",
+  USER_BOOKINGS_LIST_GRID_COLS,
+  USER_LIST_TABLE_GRID_GAP,
+  "md:items-end",
+].join(" ");
+
+export const USER_BOOKINGS_LIST_ROW_CLASS = [
+  "grid w-full grid-cols-1 gap-3 text-left",
+  USER_LIST_TABLE_ROW_PAD,
+  USER_BOOKINGS_LIST_GRID_COLS,
+  USER_LIST_TABLE_GRID_GAP,
+  "md:items-center md:gap-y-0",
+].join(" ");
+
+export {
+  USER_LIST_CLASS_CELL as USER_BOOKINGS_LIST_CLASS_CELL,
+  USER_LIST_DATE_CELL as USER_BOOKINGS_LIST_DATE_CELL,
+  USER_LIST_SPACER_CELL as USER_BOOKINGS_LIST_SPACER_CELL,
+  USER_LIST_STATUS_CELL as USER_BOOKINGS_LIST_STATUS_CELL,
+  USER_LIST_TIME_CELL as USER_BOOKINGS_LIST_TIME_CELL,
+};
+
+export const USER_BOOKINGS_LIST_STATUS_CLASS =
+  "flex flex-col items-start gap-1.5 md:items-end md:justify-self-end md:text-right";

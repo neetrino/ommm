@@ -17,6 +17,8 @@ export type MarketingPublicPageSectionProps = {
   eyebrow?: string;
   /** Optional action aligned with the title row (e.g. schedule “My account”). */
   headerAside?: ReactNode;
+  /** Extra `data-*` markers on the section root (e.g. coaches hero ink override). */
+  sectionMarkers?: Record<string, string>;
   children: ReactNode;
 };
 
@@ -38,6 +40,7 @@ export function MarketingPublicPageSection({
   lead,
   eyebrow,
   headerAside,
+  sectionMarkers,
   children,
 }: MarketingPublicPageSectionProps) {
   const hasHeaderAside = headerAside !== undefined && headerAside !== null;
@@ -45,6 +48,7 @@ export function MarketingPublicPageSection({
   return (
     <section
       {...{ [MARKETING_INNER_PAGE_MARKER]: "" }}
+      {...sectionMarkers}
       className={`${marketingMontserrat.variable} ${styles.section}`}
       style={MARKETING_PUBLIC_PAGE_SECTION_STYLE}
     >

@@ -1,9 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  USER_SCHEDULE_LIST_HEADER_CLASS,
-} from "@/components/account/user-schedule-list-layout";
+import { USER_SCHEDULE_LIST_HEADER_CLASS } from "@/components/account/user-schedule-list-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSessionBoardCard } from "@/components/account/user-session-board-card";
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
@@ -46,13 +44,14 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
       ) : (
         <div className="overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
           <div className={USER_SCHEDULE_LIST_HEADER_CLASS}>
+            <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
-            <span>{t("listHeaderCoach")}</span>
             <span>{t("listHeaderTime")}</span>
+            <span aria-hidden="true" />
             <span>{t("listHeaderSpots")}</span>
             <span className="sr-only">{t("listHeaderActions")}</span>
           </div>
-          <ul className="divide-y divide-white/70">
+          <ul className="divide-y divide-sand-200/50">
             {sessions.map((session) => (
               <li key={session.id}>
                 <UserSessionCompactRow locale={locale} session={session} />

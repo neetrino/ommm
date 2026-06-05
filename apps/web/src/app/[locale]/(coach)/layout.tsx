@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
-import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
+import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 import {
@@ -18,7 +18,7 @@ import {
 const COACH_ROLES = new Set<string>(["COACH"]);
 
 const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
+  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 export default async function CoachSectionLayout({
   children,
@@ -40,7 +40,8 @@ export default async function CoachSectionLayout({
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
-    <DashboardAppShell
+    <WorkspaceShellFromAuth
+      authUser={authOutcome.auth.authUser}
       brandHref="/coach/home"
       brandLabel={tDash("brand.coach.title")}
       brandSubline={tDash("brand.coach.subline")}
@@ -59,6 +60,6 @@ export default async function CoachSectionLayout({
       }
     >
       {children}
-    </DashboardAppShell>
+    </WorkspaceShellFromAuth>
   );
 }

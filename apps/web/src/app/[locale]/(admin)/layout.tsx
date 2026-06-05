@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
-import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
+import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
@@ -34,7 +34,8 @@ export default async function AdminSectionLayout({
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
-    <DashboardAppShell
+    <WorkspaceShellFromAuth
+      authUser={authOutcome.auth.authUser}
       brandHref="/admin/dashboard"
       brandLabel={tDash("brand.admin.title")}
       brandSubline={tDash("brand.admin.subline")}
@@ -45,6 +46,6 @@ export default async function AdminSectionLayout({
       notificationRoute={notificationRoute}
     >
       {children}
-    </DashboardAppShell>
+    </WorkspaceShellFromAuth>
   );
 }

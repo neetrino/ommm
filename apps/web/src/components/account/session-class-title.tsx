@@ -40,7 +40,9 @@ export function SessionClassTitle({
           {eyebrow}
         </p>
       ) : null}
-      <p className="font-serif text-lg leading-snug text-sage-950">{name}</p>
+      <p className="font-serif text-xl leading-snug tracking-tight text-sage-950 sm:text-[1.35rem]">
+        {name}
+      </p>
     </div>
   );
 }

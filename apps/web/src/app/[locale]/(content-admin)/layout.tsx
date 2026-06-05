@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
-import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
+import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import { LogoutButton } from "@/components/logout-button";
 import { Link } from "@/i18n/navigation";
 import {
@@ -40,7 +40,8 @@ export default async function ContentAdminSectionLayout({
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
-    <DashboardAppShell
+    <WorkspaceShellFromAuth
+      authUser={authOutcome.auth.authUser}
       brandHref="/content-admin/home"
       brandLabel={tDash("brand.contentAdmin.title")}
       brandSubline={tDash("brand.contentAdmin.subline")}
@@ -61,6 +62,6 @@ export default async function ContentAdminSectionLayout({
       }
     >
       {children}
-    </DashboardAppShell>
+    </WorkspaceShellFromAuth>
   );
 }

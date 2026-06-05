@@ -9,6 +9,14 @@ import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserBookingBoardCard } from "@/components/account/user-booking-board-card";
 import { UserBookingCompactRow } from "@/components/account/user-booking-compact-row";
+import {
+  USER_BOOKINGS_LIST_CLASS_CELL,
+  USER_BOOKINGS_LIST_DATE_CELL,
+  USER_BOOKINGS_LIST_HEADER_CLASS,
+  USER_BOOKINGS_LIST_ROW_CLASS,
+  USER_BOOKINGS_LIST_SPACER_CELL,
+  USER_BOOKINGS_LIST_TIME_CELL,
+} from "@/components/account/user-bookings-list-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
@@ -116,13 +124,14 @@ function BookingGroup({
         </ul>
       ) : (
         <div className="mt-4 overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)_auto] md:gap-4">
+          <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
+            <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
-            <span>{t("listHeaderStatus")}</span>
-            <span className="sr-only">{t("listHeaderActions")}</span>
+            <span aria-hidden="true" />
+            <span className="md:text-right">{t("listHeaderStatus")}</span>
           </div>
-          <ul className="divide-y divide-white/70">
+          <ul className="divide-y divide-sand-200/50">
             {rows.map((booking) => (
               <li key={booking.id}>
                 <UserBookingCompactRow
@@ -167,32 +176,42 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
         </ul>
       ) : (
         <div className="mt-4 overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)] md:gap-4">
+          <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
+            <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
-            <span>{t("listHeaderStatus")}</span>
+            <span aria-hidden="true" />
+            <span className="md:text-right">{t("listHeaderStatus")}</span>
           </div>
-          <ul className="divide-y divide-white/70">
+          <ul className="divide-y divide-sand-200/50">
             {rows.map((item) => (
-              <li
-                key={item.id}
-                className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)] md:items-center md:gap-4"
-              >
-                <SessionClassTitle variant="list" name={item.session.classType.name} />
-                <div className="min-w-0">
+              <li key={item.id} className={USER_BOOKINGS_LIST_ROW_CLASS}>
+                <div className={USER_BOOKINGS_LIST_DATE_CELL}>
                   <SessionDateTimeHighlight
                     locale={locale}
                     startsAt={item.session.startsAt}
                     endsAt={item.session.endsAt}
-                    variant="list"
+                    variant="listDate"
                   />
+                </div>
+                <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
+                  <SessionClassTitle variant="list" name={item.session.classType.name} />
                   <SessionCoachLine
                     coachName={resolveSessionCoachName(item.session.coach)}
                     variant="list"
-                    className="mt-2"
+                    className="mt-1"
                   />
                 </div>
-                <p className="text-xs uppercase tracking-wide text-sage-500/90">
+                <div className={USER_BOOKINGS_LIST_TIME_CELL}>
+                  <SessionDateTimeHighlight
+                    locale={locale}
+                    startsAt={item.session.startsAt}
+                    endsAt={item.session.endsAt}
+                    variant="listTime"
+                  />
+                </div>
+                <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
+                <p className="text-xs font-semibold uppercase tracking-wide text-sage-500 md:text-right">
                   {t("waitlistBadge", { pos: item.position, status: item.status })}
                 </p>
               </li>
