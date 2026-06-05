@@ -108,8 +108,8 @@ export function LanguageSwitcher({
             : "ommm-dropdown-trigger--compact")
         }
         showChevron={!isIconMarketing}
-        menuMinWidth={LANGUAGE_MENU_MIN_WIDTH_PX}
-        menuAlign="end"
+        menuMinWidth={isIconMarketing ? MARKETING_ICON_MENU_MIN_WIDTH_PX : undefined}
+        menuAlign={isIconMarketing ? "end" : "start"}
         menuClassName="ommm-language-switcher-menu"
         disableMenuScroll
         renderValue={() =>
