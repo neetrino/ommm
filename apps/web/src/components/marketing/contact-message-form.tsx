@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import {
+  CONTACT_PAGE_CARD_SHELL_CLASS,
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
@@ -14,9 +15,6 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 const FORM_STYLE = {
-  "--contact-card-bg": CONTACT_PAGE_SURFACE.cardBackground,
-  "--contact-card-shadow": CONTACT_PAGE_SURFACE.cardShadow,
-  "--contact-card-radius": `${CONTACT_PAGE_LAYOUT.cardRadiusPx}px`,
   "--contact-card-padding": `${CONTACT_PAGE_LAYOUT.cardPaddingPx}px`,
   "--contact-input-radius": `${CONTACT_PAGE_LAYOUT.inputRadiusPx}px`,
   "--contact-input-bg": CONTACT_PAGE_SURFACE.inputBackground,
@@ -105,7 +103,7 @@ export function ContactMessageForm({ formTitle }: ContactMessageFormProps) {
     <>
       <form
         onSubmit={(ev) => void onSubmit(ev)}
-        className={styles.form}
+        className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.form}`}
         style={FORM_STYLE}
       >
         <h2 className={styles.heading}>{formTitle ?? tPage("formHeading")}</h2>

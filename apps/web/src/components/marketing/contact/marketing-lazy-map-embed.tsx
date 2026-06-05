@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CONTACT_PAGE_CARD_SHELL_CLASS } from "@/components/marketing/contact/contact-page-tokens";
 import { MARKETING_LAZY_SECTION } from "@/components/marketing/marketing-lazy-section-tokens";
 import styles from "@/components/marketing/contact/marketing-contact-page-content.module.css";
 
@@ -76,7 +77,10 @@ export function MarketingLazyMapEmbed({ heading, embedHtml }: MarketingLazyMapEm
     <section ref={containerRef} className={styles.mapSection}>
       <h2 className={styles.mapHeading}>{heading}</h2>
       {shouldRenderMap ? (
-        <div className={styles.mapFrame} dangerouslySetInnerHTML={{ __html: embedHtml }} />
+        <div
+          className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.mapFrame}`}
+          dangerouslySetInnerHTML={{ __html: embedHtml }}
+        />
       ) : (
         <div aria-hidden className={MARKETING_LAZY_SECTION.placeholders.mapEmbed} />
       )}

@@ -3,10 +3,7 @@
   height: 100%;
   flex-direction: column;
   gap: var(--contact-card-gap);
-  border-radius: var(--contact-card-radius);
-  background: var(--contact-card-bg);
   padding: var(--contact-card-padding);
-  box-shadow: var(--contact-card-shadow);
 }
 
 .heading {
@@ -100,6 +97,7 @@
   gap: 0.875rem;
   margin-top: auto;
   border-radius: var(--contact-callout-radius);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   background: var(--contact-callout-bg);
   padding: 1rem 1.125rem;
 }

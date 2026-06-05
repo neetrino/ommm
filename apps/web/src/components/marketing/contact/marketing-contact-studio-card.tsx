@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import {
+  CONTACT_PAGE_CARD_SHELL_CLASS,
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
@@ -45,9 +46,6 @@ function ContactStarIcon() {
 }
 
 const CARD_STYLE = {
-  "--contact-card-bg": CONTACT_PAGE_SURFACE.cardBackground,
-  "--contact-card-shadow": CONTACT_PAGE_SURFACE.cardShadow,
-  "--contact-card-radius": `${CONTACT_PAGE_LAYOUT.cardRadiusPx}px`,
   "--contact-card-padding": `${CONTACT_PAGE_LAYOUT.cardPaddingPx}px`,
   "--contact-card-gap": `${CONTACT_PAGE_LAYOUT.cardGapPx}px`,
   "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
@@ -67,7 +65,7 @@ export function MarketingContactStudioCard({
   socialLinks,
 }: MarketingContactStudioCardProps) {
   return (
-    <article className={styles.card} style={CARD_STYLE}>
+    <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.card}`} style={CARD_STYLE}>
       <h2 className={styles.heading}>{heading}</h2>
       <ul className={styles.list}>
         {rows.map((row, index) => (
