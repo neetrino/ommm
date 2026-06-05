@@ -42,9 +42,9 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
         </ul>
       ) : (
         <div className="overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.1fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto] md:gap-4">
-            <span>{t("listHeaderClass")}</span>
+          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_auto] md:gap-4">
             <span>{t("listHeaderTime")}</span>
+            <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderCoach")}</span>
             <span>{t("listHeaderSpots")}</span>
             <span className="sr-only">{t("listHeaderActions")}</span>

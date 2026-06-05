@@ -6,7 +6,11 @@
     "logout": "Выход",
     "account": "Мой аккаунт",
     "admin": "Админ",
-    "loading": "Загрузка…"
+    "loading": "Загрузка…",
+    "sessionToday": "Сегодня",
+    "sessionTomorrow": "Завтра",
+    "sessionUntil": "до",
+    "sessionDurationMinutes": "{minutes} мин"
   },
   "nav": {
     "studioBrand": "Ommm.",

@@ -2,7 +2,7 @@
 
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
-import { formatSessionRange } from "@/lib/format-session-time";
+import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 
 type UserBookingCompactRowProps = {
@@ -26,19 +26,17 @@ export function UserBookingCompactRow({
   showCancel,
   showRebook,
 }: UserBookingCompactRowProps) {
-  const timeLabel = formatSessionRange(
-    locale,
-    booking.session.startsAt,
-    booking.session.endsAt,
-  );
-
   return (
-    <div className="ommm-list-row flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
+    <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
+      <SessionDateTimeHighlight
+        locale={locale}
+        startsAt={booking.session.startsAt}
+        endsAt={booking.session.endsAt}
+        variant="list"
+      />
       <div className="min-w-0">
         <p className="font-medium text-sage-800">{booking.session.classType.name}</p>
-        <p className="mt-0.5 text-xs text-sage-500 md:hidden">{timeLabel}</p>
       </div>
-      <p className="hidden text-sm text-sage-600 md:block">{timeLabel}</p>
       <span
         className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
       >

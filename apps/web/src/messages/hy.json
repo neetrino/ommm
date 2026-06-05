@@ -6,7 +6,11 @@
     "logout": "Ելք",
     "account": "Իմ հաշիվը",
     "admin": "Ադմին",
-    "loading": "Բեռնում…"
+    "loading": "Բեռնում…",
+    "sessionToday": "Այսօր",
+    "sessionTomorrow": "Վաղը",
+    "sessionUntil": "մինչև",
+    "sessionDurationMinutes": "{minutes} ր"
   },
   "nav": {
     "studioBrand": "Ommm.",
