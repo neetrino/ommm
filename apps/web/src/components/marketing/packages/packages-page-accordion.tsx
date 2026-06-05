@@ -188,36 +188,16 @@ function ExpandedTierRow({ locale, plan }: ExpandedTierRowProps) {
   );
 }
 
-type CollapsedPanelProps = {
-  category: PackagesPageAccordionCategory;
-  onOpen: (categoryId: string) => void;
-  openLabel: string;
-};
+type DesktopPanelMode = "idle" | "collapsed" | "expanded";
 
-function CollapsedPanel({ category, onOpen, openLabel }: CollapsedPanelProps) {
-  const accentColor = resolvePackagesPageCategoryAccentColor(category.visualStyleKey);
-
-  return (
-    <div
-      className={`${accordionStyles.panel} ${accordionStyles.panelCollapsed}`}
-      style={panelStyleVars(category.visualStyleKey, accentColor)}
-    >
-      <div className={accordionStyles.collapsedTop}>
-        <p className={accordionStyles.collapsedTitle}>{category.label}</p>
-        {category.priceAmount !== null ? (
-          <p className={accordionStyles.collapsedPrice}>{category.priceAmount}</p>
-        ) : null}
-      </div>
-      <div className={`${accordionStyles.panelFabFooter} ${accordionStyles.collapsedFabWrap}`}>
-        <PackagesPageCardFab
-          direction="open"
-          ariaLabel={openLabel}
-          className={accordionStyles.openFab}
-          onClick={() => onOpen(category.id)}
-        />
-      </div>
-    </div>
-  );
+function resolveDesktopPanelMode(
+  isAccordionMode: boolean,
+  isExpanded: boolean,
+): DesktopPanelMode {
+  if (!isAccordionMode) {
+    return "idle";
+  }
+  return isExpanded ? "expanded" : "collapsed";
 }
 
 type DesktopAccordionPanelProps = {
@@ -231,8 +211,19 @@ type DesktopAccordionPanelProps = {
   onClose: () => void;
 };
 
-function ExpandedPanel({ locale, category, onClose, closeLabel }: ExpandedPanelProps) {
-  const accentColor = resolvePackagesPageCategoryAccentColor(category.visualStyleKey);
+function DesktopAccordionPanel({
+  locale,
+  category,
+  mode,
+  detailsLabel,
+  openLabel,
+  closeLabel,
+  onOpen,
+  onClose,
+}: DesktopAccordionPanelProps) {
+  const isExpanded = mode === "expanded";
+  const isIdle = mode === "idle";
+  const accentColor = resolvePackagesPageCategoryAccentColor(category.id);
 
   const panelClassName = isIdle
     ? `${cardStyles.card} ${accordionStyles.desktopAccordionPanel}`
@@ -257,10 +248,11 @@ function ExpandedPanel({ locale, category, onClose, closeLabel }: ExpandedPanelP
       : accordionStyles.openFab;
 
   return (
-    <section
-      className={`${accordionStyles.panel} ${accordionStyles.panelExpanded}`}
-      style={panelStyleVars(category.visualStyleKey, accentColor)}
-      aria-label={category.label}
+    <div
+      className={panelClassName}
+      style={panelStyle}
+      data-expanded={isExpanded ? "true" : "false"}
+      aria-label={isIdle ? undefined : category.label}
     >
       {isIdle ? (
         <div className={cardStyles.cardTop}>
@@ -334,17 +326,29 @@ function MobileAccordionSlot({
   closeLabel,
 }: MobileAccordionSlotProps) {
   return (
-    <div className={cardStyles.card} style={defaultCardStyleVars(category.visualStyleKey)}>
-      <div className={cardStyles.cardTop}>
-        <h2 className={cardStyles.title}>{category.label}</h2>
-        {category.priceAmount !== null ? (
-          <div className={cardStyles.priceBlock}>
-            {category.priceFromPrefix !== undefined ? (
-              <p className={cardStyles.priceFromPrefix}>{category.priceFromPrefix}</p>
-            ) : null}
-            <p className={cardStyles.price}>{category.priceAmount}</p>
-          </div>
-        ) : null}
+    <section
+      className={accordionStyles.mobileAccordionItem}
+      style={mobilePanelStyleVars(category.id)}
+      data-expanded={isExpanded ? "true" : "false"}
+      aria-label={category.label}
+    >
+      <div className={accordionStyles.mobileAccordionHeader}>
+        <div className={accordionStyles.mobileCardBody}>
+          <h2 className={accordionStyles.mobileCardTitle}>{category.label}</h2>
+          <p className={accordionStyles.mobileCardDetails}>{detailsLabel}</p>
+        </div>
+        <button
+          type="button"
+          className={accordionStyles.mobileCardFab}
+          aria-label={isExpanded ? closeLabel : openLabel}
+          aria-expanded={isExpanded}
+          onClick={() => (isExpanded ? onClose() : onOpen(category.id))}
+        >
+          <PackagesPageCardFabImage
+            sizePx={PACKAGES_PAGE_MOBILE_FIGMA.mobileFabSizePx}
+            orientation="vertical-animated"
+          />
+        </button>
       </div>
       <div
         className={accordionStyles.mobileAccordionContent}
@@ -494,54 +498,22 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
     </div>
   );
 
-  const mobileContent =
-    expandedCategory === null ? (
-      <div
-        className={`${cardStyles.mobileOnly} ${cardStyles.mobileCarouselViewport}`}
-        style={layoutStyleVars()}
-      >
-        <div className={cardStyles.mobileCarouselTrack} aria-label={t("packagesPageTitle")} role="list">
-          {categories.map((category) => (
-            <div key={category.id} className={cardStyles.mobileCarouselSlide} role="listitem">
-              <DefaultCategoryCard
-                category={category}
-                detailsLabel={t("packagesDetailsCta")}
-                openLabel={t("packagesOpenDetailsAria", { name: category.label })}
-                onOpen={updateExpandedCategory}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    ) : (
-      <div className={cardStyles.mobileOnly}>
-        <div
-          className={accordionStyles.mobileExpanded}
-          style={panelStyleVars(
-            expandedCategory.visualStyleKey,
-            resolvePackagesPageCategoryAccentColor(expandedCategory.visualStyleKey),
-          )}
-        >
-          <div className={accordionStyles.mobileExpandedHeader}>
-            <h2 className={accordionStyles.expandedHeader}>{expandedCategory.label}</h2>
-            <button
-              type="button"
-              className={accordionStyles.closeFab}
-              aria-label={t("packagesAccordionCloseAria", { name: expandedCategory.label })}
-              onClick={() => updateExpandedCategory(null)}
-            >
-              <PackagesPageCardFabImage direction="close" />
-            </button>
-          </div>
-          <div className={accordionStyles.mobileTierList}>
-            <PublicPackageCategoryMobileTierList
-              locale={locale}
-              categoryLabel={expandedCategory.label}
-              plans={expandedCategory.plans}
-              audience="guest"
-            />
-          </div>
-        </div>
+  const mobileContent = (
+    <div className={cardStyles.mobileOnly}>
+      <div className={accordionStyles.mobileAccordionStack} style={layoutStyleVars()}>
+        {categories.map((category) => (
+          <MobileAccordionSlot
+            key={category.id}
+            locale={locale}
+            category={category}
+            isExpanded={expandedCategory?.id === category.id}
+            detailsLabel={t("packagesDetailsCta")}
+            openLabel={t("packagesOpenDetailsAria", { name: category.label })}
+            closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+            onOpen={updateExpandedCategory}
+            onClose={() => updateExpandedCategory(null)}
+          />
+        ))}
       </div>
     </div>
   );
