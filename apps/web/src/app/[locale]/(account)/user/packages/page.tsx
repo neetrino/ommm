@@ -1,23 +1,12 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { UserMembershipListItem } from "@/components/account/user-membership-list-item";
+import { UserPackagesSection } from "@/components/account/user-packages-section";
 import { AccountSection } from "@/components/layout/account-page-frame";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
-import { Link } from "@/i18n/navigation";
 import { serverApiJson } from "@/lib/server-api";
 import type { UserMembershipRow, UserPaymentRow } from "@/lib/user-package-types";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { formatDateForUi } from "@/lib/date-display";
-
-function isUserPackageStatus(value: string): value is UserMembershipRow["status"] {
-  return (
-    value === "ACTIVE" ||
-    value === "PAUSED" ||
-    value === "CANCELLED" ||
-    value === "EXPIRED" ||
-    value === "PENDING"
-  );
-}
 
 function formatPaymentStatus(status: string, t: (key: string) => string): string {
   if (status === "SUCCEEDED") {
@@ -49,43 +38,24 @@ export default async function UserPackagesPage({
 
   return (
     <MemberContentFrame description={m("packagesPageLead")}>
-      <div className="space-y-10">
+      <div className="max-w-6xl space-y-10">
         <AccountSection title={t("yourPackages")}>
-          <div id="your-packages">
-            {!membershipsRes.ok ? (
-              <p className="ommm-body-muted text-sm">{t("signInToView")}</p>
-            ) : memberships.length === 0 ? (
-              <div className="max-w-xl space-y-4">
-                <p className="ommm-body-muted text-sm">{t("noPackagesYet")}</p>
-                <Link href="/packages" className="ommm-cta-primary inline-flex">
-                  {t("browsePackagesCta")}
-                </Link>
-              </div>
-            ) : (
-              <ul className="max-w-4xl space-y-4">
-                {memberships.map((membership) => {
-                  const status = isUserPackageStatus(membership.status)
-                    ? membership.status
-                    : "ACTIVE";
-                  return (
-                    <UserMembershipListItem
-                      key={membership.id}
-                      membership={membership}
-                      locale={locale}
-                      status={status}
-                    />
-                  );
-                })}
-              </ul>
-            )}
-          </div>
+          <UserPackagesSection
+            locale={locale}
+            memberships={memberships}
+            apiOk={membershipsRes.ok}
+          />
         </AccountSection>
 
         <AccountSection title={t("paymentHistory")}>
           {!paymentsRes.ok ? (
-            <p className="ommm-body-muted text-sm">{t("signInPayments")}</p>
+            <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+              <p className="ommm-body-muted text-sm">{t("signInPayments")}</p>
+            </div>
           ) : payments.length === 0 ? (
-            <p className="ommm-body-muted text-sm">{t("noPayments")}</p>
+            <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+              <p className="ommm-body-muted text-sm">{t("noPayments")}</p>
+            </div>
           ) : (
             <ul className="max-w-4xl space-y-2 text-sm">
               {payments.map((payment) => {

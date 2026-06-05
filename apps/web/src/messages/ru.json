@@ -685,7 +685,22 @@
       "membershipDetailsDuration": "Длительность",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
-      "membershipDetailsStatus": "Статус"
+      "membershipDetailsStatus": "Статус",
+      "membershipDetailsSessionsUsed": "Использовано занятий",
+      "membershipDetailsPeriodStart": "Начало периода",
+      "sessionsUsed": "Использовано: {count}",
+      "viewSwitcherAria": "Режим отображения пакетов",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "viewDetails": "Подробнее",
+      "viewDetailsFor": "Подробнее о {name}",
+      "packagesCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
+      "emptyPackagesHint": "Просмотрите доступные планы и оформите подписку, когда будете готовы.",
+      "listHeaderPackage": "Пакет",
+      "listHeaderPrice": "Цена",
+      "listHeaderSessions": "Занятия",
+      "listHeaderPeriod": "Период",
+      "listHeaderStatus": "Статус"
     },
     "progress": {
       "title": "Прогресс",

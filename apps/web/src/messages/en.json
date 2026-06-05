@@ -685,7 +685,22 @@
       "membershipDetailsDuration": "Duration",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
-      "membershipDetailsStatus": "Status"
+      "membershipDetailsStatus": "Status",
+      "membershipDetailsSessionsUsed": "Sessions used",
+      "membershipDetailsPeriodStart": "Period start",
+      "sessionsUsed": "{count} used",
+      "viewSwitcherAria": "Packages display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "viewDetails": "View details",
+      "viewDetailsFor": "View details for {name}",
+      "packagesCount": "{count, plural, one {# package} other {# packages}}",
+      "emptyPackagesHint": "Browse available plans and subscribe when you are ready.",
+      "listHeaderPackage": "Package",
+      "listHeaderPrice": "Price",
+      "listHeaderSessions": "Sessions",
+      "listHeaderPeriod": "Period",
+      "listHeaderStatus": "Status"
     },
     "progress": {
       "title": "Progress",

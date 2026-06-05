@@ -697,7 +697,22 @@
       "membershipDetailsDuration": "Տևողություն",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
-      "membershipDetailsStatus": "Կարգավիճակ"
+      "membershipDetailsStatus": "Կարգավիճակ",
+      "membershipDetailsSessionsUsed": "Օգտագործված դասեր",
+      "membershipDetailsPeriodStart": "ժամանակաշրջանի սկիզբ",
+      "sessionsUsed": "{count} օգտագործված",
+      "viewSwitcherAria": "Փաթեթների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "viewDetails": "Մանրամասներ",
+      "viewDetailsFor": "Մանրամասներ {name}-ի մասին",
+      "packagesCount": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
+      "emptyPackagesHint": "Դիտեք հասանելի պլանները և բաժանորդագրվեք, երբ պատրաստ լինեք։",
+      "listHeaderPackage": "Փաթեթ",
+      "listHeaderPrice": "Գին",
+      "listHeaderSessions": "Դասեր",
+      "listHeaderPeriod": "ժամանակաշրջան",
+      "listHeaderStatus": "Կարգավիճակ"
     },
     "progress": {
       "title": "Առաջընթաց",
