@@ -62,13 +62,14 @@ function resolveCategoryColorVariant(
     (variant) => variant === canonicalKey || variant === categoryLabel,
   );
   const variants = PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS;
+  const variantCount: number = variants.length;
   const startIndex =
     directMatch !== undefined
       ? variants.indexOf(directMatch)
-      : hashCategoryKey(categoryId) % variants.length;
+      : hashCategoryKey(categoryId) % variantCount;
   const candidate = variants[startIndex] ?? DEFAULT_PACKAGE_COLOR_VARIANT;
 
-  if (candidate !== previousVariant || variants.length === 1) {
+  if (candidate !== previousVariant || variantCount === 1) {
     return candidate;
   }
   return variants[(startIndex + 1) % variants.length] ?? candidate;
