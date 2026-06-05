@@ -24,7 +24,7 @@
 
 .header {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   top: var(--coaches-page-card-name-top);
   right: var(--coaches-page-card-name-left);
   left: var(--coaches-page-card-name-left);
@@ -64,18 +64,22 @@
 
 .photoWrap {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   top: var(--coaches-page-card-photo-top);
   left: var(--coaches-page-card-photo-left);
   right: 0;
   bottom: 0;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
   transition: left 280ms ease;
 }
 
 .cardExpanded .photoWrap {
   left: 0;
+}
+
+.cardExpanded .photoCrop {
+  transform: scale(var(--coaches-page-card-photo-expand-scale, 1.05));
 }
 
 .photoInner {
@@ -100,17 +104,22 @@
   left: 0;
   max-width: none;
   transform: scale(1);
-  transform-origin: 42% 18%;
+  transform-origin: 42% 28%;
   transition: transform 320ms ease;
 }
 
+.cardPhotoHoverSuppressed .photoWrap {
+  pointer-events: none;
+}
+
 @media (hover: hover) {
-  .card:hover .cardSurface {
+  .card:not(.cardExpanded):not(.cardPhotoHoverSuppressed):has(.photoWrap:hover) .cardSurface {
     background-color: var(--coaches-page-card-surface-hover);
   }
 
-  .card:hover .photoCrop {
-    transform: scale(var(--coaches-page-card-photo-hover-scale, 1.05));
+  .card:not(.cardExpanded):not(.cardPhotoHoverSuppressed) .photoWrap:hover .photoCrop {
+    transform: scale(var(--coaches-page-card-photo-hover-scale, 1.02))
+      translateY(var(--coaches-page-card-photo-hover-lift, -2.5%));
   }
 }
 

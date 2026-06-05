@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -86,6 +86,8 @@ function buildCardStyle(): CSSProperties {
     "--coaches-page-card-surface": card.surface,
     "--coaches-page-card-surface-hover": card.surfaceHover,
     "--coaches-page-card-photo-hover-scale": String(card.photoHoverScale),
+    "--coaches-page-card-photo-hover-lift": `${card.photoHoverLiftPercent}%`,
+    "--coaches-page-card-photo-expand-scale": String(card.photoExpandScale),
     "--coaches-page-card-radius": `${card.radiusPx}px`,
     "--coaches-page-card-name-color": card.nameColor,
     "--coaches-page-card-role-color": card.roleColor,
@@ -115,6 +117,14 @@ function ExpandPanelBody({ children }: { children: ReactNode }) {
   return <div className={styles.expandPanelBody}>{children}</div>;
 }
 
+function collapseHoverLockMs(): number {
+  if (typeof window === "undefined") {
+    return COACHES_PAGE_CARD.photoCollapseHoverLockMs;
+  }
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return reducedMotion ? 0 : COACHES_PAGE_CARD.photoCollapseHoverLockMs;
+}
+
 export function CoachesPageCoachCard({
   user,
   specialization,
@@ -138,10 +148,36 @@ export function CoachesPageCoachCard({
   const expandLabel = t("coachesCardExpandAria", { name: displayName });
   const collapseLabel = t("coachesCardCollapseAria", { name: displayName });
   const toggleLabel = expanded ? collapseLabel : expandLabel;
+  const [photoHoverSuppressed, setPhotoHoverSuppressed] = useState(false);
+  const wasExpandedRef = useRef(expanded);
+
+  useEffect(() => {
+    const wasExpanded = wasExpandedRef.current;
+    wasExpandedRef.current = expanded;
+
+    if (!wasExpanded || expanded) {
+      return;
+    }
+
+    setPhotoHoverSuppressed(true);
+    const lockMs = collapseHoverLockMs();
+    if (lockMs === 0) {
+      setPhotoHoverSuppressed(false);
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setPhotoHoverSuppressed(false);
+    }, lockMs);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [expanded]);
 
   return (
     <article
-      className={`${marketingMontserrat.variable} ${styles.card} ${expanded ? styles.cardExpanded : ""}`}
+      className={`${marketingMontserrat.variable} ${styles.card} ${expanded ? styles.cardExpanded : ""} ${photoHoverSuppressed ? styles.cardPhotoHoverSuppressed : ""}`}
       style={buildCardStyle()}
     >
       <div className={styles.cardSurface} aria-hidden />

@@ -31,8 +31,14 @@ export const COACHES_PAGE_CARD = {
   surface: "#e5f4f9",
   /** Card surface on pointer hover — warm yellow from marketing palette. */
   surfaceHover: "#fbf5d5",
-  /** Portrait zoom on hover (1 = none). */
-  photoHoverScale: 1.05,
+  /** Subtle portrait zoom on photo hover (1 = none). */
+  photoHoverScale: 1.02,
+  /** Subtle lift on photo hover — negative % moves image up. */
+  photoHoverLiftPercent: -2.5,
+  /** Portrait zoom when info panel is open (1 = none). */
+  photoExpandScale: 1.05,
+  /** Block photo hover until collapse animation finishes (ms). */
+  photoCollapseHoverLockMs: 320,
   radiusPx: 40,
   nameColor: "#1d1c15",
   roleColor: "#4a4738",
@@ -51,7 +57,7 @@ export const COACHES_PAGE_CARD = {
   expandPanelGlassFillExpanded: "rgba(255, 255, 255, 0.52)",
   expandPanelGlassBorder: "rgba(255, 255, 255, 0.45)",
   expandBioColor: "#1d1c15",
-  nameInsetTopPx: 32,
+  nameInsetTopPx: 24,
   nameInsetLeftPx: 30,
   roleInsetTopPx: 81,
   photoInsetLeftPx: 86,
