@@ -9,18 +9,11 @@ import {
   HOME_PLANS_SECTION_ASSETS,
   HOME_PLANS_SECTION_FIGMA,
   HOME_PLANS_SECTION_MOBILE_FIGMA,
+  HOME_PLANS_SECTION_MOBILE_LAYOUT,
 } from "@/components/marketing/home/home-plans-section-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { Link } from "@/i18n/navigation";
-
-function figmaCardPercentX(px: number): string {
-  return `${(px / HOME_PLANS_SECTION_MOBILE_FIGMA.cardWidthPx) * 100}%`;
-}
-
-function figmaCardPercentY(px: number): string {
-  return `${(px / HOME_PLANS_SECTION_MOBILE_FIGMA.cardHeightPx) * 100}%`;
-}
 
 function mobilePlanCardStyleVars(): CSSProperties {
   const mobile = HOME_PLANS_SECTION_MOBILE_FIGMA;
@@ -38,8 +31,10 @@ function mobilePlanCardStyleVars(): CSSProperties {
     ["--home-plan-image-crop-top" as string]: `${mobile.cardImageCropTopPercent}%`,
     ["--home-plan-image-crop-width" as string]: `${mobile.cardImageCropWidthPercent}%`,
     ["--home-plan-image-crop-height" as string]: `${mobile.cardImageCropHeightPercent}%`,
-    ["--home-plan-category-left" as string]: figmaCardPercentX(mobile.categoryLeftPx),
-    ["--home-plan-category-top" as string]: figmaCardPercentY(mobile.categoryTopPx),
+    ["--home-plan-category-left" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.categoryCornerInsetX,
+    ["--home-plan-category-top" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.categoryCornerInsetY,
+    ["--home-plan-category-transform" as string]: "none",
+    ["--home-plan-category-max-width" as string]: `calc(100% - ${HOME_PLANS_SECTION_MOBILE_LAYOUT.categoryCornerInsetX} - 1rem)`,
     ["--home-plan-category-size" as string]: `${mobile.categoryFontSizePx}px`,
     ["--home-plan-category-line-height" as string]: `${mobile.categoryLineHeightPx}px`,
     ["--home-plan-glass-width" as string]: `${mobile.glassWidthPx}px`,
@@ -82,6 +77,7 @@ export function HomePackagePlanCardMobile({
               alt=""
               fill
               sizes="85vw"
+              draggable={false}
               className={styles.image}
               {...belowFoldImageProps()}
             />

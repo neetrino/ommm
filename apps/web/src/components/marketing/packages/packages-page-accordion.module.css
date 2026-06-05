@@ -335,21 +335,175 @@
   transform: rotate(180deg);
 }
 
-.mobileExpanded {
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: var(--packages-page-card-radius);
-  background-image: var(--packages-page-panel-gradient);
-  padding: 1.5rem 1.25rem;
+.fabImageVerticalOpen {
+  transform: rotate(90deg);
 }
 
-.mobileExpandedHeader {
+.fabImageVerticalClose {
+  transform: rotate(-90deg);
+}
+
+.fabImageVerticalAnimated {
+  transform: rotate(90deg);
+  transition: transform var(--packages-page-transition-duration, 450ms)
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.fabImageHorizontalAnimated {
+  transform: rotate(0deg);
+  transition: transform var(--packages-page-transition-duration, 450ms)
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] .fabImageVerticalAnimated {
+  transform: rotate(-90deg);
+}
+
+.desktopAccordionPanel[data-expanded="true"] .fabImageHorizontalAnimated {
+  transform: rotate(180deg);
+}
+
+.mobileAccordionStack {
   display: flex;
-  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--packages-page-mobile-accordion-gap);
+}
+
+.mobileAccordionItem {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--packages-page-mobile-card-radius, var(--packages-page-card-radius));
+  background-image: var(--packages-page-panel-gradient);
+  min-height: var(--packages-page-mobile-collapsed-min-height);
+  padding: 1.125rem 1rem 1.125rem 1.25rem;
+  transition:
+    padding var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] {
+  min-height: 0;
+  padding: var(--packages-page-mobile-expanded-padding);
+}
+
+.mobileAccordionContent {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--packages-page-transition-duration, 450ms)
+    var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] .mobileAccordionContent {
+  grid-template-rows: 1fr;
+}
+
+.mobileAccordionContentInner {
+  overflow: hidden;
+  min-height: 0;
+  padding-top: 0;
+  opacity: 0;
+  transition:
+    padding-top var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity calc(var(--packages-page-transition-duration, 450ms) * 0.65)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] .mobileAccordionContentInner {
+  padding-top: var(--packages-page-mobile-tier-card-gap);
+  opacity: 1;
+}
+
+.mobileAccordionHeader {
+  display: flex;
+  width: 100%;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+  gap: 0.75rem;
+}
+
+.mobileAccordionItem[data-expanded="true"] .mobileAccordionHeader {
+  align-items: flex-start;
+}
+
+.mobileCardBody {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 0.75rem;
+}
+
+.mobileCardTitle {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--packages-page-mobile-collapsed-title-size);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--packages-page-text-color);
+  text-wrap: balance;
+}
+
+.mobileCardDetails {
+  margin: 0;
+  max-height: 1.5rem;
+  overflow: hidden;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: var(--packages-page-mobile-collapsed-details-size);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+  opacity: 1;
+  transition:
+    max-height var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity calc(var(--packages-page-transition-duration, 450ms) * 0.55)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    margin var(--packages-page-transition-duration, 450ms)
+      var(--packages-page-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.mobileAccordionItem[data-expanded="true"] .mobileCardDetails {
+  max-height: 0;
+  margin-top: -0.75rem;
+  opacity: 0;
+}
+
+.mobileCardFab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--packages-page-mobile-fab-size);
+  height: var(--packages-page-mobile-fab-size);
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mobileCardFab:focus-visible {
+  outline: 2px solid #577f91;
+  outline-offset: 3px;
+  border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileAccordionItem,
+  .mobileAccordionContent,
+  .mobileAccordionContentInner,
+  .mobileCardDetails,
+  .fabImageVerticalAnimated {
+    transition: none;
+  }
 }
 
 .mobileTierList {

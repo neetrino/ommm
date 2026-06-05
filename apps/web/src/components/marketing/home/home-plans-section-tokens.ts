@@ -76,6 +76,9 @@ export const HOME_PLANS_SECTION_MOBILE_LAYOUT = {
   carouselCardTotalHeight: "29.625rem",
   cardRadiusPx: HOME_PLANS_SECTION_MOBILE_FIGMA.cardRadiusPx,
   cardGlassOverhangPx: HOME_PLANS_SECTION_MOBILE_FIGMA.glassOverhangPx,
+  /** Plan name — upper-left inset inside the card photo. */
+  categoryCornerInsetX: "1.375rem",
+  categoryCornerInsetY: "1.25rem",
 } as const;
 
 export const HOME_PLANS_SECTION_FIGMA = {

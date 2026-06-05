@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
-import { HomeWeeklyScheduleGridDeferred } from "@/components/marketing/home/home-deferred-sections";
-import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
+import { HomeWeeklyScheduleLiveGrid } from "@/components/marketing/home/home-weekly-schedule-live-grid";
+import type { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import styles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -13,15 +13,21 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type HomeWeeklyScheduleBannerProps = {
   locale: string;
+  scheduleDataPromise: ReturnType<typeof fetchPublicScheduleItems>;
 };
 
 /**
  * Figma weekly schedule — mobile panel `97:5733`, desktop panel `196:1293`.
  */
-export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBannerProps) {
-  const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const heroT = await getTranslations({ locale, namespace: "marketingPublic.hero" });
-  const { items } = await fetchPublicScheduleItems();
+export async function HomeWeeklyScheduleBanner({
+  locale,
+  scheduleDataPromise,
+}: HomeWeeklyScheduleBannerProps) {
+  const [t, heroT, { items }] = await Promise.all([
+    getTranslations({ locale, namespace: "marketingPublic.home" }),
+    getTranslations({ locale, namespace: "marketingPublic.hero" }),
+    scheduleDataPromise,
+  ]);
   const scheduleCta = (
     <HomeHeroCtaButton href="/schedule" label={heroT("primaryCta")} variant="booking" />
   );
@@ -100,7 +106,7 @@ export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBan
             </header>
 
             <div className={styles.gridWrap}>
-              <HomeWeeklyScheduleGridDeferred locale={locale} initialItems={items} />
+              <HomeWeeklyScheduleLiveGrid locale={locale} initialItems={items} />
             </div>
 
             <div className={styles.cta}>{scheduleCta}</div>

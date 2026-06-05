@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
-import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 
 const sectionFallback = (placeholderClassName: string) =>
   function HomeDeferredClientSectionFallback() {
@@ -27,16 +26,3 @@ export const HomeHeroJunctionNavDeferred = dynamic(() =>
   ),
 );
 
-/** Weekly schedule grid — tabs, fetch, session rows; split from hero hydration. */
-export const HomeWeeklyScheduleGridDeferred = dynamic<{
-  locale: string;
-  initialItems: readonly MarketingScheduleItem[];
-}>(
-  () =>
-    import("@/components/marketing/home/home-weekly-schedule-live-grid").then(
-      (module) => module.HomeWeeklyScheduleLiveGrid,
-    ),
-  {
-    loading: sectionFallback(HOME_LAZY_SECTION.placeholders.scheduleGrid),
-  },
-);

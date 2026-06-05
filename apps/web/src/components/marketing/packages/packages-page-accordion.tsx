@@ -19,10 +19,11 @@ import {
   PACKAGES_PAGE_ACCORDION_FIGMA,
   PACKAGES_PAGE_CARD_FIGMA,
   PACKAGES_PAGE_LAYOUT,
+  PACKAGES_PAGE_MOBILE_FIGMA,
   buildPackagesPageCategoryGradient,
   resolvePackagesPageCategoryAccentColor,
 } from "@/components/marketing/packages/packages-page-tokens";
-import { PackagesPageCardFab, PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
+import { PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -64,13 +65,35 @@ function layoutStyleVars(): CSSProperties {
     ["--packages-page-grid-max-width" as string]: `${PACKAGES_PAGE_LAYOUT.gridMaxWidthPx}px`,
     ["--packages-page-cards-gap" as string]: PACKAGES_PAGE_LAYOUT.cardsGap,
     ["--packages-page-accordion-gap" as string]: PACKAGES_PAGE_LAYOUT.accordionGap,
+    ["--packages-page-mobile-accordion-gap" as string]: PACKAGES_PAGE_LAYOUT.mobileAccordionGap,
+    ["--packages-page-mobile-collapsed-min-height" as string]:
+      PACKAGES_PAGE_LAYOUT.mobileCollapsedCardMinHeight,
+    ["--packages-page-mobile-fab-size" as string]: PACKAGES_PAGE_LAYOUT.mobileFabSize,
     ["--packages-page-collapsed-width" as string]: PACKAGES_PAGE_LAYOUT.collapsedPanelWidth,
     ["--packages-page-row-height" as string]: PACKAGES_PAGE_LAYOUT.rowHeight,
     ["--packages-page-expanded-table-min-width" as string]: PACKAGES_PAGE_LAYOUT.expandedTableMinWidth,
     ["--packages-page-transition-duration" as string]: `${PACKAGES_PAGE_ACCORDION_FIGMA.transitionDurationMs}ms`,
     ["--packages-page-transition-easing" as string]: PACKAGES_PAGE_ACCORDION_FIGMA.transitionEasing,
-    ["--packages-page-mobile-card-width" as string]: PACKAGES_PAGE_LAYOUT.mobileCarouselCardWidth,
-    ["--packages-page-mobile-carousel-gap" as string]: PACKAGES_PAGE_LAYOUT.mobileCarouselGap,
+    ["--packages-page-mobile-tier-card-radius" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.tierCardRadiusPx}px`,
+    ["--packages-page-mobile-tier-card-gap" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.tierCardGapPx}px`,
+    ["--packages-page-mobile-tier-title-size" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.tierTitleSizePx}px`,
+    ["--packages-page-mobile-tier-meta-label-size" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.tierMetaLabelSizePx}px`,
+    ["--packages-page-mobile-tier-meta-value-size" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.tierMetaValueSizePx}px`,
+    ["--packages-page-mobile-subscribe-height" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.subscribeButtonHeightPx}px`,
+    ["--packages-page-mobile-subscribe-size" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.subscribeFontSizePx}px`,
+    ["--packages-page-mobile-card-radius" as string]: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardRadiusPx}px`,
+  };
+}
+
+function mobilePanelStyleVars(categoryId: string): CSSProperties {
+  const mobile = PACKAGES_PAGE_MOBILE_FIGMA;
+
+  return {
+    ...panelStyleVars(categoryId, resolvePackagesPageCategoryAccentColor(categoryId)),
+    ["--packages-page-mobile-collapsed-title-size" as string]: `${mobile.collapsedTitleSizePx}px`,
+    ["--packages-page-mobile-collapsed-details-size" as string]: `${mobile.collapsedDetailsSizePx}px`,
+    ["--packages-page-mobile-expanded-padding" as string]: `${mobile.expandedPanelPaddingPx}px`,
+    ["--packages-page-mobile-card-radius" as string]: `${mobile.collapsedCardRadiusPx}px`,
   };
 }
 
@@ -197,15 +220,41 @@ function CollapsedPanel({ category, onOpen, openLabel }: CollapsedPanelProps) {
   );
 }
 
-type ExpandedPanelProps = {
+type DesktopAccordionPanelProps = {
   locale: string;
   category: PackagesPageAccordionCategory;
-  onClose: () => void;
+  mode: DesktopPanelMode;
+  detailsLabel: string;
+  openLabel: string;
   closeLabel: string;
+  onOpen: (categoryId: string) => void;
+  onClose: () => void;
 };
 
 function ExpandedPanel({ locale, category, onClose, closeLabel }: ExpandedPanelProps) {
   const accentColor = resolvePackagesPageCategoryAccentColor(category.visualStyleKey);
+
+  const panelClassName = isIdle
+    ? `${cardStyles.card} ${accordionStyles.desktopAccordionPanel}`
+    : `${accordionStyles.panel} ${accordionStyles.desktopAccordionPanel} ${
+        isExpanded ? accordionStyles.panelExpanded : accordionStyles.panelCollapsed
+      }`;
+
+  const panelStyle = isIdle
+    ? defaultCardStyleVars(category.id)
+    : panelStyleVars(category.id, accentColor);
+
+  const fabFooterClassName = isIdle
+    ? cardStyles.cardFooter
+    : `${accordionStyles.panelFabFooter} ${
+        isExpanded ? accordionStyles.expandedFooter : accordionStyles.collapsedFabWrap
+      }`;
+
+  const fabButtonClassName = isIdle
+    ? cardStyles.fab
+    : isExpanded
+      ? accordionStyles.closeFab
+      : accordionStyles.openFab;
 
   return (
     <section
@@ -213,41 +262,77 @@ function ExpandedPanel({ locale, category, onClose, closeLabel }: ExpandedPanelP
       style={panelStyleVars(category.visualStyleKey, accentColor)}
       aria-label={category.label}
     >
-      <div className={accordionStyles.expandedBody}>
-        <div className={accordionStyles.expandedBodyInner}>
-          <h2 className={accordionStyles.expandedHeader}>{category.label}</h2>
-          {category.plans.length > 0 ? (
-            <ExpandedTierTable locale={locale} category={category} />
+      {isIdle ? (
+        <div className={cardStyles.cardTop}>
+          <h2 className={cardStyles.title}>{category.label}</h2>
+          {category.priceAmount !== null ? (
+            <div className={cardStyles.priceBlock}>
+              {category.priceFromPrefix !== undefined ? (
+                <p className={cardStyles.priceFromPrefix}>{category.priceFromPrefix}</p>
+              ) : null}
+              <p className={cardStyles.price}>{category.priceAmount}</p>
+            </div>
           ) : null}
         </div>
-      </div>
-      <div className={`${accordionStyles.panelFabFooter} ${accordionStyles.expandedFooter}`}>
+      ) : null}
+
+      {mode === "collapsed" ? (
+        <div className={accordionStyles.collapsedTop}>
+          <p className={accordionStyles.collapsedTitle}>{category.label}</p>
+          {category.priceAmount !== null ? (
+            <p className={accordionStyles.collapsedPrice}>{category.priceAmount}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {isExpanded ? (
+        <div className={accordionStyles.expandedBody}>
+          <div className={accordionStyles.expandedBodyInner}>
+            <h2 className={accordionStyles.expandedHeader}>{category.label}</h2>
+            {category.plans.length > 0 ? (
+              <ExpandedTierTable locale={locale} category={category} />
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className={fabFooterClassName}>
+        {isIdle ? <p className={cardStyles.detailsLabel}>{detailsLabel}</p> : null}
         <button
           type="button"
-          className={accordionStyles.closeFab}
-          aria-label={closeLabel}
-          onClick={onClose}
+          className={fabButtonClassName}
+          aria-label={isExpanded ? closeLabel : openLabel}
+          aria-expanded={isExpanded}
+          onClick={() => (isExpanded ? onClose() : onOpen(category.id))}
         >
-          <PackagesPageCardFabImage direction="close" />
+          <PackagesPageCardFabImage orientation="horizontal-animated" />
         </button>
       </div>
-    </section>
+    </div>
   );
 }
 
-type DefaultCategoryCardProps = {
+type MobileAccordionSlotProps = {
+  locale: string;
   category: PackagesPageAccordionCategory;
-  onOpen: (categoryId: string) => void;
-  openLabel: string;
+  isExpanded: boolean;
   detailsLabel: string;
+  onOpen: (categoryId: string) => void;
+  onClose: () => void;
+  openLabel: string;
+  closeLabel: string;
 };
 
-function DefaultCategoryCard({
+function MobileAccordionSlot({
+  locale,
   category,
-  onOpen,
-  openLabel,
+  isExpanded,
   detailsLabel,
-}: DefaultCategoryCardProps) {
+  onOpen,
+  onClose,
+  openLabel,
+  closeLabel,
+}: MobileAccordionSlotProps) {
   return (
     <div className={cardStyles.card} style={defaultCardStyleVars(category.visualStyleKey)}>
       <div className={cardStyles.cardTop}>
@@ -261,15 +346,22 @@ function DefaultCategoryCard({
           </div>
         ) : null}
       </div>
-      <div className={cardStyles.cardFooter}>
-        <p className={cardStyles.detailsLabel}>{detailsLabel}</p>
-        <PackagesPageCardFab
-          direction="open"
-          ariaLabel={openLabel}
-          onClick={() => onOpen(category.id)}
-        />
+      <div
+        className={accordionStyles.mobileAccordionContent}
+        aria-hidden={isExpanded ? undefined : true}
+      >
+        <div className={accordionStyles.mobileAccordionContentInner}>
+          {category.plans.length > 0 ? (
+            <PublicPackageCategoryMobileTierList
+              locale={locale}
+              categoryLabel={category.label}
+              plans={category.plans}
+              audience="guest"
+            />
+          ) : null}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -308,35 +400,21 @@ function DesktopAccordionSlot({
 }: DesktopAccordionSlotProps) {
   const isAccordionMode = expandedCategory !== null;
   const isExpanded = expandedCategory?.id === category.id;
-
-  let panel = (
-    <DefaultCategoryCard
-      category={category}
-      detailsLabel={detailsLabel}
-      openLabel={openLabel}
-      onOpen={onOpen}
-    />
-  );
-
-  if (isAccordionMode && isExpanded) {
-    panel = (
-      <ExpandedPanel
-        locale={locale}
-        category={category}
-        closeLabel={closeLabel}
-        onClose={onClose}
-      />
-    );
-  } else if (isAccordionMode) {
-    panel = (
-      <CollapsedPanel category={category} openLabel={openLabel} onOpen={onOpen} />
-    );
-  }
+  const mode = resolveDesktopPanelMode(isAccordionMode, isExpanded);
 
   return (
     <div className={resolveAccordionSlotClass(isAccordionMode, isExpanded)}>
       <div className={accordionStyles.slotContent}>
-        {panel}
+        <DesktopAccordionPanel
+          locale={locale}
+          category={category}
+          mode={mode}
+          detailsLabel={detailsLabel}
+          openLabel={openLabel}
+          closeLabel={closeLabel}
+          onOpen={onOpen}
+          onClose={onClose}
+        />
       </div>
     </div>
   );
@@ -397,23 +475,22 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
   }
 
   const desktopContent = (
-    <div
-      className={`${cardStyles.desktopOnly} ${accordionStyles.accordionRow}`}
-      style={layoutStyleVars()}
-    >
-      {categories.map((category) => (
-        <DesktopAccordionSlot
-          key={category.id}
-          locale={locale}
-          category={category}
-          expandedCategory={expandedCategory}
-          detailsLabel={t("packagesDetailsCta")}
-          openLabel={t("packagesOpenDetailsAria", { name: category.label })}
-          closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
-          onOpen={updateExpandedCategory}
-          onClose={() => updateExpandedCategory(null)}
-        />
-      ))}
+    <div className={cardStyles.desktopOnly}>
+      <div className={accordionStyles.accordionRow} style={layoutStyleVars()}>
+        {categories.map((category) => (
+          <DesktopAccordionSlot
+            key={category.id}
+            locale={locale}
+            category={category}
+            expandedCategory={expandedCategory}
+            detailsLabel={t("packagesDetailsCta")}
+            openLabel={t("packagesOpenDetailsAria", { name: category.label })}
+            closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+            onOpen={updateExpandedCategory}
+            onClose={() => updateExpandedCategory(null)}
+          />
+        ))}
+      </div>
     </div>
   );
 
@@ -466,7 +543,8 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
 
   return (
     <>

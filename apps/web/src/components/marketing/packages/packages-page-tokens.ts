@@ -76,8 +76,9 @@ export type PackagesPageCategoryColorVariantKey =
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
   cardsGap: "clamp(0.75rem, 1.79vw, 1.1875rem)",
-  mobileCarouselCardWidth: "clamp(11rem, calc(100svw * 197 / 394), 12.3125rem)",
-  mobileCarouselGap: "1.1875rem",
+  mobileAccordionGap: `${PACKAGES_PAGE_MOBILE_FIGMA.accordionGapPx}px`,
+  mobileCollapsedCardMinHeight: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px`,
+  mobileFabSize: `${PACKAGES_PAGE_MOBILE_FIGMA.mobileFabSizePx}px`,
   accordionGap: `${PACKAGES_PAGE_ACCORDION_FIGMA.accordionGapPx}px`,
   collapsedPanelWidth: `${PACKAGES_PAGE_ACCORDION_FIGMA.collapsedWidthPx}px`,
   rowHeight: `${PACKAGES_PAGE_CARD_FIGMA.cardHeightPx}px`,
