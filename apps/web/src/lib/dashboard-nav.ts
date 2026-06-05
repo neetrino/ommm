@@ -4,7 +4,7 @@
  * Labels are resolved via next-intl under `dashboard.nav.{ROLE}.{labelKey}`.
  * Source: CRM - Ommm - code.md (member app tabs, coach/manager/admin matrices).
  */
-import { USER_ACCOUNT_PATH } from "@/lib/role-home";
+import { USER_ACCOUNT_PATH, USER_PROFILE_PATH } from "@/lib/role-home";
 export type DashboardNavIcon =
   | "home"
   | "layoutDashboard"
@@ -52,6 +52,7 @@ const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/packages", icon: "tag", labelKey: "packages" },
   { href: "/user/payments", icon: "wallet", labelKey: "payments" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards" },
+  { href: USER_PROFILE_PATH, icon: "user", labelKey: "profile" },
 ];
 
 /** Coach panel: Dashboard, My schedule, My groups, Salary, Analytics, Profile settings. */

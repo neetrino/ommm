@@ -7,6 +7,9 @@ export const USER_ACCOUNT_PATH = "/user";
 /** Member dashboard (Prisma `Role.USER`). */
 export const USER_DASHBOARD_PATH = "/user/dashboard";
 
+/** Member profile and account settings (Prisma `Role.USER`). */
+export const USER_PROFILE_PATH = "/user/profile";
+
 /** @deprecated Use {@link USER_ACCOUNT_PATH} or {@link USER_DASHBOARD_PATH}. */
 export const USER_HOME_PATH = USER_ACCOUNT_PATH;
 
