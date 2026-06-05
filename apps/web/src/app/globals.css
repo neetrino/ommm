@@ -547,44 +547,19 @@ html {
   }
 
   .ommm-marketing-account-logout-popover {
-    @apply relative w-max;
-  }
-
-  .ommm-marketing-account-logout-popover::before {
-    content: "";
-    @apply absolute -top-3 left-0 right-0 h-3;
+    @apply -mt-2 w-max pt-2;
   }
 
   .ommm-marketing-account-logout-btn {
-    @apply inline-flex min-h-0 w-auto shrink-0 cursor-pointer select-none items-center justify-center gap-1 rounded-full border-0 bg-white/45 px-1.5 py-0.5 text-sage-500/75 backdrop-blur-[2px];
-    @apply shadow-none;
-    @apply transition-[background-color,box-shadow,color,opacity,transform] duration-200 ease-out;
-    @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/60 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent;
-    @apply disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
-    touch-action: manipulation;
+    @apply inline-flex cursor-pointer items-center gap-1 rounded-full bg-white/75 px-2 py-1 text-[0.5625rem] font-medium text-sage-700 shadow-sm backdrop-blur-sm;
+    @apply transition-[background-color,box-shadow,transform] duration-200 ease-out;
+    @apply hover:bg-white hover:shadow-[0_4px_14px_-10px_rgba(45,40,35,0.28)] active:scale-[0.98];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30 focus-visible:ring-offset-1;
+    @apply disabled:pointer-events-none disabled:opacity-45;
   }
 
-  .ommm-marketing-account-logout-btn-icon {
-    @apply h-2.5 w-2.5 shrink-0 opacity-70;
-  }
-
-  .ommm-marketing-account-logout-btn-label {
-    @apply whitespace-nowrap text-[0.5625rem] font-normal normal-case tracking-normal text-sage-500/75;
-  }
-
-  @media (hover: hover) {
-    .ommm-marketing-account-logout-btn:hover {
-      @apply bg-white/72 text-sage-700 shadow-[0_3px_10px_-8px_rgba(45,40,35,0.22)];
-    }
-
-    .ommm-marketing-account-logout-btn:hover .ommm-marketing-account-logout-btn-icon,
-    .ommm-marketing-account-logout-btn:hover .ommm-marketing-account-logout-btn-label {
-      @apply opacity-100;
-    }
-  }
-
-  .ommm-marketing-account-logout-btn:active {
-    @apply scale-[0.98] bg-white/80 text-sage-700;
+  .ommm-marketing-account-logout-btn svg {
+    @apply h-2.5 w-2.5 shrink-0;
   }
 
   .ommm-admin-menu-button {

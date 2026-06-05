@@ -17,6 +17,7 @@ type SessionBookingActionsProps = {
   full: boolean;
   userBookingId?: string;
   size?: "sm" | "md";
+  layout?: "board" | "list";
   onBookingChange?: (bookingId: string | undefined) => void;
 };
 
@@ -26,6 +27,7 @@ export function SessionBookingActions({
   full,
   userBookingId,
   size = "md",
+  layout = "board",
   onBookingChange,
 }: SessionBookingActionsProps) {
   const tClasses = useTranslations("userPages.classes");
@@ -40,25 +42,42 @@ export function SessionBookingActions({
     const bookedButtonClass =
       size === "sm" ? SESSION_BOOKED_BUTTON_SM_CLASS : SESSION_BOOKED_BUTTON_MD_CLASS;
 
+    const bookedButton = (
+      <button
+        type="button"
+        disabled
+        aria-disabled="true"
+        className={bookedButtonClass}
+      >
+        {tClasses("bookedBadge")}
+      </button>
+    );
+
+    const cancelButton = (
+      <CancelBookingButton
+        bookingId={bookingId}
+        appearance="button"
+        size={size}
+        onCancelled={() => {
+          setBookingId(undefined);
+          onBookingChange?.(undefined);
+        }}
+      />
+    );
+
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          disabled
-          aria-disabled="true"
-          className={bookedButtonClass}
-        >
-          {tClasses("bookedBadge")}
-        </button>
-        <CancelBookingButton
-          bookingId={bookingId}
-          appearance="button"
-          size={size}
-          onCancelled={() => {
-            setBookingId(undefined);
-            onBookingChange?.(undefined);
-          }}
-        />
+        {layout === "list" ? (
+          <>
+            {cancelButton}
+            {bookedButton}
+          </>
+        ) : (
+          <>
+            {bookedButton}
+            {cancelButton}
+          </>
+        )}
       </div>
     );
   }

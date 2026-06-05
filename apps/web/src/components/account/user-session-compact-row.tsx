@@ -105,6 +105,7 @@ export function UserSessionCompactRow({
           full={full}
           userBookingId={activeBookingId}
           onBookingChange={setActiveBookingId}
+          layout="list"
           size="md"
         />
       </div>
