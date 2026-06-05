@@ -106,11 +106,11 @@ export function SessionDateTimeHighlight({
   }
 
   return (
-    <div className={`flex min-w-0 items-baseline gap-2.5 ${className}`.trim()}>
-      <p className="shrink-0 font-serif text-xl leading-none tracking-tight text-sage-950">
+    <div className={`min-w-0 ${className}`.trim()}>
+      <p className="font-serif text-xl leading-none tracking-tight text-sage-950">
         {display.startTime}
       </p>
-      <p className="min-w-0 text-[11px] font-medium leading-snug text-sage-600">
+      <p className="mt-1 text-[11px] font-medium leading-snug text-sage-600">
         {t("sessionUntil")} {display.endTime}
         {display.durationMinutes > 0
           ? ` · ${t("sessionDurationMinutes", { minutes: display.durationMinutes })}`

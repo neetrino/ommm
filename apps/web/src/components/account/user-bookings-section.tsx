@@ -17,6 +17,7 @@ import {
   USER_BOOKINGS_LIST_SPACER_CELL,
   USER_BOOKINGS_LIST_TIME_CELL,
 } from "@/components/account/user-bookings-list-layout";
+import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
@@ -123,7 +124,7 @@ function BookingGroup({
           ))}
         </ul>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
+        <div className={`mt-4 ${USER_LIST_STACK_CLASS}`}>
           <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
@@ -131,9 +132,9 @@ function BookingGroup({
             <span aria-hidden="true" />
             <span className="md:text-right">{t("listHeaderStatus")}</span>
           </div>
-          <ul className="divide-y divide-sand-200/50">
+          <ul className={USER_LIST_STACK_CLASS}>
             {rows.map((booking) => (
-              <li key={booking.id}>
+              <li key={booking.id} className="list-none">
                 <UserBookingCompactRow
                   locale={locale}
                   booking={booking}
@@ -175,7 +176,7 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
           ))}
         </ul>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
+        <div className={`mt-4 ${USER_LIST_STACK_CLASS}`}>
           <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
@@ -183,9 +184,9 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
             <span aria-hidden="true" />
             <span className="md:text-right">{t("listHeaderStatus")}</span>
           </div>
-          <ul className="divide-y divide-sand-200/50">
+          <ul className={USER_LIST_STACK_CLASS}>
             {rows.map((item) => (
-              <li key={item.id} className={USER_BOOKINGS_LIST_ROW_CLASS}>
+              <li key={item.id} className={`list-none ${USER_BOOKINGS_LIST_ROW_CLASS}`}>
                 <div className={USER_BOOKINGS_LIST_DATE_CELL}>
                   <SessionDateTimeHighlight
                     locale={locale}
