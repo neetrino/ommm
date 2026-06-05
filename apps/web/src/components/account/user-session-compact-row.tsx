@@ -63,8 +63,6 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
         />
       </div>
 
-      <div className={USER_SCHEDULE_LIST_SPACER_CELL} aria-hidden="true" />
-
       <div className={USER_SCHEDULE_LIST_SPOTS_CELL}>
         <SessionSpotsIndicator
           booked={booked}
@@ -73,6 +71,8 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
           spotsLabel={spotsLabel}
         />
       </div>
+
+      <div className={USER_SCHEDULE_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div className={USER_SCHEDULE_LIST_ACTIONS_CLASS}>
         {full ? (

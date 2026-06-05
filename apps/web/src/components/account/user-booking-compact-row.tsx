@@ -9,11 +9,12 @@ import {
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
+  USER_BOOKINGS_LIST_ACTIONS_CELL,
   USER_BOOKINGS_LIST_CLASS_CELL,
   USER_BOOKINGS_LIST_DATE_CELL,
   USER_BOOKINGS_LIST_ROW_CLASS,
   USER_BOOKINGS_LIST_SPACER_CELL,
-  USER_BOOKINGS_LIST_STATUS_CLASS,
+  USER_BOOKINGS_LIST_STATUS_CELL,
   USER_BOOKINGS_LIST_TIME_CELL,
 } from "@/components/account/user-bookings-list-layout";
 import type { UserBookingRow } from "@/lib/user-booking-types";
@@ -66,14 +67,17 @@ export function UserBookingCompactRow({
         />
       </div>
 
-      <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
-
-      <div className={USER_BOOKINGS_LIST_STATUS_CLASS}>
+      <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
         <span
           className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
         >
           {booking.status}
         </span>
+      </div>
+
+      <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
+
+      <div className={USER_BOOKINGS_LIST_ACTIONS_CELL}>
         {showCancel && booking.status === "BOOKED" ? (
           <CancelBookingButton bookingId={booking.id} />
         ) : null}

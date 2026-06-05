@@ -48,9 +48,9 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
-            <span aria-hidden="true" />
             <span>{t("listHeaderSpots")}</span>
-            <span className="sr-only">{t("listHeaderActions")}</span>
+            <span aria-hidden="true" />
+            <span>{t("listHeaderActions")}</span>
           </div>
           <ul className={USER_LIST_STACK_CLASS}>
             {sessions.map((session) => (

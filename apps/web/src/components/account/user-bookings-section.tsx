@@ -10,11 +10,13 @@ import { SessionDateTimeHighlight } from "@/components/account/session-datetime-
 import { UserBookingBoardCard } from "@/components/account/user-booking-board-card";
 import { UserBookingCompactRow } from "@/components/account/user-booking-compact-row";
 import {
+  USER_BOOKINGS_LIST_ACTIONS_CELL,
   USER_BOOKINGS_LIST_CLASS_CELL,
   USER_BOOKINGS_LIST_DATE_CELL,
   USER_BOOKINGS_LIST_HEADER_CLASS,
   USER_BOOKINGS_LIST_ROW_CLASS,
   USER_BOOKINGS_LIST_SPACER_CELL,
+  USER_BOOKINGS_LIST_STATUS_CELL,
   USER_BOOKINGS_LIST_TIME_CELL,
 } from "@/components/account/user-bookings-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
@@ -129,8 +131,9 @@ function BookingGroup({
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
+            <span>{t("listHeaderStatus")}</span>
             <span aria-hidden="true" />
-            <span className="md:text-right">{t("listHeaderStatus")}</span>
+            <span>{t("listHeaderActions")}</span>
           </div>
           <ul className={USER_LIST_STACK_CLASS}>
             {rows.map((booking) => (
@@ -181,8 +184,9 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
+            <span>{t("listHeaderStatus")}</span>
             <span aria-hidden="true" />
-            <span className="md:text-right">{t("listHeaderStatus")}</span>
+            <span>{t("listHeaderActions")}</span>
           </div>
           <ul className={USER_LIST_STACK_CLASS}>
             {rows.map((item) => (
@@ -211,10 +215,13 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
                     variant="listTime"
                   />
                 </div>
+                <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
+                    {t("waitlistBadge", { pos: item.position, status: item.status })}
+                  </p>
+                </div>
                 <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
-                <p className="text-xs font-semibold uppercase tracking-wide text-sage-500 md:text-right">
-                  {t("waitlistBadge", { pos: item.position, status: item.status })}
-                </p>
+                <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
               </li>
             ))}
           </ul>

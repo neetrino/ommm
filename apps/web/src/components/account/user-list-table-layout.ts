@@ -37,12 +37,12 @@ export const USER_LIST_STATUS_CELL = USER_LIST_CELL_CLASS;
 export const USER_LIST_ACTIONS_CELL =
   "flex shrink-0 justify-self-end md:items-center md:justify-end md:self-center";
 
-/** Date · Class · Time · ⟨flex⟩ · Spots · Actions */
+/** Date · Class · Time · Spots · ⟨flex⟩ · Actions */
 export const USER_SCHEDULE_LIST_GRID_COLS =
-  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_1fr_5.75rem_auto]";
+  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_5.75rem_1fr_auto]";
 
-/** Date · Class · Time · ⟨flex⟩ · Status */
+/** Date · Class · Time · Status · ⟨flex⟩ · Actions */
 export const USER_BOOKINGS_LIST_GRID_COLS =
-  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_1fr_5.5rem]";
+  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_5.5rem_1fr_auto]";
 
 export const USER_LIST_TABLE_GRID_GAP = "md:gap-x-4";
