@@ -1173,6 +1173,13 @@
     }
   },
   "adminPages": {
+    "searchTools": {
+      "applyFilters": "Apply filters",
+      "clearSearchAndFilters": "Clear search and filters",
+      "filterPanelAria": "Search filters",
+      "loadingResults": "Loading matching results…",
+      "activeCount": "{count} active filters"
+    },
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."
     },
@@ -1212,6 +1219,9 @@
       "viewMonthly": "Monthly view",
       "viewWeekly": "Weekly view",
       "viewDaily": "Daily view",
+      "views": {
+        "aria": "Bookings view"
+      },
       "statusBooked": "Booked",
       "statusCompleted": "Completed",
       "statusCancelled": "Cancelled",

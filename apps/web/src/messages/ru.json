@@ -1164,6 +1164,13 @@
     }
   },
   "adminPages": {
+    "searchTools": {
+      "applyFilters": "Применить фильтры",
+      "clearSearchAndFilters": "Очистить поиск и фильтры",
+      "filterPanelAria": "Фильтры поиска",
+      "loadingResults": "Загрузка результатов…",
+      "activeCount": "{count} активных фильтров"
+    },
     "home": {
       "signInPrompt": "Войдите, чтобы открыть админ-панель."
     },
@@ -1203,6 +1210,9 @@
       "viewMonthly": "Месячный вид",
       "viewWeekly": "Недельный вид",
       "viewDaily": "Дневной вид",
+      "views": {
+        "aria": "Вид бронирований"
+      },
       "statusBooked": "Забронировано",
       "statusCompleted": "Завершено",
       "statusCancelled": "Отменено",

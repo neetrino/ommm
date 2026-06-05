@@ -6,20 +6,23 @@ import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
 import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
 import {
+  adminBookingsFilterValuesFromState,
+  buildAdminBookingsFilterFields,
+} from "@/components/admin/admin-bookings-filter-fields";
+import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import {
   ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_BOOKINGS_LIST_HEADER_CLASS,
   ADMIN_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-bookings-list-layout";
 import {
-  AdminBookingsViewIcon,
   type BookingsView,
 } from "@/components/admin/admin-bookings-view-icons";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
@@ -94,6 +97,7 @@ function bookingRowKey(row: Pick<BookingRow, "id" | "recordType">): string {
 
 export function AdminBookingsManagement({ locale, initial }: Props) {
   const t = useTranslations("adminPages.bookings");
+  const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
   const [rows, setRows] = useState<BookingRow[]>(initial.rows);
   const sessionSlots = initial.sessionSlots;
@@ -207,12 +211,6 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     };
   }, [filteredRows]);
 
-  const activeFilterCount = useMemo(
-    () =>
-      [search.trim(), from, to, classTypeId, coachId, clientId, status].filter(Boolean).length,
-    [search, from, to, classTypeId, coachId, clientId, status],
-  );
-
   async function runRowAction(id: string, action: () => Promise<void>, ok: string) {
     setBusyId(id);
     setStatusMessage(null);
@@ -301,6 +299,68 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     setStatus("");
   }
 
+  const bookingFilterFields = useMemo(
+    () =>
+      buildAdminBookingsFilterFields({
+        classTypes: initial.filterOptions.classTypes,
+        coaches: initial.filterOptions.coaches,
+        clients: uniqueClients,
+        statusLabels: {
+          BOOKED: t("statusBooked"),
+          COMPLETED: t("statusCompleted"),
+          CANCELLED: t("statusCancelled"),
+          WAITLISTED: t("statusWaitlisted"),
+        },
+        labels: {
+          dateFrom: t("filterDateFrom"),
+          dateTo: t("filterDateTo"),
+          classAll: t("filterClassAll"),
+          coachAll: t("filterCoachAll"),
+          clientAll: t("filterClientAll"),
+          statusAll: t("filterStatusAll"),
+        },
+      }),
+    [initial.filterOptions.classTypes, initial.filterOptions.coaches, t, uniqueClients],
+  );
+
+  const integratedFilterValues = useMemo(
+    () =>
+      adminBookingsFilterValuesFromState({
+        from,
+        to,
+        classTypeId,
+        coachId,
+        clientId,
+        status,
+      }),
+    [from, to, classTypeId, coachId, clientId, status],
+  );
+
+  function handleIntegratedFilterChange(key: string, value: string) {
+    switch (key) {
+      case "from":
+        setFrom(value);
+        break;
+      case "to":
+        setTo(value);
+        break;
+      case "classTypeId":
+        setClassTypeId(value);
+        break;
+      case "coachId":
+        setCoachId(value);
+        break;
+      case "clientId":
+        setClientId(value);
+        break;
+      case "status":
+        setStatus(value);
+        break;
+      default:
+        break;
+    }
+  }
+
   const dayRows = filteredRows
     .filter((row) => sessionDayKey(row.session.startsAt) === selectedDay)
     .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
@@ -312,59 +372,34 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 
   return (
     <div className="space-y-4">
+      <AdminPageHero
+        title={t("title")}
+        search={
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <AdminIntegratedSearchFilters
+              className="min-w-0 flex-1"
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder={t("filterSearch")}
+              fields={bookingFilterFields}
+              filterValues={integratedFilterValues}
+              onFilterChange={handleIntegratedFilterChange}
+              onClearAll={resetFilters}
+              applyLabel={tSearchTools("applyFilters")}
+              resetLabel={t("resetFilters")}
+              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+            />
+            <AdminBookingsViewSwitcher value={view} onChange={setViewAndPersist} />
+          </div>
+        }
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric title={t("summaryTotal")} value={summary.total} />
         <Metric title={t("summaryBooked")} value={summary.booked} />
         <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
         <Metric title={t("summaryToday")} value={summary.today} />
-      </div>
-
-      <div className="space-y-3 rounded-2xl border border-white/60 bg-white/70 p-3">
-        <div className="grid gap-2 md:grid-cols-6">
-          <input className="ommm-input h-10 md:col-span-2" placeholder={t("filterSearch")} value={search} onChange={(event) => setSearch(event.target.value)} />
-          <DatePickerInput name="from" value={from} onChange={setFrom} placeholder={t("filterDateFrom")} />
-          <OmmFilterDropdown allValue="" value={classTypeId} ariaLabel={t("filterClassAll")} allLabel={t("filterClassAll")} onChange={setClassTypeId} options={initial.filterOptions.classTypes.map((item) => ({ value: item.id, label: item.name }))} />
-          <OmmFilterDropdown allValue="" value={coachId} ariaLabel={t("filterCoachAll")} allLabel={t("filterCoachAll")} onChange={setCoachId} options={initial.filterOptions.coaches.map((item) => ({ value: item.id, label: item.name }))} />
-          <OmmFilterDropdown allValue="" value={status} ariaLabel={t("filterStatusAll")} allLabel={t("filterStatusAll")} onChange={setStatus} options={[{ value: "BOOKED", label: t("statusBooked") }, { value: "COMPLETED", label: t("statusCompleted") }, { value: "CANCELLED", label: t("statusCancelled") }, { value: "WAITLISTED", label: t("statusWaitlisted") }]} />
-          <div className="md:col-span-2">
-            <OmmFilterDropdown allValue="" value={clientId} ariaLabel={t("filterClientAll")} allLabel={t("filterClientAll")} onChange={setClientId} options={uniqueClients.map((item) => ({ value: item.id, label: item.label }))} />
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 border-t border-sage-700/10 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            {(["list", "monthly", "weekly", "daily"] as const).map((nextView) => (
-              <OmmButton
-                key={nextView}
-                size="sm"
-                variant={view === nextView ? "primary" : "ghost"}
-                className="gap-1.5"
-                onClick={() => setViewAndPersist(nextView)}
-              >
-                <AdminBookingsViewIcon view={nextView} className="h-4 w-4 shrink-0" />
-                {t(
-                  nextView === "list"
-                    ? "viewList"
-                    : nextView === "monthly"
-                      ? "viewMonthly"
-                      : nextView === "weekly"
-                        ? "viewWeekly"
-                        : "viewDaily",
-                )}
-              </OmmButton>
-            ))}
-          </div>
-          <div className="w-full sm:ml-auto sm:w-auto">
-            <AdminFilterResetBar
-              onReset={resetFilters}
-              label={t("resetFilters")}
-              meta={
-                <p className="whitespace-nowrap text-xs text-sage-600" role="status">
-                  {t("activeCount", { count: activeFilterCount })}
-                </p>
-              }
-            />
-          </div>
-        </div>
       </div>
 
       {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
