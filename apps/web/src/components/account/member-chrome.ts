@@ -14,8 +14,10 @@ export const memberChrome = {
   greeting: "font-serif italic text-sage-600",
   statusPill:
     "rounded-full border border-white/60 bg-white/78 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-sage-700 backdrop-blur-md",
-  nextClassShell: `${adminChrome.panel} overflow-hidden p-0`,
-  nextClassImageWrap: "relative aspect-[16/10] w-full",
-  nextClassBody: "flex flex-col gap-4 px-6 py-6 sm:px-8 sm:py-7",
+  nextClassShell:
+    "rounded-[24px] border border-white/60 bg-white/55 p-4 text-sm text-sage-700 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5",
+  nextClassImageWrap:
+    "relative aspect-[16/10] w-full overflow-hidden rounded-[20px]",
+  nextClassBody: "flex flex-col gap-4 pt-4",
   coachNotice: `${adminChrome.panel} mt-6`,
 } as const;
