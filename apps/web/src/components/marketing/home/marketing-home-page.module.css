@@ -45,6 +45,15 @@
 
   .galleryFooterSeam {
     overflow: visible;
+    background-color: var(--home-gallery-seam-bg, #598090);
+    /* Cream cap only — gallery top radius reads against Plans; footer seam stays teal. */
+    background-image: linear-gradient(
+      180deg,
+      var(--home-page-bg, #fbf5d5) 0,
+      var(--home-page-bg, #fbf5d5) 2.5rem,
+      var(--home-gallery-seam-bg, #598090) 2.5rem,
+      var(--home-gallery-seam-bg, #598090) 100%
+    );
   }
 
   .galleryFooterSeam :global([data-home-section="gallery"]) {

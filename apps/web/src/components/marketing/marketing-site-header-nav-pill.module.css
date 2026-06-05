@@ -672,28 +672,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.58);
 }
 
-.mobileCtaSecondary {
-  display: inline-flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 1px solid rgba(45, 40, 35, 0.14);
-  background-color: #fff;
-  padding: 0.75rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #3d4a52;
-  transition:
-    background-color 220ms ease,
-    border-color 220ms ease;
-}
-
-.mobileCtaSecondary:hover {
-  background-color: #f4f6f7;
-  border-color: rgba(45, 40, 35, 0.22);
-}
-
 .mobileDivider {
   margin-top: 1rem;
   border-top: 1px solid rgba(45, 40, 35, 0.1);

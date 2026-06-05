@@ -30,7 +30,6 @@ export function MarketingMobileMenuModal({
   isActive,
 }: MarketingMobileMenuModalProps) {
   const tNav = useTranslations("nav");
-  const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
   const isClientMounted = useIsClientMounted();
   const [isExiting, setIsExiting] = useState(false);
@@ -127,20 +126,13 @@ export function MarketingMobileMenuModal({
               </Link>
             ))}
           </nav>
-          <div className={`flex flex-col gap-2 ${navPillStyles.mobileDivider}`}>
+          <div className={navPillStyles.mobileDivider}>
             <Link
               href="/schedule"
               className={navPillStyles.mobileCtaPrimary}
               onClick={onClose}
             >
               {tUi("bookAClass")}
-            </Link>
-            <Link
-              href="/login"
-              className={navPillStyles.mobileCtaSecondary}
-              onClick={onClose}
-            >
-              {tCommon("login")}
             </Link>
           </div>
         </div>
