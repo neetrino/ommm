@@ -34,6 +34,14 @@ html {
   --ommm-admin-shadow-soft: 0 12px 32px -24px rgba(45, 40, 35, 0.22);
   --ommm-admin-shadow-nav-active: 0 10px 28px -18px rgba(45, 40, 35, 0.28);
 
+  /* Global header — warm charcoal ink on light surfaces (not pure black). */
+  --ommm-marketing-header-ink-light: var(--color-sage-700);
+  --ommm-marketing-header-ink-light-emphasis: var(--color-sand-700);
+  --ommm-marketing-nav-ink-light: var(--color-sage-700);
+  --ommm-marketing-nav-ink-light-active: var(--color-sand-700);
+  --ommm-marketing-nav-ink-light-hover: var(--color-sage-800);
+  --ommm-marketing-nav-active-bar-light: var(--ommm-admin-olive);
+
   --gradient-wellness:
     linear-gradient(
       169deg,

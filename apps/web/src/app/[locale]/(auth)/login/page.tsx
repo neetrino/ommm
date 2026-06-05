@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -68,7 +67,6 @@ export default function LoginPage() {
 
   return (
     <div>
-      <AuthBackToHomeLink />
       <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("login")}
       </h1>

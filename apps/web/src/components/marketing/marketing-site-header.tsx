@@ -39,6 +39,7 @@ import {
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
 import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing-header-elevated";
 import {
+  isAuthPath,
   isMarketingHeroHeaderPath,
   isMarketingHomePath,
   isUserAccountPath,
@@ -137,9 +138,13 @@ export function MarketingSiteHeader({
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
   const isWorkspaceChrome = workspaceDrawer !== undefined;
-  const isAccountShell = isWorkspaceChrome || isUserAccountPath(marketingPath);
+  const isAuthShell = isAuthPath(marketingPath);
+  const isAccountShell =
+    isWorkspaceChrome || isUserAccountPath(marketingPath) || isAuthShell;
   const scrollElevated = useMarketingHeaderElevated(
-    !isWorkspaceChrome && isMarketingHeroHeaderPath(marketingPath),
+    !isWorkspaceChrome &&
+      !isAuthShell &&
+      isMarketingHeroHeaderPath(marketingPath),
   );
   const elevated = isWorkspaceChrome ? true : scrollElevated;
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;

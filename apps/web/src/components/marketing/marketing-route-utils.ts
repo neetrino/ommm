@@ -14,6 +14,20 @@ export function isUserAccountPath(pathname: string): boolean {
   return pathname === "/user" || pathname.startsWith("/user/");
 }
 
+const AUTH_HEADER_PATHS = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+] as const;
+
+/** Auth sign-in / registration — light surfaces, elevated global header ink. */
+export function isAuthPath(pathname: string): boolean {
+  return AUTH_HEADER_PATHS.some(
+    (segment) => pathname === segment || pathname.startsWith(`${segment}/`),
+  );
+}
+
 /** Figma **Coaches** `62:2182` — dedicated page surface and hero-style header. */
 export function isMarketingCoachesPath(pathname: string): boolean {
   return pathname === "/coaches" || pathname.startsWith("/coaches/");

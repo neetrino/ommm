@@ -32,71 +32,47 @@
     -webkit-backdrop-filter 220ms ease;
 }
 
-/* Light page surfaces — sage ink (workspace shell, inner marketing routes). */
+/* Light page surfaces — warm sage/sand charcoal (workspace, auth, inner routes). */
 .headerShell[data-workspace-shell="true"],
 .headerShell[data-account-shell="true"],
 :global(.marketing-layout-shell:has([data-marketing-inner]):not(:has([data-marketing-coaches-hero])))
   .headerShell,
 :global([data-workspace-shell]) .headerShell,
-:global([data-marketing-account-shell]) .headerShell {
-  --ommm-marketing-header-ink: var(--color-sage-800, #2e2e2e);
-  --ommm-marketing-header-ink-hover-surface: rgba(45, 40, 35, 0.08);
-  --ommm-marketing-header-focus-ring: rgba(51, 69, 55, 0.35);
-  --ommm-marketing-nav-ink: var(--color-sage-800, #2e2e2e);
-  --ommm-marketing-nav-ink-active: var(--color-sage-900, #1a1c1b);
-  --ommm-marketing-nav-ink-hover: var(--color-sage-900, #1a1c1b);
-  --marketing-nav-active-bar-color: var(--color-sage-700, #334537);
+:global([data-marketing-account-shell]) .headerShell,
+:global([data-auth-shell]) .headerShell {
+  --ommm-marketing-header-ink: var(--ommm-marketing-header-ink-light, var(--color-sage-700));
+  --ommm-marketing-header-ink-hover-surface: rgba(51, 69, 55, 0.08);
+  --ommm-marketing-header-focus-ring: rgba(107, 92, 76, 0.32);
+  --ommm-marketing-nav-ink: var(--ommm-marketing-nav-ink-light, var(--color-sage-700));
+  --ommm-marketing-nav-ink-active: var(
+    --ommm-marketing-nav-ink-light-active,
+    var(--color-sand-700)
+  );
+  --ommm-marketing-nav-ink-hover: var(
+    --ommm-marketing-nav-ink-light-hover,
+    var(--color-sage-800)
+  );
+  --marketing-nav-active-bar-color: var(
+    --ommm-marketing-nav-active-bar-light,
+    var(--ommm-admin-olive)
+  );
 }
 
-/* USER account shell — opaque backdrop masks scrolling dashboard content under the fixed header. */
-.headerShell[data-account-shell="true"] {
-  isolation: isolate;
+.headerShell[data-workspace-shell="true"] .pill,
+.headerShell[data-account-shell="true"] .pill,
+:global([data-auth-shell]) .headerShell .pill {
+  --marketing-glass-border: rgba(151, 144, 124, 0.38);
+  --marketing-glass-bg: rgba(255, 255, 255, 0.42);
 }
 
-.headerShell[data-account-shell="true"]:not([data-workspace-shell="true"])::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-color: var(--ommm-admin-page, #ede9dd);
-  border-bottom: 1px solid rgba(151, 144, 124, 0.14);
-}
-
-.headerShell[data-account-shell="true"] > * {
-  position: relative;
-  z-index: 1;
-}
-
-.headerShell[data-account-shell="true"][data-elevated="true"] {
+/* Header shell stays transparent on every route — glass lives on `.pill` / `.mobileHeaderBar` only. */
+.headerShell[data-elevated="true"],
+.headerShell[data-menu-open="true"] {
   background-color: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: none;
   box-shadow: none;
-}
-
-.headerShell[data-elevated="true"] {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(28px) saturate(215%);
-  -webkit-backdrop-filter: blur(28px) saturate(215%);
-  box-shadow:
-    0 6px 18px -6px rgba(45, 40, 35, 0.18),
-    0 12px 32px -8px rgba(255, 255, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.42);
-}
-
-@media (max-width: 743px) {
-  /* Glass pill lives on `.mobileHeaderBar` — shell stays transparent. */
-  .headerShell[data-elevated="true"]:not([data-account-shell="true"]),
-  .headerShell[data-menu-open="true"]:not([data-account-shell="true"]) {
-    background-color: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-bottom: none;
-    box-shadow: none;
-  }
 }
 
 .mobileHeaderBar {
@@ -359,15 +335,6 @@
   pointer-events: auto;
 }
 
-@media (min-width: 744px) {
-  .headerShell[data-elevated="true"]:not([data-account-shell="true"]) {
-    border-bottom: none;
-    background-color: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-  }
-}
 
 @keyframes marketing-header-enter {
   from {
