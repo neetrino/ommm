@@ -2,10 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { ContactMessageFormDeferred } from "@/components/marketing/marketing-deferred-sections";
 import { MarketingLazyMapEmbed } from "@/components/marketing/contact/marketing-lazy-map-embed";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
-import {
-  MarketingContactStudioCard,
-} from "@/components/marketing/contact/marketing-contact-studio-card";
-import styles from "@/components/marketing/contact/marketing-contact-page-content.module.css";
+import { MarketingContactAnimatedSections } from "@/components/marketing/contact/marketing-contact-animated-sections";
+import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 
 type StudioPublic = {
@@ -98,25 +96,25 @@ export async function MarketingContactPageContent({
     },
   ];
 
+  const mapEmbed =
+    studio !== null &&
+    studio.mapEmbedUrl !== null &&
+    studio.mapEmbedUrl.trim() !== "" ? (
+      <MarketingLazyMapEmbed heading={t("mapHeading")} embedHtml={studio.mapEmbedUrl} />
+    ) : undefined;
+
   return (
-    <>
-      <div className={styles.layout}>
+    <MarketingContactAnimatedSections
+      studioCard={
         <MarketingContactStudioCard
           heading={t("studioHeading")}
           rows={studioRows}
           replyCallout={t("replyCallout")}
           socialLinks={social}
         />
-        <ContactMessageFormDeferred />
-      </div>
-      {studio !== null &&
-      studio.mapEmbedUrl !== null &&
-      studio.mapEmbedUrl.trim() !== "" ? (
-        <MarketingLazyMapEmbed
-          heading={t("mapHeading")}
-          embedHtml={studio.mapEmbedUrl}
-        />
-      ) : null}
-    </>
+      }
+      messageForm={<ContactMessageFormDeferred />}
+      mapEmbed={mapEmbed}
+    />
   );
 }

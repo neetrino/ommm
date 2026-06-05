@@ -174,19 +174,24 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
           data-elevated={elevated ? "true" : "false"}
         >
           <div aria-hidden className={navPillStyles.gloss} />
-          <div className={marketingHeaderNavLinksClass(compact)}>
-            {navLinks.map(({ href, key }) => (
-              <Link
-                key={href}
-                href={href}
-                className={marketingHeaderNavPillLinkClass(
-                  isActive(marketingPath, href),
-                  compact,
-                )}
-              >
-                {tNav(key)}
-              </Link>
-            ))}
+          <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
+            {navLinks.map(({ href, key }) => {
+              const linkActive = isActive(marketingPath, href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`${marketingHeaderNavPillLinkClass(linkActive, compact)} ${navPillStyles.desktopNavLink}`}
+                  aria-current={linkActive ? "page" : undefined}
+                >
+                  <span
+                    className={`${navPillStyles.desktopNavLinkText} ${linkActive ? navPillStyles.desktopNavLinkTextActive : ""}`}
+                  >
+                    {tNav(key)}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </nav>
 

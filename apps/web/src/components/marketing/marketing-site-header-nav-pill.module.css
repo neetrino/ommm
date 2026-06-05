@@ -321,6 +321,8 @@
 .pill {
   position: relative;
   isolation: isolate;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--marketing-glass-border);
   background-color: var(--marketing-glass-bg);
   backdrop-filter: blur(var(--marketing-glass-blur)) saturate(var(--marketing-glass-saturate));
@@ -434,6 +436,74 @@
     rgba(255, 255, 255, 0.05) 24%,
     rgba(255, 255, 255, 0) 50%
   );
+}
+
+/* Desktop TopNavBar — active underline (Figma `88:3728`). */
+.desktopNavLinks {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.desktopNavLink {
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.desktopNavLinkText {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  text-align: center;
+  transition:
+    color var(--marketing-nav-transition-duration, 320ms)
+      var(--marketing-nav-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--marketing-nav-transition-duration, 320ms)
+      var(--marketing-nav-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.desktopNavLinkTextActive {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: calc(
+    var(--marketing-nav-active-bar-gap, 4px) + var(--marketing-nav-active-bar-width, 2px)
+  );
+  transform: translateY(var(--marketing-nav-active-text-lift, -2px));
+}
+
+.desktopNavLinkTextActive::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--marketing-nav-active-bar-width, 2px);
+  background-color: var(--marketing-nav-active-bar-color, #fbf5d5);
+  transform-origin: center center;
+  transition:
+    opacity var(--marketing-nav-transition-duration, 320ms)
+      var(--marketing-nav-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--marketing-nav-transition-duration, 320ms)
+      var(--marketing-nav-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktopNavLinkText,
+  .desktopNavLinkTextActive::after {
+    transition: none;
+  }
+
+  .desktopNavLinkTextActive {
+    transform: none;
+  }
+
+  .desktopNavLinkTextActive::after {
+    transform: none;
+  }
 }
 
 .gloss {

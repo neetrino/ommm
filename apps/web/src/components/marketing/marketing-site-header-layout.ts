@@ -68,10 +68,13 @@ export function marketingHeaderMobileRowWrapStyle(glassActive: boolean): CSSProp
 }
 
 /** Figma TopNavBar `196:1410` sizing tokens. */
-const MARKETING_NAV_PILL_HEIGHT_CLASS = "min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px]";
+const MARKETING_NAV_PILL_HEIGHT_CLASS =
+  "h-[40px] min-h-[40px] lg:h-[44px] lg:min-h-[44px] nav-desktop:h-[53px] nav-desktop:min-h-[53px]";
 const MARKETING_NAV_PILL_RADIUS_CLASS = "rounded-[80px]";
-const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-2 lg:px-3 nav-desktop:px-5";
-const MARKETING_NAV_LINK_GAP_CLASS = "gap-3 lg:gap-4 nav-desktop:gap-8";
+/** Figma TopNavBar `88:3724` — px 30; slightly wider than previous px-5. */
+const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-2 lg:px-3 nav-desktop:px-[30px] nav-desktop:xl:px-9";
+/** Figma link spacing `88:3730` — 48px between items. */
+const MARKETING_NAV_LINK_GAP_CLASS = "gap-3 lg:gap-4 nav-desktop:gap-12";
 const MARKETING_NAV_LINK_GAP_COMPACT_CLASS =
   "gap-1 sm:gap-2 md:gap-2.5 lg:gap-3 nav-desktop:gap-4 xl:gap-5";
 
@@ -162,11 +165,11 @@ export function marketingHeaderBrandTextClass(): string {
 
 export function marketingHeaderNavClass(compact: boolean): string {
   const pillPadding = compact
-    ? "px-2 sm:px-3 nav-desktop:px-4 xl:px-5"
+    ? "px-2 sm:px-3 nav-desktop:px-6 nav-desktop:xl:px-8"
     : MARKETING_NAV_PILL_PADDING_X_CLASS;
 
   return [
-    "relative isolate hidden min-w-0 max-w-full justify-self-center overflow-hidden tablet:flex",
+    "relative isolate hidden min-w-0 max-w-full justify-self-center overflow-hidden tablet:flex tablet:items-center tablet:justify-center",
     MARKETING_NAV_PILL_HEIGHT_CLASS,
     MARKETING_NAV_PILL_RADIUS_CLASS,
     marketingMontserrat.className,
@@ -178,7 +181,7 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
   const linkGap = compact ? MARKETING_NAV_LINK_GAP_COMPACT_CLASS : MARKETING_NAV_LINK_GAP_CLASS;
 
   return [
-    "relative z-10 flex min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] items-center justify-center",
+    "relative z-10 flex h-full min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] items-center justify-center",
     linkGap,
   ].join(" ");
 }
@@ -222,24 +225,23 @@ export function marketingHeaderNavLinkClass(
   ].join(" ");
 }
 
-/** Nav links inside TopNavBar pill — Figma `196:1414` active / `196:1417` default. */
+/** Nav links inside TopNavBar pill — Figma `88:3728` active / `88:3730` default. */
 export function marketingHeaderNavPillLinkClass(
   active: boolean,
   compact: boolean,
 ): string {
   const typography = compact
-    ? "whitespace-nowrap text-[11px] font-bold leading-5 tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-base"
-    : "whitespace-nowrap text-xs font-bold leading-5 tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
+    ? "whitespace-nowrap text-[11px] font-bold leading-none tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-base"
+    : "whitespace-nowrap text-xs font-bold leading-none tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
 
   const state = active
     ? "text-[#fbf5d5]"
-    : "text-white hover:bg-white/8 hover:text-white";
+    : "text-white hover:text-white/90";
 
   return [
     typography,
-    "rounded-full px-0.5 py-0.5 lg:px-1 lg:py-1 nav-desktop:px-1.5 nav-desktop:py-1.5",
     state,
-    "transition-[color,background-color] duration-250",
+    "transition-[color] duration-300 ease-out motion-reduce:transition-none",
   ].join(" ");
 }
 
