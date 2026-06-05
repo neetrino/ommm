@@ -5,7 +5,6 @@ import { MemberNextClassCard } from "@/components/account/member-next-class-card
 import { MemberWaitlistSection } from "@/components/account/member-waitlist-section";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatDateForUi } from "@/lib/date-display";
-import { formatSessionRange } from "@/lib/format-session-time";
 import { userDisplayName } from "@/lib/user-display-name";
 
 type NextBooking = {
@@ -34,11 +33,6 @@ export type MemberDashboardProps = {
   achievements: AchievementRow[];
   coachProfileId: string | null;
 };
-
-function minutesBetween(startIso: string, endIso: string): number {
-  const ms = new Date(endIso).getTime() - new Date(startIso).getTime();
-  return Math.max(1, Math.round(ms / 60_000));
-}
 
 function formatDateTimeLabel(value: string, locale: string): string {
   const date = new Date(value);
@@ -128,23 +122,16 @@ export async function MemberDashboard({
               <MemberNextClassCard
                 variant="filled"
                 href={nextHref}
+                locale={locale}
                 eyebrow={t("nextClass.eyebrow")}
                 openLabel={t("nextClass.openLabel")}
                 imageSrc={nextImage}
                 imageAlt={nextBooking.className}
                 title={nextBooking.className}
-                whenLine={formatSessionRange(
-                  locale,
-                  nextBooking.startsAt,
-                  nextBooking.endsAt,
-                )}
+                startsAt={nextBooking.startsAt}
+                endsAt={nextBooking.endsAt}
                 coachLine={null}
                 statusLabel={t("nextClass.statusBooked")}
-                durationLabel={t("nextClass.durationMinutes", {
-                  minutes: String(
-                    minutesBetween(nextBooking.startsAt, nextBooking.endsAt),
-                  ),
-                })}
                 spotsLabel={null}
                 priorityImage
               />

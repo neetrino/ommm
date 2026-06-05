@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { memberChrome } from "@/components/account/member-chrome";
+import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 const DEFAULT_IMAGE = "/marketing/home/next-class.jpg";
@@ -17,15 +18,16 @@ type MemberNextClassEmpty = {
 type MemberNextClassFilled = {
   variant: "filled";
   href: string;
+  locale: string;
   eyebrow: string;
   openLabel: string;
   imageSrc?: string;
   imageAlt: string;
   title: string;
-  whenLine: string;
+  startsAt: string;
+  endsAt: string;
   coachLine?: string | null;
   statusLabel?: string;
-  durationLabel?: string | null;
   spotsLabel?: string | null;
   priorityImage?: boolean;
 };
@@ -57,11 +59,12 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
     openLabel,
     imageSrc = DEFAULT_IMAGE,
     imageAlt,
+    locale,
     title,
-    whenLine,
+    startsAt,
+    endsAt,
     coachLine,
     statusLabel,
-    durationLabel,
     spotsLabel,
     priorityImage = false,
   } = props;
@@ -111,10 +114,23 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
 
       <div className={memberChrome.nextClassBody}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-sage-800">{whenLine}</p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <SessionDateTimeHighlight
+                locale={locale}
+                startsAt={startsAt}
+                endsAt={endsAt}
+                variant="listDate"
+              />
+              <SessionDateTimeHighlight
+                locale={locale}
+                startsAt={startsAt}
+                endsAt={endsAt}
+                variant="listTime"
+              />
+            </div>
             {coachLine ? (
-              <p className="text-sm text-sage-500">{coachLine}</p>
+              <p className="mt-1 text-sm text-sage-500">{coachLine}</p>
             ) : null}
           </div>
           {statusLabel ? (
@@ -122,20 +138,20 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
           ) : null}
         </div>
 
-        <div className="h-px w-full bg-white/50" />
-
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-sage-500">
-          {durationLabel ? <span>{durationLabel}</span> : <span aria-hidden />}
-          {spotsLabel ? (
-            <span className="inline-flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block h-1.5 w-1.5 rounded-full bg-sage-600"
-              />
-              {spotsLabel}
-            </span>
-          ) : null}
-        </div>
+        {spotsLabel ? (
+          <>
+            <div className="h-px w-full bg-white/50" />
+            <div className="flex flex-wrap items-center justify-end gap-2 text-xs text-sage-500">
+              <span className="inline-flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="inline-block h-1.5 w-1.5 rounded-full bg-sage-600"
+                />
+                {spotsLabel}
+              </span>
+            </div>
+          </>
+        ) : null}
       </div>
     </article>
   );
