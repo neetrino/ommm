@@ -76,9 +76,9 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
 
       <div className={USER_SCHEDULE_LIST_ACTIONS_CLASS}>
         {full ? (
-          <JoinWaitlistButton sessionId={session.id} />
+          <JoinWaitlistButton sessionId={session.id} size="md" />
         ) : (
-          <BookSessionButton sessionId={session.id} priceCents={session.priceCents} />
+          <BookSessionButton sessionId={session.id} priceCents={session.priceCents} size="md" />
         )}
       </div>
     </div>

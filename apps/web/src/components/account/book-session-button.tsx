@@ -11,6 +11,7 @@ type Props = {
   label?: string;
   dropInLabel?: string;
   priceCents: number;
+  size?: "sm" | "md";
 };
 
 type PendingPaymentResponse = {
@@ -22,6 +23,7 @@ export function BookSessionButton({
   label,
   dropInLabel,
   priceCents,
+  size = "sm",
 }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.bookSession");
@@ -70,7 +72,7 @@ export function BookSessionButton({
         <OmmButton
           type="button"
           variant="primary"
-          size="sm"
+          size={size}
           disabled={busy}
           onClick={() => void bookFreeOrMembership()}
         >
@@ -80,7 +82,7 @@ export function BookSessionButton({
           <OmmButton
             type="button"
             variant="secondary"
-            size="sm"
+            size={size}
             disabled={busy}
             onClick={() => void bookDropIn()}
           >
