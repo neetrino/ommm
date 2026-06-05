@@ -23,6 +23,7 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-sage-600">{t("sessionsCount", { count: sessions.length })}</p>
           <UserListBoardViewSwitcher
+            pageId="classes"
             namespace="userPages.classes"
             value={viewMode}
             onChange={setView}

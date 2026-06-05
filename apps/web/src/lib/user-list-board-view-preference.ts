@@ -13,8 +13,21 @@ export type UserListBoardViewPage = keyof typeof USER_LIST_BOARD_VIEW_STORAGE_KE
 
 const VALID_MODES: readonly UserListBoardViewMode[] = ["list", "board"];
 
+const viewPreferenceListeners = new Set<() => void>();
+
 function isUserListBoardViewMode(value: string | null): value is UserListBoardViewMode {
   return value !== null && (VALID_MODES as readonly string[]).includes(value);
+}
+
+export function userListBoardViewSwitcherId(page: UserListBoardViewPage): string {
+  return `user-view-switcher-${page}`;
+}
+
+export function userListBoardViewButtonId(
+  page: UserListBoardViewPage,
+  mode: UserListBoardViewMode,
+): string {
+  return `user-view-${page}-${mode}`;
 }
 
 export function parseUserListBoardViewMode(
@@ -41,12 +54,35 @@ export function readUserListBoardViewFromStorage(
   }
 }
 
+export function subscribeUserListBoardView(onStoreChange: () => void): () => void {
+  viewPreferenceListeners.add(onStoreChange);
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", onStoreChange);
+  }
+  return () => {
+    viewPreferenceListeners.delete(onStoreChange);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", onStoreChange);
+    }
+  };
+}
+
+function notifyUserListBoardViewChange(): void {
+  viewPreferenceListeners.forEach((listener) => {
+    listener();
+  });
+}
+
 export function writeUserListBoardViewToStorage(
   page: UserListBoardViewPage,
   mode: UserListBoardViewMode,
 ): void {
+  if (typeof window === "undefined") {
+    return;
+  }
   try {
     window.localStorage.setItem(USER_LIST_BOARD_VIEW_STORAGE_KEYS[page], mode);
+    notifyUserListBoardViewChange();
   } catch {
     /* ignore */
   }

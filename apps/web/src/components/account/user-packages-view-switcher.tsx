@@ -11,6 +11,7 @@ type UserPackagesViewSwitcherProps = {
 export function UserPackagesViewSwitcher({ value, onChange }: UserPackagesViewSwitcherProps) {
   return (
     <UserListBoardViewSwitcher
+      pageId="packages"
       namespace="userPages.packages"
       value={value}
       onChange={onChange}

@@ -39,6 +39,7 @@ export function UserBookingsSection({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
           <UserListBoardViewSwitcher
+            pageId="bookings"
             namespace="userPages.bookings"
             value={viewMode}
             onChange={setView}

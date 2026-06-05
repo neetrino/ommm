@@ -70,6 +70,7 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-sage-600">{t("paymentsCount", { count: rows.length })}</p>
         <UserListBoardViewSwitcher
+          pageId="payments"
           namespace="userPages.payments"
           value={viewMode}
           onChange={setView}

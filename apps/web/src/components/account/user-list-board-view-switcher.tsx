@@ -2,9 +2,15 @@
 
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
-import type { UserListBoardViewMode } from "@/lib/user-list-board-view-preference";
+import {
+  userListBoardViewButtonId,
+  userListBoardViewSwitcherId,
+  type UserListBoardViewMode,
+  type UserListBoardViewPage,
+} from "@/lib/user-list-board-view-preference";
 
 type UserListBoardViewSwitcherProps = {
+  pageId: UserListBoardViewPage;
   namespace:
     | "userPages.packages"
     | "userPages.bookings"
@@ -24,6 +30,7 @@ function segmentClassName(active: boolean): string {
 }
 
 export function UserListBoardViewSwitcher({
+  pageId,
   namespace,
   value,
   onChange,
@@ -32,11 +39,13 @@ export function UserListBoardViewSwitcher({
 
   return (
     <div
+      id={userListBoardViewSwitcherId(pageId)}
       role="group"
       aria-label={t("viewSwitcherAria")}
       className="inline-flex rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md"
     >
       <button
+        id={userListBoardViewButtonId(pageId, "list")}
         type="button"
         aria-pressed={value === "list"}
         className={segmentClassName(value === "list")}
@@ -46,6 +55,7 @@ export function UserListBoardViewSwitcher({
         {t("viewList")}
       </button>
       <button
+        id={userListBoardViewButtonId(pageId, "board")}
         type="button"
         aria-pressed={value === "board"}
         className={segmentClassName(value === "board")}
