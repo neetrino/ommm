@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role, type User } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -66,7 +67,9 @@ export class BookingsController {
     });
   }
 
+  /** Admin bookings RSC + `router.refresh()` — same burst pattern as `GET /coaches/admin/list`. */
   @Get('admin/management')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
   adminManagement(

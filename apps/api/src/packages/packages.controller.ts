@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { PackageStatus, Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -72,7 +73,9 @@ export class PackagesController {
     return this.packages.deletePlansByCategory(dto.categoryName);
   }
 
+  /** Account packages RSC page — same burst pattern as `GET /users/me`. */
   @Get('me')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   mine(@CurrentUser() user: { id: string }) {
     return this.packages.listMine(user.id);

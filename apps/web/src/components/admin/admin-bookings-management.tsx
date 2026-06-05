@@ -21,6 +21,7 @@ import {
 } from "@/components/admin/admin-bookings-view-icons";
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
@@ -95,6 +96,13 @@ function bookingRowKey(row: Pick<BookingRow, "id" | "recordType">): string {
   return `${row.recordType}-${row.id}`;
 }
 
+type BookingConfirmKind = "cancel" | "delete";
+
+type PendingBookingConfirm = {
+  kind: BookingConfirmKind;
+  row: BookingRow;
+};
+
 export function AdminBookingsManagement({ locale, initial }: Props) {
   const t = useTranslations("adminPages.bookings");
   const tSearchTools = useTranslations("adminPages.searchTools");
@@ -115,6 +123,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
   const [moveBooking, setMoveBooking] = useState<BookingRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [pendingConfirm, setPendingConfirm] = useState<PendingBookingConfirm | null>(null);
 
   const selectedRow = useMemo(() => {
     if (selectedRowKey === null) {
@@ -225,6 +234,52 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     }
   }
 
+  function openBookingConfirm(kind: BookingConfirmKind, row: BookingRow): void {
+    if (busyId !== null) {
+      return;
+    }
+    setPendingConfirm({ kind, row });
+  }
+
+  function closeBookingConfirm(): void {
+    if (pendingConfirm !== null && busyId === pendingConfirm.row.id) {
+      return;
+    }
+    setPendingConfirm(null);
+  }
+
+  async function confirmBookingAction(): Promise<void> {
+    if (pendingConfirm === null) {
+      return;
+    }
+
+    const { kind, row } = pendingConfirm;
+
+    if (kind === "cancel") {
+      await runRowAction(row.id, async () => {
+        await apiFetch(`/bookings/admin/${row.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: "CANCELLED" }),
+        });
+        setRows((prev) =>
+          prev.map((item) =>
+            item.id === row.id ? { ...item, status: "CANCELLED" } : item,
+          ),
+        );
+      }, t("successCancelled"));
+    } else {
+      await runRowAction(row.id, async () => {
+        await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
+        setRows((prev) => prev.filter((item) => item.id !== row.id));
+        if (selectedRowKey === bookingRowKey(row)) {
+          setSelectedRowKey(null);
+        }
+      }, t("successDeleted"));
+    }
+
+    setPendingConfirm(null);
+  }
+
   function rowActionHandlers(row: BookingRow) {
     return {
       onMarkAttended: () => {
@@ -235,28 +290,14 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           });
         }, t("successMarkedAttended"));
       },
-      onCancel: () => {
-        if (!window.confirm(t("confirmCancel"))) {
-          return;
-        }
-        void runRowAction(row.id, async () => {
-          await apiFetch(`/bookings/admin/${row.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({ status: "CANCELLED" }),
-          });
-          setRows((prev) =>
-            prev.map((item) =>
-              item.id === row.id ? { ...item, status: "CANCELLED" } : item,
-            ),
-          );
-        }, t("successCancelled"));
-      },
+      onCancel: () => openBookingConfirm("cancel", row),
       onMove: () => setMoveBooking(row),
       onChangeStatus: (nextStatus: BookingRow["status"]) => {
         if (nextStatus === row.status) {
           return;
         }
-        if (nextStatus === "CANCELLED" && !window.confirm(t("confirmCancel"))) {
+        if (nextStatus === "CANCELLED") {
+          openBookingConfirm("cancel", row);
           return;
         }
         void runRowAction(row.id, async () => {
@@ -271,18 +312,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           );
         }, t("successEdited"));
       },
-      onDelete: () => {
-        if (!window.confirm(t("confirmDelete"))) {
-          return;
-        }
-        void runRowAction(row.id, async () => {
-          await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
-          setRows((prev) => prev.filter((item) => item.id !== row.id));
-          if (selectedRowKey === bookingRowKey(row)) {
-            setSelectedRowKey(null);
-          }
-        }, t("successDeleted"));
-      },
+      onDelete: () => openBookingConfirm("delete", row),
     };
   }
 
@@ -479,6 +509,33 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         />
       ) : null}
       {moveBooking ? <MoveBookingDialog booking={moveBooking} onClose={() => setMoveBooking(null)} onSubmit={(targetSessionId) => { void runRowAction(moveBooking.id, async () => { await apiFetch(`/bookings/admin/${moveBooking.id}/move`, { method: "PATCH", body: JSON.stringify({ targetSessionId }) }); }, t("successMoved")); setMoveBooking(null); }} /> : null}
+      <OmmConfirmDialog
+        isOpen={pendingConfirm !== null}
+        title={
+          pendingConfirm?.kind === "delete"
+            ? t("confirmDeleteTitle")
+            : t("confirmCancelTitle")
+        }
+        description={
+          pendingConfirm?.kind === "delete"
+            ? t("confirmDelete")
+            : t("confirmCancel")
+        }
+        confirmLabel={
+          pendingConfirm?.kind === "delete"
+            ? t("confirmDialogDelete")
+            : t("confirmDialogCancel")
+        }
+        cancelLabel={t("confirmDialogNo")}
+        backdropAriaLabel={t("confirmDialogBackdrop")}
+        tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        pending={pendingConfirm !== null && busyId === pendingConfirm.row.id}
+        onConfirm={() => {
+          void confirmBookingAction();
+        }}
+        onCancel={closeBookingConfirm}
+      />
     </div>
   );
 }
