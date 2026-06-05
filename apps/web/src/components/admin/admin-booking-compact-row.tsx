@@ -44,9 +44,7 @@ type AdminBookingCompactRowProps = {
   onOpenUser: (userId: string) => void;
   onMarkAttended: () => void;
   onCancel: () => void;
-  onMove: () => void;
   onChangeStatus: (status: BookingRow["status"]) => void;
-  onDelete: () => void;
 };
 
 export function AdminBookingCompactRow({
@@ -57,9 +55,7 @@ export function AdminBookingCompactRow({
   onOpenUser,
   onMarkAttended,
   onCancel,
-  onMove,
   onChangeStatus,
-  onDelete,
 }: AdminBookingCompactRowProps) {
   const t = useTranslations("adminPages.bookings");
   const userLabel = row.user.name ?? row.user.email;
@@ -150,13 +146,12 @@ export function AdminBookingCompactRow({
       >
         <MobileLabel label={t("colActions")} />
         <AdminBookingRowActions
+          variant="list"
           recordType={row.recordType}
           status={row.status}
           busy={busy}
           onMarkAttended={onMarkAttended}
           onCancel={onCancel}
-          onMove={onMove}
-          onDelete={onDelete}
         />
       </div>
     </article>

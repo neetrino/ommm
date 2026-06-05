@@ -252,17 +252,16 @@ export function AdminBookingDetailsSheet({
 
       {row.recordType === "BOOKING" ? (
         <footer className="shrink-0 border-t border-white/60 px-5 py-4 sm:px-6">
-          <div className="flex justify-end">
-            <AdminBookingRowActions
-              recordType={row.recordType}
-              status={row.status}
-              busy={busy}
-              onMarkAttended={onMarkAttended}
-              onCancel={onCancel}
-              onMove={onMove}
-              onDelete={onDelete}
-            />
-          </div>
+          <AdminBookingRowActions
+            variant="sheet"
+            recordType={row.recordType}
+            status={row.status}
+            busy={busy}
+            onMarkAttended={onMarkAttended}
+            onCancel={onCancel}
+            onMove={onMove}
+            onDelete={onDelete}
+          />
         </footer>
       ) : null}
     </OmmDrawerPortal>
