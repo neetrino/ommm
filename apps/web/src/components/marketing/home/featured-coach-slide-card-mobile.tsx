@@ -5,6 +5,7 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Image from "next/image";
 import styles from "@/components/marketing/home/featured-coach-slide-card-mobile.module.css";
 import type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
+import { isLongCoachCardName } from "@/components/marketing/home/home-coaches-section-tokens";
 import { resolveCoachSlidePortraitSrc } from "@/components/marketing/home/home-featured-coach-slides";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
@@ -115,7 +116,11 @@ export function FeaturedCoachSlideCardMobile({
         </div>
 
         <div className={`${styles.nameHeader} ${marketingMontserrat.className}`}>
-          <p className={`${styles.name} font-extrabold tracking-[0.045em]`}>{slide.name}</p>
+          <p
+            className={`${styles.name} ${isLongCoachCardName(slide.name) ? styles.nameLong : ""} font-extrabold tracking-[0.045em]`}
+          >
+            {slide.name}
+          </p>
         </div>
       </div>
 

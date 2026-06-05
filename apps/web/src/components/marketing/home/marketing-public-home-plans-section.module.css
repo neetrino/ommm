@@ -57,8 +57,6 @@
   scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  overscroll-behavior-y: none;
-  touch-action: pan-x;
   scrollbar-width: none;
 }
 

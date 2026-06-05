@@ -109,6 +109,9 @@ export const HOME_PLANS_SECTION_LAYOUT = {
   cardGlassHeightPx: 136,
   /** Figma `62:2344` — glass panel overhang below card edge. */
   cardGlassOverhangPx: 34,
+  /** Plan name on card photo — upper-left inset (desktop). */
+  categoryCornerInsetX: "1.25rem",
+  categoryCornerInsetY: "1.25rem",
   categoryFontSizePx: 28,
   detailsFontSizePx: 18,
   priceFontSizePx: 28,

@@ -10,6 +10,8 @@
   --ommm-coach-card-radius: 1.5rem;
   --ommm-coach-name-size: 1.875rem;
   --ommm-coach-name-leading: 2.25rem;
+  --ommm-coach-name-size-long: 1.5rem;
+  --ommm-coach-name-leading-long: 1.75rem;
   --ommm-coach-body-size: 0.875rem;
   --ommm-coach-body-leading: 1.25rem;
 }
@@ -23,7 +25,6 @@
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
   scrollbar-width: none;
 }
 

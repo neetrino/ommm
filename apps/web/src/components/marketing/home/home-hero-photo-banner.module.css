@@ -175,7 +175,7 @@
   }
 
   .homeHeroBackground {
-    object-position: center top;
+    object-position: var(--home-hero-bg-position-mobile, center top);
   }
 
   .homeHeroTextStack {

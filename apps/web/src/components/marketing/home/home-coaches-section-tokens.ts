@@ -65,6 +65,10 @@ export const HOME_COACHES_SECTION_MOBILE_FIGMA = {
   cardPaddingPx: 27,
   cardNameFontSizePx: 30,
   cardNameLineHeightPx: 36,
+  /** Smaller type when the display name exceeds {@link cardNameLongThresholdChars}. */
+  cardNameLongFontSizePx: 24,
+  cardNameLongLineHeightPx: 28,
+  cardNameLongThresholdChars: 16,
   cardBodyFontSizePx: 14,
   cardBodyLineHeightPx: 20,
   cardNavSizePx: 64,
@@ -100,5 +104,10 @@ export const HOME_COACHES_SECTION_MOBILE_LAYOUT = {
   /** Mobile “More Details” — label nudged right vs booking default (67px). */
   ctaLabelOffsetPx: HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx,
 } as const;
+
+/** True when the coach name should use compact mobile card typography. */
+export function isLongCoachCardName(name: string): boolean {
+  return name.trim().length > HOME_COACHES_SECTION_MOBILE_FIGMA.cardNameLongThresholdChars;
+}
 
 export const HOME_COACHES_CAROUSEL_DESKTOP_GAP_REM = 2.25 as const;

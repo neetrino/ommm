@@ -39,6 +39,17 @@
   white-space: nowrap;
 }
 
+.nameLong {
+  font-size: var(--ommm-coach-name-size-long, 1.5rem);
+  line-height: var(--ommm-coach-name-leading-long, 1.75rem);
+  letter-spacing: 0.03em;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 .role {
   overflow: hidden;
   font-size: var(--ommm-coach-body-size, 0.875rem);
@@ -123,7 +134,6 @@
   background: transparent;
   padding: 0;
   border-radius: var(--ommm-coach-card-radius, 1.5rem);
-  touch-action: pan-x;
 }
 
 .activateOverlay:focus-visible {

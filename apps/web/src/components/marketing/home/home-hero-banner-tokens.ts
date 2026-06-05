@@ -24,10 +24,17 @@ export const HOME_HERO_MOBILE_FIGMA = {
   bookingCtaLabelColor: "#97907c",
 } as const;
 
+/** Shorter than Figma artboard — crops hero photo bottom, tightens subtitle ↔ head gap. */
+const HOME_HERO_MOBILE_RENDER_HEIGHT_PX = 680;
+const HOME_HERO_MOBILE_RENDER_MIN_HEIGHT_PX = 288;
+const HOME_HERO_MOBILE_RENDER_HEIGHT_REM = HOME_HERO_MOBILE_RENDER_HEIGHT_PX / 16;
+const HOME_HERO_MOBILE_RENDER_MIN_HEIGHT_REM = HOME_HERO_MOBILE_RENDER_MIN_HEIGHT_PX / 16;
+
 /** Mobile layout from Figma `97:5656` (logo `97:5658`, title `97:5661`, CTAs `108:6561` / `108:6571`). */
 export const HOME_HERO_MOBILE_LAYOUT = {
-  imageMinHeight: "clamp(18rem, calc(100svw * 772 / 394), 48.25rem)",
-  imageMaxHeight: "min(48.25rem, 92dvh)",
+  renderHeightPx: HOME_HERO_MOBILE_RENDER_HEIGHT_PX,
+  imageMinHeight: `clamp(${HOME_HERO_MOBILE_RENDER_MIN_HEIGHT_REM}rem, calc(100svw * ${HOME_HERO_MOBILE_RENDER_HEIGHT_PX} / ${HOME_HERO_MOBILE_FIGMA.artboardWidthPx}), ${HOME_HERO_MOBILE_RENDER_HEIGHT_REM}rem)`,
+  imageMaxHeight: `min(${HOME_HERO_MOBILE_RENDER_HEIGHT_REM}rem, 88dvh)`,
   contentPaddingX: "1.5rem",
   /** Figma `97:5658` — frame 240×142, artboard 394. */
   logoFrameWidthPx: 240,
@@ -54,6 +61,8 @@ export const HOME_HERO_MOBILE_LAYOUT = {
   /** Shifts headline + CTAs down together on mobile. */
   contentDownOffsetPx: 40,
   contentDownOffset: "clamp(1.25rem, calc(100svw * 40 / 394), 2.5rem)",
+  /** Centers meditating figure in shortened mobile hero crop. */
+  backgroundObjectPosition: "center center",
   /** Figma `97:5655` hero photo crop — centers subject on mobile. */
   backgroundImageWidthPercent: 400.46,
   backgroundImageHeightPercent: 103.92,
