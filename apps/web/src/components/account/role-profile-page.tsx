@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AccountProfileInfoForm } from "@/components/account/account-profile-info-form";
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
-import { DeleteAccountRequestButton } from "@/components/account/delete-account-request-button";
+import { DeleteAccountButton } from "@/components/account/delete-account-button";
 import {
   AccountPageFrame,
   AccountSection,
@@ -94,7 +94,7 @@ export async function RoleProfilePage({
         </AccountSection>
       ) : null}
 
-      <DeleteAccountRequestButton />
+      <DeleteAccountButton />
     </div>
   );
 
