@@ -43,11 +43,11 @@ export function homePathForRole(role: string): string {
 
 /**
  * Path after successful login/register (email or OAuth entry via `/account`).
- * Regular members return to the public home; staff roles go to their workspace.
+ * Regular members land on My account; staff roles go to their workspace.
  */
 export function postAuthPathForRole(role: string): string {
   if (role === "USER") {
-    return PUBLIC_HOME_PATH;
+    return USER_ACCOUNT_PATH;
   }
   return homePathForRole(role);
 }
