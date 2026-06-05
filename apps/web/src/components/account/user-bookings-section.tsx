@@ -186,7 +186,7 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
                     variant="list"
                   />
                   <SessionCoachLine
-                    coachName={resolveSessionCoachName(item.session.coach, t("coachFallback"))}
+                    coachName={resolveSessionCoachName(item.session.coach)}
                     variant="list"
                     className="mt-2"
                   />

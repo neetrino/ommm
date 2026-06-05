@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
 import {
@@ -32,8 +31,7 @@ export function UserBookingBoardCard({
   showCancel,
   showRebook,
 }: UserBookingBoardCardProps) {
-  const t = useTranslations("userPages.bookings");
-  const coachName = resolveSessionCoachName(booking.session.coach, t("coachFallback"));
+  const coachName = resolveSessionCoachName(booking.session.coach);
 
   return (
     <article className="flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] sm:p-6">

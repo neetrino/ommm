@@ -16,7 +16,7 @@ type UserWaitlistBoardCardProps = {
 
 export function UserWaitlistBoardCard({ locale, waitlist }: UserWaitlistBoardCardProps) {
   const t = useTranslations("userPages.bookings");
-  const coachName = resolveSessionCoachName(waitlist.session.coach, t("coachFallback"));
+  const coachName = resolveSessionCoachName(waitlist.session.coach);
 
   return (
     <article className="flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] sm:p-6">

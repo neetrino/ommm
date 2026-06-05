@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
 import {
@@ -32,8 +31,7 @@ export function UserBookingCompactRow({
   showCancel,
   showRebook,
 }: UserBookingCompactRowProps) {
-  const t = useTranslations("userPages.bookings");
-  const coachName = resolveSessionCoachName(booking.session.coach, t("coachFallback"));
+  const coachName = resolveSessionCoachName(booking.session.coach);
 
   return (
     <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">

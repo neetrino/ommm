@@ -21,7 +21,7 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
   const t = useTranslations("userPages.classes");
   const booked = session._count.bookings;
   const full = booked >= session.capacity;
-  const coachName = resolveSessionCoachName(session.coach, t("coachFallback"));
+  const coachName = resolveSessionCoachName(session.coach);
   const spots = t("spotsBooked", { booked, capacity: session.capacity });
   const pricing =
     session.priceCents > 0
