@@ -133,6 +133,10 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
   return [
     "inline-flex shrink-0 cursor-pointer items-center justify-center",
     iconColor,
+    "rounded-full transition-[background-color,color,transform]",
+    menuOpen
+      ? "hover:bg-sage-900/10 active:scale-[0.96]"
+      : "hover:bg-white/12 active:scale-[0.96]",
     "focus-visible:outline-none focus-visible:ring-2",
     focusRing,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
   MANUAL_PAYMENT_METHODS,
@@ -188,25 +189,28 @@ function PlanPicker({ plans, selectedPlanId, locale, onSelect }: PlanPickerProps
   return (
     <fieldset className="space-y-2">
       <legend className="ommm-label text-xs uppercase tracking-wide">{t("selectPlanLegend")}</legend>
-      {plans.map((plan) => (
-        <label
-          key={plan.id}
-          className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/60 bg-white/50 p-3"
-        >
-          <input
-            type="radio"
-            name="subscribe-plan"
-            value={plan.id}
-            checked={selectedPlanId === plan.id}
-            onChange={() => onSelect(plan.id)}
-            className="mt-1"
-          />
-          <span className="flex-1">
-            <span className="block text-sm font-medium text-sage-800">{plan.name}</span>
-            <PlanSummaryDetails plan={plan} locale={locale} />
-          </span>
-        </label>
-      ))}
+      {plans.map((plan) => {
+        const sessionName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+        return (
+          <label
+            key={plan.id}
+            className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/60 bg-white/50 p-3 transition-[background-color,border-color,box-shadow] hover:border-white/80 hover:bg-white/70 hover:shadow-sm focus-within:border-sand-500/40 focus-within:bg-sand-50/40 focus-within:ring-2 focus-within:ring-sand-500/20"
+          >
+            <input
+              type="radio"
+              name="subscribe-plan"
+              value={plan.id}
+              checked={selectedPlanId === plan.id}
+              onChange={() => onSelect(plan.id)}
+              className="mt-1"
+            />
+            <span className="flex-1">
+              <span className="block text-sm font-medium text-sage-800">{sessionName}</span>
+              <PlanSummaryDetails plan={plan} locale={locale} />
+            </span>
+          </label>
+        );
+      })}
     </fieldset>
   );
 }
@@ -217,9 +221,11 @@ type PlanSummaryProps = {
 };
 
 function PlanSummary({ plan, locale }: PlanSummaryProps) {
+  const sessionName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
+
   return (
     <div className="rounded-2xl border border-white/60 bg-white/50 p-4">
-      <p className="text-sm font-medium text-sage-800">{plan.name}</p>
+      <p className="text-sm font-medium text-sage-800">{sessionName}</p>
       <PlanSummaryDetails plan={plan} locale={locale} />
     </div>
   );
@@ -264,7 +270,7 @@ function PaymentMethodPicker({ value, onChange, disabled }: PaymentMethodPickerP
       {MANUAL_PAYMENT_METHODS.map((method) => (
         <label
           key={method}
-          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/50 px-3 py-2.5"
+          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/50 px-3 py-2.5 transition-[background-color,border-color,box-shadow] hover:border-white/80 hover:bg-white/70 hover:shadow-sm focus-within:border-sand-500/40 focus-within:bg-sand-50/40 focus-within:ring-2 focus-within:ring-sand-500/20 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50"
         >
           <input
             type="radio"

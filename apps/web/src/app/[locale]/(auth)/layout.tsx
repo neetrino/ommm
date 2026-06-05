@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AuthSiteHeader } from "@/components/auth/auth-site-header";
+import { SignupBannerParticles } from "@/components/auth/signup-banner-particles";
 import styles from "./auth-layout.module.css";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
@@ -10,7 +11,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div
           className={`${styles.card} ommm-card p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8`}
         >
-          {children}
+          <SignupBannerParticles />
+          <div className={styles.cardContent}>{children}</div>
         </div>
       </div>
     </div>

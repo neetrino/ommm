@@ -17,6 +17,9 @@ export type MarketingScheduleItem = {
   endTime: string | null;
   durationMinutes: number | null;
   availableSpots: number;
+  level: string | null;
+  status: "ACTIVE" | "FULL" | string;
+  sessionDate: string | null;
   description: string | null;
   isActive: boolean;
   createdAt: string;

@@ -35,10 +35,7 @@ import {
   mergePackageCategoryOptions,
   resolvePackageCategoryName,
 } from "@/components/admin/package-category-utils";
-import {
-  buildPackageTierPlanName,
-  buildPackageTierSlug,
-} from "@/components/admin/admin-package-tier-utils";
+import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
@@ -89,7 +86,11 @@ function buildInitialValues(
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
-    return packageRowToFormValues(initialPackage, initialCategoryName);
+    return {
+      ...packageRowToFormValues(initialPackage, initialCategoryName),
+      sessionName: "",
+      guestCount: "",
+    };
   }
   return createEmptyPackageFormValues(initialCategoryName);
 }
@@ -100,7 +101,6 @@ export function AdminPackageForm({
   initialCategoryName,
   categoryOptions,
   initialPackage,
-  configuredTierCount = 0,
   onSaved,
   onCancel,
 }: AdminPackageFormProps) {
@@ -183,6 +183,7 @@ export function AdminPackageForm({
     const isAddTierMode = mode === "add-tier";
     const isEditMode = mode === "edit";
     const name = values.name.trim();
+    const sessionName = values.sessionName.trim();
     const description = values.description.trim();
     const tierCategoryName = resolvePackageCategoryName(
       initialCategoryName.trim(),
@@ -236,6 +237,17 @@ export function AdminPackageForm({
       return;
     }
 
+    if (isPricingMode || isAddTierMode) {
+      if (sessionName.length === 0) {
+        setError(t("sessionNameRequired"));
+        return;
+      }
+      if (sessionName.length > MAX_NAME_LENGTH) {
+        setError(t("sessionNameTooLong"));
+        return;
+      }
+    }
+
     if (isPricingMode || isEditMode || isAddTierMode) {
       if (priceCents === null) {
         setError(t("priceInvalid"));
@@ -267,9 +279,10 @@ export function AdminPackageForm({
         return;
       }
       if (
-        guestCount === null ||
-        guestCount < MIN_PACKAGE_GUEST_COUNT ||
-        guestCount > MAX_PACKAGE_GUEST_COUNT
+        values.guestCount.trim().length > 0 &&
+        (guestCount === null ||
+          guestCount < MIN_PACKAGE_GUEST_COUNT ||
+          guestCount > MAX_PACKAGE_GUEST_COUNT)
       ) {
         setError(t("guestCountInvalid"));
         return;
@@ -291,7 +304,7 @@ export function AdminPackageForm({
       currency: "AMD" as const,
       isUnlimited: false,
       sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
-      guestCount: guestCount ?? 1,
+      guestCount: guestCount ?? 0,
       periodDays: periodDays ?? durationMonthsToPeriodDays(1),
       billingPeriod: tierBillingPeriod,
     };
@@ -301,15 +314,6 @@ export function AdminPackageForm({
       packageId !== undefined &&
       initialPackage !== undefined &&
       initialPackage.priceCents <= 0;
-
-    const tierOrdinal = configuredTierCount + 1;
-    const tierName = shellTierTarget
-      ? initialPackage.name
-      : buildPackageTierPlanName(
-          categoryName,
-          sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
-          tierOrdinal,
-        );
 
     const payload = isCreateMode
       ? {
@@ -321,7 +325,7 @@ export function AdminPackageForm({
           currency: "AMD",
           isUnlimited: false,
           sessionsPerMonth: 0,
-          guestCount: 1,
+          guestCount: 0,
           periodDays: durationMonthsToPeriodDays(1),
           billingPeriod: "monthly",
           isPopular: false,
@@ -329,9 +333,12 @@ export function AdminPackageForm({
         }
       : isAddTierMode
         ? shellTierTarget
-          ? pricingFields
+          ? {
+              name: sessionName,
+              ...pricingFields,
+            }
           : {
-              name: tierName,
+              name: sessionName,
               categoryName,
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
@@ -341,6 +348,7 @@ export function AdminPackageForm({
             }
         : isPricingMode
           ? {
+              name: sessionName,
               ...pricingFields,
               isPopular: values.isPopular,
               isActive: values.isActive,
@@ -422,7 +430,6 @@ export function AdminPackageForm({
                 maxLength={MAX_NAME_LENGTH}
                 value={values.name}
                 onChange={(event) => updateValues({ name: event.target.value })}
-                required
                 disabled={pending}
               />
             </label>
@@ -447,6 +454,19 @@ export function AdminPackageForm({
           description={t("addTierFormDescription")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionName")}</span>
+              <input
+                name="sessionName"
+                className="ommm-input"
+                maxLength={MAX_NAME_LENGTH}
+                value={values.sessionName}
+                onChange={(event) => updateValues({ sessionName: event.target.value })}
+                placeholder={t("fieldSessionNamePlaceholder")}
+                required
+                disabled={pending}
+              />
+            </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
               <input
@@ -476,12 +496,11 @@ export function AdminPackageForm({
                   type="number"
                   className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   min={0}
-                  step="0.01"
-                  inputMode="decimal"
+                  step={1}
+                  inputMode="numeric"
                   value={values.price}
                   onChange={(event) => updateValues({ price: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
-                  required
                   disabled={pending}
                 />
               </div>
@@ -519,7 +538,6 @@ export function AdminPackageForm({
                 onChange={(event) => updateValues({ guestCount: event.target.value })}
                 onKeyDown={preventNumberArrowStep}
                 placeholder={t("fieldGuestCountPlaceholder")}
-                required
                 disabled={pending}
               />
             </label>
@@ -534,6 +552,23 @@ export function AdminPackageForm({
             description={t("formSections.pricing.description")}
           >
             <div className="grid gap-4 sm:grid-cols-2">
+              {mode === "pricing" ? (
+                <label className="flex flex-col gap-1.5 sm:col-span-2">
+                  <span className="ommm-label text-xs uppercase tracking-wide">
+                    {t("fieldSessionName")}
+                  </span>
+                  <input
+                    name="sessionName"
+                    className="ommm-input"
+                    maxLength={MAX_NAME_LENGTH}
+                    value={values.sessionName}
+                    onChange={(event) => updateValues({ sessionName: event.target.value })}
+                    placeholder={t("fieldSessionNamePlaceholder")}
+                    required
+                    disabled={pending}
+                  />
+                </label>
+              ) : null}
               <label className="flex flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
                 <div className="relative">
@@ -545,8 +580,8 @@ export function AdminPackageForm({
                     type="number"
                     className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     min={0}
-                    step="0.01"
-                    inputMode="decimal"
+                    step={1}
+                    inputMode="numeric"
                     value={values.price}
                     onChange={(event) => updateValues({ price: event.target.value })}
                     onKeyDown={preventNumberArrowStep}
@@ -634,7 +669,6 @@ export function AdminPackageForm({
                   onChange={(event) => updateValues({ guestCount: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
                   placeholder={t("fieldGuestCountPlaceholder")}
-                  required
                   disabled={pending}
                 />
                 <span className="text-xs text-sage-500">{t("fieldGuestCountHint")}</span>
@@ -648,7 +682,7 @@ export function AdminPackageForm({
             description={t("formSections.visibility.description")}
           >
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-colors has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60">
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
                 <input
                   type="checkbox"
                   name="isPopular"
@@ -662,7 +696,7 @@ export function AdminPackageForm({
                   <span className="text-xs text-sage-500">{t("fieldPopularHint")}</span>
                 </span>
               </label>
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-colors has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60">
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 transition-[background-color,border-color,box-shadow] hover:border-white hover:bg-white hover:shadow-sm focus-within:ring-2 focus-within:ring-sand-500/20 has-[:checked]:border-sand-500/40 has-[:checked]:bg-sand-50/60 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
                 <input
                   type="checkbox"
                   name="isActive"

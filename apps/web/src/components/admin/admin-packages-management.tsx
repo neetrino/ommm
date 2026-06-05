@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
+import { AdminPackageCategoryDeleteModal } from "@/components/admin/admin-package-category-delete-modal";
 import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-package-category-rename-modal";
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
@@ -38,6 +39,7 @@ import {
   buildPackagesPathname,
   clearPackageModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
+  PACKAGE_DELETE_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_QUERY_KEY,
   PACKAGE_MODAL_CREATE_VALUE,
@@ -46,6 +48,7 @@ import {
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
 } from "@/components/admin/admin-packages-url";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
@@ -101,6 +104,7 @@ export function AdminPackagesManagement({
   const [expandedCategoryKeys, setExpandedCategoryKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedCategoryIds((current) =>
@@ -110,6 +114,7 @@ export function AdminPackagesManagement({
   }, [categoryOptions]);
 
   const editingCategoryName = searchParams.get(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+  const deletingCategoryId = searchParams.get(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
   const isEditCategoryOpen =
     editingCategoryName !== null &&
     editingCategoryName.trim().length > 0 &&
@@ -118,6 +123,27 @@ export function AdminPackagesManagement({
         normalizePackageCategoryKey(pkg.categoryName) ===
         normalizePackageCategoryKey(editingCategoryName),
     );
+  const deletingCategory = useMemo(() => {
+    if (deletingCategoryId === null || deletingCategoryId.trim().length === 0) {
+      return null;
+    }
+    const deletingKey = normalizePackageCategoryKey(deletingCategoryId);
+    return (
+      categoryOptions.find(
+        (option) => normalizePackageCategoryKey(option.id) === deletingKey,
+      ) ?? null
+    );
+  }, [categoryOptions, deletingCategoryId]);
+  const isDeleteCategoryOpen = deletingCategory !== null;
+
+  useEffect(() => {
+    if (deletingCategoryId === null || isDeleteCategoryOpen) {
+      return;
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [deletingCategoryId, isDeleteCategoryOpen, pathname, router, searchParams]);
 
   const visibleCategories = useMemo(
     () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
@@ -148,6 +174,7 @@ export function AdminPackagesManagement({
     (packageId: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_PRICING_VALUE);
       params.set(PACKAGE_PRICING_QUERY_KEY, packageId);
@@ -165,6 +192,7 @@ export function AdminPackagesManagement({
       );
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_ADD_TIER_VALUE);
       params.set(PACKAGE_CATEGORY_QUERY_KEY, categoryId);
@@ -181,12 +209,32 @@ export function AdminPackagesManagement({
   }, []);
 
   const handleCategoryRenamed = useCallback(
-    (_fromName: string, _toName: string, updated: readonly AdminPackageRow[]) => {
+    (fromName: string, toName: string, updated: readonly AdminPackageRow[]) => {
+      const previousCategoryKey = normalizePackageCategoryKey(fromName);
+      const nextCategoryName = updated[0]?.categoryName ?? toName.trim();
       setPackageRows((current) => {
         let next = current;
         for (const row of updated) {
           next = upsertAdminPackageRow(next, row);
         }
+        return next;
+      });
+      setSelectedCategoryIds((current) => {
+        const next = new Set<string>();
+        for (const id of current) {
+          next.add(
+            normalizePackageCategoryKey(id) === previousCategoryKey ? nextCategoryName : id,
+          );
+        }
+        return next;
+      });
+      setExpandedCategoryKeys((current) => {
+        if (!current.has(previousCategoryKey)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.delete(previousCategoryKey);
+        next.add(normalizePackageCategoryKey(nextCategoryName));
         return next;
       });
       router.refresh();
@@ -195,19 +243,43 @@ export function AdminPackagesManagement({
   );
 
   const handleCategoryDeleted = useCallback(
-    (_categoryName: string, deletedPackageIds: readonly string[]) => {
-      if (deletedPackageIds.length > 0) {
-        const removed = new Set(deletedPackageIds);
-        setPackageRows((current) => current.filter((row) => !removed.has(row.id)));
-      }
+    (categoryName: string, deletedPackageIds: readonly string[]) => {
+      const deletedCategoryKey = normalizePackageCategoryKey(categoryName);
+      const removed = new Set(deletedPackageIds);
+      setPackageRows((current) =>
+        current.filter(
+          (row) =>
+            !removed.has(row.id) &&
+            normalizePackageCategoryKey(row.categoryName) !== deletedCategoryKey,
+        ),
+      );
+      setSelectedCategoryIds((current) => {
+        const next = new Set<string>();
+        for (const id of current) {
+          if (normalizePackageCategoryKey(id) !== deletedCategoryKey) {
+            next.add(id);
+          }
+        }
+        return next;
+      });
+      setExpandedCategoryKeys((current) => {
+        if (!current.has(deletedCategoryKey)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.delete(deletedCategoryKey);
+        return next;
+      });
+      setToastMessage(t("messages.categoryDeleteSuccess"));
       router.refresh();
     },
-    [router],
+    [router, t],
   );
 
   const openAddModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+    params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
     params.delete(PACKAGE_EDIT_QUERY_KEY);
     clearPackageModalQueryKeys(params);
     params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_CREATE_VALUE);
@@ -218,6 +290,7 @@ export function AdminPackagesManagement({
   const openEditCategory = useCallback(
     (categoryId: string) => {
       const params = new URLSearchParams(searchParams.toString());
+      params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
       clearPackageModalQueryKeys(params);
       params.set(PACKAGE_EDIT_CATEGORY_QUERY_KEY, categoryId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });
@@ -228,6 +301,23 @@ export function AdminPackagesManagement({
   const closeEditCategory = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+    router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const openDeleteCategory = useCallback(
+    (categoryId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
+      clearPackageModalQueryKeys(params);
+      params.set(PACKAGE_DELETE_CATEGORY_QUERY_KEY, categoryId);
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const closeDeleteCategory = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [pathname, router, searchParams]);
 
@@ -284,6 +374,7 @@ export function AdminPackagesManagement({
                   });
                 }}
                 onEditCategory={() => openEditCategory(category.id)}
+                onDeleteCategory={() => openDeleteCategory(category.id)}
                 onEditPackage={openConfigurePricing}
                 onAddTier={() => openAddTier(category.id)}
               />
@@ -293,13 +384,25 @@ export function AdminPackagesManagement({
       </AdminPackagesShell>
 
       <AdminPackageCategoryRenameModal
-        key={editingCategoryName ?? "closed"}
+        key={editingCategoryName ? `rename-category-${editingCategoryName}` : "rename-category-closed"}
         isOpen={isEditCategoryOpen}
         categoryName={editingCategoryName ?? ""}
         packages={packageRows}
         onClose={closeEditCategory}
         onRenamed={handleCategoryRenamed}
+      />
+      <AdminPackageCategoryDeleteModal
+        key={deletingCategory ? `delete-category-${deletingCategory.id}` : "delete-category-closed"}
+        isOpen={isDeleteCategoryOpen}
+        categoryName={deletingCategory?.label ?? ""}
+        packages={packageRows}
+        onClose={closeDeleteCategory}
         onDeleted={handleCategoryDeleted}
+      />
+      <AdminCenterToast
+        message={toastMessage}
+        tone="ok"
+        onDismiss={() => setToastMessage(null)}
       />
     </>
   );
@@ -312,6 +415,7 @@ type CategoryAccordionProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEditCategory: () => void;
+  onDeleteCategory: () => void;
   onEditPackage: (packageId: string) => void;
   onAddTier: () => void;
 };
@@ -323,6 +427,7 @@ function CategoryAccordion({
   open,
   onOpenChange,
   onEditCategory,
+  onDeleteCategory,
   onEditPackage,
   onAddTier,
 }: CategoryAccordionProps) {
@@ -352,7 +457,9 @@ function CategoryAccordion({
     <AdminAccordionPanel
       title={category.label}
       editLabel={t("editCategory")}
+      deleteLabel={t("deleteCategoryButton")}
       onEdit={onEditCategory}
+      onDelete={onDeleteCategory}
       open={open}
       onOpenChange={onOpenChange}
       contentVariant="table"

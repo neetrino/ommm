@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomeWeeklyScheduleGridDeferred } from "@/components/marketing/home/home-deferred-sections";
+import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import styles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -20,6 +21,7 @@ type HomeWeeklyScheduleBannerProps = {
 export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBannerProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
   const heroT = await getTranslations({ locale, namespace: "marketingPublic.hero" });
+  const { items } = await fetchPublicScheduleItems();
   const scheduleCta = (
     <HomeHeroCtaButton href="/schedule" label={heroT("primaryCta")} variant="booking" />
   );
@@ -98,7 +100,7 @@ export async function HomeWeeklyScheduleBanner({ locale }: HomeWeeklyScheduleBan
             </header>
 
             <div className={styles.gridWrap}>
-              <HomeWeeklyScheduleGridDeferred locale={locale} />
+              <HomeWeeklyScheduleGridDeferred locale={locale} initialItems={items} />
             </div>
 
             <div className={styles.cta}>{scheduleCta}</div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AdminSmallActionButton } from "@/components/admin/admin-small-action-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 type AdminPackageStatusActionsProps = {
@@ -39,30 +40,27 @@ export function AdminPackageStatusActions({
   return (
     <div className="flex min-w-[13rem] flex-col gap-2">
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className="rounded-md border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+        <AdminSmallActionButton
+          tone="success"
           onClick={() => void updateStatus("ACTIVE")}
           disabled={busy}
         >
           Set active
-        </button>
-        <button
-          type="button"
-          className="rounded-md border border-amber-300 px-2 py-1 text-xs text-amber-800 hover:bg-amber-50 disabled:opacity-50"
+        </AdminSmallActionButton>
+        <AdminSmallActionButton
+          tone="warning"
           onClick={() => void updateStatus("PAUSED")}
           disabled={busy}
         >
           Set paused
-        </button>
-        <button
-          type="button"
-          className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50"
+        </AdminSmallActionButton>
+        <AdminSmallActionButton
+          tone="danger"
           onClick={() => void updateStatus("CANCELLED")}
           disabled={busy}
         >
           Set cancelled
-        </button>
+        </AdminSmallActionButton>
       </div>
       {message ? (
         <p className={`text-xs ${tone === "ok" ? "text-sage-700" : "text-red-800"}`}>

@@ -37,6 +37,10 @@ type NextServerFetchInit = RequestInit & {
   next?: { revalidate?: number | false };
 };
 
+type PublicServerApiOptions = NextServerFetchInit & {
+  cacheMode?: "revalidate" | "no-store";
+};
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -121,11 +125,14 @@ async function parseServerApiResponse<T>(
 /** Cached public read — no auth cookie; safe for marketing pages. */
 export async function serverApiJsonPublic<T>(
   path: string,
-  init?: NextServerFetchInit,
+  init?: PublicServerApiOptions,
 ): Promise<ServerApiResult<T>> {
+  const { cacheMode = "revalidate", ...fetchInit } = init ?? {};
   const res = await fetchServerApi(path, {
-    ...init,
-    next: { revalidate: PUBLIC_REVALIDATE_SEC },
+    ...fetchInit,
+    ...(cacheMode === "no-store"
+      ? { cache: "no-store" as const }
+      : { next: { revalidate: PUBLIC_REVALIDATE_SEC } }),
   });
   return parseServerApiResponse<T>(res);
 }

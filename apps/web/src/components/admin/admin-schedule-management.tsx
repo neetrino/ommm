@@ -1,19 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
-import { OmmFilterDropdown, OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { AdminScheduleSessionActions } from "@/components/admin/admin-schedule-session-actions";
 import {
   matchesScheduleQuickFilters,
@@ -23,6 +25,14 @@ import {
 import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+type ScheduleDayOfWeek =
+  | "SUNDAY"
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY";
 export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
 type AvailabilityOption = "available" | "full";
 type TimeOfDayOption = "morning" | "afternoon" | "evening";
@@ -59,6 +69,7 @@ type Props = {
   locale: string;
   sessions: AdminScheduleSession[];
   classTypes: AdminScheduleClassType[];
+  packages: AdminPackageRow[];
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
   description?: string;
@@ -85,8 +96,15 @@ type FormState = {
   startTime: string;
   endTime: string;
   capacity: string;
-  level: string;
+  levels: string[];
   status: SessionStatus;
+};
+
+type CalendarScheduleSlot = {
+  id: string;
+  weekday: ScheduleDayOfWeek;
+  startTime: string;
+  endTime: string;
 };
 
 type ScheduleToastTone = "ok" | "err";
@@ -96,15 +114,38 @@ type ScheduleToast = {
   message: string;
 };
 
+type SchedulePackageOption = {
+  id: string;
+  label: string;
+  classTypeIds: string[];
+};
+
+type SessionClassTypeOption = {
+  value: string;
+  label: string;
+  classTypeId: string | null;
+  packageLabel?: string;
+};
+
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
 const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
+const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY",
+];
 const SEARCH_DEBOUNCE_MS = 300;
 const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
 const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
 const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
-const CLASS_TYPES_VISIBLE_STORAGE_KEY = "ommm.admin.schedule.classTypesVisible";
+const SESSION_LEVEL_SEPARATOR = ", ";
+const PACKAGE_CLASS_TYPE_VALUE_PREFIX = "package:";
 
 function replaceScheduleModalInUrl(
   pathname: string,
@@ -149,6 +190,30 @@ function isoDate(value: Date | string): string {
 
 function timeValue(value: Date | string): string {
   return new Date(value).toTimeString().slice(0, 5);
+}
+
+function addDays(value: Date | string, days: number): Date {
+  const next = new Date(value);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function createScheduleSlotId(): string {
+  return globalThis.crypto?.randomUUID?.() ?? `slot-${Date.now()}-${Math.random()}`;
+}
+
+function weekdayFromDate(value: Date | string): ScheduleDayOfWeek {
+  const day = new Date(value).getDay();
+  return (["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const)[day];
+}
+
+function initialCalendarSlot(form: FormState): CalendarScheduleSlot {
+  return {
+    id: createScheduleSlotId(),
+    weekday: weekdayFromDate(`${form.date}T00:00:00`),
+    startTime: form.startTime,
+    endTime: form.endTime,
+  };
 }
 
 function coachName(coach: AdminScheduleCoach | AdminScheduleSession["coach"]): string {
@@ -210,6 +275,21 @@ function initialFilters(): Filters {
   };
 }
 
+function splitSessionLevels(level: string | null | undefined): string[] {
+  if (!level) {
+    return [];
+  }
+  return level
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function joinSessionLevels(levels: readonly string[]): string | undefined {
+  const uniqueLevels = Array.from(new Set(levels.map((value) => value.trim()).filter(Boolean)));
+  return uniqueLevels.length > 0 ? uniqueLevels.join(SESSION_LEVEL_SEPARATOR) : undefined;
+}
+
 function matchesAvailability(row: AdminScheduleSession, selected: readonly AvailabilityOption[]): boolean {
   if (selected.length === 0) {
     return true;
@@ -267,7 +347,7 @@ function QuickFilterGlyph({ className }: { className?: string }) {
 }
 
 function initialForm(
-  classTypes: readonly AdminScheduleClassType[],
+  classTypeOptions: readonly SessionClassTypeOption[],
   coaches: readonly AdminScheduleCoach[],
   row?: AdminScheduleSession,
 ): FormState {
@@ -276,28 +356,50 @@ function initialForm(
   return {
     title: row?.title ?? "",
     description: row?.description ?? "",
-    classTypeId: row?.classType.id ?? classTypes[0]?.id ?? "",
+    classTypeId: row?.classType.id ?? classTypeOptions[0]?.value ?? "",
     coachId: row?.coach.id ?? coaches[0]?.id ?? "",
     date: isoDate(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
-    capacity: String(row?.capacity ?? 10),
-    level: row?.level ?? "",
+    capacity: row ? String(row.capacity) : "",
+    levels: splitSessionLevels(row?.level),
     status: row?.status ?? "ACTIVE",
   };
 }
 
-function formPayload(form: FormState) {
+function formPayload(form: FormState, classTypeId: string) {
   return {
     title: form.title.trim(),
     description: form.description.trim() || undefined,
-    classTypeId: form.classTypeId,
+    classTypeId,
     coachId: form.coachId,
     startsAt: new Date(`${form.date}T${form.startTime}:00`).toISOString(),
     endsAt: new Date(`${form.date}T${form.endTime}:00`).toISOString(),
     capacity: Number(form.capacity),
-    level: form.level.trim() || undefined,
+    level: joinSessionLevels(form.levels),
     status: form.status,
+  };
+}
+
+function batchFormPayload(
+  form: FormState,
+  classTypeId: string,
+  startDate: string,
+  endDate: string,
+  slots: readonly CalendarScheduleSlot[],
+) {
+  return {
+    title: form.title.trim(),
+    description: form.description.trim() || undefined,
+    classTypeId,
+    coachId: form.coachId,
+    capacity: Number(form.capacity),
+    level: joinSessionLevels(form.levels),
+    status: form.status,
+    startDate,
+    endDate,
+    timezoneOffsetMinutes: new Date().getTimezoneOffset(),
+    slots: slots.map(({ weekday, startTime, endTime }) => ({ weekday, startTime, endTime })),
   };
 }
 
@@ -305,7 +407,7 @@ function buildSessionLevelOptions(
   translate: (
     key: "form.levels.beginner" | "form.levels.intermediate" | "form.levels.advanced",
   ) => string,
-  extraLevel?: string | null,
+  extraLevels?: readonly string[],
 ): Array<{ value: string; label: string }> {
   const options = SESSION_LEVEL_VALUES.map((value) => ({
     value,
@@ -316,21 +418,162 @@ function buildSessionLevelOptions(
           ? translate("form.levels.intermediate")
           : translate("form.levels.advanced"),
   }));
-  const trimmed = extraLevel?.trim();
-  if (
-    trimmed &&
-    trimmed.length > 0 &&
-    !SESSION_LEVEL_VALUES.includes(trimmed as (typeof SESSION_LEVEL_VALUES)[number])
-  ) {
-    return [{ value: trimmed, label: trimmed }, ...options];
+  const extraOptions = (extraLevels ?? [])
+    .map((level) => level.trim())
+    .filter(
+      (level) =>
+        level.length > 0 &&
+        !SESSION_LEVEL_VALUES.includes(level as (typeof SESSION_LEVEL_VALUES)[number]),
+    )
+    .map((level) => ({ value: level, label: level }));
+  if (extraOptions.length > 0) {
+    return [...extraOptions, ...options];
   }
   return options;
+}
+
+function buildPackageFilterOptions(
+  packages: readonly AdminPackageRow[],
+  classTypes: readonly AdminScheduleClassType[],
+): SchedulePackageOption[] {
+  const classTypeIdByCategoryKey = new Map(
+    classTypes.map((type) => [normalizePackageCategoryKey(type.name), type.id]),
+  );
+  const byCategoryKey = new Map<
+    string,
+    { label: string; classTypeIds: Set<string> }
+  >();
+  const shellLabelByCategoryKey = new Map<string, string>();
+
+  for (const pkg of packages) {
+    const categoryKey = normalizePackageCategoryKey(pkg.categoryName);
+    const name = pkg.name.trim();
+    if (pkg.isActive && pkg.priceCents <= 0 && categoryKey.length > 0 && name.length > 0) {
+      shellLabelByCategoryKey.set(categoryKey, name);
+    }
+  }
+
+  for (const pkg of packages) {
+    if (!pkg.isActive) {
+      continue;
+    }
+    const categoryLabel = pkg.categoryName.trim();
+    if (categoryLabel.length === 0) {
+      continue;
+    }
+    const categoryKey = normalizePackageCategoryKey(categoryLabel);
+    const label = shellLabelByCategoryKey.get(categoryKey) ?? categoryLabel;
+    const mappedClassTypeId =
+      pkg.classTypeId ?? classTypeIdByCategoryKey.get(categoryKey);
+    const current = byCategoryKey.get(categoryKey);
+    if (current === undefined) {
+      byCategoryKey.set(categoryKey, {
+        label,
+        classTypeIds: new Set(mappedClassTypeId === undefined ? [] : [mappedClassTypeId]),
+      });
+      continue;
+    }
+    if (mappedClassTypeId !== undefined) {
+      current.classTypeIds.add(mappedClassTypeId);
+    }
+  }
+
+  return [...byCategoryKey.entries()]
+    .map(([id, option]) => ({
+      id,
+      label: option.label,
+      classTypeIds: [...option.classTypeIds],
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+function resolveSelectedClassTypeIds(
+  selectedPackageIds: readonly string[],
+  packageOptions: readonly SchedulePackageOption[],
+): string[] {
+  if (selectedPackageIds.length === 0) {
+    return [];
+  }
+  const selected = new Set(selectedPackageIds);
+  const classTypeIds = new Set<string>();
+  for (const option of packageOptions) {
+    if (!selected.has(option.id)) {
+      continue;
+    }
+    for (const classTypeId of option.classTypeIds) {
+      classTypeIds.add(classTypeId);
+    }
+  }
+  return [...classTypeIds];
+}
+
+function buildSlugFromClassTypeName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120);
+}
+
+function buildSessionClassTypeOptions(
+  classTypes: readonly AdminScheduleClassType[],
+  packageOptions: readonly SchedulePackageOption[],
+): SessionClassTypeOption[] {
+  const options: SessionClassTypeOption[] = classTypes.map((type) => ({
+    value: type.id,
+    label: type.name,
+    classTypeId: type.id,
+  }));
+  const classTypeIds = new Set(classTypes.map((type) => type.id));
+
+  for (const option of packageOptions) {
+    const linkedClassTypeId = option.classTypeIds.find((id) => classTypeIds.has(id)) ?? null;
+    if (linkedClassTypeId !== null) {
+      continue;
+    }
+    options.push({
+      value: `${PACKAGE_CLASS_TYPE_VALUE_PREFIX}${option.id}`,
+      label: option.label,
+      classTypeId: null,
+      packageLabel: option.label,
+    });
+  }
+
+  return options.sort((left, right) => left.label.localeCompare(right.label));
+}
+
+async function resolveSessionClassTypeId(
+  selectedValue: string,
+  options: readonly SessionClassTypeOption[],
+): Promise<{ classTypeId: string; created?: AdminScheduleClassType }> {
+  const option = options.find((item) => item.value === selectedValue);
+  if (option?.classTypeId !== null && option?.classTypeId !== undefined) {
+    return { classTypeId: option.classTypeId };
+  }
+  const name = option?.packageLabel?.trim() ?? "";
+  const existing = options.find(
+    (item) => item.classTypeId !== null && item.label.toLocaleLowerCase() === name.toLocaleLowerCase(),
+  );
+  if (existing?.classTypeId !== null && existing?.classTypeId !== undefined) {
+    return { classTypeId: existing.classTypeId };
+  }
+  const slug = buildSlugFromClassTypeName(name);
+  if (name.length === 0 || slug.length === 0) {
+    throw new Error("Class type is required.");
+  }
+  const created = await apiFetch<AdminScheduleClassType>("/classes/types", {
+    method: "POST",
+    body: JSON.stringify({ name, slug }),
+  });
+  return { classTypeId: created.id, created };
 }
 
 export function AdminScheduleManagement({
   locale,
   sessions,
   classTypes: initialClassTypes,
+  packages,
   coaches,
   initialView,
   description,
@@ -361,10 +604,6 @@ export function AdminScheduleManagement({
     classTypes.some((type) => type.id === editingClassTypeIdParam)
       ? editingClassTypeIdParam
       : null;
-
-  const openClassTypesModal = useCallback(() => {
-    replaceEditingClassTypeInUrl(pathname, searchParams, router, null);
-  }, [pathname, router, searchParams]);
 
   const closeClassTypesModal = useCallback(() => {
     if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
@@ -424,9 +663,29 @@ export function AdminScheduleManagement({
 
   const levels = useMemo(() => {
     return Array.from(
-      new Set(rows.map((row) => row.level).filter((level): level is string => level !== null)),
+      new Set(rows.flatMap((row) => splitSessionLevels(row.level))),
     ).sort();
   }, [rows]);
+
+  const packageOptions = useMemo(
+    () => buildPackageFilterOptions(packages, classTypes),
+    [classTypes, packages],
+  );
+
+  const validSelectedPackageIds = useMemo(() => {
+    const validPackageIds = new Set(packageOptions.map((option) => option.id));
+    return filters.typeIds.filter((id) => validPackageIds.has(id));
+  }, [filters.typeIds, packageOptions]);
+
+  const selectedClassTypeIds = useMemo(
+    () => resolveSelectedClassTypeIds(validSelectedPackageIds, packageOptions),
+    [packageOptions, validSelectedPackageIds],
+  );
+
+  const sessionClassTypeOptions = useMemo(
+    () => buildSessionClassTypeOptions(classTypes, packageOptions),
+    [classTypes, packageOptions],
+  );
 
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
@@ -435,14 +694,17 @@ export function AdminScheduleManagement({
       if (filters.from && row.startsAt.slice(0, 10) < filters.from) return false;
       if (filters.to && row.startsAt.slice(0, 10) > filters.to) return false;
       if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
-      if (filters.typeIds.length > 0 && !filters.typeIds.includes(row.classType.id)) return false;
-      if (filters.levels.length > 0 && (!row.level || !filters.levels.includes(row.level))) return false;
+      if (validSelectedPackageIds.length > 0 && !selectedClassTypeIds.includes(row.classType.id)) return false;
+      if (
+        filters.levels.length > 0 &&
+        !splitSessionLevels(row.level).some((level) => filters.levels.includes(level))
+      ) return false;
       if (filters.statuses.length > 0 && !filters.statuses.includes(row.status)) return false;
       if (!matchesAvailability(row, filters.availability)) return false;
       if (!matchesTimeOfDaySelection(row, filters.timeOfDay)) return false;
       return matchesScheduleQuickFilters(row, quickFilters);
     });
-  }, [filters, quickFilters, rows]);
+  }, [filters, quickFilters, rows, selectedClassTypeIds, validSelectedPackageIds]);
 
   const summary = useMemo(() => {
     const now = new Date();
@@ -502,7 +764,7 @@ export function AdminScheduleManagement({
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4">
-        <SchedulePageActions onManageTypes={openClassTypesModal} onCreate={openAddClassModal} />
+        <SchedulePageActions onCreate={openAddClassModal} />
         {description ? (
           <p className="ommm-body-muted max-w-3xl text-sm">{description}</p>
         ) : null}
@@ -512,7 +774,8 @@ export function AdminScheduleManagement({
         values={filters}
         quickFilters={quickFilters}
         searchDraft={searchDraft}
-        classTypes={classTypes}
+        selectedPackageIds={validSelectedPackageIds}
+        packageOptions={packageOptions}
         coaches={coaches}
         levels={levels}
         onSearch={setSearchDraft}
@@ -568,7 +831,7 @@ export function AdminScheduleManagement({
           isOpen
           mode={sessionModalConfig.mode}
           row={sessionModalConfig.row}
-          classTypes={classTypes}
+          classTypeOptions={sessionClassTypeOptions}
           coaches={coaches}
           onClose={() => {
             if (addClassOpen) {
@@ -578,11 +841,34 @@ export function AdminScheduleManagement({
             setEditing(null);
           }}
           onSaved={(saved) => {
-            setRows((current) =>
-              current.some((row) => row.id === saved.id)
-                ? current.map((row) => (row.id === saved.id ? saved : row))
-                : [...current, saved],
-            );
+            const savedRows = Array.isArray(saved) ? saved : [saved];
+            const createdClassTypes = savedRows
+              .map((row) => row.classType)
+              .filter((type) => !classTypes.some((item) => item.id === type.id));
+            if (createdClassTypes.length > 0) {
+              setClassTypes((current) => {
+                const byId = new Map(current.map((type) => [type.id, type]));
+                for (const type of createdClassTypes) {
+                  byId.set(type.id, {
+                    id: type.id,
+                    name: type.name,
+                    slug: buildSlugFromClassTypeName(type.name),
+                  });
+                }
+                return Array.from(byId.values()).sort((first, second) =>
+                  first.name.localeCompare(second.name),
+                );
+              });
+            }
+            setRows((current) => {
+              const byId = new Map(current.map((row) => [row.id, row]));
+              for (const savedRow of savedRows) {
+                byId.set(savedRow.id, savedRow);
+              }
+              return Array.from(byId.values()).sort((first, second) =>
+                first.startsAt.localeCompare(second.startsAt),
+              );
+            });
             setToast({
               tone: "ok",
               message:
@@ -650,7 +936,8 @@ function FiltersPanel(props: {
   values: Filters;
   quickFilters: ScheduleQuickFilter[];
   searchDraft: string;
-  classTypes: readonly AdminScheduleClassType[];
+  selectedPackageIds: readonly string[];
+  packageOptions: readonly SchedulePackageOption[];
   coaches: readonly AdminScheduleCoach[];
   levels: readonly string[];
   onSearch: (value: string) => void;
@@ -712,9 +999,12 @@ function FiltersPanel(props: {
               {...scheduleMultiSelectProps}
               ariaLabel={t("filters.typeLabel")}
               allLabel={t("filters.allTypes")}
-              selectedValues={props.values.typeIds}
+              selectedValues={props.selectedPackageIds}
               onChange={(value) => props.onChange("typeIds", value)}
-              options={props.classTypes.map((type) => ({ value: type.id, label: type.name }))}
+              options={props.packageOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              }))}
             />
           </ScheduleFilterField>
           <ScheduleFilterField label={t("filters.levelLabel")}>
@@ -830,12 +1120,6 @@ function QuickFilters({
   );
 }
 
-function addDays(value: Date, days: number): Date {
-  const next = new Date(value);
-  next.setDate(next.getDate() + days);
-  return next;
-}
-
 function startOfWeek(value: Date): Date {
   return addDays(value, -((value.getDay() + 6) % 7));
 }
@@ -878,93 +1162,10 @@ const SCHEDULE_TOOLBAR_BTN_IDLE =
 const SCHEDULE_TOOLBAR_BTN_ACTIVE =
   "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]";
 
-function EyeRevealGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.7}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M2.9 12.5C4.5 9.1 7.9 6 12 6s7.5 3.1 9.1 6.5a1.1 1.1 0 0 1 0 1c-1.6 3.4-5 6.5-9.1 6.5s-7.5-3.1-9.1-6.5a1.1 1.1 0 0 1 0-1Z" />
-      <circle cx="12" cy="12.5" r="3" />
-    </svg>
-  );
-}
-
-function EyeHideGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.7}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M2.9 12.5C4.5 9.1 7.9 6 12 6c2.2 0 4.2.9 5.8 2.1M21.1 13.5C19.5 16.9 16.1 20 12 20c-2.2 0-4.2-.9-5.8-2.1" />
-      <circle cx="12" cy="12.5" r="3" />
-      <path d="m4 4 16 16" />
-    </svg>
-  );
-}
-
-function readClassTypesVisiblePreference(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  try {
-    return window.localStorage.getItem(CLASS_TYPES_VISIBLE_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function persistClassTypesVisiblePreference(visible: boolean): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  try {
-    window.localStorage.setItem(CLASS_TYPES_VISIBLE_STORAGE_KEY, visible ? "1" : "0");
-  } catch {
-    /* ignore quota / privacy errors */
-  }
-}
-
-function SchedulePageActions({
-  onManageTypes,
-  onCreate,
-}: {
-  onManageTypes: () => void;
-  onCreate: () => void;
-}) {
+function SchedulePageActions({ onCreate }: { onCreate: () => void }) {
   const t = useTranslations("adminPages.classes");
-  const [visibleOverride, setVisibleOverride] = useState<boolean | null>(null);
-  const storedClassTypesVisible = useSyncExternalStore(
-    () => () => undefined,
-    readClassTypesVisiblePreference,
-    () => false,
-  );
-  const classTypesVisible = visibleOverride ?? storedClassTypesVisible;
-
-  function revealClassTypes(): void {
-    setVisibleOverride(true);
-    persistClassTypesVisiblePreference(true);
-  }
-
-  function hideClassTypes(): void {
-    setVisibleOverride(false);
-    persistClassTypesVisiblePreference(false);
-  }
-
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <OmmButton
         type="button"
         variant="secondary"
@@ -975,42 +1176,6 @@ function SchedulePageActions({
         <PlusIcon className="h-5 w-5 shrink-0" />
         {t("addClassButton")}
       </OmmButton>
-
-      <div className="flex h-11 items-center justify-end gap-2 self-end sm:ml-auto sm:self-auto">
-        {!classTypesVisible ? (
-          <button
-            type="button"
-            onClick={revealClassTypes}
-            aria-label={t("classTypes.revealButtonAria")}
-            title={t("classTypes.revealButtonAria")}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-600 shadow-sm backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30"
-          >
-            <EyeRevealGlyph className="h-5 w-5 shrink-0" />
-          </button>
-        ) : (
-          <>
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={onManageTypes}
-              className="inline-flex h-11 min-w-[11rem] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full transition-all duration-300 ease-out"
-            >
-              <ClassTypesGlyph className="h-5 w-5 shrink-0" />
-              {t("classTypes.manageButton")}
-            </OmmButton>
-            <button
-              type="button"
-              onClick={hideClassTypes}
-              aria-label={t("classTypes.hideButtonAria")}
-              title={t("classTypes.hideButtonAria")}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/75 text-sage-600 shadow-sm backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-sage-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30"
-            >
-              <EyeHideGlyph className="h-5 w-5 shrink-0" />
-            </button>
-          </>
-        )}
-      </div>
     </div>
   );
 }
@@ -1044,25 +1209,6 @@ function ViewToolbar({
         ))}
       </div>
     </div>
-  );
-}
-
-function ClassTypesGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 2 2 7l10 5 10-5-10-5Z" />
-      <path d="m2 17 10 5 10-5M2 12l10 5 10-5" />
-    </svg>
   );
 }
 
@@ -1108,9 +1254,9 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
           <col className="w-[9%]" />
           <col className="w-[9%]" />
           <col className="w-[9%]" />
-          <col className="w-[7%]" />
+          <col className="w-[9%]" />
           <col className="w-[8%]" />
-          <col className="w-[11%]" />
+          <col className="w-[9%]" />
         </colgroup>
         <thead className={adminChrome.thead}>
           <tr>
@@ -1182,7 +1328,7 @@ function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActiva
         </span>
       </td>
       <td className={scheduleTable.tdMuted}>
-        <span className="block truncate">{row.level ?? "—"}</span>
+        <span className="block whitespace-normal break-words">{row.level ?? "—"}</span>
       </td>
       <td className={scheduleTable.tdCompact}>
         <div className="flex justify-center">
@@ -1437,7 +1583,7 @@ function SessionModal({
   isOpen,
   mode,
   row,
-  classTypes,
+  classTypeOptions,
   coaches,
   onClose,
   onSaved,
@@ -1445,29 +1591,76 @@ function SessionModal({
   isOpen: boolean;
   mode: "create" | "edit" | "duplicate";
   row?: AdminScheduleSession;
-  classTypes: readonly AdminScheduleClassType[];
+  classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   onClose: () => void;
-  onSaved: (row: AdminScheduleSession) => void;
+  onSaved: (row: AdminScheduleSession | AdminScheduleSession[]) => void;
 }) {
   const t = useTranslations("adminPages.classes");
-  const [form, setForm] = useState(() => initialForm(classTypes, coaches, row));
+  const [form, setForm] = useState(() => initialForm(classTypeOptions, coaches, row));
+  const [calendarStartDate, setCalendarStartDate] = useState(form.date);
+  const [calendarEndDate, setCalendarEndDate] = useState(isoDate(addDays(`${form.date}T00:00:00`, 29)));
+  const [calendarSlots, setCalendarSlots] = useState<CalendarScheduleSlot[]>(() => [
+    initialCalendarSlot(form),
+  ]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isBatchCreate = mode !== "edit";
   const levelOptions = useMemo(
-    () => buildSessionLevelOptions((key) => t(key), row?.level ?? form.level),
-    [form.level, row?.level, t],
+    () => buildSessionLevelOptions((key) => t(key), [...splitSessionLevels(row?.level), ...form.levels]),
+    [form.levels, row?.level, t],
   );
+
+  function addCalendarSlot(): void {
+    setCalendarSlots((current) => [
+      ...current,
+      {
+        id: createScheduleSlotId(),
+        weekday: current.at(-1)?.weekday ?? weekdayFromDate(`${form.date}T00:00:00`),
+        startTime: form.startTime,
+        endTime: form.endTime,
+      },
+    ]);
+  }
+
+  function updateCalendarSlot<K extends keyof Omit<CalendarScheduleSlot, "id">>(
+    id: string,
+    key: K,
+    value: CalendarScheduleSlot[K],
+  ): void {
+    setCalendarSlots((current) =>
+      current.map((slot) => (slot.id === id ? { ...slot, [key]: value } : slot)),
+    );
+  }
+
+  function removeCalendarSlot(id: string): void {
+    setCalendarSlots((current) => current.filter((slot) => slot.id !== id));
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
     try {
-      const payload = formPayload(form);
+      const resolvedClassType = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
+      if (isBatchCreate) {
+        const payload = batchFormPayload(
+          form,
+          resolvedClassType.classTypeId,
+          calendarStartDate,
+          calendarEndDate,
+          calendarSlots,
+        );
+        const saved = await apiFetch<AdminScheduleSession[]>("/classes/sessions/batch", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        onSaved(saved);
+        return;
+      }
       const saved = await apiFetch<AdminScheduleSession>(
-        mode === "edit" && row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
-        { method: mode === "edit" ? "PATCH" : "POST", body: JSON.stringify(payload) },
+        row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
+        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId)) },
       );
       onSaved(saved);
     } catch (requestError) {
@@ -1525,7 +1718,7 @@ function SessionModal({
           value={form.classTypeId}
           ariaLabel={t("form.classType")}
           placeholderLabel={t("form.classType")}
-          options={classTypes.map((type) => ({ value: type.id, label: type.name }))}
+          options={classTypeOptions.map((type) => ({ value: type.value, label: type.label }))}
           onChange={(value) => setForm((current) => ({ ...current, classTypeId: value }))}
         />
         <OmmFormDropdown
@@ -1535,49 +1728,145 @@ function SessionModal({
           options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
           onChange={(value) => setForm((current) => ({ ...current, coachId: value }))}
         />
-        <DatePickerInput
-          name="date"
-          value={form.date}
-          onChange={(value) => setForm((current) => ({ ...current, date: value }))}
-          ariaLabel={t("form.date")}
-          required
-        />
-        <TimePickerInput
-          name="startTime"
-          value={form.startTime}
-          onChange={(value) => setForm((current) => ({ ...current, startTime: value }))}
-          required
-        />
-        <TimePickerInput
-          name="endTime"
-          value={form.endTime}
-          onChange={(value) => setForm((current) => ({ ...current, endTime: value }))}
-          required
-        />
-        <input
-          className="ommm-input"
-          type="number"
-          min={1}
-          value={form.capacity}
-          onChange={(event) => setForm((current) => ({ ...current, capacity: event.target.value }))}
-          placeholder={t("form.capacity")}
-          required
-        />
-        <OmmFilterDropdown
-          allValue=""
-          value={form.level}
+        {!isBatchCreate ? (
+          <>
+            <DatePickerInput
+              name="date"
+              value={form.date}
+              onChange={(value) => setForm((current) => ({ ...current, date: value }))}
+              ariaLabel={t("form.date")}
+              required
+            />
+            <TimePickerInput
+              name="startTime"
+              value={form.startTime}
+              onChange={(value) => setForm((current) => ({ ...current, startTime: value }))}
+              required
+            />
+            <TimePickerInput
+              name="endTime"
+              value={form.endTime}
+              onChange={(value) => setForm((current) => ({ ...current, endTime: value }))}
+              required
+            />
+          </>
+        ) : null}
+        <label className="flex flex-col gap-1">
+          <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {t("form.capacityHint")}
+          </span>
+          <input
+            className="ommm-input"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={form.capacity}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, capacity: event.target.value.replace(/\D/g, "") }))
+            }
+            placeholder={t("form.capacity")}
+            required
+          />
+        </label>
+        <OmmFilterMultiSelect
           ariaLabel={t("form.level")}
           allLabel={t("form.level")}
+          selectedValues={form.levels}
           options={levelOptions}
-          onChange={(value) => setForm((current) => ({ ...current, level: value }))}
+          onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
+          className="sm:col-span-2"
+          triggerClassName="text-center"
+          formatSelectedCount={(count) => t("filters.selectedCount", { count })}
         />
-        <OmmFormDropdown
-          value={form.status}
-          ariaLabel={t("form.status")}
-          placeholderLabel={t("form.status")}
-          options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))}
-          onChange={(value) => setForm((current) => ({ ...current, status: value as SessionStatus }))}
-        />
+        {isBatchCreate ? (
+          <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-sage-950">
+                {t("calendarSchedule.title")}
+              </h3>
+              <p className="text-sm text-sage-600">{t("calendarSchedule.description")}</p>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1">
+                <span className="text-sm font-semibold text-sage-950">
+                  {t("calendarSchedule.startDate")}
+                </span>
+                <DatePickerInput
+                  name="calendar-start-date"
+                  value={calendarStartDate}
+                  onChange={setCalendarStartDate}
+                  ariaLabel={t("calendarSchedule.startDate")}
+                  required
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-sm font-semibold text-sage-950">
+                  {t("calendarSchedule.endDate")}
+                </span>
+                <DatePickerInput
+                  name="calendar-end-date"
+                  value={calendarEndDate}
+                  onChange={setCalendarEndDate}
+                  ariaLabel={t("calendarSchedule.endDate")}
+                  required
+                />
+              </label>
+            </div>
+            <div className="mt-4 space-y-3">
+              <h4 className="text-sm font-semibold text-sage-950">
+                {t("calendarSchedule.weeklySlots")}
+              </h4>
+              <div className="space-y-2 rounded-2xl border border-sand-500/15 bg-white/75 p-2">
+                {calendarSlots.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="grid gap-2 rounded-xl border border-sand-500/15 bg-white/80 p-2 sm:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_3.5rem]"
+                  >
+                    <OmmFormDropdown
+                      value={slot.weekday}
+                      ariaLabel={t("calendarSchedule.weekday")}
+                      placeholderLabel={t("calendarSchedule.weekday")}
+                      options={SCHEDULE_WEEKDAYS.map((weekday) => ({
+                        value: weekday,
+                        label: t(`weekday.${weekday}`),
+                      }))}
+                      onChange={(value) =>
+                        updateCalendarSlot(slot.id, "weekday", value as ScheduleDayOfWeek)
+                      }
+                    />
+                    <TimePickerInput
+                      name={`calendar-start-time-${slot.id}`}
+                      value={slot.startTime}
+                      onChange={(value) => updateCalendarSlot(slot.id, "startTime", value)}
+                      ariaLabel={t("calendarSchedule.startTime")}
+                      required
+                    />
+                    <TimePickerInput
+                      name={`calendar-end-time-${slot.id}`}
+                      value={slot.endTime}
+                      onChange={(value) => updateCalendarSlot(slot.id, "endTime", value)}
+                      ariaLabel={t("calendarSchedule.endTime")}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="inline-flex min-h-11 items-center justify-center rounded-xl border border-sand-500/25 bg-white/80 text-sage-600 transition-colors hover:bg-sand-50 disabled:opacity-45"
+                      onClick={() => removeCalendarSlot(slot.id)}
+                      disabled={calendarSlots.length === 1}
+                      aria-label={t("calendarSchedule.removeSlot")}
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+                <OmmButton type="button" variant="ghost" size="sm" onClick={addCalendarSlot}>
+                  <PlusIcon className="h-3.5 w-3.5" />
+                  {t("calendarSchedule.addSlot")}
+                </OmmButton>
+              </div>
+            </div>
+          </section>
+        ) : null}
         <textarea
           className="ommm-input min-h-24 sm:col-span-2"
           value={form.description}
@@ -1612,7 +1901,11 @@ function DetailsDrawer({
     <OmmDrawerPortal isOpen onClose={onClose} backdropAriaLabel={t("modalCloseAria")}>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-sage-900">{row.title}</h3>
-        <button onClick={onClose} type="button">
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-sage-500 transition-[background-color,color,transform] hover:bg-sand-50 hover:text-sage-900 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 focus-visible:ring-offset-2"
+          onClick={onClose}
+        >
           x
         </button>
       </div>

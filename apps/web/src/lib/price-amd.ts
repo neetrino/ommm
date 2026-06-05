@@ -2,6 +2,7 @@ const AMD_SYMBOL = "֏";
 
 function formatAmdNumber(amount: number, locale: string): string {
   return new Intl.NumberFormat(locale, {
+    useGrouping: false,
     maximumFractionDigits: 0,
   }).format(Math.round(amount));
 }

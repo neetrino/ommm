@@ -2,7 +2,6 @@ import {
   BookingStatus,
   ClassSessionStatus,
   type ScheduleDayOfWeek,
-  type ScheduleItem,
 } from '@prisma/client';
 
 const DAY_OF_WEEK_VALUES: readonly ScheduleDayOfWeek[] = [
@@ -27,12 +26,32 @@ type SessionForPublicSchedule = {
   startsAt: Date;
   endsAt: Date;
   capacity: number;
+  level: string | null;
   status: ClassSessionStatus;
   createdAt: Date;
   updatedAt: Date;
   classType: { name: string };
   coach: { user: { name: string | null } };
   _count: { bookings: number };
+};
+
+export type PublicScheduleItem = {
+  id: string;
+  className: string;
+  instructorName: string;
+  classType: string;
+  dayOfWeek: ScheduleDayOfWeek;
+  startTime: string;
+  endTime: string | null;
+  durationMinutes: number | null;
+  availableSpots: number;
+  level: string | null;
+  status: ClassSessionStatus;
+  sessionDate: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 function dayOfWeekFromDate(value: Date): ScheduleDayOfWeek {
@@ -51,30 +70,14 @@ function durationMinutesFromRange(startTime: string, endTime: string): number {
   return endHour * 60 + endMinute - (startHour * 60 + startMinute);
 }
 
-function buildDedupeKey(params: {
-  dayOfWeek: ScheduleDayOfWeek;
-  startTime: string;
-  className: string;
-  classTypeName: string;
-  instructorName: string;
-}): string {
-  return [
-    params.dayOfWeek,
-    params.startTime,
-    params.className.toLowerCase(),
-    params.classTypeName.toLowerCase(),
-    params.instructorName.toLowerCase(),
-  ].join('|');
-}
-
 /**
- * Maps bookable class sessions into weekly schedule items for public marketing views.
+ * Maps bookable class sessions into public marketing rows.
+ * Each row keeps the real session id so the public Book button targets a bookable class.
  */
 export function mapSessionsToPublicScheduleItems(
   sessions: readonly SessionForPublicSchedule[],
-): ScheduleItem[] {
-  const seen = new Set<string>();
-  const items: ScheduleItem[] = [];
+): PublicScheduleItem[] {
+  const items: PublicScheduleItem[] = [];
 
   for (const session of sessions) {
     if (!PUBLIC_SESSION_STATUSES.includes(session.status)) {
@@ -87,17 +90,6 @@ export function mapSessionsToPublicScheduleItems(
     const className = session.title.trim();
     const instructorName = session.coach.user.name?.trim() || '—';
     const classTypeName = session.classType.name.trim();
-    const dedupeKey = buildDedupeKey({
-      dayOfWeek,
-      startTime,
-      className,
-      classTypeName,
-      instructorName,
-    });
-    if (seen.has(dedupeKey)) {
-      continue;
-    }
-    seen.add(dedupeKey);
 
     const bookedCount = session._count.bookings;
     const availableSpots = Math.max(session.capacity - bookedCount, 0);
@@ -113,6 +105,9 @@ export function mapSessionsToPublicScheduleItems(
       endTime,
       durationMinutes: durationMinutes > 0 ? durationMinutes : null,
       availableSpots,
+      level: session.level,
+      status: session.status,
+      sessionDate: session.startsAt.toISOString(),
       description: session.description,
       isActive: true,
       createdAt: session.createdAt,

@@ -81,6 +81,16 @@ function mapDayToDate(
   return addDays(weekStart, dayToOffset[day]);
 }
 
+function scheduleItemDate(
+  item: MarketingScheduleItem,
+  baselineWeekStart: Date,
+  dayToOffset: Record<MarketingScheduleDayOfWeek, number>,
+): Date {
+  return item.sessionDate !== null
+    ? startOfLocalDay(new Date(item.sessionDate))
+    : mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
+}
+
 function toLocaleTime(locale: string, value: string): string {
   const [hour, minute] = value.split(":").map((part) => Number(part));
   const d = new Date();
@@ -136,7 +146,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
     return items
       .filter((item) => item.isActive)
       .filter((item) => {
-        const rowDay = mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
+        const rowDay = scheduleItemDate(item, baselineWeekStart, dayToOffset);
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
         if (classType !== "all" && item.classType !== classType) return false;
         if (instructor !== "all" && item.instructorName !== instructor) return false;

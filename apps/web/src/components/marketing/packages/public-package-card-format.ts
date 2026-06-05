@@ -1,4 +1,5 @@
 import { formatAmdFromCents } from "@/lib/price-amd";
+export { formatPackagePlanName as formatPublicPackagePlanName } from "@/components/admin/admin-packages-display";
 
 export function formatPublicPackagePriceParts(amount: string): {
   symbol: string;

@@ -15,8 +15,15 @@
 }
 
 .card {
+  position: relative;
   width: 100%;
   max-width: 28rem;
+  overflow: hidden;
+}
+
+.cardContent {
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 768px) {

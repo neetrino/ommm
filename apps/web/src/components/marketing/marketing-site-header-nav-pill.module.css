@@ -277,7 +277,17 @@
   border: none;
   cursor: pointer;
   background-color: rgba(26, 28, 27, 0.42);
+  transition: background-color 180ms ease-out;
   animation: marketing-mobile-menu-scrim-enter 260ms ease-out both;
+}
+
+.mobileMenuScrim:hover {
+  background-color: rgba(26, 28, 27, 0.5);
+}
+
+.mobileMenuScrim:focus-visible {
+  outline: 2px solid rgba(251, 245, 213, 0.72);
+  outline-offset: -4px;
 }
 
 .mobileMenuModalClosing .mobileMenuScrim {

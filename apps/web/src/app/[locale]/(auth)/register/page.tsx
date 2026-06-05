@@ -72,6 +72,7 @@ export default function RegisterPage() {
     const fd = new FormData(e.currentTarget);
     const emailRaw = String(fd.get("email") ?? "").trim();
     const password = String(fd.get("password") ?? "");
+    const confirmPassword = String(fd.get("confirmPassword") ?? "");
     const firstNameRaw = String(fd.get("firstName") ?? "").trim();
     const lastNameRaw = String(fd.get("lastName") ?? "").trim();
     const phoneRaw = String(fd.get("phone") ?? "").trim();
@@ -92,6 +93,18 @@ export default function RegisterPage() {
     }
     if (!isValidEmail(emailRaw)) {
       setError(tAuth("invalidEmail"));
+      return;
+    }
+    if (password.length === 0) {
+      setError(tAuth("passwordRequired"));
+      return;
+    }
+    if (confirmPassword.length === 0) {
+      setError(tAuth("confirmPasswordRequired"));
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError(tAuth("passwordMismatch"));
       return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
@@ -142,78 +155,110 @@ export default function RegisterPage() {
   }
 
   return (
-    <div>
-      <AuthBackToHomeLink />
-      <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
-        {t("register")}
-      </h1>
-      <p className="ommm-body-muted mt-2">{tAuth("lead")}</p>
-      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">{tAuth("firstName")}</span>
-          <input
-            name="firstName"
-            required
-            autoComplete="given-name"
-            className="ommm-input"
-            maxLength={MAX_NAME_LENGTH}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">{tAuth("lastName")}</span>
-          <input
-            name="lastName"
-            required
-            autoComplete="family-name"
-            className="ommm-input"
-            maxLength={MAX_NAME_LENGTH}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">{tAuth("phone")}</span>
-          <input
-            name="phone"
-            type="tel"
-            required
-            autoComplete="tel"
-            className="ommm-input"
-            maxLength={MAX_PHONE_CHARS}
-            inputMode="tel"
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">{tAuth("email")}</span>
-          <input
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            className="ommm-input"
-            maxLength={MAX_EMAIL_LENGTH}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="ommm-label">{tAuth("password")}</span>
-          <PasswordInput
-            name="password"
-            required
-            minLength={MIN_PASSWORD_LENGTH}
-            maxLength={128}
-            autoComplete="new-password"
-            className="ommm-input"
-            showPasswordLabel={tAuth("showPassword")}
-            hidePasswordLabel={tAuth("hidePassword")}
-          />
-        </label>
+    <div className="relative">
+      <div className="relative z-10">
+        <AuthBackToHomeLink />
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
+          {t("register")}
+        </h1>
+        <p className="ommm-body-muted mt-1.5 text-sm">{tAuth("lead")}</p>
+      </div>
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        className="relative z-10 mt-5 flex flex-col gap-3"
+      >
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label">{tAuth("firstName")}</span>
+            <input
+              name="firstName"
+              required
+              autoComplete="given-name"
+              className="ommm-input"
+              maxLength={MAX_NAME_LENGTH}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label">{tAuth("lastName")}</span>
+            <input
+              name="lastName"
+              required
+              autoComplete="family-name"
+              className="ommm-input"
+              maxLength={MAX_NAME_LENGTH}
+            />
+          </label>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label">{tAuth("phone")}</span>
+            <input
+              name="phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              className="ommm-input"
+              maxLength={MAX_PHONE_CHARS}
+              inputMode="tel"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label">{tAuth("email")}</span>
+            <input
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              className="ommm-input"
+              maxLength={MAX_EMAIL_LENGTH}
+            />
+          </label>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label">{tAuth("password")}</span>
+            <PasswordInput
+              name="password"
+              required
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              autoComplete="new-password"
+              className="ommm-input"
+              showPasswordLabel={tAuth("showPassword")}
+              hidePasswordLabel={tAuth("hidePassword")}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="ommm-label">{tAuth("confirmPassword")}</span>
+            <PasswordInput
+              name="confirmPassword"
+              required
+              minLength={MIN_PASSWORD_LENGTH}
+              maxLength={128}
+              autoComplete="new-password"
+              className="ommm-input"
+              showPasswordLabel={tAuth("showPassword")}
+              hidePasswordLabel={tAuth("hidePassword")}
+            />
+          </label>
+        </div>
         <p className="text-xs text-sage-500">{tAuth("passwordHint")}</p>
-        <OmmButton type="submit" variant="primary" className="mt-2" disabled={pending}>
+        <OmmButton
+          type="submit"
+          variant="primary"
+          size="sm"
+          className="mt-1 min-h-9 w-full"
+          disabled={pending}
+        >
           {pending ? tAuth("creating") : tAuth("createAccount")}
         </OmmButton>
         <OmmButton
           type="button"
           variant="secondary"
+          size="sm"
           onClick={() => window.location.assign(googleAuthUrl)}
-          className="gap-2.5"
+          className="w-full gap-2.5 border border-sand-500/25 shadow-[0_8px_20px_-14px_rgba(45,40,35,0.45)] hover:border-sand-500/45 hover:bg-white hover:text-sage-900 hover:shadow-[0_10px_24px_-14px_rgba(45,40,35,0.55)] active:translate-y-px"
         >
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]">
             <GoogleLogoIcon className="h-4 w-4" />
@@ -226,7 +271,7 @@ export default function RegisterPage() {
           {error}
         </p>
       ) : null}
-      <p className="ommm-body-muted mt-8 text-center text-sm">
+      <p className="ommm-body-muted mt-5 text-center text-sm">
         {tAuth("alreadyHavePrompt")}{" "}
         <Link
           href={

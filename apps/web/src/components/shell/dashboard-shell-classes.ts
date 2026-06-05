@@ -53,10 +53,10 @@ export function pageBackgroundClass(variant: DashboardShellVariant) {
 
 export function menuButtonClass(variant: DashboardShellVariant) {
   if (variant === "indigo")
-    return "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm lg:hidden";
+    return "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm transition-[background-color,border-color,box-shadow,color,transform] hover:bg-indigo-50 hover:text-indigo-950 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 lg:hidden";
   if (variant === "wellness")
-    return "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm lg:hidden";
-  return "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm lg:hidden";
+    return "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm transition-[background-color,border-color,box-shadow,color,transform] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 lg:hidden";
+  return "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm transition-[background-color,border-color,box-shadow,color,transform] hover:bg-zinc-50 hover:text-zinc-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 lg:hidden";
 }
 
 export function titleClass(variant: DashboardShellVariant) {
@@ -144,8 +144,11 @@ export function mobileDrawerFooterClass(variant: DashboardShellVariant) {
 }
 
 export function mobileDrawerOverlayScrimClass(variant: DashboardShellVariant) {
-  if (variant === "admin" || variant === "member") return "absolute inset-0 bg-sage-900/45";
-  if (variant === "wellness") return "absolute inset-0 bg-sage-900/35";
-  if (variant === "indigo") return "absolute inset-0 bg-indigo-950/40";
-  return "absolute inset-0 bg-zinc-900/40";
+  if (variant === "admin" || variant === "member")
+    return "absolute inset-0 cursor-pointer bg-sage-900/45 transition-colors hover:bg-sage-900/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
+  if (variant === "wellness")
+    return "absolute inset-0 cursor-pointer bg-sage-900/35 transition-colors hover:bg-sage-900/42 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
+  if (variant === "indigo")
+    return "absolute inset-0 cursor-pointer bg-indigo-950/40 transition-colors hover:bg-indigo-950/48 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
+  return "absolute inset-0 cursor-pointer bg-zinc-900/40 transition-colors hover:bg-zinc-900/48 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
 }

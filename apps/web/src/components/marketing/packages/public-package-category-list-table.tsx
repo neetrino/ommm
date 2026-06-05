@@ -14,7 +14,10 @@ import {
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
-import { shouldShowPublicPackageTierName } from "@/components/marketing/packages/public-package-card-format";
+import {
+  formatPublicPackagePlanName,
+  shouldShowPublicPackageTierName,
+} from "@/components/marketing/packages/public-package-card-format";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import styles from "@/components/marketing/packages/public-package-category-list-table.module.css";

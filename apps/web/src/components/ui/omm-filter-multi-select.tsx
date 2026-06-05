@@ -21,6 +21,8 @@ export type OmmFilterMultiSelectProps = {
   selectedValues: readonly string[];
   onChange: (selectedValues: string[]) => void;
   disabled?: boolean;
+  className?: string;
+  triggerClassName?: string;
   wrapLabel?: boolean;
   /** Visual emphasis for quick-filter controls vs standard filter dropdowns. */
   variant?: OmmFilterMultiSelectVariant;
@@ -60,6 +62,8 @@ export function OmmFilterMultiSelect({
   selectedValues,
   onChange,
   disabled = false,
+  className,
+  triggerClassName,
   wrapLabel = false,
   variant = "default",
   formatSelectedCount = defaultSelectedCountLabel,
@@ -211,6 +215,7 @@ export function OmmFilterMultiSelect({
       className={mergeClasses(
         "ommm-dropdown-root min-w-0",
         variant === "accent" ? "w-full min-w-[14rem] max-w-sm" : undefined,
+        className,
       )}
     >
       <p className="sr-only">{ariaLabel}</p>
@@ -220,6 +225,7 @@ export function OmmFilterMultiSelect({
         className={mergeClasses(
           "ommm-dropdown-trigger",
           variant === "accent" ? "ommm-dropdown-trigger--accent" : undefined,
+          triggerClassName,
         )}
         data-open={isMenuOpen ? "true" : "false"}
         data-active={!isAllSelected ? "true" : "false"}
