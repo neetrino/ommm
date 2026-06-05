@@ -40,6 +40,7 @@ import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing
 import {
   isMarketingHeroHeaderPath,
   isMarketingHomePath,
+  isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -76,6 +77,7 @@ export function MarketingSiteHeader({
   const [open, setOpen] = useState(false);
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
+  const isAccountShell = isUserAccountPath(marketingPath);
   const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const showMobileGlassPill = elevated && !open;
@@ -97,6 +99,7 @@ export function MarketingSiteHeader({
   return (
     <header
       className={`${marketingHeaderShellClass()} ${navPillStyles.headerShell}`}
+      data-account-shell={isAccountShell ? "true" : "false"}
       data-elevated={elevated ? "true" : "false"}
       data-menu-open={open ? "true" : "false"}
     >

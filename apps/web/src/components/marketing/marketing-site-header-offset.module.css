@@ -9,24 +9,27 @@
 
 @media (min-width: 744px) {
   .shellWithMarketingHeader {
+    /* Matches marketingHeaderContainerClass: pt + min-h + pb-2 */
     --ommm-marketing-site-header-offset: calc(
-      max(0.5rem, env(safe-area-inset-top, 0px)) + 2.5rem + 40px
+      max(0.5rem, env(safe-area-inset-top, 0px)) + 40px + 0.5rem
     );
   }
 }
 
 @media (min-width: 1024px) {
   .shellWithMarketingHeader {
+    /* Matches marketingHeaderContainerClass: pt + min-h + pb-3 */
     --ommm-marketing-site-header-offset: calc(
-      max(0.5rem, env(safe-area-inset-top, 0px)) + 2.875rem + 44px
+      max(0.5rem, env(safe-area-inset-top, 0px)) + 44px + 0.75rem
     );
   }
 }
 
 @media (min-width: 1280px) {
   .shellWithMarketingHeader {
+    /* Matches marketingHeaderContainerClass nav-desktop: pt + min-h + pb-3 */
     --ommm-marketing-site-header-offset: calc(
-      max(0.75rem, env(safe-area-inset-top, 0px)) + 3.25rem + 53px
+      max(0.75rem, env(safe-area-inset-top, 0px)) + 53px + 0.75rem
     );
   }
 }
