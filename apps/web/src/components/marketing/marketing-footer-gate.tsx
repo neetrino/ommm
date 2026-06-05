@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { isMarketingHomePath } from "@/components/marketing/marketing-route-utils";
+import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { usePathname } from "@/i18n/navigation";
 
 export type MarketingFooterGateProps = {
@@ -16,11 +17,7 @@ export function MarketingFooterGate({
   serverMarketingPath,
 }: MarketingFooterGateProps) {
   const clientPathname = usePathname();
-  const [hasHydrated, setHasHydrated] = useState(false);
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
+  const hasHydrated = useIsClientMounted();
 
   const marketingPath = hasHydrated
     ? (clientPathname ?? serverMarketingPath)
