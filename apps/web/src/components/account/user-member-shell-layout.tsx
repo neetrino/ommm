@@ -7,9 +7,6 @@ import {
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { userDisplayInitials } from "@/lib/user-display-initials";
-import { userDisplayName } from "@/lib/user-display-name";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -48,20 +45,6 @@ export async function UserMemberShellLayout({
       navRole="USER"
       navDefinitions={navDefinitions}
       notificationRoute={notificationRoute}
-      memberProfile={{
-        initials: userDisplayInitials(
-          authUser.name,
-          authUser.lastName,
-          authUser.email,
-        ),
-        imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
-        displayName: userDisplayName(
-          authUser.name,
-          authUser.lastName,
-          authUser.email,
-        ),
-        roleKey: authUser.role,
-      }}
     >
       {children}
     </DashboardAppShell>

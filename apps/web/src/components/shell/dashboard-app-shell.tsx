@@ -14,10 +14,7 @@ import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
-import {
-  MemberDashboardHeader,
-  type MemberHeaderProfile,
-} from "@/components/shell/member-dashboard-header";
+import { MemberDashboardHeader } from "@/components/shell/member-dashboard-header";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -65,8 +62,6 @@ export type DashboardAppShellProps = {
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
   trailing?: ReactNode;
-  /** Member header profile chip (initials or photo). */
-  memberProfile?: MemberHeaderProfile;
   children: ReactNode;
 };
 
@@ -80,7 +75,6 @@ export function DashboardAppShell({
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
   trailing,
-  memberProfile,
   children,
 }: DashboardAppShellProps) {
   const pathname = usePathname();
@@ -319,14 +313,6 @@ export function DashboardAppShell({
                   title={heading.title}
                   drawerOpen={drawerOpen}
                   onMenuToggle={() => setDrawerOpen((open) => !open)}
-                  profile={
-                    memberProfile ?? {
-                      initials: "?",
-                      imageSrc: null,
-                      displayName: "—",
-                      roleKey: "USER",
-                    }
-                  }
                   notificationHref={notificationRoute?.href}
                   notificationLabel={notificationsLabel ?? undefined}
                   notificationsActive={notificationsActive}
