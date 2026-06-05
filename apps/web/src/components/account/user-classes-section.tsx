@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { USER_SCHEDULE_LIST_HEADER_CLASS } from "@/components/account/user-schedule-list-layout";
+import { USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL, USER_SCHEDULE_LIST_HEADER_CLASS } from "@/components/account/user-schedule-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSessionBoardCard } from "@/components/account/user-session-board-card";
@@ -48,9 +48,10 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
+            <span>{t("listHeaderCoach")}</span>
             <span>{t("listHeaderSpots")}</span>
             <span aria-hidden="true" />
-            <span>{t("listHeaderActions")}</span>
+            <span className={USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
           <ul className={USER_LIST_STACK_CLASS}>
             {sessions.map((session) => (

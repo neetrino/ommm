@@ -3,12 +3,13 @@ import {
   USER_LIST_HEADER_SURFACE,
   USER_LIST_ROW_CARD,
   USER_LIST_ROW_INTERACTIVE,
-  USER_LIST_STATUS_CELL,
   USER_LIST_TABLE_GRID_GAP,
   USER_LIST_TABLE_HEADER_PAD,
   USER_LIST_TABLE_HEADER_TEXT,
   USER_LIST_TABLE_ROW_PAD,
   USER_LIST_TABLE_SUBGRID_ROW,
+  USER_LIST_TRAILING_CELL,
+  USER_LIST_TRAILING_HEADER_CELL,
   USER_PACKAGES_LIST_GRID_COLS,
 } from "@/components/account/user-list-table-layout";
 
@@ -17,7 +18,7 @@ export { USER_PACKAGES_LIST_GRID_COLS };
 export const USER_PACKAGES_LIST_TABLE_CLASS = [
   "max-md:space-y-3",
   "md:grid",
-  "md:grid-cols-[minmax(0,11rem)_minmax(8rem,auto)_minmax(9rem,auto)_minmax(7.5rem,auto)_minmax(6.5rem,auto)_1fr]",
+  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]",
   USER_LIST_TABLE_GRID_GAP,
   "md:gap-y-3",
 ].join(" ");
@@ -42,8 +43,11 @@ export const USER_PACKAGES_LIST_ROW_CLASS = [
 
 export const USER_PACKAGES_LIST_PERIOD_CELL = USER_LIST_CELL_CLASS;
 
+export const USER_PACKAGES_LIST_STATUS_CELL = USER_LIST_TRAILING_CELL;
+
+export const USER_PACKAGES_LIST_STATUS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
+
 export {
   USER_LIST_CELL_CLASS as USER_PACKAGES_LIST_CELL_CLASS,
   USER_LIST_CELL_CLASS as USER_PACKAGES_LIST_ITEM_CELL,
-  USER_LIST_STATUS_CELL as USER_PACKAGES_LIST_STATUS_CELL,
 };

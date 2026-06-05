@@ -11,6 +11,29 @@ export const OMM_MODAL_OVERLAY_CLASS = "ommm-modal-overlay";
 
 export const OMM_DRAWER_OVERLAY_CLASS = "ommm-drawer-overlay";
 
+/** Keeps layout width stable when the classic scrollbar disappears on lock. */
+function useLockBodyScroll(active: boolean): void {
+  useEffect(() => {
+    if (!active) {
+      return undefined;
+    }
+
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+    };
+  }, [active]);
+}
+
 type OmmModalBackdropProps = {
   onClose: () => void;
   ariaLabel: string;
@@ -57,17 +80,7 @@ export function OmmModalPortal({
   const portalReady = useIsClientMounted();
 
   useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
+  useLockBodyScroll(isOpen);
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
@@ -118,17 +131,7 @@ export function OmmDrawerPortal({
   const portalReady = useIsClientMounted();
 
   useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
+  useLockBodyScroll(isOpen);
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;

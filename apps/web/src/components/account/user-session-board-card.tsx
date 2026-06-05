@@ -41,17 +41,15 @@ export function UserSessionBoardCard({ locale, session }: UserSessionBoardCardPr
       />
       <SessionCoachLine coachName={coachName} variant="board" className="mt-3" />
 
-      <div className="mt-4 rounded-2xl border border-white/70 bg-white/60 px-4 py-3">
-        <p className="text-sm text-sage-700">
-          {spots} · {pricing}
-        </p>
-      </div>
+      <p className="mt-4 text-left text-sm text-sage-700">
+        {spots} · {pricing}
+      </p>
 
       <div className="mt-auto border-t border-white/70 pt-4">
         {full ? (
-          <JoinWaitlistButton sessionId={session.id} />
+          <JoinWaitlistButton sessionId={session.id} size="md" />
         ) : (
-          <BookSessionButton sessionId={session.id} priceCents={session.priceCents} />
+          <BookSessionButton sessionId={session.id} priceCents={session.priceCents} size="md" />
         )}
       </div>
     </article>

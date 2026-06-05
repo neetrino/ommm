@@ -27,31 +27,39 @@ export const USER_LIST_CLASS_CELL = USER_LIST_CELL_CLASS;
 
 export const USER_LIST_TIME_CELL = USER_LIST_CELL_CLASS;
 
-/** Flexible spacer — pushes trailing columns to the right edge. */
+export const USER_LIST_COACH_CELL = USER_LIST_CELL_CLASS;
+
+/** Flexible spacer between trailing data columns and edge actions. */
 export const USER_LIST_SPACER_CELL = "hidden min-w-0 md:block";
 
 export const USER_LIST_SPOTS_CELL = USER_LIST_CELL_CLASS;
 
 export const USER_LIST_STATUS_CELL = USER_LIST_CELL_CLASS;
 
+/** Right-aligned trailing column (status, actions, method). */
+export const USER_LIST_TRAILING_CELL =
+  "min-w-0 justify-self-end text-right md:self-center";
+
+export const USER_LIST_TRAILING_HEADER_CELL = "justify-self-end text-right";
+
 export const USER_LIST_ACTIONS_CELL =
   "flex shrink-0 justify-self-end md:items-center md:justify-end md:self-center";
 
-/** Date · Class · Time · Spots · ⟨flex⟩ · Actions */
+/** Date · Class · Time · Coach · Spots · ⟨flex⟩ · Actions */
 export const USER_SCHEDULE_LIST_GRID_COLS =
-  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_5.75rem_1fr_auto]";
+  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_minmax(8rem,auto)_auto_1fr_auto]";
 
 /** Date · Class · Time · Status · ⟨flex⟩ · Actions */
 export const USER_BOOKINGS_LIST_GRID_COLS =
-  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_5.5rem_1fr_auto]";
+  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_auto_1fr_auto]";
 
-/** Item · Amount · ⟨flex⟩ · Date · Time · Status · Method */
+/** Item · Amount · Date · Time · Status · Method */
 export const USER_PAYMENTS_LIST_GRID_COLS =
-  "minmax(0,11rem)_minmax(8.5rem,auto)_1fr_3.25rem_minmax(5.5rem,auto)_minmax(7rem,auto)_minmax(7.5rem,auto)";
+  "minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto";
 
-/** Package · Price · Sessions · Period · Status · ⟨flex⟩ */
+/** Package · Price · Sessions · Period · Status */
 export const USER_PACKAGES_LIST_GRID_COLS =
-  "minmax(0,11rem)_minmax(8rem,auto)_minmax(9rem,auto)_minmax(7.5rem,auto)_minmax(6.5rem,auto)_1fr";
+  "minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto";
 
 export const USER_LIST_TABLE_GRID_GAP = "md:gap-x-4";
 

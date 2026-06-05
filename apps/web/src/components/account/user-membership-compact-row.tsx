@@ -10,6 +10,7 @@ import {
   USER_PACKAGES_LIST_CELL_CLASS,
   USER_PACKAGES_LIST_PERIOD_CELL,
   USER_PACKAGES_LIST_ROW_CLASS,
+  USER_PACKAGES_LIST_STATUS_CELL,
 } from "@/components/account/user-packages-list-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
@@ -94,7 +95,7 @@ export function UserMembershipCompactRow({
         />
       </div>
 
-      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+      <div className={USER_PACKAGES_LIST_STATUS_CELL}>
         <MobileLabel label={t("listHeaderStatus")} />
         <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
       </div>

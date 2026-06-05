@@ -7,7 +7,11 @@ import { UserMembershipCompactRow } from "@/components/account/user-membership-c
 import { UserMembershipDetailsSheet } from "@/components/account/user-membership-details-sheet";
 import { normalizeUserPackageStatus } from "@/components/account/user-membership-display";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
-import { USER_PACKAGES_LIST_HEADER_CLASS, USER_PACKAGES_LIST_TABLE_CLASS } from "@/components/account/user-packages-list-layout";
+import {
+  USER_PACKAGES_LIST_HEADER_CLASS,
+  USER_PACKAGES_LIST_STATUS_HEADER_CELL,
+  USER_PACKAGES_LIST_TABLE_CLASS,
+} from "@/components/account/user-packages-list-layout";
 import { Link } from "@/i18n/navigation";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserMembershipRow } from "@/lib/user-package-types";
@@ -90,7 +94,7 @@ export function UserPackagesSection({
             <span>{t("listHeaderPrice")}</span>
             <span>{t("listHeaderSessions")}</span>
             <span>{t("listHeaderPeriod")}</span>
-            <span>{t("listHeaderStatus")}</span>
+            <span className={USER_PACKAGES_LIST_STATUS_HEADER_CELL}>{t("listHeaderStatus")}</span>
           </div>
           {memberships.map((membership) => {
             const status = normalizeUserPackageStatus(membership.status);

@@ -5,7 +5,12 @@ import { useTranslations } from "next-intl";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
 import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
-import { USER_PAYMENTS_LIST_HEADER_CLASS, USER_PAYMENTS_LIST_TABLE_CLASS } from "@/components/account/user-payments-list-layout";
+import {
+  USER_PAYMENTS_LIST_HEADER_CLASS,
+  USER_PAYMENTS_LIST_METHOD_HEADER_CELL,
+  USER_PAYMENTS_LIST_STATUS_HEADER_CELL,
+  USER_PAYMENTS_LIST_TABLE_CLASS,
+} from "@/components/account/user-payments-list-layout";
 import {
   comparePayments,
   normalizePaymentSource,
@@ -137,11 +142,10 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
           <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
             <span>{t("table.related")}</span>
             <span>{t("table.amount")}</span>
-            <span aria-hidden="true" />
             <span>{t("table.date")}</span>
             <span>{t("table.time")}</span>
-            <span>{t("table.status")}</span>
-            <span>{t("table.paymentMethod")}</span>
+            <span className={USER_PAYMENTS_LIST_STATUS_HEADER_CELL}>{t("table.status")}</span>
+            <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
           </div>
           {rows.map((row) => (
             <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />

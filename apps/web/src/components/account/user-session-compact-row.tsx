@@ -5,7 +5,6 @@ import { BookSessionButton } from "@/components/account/book-session-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
 import {
   resolveSessionCoachName,
-  SessionCoachLine,
 } from "@/components/account/session-coach-line";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
@@ -13,6 +12,7 @@ import { SessionSpotsIndicator } from "@/components/account/session-spots-indica
 import {
   USER_SCHEDULE_LIST_ACTIONS_CLASS,
   USER_SCHEDULE_LIST_CLASS_CELL,
+  USER_SCHEDULE_LIST_COACH_CELL,
   USER_SCHEDULE_LIST_DATE_CELL,
   USER_SCHEDULE_LIST_ROW_CLASS,
   USER_SCHEDULE_LIST_SPACER_CELL,
@@ -51,7 +51,6 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
 
       <div className={USER_SCHEDULE_LIST_CLASS_CELL}>
         <SessionClassTitle variant="list" name={session.classType.name} />
-        <SessionCoachLine coachName={coachName} variant="list" className="mt-1" />
       </div>
 
       <div className={USER_SCHEDULE_LIST_TIME_CELL}>
@@ -61,6 +60,13 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
           endsAt={session.endsAt}
           variant="listTime"
         />
+      </div>
+
+      <div className={USER_SCHEDULE_LIST_COACH_CELL}>
+        <MobileLabel label={t("listHeaderCoach")} />
+        <p className={`truncate text-xs font-semibold ${coachName ? "text-sage-800" : "text-sage-400"}`}>
+          {coachName ?? "—"}
+        </p>
       </div>
 
       <div className={USER_SCHEDULE_LIST_SPOTS_CELL}>
@@ -82,5 +88,13 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
         )}
       </div>
     </div>
+  );
+}
+
+function MobileLabel({ label }: { label: string }) {
+  return (
+    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sage-500 md:hidden">
+      {label}
+    </p>
   );
 }

@@ -11,6 +11,7 @@ import { UserBookingBoardCard } from "@/components/account/user-booking-board-ca
 import { UserBookingCompactRow } from "@/components/account/user-booking-compact-row";
 import {
   USER_BOOKINGS_LIST_ACTIONS_CELL,
+  USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   USER_BOOKINGS_LIST_CLASS_CELL,
   USER_BOOKINGS_LIST_DATE_CELL,
   USER_BOOKINGS_LIST_HEADER_CLASS,
@@ -133,7 +134,7 @@ function BookingGroup({
             <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderStatus")}</span>
             <span aria-hidden="true" />
-            <span>{t("listHeaderActions")}</span>
+            <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
           <ul className={USER_LIST_STACK_CLASS}>
             {rows.map((booking) => (
@@ -186,7 +187,7 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
             <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderStatus")}</span>
             <span aria-hidden="true" />
-            <span>{t("listHeaderActions")}</span>
+            <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
           <ul className={USER_LIST_STACK_CLASS}>
             {rows.map((item) => (

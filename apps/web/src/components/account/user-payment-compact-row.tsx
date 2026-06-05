@@ -13,8 +13,8 @@ import {
 import {
   USER_PAYMENTS_LIST_CELL_CLASS,
   USER_PAYMENTS_LIST_DATE_CELL,
+  USER_PAYMENTS_LIST_METHOD_CELL,
   USER_PAYMENTS_LIST_ROW_CLASS,
-  USER_PAYMENTS_LIST_SPACER_CELL,
   USER_PAYMENTS_LIST_STATUS_CELL,
   USER_PAYMENTS_LIST_TIME_CELL,
 } from "@/components/account/user-payments-list-layout";
@@ -53,8 +53,6 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
         </p>
       </div>
 
-      <div className={USER_PAYMENTS_LIST_SPACER_CELL} aria-hidden="true" />
-
       <div className={USER_PAYMENTS_LIST_DATE_CELL}>
         <MobileLabel label={t("table.date")} />
         <SessionDateTimeHighlight
@@ -79,7 +77,7 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
         </span>
       </div>
 
-      <div className={USER_PAYMENTS_LIST_CELL_CLASS}>
+      <div className={USER_PAYMENTS_LIST_METHOD_CELL}>
         <MobileLabel label={t("table.paymentMethod")} />
         <p className="truncate text-sm font-medium text-sage-800">{methodLabel}</p>
       </div>
