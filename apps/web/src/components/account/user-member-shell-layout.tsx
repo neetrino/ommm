@@ -31,7 +31,7 @@ export async function UserMemberShellLayout({
   if (authOutcome.kind === "api_unavailable") {
     return <ApiUnavailablePanel />;
   }
-  const { role, userLocale, authUser } = authOutcome.auth;
+  const { role, userLocale } = authOutcome.auth;
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, USER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);

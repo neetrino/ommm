@@ -85,9 +85,9 @@ describe('PackageUsageService', () => {
         },
       };
 
-      await expect(service.consumeSession(tx as never, 'pkg-1')).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(
+        service.consumeSession(tx as never, 'pkg-1'),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 

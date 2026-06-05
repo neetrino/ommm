@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { LogoutButton } from "@/components/logout-button";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
@@ -55,7 +55,11 @@ export function MarketingAccountAvatarMenu({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
   const profileLabel = tCommon("account");
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
@@ -71,10 +75,6 @@ export function MarketingAccountAvatarMenu({
     setMenuOpen(false);
     onAfterSelect?.();
   }
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!menuOpen) {
@@ -110,7 +110,7 @@ export function MarketingAccountAvatarMenu({
   }, [menuOpen]);
 
   const floatingMenu =
-    menuOpen && menuPosition !== null && mounted
+    menuOpen && menuPosition !== null && isMounted
       ? createPortal(
           <div
             ref={menuRef}
