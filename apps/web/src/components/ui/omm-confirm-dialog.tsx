@@ -4,6 +4,8 @@ import { useId, type ReactNode } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 
+export type OmmConfirmDialogTone = "default" | "warm" | "danger";
+
 type OmmConfirmDialogProps = {
   isOpen: boolean;
   title: string;
@@ -12,10 +14,20 @@ type OmmConfirmDialogProps = {
   cancelLabel: string;
   backdropAriaLabel: string;
   pending?: boolean;
-  confirmVariant?: "primary" | "secondary" | "danger";
+  tone?: OmmConfirmDialogTone;
+  confirmClassName?: string;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
+};
+
+const CONFIRM_DIALOG_PANEL_CLASS =
+  "w-full max-w-md rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md";
+
+const CONFIRM_DIALOG_TONE_PANEL_CLASS: Record<OmmConfirmDialogTone, string> = {
+  default: "",
+  warm: "ommm-confirm-dialog--warm",
+  danger: "ommm-confirm-dialog--danger",
 };
 
 export function OmmConfirmDialog({
@@ -26,13 +38,20 @@ export function OmmConfirmDialog({
   cancelLabel,
   backdropAriaLabel,
   pending = false,
-  confirmVariant = "primary",
+  tone = "default",
+  confirmClassName = "",
   onConfirm,
   onCancel,
   children,
 }: OmmConfirmDialogProps) {
   const titleId = useId();
   const descId = useId();
+  const panelClassName = [
+    CONFIRM_DIALOG_PANEL_CLASS,
+    CONFIRM_DIALOG_TONE_PANEL_CLASS[tone],
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <OmmModalPortal
@@ -44,7 +63,7 @@ export function OmmConfirmDialog({
       closeDisabled={pending}
       backdropAriaLabel={backdropAriaLabel}
       overlayClassName="ommm-modal-overlay z-[110] p-4"
-      panelClassName="w-full max-w-md rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md"
+      panelClassName={panelClassName}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -62,8 +81,9 @@ export function OmmConfirmDialog({
           </OmmButton>
           <OmmButton
             type="button"
-            variant={confirmVariant}
+            variant="secondary"
             size="md"
+            className={confirmClassName}
             onClick={onConfirm}
             disabled={pending}
           >

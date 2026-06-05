@@ -23,6 +23,9 @@ export function hasPackageLifecycleActions(status: UserPackageStatus): boolean {
 
 type LifecycleLayout = "inline" | "sheetFooter" | "list" | "board";
 
+const PACKAGE_PAUSE_BUTTON_CLASS = "ommm-btn-lifecycle-action--warm";
+const PACKAGE_CANCEL_BUTTON_CLASS = "ommm-btn-lifecycle-action--danger";
+
 type UserPackageLifecycleActionsProps = {
   userPackageId: string;
   status: UserPackageStatus;
@@ -126,14 +129,16 @@ export function UserPackageLifecycleActions({
       ? {
           title: t("pauseConfirmTitle"),
           description: t("pauseConfirmDescription"),
-          confirmVariant: "primary" as const,
+          tone: "warm" as const,
+          confirmClassName: PACKAGE_PAUSE_BUTTON_CLASS,
           onConfirm: () => void run("pause", "pausedSuccess", "pauseFailed"),
         }
       : pendingConfirm === "cancel"
         ? {
             title: t("cancelConfirmTitle"),
             description: t("cancelConfirmDescription"),
-            confirmVariant: "danger" as const,
+            tone: "danger" as const,
+            confirmClassName: PACKAGE_CANCEL_BUTTON_CLASS,
             onConfirm: () => void run("cancel", "cancelledSuccess", "cancelFailed"),
           }
         : null;
@@ -154,7 +159,7 @@ export function UserPackageLifecycleActions({
               size={buttonSize}
               variant="secondary"
               disabled={busy}
-              className={buttonClass}
+              className={[buttonClass, PACKAGE_PAUSE_BUTTON_CLASS].filter(Boolean).join(" ")}
               onClick={() => openConfirm("pause")}
             >
               {t("pause")}
@@ -174,9 +179,9 @@ export function UserPackageLifecycleActions({
           {showCancel ? (
             <OmmButton
               size={buttonSize}
-              variant="ghost"
+              variant="secondary"
               disabled={busy}
-              className={buttonClass}
+              className={[buttonClass, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
               onClick={() => openConfirm("cancel")}
             >
               {t("cancelAction")}
@@ -197,7 +202,8 @@ export function UserPackageLifecycleActions({
           confirmLabel={t("confirmYes")}
           cancelLabel={t("confirmNo")}
           backdropAriaLabel={t("modalBackdropClose")}
-          confirmVariant={confirmConfig.confirmVariant}
+          tone={confirmConfig.tone}
+          confirmClassName={confirmConfig.confirmClassName}
           pending={busy}
           onConfirm={confirmConfig.onConfirm}
           onCancel={closeConfirm}

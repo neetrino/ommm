@@ -546,17 +546,27 @@ html {
     @apply inline-flex shrink-0 overflow-visible;
   }
 
-  .ommm-marketing-account-menu[data-open="true"] > button {
-    @apply bg-white/14 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)];
+  .ommm-marketing-account-hover-anchor {
+    @apply relative inline-flex flex-col items-center;
   }
 
-  .ommm-marketing-account-menu-panel-floating {
-    /* Keep in sync with MARKETING_ACCOUNT_MENU_GAP_PX */
+  .ommm-marketing-account-logout-popover {
     --marketing-account-menu-gap: 8px;
 
-    @apply flex flex-col items-center;
-    gap: var(--marketing-account-menu-gap);
-    pointer-events: auto;
+    @apply pointer-events-none invisible absolute left-1/2 top-full z-30 -translate-x-1/2 opacity-0;
+    padding-top: var(--marketing-account-menu-gap);
+    transform: translateX(-50%) translateY(-4px);
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease,
+      visibility 150ms ease;
+  }
+
+  @media (hover: hover) {
+    .ommm-marketing-account-hover-anchor:hover .ommm-marketing-account-logout-popover {
+      @apply pointer-events-auto visible opacity-100;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 
   .ommm-marketing-account-menu-action {
@@ -570,26 +580,14 @@ html {
   }
 
   @media (hover: hover) {
-    .ommm-marketing-account-menu-profile:hover {
-      @apply border-white bg-white text-sage-900 shadow-[0_14px_30px_-12px_rgba(45,40,35,0.45),inset_0_1px_0_#fff];
-    }
-
     .ommm-marketing-account-menu-logout:hover {
       @apply border-red-100/90 bg-red-50 text-red-800 shadow-[0_14px_30px_-12px_rgba(127,29,29,0.28),inset_0_1px_0_#fff];
     }
   }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .ommm-marketing-account-menu-profile:hover {
-      transform: translateY(-4px) scale(1.08) rotate(-5deg);
-    }
-
     .ommm-marketing-account-menu-logout:hover {
       transform: translateY(-4px) scale(1.08) rotate(5deg);
-    }
-
-    .ommm-marketing-account-menu-profile:hover .ommm-marketing-account-menu-action-icon {
-      transform: scale(1.12) rotate(6deg);
     }
 
     .ommm-marketing-account-menu-logout:hover svg {
@@ -956,6 +954,43 @@ html {
   .ommm-btn-compact-warm {
     @apply inline-flex cursor-pointer items-center justify-center rounded-full border border-sand-500/45 bg-sand-100/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sand-700 transition-colors;
     @apply hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-lifecycle-action--warm:hover,
+  .ommm-btn-lifecycle-action--danger:hover {
+    @apply shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)]!;
+  }
+
+  .ommm-btn-lifecycle-action--warm:hover {
+    @apply border-sand-500/50! bg-sand-100! text-sand-700!;
+  }
+
+  .ommm-btn-lifecycle-action--warm:focus-visible {
+    @apply ring-sand-500!;
+  }
+
+  .ommm-btn-lifecycle-action--danger:hover {
+    @apply border-red-300! bg-red-100! text-red-800!;
+  }
+
+  .ommm-btn-lifecycle-action--danger:focus-visible {
+    @apply ring-red-500!;
+  }
+
+  .ommm-confirm-dialog--warm {
+    @apply border-sand-500/35 bg-gradient-to-br from-sand-100/95 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(107,92,76,0.38)];
+  }
+
+  .ommm-confirm-dialog--danger {
+    @apply border-red-300/70 bg-gradient-to-br from-red-100/90 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(185,28,28,0.28)];
+  }
+
+  .ommm-confirm-dialog--warm .ommm-btn-lifecycle-action--warm {
+    @apply border-sand-500/50 bg-sand-100 text-sand-700 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-confirm-dialog--danger .ommm-btn-lifecycle-action--danger {
+    @apply border-red-300 bg-red-100 text-red-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
   }
 
   .ommm-marketing-card-hover {
