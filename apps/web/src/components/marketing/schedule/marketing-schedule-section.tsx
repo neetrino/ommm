@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { MarketingScheduleView } from "@/components/marketing/schedule/marketing-schedule-view";
+import { MarketingScheduleViewDeferred } from "@/components/marketing/marketing-deferred-sections";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 
 export async function MarketingScheduleSection({ locale }: { locale: string }) {
@@ -14,5 +14,5 @@ export async function MarketingScheduleSection({ locale }: { locale: string }) {
     );
   }
 
-  return <MarketingScheduleView initialItems={items} />;
+  return <MarketingScheduleViewDeferred initialItems={items} />;
 }

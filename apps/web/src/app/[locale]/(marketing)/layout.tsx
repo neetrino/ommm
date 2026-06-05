@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { Suspense } from "react";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
 import { MarketingFooterLoading } from "@/components/marketing/marketing-footer-loading";
@@ -8,6 +9,8 @@ import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-mai
 import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
 import { MarketingSiteHeader } from "@/components/marketing/marketing-site-header";
 import { routing } from "@/i18n/routing";
+import { localeFreePathFromRequestPathname } from "@/lib/marketing-path-from-request";
+import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -23,11 +26,14 @@ export default async function MarketingLayout({
     notFound();
   }
 
+  const requestPathname = (await headers()).get(OMMM_PATHNAME_HEADER);
+  const serverMarketingPath = localeFreePathFromRequestPathname(requestPathname);
+
   return (
     <MarketingLayoutShell>
       <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
       <MarketingLayoutMain>{children}</MarketingLayoutMain>
-      <MarketingFooterGate>
+      <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
         <Suspense fallback={<MarketingFooterLoading />}>
           <MarketingPublicHomeFooter locale={locale} surfaceVariant="inner" />
         </Suspense>

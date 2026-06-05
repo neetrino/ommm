@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { ContactMessageForm } from "@/components/marketing/contact-message-form";
+import { ContactMessageFormDeferred } from "@/components/marketing/marketing-deferred-sections";
+import { MarketingLazyMapEmbed } from "@/components/marketing/contact/marketing-lazy-map-embed";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import {
   MarketingContactStudioCard,
@@ -106,18 +107,15 @@ export async function MarketingContactPageContent({
           replyCallout={t("replyCallout")}
           socialLinks={social}
         />
-        <ContactMessageForm />
+        <ContactMessageFormDeferred />
       </div>
       {studio !== null &&
       studio.mapEmbedUrl !== null &&
       studio.mapEmbedUrl.trim() !== "" ? (
-        <section className={styles.mapSection}>
-          <h2 className={styles.mapHeading}>{t("mapHeading")}</h2>
-          <div
-            className={styles.mapFrame}
-            dangerouslySetInnerHTML={{ __html: studio.mapEmbedUrl }}
-          />
-        </section>
+        <MarketingLazyMapEmbed
+          heading={t("mapHeading")}
+          embedHtml={studio.mapEmbedUrl}
+        />
       ) : null}
     </>
   );

@@ -21,7 +21,6 @@ export function aboveFoldImageProps(): ImageLoadingProps {
 export function belowFoldImageProps(): ImageLoadingProps {
   return {
     loading: "lazy",
-    fetchPriority: "low",
   };
 }
 

@@ -11,6 +11,8 @@ export const MARKETING_MOBILE_HEADER = {
   brandFontSizePx: 20,
   brandLineHeightPx: 28,
   brandColor: "#fbf5d5",
+  /** Mobile glass pill fill after scroll — Figma olive, slightly translucent. */
+  scrolledPillBackground: "rgba(151, 144, 124, 0.72)",
   authIconGapPx: 6,
   actionsEdgeNudgePx: 4,
   menuEdgeNudgePx: 4,

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { PublicPackageCategoryListTable } from "@/components/marketing/packages/public-package-category-list-table";
+import { PublicPackageCategoryListTableDeferred } from "@/components/marketing/marketing-deferred-sections";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { listPublicPackageCategoryDisplayPlans } from "@/components/marketing/packages/public-package-category-display-plans";
 import {
@@ -38,7 +38,7 @@ export async function PublicPackageCategoryDetailSection({
 
   const tierTable = (
     <Suspense fallback={null}>
-      <PublicPackageCategoryListTable
+      <PublicPackageCategoryListTableDeferred
         locale={locale}
         categoryLabel={category.label}
         plans={displayPlans}

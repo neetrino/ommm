@@ -11,6 +11,7 @@ import {
 } from "@/components/marketing/contact/contact-page-tokens";
 import styles from "@/components/marketing/contact/marketing-contact-message-form.module.css";
 import { ApiError, apiFetch } from "@/lib/api";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 const FORM_STYLE = {
   "--contact-card-bg": CONTACT_PAGE_SURFACE.cardBackground,
@@ -161,6 +162,7 @@ export function ContactMessageForm({ formTitle }: ContactMessageFormProps) {
             height={18}
             className={styles.submitArrow}
             aria-hidden
+            {...belowFoldImageProps()}
           />
         </button>
         <p className={styles.security}>

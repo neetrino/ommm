@@ -4,7 +4,7 @@ import {
   limitCoachesPageGridCards,
   type CoachesPageSlideCopy,
 } from "@/components/marketing/coaches/coaches-page-fallback-coaches";
-import { MarketingPublicCoachesGrid } from "@/components/marketing/coaches/marketing-public-coaches-grid";
+import { MarketingPublicCoachesGridDeferred } from "@/components/marketing/marketing-deferred-sections";
 import {
   marketingPublicCoachesPageSectionStyles,
 } from "@/components/marketing/coaches/marketing-public-coaches-page-section";
@@ -41,5 +41,5 @@ export async function MarketingCoachesPageContent({
     );
   }
 
-  return <MarketingPublicCoachesGrid coaches={coaches} />;
+  return <MarketingPublicCoachesGridDeferred coaches={coaches} />;
 }

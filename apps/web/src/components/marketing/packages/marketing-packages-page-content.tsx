@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { PublicPackageCategoryDetailSection } from "@/components/marketing/packages/public-package-category-detail-section";
+import { MARKETING_LAZY_SECTION } from "@/components/marketing/marketing-lazy-section-tokens";
+import { MarketingProgressiveRevealSection } from "@/components/marketing/marketing-progressive-reveal-section";
 import { resolveMarketingDancesPackageCategory } from "@/components/marketing/packages/public-package-category-dances";
 import { resolveMarketingMatPilatesPackageCategory } from "@/components/marketing/packages/public-package-category-mat-pilates";
 import { resolveMarketingReformerIndividualPackageCategory } from "@/components/marketing/packages/public-package-category-reformer-individual";
@@ -43,16 +45,23 @@ export async function MarketingPackagesPageContent({
         </p>
       ) : null}
       {marketingCategories.map((category) => (
-        <PublicPackageCategoryDetailSection
+        <MarketingProgressiveRevealSection
           key={category.id}
-          locale={locale}
-          category={category}
-          audience="guest"
-          backHref="/packages"
-          showBackLink={false}
-          categoryTableOnly
-          showLoginHint={false}
-        />
+          id={`packages-${category.id}`}
+          preloadMarginPx={MARKETING_LAZY_SECTION.preloadMarginPx}
+          mountMarginPx={MARKETING_LAZY_SECTION.mountMarginPx}
+          placeholderClassName={MARKETING_LAZY_SECTION.placeholders.packageCategory}
+        >
+          <PublicPackageCategoryDetailSection
+            locale={locale}
+            category={category}
+            audience="guest"
+            backHref="/packages"
+            showBackLink={false}
+            categoryTableOnly
+            showLoginHint={false}
+          />
+        </MarketingProgressiveRevealSection>
       ))}
       <p className="text-center text-xs text-sage-500">{m("packagesLoginHint")}</p>
     </div>

@@ -19,6 +19,7 @@ import { CalendarIcon } from "@/components/marketing/schedule/schedule-view-icon
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 
 type PublicPackageTierRowProps = {
   locale: string;
@@ -108,6 +109,7 @@ function TierRowBody({
           height={44}
           className={styles.tierIcon}
           unoptimized
+          {...belowFoldImageProps()}
         />
       </div>
       <div className={styles.tierPrimary}>

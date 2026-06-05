@@ -11,6 +11,7 @@ import {
 } from "@/components/marketing/home/home-weekly-schedule-tokens";
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { Link } from "@/i18n/navigation";
 
 type HomeWeeklyScheduleSessionRowProps = {
@@ -63,6 +64,7 @@ export function HomeWeeklyScheduleSessionRow({
             unoptimized
             className="shrink-0"
             aria-hidden
+            {...belowFoldImageProps()}
           />
           <p
             className={`${styles.time} text-lg font-bold leading-[1.875rem] tracking-[0.03125rem] sm:text-xl`}

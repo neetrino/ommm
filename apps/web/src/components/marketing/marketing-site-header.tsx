@@ -28,6 +28,7 @@ import {
   marketingHeaderMobileRowInnerClass,
   marketingHeaderMobileRowWrapClass,
   marketingHeaderMobileRowWrapStyle,
+  MARKETING_MOBILE_HEADER,
   marketingHeaderNavClass,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
@@ -64,7 +65,11 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const showMobileGlassPill = elevated && !open;
-  const mobileGlassRowStyle = marketingHeaderMobileRowWrapStyle(showMobileGlassPill);
+  const mobileGlassRowStyle = {
+    ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
+    ["--marketing-mobile-scrolled-pill-bg" as string]:
+      MARKETING_MOBILE_HEADER.scrolledPillBackground,
+  };
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setOpen(false);
@@ -209,13 +214,15 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         </div>
       </div>
 
-      <MarketingMobileMenuModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        navLinks={navLinks}
-        marketingPath={marketingPath}
-        isActive={isActive}
-      />
+      {open ? (
+        <MarketingMobileMenuModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          navLinks={navLinks}
+          marketingPath={marketingPath}
+          isActive={isActive}
+        />
+      ) : null}
     </header>
   );
 }

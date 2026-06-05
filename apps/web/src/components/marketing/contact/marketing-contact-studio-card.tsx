@@ -6,6 +6,7 @@ import {
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
+import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 
 type ContactStudioRow = {
   key: string;
@@ -69,7 +70,7 @@ export function MarketingContactStudioCard({
     <article className={styles.card} style={CARD_STYLE}>
       <h2 className={styles.heading}>{heading}</h2>
       <ul className={styles.list}>
-        {rows.map((row) => (
+        {rows.map((row, index) => (
           <li key={row.key} className={styles.row}>
             <span className={styles.iconWrap}>
               <Image
@@ -80,6 +81,7 @@ export function MarketingContactStudioCard({
                 className={styles.icon}
                 unoptimized
                 aria-hidden
+                {...(index === 0 ? aboveFoldImageProps() : belowFoldImageProps())}
               />
             </span>
             <div className={styles.rowBody}>

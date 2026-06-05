@@ -328,7 +328,7 @@ export function DropdownSelect<T extends string>({
         ) : null}
       </button>
 
-      {isMenuOpen && menuPosition !== null && portalReady && typeof document !== "undefined"
+      {isMenuOpen && menuPosition !== null && portalReady
         ? createPortal(
             <div
               ref={menuRef}
