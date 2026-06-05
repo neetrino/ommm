@@ -31,7 +31,6 @@ export type AdminBookingRowActionsProps = {
   onCancel: () => void;
   onAddNote: () => void;
   onMove: () => void;
-  onEdit: () => void;
   onDelete: () => void;
 };
 
@@ -182,7 +181,6 @@ export function AdminBookingRowActions({
   onCancel,
   onAddNote,
   onMove,
-  onEdit,
   onDelete,
 }: AdminBookingRowActionsProps) {
   const t = useTranslations("adminPages.bookings");
@@ -194,7 +192,6 @@ export function AdminBookingRowActions({
     ? [
         { key: "note", label: t("actionAddNote"), onSelect: onAddNote },
         { key: "move", label: t("actionMove"), onSelect: onMove },
-        { key: "edit", label: t("actionEdit"), onSelect: onEdit },
         { key: "delete", label: t("actionDelete"), tone: "danger", onSelect: onDelete },
       ]
     : [];

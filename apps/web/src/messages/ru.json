@@ -1217,6 +1217,8 @@
       "statusCompleted": "Завершено",
       "statusCancelled": "Отменено",
       "statusWaitlisted": "Лист ожидания",
+      "statusMissed": "Пропущено",
+      "changeStatusAria": "Изменить статус — сейчас: {status}",
       "paymentPaid": "Оплачено",
       "paymentCash": "Наличные",
       "paymentUnpaid": "Не оплачено",

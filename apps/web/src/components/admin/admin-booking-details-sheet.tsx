@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
+import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
@@ -78,7 +79,7 @@ export type AdminBookingDetailsSheetProps = {
   onCancel: () => void;
   onAddNote: () => void;
   onMove: () => void;
-  onEdit: () => void;
+  onChangeStatus: (status: ListRow["status"]) => void;
   onDelete: () => void;
 };
 
@@ -93,7 +94,7 @@ export function AdminBookingDetailsSheet({
   onCancel,
   onAddNote,
   onMove,
-  onEdit,
+  onChangeStatus,
   onDelete,
 }: AdminBookingDetailsSheetProps) {
   const t = useTranslations("adminPages.bookings");
@@ -122,7 +123,6 @@ export function AdminBookingDetailsSheet({
     return null;
   }
 
-  const statusLabel = resolveStatusLabel(t, row.status);
   const notes =
     details?.notes ??
     (row.latestNote
@@ -169,7 +169,12 @@ export function AdminBookingDetailsSheet({
             >
               <CloseGlyph />
             </button>
-            <span className={statusBadgeClass(row.status)}>{statusLabel}</span>
+            <AdminBookingStatusPicker
+              recordType={row.recordType}
+              status={row.status}
+              busy={busy}
+              onChangeStatus={onChangeStatus}
+            />
           </div>
         </div>
       </header>
@@ -256,7 +261,6 @@ export function AdminBookingDetailsSheet({
             onCancel={onCancel}
             onAddNote={onAddNote}
             onMove={onMove}
-            onEdit={onEdit}
             onDelete={onDelete}
           />
           </div>
@@ -290,26 +294,6 @@ function CloseGlyph() {
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
-}
-
-function statusBadgeClass(status: ListRow["status"]): string {
-  const base = "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide";
-  if (status === "BOOKED") return `${base} border-indigo-200 bg-indigo-50 text-indigo-900`;
-  if (status === "COMPLETED") return `${base} border-mint-200 bg-mint-50 text-sage-900`;
-  if (status === "CANCELLED") return `${base} border-sand-300 bg-sand-50 text-sage-900`;
-  if (status === "WAITLISTED") return `${base} border-zinc-200 bg-zinc-50 text-zinc-800`;
-  return `${base} border-zinc-200 bg-zinc-50 text-zinc-800`;
-}
-
-function resolveStatusLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  status: ListRow["status"],
-): string {
-  if (status === "BOOKED") return t("statusBooked");
-  if (status === "COMPLETED") return t("statusCompleted");
-  if (status === "CANCELLED") return t("statusCancelled");
-  if (status === "WAITLISTED") return t("statusWaitlisted");
-  return t("statusBooked");
 }
 
 function paymentLabel(

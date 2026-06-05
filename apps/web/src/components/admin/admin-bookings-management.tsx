@@ -263,16 +263,24 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         }
       },
       onMove: () => setMoveBooking(row),
-      onEdit: () => {
-        const next = window.prompt(t("promptEditStatus"), row.status);
-        if (next) {
-          void runRowAction(row.id, async () => {
-            await apiFetch(`/bookings/admin/${row.id}`, {
-              method: "PATCH",
-              body: JSON.stringify({ status: next.toUpperCase() }),
-            });
-          }, t("successEdited"));
+      onChangeStatus: (nextStatus: BookingRow["status"]) => {
+        if (nextStatus === row.status) {
+          return;
         }
+        if (nextStatus === "CANCELLED" && !window.confirm(t("confirmCancel"))) {
+          return;
+        }
+        void runRowAction(row.id, async () => {
+          await apiFetch(`/bookings/admin/${row.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ status: nextStatus }),
+          });
+          setRows((prev) =>
+            prev.map((item) =>
+              item.id === row.id ? { ...item, status: nextStatus } : item,
+            ),
+          );
+        }, t("successEdited"));
       },
       onDelete: () => {
         if (!window.confirm(t("confirmDelete"))) {

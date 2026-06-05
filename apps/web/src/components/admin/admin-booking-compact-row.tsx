@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
+import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import {
   ADMIN_BOOKINGS_LIST_ACTIONS_CELL,
   ADMIN_BOOKINGS_LIST_CELL,
@@ -45,7 +46,7 @@ type AdminBookingCompactRowProps = {
   onCancel: () => void;
   onAddNote: () => void;
   onMove: () => void;
-  onEdit: () => void;
+  onChangeStatus: (status: BookingRow["status"]) => void;
   onDelete: () => void;
 };
 
@@ -59,7 +60,7 @@ export function AdminBookingCompactRow({
   onCancel,
   onAddNote,
   onMove,
-  onEdit,
+  onChangeStatus,
   onDelete,
 }: AdminBookingCompactRowProps) {
   const t = useTranslations("adminPages.bookings");
@@ -128,9 +129,18 @@ export function AdminBookingCompactRow({
         />
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
+      <div
+        className={ADMIN_BOOKINGS_LIST_STATUS_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
         <MobileLabel label={t("colStatus")} />
-        <BookingBadge tone="indigo" label={statusLabel(t, row.status)} />
+        <AdminBookingStatusPicker
+          recordType={row.recordType}
+          status={row.status}
+          busy={busy}
+          onChangeStatus={onChangeStatus}
+        />
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
@@ -149,7 +159,6 @@ export function AdminBookingCompactRow({
           onCancel={onCancel}
           onAddNote={onAddNote}
           onMove={onMove}
-          onEdit={onEdit}
           onDelete={onDelete}
         />
       </div>
@@ -188,17 +197,6 @@ function BookingBadge({
       {label}
     </span>
   );
-}
-
-function statusLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: BookingRow["status"],
-): string {
-  if (value === "BOOKED") return t("statusBooked");
-  if (value === "COMPLETED") return t("statusCompleted");
-  if (value === "CANCELLED") return t("statusCancelled");
-  if (value === "WAITLISTED") return t("statusWaitlisted");
-  return t("statusBooked");
 }
 
 function paymentLabel(

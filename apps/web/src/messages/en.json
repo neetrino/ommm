@@ -1226,6 +1226,8 @@
       "statusCompleted": "Completed",
       "statusCancelled": "Cancelled",
       "statusWaitlisted": "Waitlisted",
+      "statusMissed": "Missed",
+      "changeStatusAria": "Change status — current: {status}",
       "paymentPaid": "Paid",
       "paymentCash": "Cash",
       "paymentUnpaid": "Unpaid",

@@ -1229,6 +1229,8 @@
       "statusCompleted": "Ավարտված",
       "statusCancelled": "Չեղարկված",
       "statusWaitlisted": "Սպասման ցուցակ",
+      "statusMissed": "Բաց թողնված",
+      "changeStatusAria": "Փոխել կարգավիճակը — ներկայումս՝ {status}",
       "paymentPaid": "Վճարված",
       "paymentCash": "Կանխիկ",
       "paymentUnpaid": "Չվճարված",
