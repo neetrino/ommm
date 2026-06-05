@@ -57,9 +57,9 @@ function layoutConfig(layout: LifecycleLayout): {
   if (layout === "board") {
     return {
       buttonSize: "md",
-      containerClass: "flex flex-wrap gap-2",
+      containerClass: "flex w-full flex-col gap-2",
       buttonClass: "",
-      messageClass: "w-full",
+      messageClass: "w-full text-center",
     };
   }
 
@@ -139,7 +139,11 @@ export function UserPackageLifecycleActions({
         : null;
 
   const buttonRowClass =
-    layout === "list" ? "flex flex-wrap items-center justify-end gap-2" : "flex flex-wrap gap-2";
+    layout === "list"
+      ? "flex flex-wrap items-center justify-end gap-2"
+      : layout === "board"
+        ? "flex w-full items-center justify-between gap-3"
+        : "flex flex-wrap gap-2";
 
   return (
     <>
