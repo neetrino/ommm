@@ -90,7 +90,7 @@ export function SessionDateTimeHighlight({
   }
 
   return (
-    <div className={`flex min-w-0 items-center gap-3 ${className}`.trim()}>
+    <div className={`flex min-w-0 items-start gap-3 ${className}`.trim()}>
       <div className={CALENDAR_CHIP_LIST} aria-hidden="true">
         <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-sand-600">
           {display.weekdayShort}

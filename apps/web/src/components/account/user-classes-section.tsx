@@ -1,11 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import {
+  USER_SCHEDULE_LIST_HEADER_CLASS,
+} from "@/components/account/user-schedule-list-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSessionBoardCard } from "@/components/account/user-session-board-card";
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
-import { Link } from "@/i18n/navigation";
 import type { UserSessionRow } from "@/lib/user-booking-types";
 
 type UserClassesSectionProps = {
@@ -43,8 +45,9 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
         </ul>
       ) : (
         <div className="overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto] md:gap-4">
+          <div className={USER_SCHEDULE_LIST_HEADER_CLASS}>
             <span>{t("listHeaderClass")}</span>
+            <span>{t("listHeaderCoach")}</span>
             <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderSpots")}</span>
             <span className="sr-only">{t("listHeaderActions")}</span>
@@ -58,12 +61,6 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
           </ul>
         </div>
       )}
-
-      <p className="ommm-body-muted mt-8 text-sm">
-        <Link href="/user/bookings" className="ommm-link-sage">
-          {t("myBookingsLink")}
-        </Link>
-      </p>
     </div>
   );
 }
