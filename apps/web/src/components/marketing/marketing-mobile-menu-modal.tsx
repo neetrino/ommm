@@ -36,16 +36,18 @@ export function MarketingMobileMenuModal({
 
   useEffect(() => {
     if (isOpen) {
-      setIsExiting(false);
       return undefined;
     }
 
-    setIsExiting(true);
+    const startTimer = window.setTimeout(() => {
+      setIsExiting(true);
+    }, 0);
     const closeTimer = window.setTimeout(() => {
       setIsExiting(false);
     }, MARKETING_MOBILE_MENU_TRANSITION_MS);
 
     return () => {
+      window.clearTimeout(startTimer);
       window.clearTimeout(closeTimer);
     };
   }, [isOpen]);

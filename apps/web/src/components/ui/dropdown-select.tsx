@@ -210,20 +210,27 @@ export function DropdownSelect<T extends string>({
 
   useEffect(() => {
     if (!menuAnimationActive) {
-      return;
+      return undefined;
     }
-    if (isMenuOpen) {
-      setMenuExitHold(true);
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        setMenuAnimatedIn(true);
-        return;
-      }
+
+    if (!isMenuOpen) {
+      const exitId = window.requestAnimationFrame(() => {
+        setMenuAnimatedIn(false);
+      });
+      return () => window.cancelAnimationFrame(exitId);
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const enterId = window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => setMenuAnimatedIn(true));
+        setMenuAnimatedIn(true);
       });
       return () => window.cancelAnimationFrame(enterId);
     }
-    setMenuAnimatedIn(false);
+
+    const enterId = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setMenuAnimatedIn(true));
+    });
+    return () => window.cancelAnimationFrame(enterId);
   }, [isMenuOpen, menuAnimationActive]);
 
   function closeAndFocusTrigger() {

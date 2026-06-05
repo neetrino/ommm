@@ -130,7 +130,6 @@ export function CoachesPageCoachCard({
   specialization,
   bio,
   experienceYears,
-  imageIndex = 0,
   expanded,
   onToggleExpand,
 }: CoachesPageCoachCardProps) {
@@ -163,18 +162,20 @@ export function CoachesPageCoachCard({
       return;
     }
 
-    setPhotoHoverSuppressed(true);
     const lockMs = collapseHoverLockMs();
     if (lockMs === 0) {
-      setPhotoHoverSuppressed(false);
       return;
     }
 
+    const startTimer = window.setTimeout(() => {
+      setPhotoHoverSuppressed(true);
+    }, 0);
     const timerId = window.setTimeout(() => {
       setPhotoHoverSuppressed(false);
     }, lockMs);
 
     return () => {
+      window.clearTimeout(startTimer);
       window.clearTimeout(timerId);
     };
   }, [expanded]);

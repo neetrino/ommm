@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
@@ -364,17 +364,13 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
-  const [expandedId, setExpandedId] = useState<string | null>(() =>
-    resolveExpandedCategoryId(categories, categoryParam),
+  const expandedId = useMemo(
+    () => resolveExpandedCategoryId(categories, categoryParam),
+    [categories, categoryParam],
   );
-
-  useEffect(() => {
-    setExpandedId(resolveExpandedCategoryId(categories, categoryParam));
-  }, [categories, categoryParam]);
 
   const updateExpandedCategory = useCallback(
     (categoryId: string | null) => {
-      setExpandedId(categoryId);
       const params = new URLSearchParams(searchParams.toString());
       if (categoryId !== null) {
         params.set("category", categoryId);
