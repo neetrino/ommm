@@ -10,7 +10,7 @@ import {
 } from "@/components/marketing/marketing-header-icons";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobile-menu-modal";
-import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
+import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
 import {
   isCompactMarketingHeaderLocale,
   marketingHeaderActionsClass,
@@ -159,17 +159,14 @@ export function MarketingSiteHeader({
                 )}
               />
               {account ? (
-                <Link
-                  href={account.href}
-                  className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                  aria-label={account.displayName}
-                  onClick={() => setOpen(false)}
-                >
-                  <MemberProfileAvatar
-                    initials={account.initials}
-                    imageSrc={account.imageSrc}
-                  />
-                </Link>
+                <MarketingAccountAvatarMenu
+                  initials={account.initials}
+                  imageSrc={account.imageSrc}
+                  displayName={account.displayName}
+                  profileHref={account.href}
+                  triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  onAfterSelect={() => setOpen(false)}
+                />
               ) : (
                 <Link
                   href="/login"
@@ -236,17 +233,14 @@ export function MarketingSiteHeader({
               )}
             />
             {account ? (
-              <Link
-                href={account.href}
-                className={marketingHeaderIconAccountClass()}
-                aria-label={account.displayName}
-                onClick={() => setOpen(false)}
-              >
-                <MemberProfileAvatar
-                  initials={account.initials}
-                  imageSrc={account.imageSrc}
-                />
-              </Link>
+              <MarketingAccountAvatarMenu
+                initials={account.initials}
+                imageSrc={account.imageSrc}
+                displayName={account.displayName}
+                profileHref={account.href}
+                triggerClassName={marketingHeaderIconAccountClass()}
+                onAfterSelect={() => setOpen(false)}
+              />
             ) : (
               <Link
                 href="/login"

@@ -144,7 +144,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 }
 
 export function marketingHeaderMobileActionsClass(): string {
-  return "flex shrink-0 items-center gap-[6px]";
+  return "flex shrink-0 items-center gap-[6px] overflow-visible";
 }
 
 export function marketingHeaderMobileBrandLinkClass(): string {
@@ -191,12 +191,12 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
 }
 
 export function marketingHeaderActionsClass(): string {
-  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4";
+  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 overflow-visible lg:gap-2 nav-desktop:gap-3 sm:gap-4";
 }
 
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
 export function marketingHeaderAuthClusterClass(): string {
-  return "flex shrink-0 items-center gap-1";
+  return "flex shrink-0 items-center gap-1 overflow-visible";
 }
 
 /** Burger menu nav links — solid white panel; always en-sized type (panel has room). */

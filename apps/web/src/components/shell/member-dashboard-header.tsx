@@ -97,25 +97,29 @@ export function MemberDashboardHeader({
         ) : null}
         <LanguageSwitcher context="dashboard" dashboardVariant="member" />
         <div className="ommm-admin-account-cluster">
-          <Link
-            href="/user/profile"
-            className="ommm-admin-profile-chip"
-            aria-label={`${profile.displayName}, ${roleLabel}`}
-          >
-            <MemberProfileAvatar
-              initials={profile.initials}
-              imageSrc={profile.imageSrc}
-            />
-            <span className="hidden min-w-0 max-w-[9rem] flex-col text-left leading-tight sm:flex md:max-w-[11rem]">
-              <span className="truncate text-xs font-semibold text-sage-800">
-                {profile.displayName}
+          <div className="ommm-admin-account-hover-anchor">
+            <Link
+              href="/user/profile"
+              className="ommm-admin-profile-chip"
+              aria-label={`${profile.displayName}, ${roleLabel}`}
+            >
+              <MemberProfileAvatar
+                initials={profile.initials}
+                imageSrc={profile.imageSrc}
+              />
+              <span className="hidden min-w-0 max-w-[9rem] flex-col text-left leading-tight sm:flex md:max-w-[11rem]">
+                <span className="truncate text-xs font-semibold text-sage-800">
+                  {profile.displayName}
+                </span>
+                <span className="truncate text-[10px] font-medium text-sage-500">
+                  {roleLabel}
+                </span>
               </span>
-              <span className="truncate text-[10px] font-medium text-sage-500">
-                {roleLabel}
-              </span>
-            </span>
-          </Link>
-          <LogoutButton className="ommm-admin-account-logout" />
+            </Link>
+            <div className="ommm-admin-account-logout-popover">
+              <LogoutButton className="ommm-admin-account-logout" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

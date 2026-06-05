@@ -505,6 +505,34 @@ html {
     @apply inline-flex shrink-0 items-center gap-1 rounded-full border border-white/70 bg-white/85 p-1 shadow-sm backdrop-blur-sm;
   }
 
+  .ommm-admin-account-hover-anchor {
+    @apply relative inline-flex items-center gap-1;
+  }
+
+  .ommm-admin-account-logout-popover {
+    @apply shrink-0;
+  }
+
+  @media (min-width: 1024px) {
+    .ommm-admin-account-hover-anchor {
+      @apply gap-0;
+    }
+
+    .ommm-admin-account-logout-popover {
+      @apply pointer-events-none absolute left-1/2 top-full z-30 -translate-x-1/2 pt-1.5 opacity-0;
+      transform: translateX(-50%) translateY(-4px);
+      transition:
+        opacity 150ms ease,
+        transform 150ms ease;
+    }
+
+    .ommm-admin-account-hover-anchor:hover .ommm-admin-account-logout-popover,
+    .ommm-admin-account-hover-anchor:focus-within .ommm-admin-account-logout-popover {
+      @apply pointer-events-auto opacity-100;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
   .ommm-admin-account-logout {
     @apply inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[14px] border border-white/70 bg-white text-sage-700 transition-[background-color,border-color,box-shadow,color,transform];
     @apply hover:border-white hover:bg-red-50 hover:text-red-800 hover:shadow-sm active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
@@ -512,6 +540,75 @@ html {
 
   .ommm-admin-profile-avatar {
     @apply flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(212,163,115,0.2)] text-xs font-semibold text-sage-800;
+  }
+
+  .ommm-marketing-account-menu {
+    @apply inline-flex shrink-0 overflow-visible;
+  }
+
+  .ommm-marketing-account-menu[data-open="true"] > button {
+    @apply bg-white/14 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)];
+  }
+
+  .ommm-marketing-account-menu-panel-floating {
+    /* Keep in sync with MARKETING_ACCOUNT_MENU_GAP_PX */
+    --marketing-account-menu-gap: 8px;
+
+    @apply flex flex-col items-center;
+    gap: var(--marketing-account-menu-gap);
+    pointer-events: auto;
+  }
+
+  .ommm-marketing-account-menu-action {
+    @apply inline-flex h-[26px] w-[26px] min-h-[26px] min-w-[26px] shrink-0 cursor-pointer select-none items-center justify-center rounded-full border border-white/70 bg-white text-sage-800 backdrop-blur-md;
+    @apply tablet:h-8 tablet:w-8 tablet:min-h-8 tablet:min-w-8 lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-11 nav-desktop:w-11 nav-desktop:min-h-11 nav-desktop:min-w-11;
+    @apply shadow-[0_8px_22px_-10px_rgba(45,40,35,0.38),inset_0_1px_0_rgba(255,255,255,0.95)];
+    @apply transition-[background-color,border-color,box-shadow,color,transform] duration-300 ease-[cubic-bezier(0.34,1.35,0.64,1)];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent;
+    @apply disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
+    touch-action: manipulation;
+  }
+
+  @media (hover: hover) {
+    .ommm-marketing-account-menu-profile:hover {
+      @apply border-white bg-white text-sage-900 shadow-[0_14px_30px_-12px_rgba(45,40,35,0.45),inset_0_1px_0_#fff];
+    }
+
+    .ommm-marketing-account-menu-logout:hover {
+      @apply border-red-100/90 bg-red-50 text-red-800 shadow-[0_14px_30px_-12px_rgba(127,29,29,0.28),inset_0_1px_0_#fff];
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .ommm-marketing-account-menu-profile:hover {
+      transform: translateY(-4px) scale(1.08) rotate(-5deg);
+    }
+
+    .ommm-marketing-account-menu-logout:hover {
+      transform: translateY(-4px) scale(1.08) rotate(5deg);
+    }
+
+    .ommm-marketing-account-menu-profile:hover .ommm-marketing-account-menu-action-icon {
+      transform: scale(1.12) rotate(6deg);
+    }
+
+    .ommm-marketing-account-menu-logout:hover svg {
+      transform: scale(1.12) translateX(1px);
+    }
+  }
+
+  .ommm-marketing-account-menu-action:active {
+    @apply shadow-[0_6px_16px_-10px_rgba(45,40,35,0.34),inset_0_1px_0_rgba(255,255,255,0.9)];
+    transform: translateY(0) scale(0.94);
+  }
+
+  .ommm-marketing-account-menu-logout:active {
+    @apply bg-red-100/90 text-red-900;
+  }
+
+  .ommm-marketing-account-menu-action-icon {
+    @apply h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.35,0.64,1)];
+    @apply tablet:h-5 tablet:w-5 lg:h-[1.375rem] lg:w-[1.375rem] nav-desktop:h-6 nav-desktop:w-6;
   }
 
   .ommm-admin-menu-button {

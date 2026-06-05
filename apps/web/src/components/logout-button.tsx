@@ -10,6 +10,7 @@ const POST_LOGOUT_PATH = "/";
 
 type LogoutButtonProps = {
   className?: string;
+  iconClassName?: string;
 };
 
 function LogoutGlyph({ className }: { className?: string }) {
@@ -48,7 +49,13 @@ function LogoutPendingOverlay({ label }: { label: string }) {
   );
 }
 
-export function LogoutButton({ className }: LogoutButtonProps) {
+const DEFAULT_LOGOUT_ICON_CLASS =
+  "inline-block h-5 w-5 shrink-0 align-middle";
+
+export function LogoutButton({
+  className,
+  iconClassName,
+}: LogoutButtonProps) {
   const t = useTranslations("common");
   const locale = useLocale();
   const router = useRouter();
@@ -91,7 +98,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
             aria-hidden
           />
         ) : (
-          <LogoutGlyph className="inline-block h-5 w-5 shrink-0 align-middle" />
+          <LogoutGlyph className={iconClassName ?? DEFAULT_LOGOUT_ICON_CLASS} />
         )}
       </button>
     </>
