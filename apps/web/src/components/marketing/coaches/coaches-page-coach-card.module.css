@@ -1,15 +1,28 @@
 .card {
-  position: relative;
   display: block;
   width: 100%;
+}
+
+/* Figma 428×617 — shared pixel height from grid; aspect-ratio is SSR fallback. */
+.cardAspect {
+  position: relative;
+  width: 100%;
   aspect-ratio: 428 / 617;
-  min-height: clamp(22rem, 72vw, var(--coaches-page-card-design-height));
+}
+
+.cardAspect[data-sized="true"] {
+  aspect-ratio: auto;
+}
+
+.cardStage {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   border-radius: var(--coaches-page-card-radius);
   transition: box-shadow 220ms ease;
 }
 
-.cardExpanded {
+.cardExpanded .cardStage {
   box-shadow: 0 1rem 2.25rem -1.25rem rgba(45, 55, 60, 0.22);
 }
 
@@ -414,21 +427,5 @@
 
   .expandPanelExpanded .expandPanelBackdrop {
     background-color: var(--coaches-page-card-expand-glass-fill-expanded);
-  }
-}
-
-@media (max-width: 743px) {
-  .card {
-    /* Safari: min-height + aspect-ratio diverges from Chrome DevTools. */
-    min-height: unset;
-  }
-
-  .expandPanelExpanded {
-    height: var(--coaches-page-card-expand-panel-height);
-    min-height: var(--coaches-page-card-expand-panel-height);
-  }
-
-  .expandPanelExpanded .expandPanelBody {
-    min-height: var(--coaches-page-card-expand-panel-height);
   }
 }
