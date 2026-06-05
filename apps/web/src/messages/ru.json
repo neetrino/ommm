@@ -900,12 +900,19 @@
       "title": "Контакты",
       "lede": "Напишите команде студии. Мы читаем каждое сообщение и отвечаем по телефону или email, когда это уместно.",
       "studioHeading": "Студия",
+      "formHeading": "Отправить сообщение",
+      "replyCallout": "Обычно отвечаем в течение одного рабочего дня.",
+      "securityNote": "Ваши данные в безопасности и никогда не передаются третьим лицам.",
       "phone": "Телефон",
       "email": "Email",
       "whatsApp": "WhatsApp",
       "chatWhatsApp": "Чат в WhatsApp",
       "address": "Адрес",
       "hours": "Часы работы",
+      "fallbackPhone": "+374 000 00 00 00",
+      "fallbackEmail": "hello@ommm.am",
+      "fallbackAddress": "Ереван, Армения",
+      "fallbackHours": "Пн – Сб / 8:00 – 21:00",
       "mapHeading": "Карта"
     },
     "explore": {
@@ -2730,6 +2737,7 @@
     "contact": {
       "name": "Имя",
       "phone": "Телефон",
+      "email": "Email",
       "subject": "Тема",
       "message": "Сообщение",
       "send": "Отправить",

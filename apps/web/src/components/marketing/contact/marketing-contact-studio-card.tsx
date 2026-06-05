@@ -1,0 +1,122 @@
+import type { CSSProperties } from "react";
+import Image from "next/image";
+import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
+import {
+  CONTACT_PAGE_LAYOUT,
+  CONTACT_PAGE_SURFACE,
+} from "@/components/marketing/contact/contact-page-tokens";
+import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
+
+type ContactStudioRow = {
+  key: string;
+  iconSrc: string;
+  label: string;
+  value: string;
+  href?: string;
+};
+
+type MarketingContactStudioCardProps = {
+  heading: string;
+  rows: ContactStudioRow[];
+  replyCallout: string;
+  socialLinks: { label: string; url: string }[];
+};
+
+function ContactStarIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={styles.calloutIcon}
+      aria-hidden
+    >
+      <path
+        d="M8 1.5L9.4 5.8H14L10.3 8.4L11.7 12.7L8 10.1L4.3 12.7L5.7 8.4L2 5.8H6.6L8 1.5Z"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+const CARD_STYLE = {
+  "--contact-card-bg": CONTACT_PAGE_SURFACE.cardBackground,
+  "--contact-card-shadow": CONTACT_PAGE_SURFACE.cardShadow,
+  "--contact-card-radius": `${CONTACT_PAGE_LAYOUT.cardRadiusPx}px`,
+  "--contact-card-padding": `${CONTACT_PAGE_LAYOUT.cardPaddingPx}px`,
+  "--contact-card-gap": `${CONTACT_PAGE_LAYOUT.cardGapPx}px`,
+  "--contact-icon-size": `${CONTACT_PAGE_LAYOUT.iconSizePx}px`,
+  "--contact-icon-bg": CONTACT_PAGE_SURFACE.iconBackground,
+  "--contact-callout-radius": `${CONTACT_PAGE_LAYOUT.calloutRadiusPx}px`,
+  "--contact-callout-bg": CONTACT_PAGE_SURFACE.calloutBackground,
+  "--contact-heading-color": CONTACT_PAGE_SURFACE.headingColor,
+  "--contact-label-color": CONTACT_PAGE_SURFACE.labelColor,
+  "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
+} as CSSProperties;
+
+/** Studio contact details card — phone, email, address, hours. */
+export function MarketingContactStudioCard({
+  heading,
+  rows,
+  replyCallout,
+  socialLinks,
+}: MarketingContactStudioCardProps) {
+  return (
+    <article className={styles.card} style={CARD_STYLE}>
+      <h2 className={styles.heading}>{heading}</h2>
+      <ul className={styles.list}>
+        {rows.map((row) => (
+          <li key={row.key} className={styles.row}>
+            <span className={styles.iconWrap}>
+              <Image
+                src={row.iconSrc}
+                alt=""
+                width={CONTACT_PAGE_LAYOUT.iconSizePx}
+                height={CONTACT_PAGE_LAYOUT.iconSizePx}
+                className={styles.icon}
+                unoptimized
+                aria-hidden
+              />
+            </span>
+            <div className={styles.rowBody}>
+              <span className={styles.label}>{row.label}</span>
+              {row.href !== undefined ? (
+                <a href={row.href} className={styles.valueLink}>
+                  {row.value}
+                </a>
+              ) : (
+                <span className={styles.value}>{row.value}</span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className={styles.callout}>
+        <ContactStarIcon />
+        <p className={styles.calloutText}>{replyCallout}</p>
+      </div>
+      {socialLinks.length > 0 ? (
+        <ul className={styles.socialList}>
+          {socialLinks.map((link) => (
+            <li key={link.url}>
+              <a
+                href={link.url}
+                className={styles.socialLink}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </article>
+  );
+}
+
+export { CONTACT_PAGE_ASSETS };

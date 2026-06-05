@@ -900,12 +900,19 @@
       "title": "Contact",
       "lede": "Send a message to the studio team. We read every note and reply by phone or email when appropriate.",
       "studioHeading": "Studio",
+      "formHeading": "Send a message",
+      "replyCallout": "We usually reply within 1 business day.",
+      "securityNote": "Your information is safe and will never be shared.",
       "phone": "Phone",
       "email": "Email",
       "whatsApp": "WhatsApp",
       "chatWhatsApp": "Chat on WhatsApp",
       "address": "Address",
       "hours": "Hours",
+      "fallbackPhone": "+374 000 00 00 00",
+      "fallbackEmail": "hello@ommm.am",
+      "fallbackAddress": "Yerevan, Armenia",
+      "fallbackHours": "Mon – Sat / 8:00 – 21:00",
       "mapHeading": "Map"
     },
     "explore": {
@@ -2841,6 +2848,7 @@
     "contact": {
       "name": "Name",
       "phone": "Phone",
+      "email": "Email",
       "subject": "Subject",
       "message": "Message",
       "send": "Send",
