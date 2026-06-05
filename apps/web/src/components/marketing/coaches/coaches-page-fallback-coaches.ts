@@ -11,6 +11,16 @@ export type CoachesPageSlideCopy = {
 const PLACEHOLDER_CARD_COUNT =
   COACHES_PAGE_LAYOUT.gridColumns * COACHES_PAGE_LAYOUT.gridRows;
 
+/** Figma 3×2 grid slot count (`62:2206`). */
+export const COACHES_PAGE_GRID_SLOT_COUNT = PLACEHOLDER_CARD_COUNT;
+
+/** Keeps at most six cards for the Figma 3×2 grid (`62:2206`). */
+export function limitCoachesPageGridCards(
+  coaches: readonly CoachCardData[],
+): CoachCardData[] {
+  return coaches.slice(0, COACHES_PAGE_GRID_SLOT_COUNT);
+}
+
 function splitCoachName(fullName: string): { name: string | null; lastName: string | null } {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {

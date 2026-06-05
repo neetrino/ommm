@@ -13,12 +13,8 @@ export default async function PackagesMarketingPage({
   const m = await getTranslations({ locale, namespace: "marketing" });
 
   return (
-    <MarketingPageFrame
-      title={m("packagesPageTitle")}
-      lede={m("packagesPageLead")}
-      extendToFooter
-    >
-      <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
+    <MarketingPageFrame title={m("packagesPageTitle")} lede={m("packagesPageLead")}>
+      <Suspense fallback={<MarketingPageContentSkeleton cards={5} />}>
         <MarketingPackagesPageContent locale={locale} />
       </Suspense>
     </MarketingPageFrame>

@@ -1,16 +1,18 @@
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
-import { HomeCoachesSectionDeferred, HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
 import {
   HomeClassesSectionDeferred,
+  HomeCoachesSectionDeferred,
   HomePlansSectionDeferred,
 } from "@/components/marketing/home/home-deferred-server-sections";
+import { HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
 import homePageStyles from "@/components/marketing/home/marketing-home-page.module.css";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
+import { MARKETING_HOME_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { routing } from "@/i18n/routing";
 
@@ -26,6 +28,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
 
   return (
     <div
+      {...{ [MARKETING_HOME_PAGE_MARKER]: "" }}
       className={`${marketingMontserrat.variable} ${homePageStyles.page} flex-1`}
       style={
         {
@@ -51,7 +54,7 @@ export default async function MarketingHomePage({ params }: PageProps) {
           mountMarginPx={HOME_LAZY_SECTION.mountMarginPx}
           placeholderClassName={HOME_LAZY_SECTION.placeholders.coaches}
         >
-          <HomeCoachesSectionDeferred />
+          <HomeCoachesSectionDeferred locale={locale} />
         </ProgressiveRevealSection>
 
         <ProgressiveRevealSection
@@ -68,7 +71,8 @@ export default async function MarketingHomePage({ params }: PageProps) {
         className={homePageStyles.galleryFooterSeam}
         style={
           {
-            "--home-gallery-footer-seam-bg": HOME_PAGE_SURFACE.coachesGradientTo,
+            "--home-gallery-seam-bg": HOME_PAGE_SURFACE.eventsGradientFrom,
+            "--home-footer-wrap-bg": HOME_PAGE_SURFACE.eventsGradientFrom,
           } as CSSProperties
         }
       >

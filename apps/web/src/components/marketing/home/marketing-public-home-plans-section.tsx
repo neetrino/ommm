@@ -42,7 +42,7 @@ export async function MarketingPublicHomePlansSection({
     guestCount: (count) => t("planCardGuestCount", { count }),
     ctaAria: (planName) => t("planCardCtaAria", { planName }),
     categoryPackages: (count) => t("planCardCategoryPackages", { count }),
-    priceFrom: (amount) => t("planCardPriceFrom", { amount }),
+    priceFromPrefix: t("planCardPriceFromPrefix"),
   });
 
   const mobileStyle = {

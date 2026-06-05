@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import { PublicPackageCategoryCards } from "@/components/marketing/packages/public-package-category-cards";
+import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
+import { buildPackagesPageAccordionCategories } from "@/components/marketing/packages/packages-page-category-data";
+import { PackagesPageAccordion } from "@/components/marketing/packages/packages-page-accordion";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
 import {
@@ -16,52 +18,27 @@ export async function MarketingPackagesPageContent({
 }: MarketingPackagesPageContentProps) {
   const m = await getTranslations({ locale, namespace: "marketing" });
   const res = await fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans");
-  const categories = res.ok
+  const apiCategories = res.ok
     ? groupVisiblePublicPackageCategories(
         res.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
       )
     : [];
 
-  if (!res.ok) {
-    return (
-      <p className="app-alert-warn mt-12" role="status">
-        {m("packagesError")}
-      </p>
-    );
-  }
+  const categories = buildPackagesPageAccordionCategories(apiCategories, locale, {
+    priceFromPrefix: m("packagesCardPriceFromPrefix"),
+  });
 
   return (
-    <>
-      <div className="mt-12">
-        <PublicPackageCategoryCards locale={locale} categories={categories} />
+    <div className={`w-full min-w-0 ${cardStyles.packagesPageRoot}`} data-packages-accordion="">
+      {!res.ok ? (
+        <p className="app-alert-warn mb-6" role="status">
+          {m("packagesError")}
+        </p>
+      ) : null}
+      <div className={cardStyles.packagesAccordionScroll}>
+        <PackagesPageAccordion locale={locale} categories={categories} />
       </div>
-      <section className="mt-16 max-w-3xl">
-        <h2 className="ommm-h2 text-sage-800">{m("packagesFaqTitle")}</h2>
-        <dl className="mt-6 space-y-6 text-sm text-sage-700">
-          <div>
-            <dt className="font-semibold text-sage-800">
-              {m("packagesFaqPauseQuestion")}
-            </dt>
-            <dd className="mt-1 text-sage-600">{m("packagesFaqPauseAnswer")}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-sage-800">
-              {m("packagesFaqBillingQuestion")}
-            </dt>
-            <dd className="mt-1 text-sage-600">
-              {m("packagesFaqBillingAnswer")}
-            </dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-sage-800">
-              {m("packagesFaqWaitlistQuestion")}
-            </dt>
-            <dd className="mt-1 text-sage-600">
-              {m("packagesFaqWaitlistAnswer")}
-            </dd>
-          </div>
-        </dl>
-      </section>
-    </>
+      <p className="mt-8 text-center text-xs text-sage-500">{m("packagesLoginHint")}</p>
+    </div>
   );
 }

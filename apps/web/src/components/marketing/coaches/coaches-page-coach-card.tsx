@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -8,9 +8,10 @@ import {
   type CoachCardUser,
 } from "@/components/coaches/coach-card-display";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import { useCoachesPageCardHeightPx } from "@/components/marketing/coaches/coaches-page-card-height-context";
 import { COACHES_PAGE_CARD } from "@/components/marketing/coaches/coaches-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { firstRowGridImageProps } from "@/lib/image-loading-props";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 import styles from "@/components/marketing/coaches/coaches-page-coach-card.module.css";
 
 type CoachesPageCoachCardProps = {
@@ -81,14 +82,18 @@ function cardInsetPercent(valuePx: number, basePx: number): string {
 
 function buildCardStyle(): CSSProperties {
   const card = COACHES_PAGE_CARD;
+  const nameFontSize = `clamp(${card.nameFontSizeMinRem}rem, ${card.nameFontSizePreferredVw}vw, ${card.nameFontSizeMaxRem}rem)`;
   return {
     "--coaches-page-card-surface": card.surface,
+    "--coaches-page-card-surface-hover": card.surfaceHover,
+    "--coaches-page-card-photo-hover-scale": String(card.photoHoverScale),
+    "--coaches-page-card-photo-hover-lift": `${card.photoHoverLiftPercent}%`,
+    "--coaches-page-card-photo-expand-scale": String(card.photoExpandScale),
     "--coaches-page-card-radius": `${card.radiusPx}px`,
     "--coaches-page-card-name-color": card.nameColor,
     "--coaches-page-card-role-color": card.roleColor,
     "--coaches-page-card-bottom-bar-radius": `${card.bottomBarRadiusPx}px`,
     "--coaches-page-card-bottom-bar-height": `${card.bottomBarHeightPx}px`,
-    "--coaches-page-card-design-height": `${card.designHeightPx}px`,
     "--coaches-page-card-expand-panel-height": `${card.expandPanelMinHeightPx}px`,
     "--coaches-page-card-expand-panel-padding": `${card.expandPanelPaddingPx}px`,
     "--coaches-page-card-expand-trigger-inset": `${card.expandTriggerInsetPx}px`,
@@ -103,11 +108,21 @@ function buildCardStyle(): CSSProperties {
     "--coaches-page-card-name-left": cardInsetPercent(card.nameInsetLeftPx, card.designWidthPx),
     "--coaches-page-card-photo-top": cardInsetPercent(card.photoInsetTopPx, card.designHeightPx),
     "--coaches-page-card-photo-left": cardInsetPercent(card.photoInsetLeftPx, card.designWidthPx),
+    "--coaches-page-card-name-font-size": nameFontSize,
+    "--coaches-page-card-name-max-lines": String(card.nameMaxLines),
   } as CSSProperties;
 }
 
 function ExpandPanelBody({ children }: { children: ReactNode }) {
   return <div className={styles.expandPanelBody}>{children}</div>;
+}
+
+function collapseHoverLockMs(): number {
+  if (typeof window === "undefined") {
+    return COACHES_PAGE_CARD.photoCollapseHoverLockMs;
+  }
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return reducedMotion ? 0 : COACHES_PAGE_CARD.photoCollapseHoverLockMs;
 }
 
 export function CoachesPageCoachCard({
@@ -133,72 +148,110 @@ export function CoachesPageCoachCard({
   const expandLabel = t("coachesCardExpandAria", { name: displayName });
   const collapseLabel = t("coachesCardCollapseAria", { name: displayName });
   const toggleLabel = expanded ? collapseLabel : expandLabel;
+  const [photoHoverSuppressed, setPhotoHoverSuppressed] = useState(false);
+  const wasExpandedRef = useRef(expanded);
+  const heightPx = useCoachesPageCardHeightPx();
+
+  const aspectStyle =
+    heightPx != null ? ({ height: `${heightPx}px` } as CSSProperties) : undefined;
+
+  useEffect(() => {
+    const wasExpanded = wasExpandedRef.current;
+    wasExpandedRef.current = expanded;
+
+    if (!wasExpanded || expanded) {
+      return;
+    }
+
+    setPhotoHoverSuppressed(true);
+    const lockMs = collapseHoverLockMs();
+    if (lockMs === 0) {
+      setPhotoHoverSuppressed(false);
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setPhotoHoverSuppressed(false);
+    }, lockMs);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [expanded]);
 
   return (
     <article
-      className={`${marketingMontserrat.variable} ${styles.card} ${expanded ? styles.cardExpanded : ""}`}
+      className={`${marketingMontserrat.variable} ${styles.card} ${expanded ? styles.cardExpanded : ""} ${photoHoverSuppressed ? styles.cardPhotoHoverSuppressed : ""}`}
       style={buildCardStyle()}
     >
-      <div className={styles.cardSurface} aria-hidden />
+      <div
+        className={styles.cardAspect}
+        data-sized={heightPx != null ? "true" : undefined}
+        style={aspectStyle}
+      >
+        <div className={styles.cardStage}>
+          <div className={styles.cardSurface} aria-hidden />
 
-      <div className={styles.photoWrap} aria-hidden>
-        <div className={styles.photoInner}>
-          <div className={styles.photoFrame}>
-            <div className={styles.photoCrop}>
-              <Image
-                src={imageSrc}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
-                className="object-cover"
-                style={{ objectPosition: "42% 18%" }}
-                {...firstRowGridImageProps(imageIndex)}
-              />
+          <div className={styles.photoWrap} aria-hidden>
+            <div className={styles.photoInner}>
+              <div className={styles.photoFrame}>
+                <div className={styles.photoCrop}>
+                  <Image
+                    src={imageSrc}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 28vw, (min-width: 768px) 42vw, 88vw"
+                    className="object-cover"
+                    style={{ objectPosition: "42% 18%" }}
+                    {...aboveFoldImageProps()}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className={styles.header}>
-        <p className={styles.name}>{displayName}</p>
-        <p className={styles.role}>{roleLine}</p>
-      </div>
+          <div className={styles.header}>
+            <p className={styles.name}>{displayName}</p>
+            <p className={styles.role}>{roleLine}</p>
+          </div>
 
-      <div
-        className={`${styles.expandPanel} ${expanded ? styles.expandPanelExpanded : styles.expandPanelCollapsed}`}
-      >
-        <span aria-hidden className={styles.expandPanelBackdrop} />
-        <span aria-hidden className={styles.expandPanelGlassRadial} />
-        <span aria-hidden className={styles.expandPanelGlassLinear} />
-        <span aria-hidden className={styles.expandPanelGlassBorder} />
-        <ExpandPanelBody>
-          {expanded ? (
-            <>
-              <div className={styles.expandHeader}>
-                {experienceText ? (
-                  <p className={styles.experience}>{experienceText}</p>
-                ) : (
-                  <span aria-hidden />
-                )}
+          <div
+            className={`${styles.expandPanel} ${expanded ? styles.expandPanelExpanded : styles.expandPanelCollapsed}`}
+          >
+            <span aria-hidden className={styles.expandPanelBackdrop} />
+            <span aria-hidden className={styles.expandPanelGlassRadial} />
+            <span aria-hidden className={styles.expandPanelGlassLinear} />
+            <span aria-hidden className={styles.expandPanelGlassBorder} />
+            <ExpandPanelBody>
+              {expanded ? (
+                <>
+                  <div className={styles.expandHeader}>
+                    {experienceText ? (
+                      <p className={styles.experience}>{experienceText}</p>
+                    ) : (
+                      <span aria-hidden />
+                    )}
+                    <ExpandArrowButton
+                      direction="down"
+                      expanded={expanded}
+                      label={toggleLabel}
+                      onPress={onToggleExpand}
+                    />
+                  </div>
+                  <p className={styles.bio}>{bioText}</p>
+                </>
+              ) : (
                 <ExpandArrowButton
-                  direction="down"
+                  direction="up"
                   expanded={expanded}
                   label={toggleLabel}
                   onPress={onToggleExpand}
+                  variant="bar"
                 />
-              </div>
-              <p className={styles.bio}>{bioText}</p>
-            </>
-          ) : (
-            <ExpandArrowButton
-              direction="up"
-              expanded={expanded}
-              label={toggleLabel}
-              onPress={onToggleExpand}
-              variant="bar"
-            />
-          )}
-        </ExpandPanelBody>
+              )}
+            </ExpandPanelBody>
+          </div>
+        </div>
       </div>
     </article>
   );

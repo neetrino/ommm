@@ -5,9 +5,9 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Image from "next/image";
 import styles from "@/components/marketing/home/featured-coach-slide-card-mobile.module.css";
 import type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
+import { resolveCoachSlidePortraitSrc } from "@/components/marketing/home/home-featured-coach-slides";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 type FeaturedCoachSlideCardMobileProps = {
   slide: CoachSlideCopy;
@@ -54,6 +54,7 @@ export function FeaturedCoachSlideCardMobile({
   instantCarouselSnap = false,
 }: FeaturedCoachSlideCardMobileProps) {
   const reduceMotion = usePrefersReducedMotion();
+  const portraitSrc = resolveCoachSlidePortraitSrc(slide);
 
   const y = "0rem";
 
@@ -100,12 +101,13 @@ export function FeaturedCoachSlideCardMobile({
             <div className={styles.imageFlip}>
               <div className={styles.imageCrop}>
                 <Image
-                  src={HOME_SECTION_ASSETS.coachPortrait}
+                  src={portraitSrc}
                   alt={slide.imageAlt}
                   fill
                   sizes="60vw"
                   className={styles.image}
-                  {...belowFoldImageProps()}
+                  style={{ objectPosition: "42% 18%" }}
+                  {...aboveFoldImageProps()}
                 />
               </div>
             </div>

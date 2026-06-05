@@ -17,6 +17,7 @@ export type OmmSelectDropdownProps<T extends string> = {
   triggerClassName?: string;
   menuClassName?: string;
   wrapLabel?: boolean;
+  openOnHover?: boolean;
 };
 
 /** Converts `[value, label]` tuples into dropdown options. */
@@ -39,6 +40,7 @@ export function OmmSelectDropdown<T extends string>({
   triggerClassName,
   menuClassName,
   wrapLabel = false,
+  openOnHover = false,
 }: OmmSelectDropdownProps<T>) {
   const selected = options.find((option) => option.value === value);
   const triggerLabel = label ?? selected?.label ?? ariaLabel;
@@ -57,6 +59,7 @@ export function OmmSelectDropdown<T extends string>({
       triggerClassName={triggerClassName}
       menuClassName={menuClassName}
       wrapLabel={wrapLabel}
+      openOnHover={openOnHover}
     />
   );
 }

@@ -40,7 +40,7 @@
     "optionNames": {
       "hy": "Հայերեն",
       "en": "Անգլերեն",
-      "ru": "Ռուսերեն"
+      "ru": "Русский"
     }
   },
   "home": {
@@ -203,7 +203,7 @@
       "planCardSessionsCount": "{count, plural, one {# դաս} other {# դաս}}",
       "planCardGuestCount": "{count, plural, one {# հյուր} other {# հյուր}}",
       "planCardCategoryPackages": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
-      "planCardPriceFrom": "{amount}-ից",
+      "planCardPriceFromPrefix": "Սկսած",
       "planPopularBadge": "Հանրաճանաչ",
       "plansEmpty": "Փաթեթները կհայտնվեն այստեղ ադմին վահանակում հրապարակելուց հետո։",
       "plansLoadFailed": "Չհաջողվեց բեռնել փաթեթները ({status})։",
@@ -326,6 +326,11 @@
     "packagesSubscribeCta": "Բաժանորդագրվել",
     "packagesAccountCta": "Իմ փաթեթները",
     "packagesLoginHint": "Մուտք գործեք կամ ստեղծեք հաշիվ՝ բաժանորդագրվելու համար։",
+    "packagesTierSessionsLabel": "{count, plural, one {# դաս} other {# դաս}}",
+    "packagesTierSessionsUnlimited": "Անսահմանափակ դասեր",
+    "packagesTierPricePerSessionLabel": "Գին մեկ դասի համար",
+    "packagesTierDaysLimitLabel": "Վավերականության ժամկետ",
+    "packagesTierSelectAria": "Դիտել {name} փաթեթի մանրամասները",
     "packagesMemberHint": "Բաժանորդագրվեք՝ փաթեթն ձեր հաշվին ավելացնելու համար։",
     "packagesPeriodDays": "{days} օրյա վճարման ցիկլ",
     "packagesSessionsUnlimited": "Անսահմանափակ դասեր ժամանակաշրջանում",
@@ -336,6 +341,9 @@
     "packagesCategoryTierCount": "{count, plural, one {# տարբերակ} other {# տարբերակ}}",
     "packagesViewAllCta": "Դիտել բոլոր տարբերակները",
     "packagesViewDetailsHint": "Դիտել բոլոր տարբերակները",
+    "packagesDetailsCta": "Մանրամասներ",
+    "packagesAccordionCloseAria": "Փակել {name}-ի մանրամասները",
+    "packagesCardPriceFromPrefix": "Սկսած",
     "packagesBackToList": "Վերադառնալ փաթեթներ",
     "packagesOpenDetailsAria": "Դիտել {name} փաթեթի մանրամասները",
     "packagesDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
@@ -908,12 +916,19 @@
       "title": "Կապ",
       "lede": "Ուղարկեք հաղորդագրություն ստուդիայի թիմին։ Կարդում ենք յուրաքանչյուր նշում և պատասխանում ենք հեռախոսով կամ էլ. փոստով, երբ պետք է։",
       "studioHeading": "Ստուդիա",
+      "formHeading": "Ուղարկել հաղորդագրություն",
+      "replyCallout": "Սովորաբար պատասխանում ենք մեկ աշխատանքային օրվա ընթացքում։",
+      "securityNote": "Ձեր տվյալները ապահով են և երբեք չեն փոխանցվի երրորդ կողմերի։",
       "phone": "Հեռախոս",
       "email": "Էլ. փոստ",
       "whatsApp": "WhatsApp",
       "chatWhatsApp": "Զրույց WhatsApp-ում",
       "address": "Հասցե",
       "hours": "Ժամեր",
+      "fallbackPhone": "+374 000 00 00 00",
+      "fallbackEmail": "hello@ommm.am",
+      "fallbackAddress": "Երևան, Հայաստան",
+      "fallbackHours": "Երկ – Շբ / 8:00 – 21:00",
       "mapHeading": "Քարտեզ"
     },
     "explore": {
@@ -929,7 +944,6 @@
     "schedule": {
       "metaDescription": "Դիտեք դասերի ժամերը, զտիչները և ամրագրումը Ommm ստուդիայում։",
       "pageTitle": "Գտնել դաս",
-      "myAccount": "Իմ հաշիվը",
       "filterClassType": "Դասի տեսակ",
       "filterClassTypeAria": "Զտել ըստ դասի տեսակի",
       "filterInstructor": "Մարզիչ",
@@ -2763,6 +2777,7 @@
     "contact": {
       "name": "Անուն",
       "phone": "Հեռախոս",
+      "email": "Էլ. փոստ",
       "subject": "Թեմա",
       "message": "Հաղորդագրություն",
       "send": "Ուղարկել",

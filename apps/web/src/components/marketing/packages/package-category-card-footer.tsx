@@ -10,6 +10,9 @@ type PackageCategoryCardFooterProps = {
   secondaryHref: string;
   hint: string;
   onSubscribe?: () => void;
+  rootClassName?: string;
+  actionsClassName?: string;
+  hintClassName?: string;
 };
 
 export function PackageCategoryCardFooter({
@@ -19,12 +22,15 @@ export function PackageCategoryCardFooter({
   secondaryHref,
   hint,
   onSubscribe,
+  rootClassName,
+  actionsClassName,
+  hintClassName,
 }: PackageCategoryCardFooterProps) {
   const footerCtaClass = "ommm-package-card-footer-cta flex-1 text-center";
 
   return (
-    <div className="mt-8 border-t border-white/50 pt-6">
-      <div className="flex flex-col gap-3 sm:flex-row">
+    <div className={rootClassName ?? "mt-8 border-t border-white/50 pt-6"}>
+      <div className={actionsClassName ?? "flex flex-col gap-3 sm:flex-row"}>
         {audience === "member" ? (
           <button
             type="button"
@@ -49,7 +55,7 @@ export function PackageCategoryCardFooter({
           {secondaryLabel}
         </Link>
       </div>
-      <p className="mt-4 text-center text-xs text-sage-500">{hint}</p>
+      <p className={hintClassName ?? "mt-4 text-center text-xs text-sage-500"}>{hint}</p>
     </div>
   );
 }

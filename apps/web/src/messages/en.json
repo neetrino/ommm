@@ -38,9 +38,9 @@
     "switcherAria": "Interface language",
     "expandPicker": "Open language menu",
     "optionNames": {
-      "hy": "Armenian",
+      "hy": "Հայերեն",
       "en": "English",
-      "ru": "Russian"
+      "ru": "Русский"
     }
   },
   "home": {
@@ -191,7 +191,7 @@
       "planCardSessionsCount": "{count, plural, one {# session} other {# sessions}}",
       "planCardGuestCount": "{count, plural, one {# guest} other {# guests}}",
       "planCardCategoryPackages": "{count, plural, one {# package} other {# packages}}",
-      "planCardPriceFrom": "From {amount}",
+      "planCardPriceFromPrefix": "From",
       "planPopularBadge": "Popular",
       "plansEmpty": "Packages will appear here once they are published in the admin panel.",
       "plansLoadFailed": "Could not load packages ({status}).",
@@ -220,7 +220,7 @@
       "footerLegalNavAria": "Legal links",
       "footerPrivacy": "Privacy",
       "footerTerms": "Terms",
-      "footerRefund": "Refound",
+      "footerRefund": "Refund",
       "footerCopyrightPrefix": "COPYRIGHT ©2026 ",
       "footerCopyrightCompany": "NEETRINO IT COMPANY",
       "footerCopyrightSuffix": ". ALL RIGHTS RESERVED.",
@@ -315,6 +315,11 @@
     "packagesAccountCta": "Go to my packages",
     "packagesMemberHint": "Subscribe to add a package to your account.",
     "packagesLoginHint": "Log in or create an account to subscribe.",
+    "packagesTierSessionsLabel": "{count, plural, one {# Session} other {# Sessions}}",
+    "packagesTierSessionsUnlimited": "Unlimited sessions",
+    "packagesTierPricePerSessionLabel": "Price per session",
+    "packagesTierDaysLimitLabel": "Days limit",
+    "packagesTierSelectAria": "View {name} package details",
     "packagesPeriodDays": "{days}-day billing cycle",
     "packagesSessionsUnlimited": "Unlimited classes per period",
     "packagesSessionsCount": "{count} classes per period",
@@ -324,6 +329,9 @@
     "packagesCategoryTierCount": "{count, plural, one {# option} other {# options}}",
     "packagesViewAllCta": "View all options",
     "packagesViewDetailsHint": "View all options",
+    "packagesDetailsCta": "Details",
+    "packagesAccordionCloseAria": "Close {name} details",
+    "packagesCardPriceFromPrefix": "From",
     "packagesBackToList": "Back to packages",
     "packagesOpenDetailsAria": "View package details for {name}",
     "packagesDetailsCloseBackdrop": "Close package details",
@@ -900,12 +908,19 @@
       "title": "Contact",
       "lede": "Send a message to the studio team. We read every note and reply by phone or email when appropriate.",
       "studioHeading": "Studio",
+      "formHeading": "Send a message",
+      "replyCallout": "We usually reply within 1 business day.",
+      "securityNote": "Your information is safe and will never be shared.",
       "phone": "Phone",
       "email": "Email",
       "whatsApp": "WhatsApp",
       "chatWhatsApp": "Chat on WhatsApp",
       "address": "Address",
       "hours": "Hours",
+      "fallbackPhone": "+374 000 00 00 00",
+      "fallbackEmail": "hello@ommm.am",
+      "fallbackAddress": "Yerevan, Armenia",
+      "fallbackHours": "Mon – Sat / 8:00 – 21:00",
       "mapHeading": "Map"
     },
     "explore": {
@@ -921,7 +936,6 @@
     "schedule": {
       "metaDescription": "Browse class times, filters, and booking at Ommm studio.",
       "pageTitle": "Find a Class",
-      "myAccount": "My Account",
       "filterClassType": "Class Type",
       "filterClassTypeAria": "Filter by class type",
       "filterInstructor": "Instructor",
@@ -2866,6 +2880,7 @@
     "contact": {
       "name": "Name",
       "phone": "Phone",
+      "email": "Email",
       "subject": "Subject",
       "message": "Message",
       "send": "Send",

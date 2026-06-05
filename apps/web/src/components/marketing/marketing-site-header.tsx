@@ -28,6 +28,7 @@ import {
   marketingHeaderMobileRowInnerClass,
   marketingHeaderMobileRowWrapClass,
   marketingHeaderMobileRowWrapStyle,
+  MARKETING_MOBILE_HEADER,
   marketingHeaderNavClass,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
@@ -64,6 +65,11 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
   const elevated = useMarketingHeaderElevated(isMarketingHeroHeaderPath(marketingPath));
   const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const showMobileGlassPill = elevated && !open;
+  const mobileGlassRowStyle = {
+    ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
+    ["--marketing-mobile-scrolled-pill-bg" as string]:
+      MARKETING_MOBILE_HEADER.scrolledPillBackground,
+  };
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setOpen(false);
@@ -84,7 +90,7 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         <div
           className={`${marketingHeaderMobileRowWrapClass()} ${navPillStyles.mobileHeaderBar}`}
           data-glass-active={showMobileGlassPill ? "true" : "false"}
-          style={marketingHeaderMobileRowWrapStyle(showMobileGlassPill)}
+          style={mobileGlassRowStyle}
         >
           <div aria-hidden className={navPillStyles.mobileHeaderBarGloss} />
           <div className={`${marketingHeaderMobileRowInnerClass()} ${navPillStyles.mobileHeaderRow}`}>
@@ -168,19 +174,24 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
           data-elevated={elevated ? "true" : "false"}
         >
           <div aria-hidden className={navPillStyles.gloss} />
-          <div className={marketingHeaderNavLinksClass(compact)}>
-            {navLinks.map(({ href, key }) => (
-              <Link
-                key={href}
-                href={href}
-                className={marketingHeaderNavPillLinkClass(
-                  isActive(marketingPath, href),
-                  compact,
-                )}
-              >
-                {tNav(key)}
-              </Link>
-            ))}
+          <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
+            {navLinks.map(({ href, key }) => {
+              const linkActive = isActive(marketingPath, href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`${marketingHeaderNavPillLinkClass(linkActive, compact)} ${navPillStyles.desktopNavLink}`}
+                  aria-current={linkActive ? "page" : undefined}
+                >
+                  <span
+                    className={`${navPillStyles.desktopNavLinkText} ${linkActive ? navPillStyles.desktopNavLinkTextActive : ""}`}
+                  >
+                    {tNav(key)}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
@@ -208,13 +219,15 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
         </div>
       </div>
 
-      <MarketingMobileMenuModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        navLinks={navLinks}
-        marketingPath={marketingPath}
-        isActive={isActive}
-      />
+      {open ? (
+        <MarketingMobileMenuModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          navLinks={navLinks}
+          marketingPath={marketingPath}
+          isActive={isActive}
+        />
+      ) : null}
     </header>
   );
 }

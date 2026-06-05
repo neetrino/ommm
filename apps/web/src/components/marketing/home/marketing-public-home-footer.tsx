@@ -9,6 +9,7 @@ import {
   HOME_FOOTER_COPYRIGHT_COMPANY_HREF,
   HOME_FOOTER_FIGMA,
   HOME_FOOTER_FIGMA_POSITIONS,
+  HOME_FOOTER_INNER_MOBILE_LAYOUT,
   HOME_FOOTER_INNER_TABLET_LAYOUT,
   HOME_FOOTER_LAYOUT,
   HOME_FOOTER_LEGAL_LINKS,
@@ -18,6 +19,7 @@ import {
   HOME_FOOTER_SOCIAL_LINKS,
   type HomeFooterSurfaceVariant,
 } from "@/components/marketing/home/home-footer-section-tokens";
+import { MARKETING_CONTENT_MAX_WIDTH_PX } from "@/components/marketing/marketing-content-layout";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
@@ -35,47 +37,50 @@ function pct(value: number): string {
 function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSProperties {
   const pos = HOME_FOOTER_FIGMA_POSITIONS;
   const layout = HOME_FOOTER_LAYOUT;
-  const tabletLayout =
-    surfaceVariant === "inner" ? HOME_FOOTER_INNER_TABLET_LAYOUT : HOME_FOOTER_TABLET_LAYOUT;
+  const isInner = surfaceVariant === "inner";
+  const mobileLayout = isInner ? HOME_FOOTER_INNER_MOBILE_LAYOUT : HOME_FOOTER_MOBILE_LAYOUT;
+  const tabletLayout = isInner ? HOME_FOOTER_INNER_TABLET_LAYOUT : HOME_FOOTER_TABLET_LAYOUT;
   return {
     // --home-footer-wrap-bg: inherited from MarketingLayoutShell on home + inner routes.
     ["--home-footer-surface" as string]: HOME_FOOTER_FIGMA.surface,
     ["--home-footer-wrap-padding-top" as string]: HOME_FOOTER_LAYOUT.sectionPaddingTop,
-    ["--home-footer-mobile-overlap" as string]: HOME_FOOTER_MOBILE_LAYOUT.galleryOverlap,
-    ["--home-footer-mobile-wrap-padding-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.wrapPaddingTop,
+    ["--home-footer-mobile-overlap" as string]: mobileLayout.galleryOverlap,
+    ["--home-footer-mobile-wrap-padding-top" as string]: mobileLayout.wrapPaddingTop,
     ["--home-footer-tablet-overlap" as string]: tabletLayout.galleryOverlap,
     ["--home-footer-tablet-wrap-padding-top" as string]: tabletLayout.wrapPaddingTop,
-    ["--home-footer-mobile-radius" as string]: HOME_FOOTER_MOBILE_LAYOUT.topRadius,
-    ["--home-footer-mobile-px" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingX,
-    ["--home-footer-mobile-py" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingTop,
-    ["--home-footer-mobile-pb" as string]: HOME_FOOTER_MOBILE_LAYOUT.sectionPaddingBottom,
-    ["--home-footer-mobile-wordmark-size" as string]: HOME_FOOTER_MOBILE_LAYOUT.wordmarkFontSize,
-    ["--home-footer-mobile-wordmark-line-height" as string]: String(HOME_FOOTER_MOBILE_LAYOUT.wordmarkLineHeight),
-    ["--home-footer-mobile-body-size" as string]: HOME_FOOTER_MOBILE_LAYOUT.bodyFontSize,
-    ["--home-footer-mobile-body-line-height" as string]: String(HOME_FOOTER_MOBILE_LAYOUT.bodyLineHeight),
-    ["--home-footer-mobile-nav-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.navGap,
-    ["--home-footer-mobile-wordmark-nav-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.wordmarkToNavGap,
-    ["--home-footer-mobile-contact-icon-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.contactIconGap,
-    ["--home-footer-mobile-contact-row-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.contactRowGap,
-    ["--home-footer-mobile-contact-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.contactSectionMarginTop,
-    ["--home-footer-mobile-social-title-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.socialTitleToIconsGap,
-    ["--home-footer-mobile-social-icon-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.socialIconGap,
-    ["--home-footer-mobile-social-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.socialSectionMarginTop,
-    ["--home-footer-mobile-legal-gap" as string]: HOME_FOOTER_MOBILE_LAYOUT.legalGap,
-    ["--home-footer-mobile-legal-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.legalSectionMarginTop,
-    ["--home-footer-mobile-copyright-margin-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.copyrightMarginTop,
-    ["--home-footer-mobile-copyright-size" as string]: HOME_FOOTER_MOBILE_LAYOUT.copyrightFontSize,
-    ["--home-footer-mobile-copyright-line-height" as string]: String(HOME_FOOTER_MOBILE_LAYOUT.copyrightLineHeight),
-    ["--home-footer-mobile-copyright-tracking" as string]: HOME_FOOTER_MOBILE_LAYOUT.copyrightLetterSpacing,
-    ["--home-footer-mobile-illustration-top" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationTop,
-    ["--home-footer-mobile-illustration-left" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationLeft,
-    ["--home-footer-mobile-illustration-width" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationWidth,
-    ["--home-footer-mobile-illustration-height" as string]: HOME_FOOTER_MOBILE_LAYOUT.illustrationHeight,
-    ["--home-footer-mobile-hero-min-height" as string]: HOME_FOOTER_MOBILE_LAYOUT.heroMinHeight,
+    ["--home-footer-mobile-radius" as string]: mobileLayout.topRadius,
+    ["--home-footer-mobile-px" as string]: mobileLayout.sectionPaddingX,
+    ["--home-footer-mobile-py" as string]: mobileLayout.sectionPaddingTop,
+    ["--home-footer-mobile-pb" as string]: mobileLayout.sectionPaddingBottom,
+    ["--home-footer-mobile-wordmark-size" as string]: mobileLayout.wordmarkFontSize,
+    ["--home-footer-mobile-wordmark-line-height" as string]: String(mobileLayout.wordmarkLineHeight),
+    ["--home-footer-mobile-body-size" as string]: mobileLayout.bodyFontSize,
+    ["--home-footer-mobile-body-line-height" as string]: String(mobileLayout.bodyLineHeight),
+    ["--home-footer-mobile-nav-gap" as string]: mobileLayout.navGap,
+    ["--home-footer-mobile-wordmark-nav-gap" as string]: mobileLayout.wordmarkToNavGap,
+    ["--home-footer-mobile-contact-icon-gap" as string]: mobileLayout.contactIconGap,
+    ["--home-footer-mobile-contact-row-gap" as string]: mobileLayout.contactRowGap,
+    ["--home-footer-mobile-contact-margin-top" as string]: mobileLayout.contactSectionMarginTop,
+    ["--home-footer-mobile-social-title-gap" as string]: mobileLayout.socialTitleToIconsGap,
+    ["--home-footer-mobile-social-icon-gap" as string]: mobileLayout.socialIconGap,
+    ["--home-footer-mobile-social-margin-top" as string]: mobileLayout.socialSectionMarginTop,
+    ["--home-footer-mobile-legal-gap" as string]: mobileLayout.legalGap,
+    ["--home-footer-mobile-legal-margin-top" as string]: mobileLayout.legalSectionMarginTop,
+    ["--home-footer-mobile-copyright-margin-top" as string]: mobileLayout.copyrightMarginTop,
+    ["--home-footer-mobile-copyright-size" as string]: mobileLayout.copyrightFontSize,
+    ["--home-footer-mobile-copyright-line-height" as string]: String(mobileLayout.copyrightLineHeight),
+    ["--home-footer-mobile-copyright-tracking" as string]: mobileLayout.copyrightLetterSpacing,
+    ["--home-footer-mobile-illustration-top" as string]: mobileLayout.illustrationTop,
+    ["--home-footer-mobile-illustration-left" as string]: mobileLayout.illustrationLeft,
+    ["--home-footer-mobile-illustration-width" as string]: mobileLayout.illustrationWidth,
+    ["--home-footer-mobile-illustration-height" as string]: mobileLayout.illustrationHeight,
+    ["--home-footer-mobile-hero-min-height" as string]: mobileLayout.heroMinHeight,
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-wordmark-color" as string]: HOME_PAGE_SURFACE.footerWordmark,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
-    ["--home-footer-max-width" as string]: `${HOME_FOOTER_LAYOUT.maxWidthPx}px`,
+    ["--home-footer-max-width" as string]: isInner
+      ? `${MARKETING_CONTENT_MAX_WIDTH_PX}px`
+      : `${HOME_FOOTER_LAYOUT.maxWidthPx}px`,
     ["--home-footer-min-height" as string]: `clamp(36rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
     ["--home-footer-wordmark-left" as string]: pct(pos.wordmark.left),
     ["--home-footer-wordmark-top" as string]: pct(pos.wordmark.top),

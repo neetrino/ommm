@@ -1,5 +1,9 @@
 import { getTranslations } from "next-intl/server";
-import { ContactMessageForm } from "@/components/marketing/contact-message-form";
+import { ContactMessageFormDeferred } from "@/components/marketing/marketing-deferred-sections";
+import { MarketingLazyMapEmbed } from "@/components/marketing/contact/marketing-lazy-map-embed";
+import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
+import { MarketingContactAnimatedSections } from "@/components/marketing/contact/marketing-contact-animated-sections";
+import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 
 type StudioPublic = {
@@ -38,6 +42,14 @@ function parseSocialLinks(raw: string | null): { label: string; url: string }[] 
   }
 }
 
+function pickStudioValue(
+  value: string | null | undefined,
+  fallback: string,
+): string {
+  const trimmed = value?.trim();
+  return trimmed !== undefined && trimmed.length > 0 ? trimmed : fallback;
+}
+
 type MarketingContactPageContentProps = {
   locale: string;
 };
@@ -50,112 +62,59 @@ export async function MarketingContactPageContent({
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
 
+  const phone = pickStudioValue(studio?.contactPhone, t("fallbackPhone"));
+  const email = pickStudioValue(studio?.contactEmail, t("fallbackEmail"));
+  const address = pickStudioValue(studio?.address, t("fallbackAddress"));
+  const hours = pickStudioValue(studio?.workingHours, t("fallbackHours"));
+
+  const studioRows = [
+    {
+      key: "phone",
+      iconSrc: CONTACT_PAGE_ASSETS.iconPhone,
+      label: t("phone"),
+      value: phone,
+      href: `tel:${phone.replace(/\s+/g, "")}`,
+    },
+    {
+      key: "email",
+      iconSrc: CONTACT_PAGE_ASSETS.iconMail,
+      label: t("email"),
+      value: email,
+      href: `mailto:${email}`,
+    },
+    {
+      key: "address",
+      iconSrc: CONTACT_PAGE_ASSETS.iconLocation,
+      label: t("address"),
+      value: address,
+    },
+    {
+      key: "hours",
+      iconSrc: CONTACT_PAGE_ASSETS.iconHours,
+      label: t("hours"),
+      value: hours,
+    },
+  ];
+
+  const mapEmbed =
+    studio !== null &&
+    studio.mapEmbedUrl !== null &&
+    studio.mapEmbedUrl.trim() !== "" ? (
+      <MarketingLazyMapEmbed heading={t("mapHeading")} embedHtml={studio.mapEmbedUrl} />
+    ) : undefined;
+
   return (
-    <>
-      {studio !== null ? (
-        <section className="mt-12 grid gap-8 lg:grid-cols-2">
-          <div className="ommm-card p-6 text-sm text-sage-700 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-            <h2 className="ommm-h3 text-sage-800">{t("studioHeading")}</h2>
-            <dl className="mt-4 space-y-3">
-              {studio.contactPhone !== null ? (
-                <div>
-                  <dt className="text-xs font-semibold uppercase text-sage-500">
-                    {t("phone")}
-                  </dt>
-                  <dd>
-                    <a
-                      href={`tel:${studio.contactPhone.replace(/\s+/g, "")}`}
-                      className="text-sage-800 underline-offset-2 hover:underline"
-                    >
-                      {studio.contactPhone}
-                    </a>
-                  </dd>
-                </div>
-              ) : null}
-              {studio.contactEmail !== null ? (
-                <div>
-                  <dt className="text-xs font-semibold uppercase text-sage-500">
-                    {t("email")}
-                  </dt>
-                  <dd>
-                    <a
-                      href={`mailto:${studio.contactEmail}`}
-                      className="text-sage-800 underline-offset-2 hover:underline"
-                    >
-                      {studio.contactEmail}
-                    </a>
-                  </dd>
-                </div>
-              ) : null}
-              {studio.whatsappUrl !== null ? (
-                <div>
-                  <dt className="text-xs font-semibold uppercase text-sage-500">
-                    {t("whatsApp")}
-                  </dt>
-                  <dd>
-                    <a
-                      href={studio.whatsappUrl}
-                      className="text-sage-800 underline-offset-2 hover:underline"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {t("chatWhatsApp")}
-                    </a>
-                  </dd>
-                </div>
-              ) : null}
-              {studio.address !== null ? (
-                <div>
-                  <dt className="text-xs font-semibold uppercase text-sage-500">
-                    {t("address")}
-                  </dt>
-                  <dd className="whitespace-pre-line">{studio.address}</dd>
-                </div>
-              ) : null}
-              {studio.workingHours !== null ? (
-                <div>
-                  <dt className="text-xs font-semibold uppercase text-sage-500">
-                    {t("hours")}
-                  </dt>
-                  <dd className="whitespace-pre-line">{studio.workingHours}</dd>
-                </div>
-              ) : null}
-            </dl>
-            {social.length > 0 ? (
-              <ul className="mt-6 flex flex-wrap gap-3">
-                {social.map((s) => (
-                  <li key={s.url}>
-                    <a
-                      href={s.url}
-                      className="ommm-cta-ghost text-sm"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-          <div>
-            <ContactMessageForm formClassName="ommm-card flex w-full max-w-lg flex-col gap-4 p-6 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8" />
-          </div>
-        </section>
-      ) : (
-        <ContactMessageForm />
-      )}
-      {studio !== null &&
-      studio.mapEmbedUrl !== null &&
-      studio.mapEmbedUrl.trim() !== "" ? (
-        <section className="mt-12">
-          <h2 className="ommm-h3 text-sage-800">{t("mapHeading")}</h2>
-          <div
-            className="mt-4 overflow-hidden rounded-[24px] border border-white/60 bg-white shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)]"
-            dangerouslySetInnerHTML={{ __html: studio.mapEmbedUrl }}
-          />
-        </section>
-      ) : null}
-    </>
+    <MarketingContactAnimatedSections
+      studioCard={
+        <MarketingContactStudioCard
+          heading={t("studioHeading")}
+          rows={studioRows}
+          replyCallout={t("replyCallout")}
+          socialLinks={social}
+        />
+      }
+      messageForm={<ContactMessageFormDeferred />}
+      mapEmbed={mapEmbed}
+    />
   );
 }

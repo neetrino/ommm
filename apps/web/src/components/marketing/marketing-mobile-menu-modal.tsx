@@ -30,29 +30,17 @@ export function MarketingMobileMenuModal({
   isActive,
 }: MarketingMobileMenuModalProps) {
   const tNav = useTranslations("nav");
-  const tCommon = useTranslations("common");
   const tUi = useTranslations("marketingUi");
   const isClientMounted = useIsClientMounted();
-  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [isExiting, setIsExiting] = useState(false);
 
-  if (isOpen !== prevIsOpen) {
-    setPrevIsOpen(isOpen);
+  useEffect(() => {
     if (isOpen) {
       setIsExiting(false);
-    } else {
-      setIsExiting(true);
-    }
-  }
-
-  const isVisible = isOpen || isExiting;
-  const isClosing = isExiting && !isOpen;
-
-  useEffect(() => {
-    if (!isExiting) {
       return undefined;
     }
 
+    setIsExiting(true);
     const closeTimer = window.setTimeout(() => {
       setIsExiting(false);
     }, MARKETING_MOBILE_MENU_TRANSITION_MS);
@@ -60,7 +48,10 @@ export function MarketingMobileMenuModal({
     return () => {
       window.clearTimeout(closeTimer);
     };
-  }, [isExiting]);
+  }, [isOpen]);
+
+  const isVisible = isOpen || isExiting;
+  const isClosing = isExiting && !isOpen;
 
   useEffect(() => {
     if (!isVisible) {
@@ -135,20 +126,13 @@ export function MarketingMobileMenuModal({
               </Link>
             ))}
           </nav>
-          <div className={`flex flex-col gap-2 ${navPillStyles.mobileDivider}`}>
+          <div className={navPillStyles.mobileDivider}>
             <Link
               href="/schedule"
               className={navPillStyles.mobileCtaPrimary}
               onClick={onClose}
             >
               {tUi("bookAClass")}
-            </Link>
-            <Link
-              href="/login"
-              className={navPillStyles.mobileCtaSecondary}
-              onClick={onClose}
-            >
-              {tCommon("login")}
             </Link>
           </div>
         </div>

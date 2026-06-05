@@ -23,7 +23,7 @@ export async function MarketingExploreListContent({
 
   if (!res.ok) {
     return (
-      <p className="app-alert-warn mt-12" role="status">
+      <p className="app-alert-warn" role="status">
         {t("loadError", { status: res.status })}
       </p>
     );
@@ -32,7 +32,7 @@ export async function MarketingExploreListContent({
   if (res.data.length === 0) {
     return (
       <p
-        className="ommm-card mt-12 p-5 text-sm text-sage-500 sm:p-6"
+        className="ommm-card p-5 text-sm text-sage-500 sm:p-6"
         role="status"
       >
         {t("empty")} {t("emptyAdminHint")}
@@ -41,7 +41,7 @@ export async function MarketingExploreListContent({
   }
 
   return (
-    <ul className="mt-12 grid gap-6 sm:grid-cols-2">
+    <ul className="grid w-full min-w-0 gap-6 sm:grid-cols-2">
       {res.data.map((post) => (
         <li
           key={post.slug}

@@ -6,18 +6,21 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
 import {
-  formatPackageGuestCount,
   formatPackagePriceLabel,
-  formatPackagePricePerSession,
   formatPackageSessionsLabel,
-  formatPackageValidityLabel,
 } from "@/components/admin/admin-packages-display";
+import {
+  formatPublicPackageTierPricePerSession,
+  formatPublicPackageValidityLabel,
+} from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   formatPublicPackagePlanName,
   shouldShowPublicPackageTierName,
 } from "@/components/marketing/packages/public-package-card-format";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
+import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
+import styles from "@/components/marketing/packages/public-package-category-list-table.module.css";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
 type PublicPackageCategoryListTableProps = {
@@ -25,7 +28,13 @@ type PublicPackageCategoryListTableProps = {
   categoryLabel: string;
   plans: readonly PublicPackagePlan[];
   audience: PublicPackageCategoryCardsAudience;
+  showGuestsColumn?: boolean;
 };
+
+function formatGuestCellValue(guestCount: number | undefined): string | null {
+  const count = guestCount ?? 0;
+  return count > 0 ? String(count) : null;
+}
 
 function EmptyCell() {
   return <span className="text-[rgba(80,69,59,0.4)]">—</span>;
@@ -36,6 +45,7 @@ export function PublicPackageCategoryListTable({
   categoryLabel,
   plans,
   audience,
+  showGuestsColumn = false,
 }: PublicPackageCategoryListTableProps) {
   const t = useTranslations("marketing");
   const searchParams = useSearchParams();
@@ -52,81 +62,91 @@ export function PublicPackageCategoryListTable({
 
   return (
     <>
-      <div className="ommm-admin-packages-table overflow-x-auto">
-        <div className="ommm-public-packages-table-grid ommm-admin-packages-table-header min-w-[56rem]">
-          <div>{t("packagesTablePlan")}</div>
-          <div>{t("packagesTableSessions")}</div>
-          <div>{t("packagesTablePrice")}</div>
-          <div>{t("packagesTablePricePerSession")}</div>
-          <div>{t("packagesTableValidity")}</div>
-          <div>{t("packagesTableGuests")}</div>
-          <div className="ommm-admin-packages-table-actions">{t("packagesTableAction")}</div>
-        </div>
-        <div className="min-w-[56rem]">
-          {plans.map((plan) => {
-            const isSelected = selectedPlanId === plan.id;
-            const sessions = formatPackageSessionsLabel(plan);
-            const pricePerSession = formatPackagePricePerSession(plan, locale);
-            const guestCount = formatPackageGuestCount(plan);
-            const validityLabel = formatPackageValidityLabel(plan, {
-              days: (count) => t("packagesValidityDays", { count }),
-              months: (count) => t("packagesValidityMonths", { count }),
-            });
-            const planName = formatPublicPackagePlanName(
-              plan.name,
-              plan.sessionsPerMonth,
-            );
-            const showTierName = shouldShowPublicPackageTierName(planName, categoryLabel);
+      <div className={styles.mobileTierList}>
+        <PublicPackageCategoryMobileTierList
+          locale={locale}
+          categoryLabel={categoryLabel}
+          plans={plans}
+          audience={audience}
+          selectedPlanId={selectedPlanId}
+          onSubscribe={audience === "member" ? openPayment : undefined}
+        />
+      </div>
 
-            return (
-              <div
-                key={plan.id}
-                className={`ommm-admin-packages-table-row ${isSelected ? "ommm-package-table-row-selected" : ""}`}
-                data-selected={isSelected ? "true" : "false"}
-              >
-                <div className="ommm-public-packages-table-grid">
-                  <div className="ommm-admin-packages-table-cell ommm-admin-packages-table-cell--emphasis">
-                    {showTierName ? planName : categoryLabel}
-                  </div>
-                  <div className="ommm-admin-packages-table-cell ommm-admin-packages-table-cell--emphasis">
-                    {sessions !== null ? sessions : plan.isUnlimited ? t("packagesSessionsUnlimitedShort") : <EmptyCell />}
-                  </div>
-                  <div className="ommm-admin-packages-table-cell">
-                    {formatPackagePriceLabel(plan, locale)}
-                  </div>
-                  <div className="ommm-admin-packages-table-cell">
-                    {pricePerSession ?? <EmptyCell />}
-                  </div>
-                  <div className="ommm-admin-packages-table-cell">{validityLabel}</div>
-                  <div className="ommm-admin-packages-table-cell">
-                    {guestCount !== null ? guestCount : <EmptyCell />}
-                  </div>
-                  <div className="ommm-admin-packages-table-actions px-1">
-                    {audience === "member" ? (
-                      <button
-                        type="button"
-                        className="ommm-btn-compact-warm"
-                        onClick={() => openPayment(plan.id)}
-                      >
-                        {t("packagesSubscribeCta")}
-                      </button>
-                    ) : (
-                      <Link href="/login" className="ommm-btn-compact-warm">
-                        {t("packagesSubscribeCta")}
-                      </Link>
-                    )}
-                  </div>
-                </div>
-                {plan.billingPeriod.length > 0 ? (
-                  <p className="px-3 pb-2 text-center text-xs text-sage-500">
-                    {plan.billingPeriod} ·{" "}
-                    {t("packagesPeriodDaysShort", { days: plan.periodDays })}
-                  </p>
-                ) : null}
-              </div>
-            );
-          })}
+      <div
+        className={`ommm-public-packages-table ${styles.desktopTable} ${styles.table} ${
+          showGuestsColumn ? styles.tableWithGuests : ""
+        }`}
+      >
+        <div className={styles.headerRow}>
+          <div className={styles.headCell}>{t("packagesTablePlan")}</div>
+          <div className={styles.headCell}>{t("packagesTableSessions")}</div>
+          <div className={styles.headCell}>{t("packagesTablePrice")}</div>
+          <div className={styles.headCell}>{t("packagesTablePricePerSession")}</div>
+          <div className={styles.headCell}>{t("packagesTableValidity")}</div>
+          {showGuestsColumn ? (
+            <div className={styles.headCell}>{t("packagesTableGuests")}</div>
+          ) : null}
+          <div className={styles.headCell}>{t("packagesTableAction")}</div>
         </div>
+
+        {plans.map((plan) => {
+          const isSelected = selectedPlanId === plan.id;
+          const sessions = formatPackageSessionsLabel(plan);
+          const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
+          const validityLabel = formatPublicPackageValidityLabel(plan, {
+            days: (count) => t("packagesValidityDays", { count }),
+            months: (count) => t("packagesValidityMonths", { count }),
+          });
+          const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
+          const guestValue = formatGuestCellValue(plan.guestCount);
+
+          return (
+            <div
+              key={plan.id}
+              className={`ommm-admin-packages-table-row ${styles.dataRow} ${
+                isSelected ? "ommm-package-table-row-selected" : ""
+              }`}
+              data-selected={isSelected ? "true" : "false"}
+            >
+              <div className={`${styles.cell} ${styles.cellEmphasis}`}>
+                {showTierName ? plan.name : categoryLabel}
+              </div>
+              <div className={`${styles.cell} ${styles.cellEmphasis}`}>
+                {sessions !== null ? (
+                  sessions
+                ) : plan.isUnlimited ? (
+                  t("packagesSessionsUnlimitedShort")
+                ) : (
+                  <EmptyCell />
+                )}
+              </div>
+              <div className={styles.cell}>{formatPackagePriceLabel(plan, locale)}</div>
+              <div className={styles.cell}>{pricePerSession ?? <EmptyCell />}</div>
+              <div className={styles.cell}>{validityLabel ?? <EmptyCell />}</div>
+              {showGuestsColumn ? (
+                <div className={styles.cell}>
+                  {guestValue !== null ? guestValue : <EmptyCell />}
+                </div>
+              ) : null}
+              <div className={styles.cell}>
+                {audience === "member" ? (
+                  <button
+                    type="button"
+                    className="ommm-btn-compact-warm"
+                    onClick={() => openPayment(plan.id)}
+                  >
+                    {t("packagesSubscribeCta")}
+                  </button>
+                ) : (
+                  <Link href="/login" className="ommm-btn-compact-warm">
+                    {t("packagesSubscribeCta")}
+                  </Link>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {audience === "member" ? (

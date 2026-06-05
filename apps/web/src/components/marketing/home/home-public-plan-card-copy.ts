@@ -15,7 +15,7 @@ type HomePlanCardLabels = {
   guestCount: (count: number) => string;
   ctaAria: (planName: string) => string;
   categoryPackages: (count: number) => string;
-  priceFrom: (amount: string) => string;
+  priceFromPrefix: string;
 };
 
 function resolveCategoryDetails(
@@ -46,14 +46,17 @@ function resolveCategoryDetails(
 function formatCategoryPrice(
   plans: readonly PublicPackagePlan[],
   locale: string,
-  labels: Pick<HomePlanCardLabels, "priceFrom">,
-): string {
+  labels: Pick<HomePlanCardLabels, "priceFromPrefix">,
+): Pick<HomePlanCardCopy, "priceAmount" | "priceFromPrefix"> {
   const startingPriceCents = resolveCategoryStartingPriceCents(plans);
   const amount = formatAmdFromCents(startingPriceCents, locale);
   if (categoryHasMultiplePricedTiers(plans)) {
-    return labels.priceFrom(amount);
+    return {
+      priceFromPrefix: labels.priceFromPrefix,
+      priceAmount: amount,
+    };
   }
-  return amount;
+  return { priceAmount: amount };
 }
 
 /** One Home card per package category (matches Admin Packages accordion groups). */
@@ -66,7 +69,7 @@ export function buildHomeCategoryCardsFromPlans(
     id: category.id,
     planName: category.label,
     details: resolveCategoryDetails(category.plans, labels),
-    price: formatCategoryPrice(category.plans, locale, labels),
+    ...formatCategoryPrice(category.plans, locale, labels),
     ctaAria: labels.ctaAria(category.label),
     isPopular: category.plans.some((plan) => plan.isPopular),
   }));

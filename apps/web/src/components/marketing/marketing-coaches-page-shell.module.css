@@ -7,12 +7,29 @@
   overflow-x: clip;
 }
 
-.mainSurface {
+/* Background tracks mounted page content — avoids wellness flash before home RSC arrives. */
+.shell:has([data-marketing-home]) {
+  background-image: var(--gradient-wellness);
+}
+
+.shell:has([data-marketing-inner]) {
+  background: linear-gradient(
+    to bottom,
+    var(--coaches-page-gradient-from),
+    var(--coaches-page-gradient-to)
+  );
+}
+
+.main {
   display: flex;
-  flex: 1;
-  flex-direction: column;
+  min-height: 0;
   width: 100%;
   min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.shell:has([data-marketing-inner]) .main {
   background: linear-gradient(
     to bottom,
     var(--coaches-page-gradient-from),
@@ -21,7 +38,7 @@
 }
 
 @media (max-width: 743px) {
-  .shell {
+  .shell:has([data-marketing-inner]) {
     background: linear-gradient(
       to bottom,
       var(--coaches-page-gradient-from),
@@ -29,7 +46,7 @@
     );
   }
 
-  .mainSurface {
+  .shell:has([data-marketing-inner]) .main {
     background: transparent;
     padding-bottom: var(--marketing-footer-mobile-overlap, 2.5rem);
   }

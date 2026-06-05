@@ -1,3 +1,7 @@
+/** Page root markers — shell/footer styling follows mounted content via `:has()`, not URL. */
+export const MARKETING_HOME_PAGE_MARKER = "data-marketing-home";
+export const MARKETING_INNER_PAGE_MARKER = "data-marketing-inner";
+
 /** Locale-aware pathname from `@/i18n/navigation` (no locale prefix). */
 export function isMarketingHomePath(pathname: string): boolean {
   return pathname === "/" || pathname === "";

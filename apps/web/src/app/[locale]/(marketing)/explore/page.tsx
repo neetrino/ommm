@@ -34,7 +34,6 @@ export default async function ExplorePage({
       eyebrow={t("eyebrow")}
       title={t("listTitle")}
       lede={t("lede")}
-      extendToFooter
     >
       <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
         <MarketingExploreListContent locale={locale} />

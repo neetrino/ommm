@@ -16,6 +16,7 @@ type ScheduleFilterDropdownProps<T extends string> = {
   name?: string;
   disabled?: boolean;
   required?: boolean;
+  openOnHover?: boolean;
 };
 
 export function ScheduleFilterDropdown<T extends string>({
@@ -27,6 +28,7 @@ export function ScheduleFilterDropdown<T extends string>({
   name,
   disabled = false,
   required = false,
+  openOnHover = false,
 }: ScheduleFilterDropdownProps<T>) {
   return (
     <OmmSelectDropdown
@@ -38,6 +40,7 @@ export function ScheduleFilterDropdown<T extends string>({
       name={name}
       disabled={disabled}
       required={required}
+      openOnHover={openOnHover}
     />
   );
 }

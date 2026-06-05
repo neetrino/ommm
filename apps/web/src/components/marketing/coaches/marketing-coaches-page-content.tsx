@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import {
   buildCoachesPageFallbackCoaches,
+  limitCoachesPageGridCards,
   type CoachesPageSlideCopy,
 } from "@/components/marketing/coaches/coaches-page-fallback-coaches";
 import { MarketingPublicCoachesGrid } from "@/components/marketing/coaches/marketing-public-coaches-grid";
@@ -28,7 +29,9 @@ export async function MarketingCoachesPageContent({
   const fallbackCoaches = buildCoachesPageFallbackCoaches(
     tHome.raw("coachSlides") as CoachesPageSlideCopy[],
   );
-  const coaches = res.ok && res.data.length > 0 ? res.data : fallbackCoaches;
+  const coaches = limitCoachesPageGridCards(
+    res.ok && res.data.length > 0 ? res.data : fallbackCoaches,
+  );
 
   if (coaches.length === 0) {
     return (

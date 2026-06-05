@@ -9,17 +9,6 @@ const sectionFallback = (placeholderClassName: string) =>
     return <div aria-hidden className={placeholderClassName} />;
   };
 
-/** Coaches carousel — framer-motion + infinite track. */
-export const HomeCoachesSectionDeferred = dynamic(
-  () =>
-    import("@/components/marketing/home/marketing-public-home-coaches-section").then(
-      (module) => module.MarketingPublicHomeCoachesSection,
-    ),
-  {
-    loading: sectionFallback(HOME_LAZY_SECTION.placeholders.coaches),
-  },
-);
-
 /** Gallery mosaic carousel — client-only. */
 export const HomeGallerySectionDeferred = dynamic(
   () =>
@@ -29,6 +18,13 @@ export const HomeGallerySectionDeferred = dynamic(
   {
     loading: sectionFallback(HOME_LAZY_SECTION.placeholders.gallery),
   },
+);
+
+/** Hero junction nav — client island; must SSR to match hydration (no `ssr: false`). */
+export const HomeHeroJunctionNavDeferred = dynamic(() =>
+  import("@/components/marketing/home/home-hero-junction-nav").then(
+    (module) => module.HomeHeroJunctionNav,
+  ),
 );
 
 /** Weekly schedule grid — tabs, fetch, session rows; split from hero hydration. */
@@ -43,11 +39,4 @@ export const HomeWeeklyScheduleGridDeferred = dynamic<{
   {
     loading: sectionFallback(HOME_LAZY_SECTION.placeholders.scheduleGrid),
   },
-);
-
-/** Hero junction nav — client island; must SSR to match hydration (no `ssr: false`). */
-export const HomeHeroJunctionNavDeferred = dynamic(() =>
-  import("@/components/marketing/home/home-hero-junction-nav").then(
-    (module) => module.HomeHeroJunctionNav,
-  ),
 );

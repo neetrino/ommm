@@ -13,5 +13,7 @@ export const SCHEDULE_DATE_CHIP_ACTIVE =
   "mx-auto flex aspect-square w-full max-w-[3.25rem] items-center justify-center rounded-full bg-white text-sm font-semibold text-sage-800 shadow-md ring-1 ring-white/80 transition-all duration-300 ease-out sm:max-w-[3.75rem] sm:text-base";
 export const SCHEDULE_DATE_CHIP_IDLE =
   "mx-auto flex aspect-square w-full max-w-[3.25rem] items-center justify-center rounded-full bg-white/60 text-sm font-medium text-sage-500 transition-all duration-300 ease-out hover:bg-white/80 sm:max-w-[3.75rem] sm:text-base";
+export const SCHEDULE_DATE_CHIP_PAST =
+  "mx-auto flex aspect-square w-full max-w-[3.25rem] items-center justify-center rounded-full bg-white/60 text-sm font-medium text-sage-500 sm:max-w-[3.75rem] sm:text-base";
 export const SCHEDULE_ARROW_BTN =
-  "inline-flex h-11 w-11 shrink-0 items-center justify-center self-center rounded-full border border-white/75 bg-white/85 text-sage-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 sm:h-12 sm:w-12";
+  "inline-flex h-11 w-11 shrink-0 items-center justify-center self-center rounded-full border border-white/75 bg-white/85 text-sage-700 shadow-sm backdrop-blur-sm transition-colors enabled:hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 disabled:pointer-events-none sm:h-12 sm:w-12";

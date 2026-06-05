@@ -5,6 +5,7 @@ import {
   SCHEDULE_ARROW_BTN,
   SCHEDULE_DATE_CHIP_ACTIVE,
   SCHEDULE_DATE_CHIP_IDLE,
+  SCHEDULE_DATE_CHIP_PAST,
   SCHEDULE_DATE_STRIP_PANEL,
   SCHEDULE_INK,
   SCHEDULE_INTERACTIVE_LIFT,
@@ -12,6 +13,8 @@ import {
 } from "@/components/marketing/schedule/schedule-public-design";
 import {
   addDays,
+  compareCalendarDays,
+  isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
 } from "@/components/marketing/schedule/schedule-date-utils";
@@ -22,8 +25,11 @@ import {
   CalendarIcon,
 } from "@/components/marketing/schedule/schedule-view-icons";
 
-const VISIBLE_DAYS = 7;
-const WINDOW_SHIFT = 7;
+export const SCHEDULE_DATE_STRIP_VISIBLE_DAYS = 7;
+export const SCHEDULE_DATE_STRIP_WINDOW_SHIFT = 7;
+
+const VISIBLE_DAYS = SCHEDULE_DATE_STRIP_VISIBLE_DAYS;
+const WINDOW_SHIFT = SCHEDULE_DATE_STRIP_WINDOW_SHIFT;
 
 function formatWeekdayShort(locale: string, date: Date): string {
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
@@ -55,6 +61,7 @@ export function ScheduleDateControls({
   const t = useTranslations("marketingPages.schedule");
   const stripDays = Array.from({ length: VISIBLE_DAYS }, (_, idx) => addDays(windowStart, idx));
   const today = startOfLocalDay(new Date());
+  const canShiftPrev = compareCalendarDays(addDays(windowStart, -1), today) >= 0;
   const monthLabel = formatMonthTitle(locale, selectedDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
 
@@ -77,8 +84,10 @@ export function ScheduleDateControls({
         <div className="flex w-full min-w-0 items-stretch gap-2 sm:gap-3">
           <button
             type="button"
-            className={SCHEDULE_ARROW_BTN}
+            className={`${SCHEDULE_ARROW_BTN} disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/85`}
             aria-label={t("prevDatesAria")}
+            disabled={!canShiftPrev}
+            aria-disabled={!canShiftPrev}
             onClick={() => onShiftWindow(-WINDOW_SHIFT)}
           >
             <ArrowLeftIcon />
@@ -87,8 +96,29 @@ export function ScheduleDateControls({
             {stripDays.map((day) => {
               const active = isSameCalendarDay(day, selectedDate);
               const isToday = isSameCalendarDay(day, today);
+              const isPast = isBeforeCalendarDay(day, today);
               const dayNum = String(day.getDate());
               const wk = formatWeekdayShort(locale, day).toUpperCase();
+              const weekdayClass = `w-full truncate text-center text-[9px] font-medium uppercase tracking-wide sm:text-[10px] ${SCHEDULE_MUTED}`;
+              const chipClass = isPast
+                ? SCHEDULE_DATE_CHIP_PAST
+                : active
+                  ? SCHEDULE_DATE_CHIP_ACTIVE
+                  : SCHEDULE_DATE_CHIP_IDLE;
+
+              if (isPast) {
+                return (
+                  <div
+                    key={day.getTime()}
+                    aria-hidden
+                    className="flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl py-1 opacity-45"
+                  >
+                    <span className={weekdayClass}>{wk}</span>
+                    <span className={chipClass}>{dayNum}</span>
+                  </div>
+                );
+              }
+
               return (
                 <button
                   key={day.getTime()}
@@ -102,9 +132,7 @@ export function ScheduleDateControls({
                     {wk}
                   </span>
                   <span
-                    className={`${active ? SCHEDULE_DATE_CHIP_ACTIVE : SCHEDULE_DATE_CHIP_IDLE} ${
-                      isToday ? "border border-black/70" : ""
-                    }`}
+                    className={`${chipClass} ${isToday ? "border border-black/70" : ""}`}
                   >
                     {dayNum}
                   </span>

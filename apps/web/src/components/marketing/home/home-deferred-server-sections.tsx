@@ -28,6 +28,16 @@ export const HomePlansSectionDeferred = dynamic(
   },
 );
 
+export const HomeCoachesSectionDeferred = dynamic(
+  () =>
+    import("@/components/marketing/home/marketing-public-home-coaches-section-server").then(
+      (module) => module.MarketingPublicHomeCoachesSectionServer,
+    ),
+  {
+    loading: sectionPlaceholder(HOME_LAZY_SECTION.placeholders.coaches),
+  },
+);
+
 export const HomeFooterSectionDeferred = dynamic(
   () =>
     import("@/components/marketing/home/marketing-public-home-footer").then(

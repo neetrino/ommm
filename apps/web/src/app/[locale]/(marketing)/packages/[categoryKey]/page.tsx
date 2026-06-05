@@ -1,8 +1,10 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
 import {
-  PublicPackageCategoryDetailSection,
+  resolveMarketingPackageCategoryByKey,
+} from "@/components/marketing/packages/packages-page-category-data";
+import {
   resolveCategoryByKey,
 } from "@/components/marketing/packages/public-package-category-detail-section";
 import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
@@ -24,32 +26,25 @@ export default async function MarketingPackageCategoryPage({
   if (!plansRes.ok) {
     return (
       <MarketingPageFrame title={m("packagesPageTitle")} lede={m("packagesPageLead")}>
-        <p className="app-alert-warn mt-12" role="status">
+        <p className="app-alert-warn" role="status">
           {m("packagesError")}
         </p>
       </MarketingPageFrame>
     );
   }
 
-  const categories = groupVisiblePublicPackageCategories(
+  const apiCategories = groupVisiblePublicPackageCategories(
     plansRes.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
   );
-  const category = resolveCategoryByKey(categories, categoryKey);
+  const category =
+    resolveMarketingPackageCategoryByKey(apiCategories, categoryKey) ??
+    resolveCategoryByKey(apiCategories, categoryKey);
 
   if (category === null) {
-    notFound();
+    redirect(`/${locale}/packages`);
   }
 
-  return (
-    <MarketingPageFrame title={category.label} lede={m("packagesPageLead")}>
-      <div className="mt-12">
-        <PublicPackageCategoryDetailSection
-          locale={locale}
-          category={category}
-          audience="guest"
-          backHref="/packages"
-        />
-      </div>
-    </MarketingPageFrame>
+  redirect(
+    `/${locale}/packages?category=${encodeURIComponent(category.id)}`,
   );
 }

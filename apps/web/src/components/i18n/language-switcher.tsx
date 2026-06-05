@@ -7,7 +7,6 @@ import { apiFetch } from "@/lib/api";
 import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
-import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
@@ -16,8 +15,8 @@ import {
   isLanguageSwitcherLocale,
 } from "@/lib/language-switcher-locales";
 
-/** Language menu needs room for flag + label, including icon-only triggers. */
-const LANGUAGE_MENU_MIN_WIDTH_PX = 168;
+/** Icon-only marketing trigger; menu needs room for language labels. */
+const MARKETING_ICON_MENU_MIN_WIDTH_PX = 148;
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
@@ -33,7 +32,6 @@ export type LanguageSwitcherProps = {
 export function LanguageSwitcher({
   context,
   appearance = "dropdown",
-  dashboardVariant = "neutral",
   compact = false,
   className = "",
   triggerClassName,
@@ -60,12 +58,6 @@ export function LanguageSwitcher({
 
   const isIconMarketing =
     context === "marketing" && appearance === "icon";
-  const flagFrame =
-    dashboardVariant === "wellness" ||
-    dashboardVariant === "admin" ||
-    dashboardVariant === "member"
-      ? "warm"
-      : "default";
 
   function select(next: LanguageSwitcherLocaleCode) {
     if (next === locale) {
@@ -126,16 +118,14 @@ export function LanguageSwitcher({
               {renderIconTrigger?.()}
             </span>
           ) : (
-            <span className="inline-flex min-w-0 flex-1 items-center gap-1.5">
-              <LocaleFlagIcon code={effectiveLocale} frame={flagFrame} />
-              <span>{t(`optionNames.${effectiveLocale}`)}</span>
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold leading-none text-[#464646]">
+              {t(`optionNames.${effectiveLocale}`)}
             </span>
           )
         }
         renderOption={(option, selected) => (
           <>
-            <LocaleFlagIcon code={option.value} />
-            <span className="min-w-0 flex-1">{option.label}</span>
+            <span className="w-full text-center">{option.label}</span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
         )}

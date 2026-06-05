@@ -1,5 +1,5 @@
 /**
- * Home page — clip upper sections; gallery/footer seam stays unpainted for Safari radius.
+ * Home page — clip upper sections; gallery/footer seam is solid teal; footer overlaps gallery.
  */
 
 .page {
@@ -20,6 +20,17 @@
   position: relative;
   z-index: 0;
   min-width: 0;
+  background-color: var(--home-gallery-seam-bg, #598090);
+}
+
+.galleryFooterSeam :global([data-home-section="gallery"]) {
+  position: relative;
+  z-index: 1;
+}
+
+.galleryFooterSeam > :global(section:not([data-home-section])) {
+  position: relative;
+  z-index: 2;
 }
 
 @media (max-width: 743px) {
@@ -34,8 +45,15 @@
 
   .galleryFooterSeam {
     overflow: visible;
-    /* Contrast behind footer cap pockets — no padding-bottom (avoids strip under footer). */
-    background-color: var(--home-gallery-footer-seam-bg, #ede9dd);
+    background-color: var(--home-gallery-seam-bg, #598090);
+    /* Cream cap only — gallery top radius reads against Plans; footer seam stays teal. */
+    background-image: linear-gradient(
+      180deg,
+      var(--home-page-bg, #fbf5d5) 0,
+      var(--home-page-bg, #fbf5d5) 2.5rem,
+      var(--home-gallery-seam-bg, #598090) 2.5rem,
+      var(--home-gallery-seam-bg, #598090) 100%
+    );
   }
 
   .galleryFooterSeam :global([data-home-section="gallery"]) {

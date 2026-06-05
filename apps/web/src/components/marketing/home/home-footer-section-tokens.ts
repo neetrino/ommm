@@ -3,6 +3,7 @@
  * Mobile container `97:5944`.
  */
 
+import { MARKETING_CONTENT_INLINE_INSET } from "@/components/marketing/marketing-content-layout";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 
@@ -130,6 +131,12 @@ export const HOME_FOOTER_TABLET_LAYOUT = {
 export const HOME_FOOTER_INNER_TABLET_LAYOUT = {
   galleryOverlap: "0",
   wrapPaddingTop: HOME_FOOTER_LAYOUT.sectionPaddingTop,
+} as const;
+
+/** Inner routes — match header/page horizontal inset (`ommm-container`). */
+export const HOME_FOOTER_INNER_MOBILE_LAYOUT = {
+  ...HOME_FOOTER_MOBILE_LAYOUT,
+  sectionPaddingX: MARKETING_CONTENT_INLINE_INSET,
 } as const;
 
 export type HomeFooterSurfaceVariant = "home" | "inner";

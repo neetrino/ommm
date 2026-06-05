@@ -1,15 +1,28 @@
 .card {
-  position: relative;
   display: block;
   width: 100%;
+}
+
+/* Figma 428×617 — shared pixel height from grid; aspect-ratio is SSR fallback. */
+.cardAspect {
+  position: relative;
+  width: 100%;
   aspect-ratio: 428 / 617;
-  min-height: clamp(22rem, 72vw, var(--coaches-page-card-design-height));
+}
+
+.cardAspect[data-sized="true"] {
+  aspect-ratio: auto;
+}
+
+.cardStage {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   border-radius: var(--coaches-page-card-radius);
   transition: box-shadow 220ms ease;
 }
 
-.cardExpanded {
+.cardExpanded .cardStage {
   box-shadow: 0 1rem 2.25rem -1.25rem rgba(45, 55, 60, 0.22);
 }
 
@@ -19,11 +32,12 @@
   z-index: 0;
   border-radius: inherit;
   background-color: var(--coaches-page-card-surface);
+  transition: background-color 280ms ease;
 }
 
 .header {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   top: var(--coaches-page-card-name-top);
   right: var(--coaches-page-card-name-left);
   left: var(--coaches-page-card-name-left);
@@ -37,12 +51,18 @@
 .name {
   margin: 0;
   max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--coaches-page-card-name-max-lines, 2);
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.5rem, 3.5vw, 2.375rem);
+  font-size: var(--coaches-page-card-name-font-size, clamp(1.125rem, 2.75vw, 1.8125rem));
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: 0.016em;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
   color: var(--coaches-page-card-name-color);
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .role {
@@ -57,18 +77,22 @@
 
 .photoWrap {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   top: var(--coaches-page-card-photo-top);
   left: var(--coaches-page-card-photo-left);
   right: 0;
   bottom: 0;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
   transition: left 280ms ease;
 }
 
 .cardExpanded .photoWrap {
   left: 0;
+}
+
+.cardExpanded .photoCrop {
+  transform: scale(var(--coaches-page-card-photo-expand-scale, 1.05));
 }
 
 .photoInner {
@@ -92,6 +116,24 @@
   top: -3.28%;
   left: 0;
   max-width: none;
+  transform: scale(1);
+  transform-origin: 42% 28%;
+  transition: transform 320ms ease;
+}
+
+.cardPhotoHoverSuppressed .photoWrap {
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .card:not(.cardExpanded):not(.cardPhotoHoverSuppressed):has(.photoWrap:hover) .cardSurface {
+    background-color: var(--coaches-page-card-surface-hover);
+  }
+
+  .card:not(.cardExpanded):not(.cardPhotoHoverSuppressed) .photoWrap:hover .photoCrop {
+    transform: scale(var(--coaches-page-card-photo-hover-scale, 1.02))
+      translateY(var(--coaches-page-card-photo-hover-lift, -2.5%));
+  }
 }
 
 /* Figma `94:4071` — frosted pill; white glass layers over sharp photo (no filter blur / saturate). */
@@ -351,6 +393,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .photoWrap,
+  .photoCrop,
+  .cardSurface,
   .expandPanel,
   .expandPanelBackdrop,
   .expandBarTrigger,
@@ -383,21 +427,5 @@
 
   .expandPanelExpanded .expandPanelBackdrop {
     background-color: var(--coaches-page-card-expand-glass-fill-expanded);
-  }
-}
-
-@media (max-width: 743px) {
-  .card {
-    /* Safari: min-height + aspect-ratio diverges from Chrome DevTools. */
-    min-height: unset;
-  }
-
-  .expandPanelExpanded {
-    height: var(--coaches-page-card-expand-panel-height);
-    min-height: var(--coaches-page-card-expand-panel-height);
-  }
-
-  .expandPanelExpanded .expandPanelBody {
-    min-height: var(--coaches-page-card-expand-panel-height);
   }
 }
