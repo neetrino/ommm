@@ -780,7 +780,8 @@
       "listHeaderTime": "Time",
       "listHeaderCoach": "Coach",
       "listHeaderSpots": "Spots",
-      "listHeaderActions": "Actions"
+      "listHeaderActions": "Actions",
+      "bookedBadge": "Booked"
     },
     "notifications": {
       "title": "Notifications",
@@ -2841,7 +2842,10 @@
       "saveFailed": "Could not save"
     },
     "cancelBooking": {
+      "confirmTitle": "Cancel booking?",
       "confirm": "Cancel this booking? Policy deadlines apply.",
+      "confirmNo": "Keep booking",
+      "modalBackdropClose": "Close dialog",
       "action": "Cancel",
       "failed": "Could not cancel"
     },

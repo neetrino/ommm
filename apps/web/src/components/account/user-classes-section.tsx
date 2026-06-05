@@ -8,13 +8,15 @@ import { UserSessionBoardCard } from "@/components/account/user-session-board-ca
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserSessionRow } from "@/lib/user-booking-types";
+import type { UserSessionBookingMap } from "@/lib/user-session-bookings-map";
 
 type UserClassesSectionProps = {
   locale: string;
   sessions: readonly UserSessionRow[];
+  sessionBookings: UserSessionBookingMap;
 };
 
-export function UserClassesSection({ locale, sessions }: UserClassesSectionProps) {
+export function UserClassesSection({ locale, sessions, sessionBookings }: UserClassesSectionProps) {
   const t = useTranslations("userPages.classes");
   const [viewMode, setView] = useUserListBoardView("classes");
 
@@ -38,7 +40,11 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
         <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {sessions.map((session) => (
             <li key={session.id} className="min-w-0 list-none">
-              <UserSessionBoardCard locale={locale} session={session} />
+              <UserSessionBoardCard
+                locale={locale}
+                session={session}
+                userBookingId={sessionBookings[session.id]}
+              />
             </li>
           ))}
         </ul>
@@ -56,7 +62,11 @@ export function UserClassesSection({ locale, sessions }: UserClassesSectionProps
           <ul className={USER_LIST_STACK_CLASS}>
             {sessions.map((session) => (
               <li key={session.id} className="list-none">
-                <UserSessionCompactRow locale={locale} session={session} />
+                <UserSessionCompactRow
+                  locale={locale}
+                  session={session}
+                  userBookingId={sessionBookings[session.id]}
+                />
               </li>
             ))}
           </ul>

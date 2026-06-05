@@ -792,7 +792,8 @@
       "listHeaderTime": "Ժամ",
       "listHeaderCoach": "Մարզիչ",
       "listHeaderSpots": "Տեղեր",
-      "listHeaderActions": "Գործողություններ"
+      "listHeaderActions": "Գործողություններ",
+      "bookedBadge": "Ամրագրված"
     },
     "notifications": {
       "title": "Ծանուցումներ",
@@ -2742,7 +2743,10 @@
       "saveFailed": "Չհաջողվեց պահպանել"
     },
     "cancelBooking": {
+      "confirmTitle": "Չեղարկե՞լ ամրագրումը",
       "confirm": "Չեղարկե՞լ այս ամրագրումը։ Կիրառվում են քաղաքականության ժամկետները։",
+      "confirmNo": "Պահել ամրագրումը",
+      "modalBackdropClose": "Փակել պատուհանը",
       "action": "Չեղարկել",
       "failed": "Չհաջողվեց չեղարկել"
     },

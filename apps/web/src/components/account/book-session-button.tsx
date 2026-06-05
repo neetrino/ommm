@@ -6,12 +6,17 @@ import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
+type BookSessionResponse = {
+  id: string;
+};
+
 type Props = {
   sessionId: string;
   label?: string;
   dropInLabel?: string;
   priceCents: number;
   size?: "sm" | "md";
+  onBooked?: (bookingId: string) => void;
 };
 
 type PendingPaymentResponse = {
@@ -24,6 +29,7 @@ export function BookSessionButton({
   dropInLabel,
   priceCents,
   size = "sm",
+  onBooked,
 }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.bookSession");
@@ -36,7 +42,11 @@ export function BookSessionButton({
     setBusy(true);
     setMsg(null);
     try {
-      await apiFetch(`/bookings/sessions/${sessionId}`, { method: "POST" });
+      const booking = await apiFetch<BookSessionResponse>(
+        `/bookings/sessions/${sessionId}`,
+        { method: "POST" },
+      );
+      onBooked?.(booking.id);
       router.refresh();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("bookFailed"));

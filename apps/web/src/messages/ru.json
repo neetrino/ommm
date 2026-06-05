@@ -780,7 +780,8 @@
       "listHeaderTime": "Время",
       "listHeaderCoach": "Тренер",
       "listHeaderSpots": "Места",
-      "listHeaderActions": "Действия"
+      "listHeaderActions": "Действия",
+      "bookedBadge": "Забронировано"
     },
     "notifications": {
       "title": "Уведомления",
@@ -2730,7 +2731,10 @@
       "saveFailed": "Не удалось сохранить"
     },
     "cancelBooking": {
+      "confirmTitle": "Отменить бронирование?",
       "confirm": "Отменить это бронирование? Учитывайте сроки политики.",
+      "confirmNo": "Оставить бронирование",
+      "modalBackdropClose": "Закрыть окно",
       "action": "Отменить",
       "failed": "Не удалось отменить"
     },
