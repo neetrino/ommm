@@ -93,10 +93,7 @@
       "primaryCta": "Make a booking",
       "secondaryCta": "View Membership",
       "heroImageAlt": "Person meditating in a bright minimal studio with an oval opening to the sea",
-      "logoAlt": "Ommm studio emblem",
-      "junctionNavAria": "Hero photo navigation",
-      "junctionNavPrevAria": "Previous hero photo",
-      "junctionNavNextAria": "Next hero photo"
+      "logoAlt": "Ommm studio emblem"
     },
     "home": {
       "weeklyScheduleTitle": "Weekly Schedule",

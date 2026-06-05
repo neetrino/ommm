@@ -29,10 +29,3 @@ export const HomeWeeklyScheduleGridDeferred = dynamic(
     loading: sectionFallback(HOME_LAZY_SECTION.placeholders.scheduleGrid),
   },
 );
-
-/** Hero junction nav — client island; must SSR to match hydration (no `ssr: false`). */
-export const HomeHeroJunctionNavDeferred = dynamic(() =>
-  import("@/components/marketing/home/home-hero-junction-nav").then(
-    (module) => module.HomeHeroJunctionNav,
-  ),
-);
