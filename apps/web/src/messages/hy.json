@@ -93,7 +93,10 @@
       "primaryCta": "Ամրագրել",
       "secondaryCta": "Դիտել աբոնեմենտները",
       "heroImageAlt": "Մարդ է մեդիտացիայի դիրքում՝ լուսավոր մինիմալիստ ստուդիայում, օվալ պատուհանով դեպի ծով",
-      "logoAlt": "Ommm ստուդիայի նշան"
+      "logoAlt": "Ommm ստուդիայի նշան",
+      "junctionNavAria": "Hero նկարների navigation",
+      "junctionNavPrevAria": "Նախորդ hero նկար",
+      "junctionNavNextAria": "Հաջորդ hero նկար"
     },
     "home": {
       "weeklyScheduleTitle": "Շաբաթական դասացուցակ",
@@ -933,7 +936,6 @@
     "schedule": {
       "metaDescription": "Դիտեք դասերի ժամերը, զտիչները և ամրագրումը Ommm ստուդիայում։",
       "pageTitle": "Գտնել դաս",
-      "myAccount": "Իմ հաշիվը",
       "filterClassType": "Դասի տեսակ",
       "filterClassTypeAria": "Զտել ըստ դասի տեսակի",
       "filterInstructor": "Մարզիչ",

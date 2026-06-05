@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { HomeHeroJunctionNavDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import {
@@ -187,6 +188,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           </div>
         </div>
       </div>
+      <HomeHeroJunctionNavDeferred />
     </section>
   );
 }

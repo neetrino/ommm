@@ -19,6 +19,14 @@ export function isSameCalendarDay(a: Date, b: Date): boolean {
   );
 }
 
+export function compareCalendarDays(a: Date, b: Date): number {
+  return startOfLocalDay(a).getTime() - startOfLocalDay(b).getTime();
+}
+
+export function isBeforeCalendarDay(a: Date, b: Date): boolean {
+  return compareCalendarDays(a, b) < 0;
+}
+
 export function compareTimeOfDay(
   aHour: number,
   aMinute: number,

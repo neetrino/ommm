@@ -41,7 +41,12 @@ export type DropdownSelectProps<T extends string> = {
   menuMinWidth?: number;
   /** Horizontal alignment of the menu relative to the trigger. */
   menuAlign?: FloatingMenuAlign;
+  /** Open on pointer hover (fine pointers only); keeps menu open while cursor is over trigger or menu. */
+  openOnHover?: boolean;
 };
+
+const HOVER_MENU_CLOSE_DELAY_MS = 180;
+const HOVER_MENU_ANIMATION_MS = 220;
 
 function mergeClasses(...parts: Array<string | undefined>): string {
   return parts.filter(Boolean).join(" ");
@@ -102,6 +107,7 @@ export function DropdownSelect<T extends string>({
   showChevron = true,
   menuMinWidth,
   menuAlign,
+  openOnHover = false,
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -112,7 +118,11 @@ export function DropdownSelect<T extends string>({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const hoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [menuExitHold, setMenuExitHold] = useState(false);
+  const [menuAnimatedIn, setMenuAnimatedIn] = useState(false);
   const listboxId = useId();
+  const menuAnimationActive = openOnHover;
 
   const visibleOptions = useMemo(
     () => (searchable ? filterDropdownOptions(options, searchQuery) : [...options]),
@@ -132,7 +142,7 @@ export function DropdownSelect<T extends string>({
   const safeFocusedIndex = Math.min(focusedIndex, visibleOptionLastIndex);
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
-    isMenuOpen,
+    isMenuOpen || menuExitHold,
     disabled,
     undefined,
     menuMinWidth ?? 0,
@@ -184,13 +194,40 @@ export function DropdownSelect<T extends string>({
   }, [disabled, open]);
 
   useEffect(() => {
-    if (!isMenuOpen) {
+    if (!isMenuOpen || openOnHover) {
       return;
     }
     optionRefs.current[safeFocusedIndex]?.focus();
-  }, [isMenuOpen, safeFocusedIndex]);
+  }, [isMenuOpen, openOnHover, safeFocusedIndex]);
+
+  useEffect(() => {
+    return () => {
+      if (hoverCloseTimerRef.current !== null) {
+        clearTimeout(hoverCloseTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!menuAnimationActive) {
+      return;
+    }
+    if (isMenuOpen) {
+      setMenuExitHold(true);
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setMenuAnimatedIn(true);
+        return;
+      }
+      const enterId = window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => setMenuAnimatedIn(true));
+      });
+      return () => window.cancelAnimationFrame(enterId);
+    }
+    setMenuAnimatedIn(false);
+  }, [isMenuOpen, menuAnimationActive]);
 
   function closeAndFocusTrigger() {
+    clearHoverCloseTimer();
     setOpen(false);
     setSearchQuery("");
     window.requestAnimationFrame(() => {
@@ -207,9 +244,59 @@ export function DropdownSelect<T extends string>({
     if (disabled || options.length === 0) {
       return;
     }
+    if (menuAnimationActive) {
+      setMenuExitHold(true);
+    }
     setSearchQuery("");
     setFocusedIndex(initialIndex);
     setOpen(true);
+  }
+
+  function handleMenuTransitionEnd(event: React.TransitionEvent<HTMLDivElement>) {
+    if (!menuAnimationActive || event.target !== event.currentTarget) {
+      return;
+    }
+    if (event.propertyName !== "opacity") {
+      return;
+    }
+    if (!isMenuOpen && !menuAnimatedIn) {
+      setMenuExitHold(false);
+    }
+  }
+
+  function clearHoverCloseTimer() {
+    if (hoverCloseTimerRef.current !== null) {
+      clearTimeout(hoverCloseTimerRef.current);
+      hoverCloseTimerRef.current = null;
+    }
+  }
+
+  function canOpenOnHover(): boolean {
+    if (!openOnHover || disabled || options.length === 0) {
+      return false;
+    }
+    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  }
+
+  function handleHoverZoneEnter() {
+    if (!canOpenOnHover()) {
+      return;
+    }
+    clearHoverCloseTimer();
+    if (!open) {
+      openMenu(selectedIndex);
+    }
+  }
+
+  function handleHoverZoneLeave() {
+    if (!openOnHover) {
+      return;
+    }
+    clearHoverCloseTimer();
+    hoverCloseTimerRef.current = setTimeout(() => {
+      setSearchQuery("");
+      setOpen(false);
+    }, HOVER_MENU_CLOSE_DELAY_MS);
   }
 
   function onSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -296,7 +383,12 @@ export function DropdownSelect<T extends string>({
   );
 
   return (
-    <div ref={rootRef} className={mergeClasses("ommm-dropdown-root", className)}>
+    <div
+      ref={rootRef}
+      className={mergeClasses("ommm-dropdown-root", className)}
+      onMouseEnter={openOnHover ? handleHoverZoneEnter : undefined}
+      onMouseLeave={openOnHover ? handleHoverZoneLeave : undefined}
+    >
       <p className="sr-only">{ariaLabel}</p>
       <button
         ref={triggerRef}
@@ -318,8 +410,10 @@ export function DropdownSelect<T extends string>({
         {triggerContent}
         {showChevron ? (
           <span
+            data-dropdown-chevron=""
             className={mergeClasses(
-              "ml-auto shrink-0 text-sage-500",
+              "ml-auto inline-flex shrink-0 origin-center text-sage-500 transition-transform duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+              isMenuOpen ? "rotate-180" : "rotate-0",
               wrapLabel ? "self-center" : undefined,
             )}
           >
@@ -328,17 +422,37 @@ export function DropdownSelect<T extends string>({
         ) : null}
       </button>
 
-      {isMenuOpen && menuPosition !== null && portalReady
+      {(menuAnimationActive ? menuExitHold : isMenuOpen) &&
+      menuPosition !== null &&
+      portalReady
         ? createPortal(
             <div
               ref={menuRef}
-              className={mergeClasses("ommm-dropdown-menu", menuClassName)}
+              className={mergeClasses(
+                "ommm-dropdown-menu",
+                menuAnimationActive ? "ommm-dropdown-menu--hover-animated" : undefined,
+                menuAnimationActive && menuAnimatedIn
+                  ? "ommm-dropdown-menu--visible"
+                  : undefined,
+                menuClassName,
+              )}
+              data-placement={menuPosition.placement}
+              onMouseEnter={openOnHover ? handleHoverZoneEnter : undefined}
+              onMouseLeave={openOnHover ? handleHoverZoneLeave : undefined}
+              onTransitionEnd={menuAnimationActive ? handleMenuTransitionEnd : undefined}
               style={{
                 top: menuPosition.top,
                 left: menuPosition.left,
                 width: menuPosition.width,
                 maxHeight: disableMenuScroll ? undefined : menuPosition.maxHeight,
-                transform: menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
+                transform: menuAnimationActive
+                  ? undefined
+                  : menuPosition.placement === "top"
+                    ? "translateY(-100%)"
+                    : undefined,
+                transitionDuration: menuAnimationActive
+                  ? `${HOVER_MENU_ANIMATION_MS}ms`
+                  : undefined,
               }}
             >
               {searchable ? (

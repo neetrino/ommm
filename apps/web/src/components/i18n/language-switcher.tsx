@@ -125,7 +125,7 @@ export function LanguageSwitcher({
         }
         renderOption={(option, selected) => (
           <>
-            <span className="min-w-0 flex-1">{option.label}</span>
+            <span className="w-full text-center">{option.label}</span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
         )}

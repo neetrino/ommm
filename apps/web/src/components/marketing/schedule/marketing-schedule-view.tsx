@@ -3,7 +3,10 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
-import { ScheduleDateControls } from "@/components/marketing/schedule/schedule-date-controls";
+import {
+  SCHEDULE_DATE_STRIP_VISIBLE_DAYS,
+  ScheduleDateControls,
+} from "@/components/marketing/schedule/schedule-date-controls";
 import {
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
@@ -12,6 +15,8 @@ import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-ses
 import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-design";
 import {
   addDays,
+  compareCalendarDays,
+  isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
   startOfWeekSunday,
@@ -35,15 +40,32 @@ function buildInitialNav(baseline: Date): ScheduleNavState {
   return { windowStart, selectedDate: baseline };
 }
 
-function shiftWeek(prev: ScheduleNavState, deltaDays: number): ScheduleNavState {
+function shiftWeek(
+  prev: ScheduleNavState,
+  deltaDays: number,
+  today: Date,
+): ScheduleNavState {
+  if (
+    deltaDays < 0 &&
+    compareCalendarDays(
+      addDays(prev.windowStart, deltaDays + SCHEDULE_DATE_STRIP_VISIBLE_DAYS - 1),
+      today,
+    ) < 0
+  ) {
+    return prev;
+  }
+
   const nextWs = addDays(prev.windowStart, deltaDays);
   const first = startOfLocalDay(nextWs);
   const last = addDays(first, 6);
   const sel = startOfLocalDay(prev.selectedDate);
   const outOfRange = sel.getTime() < first.getTime() || sel.getTime() > last.getTime();
+  const nextSelected = outOfRange ? first : prev.selectedDate;
+  const clampedSelected = isBeforeCalendarDay(nextSelected, today) ? today : nextSelected;
+
   return {
     windowStart: nextWs,
-    selectedDate: outOfRange ? first : prev.selectedDate,
+    selectedDate: clampedSelected,
   };
 }
 
@@ -144,8 +166,13 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
         locale={locale}
         selectedDate={nav.selectedDate}
         windowStart={nav.windowStart}
-        onSelectDay={(d) => setNav((s) => ({ ...s, selectedDate: d }))}
-        onShiftWindow={(delta) => setNav((s) => shiftWeek(s, delta))}
+        onSelectDay={(d) => {
+          if (isBeforeCalendarDay(d, baseline)) return;
+          setNav((s) => ({ ...s, selectedDate: d }));
+        }}
+        onShiftWindow={(delta) =>
+          setNav((s) => shiftWeek(s, delta, baseline))
+        }
       />
       <div
         className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"

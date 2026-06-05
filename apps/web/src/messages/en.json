@@ -93,7 +93,10 @@
       "primaryCta": "Make a booking",
       "secondaryCta": "View Membership",
       "heroImageAlt": "Person meditating in a bright minimal studio with an oval opening to the sea",
-      "logoAlt": "Ommm studio emblem"
+      "logoAlt": "Ommm studio emblem",
+      "junctionNavAria": "Hero photo navigation",
+      "junctionNavPrevAria": "Previous hero photo",
+      "junctionNavNextAria": "Next hero photo"
     },
     "home": {
       "weeklyScheduleTitle": "Weekly Schedule",
@@ -925,7 +928,6 @@
     "schedule": {
       "metaDescription": "Browse class times, filters, and booking at Ommm studio.",
       "pageTitle": "Find a Class",
-      "myAccount": "My Account",
       "filterClassType": "Class Type",
       "filterClassTypeAria": "Filter by class type",
       "filterInstructor": "Instructor",

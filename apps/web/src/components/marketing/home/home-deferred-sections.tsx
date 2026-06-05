@@ -19,6 +19,13 @@ export const HomeGallerySectionDeferred = dynamic(
   },
 );
 
+/** Hero junction nav — client island; must SSR to match hydration (no `ssr: false`). */
+export const HomeHeroJunctionNavDeferred = dynamic(() =>
+  import("@/components/marketing/home/home-hero-junction-nav").then(
+    (module) => module.HomeHeroJunctionNav,
+  ),
+);
+
 /** Weekly schedule grid — tabs, fetch, session rows; split from hero hydration. */
 export const HomeWeeklyScheduleGridDeferred = dynamic(
   () =>

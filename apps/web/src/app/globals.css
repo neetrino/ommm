@@ -625,7 +625,7 @@ html {
   }
 
   .ommm-dropdown-trigger {
-    @apply flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-full border border-[#97907c]/55 bg-white/75 px-4 py-2 text-left shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,background-color];
+    @apply flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-full border border-[#97907c]/55 bg-white/75 px-4 py-2 text-left shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,background-color,transform] duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)];
     @apply hover:border-[#97907c] hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed;
   }
 
@@ -702,6 +702,40 @@ html {
     @apply fixed z-[2000] overflow-hidden rounded-[24px] border border-white/70 bg-white/95 shadow-[0_24px_50px_-28px_rgba(45,40,35,0.32)] backdrop-blur-xl;
   }
 
+  .ommm-dropdown-menu--hover-animated {
+    pointer-events: none;
+    opacity: 0;
+    transition-property: opacity, transform;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ommm-dropdown-menu--hover-animated[data-placement="bottom"] {
+    transform: translateY(-6px);
+  }
+
+  .ommm-dropdown-menu--hover-animated[data-placement="top"] {
+    transform: translateY(calc(-100% + 6px));
+  }
+
+  .ommm-dropdown-menu--hover-animated.ommm-dropdown-menu--visible {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  .ommm-dropdown-menu--hover-animated[data-placement="bottom"].ommm-dropdown-menu--visible {
+    transform: translateY(0);
+  }
+
+  .ommm-dropdown-menu--hover-animated[data-placement="top"].ommm-dropdown-menu--visible {
+    transform: translateY(-100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ommm-dropdown-menu--hover-animated {
+      transition: none;
+    }
+  }
+
   .ommm-dropdown-menu-header {
     @apply flex items-center justify-between gap-3 border-b px-4 py-3;
     border-color: rgba(151, 144, 124, 0.18);
@@ -751,7 +785,7 @@ html {
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option {
-    @apply gap-1.5 border-2 border-transparent px-2 py-1.5;
+    @apply justify-center gap-1.5 border-2 border-transparent px-2 py-1.5 text-center;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option[data-selected="true"] {

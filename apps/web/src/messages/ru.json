@@ -93,7 +93,10 @@
       "primaryCta": "Записаться",
       "secondaryCta": "Посмотреть абонементы",
       "heroImageAlt": "Человек в позе медитации в светлой минималистичной студии с овальным проёмом к морю",
-      "logoAlt": "Эмблема студии Ommm"
+      "logoAlt": "Эмблема студии Ommm",
+      "junctionNavAria": "Навигация по фото hero",
+      "junctionNavPrevAria": "Предыдущее фото hero",
+      "junctionNavNextAria": "Следующее фото hero"
     },
     "home": {
       "weeklyScheduleTitle": "Расписание на неделю",
@@ -925,7 +928,6 @@
     "schedule": {
       "metaDescription": "Расписание, фильтры и запись на занятия в студии Ommm.",
       "pageTitle": "Найти класс",
-      "myAccount": "Мой аккаунт",
       "filterClassType": "Тип занятия",
       "filterClassTypeAria": "Фильтр по типу занятия",
       "filterInstructor": "Инструктор",
