@@ -120,6 +120,25 @@
   height: auto;
 }
 
+@media (max-width: 743px) {
+  .submit {
+    position: relative;
+  }
+
+  .submitLabel {
+    flex: none;
+    width: 100%;
+    text-align: center;
+  }
+
+  .submitArrow {
+    position: absolute;
+    top: 50%;
+    right: 1.25rem;
+    transform: translateY(-50%);
+  }
+}
+
 .security {
   display: flex;
   align-items: center;
