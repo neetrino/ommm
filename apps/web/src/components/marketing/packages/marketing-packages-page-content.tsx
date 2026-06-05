@@ -17,7 +17,9 @@ export async function MarketingPackagesPageContent({
   locale,
 }: MarketingPackagesPageContentProps) {
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const res = await fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans");
+  const res = await fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans", {
+    cacheMode: "no-store",
+  });
   const apiCategories = res.ok
     ? groupVisiblePublicPackageCategories(
         res.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),

@@ -62,23 +62,16 @@ export const PACKAGES_PAGE_CATEGORY_GRADIENT_START: Readonly<Record<string, stri
   dances: "#d9d9d9",
 };
 
-/** Figma Packages mobile accordion — collapsed card + inline expanded panel. */
-export const PACKAGES_PAGE_MOBILE_FIGMA = {
-  accordionGapPx: 18,
-  collapsedCardMinHeightPx: 118,
-  collapsedCardRadiusPx: 24,
-  collapsedTitleSizePx: 28,
-  collapsedDetailsSizePx: 16,
-  mobileFabSizePx: 58,
-  expandedPanelPaddingPx: 20,
-  tierCardRadiusPx: 20,
-  tierCardGapPx: 14,
-  tierTitleSizePx: 22,
-  tierMetaLabelSizePx: 14,
-  tierMetaValueSizePx: 16,
-  subscribeButtonHeightPx: 48,
-  subscribeFontSizePx: 18,
-} as const;
+export const PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS = [
+  "reformer group",
+  "reformer individual",
+  "mat pilates",
+  "yoga",
+  "dances",
+] as const;
+
+export type PackagesPageCategoryColorVariantKey =
+  (typeof PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS)[number];
 
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
