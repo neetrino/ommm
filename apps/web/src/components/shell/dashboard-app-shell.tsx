@@ -14,7 +14,6 @@ import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
-import { MemberDashboardHeader } from "@/components/shell/member-dashboard-header";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -311,6 +310,7 @@ export function DashboardAppShell({
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {variant !== "member" ? (
           <header
             ref={isOliveShell ? adminHeaderRef : undefined}
             className={`${mainHeaderStickyClass} shrink-0`}
@@ -321,17 +321,6 @@ export function DashboardAppShell({
                   title={heading.title}
                   drawerOpen={drawerOpen}
                   onMenuToggle={() => setDrawerOpen((open) => !open)}
-                />
-              </div>
-            ) : variant === "member" ? (
-              <div className="ommm-admin-content mx-auto w-full">
-                <MemberDashboardHeader
-                  title={heading.title}
-                  drawerOpen={drawerOpen}
-                  onMenuToggle={() => setDrawerOpen((open) => !open)}
-                  notificationHref={notificationRoute?.href}
-                  notificationLabel={notificationsLabel ?? undefined}
-                  notificationsActive={notificationsActive}
                 />
               </div>
             ) : (
@@ -413,6 +402,7 @@ export function DashboardAppShell({
               </div>
             )}
           </header>
+          ) : null}
 
           <main
             className={
