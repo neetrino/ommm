@@ -1,0 +1,183 @@
+/**
+ * Figma Packages page card row `395:1652`.
+ */
+
+.grid {
+  display: grid;
+  width: 100%;
+  max-width: var(--packages-page-grid-max-width);
+  margin-inline: auto;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--packages-page-cards-gap);
+}
+
+.mobileCarouselViewport {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.mobileCarouselViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.mobileCarouselTrack {
+  display: flex;
+  width: max-content;
+  gap: var(--packages-page-mobile-carousel-gap);
+  padding-inline-end: var(--packages-page-mobile-carousel-trailing-pad, 0);
+}
+
+.mobileCarouselSlide {
+  flex-shrink: 0;
+  width: var(--packages-page-mobile-card-width);
+  scroll-snap-align: start;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: var(--packages-page-card-aspect-ratio);
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--packages-page-card-radius);
+  padding:
+    clamp(3.5rem, 17%, 5.375rem)
+    clamp(0.75rem, 9.6%, 1.1875rem)
+    clamp(1.25rem, 8%, 2rem);
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  background-color: transparent;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -12px rgba(45, 40, 35, 0.28);
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+.card:focus-visible {
+  outline: 2px solid #577f91;
+  outline-offset: 3px;
+}
+
+.cardTop {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(0.5rem, 4%, 1.5rem);
+}
+
+.title {
+  margin: 0;
+  max-width: 10.375rem;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(1.25rem, 3vw, var(--packages-page-title-size));
+  font-weight: 700;
+  font-style: italic;
+  line-height: var(--packages-page-title-line-height);
+  letter-spacing: var(--packages-page-title-letter-spacing);
+  color: var(--packages-page-text-color);
+  text-wrap: balance;
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.priceFromPrefix {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.875rem, 2vw, var(--packages-page-price-size));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+}
+
+.price {
+  margin: 0;
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.875rem, 2vw, var(--packages-page-price-size));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+  white-space: nowrap;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.detailsLabel {
+  margin: 0;
+  padding-left: calc(var(--packages-page-details-offset-left) - var(--packages-page-content-padding-left));
+  font-family: var(--font-serif, ui-serif, Georgia, serif);
+  font-size: clamp(0.875rem, 2vw, var(--packages-page-details-size));
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--packages-page-text-color);
+}
+
+.fab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--packages-page-fab-size);
+  height: var(--packages-page-fab-size);
+  transition: transform 150ms ease;
+}
+
+.card:hover .fab {
+  transform: scale(1.05);
+}
+
+.desktopOnly {
+  display: none;
+}
+
+.mobileOnly {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .desktopOnly {
+    display: grid;
+  }
+
+  .mobileOnly {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .fab {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
