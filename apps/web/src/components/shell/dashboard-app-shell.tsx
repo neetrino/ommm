@@ -14,6 +14,7 @@ import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { AdminDashboardHeader } from "@/components/shell/admin-dashboard-header";
+import { MemberMobileWorkspaceBar } from "@/components/shell/member-mobile-workspace-bar";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -410,6 +411,18 @@ export function DashboardAppShell({
           </header>
           ) : null}
 
+          {variant === "member" ? (
+            <MemberMobileWorkspaceBar
+              title={heading.title}
+              drawerOpen={drawerOpen}
+              onMenuToggle={() => setDrawerOpen((open) => !open)}
+              notificationHref={notificationRoute?.href ?? null}
+              notificationsLabel={notificationsLabel}
+              notificationsActive={notificationsActive}
+              onAfterNavigate={() => setDrawerOpen(false)}
+            />
+          ) : null}
+
           <main
             className={
               isOliveShell
@@ -424,7 +437,7 @@ export function DashboardAppShell({
 
       {drawerOpen ? (
         <div
-          className="fixed inset-0 z-40 flex lg:hidden"
+          className={`fixed inset-0 flex lg:hidden ${withMarketingSiteHeader ? "z-[60]" : "z-40"}`}
           id="dashboard-mobile-drawer"
           role="dialog"
           aria-modal="true"
