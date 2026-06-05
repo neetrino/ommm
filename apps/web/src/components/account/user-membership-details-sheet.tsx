@@ -15,19 +15,17 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
 /** Side sheet occupies half the viewport width on larger screens. */
-const MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS =
-  "w-[calc(100%-1rem)] sm:w-1/2 sm:max-w-[50vw] sm:min-w-[22rem]";
+const MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS = "w-full sm:w-1/2 sm:max-w-[50vw]";
 
-/** Side sheet height — 90% of the viewport, vertically centered. */
-const MEMBERSHIP_DETAILS_SHEET_HEIGHT_CLASS = "h-[90dvh] self-center";
+/** Side sheet height — 90% of the viewport, anchored to the bottom edge. */
+const MEMBERSHIP_DETAILS_SHEET_HEIGHT_CLASS = "h-[90dvh]";
 
 export const USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS = [
   "relative z-10 flex flex-col overflow-hidden",
   MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS,
   MEMBERSHIP_DETAILS_SHEET_HEIGHT_CLASS,
-  "rounded-l-[28px] border border-white/70 border-r-0",
+  "rounded-tl-[28px] border border-white/70 border-b-0 border-r-0",
   "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
-  "sm:mr-4",
 ].join(" ");
 
 type UserMembershipDetailsSheetProps = {
@@ -61,7 +59,7 @@ export function UserMembershipDetailsSheet({
       onClose={onClose}
       backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
-      overlayClassName="ommm-drawer-overlay z-[105]"
+      overlayClassName="ommm-drawer-overlay z-[105] items-end"
       panelClassName={USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className="shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5">
