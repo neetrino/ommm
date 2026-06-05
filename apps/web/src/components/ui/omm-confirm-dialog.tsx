@@ -4,7 +4,7 @@ import { useId, type ReactNode } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 
-export type OmmConfirmDialogTone = "default" | "warm" | "danger";
+export type OmmConfirmDialogTone = "default" | "warm" | "danger" | "success";
 
 type OmmConfirmDialogProps = {
   isOpen: boolean;
@@ -28,6 +28,7 @@ const CONFIRM_DIALOG_TONE_PANEL_CLASS: Record<OmmConfirmDialogTone, string> = {
   default: "",
   warm: "ommm-confirm-dialog--warm",
   danger: "ommm-confirm-dialog--danger",
+  success: "ommm-confirm-dialog--success",
 };
 
 export function OmmConfirmDialog({

@@ -925,7 +925,8 @@ html {
   }
 
   .ommm-btn-lifecycle-action--warm:hover,
-  .ommm-btn-lifecycle-action--danger:hover {
+  .ommm-btn-lifecycle-action--danger:hover,
+  .ommm-btn-lifecycle-action--success:hover {
     @apply shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)]!;
   }
 
@@ -945,6 +946,14 @@ html {
     @apply ring-red-500!;
   }
 
+  .ommm-btn-lifecycle-action--success:hover {
+    @apply border-emerald-300! bg-emerald-100! text-emerald-800!;
+  }
+
+  .ommm-btn-lifecycle-action--success:focus-visible {
+    @apply ring-emerald-500!;
+  }
+
   .ommm-confirm-dialog--warm {
     @apply border-sand-500/35 bg-gradient-to-br from-sand-100/95 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(107,92,76,0.38)];
   }
@@ -959,6 +968,14 @@ html {
 
   .ommm-confirm-dialog--danger .ommm-btn-lifecycle-action--danger {
     @apply border-red-300 bg-red-100 text-red-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-confirm-dialog--success {
+    @apply border-emerald-300/70 bg-gradient-to-br from-emerald-100/90 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(5,150,105,0.22)];
+  }
+
+  .ommm-confirm-dialog--success .ommm-btn-lifecycle-action--success {
+    @apply border-emerald-300 bg-emerald-100 text-emerald-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
   }
 
   .ommm-session-booked-button {

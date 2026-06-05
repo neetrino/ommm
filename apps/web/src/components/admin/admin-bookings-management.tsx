@@ -96,7 +96,7 @@ function bookingRowKey(row: Pick<BookingRow, "id" | "recordType">): string {
   return `${row.recordType}-${row.id}`;
 }
 
-type BookingConfirmKind = "cancel" | "delete";
+type BookingConfirmKind = "cancel" | "delete" | "attended";
 
 type PendingBookingConfirm = {
   kind: BookingConfirmKind;
@@ -255,7 +255,19 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 
     const { kind, row } = pendingConfirm;
 
-    if (kind === "cancel") {
+    if (kind === "attended") {
+      await runRowAction(row.id, async () => {
+        await apiFetch(`/bookings/admin/${row.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: "COMPLETED" }),
+        });
+        setRows((prev) =>
+          prev.map((item) =>
+            item.id === row.id ? { ...item, status: "COMPLETED" } : item,
+          ),
+        );
+      }, t("successMarkedAttended"));
+    } else if (kind === "cancel") {
       await runRowAction(row.id, async () => {
         await apiFetch(`/bookings/admin/${row.id}`, {
           method: "PATCH",
@@ -282,14 +294,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 
   function rowActionHandlers(row: BookingRow) {
     return {
-      onMarkAttended: () => {
-        void runRowAction(row.id, async () => {
-          await apiFetch(`/bookings/admin/${row.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({ status: "COMPLETED" }),
-          });
-        }, t("successMarkedAttended"));
-      },
+      onMarkAttended: () => openBookingConfirm("attended", row),
       onCancel: () => openBookingConfirm("cancel", row),
       onMove: () => setMoveBooking(row),
       onChangeStatus: (nextStatus: BookingRow["status"]) => {
@@ -298,6 +303,10 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         }
         if (nextStatus === "CANCELLED") {
           openBookingConfirm("cancel", row);
+          return;
+        }
+        if (nextStatus === "COMPLETED") {
+          openBookingConfirm("attended", row);
           return;
         }
         void runRowAction(row.id, async () => {
@@ -514,22 +523,32 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         title={
           pendingConfirm?.kind === "delete"
             ? t("confirmDeleteTitle")
-            : t("confirmCancelTitle")
+            : pendingConfirm?.kind === "attended"
+              ? t("confirmAttendedTitle")
+              : t("confirmCancelTitle")
         }
         description={
           pendingConfirm?.kind === "delete"
             ? t("confirmDelete")
-            : t("confirmCancel")
+            : pendingConfirm?.kind === "attended"
+              ? t("confirmAttended")
+              : t("confirmCancel")
         }
         confirmLabel={
           pendingConfirm?.kind === "delete"
             ? t("confirmDialogDelete")
-            : t("confirmDialogCancel")
+            : pendingConfirm?.kind === "attended"
+              ? t("confirmDialogYes")
+              : t("confirmDialogCancel")
         }
         cancelLabel={t("confirmDialogNo")}
         backdropAriaLabel={t("confirmDialogBackdrop")}
-        tone="danger"
-        confirmClassName="ommm-btn-lifecycle-action--danger"
+        tone={pendingConfirm?.kind === "attended" ? "success" : "danger"}
+        confirmClassName={
+          pendingConfirm?.kind === "attended"
+            ? "ommm-btn-lifecycle-action--success"
+            : "ommm-btn-lifecycle-action--danger"
+        }
         pending={pendingConfirm !== null && busyId === pendingConfirm.row.id}
         onConfirm={() => {
           void confirmBookingAction();
