@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { UserMembershipBoardCard } from "@/components/account/user-membership-board-card";
 import { UserMembershipCompactRow } from "@/components/account/user-membership-compact-row";
@@ -8,13 +8,8 @@ import { UserMembershipDetailsModal } from "@/components/account/user-membership
 import { normalizeUserPackageStatus } from "@/components/account/user-membership-display";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
 import { Link } from "@/i18n/navigation";
+import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserMembershipRow } from "@/lib/user-package-types";
-import {
-  DEFAULT_USER_PACKAGES_VIEW_MODE,
-  readUserPackagesViewModeFromStorage,
-  writeUserPackagesViewModeToStorage,
-  type UserPackagesViewMode,
-} from "@/lib/user-packages-view-preference";
 
 type UserPackagesSectionProps = {
   locale: string;
@@ -28,17 +23,8 @@ export function UserPackagesSection({
   apiOk,
 }: UserPackagesSectionProps) {
   const t = useTranslations("userPages.packages");
-  const [viewMode, setViewMode] = useState<UserPackagesViewMode>(DEFAULT_USER_PACKAGES_VIEW_MODE);
+  const [viewMode, setView] = useUserListBoardView("packages");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setViewMode(readUserPackagesViewModeFromStorage());
-  }, []);
-
-  const setView = useCallback((mode: UserPackagesViewMode) => {
-    setViewMode(mode);
-    writeUserPackagesViewModeToStorage(mode);
-  }, []);
 
   const selectedMembership = useMemo(() => {
     if (selectedId === null) {

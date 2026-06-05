@@ -1,36 +1,21 @@
-export type UserPackagesViewMode = "list" | "board";
+export type { UserListBoardViewMode as UserPackagesViewMode } from "@/lib/user-list-board-view-preference";
+export {
+  DEFAULT_USER_LIST_BOARD_VIEW_MODE as DEFAULT_USER_PACKAGES_VIEW_MODE,
+  parseUserListBoardViewMode as parseUserPackagesViewMode,
+} from "@/lib/user-list-board-view-preference";
+
+import {
+  readUserListBoardViewFromStorage,
+  writeUserListBoardViewToStorage,
+  type UserListBoardViewMode,
+} from "@/lib/user-list-board-view-preference";
 
 export const USER_PACKAGES_VIEW_STORAGE_KEY = "ommm:user-packages-view";
-export const DEFAULT_USER_PACKAGES_VIEW_MODE: UserPackagesViewMode = "board";
 
-const VALID_MODES: readonly UserPackagesViewMode[] = ["list", "board"];
-
-function isUserPackagesViewMode(value: string | null): value is UserPackagesViewMode {
-  return value !== null && (VALID_MODES as readonly string[]).includes(value);
+export function readUserPackagesViewModeFromStorage(): UserListBoardViewMode {
+  return readUserListBoardViewFromStorage("packages");
 }
 
-export function parseUserPackagesViewMode(value: string | null | undefined): UserPackagesViewMode {
-  if (value === undefined || value === null) {
-    return DEFAULT_USER_PACKAGES_VIEW_MODE;
-  }
-  return isUserPackagesViewMode(value) ? value : DEFAULT_USER_PACKAGES_VIEW_MODE;
-}
-
-export function readUserPackagesViewModeFromStorage(): UserPackagesViewMode {
-  if (typeof window === "undefined") {
-    return DEFAULT_USER_PACKAGES_VIEW_MODE;
-  }
-  try {
-    return parseUserPackagesViewMode(window.localStorage.getItem(USER_PACKAGES_VIEW_STORAGE_KEY));
-  } catch {
-    return DEFAULT_USER_PACKAGES_VIEW_MODE;
-  }
-}
-
-export function writeUserPackagesViewModeToStorage(mode: UserPackagesViewMode): void {
-  try {
-    window.localStorage.setItem(USER_PACKAGES_VIEW_STORAGE_KEY, mode);
-  } catch {
-    /* ignore */
-  }
+export function writeUserPackagesViewModeToStorage(mode: UserListBoardViewMode): void {
+  writeUserListBoardViewToStorage("packages", mode);
 }

@@ -742,7 +742,15 @@
       "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Nothing here yet.",
       "signInRequired": "Sign in to see your bookings.",
-      "loadError": "Could not load bookings ({status})."
+      "loadError": "Could not load bookings ({status}).",
+      "viewSwitcherAria": "Bookings display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "bookingsCount": "{count, plural, one {# booking} other {# bookings}}",
+      "listHeaderClass": "Class",
+      "listHeaderTime": "Time",
+      "listHeaderStatus": "Status",
+      "listHeaderActions": "Actions"
     },
     "classes": {
       "title": "Classes",
@@ -753,7 +761,16 @@
       "spotsBooked": "{booked}/{capacity} booked",
       "paidShort": "Paid ({amount})",
       "includedShort": "Included / package",
-      "myBookingsLink": "My bookings"
+      "myBookingsLink": "My bookings",
+      "viewSwitcherAria": "Schedule display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "sessionsCount": "{count, plural, one {# session} other {# sessions}}",
+      "listHeaderClass": "Class",
+      "listHeaderTime": "Time",
+      "listHeaderCoach": "Coach",
+      "listHeaderSpots": "Spots",
+      "listHeaderActions": "Actions"
     },
     "notifications": {
       "title": "Notifications",
@@ -904,7 +921,11 @@
         "related": "Related item",
         "reference": "Reference",
         "updated": "Updated"
-      }
+      },
+      "viewSwitcherAria": "Payments display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "paymentsCount": "{count, plural, one {# payment} other {# payments}}"
     },
     "profile": {
       "title": "Profile",

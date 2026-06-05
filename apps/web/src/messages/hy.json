@@ -748,9 +748,21 @@
       "title": "Իմ ամրագրումները",
       "upcoming": "Առաջիկա",
       "pastOther": "Անցյալ և այլ",
+      "waitlists": "Սպասման ցուցակներ",
+      "waitlistsLoadError": "Չհաջողվեց բեռնել սպասման ցուցակները։",
+      "waitlistsEmpty": "Ակտիվ սպասման ցուցակներ չկան։",
+      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Այստեղ դեռ ոչինչ չկա։",
       "signInRequired": "Մուտք գործեք՝ ամրագրումները տեսնելու համար։",
-      "loadError": "Չհաջողվեց բեռնել ամրագրումները ({status})։"
+      "loadError": "Չհաջողվեց բեռնել ամրագրումները ({status})։",
+      "viewSwitcherAria": "Ամրագրումների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "bookingsCount": "{count, plural, one {# ամրագրում} other {# ամրագրում}}",
+      "listHeaderClass": "Դաս",
+      "listHeaderTime": "Ժամ",
+      "listHeaderStatus": "Կարգավիճակ",
+      "listHeaderActions": "Գործողություններ"
     },
     "classes": {
       "title": "Դասեր",
@@ -761,7 +773,16 @@
       "spotsBooked": "{booked}/{capacity} ամրագրված",
       "paidShort": "Վճարովի ({amount})",
       "includedShort": "Ներառված / աբոնեմենտ",
-      "myBookingsLink": "Իմ ամրագրումները"
+      "myBookingsLink": "Իմ ամրագրումները",
+      "viewSwitcherAria": "Ժամանակացույցի ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "sessionsCount": "{count, plural, one {# սեսիա} other {# սեսիա}}",
+      "listHeaderClass": "Դաս",
+      "listHeaderTime": "Ժամ",
+      "listHeaderCoach": "Մարզիչ",
+      "listHeaderSpots": "Տեղեր",
+      "listHeaderActions": "Գործողություններ"
     },
     "notifications": {
       "title": "Ծանուցումներ",
@@ -912,7 +933,11 @@
         "related": "Կապված տարր",
         "reference": "Հղում",
         "updated": "Թարմացվել է"
-      }
+      },
+      "viewSwitcherAria": "Վճարումների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "paymentsCount": "{count, plural, one {# վճարում} other {# վճարում}}"
     },
     "profile": {
       "title": "Պրոֆիլ",

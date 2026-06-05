@@ -742,7 +742,15 @@
       "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Пока пусто.",
       "signInRequired": "Войдите, чтобы увидеть бронирования.",
-      "loadError": "Не удалось загрузить бронирования ({status})."
+      "loadError": "Не удалось загрузить бронирования ({status}).",
+      "viewSwitcherAria": "Режим отображения бронирований",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "bookingsCount": "{count, plural, one {# бронирование} few {# бронирования} many {# бронирований} other {# бронирования}}",
+      "listHeaderClass": "Занятие",
+      "listHeaderTime": "Время",
+      "listHeaderStatus": "Статус",
+      "listHeaderActions": "Действия"
     },
     "classes": {
       "title": "Классы",
@@ -753,7 +761,16 @@
       "spotsBooked": "{booked}/{capacity} занято",
       "paidShort": "Платно ({amount})",
       "includedShort": "Включено / абонемент",
-      "myBookingsLink": "Мои бронирования"
+      "myBookingsLink": "Мои бронирования",
+      "viewSwitcherAria": "Режим отображения расписания",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "sessionsCount": "{count, plural, one {# сессия} few {# сессии} many {# сессий} other {# сессии}}",
+      "listHeaderClass": "Занятие",
+      "listHeaderTime": "Время",
+      "listHeaderCoach": "Тренер",
+      "listHeaderSpots": "Места",
+      "listHeaderActions": "Действия"
     },
     "notifications": {
       "title": "Уведомления",
@@ -904,7 +921,11 @@
         "related": "Связанный объект",
         "reference": "Референс",
         "updated": "Обновлено"
-      }
+      },
+      "viewSwitcherAria": "Режим отображения платежей",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "paymentsCount": "{count, plural, one {# платёж} few {# платежа} many {# платежей} other {# платежа}}"
     },
     "profile": {
       "title": "Профиль",
