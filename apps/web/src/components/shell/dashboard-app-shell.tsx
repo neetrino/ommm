@@ -19,6 +19,7 @@ import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
+import { useMarketingHeaderOffsetSync } from "@/components/marketing/use-marketing-header-offset-sync";
 import {
   avatarRingClass,
   brandInitial,
@@ -165,6 +166,8 @@ export function DashboardAppShell({
 
   useCloseOnEscape(drawerOpen, () => setDrawerOpen(false));
 
+  useMarketingHeaderOffsetSync(withMarketingSiteHeader);
+
   function persistCollapsed(next: boolean) {
     try {
       if (typeof window !== "undefined") {
@@ -194,16 +197,19 @@ export function DashboardAppShell({
     ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader}`
     : pageBackgroundClass(variant);
   const sidebarStickyClass = withMarketingSiteHeader
-    ? `${offsetStyles.stickyBelowMarketingHeader} ${offsetStyles.sidebarBelowMarketingHeader}`
-    : "lg:top-0 lg:h-screen";
+    ? `${offsetStyles.sidebarFixedBelowMarketingHeader}`
+    : "lg:sticky lg:top-0 lg:h-screen lg:max-h-screen lg:self-start";
 
   return (
     <div className={rootClassName}>
       <div
         className={`mx-auto flex min-h-screen w-full flex-col lg:flex-row ${contentMaxClass}`}
       >
+        {withMarketingSiteHeader ? (
+          <div className={`hidden shrink-0 lg:block ${asideWidth}`} aria-hidden />
+        ) : null}
         <aside
-          className={`hidden shrink-0 flex-col shadow-sm lg:sticky lg:flex ${sidebarStickyClass} ${asideWidth} ${
+          className={`hidden shrink-0 flex-col shadow-sm lg:flex ${withMarketingSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
             isOliveShell
               ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
               : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`

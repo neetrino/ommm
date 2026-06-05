@@ -39,6 +39,14 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
+/**
+ * Mobile shell height for USER account pages — header always uses the elevated glass pill
+ * (`marketingHeaderContainerClass` pt + pb-3 + pill padding + pill row min-height).
+ */
+export const MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT = `calc(
+  max(1rem, env(safe-area-inset-top, 0px)) + 0.75rem + calc(${MARKETING_MOBILE_HEADER_GLASS_PILL.paddingY} * 2) + ${MARKETING_MOBILE_HEADER_GLASS_PILL.rowMinHeight}
+)`;
+
 /** Animated CSS vars for the mobile header row wrap (hero ↔ glass pill). */
 export function marketingHeaderMobileRowWrapStyle(glassActive: boolean): CSSProperties {
   const pill = MARKETING_MOBILE_HEADER_GLASS_PILL;

@@ -1,7 +1,7 @@
 /**
  * Fixed marketing header offset — used when the public header sits above dashboard shells.
- * `--ommm-marketing-site-header-offset` mirrors {@link MARKETING_MOBILE_HEADER.shellHeight}
- * on mobile and container min-heights on larger breakpoints.
+ * On mobile, `--marketing-mobile-header-height` is set by the account shell
+ * ({@link MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT}). Tablet+ uses container min-heights.
  */
 .shellWithMarketingHeader {
   --ommm-marketing-site-header-offset: var(--marketing-mobile-header-height, 4.25rem);
@@ -46,5 +46,18 @@
 
 .sidebarBelowMarketingHeader {
   top: var(--ommm-marketing-site-header-offset);
-  height: calc(100dvh - var(--ommm-marketing-site-header-offset));
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 1024px) {
+  .sidebarFixedBelowMarketingHeader {
+    position: fixed;
+    top: var(--ommm-marketing-site-header-offset);
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    height: auto;
+    max-height: none;
+    overscroll-behavior: contain;
+  }
 }
