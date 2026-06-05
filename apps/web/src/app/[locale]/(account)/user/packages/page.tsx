@@ -46,7 +46,9 @@ export default async function UserPackagesPage({
 
   const [membershipsRes, plansRes, paymentsRes] = await Promise.all([
     serverApiJson<UserMembershipRow[]>("/packages/me", cookie),
-    serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans"),
+    serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans", {
+      cacheMode: "no-store",
+    }),
     serverApiJson<UserPaymentRow[]>("/payments/me", cookie),
   ]);
 

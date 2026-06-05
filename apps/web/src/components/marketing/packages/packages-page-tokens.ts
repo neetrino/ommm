@@ -62,6 +62,17 @@ export const PACKAGES_PAGE_CATEGORY_GRADIENT_START: Readonly<Record<string, stri
   dances: "#d9d9d9",
 };
 
+export const PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS = [
+  "reformer group",
+  "reformer individual",
+  "mat pilates",
+  "yoga",
+  "dances",
+] as const;
+
+export type PackagesPageCategoryColorVariantKey =
+  (typeof PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS)[number];
+
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
   cardsGap: "clamp(0.75rem, 1.79vw, 1.1875rem)",

@@ -172,12 +172,12 @@ type CollapsedPanelProps = {
 };
 
 function CollapsedPanel({ category, onOpen, openLabel }: CollapsedPanelProps) {
-  const accentColor = resolvePackagesPageCategoryAccentColor(category.id);
+  const accentColor = resolvePackagesPageCategoryAccentColor(category.visualStyleKey);
 
   return (
     <div
       className={`${accordionStyles.panel} ${accordionStyles.panelCollapsed}`}
-      style={panelStyleVars(category.id, accentColor)}
+      style={panelStyleVars(category.visualStyleKey, accentColor)}
     >
       <div className={accordionStyles.collapsedTop}>
         <p className={accordionStyles.collapsedTitle}>{category.label}</p>
@@ -205,12 +205,12 @@ type ExpandedPanelProps = {
 };
 
 function ExpandedPanel({ locale, category, onClose, closeLabel }: ExpandedPanelProps) {
-  const accentColor = resolvePackagesPageCategoryAccentColor(category.id);
+  const accentColor = resolvePackagesPageCategoryAccentColor(category.visualStyleKey);
 
   return (
     <section
       className={`${accordionStyles.panel} ${accordionStyles.panelExpanded}`}
-      style={panelStyleVars(category.id, accentColor)}
+      style={panelStyleVars(category.visualStyleKey, accentColor)}
       aria-label={category.label}
     >
       <div className={accordionStyles.expandedBody}>
@@ -249,7 +249,7 @@ function DefaultCategoryCard({
   detailsLabel,
 }: DefaultCategoryCardProps) {
   return (
-    <div className={cardStyles.card} style={defaultCardStyleVars(category.id)}>
+    <div className={cardStyles.card} style={defaultCardStyleVars(category.visualStyleKey)}>
       <div className={cardStyles.cardTop}>
         <h2 className={cardStyles.title}>{category.label}</h2>
         {category.priceAmount !== null ? (
@@ -441,8 +441,8 @@ export function PackagesPageAccordion({ locale, categories }: PackagesPageAccord
         <div
           className={accordionStyles.mobileExpanded}
           style={panelStyleVars(
-            expandedCategory.id,
-            resolvePackagesPageCategoryAccentColor(expandedCategory.id),
+            expandedCategory.visualStyleKey,
+            resolvePackagesPageCategoryAccentColor(expandedCategory.visualStyleKey),
           )}
         >
           <div className={accordionStyles.mobileExpandedHeader}>
