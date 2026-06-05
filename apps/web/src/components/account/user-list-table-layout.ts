@@ -45,4 +45,21 @@ export const USER_SCHEDULE_LIST_GRID_COLS =
 export const USER_BOOKINGS_LIST_GRID_COLS =
   "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_5.5rem_1fr_auto]";
 
+/** Item · Amount · ⟨flex⟩ · Date · Time · Status · Method */
+export const USER_PAYMENTS_LIST_GRID_COLS =
+  "minmax(0,11rem)_minmax(8.5rem,auto)_1fr_3.25rem_minmax(5.5rem,auto)_minmax(7rem,auto)_minmax(7.5rem,auto)";
+
+/** Package · Price · Sessions · Period · Status · ⟨flex⟩ · Action */
+export const USER_PACKAGES_LIST_GRID_COLS =
+  "minmax(0,11rem)_minmax(8rem,auto)_minmax(9rem,auto)_minmax(9.5rem,auto)_minmax(6.5rem,auto)_1fr_auto";
+
 export const USER_LIST_TABLE_GRID_GAP = "md:gap-x-4";
+
+/** Row/header participates in the parent list grid columns. */
+export const USER_LIST_TABLE_SUBGRID_ROW = "col-span-full grid grid-cols-subgrid";
+
+export const USER_LIST_DETAILS_CELL =
+  "shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-sand-600 md:justify-self-end";
+
+export const USER_LIST_ROW_INTERACTIVE =
+  "cursor-pointer transition-[background-color,box-shadow,border-color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-[0.998]";

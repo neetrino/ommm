@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
 import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
+import { USER_PAYMENTS_LIST_HEADER_CLASS, USER_PAYMENTS_LIST_TABLE_CLASS } from "@/components/account/user-payments-list-layout";
 import {
   comparePayments,
   normalizePaymentSource,
@@ -66,8 +67,8 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
   }
 
   return (
-    <section className="rounded-[20px] border border-white/60 bg-white/75 p-4 sm:p-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <section className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-sage-600">{t("paymentsCount", { count: rows.length })}</p>
         <UserListBoardViewSwitcher
           pageId="payments"
@@ -77,7 +78,7 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
         />
       </div>
 
-      <div className="mb-4 grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         <FilterField label={t("filters.status")}>
           <OmmFilterDropdown
             allValue="all"
@@ -132,22 +133,19 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
           ))}
         </ul>
       ) : (
-        <div className="overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-3">
-            <span>{t("table.date")}</span>
-            <span>{t("table.amount")}</span>
-            <span>{t("table.currency")}</span>
-            <span>{t("table.status")}</span>
-            <span>{t("table.type")}</span>
+        <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
+          <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
             <span>{t("table.related")}</span>
+            <span>{t("table.amount")}</span>
+            <span aria-hidden="true" />
+            <span>{t("table.date")}</span>
+            <span>{t("table.time")}</span>
+            <span>{t("table.status")}</span>
+            <span>{t("table.paymentMethod")}</span>
           </div>
-          <ul className="divide-y divide-white/70">
-            {rows.map((row) => (
-              <li key={row.id}>
-                <UserPaymentCompactRow locale={locale} payment={row} />
-              </li>
-            ))}
-          </ul>
+          {rows.map((row) => (
+            <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />
+          ))}
         </div>
       )}
     </section>

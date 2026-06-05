@@ -7,7 +7,7 @@ type SessionDateTimeHighlightProps = {
   locale: string;
   startsAt: string;
   endsAt: string;
-  variant: "board" | "listDate" | "listTime";
+  variant: "board" | "listDate" | "listDateYear" | "listTime";
   className?: string;
 };
 
@@ -94,6 +94,22 @@ export function SessionDateTimeHighlight({
       <div className={`${CALENDAR_FLOAT_LIST} ${className}`.trim()} aria-hidden="true">
         <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-sand-600">
           {display.weekdayShort}
+        </span>
+        <span className="font-serif text-2xl leading-none text-sage-950">
+          {display.dayNumber}
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-sage-600">
+          {display.monthShort}
+        </span>
+      </div>
+    );
+  }
+
+  if (variant === "listDateYear") {
+    return (
+      <div className={`${CALENDAR_FLOAT_LIST} ${className}`.trim()} aria-hidden="true">
+        <span className="text-[10px] font-bold tabular-nums tracking-[0.08em] text-sand-600">
+          {display.year}
         </span>
         <span className="font-serif text-2xl leading-none text-sage-950">
           {display.dayNumber}

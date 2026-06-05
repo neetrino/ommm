@@ -710,7 +710,8 @@
       "listHeaderPrice": "Price",
       "listHeaderSessions": "Sessions",
       "listHeaderPeriod": "Period",
-      "listHeaderStatus": "Status"
+      "listHeaderStatus": "Status",
+      "listHeaderActions": "Actions"
     },
     "progress": {
       "title": "Progress",
@@ -920,9 +921,17 @@
         "gift": "Gift card",
         "other": "Other"
       },
+      "paymentMethods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
       "table": {
-        "date": "Payment date",
+        "date": "Date",
+        "time": "Time",
         "amount": "Amount",
+        "paymentMethod": "Payment method",
         "currency": "Currency",
         "status": "Status",
         "type": "Type",

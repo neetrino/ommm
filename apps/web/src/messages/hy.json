@@ -722,7 +722,8 @@
       "listHeaderPrice": "Գին",
       "listHeaderSessions": "Դասեր",
       "listHeaderPeriod": "ժամանակաշրջան",
-      "listHeaderStatus": "Կարգավիճակ"
+      "listHeaderStatus": "Կարգավիճակ",
+      "listHeaderActions": "Գործողություններ"
     },
     "progress": {
       "title": "Առաջընթաց",
@@ -932,9 +933,17 @@
         "gift": "Նվեր քարտ",
         "other": "Այլ"
       },
+      "paymentMethods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
       "table": {
-        "date": "Վճարման ամսաթիվ",
+        "date": "Ամսաթիվ",
+        "time": "Ժամ",
         "amount": "Գումար",
+        "paymentMethod": "Վճարման եղանակ",
         "currency": "Արտարժույթ",
         "status": "Կարգավիճակ",
         "type": "Տեսակ",

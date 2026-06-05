@@ -7,6 +7,7 @@ import { UserMembershipCompactRow } from "@/components/account/user-membership-c
 import { UserMembershipDetailsModal } from "@/components/account/user-membership-details-modal";
 import { normalizeUserPackageStatus } from "@/components/account/user-membership-display";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
+import { USER_PACKAGES_LIST_HEADER_CLASS, USER_PACKAGES_LIST_TABLE_CLASS } from "@/components/account/user-packages-list-layout";
 import { Link } from "@/i18n/navigation";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserMembershipRow } from "@/lib/user-package-types";
@@ -83,30 +84,28 @@ export function UserPackagesSection({
           })}
         </ul>
       ) : (
-        <div className="overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,1.1fr)_auto] md:gap-4">
+        <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
+          <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
             <span>{t("listHeaderPackage")}</span>
             <span>{t("listHeaderPrice")}</span>
             <span>{t("listHeaderSessions")}</span>
             <span>{t("listHeaderPeriod")}</span>
             <span>{t("listHeaderStatus")}</span>
-            <span className="sr-only">{t("viewDetails")}</span>
+            <span aria-hidden="true" />
+            <span>{t("listHeaderActions")}</span>
           </div>
-          <ul className="divide-y divide-white/70">
-            {memberships.map((membership) => {
-              const status = normalizeUserPackageStatus(membership.status);
-              return (
-                <li key={membership.id}>
-                  <UserMembershipCompactRow
-                    membership={membership}
-                    locale={locale}
-                    status={status}
-                    onOpenDetails={() => setSelectedId(membership.id)}
-                  />
-                </li>
-              );
-            })}
-          </ul>
+          {memberships.map((membership) => {
+            const status = normalizeUserPackageStatus(membership.status);
+            return (
+              <UserMembershipCompactRow
+                key={membership.id}
+                membership={membership}
+                locale={locale}
+                status={status}
+                onOpenDetails={() => setSelectedId(membership.id)}
+              />
+            );
+          })}
         </div>
       )}
 

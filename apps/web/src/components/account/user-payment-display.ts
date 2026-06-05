@@ -1,3 +1,4 @@
+import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
 export type UserPaymentSource = "package" | "dropin" | "gift" | "membership" | "other";
@@ -29,6 +30,16 @@ export function resolveRelatedItemName(description: string | null): string | nul
   }
   const candidate = tail.join(":").trim();
   return candidate.length > 0 ? candidate : head.trim() || null;
+}
+
+export function resolvePaymentMethodLabel(
+  paymentMethod: string | null,
+  t: (key: string) => string,
+): string {
+  if (paymentMethod === null || !isManualPaymentMethod(paymentMethod)) {
+    return t("common.notAvailable");
+  }
+  return t(`paymentMethods.${paymentMethod}`);
 }
 
 export function statusSortRank(status: string): number {

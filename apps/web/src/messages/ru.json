@@ -710,7 +710,8 @@
       "listHeaderPrice": "Цена",
       "listHeaderSessions": "Занятия",
       "listHeaderPeriod": "Период",
-      "listHeaderStatus": "Статус"
+      "listHeaderStatus": "Статус",
+      "listHeaderActions": "Действия"
     },
     "progress": {
       "title": "Прогресс",
@@ -920,9 +921,17 @@
         "gift": "Подарочная карта",
         "other": "Другое"
       },
+      "paymentMethods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
       "table": {
-        "date": "Дата платежа",
+        "date": "Дата",
+        "time": "Время",
         "amount": "Сумма",
+        "paymentMethod": "Способ оплаты",
         "currency": "Валюта",
         "status": "Статус",
         "type": "Тип",
