@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { memberChrome } from "@/components/account/member-chrome";
+import { SessionCoachLine } from "@/components/account/session-coach-line";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
@@ -26,7 +27,7 @@ type MemberNextClassFilled = {
   title: string;
   startsAt: string;
   endsAt: string;
-  coachLine?: string | null;
+  coachName?: string | null;
   statusLabel?: string;
   spotsLabel?: string | null;
   priorityImage?: boolean;
@@ -38,17 +39,17 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
   if (props.variant === "empty") {
     const { href, eyebrow, emptyTitle, emptyBody, emptyCta } = props;
     return (
-      <article className={`${memberChrome.panel} flex min-h-[280px] flex-col justify-between gap-6`}>
-        <div>
-          <p className={memberChrome.cardMeta}>{eyebrow}</p>
-          <h3 className={`${memberChrome.sectionTitle} mt-4 max-w-[20ch]`}>
-            {emptyTitle}
-          </h3>
-          <p className={`${memberChrome.ledeTight} mt-3`}>{emptyBody}</p>
+      <article className={memberChrome.nextClassShell}>
+        <div className={memberChrome.nextClassEmptyMedia}>
+          <span className={memberChrome.statusPill}>{eyebrow}</span>
+          <h3 className="ommm-h2 max-w-[16ch] text-sage-800">{emptyTitle}</h3>
         </div>
-        <Link href={href} className="ommm-admin-add-button w-full text-center sm:w-auto">
-          {emptyCta}
-        </Link>
+        <div className={memberChrome.nextClassBody}>
+          <p className={memberChrome.ledeTight}>{emptyBody}</p>
+          <Link href={href} className="ommm-admin-add-button w-full text-center sm:w-auto">
+            {emptyCta}
+          </Link>
+        </div>
       </article>
     );
   }
@@ -63,7 +64,7 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
     title,
     startsAt,
     endsAt,
-    coachLine,
+    coachName,
     statusLabel,
     spotsLabel,
     priorityImage = false,
@@ -129,8 +130,8 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
                 variant="listTime"
               />
             </div>
-            {coachLine ? (
-              <p className="mt-1 text-sm text-sage-500">{coachLine}</p>
+            {coachName ? (
+              <SessionCoachLine coachName={coachName} variant="list" className="mt-2" />
             ) : null}
           </div>
           {statusLabel ? (
@@ -140,12 +141,12 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
 
         {spotsLabel ? (
           <>
-            <div className="h-px w-full bg-white/50" />
-            <div className="flex flex-wrap items-center justify-end gap-2 text-xs text-sage-500">
-              <span className="inline-flex items-center gap-2">
+            <div className="h-px w-full bg-sand-200/70" />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className={`inline-flex items-center gap-2 ${memberChrome.cardSub}`}>
                 <span
                   aria-hidden
-                  className="inline-block h-1.5 w-1.5 rounded-full bg-sage-600"
+                  className="inline-block h-1.5 w-1.5 rounded-full bg-mint-500"
                 />
                 {spotsLabel}
               </span>

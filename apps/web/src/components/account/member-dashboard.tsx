@@ -12,12 +12,18 @@ type NextBooking = {
   className: string;
   startsAt: string;
   endsAt: string;
+  coachName: string | null;
 };
 
 type WaitlistRow = {
   id: string;
   status: string;
-  session: { startsAt: string; classType: { name: string } };
+  session: {
+    startsAt: string;
+    endsAt: string;
+    classType: { name: string };
+    coach: { user: { name: string | null } };
+  };
 };
 
 type AchievementRow = { title: string; unlockedAt: string };
@@ -34,16 +40,9 @@ export type MemberDashboardProps = {
   coachProfileId: string | null;
 };
 
-function formatDateTimeLabel(value: string, locale: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-  const time = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-  return `${formatDateForUi(date)} ${time}`;
+function resolveCoachName(name: string | null | undefined): string | null {
+  const trimmed = name?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
 }
 
 export async function MemberDashboard({
@@ -71,7 +70,9 @@ export async function MemberDashboard({
           status: w.status,
         }),
         title: w.session.classType.name,
-        timeLine: formatDateTimeLabel(w.session.startsAt, locale),
+        startsAt: w.session.startsAt,
+        endsAt: w.session.endsAt,
+        coachName: resolveCoachName(w.session.coach.user.name),
       }))
     : [];
 
@@ -130,7 +131,7 @@ export async function MemberDashboard({
                 title={nextBooking.className}
                 startsAt={nextBooking.startsAt}
                 endsAt={nextBooking.endsAt}
-                coachLine={null}
+                coachName={nextBooking.coachName}
                 statusLabel={t("nextClass.statusBooked")}
                 spotsLabel={null}
                 priorityImage
@@ -149,6 +150,7 @@ export async function MemberDashboard({
         </div>
 
         <MemberWaitlistSection
+          locale={locale}
           title={t("waitlist.title")}
           lead={t("waitlist.lead")}
           emptyMessage={waitlistEmptyMessage}
@@ -158,15 +160,15 @@ export async function MemberDashboard({
         <section className="w-full">
           <h2 className={memberChrome.sectionTitle}>{t("achievements.title")}</h2>
           {achievements.length === 0 ? (
-            <p className={`${memberChrome.ledeTight} mt-4`}>
+            <p className={`${memberChrome.emptyState} mt-4`}>
               {t("achievements.empty")}
             </p>
           ) : (
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {achievements.map((a) => (
-                <li key={`${a.title}-${a.unlockedAt}`} className={memberChrome.panel}>
-                  <p className="font-medium text-sage-900">{a.title}</p>
-                  <p className={`${memberChrome.metaText} mt-2`}>
+                <li key={`${a.title}-${a.unlockedAt}`} className={memberChrome.achievementCard}>
+                  <p className="font-serif text-xl leading-snug text-sage-950">{a.title}</p>
+                  <p className={`${memberChrome.cardMeta} mt-3`}>
                     {formatDateForUi(a.unlockedAt)}
                   </p>
                 </li>
@@ -176,9 +178,7 @@ export async function MemberDashboard({
         </section>
 
         <section className="w-full">
-          <div
-            className={`${memberChrome.panel} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}
-          >
+          <div className={memberChrome.explorePanel}>
             <div>
               <h2 className={memberChrome.panelHeading}>{t("explore.title")}</h2>
               <p className={`${memberChrome.ledeTight} mt-2`}>{t("explore.body")}</p>
