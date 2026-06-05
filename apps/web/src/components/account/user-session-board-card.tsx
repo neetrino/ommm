@@ -8,7 +8,6 @@ import {
 } from "@/components/account/session-coach-line";
 import {
   SESSION_BOOKED_CARD_CLASS,
-  SessionBookedBadge,
 } from "@/components/account/session-booked-badge";
 import { SessionBookingActions } from "@/components/account/session-booking-actions";
 import { SessionClassTitle } from "@/components/account/session-class-title";
@@ -44,7 +43,7 @@ export function UserSessionBoardCard({
       : t("includedShort");
 
   const cardClass = [
-    "relative flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] sm:p-6",
+    "flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] sm:p-6",
     isUserBooked ? SESSION_BOOKED_CARD_CLASS : "",
   ]
     .filter(Boolean)
@@ -52,12 +51,6 @@ export function UserSessionBoardCard({
 
   return (
     <article className={cardClass}>
-      {isUserBooked ? (
-        <div className="absolute right-5 top-5 sm:right-6 sm:top-6">
-          <SessionBookedBadge />
-        </div>
-      ) : null}
-
       <SessionClassTitle variant="board" name={session.classType.name} />
 
       <SessionDateTimeHighlight

@@ -7,7 +7,6 @@ import {
 } from "@/components/account/session-coach-line";
 import {
   SESSION_BOOKED_ROW_CLASS,
-  SessionBookedBadge,
 } from "@/components/account/session-booked-badge";
 import { SessionBookingActions } from "@/components/account/session-booking-actions";
 import { SessionClassTitle } from "@/components/account/session-class-title";
@@ -58,13 +57,7 @@ export function UserSessionCompactRow({
     .join(" ");
 
   return (
-    <div className={`relative ${rowClass}`}>
-      {isUserBooked ? (
-        <div className="absolute right-4 top-4 z-10 md:right-5 md:top-5">
-          <SessionBookedBadge />
-        </div>
-      ) : null}
-
+    <div className={rowClass}>
       <div className={USER_SCHEDULE_LIST_DATE_CELL}>
         <SessionDateTimeHighlight
           locale={locale}

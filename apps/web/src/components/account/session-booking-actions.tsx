@@ -4,9 +4,12 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { BookSessionButton } from "@/components/account/book-session-button";
+import {
+  SESSION_BOOKED_BUTTON_MD_CLASS,
+  SESSION_BOOKED_BUTTON_SM_CLASS,
+} from "@/components/account/session-booked-badge";
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
-import { OmmButton } from "@/components/ui/omm-button";
 
 type SessionBookingActionsProps = {
   sessionId: string;
@@ -25,7 +28,7 @@ export function SessionBookingActions({
   size = "md",
   onBookingChange,
 }: SessionBookingActionsProps) {
-  const t = useTranslations("forms.bookSession");
+  const tClasses = useTranslations("userPages.classes");
   const router = useRouter();
   const [bookingId, setBookingId] = useState<string | undefined>(userBookingId);
 
@@ -34,11 +37,19 @@ export function SessionBookingActions({
   }, [userBookingId]);
 
   if (bookingId) {
+    const bookedButtonClass =
+      size === "sm" ? SESSION_BOOKED_BUTTON_SM_CLASS : SESSION_BOOKED_BUTTON_MD_CLASS;
+
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <OmmButton type="button" variant="primary" size={size} disabled aria-disabled="true">
-          {t("book")}
-        </OmmButton>
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          className={bookedButtonClass}
+        >
+          {tClasses("bookedBadge")}
+        </button>
         <CancelBookingButton
           bookingId={bookingId}
           appearance="button"
