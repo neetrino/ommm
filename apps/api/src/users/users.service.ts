@@ -102,7 +102,7 @@ export class UsersService {
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.lastName !== undefined) data.lastName = dto.lastName;
     if (dto.phone !== undefined) {
-      const normalizedPhone = dto.phone.trim();
+      const normalizedPhone = (dto.phone ?? '').trim();
       if (normalizedPhone === '') {
         data.phone = null;
       } else {
