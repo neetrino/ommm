@@ -55,6 +55,12 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+@media (max-width: 1023px) {
+  .input {
+    font-size: 1rem;
+  }
+}
+
 .input::placeholder {
   color: rgba(74, 71, 56, 0.45);
 }

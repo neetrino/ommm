@@ -160,17 +160,26 @@
   border-radius: 9999px;
 }
 
+.packagesPageLoginHint {
+  max-width: 16rem;
+  margin-inline: auto;
+}
+
 .desktopOnly {
   display: none;
 }
 
 .mobileOnly {
   display: block;
+  width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
   .desktopOnly {
-    display: grid;
+    display: block;
+    width: 100%;
+    min-width: 0;
   }
 
   .mobileOnly {

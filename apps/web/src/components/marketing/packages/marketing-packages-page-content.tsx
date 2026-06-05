@@ -35,10 +35,10 @@ export async function MarketingPackagesPageContent({
           {m("packagesError")}
         </p>
       ) : null}
-      <div className={cardStyles.packagesAccordionScroll}>
-        <PackagesPageAccordion locale={locale} categories={categories} />
-      </div>
-      <p className="mt-8 text-center text-xs text-sage-500">{m("packagesLoginHint")}</p>
+      <PackagesPageAccordion locale={locale} categories={categories} />
+      <p className={`${cardStyles.packagesPageLoginHint} mt-8 text-center text-xs text-sage-500`}>
+        {m("packagesLoginHint")}
+      </p>
     </div>
   );
 }

@@ -1,15 +1,16 @@
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import {
-  HomeClassesSectionDeferred,
   HomeCoachesSectionDeferred,
   HomePlansSectionDeferred,
 } from "@/components/marketing/home/home-deferred-server-sections";
 import { HomeGallerySectionDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HOME_LAZY_SECTION } from "@/components/marketing/home/home-lazy-section-tokens";
 import homePageStyles from "@/components/marketing/home/marketing-home-page.module.css";
+import { MarketingPublicHomeClassesSection } from "@/components/marketing/home/marketing-public-home-classes-section";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
 import { MarketingPublicHero } from "@/components/marketing/home/marketing-public-hero";
+import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { ProgressiveRevealSection } from "@/components/marketing/home/progressive-reveal-section";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { MARKETING_HOME_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
@@ -26,6 +27,8 @@ export default async function MarketingHomePage({ params }: PageProps) {
     notFound();
   }
 
+  const scheduleDataPromise = fetchPublicScheduleItems();
+
   return (
     <div
       {...{ [MARKETING_HOME_PAGE_MARKER]: "" }}
@@ -37,16 +40,9 @@ export default async function MarketingHomePage({ params }: PageProps) {
       }
     >
       <div className={homePageStyles.pageUpper}>
-        <MarketingPublicHero locale={locale} />
+        <MarketingPublicHero locale={locale} scheduleDataPromise={scheduleDataPromise} />
 
-        <ProgressiveRevealSection
-          id="classes"
-          preloadMarginPx={HOME_LAZY_SECTION.preloadMarginPx}
-          mountMarginPx={HOME_LAZY_SECTION.classesMountMarginPx}
-          placeholderClassName={HOME_LAZY_SECTION.placeholders.classes}
-        >
-          <HomeClassesSectionDeferred locale={locale} />
-        </ProgressiveRevealSection>
+        <MarketingPublicHomeClassesSection locale={locale} />
 
         <ProgressiveRevealSection
           id="coaches"
