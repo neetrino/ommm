@@ -4,10 +4,11 @@ import { startTransition, useEffect, useMemo, useState, type ReactNode } from "r
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Link, usePathname } from "@/i18n/navigation";
-import type {
-  DashboardNavDefinition,
-  DashboardNavItem,
-  DashboardRoleNotificationRoute,
+import {
+  dashboardNavPathActive,
+  type DashboardNavDefinition,
+  type DashboardNavItem,
+  type DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import { dashboardSubtitlePathFromHref } from "@/lib/dashboard-subtitle-path";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
@@ -50,9 +51,7 @@ export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-t
 const SIDEBAR_COLLAPSED_KEY = "ommm.dashboard.sidebarCollapsed";
 
 function pathMatchesNav(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  if (pathname === href) return true;
-  return pathname.startsWith(`${href}/`);
+  return dashboardNavPathActive(pathname, href);
 }
 
 export type DashboardAppShellProps = {

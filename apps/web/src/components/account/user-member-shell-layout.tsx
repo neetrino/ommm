@@ -6,7 +6,7 @@ import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
-import { USER_DASHBOARD_PATH } from "@/lib/role-home";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { userDisplayInitials } from "@/lib/user-display-initials";
 import { userDisplayName } from "@/lib/user-display-name";
@@ -40,7 +40,7 @@ export async function UserMemberShellLayout({
 
   return (
     <DashboardAppShell
-      brandHref={USER_DASHBOARD_PATH}
+      brandHref={USER_ACCOUNT_PATH}
       brandLabel={tDash("brand.member.title")}
       brandSubline={tDash("brand.member.subline")}
       variant="member"

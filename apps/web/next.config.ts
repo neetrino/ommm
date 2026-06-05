@@ -90,12 +90,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:locale/dashboard",
-        destination: "/:locale/user/dashboard",
-        permanent: false,
-      },
-      {
-        source: "/:locale/user",
-        destination: "/:locale/user/dashboard",
+        destination: "/:locale/user",
         permanent: false,
       },
       {

@@ -3,13 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { UserMembershipListItem } from "@/components/account/user-membership-list-item";
 import { AccountSection } from "@/components/layout/account-page-frame";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
-import { PublicPackageCategoryCards } from "@/components/marketing/packages/public-package-category-cards";
-import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
-import {
-  normalizePublicPackagePlan,
-  type PublicPackagePlan,
-} from "@/lib/public-package-plan";
-import { serverApiJson, serverApiJsonPublic } from "@/lib/server-api";
+import { Link } from "@/i18n/navigation";
+import { serverApiJson } from "@/lib/server-api";
 import type { UserMembershipRow, UserPaymentRow } from "@/lib/user-package-types";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { formatDateForUi } from "@/lib/date-display";
@@ -44,20 +39,12 @@ export default async function UserPackagesPage({
   const m = await getTranslations({ locale, namespace: "marketing" });
   const cookie = (await headers()).get("cookie") ?? "";
 
-  const [membershipsRes, plansRes, paymentsRes] = await Promise.all([
+  const [membershipsRes, paymentsRes] = await Promise.all([
     serverApiJson<UserMembershipRow[]>("/packages/me", cookie),
-    serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans", {
-      cacheMode: "no-store",
-    }),
     serverApiJson<UserPaymentRow[]>("/payments/me", cookie),
   ]);
 
   const memberships = membershipsRes.ok ? membershipsRes.data : [];
-  const categories = plansRes.ok
-    ? groupVisiblePublicPackageCategories(
-        plansRes.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
-      )
-    : [];
   const payments = paymentsRes.ok ? paymentsRes.data : [];
 
   return (
@@ -68,7 +55,12 @@ export default async function UserPackagesPage({
             {!membershipsRes.ok ? (
               <p className="ommm-body-muted text-sm">{t("signInToView")}</p>
             ) : memberships.length === 0 ? (
-              <p className="ommm-body-muted text-sm">{t("noActivePackage")}</p>
+              <div className="max-w-xl space-y-4">
+                <p className="ommm-body-muted text-sm">{t("noPackagesYet")}</p>
+                <Link href="/packages" className="ommm-cta-primary inline-flex">
+                  {t("browsePackagesCta")}
+                </Link>
+              </div>
             ) : (
               <ul className="max-w-4xl space-y-4">
                 {memberships.map((membership) => {
@@ -88,21 +80,6 @@ export default async function UserPackagesPage({
             )}
           </div>
         </AccountSection>
-
-        <section>
-          <h2 className="ommm-h3 text-sage-800">{m("packagesPageTitle")}</h2>
-          {!plansRes.ok ? (
-            <p className="ommm-body-muted mt-4 text-sm">{m("packagesError")}</p>
-          ) : (
-            <div className="mt-6">
-              <PublicPackageCategoryCards
-                locale={locale}
-                categories={categories}
-                audience="member"
-              />
-            </div>
-          )}
-        </section>
 
         <AccountSection title={t("paymentHistory")}>
           {!paymentsRes.ok ? (

@@ -1,8 +1,14 @@
+/** Public marketing home — default landing after member login/register. */
+export const PUBLIC_HOME_PATH = "/";
+
+/** Member account root — avatar link and `/user` namespace entry. */
+export const USER_ACCOUNT_PATH = "/user";
+
 /** Member dashboard (Prisma `Role.USER`). */
 export const USER_DASHBOARD_PATH = "/user/dashboard";
 
-/** @deprecated Use {@link USER_DASHBOARD_PATH}. */
-export const USER_HOME_PATH = USER_DASHBOARD_PATH;
+/** @deprecated Use {@link USER_ACCOUNT_PATH} or {@link USER_DASHBOARD_PATH}. */
+export const USER_HOME_PATH = USER_ACCOUNT_PATH;
 
 /** Backoffice home for studio administrators (`Role.ADMIN`). */
 export const ADMIN_HOME_PATH = "/admin/dashboard";
@@ -32,7 +38,18 @@ export function homePathForRole(role: string): string {
   if (role === "COACH") {
     return COACH_HOME_PATH;
   }
-  return USER_DASHBOARD_PATH;
+  return USER_ACCOUNT_PATH;
+}
+
+/**
+ * Path after successful login/register (email or OAuth entry via `/account`).
+ * Regular members return to the public home; staff roles go to their workspace.
+ */
+export function postAuthPathForRole(role: string): string {
+  if (role === "USER") {
+    return PUBLIC_HOME_PATH;
+  }
+  return homePathForRole(role);
 }
 
 export function isUserDashboardRole(role: string): boolean {

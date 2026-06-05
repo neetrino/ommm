@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { homePathForRole } from "@/lib/role-home";
@@ -97,6 +98,33 @@ export async function requireAuthForLayout(locale: string): Promise<LayoutAuthOu
     },
   };
 }
+
+/**
+ * Resolves the current user from the session cookie without redirecting.
+ * Returns `null` for guests or when the session is invalid — safe for public
+ * (marketing) layouts that must render for both authenticated and anonymous visitors.
+ */
+export const getOptionalLayoutAuthUser = cache(
+  async (): Promise<LayoutAuthUser | null> => {
+    const cookie = (await headers()).get("cookie") ?? "";
+    if (cookie.length === 0) {
+      return null;
+    }
+    const res = await serverApiJson<MePayload>("/users/me", cookie);
+    if (!res.ok) {
+      return null;
+    }
+    const { user } = res.data;
+    return {
+      role: user.role,
+      locale: user.locale ?? null,
+      name: user.name ?? null,
+      lastName: user.lastName ?? null,
+      email: user.email ?? "",
+      homeImageUrl: user.homeImageUrl ?? null,
+    };
+  },
+);
 
 /**
  * Redirects to this role’s home when the user must not see the current section.

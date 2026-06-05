@@ -10,10 +10,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
-import {
-  REGISTER_REDIRECT_PARAM,
-  resolvePostAuthPath,
-} from "@/lib/auth-redirect";
+import { resolveAuthDestination } from "@/lib/auth-redirect";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
@@ -55,7 +52,6 @@ function isValidPhone(trimmed: string): boolean {
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectAfterAuth = searchParams.get(REGISTER_REDIRECT_PARAM);
   const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.register");
@@ -143,7 +139,7 @@ export default function RegisterPage() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      router.push(resolvePostAuthPath(user.role, redirectAfterAuth), {
+      router.push(resolveAuthDestination(user.role, searchParams), {
         locale: nextLocale,
       });
     } catch (err) {

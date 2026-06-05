@@ -10,10 +10,7 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
-import {
-  REGISTER_REDIRECT_PARAM,
-  resolvePostAuthPath,
-} from "@/lib/auth-redirect";
+import { resolveAuthDestination } from "@/lib/auth-redirect";
 
 function buildGoogleAuthStartUrl(): string {
   const rawApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
@@ -28,7 +25,6 @@ function buildGoogleAuthStartUrl(): string {
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectAfterAuth = searchParams.get(REGISTER_REDIRECT_PARAM);
   const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.login");
@@ -59,7 +55,7 @@ export default function LoginPage() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      router.push(resolvePostAuthPath(user.role, redirectAfterAuth), {
+      router.push(resolveAuthDestination(user.role, searchParams), {
         locale: nextLocale,
       });
     } catch (err) {
@@ -126,7 +122,14 @@ export default function LoginPage() {
       ) : null}
       <p className="ommm-body-muted mt-8 text-center text-sm">
         {tAuth("noAccountPrompt")}{" "}
-        <Link href="/register" className="ommm-link-sage">
+        <Link
+          href={
+            searchParams.toString() !== ""
+              ? `/register?${searchParams.toString()}`
+              : "/register"
+          }
+          className="ommm-link-sage"
+        >
           {t("register")}
         </Link>
       </p>

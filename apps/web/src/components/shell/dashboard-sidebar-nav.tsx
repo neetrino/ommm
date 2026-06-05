@@ -7,7 +7,7 @@ import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
 import { memberNavIconSlugForHref } from "@/components/shell/member-nav-icon-map";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
-import type { DashboardNavItem } from "@/lib/dashboard-nav";
+import { dashboardNavPathActive, type DashboardNavItem } from "@/lib/dashboard-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 
 const ADMIN_MUTED_NAV_HREFS = new Set([
@@ -16,9 +16,7 @@ const ADMIN_MUTED_NAV_HREFS = new Set([
 ]);
 
 function navActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  if (pathname === href) return true;
-  return pathname.startsWith(`${href}/`);
+  return dashboardNavPathActive(pathname, href);
 }
 
 function isAdminMutedNavItem(variant: DashboardShellVariant, href: string) {

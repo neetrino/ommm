@@ -651,6 +651,8 @@
       "yourPackages": "Ваши пакеты",
       "signInToView": "Войдите, чтобы просмотреть.",
       "noActivePackage": "Пока нет активного пакета.",
+      "noPackagesYet": "Вы ещё не приобрели ни одного пакета.",
+      "browsePackagesCta": "Посмотреть пакеты",
       "sessionsLeft": "Осталось занятий: {count}",
       "renewsEnds": "Продление / окончание {date}",
       "paymentHistory": "История платежей",

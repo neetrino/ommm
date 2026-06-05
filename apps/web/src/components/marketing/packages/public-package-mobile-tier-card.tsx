@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
 import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
 import {
   formatPublicPackageTierPricePerSession,
@@ -66,7 +67,10 @@ export function PublicPackageMobileTierCard({
         {t("packagesSubscribeCta")}
       </button>
     ) : (
-      <Link href="/login" className={styles.subscribeButton}>
+      <Link
+        href={buildPackagesSubscribeLoginHref(plan.id)}
+        className={styles.subscribeButton}
+      >
         {t("packagesSubscribeCta")}
       </Link>
     );

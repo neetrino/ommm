@@ -10,6 +10,7 @@ import {
 } from "@/components/marketing/marketing-header-icons";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobile-menu-modal";
+import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import {
   isCompactMarketingHeaderLocale,
   marketingHeaderActionsClass,
@@ -47,12 +48,25 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Logged-in viewer summary used to swap the login icon for a profile avatar. */
+export type MarketingHeaderAccount = {
+  /** Locale-free destination for the avatar link (role home / member dashboard). */
+  href: string;
+  initials: string;
+  imageSrc: string | null;
+  displayName: string;
+};
+
 export type MarketingSiteHeaderProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
+  account?: MarketingHeaderAccount | null;
 };
 
 /** Public marketing header — desktop Figma `196:1404`; mobile HEADER `97:5670`. */
-export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
+export function MarketingSiteHeader({
+  navLinks,
+  account = null,
+}: MarketingSiteHeaderProps) {
   const locale = useLocale();
   const compact = isCompactMarketingHeaderLocale(locale);
   const tNav = useTranslations("nav");
@@ -144,16 +158,30 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
                   />
                 )}
               />
-              <Link
-                href="/login"
-                className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                aria-label={tCommon("login")}
-                onClick={() => setOpen(false)}
-              >
-                <MarketingHeaderUserIcon
-                  className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-                />
-              </Link>
+              {account ? (
+                <Link
+                  href={account.href}
+                  className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  aria-label={account.displayName}
+                  onClick={() => setOpen(false)}
+                >
+                  <MemberProfileAvatar
+                    initials={account.initials}
+                    imageSrc={account.imageSrc}
+                  />
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  aria-label={tCommon("login")}
+                  onClick={() => setOpen(false)}
+                >
+                  <MarketingHeaderUserIcon
+                    className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                  />
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -207,14 +235,28 @@ export function MarketingSiteHeader({ navLinks }: MarketingSiteHeaderProps) {
                 <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
               )}
             />
-            <Link
-              href="/login"
-              className={marketingHeaderIconAccountClass()}
-              aria-label={tCommon("login")}
-              onClick={() => setOpen(false)}
-            >
-              <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
-            </Link>
+            {account ? (
+              <Link
+                href={account.href}
+                className={marketingHeaderIconAccountClass()}
+                aria-label={account.displayName}
+                onClick={() => setOpen(false)}
+              >
+                <MemberProfileAvatar
+                  initials={account.initials}
+                  imageSrc={account.imageSrc}
+                />
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className={marketingHeaderIconAccountClass()}
+                aria-label={tCommon("login")}
+                onClick={() => setOpen(false)}
+              >
+                <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

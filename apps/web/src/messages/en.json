@@ -651,6 +651,8 @@
       "yourPackages": "Your packages",
       "signInToView": "Sign in to view.",
       "noActivePackage": "No active package yet.",
+      "noPackagesYet": "You have not purchased any packages yet.",
+      "browsePackagesCta": "Browse packages",
       "sessionsLeft": "{count} sessions left",
       "renewsEnds": "Renews / ends {date}",
       "paymentHistory": "Payment history",

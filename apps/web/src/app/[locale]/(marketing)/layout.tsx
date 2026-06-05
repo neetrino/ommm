@@ -7,10 +7,18 @@ import { MarketingFooterGate } from "@/components/marketing/marketing-footer-gat
 import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-shell";
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
 import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
-import { MarketingSiteHeader } from "@/components/marketing/marketing-site-header";
+import {
+  MarketingSiteHeader,
+  type MarketingHeaderAccount,
+} from "@/components/marketing/marketing-site-header";
 import { routing } from "@/i18n/routing";
 import { localeFreePathFromRequestPathname } from "@/lib/marketing-path-from-request";
+import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { homePathForRole } from "@/lib/role-home";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
+import { userDisplayInitials } from "@/lib/user-display-initials";
+import { userDisplayName } from "@/lib/user-display-name";
+import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -29,9 +37,27 @@ export default async function MarketingLayout({
   const requestPathname = (await headers()).get(OMMM_PATHNAME_HEADER);
   const serverMarketingPath = localeFreePathFromRequestPathname(requestPathname);
 
+  const authUser = await getOptionalLayoutAuthUser();
+  const account: MarketingHeaderAccount | null = authUser
+    ? {
+        href: homePathForRole(authUser.role),
+        initials: userDisplayInitials(
+          authUser.name,
+          authUser.lastName,
+          authUser.email,
+        ),
+        imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
+        displayName: userDisplayName(
+          authUser.name,
+          authUser.lastName,
+          authUser.email,
+        ),
+      }
+    : null;
+
   return (
     <MarketingLayoutShell>
-      <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} />
+      <MarketingSiteHeader navLinks={MARKETING_NAV_LINKS} account={account} />
       <MarketingLayoutMain>{children}</MarketingLayoutMain>
       <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
         <Suspense fallback={<MarketingFooterLoading />}>

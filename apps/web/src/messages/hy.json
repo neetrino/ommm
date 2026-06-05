@@ -663,6 +663,8 @@
       "yourPackages": "Ձեր փաթեթները",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",
       "noActivePackage": "Դեռ ակտիվ փաթեթ չկա։",
+      "noPackagesYet": "Դուք դեռ չեք գնել որևէ փաթեթ։",
+      "browsePackagesCta": "Դիտել փաթեթները",
       "sessionsLeft": "Մնացել է {count} դաս",
       "renewsEnds": "Թարմանում է / ավարտվում է {date}",
       "paymentHistory": "Վճարումների պատմություն",
