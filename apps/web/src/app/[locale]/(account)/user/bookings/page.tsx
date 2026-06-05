@@ -65,7 +65,7 @@ export default async function UserBookingsPage({
 
   return (
     <MemberContentFrame>
-      <section className="max-w-4xl">
+      <section>
         <h2 className="ommm-h3 text-sage-800">{t("upcoming")}</h2>
         <BookingTable
           locale={locale}
@@ -75,7 +75,7 @@ export default async function UserBookingsPage({
         />
       </section>
 
-      <section className="mt-10 max-w-4xl">
+      <section className="mt-10">
         <h2 className="ommm-h3 text-sage-800">{t("pastOther")}</h2>
         <BookingTable
           locale={locale}
@@ -85,7 +85,7 @@ export default async function UserBookingsPage({
           emptyLabel={t("emptySection")}
         />
       </section>
-      <section className="mt-10 max-w-4xl">
+      <section className="mt-10">
         <h2 className="ommm-h3 text-sage-800">{t("waitlists")}</h2>
         {!waitlistRes.ok ? (
           <p className="ommm-body-muted mt-2 text-sm">{t("waitlistsLoadError")}</p>

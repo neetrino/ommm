@@ -34,7 +34,7 @@ export default async function UserGiftCardsPage({
           : undefined
       }
     >
-      <div className="max-w-6xl space-y-10">
+      <div className="space-y-10">
         <AccountSection title={t("redeem")}>
           <div className="max-w-sm">
             <GiftRedeemForm />

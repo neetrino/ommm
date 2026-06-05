@@ -58,7 +58,7 @@ export default async function UserClassesPage({
     <MemberContentFrame
       description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
     >
-      <ul className="max-w-4xl space-y-4">
+      <ul className="space-y-4">
         {sessions.length === 0 ? (
           <li className="ommm-body-muted text-sm">{t("noSessions")}</li>
         ) : (
@@ -102,7 +102,7 @@ export default async function UserClassesPage({
           })
         )}
       </ul>
-      <p className="ommm-body-muted mt-8 max-w-4xl text-sm">
+      <p className="ommm-body-muted mt-8 text-sm">
         <Link href="/user/bookings" className="ommm-link-sage">
           {t("myBookingsLink")}
         </Link>

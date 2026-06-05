@@ -21,15 +21,12 @@ export default async function UserPackagesPage({
 
   return (
     <MemberContentFrame description={m("packagesPageLead")}>
-      <div className="max-w-6xl">
-        <AccountSection title={t("yourPackages")}>
-          <UserPackagesSection
-            locale={locale}
-            memberships={memberships}
-            apiOk={membershipsRes.ok}
-          />
-        </AccountSection>
-      </div>
-    </MemberContentFrame>
+      <AccountSection title={t("yourPackages")}>
+        <UserPackagesSection
+          locale={locale}
+          memberships={memberships}
+          apiOk={membershipsRes.ok}
+        />
+      </AccountSection>    </MemberContentFrame>
   );
 }
