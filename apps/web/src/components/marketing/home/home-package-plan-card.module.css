@@ -19,16 +19,18 @@
   transition: box-shadow 150ms ease;
 }
 
-.card:hover .cardMedia {
-  box-shadow: 0 8px 24px -8px rgba(45, 55, 62, 0.24);
-}
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .cardMedia {
+    box-shadow: 0 8px 24px -8px rgba(45, 55, 62, 0.24);
+  }
 
-.card:hover {
-  transform: translateY(-2px);
-}
+  .card:hover {
+    transform: translateY(-2px);
+  }
 
-.card:active {
-  transform: translateY(0);
+  .card:active {
+    transform: translateY(0);
+  }
 }
 
 .card:focus-visible {
@@ -63,6 +65,8 @@
 .image {
   object-fit: cover;
   object-position: var(--home-plan-image-object-position, center top);
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .category {
@@ -71,7 +75,8 @@
   left: var(--home-plan-category-left, 16.8%);
   top: var(--home-plan-category-top, 10.4%);
   z-index: 10;
-  transform: translate(-50%, -50%);
+  transform: var(--home-plan-category-transform, translate(-50%, -50%));
+  max-width: var(--home-plan-category-max-width, none);
   font-family: var(--font-serif, ui-serif, Georgia, serif);
   font-size: var(--home-plan-category-size, clamp(1.125rem, 2.8vw, 1.75rem));
   font-weight: 800;
@@ -79,6 +84,7 @@
   line-height: var(--home-plan-category-line-height, 1.2);
   letter-spacing: var(--home-plan-letter-spacing, 0.01125rem);
   color: var(--home-plan-category-color);
+  text-align: left;
   white-space: nowrap;
 }
 
@@ -312,6 +318,17 @@
 
   .priceGlassSweep {
     display: none;
+  }
+}
+
+@media (max-width: 743px) {
+  .card {
+    touch-action: pan-x;
+  }
+
+  .imageCrop,
+  .imageFrame {
+    transform: none;
   }
 }
 
