@@ -11,6 +11,8 @@ export const OMM_MODAL_OVERLAY_CLASS = "ommm-modal-overlay";
 
 export const OMM_DRAWER_OVERLAY_CLASS = "ommm-drawer-overlay";
 
+export const OMM_DRAWER_BACKDROP_CLASS = "ommm-drawer-backdrop";
+
 /** Keeps layout width stable when the classic scrollbar disappears on lock. */
 function useLockBodyScroll(active: boolean): void {
   useEffect(() => {
@@ -45,6 +47,25 @@ export function OmmModalBackdrop({ onClose, ariaLabel, disabled = false }: OmmMo
     <button
       type="button"
       className={OMM_MODAL_BACKDROP_CLASS}
+      onClick={onClose}
+      disabled={disabled}
+      aria-label={ariaLabel}
+    />
+  );
+}
+
+type OmmDrawerBackdropProps = {
+  onClose: () => void;
+  ariaLabel: string;
+  disabled?: boolean;
+};
+
+/** Click target behind side sheets — static dim, no extra darkening on hover. */
+export function OmmDrawerBackdrop({ onClose, ariaLabel, disabled = false }: OmmDrawerBackdropProps) {
+  return (
+    <button
+      type="button"
+      className={OMM_DRAWER_BACKDROP_CLASS}
       onClick={onClose}
       disabled={disabled}
       aria-label={ariaLabel}
@@ -139,7 +160,7 @@ export function OmmDrawerPortal({
 
   return createPortal(
     <div className={overlayClassName} role="presentation">
-      <OmmModalBackdrop
+      <OmmDrawerBackdrop
         onClose={onClose}
         ariaLabel={backdropAriaLabel}
         disabled={closeDisabled}

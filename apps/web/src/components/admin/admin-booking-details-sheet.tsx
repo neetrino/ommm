@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AdminBookingNotesSection } from "@/components/admin/admin-booking-notes-section";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
@@ -47,6 +48,13 @@ type ListRow = {
   latestNote: { id: string; body: string; authorName: string | null; createdAt: string } | null;
 };
 
+type BookingNote = {
+  id: string;
+  body: string;
+  createdAt: string;
+  author: { name: string | null };
+};
+
 type BookingDetails = {
   status: string;
   paymentStatus?: string;
@@ -60,12 +68,7 @@ type BookingDetails = {
     classType: { name: string };
     coach: { user: { name: string | null } };
   };
-  notes?: Array<{
-    id: string;
-    body: string;
-    createdAt: string;
-    author: { name: string | null };
-  }>;
+  notes?: BookingNote[];
 };
 
 export type AdminBookingDetailsSheetProps = {
@@ -77,11 +80,25 @@ export type AdminBookingDetailsSheetProps = {
   onOpenUser: (userId: string) => void;
   onMarkAttended: () => void;
   onCancel: () => void;
-  onAddNote: () => void;
   onMove: () => void;
   onChangeStatus: (status: ListRow["status"]) => void;
   onDelete: () => void;
+  onNoteAdded?: () => void;
 };
+
+function fallbackNotes(row: ListRow): BookingNote[] {
+  if (row.latestNote === null) {
+    return [];
+  }
+  return [
+    {
+      id: row.latestNote.id,
+      body: row.latestNote.body,
+      createdAt: row.latestNote.createdAt,
+      author: { name: row.latestNote.authorName },
+    },
+  ];
+}
 
 export function AdminBookingDetailsSheet({
   row,
@@ -92,49 +109,46 @@ export function AdminBookingDetailsSheet({
   onOpenUser,
   onMarkAttended,
   onCancel,
-  onAddNote,
   onMove,
   onChangeStatus,
   onDelete,
+  onNoteAdded,
 }: AdminBookingDetailsSheetProps) {
   const t = useTranslations("adminPages.bookings");
   const titleId = useId();
   const [details, setDetails] = useState<BookingDetails | null>(null);
+  const [notes, setNotes] = useState<BookingNote[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen || row === null) {
       setDetails(null);
+      setNotes([]);
       return;
     }
     if (row.recordType !== "BOOKING") {
       setDetails(null);
+      setNotes([]);
       return;
     }
 
     setLoading(true);
     void apiFetch(`/bookings/admin/${row.id}`)
-      .then((payload) => setDetails(payload as BookingDetails))
-      .catch(() => setDetails(null))
+      .then((payload) => {
+        const nextDetails = payload as BookingDetails;
+        setDetails(nextDetails);
+        setNotes(nextDetails.notes ?? fallbackNotes(row));
+      })
+      .catch(() => {
+        setDetails(null);
+        setNotes(fallbackNotes(row));
+      })
       .finally(() => setLoading(false));
   }, [isOpen, row]);
 
   if (row === null) {
     return null;
   }
-
-  const notes =
-    details?.notes ??
-    (row.latestNote
-      ? [
-          {
-            id: row.latestNote.id,
-            body: row.latestNote.body,
-            createdAt: row.latestNote.createdAt,
-            author: { name: row.latestNote.authorName },
-          },
-        ]
-      : []);
 
   return (
     <OmmDrawerPortal
@@ -224,28 +238,14 @@ export function AdminBookingDetailsSheet({
               ) : null}
             </dl>
 
-            <section className="mt-5">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-                {t("bookingDetailsNotes")}
-              </h3>
-              {notes.length === 0 ? (
-                <p className="mt-2 text-sm text-sage-500">{t("bookingDetailsNoNotes")}</p>
-              ) : (
-                <ul className="mt-2 space-y-2">
-                  {notes.map((note) => (
-                    <li
-                      key={note.id}
-                      className="rounded-xl border border-white/60 bg-sand-50/70 px-3 py-2 text-sm text-sage-800"
-                    >
-                      <p className="text-xs text-sage-500">
-                        {note.author.name ?? "Staff"} · {formatDateForUi(note.createdAt)}
-                      </p>
-                      <p className="mt-1">{note.body}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            {row.recordType === "BOOKING" ? (
+              <AdminBookingNotesSection
+                bookingId={row.id}
+                notes={notes}
+                onNotesChange={setNotes}
+                onNoteAdded={onNoteAdded}
+              />
+            ) : null}
           </>
         )}
       </div>
@@ -253,16 +253,15 @@ export function AdminBookingDetailsSheet({
       {row.recordType === "BOOKING" ? (
         <footer className="shrink-0 border-t border-white/60 px-5 py-4 sm:px-6">
           <div className="flex justify-end">
-          <AdminBookingRowActions
-            recordType={row.recordType}
-            status={row.status}
-            busy={busy}
-            onMarkAttended={onMarkAttended}
-            onCancel={onCancel}
-            onAddNote={onAddNote}
-            onMove={onMove}
-            onDelete={onDelete}
-          />
+            <AdminBookingRowActions
+              recordType={row.recordType}
+              status={row.status}
+              busy={busy}
+              onMarkAttended={onMarkAttended}
+              onCancel={onCancel}
+              onMove={onMove}
+              onDelete={onDelete}
+            />
           </div>
         </footer>
       ) : null}

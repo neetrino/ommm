@@ -251,17 +251,6 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           );
         }, t("successCancelled"));
       },
-      onAddNote: () => {
-        const note = window.prompt(t("promptNote"));
-        if (note && note.trim().length > 0) {
-          void runRowAction(row.id, async () => {
-            await apiFetch(`/bookings/${row.id}/notes`, {
-              method: "POST",
-              body: JSON.stringify({ body: note.trim() }),
-            });
-          }, t("successNote"));
-        }
-      },
       onMove: () => setMoveBooking(row),
       onChangeStatus: (nextStatus: BookingRow["status"]) => {
         if (nextStatus === row.status) {
@@ -482,6 +471,10 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           busy={busyId === selectedRow.id}
           onClose={() => setSelectedRowKey(null)}
           onOpenUser={setActiveUserId}
+          onNoteAdded={() => {
+            setStatusMessage(t("successNote"));
+            router.refresh();
+          }}
           {...rowActionHandlers(selectedRow)}
         />
       ) : null}

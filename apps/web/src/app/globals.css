@@ -298,12 +298,19 @@ html {
     @apply absolute inset-0 z-0 cursor-pointer bg-sage-900/45 backdrop-blur-[2px] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
   }
 
+  .ommm-drawer-backdrop {
+    @apply absolute inset-0 z-0 cursor-pointer appearance-none border-0 p-0 shadow-none;
+    @apply bg-sage-900/45 backdrop-blur-[2px];
+    @apply hover:bg-sage-900/45 focus:bg-sage-900/45 focus-visible:bg-sage-900/45 active:bg-sage-900/45;
+    @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+  }
+
   .ommm-modal-overlay {
     @apply fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4;
   }
 
   .ommm-drawer-overlay {
-    @apply fixed inset-0 z-40 flex justify-end;
+    @apply fixed inset-0 z-40 flex justify-end bg-transparent;
   }
 
   .ommm-card {

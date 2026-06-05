@@ -44,7 +44,6 @@ type AdminBookingCompactRowProps = {
   onOpenUser: (userId: string) => void;
   onMarkAttended: () => void;
   onCancel: () => void;
-  onAddNote: () => void;
   onMove: () => void;
   onChangeStatus: (status: BookingRow["status"]) => void;
   onDelete: () => void;
@@ -58,7 +57,6 @@ export function AdminBookingCompactRow({
   onOpenUser,
   onMarkAttended,
   onCancel,
-  onAddNote,
   onMove,
   onChangeStatus,
   onDelete,
@@ -157,7 +155,6 @@ export function AdminBookingCompactRow({
           busy={busy}
           onMarkAttended={onMarkAttended}
           onCancel={onCancel}
-          onAddNote={onAddNote}
           onMove={onMove}
           onDelete={onDelete}
         />

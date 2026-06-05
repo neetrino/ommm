@@ -29,7 +29,6 @@ export type AdminBookingRowActionsProps = {
   busy: boolean;
   onMarkAttended: () => void;
   onCancel: () => void;
-  onAddNote: () => void;
   onMove: () => void;
   onDelete: () => void;
 };
@@ -179,7 +178,6 @@ export function AdminBookingRowActions({
   busy,
   onMarkAttended,
   onCancel,
-  onAddNote,
   onMove,
   onDelete,
 }: AdminBookingRowActionsProps) {
@@ -190,7 +188,6 @@ export function AdminBookingRowActions({
 
   const overflowItems: OverflowMenuItem[] = isBooking
     ? [
-        { key: "note", label: t("actionAddNote"), onSelect: onAddNote },
         { key: "move", label: t("actionMove"), onSelect: onMove },
         { key: "delete", label: t("actionDelete"), tone: "danger", onSelect: onDelete },
       ]
