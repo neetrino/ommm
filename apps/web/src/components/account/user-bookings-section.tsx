@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserBookingBoardCard } from "@/components/account/user-booking-board-card";
 import { UserBookingCompactRow } from "@/components/account/user-booking-compact-row";
@@ -110,9 +111,9 @@ function BookingGroup({
         </ul>
       ) : (
         <div className="mt-4 overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_minmax(0,0.9fr)_auto] md:gap-4">
-            <span>{t("listHeaderTime")}</span>
+          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)_auto] md:gap-4">
             <span>{t("listHeaderClass")}</span>
+            <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderStatus")}</span>
             <span className="sr-only">{t("listHeaderActions")}</span>
           </div>
@@ -161,23 +162,24 @@ function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps
         </ul>
       ) : (
         <div className="mt-4 overflow-hidden rounded-[20px] border border-white/60 bg-white/75">
-          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_minmax(0,0.9fr)] md:gap-4">
-            <span>{t("listHeaderTime")}</span>
+          <div className="hidden border-b border-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-sage-500 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)] md:gap-4">
             <span>{t("listHeaderClass")}</span>
+            <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderStatus")}</span>
           </div>
           <ul className="divide-y divide-white/70">
             {rows.map((item) => (
-              <li key={item.id} className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_minmax(0,0.9fr)] md:items-center md:gap-4">
+              <li
+                key={item.id}
+                className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)] md:items-center md:gap-4"
+              >
+                <SessionClassTitle variant="list" name={item.session.classType.name} />
                 <SessionDateTimeHighlight
                   locale={locale}
                   startsAt={item.session.startsAt}
                   endsAt={item.session.endsAt}
                   variant="list"
                 />
-                <div className="min-w-0">
-                  <p className="font-medium text-sage-800">{item.session.classType.name}</p>
-                </div>
                 <p className="text-xs uppercase tracking-wide text-sage-500/90">
                   {t("waitlistBadge", { pos: item.position, status: item.status })}
                 </p>

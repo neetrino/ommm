@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { BookSessionButton } from "@/components/account/book-session-button";
 import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
+import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserSessionRow } from "@/lib/user-booking-types";
@@ -24,17 +25,14 @@ export function UserSessionCompactRow({ locale, session }: UserSessionCompactRow
       : t("includedShort");
 
   return (
-    <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
+    <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
+      <SessionClassTitle variant="list" name={session.classType.name} eyebrow={coachName} />
       <SessionDateTimeHighlight
         locale={locale}
         startsAt={session.startsAt}
         endsAt={session.endsAt}
         variant="list"
       />
-      <div className="min-w-0">
-        <p className="font-medium text-sage-800">{session.classType.name}</p>
-      </div>
-      <p className="text-sm text-sage-600">{coachName}</p>
       <p className="text-xs text-sage-500">
         {spots} · {pricing}
       </p>

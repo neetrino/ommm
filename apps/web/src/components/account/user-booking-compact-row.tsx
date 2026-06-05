@@ -2,6 +2,7 @@
 
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
 import { RebookButton } from "@/components/account/rebook-button";
+import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 
@@ -27,16 +28,14 @@ export function UserBookingCompactRow({
   showRebook,
 }: UserBookingCompactRowProps) {
   return (
-    <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
+    <div className="ommm-list-row flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_minmax(0,0.9fr)_auto] md:items-center md:gap-4">
+      <SessionClassTitle variant="list" name={booking.session.classType.name} />
       <SessionDateTimeHighlight
         locale={locale}
         startsAt={booking.session.startsAt}
         endsAt={booking.session.endsAt}
         variant="list"
       />
-      <div className="min-w-0">
-        <p className="font-medium text-sage-800">{booking.session.classType.name}</p>
-      </div>
       <span
         className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${bookingStatusClassName(booking.status)}`}
       >
