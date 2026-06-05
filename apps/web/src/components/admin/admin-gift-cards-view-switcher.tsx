@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 
 type AdminGiftCardsViewSwitcherProps = {
@@ -23,6 +24,11 @@ export function AdminGiftCardsViewSwitcher({
   onChange,
 }: AdminGiftCardsViewSwitcherProps) {
   const t = useTranslations("adminPages.giftCards");
+  const supportsListView = useSupportsListBoardView();
+
+  if (!supportsListView) {
+    return null;
+  }
 
   return (
     <div

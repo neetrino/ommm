@@ -10,6 +10,7 @@ import {
 import { AdminGiftCardRowActions } from "@/components/admin/admin-gift-card-row-actions";
 import { recipientLabel } from "@/components/admin/admin-gift-cards-filter-logic";
 import { useAdminGiftCardsView } from "@/components/admin/admin-gift-cards-view-context";
+import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -205,7 +206,8 @@ function AdminGiftCardsListView({
 }
 
 export function AdminGiftCardsDirectory(props: AdminGiftCardsDirectoryProps) {
-  const { viewMode } = useAdminGiftCardsView();
+  const { viewMode: preferredViewMode } = useAdminGiftCardsView();
+  const viewMode = useEffectiveListBoardViewMode(preferredViewMode);
 
   if (viewMode === "board") {
     return <AdminGiftCardsBoardView {...props} />;

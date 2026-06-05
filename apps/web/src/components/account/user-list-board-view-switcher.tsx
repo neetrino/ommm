@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import {
   userListBoardViewButtonId,
   userListBoardViewSwitcherId,
@@ -36,6 +37,11 @@ export function UserListBoardViewSwitcher({
   onChange,
 }: UserListBoardViewSwitcherProps) {
   const t = useTranslations(namespace);
+  const supportsListView = useSupportsListBoardView();
+
+  if (!supportsListView) {
+    return null;
+  }
 
   return (
     <div

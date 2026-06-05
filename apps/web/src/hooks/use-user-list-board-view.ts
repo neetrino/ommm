@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 import {
   DEFAULT_USER_LIST_BOARD_VIEW_MODE,
   readUserListBoardViewFromStorage,
@@ -13,11 +14,12 @@ import {
 export function useUserListBoardView(
   page: UserListBoardViewPage,
 ): [UserListBoardViewMode, (mode: UserListBoardViewMode) => void] {
-  const viewMode = useSyncExternalStore(
+  const preferredMode = useSyncExternalStore(
     subscribeUserListBoardView,
     () => readUserListBoardViewFromStorage(page),
     () => DEFAULT_USER_LIST_BOARD_VIEW_MODE,
   );
+  const viewMode = useEffectiveListBoardViewMode(preferredMode);
 
   const setView = useCallback(
     (mode: UserListBoardViewMode) => {

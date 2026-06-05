@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
+import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
 
 type AdminCoachesViewSwitcherProps = {
@@ -23,6 +24,11 @@ export function AdminCoachesViewSwitcher({
   onChange,
 }: AdminCoachesViewSwitcherProps) {
   const t = useTranslations("adminPages.coaches");
+  const supportsListView = useSupportsListBoardView();
+
+  if (!supportsListView) {
+    return null;
+  }
 
   return (
     <div

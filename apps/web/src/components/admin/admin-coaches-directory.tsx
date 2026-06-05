@@ -9,6 +9,7 @@ import { AdminCoachBoardCard } from "@/components/admin/admin-coach-board-card";
 import { AdminCoachDetailsDrawer } from "@/components/admin/admin-coach-details-drawer";
 import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
 import { useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
+import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -174,7 +175,8 @@ function AdminCoachesBoardView({
 
 export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
   const t = useTranslations("adminPages.coaches");
-  const { viewMode } = useAdminCoachesView();
+  const { viewMode: preferredViewMode } = useAdminCoachesView();
+  const viewMode = useEffectiveListBoardViewMode(preferredViewMode);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
