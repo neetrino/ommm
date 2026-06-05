@@ -5,14 +5,10 @@ import { Link } from "@/i18n/navigation";
 import { formatPackagePriceLabel } from "@/components/admin/admin-packages-display";
 import {
   formatPublicPackageTierPricePerSession,
+  formatPublicPackageTierSessionsHeadline,
   formatPublicPackageValidityLabel,
 } from "@/components/marketing/packages/public-package-tier-display";
-import { shouldShowPublicPackageTierName } from "@/components/marketing/packages/public-package-card-format";
 import styles from "@/components/marketing/packages/public-package-mobile-tier-card.module.css";
-import {
-  PublicPackageTierSessionIcon,
-  resolvePublicPackageTierIconKey,
-} from "@/components/marketing/packages/public-package-tier-session-icons";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 
@@ -29,17 +25,9 @@ function EmptyMetaValue() {
   return <span className={styles.metaEmpty}>—</span>;
 }
 
-function MetaBlock({
-  label,
-  value,
-  withDivider = false,
-}: {
-  label: string;
-  value: string | null;
-  withDivider?: boolean;
-}) {
+function MetaRow({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className={`${styles.metaBlock} ${withDivider ? styles.metaBlockWithDivider : ""}`}>
+    <div className={styles.metaRow}>
       <span className={styles.metaLabel}>{label}</span>
       <span className={styles.metaValue}>{value ?? <EmptyMetaValue />}</span>
     </div>
@@ -55,8 +43,10 @@ export function PublicPackageMobileTierCard({
   onSubscribe,
 }: PublicPackageMobileTierCardProps) {
   const t = useTranslations("marketing");
-  const showTierName = shouldShowPublicPackageTierName(plan.name, categoryLabel);
-  const planLabel = showTierName ? plan.name : categoryLabel;
+  const planLabel = formatPublicPackageTierSessionsHeadline(plan, {
+    unlimited: t("packagesSessionsUnlimitedShort"),
+    count: (values) => t("packagesTierSessionsLabel", values),
+  });
   const priceLabel = formatPackagePriceLabel(plan, locale);
   const pricePerSession = formatPublicPackageTierPricePerSession(plan, locale);
   const validityLabel = formatPublicPackageValidityLabel(plan, {
@@ -65,19 +55,18 @@ export function PublicPackageMobileTierCard({
   });
   const guestCount = plan.guestCount ?? 0;
   const guestLabel = guestCount > 0 ? String(guestCount) : null;
-  const iconKey = resolvePublicPackageTierIconKey(plan);
 
   const subscribeButton =
     audience === "member" ? (
       <button
         type="button"
-        className={`ommm-btn-compact-warm ${styles.subscribeButton}`}
+        className={styles.subscribeButton}
         onClick={() => onSubscribe?.(plan.id)}
       >
         {t("packagesSubscribeCta")}
       </button>
     ) : (
-      <Link href="/login" className={`ommm-btn-compact-warm ${styles.subscribeButton}`}>
+      <Link href="/login" className={styles.subscribeButton}>
         {t("packagesSubscribeCta")}
       </Link>
     );
@@ -86,23 +75,15 @@ export function PublicPackageMobileTierCard({
     <article
       className={`${styles.card} ${isSelected ? styles.cardSelected : ""}`}
       data-selected={isSelected ? "true" : "false"}
+      aria-label={`${categoryLabel} — ${planLabel}`}
     >
-      <div className={styles.header}>
-        <div className={styles.headerText}>
-          <h3 className={styles.planName}>{planLabel}</h3>
-          <p className={styles.price}>{priceLabel}</p>
-        </div>
-        <div className={styles.iconWrap}>
-          <PublicPackageTierSessionIcon iconKey={iconKey} />
-        </div>
-      </div>
+      <h3 className={styles.planName}>{planLabel}</h3>
 
-      <hr className={styles.divider} />
-
-      <div className={styles.metaRow}>
-        <MetaBlock label={t("packagesTablePricePerSession")} value={pricePerSession} />
-        <MetaBlock label={t("packagesTableValidity")} value={validityLabel} withDivider />
-        <MetaBlock label={t("packagesTableGuests")} value={guestLabel} withDivider />
+      <div className={styles.metaList}>
+        <MetaRow label={t("packagesTablePrice")} value={priceLabel} />
+        <MetaRow label={t("packagesTablePricePerSession")} value={pricePerSession} />
+        <MetaRow label={t("packagesTableValidity")} value={validityLabel} />
+        <MetaRow label={t("packagesTableGuests")} value={guestLabel} />
       </div>
 
       {subscribeButton}

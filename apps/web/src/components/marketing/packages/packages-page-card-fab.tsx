@@ -6,19 +6,58 @@ import { PACKAGES_PAGE_CARD_FIGMA } from "@/components/marketing/packages/packag
 
 type PackagesPageCardFabImageProps = {
   direction?: "open" | "close";
+  sizePx?: number;
+  /** Mobile accordion uses down/up arrows instead of right/left. */
+  orientation?: "horizontal" | "vertical" | "vertical-animated" | "horizontal-animated";
 };
 
-export function PackagesPageCardFabImage({ direction = "open" }: PackagesPageCardFabImageProps) {
+function resolveFabImageClass(
+  direction: "open" | "close",
+  orientation: "horizontal" | "vertical" | "vertical-animated" | "horizontal-animated",
+): string {
+  const classes = [accordionStyles.fabImage];
+
+  if (orientation === "vertical-animated") {
+    classes.push(accordionStyles.fabImageVerticalAnimated);
+    return classes.join(" ");
+  }
+
+  if (orientation === "horizontal-animated") {
+    classes.push(accordionStyles.fabImageHorizontalAnimated);
+    return classes.join(" ");
+  }
+
+  if (orientation === "vertical") {
+    classes.push(
+      direction === "close"
+        ? accordionStyles.fabImageVerticalClose
+        : accordionStyles.fabImageVerticalOpen,
+    );
+    return classes.join(" ");
+  }
+
+  if (direction === "close") {
+    classes.push(accordionStyles.fabImageClose);
+  }
+
+  return classes.join(" ");
+}
+
+export function PackagesPageCardFabImage({
+  direction = "open",
+  sizePx,
+  orientation = "horizontal",
+}: PackagesPageCardFabImageProps) {
+  const dimension = sizePx ?? PACKAGES_PAGE_CARD_FIGMA.fabSizePx;
+
   return (
     <Image
       src={PACKAGES_PAGE_ASSETS.cardFab}
       alt=""
-      width={PACKAGES_PAGE_CARD_FIGMA.fabSizePx}
-      height={PACKAGES_PAGE_CARD_FIGMA.fabSizePx}
+      width={dimension}
+      height={dimension}
       unoptimized
-      className={`${accordionStyles.fabImage} ${
-        direction === "close" ? accordionStyles.fabImageClose : ""
-      }`}
+      className={resolveFabImageClass(direction, orientation)}
     />
   );
 }
@@ -28,6 +67,8 @@ type PackagesPageCardFabProps = {
   ariaLabel: string;
   onClick: () => void;
   className?: string;
+  imageSizePx?: number;
+  orientation?: "horizontal" | "vertical" | "vertical-animated" | "horizontal-animated";
 };
 
 /** Figma Packages card FAB — node `395:1300` in row `395:1652`. */
@@ -36,6 +77,8 @@ export function PackagesPageCardFab({
   ariaLabel,
   onClick,
   className,
+  imageSizePx,
+  orientation = "horizontal",
 }: PackagesPageCardFabProps) {
   return (
     <button
@@ -44,7 +87,11 @@ export function PackagesPageCardFab({
       aria-label={ariaLabel}
       onClick={onClick}
     >
-      <PackagesPageCardFabImage direction={direction} />
+      <PackagesPageCardFabImage
+        direction={direction}
+        sizePx={imageSizePx}
+        orientation={orientation}
+      />
     </button>
   );
 }

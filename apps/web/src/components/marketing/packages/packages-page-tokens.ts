@@ -62,11 +62,30 @@ export const PACKAGES_PAGE_CATEGORY_GRADIENT_START: Readonly<Record<string, stri
   dances: "#d9d9d9",
 };
 
+/** Figma Packages mobile accordion — collapsed card + inline expanded panel. */
+export const PACKAGES_PAGE_MOBILE_FIGMA = {
+  accordionGapPx: 18,
+  collapsedCardMinHeightPx: 118,
+  collapsedCardRadiusPx: 24,
+  collapsedTitleSizePx: 28,
+  collapsedDetailsSizePx: 16,
+  mobileFabSizePx: 58,
+  expandedPanelPaddingPx: 20,
+  tierCardRadiusPx: 20,
+  tierCardGapPx: 14,
+  tierTitleSizePx: 22,
+  tierMetaLabelSizePx: 14,
+  tierMetaValueSizePx: 16,
+  subscribeButtonHeightPx: 48,
+  subscribeFontSizePx: 18,
+} as const;
+
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
   cardsGap: "clamp(0.75rem, 1.79vw, 1.1875rem)",
-  mobileCarouselCardWidth: "clamp(11rem, calc(100svw * 197 / 394), 12.3125rem)",
-  mobileCarouselGap: "1.1875rem",
+  mobileAccordionGap: `${PACKAGES_PAGE_MOBILE_FIGMA.accordionGapPx}px`,
+  mobileCollapsedCardMinHeight: `${PACKAGES_PAGE_MOBILE_FIGMA.collapsedCardMinHeightPx}px`,
+  mobileFabSize: `${PACKAGES_PAGE_MOBILE_FIGMA.mobileFabSizePx}px`,
   accordionGap: `${PACKAGES_PAGE_ACCORDION_FIGMA.accordionGapPx}px`,
   collapsedPanelWidth: `${PACKAGES_PAGE_ACCORDION_FIGMA.collapsedWidthPx}px`,
   rowHeight: `${PACKAGES_PAGE_CARD_FIGMA.cardHeightPx}px`,
