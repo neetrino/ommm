@@ -36,8 +36,6 @@ export function UserMembershipCompactRow({
   const display = buildMembershipDisplayModel(membership, status, t, m);
   const priceLabel = formatAmdFromCents(membership.plan.priceCents, locale);
   const durationLabel = m("packagesPeriodDaysShort", { days: membership.plan.periodDays });
-  const hasSessionLimit =
-    display.totalSessions !== null && display.usedSessions !== null && display.totalSessions > 0;
 
   return (
     <article
@@ -70,22 +68,7 @@ export function UserMembershipCompactRow({
 
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>
         <MobileLabel label={t("listHeaderSessions")} />
-        {hasSessionLimit ? (
-          <>
-            <p className="whitespace-nowrap font-serif text-lg tabular-nums leading-none text-sage-950">
-              {display.usedSessions}/{display.totalSessions}
-            </p>
-            <p className="mt-1 truncate text-xs text-sage-500">
-              {t("listSessionsCompact", {
-                used: display.usedSessions ?? 0,
-                total: display.totalSessions ?? 0,
-                remaining: display.remainingSessions ?? 0,
-              })}
-            </p>
-          </>
-        ) : (
-          <p className="truncate text-sm font-medium text-sage-800">{display.sessionsSummary}</p>
-        )}
+        <p className="truncate text-sm font-medium text-sage-800">{display.sessionsSummary}</p>
       </div>
 
       <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
