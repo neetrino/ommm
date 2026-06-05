@@ -25,9 +25,12 @@ const FEATURED_COACHES_SECTION_PADDING_TOP = "calc(4rem - 55px)";
 /**
  * Figma Featured Coaches — desktop `155:188` (unchanged), mobile container `97:5826`.
  */
-export function MarketingPublicHomeCoachesSection() {
+export function MarketingPublicHomeCoachesSection({
+  slides,
+}: {
+  slides: CoachSlideCopy[];
+}) {
   const t = useTranslations("marketingPublic.home");
-  const slides = t.raw("coachSlides") as CoachSlideCopy[];
   const slideCount = slides.length;
   const lastIndex = Math.max(0, slideCount - 1);
 

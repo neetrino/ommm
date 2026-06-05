@@ -8,17 +8,6 @@ const sectionFallback = (placeholderClassName: string) =>
     return <div aria-hidden className={placeholderClassName} />;
   };
 
-/** Coaches carousel — framer-motion + infinite track. */
-export const HomeCoachesSectionDeferred = dynamic(
-  () =>
-    import("@/components/marketing/home/marketing-public-home-coaches-section").then(
-      (module) => module.MarketingPublicHomeCoachesSection,
-    ),
-  {
-    loading: sectionFallback(HOME_LAZY_SECTION.placeholders.coaches),
-  },
-);
-
 /** Gallery mosaic carousel — client-only. */
 export const HomeGallerySectionDeferred = dynamic(
   () =>

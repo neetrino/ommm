@@ -5,8 +5,8 @@ import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Image from "next/image";
 import styles from "@/components/marketing/home/featured-coach-slide-card.module.css";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
-import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
-import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { resolveCoachSlidePortraitSrc } from "@/components/marketing/home/home-featured-coach-slides";
+import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 export type CoachSlideCopy = {
   name: string;
@@ -14,6 +14,8 @@ export type CoachSlideCopy = {
   bio: string;
   experience: string;
   imageAlt: string;
+  /** Coach portrait — API `avatarUrl` when set. */
+  imageSrc?: string | null;
 };
 
 export type CoachSlideLane = "center" | "side" | "far";
@@ -70,6 +72,7 @@ export function FeaturedCoachSlideCard({
   instantCarouselSnap = false,
 }: FeaturedCoachSlideCardProps) {
   const reduceMotion = usePrefersReducedMotion();
+  const portraitSrc = resolveCoachSlidePortraitSrc(slide);
 
   const showSideDrop = peekLayout && lane === "side" && !reduceMotion;
   const y = showSideDrop ? `${COACH_SIDE_DROP_REM}rem` : "0rem";
@@ -171,12 +174,13 @@ export function FeaturedCoachSlideCard({
               <div className={styles.imageCrop}>
                 <div className={styles.imageFrame}>
                   <Image
-                    src={HOME_SECTION_ASSETS.coachPortrait}
+                    src={portraitSrc}
                     alt={slide.imageAlt}
                     fill
                     sizes="(max-width: 768px) 100vw, min(21.375rem, 46vw)"
                     className={styles.image}
-                    {...belowFoldImageProps()}
+                    style={{ objectPosition: "42% 18%" }}
+                    {...aboveFoldImageProps()}
                   />
                 </div>
               </div>
