@@ -1,21 +1,25 @@
 "use client";
 
-import type { ComponentType, ReactNode } from "react";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
-import { OmmButton } from "@/components/ui/omm-button";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
-import { PlusIcon } from "@/components/ui/plus-icon";
+import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
+import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
+import {
+  ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_BOOKINGS_LIST_HEADER_CLASS,
+  ADMIN_BOOKINGS_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-bookings-list-layout";
 import {
   AdminBookingsViewIcon,
   type BookingsView,
 } from "@/components/admin/admin-bookings-view-icons";
+import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { OmmButton } from "@/components/ui/omm-button";
+import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
@@ -84,6 +88,10 @@ type Props = {
 
 const VIEW_KEY = "admin.bookings.view";
 
+function bookingRowKey(row: Pick<BookingRow, "id" | "recordType">): string {
+  return `${row.recordType}-${row.id}`;
+}
+
 export function AdminBookingsManagement({ locale, initial }: Props) {
   const t = useTranslations("adminPages.bookings");
   const router = useRouter();
@@ -100,9 +108,16 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
   const [status, setStatus] = useState("");
   const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
-  const [activeBookingId, setActiveBookingId] = useState<string | null>(null);
+  const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
   const [moveBooking, setMoveBooking] = useState<BookingRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const selectedRow = useMemo(() => {
+    if (selectedRowKey === null) {
+      return null;
+    }
+    return rows.find((row) => bookingRowKey(row) === selectedRowKey) ?? null;
+  }, [rows, selectedRowKey]);
 
   useEffect(() => {
     try {
@@ -212,6 +227,70 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     }
   }
 
+  function rowActionHandlers(row: BookingRow) {
+    return {
+      onMarkAttended: () => {
+        void runRowAction(row.id, async () => {
+          await apiFetch(`/bookings/admin/${row.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ status: "COMPLETED" }),
+          });
+        }, t("successMarkedAttended"));
+      },
+      onCancel: () => {
+        if (!window.confirm(t("confirmCancel"))) {
+          return;
+        }
+        void runRowAction(row.id, async () => {
+          await apiFetch(`/bookings/admin/${row.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ status: "CANCELLED" }),
+          });
+          setRows((prev) =>
+            prev.map((item) =>
+              item.id === row.id ? { ...item, status: "CANCELLED" } : item,
+            ),
+          );
+        }, t("successCancelled"));
+      },
+      onAddNote: () => {
+        const note = window.prompt(t("promptNote"));
+        if (note && note.trim().length > 0) {
+          void runRowAction(row.id, async () => {
+            await apiFetch(`/bookings/${row.id}/notes`, {
+              method: "POST",
+              body: JSON.stringify({ body: note.trim() }),
+            });
+          }, t("successNote"));
+        }
+      },
+      onMove: () => setMoveBooking(row),
+      onEdit: () => {
+        const next = window.prompt(t("promptEditStatus"), row.status);
+        if (next) {
+          void runRowAction(row.id, async () => {
+            await apiFetch(`/bookings/admin/${row.id}`, {
+              method: "PATCH",
+              body: JSON.stringify({ status: next.toUpperCase() }),
+            });
+          }, t("successEdited"));
+        }
+      },
+      onDelete: () => {
+        if (!window.confirm(t("confirmDelete"))) {
+          return;
+        }
+        void runRowAction(row.id, async () => {
+          await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
+          setRows((prev) => prev.filter((item) => item.id !== row.id));
+          if (selectedRowKey === bookingRowKey(row)) {
+            setSelectedRowKey(null);
+          }
+        }, t("successDeleted"));
+      },
+    };
+  }
+
   function resetFilters() {
     setSearch("");
     setFrom("");
@@ -302,75 +381,31 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
       ) : null}
 
       {(view === "list" || view === "daily") && (
-        <div className="overflow-x-auto overflow-y-hidden rounded-[24px] border border-white/60 bg-white/55 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md">
-          <table className="w-full min-w-[74rem] table-fixed border-collapse text-left text-sm">
-            <colgroup>
-              <col className="w-[16%]" />
-              <col className="w-[16%]" />
-              <col className="w-[12%]" />
-              <col className="w-[13%]" />
-              <col className="w-[12%]" />
-              <col className="w-[10%]" />
-              <col className="w-[9%]" />
-              <col className="w-[12%]" />
-            </colgroup>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}><HeaderLabel icon="user">{t("colUserPhone")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="class">{t("colClassType")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="payment">{t("colPaymentStatus")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="attendance">{t("colAttendanceStatus")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="sort">{t("colRegisterDate")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="channel">{t("colChannel")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="status">{t("colStatus")}</HeaderLabel></th>
-                <th className={adminChrome.th}><HeaderLabel icon="actions">{t("colActions")}</HeaderLabel></th>
-              </tr>
-            </thead>
-            <tbody>
-              {(view === "daily" ? dayRows : filteredRows).map((row) => (
-                <tr key={`${row.recordType}-${row.id}`} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>
-                    <button
-                      type="button"
-                      className="break-words text-left font-medium text-sage-900 underline underline-offset-2"
-                      onClick={() => setActiveUserId(row.user.id)}
-                    >
-                      {row.user.name ?? row.user.email}
-                    </button>
-                    <div className={adminChrome.metaText}>{row.user.phone ?? "—"}</div>
-                  </td>
-                  <td className={adminChrome.td}>
-                    <span className="break-words">{row.session.classType.name}</span>
-                    <div className={adminChrome.metaText}>{formatDateTimeForUi(row.session.startsAt, locale)}</div>
-                    {row.package !== null ? (
-                      <div className={adminChrome.metaText}>
-                        {formatPackagePlanName(
-                          row.package.planName,
-                          row.package.sessionsPerMonth,
-                        )}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className={adminChrome.td}><Badge tone="slate" label={paymentLabel(t, row.paymentStatus)} /></td>
-                  <td className={adminChrome.td}><Badge tone="sand" label={attendanceLabel(t, row.attendanceStatus)} /></td>
-                  <td className={adminChrome.td}>{formatDateForUi(row.registerDate)}</td>
-                  <td className={adminChrome.td}><Badge tone="mint" label={row.channel === "APP" ? t("channelApp") : t("channelWebsite")} /></td>
-                  <td className={adminChrome.td}><Badge tone="indigo" label={statusLabel(t, row.status)} /></td>
-                  <td className={adminChrome.td}><div className="flex flex-wrap gap-1">
-                    <OmmButton size="sm" variant="ghost" onClick={() => setActiveBookingId(row.id)}>{t("actionView")}</OmmButton>
-                    {row.recordType === "BOOKING" ? <>
-                      <OmmButton size="sm" variant="ghost" disabled={busyId === row.id} onClick={() => runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: "COMPLETED" }) }); }, t("successMarkedAttended"))}>{t("actionMarkAttended")}</OmmButton>
-                      <OmmButton size="sm" variant="danger" disabled={busyId === row.id} onClick={() => { if (window.confirm(t("confirmCancel"))) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) }); setRows((prev) => prev.map((item) => item.id === row.id ? { ...item, status: "CANCELLED" } : item)); }, t("successCancelled")); } }}>{t("actionCancel")}</OmmButton>
-                      <OmmButton size="sm" variant="subtle" className="gap-1.5" disabled={busyId === row.id} onClick={() => { const note = window.prompt(t("promptNote")); if (note && note.trim().length > 0) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/${row.id}/notes`, { method: "POST", body: JSON.stringify({ body: note.trim() }) }); }, t("successNote")); } }}><PlusIcon className="h-3.5 w-3.5 shrink-0" />{t("actionAddNote")}</OmmButton>
-                      <OmmButton size="sm" variant="subtle" disabled={busyId === row.id} onClick={() => setMoveBooking(row)}>{t("actionMove")}</OmmButton>
-                      <OmmButton size="sm" variant="subtle" disabled={busyId === row.id} onClick={() => { const next = window.prompt(t("promptEditStatus"), row.status); if (next) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}`, { method: "PATCH", body: JSON.stringify({ status: next.toUpperCase() }) }); }, t("successEdited")); } }}>{t("actionEdit")}</OmmButton>
-                      <OmmButton size="sm" variant="danger" disabled={busyId === row.id} onClick={() => { if (window.confirm(t("confirmDelete"))) { void runRowAction(row.id, async () => { await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" }); setRows((prev) => prev.filter((item) => item.id !== row.id)); }, t("successDeleted")); } }}>{t("actionDelete")}</OmmButton>
-                    </> : null}
-                  </div></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
+          <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
+            <span>{t("colUserPhone")}</span>
+            <span>{t("colClassType")}</span>
+            <span>{t("colPaymentStatus")}</span>
+            <span>{t("colAttendanceStatus")}</span>
+            <span>{t("colChannel")}</span>
+            <span>{t("colStatus")}</span>
+            <span aria-hidden="true" />
+            <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          </div>
+          {(view === "daily" ? dayRows : filteredRows).map((row) => {
+            const handlers = rowActionHandlers(row);
+            return (
+              <AdminBookingCompactRow
+                key={bookingRowKey(row)}
+                locale={locale}
+                row={row}
+                busy={busyId === row.id}
+                onOpenDetails={() => setSelectedRowKey(bookingRowKey(row))}
+                onOpenUser={setActiveUserId}
+                {...handlers}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -396,7 +431,17 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
       ) : null}
 
       {activeUserId ? <UserDrawer userId={activeUserId} onClose={() => setActiveUserId(null)} /> : null}
-      {activeBookingId ? <BookingDrawer bookingId={activeBookingId} onClose={() => setActiveBookingId(null)} /> : null}
+      {selectedRow ? (
+        <AdminBookingDetailsSheet
+          row={selectedRow}
+          locale={locale}
+          isOpen
+          busy={busyId === selectedRow.id}
+          onClose={() => setSelectedRowKey(null)}
+          onOpenUser={setActiveUserId}
+          {...rowActionHandlers(selectedRow)}
+        />
+      ) : null}
       {moveBooking ? <MoveBookingDialog booking={moveBooking} onClose={() => setMoveBooking(null)} onSubmit={(targetSessionId) => { void runRowAction(moveBooking.id, async () => { await apiFetch(`/bookings/admin/${moveBooking.id}/move`, { method: "PATCH", body: JSON.stringify({ targetSessionId }) }); }, t("successMoved")); setMoveBooking(null); }} /> : null}
     </div>
   );
@@ -405,105 +450,6 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 function Metric({ title, value }: { title: string; value: number }) {
   return <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3"><p className="text-xs uppercase tracking-wide text-sage-500">{title}</p><p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p></div>;
 }
-
-type HeaderIconName = "user" | "class" | "payment" | "attendance" | "sort" | "channel" | "status" | "actions";
-
-function HeaderLabel({ icon, children }: { icon: HeaderIconName; children: ReactNode }) {
-  const Glyph = HEADER_GLYPHS[icon];
-  return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-sage-700/10 bg-white/60 text-sage-600">
-        <Glyph className="h-3.5 w-3.5" />
-      </span>
-      <span>{children}</span>
-    </span>
-  );
-}
-
-const HEADER_GLYPHS: Record<HeaderIconName, ComponentType<{ className: string }>> = {
-  user: UserHeaderGlyph,
-  class: ClassHeaderGlyph,
-  payment: PaymentHeaderGlyph,
-  attendance: AttendanceHeaderGlyph,
-  sort: SortHeaderGlyph,
-  channel: ChannelHeaderGlyph,
-  status: StatusHeaderGlyph,
-  actions: ActionsHeaderGlyph,
-};
-
-function UserHeaderGlyph({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <path d="M20 21a8 8 0 0 0-16 0" />
-      <circle cx="12" cy="8" r="4" />
-    </svg>
-  );
-}
-
-function ClassHeaderGlyph({ className }: { className: string }) {
-  return <HeaderSvg className={className} path="M4 6h16M4 12h16M4 18h10" />;
-}
-
-function PaymentHeaderGlyph({ className }: { className: string }) {
-  return (
-    <HeaderSvg className={className}>
-      <rect x="3" y="5" width="18" height="14" rx="3" />
-      <path d="M3 10h18M7 15h3" />
-    </HeaderSvg>
-  );
-}
-
-function AttendanceHeaderGlyph({ className }: { className: string }) {
-  return (
-    <HeaderSvg className={className}>
-      <path d="m5 12 4 4L19 6" />
-      <circle cx="12" cy="12" r="9" />
-    </HeaderSvg>
-  );
-}
-
-function SortHeaderGlyph({ className }: { className: string }) {
-  return <HeaderSvg className={className} path="M8 7h12M8 12h8M8 17h4M4 7v10m0 0 2-2m-2 2-2-2" />;
-}
-
-function ChannelHeaderGlyph({ className }: { className: string }) {
-  return (
-    <HeaderSvg className={className}>
-      <rect x="7" y="2" width="10" height="20" rx="2" />
-      <path d="M11 18h2" />
-    </HeaderSvg>
-  );
-}
-
-function StatusHeaderGlyph({ className }: { className: string }) {
-  return <HeaderSvg className={className} path="M12 3 3 7l9 4 9-4-9-4ZM3 17l9 4 9-4M3 12l9 4 9-4" />;
-}
-
-function ActionsHeaderGlyph({ className }: { className: string }) {
-  return (
-    <HeaderSvg className={className}>
-      <circle cx="12" cy="12" r="1" />
-      <circle cx="19" cy="12" r="1" />
-      <circle cx="5" cy="12" r="1" />
-    </HeaderSvg>
-  );
-}
-
-function HeaderSvg({ className, path, children }: { className: string; path?: string; children?: ReactNode }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      {path ? <path d={path} /> : children}
-    </svg>
-  );
-}
-
-function Badge({ label, tone }: { label: string; tone: "slate" | "sand" | "mint" | "indigo" }) {
-  const styles = tone === "mint" ? "border-mint-200 bg-mint-50 text-sage-900" : tone === "indigo" ? "border-indigo-200 bg-indigo-50 text-indigo-900" : tone === "sand" ? "border-sand-300 bg-sand-50 text-sage-900" : "border-zinc-200 bg-zinc-50 text-zinc-800";
-  return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${styles}`}>{label}</span>;
-}
-function statusLabel(t: ReturnType<typeof useTranslations<"adminPages.bookings">>, value: BookingRow["status"]) { return value === "BOOKED" ? t("statusBooked") : value === "COMPLETED" ? t("statusCompleted") : value === "CANCELLED" ? t("statusCancelled") : value === "WAITLISTED" ? t("statusWaitlisted") : t("statusBooked"); }
-function paymentLabel(t: ReturnType<typeof useTranslations<"adminPages.bookings">>, value: BookingRow["paymentStatus"]) { return value === "PAID" ? t("paymentPaid") : value === "CASH" ? t("paymentCash") : value === "REFUNDED" ? t("paymentRefunded") : t("paymentUnpaid"); }
-function attendanceLabel(t: ReturnType<typeof useTranslations<"adminPages.bookings">>, value: BookingRow["attendanceStatus"]) { if (value === "ATTENDED") return t("attendanceAttended"); if (value === "NO_SHOW") return t("attendanceNoShow"); if (value === "LATE_CANCEL") return t("attendanceLateCancel"); return t("attendanceNotAttended"); }
 
 function sessionDayKey(startsAt: string): string {
   return startsAt.slice(0, 10);
@@ -768,22 +714,6 @@ function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }
       </aside>
     </div>
   );
-}
-function BookingDrawer({ bookingId, onClose }: { bookingId: string; onClose: () => void }) {
-  const t = useTranslations("adminPages.bookings");
-  useCloseOnEscape(true, onClose);
-  const [data, setData] = useState<null | {
-    status: string;
-    paymentStatus?: string;
-    attendanceStatus?: string;
-    user: { name: string | null; email: string; phone: string | null };
-    session: { startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } };
-    channel: "WEBSITE" | "APP";
-    notes?: Array<{ id: string; body: string; createdAt: string; author: { name: string | null } }>;
-    createdAt: string;
-  }>(null);
-  useEffect(() => { void apiFetch(`/bookings/admin/${bookingId}`).then((payload) => setData(payload as { status: string; paymentStatus?: string; attendanceStatus?: string; user: { name: string | null; email: string; phone: string | null }; session: { startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }; channel: "WEBSITE" | "APP"; notes?: Array<{ id: string; body: string; createdAt: string; author: { name: string | null } }>; createdAt: string })).catch(() => setData(null)); }, [bookingId]);
-  return <div className="ommm-drawer-overlay z-40"><button className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} /><aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4"><div className="mb-3 flex items-center justify-between"><h3 className="font-semibold">{t("bookingDetailsTitle")}</h3><button type="button" className={DRAWER_CLOSE_BUTTON_CLASSES} onClick={onClose}>x</button></div>{data === null ? <p className="text-sm text-sage-500">{t("emptyBookingData")}</p> : <div className="space-y-2 text-sm"><p><span className="text-sage-500">{t("colUserPhone")}:</span> {data.user.name ?? data.user.email} · {data.user.phone ?? "—"}</p><p><span className="text-sage-500">{t("colClassType")}:</span> {data.session.classType.name}</p><p><span className="text-sage-500">{t("filterCoachAll")}:</span> {data.session.coach.user.name ?? "—"}</p><p><span className="text-sage-500">{t("colRegisterDate")}:</span> {formatDateForUi(data.createdAt)}</p><p><span className="text-sage-500">{t("colStatus")}:</span> {data.status}</p><p><span className="text-sage-500">{t("colPaymentStatus")}:</span> {data.paymentStatus ?? "—"}</p><p><span className="text-sage-500">{t("colAttendanceStatus")}:</span> {data.attendanceStatus ?? "—"}</p><p><span className="text-sage-500">{t("colChannel")}:</span> {data.channel === "APP" ? t("channelApp") : t("channelWebsite")}</p><div><p className="text-xs uppercase text-sage-500">{t("actionAddNote")}</p><div className="mt-1 space-y-1">{(data.notes ?? []).slice(0, 6).map((note) => <p key={note.id} className="rounded-md bg-sand-50 px-2 py-1 text-xs">{note.author.name ?? "Staff"} · {formatDateForUi(note.createdAt)} · {note.body}</p>)}</div></div></div>}</aside></div>;
 }
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {
   const t = useTranslations("adminPages.bookings");

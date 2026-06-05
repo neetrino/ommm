@@ -68,6 +68,39 @@ export function TrashGlyph({ className }: GlyphProps) {
   );
 }
 
+export function PlusGlyph({ className }: GlyphProps) {
+  return (
+    <svg {...GLYPH_PROPS} className={className}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+export function ArrowRightGlyph({ className }: GlyphProps) {
+  return (
+    <svg {...GLYPH_PROPS} className={className}>
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+export function MoreVerticalGlyph({ className }: GlyphProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="5" r="1.75" />
+      <circle cx="12" cy="12" r="1.75" />
+      <circle cx="12" cy="19" r="1.75" />
+    </svg>
+  );
+}
+
 export function ToggleOffGlyph({ className }: GlyphProps) {
   return (
     <svg {...GLYPH_PROPS} className={className}>
