@@ -29,6 +29,10 @@ export const COACHES_PAGE_LAYOUT = {
 /** Figma Frame 68 `62:2031` / instance `62:2207` — portrait coach card. */
 export const COACHES_PAGE_CARD = {
   surface: "#e5f4f9",
+  /** Card surface on pointer hover — warm yellow from marketing palette. */
+  surfaceHover: "#fbf5d5",
+  /** Portrait zoom on hover (1 = none). */
+  photoHoverScale: 1.05,
   radiusPx: 40,
   nameColor: "#1d1c15",
   roleColor: "#4a4738",

@@ -19,6 +19,7 @@
   z-index: 0;
   border-radius: inherit;
   background-color: var(--coaches-page-card-surface);
+  transition: background-color 280ms ease;
 }
 
 .header {
@@ -98,6 +99,19 @@
   top: -3.28%;
   left: 0;
   max-width: none;
+  transform: scale(1);
+  transform-origin: 42% 18%;
+  transition: transform 320ms ease;
+}
+
+@media (hover: hover) {
+  .card:hover .cardSurface {
+    background-color: var(--coaches-page-card-surface-hover);
+  }
+
+  .card:hover .photoCrop {
+    transform: scale(var(--coaches-page-card-photo-hover-scale, 1.05));
+  }
 }
 
 /* Figma `94:4071` — frosted pill; white glass layers over sharp photo (no filter blur / saturate). */
@@ -357,6 +371,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .photoWrap,
+  .photoCrop,
+  .cardSurface,
   .expandPanel,
   .expandPanelBackdrop,
   .expandBarTrigger,

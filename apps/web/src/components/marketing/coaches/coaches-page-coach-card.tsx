@@ -84,6 +84,8 @@ function buildCardStyle(): CSSProperties {
   const nameFontSize = `clamp(${card.nameFontSizeMinRem}rem, ${card.nameFontSizePreferredVw}vw, ${card.nameFontSizeMaxRem}rem)`;
   return {
     "--coaches-page-card-surface": card.surface,
+    "--coaches-page-card-surface-hover": card.surfaceHover,
+    "--coaches-page-card-photo-hover-scale": String(card.photoHoverScale),
     "--coaches-page-card-radius": `${card.radiusPx}px`,
     "--coaches-page-card-name-color": card.nameColor,
     "--coaches-page-card-role-color": card.roleColor,
