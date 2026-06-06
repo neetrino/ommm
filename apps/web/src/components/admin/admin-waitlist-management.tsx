@@ -54,7 +54,7 @@ export function AdminWaitlistManagement({
   staffBanner,
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
-  const tSearchTools = useTranslations("adminPages.searchTools");
+  const { loadingLabel } = useListPageSearchStatus();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -376,8 +376,7 @@ export function AdminWaitlistManagement({
         title={t("title")}
         banner={staffBanner}
         search={
-          <AdminIntegratedSearchFilters
-            className="min-w-0 flex-1"
+          <ListPageSearchFilters
             search={searchDraft}
             onSearchChange={setSearchDraft}
             searchPlaceholder={t("filterSearch")}
@@ -385,16 +384,13 @@ export function AdminWaitlistManagement({
             filterValues={waitlistFilterValues}
             onFilterChange={handleWaitlistFilterChange}
             onClearAll={resetWaitlistFilters}
-            applyLabel={tSearchTools("applyFilters")}
             resetLabel={t("resetFilters")}
-            clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-            filterPanelAriaLabel={tSearchTools("filterPanelAria")}
           />
         }
         headerTrailing={
           loading ? (
             <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {tSearchTools("loadingResults")}
+              {loadingLabel}
             </p>
           ) : undefined
         }

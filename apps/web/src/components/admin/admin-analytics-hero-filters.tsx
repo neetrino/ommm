@@ -17,7 +17,7 @@ import {
   defaultAnalyticsFilterValues,
 } from "@/components/admin/admin-analytics-url";
 import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -35,7 +35,6 @@ export function AdminAnalyticsHeroFilters({
   trailing,
 }: AdminAnalyticsHeroFiltersProps) {
   const tFilters = useTranslations("adminPages.analytics.filters");
-  const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -134,8 +133,7 @@ export function AdminAnalyticsHeroFilters({
   return (
     <AdminFinanceFiltersBar
       search={
-        <AdminIntegratedSearchFilters
-          className="min-w-0 flex-1"
+        <ListPageSearchFilters
           search=""
           onSearchChange={() => undefined}
           searchPlaceholder={tFilters("heading")}
@@ -144,11 +142,7 @@ export function AdminAnalyticsHeroFilters({
           filterValues={integratedFilterValues}
           onFilterChange={handleFilterChange}
           onClearAll={resetFilters}
-          applyLabel={tSearchTools("applyFilters")}
           resetLabel={tFilters("resetFilters")}
-          clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-          filterPanelAriaLabel={tSearchTools("filterPanelAria")}
-          portalFilterPanel
         />
       }
       trailing={

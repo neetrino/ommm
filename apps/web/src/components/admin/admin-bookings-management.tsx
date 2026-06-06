@@ -17,7 +17,10 @@ import type {
   AdminBookingsFilterState,
   AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import {
+  ListPageSearchFilters,
+  useListPageSearchStatus,
+} from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
@@ -71,7 +74,7 @@ export function AdminBookingsManagement({
 }: Props) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.bookings");
-  const tSearchTools = useTranslations("adminPages.searchTools");
+  const { loadingLabel } = useListPageSearchStatus();
   const router = useRouter();
   const [view, setView] = useState<BookingsView>("list");
   const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
@@ -388,8 +391,7 @@ export function AdminBookingsManagement({
           title={t("title")}
           search={
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <AdminIntegratedSearchFilters
-                className="min-w-0 flex-1"
+              <ListPageSearchFilters
                 search={filters.search}
                 onSearchChange={(value) => updateFilter("search", value)}
                 searchPlaceholder={t("filterSearch")}
@@ -397,10 +399,7 @@ export function AdminBookingsManagement({
                 filterValues={integratedFilterValues}
                 onFilterChange={handleIntegratedFilterChange}
                 onClearAll={resetFilters}
-                applyLabel={tSearchTools("applyFilters")}
                 resetLabel={t("resetFilters")}
-                clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-                filterPanelAriaLabel={tSearchTools("filterPanelAria")}
               />
               <AdminBookingsViewSwitcher value={view} onChange={setViewAndPersist} />
             </div>
@@ -422,8 +421,7 @@ export function AdminBookingsManagement({
           title={t("title")}
           banner={staffBanner}
           search={
-            <AdminIntegratedSearchFilters
-              className="min-w-0 flex-1"
+            <ListPageSearchFilters
               search={filters.search}
               onSearchChange={(value) => updateFilter("search", value)}
               searchPlaceholder={t("filterSearch")}
@@ -431,16 +429,13 @@ export function AdminBookingsManagement({
               filterValues={integratedFilterValues}
               onFilterChange={handleIntegratedFilterChange}
               onClearAll={resetFilters}
-              applyLabel={tSearchTools("applyFilters")}
               resetLabel={t("resetFilters")}
-              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
             />
           }
           headerTrailing={
             loading ? (
               <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                {tSearchTools("loadingResults")}
+                {loadingLabel}
               </p>
             ) : undefined
           }
@@ -471,7 +466,7 @@ export function AdminBookingsManagement({
           ) : null}
           {loading ? (
             <p className="text-sm text-sage-500" role="status">
-              {tSearchTools("loadingResults")}
+              {loadingLabel}
             </p>
           ) : null}
           {view === "daily" && openDaySessions.length > 0 ? (

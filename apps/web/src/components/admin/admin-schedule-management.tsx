@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCalendarViewSwitcher } from "@/components/admin/admin-calendar-view-switcher";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
@@ -425,7 +425,6 @@ export function AdminScheduleManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.classes");
   const tPage = useTranslations("adminPages.schedule");
-  const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -893,8 +892,7 @@ export function AdminScheduleManagement({
           title={tPage("title")}
           banner={staffBanner}
           search={
-            <AdminIntegratedSearchFilters
-              className="min-w-0 flex-1"
+            <ListPageSearchFilters
               search={searchDraft}
               onSearchChange={setSearchDraft}
               searchPlaceholder={t("filters.searchPlaceholder")}
@@ -902,10 +900,7 @@ export function AdminScheduleManagement({
               filterValues={integratedFilterValues}
               onFilterChange={handleIntegratedFilterChange}
               onClearAll={resetFilters}
-              applyLabel={tSearchTools("applyFilters")}
               resetLabel={t("filters.reset")}
-              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
             />
           }
           headerTrailing={
@@ -959,8 +954,7 @@ export function AdminScheduleManagement({
         title={tPage("title")}
         search={
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <AdminIntegratedSearchFilters
-              className="min-w-0 flex-1"
+            <ListPageSearchFilters
               search={searchDraft}
               onSearchChange={setSearchDraft}
               searchPlaceholder={t("filters.searchPlaceholder")}
@@ -968,10 +962,7 @@ export function AdminScheduleManagement({
               filterValues={integratedFilterValues}
               onFilterChange={handleIntegratedFilterChange}
               onClearAll={resetFilters}
-              applyLabel={tSearchTools("applyFilters")}
               resetLabel={t("filters.reset")}
-              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
             />
             <AdminCalendarViewSwitcher
               value={view}

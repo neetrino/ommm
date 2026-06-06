@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { UserPackagesSection } from "@/components/account/user-packages-section";
-import { AccountSection } from "@/components/layout/account-page-frame";
+import { AccountSection } from "@/components/layout/account-section";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { serverApiJson } from "@/lib/server-api";
 import type { UserMembershipRow } from "@/lib/user-package-types";

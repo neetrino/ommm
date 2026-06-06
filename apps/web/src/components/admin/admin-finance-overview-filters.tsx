@@ -10,7 +10,7 @@ import {
 } from "@/components/admin/admin-finance-filter-fields";
 import { AdminFinanceExportLinks } from "@/components/admin/admin-finance-export-links";
 import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import {
   buildFinanceOverviewFiltersQuery,
@@ -27,7 +27,6 @@ type AdminFinanceOverviewFiltersProps = {
 export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOverviewFiltersProps) {
   const t = useTranslations("adminPages.finance");
   const tFilters = useTranslations("adminPages.finance.filters");
-  const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -108,8 +107,7 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
   return (
     <AdminFinanceFiltersBar
       search={
-        <AdminIntegratedSearchFilters
-          className="min-w-0 flex-1"
+        <ListPageSearchFilters
           search=""
           onSearchChange={() => undefined}
           searchPlaceholder={tFilters("rangeLabel")}
@@ -118,11 +116,7 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
           filterValues={integratedFilterValues}
           onFilterChange={handleFilterChange}
           onClearAll={resetFilters}
-          applyLabel={tSearchTools("applyFilters")}
           resetLabel={tFilters("resetFilters")}
-          clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-          filterPanelAriaLabel={tSearchTools("filterPanelAria")}
-          portalFilterPanel
         />
       }
       trailing={

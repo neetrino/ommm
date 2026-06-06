@@ -30,7 +30,10 @@ import {
   parseAdminClientSegmentFilters,
   type AdminClientSegmentFilter,
 } from "@/components/admin/admin-clients-segment-filters";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import {
+  ListPageSearchFilters,
+  useListPageSearchStatus,
+} from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -78,7 +81,7 @@ export function AdminClientsManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
-  const tSearchTools = useTranslations("adminPages.searchTools");
+  const { loadingLabel, activeCountLabel } = useListPageSearchStatus();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -404,8 +407,7 @@ export function AdminClientsManagement({
           title={t("title")}
           banner={staffBanner}
           search={
-            <AdminIntegratedSearchFilters
-              className="min-w-0 flex-1"
+            <ListPageSearchFilters
               search={filters.search}
               onSearchChange={(value) => updateFilter("search", value)}
               searchPlaceholder={tFilters("searchPlaceholder")}
@@ -413,18 +415,13 @@ export function AdminClientsManagement({
               filterValues={integratedFilterValues}
               onFilterChange={handleIntegratedFilterChange}
               onClearAll={resetFilters}
-              applyLabel={tFilters("apply")}
               resetLabel={tFilters("resetFilters")}
-              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
             />
           }
           headerTrailing={
             loading || activeFilterCount > 0 ? (
               <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                {loading
-                  ? tSearchTools("loadingResults")
-                  : tSearchTools("activeCount", { count: activeFilterCount })}
+                {loading ? loadingLabel : activeCountLabel(activeFilterCount)}
               </p>
             ) : undefined
           }
@@ -438,7 +435,7 @@ export function AdminClientsManagement({
           <AdminPageHero
             title={t("title")}
             search={
-              <AdminIntegratedSearchFilters
+              <ListPageSearchFilters
                 search={filters.search}
                 onSearchChange={(value) => updateFilter("search", value)}
                 searchPlaceholder={tFilters("searchPlaceholder")}
@@ -446,18 +443,13 @@ export function AdminClientsManagement({
                 filterValues={integratedFilterValues}
                 onFilterChange={handleIntegratedFilterChange}
                 onClearAll={resetFilters}
-                applyLabel={tFilters("apply")}
                 resetLabel={tFilters("resetFilters")}
-                clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-                filterPanelAriaLabel={tSearchTools("filterPanelAria")}
               />
             }
             trailing={
               loading || activeFilterCount > 0 ? (
                 <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                  {loading
-                    ? tSearchTools("loadingResults")
-                    : tSearchTools("activeCount", { count: activeFilterCount })}
+                  {loading ? loadingLabel : activeCountLabel(activeFilterCount)}
                 </p>
               ) : undefined
             }

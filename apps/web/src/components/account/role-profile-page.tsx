@@ -4,9 +4,7 @@ import { AccountProfileInfoForm } from "@/components/account/account-profile-inf
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
 import { DeleteAccountButton } from "@/components/account/delete-account-button";
-import {
-  AccountSection,
-} from "@/components/layout/account-page-frame";
+import { AccountSection } from "@/components/layout/account-section";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";

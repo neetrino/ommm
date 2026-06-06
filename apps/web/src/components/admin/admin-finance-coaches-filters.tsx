@@ -10,7 +10,7 @@ import {
   buildAdminFinanceCoachesFilterFields,
   parseCoachesIntegratedFilterChange,
 } from "@/components/admin/admin-finance-coaches-filter-fields";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import type { CoachFinanceFilters } from "@/components/admin/admin-finance-types";
 import {
   buildFinanceCoachesFiltersQuery,
@@ -28,7 +28,6 @@ type CoachesFilterState = CoachFinanceFilters & { q: string };
 
 export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoachesFiltersProps) {
   const tFilters = useTranslations("adminPages.finance.coachTab");
-  const tSearchTools = useTranslations("adminPages.searchTools");
   const tFinanceFilters = useTranslations("adminPages.finance.filters");
   const router = useRouter();
   const pathname = usePathname();
@@ -123,8 +122,7 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
   return (
     <AdminFinanceFiltersBar
       search={
-        <AdminIntegratedSearchFilters
-          className="min-w-0 flex-1"
+        <ListPageSearchFilters
           search={values.q}
           onSearchChange={(value) => updateValues({ ...values, q: value, search: value })}
           searchPlaceholder={tFilters("searchPlaceholder")}
@@ -132,11 +130,7 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
           filterValues={integratedFilterValues}
           onFilterChange={handleIntegratedFilterChange}
           onClearAll={resetFilters}
-          applyLabel={tSearchTools("applyFilters")}
           resetLabel={tFilters("clearFilters")}
-          clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-          filterPanelAriaLabel={tSearchTools("filterPanelAria")}
-          portalFilterPanel
         />
       }
       trailing={
