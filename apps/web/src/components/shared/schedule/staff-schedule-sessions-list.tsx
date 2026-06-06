@@ -38,15 +38,16 @@ export async function StaffScheduleSessionsList({
     <div className={layout.tableClass}>
       <div className={layout.headerClass}>
         <span>{tCols("colClass")}</span>
-        <span className={layout.emphasizedHeaderClass}>{tCols("colDateTime")}</span>
+        <span className={layout.dateTimeHeaderCellClass}>{tCols("colDateTime")}</span>
         {showCoach ? (
           <span className={layout.emphasizedHeaderClass}>{tCols("colCoach")}</span>
         ) : null}
+        <span aria-hidden="true" />
         <span className={layout.emphasizedHeaderClass}>{tCols("colCapacity")}</span>
         {showCoach ? null : (
-          <span className={layout.emphasizedHeaderClass}>{tCols("colTags")}</span>
+          <span className={layout.tagsHeaderCellClass}>{tCols("colTags")}</span>
         )}
-        <span className={layout.emphasizedHeaderClass}>{tCols("colStatus")}</span>
+        <span className={layout.statusHeaderCellClass}>{tCols("colStatus")}</span>
       </div>
       {sessions.map((row) => (
         <StaffScheduleSessionRow key={row.id} locale={locale} row={row} preset={preset} />

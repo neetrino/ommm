@@ -104,6 +104,8 @@ export function AdminScheduleSessionCompactRow({
         </p>
       </div>
 
+      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL} aria-hidden="true" />
+
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL}>
         <AdminListMobileLabel label={t("colCapacity")} />
         <ScheduleSessionCapacityIndicator
@@ -118,8 +120,6 @@ export function AdminScheduleSessionCompactRow({
         <AdminListMobileLabel label={t("colTags")} />
         <ScheduleSessionLevelLabels levels={levels} />
       </div>
-
-      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
         className={ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_CELL}

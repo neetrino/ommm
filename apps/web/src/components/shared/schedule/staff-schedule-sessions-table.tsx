@@ -52,15 +52,16 @@ export function StaffScheduleSessionsTable({
     <div className={layout.tableClass}>
       <div className={layout.headerClass}>
         <span>{t("colClass")}</span>
-        <span className={layout.emphasizedHeaderClass}>{t("colDateTime")}</span>
+        <span className={layout.dateTimeHeaderCellClass}>{t("colDateTime")}</span>
         {showCoach ? (
           <span className={layout.emphasizedHeaderClass}>{t("colCoach")}</span>
         ) : null}
+        <span aria-hidden="true" />
         <span className={layout.emphasizedHeaderClass}>{t("colCapacity")}</span>
         {showCoach ? null : (
-          <span className={layout.emphasizedHeaderClass}>{t("colTags")}</span>
+          <span className={layout.tagsHeaderCellClass}>{t("colTags")}</span>
         )}
-        <span className={layout.emphasizedHeaderClass}>{t("colStatus")}</span>
+        <span className={layout.statusHeaderCellClass}>{t("colStatus")}</span>
       </div>
       {sorted.map((row) => (
         <StaffScheduleSessionRowClient
@@ -127,6 +128,8 @@ function StaffScheduleSessionRowClient({
           </p>
         </div>
       ) : null}
+
+      <div className={layout.spacerCellClass} aria-hidden="true" />
 
       <div className={layout.capacityCellClass}>
         <AdminListMobileLabel label={t("colCapacity")} />

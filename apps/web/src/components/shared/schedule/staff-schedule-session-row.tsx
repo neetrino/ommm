@@ -81,6 +81,8 @@ export async function StaffScheduleSessionRow({
         </div>
       ) : null}
 
+      <div className={layout.spacerCellClass} aria-hidden="true" />
+
       <div className={layout.capacityCellClass}>
         <AdminListMobileLabel label={t("colCapacity")} />
         <ScheduleSessionCapacityIndicator

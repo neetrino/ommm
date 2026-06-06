@@ -12,7 +12,12 @@ export const ADMIN_SCHEDULE_SESSIONS_LIST_CELL = adminLayout.cellClass;
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL = adminLayout.dateTimeCellClass;
 
+export const ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL =
+  adminLayout.dateTimeHeaderCellClass;
+
 export const ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL = adminLayout.tagsCellClass;
+
+export const ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL = adminLayout.tagsHeaderCellClass;
 
 export const ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL = adminLayout.capacityCellClass;
 

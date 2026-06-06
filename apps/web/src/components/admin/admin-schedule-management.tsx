@@ -37,7 +37,9 @@ import {
 } from "@/components/admin/admin-schedule-view";
 import {
   ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER,
+  ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
   ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-schedule-sessions-list-layout";
@@ -1226,11 +1228,11 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
     <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
         <span>{t("colClass")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL}>{t("colDateTime")}</span>
         <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCoach")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCapacity")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span aria-hidden="true" />
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCapacity")}</span>
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL}>{t("colTags")}</span>
         <span className={ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
       </div>
       {rows.map((row) => (
