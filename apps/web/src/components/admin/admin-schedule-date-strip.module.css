@@ -8,6 +8,9 @@
   overflow-y: hidden;
   cursor: grab;
   touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -25,6 +28,13 @@
   aspect-ratio: 1 / 1;
   min-width: 0;
   container-type: inline-size;
+  touch-action: pan-x;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.viewport:active .card {
+  transition: none;
 }
 
 .dayNumber {

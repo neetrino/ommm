@@ -2,18 +2,19 @@
 
 import { useCallback, useRef, type PointerEvent as ReactPointerEvent } from "react";
 
-const DRAG_MOVE_THRESHOLD_PX = 4;
+const DRAG_MOVE_THRESHOLD_PX = 6;
 
 type DragState = {
   active: boolean;
   startX: number;
   startScrollLeft: number;
   moved: boolean;
+  pointerType: string;
 };
 
 /**
- * Enables click-drag horizontal scrolling with hidden scrollbars.
- * Suppresses child click handlers when the pointer moved beyond the drag threshold.
+ * Drag-to-scroll on the viewport. Touch uses native overflow scroll (faster).
+ * Tap without movement is left to children (day select).
  */
 export function useHorizontalDragScroll() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,7 @@ export function useHorizontalDragScroll() {
     startX: 0,
     startScrollLeft: 0,
     moved: false,
+    pointerType: "mouse",
   });
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -32,8 +34,11 @@ export function useHorizontalDragScroll() {
       startX: event.clientX,
       startScrollLeft: element.scrollLeft,
       moved: false,
+      pointerType: event.pointerType,
     };
-    element.setPointerCapture(event.pointerId);
+    if (event.pointerType === "mouse") {
+      element.setPointerCapture(event.pointerId);
+    }
   }, []);
 
   const onPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -43,14 +48,19 @@ export function useHorizontalDragScroll() {
     if (Math.abs(deltaX) > DRAG_MOVE_THRESHOLD_PX) {
       dragState.current.moved = true;
     }
-    element.scrollLeft = dragState.current.startScrollLeft - deltaX;
+    if (dragState.current.pointerType === "mouse") {
+      element.scrollLeft = dragState.current.startScrollLeft - deltaX;
+    }
   }, []);
 
   const endDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const element = scrollRef.current;
     if (!element || !dragState.current.active) return;
     dragState.current.active = false;
-    if (element.hasPointerCapture(event.pointerId)) {
+    if (
+      dragState.current.pointerType === "mouse" &&
+      element.hasPointerCapture(event.pointerId)
+    ) {
       element.releasePointerCapture(event.pointerId);
     }
   }, []);

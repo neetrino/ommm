@@ -69,6 +69,7 @@ import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
 import {
   AdminScheduleDateStrip,
+  scheduleSessionLocalIsoDay,
   sortScheduleRowsFromTodayForward,
 } from "@/components/admin/admin-schedule-date-strip";
 import {
@@ -1215,7 +1216,9 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
   const rows = sortScheduleRowsFromTodayForward(
     props.selectedDay === null
       ? props.rows
-      : props.rows.filter((row) => row.startsAt.slice(0, 10) === props.selectedDay),
+      : props.rows.filter(
+          (row) => scheduleSessionLocalIsoDay(row.startsAt) === props.selectedDay,
+        ),
   );
   if (rows.length === 0) {
     return (

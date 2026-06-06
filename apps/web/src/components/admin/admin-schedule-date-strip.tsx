@@ -39,14 +39,18 @@ export function scheduleTodayIsoDate(): string {
   return toLocalIsoDate(startOfLocalDay(new Date()));
 }
 
+export function scheduleSessionLocalIsoDay(startsAt: string): string {
+  return toLocalIsoDate(new Date(startsAt));
+}
+
 /** Default list order: today and future first (asc), past sessions last (asc). */
 export function sortScheduleRowsFromTodayForward<T extends ScheduleDateStripRow>(
   rows: readonly T[],
 ): T[] {
   const todayKey = scheduleTodayIsoDate();
   return [...rows].sort((first, second) => {
-    const firstDay = first.startsAt.slice(0, 10);
-    const secondDay = second.startsAt.slice(0, 10);
+    const firstDay = scheduleSessionLocalIsoDay(first.startsAt);
+    const secondDay = scheduleSessionLocalIsoDay(second.startsAt);
     const firstIsPast = firstDay < todayKey;
     const secondIsPast = secondDay < todayKey;
     if (firstIsPast !== secondIsPast) {
@@ -59,7 +63,7 @@ export function sortScheduleRowsFromTodayForward<T extends ScheduleDateStripRow>
 function groupRowsByDay(rows: readonly ScheduleDateStripRow[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const row of rows) {
-    const key = row.startsAt.slice(0, 10);
+    const key = scheduleSessionLocalIsoDay(row.startsAt);
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   return counts;
@@ -75,7 +79,7 @@ function buildDateStripDays(rows: readonly ScheduleDateStripRow[]): string[] {
   }
 
   for (const row of rows) {
-    const key = row.startsAt.slice(0, 10);
+    const key = scheduleSessionLocalIsoDay(row.startsAt);
     if (key >= todayKey) {
       daySet.add(key);
     }
@@ -112,7 +116,6 @@ function ScheduleDayCard({
   const date = new Date(`${day}T00:00:00`);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
-  const isToday = day === scheduleTodayIsoDate();
   const isActiveFilter = selected;
 
   return (
@@ -124,12 +127,10 @@ function ScheduleDayCard({
         if (shouldSuppressClick()) return;
         onSelect(day);
       }}
-      className={`${styles.card} flex flex-col rounded-2xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${
+      className={`${styles.card} flex flex-col rounded-2xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${
         isActiveFilter
-          ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)]"
-          : isToday
-            ? "border-black/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white"
-            : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white"
+          ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)] ring-2 ring-sage-900/30"
+          : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200"
       }`}
     >
       <span className="flex items-start justify-between gap-1">
@@ -160,7 +161,6 @@ export function AdminScheduleDateStrip({
 }: AdminScheduleDateStripProps) {
   const { scrollRef, dragHandlers, shouldSuppressClick } = useHorizontalDragScroll();
   const todayButtonRef = useRef<HTMLButtonElement>(null);
-  const dayButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const hasScrolledToToday = useRef(false);
 
   const countsByDay = useMemo(() => groupRowsByDay(rows), [rows]);
@@ -174,14 +174,6 @@ export function AdminScheduleDateStrip({
     scrollDayIntoView(container, todayButton);
     hasScrolledToToday.current = true;
   }, [days, scrollRef]);
-
-  useEffect(() => {
-    if (selectedDay === null) return;
-    const container = scrollRef.current;
-    const selectedButton = dayButtonRefs.current.get(selectedDay);
-    if (!container || !selectedButton || selectedDay === todayKey) return;
-    scrollDayIntoView(container, selectedButton);
-  }, [selectedDay, todayKey, scrollRef]);
 
   if (days.length === 0) return null;
 
@@ -203,11 +195,6 @@ export function AdminScheduleDateStrip({
             onSelect={onSelectDay}
             shouldSuppressClick={shouldSuppressClick}
             setButtonRef={(element) => {
-              if (element === null) {
-                dayButtonRefs.current.delete(day);
-                return;
-              }
-              dayButtonRefs.current.set(day, element);
               if (day === todayKey) {
                 todayButtonRef.current = element;
               }
