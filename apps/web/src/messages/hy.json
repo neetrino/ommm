@@ -1181,6 +1181,9 @@
         "pendingWithCount": "Սպասող վճարումներ · {count}",
         "pendingCount": "{count} վճարում",
         "pendingValue": "{count} ({amount})",
+        "trendLabel": "Նախորդ ամսվա համեմատ",
+        "trendValue": "{percent}%",
+        "trendUnavailable": "—",
         "trend": "{percent}% նախորդ ամսվա համեմատ",
         "empty": "Եկամտի տվյալներ դեռ հասանելի չեն։"
       },

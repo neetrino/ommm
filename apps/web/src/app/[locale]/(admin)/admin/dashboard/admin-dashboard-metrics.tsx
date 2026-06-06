@@ -70,6 +70,19 @@ function buildTodayBookingItems(
   }));
 }
 
+function buildRevenueTrendKpi(trendPercent: number | null, unavailableLabel: string) {
+  if (trendPercent === null) {
+    return { value: unavailableLabel, valueTone: "default" as const };
+  }
+  if (trendPercent > 0) {
+    return { value: `+${trendPercent}%`, valueTone: "positive" as const };
+  }
+  if (trendPercent < 0) {
+    return { value: `${trendPercent}%`, valueTone: "negative" as const };
+  }
+  return { value: "0%", valueTone: "default" as const };
+}
+
 export async function AdminDashboardMetrics({ locale }: { locale: string }) {
   const tm = await getTranslations({ locale, namespace: "adminHome.overview" });
   const cookie = (await headers()).get("cookie") ?? "";
@@ -136,13 +149,12 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
           label: tm("revenue.pendingWithCount", { count: data.revenue.pendingPaymentsCount }),
           value: formatAmdFromCents(data.revenue.pendingPaymentsCents, locale),
         },
+        {
+          label: tm("revenue.trendLabel"),
+          ...buildRevenueTrendKpi(data.revenue.trendPercent, tm("revenue.trendUnavailable")),
+        },
       ]
     : [{ label: tm("revenue.thisMonth"), value: tm("cards.revenueSummary.noData") }];
-
-  const revenueTrendFootnote =
-    data.revenue?.trendPercent !== null && data.revenue?.trendPercent !== undefined
-      ? tm("revenue.trend", { percent: data.revenue.trendPercent })
-      : undefined;
 
   return (
     <AdminContentFrame description={tm("pageDescription")}>
@@ -151,7 +163,6 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
         financeTitle={tm("kpi.groupFinance")}
         operations={kpisOperations}
         finance={kpisFinance}
-        financeFootnote={revenueTrendFootnote}
       />
 
       <section className="mt-6">

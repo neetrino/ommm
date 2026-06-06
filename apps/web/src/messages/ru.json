@@ -1169,6 +1169,9 @@
         "pendingWithCount": "Ожидающие платежи · {count}",
         "pendingCount": "{count} платежей",
         "pendingValue": "{count} ({amount})",
+        "trendLabel": "К прошлому месяцу",
+        "trendValue": "{percent}%",
+        "trendUnavailable": "—",
         "trend": "{percent}% к прошлому месяцу",
         "empty": "Данные по выручке пока недоступны."
       },

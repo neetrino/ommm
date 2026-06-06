@@ -1178,6 +1178,9 @@
         "pendingWithCount": "Pending payments · {count}",
         "pendingCount": "{count} payments",
         "pendingValue": "{count} ({amount})",
+        "trendLabel": "Vs previous month",
+        "trendValue": "{percent}%",
+        "trendUnavailable": "—",
         "trend": "{percent}% vs previous month",
         "empty": "No revenue data available yet."
       },
