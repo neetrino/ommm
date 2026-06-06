@@ -26,9 +26,15 @@ type AdminClientCompactRowProps = {
   row: ClientRow;
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
+  readOnly?: boolean;
 };
 
-export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientCompactRowProps) {
+export function AdminClientCompactRow({
+  row,
+  onSelect,
+  onChanged,
+  readOnly = false,
+}: AdminClientCompactRowProps) {
   const t = useTranslations("adminPages.clients");
   const name = fullName(row);
 
@@ -92,16 +98,20 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
         ) : null}
       </div>
 
-      <div className={ADMIN_CLIENTS_LIST_SPACER_CELL} aria-hidden="true" />
+      {readOnly ? null : (
+        <>
+          <div className={ADMIN_CLIENTS_LIST_SPACER_CELL} aria-hidden="true" />
 
-      <div
-        className={ADMIN_CLIENTS_LIST_ACTIONS_CELL}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminListMobileLabel label={t("colActions")} />
-        <AdminClientRowActions client={row} onChanged={onChanged} />
-      </div>
+          <div
+            className={ADMIN_CLIENTS_LIST_ACTIONS_CELL}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <AdminListMobileLabel label={t("colActions")} />
+            <AdminClientRowActions client={row} onChanged={onChanged} />
+          </div>
+        </>
+      )}
     </article>
   );
 }

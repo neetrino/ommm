@@ -1392,6 +1392,7 @@
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",
       "deleteSuccess": "Client deleted",
       "noteLabel": "Internal note",
+      "emptyList": "No clients match the current search and filters.",
       "notePlaceholder": "Write a note for this client",
       "addNote": "Add note",
       "noteAddedSuccess": "Note added",
@@ -2951,14 +2952,14 @@
       "nextStepsBody": "Manage classes, bookings, waitlists, clients, coaches, and gift cards. Billing and studio-level settings remain admin-only."
     },
     "clients": {
-      "readOnlyHint": "Client directory (read-only). Edit in admin CRM.",
+      "readOnlyHint": "Member directory — same compact rows as admin. Open a client to view details; edits stay in admin CRM.",
       "roleClient": "Client"
     },
     "bookings": {
       "rollingWindowHint": "Bookings from the past 7 days through the next 30 days — same compact rows and actions as admin."
     },
     "waitlists": {
-      "operationalHint": "Operational view aligned with the CRM manager matrix (move/remove via API or future row actions).",
+      "operationalHint": "Active waitlists — same compact rows and actions as admin (promote, notify, remove).",
       "colSession": "Session",
       "colPos": "Pos",
       "colStatus": "Status",

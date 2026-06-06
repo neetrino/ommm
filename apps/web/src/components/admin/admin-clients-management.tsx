@@ -18,6 +18,7 @@ import {
   ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER,
   ADMIN_CLIENTS_LIST_HEADER_CLASS,
   ADMIN_CLIENTS_LIST_TABLE_CLASS,
+  ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS,
 } from "@/components/admin/admin-clients-list-layout";
 import {
   adminClientsFilterValuesFromState,
@@ -31,6 +32,7 @@ import {
 } from "@/components/admin/admin-clients-segment-filters";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -57,11 +59,23 @@ type Props = {
   initial: AdminClientsPayload;
   locale: string;
   initialFilters: Record<string, string>;
+  /** Staff surfaces (manager): list canon without hero/filters/summary. */
+  variant?: "full" | "staff";
+  staffBanner?: string;
+  readOnly?: boolean;
 };
 
 const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
-export function AdminClientsManagement({ initial, locale, initialFilters }: Props) {
+export function AdminClientsManagement({
+  initial,
+  locale,
+  initialFilters,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
+}: Props) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
   const tSearchTools = useTranslations("adminPages.searchTools");
@@ -358,41 +372,14 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
     updateFilter(key as keyof typeof filters, value);
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <AdminPageHero
-        title={t("title")}
-        search={
-          <AdminIntegratedSearchFilters
-            search={filters.search}
-            onSearchChange={(value) => updateFilter("search", value)}
-            searchPlaceholder={tFilters("searchPlaceholder")}
-            fields={filterFields}
-            filterValues={integratedFilterValues}
-            onFilterChange={handleIntegratedFilterChange}
-            onClearAll={resetFilters}
-            applyLabel={tFilters("apply")}
-            resetLabel={tFilters("resetFilters")}
-            clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-            filterPanelAriaLabel={tSearchTools("filterPanelAria")}
-          />
-        }
-        trailing={
-          loading || activeFilterCount > 0 ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {loading
-                ? tSearchTools("loadingResults")
-                : tSearchTools("activeCount", { count: activeFilterCount })}
-            </p>
-          ) : undefined
-        }
-      />
-      <Summary payload={payload} locale={locale} />
+  const clientsList = (
+    <>
       {error ? <div className="app-alert-warn">{error}</div> : null}
       <ClientsTable
         rows={payload.rows}
         onSelect={selectClient}
         onChanged={refetchClients}
+        readOnly={readOnly || isStaff}
       />
       <OmmListPagination
         total={payload.pagination.total}
@@ -405,9 +392,49 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
       />
       {payload.rows.length === 0 ? (
         <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
-          No clients match the current search and filters.
+          {t("emptyList")}
         </div>
       ) : null}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      {!isStaff ? (
+        <AdminPageHero
+          title={t("title")}
+          search={
+            <AdminIntegratedSearchFilters
+              search={filters.search}
+              onSearchChange={(value) => updateFilter("search", value)}
+              searchPlaceholder={tFilters("searchPlaceholder")}
+              fields={filterFields}
+              filterValues={integratedFilterValues}
+              onFilterChange={handleIntegratedFilterChange}
+              onClearAll={resetFilters}
+              applyLabel={tFilters("apply")}
+              resetLabel={tFilters("resetFilters")}
+              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+            />
+          }
+          trailing={
+            loading || activeFilterCount > 0 ? (
+              <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+                {loading
+                  ? tSearchTools("loadingResults")
+                  : tSearchTools("activeCount", { count: activeFilterCount })}
+              </p>
+            ) : undefined
+          }
+        />
+      ) : null}
+      {!isStaff ? <Summary payload={payload} locale={locale} /> : null}
+      {isStaff ? (
+        <AdminSectionShell banner={staffBanner}>{clientsList}</AdminSectionShell>
+      ) : (
+        clientsList
+      )}
       <AdminClientDrawer
         client={selected}
         locale={locale}
@@ -475,23 +502,32 @@ function ClientsTable({
   rows,
   onSelect,
   onChanged,
+  readOnly = false,
 }: {
   rows: ClientRow[];
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("adminPages.clients");
+  const tableClass = readOnly
+    ? ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS
+    : ADMIN_CLIENTS_LIST_TABLE_CLASS;
 
   return (
-    <div className={ADMIN_CLIENTS_LIST_TABLE_CLASS}>
+    <div className={tableClass}>
       <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
         <span>{t("colName")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("noteLabel")}</span>
-        <span aria-hidden="true" />
-        <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        {readOnly ? null : (
+          <>
+            <span aria-hidden="true" />
+            <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          </>
+        )}
       </div>
       {rows.map((row) => (
         <AdminClientCompactRow
@@ -499,6 +535,7 @@ function ClientsTable({
           row={row}
           onSelect={onSelect}
           onChanged={onChanged}
+          readOnly={readOnly}
         />
       ))}
     </div>
