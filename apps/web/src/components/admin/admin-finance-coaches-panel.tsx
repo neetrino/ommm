@@ -5,14 +5,12 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminCoachSessionsDrawer } from "@/components/admin/admin-coach-sessions-drawer";
+import { AdminFinanceCoachCompactRow } from "@/components/admin/admin-finance-coach-compact-row";
 import {
-  ADMIN_FINANCE_COACH_LIST_CELL,
   ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER,
   ADMIN_FINANCE_COACH_LIST_HEADER_CLASS,
-  ADMIN_FINANCE_COACH_LIST_ROW_CLASS,
   ADMIN_FINANCE_COACH_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
-import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import type {
   CoachFinanceFilters,
   CoachFinancePayload,
@@ -21,34 +19,13 @@ import type {
 import { FINANCE_COACH_PAGE_KEYS } from "@/components/admin/admin-finance-url";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type Props = {
   locale: string;
   initial: CoachFinancePayload;
   filters: CoachFinanceFilters & { q: string };
 };
-
-function displayName(row: CoachFinanceRow): string {
-  return coachCardDisplayName({
-    name: row.user.name,
-    lastName: row.user.lastName,
-    email: row.user.email,
-    avatarUrl: null,
-  });
-}
-
-function payoutStatus(row: CoachFinanceRow): "pending" | "paid" | "none" {
-  if (!row.salary || row.salary.totalEarningsCents === 0) {
-    return "none";
-  }
-  if (row.salary.pendingPayoutCents > 0) {
-    return "pending";
-  }
-  return "paid";
-}
 
 export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
   const t = useTranslations("adminPages.finance.coachTab");
@@ -108,7 +85,7 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
           recent: t("quickRecent"),
         }}
       />
-      <p className="text-xs text-sage-500">{t("rowCount", { count: initial.total })}</p>
+      <p className="text-sm text-sage-600">{t("rowCount", { count: initial.total })}</p>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
           <span>{t("colCoach")}</span>
@@ -124,54 +101,15 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
             {t("empty")}
           </p>
         ) : (
-          initial.items.map((row) => {
-            const status = payoutStatus(row);
-            const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
-            return (
-              <article key={row.coachProfileId} className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
-                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
-                  <AdminListMobileLabel label={t("colCoach")} />
-                  <p className="text-sm font-medium text-sage-900">{displayName(row)}</p>
-                  <p className="mt-0.5 text-xs text-sage-500">{row.user.phone ?? "—"}</p>
-                </div>
-                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
-                  <AdminListMobileLabel label={t("colSalary")} />
-                  <p className="text-sm text-sage-800">
-                    {row.salary
-                      ? formatAmdFromCents(row.salary.totalEarningsCents, locale)
-                      : "—"}
-                  </p>
-                </div>
-                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
-                  <AdminListMobileLabel label={t("colSessions")} />
-                  <button
-                    type="button"
-                    className="text-sm font-medium text-sage-800 underline underline-offset-2"
-                    onClick={() => setDrawerCoach(row)}
-                  >
-                    {sessionCount}
-                  </button>
-                </div>
-                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
-                  <AdminListMobileLabel label={t("colMonth")} />
-                  <p className="text-sm text-sage-800">{filters.month}</p>
-                </div>
-                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
-                  <AdminListMobileLabel label={t("colPayoutStatus")} />
-                  <span className="inline-flex rounded-full bg-sage-100 px-2 py-1 text-[11px] font-medium text-sage-700">
-                    {status === "none"
-                      ? t("statusNone")
-                      : t(`status${status === "paid" ? "Paid" : "Pending"}`)}
-                  </span>
-                </div>
-                <span aria-hidden="true" className="hidden min-w-0 md:block" />
-                <div className={`${ADMIN_FINANCE_COACH_LIST_CELL} md:justify-self-end`}>
-                  <AdminListMobileLabel label={t("colActions")} />
-                  <p className="text-xs text-sage-500">{t("actionsUnsupported")}</p>
-                </div>
-              </article>
-            );
-          })
+          initial.items.map((row) => (
+            <AdminFinanceCoachCompactRow
+              key={row.coachProfileId}
+              locale={locale}
+              row={row}
+              month={filters.month}
+              onOpenSessions={() => setDrawerCoach(row)}
+            />
+          ))
         )}
       </div>
       <OmmListPagination

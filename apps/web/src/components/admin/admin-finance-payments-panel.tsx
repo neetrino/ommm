@@ -4,10 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-payment-compact-row";
+import {
+  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER,
+  ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
+  ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-finance-payments-list-layout";
 import type {
-  FinancePaymentItem,
   FinancePaymentsPayload,
   FinanceSourceFilter,
   FinanceStatusFilter,
@@ -15,9 +19,7 @@ import type {
 import { FINANCE_PAYMENTS_PAGE_KEYS } from "@/components/admin/admin-finance-url";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
-import { formatDateForUi } from "@/lib/date-display";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type Props = {
   locale: string;
@@ -61,6 +63,7 @@ export function AdminFinancePaymentsPanel({
   searchQuery,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
+  const tTable = useTranslations("adminPages.finance.table");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -142,10 +145,33 @@ export function AdminFinancePaymentsPanel({
     <div className="space-y-4">
       {error ? <div className="app-alert-warn">{error}</div> : null}
       {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
-      <p className="text-xs text-sage-500">
-        {t("rowCount", { count: paymentsPayload.total })}
-      </p>
-      <FinancePaymentsTable items={paymentsPayload.items} locale={locale} />
+      <p className="text-sm text-sage-600">{t("rowCount", { count: paymentsPayload.total })}</p>
+
+      <div className={ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS}>
+        <div className={ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS}>
+          <span>{tTable("colUser")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colAmount")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colDate")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colTime")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colSource")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>{tTable("colStatus")}</span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>
+            {tTable("colPaymentMethod")}
+          </span>
+          <span aria-hidden="true" />
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL}>{tTable("colActions")}</span>
+        </div>
+        {paymentsPayload.items.length === 0 ? (
+          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+            {tTable("empty")}
+          </p>
+        ) : (
+          paymentsPayload.items.map((row) => (
+            <AdminFinancePaymentCompactRow key={row.id} locale={locale} row={row} />
+          ))
+        )}
+      </div>
+
       <OmmListPagination
         total={paymentsPayload.total}
         page={payListPage.page}
@@ -155,60 +181,6 @@ export function AdminFinancePaymentsPanel({
         onPageSizeChange={(pageSize) => setPayListPage(1, pageSize)}
         disabled={loading}
       />
-    </div>
-  );
-}
-
-function FinancePaymentsTable({
-  items,
-  locale,
-}: {
-  items: FinancePaymentItem[];
-  locale: string;
-}) {
-  const tTable = useTranslations("adminPages.finance.table");
-  const tMethods = useTranslations("adminPages.finance.paymentMethods");
-  if (items.length === 0) {
-    return <p className="text-sm text-sage-600">{tTable("empty")}</p>;
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={adminChrome.th}>{tTable("colDate")}</th>
-            <th className={adminChrome.th}>{tTable("colUser")}</th>
-            <th className={adminChrome.th}>{tTable("colAmount")}</th>
-            <th className={adminChrome.th}>{tTable("colPaymentMethod")}</th>
-            <th className={adminChrome.th}>{tTable("colSource")}</th>
-            <th className={adminChrome.th}>{tTable("colStatus")}</th>
-            <th className={adminChrome.th}>{tTable("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((row) => (
-            <tr key={row.id} className={adminChrome.tr}>
-              <td className={adminChrome.td}>{formatDateForUi(row.createdAt)}</td>
-              <td className={adminChrome.td}>
-                <p>
-                  {[row.user.name, row.user.lastName].filter(Boolean).join(" ") || row.user.email}
-                </p>
-                <p className="text-xs text-sage-500">{row.user.phone ?? row.user.email}</p>
-              </td>
-              <td className={adminChrome.td}>{formatAmdFromCents(row.amountCents, locale)}</td>
-              <td className={adminChrome.td}>
-                {row.paymentMethod ? tMethods(row.paymentMethod as "CASH") : "—"}
-              </td>
-              <td className={adminChrome.td}>{row.source}</td>
-              <td className={adminChrome.td}>{row.status}</td>
-              <td className={adminChrome.td}>
-                <AdminFinancePaymentActions paymentId={row.id} status={row.status} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }

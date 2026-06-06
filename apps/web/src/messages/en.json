@@ -2563,7 +2563,7 @@
       "limitations": {
         "heading": "Unsupported or partial metrics",
         "noTimeSeries": "Revenue and booking time-series trends (daily/weekly/monthly charts) require a dedicated analytics endpoint that is not implemented yet.",
-        "bookingsSample": "Bookings and class popularity metrics are limited to the bookings management query cap (1,000 rows).",
+        "bookingsSample": "Bookings and class popularity metrics are limited to the bookings management query cap (100 rows).",
         "noCoachRevenue": "Revenue per coach is not available from existing APIs.",
         "noClassRevenue": "Revenue per class type is not available from existing APIs.",
         "noRetention": "User retention metrics are not available from existing APIs."
@@ -2651,6 +2651,7 @@
       "table": {
         "empty": "No payments found for selected filters.",
         "colDate": "Date",
+        "colTime": "Time",
         "colUser": "User",
         "colAmount": "Amount",
         "colPlan": "Package",

@@ -86,7 +86,7 @@ export function AdminFinanceMembersPanel({ locale, initialClients, filters }: Pr
           active: t("quickActive"),
         }}
       />
-      <p className="text-xs text-sage-500">{t("rowCount", { count: initialClients.pagination.total })}</p>
+      <p className="text-sm text-sage-600">{t("rowCount", { count: initialClients.pagination.total })}</p>
 
       <div className={ADMIN_FINANCE_USER_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_USER_LIST_HEADER_CLASS}>
