@@ -194,32 +194,14 @@ Member уже на `MemberContentFrame` + `variant="member"`. Проверить
 6. **Delete old** — в той же фазе убираем заменённое (не копим legacy).
 7. **Sheets** — `ADMIN_DETAIL_SHEET_CANON.md`; добавляем только где роли нужен detail view.
 
-### Surfaces — global toggle (не чинить на каждой странице)
+### Surfaces — без лишней обёртки на list pages
 
-**Один переключатель:** `apps/web/src/lib/workspace-section-surface.ts` → `WORKSPACE_SECTION_SURFACE`
+- **`AdminContentFrame` / `MemberContentFrame`** — только width/padding, **без** page-level `ommm-card`.
+- **`AdminSectionShell`** — spacing + toolbar/banner, **без** `ommm-card` (исправляет двойной фон на lists).
+- **Profile forms** — `AccountSection` → `ommm-account-section` на секцию.
+- **Lists** — `adminChrome.tableWrap` / `adminChrome.panel` на строку.
 
-| Значение | Поведение |
-|----------|-----------|
-| `"plain"` (сейчас) | Контент на фоне shell; формы — `ommm-account-section` на секцию |
-| `"card"` | Glass-обёртка на **всей** странице через `AdminContentFrame` / `MemberContentFrame` |
-
-**Где применяется автоматически:**
-- `AdminContentFrame` → `WorkspacePageSection`
-- `MemberContentFrame` → `WorkspacePageSection`
-- `AccountSection` → без inner card когда global `"card"`
-
-**Локальные обходы удалены:**
-- `AdminSectionShell` — только spacing (без `ommm-card`)
-- `admin-schedule-shell` — без локального `ommm-card`
-- `staff-account-summary` — без zinc/indigo one-off cards
-
-**Preview:** поставить `WORKSPACE_SECTION_SURFACE = "card"` → refresh → card на всех admin/user workspace pages. Вернуть `"plain"` — исчезает везде.
-
-| Тип | Строки / блоки |
-|-----|----------------|
-| **Lists** | `adminChrome.tableWrap` / `adminChrome.panel` на строку |
-| **Grouped toolbar** | `AdminSectionShell` (banner + toolbar) |
-| **Profile forms** | `AccountSection` + global surface rules |
+Локальные `ommm-card` в `admin-schedule-shell` убраны — используется `AdminSectionShell`.
 
 ---
 

@@ -22,7 +22,7 @@ import {
 } from "@/components/admin/admin-finance-url";
 
 function searchParamsToRecord(
-  params: ReadonlyURLSearchParams,
+  params: ReturnType<typeof useSearchParams>,
 ): Record<string, string | string[] | undefined> {
   return Object.fromEntries(params.entries());
 }

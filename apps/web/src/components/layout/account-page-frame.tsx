@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { workspaceAccountSectionClass } from "@/lib/workspace-section-surface";
 
 type AccountPageFrameProps = {
   title: string;
@@ -36,7 +35,7 @@ type AccountSectionProps = {
 
 export function AccountSection({ title, children, className = "" }: AccountSectionProps) {
   return (
-    <section className={workspaceAccountSectionClass(className)}>
+    <section className={`ommm-account-section ${className}`.trim()}>
       <h2 className="ommm-h3 text-sage-800">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>

@@ -40,6 +40,7 @@ export function AdminAnalyticsHeroFilters({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
+  const valuesFromUrlRef = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [values, setValues] = useState(initialValues);
 
@@ -92,11 +93,16 @@ export function AdminAnalyticsHeroFilters({
 
   useEffect(() => {
     setValues(initialValues);
+    valuesFromUrlRef.current = true;
   }, [initialValues]);
 
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
+      return undefined;
+    }
+    if (valuesFromUrlRef.current) {
+      valuesFromUrlRef.current = false;
       return undefined;
     }
 
@@ -115,7 +121,7 @@ export function AdminAnalyticsHeroFilters({
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, section, values]);
+  }, [pathname, router, searchParams, section, values]);
 
   function handleFilterChange(key: string, value: string): void {
     setValues((current) => applyAnalyticsIntegratedFilterChange(key, value, current));

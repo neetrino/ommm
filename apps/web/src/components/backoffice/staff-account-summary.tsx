@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { serverApiJson } from "@/lib/server-api";
-import { workspaceAccountSectionClass } from "@/lib/workspace-section-surface";
 
 type MeRow = {
   user: {
@@ -23,7 +22,7 @@ type WorkspaceNoteCardProps = {
 
 function WorkspaceNoteCard({ heading, body }: WorkspaceNoteCardProps) {
   return (
-    <div className={workspaceAccountSectionClass()}>
+    <div className="ommm-account-section">
       <h2 className="ommm-h3 text-sage-800">{heading}</h2>
       <p className={`${adminChrome.ledeTight} mt-3`}>{body}</p>
     </div>
@@ -117,7 +116,7 @@ export async function StaffAccountSummary({
 
   return (
     <div className="space-y-6">
-      <div className={workspaceAccountSectionClass()}>
+      <div className="ommm-account-section">
         <h1 className="ommm-h2">{title}</h1>
         <p className={adminChrome.lede}>{description}</p>
         <dl className="mt-6 space-y-3 text-sm">

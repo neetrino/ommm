@@ -10,7 +10,7 @@ type AdminSectionShellProps = {
 
 /**
  * In-page section stack (banner, toolbar, body). Spacing only — no glass card.
- * Page-level card: `WORKSPACE_SECTION_SURFACE` via `AdminContentFrame` / `MemberContentFrame`.
+ * In-page section stack (banner, toolbar, body). Spacing only — no page-level glass card.
  */
 export function AdminSectionShell({ banner, toolbar, children }: AdminSectionShellProps) {
   return (
