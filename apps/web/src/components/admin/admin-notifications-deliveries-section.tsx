@@ -73,6 +73,9 @@ export function AdminNotificationsDeliveriesSection({
     Object.fromEntries(searchParams.entries()),
   );
   const hasMounted = useRef(false);
+  const syncFiltersToUrlRef = useRef<(values: DeliveriesListFilters, resetPage?: boolean) => void>(
+    () => undefined,
+  );
   const filtersRef = useRef(initialFilters);
   const [filters, setFilters] = useState(initialFilters);
 
@@ -100,10 +103,17 @@ export function AdminNotificationsDeliveriesSection({
         }
       }
       const qs = params.toString();
+      if (qs === searchParams.toString()) {
+        return;
+      }
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams],
   );
+
+  useEffect(() => {
+    syncFiltersToUrlRef.current = syncFiltersToUrl;
+  }, [syncFiltersToUrl]);
 
   function patchFilters(patch: Partial<DeliveriesListFilters>, resetPage = true): void {
     const next = { ...filtersRef.current, ...patch };
@@ -117,10 +127,10 @@ export function AdminNotificationsDeliveriesSection({
       return undefined;
     }
     const handle = window.setTimeout(() => {
-      syncFiltersToUrl(filtersRef.current, true);
+      syncFiltersToUrlRef.current(filtersRef.current, true);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [filters.search, syncFiltersToUrl]);
+  }, [filters.search]);
 
   const channels = useMemo(() => {
     const unique = new Set(items.map((item) => item.channel).filter(Boolean));

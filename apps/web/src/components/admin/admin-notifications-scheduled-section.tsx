@@ -87,6 +87,9 @@ export function AdminNotificationsScheduledSection({
     Object.fromEntries(searchParams.entries()),
   );
   const hasMounted = useRef(false);
+  const syncFiltersToUrlRef = useRef<(values: ScheduledListFilters, resetPage?: boolean) => void>(
+    () => undefined,
+  );
   const filtersRef = useRef(initialFilters);
   const [filters, setFilters] = useState(initialFilters);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -125,10 +128,17 @@ export function AdminNotificationsScheduledSection({
         }
       }
       const qs = params.toString();
+      if (qs === searchParams.toString()) {
+        return;
+      }
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams],
   );
+
+  useEffect(() => {
+    syncFiltersToUrlRef.current = syncFiltersToUrl;
+  }, [syncFiltersToUrl]);
 
   function patchFilters(patch: Partial<ScheduledListFilters>, resetPage = true): void {
     const next = { ...filtersRef.current, ...patch };
@@ -142,10 +152,10 @@ export function AdminNotificationsScheduledSection({
       return undefined;
     }
     const handle = window.setTimeout(() => {
-      syncFiltersToUrl(filtersRef.current, true);
+      syncFiltersToUrlRef.current(filtersRef.current, true);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [filters.search, syncFiltersToUrl]);
+  }, [filters.search]);
 
   const filtered = items;
 

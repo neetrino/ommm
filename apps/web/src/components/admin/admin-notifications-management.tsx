@@ -5,13 +5,8 @@ import { useTranslations } from "next-intl";
 import { AdminNotificationBroadcastForm } from "@/components/admin/admin-notification-broadcast-form";
 import { AdminNotificationsDeliveriesSection } from "@/components/admin/admin-notifications-deliveries-section";
 import { AdminNotificationsScheduledSection } from "@/components/admin/admin-notifications-scheduled-section";
-import {
-  buildAdminNotificationsDeliveriesEndpoint,
-  buildAdminNotificationsScheduledEndpoint,
-} from "@/components/admin/admin-notifications-query";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
-import { apiFetch } from "@/lib/api";
 import { useRouter } from "@/i18n/navigation";
 
 type Props = {
@@ -27,7 +22,6 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
   const [deliveries, setDeliveries] = useState(initial.deliveries);
   const [analytics, setAnalytics] = useState(initial.analytics);
   const [loadErrors, setLoadErrors] = useState(initial.loadErrors);
-  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     setStats(initial.stats);
@@ -37,66 +31,9 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
     setLoadErrors(initial.loadErrors);
   }, [initial]);
 
-  const refreshData = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      const [statsRes, scheduledRes, deliveriesRes, analyticsRes] = await Promise.all([
-        apiFetch<AdminNotificationsPayload["stats"]>("/notifications/admin/stats").catch(() => null),
-        apiFetch<AdminNotificationsPayload["scheduled"]>(
-          buildAdminNotificationsScheduledEndpoint(
-            scheduled.take,
-            scheduled.offset,
-          ),
-        ).catch(() => null),
-        apiFetch<AdminNotificationsPayload["deliveries"]>(
-          buildAdminNotificationsDeliveriesEndpoint(
-            deliveries.take,
-            deliveries.offset,
-          ),
-        ).catch(() => null),
-        apiFetch<{
-          summary: AdminNotificationsPayload["analytics"]["summary"];
-          funnel: {
-            deliveryRatePct: number;
-            scheduledCampaigns: number;
-            immediateCampaigns: number;
-          };
-          channelBreakdown: AdminNotificationsPayload["analytics"]["channelBreakdown"];
-        }>("/notifications/admin/analytics?days=30").catch(() => null),
-      ]);
-      if (statsRes) {
-        setStats(statsRes);
-        setLoadErrors((prev) => ({ ...prev, stats: false }));
-      }
-      if (scheduledRes) {
-        setScheduled(scheduledRes);
-        setLoadErrors((prev) => ({ ...prev, scheduled: false }));
-      }
-      if (deliveriesRes) {
-        setDeliveries(deliveriesRes);
-        setLoadErrors((prev) => ({ ...prev, deliveries: false }));
-      }
-      if (analyticsRes) {
-        setAnalytics({
-          summary: analyticsRes.summary,
-          funnel: {
-            deliveryRatePct: analyticsRes.funnel.deliveryRatePct,
-            scheduledCampaigns: analyticsRes.funnel.scheduledCampaigns,
-            immediateCampaigns: analyticsRes.funnel.immediateCampaigns,
-          },
-          channelBreakdown: analyticsRes.channelBreakdown,
-        });
-        setLoadErrors((prev) => ({ ...prev, analytics: false }));
-      }
-    } finally {
-      setRefreshing(false);
-    }
-  }, [deliveries.offset, deliveries.take, scheduled.offset, scheduled.take]);
-
   const refreshAll = useCallback(() => {
     router.refresh();
-    void refreshData();
-  }, [refreshData, router]);
+  }, [router]);
 
   const handleBroadcastSuccess = useCallback(() => {
     refreshAll();
@@ -137,9 +74,6 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
         <div className="mt-4 max-w-xl">
           <AdminNotificationBroadcastForm onSuccess={handleBroadcastSuccess} />
         </div>
-        {refreshing ? (
-          <p className={`${adminChrome.metaText} mt-2`}>{t("refreshing")}</p>
-        ) : null}
       </section>
 
       <AdminNotificationsScheduledSection
