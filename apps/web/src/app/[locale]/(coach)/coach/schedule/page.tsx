@@ -1,8 +1,6 @@
-import { CoachUpcomingSessionsSection } from "@/components/coach/coach-upcoming-sessions-section";
+import { CoachScheduleSection } from "@/components/coach/coach-schedule-section";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
@@ -35,12 +33,7 @@ export default async function CoachSchedulePage({
 
   return (
     <AdminContentFrame>
-      <AdminSectionShell>
-        <h2 className={adminChrome.sectionTitle}>{t("sessions")}</h2>
-        <div className="mt-4">
-          <CoachUpcomingSessionsSection locale={locale} sessions={panel.sessions} />
-        </div>
-      </AdminSectionShell>
+      <CoachScheduleSection locale={locale} sessions={panel.sessions} />
     </AdminContentFrame>
   );
 }

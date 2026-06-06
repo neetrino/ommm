@@ -98,7 +98,12 @@ export async function RoleProfilePage({
 
   if (shellChrome === "admin" || workspaceNoteVariant === "admin") {
     return (
-      <AdminContentFrame description={t("description")}>{body}</AdminContentFrame>
+      <AdminContentFrame>
+        <div className="space-y-4">
+          <AdminPageHero title={t("title")} description={t("description")} />
+          {body}
+        </div>
+      </AdminContentFrame>
     );
   }
 

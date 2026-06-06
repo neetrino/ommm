@@ -3,6 +3,7 @@ import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
@@ -52,16 +53,14 @@ export default async function CoachHomePage({
   );
 
   const greetingName = userName?.trim();
-  const greeting =
+  const pageTitle =
     greetingName !== undefined && greetingName.length > 0
       ? t("title", { name: greetingName })
-      : null;
+      : t("titleFallback");
 
   return (
     <AdminContentFrame>
-      {greeting !== null ? (
-        <p className={`${adminChrome.ledeTight} mb-6`}>{greeting}</p>
-      ) : null}
+      <StaffListPageLayout title={pageTitle} description={t("description")}>
       <section>
         <h2 className={adminChrome.sectionTitle}>{t("todayAtGlance")}</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -98,6 +97,7 @@ export default async function CoachHomePage({
           {t("viewParticipantsAttendance")}
         </Link>
       </section>
+      </StaffListPageLayout>
     </AdminContentFrame>
   );
 }

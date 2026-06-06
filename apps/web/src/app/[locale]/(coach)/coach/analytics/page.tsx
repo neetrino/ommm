@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -62,6 +63,7 @@ export default async function CoachAnalyticsPage({
 
   return (
     <AdminContentFrame>
+      <StaffListPageLayout title={t("title")} description={t("lead")}>
       <AdminSectionShell>
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className={adminChrome.metricCard}>
@@ -120,6 +122,7 @@ export default async function CoachAnalyticsPage({
           </ul>
         </AdminSectionShell>
       </div>
+      </StaffListPageLayout>
     </AdminContentFrame>
   );
 }

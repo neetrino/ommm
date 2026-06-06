@@ -7,7 +7,9 @@ import {
   coachName,
   durationMinutes,
   spotsLeft,
+  splitSessionLevels,
 } from "@/components/admin/admin-schedule-session-display";
+import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
   sessionStatusBadgeTone,
@@ -83,6 +85,7 @@ function StaffScheduleSessionRowClient({
   const t = useTranslations("adminPages.classes");
   const layout = getScheduleSessionsListLayout(preset);
   const classFormat = row.classFormat?.trim();
+  const levels = splitSessionLevels(row.level);
   const duration = durationMinutes(row);
   const showCoach = preset === "staffWithCoach";
 
@@ -130,6 +133,16 @@ function StaffScheduleSessionRowClient({
           {t("fields.spotsLeft", { count: spotsLeft(row) })}
         </p>
       </div>
+
+      {showCoach ? null : (
+        <div className={layout.tagsCellClass}>
+          <AdminListMobileLabel label={t("colTags")} />
+          <ScheduleSessionLevelLabels
+            levels={levels}
+            emptyLabel={t("fallback.notSpecified")}
+          />
+        </div>
+      )}
 
       <div className={layout.statusCellClass}>
         <AdminListMobileLabel label={t("colStatus")} />

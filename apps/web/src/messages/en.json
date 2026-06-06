@@ -3110,6 +3110,7 @@
   "coachPages": {
     "home": {
       "title": "Hi {name}",
+      "titleFallback": "Coach home",
       "description": "Quick overview of today and your upcoming teaching load.",
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
@@ -3126,6 +3127,18 @@
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "sessions": "Sessions",
+      "sessionsCount": "{count, plural, one {# session} other {# sessions}}",
+      "filteredEmptyTitle": "No sessions match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, or status.",
+      "filters": {
+        "searchPlaceholder": "Search class or type…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "status": "Status",
+        "statusAll": "All statuses",
+        "resetFilters": "Reset filters"
+      },
       "upcomingSessions": {
         "empty": "No sessions in range."
       }
@@ -3137,6 +3150,16 @@
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "attendanceBooked": "Attendance (booked)",
       "helpText": "This view reflects your assigned sessions only and keeps waitlist + roster visibility scoped by coach.",
+      "rosterCount": "{count, plural, one {# participant} other {# participants}}",
+      "filteredEmptyTitle": "No participants match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, or search term.",
+      "filters": {
+        "searchPlaceholder": "Search participant, email, or class…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "resetFilters": "Reset filters"
+      },
       "attendanceRoster": {
         "empty": "No active bookings."
       }

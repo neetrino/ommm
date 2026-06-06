@@ -1,8 +1,6 @@
-import { CoachAttendanceRosterSection } from "@/components/coach/coach-attendance-roster-section";
+import { CoachGroupsSection } from "@/components/coach/coach-groups-section";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
@@ -35,14 +33,7 @@ export default async function CoachGroupsPage({
 
   return (
     <AdminContentFrame>
-      <AdminSectionShell
-        banner={t("helpText")}
-      >
-        <h2 className={adminChrome.sectionTitle}>{t("attendanceBooked")}</h2>
-        <div className="mt-4">
-          <CoachAttendanceRosterSection locale={locale} roster={panel.roster} />
-        </div>
-      </AdminSectionShell>
+      <CoachGroupsSection locale={locale} roster={panel.roster} banner={t("helpText")} />
     </AdminContentFrame>
   );
 }
