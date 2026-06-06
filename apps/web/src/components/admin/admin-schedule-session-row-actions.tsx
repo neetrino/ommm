@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/admin-action-glyphs";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmButton } from "@/components/ui/omm-button";
-import { AdminConfirmSheet } from "@/components/admin/admin-confirm-sheet";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 
@@ -108,6 +108,22 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
             confirmClassName: "ommm-btn-lifecycle-action--danger",
           };
 
+  const confirmDialog = (
+    <OmmConfirmDialog
+      isOpen={pendingConfirm !== null}
+      title={confirmCopy.title}
+      description={confirmCopy.description}
+      confirmLabel={confirmCopy.confirmLabel}
+      cancelLabel={t("confirmDialogNo")}
+      backdropAriaLabel={t("confirmDialogBackdrop")}
+      tone={confirmCopy.tone}
+      confirmClassName={confirmCopy.confirmClassName}
+      pending={busy}
+      onConfirm={confirmAction}
+      onCancel={closeConfirm}
+    />
+  );
+
   if (variant === "list") {
     return (
       <>
@@ -189,20 +205,7 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
             </AdminRowIconButton>
           ) : null}
         </div>
-
-        <AdminConfirmSheet
-          isOpen={pendingConfirm !== null}
-          title={confirmCopy.title}
-          description={confirmCopy.description}
-          confirmLabel={confirmCopy.confirmLabel}
-          cancelLabel={t("confirmDialogNo")}
-          backdropAriaLabel={t("confirmDialogBackdrop")}
-          tone={confirmCopy.tone}
-          confirmClassName={confirmCopy.confirmClassName}
-          pending={busy}
-          onConfirm={confirmAction}
-          onCancel={closeConfirm}
-        />
+        {confirmDialog}
       </>
     );
   }
@@ -265,20 +268,7 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
           </OmmButton>
         ) : null}
       </div>
-
-      <AdminConfirmSheet
-        isOpen={pendingConfirm !== null}
-        title={confirmCopy.title}
-        description={confirmCopy.description}
-        confirmLabel={confirmCopy.confirmLabel}
-        cancelLabel={t("confirmDialogNo")}
-        backdropAriaLabel={t("confirmDialogBackdrop")}
-        tone={confirmCopy.tone}
-        confirmClassName={confirmCopy.confirmClassName}
-        pending={busy}
-        onConfirm={confirmAction}
-        onCancel={closeConfirm}
-      />
+      {confirmDialog}
     </>
   );
 }

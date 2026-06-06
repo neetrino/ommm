@@ -615,13 +615,10 @@ export function AdminScheduleManagement({
     if (addClassOpen) {
       return { mode: "create" as const, row: undefined };
     }
-    if (editing === null) {
+    if (editing === null || editing.id !== "") {
       return null;
     }
-    if (editing.id === "") {
-      return { mode: "duplicate" as const, row: editing };
-    }
-    return { mode: "edit" as const, row: editing };
+    return { mode: "duplicate" as const, row: editing };
   }, [addClassOpen, editing]);
 
   if (prevInitialClassTypes !== initialClassTypes) {
@@ -998,7 +995,7 @@ export function AdminScheduleManagement({
         selectedDay={selectedDay}
         onSelectDay={setSelectedDay}
         onDetails={setDetails}
-        onEdit={setEditing}
+        onEdit={setDetails}
         busyId={busyId}
         onCancel={(row) => {
           void runRowAction(
@@ -1098,34 +1095,21 @@ export function AdminScheduleManagement({
       <AdminScheduleSessionDetailsSheet
         locale={locale}
         row={details}
-        busy={busyId !== null}
+        classTypeOptions={sessionClassTypeOptions}
+        coaches={coaches}
+        actionBusy={busyId !== null && details !== null && busyId === details.id}
         onClose={() => setDetails(null)}
-        onEdit={(row) => {
+        onSaved={(saved) => {
+          setRows((current) =>
+            current
+              .map((item) => (item.id === saved.id ? saved : item))
+              .sort((first, second) => first.startsAt.localeCompare(second.startsAt)),
+          );
+          setDetails(saved);
+        }}
+        onDuplicate={(row) => {
           setDetails(null);
-          setEditing(row);
-        }}
-        onDuplicate={(row) => setEditing({ ...row, id: "" })}
-        onCancel={(row) => {
-          void runRowAction(
-            row,
-            () =>
-              apiFetch(`/classes/sessions/${row.id}/status`, {
-                method: "POST",
-                body: JSON.stringify({ status: "CANCELLED" }),
-              }),
-            t("messages.cancelSuccess"),
-          );
-        }}
-        onActivate={(row) => {
-          void runRowAction(
-            row,
-            () =>
-              apiFetch(`/classes/sessions/${row.id}/status`, {
-                method: "POST",
-                body: JSON.stringify({ status: "ACTIVE" }),
-              }),
-            t("messages.activateSuccess"),
-          );
+          setEditing({ ...row, id: "" });
         }}
         onDelete={(row) => {
           void runRowAction(
@@ -1137,6 +1121,16 @@ export function AdminScheduleManagement({
             },
             t("messages.deleteSuccess"),
           );
+        }}
+        onClassTypeCreated={(created) => {
+          setClassTypes((current) => {
+            if (current.some((type) => type.id === created.id)) {
+              return current;
+            }
+            return [...current, created].sort((first, second) =>
+              first.name.localeCompare(second.name),
+            );
+          });
         }}
       />
       <AdminClassTypesModal

@@ -1,152 +1,223 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
+import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
+import type {
+  AdminScheduleCoach,
+  AdminScheduleSession,
+} from "@/components/admin/admin-schedule-management";
+import { sessionEditFormFromRow } from "@/components/admin/admin-schedule-session-edit-form.types";
+import { useSessionEditForm } from "@/components/admin/admin-schedule-session-edit-form.use";
+import { SessionSheetTabPanels } from "@/components/admin/admin-schedule-session-sheet-tab-panels";
+import {
+  SESSION_SHEET_TAB_DETAILS,
+  SESSION_SHEET_TAB_ORDER,
+  type SessionSheetTabId,
+} from "@/components/admin/admin-schedule-session-sheet-tabs";
+import { AdminScheduleSessionStatusAction } from "@/components/admin/admin-schedule-session-status-action";
+import type { SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
-  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_LEDE_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import {
-  coachName,
-  durationMinutes,
-  spotsLeft,
-} from "@/components/admin/admin-schedule-session-display";
-import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
-import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
-import { formatDateTimeForUi } from "@/lib/date-display";
 
 type AdminScheduleSessionDetailsSheetProps = {
   locale: string;
   row: AdminScheduleSession | null;
-  busy: boolean;
-  includeDelete?: boolean;
+  classTypeOptions: readonly SessionClassTypeOption[];
+  coaches: readonly AdminScheduleCoach[];
+  actionBusy: boolean;
   onClose: () => void;
-  onEdit: (row: AdminScheduleSession) => void;
+  onSaved: (row: AdminScheduleSession) => void;
   onDuplicate: (row: AdminScheduleSession) => void;
-  onCancel: (row: AdminScheduleSession) => void;
-  onActivate: (row: AdminScheduleSession) => void;
-  onDelete?: (row: AdminScheduleSession) => void;
+  onDelete: (row: AdminScheduleSession) => void;
+  onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 };
-
-function CloseGlyph() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      className="h-5 w-5"
-      aria-hidden
-    >
-      <path d="M6 6l12 12M18 6L6 18" />
-    </svg>
-  );
-}
 
 export function AdminScheduleSessionDetailsSheet({
   locale,
   row,
-  busy,
-  includeDelete = true,
+  classTypeOptions,
+  coaches,
+  actionBusy,
   onClose,
-  onEdit,
+  onSaved,
   onDuplicate,
-  onCancel,
-  onActivate,
   onDelete,
+  onClassTypeCreated,
 }: AdminScheduleSessionDetailsSheetProps) {
-  const t = useTranslations("adminPages.classes");
-  const titleId = useId();
-
   if (row === null) {
     return null;
   }
 
   return (
-    <OmmDrawerPortal
-      isOpen
+    <AdminScheduleSessionDetailsSheetInner
+      locale={locale}
+      row={row}
+      classTypeOptions={classTypeOptions}
+      coaches={coaches}
+      actionBusy={actionBusy}
       onClose={onClose}
-      backdropAriaLabel={t("modalBackdropClose")}
-      ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
-    >
-      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
-              {row.title}
-            </h2>
-            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>{t("sessionDetailsLead")}</p>
-            <p className="truncate text-sm font-medium text-sage-800">{row.classType.name}</p>
-          </div>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-            aria-label={t("modalCloseAria")}
-            onClick={onClose}
-          >
-            <CloseGlyph />
-          </button>
-        </div>
-      </header>
-
-      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
-        <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-          <DetailRow label={t("colType")} value={row.classType.name} />
-          <DetailRow
-            label={t("colDate")}
-            value={formatDateTimeForUi(row.startsAt, locale)}
-          />
-          <DetailRow label={t("form.endTime")} value={formatDateTimeForUi(row.endsAt, locale)} />
-          <DetailRow label={t("fields.duration")} value={`${durationMinutes(row)}m`} />
-          <DetailRow label={t("colCoach")} value={coachName(row.coach)} />
-          <DetailRow
-            label={t("colCapacity")}
-            value={`${row._count.bookings}/${row.capacity} · ${t("fields.spotsLeft", { count: spotsLeft(row) })}`}
-          />
-          <DetailRow label={t("colLevel")} value={row.level ?? "—"} />
-          <DetailRow label={t("colStatus")} value={t(`status.${row.status}`)} />
-          {row.description ? (
-            <DetailRow label={t("form.description")} value={row.description} />
-          ) : null}
-        </dl>
-      </div>
-
-      <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
-        <AdminScheduleSessionRowActions
-          variant="sheet"
-          row={row}
-          busy={busy}
-          includeDelete={includeDelete}
-          onEdit={onEdit}
-          onDuplicate={onDuplicate}
-          onCancel={onCancel}
-          onActivate={onActivate}
-          onDelete={onDelete}
-        />
-      </footer>
-    </OmmDrawerPortal>
+      onSaved={onSaved}
+      onDuplicate={onDuplicate}
+      onDelete={onDelete}
+      onClassTypeCreated={onClassTypeCreated}
+    />
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function AdminScheduleSessionDetailsSheetInner({
+  locale,
+  row,
+  classTypeOptions,
+  coaches,
+  actionBusy,
+  onClose,
+  onSaved,
+  onDuplicate,
+  onDelete,
+  onClassTypeCreated,
+}: {
+  locale: string;
+  row: AdminScheduleSession;
+  classTypeOptions: readonly SessionClassTypeOption[];
+  coaches: readonly AdminScheduleCoach[];
+  actionBusy: boolean;
+  onClose: () => void;
+  onSaved: (row: AdminScheduleSession) => void;
+  onDuplicate: (row: AdminScheduleSession) => void;
+  onDelete: (row: AdminScheduleSession) => void;
+  onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
+}) {
+  const t = useTranslations("adminPages.classes");
+  const titleId = useId();
+  const [activeTab, setActiveTab] = useState<SessionSheetTabId>(SESSION_SHEET_TAB_DETAILS);
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
+    null,
+  );
+
+  const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
+  const fallbackCoachId = coaches[0]?.id ?? "";
+
+  const editInitial = useMemo(
+    () => sessionEditFormFromRow(row, fallbackClassTypeId, fallbackCoachId),
+    [row, fallbackClassTypeId, fallbackCoachId],
+  );
+
+  const editForm = useSessionEditForm({
+    sessionId: row.id,
+    resetKey: `${row.id}:${row.startsAt}:${row.endsAt}:${row.status}:${row.capacity}`,
+    initial: editInitial,
+    classTypeOptions,
+    onSaved: (saved) => {
+      onSaved(saved);
+    },
+    onClassTypeCreated,
+  });
+
+  const sheetBusy = editForm.busy || statusBusy || actionBusy;
+  const toastMessage = statusNotice?.message ?? editForm.message;
+  const toastTone = statusNotice?.tone ?? editForm.messageTone;
+
+  const tabs = SESSION_SHEET_TAB_ORDER.map((value) => ({
+    value,
+    label: t(`sheetTabs.${value}`),
+  }));
+
+  const handleClose = useCallback(() => {
+    if (sheetBusy) {
+      return;
+    }
+    if (editForm.dirty) {
+      return;
+    }
+    onClose();
+  }, [editForm.dirty, onClose, sheetBusy]);
+
+  function handleStatusChanged(updated: AdminScheduleSession): void {
+    onSaved(updated);
+  }
+
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
-    </div>
+    <OmmDrawerPortal
+      isOpen
+      onClose={handleClose}
+      closeDisabled={sheetBusy || editForm.dirty}
+      backdropAriaLabel={t("modalBackdropClose")}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+              {row.title}
+            </h2>
+            <p className="mt-1 truncate text-sm text-sage-600">{row.classType.name}</p>
+          </div>
+          <AdminScheduleSessionStatusAction
+            sessionId={row.id}
+            status={row.status}
+            disabled={sheetBusy}
+            onChanged={handleStatusChanged}
+            onBusyChange={setStatusBusy}
+            onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+          />
+        </div>
+      </header>
+
+      <AdminDetailSheetTabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(value) => setActiveTab(value as SessionSheetTabId)}
+      />
+
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+        {toastMessage ? (
+          <AdminCenterToast
+            message={toastMessage}
+            tone={toastTone}
+            onDismiss={() => {
+              editForm.clearMessage();
+              setStatusNotice(null);
+            }}
+          />
+        ) : null}
+        <SessionSheetTabPanels
+          activeTab={activeTab}
+          locale={locale}
+          row={row}
+          classTypeOptions={classTypeOptions}
+          coaches={coaches}
+          controller={editForm}
+          actionBusy={sheetBusy}
+          onDuplicate={(session) => {
+            onDuplicate(session);
+          }}
+          onDelete={onDelete}
+        />
+      </div>
+
+      <AdminDetailSheetFormFooter
+        saveLabel={t("saveButton")}
+        cancelLabel={t("cancelButton")}
+        savingLabel={t("savingButton")}
+        dirty={editForm.dirty}
+        busy={editForm.busy}
+        onCancel={editForm.cancelEdits}
+        onSave={() => {
+          void editForm.save(t("messages.updateSuccess"), t("messages.genericError"));
+        }}
+      />
+    </OmmDrawerPortal>
   );
 }

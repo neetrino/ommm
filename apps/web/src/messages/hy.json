@@ -1765,6 +1765,13 @@
       "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պատուհանը",
       "sessionDetailsLead": "Դիտեք դասի մանրամասները և կառավարեք այս սեսիան։",
+      "sheetTabs": {
+        "details": "Մանրամասներ",
+        "bookings": "Գրանցումներ",
+        "actions": "Գործողություններ",
+        "bookingsHeading": "Տեղեր և գրանցումներ",
+        "bookingsEmpty": "Այս դասի համար դեռ գրանցումներ չկան։"
+      },
       "emptyCoaches": "Մարզիչներ չկան։ Նախ ավելացրեք մարզիչներ։",
       "emptySessions": "Ընտրված ֆիլտրերով դասեր չկան։",
       "confirmCancel": "Չեղարկե՞լ այս դասը։",

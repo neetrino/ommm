@@ -1753,6 +1753,13 @@
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть диалог",
       "sessionDetailsLead": "Просмотр деталей занятия и управление сессией.",
+      "sheetTabs": {
+        "details": "Детали",
+        "bookings": "Записи",
+        "actions": "Действия",
+        "bookingsHeading": "Места и записи",
+        "bookingsEmpty": "На это занятие пока никто не записан."
+      },
       "emptyCoaches": "Список тренеров пуст. Сначала добавьте тренеров.",
       "emptySessions": "По выбранным фильтрам занятий нет.",
       "confirmCancel": "Отменить это занятие?",

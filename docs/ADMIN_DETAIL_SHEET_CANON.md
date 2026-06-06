@@ -11,7 +11,6 @@
 | Tabs | `apps/web/src/components/admin/admin-detail-sheet-tab-bar.tsx` |
 | Save footer | `apps/web/src/components/admin/admin-detail-sheet-form-footer.tsx` |
 | Confirm (destructive) | `apps/web/src/components/ui/omm-confirm-dialog.tsx` |
-| Confirm (nested sheet, редко) | `apps/web/src/components/admin/admin-confirm-sheet.tsx` |
 | Coach (эталон) | `admin-coach-details-drawer.tsx`, … |
 | Client (эталон #2) | `admin-client-drawer.tsx`, `admin-client-sheet-tabs.ts`, … |
 | Gift cards (эталон #3) | `admin-gift-card-details-sheet.tsx`, `admin-gift-card-sheet-tabs.ts`, … |
@@ -224,6 +223,7 @@ apps/web/src/components/admin/
 | **Create flows** | Center modal / dedicated page, не detail sheet |
 | **Gift cards** | ✓ detail sheet + tabs; create/edit batch — center modal |
 | **Class types** | ✓ catalog sheet + detail tabs (Details · Usage); create/edit inline |
+| **Schedule sessions** | ✓ detail sheet + tabs; create/duplicate — batch form sheet |
 | **Manager zone** | Read-only каталоги; edit/lifecycle только в admin CRM |
 
 ---
@@ -234,7 +234,7 @@ apps/web/src/components/admin/
 2. ~~Clients (A1)~~ ✓ admin
 3. ~~Gift cards (A4)~~ ✓ admin
 4. ~~Class types (B2)~~ ✓ admin
-5. Schedule sessions (A3)
+5. ~~Schedule sessions (A3)~~ ✓ admin
 
 ---
 

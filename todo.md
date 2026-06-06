@@ -25,7 +25,7 @@
 |----|--------|--------|
 | **A1** | **Clients** — Profile · Bookings · Payments · Gifts · Notes | **done** |
 | **A2** | **Coaches** — Profile · Details · Classes · Schedule | **done** |
-| A3 | Schedule sessions | pending |
+| A3 | Schedule sessions | **done** |
 | A4 | Gift cards | **done** |
 | **B2** | **Class types** | **done** |
 
@@ -50,7 +50,20 @@
 
 ## Rollout
 
-~~A1 (clients)~~ ✓ → ~~A4 (gift cards)~~ ✓ → ~~B2 (class types)~~ ✓ → A3 (schedule)
+~~A1 (clients)~~ ✓ → ~~A4 (gift cards)~~ ✓ → ~~B2 (class types)~~ ✓ → ~~A3 (schedule sessions)~~ ✓
+
+---
+
+## A3 — Schedule sessions ✓ (admin)
+
+**Файлы:** `admin-schedule-session-details-sheet.tsx`, `admin-schedule-session-sheet-tabs.ts`, `admin-schedule-session-sheet-tab-panels.tsx`, `admin-schedule-session-edit-form.*`, `admin-schedule-session-status-action.tsx`
+
+- [x] Row click / Edit → wide canon sheet (Details · Bookings · Actions)
+- [x] Inline edit + `AdminDetailSheetFormFooter`; create/duplicate — отдельный `SessionFormSheet`
+- [x] Header: название + Cancel/Activate; без ×
+- [x] `OmmConfirmDialog` (row actions + delete в Actions tab)
+- [ ] Smoke `/admin/schedule` → open session → edit/save/cancel/duplicate/delete
+- [ ] **UI entry point class types** — см. B2 restore (опционально)
 
 ---
 

@@ -1762,6 +1762,13 @@
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
       "sessionDetailsLead": "Review class details and manage this session.",
+      "sheetTabs": {
+        "details": "Details",
+        "bookings": "Bookings",
+        "actions": "Actions",
+        "bookingsHeading": "Capacity & attendance",
+        "bookingsEmpty": "No bookings for this class yet."
+      },
       "emptyCoaches": "No coaches available. Add coaches before creating classes.",
       "emptySessions": "No classes match your current filters.",
       "confirmCancel": "Cancel this class?",
