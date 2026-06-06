@@ -41,10 +41,10 @@ export function AdminBookingRowActions({
   const isBooking = recordType === "BOOKING";
   const canMarkAttended = isBooking && status === "BOOKED";
   const canCancel = isBooking && status === "BOOKED";
-  const hasPrimaryActions = canMarkAttended || canCancel;
+  const showListPrimaryActions = variant === "list" && (canMarkAttended || canCancel);
   const showSheetSecondary = variant === "sheet" && isBooking;
 
-  if (!hasPrimaryActions && !showSheetSecondary) {
+  if (!showListPrimaryActions && !showSheetSecondary) {
     return null;
   }
 
@@ -52,11 +52,11 @@ export function AdminBookingRowActions({
     <div
       className={
         variant === "sheet"
-          ? "flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+          ? "flex w-full flex-wrap items-center justify-end gap-2"
           : "flex items-center justify-end gap-2"
       }
     >
-      {hasPrimaryActions ? (
+      {showListPrimaryActions ? (
         <div className="flex items-center gap-2" role="group" aria-label={t("colActions")}>
           {canMarkAttended ? (
             <OmmButton
@@ -85,9 +85,7 @@ export function AdminBookingRowActions({
             </AdminRowIconButton>
           ) : null}
         </div>
-      ) : (
-        <span aria-hidden="true" />
-      )}
+      ) : null}
 
       {showSheetSecondary ? (
         <div className="flex flex-wrap items-center justify-end gap-2">
