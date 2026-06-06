@@ -872,6 +872,18 @@
       "giftBalance": "Баланс подарков (кредиты): {amount}",
       "redeem": "Погасить",
       "purchase": "Купить",
+      "myCardsHeading": "Мои подарочные карты",
+      "emptyMyTitle": "Подарочных карт пока нет",
+      "emptyMyDescription": "Купленные и полученные карты появятся здесь с меткой, как вы их получили.",
+      "sourceLabels": {
+        "purchased": "Куплена",
+        "received": "Подарок"
+      },
+      "tabs": {
+        "aria": "Разделы подарочных карт",
+        "my": "Мои",
+        "shop": "Купить"
+      },
       "purchasedHeading": "Купленные",
       "receivedHeading": "Полученные",
       "signInToView": "Войдите, чтобы просмотреть.",

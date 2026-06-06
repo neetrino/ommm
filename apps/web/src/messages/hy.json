@@ -884,6 +884,18 @@
       "giftBalance": "Նվերի մնացորդ (կրեդիտներ)՝ {amount}",
       "redeem": "Փոխարժել",
       "purchase": "Գնել",
+      "myCardsHeading": "Իմ նվեր քարտերը",
+      "emptyMyTitle": "Նվեր քարտեր դեռ չկան",
+      "emptyMyDescription": "Գնված և ստացված քարտերը կցուցադրվեն այստեղ՝ նշումով, թե ինչպես եք ստացել։",
+      "sourceLabels": {
+        "purchased": "Գնված",
+        "received": "Նվեր"
+      },
+      "tabs": {
+        "aria": "Նվեր քարտերի բաժիններ",
+        "my": "Իմ քարտերը",
+        "shop": "Գնել"
+      },
       "purchasedHeading": "Գնվածներ",
       "receivedHeading": "Ստացածներ",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",

@@ -872,6 +872,18 @@
       "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
       "purchase": "Purchase",
+      "myCardsHeading": "My gift cards",
+      "emptyMyTitle": "No gift cards yet",
+      "emptyMyDescription": "Gift cards you buy or receive will appear here with a label showing how you got them.",
+      "sourceLabels": {
+        "purchased": "Purchased",
+        "received": "Gift"
+      },
+      "tabs": {
+        "aria": "Gift cards sections",
+        "my": "My cards",
+        "shop": "Buy"
+      },
       "purchasedHeading": "Purchased",
       "receivedHeading": "Received",
       "signInToView": "Sign in to view.",

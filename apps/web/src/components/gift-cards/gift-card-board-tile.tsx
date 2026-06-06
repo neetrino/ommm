@@ -45,6 +45,10 @@ type GiftCardBoardTileProps = {
   footerActions?: ReactNode;
   footerAriaLabel?: string;
   imageOverlayActions?: ReactNode;
+  imageBadge?: {
+    label: string;
+    className?: string;
+  };
 };
 
 export function GiftCardBoardTile({
@@ -60,6 +64,7 @@ export function GiftCardBoardTile({
   footerActions,
   footerAriaLabel,
   imageOverlayActions,
+  imageBadge,
 }: GiftCardBoardTileProps) {
   const isInteractive = onOpen !== undefined;
   const hasImageOverlay = imageOverlayActions !== undefined;
@@ -107,6 +112,13 @@ export function GiftCardBoardTile({
               fallbackLabel={imageFallbackLabel}
               className="h-full w-full object-cover"
             />
+            {imageBadge ? (
+              <span
+                className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] shadow-sm ${imageBadge.className ?? "bg-white/92 text-sage-800"}`}
+              >
+                {imageBadge.label}
+              </span>
+            ) : null}
             {hasImageOverlay ? (
               <div className="pointer-events-none absolute inset-0 flex items-start justify-end bg-gradient-to-b from-sage-900/40 via-sage-900/5 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                 <div

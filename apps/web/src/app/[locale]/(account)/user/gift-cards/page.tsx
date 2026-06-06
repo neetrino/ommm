@@ -4,17 +4,13 @@ import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
+import { UserGiftCardsPageHero } from "@/components/account/user-gift-cards-page-hero";
 import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
-import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
+import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
+import { mergeUserGiftCards } from "@/lib/merge-user-gift-cards";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import {
-  buildUserGiftCardsPurchasedEndpoint,
-  buildUserGiftCardsReceivedEndpoint,
-  parseUserGiftCardsPurchasedPageParams,
-  parseUserGiftCardsReceivedPageParams,
-  type UserGiftCardsSectionPayload,
-} from "@/lib/user-gift-cards-query";
+import { parseUserGiftCardsTab } from "@/lib/user-gift-cards-tab";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function UserGiftCardsPage({
@@ -26,30 +22,21 @@ export default async function UserGiftCardsPage({
 }) {
   const { locale } = await params;
   const search = await searchParams;
+  const tab = parseUserGiftCardsTab(search);
   const t = await getTranslations({ locale, namespace: "userPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const purchasedPage = parseUserGiftCardsPurchasedPageParams(search);
-  const receivedPage = parseUserGiftCardsReceivedPageParams(search);
 
   const [purchasedRes, receivedRes, meRes] = await Promise.all([
-    serverApiJson<UserGiftCardsSectionPayload>(
-      buildUserGiftCardsPurchasedEndpoint(purchasedPage.take, purchasedPage.offset),
-      cookie,
-    ),
-    serverApiJson<UserGiftCardsSectionPayload>(
-      buildUserGiftCardsReceivedEndpoint(receivedPage.take, receivedPage.offset),
-      cookie,
-    ),
+    serverApiJson<UserGiftCardRow[]>("/gift-cards/me/purchased", cookie),
+    serverApiJson<UserGiftCardRow[]>("/gift-cards/me/received", cookie),
     serverApiJson<{ user: { giftCreditsCents: number } }>("/users/me", cookie),
   ]);
 
   const credits = meRes.ok ? meRes.data.user.giftCreditsCents : null;
-  const initialPurchased = purchasedRes.ok
-    ? purchasedRes.data
-    : { items: [], total: 0, take: purchasedPage.take, offset: purchasedPage.offset };
-  const initialReceived = receivedRes.ok
-    ? receivedRes.data
-    : { items: [], total: 0, take: receivedPage.take, offset: receivedPage.offset };
+  const purchased = purchasedRes.ok ? purchasedRes.data : [];
+  const received = receivedRes.ok ? receivedRes.data : [];
+  const mergedCards = mergeUserGiftCards(purchased, received);
+  const loadError = !purchasedRes.ok && !receivedRes.ok ? purchasedRes.status : null;
 
   const heroDescription =
     credits != null ? t("giftBalance", { amount: formatAmdFromCents(credits, locale) }) : undefined;
@@ -57,28 +44,29 @@ export default async function UserGiftCardsPage({
   return (
     <MemberContentFrame>
       <div className="space-y-4">
-        <AdminPageHero title={t("title")} description={heroDescription} />
-      <div className="space-y-0">
-        <UserGiftCardsSection title={t("redeem")}>
-          <div className="max-w-sm">
-            <GiftRedeemForm />
+        <UserGiftCardsPageHero title={t("title")} description={heroDescription} />
+
+        {tab === "my" ? (
+          <div className="space-y-0">
+            <UserGiftCardsSection title={t("redeem")}>
+              <div className="max-w-sm">
+                <GiftRedeemForm />
+              </div>
+            </UserGiftCardsSection>
+
+            <Suspense fallback={null}>
+              <UserGiftCardsBoard
+                locale={locale}
+                cards={mergedCards}
+                loadError={loadError}
+              />
+            </Suspense>
           </div>
-        </UserGiftCardsSection>
-
-        <UserGiftCardsSection title={t("purchase")}>
-          <GiftPurchaseForm locale={locale} />
-        </UserGiftCardsSection>
-
-        <Suspense fallback={null}>
-          <UserGiftCardsBoard
-            locale={locale}
-            initialPurchased={initialPurchased}
-            initialReceived={initialReceived}
-            purchasedError={purchasedRes.ok ? null : purchasedRes.status}
-            receivedError={receivedRes.ok ? null : receivedRes.status}
-          />
-        </Suspense>
-      </div>
+        ) : (
+          <UserGiftCardsSection title={t("purchase")}>
+            <GiftPurchaseForm locale={locale} />
+          </UserGiftCardsSection>
+        )}
       </div>
     </MemberContentFrame>
   );
