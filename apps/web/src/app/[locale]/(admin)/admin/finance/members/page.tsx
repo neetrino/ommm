@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminFinanceMembersFilters } from "@/components/admin/admin-finance-members-filters";
 import { AdminFinanceMembersPanel } from "@/components/admin/admin-finance-members-panel";
-import { normalizeFinanceSearch } from "@/components/admin/admin-finance-server-helpers";
+import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
   FINANCE_USER_PAGE_KEYS,
@@ -25,6 +25,7 @@ export default async function AdminFinanceMembersPage({
 }) {
   const { locale } = await params;
   const search = await searchParams;
+  redirectIfUnscopedFinanceSearchParams(locale, "members", search);
   const normalizedSearch = normalizeFinanceSearch(search);
   const t = await getTranslations({ locale, namespace: "adminPages.finance" });
   const cookie = (await headers()).get("cookie") ?? "";

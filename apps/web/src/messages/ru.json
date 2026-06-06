@@ -2433,8 +2433,6 @@
       "transactionsCount": "{count} транзакций",
       "recentTransactions": "Последние транзакции",
       "shownCount": "Показано {shown} из {total} транзакций",
-      "exportHeading": "Экспорт CSV",
-      "exportHint": "Экспортируйте данные платежей за выбранный период.",
       "exportPaymentsCsv": "Экспорт CSV платежей",
       "exportGiftCreditsCsv": "Экспорт CSV подарочных кредитов",
       "sources": {

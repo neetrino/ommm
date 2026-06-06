@@ -1,3 +1,4 @@
+import type { FinanceSectionId } from "@/components/admin/admin-finance-module";
 import type {
   CoachFinanceFilters,
   FinanceDateRangeDays,
@@ -55,6 +56,89 @@ export const FINANCE_COACH_PAGE_KEYS = {
   pageKey: "coachPage",
   pageSizeKey: "coachPageSize",
 } as const;
+
+export const FINANCE_LEGACY_QUERY_KEYS = ["tab"] as const;
+
+export const FINANCE_ALL_QUERY_KEYS = [
+  ...new Set([
+    ...FINANCE_OVERVIEW_QUERY_KEYS,
+    ...FINANCE_PAYMENTS_QUERY_KEYS,
+    ...FINANCE_MEMBERS_QUERY_KEYS,
+    ...FINANCE_COACHES_QUERY_KEYS,
+    ...FINANCE_LEGACY_QUERY_KEYS,
+  ]),
+] as const;
+
+/** Query keys allowed on a finance tab route. */
+export function getFinanceSectionQueryKeys(section: FinanceSectionId): readonly string[] {
+  switch (section) {
+    case "overview":
+      return FINANCE_OVERVIEW_QUERY_KEYS;
+    case "payments":
+      return FINANCE_PAYMENTS_QUERY_KEYS;
+    case "members":
+      return FINANCE_MEMBERS_QUERY_KEYS;
+    case "coaches":
+      return FINANCE_COACHES_QUERY_KEYS;
+  }
+}
+
+function pickFinanceSectionParams(
+  allowedKeys: readonly string[],
+  source: URLSearchParams,
+): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const key of allowedKeys) {
+    const value = source.get(key);
+    if (value !== null && value !== "") {
+      params.set(key, value);
+    }
+  }
+  return params;
+}
+
+/** Builds a query string containing only keys valid for the given finance tab. */
+export function buildSanitizedFinanceSectionQueryString(
+  section: FinanceSectionId,
+  search: Record<string, string | string[] | undefined>,
+): string {
+  const allowed = new Set(getFinanceSectionQueryKeys(section));
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(search)) {
+    if (!allowed.has(key)) {
+      continue;
+    }
+    const normalized = firstParam(value);
+    if (normalized !== undefined && normalized !== "") {
+      params.set(key, normalized);
+    }
+  }
+  return params.toString();
+}
+
+/** True when URL contains legacy or foreign finance query keys for this tab. */
+export function financeSectionSearchNeedsSanitization(
+  section: FinanceSectionId,
+  search: Record<string, string | string[] | undefined>,
+): boolean {
+  const allowed = new Set<string>([
+    ...getFinanceSectionQueryKeys(section),
+    ...FINANCE_LEGACY_QUERY_KEYS,
+  ]);
+  for (const [key, value] of Object.entries(search)) {
+    if (value === undefined) {
+      continue;
+    }
+    const normalized = firstParam(value);
+    if (normalized === undefined || normalized === "") {
+      continue;
+    }
+    if (!allowed.has(key)) {
+      return true;
+    }
+  }
+  return firstParam(search.tab) !== undefined;
+}
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -185,7 +269,7 @@ export function buildFinanceOverviewFiltersQuery(
   rangeDays: FinanceDateRangeDays,
   currentSearchParams: URLSearchParams,
 ): string {
-  const params = new URLSearchParams(currentSearchParams.toString());
+  const params = pickFinanceSectionParams([...FINANCE_OVERVIEW_QUERY_KEYS], currentSearchParams);
   applyQueryKeys(params, [...FINANCE_OVERVIEW_QUERY_KEYS], {
     rangeDays: rangeDays === 30 ? undefined : String(rangeDays),
   });
@@ -196,7 +280,7 @@ export function buildFinancePaymentsFiltersQuery(
   values: FinanceFilterValues,
   currentSearchParams: URLSearchParams,
 ): string {
-  const params = new URLSearchParams(currentSearchParams.toString());
+  const params = pickFinanceSectionParams([...FINANCE_PAYMENTS_QUERY_KEYS], currentSearchParams);
   applyQueryKeys(params, [...FINANCE_PAYMENTS_QUERY_KEYS], {
     q: values.q.trim() !== "" ? values.q.trim() : undefined,
     rangeDays: values.rangeDays !== 30 ? String(values.rangeDays) : undefined,
@@ -211,7 +295,7 @@ export function buildFinanceMembersFiltersQuery(
   currentSearchParams: URLSearchParams,
 ): string {
   const q = (values.q ?? values.search).trim();
-  const params = new URLSearchParams(currentSearchParams.toString());
+  const params = pickFinanceSectionParams([...FINANCE_MEMBERS_QUERY_KEYS], currentSearchParams);
   applyQueryKeys(params, [...FINANCE_MEMBERS_QUERY_KEYS], {
     q: q !== "" ? q : undefined,
     paymentStatus: values.paymentStatus !== "" ? values.paymentStatus : undefined,
@@ -228,7 +312,7 @@ export function buildFinanceCoachesFiltersQuery(
 ): string {
   const q = (values.q ?? values.search).trim();
   const defaultMonth = new Date().toISOString().slice(0, 7);
-  const params = new URLSearchParams(currentSearchParams.toString());
+  const params = pickFinanceSectionParams([...FINANCE_COACHES_QUERY_KEYS], currentSearchParams);
   applyQueryKeys(params, [...FINANCE_COACHES_QUERY_KEYS], {
     q: q !== "" ? q : undefined,
     month: values.month !== defaultMonth ? values.month : undefined,

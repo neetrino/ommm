@@ -193,7 +193,7 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 - [x] `adminPages.finance.tabs.overview|payments|members|coaches`
 - [x] Tab-specific filter labels / placeholders
-- [ ] Ubrat neispolzuemye klyuchi (`exportHeading`, `exportHint` esli block udalen)
+- [x] Ubrat neispolzuemye klyuchi (`exportHeading`, `exportHint` esli block udalen)
 - [x] Obnovit `hy.json`, `ru.json`, `en.json`
 - [ ] (Opcionalno) kratkaya zametka v `docs/SITE_FULL_ANALYSIS.md` — novaya struktura Finance
 
@@ -201,13 +201,13 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ## Faza 6 — QA i polish (P2)
 
-- [ ] Smena taba: search/filters ne «protekaют» mezhdu tabami
-- [ ] Smena filtra: sbros page na 1
-- [ ] Sticky hero rabotaet na vseh tabah
-- [ ] Mobile: tab nav scroll / wrap
-- [ ] A11y: `role="tablist"`, `aria-selected`, aria labels
+- [x] Smena taba: search/filters ne «protekaют» mezhdu tabami
+- [x] Smena filtra: sbros page na 1
+- [x] Sticky hero rabotaet na vseh tabah
+- [x] Mobile: tab nav scroll / wrap
+- [x] A11y: `role="tablist"`, `aria-selected`, aria labels
 - [ ] Proverit auth error state na kazhdom tabe
-- [ ] Udalit mertvye importy / tipy (`FinanceTab` user|coach → novye tab id)
+- [x] Udalit mertvye importy / tipy (`FinanceTab` user|coach → novye tab id)
 
 ---
 

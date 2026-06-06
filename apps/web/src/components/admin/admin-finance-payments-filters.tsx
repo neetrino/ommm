@@ -15,11 +15,13 @@ import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import type { FinanceFilterValues } from "@/components/admin/admin-finance-types";
 import {
   buildFinancePaymentsFiltersQuery,
+  FINANCE_PAYMENTS_PAGE_KEYS,
   parseFinanceDateRangeDays,
   parseFinancePaymentsFiltersFromSearch,
   parseFinanceSourceFilter,
   parseFinanceStatusFilter,
 } from "@/components/admin/admin-finance-url";
+import { resetListPageQuery } from "@/lib/list-pagination";
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -97,10 +99,9 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }
 
     const handle = window.setTimeout(() => {
-      const query = buildFinancePaymentsFiltersQuery(
-        values,
-        new URLSearchParams(searchParams.toString()),
-      );
+      const params = new URLSearchParams(searchParams.toString());
+      resetListPageQuery(params, FINANCE_PAYMENTS_PAGE_KEYS);
+      const query = buildFinancePaymentsFiltersQuery(values, params);
       if (query === searchParams.toString()) {
         return;
       }

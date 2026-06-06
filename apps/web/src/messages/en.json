@@ -2604,8 +2604,6 @@
       "transactionsCount": "{count} transactions",
       "recentTransactions": "Recent transactions",
       "shownCount": "Showing {shown} of {total} transactions",
-      "exportHeading": "CSV export",
-      "exportHint": "Export payments data for the selected range.",
       "exportPaymentsCsv": "Export payments CSV",
       "exportGiftCreditsCsv": "Export gift credits CSV",
       "sources": {

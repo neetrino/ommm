@@ -1,3 +1,13 @@
+import { redirect } from "next/navigation";
+import {
+  FINANCE_SECTION_HREF,
+  type FinanceSectionId,
+} from "@/components/admin/admin-finance-module";
+import {
+  buildSanitizedFinanceSectionQueryString,
+  financeSectionSearchNeedsSanitization,
+} from "@/components/admin/admin-finance-url";
+
 export type FinanceSummaryPayload = {
   totals: {
     revenueCents: number;
@@ -39,4 +49,19 @@ export function getFinanceStatusStats(summary: FinanceSummaryPayload, status: st
       amountCents: 0,
     }
   );
+}
+
+/** Redirects when the URL carries query keys from another finance tab or legacy `?tab=`. */
+export function redirectIfUnscopedFinanceSearchParams(
+  locale: string,
+  section: FinanceSectionId,
+  search: Record<string, string | string[] | undefined>,
+): void {
+  if (!financeSectionSearchNeedsSanitization(section, search)) {
+    return;
+  }
+
+  const qs = buildSanitizedFinanceSectionQueryString(section, search);
+  const path = FINANCE_SECTION_HREF[section];
+  redirect(qs ? `/${locale}${path}?${qs}` : `/${locale}${path}`);
 }

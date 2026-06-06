@@ -3,6 +3,7 @@ import {
   FINANCE_SECTION_HREF,
   resolveFinanceLegacyTabRedirect,
 } from "@/components/admin/admin-finance-module";
+import { buildSanitizedFinanceSectionQueryString } from "@/components/admin/admin-finance-url";
 
 export default async function AdminFinanceIndexPage({
   params,
@@ -17,18 +18,6 @@ export default async function AdminFinanceIndexPage({
   const legacySection = resolveFinanceLegacyTabRedirect(tab);
   const targetSection = legacySection ?? "overview";
   const targetPath = FINANCE_SECTION_HREF[targetSection];
-
-  const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(search)) {
-    if (key === "tab") {
-      continue;
-    }
-    const normalized = Array.isArray(value) ? value[0] : value;
-    if (normalized !== undefined && normalized.length > 0) {
-      query.set(key, normalized);
-    }
-  }
-
-  const qs = query.toString();
+  const qs = buildSanitizedFinanceSectionQueryString(targetSection, search);
   redirect(qs ? `/${locale}${targetPath}?${qs}` : `/${locale}${targetPath}`);
 }

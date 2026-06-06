@@ -5,7 +5,7 @@ import { AdminFinancePaymentsFilters } from "@/components/admin/admin-finance-pa
 import { AdminFinancePaymentsPanel } from "@/components/admin/admin-finance-payments-panel";
 import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import type { FinancePaymentsPayload } from "@/components/admin/admin-finance-types";
-import { normalizeFinanceSearch } from "@/components/admin/admin-finance-server-helpers";
+import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
   FINANCE_PAYMENTS_PAGE_KEYS,
@@ -25,6 +25,7 @@ export default async function AdminFinancePaymentsPage({
 }) {
   const { locale } = await params;
   const search = await searchParams;
+  redirectIfUnscopedFinanceSearchParams(locale, "payments", search);
   const normalizedSearch = normalizeFinanceSearch(search);
   const t = await getTranslations({ locale, namespace: "adminPages.finance" });
   const cookie = (await headers()).get("cookie") ?? "";

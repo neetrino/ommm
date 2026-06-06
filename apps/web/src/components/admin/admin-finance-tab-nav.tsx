@@ -34,6 +34,7 @@ export function AdminFinanceTabNav() {
             href={href}
             role="tab"
             aria-selected={active}
+            aria-current={active ? "page" : undefined}
             scroll={false}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-[background-color,box-shadow,color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
               active

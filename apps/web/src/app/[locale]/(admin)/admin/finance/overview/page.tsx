@@ -4,7 +4,10 @@ import { Suspense } from "react";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
 import { AdminFinanceOverviewSections } from "@/components/admin/admin-finance-overview-sections";
 import { computeFinanceFromDate, computeFinanceMonthStart } from "@/components/admin/admin-finance-dates";
-import type { FinanceSummaryPayload } from "@/components/admin/admin-finance-server-helpers";
+import {
+  redirectIfUnscopedFinanceSearchParams,
+  type FinanceSummaryPayload,
+} from "@/components/admin/admin-finance-server-helpers";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { parseFinanceOverviewFiltersFromSearch } from "@/components/admin/admin-finance-url";
 import { serverApiJson } from "@/lib/server-api";
@@ -24,6 +27,7 @@ export default async function AdminFinanceOverviewPage({
 }) {
   const { locale } = await params;
   const search = await searchParams;
+  redirectIfUnscopedFinanceSearchParams(locale, "overview", search);
   const t = await getTranslations({ locale, namespace: "adminPages.finance" });
   const cookie = (await headers()).get("cookie") ?? "";
   const overviewFilters = parseFinanceOverviewFiltersFromSearch(search);
