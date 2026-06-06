@@ -2890,6 +2890,46 @@
       }
     }
   },
+  "managerPages": {
+    "home": {
+      "signInRequired": "Войдите, чтобы открыть рабочее пространство менеджера.",
+      "greeting": "Привет{name}",
+      "nextStepsTitle": "Следующие шаги",
+      "nextStepsBody": "Управляйте классами, бронированиями, листами ожидания, клиентами, тренерами и подарочными картами. Биллинг и глобальные настройки студии остаются только для админа."
+    },
+    "clients": {
+      "readOnlyHint": "Каталог клиентов (просмотр). Редактирование — в admin CRM.",
+      "roleClient": "Клиент"
+    },
+    "bookings": {
+      "rollingWindowHint": "Скользящее окно из API (тренер видит состав через фильтры coach panel)."
+    },
+    "waitlists": {
+      "operationalHint": "Операционный вид в рамках CRM manager matrix (перемещение/удаление через API или будущие row actions).",
+      "colSession": "Сессия",
+      "colPos": "Поз.",
+      "colStatus": "Статус",
+      "colOfferExpires": "Истекает оффер"
+    },
+    "coaches": {
+      "readOnlyHint": "Операционный каталог (просмотр). Редактирование и deactivate/delete — в admin CRM.",
+      "colPhone": "Телефон",
+      "colSpecialization": "Специализация"
+    },
+    "giftCards": {
+      "readOnlyHint": "Просмотр выпущенных карт и балансов. Создание и деактивация карт остаются за админами студии."
+    },
+    "classes": {
+      "scheduleWindowHint": "То же окно расписания, что и у админа ({days} дней). Создание и редактирование сессий при необходимости остаются в админ-инструментах.",
+      "classTypesTitle": "Типы классов",
+      "sessionsTitle": "Ближайшие сессии",
+      "colSlug": "Slug",
+      "colCoach": "Тренер",
+      "colBooked": "Записано",
+      "loadClassTypesFailed": "Не удалось загрузить типы классов ({status}).",
+      "loadSessionsFailed": "Не удалось загрузить сессии ({status})."
+    }
+  },
   "coachPages": {
     "home": {
       "title": "Привет, {name}",

@@ -2944,6 +2944,46 @@
       }
     }
   },
+  "managerPages": {
+    "home": {
+      "signInRequired": "Sign in to open the manager workspace.",
+      "greeting": "Hi{name}",
+      "nextStepsTitle": "Next steps",
+      "nextStepsBody": "Manage classes, bookings, waitlists, clients, coaches, and gift cards. Billing and studio-level settings remain admin-only."
+    },
+    "clients": {
+      "readOnlyHint": "Client directory (read-only). Edit in admin CRM.",
+      "roleClient": "Client"
+    },
+    "bookings": {
+      "rollingWindowHint": "Rolling window from API (coach sees roster via coach panel filters)."
+    },
+    "waitlists": {
+      "operationalHint": "Operational view aligned with the CRM manager matrix (move/remove via API or future row actions).",
+      "colSession": "Session",
+      "colPos": "Pos",
+      "colStatus": "Status",
+      "colOfferExpires": "Offer expires"
+    },
+    "coaches": {
+      "readOnlyHint": "Directory view (read-only). Edit and lifecycle actions are in admin CRM.",
+      "colPhone": "Phone",
+      "colSpecialization": "Specialization"
+    },
+    "giftCards": {
+      "readOnlyHint": "View issued cards and balances. Creating or deactivating cards stays with studio administrators."
+    },
+    "classes": {
+      "scheduleWindowHint": "Same schedule window as admin ({days} days). Create and edit sessions remain in the admin tools when needed.",
+      "classTypesTitle": "Class types",
+      "sessionsTitle": "Upcoming sessions",
+      "colSlug": "Slug",
+      "colCoach": "Coach",
+      "colBooked": "Booked",
+      "loadClassTypesFailed": "Could not load class types ({status}).",
+      "loadSessionsFailed": "Could not load sessions ({status})."
+    }
+  },
   "coachPages": {
     "home": {
       "title": "Hi {name}",

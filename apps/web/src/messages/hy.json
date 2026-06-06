@@ -2902,6 +2902,46 @@
       }
     }
   },
+  "managerPages": {
+    "home": {
+      "signInRequired": "Մուտք գործեք՝ մենեջերի աշխատատարածքը բացելու համար։",
+      "greeting": "Բարև{name}",
+      "nextStepsTitle": "Հաջորդ քայլեր",
+      "nextStepsBody": "Կառավարեք դասերը, ամրագրումները, սպասման ցուցակները, հաճախորդներին, մարզիչներին և նվեր քարտերը։ Վճարումները և ստուդիայի գլոբալ կարգավորումները մնում են միայն ադմինի տիրույթում։"
+    },
+    "clients": {
+      "readOnlyHint": "Հաճախորդների ցուցակ (դիտում)։ Խմբագրումը՝ ադմին CRM-ում։",
+      "roleClient": "Հաճախորդ"
+    },
+    "bookings": {
+      "rollingWindowHint": "Շարժական միջակայք API-ից (մարզիչը roster-ը տեսնում է coach panel ֆիլտրերով)։"
+    },
+    "waitlists": {
+      "operationalHint": "Գործառնական տեսք՝ CRM manager matrix-ին համահունչ (տեղափոխում/հեռացում՝ API-ով կամ ապագա row action-ներով)։",
+      "colSession": "Սեսիա",
+      "colPos": "Դիրք",
+      "colStatus": "Կարգավիճակ",
+      "colOfferExpires": "Առաջարկի ավարտ"
+    },
+    "coaches": {
+      "readOnlyHint": "Գործառնական ցուցակ (դիտում)։ Պրոֆիլի խմբագրումն ու lifecycle գործողությունները՝ ադմին CRM-ում։",
+      "colPhone": "Հեռախոս",
+      "colSpecialization": "Մասնագիտացում"
+    },
+    "giftCards": {
+      "readOnlyHint": "Դիտեք թողարկված քարտերը և մնացորդները։ Քարտերի ստեղծումն ու ապաակտիվացումը մնում է ստուդիայի ադմիններին։"
+    },
+    "classes": {
+      "scheduleWindowHint": "Նույն schedule window-ը, ինչ ադմինի մոտ ({days} օր)։ Սեսիաների ստեղծումն ու խմբագրումը անհրաժեշտության դեպքում մնում է ադմինի գործիքներում։",
+      "classTypesTitle": "Դասերի տեսակներ",
+      "sessionsTitle": "Առաջիկա սեսիաներ",
+      "colSlug": "Slug",
+      "colCoach": "Մարզիչ",
+      "colBooked": "Ամրագրված",
+      "loadClassTypesFailed": "Չհաջողվեց բեռնել դասերի տեսակները ({status})։",
+      "loadSessionsFailed": "Չհաջողվեց բեռնել սեսիաները ({status})։"
+    }
+  },
   "coachPages": {
     "home": {
       "title": "Բարև {name}",

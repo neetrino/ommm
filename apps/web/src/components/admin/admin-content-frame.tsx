@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { WorkspacePageSection } from "@/components/layout/workspace-page-section";
 
 type AdminContentFrameProps = {
   /** Optional lede under the shell page title (shell header shows the title). */
@@ -8,15 +9,17 @@ type AdminContentFrameProps = {
 
 /**
  * Admin page content wrapper — title lives in the dashboard shell header (Figma).
- * Matches the Bookings section width (1280px max) for consistent banner proportions.
+ * Page-level glass surface: `WORKSPACE_SECTION_SURFACE` in `workspace-section-surface.ts`.
  */
 export function AdminContentFrame({ description, children }: AdminContentFrameProps) {
   return (
     <div className="ommm-admin-content pb-6 pt-4 sm:pb-8 sm:pt-6">
-      {description ? (
-        <p className="ommm-body-muted mb-6 max-w-3xl text-sm">{description}</p>
-      ) : null}
-      {children}
+      <WorkspacePageSection>
+        {description ? (
+          <p className="ommm-body-muted mb-6 max-w-3xl text-sm">{description}</p>
+        ) : null}
+        {children}
+      </WorkspacePageSection>
     </div>
   );
 }

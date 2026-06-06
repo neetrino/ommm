@@ -58,9 +58,9 @@ Coach / Manager / Content-admin — **часть одной экосистемы
 
 | Фаза | Account | Статус |
 |------|---------|--------|
-| **1** | **COACH** | ✅ done (shell, frames, profile, components) |
-| 2 | MANAGER | после COACH |
-| 3 | CONTENT_ADMIN | после MANAGER |
+| **1** | **COACH** | ✅ done |
+| **2** | **MANAGER** | ✅ done (shell, frames, i18n, tables) |
+| 3 | CONTENT_ADMIN | следующий |
 | 4 | USER (дочистка) | только если остались расхождения |
 | 5 | Global cleanup | удаление мёртвого кода |
 
@@ -194,17 +194,32 @@ Member уже на `MemberContentFrame` + `variant="member"`. Проверить
 6. **Delete old** — в той же фазе убираем заменённое (не копим legacy).
 7. **Sheets** — `ADMIN_DETAIL_SHEET_CANON.md`; добавляем только где роли нужен detail view.
 
-### Surfaces — list vs form (global, не чинить на каждой странице)
+### Surfaces — global toggle (не чинить на каждой странице)
 
-| Тип страницы | Обёртка | Строки / блоки |
-|--------------|---------|----------------|
-| **Lists** (bookings, clients, coach roster, …) | `AdminContentFrame` only | `adminChrome.tableWrap` или `adminChrome.panel` на **строку**; **без** outer `ommm-card` |
-| **Section stack** (filters + list) | `AdminSectionShell` **`surface="plain"`** (default) | см. выше |
-| **Grouped panel** (packages block, auth card) | `AdminSectionShell surface="card"` или явный `ommm-card` | один surface на весь блок |
-| **Profile forms** | `AdminContentFrame` / `MemberContentFrame` | `AccountSection` → `ommm-account-section` **на секцию формы** (OK) |
+**Один переключатель:** `apps/web/src/lib/workspace-section-surface.ts` → `WORKSPACE_SECTION_SURFACE`
 
-**Источник «лишнего фона»:** `AdminSectionShell` раньше всегда давал `ommm-card` → двойной glass на list pages.  
-**Fix:** default `surface="plain"` в `admin-section-shell.tsx` — одна правка, все потребители (coach, waitlists, notifications) без ручного снятия на странице.
+| Значение | Поведение |
+|----------|-----------|
+| `"plain"` (сейчас) | Контент на фоне shell; формы — `ommm-account-section` на секцию |
+| `"card"` | Glass-обёртка на **всей** странице через `AdminContentFrame` / `MemberContentFrame` |
+
+**Где применяется автоматически:**
+- `AdminContentFrame` → `WorkspacePageSection`
+- `MemberContentFrame` → `WorkspacePageSection`
+- `AccountSection` → без inner card когда global `"card"`
+
+**Локальные обходы удалены:**
+- `AdminSectionShell` — только spacing (без `ommm-card`)
+- `admin-schedule-shell` — без локального `ommm-card`
+- `staff-account-summary` — без zinc/indigo one-off cards
+
+**Preview:** поставить `WORKSPACE_SECTION_SURFACE = "card"` → refresh → card на всех admin/user workspace pages. Вернуть `"plain"` — исчезает везде.
+
+| Тип | Строки / блоки |
+|-----|----------------|
+| **Lists** | `adminChrome.tableWrap` / `adminChrome.panel` на строку |
+| **Grouped toolbar** | `AdminSectionShell` (banner + toolbar) |
+| **Profile forms** | `AccountSection` + global surface rules |
 
 ---
 

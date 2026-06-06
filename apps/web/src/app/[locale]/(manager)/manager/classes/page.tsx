@@ -1,4 +1,9 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
+import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import { ManagerStaffTableShell } from "@/components/manager/manager-staff-table-shell";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
@@ -20,71 +25,16 @@ type SessionRow = {
   _count: { bookings: number };
 };
 
-function getManagerClassesLabels(locale: string) {
-  if (locale === "hy") {
-    return {
-      authRequired: "Պահանջվում է մենեջերի մուտք։",
-      loadClassTypesFailed: "Չհաջողվեց բեռնել դասերի տեսակները ({status})։",
-      loadSessionsFailed: "Չհաջողվեց բեռնել սեսիաները ({status})։",
-      title: "Դասեր",
-      description:
-        "Նույն schedule window-ը, ինչ ադմինի մոտ ({days} օր)։ Սեսիաների ստեղծումն ու խմբագրումը անհրաժեշտության դեպքում մնում է ադմինի գործիքներում։",
-      classTypesTitle: "Դասերի տեսակներ",
-      sessionsTitle: "Առաջիկա սեսիաներ",
-      colName: "Անուն",
-      colSlug: "Slug",
-      colClass: "Դաս",
-      colStarts: "Սկիզբ",
-      colCoach: "Մարզիչ",
-      colBooked: "Ամրագրված",
-      colStatus: "Կարգավիճակ",
-    };
-  }
-  if (locale === "ru") {
-    return {
-      authRequired: "Нужен вход менеджера.",
-      loadClassTypesFailed: "Не удалось загрузить типы классов ({status}).",
-      loadSessionsFailed: "Не удалось загрузить сессии ({status}).",
-      title: "Классы",
-      description:
-        "То же окно расписания, что и у админа ({days} дней). Создание и редактирование сессий при необходимости остаются в админ-инструментах.",
-      classTypesTitle: "Типы классов",
-      sessionsTitle: "Ближайшие сессии",
-      colName: "Название",
-      colSlug: "Slug",
-      colClass: "Класс",
-      colStarts: "Начало",
-      colCoach: "Тренер",
-      colBooked: "Записано",
-      colStatus: "Статус",
-    };
-  }
-  return {
-    authRequired: "Manager sign-in required.",
-    loadClassTypesFailed: "Could not load class types ({status}).",
-    loadSessionsFailed: "Could not load sessions ({status}).",
-    title: "Classes",
-    description:
-      "Same schedule window as admin ({days} days). Create and edit sessions remain in the admin tools when needed.",
-    classTypesTitle: "Class types",
-    sessionsTitle: "Upcoming sessions",
-    colName: "Name",
-    colSlug: "Slug",
-    colClass: "Class",
-    colStarts: "Starts",
-    colCoach: "Coach",
-    colBooked: "Booked",
-    colStatus: "Status",
-  };
-}
-
 export default async function ManagerClassesPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const labels = getManagerClassesLabels(locale);
+  const tBookings = await getTranslations({ locale, namespace: "adminPages.bookings" });
+  const tSchedule = await getTranslations({ locale, namespace: "adminPages.schedule" });
+  const tClients = await getTranslations({ locale, namespace: "adminPages.clients" });
+  const tManager = await getTranslations({ locale, namespace: "managerPages.classes" });
   const cookie = (await headers()).get("cookie") ?? "";
   const from = new Date();
   from.setHours(0, 0, 0, 0);
@@ -99,82 +49,91 @@ export default async function ManagerClassesPage({
 
   if (!typesRes.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        {typesRes.status === 401 || typesRes.status === 403
-          ? labels.authRequired
-          : labels.loadClassTypesFailed.replace("{status}", String(typesRes.status))}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">
+          {typesRes.status === 401 || typesRes.status === 403
+            ? tClients("errorAuth")
+            : tManager("loadClassTypesFailed", { status: typesRes.status })}
+        </div>
+      </AdminContentFrame>
     );
   }
 
   if (!sessionsRes.ok) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        {sessionsRes.status === 401 || sessionsRes.status === 403
-          ? labels.authRequired
-          : labels.loadSessionsFailed.replace("{status}", String(sessionsRes.status))}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">
+          {sessionsRes.status === 401 || sessionsRes.status === 403
+            ? tClients("errorAuth")
+            : tManager("loadSessionsFailed", { status: sessionsRes.status })}
+        </div>
+      </AdminContentFrame>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">{labels.title}</h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        {labels.description.replace("{days}", String(ACCOUNT_SESSION_RANGE_DAYS))}
-      </p>
-      <h2 className="mt-8 text-lg font-medium text-zinc-900">{labels.classTypesTitle}</h2>
-      <div className="mt-4 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
-            <tr>
-              <th className="px-4 py-3">{labels.colName}</th>
-              <th className="px-4 py-3">{labels.colSlug}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {typesRes.data.map((t) => (
-              <tr key={t.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 font-medium text-zinc-900">{t.name}</td>
-                <td className="px-4 py-3 text-zinc-600">{t.slug}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <h2 className="mt-8 text-lg font-medium text-zinc-900">{labels.sessionsTitle}</h2>
-      <div className="mt-4 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
-            <tr>
-              <th className="px-4 py-3">{labels.colClass}</th>
-              <th className="px-4 py-3">{labels.colStarts}</th>
-              <th className="px-4 py-3">{labels.colCoach}</th>
-              <th className="px-4 py-3">{labels.colBooked}</th>
-              <th className="px-4 py-3">{labels.colStatus}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessionsRes.data.map((s) => (
-              <tr key={s.id} className="border-b border-zinc-100">
-                <td className="px-4 py-3 font-medium text-zinc-900">
-                  {s.classType.name}
-                </td>
-                <td className="px-4 py-3 text-zinc-700">
-                  {formatDateTimeForUi(s.startsAt)}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
-                  {s.coach.user.name ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
-                  {s._count.bookings}/{s.capacity}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">{s.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <AdminContentFrame>
+      <AdminSectionShell
+        banner={tManager("scheduleWindowHint", {
+          days: ACCOUNT_SESSION_RANGE_DAYS,
+        })}
+      >
+        <div>
+          <h2 className={adminChrome.sectionTitle}>{tManager("classTypesTitle")}</h2>
+          <ManagerStaffTableShell>
+            <table className={`${adminChrome.table} mt-4`}>
+              <thead className={adminChrome.thead}>
+                <tr>
+                  <th className={adminChrome.th}>{tSchedule("colClassName")}</th>
+                  <th className={adminChrome.th}>{tManager("colSlug")}</th>
+                </tr>
+              </thead>
+              <tbody className={adminChrome.tableBodyDividers}>
+                {typesRes.data.map((row) => (
+                  <tr key={row.id}>
+                    <td className={adminChrome.tdStrong}>{row.name}</td>
+                    <td className={adminChrome.tdMuted}>{row.slug}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ManagerStaffTableShell>
+        </div>
+
+        <div className="mt-8">
+          <h2 className={adminChrome.sectionTitle}>{tManager("sessionsTitle")}</h2>
+          <ManagerStaffTableShell>
+            <table className={`${adminChrome.table} mt-4`}>
+              <thead className={adminChrome.thead}>
+                <tr>
+                  <th className={adminChrome.th}>{tSchedule("colClassName")}</th>
+                  <th className={adminChrome.th}>{tBookings("colStarts")}</th>
+                  <th className={adminChrome.th}>{tManager("colCoach")}</th>
+                  <th className={adminChrome.th}>{tManager("colBooked")}</th>
+                  <th className={adminChrome.th}>{tSchedule("colStatus")}</th>
+                </tr>
+              </thead>
+              <tbody className={adminChrome.tableBodyDividers}>
+                {sessionsRes.data.map((session) => (
+                  <tr key={session.id}>
+                    <td className={adminChrome.tdStrong}>{session.classType.name}</td>
+                    <td className={adminChrome.td}>
+                      {formatDateTimeForUi(session.startsAt, locale)}
+                    </td>
+                    <td className={adminChrome.tdMuted}>
+                      {session.coach.user.name ?? "—"}
+                    </td>
+                    <td className={adminChrome.tdMuted}>
+                      {session._count.bookings}/{session.capacity}
+                    </td>
+                    <td className={adminChrome.tdMuted}>{session.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ManagerStaffTableShell>
+        </div>
+      </AdminSectionShell>
+    </AdminContentFrame>
   );
 }
