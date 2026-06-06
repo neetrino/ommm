@@ -12,7 +12,6 @@ import {
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { giftCardStatusBadgeClass } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -66,12 +65,7 @@ function UserGiftCardDetailsSheetInner({
           <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
             {amountLabel}
           </h2>
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            <UserGiftCardCopyCodeButton code={card.code} />
-            <span className={giftCardStatusBadgeClass(card.status)}>
-              {t(`statusValues.${card.status}`)}
-            </span>
-          </div>
+          <UserGiftCardCopyCodeButton code={card.code} />
         </div>
       </header>
 

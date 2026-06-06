@@ -3,26 +3,11 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import {
-  USER_GIFT_CARD_GRID_CLASS,
-  USER_GIFT_CARD_STATUS_BADGE_CLASS,
-  USER_GIFT_CARD_TILE_AMOUNT_CLASS,
-  USER_GIFT_CARD_TILE_BODY_CLASS,
-  USER_GIFT_CARD_TILE_HEADER_CLASS,
-  USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS,
-  USER_GIFT_CARD_TILE_META_DL_CLASS,
-  USER_GIFT_CARD_TILE_META_LABEL_CLASS,
-  USER_GIFT_CARD_TILE_META_ROW_CLASS,
-  USER_GIFT_CARD_TILE_META_VALUE_CLASS,
-  USER_GIFT_CARD_TILE_SHELL_CLASS,
-} from "@/components/account/user-gift-card-tile-layout";
+import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/account/user-gift-card-tile-layout";
+import { GiftCardBoardTile } from "@/components/gift-cards/gift-card-board-tile";
+import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { OmmButton } from "@/components/ui/omm-button";
-import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { ApiError, apiFetch } from "@/lib/api";
-import {
-  displayGiftCardDate,
-  giftCardStatusBadgeClass,
-} from "@/components/gift-cards/gift-card-display-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type GiftBatchMarketItem = {
@@ -123,7 +108,7 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
 
   return (
     <div className="space-y-4">
-      <div className={USER_GIFT_CARD_GRID_CLASS}>
+      <div className={GIFT_CARD_BOARD_GRID_CLASS}>
         {items.map((item) => (
           <PurchaseGiftCardPreview
             key={item.id}
@@ -152,53 +137,40 @@ function PurchaseGiftCardPreview({
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
-  const amountLabel = formatAmdFromCents(item.amountCents, locale);
 
   return (
-    <article className={USER_GIFT_CARD_TILE_SHELL_CLASS}>
-      <div className={USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS}>
-        <GiftCardThumbnail
-          imageUrl={item.imageUrl}
-          alt={t("selectedImageAlt")}
-          fallbackLabel={t("noImage")}
-        />
-      </div>
-      <div className={USER_GIFT_CARD_TILE_BODY_CLASS}>
-        <div className={USER_GIFT_CARD_TILE_HEADER_CLASS}>
-          <p className={USER_GIFT_CARD_TILE_AMOUNT_CLASS}>{amountLabel}</p>
-          <span
-            className={`${giftCardStatusBadgeClass(item.status)} ${USER_GIFT_CARD_STATUS_BADGE_CLASS}`}
-          >
-            {giftCardsT(`statusValues.${item.status}`)}
-          </span>
-        </div>
-        <dl className={USER_GIFT_CARD_TILE_META_DL_CLASS}>
-          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
-            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{giftCardsT("cardExpiration")}</dt>
-            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
-              {item.expiresAt !== null
-                ? displayGiftCardDate(item.expiresAt)
-                : giftCardsT("cardNoExpiration")}
-            </dd>
-          </div>
-          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
-            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("availableLabel")}</dt>
-            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
-              {item.availableQuantity} / {item.totalQuantity}
-            </dd>
-          </div>
-        </dl>
+    <GiftCardBoardTile
+      amountLabel={formatAmdFromCents(item.amountCents, locale)}
+      status={item.status}
+      statusLabel={giftCardsT(`statusValues.${item.status}`)}
+      imageUrl={item.imageUrl}
+      imageAlt={t("selectedImageAlt")}
+      imageFallbackLabel={t("noImage")}
+      details={[
+        {
+          label: giftCardsT("cardExpiration"),
+          value:
+            item.expiresAt !== null
+              ? displayGiftCardDate(item.expiresAt)
+              : giftCardsT("cardNoExpiration"),
+        },
+        {
+          label: t("availableLabel"),
+          value: `${item.availableQuantity} / ${item.totalQuantity}`,
+        },
+      ]}
+      footerAriaLabel={t("buyGiftCard")}
+      footerActions={
         <OmmButton
           type="button"
           variant="primary"
           size="sm"
-          className="w-full"
           disabled={busy || item.availableQuantity <= 0}
           onClick={() => void onBuy(item)}
         >
           {t("buyGiftCard")}
         </OmmButton>
-      </div>
-    </article>
+      }
+    />
   );
 }

@@ -427,6 +427,33 @@ html {
     color: var(--ommm-admin-olive);
   }
 
+  /** Compact action — same palette as back-office sidebar (gift card copy, etc.). */
+  .ommm-admin-sidebar-action-button {
+    @apply inline-flex cursor-pointer items-center rounded-xl px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em];
+    background-color: var(--ommm-admin-olive);
+    color: var(--ommm-admin-cream);
+    box-shadow: var(--ommm-admin-shadow-soft);
+    transition:
+      background-color 180ms ease-out,
+      color 180ms ease-out,
+      box-shadow 180ms ease-out;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2;
+    --tw-ring-offset-color: var(--ommm-admin-page);
+  }
+
+  .ommm-admin-sidebar-action-button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--ommm-admin-olive) 90%, #2d2823);
+    color: var(--ommm-admin-cream);
+  }
+
+  .ommm-admin-sidebar-action-button:active:not(:disabled) {
+    background-color: color-mix(in srgb, var(--ommm-admin-olive) 82%, #2d2823);
+  }
+
+  .ommm-admin-sidebar-action-button:disabled {
+    @apply cursor-not-allowed opacity-45;
+  }
+
   .ommm-admin-header-bar {
     @apply mb-0 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
   }

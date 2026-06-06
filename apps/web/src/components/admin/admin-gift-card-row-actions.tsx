@@ -12,17 +12,14 @@ import {
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import {
+  GIFT_CARD_BOARD_TEXT_ACTION_CLASS,
+} from "@/components/gift-cards/gift-card-board-tile";
 
 const LIST_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
 
-const BOARD_TOOLBAR_CLASS =
-  "mt-auto flex flex-wrap items-center justify-center gap-1 pt-3";
-
 const BOARD_TOGGLE_BUTTON_CLASS =
   "inline-flex shrink-0 cursor-pointer items-center rounded-full p-1 transition-opacity hover:opacity-85 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
-
-const BOARD_TEXT_ACTION_CLASS =
-  "inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-sm font-medium text-sage-700 transition-colors hover:bg-sand-100/90 active:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
 
 type PendingConfirm = "activate" | "deactivate";
 
@@ -120,38 +117,30 @@ export function AdminGiftCardRowActions({
   if (variant === "board") {
     return (
       <>
-        <div
-          className={BOARD_TOOLBAR_CLASS}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-          role="toolbar"
-          aria-label={t("colActions")}
-        >
-          {canToggleStatus ? (
-            <button
-              type="button"
-              className={BOARD_TOGGLE_BUTTON_CLASS}
-              aria-label={toggleLabel}
-              title={toggleLabel}
-              disabled={disabled}
-              onClick={handleToggleClick}
-            >
-              <AnimatedToggleSwitch checked={isActive} className="ommm-toggle-switch-board" />
-            </button>
-          ) : null}
+        {canToggleStatus ? (
           <button
             type="button"
-            className={BOARD_TEXT_ACTION_CLASS}
+            className={BOARD_TOGGLE_BUTTON_CLASS}
+            aria-label={toggleLabel}
+            title={toggleLabel}
             disabled={disabled}
-            onClick={(event) => {
-              event.stopPropagation();
-              onEdit(card.id);
-            }}
+            onClick={handleToggleClick}
           >
-            <PencilGlyph className="h-4 w-4 shrink-0" />
-            {t("boardEditButton")}
+            <AnimatedToggleSwitch checked={isActive} className="ommm-toggle-switch-board" />
           </button>
-        </div>
+        ) : null}
+        <button
+          type="button"
+          className={GIFT_CARD_BOARD_TEXT_ACTION_CLASS}
+          disabled={disabled}
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit(card.id);
+          }}
+        >
+          <PencilGlyph className="h-4 w-4 shrink-0" />
+          {t("boardEditButton")}
+        </button>
 
         <OmmConfirmDialog
           isOpen={pendingConfirm !== null}

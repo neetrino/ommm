@@ -10,6 +10,7 @@ import {
   ADMIN_GIFT_CARDS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-gift-cards-list-layout";
 import { useAdminGiftCardsView } from "@/components/admin/admin-gift-cards-view-context";
+import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/gift-cards/gift-card-board-tile";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 
@@ -23,7 +24,7 @@ type AdminGiftCardsDirectoryProps = {
 
 function AdminGiftCardsBoardView(props: AdminGiftCardsDirectoryProps) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className={GIFT_CARD_BOARD_GRID_CLASS}>
       {props.cards.map((card) => (
         <AdminGiftCardBoardCard key={card.id} card={card} {...props} />
       ))}

@@ -5,28 +5,15 @@ import { useTranslations } from "next-intl";
 import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import {
-  USER_GIFT_CARD_GRID_CLASS,
-  USER_GIFT_CARD_STATUS_BADGE_CLASS,
-  USER_GIFT_CARD_TILE_AMOUNT_CLASS,
-  USER_GIFT_CARD_TILE_BODY_CLASS,
-  USER_GIFT_CARD_TILE_HEADER_CLASS,
-  USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS,
-  USER_GIFT_CARD_TILE_INTERACTIVE_CLASS,
-  USER_GIFT_CARD_TILE_META_DL_CLASS,
-  USER_GIFT_CARD_TILE_META_LABEL_CLASS,
-  USER_GIFT_CARD_TILE_META_ROW_CLASS,
-  USER_GIFT_CARD_TILE_META_VALUE_CLASS,
+  GIFT_CARD_BOARD_GRID_CLASS,
   UserGiftCardsSection,
 } from "@/components/account/user-gift-card-tile-layout";
 import type {
   UserGiftCardRow,
   UserGiftCardSectionKind,
 } from "@/components/account/user-gift-cards-types";
-import {
-  displayGiftCardDate,
-  giftCardStatusBadgeClass,
-} from "@/components/gift-cards/gift-card-display-helpers";
-import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
+import { GiftCardBoardTile, type GiftCardBoardDetail } from "@/components/gift-cards/gift-card-board-tile";
+import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type UserGiftCardsBoardProps = {
@@ -131,7 +118,7 @@ type UserGiftCardGridProps = {
 
 function UserGiftCardGrid({ locale, cards, kind, onSelect }: UserGiftCardGridProps) {
   return (
-    <div className={USER_GIFT_CARD_GRID_CLASS}>
+    <div className={GIFT_CARD_BOARD_GRID_CLASS}>
       {cards.map((card) => (
         <UserGiftCardTile
           key={card.id}
@@ -162,80 +149,42 @@ function UserGiftCardTile({
   const recipient =
     card.recipientName?.trim() || card.recipientEmail?.trim() || "";
 
-  function openDetails() {
-    onSelect(card.id);
+  const details: GiftCardBoardDetail[] = [
+    { label: t("cardCreated"), value: displayGiftCardDate(card.createdAt) },
+    {
+      label: t("cardExpiration"),
+      value:
+        card.expiresAt !== null ? displayGiftCardDate(card.expiresAt) : t("cardNoExpiration"),
+    },
+    { label: t("cardBalance"), value: balanceLabel },
+  ];
+
+  if (kind === "purchased" && recipient.length > 0) {
+    details.push({ label: t("cardRecipient"), value: recipient });
+  }
+
+  if (kind === "received" && card.message) {
+    details.push({
+      label: t("cardMessage"),
+      value: card.message,
+      valueClassName: "line-clamp-2 whitespace-normal",
+    });
   }
 
   return (
-    <article
-      role="button"
-      tabIndex={0}
-      aria-label={t("openCardAria", { amount: amountLabel })}
-      onClick={openDetails}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          openDetails();
-        }
-      }}
-      className={USER_GIFT_CARD_TILE_INTERACTIVE_CLASS}
-    >
-      <div className={USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS}>
-        <GiftCardThumbnail
-          imageUrl={card.imageUrl}
-          alt={t("cardImageAlt")}
-          fallbackLabel={t("cardImageFallback")}
-        />
-        <div className="pointer-events-none absolute inset-0 flex items-start justify-end bg-gradient-to-b from-sage-900/25 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-          <UserGiftCardCopyCodeButton code={card.code} stopClickPropagation className="pointer-events-auto" />
-        </div>
-      </div>
-      <div className={USER_GIFT_CARD_TILE_BODY_CLASS}>
-        <div className={USER_GIFT_CARD_TILE_HEADER_CLASS}>
-          <p className={USER_GIFT_CARD_TILE_AMOUNT_CLASS}>{amountLabel}</p>
-          <span
-            className={`${giftCardStatusBadgeClass(card.status)} ${USER_GIFT_CARD_STATUS_BADGE_CLASS}`}
-          >
-            {t(`statusValues.${card.status}`)}
-          </span>
-        </div>
-        <dl className={USER_GIFT_CARD_TILE_META_DL_CLASS}>
-          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
-            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardCreated")}</dt>
-            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
-              {displayGiftCardDate(card.createdAt)}
-            </dd>
-          </div>
-          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
-            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardExpiration")}</dt>
-            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
-              {card.expiresAt !== null
-                ? displayGiftCardDate(card.expiresAt)
-                : t("cardNoExpiration")}
-            </dd>
-          </div>
-          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
-            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardBalance")}</dt>
-            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>{balanceLabel}</dd>
-          </div>
-          {kind === "purchased" && recipient.length > 0 ? (
-            <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
-              <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardRecipient")}</dt>
-              <dd className={`truncate ${USER_GIFT_CARD_TILE_META_VALUE_CLASS}`}>{recipient}</dd>
-            </div>
-          ) : null}
-          {kind === "received" && card.message ? (
-            <div className="flex items-start justify-between gap-4">
-              <dt className={`shrink-0 ${USER_GIFT_CARD_TILE_META_LABEL_CLASS}`}>
-                {t("cardMessage")}
-              </dt>
-              <dd className={`line-clamp-2 ${USER_GIFT_CARD_TILE_META_VALUE_CLASS}`}>
-                {card.message}
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-      </div>
-    </article>
+    <GiftCardBoardTile
+      amountLabel={amountLabel}
+      status={card.status}
+      statusLabel={t(`statusValues.${card.status}`)}
+      imageUrl={card.imageUrl}
+      imageAlt={t("cardImageAlt")}
+      imageFallbackLabel={t("cardImageFallback")}
+      openAriaLabel={t("openCardAria", { amount: amountLabel })}
+      onOpen={() => onSelect(card.id)}
+      details={details}
+      imageOverlayActions={
+        <UserGiftCardCopyCodeButton code={card.code} feedbackOnDark />
+      }
+    />
   );
 }

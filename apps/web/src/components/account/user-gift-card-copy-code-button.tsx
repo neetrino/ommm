@@ -8,15 +8,15 @@ const COPY_FEEDBACK_MS = 2400;
 
 type UserGiftCardCopyCodeButtonProps = {
   code: string;
-  /** Stops the click from opening the card detail sheet. */
-  stopClickPropagation?: boolean;
   className?: string;
+  /** Lighter feedback text for use on dark image overlay. */
+  feedbackOnDark?: boolean;
 };
 
 export function UserGiftCardCopyCodeButton({
   code,
-  stopClickPropagation = false,
   className = "",
+  feedbackOnDark = false,
 }: UserGiftCardCopyCodeButtonProps) {
   const t = useTranslations("userPages.giftCards");
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
@@ -33,19 +33,22 @@ export function UserGiftCardCopyCodeButton({
   }, [code, t]);
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
-    if (stopClickPropagation) {
-      event.stopPropagation();
-    }
+    event.stopPropagation();
     void onCopyCode();
   }
 
   return (
     <div className={`flex flex-col items-end gap-1 ${className}`.trim()}>
-      <OmmButton type="button" variant="secondary" size="sm" onClick={handleClick}>
+      <OmmButton type="button" variant="primary" size="sm" onClick={handleClick}>
         {t("copyCode")}
       </OmmButton>
       {copyFeedback ? (
-        <p className="max-w-[12rem] text-right text-xs text-sage-600" role="status">
+        <p
+          className={`max-w-[12rem] text-right text-xs font-medium ${
+            feedbackOnDark ? "text-white drop-shadow-sm" : "text-sage-600"
+          }`}
+          role="status"
+        >
           {copyFeedback}
         </p>
       ) : null}
