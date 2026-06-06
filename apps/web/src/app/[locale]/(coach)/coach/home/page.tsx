@@ -21,7 +21,7 @@ export default async function CoachHomePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "coachPages.home" });
-  const panel = await loadCoachPanelPageData();
+  const panel = await loadCoachPanelPageData("full");
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {

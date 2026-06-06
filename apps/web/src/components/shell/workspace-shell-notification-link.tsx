@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { marketingHeaderIconButtonClass } from "@/components/marketing/marketing-site-header-layout";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
 type WorkspaceShellNotificationLinkProps = {
   href: string;
@@ -26,6 +27,7 @@ export function WorkspaceShellNotificationLink({
   return (
     <Link
       href={href}
+      prefetch={WORKSPACE_ROUTE_PREFETCH}
       className={`${marketingHeaderIconButtonClass()} ${stateClass} ${className}`.trim()}
       aria-label={label}
       title={label}

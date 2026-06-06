@@ -14,6 +14,7 @@ import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
 import {
   avatarRingClass,
@@ -166,6 +167,7 @@ export function DashboardAppShell({
           >
             <Link
               href={brandHref}
+              prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
               className={
                 isOliveShell
                   ? "block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#97907c]"

@@ -7,8 +7,9 @@ import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
 import { memberNavIconSlugForHref } from "@/components/shell/member-nav-icon-map";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
-import { dashboardNavPathActive, type DashboardNavItem } from "@/lib/dashboard-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import { dashboardNavPathActive, type DashboardNavItem } from "@/lib/dashboard-nav";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
 const ADMIN_MUTED_NAV_HREFS = new Set([
   "/admin/feedback",
@@ -122,6 +123,7 @@ export function DashboardSidebarNav({
             {showMutedDivider ? <div className="ommm-admin-nav-divider" aria-hidden /> : null}
             <Link
               href={item.href}
+              prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
               title={collapsed ? item.label : undefined}
               aria-current={active ? "page" : undefined}
               className={

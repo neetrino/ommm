@@ -5,18 +5,9 @@ import { homePathForRole } from "@/lib/role-home";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
 import { routing } from "@/i18n/routing";
 import { serverApiJson } from "@/lib/server-api";
+import type { MeApiResponse, MeApiUser } from "@/lib/me-api-types";
 
-type MePayload = {
-  user: {
-    role: string;
-    locale?: string | null;
-    name?: string | null;
-    lastName?: string | null;
-    email?: string;
-    phone?: string | null;
-    homeImageUrl?: string | null;
-  };
-};
+type MePayload = MeApiResponse;
 
 export type LayoutAuthUser = {
   role: string;
@@ -69,36 +60,59 @@ export async function redirectIfPreferredAccountLocale(
   redirect(`/${pref}/${tail.join("/")}`);
 }
 
+type SessionAuthResult =
+  | { ok: true; cookie: string; user: MeApiUser; coachProfileId: string | null }
+  | { ok: false; status: number; cookie: string };
+
+/**
+ * One `/users/me` per RSC request — layout + pages share this cache.
+ */
+export const getSessionAuth = cache(async (): Promise<SessionAuthResult> => {
+  const cookie = (await headers()).get("cookie") ?? "";
+  const res = await serverApiJson<MePayload>("/users/me", cookie);
+  if (!res.ok) {
+    return { ok: false, status: res.status, cookie };
+  }
+  return {
+    ok: true,
+    cookie,
+    user: res.data.user,
+    coachProfileId: res.data.coachProfileId ?? null,
+  };
+});
+
+function layoutAuthFromUser(cookie: string, user: MeApiUser): LayoutAuthResult {
+  return {
+    cookie,
+    role: user.role,
+    userLocale: user.locale ?? null,
+    authUser: {
+      role: user.role,
+      locale: user.locale ?? null,
+      name: user.name ?? null,
+      lastName: user.lastName ?? null,
+      email: user.email ?? "",
+      phone: user.phone ?? null,
+      homeImageUrl: user.homeImageUrl ?? null,
+    },
+  };
+}
+
 /**
  * Ensures the session cookie yields a valid `/users/me` response.
  * Redirects unauthenticated visitors to login (localized).
  */
 export async function requireAuthForLayout(locale: string): Promise<LayoutAuthOutcome> {
-  const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<MePayload>("/users/me", cookie);
-  if (!res.ok) {
-    if (res.status === 503 || res.status === 504) {
+  const session = await getSessionAuth();
+  if (!session.ok) {
+    if (session.status === 503 || session.status === 504) {
       return { kind: "api_unavailable" };
     }
     redirect(`/${locale}/login`);
   }
-  const { user } = res.data;
   return {
     kind: "ok",
-    auth: {
-      cookie,
-      role: user.role,
-      userLocale: user.locale ?? null,
-      authUser: {
-        role: user.role,
-        locale: user.locale ?? null,
-        name: user.name ?? null,
-        lastName: user.lastName ?? null,
-        email: user.email ?? "",
-        phone: user.phone ?? null,
-        homeImageUrl: user.homeImageUrl ?? null,
-      },
-    },
+    auth: layoutAuthFromUser(session.cookie, session.user),
   };
 }
 
@@ -107,28 +121,22 @@ export async function requireAuthForLayout(locale: string): Promise<LayoutAuthOu
  * Returns `null` for guests or when the session is invalid — safe for public
  * (marketing) layouts that must render for both authenticated and anonymous visitors.
  */
-export const getOptionalLayoutAuthUser = cache(
-  async (): Promise<LayoutAuthUser | null> => {
-    const cookie = (await headers()).get("cookie") ?? "";
-    if (cookie.length === 0) {
-      return null;
-    }
-    const res = await serverApiJson<MePayload>("/users/me", cookie);
-    if (!res.ok) {
-      return null;
-    }
-    const { user } = res.data;
-    return {
-      role: user.role,
-      locale: user.locale ?? null,
-      name: user.name ?? null,
-      lastName: user.lastName ?? null,
-      email: user.email ?? "",
-      phone: user.phone ?? null,
-      homeImageUrl: user.homeImageUrl ?? null,
-    };
-  },
-);
+export async function getOptionalLayoutAuthUser(): Promise<LayoutAuthUser | null> {
+  const session = await getSessionAuth();
+  if (!session.ok) {
+    return null;
+  }
+  const { user } = session;
+  return {
+    role: user.role,
+    locale: user.locale ?? null,
+    name: user.name ?? null,
+    lastName: user.lastName ?? null,
+    email: user.email ?? "",
+    phone: user.phone ?? null,
+    homeImageUrl: user.homeImageUrl ?? null,
+  };
+}
 
 /**
  * Redirects to this role’s home when the user must not see the current section.

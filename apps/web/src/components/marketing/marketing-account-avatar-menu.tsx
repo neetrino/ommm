@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { LogoutButton } from "@/components/logout-button";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
 import { Link } from "@/i18n/navigation";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
 const HIDE_DELAY_MS = 300;
 const MENU_GAP_PX = 4;
@@ -64,6 +65,7 @@ export function MarketingAccountAvatarMenu({
       <div ref={rootRef} className="ommm-marketing-account-menu" {...hoverHandlers}>
         <Link
           href={profileHref}
+          prefetch={WORKSPACE_ROUTE_PREFETCH}
           className={triggerClassName}
           aria-label={displayName}
           onClick={() => onAfterSelect?.()}

@@ -13,7 +13,7 @@ export default async function CoachGroupsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "coachPages.groups" });
-  const panel = await loadCoachPanelPageData();
+  const panel = await loadCoachPanelPageData("roster");
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {

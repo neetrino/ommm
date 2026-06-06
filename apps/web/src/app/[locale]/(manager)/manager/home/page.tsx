@@ -1,16 +1,10 @@
 import { getTranslations } from "next-intl/server";
-import { headers } from "next/headers";
 import { Link } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
-import { isManagerDashboardRole } from "@/lib/role-home";
 import { serverApiJson } from "@/lib/server-api";
-import { redirectToRoleHome } from "@/server/redirect-to-role-home";
-
-type MeResponse = {
-  user: { role: string; name: string | null };
-};
+import { getSessionAuth } from "@/server/require-role-layout";
 
 type DashboardSummary = {
   sessionsToday: number;
@@ -28,14 +22,9 @@ export default async function ManagerHomePage({
   const tCommon = await getTranslations({ locale, namespace: "common" });
   const tHome = await getTranslations({ locale, namespace: "managerPages.home" });
   const tMetrics = await getTranslations({ locale, namespace: "adminHome.overview.cards" });
-  const cookie = (await headers()).get("cookie") ?? "";
+  const session = await getSessionAuth();
 
-  const [meRes, dashboardRes] = await Promise.all([
-    serverApiJson<MeResponse>("/users/me", cookie),
-    serverApiJson<DashboardSummary>("/reports/dashboard", cookie),
-  ]);
-
-  if (!meRes.ok) {
+  if (!session.ok) {
     return (
       <AdminContentFrame>
         <div className="app-alert-warn max-w-xl">
@@ -48,11 +37,12 @@ export default async function ManagerHomePage({
     );
   }
 
-  if (!isManagerDashboardRole(meRes.data.user.role)) {
-    redirectToRoleHome(locale, meRes.data.user.role);
-  }
+  const dashboardRes = await serverApiJson<DashboardSummary>(
+    "/reports/dashboard",
+    session.cookie,
+  );
 
-  const name = meRes.data.user.name?.trim();
+  const name = session.user.name?.trim();
   const greeting =
     name !== undefined && name.length > 0
       ? tHome("greeting", { name: `, ${name}` })
