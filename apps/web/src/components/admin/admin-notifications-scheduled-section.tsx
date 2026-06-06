@@ -2,6 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_HEADER_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_ACTIONS_HOVER_REVEAL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_SPACER_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-finance-notifications-list-layout";
+import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
@@ -263,68 +274,84 @@ export function AdminNotificationsScheduledSection({
           </span>
         }
       />
-      <div className={adminChrome.tableWrap}>
-        <table className={adminChrome.table}>
-          <thead className={adminChrome.thead}>
-            <tr>
-              <th className={adminChrome.th}>{t("table.subject")}</th>
-              <th className={adminChrome.th}>{t("table.audience")}</th>
-              <th className={adminChrome.th}>{t("table.scheduledFor")}</th>
-              <th className={adminChrome.th}>{t("table.status")}</th>
-              <th className={adminChrome.th}>{t("table.createdAt")}</th>
-              <th className={adminChrome.th}>{t("table.actions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td className={adminChrome.tdMuted} colSpan={6}>
-                  {items.length === 0 ? t("scheduledEmpty") : t("filters.noMatches")}
-                </td>
-              </tr>
-            ) : (
-              filtered.map((row) => (
-                <tr key={row.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>{row.subject}</td>
-                  <td className={adminChrome.td}>{row.audience}</td>
-                  <td className={adminChrome.tdMuted}>
-                    {formatDateTimeForUi(row.scheduleAt, locale)}
-                  </td>
-                  <td className={adminChrome.td}>{row.status}</td>
-                  <td className={adminChrome.tdMuted}>
-                    {formatDateTimeForUi(row.createdAt, locale)}
-                  </td>
-                  <td className={adminChrome.td}>
-                    <div className="flex flex-wrap gap-2">
-                      {row.status === "PENDING" ? (
-                        <>
-                          <button
-                            type="button"
-                            className="ommm-cta-ghost text-xs"
-                            disabled={busyId !== null}
-                            onClick={() => openEdit(row)}
-                          >
-                            {t("actions.edit")}
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
-                            disabled={busyId !== null}
-                            onClick={() => void cancel(row.id)}
-                          >
-                            {t("actions.cancel")}
-                          </button>
-                        </>
-                      ) : (
-                        <span className={adminChrome.metaText}>—</span>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_TABLE_CLASS}>
+        <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_HEADER_CLASS}>
+          <span>{t("table.subject")}</span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.audience")}
+          </span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.scheduledFor")}
+          </span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.status")}
+          </span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.createdAt")}
+          </span>
+          <span aria-hidden="true" />
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.actions")}
+          </span>
+        </div>
+        {filtered.length === 0 ? (
+          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+            {items.length === 0 ? t("scheduledEmpty") : t("filters.noMatches")}
+          </p>
+        ) : (
+          filtered.map((row) => (
+            <article key={row.id} className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_CLASS}>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.subject")} />
+                <p className="text-sm font-medium text-sage-900">{row.subject}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.audience")} />
+                <p className="text-sm text-sage-800">{row.audience}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.scheduledFor")} />
+                <p className="text-sm text-sage-600">{formatDateTimeForUi(row.scheduleAt, locale)}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.status")} />
+                <p className="text-sm text-sage-800">{row.status}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.createdAt")} />
+                <p className="text-sm text-sage-600">{formatDateTimeForUi(row.createdAt, locale)}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_SPACER_CELL} aria-hidden="true" />
+              <div
+                className={`${ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL} ${ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+              >
+                <AdminListMobileLabel label={t("table.actions")} />
+                {row.status === "PENDING" ? (
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      className="ommm-cta-ghost text-xs"
+                      disabled={busyId !== null}
+                      onClick={() => openEdit(row)}
+                    >
+                      {t("actions.edit")}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
+                      disabled={busyId !== null}
+                      onClick={() => void cancel(row.id)}
+                    >
+                      {t("actions.cancel")}
+                    </button>
+                  </div>
+                ) : (
+                  <span className={adminChrome.metaText}>—</span>
+                )}
+              </div>
+            </article>
+          ))
+        )}
       </div>
       {message ? (
         <p className="text-sm text-sage-700" role="status">

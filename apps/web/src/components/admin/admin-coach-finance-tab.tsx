@@ -3,7 +3,14 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachSessionsDrawer } from "@/components/admin/admin-coach-sessions-drawer";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import {
+  ADMIN_FINANCE_COACH_LIST_CELL,
+  ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER,
+  ADMIN_FINANCE_COACH_LIST_HEADER_CLASS,
+  ADMIN_FINANCE_COACH_LIST_ROW_CLASS,
+  ADMIN_FINANCE_COACH_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-finance-notifications-list-layout";
+import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import type { CoachFinanceFilters, CoachFinanceRow } from "@/components/admin/admin-finance-types";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -159,64 +166,70 @@ export function AdminCoachFinanceTab({ locale, initialRows }: Props) {
         label={t("clearFilters")}
       />
       <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>
-      <div className={adminChrome.tableWrap}>
-        <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
-          <thead className={adminChrome.thead}>
-            <tr>
-              <th className={adminChrome.th}>{t("colCoach")}</th>
-              <th className={adminChrome.th}>{t("colSalary")}</th>
-              <th className={adminChrome.th}>{t("colSessions")}</th>
-              <th className={adminChrome.th}>{t("colMonth")}</th>
-              <th className={adminChrome.th}>{t("colPayoutStatus")}</th>
-              <th className={adminChrome.th}>{t("colActions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRows.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sage-600">
-                  {t("empty")}
-                </td>
-              </tr>
-            ) : (
-              filteredRows.map((row) => {
-                const status = payoutStatus(row);
-                const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
-                return (
-                  <tr key={row.coachProfileId} className={adminChrome.tr}>
-                    <td className={adminChrome.tdStrong}>
-                      <p>{displayName(row)}</p>
-                      <p className="text-xs font-normal text-sage-500">{row.user.phone ?? "—"}</p>
-                    </td>
-                    <td className={adminChrome.td}>
-                      {row.salary
-                        ? formatAmdFromCents(row.salary.totalEarningsCents, locale)
-                        : "—"}
-                    </td>
-                    <td className={adminChrome.td}>
-                      <button
-                        type="button"
-                        className="font-medium text-sage-800 underline underline-offset-2"
-                        onClick={() => setDrawerCoach(row)}
-                      >
-                        {sessionCount}
-                      </button>
-                    </td>
-                    <td className={adminChrome.td}>{filters.month}</td>
-                    <td className={adminChrome.td}>
-                      <span className="rounded-full bg-sage-100 px-2 py-1 text-[11px] font-medium text-sage-700">
-                        {status === "none" ? t("statusNone") : t(`status${status === "paid" ? "Paid" : "Pending"}`)}
-                      </span>
-                    </td>
-                    <td className={adminChrome.td}>
-                      <p className="text-xs text-sage-500">{t("actionsUnsupported")}</p>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+      <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
+        <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
+          <span>{t("colCoach")}</span>
+          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colSalary")}</span>
+          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colSessions")}</span>
+          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colMonth")}</span>
+          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colPayoutStatus")}</span>
+          <span aria-hidden="true" />
+          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colActions")}</span>
+        </div>
+        {filteredRows.length === 0 ? (
+          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+            {t("empty")}
+          </p>
+        ) : (
+          filteredRows.map((row) => {
+            const status = payoutStatus(row);
+            const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
+            return (
+              <article key={row.coachProfileId} className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
+                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+                  <AdminListMobileLabel label={t("colCoach")} />
+                  <p className="text-sm font-medium text-sage-900">{displayName(row)}</p>
+                  <p className="mt-0.5 text-xs text-sage-500">{row.user.phone ?? "—"}</p>
+                </div>
+                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+                  <AdminListMobileLabel label={t("colSalary")} />
+                  <p className="text-sm text-sage-800">
+                    {row.salary
+                      ? formatAmdFromCents(row.salary.totalEarningsCents, locale)
+                      : "—"}
+                  </p>
+                </div>
+                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+                  <AdminListMobileLabel label={t("colSessions")} />
+                  <button
+                    type="button"
+                    className="text-sm font-medium text-sage-800 underline underline-offset-2"
+                    onClick={() => setDrawerCoach(row)}
+                  >
+                    {sessionCount}
+                  </button>
+                </div>
+                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+                  <AdminListMobileLabel label={t("colMonth")} />
+                  <p className="text-sm text-sage-800">{filters.month}</p>
+                </div>
+                <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+                  <AdminListMobileLabel label={t("colPayoutStatus")} />
+                  <span className="inline-flex rounded-full bg-sage-100 px-2 py-1 text-[11px] font-medium text-sage-700">
+                    {status === "none"
+                      ? t("statusNone")
+                      : t(`status${status === "paid" ? "Paid" : "Pending"}`)}
+                  </span>
+                </div>
+                <span aria-hidden="true" className="hidden min-w-0 md:block" />
+                <div className={`${ADMIN_FINANCE_COACH_LIST_CELL} md:justify-self-end`}>
+                  <AdminListMobileLabel label={t("colActions")} />
+                  <p className="text-xs text-sage-500">{t("actionsUnsupported")}</p>
+                </div>
+              </article>
+            );
+          })
+        )}
       </div>
       <AdminCoachSessionsDrawer
         coach={drawerCoach}

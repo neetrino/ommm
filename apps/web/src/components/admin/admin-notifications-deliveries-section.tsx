@@ -2,6 +2,22 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  ADMIN_NOTIFICATIONS_LIST_CELL,
+  ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER,
+  ADMIN_NOTIFICATIONS_LIST_HEADER_CLASS,
+  ADMIN_NOTIFICATIONS_LIST_ROW_CLASS,
+  ADMIN_NOTIFICATIONS_LIST_TABLE_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_HEADER_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_ACTIONS_HOVER_REVEAL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_SPACER_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-finance-notifications-list-layout";
+import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
@@ -211,43 +227,51 @@ export function AdminNotificationsDeliveriesSection({ locale, items, loadFailed 
           </span>
         }
       />
-      <div className={adminChrome.tableWrap}>
-        <table className={adminChrome.table}>
-          <thead className={adminChrome.thead}>
-            <tr>
-              <th className={adminChrome.th}>{t("table.sentAt")}</th>
-              <th className={adminChrome.th}>{t("table.subject")}</th>
-              <th className={adminChrome.th}>{t("table.recipient")}</th>
-              <th className={adminChrome.th}>{t("table.audience")}</th>
-              <th className={adminChrome.th}>{t("table.channel")}</th>
-              <th className={adminChrome.th}>{t("table.timing")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td className={adminChrome.tdMuted} colSpan={6}>
-                  {items.length === 0 ? t("deliveryListEmpty") : t("filters.noMatches")}
-                </td>
-              </tr>
-            ) : (
-              filtered.slice(0, 100).map((row) => (
-                <tr key={row.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdMuted}>
-                    {formatDateTimeForUi(row.createdAt, locale)}
-                  </td>
-                  <td className={adminChrome.tdStrong}>{row.subject}</td>
-                  <td className={adminChrome.tdMono}>{row.recipientEmail}</td>
-                  <td className={adminChrome.td}>{row.audience}</td>
-                  <td className={adminChrome.td}>{row.channel}</td>
-                  <td className={adminChrome.td}>
-                    {row.scheduled ? t("scheduledTag") : t("immediateTag")}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className={ADMIN_NOTIFICATIONS_LIST_TABLE_CLASS}>
+        <div className={ADMIN_NOTIFICATIONS_LIST_HEADER_CLASS}>
+          <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.sentAt")}</span>
+          <span>{t("table.subject")}</span>
+          <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.recipient")}</span>
+          <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.audience")}</span>
+          <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.channel")}</span>
+          <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.timing")}</span>
+        </div>
+        {filtered.length === 0 ? (
+          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+            {items.length === 0 ? t("deliveryListEmpty") : t("filters.noMatches")}
+          </p>
+        ) : (
+          filtered.slice(0, 100).map((row) => (
+            <article key={row.id} className={ADMIN_NOTIFICATIONS_LIST_ROW_CLASS}>
+              <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.sentAt")} />
+                <p className="text-sm text-sage-600">{formatDateTimeForUi(row.createdAt, locale)}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.subject")} />
+                <p className="text-sm font-medium text-sage-900">{row.subject}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.recipient")} />
+                <p className="truncate font-mono text-xs text-sage-900">{row.recipientEmail}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.audience")} />
+                <p className="text-sm text-sage-800">{row.audience}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.channel")} />
+                <p className="text-sm text-sage-800">{row.channel}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.timing")} />
+                <p className="text-sm text-sage-800">
+                  {row.scheduled ? t("scheduledTag") : t("immediateTag")}
+                </p>
+              </div>
+            </article>
+          ))
+        )}
       </div>
       <p className={adminChrome.metaText}>{t("deliveryNote")}</p>
     </section>

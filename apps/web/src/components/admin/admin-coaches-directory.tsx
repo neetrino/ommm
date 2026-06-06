@@ -1,19 +1,21 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminCoachCompactRow } from "@/components/admin/admin-coach-compact-row";
+import {
+  ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_COACHES_LIST_EMPHASIZED_HEADER,
+  ADMIN_COACHES_LIST_HEADER_CLASS,
+  ADMIN_COACHES_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-coaches-list-layout";
 import { AdminCoachBoardCard } from "@/components/admin/admin-coach-board-card";
 import { AdminCoachDetailsDrawer } from "@/components/admin/admin-coach-details-drawer";
-import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
 import { useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
 import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
-import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 
 export type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
@@ -25,43 +27,6 @@ type AdminCoachesDirectoryProps = {
   locale?: string;
 };
 
-function CoachAvatar({ coach }: { coach: AdminCoachDirectoryRow }) {
-  const src =
-    coach.user.avatarUrl !== null
-      ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
-      : null;
-  if (src !== null) {
-    return (
-      <Image
-        src={src}
-        alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
-        unoptimized
-      />
-    );
-  }
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
-      {coachCardDisplayName(coach.user).slice(0, 2).toUpperCase()}
-    </div>
-  );
-}
-
-function StatusBadge({ isActive }: { isActive: boolean }) {
-  const t = useTranslations("adminPages.coaches");
-  const className = isActive
-    ? "border-mint-200 bg-mint-50 text-sage-900"
-    : "border-zinc-200 bg-zinc-50 text-zinc-700";
-
-  return (
-    <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${className}`}>
-      {isActive ? t("filters.statusActive") : t("filters.statusInactive")}
-    </span>
-  );
-}
-
 function AdminCoachesListView({
   coaches,
   classTypeOptions,
@@ -72,78 +37,31 @@ function AdminCoachesListView({
   const t = useTranslations("adminPages.coaches");
 
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[52rem]`}>
-        <colgroup>
-          <col className="w-[32%]" />
-          <col className="w-[18%]" />
-          <col className="w-[16%]" />
-          <col className="w-[12%]" />
-          <col className="w-[22%]" />
-        </colgroup>
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={adminChrome.th}>{t("colCoaches")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colSpecialization")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colWorkload")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colStatus")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coaches.map((coach, index) => {
-            const rowDivider =
-              index < coaches.length - 1 ? adminChrome.tableRowDivider : "";
-
-            return (
-              <tr key={coach.id}>
-                <td className={`${adminChrome.tdStrong} ${rowDivider}`}>
-                  <div className="flex items-center gap-3">
-                    <CoachAvatar coach={coach} />
-                    <div className="min-w-0">
-                      <button
-                        type="button"
-                        className="break-words text-left underline decoration-sage-300 underline-offset-4"
-                        onClick={() => onSelect(coach)}
-                      >
-                        {coachCardDisplayName(coach.user)}
-                      </button>
-                      <div className="break-words text-xs font-normal text-sage-500">
-                        {coach.user.phone ?? "—"}
-                      </div>
-                      <div className="break-words text-xs font-normal text-sage-500">
-                        {coach.user.email}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {coach.specialization ?? "—"}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {t("workloadSummary", {
-                    classes: coach.totalClasses,
-                    slots: coach.schedule.length,
-                  })}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  <StatusBadge isActive={coach.isActive} />
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  <div className="flex justify-center">
-                    <AdminCoachRowActions
-                      coach={coach}
-                      classTypeOptions={classTypeOptions}
-                      classOptions={classOptions}
-                      locale={locale}
-                    />
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className={ADMIN_COACHES_LIST_TABLE_CLASS}>
+      <div className={ADMIN_COACHES_LIST_HEADER_CLASS}>
+        <span>{t("colCoaches")}</span>
+        <span className={`${ADMIN_COACHES_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colSpecialization")}
+        </span>
+        <span className={`${ADMIN_COACHES_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colWorkload")}
+        </span>
+        <span className={`${ADMIN_COACHES_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colStatus")}
+        </span>
+        <span aria-hidden="true" />
+        <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+      </div>
+      {coaches.map((coach) => (
+        <AdminCoachCompactRow
+          key={coach.id}
+          coach={coach}
+          classTypeOptions={classTypeOptions}
+          classOptions={classOptions}
+          locale={locale}
+          onSelect={onSelect}
+        />
+      ))}
     </div>
   );
 }

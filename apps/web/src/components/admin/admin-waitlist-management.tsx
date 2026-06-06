@@ -3,7 +3,13 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateTimeForUi } from "@/lib/date-display";
+import { AdminWaitlistCompactRow } from "@/components/admin/admin-waitlist-compact-row";
+import {
+  ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER,
+  ADMIN_WAITLIST_LIST_HEADER_CLASS,
+  ADMIN_WAITLIST_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-waitlist-list-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -33,41 +39,6 @@ type AdminWaitlistManagementProps = {
   initialRows: AdminWaitlistRow[];
   initialLoadError: string | null;
 };
-
-function UserGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M20 21a8 8 0 0 0-16 0" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
-function ArrowUpGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M12 19V5M6 11l6-6 6 6" />
-    </svg>
-  );
-}
-
-function BellGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5" />
-      <path d="M9 17a3 3 0 0 0 6 0" />
-    </svg>
-  );
-}
-
-function TrashGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
-      <path d="M10 11v6M14 11v6" />
-    </svg>
-  );
-}
 
 function toUserLabel(name: string | null, lastName: string | null, email: string): string {
   const full = [name, lastName].filter((part) => part && part.trim().length > 0).join(" ");
@@ -168,109 +139,58 @@ export function AdminWaitlistManagement({
       {!hasRows ? (
         <div className={adminChrome.panel}>{t("empty")}</div>
       ) : (
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colUser")}</th>
-                <th className={adminChrome.th}>{t("colClassType")}</th>
-                <th className={adminChrome.th}>{t("colWaitlistCount")}</th>
-                <th className={adminChrome.th}>{t("colWaitlistDate")}</th>
-                <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
-                const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
-                return (
-                  <tr key={row.id} className={adminChrome.tr}>
-                    <td className={adminChrome.tdStrong}>
-                      <button
-                        type="button"
-                        className="text-left font-medium text-sage-900 underline-offset-2 hover:underline"
-                        onClick={() => setSelectedUserId(row.user.id)}
-                      >
-                        {userLabel}
-                      </button>
-                      <div className={adminChrome.metaText}>{row.user.phone ?? "—"}</div>
-                    </td>
-                    <td className={adminChrome.td}>{row.session.classType.name}</td>
-                    <td className={adminChrome.td}>{row.sessionWaitlistCount}</td>
-                    <td className={adminChrome.td}>
-                      {formatDateTimeForUi(row.waitlistDate, locale)}
-                    </td>
-                    <td className={`${adminChrome.td} text-center`}>
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 transition hover:bg-white disabled:opacity-50"
-                          aria-label={t("actions.userDetails")}
-                          title={t("actions.userDetails")}
-                          onClick={() => setSelectedUserId(row.user.id)}
-                          disabled={rowBusy}
-                        >
-                          <UserGlyph />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
-                          aria-label={t("actions.promote")}
-                          title={t("actions.promote")}
-                          onClick={() =>
-                            void runAction(
-                              row,
-                              "promote",
-                              () =>
-                                apiFetch(`/waitlist/entries/${row.id}/promote`, {
-                                  method: "POST",
-                                  body: JSON.stringify({ targetSessionId: row.session.id }),
-                                }),
-                              t("successPromote"),
-                            )
-                          }
-                          disabled={rowBusy}
-                        >
-                          <ArrowUpGlyph />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100 disabled:opacity-50"
-                          aria-label={t("actions.notify")}
-                          title={t("actions.notify")}
-                          onClick={() =>
-                            void runAction(
-                              row,
-                              "notify",
-                              () =>
-                                apiFetch(`/waitlist/entries/${row.id}/notify`, {
-                                  method: "POST",
-                                  body: JSON.stringify({}),
-                                }),
-                              t("successNotify"),
-                            )
-                          }
-                          disabled={rowBusy}
-                        >
-                          <BellGlyph />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-                          aria-label={t("actions.remove")}
-                          title={t("actions.remove")}
-                          onClick={() => setPendingRemove(row)}
-                          disabled={rowBusy}
-                        >
-                          <TrashGlyph />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className={ADMIN_WAITLIST_LIST_TABLE_CLASS}>
+          <div className={ADMIN_WAITLIST_LIST_HEADER_CLASS}>
+            <span>{t("colUser")}</span>
+            <span className={ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
+            <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
+              {t("colWaitlistCount")}
+            </span>
+            <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
+              {t("colWaitlistDate")}
+            </span>
+            <span aria-hidden="true" />
+            <span className={ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          </div>
+          {rows.map((row) => {
+            const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
+            const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
+            return (
+              <AdminWaitlistCompactRow
+                key={row.id}
+                locale={locale}
+                row={row}
+                rowBusy={rowBusy}
+                userLabel={userLabel}
+                onOpenUser={setSelectedUserId}
+                onPromote={() =>
+                  void runAction(
+                    row,
+                    "promote",
+                    () =>
+                      apiFetch(`/waitlist/entries/${row.id}/promote`, {
+                        method: "POST",
+                        body: JSON.stringify({ targetSessionId: row.session.id }),
+                      }),
+                    t("successPromote"),
+                  )
+                }
+                onNotify={() =>
+                  void runAction(
+                    row,
+                    "notify",
+                    () =>
+                      apiFetch(`/waitlist/entries/${row.id}/notify`, {
+                        method: "POST",
+                        body: JSON.stringify({}),
+                      }),
+                    t("successNotify"),
+                  )
+                }
+                onRemove={() => setPendingRemove(row)}
+              />
+            );
+          })}
         </div>
       )}
 

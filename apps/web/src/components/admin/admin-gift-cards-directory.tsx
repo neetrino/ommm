@@ -1,7 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminGiftCardCompactRow } from "@/components/admin/admin-gift-card-compact-row";
+import {
+  ADMIN_GIFT_CARDS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER,
+  ADMIN_GIFT_CARDS_LIST_HEADER_CLASS,
+  ADMIN_GIFT_CARDS_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-gift-cards-list-layout";
 import {
   displayGiftCardDate,
   giftCardQuantityLabel,
@@ -135,72 +141,39 @@ function AdminGiftCardsListView({
   const t = useTranslations("adminPages.giftCards");
 
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[56rem]`}>
-        <colgroup>
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-          <col className="w-[10%]" />
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-          <col className="w-[30%]" />
-        </colgroup>
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={adminChrome.th}>{t("colImage")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colAmount")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colStatus")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colCreated")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colExpiration")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colAvailableQuantity")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cards.map((card, index) => {
-            const rowDivider =
-              index < cards.length - 1 ? adminChrome.tableRowDivider : "";
-
-            return (
-              <tr key={card.id}>
-                <td className={`${adminChrome.td} ${rowDivider}`}>
-                  <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/60 bg-sage-100">
-                    <AdminGiftCardThumbnail card={card} className="h-full w-full object-cover" />
-                  </div>
-                </td>
-                <td className={`${adminChrome.tdStrong} text-center ${rowDivider}`}>
-                  {formatAmdFromCents(card.amountAmd, locale)}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  <span className={giftCardStatusBadgeClass(card.status)}>
-                    {t(`statusValues.${card.status}`)}
-                  </span>
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {displayGiftCardDate(card.createdAt)}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {displayGiftCardDate(card.expiresAt)}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {giftCardQuantityLabel(card)}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  <AdminGiftCardRowActions
-                    card={card}
-                    busyBatchId={busyBatchId}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onOpenActions={onOpenActions}
-                    onChanged={onChanged}
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className={ADMIN_GIFT_CARDS_LIST_TABLE_CLASS}>
+      <div className={ADMIN_GIFT_CARDS_LIST_HEADER_CLASS}>
+        <span>{t("colImage")}</span>
+        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colAmount")}
+        </span>
+        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colStatus")}
+        </span>
+        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colCreated")}
+        </span>
+        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colExpiration")}
+        </span>
+        <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colAvailableQuantity")}
+        </span>
+        <span aria-hidden="true" />
+        <span className={ADMIN_GIFT_CARDS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+      </div>
+      {cards.map((card) => (
+        <AdminGiftCardCompactRow
+          key={card.id}
+          card={card}
+          locale={locale}
+          busyBatchId={busyBatchId}
+          onOpenActions={onOpenActions}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onChanged={onChanged}
+        />
+      ))}
     </div>
   );
 }

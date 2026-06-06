@@ -5,6 +5,13 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachStatusAction } from "@/components/admin/admin-coach-status-action";
+import {
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import { coachCardDisplayName, coachCardInitials } from "@/components/coaches/coach-card-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -98,23 +105,24 @@ export function AdminCoachDetailsDrawer({
         aria-label={t("drawer.close")}
         onClick={onClose}
       />
-      <aside className="relative z-10 h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
-        <div className="mb-5 flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-sage-500">
-              {t("drawer.eyebrow")}
-            </p>
-            <h2 className="text-xl font-semibold text-sage-900">{displayName}</h2>
-            <p className="text-sm text-sage-600">
-              {coach.user.phone ?? "—"} · {coach.user.email}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-            aria-label={t("drawer.close")}
-            onClick={onClose}
-          >
+      <aside className={`${ADMIN_WIDE_DRAWER_PANEL_CLASS} overflow-y-auto p-5 sm:p-6`}>
+        <div className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} mb-5 border-b-0 px-0 py-0 sm:px-0 sm:py-0`}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+                {t("drawer.eyebrow")}
+              </p>
+              <h2 className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>{displayName}</h2>
+              <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
+                {coach.user.phone ?? "—"} · {coach.user.email}
+              </p>
+            </div>
+            <button
+              type="button"
+              className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}`}
+              aria-label={t("drawer.close")}
+              onClick={onClose}
+            >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -128,6 +136,7 @@ export function AdminCoachDetailsDrawer({
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>
+          </div>
         </div>
 
         <div className="space-y-4">

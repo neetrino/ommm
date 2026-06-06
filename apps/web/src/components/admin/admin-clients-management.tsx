@@ -8,12 +8,17 @@ import {
   useState,
   useTransition,
 } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
-import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
+import { AdminClientCompactRow } from "@/components/admin/admin-client-compact-row";
+import {
+  ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER,
+  ADMIN_CLIENTS_LIST_HEADER_CLASS,
+  ADMIN_CLIENTS_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-clients-list-layout";
 import {
   adminClientsFilterValuesFromState,
   buildAdminClientsFilterFields,
@@ -33,9 +38,7 @@ import {
   ommOptionsFromTuples,
 } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
-import { formatDateForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import {
   ADMIN_CLIENTS_FILTER_KEYS,
   mergeAdminClientsUrlQuery,
@@ -424,132 +427,27 @@ function ClientsTable({
   const t = useTranslations("adminPages.clients");
 
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[60rem]`}>
-        <colgroup>
-          <col className="w-[36%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-        </colgroup>
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={adminChrome.th}>{t("title")}</th>
-            <th className={`${adminChrome.th} text-center`}>Date of birth</th>
-            <th className={`${adminChrome.th} text-center`}>Register date</th>
-            <th className={`${adminChrome.th} text-center`}>Notes</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <ClientTableRow
-              key={row.id}
-              row={row}
-              rowDivider={index < rows.length - 1 ? adminChrome.tableRowDivider : ""}
-              onSelect={onSelect}
-              onChanged={onChanged}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className={ADMIN_CLIENTS_LIST_TABLE_CLASS}>
+      <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
+        <span>{t("title")}</span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          Date of birth
+        </span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          Register date
+        </span>
+        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>Notes</span>
+        <span aria-hidden="true" />
+        <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+      </div>
+      {rows.map((row) => (
+        <AdminClientCompactRow
+          key={row.id}
+          row={row}
+          onSelect={onSelect}
+          onChanged={onChanged}
+        />
+      ))}
     </div>
   );
-}
-
-function ClientTableRow({
-  row,
-  rowDivider,
-  onSelect,
-  onChanged,
-}: {
-  row: ClientRow;
-  rowDivider: string;
-  onSelect: (row: ClientRow) => void;
-  onChanged: () => void;
-}) {
-  return (
-    <tr>
-      <td className={`${adminChrome.tdStrong} ${rowDivider}`}>
-        <div className="flex items-center gap-3">
-          <ClientAvatar row={row} />
-          <div className="min-w-0">
-            <button
-              type="button"
-              className="break-words text-left underline decoration-sage-300 underline-offset-4"
-              onClick={() => onSelect(row)}
-            >
-              {fullName(row)}
-            </button>
-            <div className="break-words text-xs font-normal text-sage-500">
-              {row.phone ?? "—"}
-            </div>
-            {row.tags.length > 0 ? (
-              <div className="mt-1 flex flex-wrap gap-1">
-                {row.tags.map((tag) => (
-                  <ClientBadge key={tag} label={tag} />
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        {formatDateForUi(row.createdAt)}
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        {row.noteCount}
-        {row.latestNote ? (
-          <div className="truncate text-xs text-sage-500">{row.latestNote.body}</div>
-        ) : null}
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        <div className="flex justify-center">
-          <AdminClientRowActions client={row} onChanged={onChanged} />
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function ClientAvatar({ row }: { row: ClientRow }) {
-  const src = resolveApiAssetUrl(row.avatarUrl);
-  if (src) {
-    return (
-      <Image
-        src={src}
-        alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
-        unoptimized
-      />
-    );
-  }
-  const initials = fullName(row)
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
-      {initials || "?"}
-    </div>
-  );
-}
-
-function ClientBadge({ label }: { label: string }) {
-  return (
-    <span className="inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900">
-      {label}
-    </span>
-  );
-}
-
-function fullName(row: { name: string | null; lastName: string | null; email: string }) {
-  return [row.name, row.lastName].filter(Boolean).join(" ").trim() || row.email;
 }

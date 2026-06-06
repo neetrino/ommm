@@ -14,6 +14,12 @@ import { useSearchParams } from "next/navigation";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 
+import {
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
 
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -282,7 +288,7 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: Props)
 
       />
 
-      <aside className="relative z-10 h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
+      <aside className={`${ADMIN_WIDE_DRAWER_PANEL_CLASS} overflow-y-auto p-5 sm:p-6`}>
 
         <div className="mb-4 flex items-start justify-between gap-3">
 
@@ -290,9 +296,9 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: Props)
 
             <p className="text-xs uppercase tracking-wide text-sage-500">Client profile</p>
 
-            <h2 className="text-xl font-semibold text-sage-900">{fullName(client)}</h2>
+            <h2 className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>{fullName(client)}</h2>
 
-            <p className="text-sm text-sage-600">{client.phone ?? "—"} · {client.email}</p>
+            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>{client.phone ?? "—"} · {client.email}</p>
 
           </div>
 
@@ -312,7 +318,7 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: Props)
 
               type="button"
 
-              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}`}
 
               aria-label={t("modalCloseAria")}
 

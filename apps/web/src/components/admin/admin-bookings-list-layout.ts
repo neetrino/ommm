@@ -1,67 +1,31 @@
 import {
+  ADMIN_LIST_EMPHASIZED_HEADER,
+  ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL,
+  ADMIN_LIST_ROW_CLASS,
   USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_DATE_CELL,
-  USER_LIST_HEADER_SURFACE,
-  USER_LIST_ROW_INTERACTIVE,
   USER_LIST_SPACER_CELL,
   USER_LIST_STACK_CLASS,
-  USER_LIST_TABLE_GRID_GAP,
-  USER_LIST_TABLE_HEADER_PAD,
-  USER_LIST_TABLE_HEADER_TEXT,
-  USER_LIST_TABLE_ROW_PAD,
-  USER_LIST_TABLE_SUBGRID_ROW,
   USER_LIST_TRAILING_CELL,
   USER_LIST_TRAILING_HEADER_CELL,
-} from "@/components/account/user-list-table-layout";
+  buildAdminListHeaderClass,
+  buildAdminListTableClass,
+} from "@/components/admin/admin-list-table-layout";
 
 export const ADMIN_BOOKINGS_LIST_GRID_COLS =
   "minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_1fr_auto_auto";
 
-export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = [
-  "max-md:space-y-3",
-  "md:grid",
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_1fr_auto_auto]",
-  USER_LIST_TABLE_GRID_GAP,
-  "md:gap-y-3",
-].join(" ");
+const BOOKINGS_GRID_CLASS =
+  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_1fr_auto_auto]";
 
-export const ADMIN_BOOKINGS_LIST_HEADER_CLASS = [
-  "hidden",
-  USER_LIST_TABLE_SUBGRID_ROW,
-  USER_LIST_HEADER_SURFACE,
-  USER_LIST_TABLE_HEADER_PAD,
-  USER_LIST_TABLE_HEADER_TEXT,
-  "md:grid",
-  "md:items-end",
-].join(" ");
+export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = buildAdminListTableClass(BOOKINGS_GRID_CLASS);
 
-const ADMIN_BOOKINGS_LIST_ROW_SURFACE = [
-  "rounded-[24px] border border-white/80 bg-white/95",
-  "shadow-[0_10px_28px_-18px_rgba(45,40,35,0.28)]",
-  "transition-[border-color,background-color,box-shadow,transform] duration-200",
-  "hover:-translate-y-px hover:border-sand-500/35 hover:bg-white",
-  "hover:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
-  "focus-within:-translate-y-px focus-within:border-sand-500/45 focus-within:bg-sand-50/50",
-  "focus-within:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
-].join(" ");
+export const ADMIN_BOOKINGS_LIST_HEADER_CLASS = buildAdminListHeaderClass();
 
-export const ADMIN_BOOKINGS_LIST_ROW_CLASS = [
-  ADMIN_BOOKINGS_LIST_ROW_SURFACE,
-  USER_LIST_ROW_INTERACTIVE,
-  "group",
-  "grid w-full grid-cols-1 gap-3 text-left",
-  USER_LIST_TABLE_ROW_PAD,
-  "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
-].join(" ");
+export const ADMIN_BOOKINGS_LIST_ROW_CLASS = ADMIN_LIST_ROW_CLASS;
 
-/** List row actions — visible on hover/focus; always shown on touch/narrow viewports. */
-export const ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL = [
-  "max-md:opacity-100 max-md:pointer-events-auto",
-  "md:opacity-0 md:pointer-events-none md:transition-opacity md:duration-200",
-  "md:group-hover:opacity-100 md:group-hover:pointer-events-auto",
-  "md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto",
-].join(" ");
+export const ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL = ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL;
 
 export const ADMIN_BOOKINGS_LIST_CELL = USER_LIST_CELL_CLASS;
 
@@ -69,7 +33,6 @@ export const ADMIN_BOOKINGS_LIST_DATE_TIME_CELL = USER_LIST_DATE_CELL;
 
 export const ADMIN_BOOKINGS_LIST_STATUS_CELL = USER_LIST_TRAILING_CELL;
 
-/** Status column — pinned next to Actions on the right. */
 export const ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL =
   "flex shrink-0 justify-end justify-self-end md:items-center md:justify-end md:self-center";
 
@@ -81,5 +44,4 @@ export const ADMIN_BOOKINGS_LIST_SPACER_CELL = USER_LIST_SPACER_CELL;
 
 export const ADMIN_BOOKINGS_LIST_STACK_CLASS = USER_LIST_STACK_CLASS;
 
-export const ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER =
-  "text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600";
+export const ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;

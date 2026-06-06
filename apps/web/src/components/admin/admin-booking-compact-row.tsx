@@ -20,6 +20,7 @@ import {
   ADMIN_BOOKINGS_LIST_SPACER_CELL,
   ADMIN_BOOKINGS_LIST_STATUS_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
+import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 
 type BookingRow = {
@@ -84,7 +85,7 @@ export function AdminBookingCompactRow({
       className={ADMIN_BOOKINGS_LIST_ROW_CLASS}
     >
       <div className={ADMIN_BOOKINGS_LIST_CELL}>
-        <MobileLabel label={t("colUserPhone")} />
+        <AdminListMobileLabel label={t("colUserPhone")} />
         <button
           type="button"
           className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
@@ -100,7 +101,7 @@ export function AdminBookingCompactRow({
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_CELL}>
-        <MobileLabel label={t("colClassType")} />
+        <AdminListMobileLabel label={t("colClassType")} />
         <SessionClassTitle variant="list" name={row.session.classType.name} />
         {row.package !== null ? (
           <p className="mt-1 truncate text-[11px] text-sage-500">
@@ -110,7 +111,7 @@ export function AdminBookingCompactRow({
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_DATE_TIME_CELL}>
-        <MobileLabel label={t("colDateTime")} />
+        <AdminListMobileLabel label={t("colDateTime")} />
         <div className="flex min-w-0 items-center gap-3">
           <SessionDateTimeHighlight
             locale={locale}
@@ -128,7 +129,7 @@ export function AdminBookingCompactRow({
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
-        <MobileLabel label={t("colPaymentStatus")} />
+        <AdminListMobileLabel label={t("colPaymentStatus")} />
         <BookingValueBadge
           label={paymentLabel(t, row.paymentStatus)}
           className={paymentValueBadgeTone(row.paymentStatus)}
@@ -136,7 +137,7 @@ export function AdminBookingCompactRow({
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
-        <MobileLabel label={t("colAttendanceStatus")} />
+        <AdminListMobileLabel label={t("colAttendanceStatus")} />
         <BookingValueBadge
           label={attendanceLabel(t, row.attendanceStatus)}
           className={attendanceValueBadgeTone(row.attendanceStatus)}
@@ -150,7 +151,7 @@ export function AdminBookingCompactRow({
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <MobileLabel label={t("colStatus")} />
+        <AdminListMobileLabel label={t("colStatus")} />
         <AdminBookingStatusPicker
           recordType={row.recordType}
           status={row.status}
@@ -164,7 +165,7 @@ export function AdminBookingCompactRow({
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
-        <MobileLabel label={t("colActions")} />
+        <AdminListMobileLabel label={t("colActions")} />
         <AdminBookingRowActions
           variant="list"
           recordType={row.recordType}
@@ -175,14 +176,6 @@ export function AdminBookingCompactRow({
         />
       </div>
     </article>
-  );
-}
-
-function MobileLabel({ label }: { label: string }) {
-  return (
-    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600 md:hidden">
-      {label}
-    </p>
   );
 }
 

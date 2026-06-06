@@ -6,22 +6,21 @@ import { AdminBookingNotesSection } from "@/components/admin/admin-booking-notes
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
+  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
+  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
+  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_PANEL_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
-
-const BOOKING_DETAILS_SHEET_WIDTH_CLASS =
-  "w-full sm:w-1/4 sm:max-w-[25vw] sm:min-w-[18rem]";
-
-const BOOKING_DETAILS_SHEET_HEIGHT_CLASS = "h-[90dvh]";
-
-const BOOKING_DETAILS_SHEET_PANEL_CLASS = [
-  "relative z-10 flex flex-col overflow-hidden",
-  BOOKING_DETAILS_SHEET_WIDTH_CLASS,
-  BOOKING_DETAILS_SHEET_HEIGHT_CLASS,
-  "rounded-tl-[28px] border border-white/70 border-b-0 border-r-0",
-  "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
-].join(" ");
 
 type ListRow = {
   id: string;
@@ -157,15 +156,15 @@ export function AdminBookingDetailsSheet({
       backdropAriaLabel={t("bookingDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
       overlayClassName="ommm-drawer-overlay z-[105] items-end"
-      panelClassName={BOOKING_DETAILS_SHEET_PANEL_CLASS}
+      panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
     >
-      <header className="shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5">
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
+            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
               {row.session.classType.name}
             </h2>
-            <p className="text-sm text-sage-600">{t("bookingDetailsLead")}</p>
+            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>{t("bookingDetailsLead")}</p>
             <button
               type="button"
               className="truncate text-left text-sm font-medium text-sage-800 underline-offset-2 hover:underline"
@@ -177,7 +176,7 @@ export function AdminBookingDetailsSheet({
           <div className="flex shrink-0 flex-col items-end gap-2">
             <button
               type="button"
-              className="rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
               aria-label={t("bookingDetailsClose")}
               onClick={onClose}
             >
@@ -193,12 +192,12 @@ export function AdminBookingDetailsSheet({
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
         {loading ? (
           <p className="text-sm text-sage-500">{t("bookingDetailsLoading")}</p>
         ) : (
           <>
-            <dl className="space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4">
+            <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
               <DetailRow label={t("bookingDetailsClient")} value={row.user.name ?? row.user.email} />
               <DetailRow label={t("bookingDetailsEmail")} value={row.user.email} />
               <DetailRow label={t("bookingDetailsPhone")} value={row.user.phone ?? "—"} />
@@ -251,7 +250,7 @@ export function AdminBookingDetailsSheet({
       </div>
 
       {row.recordType === "BOOKING" ? (
-        <footer className="shrink-0 border-t border-white/60 px-5 py-4 sm:px-6">
+        <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
           <AdminBookingRowActions
             variant="sheet"
             recordType={row.recordType}
@@ -271,8 +270,8 @@ export function AdminBookingDetailsSheet({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">{label}</dt>
-      <dd className="text-sm font-medium text-sage-800">{value}</dd>
+      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
+      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
     </div>
   );
 }

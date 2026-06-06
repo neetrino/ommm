@@ -10,7 +10,13 @@ import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
 
 import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
 
-import { AdminFinanceUserActions } from "@/components/admin/admin-finance-user-actions";
+import { AdminFinanceUserCompactRow } from "@/components/admin/admin-finance-user-compact-row";
+import {
+  ADMIN_FINANCE_USER_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER,
+  ADMIN_FINANCE_USER_LIST_HEADER_CLASS,
+  ADMIN_FINANCE_USER_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-finance-notifications-list-layout";
 
 import { adminChrome } from "@/components/admin/admin-chrome";
 
@@ -57,74 +63,26 @@ type Props = {
 
 
 const defaultFilters: UserFinanceFilters = {
-
   search: "",
-
   paymentStatus: "",
-
   giftCardOnly: false,
-
   order: "newest",
-
   quick: "",
-
 };
 
-
-
-function displayName(row: ClientRow): string {
-
-  const merged = [row.name, row.lastName].filter(Boolean).join(" ").trim();
-
-  return merged.length > 0 ? merged : row.email;
-
-}
-
-
-
-function paymentBadgeClass(status: string): string {
-
-  if (status === "paid") return "bg-mint-100 text-mint-900";
-
-  if (status === "overdue") return "bg-rose-100 text-rose-900";
-
-  if (status === "partial") return "bg-sky-100 text-sky-900";
-
-  if (status === "unpaid") return "bg-amber-100 text-amber-900";
-
-  return "bg-sage-100 text-sage-700";
-
-}
-
-
-
 function sortRows(rows: ClientRow[], order: string): ClientRow[] {
-
   const copy = [...rows];
-
   if (order === "oldest") {
-
     return copy.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-
   }
-
   if (order === "highest-lifetime-value") {
-
     return copy.sort((a, b) => b.lifetimeValueCents - a.lifetimeValueCents);
-
   }
-
   if (order === "lowest-lifetime-value") {
-
     return copy.sort((a, b) => a.lifetimeValueCents - b.lifetimeValueCents);
-
   }
-
   return copy.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
 }
-
-
 
 function applyLocalFilters(rows: ClientRow[], filters: UserFinanceFilters): ClientRow[] {
 
@@ -388,106 +346,32 @@ export function AdminUserFinanceTab({
 
       <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>
 
-      <div className={adminChrome.tableWrap}>
-
-        <table className="w-full min-w-[48rem] border-collapse text-left text-sm">
-
-          <thead className={adminChrome.thead}>
-
-            <tr>
-
-              <th className={adminChrome.th}>{t("colUser")}</th>
-
-              <th className={adminChrome.th}>{t("colPaymentStatus")}</th>
-
-              <th className={adminChrome.th}>{t("colGiftCard")}</th>
-
-              <th className={adminChrome.th}>{t("colActions")}</th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {filteredRows.length === 0 ? (
-
-              <tr>
-
-                <td colSpan={4} className="px-4 py-8 text-center text-sage-600">
-
-                  {t("empty")}
-
-                </td>
-
-              </tr>
-
-            ) : (
-
-              filteredRows.map((row) => (
-
-                <tr key={row.id} className={adminChrome.tr}>
-
-                  <td className={adminChrome.tdStrong}>
-
-                    <p>{displayName(row)}</p>
-
-                    <p className="text-xs font-normal text-sage-500">{row.phone ?? "—"}</p>
-
-                  </td>
-
-                  <td className={adminChrome.td}>
-
-                    <span
-
-                      className={`rounded-full px-2 py-1 text-[11px] font-medium ${paymentBadgeClass(row.paymentBehavior)}`}
-
-                    >
-
-                      {row.paymentBehavior}
-
-                    </span>
-
-                  </td>
-
-                  <td className={adminChrome.td}>
-
-                    {row.hasGiftCardActivity ? t("giftCardYes") : t("giftCardNo")}
-
-                  </td>
-
-                  <td className={adminChrome.td}>
-
-                    <AdminFinanceUserActions
-
-                      row={row}
-
-                      onEdit={() => setSelected(row)}
-
-                      onChanged={() => {
-
-                        void apiFetch<AdminClientsPayload>("/clients?meta=true").then((payload) => {
-
-                          setRows(payload.rows);
-
-                        });
-
-                      }}
-
-                    />
-
-                  </td>
-
-                </tr>
-
-              ))
-
-            )}
-
-          </tbody>
-
-        </table>
-
+      <div className={ADMIN_FINANCE_USER_LIST_TABLE_CLASS}>
+        <div className={ADMIN_FINANCE_USER_LIST_HEADER_CLASS}>
+          <span>{t("colUser")}</span>
+          <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
+          <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colGiftCard")}</span>
+          <span aria-hidden="true" />
+          <span className={ADMIN_FINANCE_USER_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        </div>
+        {filteredRows.length === 0 ? (
+          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+            {t("empty")}
+          </p>
+        ) : (
+          filteredRows.map((row) => (
+            <AdminFinanceUserCompactRow
+              key={row.id}
+              row={row}
+              onEdit={() => setSelected(row)}
+              onChanged={() => {
+                void apiFetch<AdminClientsPayload>("/clients?meta=true").then((payload) => {
+                  setRows(payload.rows);
+                });
+              }}
+            />
+          ))
+        )}
       </div>
 
       <section className="space-y-2">
