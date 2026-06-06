@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { AdminFinanceCoachesPanel } from "@/components/admin/admin-finance-coaches-panel";
 import type { CoachFinancePayload } from "@/components/admin/admin-finance-types";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
   FINANCE_COACH_PAGE_KEYS,
   buildFinanceCoachSalaryQuery,
@@ -46,12 +45,10 @@ export default async function AdminFinanceCoachesPage({
   }
 
   return (
-    <AdminSectionShell>
-      <AdminFinanceCoachesPanel
-        locale={locale}
-        initial={coachFinanceRes.data}
-        filters={coachFilters}
-      />
-    </AdminSectionShell>
+    <AdminFinanceCoachesPanel
+      locale={locale}
+      initial={coachFinanceRes.data}
+      filters={coachFilters}
+    />
   );
 }

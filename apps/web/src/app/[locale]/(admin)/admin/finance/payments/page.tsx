@@ -4,7 +4,6 @@ import { AdminFinancePaymentsPanel } from "@/components/admin/admin-finance-paym
 import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import type { FinancePaymentsPayload } from "@/components/admin/admin-finance-types";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
   FINANCE_PAYMENTS_PAGE_KEYS,
   parseFinancePaymentsFiltersFromSearch,
@@ -55,15 +54,13 @@ export default async function AdminFinancePaymentsPage({
   }
 
   return (
-    <AdminSectionShell>
-      <AdminFinancePaymentsPanel
-        locale={locale}
-        initialPayments={paymentsRes.data}
-        paymentsFrom={from}
-        paymentsStatus={financeFilters.status}
-        paymentsSource={financeFilters.source}
-        searchQuery={financeFilters.q}
-      />
-    </AdminSectionShell>
+    <AdminFinancePaymentsPanel
+      locale={locale}
+      initialPayments={paymentsRes.data}
+      paymentsFrom={from}
+      paymentsStatus={financeFilters.status}
+      paymentsSource={financeFilters.source}
+      searchQuery={financeFilters.q}
+    />
   );
 }

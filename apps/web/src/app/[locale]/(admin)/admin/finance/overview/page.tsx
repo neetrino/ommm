@@ -6,7 +6,6 @@ import {
   redirectIfUnscopedFinanceSearchParams,
   type FinanceSummaryPayload,
 } from "@/components/admin/admin-finance-server-helpers";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { parseFinanceOverviewFiltersFromSearch } from "@/components/admin/admin-finance-url";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -61,14 +60,12 @@ export default async function AdminFinanceOverviewPage({
   }
 
   return (
-    <AdminSectionShell>
-      <AdminFinanceOverviewSections
-        locale={locale}
-        rangeDays={rangeDays}
-        totalRevenueCents={dashboardRes.data.revenueCentsTotal ?? 0}
-        monthRevenueCents={monthFinanceRes.data.totals.revenueCents}
-        financeSummary={financeRes.data}
-      />
-    </AdminSectionShell>
+    <AdminFinanceOverviewSections
+      locale={locale}
+      rangeDays={rangeDays}
+      totalRevenueCents={dashboardRes.data.revenueCentsTotal ?? 0}
+      monthRevenueCents={monthFinanceRes.data.totals.revenueCents}
+      financeSummary={financeRes.data}
+    />
   );
 }

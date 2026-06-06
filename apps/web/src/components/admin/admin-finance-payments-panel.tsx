@@ -173,7 +173,7 @@ function FinancePaymentsTable({
   }
 
   return (
-    <div className={adminChrome.tableWrap}>
+    <div className="overflow-x-auto">
       <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
         <thead className={adminChrome.thead}>
           <tr>

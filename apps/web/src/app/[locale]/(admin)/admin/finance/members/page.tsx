@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminFinanceMembersPanel } from "@/components/admin/admin-finance-members-panel";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
   FINANCE_USER_PAGE_KEYS,
   buildFinanceMembersClientsQuery,
@@ -46,12 +45,10 @@ export default async function AdminFinanceMembersPage({
   }
 
   return (
-    <AdminSectionShell>
-      <AdminFinanceMembersPanel
-        locale={locale}
-        initialClients={clientsRes.data}
-        filters={memberFilters}
-      />
-    </AdminSectionShell>
+    <AdminFinanceMembersPanel
+      locale={locale}
+      initialClients={clientsRes.data}
+      filters={memberFilters}
+    />
   );
 }
