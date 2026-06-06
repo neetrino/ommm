@@ -40,15 +40,9 @@ function AdminCoachesListView({
     <div className={ADMIN_COACHES_LIST_TABLE_CLASS}>
       <div className={ADMIN_COACHES_LIST_HEADER_CLASS}>
         <span>{t("colCoaches")}</span>
-        <span className={`${ADMIN_COACHES_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colSpecialization")}
-        </span>
-        <span className={`${ADMIN_COACHES_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colWorkload")}
-        </span>
-        <span className={`${ADMIN_COACHES_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colStatus")}
-        </span>
+        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colSpecialization")}</span>
+        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
+        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colWorkload")}</span>
         <span aria-hidden="true" />
         <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
       </div>

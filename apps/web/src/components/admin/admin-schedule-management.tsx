@@ -4,7 +4,15 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
+import { AdminCalendarViewSwitcher } from "@/components/admin/admin-calendar-view-switcher";
+import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import {
+  adminScheduleIntegratedFilterValues,
+  buildAdminScheduleFilterFields,
+  parseAdminScheduleListFilter,
+  serializeAdminScheduleListFilter,
+} from "@/components/admin/admin-schedule-filter-fields";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmFormDropdown } from "@/components/ui/omm-select-dropdown";
@@ -72,7 +80,6 @@ type Props = {
   packages: AdminPackageRow[];
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
-  description?: string;
 };
 
 type Filters = {
@@ -329,23 +336,6 @@ function countActiveFilters(values: Filters, quickFilters: readonly ScheduleQuic
   ].filter(Boolean).length;
 }
 
-function QuickFilterGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z" />
-    </svg>
-  );
-}
-
 function initialForm(
   classTypeOptions: readonly SessionClassTypeOption[],
   coaches: readonly AdminScheduleCoach[],
@@ -576,9 +566,10 @@ export function AdminScheduleManagement({
   packages,
   coaches,
   initialView,
-  description,
 }: Props) {
   const t = useTranslations("adminPages.classes");
+  const tPage = useTranslations("adminPages.schedule");
+  const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -736,6 +727,186 @@ export function AdminScheduleManagement({
     setQuickFilters([]);
   }
 
+  const activeFilterCount = useMemo(
+    () => countActiveFilters(filters, quickFilters),
+    [filters, quickFilters],
+  );
+
+  const quickOptions = useMemo(
+    () =>
+      SCHEDULE_QUICK_FILTER_VALUES.map((value) => ({
+        value,
+        label: t(`quick.${value}`),
+      })),
+    [t],
+  );
+
+  const scheduleMultiSelectFormat = useCallback(
+    (count: number) => t("filters.selectedCount", { count }),
+    [t],
+  );
+
+  const filterFields = useMemo(
+    () =>
+      buildAdminScheduleFilterFields({
+        labels: {
+          fromDate: t("filters.fromDateLabel"),
+          toDate: t("filters.toDateLabel"),
+          coach: t("filters.coachLabel"),
+          type: t("filters.typeLabel"),
+          level: t("filters.levelLabel"),
+          status: t("filters.statusLabel"),
+          availability: t("filters.availabilityLabel"),
+          timeOfDay: t("filters.timeOfDayLabel"),
+          quick: t("filters.quickFilterLabel"),
+        },
+        renderCoachIds: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.coachLabel")}
+            allLabel={t("filters.allCoaches")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(values) => onChange(serializeAdminScheduleListFilter(values))}
+            options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
+          />
+        ),
+        renderTypeIds: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.typeLabel")}
+            allLabel={t("filters.allTypes")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
+            options={packageOptions.map((option) => ({
+              value: option.id,
+              label: option.label,
+            }))}
+          />
+        ),
+        renderLevels: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.levelLabel")}
+            allLabel={t("filters.allLevels")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
+            options={levels.map((level) => ({ value: level, label: level }))}
+          />
+        ),
+        renderStatuses: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.statusLabel")}
+            allLabel={t("filters.allStatuses")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
+            options={STATUS_OPTIONS.map((status) => ({
+              value: status,
+              label: t(`status.${status}`),
+            }))}
+          />
+        ),
+        renderAvailability: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.availabilityLabel")}
+            allLabel={t("filters.allAvailability")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
+            options={[
+              { value: "available", label: t("filters.availableOnly") },
+              { value: "full", label: t("filters.fullOnly") },
+            ]}
+          />
+        ),
+        renderTimeOfDay: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.timeOfDayLabel")}
+            allLabel={t("filters.allTimes")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
+            options={[
+              { value: "morning", label: t("filters.morning") },
+              { value: "afternoon", label: t("filters.afternoon") },
+              { value: "evening", label: t("filters.evening") },
+            ]}
+          />
+        ),
+        renderQuick: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            formatSelectedCount={scheduleMultiSelectFormat}
+            ariaLabel={t("filters.quickFilterLabel")}
+            allLabel={t("filters.allQuickFilters")}
+            selectedValues={parseAdminScheduleListFilter(value)}
+            onChange={(next) => onChange(serializeAdminScheduleListFilter(next))}
+            options={quickOptions}
+          />
+        ),
+      }),
+    [coaches, levels, packageOptions, quickOptions, scheduleMultiSelectFormat, t],
+  );
+
+  const integratedFilterValues = useMemo(
+    () =>
+      adminScheduleIntegratedFilterValues(
+        {
+          from: filters.from,
+          to: filters.to,
+          coachIds: filters.coachIds,
+          typeIds: filters.typeIds,
+          levels: filters.levels,
+          statuses: filters.statuses,
+          availability: filters.availability,
+          timeOfDay: filters.timeOfDay,
+        },
+        quickFilters,
+      ),
+    [filters, quickFilters],
+  );
+
+  function handleIntegratedFilterChange(key: string, value: string) {
+    switch (key) {
+      case "from":
+        updateFilter("from", value);
+        break;
+      case "to":
+        updateFilter("to", value);
+        break;
+      case "coachIds":
+        updateFilter("coachIds", parseAdminScheduleListFilter(value));
+        break;
+      case "typeIds":
+        updateFilter("typeIds", parseAdminScheduleListFilter(value));
+        break;
+      case "levels":
+        updateFilter("levels", parseAdminScheduleListFilter(value));
+        break;
+      case "statuses":
+        updateFilter("statuses", parseAdminScheduleListFilter(value) as SessionStatus[]);
+        break;
+      case "availability":
+        updateFilter("availability", parseAdminScheduleListFilter(value) as AvailabilityOption[]);
+        break;
+      case "timeOfDay":
+        updateFilter("timeOfDay", parseAdminScheduleListFilter(value) as TimeOfDayOption[]);
+        break;
+      case "quick":
+        setQuickFilters(parseAdminScheduleListFilter(value) as ScheduleQuickFilter[]);
+        break;
+      default:
+        break;
+    }
+  }
+
   function updateView(nextView: ScheduleView): void {
     setView(nextView);
     const params = new URLSearchParams(searchParams.toString());
@@ -763,27 +934,56 @@ export function AdminScheduleManagement({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-4">
-        <SchedulePageActions onCreate={openAddClassModal} />
-        {description ? (
-          <p className="ommm-body-muted max-w-3xl text-sm">{description}</p>
-        ) : null}
-      </div>
-      <SummaryGrid summary={summary} />
-      <FiltersPanel
-        values={filters}
-        quickFilters={quickFilters}
-        searchDraft={searchDraft}
-        selectedPackageIds={validSelectedPackageIds}
-        packageOptions={packageOptions}
-        coaches={coaches}
-        levels={levels}
-        onSearch={setSearchDraft}
-        onChange={updateFilter}
-        onQuickFiltersChange={setQuickFilters}
-        onReset={resetFilters}
+      <AdminPageHero
+        title={tPage("title")}
+        search={
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <AdminIntegratedSearchFilters
+              className="min-w-0 flex-1"
+              search={searchDraft}
+              onSearchChange={setSearchDraft}
+              searchPlaceholder={t("filters.searchPlaceholder")}
+              fields={filterFields}
+              filterValues={integratedFilterValues}
+              onFilterChange={handleIntegratedFilterChange}
+              onClearAll={resetFilters}
+              applyLabel={tSearchTools("applyFilters")}
+              resetLabel={t("filters.reset")}
+              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+            />
+            <AdminCalendarViewSwitcher
+              value={view}
+              onChange={updateView}
+              labels={{
+                groupAria: t("views.aria"),
+                list: t("views.list"),
+                monthly: t("views.monthly"),
+                weekly: t("views.weekly"),
+                daily: t("views.daily"),
+              }}
+            />
+          </div>
+        }
+        trailing={
+          <>
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={openAddClassModal}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+            >
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              {t("addClassButton")}
+            </OmmButton>
+            <p className="whitespace-nowrap text-xs text-sage-600" role="status">
+              {t("filters.activeCount", { count: activeFilterCount })}
+            </p>
+          </>
+        }
       />
-      <ViewToolbar view={view} onView={updateView} />
+      <SummaryGrid summary={summary} />
       {toast ? (
         <div
           role="status"
@@ -917,209 +1117,6 @@ function SummaryGrid({ summary }: { summary: Record<"total" | "active" | "upcomi
   );
 }
 
-function ScheduleFilterField({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1 text-xs text-sage-700">
-      <span>{label}</span>
-      {children}
-    </div>
-  );
-}
-
-function FiltersPanel(props: {
-  values: Filters;
-  quickFilters: ScheduleQuickFilter[];
-  searchDraft: string;
-  selectedPackageIds: readonly string[];
-  packageOptions: readonly SchedulePackageOption[];
-  coaches: readonly AdminScheduleCoach[];
-  levels: readonly string[];
-  onSearch: (value: string) => void;
-  onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
-  onQuickFiltersChange: (value: ScheduleQuickFilter[]) => void;
-  onReset: () => void;
-}) {
-  const t = useTranslations("adminPages.classes");
-  const activeCount = countActiveFilters(props.values, props.quickFilters);
-  const scheduleMultiSelectProps = {
-    wrapLabel: true,
-    formatSelectedCount: (count: number) => t("filters.selectedCount", { count }),
-  };
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="flex flex-col gap-3">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <ScheduleFilterField label={t("filters.searchLabel")}>
-            <input
-              className="ommm-input h-10"
-              value={props.searchDraft}
-              placeholder={t("filters.searchPlaceholder")}
-              onChange={(event) => props.onSearch(event.target.value)}
-              aria-label={t("filters.searchLabel")}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.fromDateLabel")}>
-            <DatePickerInput
-              name="from"
-              value={props.values.from}
-              onChange={(value) => props.onChange("from", value)}
-              placeholder={t("filters.fromDateLabel")}
-              ariaLabel={t("filters.fromDateLabel")}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.toDateLabel")}>
-            <DatePickerInput
-              name="to"
-              value={props.values.to}
-              onChange={(value) => props.onChange("to", value)}
-              placeholder={t("filters.toDateLabel")}
-              ariaLabel={t("filters.toDateLabel")}
-            />
-          </ScheduleFilterField>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
-          <ScheduleFilterField label={t("filters.coachLabel")}>
-            <OmmFilterMultiSelect
-              {...scheduleMultiSelectProps}
-              ariaLabel={t("filters.coachLabel")}
-              allLabel={t("filters.allCoaches")}
-              selectedValues={props.values.coachIds}
-              onChange={(value) => props.onChange("coachIds", value)}
-              options={props.coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.typeLabel")}>
-            <OmmFilterMultiSelect
-              {...scheduleMultiSelectProps}
-              ariaLabel={t("filters.typeLabel")}
-              allLabel={t("filters.allTypes")}
-              selectedValues={props.selectedPackageIds}
-              onChange={(value) => props.onChange("typeIds", value)}
-              options={props.packageOptions.map((option) => ({
-                value: option.id,
-                label: option.label,
-              }))}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.levelLabel")}>
-            <OmmFilterMultiSelect
-              {...scheduleMultiSelectProps}
-              ariaLabel={t("filters.levelLabel")}
-              allLabel={t("filters.allLevels")}
-              selectedValues={props.values.levels}
-              onChange={(value) => props.onChange("levels", value)}
-              options={props.levels.map((level) => ({ value: level, label: level }))}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.statusLabel")}>
-            <OmmFilterMultiSelect
-              {...scheduleMultiSelectProps}
-              ariaLabel={t("filters.statusLabel")}
-              allLabel={t("filters.allStatuses")}
-              selectedValues={props.values.statuses}
-              onChange={(value) => props.onChange("statuses", value as SessionStatus[])}
-              options={STATUS_OPTIONS.map((status) => ({ value: status, label: t(`status.${status}`) }))}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.availabilityLabel")}>
-            <OmmFilterMultiSelect
-              {...scheduleMultiSelectProps}
-              ariaLabel={t("filters.availabilityLabel")}
-              allLabel={t("filters.allAvailability")}
-              selectedValues={props.values.availability}
-              onChange={(value) => props.onChange("availability", value as AvailabilityOption[])}
-              options={[
-                { value: "available", label: t("filters.availableOnly") },
-                { value: "full", label: t("filters.fullOnly") },
-              ]}
-            />
-          </ScheduleFilterField>
-          <ScheduleFilterField label={t("filters.timeOfDayLabel")}>
-            <OmmFilterMultiSelect
-              {...scheduleMultiSelectProps}
-              ariaLabel={t("filters.timeOfDayLabel")}
-              allLabel={t("filters.allTimes")}
-              selectedValues={props.values.timeOfDay}
-              onChange={(value) => props.onChange("timeOfDay", value as TimeOfDayOption[])}
-              options={[
-                { value: "morning", label: t("filters.morning") },
-                { value: "afternoon", label: t("filters.afternoon") },
-                { value: "evening", label: t("filters.evening") },
-              ]}
-            />
-          </ScheduleFilterField>
-        </div>
-      </div>
-      <QuickFilters
-        selected={props.quickFilters}
-        onChange={props.onQuickFiltersChange}
-        onReset={props.onReset}
-        activeCount={activeCount}
-      />
-    </div>
-  );
-}
-
-function QuickFilters({
-  selected,
-  onChange,
-  onReset,
-  activeCount,
-}: {
-  selected: ScheduleQuickFilter[];
-  onChange: (value: ScheduleQuickFilter[]) => void;
-  onReset: () => void;
-  activeCount: number;
-}) {
-  const t = useTranslations("adminPages.classes");
-  const quickOptions = useMemo(
-    () =>
-      SCHEDULE_QUICK_FILTER_VALUES.map((value) => ({
-        value,
-        label: t(`quick.${value}`),
-      })),
-    [t],
-  );
-
-  return (
-    <div className="mt-3 border-t border-sage-700/10 pt-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <div className="flex w-full min-w-[14rem] max-w-sm shrink-0 flex-col gap-1">
-          <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.08em] text-[#92907e]">
-            <QuickFilterGlyph className="h-3.5 w-3.5 shrink-0 text-[#92907e]" />
-            {t("filters.quickFilterLabel")}
-          </span>
-          <OmmFilterMultiSelect
-            variant="accent"
-            wrapLabel
-            ariaLabel={t("filters.quickFilterLabel")}
-            allLabel={t("filters.allQuickFilters")}
-            selectedValues={selected}
-            onChange={(value) => onChange(value as ScheduleQuickFilter[])}
-            formatSelectedCount={(count) => t("filters.selectedCount", { count })}
-            options={quickOptions}
-          />
-        </div>
-        <AdminFilterResetBar
-          onReset={onReset}
-          label={t("filters.reset")}
-          meta={
-            <p className="whitespace-nowrap text-xs text-sage-600">
-              {t("filters.activeCount", { count: activeCount })}
-            </p>
-          }
-        />
-      </div>
-    </div>
-  );
-}
-
 function startOfWeek(value: Date): Date {
   return addDays(value, -((value.getDay() + 6) % 7));
 }
@@ -1134,82 +1131,6 @@ function groupRowsByDay(rows: readonly AdminScheduleSession[]): Map<string, Admi
     map.set(key, value.sort((a, b) => a.startsAt.localeCompare(b.startsAt)));
   }
   return map;
-}
-
-function CalendarGlyph({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <rect x="3" y="5" width="18" height="16" rx="3" />
-      <path d="M8 3v4M16 3v4M3 10h18" />
-    </svg>
-  );
-}
-
-function ListGlyph({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" className={className} aria-hidden>
-      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-    </svg>
-  );
-}
-
-const SCHEDULE_TOOLBAR_BTN_BASE =
-  "inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30";
-
-const SCHEDULE_TOOLBAR_BTN_IDLE =
-  "border-white/70 bg-white/70 text-sage-700 hover:-translate-y-0.5 hover:bg-white hover:text-sage-900";
-
-const SCHEDULE_TOOLBAR_BTN_ACTIVE =
-  "border-sage-700/15 bg-sage-800 text-white shadow-[0_14px_30px_-20px_rgba(45,40,35,0.55)]";
-
-function SchedulePageActions({ onCreate }: { onCreate: () => void }) {
-  const t = useTranslations("adminPages.classes");
-  return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <OmmButton
-        type="button"
-        variant="secondary"
-        size="md"
-        onClick={onCreate}
-        className="inline-flex h-11 min-w-[11rem] items-center justify-center gap-2 rounded-full"
-      >
-        <PlusIcon className="h-5 w-5 shrink-0" />
-        {t("addClassButton")}
-      </OmmButton>
-    </div>
-  );
-}
-
-function ViewToolbar({
-  view,
-  onView,
-}: {
-  view: ScheduleView;
-  onView: (view: ScheduleView) => void;
-}) {
-  const t = useTranslations("adminPages.classes");
-  const options: readonly ScheduleView[] = ["list", "monthly", "weekly", "daily"];
-  return (
-    <div className="rounded-[28px] border border-white/70 bg-white/55 p-3 shadow-[0_18px_44px_-28px_rgba(45,40,35,0.32)] backdrop-blur-md">
-      <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap" role="tablist" aria-label={t("views.aria")}>
-        {options.map((next) => (
-          <button
-            key={next}
-            type="button"
-            role="tab"
-            aria-selected={view === next}
-            onClick={() => onView(next)}
-            className={`group ${SCHEDULE_TOOLBAR_BTN_BASE} ${
-              view === next ? SCHEDULE_TOOLBAR_BTN_ACTIVE : SCHEDULE_TOOLBAR_BTN_IDLE
-            }`}
-          >
-            {next === "list" ? <ListGlyph className="h-4 w-4 shrink-0" /> : <CalendarGlyph className="h-4 w-4 shrink-0" />}
-            {t(`views.${next}`)}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function ScheduleViews(props: {

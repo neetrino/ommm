@@ -86,7 +86,6 @@ export default async function AdminSchedulePage({
           packages={packagesRes.data}
           coaches={coachesRes.data}
           initialView={initialView}
-          description={t("description")}
         />
       </Suspense>
     </AdminContentFrame>
