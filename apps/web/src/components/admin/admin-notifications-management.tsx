@@ -1,13 +1,18 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminNotificationBroadcastForm } from "@/components/admin/admin-notification-broadcast-form";
 import { AdminNotificationsDeliveriesSection } from "@/components/admin/admin-notifications-deliveries-section";
 import { AdminNotificationsScheduledSection } from "@/components/admin/admin-notifications-scheduled-section";
+import {
+  buildAdminNotificationsDeliveriesEndpoint,
+  buildAdminNotificationsScheduledEndpoint,
+} from "@/components/admin/admin-notifications-query";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
 import { apiFetch } from "@/lib/api";
+import { useRouter } from "@/i18n/navigation";
 
 type Props = {
   locale: string;
@@ -16,6 +21,7 @@ type Props = {
 
 export function AdminNotificationsManagement({ locale, initial }: Props) {
   const t = useTranslations("adminPages.notifications");
+  const router = useRouter();
   const [stats, setStats] = useState(initial.stats);
   const [scheduled, setScheduled] = useState(initial.scheduled);
   const [deliveries, setDeliveries] = useState(initial.deliveries);
@@ -23,17 +29,31 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
   const [loadErrors, setLoadErrors] = useState(initial.loadErrors);
   const [refreshing, setRefreshing] = useState(false);
 
+  useEffect(() => {
+    setStats(initial.stats);
+    setScheduled(initial.scheduled);
+    setDeliveries(initial.deliveries);
+    setAnalytics(initial.analytics);
+    setLoadErrors(initial.loadErrors);
+  }, [initial]);
+
   const refreshData = useCallback(async () => {
     setRefreshing(true);
     try {
       const [statsRes, scheduledRes, deliveriesRes, analyticsRes] = await Promise.all([
         apiFetch<AdminNotificationsPayload["stats"]>("/notifications/admin/stats").catch(() => null),
-        apiFetch<AdminNotificationsPayload["scheduled"]>("/notifications/admin/scheduled").catch(
-          () => null,
-        ),
-        apiFetch<AdminNotificationsPayload["deliveries"]>("/notifications/admin/deliveries").catch(
-          () => null,
-        ),
+        apiFetch<AdminNotificationsPayload["scheduled"]>(
+          buildAdminNotificationsScheduledEndpoint(
+            scheduled.take,
+            scheduled.offset,
+          ),
+        ).catch(() => null),
+        apiFetch<AdminNotificationsPayload["deliveries"]>(
+          buildAdminNotificationsDeliveriesEndpoint(
+            deliveries.take,
+            deliveries.offset,
+          ),
+        ).catch(() => null),
         apiFetch<{
           summary: AdminNotificationsPayload["analytics"]["summary"];
           funnel: {
@@ -71,11 +91,16 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [deliveries.offset, deliveries.take, scheduled.offset, scheduled.take]);
+
+  const refreshAll = useCallback(() => {
+    router.refresh();
+    void refreshData();
+  }, [refreshData, router]);
 
   const handleBroadcastSuccess = useCallback(() => {
-    void refreshData();
-  }, [refreshData]);
+    refreshAll();
+  }, [refreshAll]);
 
   return (
     <div className="space-y-8">
@@ -119,11 +144,9 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
 
       <AdminNotificationsScheduledSection
         locale={locale}
-        items={scheduled}
+        payload={scheduled}
         loadFailed={loadErrors.scheduled}
-        onRefresh={() => {
-          void refreshData();
-        }}
+        onRefresh={refreshAll}
       />
 
       <section className={adminChrome.panel}>
@@ -163,7 +186,7 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
 
       <AdminNotificationsDeliveriesSection
         locale={locale}
-        items={deliveries}
+        payload={deliveries}
         loadFailed={loadErrors.deliveries}
       />
 

@@ -3,150 +3,111 @@
 Postrannaya paginaciya dlya spiskov v admin i user account.  
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
-**Tekushchee sostoyanie:** UI-komponenta paginacii net. Backend chastichno gotov (`/clients`, `/payments/admin`, `/packages/admin/all`, waitlist `take`).
+**Sostoyanie (2026-06):** Fazy 0–3 i bolshinstvo Fazy 2 zaversheny. Obshchaya infrastruktura i pager na stranicakh nizhe.  
+**Ostalos:** Faza 4 (sheet tabs + Clients DB pagination), Faza 5 (manager, nizkiy prioritet).
 
-**Konstanty (predlozhenie):** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100`.  
-**URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.
+**Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
+**URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.  
+**Ogranichenie:** client-side filtry na nekotoryh stranicah (gift cards, notifications, schedule list, coach finance, payments source) primenyayutsya k **tekushchey stranice**, ne ko vsemu naboru.
 
 ---
 
-## Faza 0 — Obshchaya infrastruktura
+## Faza 0 — Obshchaya infrastruktura ✅
 
-- [x] `OmmListPagination` — footer pod spiskom: «Pokazano X–Y iz Z», Prev/Next, nomera stranic
-- [x] Opcionalno: vybor razmera stranicy (25 / 50 / 100)
-- [x] Helpers: `parseListPageParams`, `buildListPageQuery`, konvertaciya page ↔ offset
+- [x] `OmmListPagination` + `parseListPageParams` / `syncListPageQuery` / `resetListPageQuery`
 - [x] i18n: `adminPages.pagination.*`, `userPages.pagination.*`
-- [x] Layout token dlya pagera pod admin/user tablicami
 
 ---
 
-## Faza 1 — Quick wins (API uzhe podderzhivaet take/offset)
+## Faza 1 — Admin quick wins ✅
 
 ### Admin Clients — P0
-- [x] Stranica: `/admin/clients`
-- [x] Peredavat `take` / `offset` iz URL v `buildAdminClientsApiSearchParams`
-- [x] `AdminClientsManagement`: render `OmmListPagination` po `payload.pagination`
-- [x] Summary cards — po vsem rezultatam (`summary`), ne po tekushchey stranice
-- [ ] ⚠️ Pozzhe (Faza 4): API seychas slice v pamyati posle fetch 500 — nuzhna DB-pagination
+- [x] `/admin/clients` — URL → API `take`/`offset`, pager, summary po polnomu naboru
+- [ ] ⚠️ **Tech debt (Faza 4):** API slice v pamyati posle fetch 500 — nuzhna DB-pagination + `count`
 
-### Admin Finance — payments — P0
-- [x] Stranica: `/admin/finance`
-- [x] Tablica platezhey: `offset` iz URL, pokazat `total` iz `FinancePaymentsPayload`
-- [x] User finance tab: tot zhe pager dlya spiska klientov + payments sub-list
+### Admin Finance — user tab + payments — P0
+- [x] `/admin/finance` — payments: `payPage`/`payPageSize`; clients tab: `userPage`/`userPageSize`
 
 ---
 
-## Faza 2 — Admin tyazhelye spiski (nuzhen backend)
+## Faza 2 — Admin spiski ✅
 
-### Admin Bookings — P0
-- [x] Stranica: `/admin/bookings`
-- [x] API: `GET /bookings/admin/management` — `take`, `offset`, `total` (+ `userId` filter)
-- [x] Frontend: paginaciya v list view; calendar views — fetch po diapazonu dat bez paginacii
+| Stranica | URL keys (primer) | API |
+|----------|-------------------|-----|
+| Bookings (list) | `page`, `pageSize` | `GET /bookings/admin/management?take&offset` |
+| Waitlists | `page`, `pageSize` | `GET /waitlist/admin/active?take&offset` |
+| Gift cards | `page`, `pageSize` | `GET /gift-cards/admin/batches?take&offset` |
+| Notifications scheduled | `scheduledPage`, `scheduledPageSize` | `GET /notifications/admin/scheduled?take&offset` |
+| Notifications deliveries | `deliveriesPage`, `deliveriesPageSize` | `GET /notifications/admin/deliveries?take&offset` |
+| Schedule **list view** | `schedulePage`, `schedulePageSize` | `GET /classes/admin/sessions?take&offset` |
+| Schedule calendar views | — | polnaya vyborka bez pagination (kak ranshe) |
+| Coaches | `page`, `pageSize` | `GET /coaches/admin/list?take&offset` (bez params → legacy massiv dlya finance/schedule/analytics) |
+| Finance coach tab | `coachPage`, `coachPageSize` | `GET /coaches/admin/salary-summaries?take&offset` |
 
-### Admin Waitlists — P1
-- [x] Stranica: `/admin/waitlists`
-- [x] API: `offset` + `total` (seychas tolko `take=250`)
-- [x] Frontend: pager v `AdminWaitlistManagement`
-
-### Admin Gift cards — P1
-- [x] Stranica: `/admin/gift-cards`
-- [x] API: `take` / `offset` dlya batches (seychas do 500 bez offset)
-- [x] Frontend: `AdminGiftCardsManagement`
-
-### Admin Notifications — P1
-- [ ] Stranica: `/admin/notifications`
-- [ ] API: paginaciya dlya scheduled (take 200) i deliveries (take do 2000)
-- [ ] Frontend: sekcii scheduled + deliveries
-
-### Admin Schedule (list view) — P1
-- [ ] Stranica: `/admin/schedule`
-- [ ] List view: server pagination ili lazy load po nedelyam
-- [ ] Calendar view: ostavit diapazon dat, ne postrannuyu paginaciyu
-
-### Admin Coaches — P1
-- [x] Stranica: `/admin/coaches`
-- [x] API: `take` / `offset` dlya `/coaches/admin/list`
-- [x] Frontend: `AdminCoachesDirectory`
-
-### Admin Finance — coach tab — P2
-- [ ] Coach finance tab: paginaciya po spisku trenerov (seychas ves spisok + lokalnyy filtr)
+Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy paginacii.
 
 ---
 
-## Faza 3 — User account
+## Faza 3 — User account ✅
 
-### User Bookings — P0
-- [x] Stranica: `/user/bookings`
-- [x] API: `GET /bookings/me?scope=past&take&offset` (+ `scope=upcoming`; legacy `/bookings/me` bez scope)
-- [x] Frontend: paginaciya dlya **Past** (Upcoming obychno korotkiy); waitlist — po neobhodimosti
+| Stranica | URL keys | API |
+|----------|----------|-----|
+| Bookings (past) | `pastPage`, `pastPageSize` | `GET /bookings/me?scope=past&take&offset` |
+| Payments | `page`, `pageSize` | `GET /payments/me?take&offset` |
+| Gift cards purchased | `purchasedPage`, `purchasedPageSize` | `GET /gift-cards/me/purchased?take&offset` |
+| Gift cards received | `receivedPage`, `receivedPageSize` | `GET /gift-cards/me/received?take&offset` |
 
-### User Payments — P0
-- [x] Stranica: `/user/payments`
-- [x] API: rasshirit `listPayments` — metadata `{ items, total, take, offset }` (+ legacy bez take/offset)
-- [x] Frontend: `UserPaymentsHistory`
-
-### User Gift cards — P1
-- [x] Stranica: `/user/gift-cards`
-- [x] API: `take` / `offset` na `/gift-cards/me/purchased` i `/me/received`
-- [x] Frontend: `UserGiftCardsBoard` (dva spiska ili obshchiy pager)
-
-### Ne trebuet paginacii (user)
-- `/user/profile` — forma
-- `/user/notifications` — tolko prefs
-- `/user/packages` — obychno malo zapisey
-- `/user/progress` — achievements, obychno malo
-- `/user/classes` — okno 14 dney (`ACCOUNT_SESSION_RANGE_DAYS`); paginaciya tolko esli rasshirim diapazon
+**Bez paginacii (dostatochno malo zapisey):** `/user/profile`, `/user/notifications` (prefs), `/user/packages`, `/user/progress`, `/user/classes` (14 dney).
 
 ---
 
-## Faza 4 — Detail sheet vlozhennye spiski + API hardening
+## Faza 4 — Sleduyushchiy etap
+
+### Clients API — P0 (tech debt)
+- [ ] Filtraciya v Prisma; ubrat in-memory slice posle fetch 500
+- [ ] `pagination.total` iz `count`, ne iz `rows.length` posle filter
 
 ### Client sheet tabs — P2
-- [ ] Bookings tab — API: `take: 100` v include; nuzhny `GET /clients/:id/bookings?take&offset`
-- [ ] Payments tab — API: `take: 50`; otdelnyy endpoint s paginaciyey
-- [ ] Gifts tab — API: `take: 20` purchased/received; pager vnutri taba
+- [ ] Bookings tab — `GET /clients/:id/bookings?take&offset` (seychas `take: 100` v include)
+- [ ] Payments tab — otdelnyy endpoint s paginaciyey (seychas `take: 50`)
+- [ ] Gifts tab — pager v tabe (seychas `take: 20`)
 
 ### Coach finance drawer — P2
 - [ ] Sessii za mesyac — pager esli > ~50
-
-### Clients API — P0 (tech debt)
-- [ ] Perenesti filtraciyu v Prisma; ubrat in-memory slice posle fetch 500
-- [ ] `pagination.total` — iz `count`, ne iz `rows.length` posle filter
 
 ---
 
 ## Faza 5 — Po neobhodimosti
 
 - [ ] Manager: `/manager/clients`, `/manager/bookings`, `/manager/coaches`, `/manager/waitlists`
-- [ ] Admin Packages — nizkiy prioritet (katalog obychno mal)
-- [ ] Admin Analytics — ne row-list; ostavit sampled disclaimer (`ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000`)
+- [ ] Admin Packages — nizkiy prioritet
+- [ ] Admin Analytics — ne row-list; disclaimer `ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000`
 
 ---
 
-## Inventar (spravochno)
+## Inventar (aktualno)
 
-| Oblast | Stranica / mesto | API seychas | UI seychas | Prioritet |
-|--------|------------------|-------------|------------|-----------|
-| Admin | `/admin/clients` | take/offset (in-memory) | net | P0 |
-| Admin | `/admin/bookings` | do 1000 rows | lokalnyy filtr | P0 |
-| Admin | `/admin/finance` payments | take/offset/total | take=100, offset=0 | P0 |
-| Admin | `/admin/waitlists` | take=250 | net | P1 |
-| Admin | `/admin/gift-cards` | do 500 | lokalnyy filtr | P1 |
-| Admin | `/admin/notifications` | do 2000 deliveries | lokalnyy filtr | P1 |
-| Admin | `/admin/schedule` list | vse sessii | net | P1 |
-| Admin | `/admin/coaches` | bez limita | net | P1 |
-| Admin | client sheet tabs | take 100/50/20 | net | P2 |
-| User | `/user/bookings` | bez limita | net | P0 |
-| User | `/user/payments` | take=100 | net | P0 |
-| User | `/user/gift-cards` | bez limita | net | P1 |
+| Oblast | Stranica | API | UI pager | Status |
+|--------|----------|-----|----------|--------|
+| Admin | `/admin/clients` | take/offset (in-memory ⚠️) | da | done, DB debt |
+| Admin | `/admin/bookings` list | take/offset/total | da | done |
+| Admin | `/admin/finance` payments | take/offset/total | da | done |
+| Admin | `/admin/finance` coach tab | salary-summaries take/offset | da | done |
+| Admin | `/admin/waitlists` | take/offset/total | da | done |
+| Admin | `/admin/gift-cards` | take/offset/total | da | done |
+| Admin | `/admin/notifications` | scheduled + deliveries paginated | da | done |
+| Admin | `/admin/schedule` list | take/offset/total | da | done |
+| Admin | `/admin/coaches` | take/offset/total | da | done |
+| Admin | client sheet tabs | hard limits | net | Faza 4 |
+| User | `/user/bookings` past | scope + take/offset | da | done |
+| User | `/user/payments` | take/offset/total | da | done |
+| User | `/user/gift-cards` | take/offset (2 sekcii) | da | done |
 
 ---
 
-## Rekomenduemyy poryadok rabot
+## Rekomenduemyy poryadok (dalnee)
 
-1. Faza 0 — `OmmListPagination` + URL helpers
-2. Faza 1 — Admin Clients + Admin Finance payments
-3. Faza 3 — User Bookings + User Payments
-4. Faza 2 — Admin Bookings (backend + frontend)
-5. Faza 2 — Waitlists, Gift cards, Notifications
-6. Faza 4 — Sheet tabs + Clients DB pagination
+1. **Faza 4 P0** — Clients API DB pagination (razblokiruet korrektnyy total pri filtrah)
+2. **Faza 4 P2** — Client sheet tabs (bookings → payments → gifts)
+3. **Faza 4 P2** — Coach finance drawer sessions
+4. **Faza 5** — Manager stranicy (povtorit pattern admin)

@@ -94,11 +94,18 @@ export type CoachFinanceFilters = {
   quick: string;
 };
 
+export type CoachFinancePayload = {
+  items: CoachFinanceRow[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type AdminFinanceManagementProps = {
   locale: string;
   initialTab: FinanceTab;
   initialClients: AdminClientsPayload;
-  initialCoachRows: CoachFinanceRow[];
+  initialCoachFinance: CoachFinancePayload;
   initialPayments: FinancePaymentsPayload;
   paymentsFrom: string;
   paymentsStatus: FinanceStatusFilter;

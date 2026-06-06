@@ -17,6 +17,11 @@ export const FINANCE_PAYMENTS_PAGE_KEYS = {
   pageSizeKey: "payPageSize",
 } as const;
 
+export const FINANCE_COACH_PAGE_KEYS = {
+  pageKey: "coachPage",
+  pageSizeKey: "coachPageSize",
+} as const;
+
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];

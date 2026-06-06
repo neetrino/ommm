@@ -8,8 +8,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
-export class AdminListSessionsQueryDto {
+export class AdminListSessionsQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsDateString()
   from?: string;

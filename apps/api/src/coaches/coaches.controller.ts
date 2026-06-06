@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CoachesService } from './coaches.service';
 import { AdminListCoachesQueryDto } from './dto/admin-list-coaches-query.dto';
+import { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
@@ -56,8 +57,8 @@ export class CoachesController {
   @Get('admin/salary-summaries')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  adminSalarySummaries() {
-    return this.coaches.adminSalarySummaries();
+  adminSalarySummaries(@Query() query: AdminSalarySummariesQueryDto) {
+    return this.coaches.adminSalarySummaries(query);
   }
 
   @Get(':id')

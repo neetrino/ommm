@@ -1,29 +1,62 @@
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { AdminNotificationsManagement } from "@/components/admin/admin-notifications-management";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
+import {
+  buildAdminNotificationsDeliveriesEndpoint,
+  buildAdminNotificationsScheduledEndpoint,
+  parseAdminNotificationsDeliveriesPageParams,
+  parseAdminNotificationsScheduledPageParams,
+  type AdminNotificationsListPayload,
+} from "@/components/admin/admin-notifications-query";
+import type { DeliveryRow, ScheduledBroadcast } from "@/components/admin/admin-notifications-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminNotificationsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.notifications" });
   const cookie = (await headers()).get("cookie") ?? "";
+  const scheduledPage = parseAdminNotificationsScheduledPageParams(search);
+  const deliveriesPage = parseAdminNotificationsDeliveriesPageParams(search);
   const [statsRes, scheduledRes, deliveriesRes, analyticsRes] = await Promise.all([
     serverApiJson<AdminNotificationsPayload["stats"]>("/notifications/admin/stats", cookie),
-    serverApiJson<AdminNotificationsPayload["scheduled"]>("/notifications/admin/scheduled", cookie),
-    serverApiJson<AdminNotificationsPayload["deliveries"]>("/notifications/admin/deliveries", cookie),
+    serverApiJson<AdminNotificationsListPayload<ScheduledBroadcast>>(
+      buildAdminNotificationsScheduledEndpoint(scheduledPage.take, scheduledPage.offset),
+      cookie,
+    ),
+    serverApiJson<AdminNotificationsListPayload<DeliveryRow>>(
+      buildAdminNotificationsDeliveriesEndpoint(deliveriesPage.take, deliveriesPage.offset),
+      cookie,
+    ),
     serverApiJson<{
       summary: AdminNotificationsPayload["analytics"]["summary"];
       funnel: AdminNotificationsPayload["analytics"]["funnel"];
       channelBreakdown: AdminNotificationsPayload["analytics"]["channelBreakdown"];
     }>("/notifications/admin/analytics?days=30", cookie),
   ]);
+
+  const emptyScheduled = {
+    items: [],
+    total: 0,
+    take: scheduledPage.take,
+    offset: scheduledPage.offset,
+  };
+  const emptyDeliveries = {
+    items: [],
+    total: 0,
+    take: deliveriesPage.take,
+    offset: deliveriesPage.offset,
+  };
 
   const initial: AdminNotificationsPayload = {
     stats: statsRes.ok
@@ -38,8 +71,8 @@ export default async function AdminNotificationsPage({
           scheduledCancelled: 0,
           byAudience: { users: 0, coaches: 0, staff: 0, all: 0 },
         },
-    scheduled: scheduledRes.ok ? scheduledRes.data : [],
-    deliveries: deliveriesRes.ok ? deliveriesRes.data : [],
+    scheduled: scheduledRes.ok ? scheduledRes.data : emptyScheduled,
+    deliveries: deliveriesRes.ok ? deliveriesRes.data : emptyDeliveries,
     analytics: analyticsRes.ok
       ? {
           summary: analyticsRes.data.summary,
@@ -74,7 +107,9 @@ export default async function AdminNotificationsPage({
   return (
     <AdminContentFrame description={t("description")}>
       <AdminSectionShell>
-        <AdminNotificationsManagement locale={locale} initial={initial} />
+        <Suspense fallback={null}>
+          <AdminNotificationsManagement locale={locale} initial={initial} />
+        </Suspense>
       </AdminSectionShell>
     </AdminContentFrame>
   );

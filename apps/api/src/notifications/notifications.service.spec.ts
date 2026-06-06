@@ -198,10 +198,11 @@ describe('NotificationsService', () => {
       ]);
 
     const list = await service.listScheduledBroadcasts();
+    const rows = Array.isArray(list) ? list : list.items;
 
-    expect(list).toHaveLength(1);
-    expect(list[0]?.subject).toBe('Updated');
-    expect(list[0]?.status).toBe('PENDING');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.subject).toBe('Updated');
+    expect(rows[0]?.status).toBe('PENDING');
   });
 
   it('cancelScheduledBroadcast logs cancellation for pending schedule', async () => {
@@ -254,9 +255,10 @@ describe('NotificationsService', () => {
     ]);
 
     const rows = await service.getRecentDeliveries();
+    const list = Array.isArray(rows) ? rows : rows.items;
 
-    expect(rows).toHaveLength(1);
-    expect(rows[0]).toEqual(
+    expect(list).toHaveLength(1);
+    expect(list[0]).toEqual(
       expect.objectContaining({
         recipientEmail: 'user@test.com',
         scheduled: true,

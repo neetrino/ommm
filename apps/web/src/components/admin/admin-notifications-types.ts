@@ -54,10 +54,17 @@ export type NotificationAnalytics = {
   channelBreakdown: Array<{ channel: string; deliveries: number }>;
 };
 
+export type AdminNotificationsListPayload<T> = {
+  items: T[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type AdminNotificationsPayload = {
   stats: NotificationStats;
-  scheduled: ScheduledBroadcast[];
-  deliveries: DeliveryRow[];
+  scheduled: AdminNotificationsListPayload<ScheduledBroadcast>;
+  deliveries: AdminNotificationsListPayload<DeliveryRow>;
   analytics: NotificationAnalytics;
   loadErrors: {
     stats: boolean;
@@ -66,3 +73,4 @@ export type AdminNotificationsPayload = {
     analytics: boolean;
   };
 };
+

@@ -22,11 +22,23 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
 import { formatDateTimeForUi } from "@/lib/date-display";
-import type { BroadcastAudience, DeliveryRow } from "./admin-notifications-types";
+import type {
+  AdminNotificationsListPayload,
+  BroadcastAudience,
+  DeliveryRow,
+} from "./admin-notifications-types";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import {
+  ADMIN_NOTIFICATIONS_DELIVERIES_PAGE_KEYS,
+  parseAdminNotificationsDeliveriesPageParams,
+} from "@/components/admin/admin-notifications-query";
+import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
-  items: DeliveryRow[];
+  payload: AdminNotificationsListPayload<DeliveryRow>;
   loadFailed: boolean;
 };
 
@@ -58,8 +70,15 @@ function isToday(iso: string): boolean {
   );
 }
 
-export function AdminNotificationsDeliveriesSection({ locale, items, loadFailed }: Props) {
+export function AdminNotificationsDeliveriesSection({ locale, payload, loadFailed }: Props) {
   const t = useTranslations("adminPages.notifications");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const items = payload.items;
+  const listPage = parseAdminNotificationsDeliveriesPageParams(
+    Object.fromEntries(searchParams.entries()),
+  );
   const [search, setSearch] = useState("");
   const [audience, setAudience] = useState<BroadcastAudience | "">("");
   const [channel, setChannel] = useState("");
@@ -119,6 +138,17 @@ export function AdminNotificationsDeliveriesSection({ locale, items, loadFailed 
     setTiming("");
     setOrder("newest");
     setQuick("");
+    const params = new URLSearchParams(searchParams.toString());
+    resetListPageQuery(params, ADMIN_NOTIFICATIONS_DELIVERIES_PAGE_KEYS);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
+  function setListPage(page: number, pageSize?: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    syncListPageQuery(params, page, pageSize, ADMIN_NOTIFICATIONS_DELIVERIES_PAGE_KEYS);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   const quickFilters: Array<[DeliveryQuickFilter, string]> = [
@@ -241,7 +271,7 @@ export function AdminNotificationsDeliveriesSection({ locale, items, loadFailed 
             {items.length === 0 ? t("deliveryListEmpty") : t("filters.noMatches")}
           </p>
         ) : (
-          filtered.slice(0, 100).map((row) => (
+          filtered.map((row) => (
             <article key={row.id} className={ADMIN_NOTIFICATIONS_LIST_ROW_CLASS}>
               <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
                 <AdminListMobileLabel label={t("table.sentAt")} />
@@ -273,6 +303,14 @@ export function AdminNotificationsDeliveriesSection({ locale, items, loadFailed 
           ))
         )}
       </div>
+      <OmmListPagination
+        total={payload.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={payload.offset}
+        onPageChange={setListPage}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+      />
       <p className={adminChrome.metaText}>{t("deliveryNote")}</p>
     </section>
   );

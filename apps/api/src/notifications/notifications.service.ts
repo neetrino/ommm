@@ -7,10 +7,13 @@ import {
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BookingStatus, Role } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { ExpoPushService, loadPushTokensForUser } from './expo-push.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BroadcastAudience } from './dto/broadcast.dto';
+import type { AdminListDeliveriesQueryDto } from './dto/admin-list-deliveries-query.dto';
+import type { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
 import { randomUUID } from 'node:crypto';
 
 const REMINDER_HOURS_BEFORE = 2;
@@ -278,12 +281,40 @@ export class NotificationsService {
     };
   }
 
-  async listScheduledBroadcasts() {
-    const scheduled = await this.prisma.auditLog.findMany({
-      where: { action: ACTION_BROADCAST_SCHEDULED, entityType: 'Notification' },
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-    });
+  async listScheduledBroadcasts(query: AdminListScheduledQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    const where = {
+      action: ACTION_BROADCAST_SCHEDULED,
+      entityType: 'Notification',
+    };
+    const orderBy = { createdAt: 'desc' as const };
+
+    if (!hasPagination) {
+      const scheduled = await this.prisma.auditLog.findMany({
+        where,
+        orderBy,
+        take: 200,
+      });
+      return this.mapScheduledBroadcasts(scheduled);
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const [scheduled, total] = await Promise.all([
+      this.prisma.auditLog.findMany({ where, orderBy, take, skip: offset }),
+      this.prisma.auditLog.count({ where }),
+    ]);
+    const items = await this.mapScheduledBroadcasts(scheduled);
+    return { items, total, take, offset };
+  }
+
+  private async mapScheduledBroadcasts(
+    scheduled: Array<{ entityId: string; createdAt: Date; payload: string | null }>,
+  ) {
+    if (scheduled.length === 0) {
+      return [];
+    }
     const timeline = await this.prisma.auditLog.findMany({
       where: {
         entityType: 'Notification',
@@ -502,16 +533,42 @@ export class NotificationsService {
     };
   }
 
-  async getRecentDeliveries(limit = 100) {
-    const safeLimit = Math.min(Math.max(limit, 1), 500);
-    const deliveries = await this.prisma.auditLog.findMany({
-      where: {
-        action: ACTION_NOTIFICATION_DELIVERY,
-        entityType: 'Notification',
-      },
-      orderBy: { createdAt: 'desc' },
-      take: safeLimit,
-    });
+  async getRecentDeliveries(query: AdminListDeliveriesQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    const where = {
+      action: ACTION_NOTIFICATION_DELIVERY,
+      entityType: 'Notification',
+    };
+    const orderBy = { createdAt: 'desc' as const };
+
+    if (!hasPagination) {
+      const limit = 100;
+      const deliveries = await this.prisma.auditLog.findMany({
+        where,
+        orderBy,
+        take: limit,
+      });
+      return this.mapDeliveryRows(deliveries);
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const [deliveries, total] = await Promise.all([
+      this.prisma.auditLog.findMany({ where, orderBy, take, skip: offset }),
+      this.prisma.auditLog.count({ where }),
+    ]);
+    return {
+      items: this.mapDeliveryRows(deliveries),
+      total,
+      take,
+      offset,
+    };
+  }
+
+  private mapDeliveryRows(
+    deliveries: Array<{ id: string; createdAt: Date; payload: string | null }>,
+  ) {
     return deliveries.map((item) => {
       const payload = this.parseDeliveryPayload(item.payload);
       return {

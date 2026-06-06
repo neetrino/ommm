@@ -16,7 +16,7 @@ export function AdminFinanceManagement({
   locale,
   initialTab,
   initialClients,
-  initialCoachRows,
+  initialCoachFinance,
   initialPayments,
   paymentsFrom,
   paymentsStatus,
@@ -59,7 +59,7 @@ export function AdminFinanceManagement({
           paymentsSource={paymentsSource}
         />
       ) : (
-        <AdminCoachFinanceTab locale={locale} initialRows={initialCoachRows} />
+        <AdminCoachFinanceTab locale={locale} initial={initialCoachFinance} />
       )}
     </section>
   );

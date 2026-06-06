@@ -12,6 +12,7 @@ import {
   type ScheduleDayOfWeek,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { ScheduleService } from '../schedule/schedule.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
@@ -232,9 +233,17 @@ export class ClassesService {
     });
   }
 
-  async listSessionsAdmin(
-    query: AdminListSessionsQueryDto,
-  ): Promise<AdminSessionRow[]> {
+  async listSessionsAdmin(query: AdminListSessionsQueryDto): Promise<
+    | AdminSessionRow[]
+    | {
+        items: AdminSessionRow[];
+        total: number;
+        take: number;
+        offset: number;
+      }
+  > {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
     const where: Prisma.ClassSessionWhereInput = {
       ...(query.from || query.to
         ? {
@@ -250,21 +259,46 @@ export class ClassesService {
       ...(query.level ? { level: query.level } : {}),
       ...(query.classFormat ? { classFormat: query.classFormat } : {}),
     };
-
-    const sessions = await this.prisma.classSession.findMany({
+    const findArgs = {
       where,
       include: ADMIN_SESSION_INCLUDE,
-      orderBy: { startsAt: 'asc' },
-    });
+      orderBy: { startsAt: 'asc' as const },
+    };
+    const mapSessions = (
+      sessions: Array<
+        AdminSessionRow & {
+          status: ClassSessionStatus;
+          _count: { bookings: number };
+          capacity: number;
+        }
+      >,
+    ): AdminSessionRow[] =>
+      sessions.map((session) => ({
+        ...session,
+        status:
+          session.status === ClassSessionStatus.ACTIVE &&
+          session._count.bookings >= session.capacity
+            ? ClassSessionStatus.FULL
+            : session.status,
+      }));
 
-    return sessions.map((session) => ({
-      ...session,
-      status:
-        session.status === ClassSessionStatus.ACTIVE &&
-        session._count.bookings >= session.capacity
-          ? ClassSessionStatus.FULL
-          : session.status,
-    }));
+    if (!hasPagination) {
+      const sessions = await this.prisma.classSession.findMany(findArgs);
+      return mapSessions(sessions);
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const [sessions, total] = await Promise.all([
+      this.prisma.classSession.findMany({ ...findArgs, take, skip: offset }),
+      this.prisma.classSession.count({ where }),
+    ]);
+    return {
+      items: mapSessions(sessions),
+      total,
+      take,
+      offset,
+    };
   }
 
   private normalizeOptional(value: string | null | undefined): string | null {

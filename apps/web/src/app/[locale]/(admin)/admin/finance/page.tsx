@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { AdminFinanceManagement } from "@/components/admin/admin-finance-management";
 import type {
+  CoachFinancePayload,
   CoachFinanceRow,
   FinanceTab,
 } from "@/components/admin/admin-finance-types";
@@ -11,6 +12,7 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { AdminFinanceFilters } from "@/components/admin/admin-finance-filters";
 import {
+  FINANCE_COACH_PAGE_KEYS,
   FINANCE_PAYMENTS_PAGE_KEYS,
   FINANCE_USER_PAGE_KEYS,
   parseFinanceFiltersFromSearch,
@@ -68,30 +70,6 @@ type PaymentsResponse = {
   offset: number;
 };
 
-type CoachListRow = {
-  id: string;
-  userId: string;
-  isActive: boolean;
-  totalClasses: number;
-  user: {
-    id: string;
-    name: string | null;
-    lastName: string | null;
-    phone: string | null;
-    email: string;
-  };
-};
-
-type CoachSalaryPayload = {
-  items: Array<{
-    coachProfileId: string;
-    userId: string;
-    isActive: boolean;
-    user: CoachListRow["user"];
-    salary: CoachFinanceRow["salary"];
-  }>;
-};
-
 type PageSearchParams = Promise<{
   rangeDays?: string;
   source?: string;
@@ -102,6 +80,8 @@ type PageSearchParams = Promise<{
   userPageSize?: string;
   payPage?: string;
   payPageSize?: string;
+  coachPage?: string;
+  coachPageSize?: string;
 }>;
 
 function normalizeSearch(
@@ -135,23 +115,6 @@ function getStatusStats(summary: FinanceSummary, status: string) {
   return summary.byStatus.find((entry) => entry.status === status) ?? { status, count: 0, amountCents: 0 };
 }
 
-function mergeCoachRows(
-  coaches: CoachListRow[],
-  salaries: CoachSalaryPayload["items"],
-): CoachFinanceRow[] {
-  const salaryByCoachId = new Map(
-    salaries.map((entry) => [entry.coachProfileId, entry.salary]),
-  );
-  return coaches.map((coach) => ({
-    coachProfileId: coach.id,
-    userId: coach.userId,
-    isActive: coach.isActive,
-    user: coach.user,
-    salary: salaryByCoachId.get(coach.id) ?? null,
-    totalClasses: coach.totalClasses,
-  }));
-}
-
 export default async function AdminFinancePage({
   params,
   searchParams,
@@ -167,6 +130,7 @@ export default async function AdminFinancePage({
   const financeFilters = parseFinanceFiltersFromSearch(search);
   const userListPage = parseListPageParams(normalizedSearch, FINANCE_USER_PAGE_KEYS);
   const payListPage = parseListPageParams(normalizedSearch, FINANCE_PAYMENTS_PAGE_KEYS);
+  const coachListPage = parseListPageParams(normalizedSearch, FINANCE_COACH_PAGE_KEYS);
   const rangeDays = financeFilters.rangeDays;
   const from = computeFromDate(rangeDays);
   const monthFrom = computeMonthStart();
@@ -181,8 +145,7 @@ export default async function AdminFinancePage({
     monthFinanceRes,
     paymentsRes,
     clientsRes,
-    coachesRes,
-    salariesRes,
+    coachFinanceRes,
   ] = await Promise.all([
     serverApiJson<Dashboard>("/reports/dashboard?includeRevenue=true", cookie),
     serverApiJson<FinanceSummary>(
@@ -201,8 +164,10 @@ export default async function AdminFinancePage({
       `/clients?meta=true&take=${userListPage.take}&offset=${userListPage.offset}`,
       cookie,
     ),
-    serverApiJson<CoachListRow[]>("/coaches/admin/list", cookie),
-    serverApiJson<CoachSalaryPayload>("/coaches/admin/salary-summaries", cookie),
+    serverApiJson<CoachFinancePayload>(
+      `/coaches/admin/salary-summaries?take=${coachListPage.take}&offset=${coachListPage.offset}`,
+      cookie,
+    ),
   ]);
 
   if (
@@ -211,8 +176,7 @@ export default async function AdminFinancePage({
     !monthFinanceRes.ok ||
     !paymentsRes.ok ||
     !clientsRes.ok ||
-    !coachesRes.ok ||
-    !salariesRes.ok
+    !coachFinanceRes.ok
   ) {
     const status = !dashboardRes.ok
       ? dashboardRes.status
@@ -224,11 +188,9 @@ export default async function AdminFinancePage({
             ? paymentsRes.status
             : !clientsRes.ok
               ? clientsRes.status
-              : !coachesRes.ok
-                ? coachesRes.status
-                : !salariesRes.ok
-                  ? salariesRes.status
-                  : 500;
+              : !coachFinanceRes.ok
+                ? coachFinanceRes.status
+                : 500;
     return (
       <div className="app-alert-warn max-w-xl">
         {status === 401 || status === 403 ? t("errorAuth") : t("errorLoad", { status })}
@@ -239,7 +201,14 @@ export default async function AdminFinancePage({
   const pending = getStatusStats(financeRes.data, "PENDING");
   const succeeded = getStatusStats(financeRes.data, "SUCCEEDED");
   const refunded = getStatusStats(financeRes.data, "REFUNDED");
-  const coachRows = mergeCoachRows(coachesRes.data, salariesRes.data.items);
+  const coachFinance = coachFinanceRes.ok
+    ? coachFinanceRes.data
+    : {
+        items: [] as CoachFinanceRow[],
+        total: 0,
+        take: coachListPage.take,
+        offset: coachListPage.offset,
+      };
 
   return (
     <AdminContentFrame>
@@ -371,7 +340,7 @@ export default async function AdminFinancePage({
             locale={locale}
             initialTab={parseTab(search.tab)}
             initialClients={clientsRes.data}
-            initialCoachRows={coachRows}
+            initialCoachFinance={coachFinance}
             initialPayments={paymentsRes.data}
             paymentsFrom={from}
             paymentsStatus={financeFilters.status}

@@ -33,6 +33,7 @@ import {
   COACH_AVAILABILITY_MIN_SPOTS,
   type CoachScheduleSlotDto,
 } from './dto/coach-schedule-slot.dto';
+import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
 import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
 import type { UpdateCoachDto } from './dto/update-coach.dto';
 
@@ -948,31 +949,67 @@ export class CoachesService {
     };
   }
 
-  async adminSalarySummaries() {
-    const profiles = await this.prisma.coachProfile.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            phone: true,
-            email: true,
-          },
+  async adminSalarySummaries(query: AdminSalarySummariesQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    const include = {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          lastName: true,
+          phone: true,
+          email: true,
         },
       },
-      orderBy: { createdAt: 'desc' },
+      _count: {
+        select: {
+          sessions: true,
+        },
+      },
+    } as const;
+    const orderBy = { createdAt: 'desc' as const };
+
+    const mapProfile = async (
+      profile: {
+        id: string;
+        userId: string;
+        isActive: boolean;
+        user: {
+          id: string;
+          name: string | null;
+          lastName: string | null;
+          phone: string | null;
+          email: string;
+        };
+        _count: { sessions: number };
+      },
+    ) => ({
+      coachProfileId: profile.id,
+      userId: profile.userId,
+      isActive: profile.isActive,
+      user: profile.user,
+      totalClasses: profile._count.sessions,
+      salary: await this.salarySummary(profile.userId),
     });
-    const items = await Promise.all(
-      profiles.map(async (profile) => ({
-        coachProfileId: profile.id,
-        userId: profile.userId,
-        isActive: profile.isActive,
-        user: profile.user,
-        salary: await this.salarySummary(profile.userId),
-      })),
-    );
-    return { items };
+
+    if (!hasPagination) {
+      const profiles = await this.prisma.coachProfile.findMany({
+        include,
+        orderBy,
+      });
+      const items = await Promise.all(profiles.map(mapProfile));
+      return { items };
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const [profiles, total] = await Promise.all([
+      this.prisma.coachProfile.findMany({ include, orderBy, take, skip: offset }),
+      this.prisma.coachProfile.count(),
+    ]);
+    const items = await Promise.all(profiles.map(mapProfile));
+    return { items, total, take, offset };
   }
 
   async salarySummary(userId: string) {

@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminCoachSessionsDrawer } from "@/components/admin/admin-coach-sessions-drawer";
 import {
   ADMIN_FINANCE_COACH_LIST_CELL,
@@ -11,16 +13,23 @@ import {
   ADMIN_FINANCE_COACH_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import type { CoachFinanceFilters, CoachFinanceRow } from "@/components/admin/admin-finance-types";
+import type {
+  CoachFinanceFilters,
+  CoachFinancePayload,
+  CoachFinanceRow,
+} from "@/components/admin/admin-finance-types";
+import { FINANCE_COACH_PAGE_KEYS } from "@/components/admin/admin-finance-url";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
-  initialRows: CoachFinanceRow[];
+  initial: CoachFinancePayload;
 };
 
 const defaultFilters: CoachFinanceFilters = {
@@ -89,15 +98,42 @@ function applyFilters(rows: CoachFinanceRow[], filters: CoachFinanceFilters): Co
   });
 }
 
-export function AdminCoachFinanceTab({ locale, initialRows }: Props) {
+export function AdminCoachFinanceTab({ locale, initial }: Props) {
   const t = useTranslations("adminPages.finance.coachTab");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [filters, setFilters] = useState<CoachFinanceFilters>(defaultFilters);
   const [drawerCoach, setDrawerCoach] = useState<CoachFinanceRow | null>(null);
+  const initialRows = initial.items;
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries()), FINANCE_COACH_PAGE_KEYS),
+    [searchParams],
+  );
 
   const filteredRows = useMemo(
     () => sortRows(applyFilters(initialRows, filters), filters.order),
     [filters, initialRows],
   );
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize, FINANCE_COACH_PAGE_KEYS);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  function resetCoachFilters() {
+    setFilters(defaultFilters);
+    const params = new URLSearchParams(searchParams.toString());
+    resetListPageQuery(params, FINANCE_COACH_PAGE_KEYS);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
 
   function updateFilter<K extends keyof CoachFinanceFilters>(
     key: K,
@@ -162,7 +198,7 @@ export function AdminCoachFinanceTab({ locale, initialRows }: Props) {
         />
       </div>
       <AdminFilterResetBar
-        onReset={() => setFilters(defaultFilters)}
+        onReset={resetCoachFilters}
         label={t("clearFilters")}
       />
       <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>
@@ -231,6 +267,14 @@ export function AdminCoachFinanceTab({ locale, initialRows }: Props) {
           })
         )}
       </div>
+      <OmmListPagination
+        total={initial.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={initial.offset}
+        onPageChange={setListPage}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+      />
       <AdminCoachSessionsDrawer
         coach={drawerCoach}
         locale={locale}

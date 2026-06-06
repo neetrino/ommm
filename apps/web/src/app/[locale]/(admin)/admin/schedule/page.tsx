@@ -8,6 +8,12 @@ import {
   type AdminScheduleSession,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-management";
+import {
+  buildAdminScheduleListEndpoint,
+  isScheduleListView,
+  parseAdminScheduleListPageParams,
+  type AdminScheduleListPayload,
+} from "@/components/admin/admin-schedule-query";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { serverApiJson } from "@/lib/server-api";
@@ -21,16 +27,25 @@ export default async function AdminSchedulePage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ view?: string | string[] }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
-  const { view } = await searchParams;
-  const requestedView = Array.isArray(view) ? view[0] : view;
+  const search = await searchParams;
+  const requestedView = search.view;
   const initialView: ScheduleView = isScheduleView(requestedView) ? requestedView : "list";
+  const listView = isScheduleListView(requestedView);
+  const listPage = parseAdminScheduleListPageParams(search);
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const cookie = (await headers()).get("cookie") ?? "";
+
+  const sessionsEndpoint = listView
+    ? buildAdminScheduleListEndpoint(listPage.take, listPage.offset)
+    : "/classes/admin/sessions";
+
   const [sessionsRes, classTypesRes, coachesRes, packagesRes] = await Promise.all([
-    serverApiJson<AdminScheduleSession[]>("/classes/admin/sessions", cookie),
+    listView
+      ? serverApiJson<AdminScheduleListPayload>(sessionsEndpoint, cookie)
+      : serverApiJson<AdminScheduleSession[]>(sessionsEndpoint, cookie),
     serverApiJson<AdminScheduleClassType[]>("/classes/types", cookie),
     serverApiJson<AdminScheduleCoach[]>("/coaches/admin/list", cookie),
     serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
@@ -76,12 +91,24 @@ export default async function AdminSchedulePage({
     );
   }
 
+  const sessions = listView
+    ? (sessionsRes.data as AdminScheduleListPayload).items
+    : (sessionsRes.data as AdminScheduleSession[]);
+  const listPagination = listView
+    ? {
+        total: (sessionsRes.data as AdminScheduleListPayload).total,
+        take: (sessionsRes.data as AdminScheduleListPayload).take,
+        offset: (sessionsRes.data as AdminScheduleListPayload).offset,
+      }
+    : null;
+
   return (
     <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminScheduleManagement
           locale={locale}
-          sessions={sessionsRes.data}
+          sessions={sessions}
+          listPagination={listPagination}
           classTypes={classTypesRes.data}
           packages={packagesRes.data}
           coaches={coachesRes.data}

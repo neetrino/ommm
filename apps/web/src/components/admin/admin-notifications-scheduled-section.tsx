@@ -23,14 +23,23 @@ import {
   type ScheduledEditDraft,
 } from "@/components/admin/admin-scheduled-broadcast-edit-modal";
 import type {
+  AdminNotificationsListPayload,
   BroadcastAudience,
   ScheduledBroadcast,
   ScheduledBroadcastStatus,
 } from "./admin-notifications-types";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import {
+  ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS,
+  parseAdminNotificationsScheduledPageParams,
+} from "@/components/admin/admin-notifications-query";
+import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
-  items: ScheduledBroadcast[];
+  payload: AdminNotificationsListPayload<ScheduledBroadcast>;
   loadFailed: boolean;
   onRefresh: () => void;
 };
@@ -55,11 +64,18 @@ const audienceOptions: Array<[BroadcastAudience | "", string]> = [
 
 export function AdminNotificationsScheduledSection({
   locale,
-  items,
+  payload,
   loadFailed,
   onRefresh,
 }: Props) {
   const t = useTranslations("adminPages.notifications");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const items = payload.items;
+  const listPage = parseAdminNotificationsScheduledPageParams(
+    Object.fromEntries(searchParams.entries()),
+  );
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ScheduledBroadcastStatus | "">("");
   const [audience, setAudience] = useState<BroadcastAudience | "">("");
@@ -117,6 +133,17 @@ export function AdminNotificationsScheduledSection({
     setAudience("");
     setOrder("newest");
     setQuick("");
+    const params = new URLSearchParams(searchParams.toString());
+    resetListPageQuery(params, ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
+  function setListPage(page: number, pageSize?: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    syncListPageQuery(params, page, pageSize, ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   function openEdit(row: ScheduledBroadcast) {
@@ -353,6 +380,15 @@ export function AdminNotificationsScheduledSection({
           ))
         )}
       </div>
+      <OmmListPagination
+        total={payload.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={payload.offset}
+        onPageChange={setListPage}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        disabled={busyId !== null}
+      />
       {message ? (
         <p className="text-sm text-sage-700" role="status">
           {message}

@@ -45,6 +45,12 @@ import {
   type ScheduleQuickFilter,
 } from "@/components/admin/admin-schedule-quick-filters";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import {
+  ADMIN_SCHEDULE_LIST_PAGE_KEYS,
+  parseAdminScheduleListPageParams,
+} from "@/components/admin/admin-schedule-query";
+import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -100,6 +106,7 @@ export type AdminScheduleCoach = {
 type Props = {
   locale: string;
   sessions: AdminScheduleSession[];
+  listPagination: { total: number; take: number; offset: number } | null;
   classTypes: AdminScheduleClassType[];
   packages: AdminPackageRow[];
   coaches: AdminScheduleCoach[];
@@ -484,6 +491,7 @@ function buildSessionClassTypeOptions(
 export function AdminScheduleManagement({
   locale,
   sessions,
+  listPagination,
   classTypes: initialClassTypes,
   packages,
   coaches,
@@ -555,6 +563,15 @@ export function AdminScheduleManagement({
     setPrevInitialClassTypes(initialClassTypes);
     setClassTypes(initialClassTypes);
   }
+
+  useEffect(() => {
+    setRows(sessions);
+  }, [sessions]);
+
+  const listPage = useMemo(
+    () => parseAdminScheduleListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -644,7 +661,23 @@ export function AdminScheduleManagement({
     setSearchDraft("");
     setFilters(initialFilters());
     setQuickFilters([]);
+    if (listPagination !== null) {
+      const params = new URLSearchParams(searchParams.toString());
+      resetListPageQuery(params, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
   }
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const activeFilterCount = useMemo(
     () => countActiveFilters(filters, quickFilters),
@@ -960,6 +993,17 @@ export function AdminScheduleManagement({
         }}
         onDuplicate={(row) => setEditing({ ...row, id: "" })}
       />
+      {view === "list" && listPagination !== null && listPagination.total > 0 ? (
+        <OmmListPagination
+          total={listPagination.total}
+          page={listPage.page}
+          pageSize={listPage.pageSize}
+          offset={listPagination.offset}
+          onPageChange={setListPage}
+          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+          disabled={busyId !== null}
+        />
+      ) : null}
       {sessionModalConfig ? (
         <SessionFormSheet
           isOpen
