@@ -9,7 +9,8 @@ import type {
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
-import { AdminFinanceFilters, parseFinanceFiltersFromSearch } from "@/components/admin/admin-finance-filters";
+import { AdminFinanceFilters } from "@/components/admin/admin-finance-filters";
+import { parseFinanceFiltersFromSearch } from "@/components/admin/admin-finance-url";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
 
