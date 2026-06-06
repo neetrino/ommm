@@ -65,8 +65,13 @@ export function SessionBookingActions({
       />
     );
 
+    const actionsRowClass =
+      layout === "list"
+        ? "flex flex-wrap items-center justify-end gap-2"
+        : "flex flex-wrap items-center gap-2";
+
     return (
-      <div className="flex flex-wrap items-center gap-2">
+      <div className={actionsRowClass}>
         {layout === "list" ? (
           <>
             {cancelButton}
@@ -83,7 +88,11 @@ export function SessionBookingActions({
   }
 
   if (full) {
-    return <JoinWaitlistButton sessionId={sessionId} size={size} />;
+    const waitlistButton = <JoinWaitlistButton sessionId={sessionId} size={size} />;
+    if (layout === "list") {
+      return <div className="flex justify-end">{waitlistButton}</div>;
+    }
+    return waitlistButton;
   }
 
   return (
@@ -91,6 +100,7 @@ export function SessionBookingActions({
       sessionId={sessionId}
       priceCents={priceCents}
       size={size}
+      layout={layout}
       onBooked={(id) => {
         setBookingId(id);
         onBookingChange?.(id);

@@ -16,6 +16,7 @@ type Props = {
   dropInLabel?: string;
   priceCents: number;
   size?: "sm" | "md";
+  layout?: "board" | "list";
   onBooked?: (bookingId: string) => void;
 };
 
@@ -29,6 +30,7 @@ export function BookSessionButton({
   dropInLabel,
   priceCents,
   size = "sm",
+  layout = "board",
   onBooked,
 }: Props) {
   const router = useRouter();
@@ -76,29 +78,48 @@ export function BookSessionButton({
     }
   }
 
+  const bookButton = (
+    <OmmButton
+      type="button"
+      variant="primary"
+      size={size}
+      disabled={busy}
+      onClick={() => void bookFreeOrMembership()}
+    >
+      {bookLabel}
+    </OmmButton>
+  );
+
+  const dropInButton =
+    priceCents > 0 ? (
+      <OmmButton
+        type="button"
+        variant="secondary"
+        size={size}
+        disabled={busy}
+        onClick={() => void bookDropIn()}
+      >
+        {payDropInLabel}
+      </OmmButton>
+    ) : null;
+
+  const buttonRowClass =
+    layout === "list" ? "flex flex-wrap items-center justify-end gap-2" : "flex flex-wrap gap-2";
+
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap gap-2">
-        <OmmButton
-          type="button"
-          variant="primary"
-          size={size}
-          disabled={busy}
-          onClick={() => void bookFreeOrMembership()}
-        >
-          {bookLabel}
-        </OmmButton>
-        {priceCents > 0 ? (
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size={size}
-            disabled={busy}
-            onClick={() => void bookDropIn()}
-          >
-            {payDropInLabel}
-          </OmmButton>
-        ) : null}
+      <div className={buttonRowClass}>
+        {layout === "list" ? (
+          <>
+            {dropInButton}
+            {bookButton}
+          </>
+        ) : (
+          <>
+            {bookButton}
+            {dropInButton}
+          </>
+        )}
       </div>
       {msg ? <p className="text-xs text-amber-900">{msg}</p> : null}
     </div>
