@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 
 const PANEL_GRID_CLASS = "grid grid-cols-1 gap-3 sm:grid-cols-2";
@@ -90,6 +90,22 @@ function renderFieldControl(
 
   const emptyValue = field.emptyValue ?? "";
   const options = field.options ?? [];
+  const emptyValueIsListed = options.some((option) => option.value === emptyValue);
+
+  if (emptyValueIsListed) {
+    return (
+      <OmmSelectDropdown
+        ariaLabel={field.label}
+        label={field.label}
+        value={value.length > 0 ? value : emptyValue}
+        options={options.map((option) => ({
+          value: option.value,
+          label: option.label,
+        }))}
+        onChange={onChange}
+      />
+    );
+  }
 
   return (
     <OmmFilterDropdown
