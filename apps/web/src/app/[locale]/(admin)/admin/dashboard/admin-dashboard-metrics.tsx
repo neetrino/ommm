@@ -2,8 +2,8 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminDashboardCharts } from "@/components/admin/admin-dashboard-charts";
+import { AdminDashboardKpiHero } from "@/components/admin/admin-dashboard-kpi-hero";
 import { loadDashboardTrendData } from "@/components/admin/admin-dashboard-trend-data";
-import { AdminAnalyticsKpiStrip } from "@/components/admin/admin-analytics-kpi-strip";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import type { AnalyticsBarItem } from "@/components/admin/admin-analytics-types";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -95,7 +95,6 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
   }
 
   const data = overviewRes.data;
-  const monthRevenue = data.revenue?.monthRevenueCents ?? null;
   const upcomingClasses = data.upcomingClasses ?? [];
   const bookingsByStatus = data.bookingsByStatus ?? {
     BOOKED: 0,
@@ -114,45 +113,46 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
     MISSED: tm("todayBookings.statusLabels.missed"),
   };
 
-  const kpis = [
-    {
-      key: "sessions",
-      label: tm("kpi.sessions"),
-      value: String(data.sessionsToday),
-    },
-    {
-      key: "bookings",
-      label: tm("kpi.bookings"),
-      value: String(data.bookingsToday),
-    },
-    {
-      key: "members",
-      label: tm("kpi.members"),
-      value: String(data.activeMembers),
-    },
-    {
-      key: "revenue",
-      label: tm("kpi.revenue"),
-      value:
-        monthRevenue === null
-          ? tm("cards.revenueSummary.noData")
-          : formatAmdFromCents(monthRevenue, locale),
-    },
-    {
-      key: "waitlist",
-      label: tm("kpi.waitlist"),
-      value: String(data.activeWaitlists),
-    },
-    {
-      key: "alerts",
-      label: tm("kpi.alerts"),
-      value: String(alerts.length),
-    },
+  const kpisOperations = [
+    { label: tm("kpi.sessions"), value: String(data.sessionsToday) },
+    { label: tm("kpi.bookings"), value: String(data.bookingsToday) },
+    { label: tm("kpi.members"), value: String(data.activeMembers) },
+    { label: tm("kpi.waitlist"), value: String(data.activeWaitlists) },
+    { label: tm("kpi.alerts"), value: String(alerts.length) },
+    { label: tm("kpi.newUsers"), value: String(data.newUsers?.todayCount ?? 0) },
   ];
+
+  const kpisFinance = data.revenue
+    ? [
+        {
+          label: tm("revenue.today"),
+          value: formatAmdFromCents(data.revenue.todayRevenueCents, locale),
+        },
+        {
+          label: tm("revenue.thisMonth"),
+          value: formatAmdFromCents(data.revenue.monthRevenueCents, locale),
+        },
+        {
+          label: tm("revenue.pendingWithCount", { count: data.revenue.pendingPaymentsCount }),
+          value: formatAmdFromCents(data.revenue.pendingPaymentsCents, locale),
+        },
+      ]
+    : [{ label: tm("revenue.thisMonth"), value: tm("cards.revenueSummary.noData") }];
+
+  const revenueTrendFootnote =
+    data.revenue?.trendPercent !== null && data.revenue?.trendPercent !== undefined
+      ? tm("revenue.trend", { percent: data.revenue.trendPercent })
+      : undefined;
 
   return (
     <AdminContentFrame description={tm("pageDescription")}>
-      <AdminAnalyticsKpiStrip items={kpis} />
+      <AdminDashboardKpiHero
+        operationsTitle={tm("kpi.groupOperations")}
+        financeTitle={tm("kpi.groupFinance")}
+        operations={kpisOperations}
+        finance={kpisFinance}
+        financeFootnote={revenueTrendFootnote}
+      />
 
       <section className="mt-6">
         <AdminDashboardCharts
@@ -162,7 +162,7 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
         />
       </section>
 
-      <section className="mt-4 grid gap-4 lg:grid-cols-2">
+      <section className="mt-4">
         <article className={adminChrome.panel}>
           <div className="flex items-center justify-between gap-2">
             <p className={adminChrome.panelHeading}>{tm("todayClasses.title")}</p>
@@ -201,42 +201,6 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
               ))}
             </ul>
           )}
-        </article>
-
-        <article className={adminChrome.panel}>
-          <p className={adminChrome.panelHeading}>{tm("revenue.title")}</p>
-          {data.revenue ? (
-            <dl className="mt-3 grid gap-2 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/60 bg-white/70 px-3 py-2.5">
-                <dt className="text-[11px] uppercase tracking-wide text-sage-500">{tm("revenue.today")}</dt>
-                <dd className="mt-1 text-lg font-semibold tabular-nums text-sage-900">
-                  {formatAmdFromCents(data.revenue.todayRevenueCents, locale)}
-                </dd>
-              </div>
-              <div className="rounded-2xl border border-white/60 bg-white/70 px-3 py-2.5">
-                <dt className="text-[11px] uppercase tracking-wide text-sage-500">{tm("revenue.thisMonth")}</dt>
-                <dd className="mt-1 text-lg font-semibold tabular-nums text-sage-900">
-                  {formatAmdFromCents(data.revenue.monthRevenueCents, locale)}
-                </dd>
-              </div>
-              <div className="rounded-2xl border border-white/60 bg-white/70 px-3 py-2.5">
-                <dt className="text-[11px] uppercase tracking-wide text-sage-500">{tm("revenue.pending")}</dt>
-                <dd className="mt-1 text-sm font-semibold tabular-nums text-sage-900">
-                  {tm("revenue.pendingValue", {
-                    count: data.revenue.pendingPaymentsCount,
-                    amount: formatAmdFromCents(data.revenue.pendingPaymentsCents, locale),
-                  })}
-                </dd>
-              </div>
-            </dl>
-          ) : (
-            <p className="mt-3 text-sm text-sage-500">{tm("revenue.empty")}</p>
-          )}
-          {data.revenue?.trendPercent !== null && data.revenue?.trendPercent !== undefined ? (
-            <p className="mt-3 text-xs text-sage-500">
-              {tm("revenue.trend", { percent: data.revenue.trendPercent })}
-            </p>
-          ) : null}
         </article>
       </section>
 

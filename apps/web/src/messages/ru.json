@@ -1078,12 +1078,15 @@
       "errorAuth": "Требуется вход администратора.",
       "errorLoad": "Не удалось загрузить данные дашборда ({status}).",
       "kpi": {
+        "groupOperations": "Операции",
+        "groupFinance": "Выручка",
         "sessions": "Занятия сегодня",
         "bookings": "Бронирования сегодня",
         "members": "Активные участники",
         "revenue": "Выручка за месяц",
         "waitlist": "Лист ожидания",
-        "alerts": "Алерты"
+        "alerts": "Алерты",
+        "newUsers": "Новые пользователи"
       },
       "charts": {
         "revenueTitle": "Динамика выручки",
@@ -1163,6 +1166,8 @@
         "today": "Сегодня",
         "thisMonth": "В этом месяце",
         "pending": "Ожидающие платежи",
+        "pendingWithCount": "Ожидающие платежи · {count}",
+        "pendingCount": "{count} платежей",
         "pendingValue": "{count} ({amount})",
         "trend": "{percent}% к прошлому месяцу",
         "empty": "Данные по выручке пока недоступны."

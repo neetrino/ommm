@@ -1087,12 +1087,15 @@
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load dashboard data ({status}).",
       "kpi": {
+        "groupOperations": "Operations",
+        "groupFinance": "Revenue",
         "sessions": "Classes today",
         "bookings": "Bookings today",
         "members": "Active members",
         "revenue": "Revenue this month",
         "waitlist": "Waitlist",
-        "alerts": "Alerts"
+        "alerts": "Alerts",
+        "newUsers": "New users today"
       },
       "charts": {
         "revenueTitle": "Revenue trend",
@@ -1172,6 +1175,8 @@
         "today": "Today",
         "thisMonth": "This month",
         "pending": "Pending payments",
+        "pendingWithCount": "Pending payments · {count}",
+        "pendingCount": "{count} payments",
         "pendingValue": "{count} ({amount})",
         "trend": "{percent}% vs previous month",
         "empty": "No revenue data available yet."

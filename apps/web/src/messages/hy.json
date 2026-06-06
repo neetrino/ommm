@@ -1090,12 +1090,15 @@
       "errorAuth": "Պահանջվում է ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել dashboard-ի տվյալները ({status})։",
       "kpi": {
+        "groupOperations": "Գործառույթներ",
+        "groupFinance": "Եկամուտ",
         "sessions": "Այսօրվա դասեր",
         "bookings": "Այսօրվա ամրագրումներ",
         "members": "Ակտիվ անդամներ",
         "revenue": "Այս ամսվա եկամուտ",
         "waitlist": "Սպասման ցուցակ",
-        "alerts": "Ազդանշաններ"
+        "alerts": "Ազդանշաններ",
+        "newUsers": "Նոր օգտատերեր"
       },
       "charts": {
         "revenueTitle": "Եկամտի դինամիկա",
@@ -1175,6 +1178,8 @@
         "today": "Այսօր",
         "thisMonth": "Այս ամիս",
         "pending": "Սպասող վճարումներ",
+        "pendingWithCount": "Սպասող վճարումներ · {count}",
+        "pendingCount": "{count} վճարում",
         "pendingValue": "{count} ({amount})",
         "trend": "{percent}% նախորդ ամսվա համեմատ",
         "empty": "Եկամտի տվյալներ դեռ հասանելի չեն։"
