@@ -3004,9 +3004,7 @@
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "sessions": "Sessions",
       "upcomingSessions": {
-        "empty": "No sessions in range.",
-        "bookedCount": "{booked}/{capacity} booked",
-        "sessionId": "Session ID: {id}"
+        "empty": "No sessions in range."
       }
     },
     "groups": {

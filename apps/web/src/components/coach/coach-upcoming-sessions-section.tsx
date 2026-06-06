@@ -1,7 +1,12 @@
 import { getTranslations } from "next-intl/server";
-import { formatSessionRange } from "@/lib/format-session-time";
 import type { CoachPanelSessionRow } from "@/lib/coach-panel-types";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { CoachScheduleSessionRow } from "@/components/coach/coach-schedule-session-row";
+import {
+  COACH_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER,
+  COACH_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
+  COACH_SCHEDULE_SESSIONS_LIST_TABLE_CLASS,
+} from "@/components/coach/coach-schedule-sessions-list-layout";
 
 type CoachUpcomingSessionsSectionProps = {
   locale: string;
@@ -12,31 +17,36 @@ export async function CoachUpcomingSessionsSection({
   locale,
   sessions,
 }: CoachUpcomingSessionsSectionProps) {
-  const t = await getTranslations({
+  const tEmpty = await getTranslations({
     locale,
     namespace: "coachPages.schedule.upcomingSessions",
   });
+  const tCols = await getTranslations({ locale, namespace: "adminPages.classes" });
 
   if (sessions.length === 0) {
-    return <p className={adminChrome.metaText}>{t("empty")}</p>;
+    return <p className={adminChrome.metaText}>{tEmpty("empty")}</p>;
   }
 
   return (
-    <ul className="mt-4 space-y-3">
-      {sessions.map((s) => (
-        <li key={s.id} className={adminChrome.panel}>
-          <p className={adminChrome.panelHeading}>{s.classType.name}</p>
-          <p className="mt-1 text-sm text-sage-700">
-            {formatSessionRange(locale, s.startsAt, s.endsAt)}
-          </p>
-          <p className={`mt-2 ${adminChrome.metaText}`}>
-            {t("bookedCount", { booked: s._count.bookings, capacity: s.capacity })}
-          </p>
-          <p className={`${adminChrome.metaText} mt-1 uppercase tracking-wide`}>
-            {t("sessionId", { id: s.id })}
-          </p>
-        </li>
+    <div className={COACH_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
+      <div className={COACH_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
+        <span>{tCols("colClass")}</span>
+        <span className={COACH_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>
+          {tCols("colDateTime")}
+        </span>
+        <span className={COACH_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>
+          {tCols("colCapacity")}
+        </span>
+        <span className={COACH_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>
+          {tCols("colTags")}
+        </span>
+        <span className={COACH_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>
+          {tCols("colStatus")}
+        </span>
+      </div>
+      {sessions.map((row) => (
+        <CoachScheduleSessionRow key={row.id} locale={locale} row={row} />
       ))}
-    </ul>
+    </div>
   );
 }
