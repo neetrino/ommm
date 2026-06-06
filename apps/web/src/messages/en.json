@@ -1312,6 +1312,7 @@
       "colActions": "Actions",
       "packageActiveBadge": "Active",
       "packageInactiveBadge": "No active",
+      "statusInactive": "Inactive",
       "editClient": "Edit client",
       "editModalTitle": "Edit client",
       "editModalDescription": "Update the selected client details.",

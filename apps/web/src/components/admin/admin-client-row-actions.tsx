@@ -2,21 +2,26 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AdminClientActions } from "@/components/admin/admin-client-actions";
-import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
-import { PencilGlyph, TrashGlyph } from "@/components/ui/admin-action-glyphs";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
-import { AdminRowIconButton, AdminRowIconGroup } from "@/components/ui/admin-row-icon-button";
 
-const CLIENT_ROW_ICON_CLASS = "h-5 w-5 shrink-0";
-const CLIENT_ROW_ICON_BUTTON_CLASS = "ommm-admin-row-icon-button-lg";
-const CLIENT_ROW_TOGGLE_BUTTON_CLASS =
-  "ommm-admin-row-icon-button-lg ommm-admin-row-icon-button-toggle";
+const CLIENT_STATUS_TOGGLE_CLASS = [
+  "inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5",
+  "text-[11px] font-medium uppercase tracking-[0.08em]",
+  "transition-[border-color,background-color,box-shadow,transform] duration-200",
+  "hover:shadow-[0_4px_12px_-8px_rgba(45,40,35,0.16)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+  "disabled:cursor-not-allowed disabled:opacity-50",
+].join(" ");
+
+function clientStatusTone(isActive: boolean): string {
+  return isActive
+    ? "border-mint-200/80 bg-mint-50/90 text-sage-800"
+    : "border-sand-300/70 bg-sand-50/90 text-sage-600";
+}
 
 function isoDate(value: string | null): string {
   return value ? value.slice(0, 10) : "";
@@ -29,9 +34,6 @@ type AdminClientRowActionsProps = {
 
 export function AdminClientRowActions({ client, onChanged }: AdminClientRowActionsProps) {
   const t = useTranslations("adminPages.clients");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
@@ -39,32 +41,7 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
   const isActive = pendingIsActive ?? serverIsActive;
   const toggleLabel = isActive ? t("deactivateClient") : t("activateClient");
-
-  function openEditModal(): void {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(EDIT_CLIENT_QUERY_KEY, client.id);
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname);
-  }
-
-  async function run(action: () => Promise<void>, okLabel: string): Promise<void> {
-    if (busy) {
-      return;
-    }
-    setBusy(true);
-    setMessage(null);
-    try {
-      await action();
-      setTone("ok");
-      setMessage(okLabel);
-      onChanged();
-    } catch (error) {
-      setTone("err");
-      setMessage(error instanceof ApiError ? error.message : t("genericError"));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const statusLabel = isActive ? t("packageActiveBadge") : t("statusInactive");
 
   async function toggleStatus(): Promise<void> {
     if (busy) {
@@ -94,52 +71,22 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
     }
   }
 
-  async function onDelete(): Promise<void> {
-    if (!window.confirm(t("deleteConfirm"))) {
-      return;
-    }
-
-    await run(async () => {
-      await apiFetch(`/clients/${client.id}`, { method: "DELETE" });
-    }, t("deleteSuccess"));
-  }
-
   return (
     <>
-      <AdminRowIconGroup size="lg">
-        <AdminRowIconButton
-          ariaLabel={t("editClient")}
-          title={t("editClient")}
-          className={CLIENT_ROW_ICON_BUTTON_CLASS}
-          onClick={openEditModal}
-          disabled={busy}
-        >
-          <PencilGlyph className={CLIENT_ROW_ICON_CLASS} />
-        </AdminRowIconButton>
-        <AdminRowIconButton
-          ariaLabel={toggleLabel}
-          title={toggleLabel}
-          className={CLIENT_ROW_TOGGLE_BUTTON_CLASS}
-          onClick={() => {
-            void toggleStatus();
-          }}
-          disabled={busy}
-        >
-          <AnimatedToggleSwitch checked={isActive} />
-        </AdminRowIconButton>
-        <AdminRowIconButton
-          ariaLabel={t("deleteClient")}
-          title={t("deleteClient")}
-          variant="danger"
-          className={CLIENT_ROW_ICON_BUTTON_CLASS}
-          onClick={() => {
-            void onDelete();
-          }}
-          disabled={busy}
-        >
-          <TrashGlyph className={CLIENT_ROW_ICON_CLASS} />
-        </AdminRowIconButton>
-      </AdminRowIconGroup>
+      <button
+        type="button"
+        className={`${CLIENT_STATUS_TOGGLE_CLASS} ${clientStatusTone(isActive)}`}
+        aria-label={toggleLabel}
+        title={toggleLabel}
+        disabled={busy}
+        onClick={(event) => {
+          event.stopPropagation();
+          void toggleStatus();
+        }}
+      >
+        <AnimatedToggleSwitch checked={isActive} />
+        <span>{statusLabel}</span>
+      </button>
 
       {message ? (
         <AdminCenterToast

@@ -6,6 +6,8 @@ import { AdminClientRowActions } from "@/components/admin/admin-client-row-actio
 import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
   ADMIN_CLIENTS_LIST_CELL,
+  ADMIN_CLIENTS_LIST_DATE_CELL,
+  ADMIN_CLIENTS_LIST_NOTES_CELL,
   ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
   ADMIN_CLIENTS_LIST_SPACER_CELL,
@@ -40,10 +42,10 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
       className={ADMIN_CLIENTS_LIST_ROW_CLASS}
     >
       <div className={ADMIN_CLIENTS_LIST_CELL}>
-        <AdminListMobileLabel label={t("title")} />
-        <div className="flex items-center gap-3">
+        <AdminListMobileLabel label={t("colName")} />
+        <div className="flex min-w-0 items-start gap-3">
           <ClientAvatar row={row} />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <button
               type="button"
               className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
@@ -55,10 +57,10 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
             >
               {name}
             </button>
-            <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? "—"}</p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? row.email}</p>
             {row.tags.length > 0 ? (
-              <div className="mt-1.5 flex flex-wrap gap-1">
-                {row.tags.map((tag) => (
+              <div className="mt-1 flex max-w-full flex-wrap gap-1">
+                {row.tags.slice(0, 3).map((tag) => (
                   <ClientBadge key={tag} label={tag} />
                 ))}
               </div>
@@ -67,23 +69,23 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
         </div>
       </div>
 
-      <div className={`${ADMIN_CLIENTS_LIST_CELL} md:text-center`}>
-        <AdminListMobileLabel label="Date of birth" />
+      <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
+        <AdminListMobileLabel label={t("fieldBirthday")} />
         <p className="text-sm text-sage-800">
           {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
         </p>
       </div>
 
-      <div className={`${ADMIN_CLIENTS_LIST_CELL} md:text-center`}>
-        <AdminListMobileLabel label="Register date" />
+      <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
+        <AdminListMobileLabel label={t("colJoined")} />
         <p className="text-sm text-sage-800">{formatDateForUi(row.createdAt)}</p>
       </div>
 
-      <div className={`${ADMIN_CLIENTS_LIST_CELL} md:text-center`}>
-        <AdminListMobileLabel label="Notes" />
+      <div className={ADMIN_CLIENTS_LIST_NOTES_CELL}>
+        <AdminListMobileLabel label={t("noteLabel")} />
         <p className="text-sm font-medium text-sage-900">{row.noteCount}</p>
         {row.latestNote ? (
-          <p className="mt-0.5 truncate text-xs text-sage-500">{row.latestNote.body}</p>
+          <p className="mt-0.5 max-w-[12rem] truncate text-xs text-sage-500">{row.latestNote.body}</p>
         ) : null}
       </div>
 

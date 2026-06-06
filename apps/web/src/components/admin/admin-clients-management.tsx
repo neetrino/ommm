@@ -429,14 +429,10 @@ function ClientsTable({
   return (
     <div className={ADMIN_CLIENTS_LIST_TABLE_CLASS}>
       <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
-        <span>{t("title")}</span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          Date of birth
-        </span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          Register date
-        </span>
-        <span className={`${ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER} md:text-center`}>Notes</span>
+        <span>{t("colName")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("noteLabel")}</span>
         <span aria-hidden="true" />
         <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
       </div>

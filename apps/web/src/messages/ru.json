@@ -1303,6 +1303,7 @@
       "colActions": "Действия",
       "packageActiveBadge": "Активен",
       "packageInactiveBadge": "Неактивен",
+      "statusInactive": "Неактивен",
       "editClient": "Редактировать клиента",
       "editModalTitle": "Редактировать клиента",
       "editModalDescription": "Обновите данные выбранного клиента.",

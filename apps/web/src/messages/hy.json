@@ -1315,6 +1315,7 @@
       "colActions": "Գործողություններ",
       "packageActiveBadge": "Ակտիվ",
       "packageInactiveBadge": "Ակտիվ չէ",
+      "statusInactive": "Ակտիվ չէ",
       "editClient": "Խմբագրել հաճախորդին",
       "editModalTitle": "Խմբագրել հաճախորդին",
       "editModalDescription": "Թարմացրեք ընտրված հաճախորդի տվյալները։",
