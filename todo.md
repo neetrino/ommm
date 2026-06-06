@@ -1,6 +1,35 @@
 # TODO
 
-Полный план Finance reorg (выполнено ~90%): [`docs/archive/todo.finance.md`](docs/archive/todo.finance.md) · spec: `CRM - Ommm - code.md` §9
+Полный план Finance reorg (~90%): [`docs/archive/todo.finance.md`](docs/archive/todo.finance.md) · spec §9
+
+Полный план Analytics reorg (в работе): [`docs/archive/todo.analytics.md`](docs/archive/todo.analytics.md) · spec §10
+
+---
+
+## Admin Analytics — остаток
+
+### Faza 1 (в процессе)
+
+- [x] План `docs/archive/todo.analytics.md`
+- [x] 5 route-tabs + redirect `/admin/analytics` → overview
+- [x] `layout.tsx` + unified header (tabs, filters, view, CSV icons)
+- [x] `admin-analytics-server-helpers`, `admin-analytics-url`, tab pages
+- [x] Shell split по `section` (overview / revenue / bookings / members / coaches)
+- [ ] Tab nav сохраняет global query при смене таба
+- [ ] Убрать `description` из `AdminContentFrame` (dubl nav subtitle)
+
+### Backend / product (P1–P2)
+
+- [ ] Coach revenue per coach, class revenue — API (spec §10)
+- [ ] Retention metrics — API
+- [ ] Bookings aggregates без sample cap
+- [ ] Excel export
+- [ ] `@SkipThrottle()` на analytics reads при 429
+
+### i18n / QA
+
+- [ ] Auth error QA на всех 5 табах
+- [ ] `docs/SITE_FULL_ANALYSIS.md`
 
 ---
 
@@ -26,14 +55,15 @@
 
 ---
 
-## Сделано (Finance reorg — не трогать без причины)
+## Сделано (Finance reorg)
 
 - [x] 4 route-tabs: Overview / Payments / Members / Coaches + legacy `?tab=` redirect
-- [x] Один hero: tab-specific search, filters, CSV trailing; без дублей search/CSV/billing history
-- [x] Payments search `q` (API + frontend + test)
-- [x] Members: Plan / Cost / Expiration колонки (API + UI)
-- [x] Members actions: edit, pause package, notify; refund — stub до API
-- [x] Coaches: server filters + pagination + sessions drawer
-- [x] URL hygiene: изоляция query между табами, сброс page при смене фильтров
-- [x] 429 fix: `@SkipThrottle()` на finance admin read endpoints
-- [x] i18n tabs + filters (en); actions/userTab в ru/hy
+- [x] Один hero: tab-specific search, filters, CSV trailing
+- [x] Payments search `q`, Members columns, Coaches server filters
+- [x] 429 fix, URL hygiene, list UI unified with Bookings/Clients
+
+## Сделано (Analytics Faza 1 — начало)
+
+- [x] 5 tabs по spec §10, unified header как Finance
+- [x] Export icons в hero, без блока export/limitations внизу
+- [x] Query sanitization per tab (`redirectIfUnscopedAnalyticsSearchParams`)

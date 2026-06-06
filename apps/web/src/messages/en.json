@@ -2415,6 +2415,14 @@
     },
     "analytics": {
       "title": "Analytics",
+      "tabs": {
+        "aria": "Analytics sections",
+        "overview": "Overview",
+        "revenue": "Revenue",
+        "bookings": "Bookings",
+        "members": "Members",
+        "coaches": "Coaches"
+      },
       "description": "Studio performance metrics from live backend data — tables, charts, and CSV exports.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load analytics ({status}).",
