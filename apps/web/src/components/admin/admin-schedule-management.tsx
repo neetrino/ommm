@@ -29,6 +29,7 @@ import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedul
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import {
   resolveScheduleView,
   SCHEDULE_VIEW_MODES,
@@ -1187,10 +1188,6 @@ function SummaryGrid({ summary }: { summary: Record<"total" | "active" | "upcomi
   );
 }
 
-function startOfWeek(value: Date): Date {
-  return addDays(value, -((value.getDay() + 6) % 7));
-}
-
 function groupRowsByDay(rows: readonly AdminScheduleSession[]): Map<string, AdminScheduleSession[]> {
   const map = new Map<string, AdminScheduleSession[]>();
   for (const row of rows) {
@@ -1216,7 +1213,7 @@ function ScheduleViews(props: {
   onDelete: (row: AdminScheduleSession) => void;
   onDuplicate: (row: AdminScheduleSession) => void;
 }) {
-  if (props.view === "weekly") return <WeeklyPanel {...props} />;
+  if (props.view === "weekly") return <ScheduleWeekPanel {...props} />;
   return (
     <div className="space-y-3">
       <CalendarSummaryCard locale={props.locale} rows={props.rows} selectedDay={props.selectedDay} onSelectDay={props.onSelectDay} />
@@ -1317,62 +1314,21 @@ function DayCard({ locale, day, rows, selected, onSelect, compact = false }: { l
   );
 }
 
-function WeeklyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
-  const selected = new Date(`${props.selectedDay}T00:00:00`);
-  const monday = startOfWeek(selected);
-  const grouped = groupRowsByDay(props.rows);
-  const days = Array.from({ length: 7 }, (_, index) => {
-    const day = addDays(monday, index);
-    const iso = day.toISOString().slice(0, 10);
-    return { iso, rows: grouped.get(iso) ?? [] };
-  });
+function ScheduleWeekPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
+  const tPage = useTranslations("adminPages.schedule");
+
   return (
-    <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
-      <p className="mb-3 text-sm font-semibold text-sage-900">
-        {formatDateForUi(days[0]?.iso ?? props.selectedDay)} - {formatDateForUi(days[6]?.iso ?? props.selectedDay)}
-      </p>
-      <div className="grid gap-3 lg:grid-cols-7">
-        {days.map((day) => (
-          <div
-            key={day.iso}
-            className={`min-h-72 rounded-2xl border p-3 transition-all ${
-              day.iso === isoDate(new Date())
-                ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)]"
-                : day.iso === props.selectedDay
-                  ? "border-sage-700/20 bg-sage-50/80 text-sage-900"
-                  : "border-white/70 bg-white/65 text-sage-900"
-            }`}
-          >
-            <button type="button" className="mb-3 w-full text-left" onClick={() => props.onSelectDay(day.iso)}>
-              <span className={`block text-[10px] font-semibold uppercase tracking-[0.12em] ${day.iso === isoDate(new Date()) ? "text-white/70" : "text-sage-500"}`}>
-                {new Intl.DateTimeFormat(props.locale, { weekday: "short" }).format(new Date(`${day.iso}T00:00:00`))}
-              </span>
-              <span className={`mt-1 block text-lg font-semibold ${day.iso === isoDate(new Date()) ? "text-white" : "text-sage-900"}`}>
-                {new Date(`${day.iso}T00:00:00`).getDate()}
-              </span>
-            </button>
-            <div className="space-y-2">
-              {day.rows.length === 0 ? <p className={`rounded-xl px-3 py-4 text-xs ${day.iso === isoDate(new Date()) ? "bg-white/10 text-white/65" : "bg-white/55 text-sage-400"}`}>—</p> : day.rows.map((row) => (
-                <button
-                  key={row.id}
-                  type="button"
-                  className={`w-full rounded-xl border px-3 py-2 text-left text-xs shadow-sm transition-colors ${
-                    day.iso === isoDate(new Date())
-                      ? "border-white/15 bg-white/10 text-white hover:bg-white/20"
-                      : "border-white/70 bg-white/85 text-sage-700 hover:bg-white"
-                  }`}
-                  onClick={() => props.onDetails(row)}
-                >
-                  <span className={`block font-semibold ${day.iso === isoDate(new Date()) ? "text-white" : "text-sage-900"}`}>{timeValue(row.startsAt)}</span>
-                  <span className={`mt-0.5 block truncate ${day.iso === isoDate(new Date()) ? "text-white/80" : "text-sage-600"}`}>{row.title}</span>
-                  <span className={`mt-1 block truncate text-[11px] ${day.iso === isoDate(new Date()) ? "text-white/60" : "text-sage-500"}`}>{coachName(row.coach)}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <ScheduleWeekColumnsView
+      locale={props.locale}
+      rows={props.rows}
+      showCoach
+      onSessionClick={props.onDetails}
+      labels={{
+        gridAria: tPage("weekView.gridAria"),
+        todayBadge: tPage("weekView.todayBadge"),
+        emptyDay: tPage("weekView.emptyDay"),
+      }}
+    />
   );
 }
 

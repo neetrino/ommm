@@ -1739,6 +1739,11 @@
       "previousDay": "Previous day",
       "nextDay": "Next day",
       "today": "Today",
+      "weekView": {
+        "gridAria": "Weekly schedule by day",
+        "todayBadge": "Today",
+        "emptyDay": "—"
+      },
       "createTitle": "Add Schedule Item",
       "createDescription": "Create a public schedule card. It appears on Home and Schedule pages.",
       "editTitle": "Edit Schedule Item",

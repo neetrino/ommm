@@ -1730,6 +1730,11 @@
       "previousDay": "Предыдущий день",
       "nextDay": "Следующий день",
       "today": "Сегодня",
+      "weekView": {
+        "gridAria": "Недельное расписание по дням",
+        "todayBadge": "Сегодня",
+        "emptyDay": "—"
+      },
       "createTitle": "Добавить элемент расписания",
       "createDescription": "Создайте публичную карточку. Она появится на Home и Schedule.",
       "editTitle": "Редактировать элемент расписания",

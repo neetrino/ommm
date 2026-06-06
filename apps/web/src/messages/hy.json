@@ -1742,6 +1742,11 @@
       "previousDay": "Նախորդ օրը",
       "nextDay": "Հաջորդ օրը",
       "today": "Այսօր",
+      "weekView": {
+        "gridAria": "Շաբաթական դասացուցակ ըստ օրերի",
+        "todayBadge": "Այսօր",
+        "emptyDay": "—"
+      },
       "createTitle": "Ավելացնել ժամանակացույցի տարր",
       "createDescription": "Ստեղծեք հանրային քարտ, որը կերևա Home և Schedule էջերում։",
       "editTitle": "Խմբագրել ժամանակացույցի տարրը",
