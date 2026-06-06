@@ -1,7 +1,17 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
 import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
@@ -17,8 +27,15 @@ import {
   type UserPaymentSource,
 } from "@/components/account/user-payment-display";
 import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
-import type { UserPaymentRow } from "@/lib/user-package-types";
+import { apiFetch } from "@/lib/api";
+import {
+  parseListPageParams,
+  resetListPageQuery,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
+import type { UserPaymentsPayload } from "@/lib/user-package-types";
 
 type UserPaymentSortOrder = "newest" | "oldest";
 type UserPaymentStatusFilter = "all" | "SUCCEEDED" | "PENDING" | "FAILED" | "REFUNDED";
@@ -26,7 +43,7 @@ type UserPaymentSourceFilter = "all" | UserPaymentSource;
 
 type UserPaymentsHistoryProps = {
   locale: string;
-  payments: UserPaymentRow[];
+  initialPayments: UserPaymentsPayload;
 };
 
 const PAYMENT_STATUS_OPTIONS: readonly Exclude<UserPaymentStatusFilter, "all">[] = [
@@ -44,25 +61,118 @@ const PAYMENT_SOURCE_OPTIONS: readonly UserPaymentSource[] = [
   "other",
 ];
 
-export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryProps) {
+function buildPaymentsEndpoint(
+  listPage: ReturnType<typeof parseListPageParams>,
+  status: UserPaymentStatusFilter,
+  order: UserPaymentSortOrder,
+): string {
+  const params = new URLSearchParams({
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+    order,
+  });
+  if (status !== "all") {
+    params.set("status", status);
+  }
+  return `/payments/me?${params.toString()}`;
+}
+
+export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHistoryProps) {
   const t = useTranslations("userPages.payments");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("payments");
+  const [paymentsPayload, setPaymentsPayload] = useState(initialPayments);
   const [statusFilter, setStatusFilter] = useState<UserPaymentStatusFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<UserPaymentSourceFilter>("all");
   const [sortOrder, setSortOrder] = useState<UserPaymentSortOrder>("newest");
+  const [loading, startTransition] = useTransition();
+  const requestId = useRef(0);
+  const hasMounted = useRef(false);
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  useEffect(() => {
+    setPaymentsPayload(initialPayments);
+  }, [initialPayments]);
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize);
+      });
+    },
+    [replaceSearchParams],
+  );
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+
+    const nextRequestId = requestId.current + 1;
+    requestId.current = nextRequestId;
+    startTransition(() => {
+      void apiFetch<UserPaymentsPayload>(
+        buildPaymentsEndpoint(listPage, statusFilter, sortOrder),
+      )
+        .then((payload) => {
+          if (requestId.current !== nextRequestId) return;
+          setPaymentsPayload(payload);
+        })
+        .catch(() => {
+          if (requestId.current === nextRequestId) {
+            setPaymentsPayload({
+              items: [],
+              total: 0,
+              take: listPage.take,
+              offset: listPage.offset,
+            });
+          }
+        });
+    });
+  }, [listPage.offset, listPage.take, sortOrder, statusFilter]);
 
   const rows = useMemo(() => {
-    return payments
-      .filter((payment) => statusFilter === "all" || payment.status === statusFilter)
+    return paymentsPayload.items
       .filter((payment) => {
         if (sourceFilter === "all") return true;
         return normalizePaymentSource(payment.description) === sourceFilter;
       })
       .slice()
       .sort((left, right) => comparePayments(left, right, sortOrder));
-  }, [payments, sortOrder, sourceFilter, statusFilter]);
+  }, [paymentsPayload.items, sortOrder, sourceFilter]);
 
-  if (payments.length === 0) {
+  function updateStatusFilter(value: UserPaymentStatusFilter) {
+    setStatusFilter(value);
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+    });
+  }
+
+  function updateSortOrder(value: UserPaymentSortOrder) {
+    setSortOrder(value);
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+    });
+  }
+
+  if (paymentsPayload.total === 0 && statusFilter === "all" && sourceFilter === "all") {
     return (
       <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
         <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
@@ -74,7 +184,9 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-sage-600">{t("paymentsCount", { count: rows.length })}</p>
+        <p className="text-sm text-sage-600">
+          {t("paymentsCount", { count: paymentsPayload.total })}
+        </p>
         <UserListBoardViewSwitcher
           pageId="payments"
           namespace="userPages.payments"
@@ -90,7 +202,7 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
             value={statusFilter}
             ariaLabel={t("filters.status")}
             allLabel={t("filters.allStatuses")}
-            onChange={(value) => setStatusFilter(value as UserPaymentStatusFilter)}
+            onChange={(value) => updateStatusFilter(value as UserPaymentStatusFilter)}
             options={PAYMENT_STATUS_OPTIONS.map((status) => ({
               value: status,
               label: t(`status.${status}`),
@@ -115,7 +227,7 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
             ariaLabel={t("filters.sort")}
             label={t(`sort.${sortOrder}`)}
             value={sortOrder}
-            onChange={(value) => setSortOrder(value as UserPaymentSortOrder)}
+            onChange={(value) => updateSortOrder(value as UserPaymentSortOrder)}
             options={[
               { value: "newest", label: t("sort.newest") },
               { value: "oldest", label: t("sort.oldest") },
@@ -152,6 +264,17 @@ export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryPro
           ))}
         </div>
       )}
+
+      <OmmListPagination
+        namespace="userPages.pagination"
+        total={paymentsPayload.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={paymentsPayload.offset}
+        onPageChange={(page) => setListPage(page)}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        disabled={loading}
+      />
     </section>
   );
 }

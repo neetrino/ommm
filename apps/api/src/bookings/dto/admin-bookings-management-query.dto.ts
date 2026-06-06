@@ -1,7 +1,8 @@
 import { BookingChannel, BookingStatus } from '@prisma/client';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
-export class AdminBookingsManagementQueryDto {
+export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsDateString()
   from?: string;
@@ -21,6 +22,10 @@ export class AdminBookingsManagementQueryDto {
   @IsOptional()
   @IsString()
   coachId?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 
   @IsOptional()
   @IsEnum(BookingStatus)

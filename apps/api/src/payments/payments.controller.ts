@@ -18,6 +18,7 @@ import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
+import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -69,8 +70,11 @@ export class PaymentsController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  myPayments(@CurrentUser() user: { id: string }) {
-    return this.payments.listPayments(user.id);
+  myPayments(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListMyPaymentsQueryDto,
+  ) {
+    return this.payments.listPayments(user.id, query);
   }
 
   @Get('admin')

@@ -1,6 +1,9 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   resolveSessionCoachName,
   SessionCoachLine,
@@ -23,27 +26,90 @@ import {
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { apiFetch } from "@/lib/api";
+import {
+  parseListPageParams,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
 import type { UserBookingRow, UserWaitlistRow } from "@/lib/user-booking-types";
+import {
+  buildUserBookingsPastEndpoint,
+  USER_BOOKINGS_PAST_PAGE_KEYS,
+  type UserBookingsPastPayload,
+} from "@/lib/user-bookings-query";
 
 type UserBookingsSectionProps = {
   locale: string;
-  upcoming: readonly UserBookingRow[];
-  past: readonly UserBookingRow[];
+  initialUpcoming: readonly UserBookingRow[];
+  initialPast: UserBookingsPastPayload;
   waitlist: readonly UserWaitlistRow[];
   waitlistLoadError: boolean;
 };
 
 export function UserBookingsSection({
   locale,
-  upcoming,
-  past,
+  initialUpcoming,
+  initialPast,
   waitlist,
   waitlistLoadError,
 }: UserBookingsSectionProps) {
   const t = useTranslations("userPages.bookings");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("bookings");
-  const totalCount = upcoming.length + past.length;
+  const [pastPayload, setPastPayload] = useState(initialPast);
+  const [loadingPast, startPastTransition] = useTransition();
+  const pastRequestId = useRef(0);
+  const pastHasMounted = useRef(false);
+
+  const pastListPage = useMemo(
+    () =>
+      parseListPageParams(Object.fromEntries(searchParams.entries()), USER_BOOKINGS_PAST_PAGE_KEYS),
+    [searchParams],
+  );
+
+  useEffect(() => {
+    setPastPayload(initialPast);
+  }, [initialPast]);
+
+  useEffect(() => {
+    if (!pastHasMounted.current) {
+      pastHasMounted.current = true;
+      return undefined;
+    }
+
+    const nextRequestId = pastRequestId.current + 1;
+    pastRequestId.current = nextRequestId;
+    startPastTransition(() => {
+      void apiFetch<UserBookingsPastPayload>(
+        buildUserBookingsPastEndpoint(pastListPage.take, pastListPage.offset),
+      )
+        .then((payload) => {
+          if (pastRequestId.current !== nextRequestId) return;
+          setPastPayload(payload);
+        })
+        .catch(() => {
+          if (pastRequestId.current === nextRequestId) {
+            setPastPayload({ rows: [], total: 0, take: pastListPage.take, offset: pastListPage.offset });
+          }
+        });
+    });
+  }, [pastListPage.offset, pastListPage.take]);
+
+  const setPastListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize, USER_BOOKINGS_PAST_PAGE_KEYS);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const totalCount = initialUpcoming.length + pastPayload.total;
 
   return (
     <div className="space-y-8">
@@ -62,7 +128,7 @@ export function UserBookingsSection({
       <BookingGroup
         title={t("upcoming")}
         locale={locale}
-        rows={upcoming}
+        rows={initialUpcoming}
         viewMode={viewMode}
         showCancel
         emptyLabel={t("emptySection")}
@@ -71,10 +137,22 @@ export function UserBookingsSection({
       <BookingGroup
         title={t("pastOther")}
         locale={locale}
-        rows={past}
+        rows={pastPayload.rows}
         viewMode={viewMode}
         showRebook
         emptyLabel={t("emptySection")}
+        pagination={
+          <OmmListPagination
+            namespace="userPages.pagination"
+            total={pastPayload.total}
+            page={pastListPage.page}
+            pageSize={pastListPage.pageSize}
+            offset={pastPayload.offset}
+            onPageChange={(page) => setPastListPage(page)}
+            onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
+            disabled={loadingPast}
+          />
+        }
       />
 
       <WaitlistGroup
@@ -95,6 +173,7 @@ type BookingGroupProps = {
   showCancel?: boolean;
   showRebook?: boolean;
   emptyLabel: string;
+  pagination?: ReactNode;
 };
 
 function BookingGroup({
@@ -105,6 +184,7 @@ function BookingGroup({
   showCancel = false,
   showRebook = false,
   emptyLabel,
+  pagination,
 }: BookingGroupProps) {
   const t = useTranslations("userPages.bookings");
 
@@ -150,6 +230,7 @@ function BookingGroup({
           </ul>
         </div>
       )}
+      {pagination ? <div className="mt-4">{pagination}</div> : null}
     </section>
   );
 }

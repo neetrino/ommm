@@ -20,6 +20,8 @@ import {
   AdminListPaymentsQueryDto,
   PaymentSourceFilter,
 } from './dto/admin-list-payments-query.dto';
+import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 
@@ -309,12 +311,34 @@ export class PaymentsService {
     return payment;
   }
 
-  listPayments(userId: string) {
-    return this.prisma.payment.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    });
+  async listPayments(userId: string, query: ListMyPaymentsQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    if (!hasPagination) {
+      return this.prisma.payment.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const order = query.order === 'oldest' ? 'asc' : 'desc';
+    const where: Prisma.PaymentWhereInput = {
+      userId,
+      ...(query.status ? { status: query.status } : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        orderBy: { createdAt: order },
+        take,
+        skip: offset,
+      }),
+      this.prisma.payment.count({ where }),
+    ]);
+    return { items, total, take, offset };
   }
 
   async adminListPayments(query: AdminListPaymentsQueryDto) {

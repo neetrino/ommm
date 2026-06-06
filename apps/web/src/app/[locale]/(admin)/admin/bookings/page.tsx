@@ -1,74 +1,30 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminBookingsManagement } from "@/components/admin/admin-bookings-management";
+import {
+  buildAdminBookingsListEndpoint,
+  pickAdminBookingsInitialFilters,
+  type AdminBookingsManagementPayload,
+} from "@/components/admin/admin-bookings-query";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminBookingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.bookings" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<{
-    rows: Array<{
-      id: string;
-      recordType: "BOOKING" | "WAITLIST";
-      status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
-      attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-      paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
-      channel: "WEBSITE" | "APP";
-      registerDate: string;
-      user: { id: string; name: string | null; email: string; phone: string | null };
-      session: {
-        id: string;
-        startsAt: string;
-        endsAt: string;
-        classType: { id: string; name: string };
-        coach: { id: string; name: string | null };
-      };
-      package: {
-        planName: string;
-        sessionsRemaining: number | null;
-        sessionsPerMonth: number | null;
-        isUnlimited: boolean;
-      } | null;
-      latestNote: {
-        id: string;
-        body: string;
-        authorName: string | null;
-        createdAt: string;
-      } | null;
-    }>;
-    summary: {
-      total: number;
-      booked: number;
-      completed: number;
-      cancelled: number;
-      waitlisted: number;
-      today: number;
-    };
-    filterOptions: {
-      classTypes: Array<{ id: string; name: string }>;
-      coaches: Array<{ id: string; name: string }>;
-    };
-    sessionSlots: Array<{
-      id: string;
-      title: string;
-      status: "DRAFT" | "ACTIVE" | "FULL" | "CANCELLED";
-      startsAt: string;
-      endsAt: string;
-      capacity: number;
-      bookedCount: number;
-      spotsLeft: number;
-      level: string | null;
-      classFormat: string | null;
-      classType: { id: string; name: string };
-      coach: { id: string; name: string | null };
-    }>;
-  }>("/bookings/admin/management", cookie);
+  const initialFilters = pickAdminBookingsInitialFilters(search);
+  const listPage = parseListPageParams(search);
+  const endpoint = buildAdminBookingsListEndpoint(initialFilters, listPage);
+  const res = await serverApiJson<AdminBookingsManagementPayload>(endpoint, cookie);
 
   if (!res.ok) {
     return (
@@ -82,7 +38,11 @@ export default async function AdminBookingsPage({
 
   return (
     <AdminContentFrame>
-      <AdminBookingsManagement locale={locale} initial={res.data} />
+      <AdminBookingsManagement
+        locale={locale}
+        initial={res.data}
+        initialFilters={initialFilters}
+      />
     </AdminContentFrame>
   );
 }

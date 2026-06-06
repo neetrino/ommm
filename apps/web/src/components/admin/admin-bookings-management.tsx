@@ -10,6 +10,13 @@ import {
   adminBookingsFilterValuesFromState,
   buildAdminBookingsFilterFields,
 } from "@/components/admin/admin-bookings-filter-fields";
+import { useAdminBookingsListData } from "@/components/admin/admin-bookings-list-data";
+import type {
+  AdminBookingRow,
+  AdminBookingSessionSlot,
+  AdminBookingsFilterState,
+  AdminBookingsManagementPayload,
+} from "@/components/admin/admin-bookings-query";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import {
@@ -25,68 +32,17 @@ import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-vie
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
-type AdminBookingSessionSlot = {
-  id: string;
-  title: string;
-  status: "DRAFT" | "ACTIVE" | "FULL" | "CANCELLED";
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  bookedCount: number;
-  spotsLeft: number;
-  level: string | null;
-  classFormat: string | null;
-  classType: { id: string; name: string };
-  coach: { id: string; name: string | null };
-};
-
-type BookingRow = {
-  id: string;
-  recordType: "BOOKING" | "WAITLIST";
-  status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
-  attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
-  channel: "WEBSITE" | "APP";
-  registerDate: string;
-  user: { id: string; name: string | null; email: string; phone: string | null };
-  session: {
-    id: string;
-    startsAt: string;
-    endsAt: string;
-    classType: { id: string; name: string };
-    coach: { id: string; name: string | null };
-  };
-  package: {
-    planName: string;
-    sessionsRemaining: number | null;
-    sessionsPerMonth: number | null;
-    isUnlimited: boolean;
-  } | null;
-  latestNote: { id: string; body: string; authorName: string | null; createdAt: string } | null;
-};
+type BookingRow = AdminBookingRow;
 
 type Props = {
   locale: string;
-  initial: {
-    rows: BookingRow[];
-    summary: {
-      total: number;
-      booked: number;
-      completed: number;
-      cancelled: number;
-      waitlisted: number;
-      today: number;
-    };
-    filterOptions: {
-      classTypes: Array<{ id: string; name: string }>;
-      coaches: Array<{ id: string; name: string }>;
-    };
-    sessionSlots: AdminBookingSessionSlot[];
-  };
+  initial: AdminBookingsManagementPayload;
+  initialFilters: AdminBookingsFilterState;
 };
 
 const VIEW_KEY = "admin.bookings.view";
@@ -102,22 +58,30 @@ type PendingBookingConfirm = {
   row: BookingRow;
 };
 
-export function AdminBookingsManagement({ locale, initial }: Props) {
+export function AdminBookingsManagement({ locale, initial, initialFilters }: Props) {
   const t = useTranslations("adminPages.bookings");
   const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
-  const [rows, setRows] = useState<BookingRow[]>(initial.rows);
-  const sessionSlots = initial.sessionSlots;
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [view, setView] = useState<BookingsView>("list");
-  const [search, setSearch] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [classTypeId, setClassTypeId] = useState("");
-  const [coachId, setCoachId] = useState("");
-  const [clientId, setClientId] = useState("");
-  const [status, setStatus] = useState("");
   const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
+  const {
+    payload,
+    calendarRows,
+    calendarSessions,
+    filters,
+    listPage,
+    loading,
+    setListPage,
+    updateFilter,
+    resetFilters,
+    setPayload,
+  } = useAdminBookingsListData({
+    initial,
+    initialFilters,
+    view,
+    selectedDay,
+  });
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
   const [moveBooking, setMoveBooking] = useState<BookingRow | null>(null);
@@ -128,8 +92,9 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
     if (selectedRowKey === null) {
       return null;
     }
-    return rows.find((row) => bookingRowKey(row) === selectedRowKey) ?? null;
-  }, [rows, selectedRowKey]);
+    const combined = [...payload.rows, ...calendarRows];
+    return combined.find((row) => bookingRowKey(row) === selectedRowKey) ?? null;
+  }, [calendarRows, payload.rows, selectedRowKey]);
 
   useEffect(() => {
     try {
@@ -159,65 +124,37 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
 
   const uniqueClients = useMemo(() => {
     const map = new Map<string, string>();
-    for (const row of rows) {
+    for (const row of [...payload.rows, ...calendarRows]) {
       map.set(row.user.id, row.user.name ?? row.user.email);
     }
     return Array.from(map.entries()).map(([id, label]) => ({ id, label }));
-  }, [rows]);
+  }, [calendarRows, payload.rows]);
 
   const filteredSessions = useMemo(() => {
-    return sessionSlots.filter((session) => {
-      if (from) {
-        if (new Date(session.startsAt) < new Date(`${from}T00:00:00`)) {
+    return calendarSessions.filter((session) => {
+      if (filters.from) {
+        if (new Date(session.startsAt) < new Date(`${filters.from}T00:00:00`)) {
           return false;
         }
       }
-      if (to) {
-        if (new Date(session.startsAt) > new Date(`${to}T23:59:59`)) {
+      if (filters.to) {
+        if (new Date(session.startsAt) > new Date(`${filters.to}T23:59:59`)) {
           return false;
         }
       }
-      if (classTypeId && session.classType.id !== classTypeId) {
+      if (filters.classTypeId && session.classType.id !== filters.classTypeId) {
         return false;
       }
-      if (coachId && session.coach.id !== coachId) {
+      if (filters.coachId && session.coach.id !== filters.coachId) {
         return false;
       }
       return true;
     });
-  }, [sessionSlots, from, to, classTypeId, coachId]);
+  }, [calendarSessions, filters.classTypeId, filters.coachId, filters.from, filters.to]);
 
-  const filteredRows = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return rows.filter((row) => {
-      if (q.length > 0) {
-        const hay = `${row.user.name ?? ""} ${row.user.email} ${row.user.phone ?? ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      if (from) {
-        if (new Date(row.session.startsAt) < new Date(`${from}T00:00:00`)) return false;
-      }
-      if (to) {
-        if (new Date(row.session.startsAt) > new Date(`${to}T23:59:59`)) return false;
-      }
-      if (classTypeId && row.session.classType.id !== classTypeId) return false;
-      if (coachId && row.session.coach.id !== coachId) return false;
-      if (clientId && row.user.id !== clientId) return false;
-      if (status && row.status !== status) return false;
-      return true;
-    });
-  }, [rows, search, from, to, classTypeId, coachId, clientId, status]);
-
-  const summary = useMemo(() => {
-    return {
-      total: filteredRows.length,
-      booked: filteredRows.filter((row) => row.status === "BOOKED").length,
-      completed: filteredRows.filter((row) => row.status === "COMPLETED").length,
-      cancelled: filteredRows.filter((row) => row.status === "CANCELLED").length,
-      waitlisted: filteredRows.filter((row) => row.status === "WAITLISTED").length,
-      today: filteredRows.filter((row) => formatDateForUi(row.session.startsAt) === formatDateForUi(new Date())).length,
-    };
-  }, [filteredRows]);
+  const listRows = payload.rows;
+  const summary = payload.summary;
+  const pagination = payload.pagination;
 
   async function runRowAction(id: string, action: () => Promise<void>, ok: string) {
     setBusyId(id);
@@ -260,11 +197,12 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           method: "PATCH",
           body: JSON.stringify({ status: "COMPLETED" }),
         });
-        setRows((prev) =>
-          prev.map((item) =>
+        setPayload((prev) => ({
+          ...prev,
+          rows: prev.rows.map((item) =>
             item.id === row.id ? { ...item, status: "COMPLETED" } : item,
           ),
-        );
+        }));
       }, t("successMarkedAttended"));
     } else if (kind === "cancel") {
       await runRowAction(row.id, async () => {
@@ -272,16 +210,20 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           method: "PATCH",
           body: JSON.stringify({ status: "CANCELLED" }),
         });
-        setRows((prev) =>
-          prev.map((item) =>
+        setPayload((prev) => ({
+          ...prev,
+          rows: prev.rows.map((item) =>
             item.id === row.id ? { ...item, status: "CANCELLED" } : item,
           ),
-        );
+        }));
       }, t("successCancelled"));
     } else {
       await runRowAction(row.id, async () => {
         await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
-        setRows((prev) => prev.filter((item) => item.id !== row.id));
+        setPayload((prev) => ({
+          ...prev,
+          rows: prev.rows.filter((item) => item.id !== row.id),
+        }));
         if (selectedRowKey === bookingRowKey(row)) {
           setSelectedRowKey(null);
         }
@@ -313,32 +255,23 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
             method: "PATCH",
             body: JSON.stringify({ status: nextStatus }),
           });
-          setRows((prev) =>
-            prev.map((item) =>
+          setPayload((prev) => ({
+            ...prev,
+            rows: prev.rows.map((item) =>
               item.id === row.id ? { ...item, status: nextStatus } : item,
             ),
-          );
+          }));
         }, t("successEdited"));
       },
       onDelete: () => openBookingConfirm("delete", row),
     };
   }
 
-  function resetFilters() {
-    setSearch("");
-    setFrom("");
-    setTo("");
-    setClassTypeId("");
-    setCoachId("");
-    setClientId("");
-    setStatus("");
-  }
-
   const bookingFilterFields = useMemo(
     () =>
       buildAdminBookingsFilterFields({
-        classTypes: initial.filterOptions.classTypes,
-        coaches: initial.filterOptions.coaches,
+        classTypes: payload.filterOptions.classTypes,
+        coaches: payload.filterOptions.coaches,
         clients: uniqueClients,
         statusLabels: {
           BOOKED: t("statusBooked"),
@@ -355,48 +288,32 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           statusAll: t("filterStatusAll"),
         },
       }),
-    [initial.filterOptions.classTypes, initial.filterOptions.coaches, t, uniqueClients],
+    [payload.filterOptions.classTypes, payload.filterOptions.coaches, t, uniqueClients],
   );
 
   const integratedFilterValues = useMemo(
-    () =>
-      adminBookingsFilterValuesFromState({
-        from,
-        to,
-        classTypeId,
-        coachId,
-        clientId,
-        status,
-      }),
-    [from, to, classTypeId, coachId, clientId, status],
+    () => adminBookingsFilterValuesFromState(filters),
+    [filters],
   );
 
   function handleIntegratedFilterChange(key: string, value: string) {
-    switch (key) {
-      case "from":
-        setFrom(value);
-        break;
-      case "to":
-        setTo(value);
-        break;
-      case "classTypeId":
-        setClassTypeId(value);
-        break;
-      case "coachId":
-        setCoachId(value);
-        break;
-      case "clientId":
-        setClientId(value);
-        break;
-      case "status":
-        setStatus(value);
-        break;
-      default:
-        break;
+    if (key === "search") {
+      updateFilter("search", value);
+      return;
+    }
+    if (
+      key === "from" ||
+      key === "to" ||
+      key === "classTypeId" ||
+      key === "coachId" ||
+      key === "clientId" ||
+      key === "status"
+    ) {
+      updateFilter(key, value);
     }
   }
 
-  const dayRows = filteredRows
+  const dayRows = calendarRows
     .filter((row) => sessionDayKey(row.session.startsAt) === selectedDay)
     .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
   const daySessions = filteredSessions
@@ -413,8 +330,8 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <AdminIntegratedSearchFilters
               className="min-w-0 flex-1"
-              search={search}
-              onSearchChange={setSearch}
+              search={filters.search}
+              onSearchChange={(value) => updateFilter("search", value)}
               searchPlaceholder={t("filterSearch")}
               fields={bookingFilterFields}
               filterValues={integratedFilterValues}
@@ -438,6 +355,11 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
       </div>
 
       {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
+      {loading ? (
+        <p className="text-sm text-sage-500" role="status">
+          {tSearchTools("loadingResults")}
+        </p>
+      ) : null}
 
       {view === "daily" && openDaySessions.length > 0 ? (
         <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
@@ -464,7 +386,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
             </span>
             <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
           </div>
-          {(view === "daily" ? dayRows : filteredRows).map((row) => {
+          {(view === "daily" ? dayRows : listRows).map((row) => {
             const handlers = rowActionHandlers(row);
             return (
               <AdminBookingCompactRow
@@ -481,9 +403,21 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         </div>
       )}
 
+      {view === "list" && pagination ? (
+        <OmmListPagination
+          total={pagination.total}
+          page={listPage.page}
+          pageSize={listPage.pageSize}
+          offset={pagination.offset}
+          onPageChange={(page) => setListPage(page)}
+          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+          disabled={loading}
+        />
+      ) : null}
+
       {view === "monthly" ? (
         <MonthlyPanel
-          rows={filteredRows}
+          rows={calendarRows}
           sessions={filteredSessions}
           selectedDay={selectedDay}
           onSelect={setSelectedDay}
@@ -493,7 +427,7 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
       ) : null}
       {view === "weekly" ? (
         <WeeklyPanel
-          rows={filteredRows}
+          rows={calendarRows}
           sessions={filteredSessions}
           selectedDay={selectedDay}
           onSelect={setSelectedDay}

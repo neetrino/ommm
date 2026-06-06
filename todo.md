@@ -39,9 +39,9 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 ## Faza 2 — Admin tyazhelye spiski (nuzhen backend)
 
 ### Admin Bookings — P0
-- [ ] Stranica: `/admin/bookings`
-- [ ] API: `GET /bookings/admin/management` — `take`, `offset`, `total`
-- [ ] Frontend: paginaciya v list / daily view (ne kalendarnyy view — tam diapazon dat)
+- [x] Stranica: `/admin/bookings`
+- [x] API: `GET /bookings/admin/management` — `take`, `offset`, `total` (+ `userId` filter)
+- [x] Frontend: paginaciya v list view; calendar views — fetch po diapazonu dat bez paginacii
 
 ### Admin Waitlists — P1
 - [ ] Stranica: `/admin/waitlists`
@@ -76,14 +76,14 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 ## Faza 3 — User account
 
 ### User Bookings — P0
-- [ ] Stranica: `/user/bookings`
-- [ ] API: `GET /bookings/me?take&offset` (seychas `listMine()` bez limita)
-- [ ] Frontend: paginaciya dlya **Past** (Upcoming obychno korotkiy); waitlist — po neobhodimosti
+- [x] Stranica: `/user/bookings`
+- [x] API: `GET /bookings/me?scope=past&take&offset` (+ `scope=upcoming`; legacy `/bookings/me` bez scope)
+- [x] Frontend: paginaciya dlya **Past** (Upcoming obychno korotkiy); waitlist — po neobhodimosti
 
 ### User Payments — P0
-- [ ] Stranica: `/user/payments`
-- [ ] API: rasshirit `listPayments` — metadata `{ total, take, offset }` (seychas hardcoded `take: 100`)
-- [ ] Frontend: `UserPaymentsHistory`
+- [x] Stranica: `/user/payments`
+- [x] API: rasshirit `listPayments` — metadata `{ items, total, take, offset }` (+ legacy bez take/offset)
+- [x] Frontend: `UserPaymentsHistory`
 
 ### User Gift cards — P1
 - [ ] Stranica: `/user/gift-cards`
