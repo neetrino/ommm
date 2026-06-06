@@ -68,7 +68,7 @@ const COACH_NAV: readonly DashboardNavDefinition[] = [
 /** Manager matrix: no Memberships, Notifications, Reports, or studio Settings. */
 const MANAGER_NAV: readonly DashboardNavDefinition[] = [
   { href: "/manager/home", icon: "home", labelKey: "home" },
-  { href: "/manager/classes", icon: "layoutGrid", labelKey: "classes" },
+  { href: "/manager/classes", icon: "layoutGrid", labelKey: "schedule" },
   { href: "/manager/bookings", icon: "calendar", labelKey: "bookings" },
   { href: "/manager/waitlists", icon: "listOrdered", labelKey: "waitlists" },
   { href: "/manager/clients", icon: "users", labelKey: "clients" },

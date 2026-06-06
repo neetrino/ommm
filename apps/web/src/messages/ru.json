@@ -467,6 +467,7 @@
       },
       "MANAGER": {
         "home": "Главная",
+        "schedule": "Расписание",
         "classes": "Классы",
         "bookings": "Бронирования",
         "waitlists": "Листы ожидания",
@@ -904,7 +905,9 @@
         "allStatuses": "Все статусы",
         "type": "Тип платежа",
         "allTypes": "Все типы",
-        "sort": "Сортировка"
+        "sort": "Сортировка",
+        "searchPlaceholder": "Поиск платежей…",
+        "resetFilters": "Сбросить фильтры"
       },
       "sort": {
         "newest": "Сначала новые",
@@ -3021,7 +3024,8 @@
         "reject": "Отклонить",
         "delete": "Удалить",
         "tags": "теги",
-        "review": "ревью"
+        "review": "ревью",
+        "resetFilters": "Сбросить фильтры"
       },
       "feedback": {
         "actionFailed": "Действие не выполнено",

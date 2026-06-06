@@ -51,6 +51,7 @@ async function loadContentPanelLabels(locale: string) {
       delete: t("labels.delete"),
       tags: t("labels.tags"),
       review: t("labels.review"),
+      resetFilters: t("labels.resetFilters"),
     },
     feedback: {
       actionFailed: t("feedback.actionFailed"),

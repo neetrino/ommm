@@ -8,15 +8,17 @@
 
 ## Admin Analytics — остаток
 
-### Faza 1 (в процессе)
+### Faza 1
+
+- [x] Завершена (tabs, header, query preservation, layout без description)
 
 - [x] План `docs/archive/todo.analytics.md`
 - [x] 5 route-tabs + redirect `/admin/analytics` → overview
 - [x] `layout.tsx` + unified header (tabs, filters, view, CSV icons)
 - [x] `admin-analytics-server-helpers`, `admin-analytics-url`, tab pages
 - [x] Shell split по `section` (overview / revenue / bookings / members / coaches)
-- [ ] Tab nav сохраняет global query при смене таба
-- [ ] Убрать `description` из `AdminContentFrame` (dubl nav subtitle)
+- [x] Tab nav сохраняет global query при смене таба
+- [x] Убрать `description` из `AdminContentFrame` (dubl nav subtitle) — analytics layout без description
 
 ### Backend / product (P1–P2)
 
@@ -28,7 +30,7 @@
 
 ### i18n / QA
 
-- [ ] Auth error QA на всех 5 табах
+- [x] Auth error QA на всех 5 табах (account + analytics smoke)
 - [ ] `docs/SITE_FULL_ANALYSIS.md`
 
 ---
@@ -62,8 +64,9 @@
 - [x] Payments search `q`, Members columns, Coaches server filters
 - [x] 429 fix, URL hygiene, list UI unified with Bookings/Clients
 
-## Сделано (Analytics Faza 1 — начало)
+## Сделано (Analytics Faza 1)
 
 - [x] 5 tabs по spec §10, unified header как Finance
 - [x] Export icons в hero, без блока export/limitations внизу
 - [x] Query sanitization per tab (`redirectIfUnscopedAnalyticsSearchParams`)
+- [x] Tab nav сохраняет `rangeDays` / `quick` / `sort` (+ tab-specific keys) при смене таба

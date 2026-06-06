@@ -467,6 +467,7 @@
       },
       "MANAGER": {
         "home": "Home",
+        "schedule": "Schedule",
         "classes": "Classes",
         "bookings": "Bookings",
         "waitlists": "Waitlists",
@@ -904,7 +905,9 @@
         "allStatuses": "All statuses",
         "type": "Payment type",
         "allTypes": "All types",
-        "sort": "Sort"
+        "sort": "Sort",
+        "searchPlaceholder": "Search payments…",
+        "resetFilters": "Reset filters"
       },
       "sort": {
         "newest": "Newest first",
@@ -3075,7 +3078,8 @@
         "reject": "Reject",
         "delete": "Delete",
         "tags": "tags",
-        "review": "review"
+        "review": "review",
+        "resetFilters": "Reset filters"
       },
       "feedback": {
         "actionFailed": "Action failed",

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
@@ -54,6 +55,7 @@ type ContentPostsPanelClientProps = {
       delete: string;
       tags: string;
       review: string;
+      resetFilters: string;
     };
     feedback: {
       actionFailed: string;
@@ -97,6 +99,51 @@ export function ContentPostsPanelClient({
   const [statusFilter, setStatusFilter] = useState<"ALL" | (typeof CONTENT_STATUS)[number]>(
     "ALL",
   );
+
+  const filterFields = useMemo(
+    () => [
+      {
+        key: "type",
+        label: labels.labels.type,
+        emptyValue: "ALL",
+        allLabel: labels.labels.allTypes,
+        options: CONTENT_TYPES.map((value) => ({ value, label: value })),
+      },
+      {
+        key: "status",
+        label: labels.labels.status,
+        emptyValue: "ALL",
+        allLabel: labels.labels.allStatuses,
+        options: CONTENT_STATUS.map((value) => ({ value, label: value })),
+      },
+    ],
+    [labels.labels.allStatuses, labels.labels.allTypes, labels.labels.status, labels.labels.type],
+  );
+
+  const integratedFilterValues = useMemo(
+    () => ({
+      type: typeFilter,
+      status: statusFilter,
+    }),
+    [statusFilter, typeFilter],
+  );
+
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    if (key === "type") {
+      setTypeFilter(value as "ALL" | (typeof CONTENT_TYPES)[number]);
+      return;
+    }
+    if (key === "status") {
+      setStatusFilter(value as "ALL" | (typeof CONTENT_STATUS)[number]);
+    }
+  }
+
+  function resetPostFilters(): void {
+    setQuery("");
+    setTypeFilter("ALL");
+    setStatusFilter("ALL");
+  }
+
   const filteredItems = items.filter((item) => {
     if (typeFilter !== "ALL" && item.type !== typeFilter) {
       return false;
@@ -245,40 +292,16 @@ export function ContentPostsPanelClient({
         />
       </form>
 
-      <div className="grid gap-2 sm:grid-cols-4">
-        <input
-          className="app-input h-9 text-xs sm:col-span-2"
-          placeholder={labels.placeholders.searchPosts}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-        <OmmSelectDropdown
-          ariaLabel={labels.labels.allTypes}
-          label={typeFilter === "ALL" ? labels.labels.allTypes : typeFilter}
-          value={typeFilter}
-          triggerClassName="ommm-dropdown-trigger--compact"
-          options={[
-            { value: "ALL", label: labels.labels.allTypes },
-            ...CONTENT_TYPES.map((value) => ({ value, label: value })),
-          ]}
-          onChange={(value) =>
-            setTypeFilter(value as "ALL" | (typeof CONTENT_TYPES)[number])
-          }
-        />
-        <OmmSelectDropdown
-          ariaLabel={labels.labels.allStatuses}
-          label={statusFilter === "ALL" ? labels.labels.allStatuses : statusFilter}
-          value={statusFilter}
-          triggerClassName="ommm-dropdown-trigger--compact"
-          options={[
-            { value: "ALL", label: labels.labels.allStatuses },
-            ...CONTENT_STATUS.map((value) => ({ value, label: value })),
-          ]}
-          onChange={(value) =>
-            setStatusFilter(value as "ALL" | (typeof CONTENT_STATUS)[number])
-          }
-        />
-      </div>
+      <ListPageSearchFilters
+        search={query}
+        onSearchChange={setQuery}
+        searchPlaceholder={labels.placeholders.searchPosts}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={resetPostFilters}
+        resetLabel={labels.labels.resetFilters}
+      />
 
       <ul className="mt-2 space-y-3">
         {filteredItems.map((p) => (

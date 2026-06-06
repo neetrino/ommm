@@ -1,4 +1,7 @@
-import type { AnalyticsSectionId } from "@/components/admin/admin-analytics-module";
+import {
+  ANALYTICS_SECTION_HREF,
+  type AnalyticsSectionId,
+} from "@/components/admin/admin-analytics-module";
 import {
   parseAnalyticsBookingStatus,
   parseAnalyticsQuickFilters,
@@ -60,6 +63,16 @@ export function buildSanitizedAnalyticsSectionQueryString(
     }
   }
   return params.toString();
+}
+
+/** Preserves section-allowed query keys when switching analytics tabs. */
+export function buildAnalyticsTabHref(
+  section: AnalyticsSectionId,
+  search: Record<string, string | string[] | undefined>,
+): string {
+  const base = ANALYTICS_SECTION_HREF[section];
+  const query = buildSanitizedAnalyticsSectionQueryString(section, search);
+  return query.length > 0 ? `${base}?${query}` : base;
 }
 
 export function analyticsSectionSearchNeedsSanitization(

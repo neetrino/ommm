@@ -28,10 +28,17 @@ import {
   syncPackageCategorySelection,
   type AdminPackagesCategoryOption,
 } from "@/components/admin/admin-packages-category-multi-select";
+import { AdminPackagesFilters } from "@/components/admin/admin-packages-filters";
+import {
+  countActivePackageFilters,
+  filterPackages,
+  sortPackages,
+} from "@/components/admin/admin-packages-filter-logic";
 import {
   type AdminPackageRow,
   mergeAdminPackageRowsFromServer,
   normalizeAdminPackageRow,
+  type PackageFilterValues,
   upsertAdminPackageRow,
 } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
@@ -53,6 +60,12 @@ import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
   locale: string;
+};
+
+const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
+  search: "",
+  status: "all",
+  order: "displayOrder",
 };
 
 function PackagesEmptyState({ children }: { children: ReactNode }) {
@@ -87,10 +100,33 @@ export function AdminPackagesManagement({
     );
   }
 
+  const [filterValues, setFilterValues] = useState<PackageFilterValues>(DEFAULT_PACKAGE_FILTER_VALUES);
+
   const sortedPackages = useMemo(
     () => [...packageRows].sort((left, right) => left.displayOrder - right.displayOrder),
     [packageRows],
   );
+
+  const filteredPackages = useMemo(
+    () => sortPackages(filterPackages(sortedPackages, filterValues), filterValues.order),
+    [filterValues, sortedPackages],
+  );
+
+  const activeFilterCount = useMemo(
+    () => countActivePackageFilters(filterValues),
+    [filterValues],
+  );
+
+  function updatePackageFilter<K extends keyof PackageFilterValues>(
+    key: K,
+    value: PackageFilterValues[K],
+  ): void {
+    setFilterValues((current) => ({ ...current, [key]: value }));
+  }
+
+  function resetPackageFilters(): void {
+    setFilterValues(DEFAULT_PACKAGE_FILTER_VALUES);
+  }
 
   const categoryOptions = useMemo(
     () => buildPackageCategoryOptions(sortedPackages),
@@ -322,7 +358,20 @@ export function AdminPackagesManagement({
   }, [pathname, router, searchParams]);
 
   const toolbar = (
-    <div className="ommm-admin-packages-toolbar">
+    <div className="space-y-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <AdminPackagesFilters
+          values={filterValues}
+          onChange={updatePackageFilter}
+          onReset={resetPackageFilters}
+        />
+        {activeFilterCount > 0 ? (
+          <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+            {t("filters.activeCount", { count: activeFilterCount })}
+          </p>
+        ) : null}
+      </div>
+      <div className="ommm-admin-packages-toolbar">
       {categoryOptions.length > 0 ? (
         <AdminPackagesCategoryDropdown
           options={categoryOptions}
@@ -335,6 +384,7 @@ export function AdminPackagesManagement({
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
         <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
       </div>
+      </div>
     </div>
   );
 
@@ -342,7 +392,7 @@ export function AdminPackagesManagement({
     <>
       <AdminPackagesShell
         toolbar={toolbar}
-        packages={sortedPackages}
+        packages={filteredPackages}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}
@@ -358,7 +408,7 @@ export function AdminPackagesManagement({
               <CategoryAccordion
                 key={category.id}
                 category={category}
-                packages={sortedPackages}
+                packages={filteredPackages}
                 locale={locale}
                 open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
                 onOpenChange={(next) => {

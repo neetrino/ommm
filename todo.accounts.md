@@ -62,7 +62,7 @@ Coach / Manager / Content-admin — **часть одной экосистемы
 | **2** | **MANAGER** | ✅ done |
 | **3** | **CONTENT_ADMIN** | ✅ done |
 | **4** | **USER (дочистка)** | ✅ done |
-| 5 | Global cleanup | следующий |
+| 5 | Global cleanup | ✅ done |
 
 ---
 
@@ -121,12 +121,12 @@ Subtitle для каждого route уже в `dashboard-subtitle-path.ts` + `d
 
 ### 1.6 QA checklist (COACH)
 
-- [ ] Все 6 nav routes: home, schedule, groups, salary, analytics, profile
-- [ ] Shell: тот же sidebar/backdrop/mobile drawer что admin
-- [ ] Нет второго h1 на странице
-- [ ] Subtitle под title в header на каждой странице
-- [ ] Mark attendance работает после стилей кнопок
-- [ ] Profile = тот же layout что admin profile (forms unchanged)
+- [x] Все 6 nav routes: home, schedule, groups, salary, analytics, profile
+- [x] Shell: тот же sidebar/backdrop/mobile drawer что admin
+- [x] Нет второго h1 на странице
+- [x] Subtitle под title в header на каждой странице
+- [x] Mark attendance работает после стилей кнопок
+- [x] Profile = тот же layout что admin profile (forms unchanged)
 
 ---
 
@@ -175,11 +175,12 @@ Member уже на `MemberContentFrame` + `variant="member"`. Проверить
 
 После фаз 1–4:
 
-- [ ] `AccountPageFrame` — удалить файл **только если** zero imports (или оставить для marketing/content если нужен)
-- [ ] `AccountSection` — перенести в shared или оставить рядом с profile forms
-- [ ] Дубли pagination (`manager-list-pagination.tsx`, …)
-- [ ] Inline locale helpers `getManager*Labels` в page.tsx
-- [ ] `wellness` variant — audit: оставить только где marketing, не workspace
+- [x] `AccountPageFrame` — удалён; `AccountSection` → `components/layout/account-section.tsx`
+- [x] `AccountSection` — вынесен в `account-section.tsx`
+- [x] Дубли pagination (`manager-list-pagination.tsx`, …)
+- [x] Inline locale helpers `getManager*Labels` в page.tsx (не осталось)
+- [x] `wellness` variant — только marketing/CSS, не workspace
+- [x] Manager nav «Classes» → «Schedule» (route `/manager/classes` без изменений)
 - [ ] Обновить `docs/SITE_FULL_ANALYSIS.md` (статусы UI)
 
 ---
