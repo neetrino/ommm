@@ -151,6 +151,7 @@ export function UserClassesSection({
               locale={locale}
               rows={weekRows}
               showCoach
+              cardVariant="member"
               labels={{
                 gridAria: tSchedule("weekView.gridAria"),
                 todayBadge: tSchedule("weekView.todayBadge"),

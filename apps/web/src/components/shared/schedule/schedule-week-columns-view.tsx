@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useScheduleWeekBoardScroll } from "@/components/shared/schedule/schedule-week-board-scroll";
 import {
   ScheduleWeekSessionMiniCard,
+  type ScheduleWeekCardVariant,
   type ScheduleWeekMiniCardSession,
 } from "@/components/shared/schedule/schedule-week-session-mini-card";
 import {
@@ -29,6 +30,7 @@ type ScheduleWeekColumnsViewProps<T extends ScheduleWeekMiniCardSession> = {
   rows: readonly T[];
   labels: ScheduleWeekViewLabels;
   showCoach?: boolean;
+  cardVariant?: ScheduleWeekCardVariant;
   columnWidth?: number;
   onSessionClick?: (session: T) => void;
 };
@@ -42,6 +44,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
   rows,
   labels,
   showCoach = false,
+  cardVariant = "staff",
   columnWidth = SCHEDULE_WEEK_COLUMN_WIDTH_PX,
   onSessionClick,
 }: ScheduleWeekColumnsViewProps<T>) {
@@ -114,9 +117,9 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 pb-6">
+                <div className="flex flex-col gap-3 pb-6">
                   {daySessions.length === 0 ? (
-                    <div className="rounded-[20px] border border-dashed border-white/70 bg-white/45 px-3 py-8 text-center text-xs text-sage-400">
+                    <div className="rounded-[28px] border border-dashed border-white/80 bg-white/55 px-3 py-10 text-center text-xs text-sage-500">
                       {labels.emptyDay}
                     </div>
                   ) : (
@@ -126,6 +129,7 @@ export function ScheduleWeekColumnsView<T extends ScheduleWeekMiniCardSession>({
                         locale={locale}
                         session={session}
                         showCoach={showCoach}
+                        variant={cardVariant}
                         onClick={onSessionClick ? () => onSessionClick(session) : undefined}
                       />
                     ))

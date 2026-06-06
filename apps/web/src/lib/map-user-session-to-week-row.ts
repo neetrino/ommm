@@ -7,6 +7,9 @@ export function mapUserSessionToWeekRow(session: UserSessionRow): ScheduleWeekMi
     title: session.classType.name,
     startsAt: session.startsAt,
     endsAt: session.endsAt,
+    capacity: session.capacity,
+    classType: session.classType,
+    _count: session._count,
     coach: {
       id: session.id,
       user: session.coach.user,

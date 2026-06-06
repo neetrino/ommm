@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 type SessionClassTitleProps = {
   name: string;
   eyebrow?: string;
-  variant: "board" | "list";
+  variant: "board" | "list" | "week";
   trailing?: ReactNode;
   className?: string;
 };
@@ -15,6 +15,21 @@ export function SessionClassTitle({
   trailing,
   className = "",
 }: SessionClassTitleProps) {
+  if (variant === "week") {
+    return (
+      <div className={`min-w-0 ${className}`.trim()}>
+        {eyebrow ? (
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sand-600">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h3 className="font-serif text-base font-normal leading-snug tracking-tight text-sage-950">
+          {name}
+        </h3>
+      </div>
+    );
+  }
+
   if (variant === "board") {
     return (
       <div className={`flex items-start justify-between gap-3 ${className}`.trim()}>
