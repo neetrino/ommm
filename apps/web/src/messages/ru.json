@@ -3006,6 +3006,7 @@
       "createButton": "Новый пост",
       "empty": "Нет постов по вашим фильтрам.",
       "colTitle": "Заголовок",
+      "colCover": "Обложка",
       "colType": "Тип",
       "colStatus": "Статус",
       "colUpdated": "Обновлено",

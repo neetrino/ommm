@@ -21,6 +21,7 @@ import {
 } from "@/components/shared/content/content-posts-list-layout";
 import type { ContentPostRow } from "@/components/shared/content/content-post-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ContentPostListCoverThumb } from "@/components/shared/content/content-post-list-cover-thumb";
 
 type ContentPostCompactRowProps = {
   post: ContentPostRow;
@@ -52,6 +53,13 @@ export function ContentPostCompactRow({
       }}
       className={CONTENT_POSTS_LIST_ROW_CLASS}
     >
+      <div className={`${CONTENT_POSTS_LIST_CELL} md:flex md:justify-center`}>
+        <AdminListMobileLabel label={t("colCover")} />
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-white/60 bg-sage-50">
+          <ContentPostListCoverThumb coverImageUrl={post.coverImageUrl} title={post.title} />
+        </div>
+      </div>
+
       <div className={CONTENT_POSTS_LIST_CELL}>
         <AdminListMobileLabel label={t("colTitle")} />
         <button
@@ -110,6 +118,9 @@ export function ContentPostsList({ posts, busy, onSelect, onEdit }: ContentPosts
   return (
     <div className={CONTENT_POSTS_LIST_TABLE_CLASS}>
       <div className={CONTENT_POSTS_LIST_HEADER_CLASS}>
+        <span className={`${CONTENT_POSTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colCover")}
+        </span>
         <span>{t("colTitle")}</span>
         <span className={`${CONTENT_POSTS_LIST_EMPHASIZED_HEADER} md:text-center`}>
           {t("colType")}

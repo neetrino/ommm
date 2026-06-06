@@ -12,7 +12,7 @@ import {
 } from "@/components/admin/admin-list-table-layout";
 
 const CONTENT_POSTS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1.4fr)_minmax(7rem,auto)_minmax(7rem,auto)_minmax(9rem,auto)_1fr_auto]";
+  "md:grid-cols-[minmax(0,auto)_minmax(0,1.4fr)_minmax(7rem,auto)_minmax(7rem,auto)_minmax(9rem,auto)_1fr_auto]";
 
 export const CONTENT_POSTS_LIST_TABLE_CLASS = buildAdminListTableClass(CONTENT_POSTS_GRID_CLASS);
 

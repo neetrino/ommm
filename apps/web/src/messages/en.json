@@ -3060,6 +3060,7 @@
       "createButton": "New post",
       "empty": "No posts match your filters.",
       "colTitle": "Title",
+      "colCover": "Cover",
       "colType": "Type",
       "colStatus": "Status",
       "colUpdated": "Updated",
