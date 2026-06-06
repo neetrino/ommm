@@ -1,7 +1,7 @@
 import type { ClientTag } from "@/components/admin/admin-clients-types";
 
 export const ADMIN_CLIENT_TAG_BADGE_CLASS =
-  "inline-flex max-w-full shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]";
+  "inline-flex max-w-full shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.05em]";
 
 export function clientTagBadgeTone(tag: ClientTag): string {
   if (tag === "VIP") return "bg-amber-100 text-amber-900";

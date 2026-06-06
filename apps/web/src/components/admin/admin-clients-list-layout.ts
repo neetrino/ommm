@@ -39,7 +39,7 @@ export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
 
-export const ADMIN_CLIENTS_LIST_TAGS_CELL = `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5`;
+export const ADMIN_CLIENTS_LIST_TAGS_CELL = `${USER_LIST_CELL_CLASS} flex flex-col items-start gap-1`;
 
 export const ADMIN_CLIENTS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
 
