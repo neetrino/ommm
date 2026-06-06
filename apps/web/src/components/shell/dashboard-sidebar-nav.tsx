@@ -5,10 +5,13 @@ import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
-import { memberNavIconSlugForHref } from "@/components/shell/member-nav-icon-map";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
-import { dashboardNavPathActive, type DashboardNavItem } from "@/lib/dashboard-nav";
+import {
+  dashboardNavPathActive,
+  memberOliveIconSlugForNavItem,
+  type DashboardNavItem,
+} from "@/lib/dashboard-nav";
 import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
@@ -31,11 +34,15 @@ function oliveNavIconSlug(
   variant: DashboardShellVariant,
   item: DashboardNavItem,
 ): ReturnType<typeof adminNavIconSlugForHref> {
+  if (variant === "member") {
+    return memberOliveIconSlugForNavItem(item);
+  }
   if (item.oliveIconSlug) {
     return item.oliveIconSlug;
   }
-  if (variant === "admin") return adminNavIconSlugForHref(item.href);
-  if (variant === "member") return memberNavIconSlugForHref(item.href);
+  if (variant === "admin") {
+    return adminNavIconSlugForHref(item.href);
+  }
   return null;
 }
 

@@ -8,19 +8,18 @@ import { UserSessionBoardCard } from "@/components/account/user-session-board-ca
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import type { UserSessionRow } from "@/lib/user-booking-types";
 import type { UserSessionBookingMap } from "@/lib/user-session-bookings-map";
 
 type UserClassesSectionProps = {
   locale: string;
-  description: string;
   sessions: readonly UserSessionRow[];
   sessionBookings: UserSessionBookingMap;
 };
 
 export function UserClassesSection({
   locale,
-  description,
   sessions,
   sessionBookings,
 }: UserClassesSectionProps) {
@@ -40,7 +39,11 @@ export function UserClassesSection({
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} description={description} search={heroSearch} />
+      <AdminPageHero
+        title={t("title")}
+        description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
+        search={heroSearch}
+      />
 
       {sessions.length === 0 ? (
         <p className="ommm-body-muted text-sm">{t("noSessions")}</p>

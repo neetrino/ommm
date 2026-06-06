@@ -47,7 +47,6 @@ export default async function UserClassesPage({
     <MemberContentFrame>
       <UserClassesSection
         locale={locale}
-        description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
         sessions={sessions}
         sessionBookings={sessionBookings}
       />

@@ -43,6 +43,28 @@ export type DashboardNavItem = {
   oliveIconSlug?: AdminNavIconSlug;
 };
 
+/** Member olive sidebar — fallback from {@link DashboardNavIcon} when slug prop is missing after HMR. */
+const MEMBER_ICON_TO_OLIVE_SLUG: Partial<Record<DashboardNavIcon, AdminNavIconSlug>> = {
+  layoutDashboard: "dashboard",
+  calendar: "bookings",
+  listOrdered: "waitlists",
+  layoutGrid: "schedule",
+  tag: "packages",
+  wallet: "finance",
+  gift: "giftCards",
+  user: "clients",
+};
+
+/** Resolves Figma member sidebar glyph from serialized nav item fields (SSR-safe). */
+export function memberOliveIconSlugForNavItem(
+  item: Pick<DashboardNavItem, "oliveIconSlug" | "icon">,
+): AdminNavIconSlug | null {
+  if (item.oliveIconSlug) {
+    return item.oliveIconSlug;
+  }
+  return MEMBER_ICON_TO_OLIVE_SLUG[item.icon] ?? null;
+}
+
 export type DashboardRoleNotificationRoute = {
   href: string;
   labelKey: string;
