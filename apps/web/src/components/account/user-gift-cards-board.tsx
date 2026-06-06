@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import {
@@ -14,24 +15,37 @@ import type {
 } from "@/components/account/user-gift-cards-types";
 import { GiftCardBoardTile, type GiftCardBoardDetail } from "@/components/gift-cards/gift-card-board-tile";
 import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import {
+  buildUserGiftCardsPurchasedEndpoint,
+  buildUserGiftCardsReceivedEndpoint,
+  USER_GIFT_CARDS_PURCHASED_PAGE_KEYS,
+  USER_GIFT_CARDS_RECEIVED_PAGE_KEYS,
+  type UserGiftCardsSectionPayload,
+} from "@/lib/user-gift-cards-query";
+import { apiFetch } from "@/lib/api";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 type UserGiftCardsBoardProps = {
   locale: string;
-  purchased: readonly UserGiftCardRow[];
-  received: readonly UserGiftCardRow[];
+  initialPurchased: UserGiftCardsSectionPayload;
+  initialReceived: UserGiftCardsSectionPayload;
   purchasedError: number | null;
   receivedError: number | null;
 };
 
 export function UserGiftCardsBoard({
   locale,
-  purchased,
-  received,
+  initialPurchased,
+  initialReceived,
   purchasedError,
   receivedError,
 }: UserGiftCardsBoardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const purchased = initialPurchased.items;
+  const received = initialReceived.items;
 
   const selectedCard = useMemo(() => {
     if (selectedId === null) {
@@ -44,17 +58,17 @@ export function UserGiftCardsBoard({
 
   return (
     <>
-      <UserGiftCardSection
+      <PaginatedGiftCardSection
         kind="purchased"
         locale={locale}
-        cards={purchased}
+        initial={initialPurchased}
         errorStatus={purchasedError}
         onSelect={setSelectedId}
       />
-      <UserGiftCardSection
+      <PaginatedGiftCardSection
         kind="received"
         locale={locale}
-        cards={received}
+        initial={initialReceived}
         errorStatus={receivedError}
         onSelect={setSelectedId}
       />
@@ -67,27 +81,86 @@ export function UserGiftCardsBoard({
   );
 }
 
-type UserGiftCardSectionProps = {
+type PaginatedGiftCardSectionProps = {
   kind: UserGiftCardSectionKind;
   locale: string;
-  cards: readonly UserGiftCardRow[];
+  initial: UserGiftCardsSectionPayload;
   errorStatus: number | null;
   onSelect: (id: string) => void;
 };
 
-function UserGiftCardSection({
+function PaginatedGiftCardSection({
   kind,
   locale,
-  cards,
+  initial,
   errorStatus,
   onSelect,
-}: UserGiftCardSectionProps) {
+}: PaginatedGiftCardSectionProps) {
   const t = useTranslations("userPages.giftCards");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [payload, setPayload] = useState(initial);
+  const [loading, startTransition] = useTransition();
+  const requestId = useRef(0);
+  const hasMounted = useRef(false);
+
+  const pageKeys =
+    kind === "purchased"
+      ? USER_GIFT_CARDS_PURCHASED_PAGE_KEYS
+      : USER_GIFT_CARDS_RECEIVED_PAGE_KEYS;
+  const listPage = useMemo(
+    () =>
+      parseListPageParams(Object.fromEntries(searchParams.entries()), pageKeys),
+    [pageKeys, searchParams],
+  );
+
+  useEffect(() => {
+    setPayload(initial);
+  }, [initial]);
+
+  const setSectionPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize, pageKeys);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pageKeys, pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+
+    const currentRequestId = ++requestId.current;
+    startTransition(async () => {
+      try {
+        const endpoint =
+          kind === "purchased"
+            ? buildUserGiftCardsPurchasedEndpoint(listPage.take, listPage.offset)
+            : buildUserGiftCardsReceivedEndpoint(listPage.take, listPage.offset);
+        const data = await apiFetch<UserGiftCardsSectionPayload>(endpoint);
+        if (currentRequestId !== requestId.current) {
+          return;
+        }
+        setPayload(data);
+      } catch {
+        router.refresh();
+      }
+    });
+
+    return undefined;
+  }, [kind, listPage.offset, listPage.take, router, startTransition]);
+
   const heading = kind === "purchased" ? t("purchasedHeading") : t("receivedHeading");
   const emptyTitle =
     kind === "purchased" ? t("emptyPurchasedTitle") : t("emptyReceivedTitle");
   const emptyDescription =
     kind === "purchased" ? t("emptyPurchasedDescription") : t("emptyReceivedDescription");
+  const cards = payload.items;
 
   return (
     <UserGiftCardsSection title={heading}>
@@ -103,7 +176,19 @@ function UserGiftCardSection({
           <p className="ommm-body-muted mt-2 text-sm">{emptyDescription}</p>
         </div>
       ) : (
-        <UserGiftCardGrid locale={locale} cards={cards} kind={kind} onSelect={onSelect} />
+        <>
+          <UserGiftCardGrid locale={locale} cards={cards} kind={kind} onSelect={onSelect} />
+          <OmmListPagination
+            total={payload.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={payload.offset}
+            onPageChange={setSectionPage}
+            onPageSizeChange={(pageSize) => setSectionPage(1, pageSize)}
+            disabled={loading}
+            namespace="userPages.pagination"
+          />
+        </>
       )}
     </UserGiftCardsSection>
   );

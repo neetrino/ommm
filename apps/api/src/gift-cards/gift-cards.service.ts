@@ -12,11 +12,14 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Express } from 'express';
 import { AuditService } from '../audit/audit.service';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
+import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
+import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import { absolutePathForStoredGiftCardUpload } from './gift-card-upload.helpers';
 import {
   ALLOWED_GIFT_CARD_IMAGE_MIMES,
@@ -30,7 +33,9 @@ type GiftCardBatchDelegateLike = {
     include?: Record<string, unknown>;
     orderBy?: Record<string, 'asc' | 'desc'>;
     take?: number;
+    skip?: number;
   }) => Promise<Array<Record<string, unknown>>>;
+  count: (args: { where?: Record<string, unknown> }) => Promise<number>;
   findUnique: (args: {
     where: { id: string };
     select?: Record<string, boolean>;
@@ -47,6 +52,22 @@ type GiftCardBatchDelegateLike = {
     data: Record<string, unknown>;
   }) => Promise<{ count: number }>;
   delete: (args: { where: { id: string } }) => Promise<Record<string, unknown>>;
+};
+
+type AdminBoardBatchRow = {
+  id: string;
+  amountAmd: number;
+  imageUrl: string | null;
+  status: GiftCardStatus;
+  totalQuantity: number;
+  availableQuantity: number;
+  recipientEmail: string | null;
+  recipientName: string | null;
+  message: string | null;
+  expiresAt: Date | null;
+  createdAt: Date;
+  purchaser: { email: string; name: string | null };
+  recipient: { email: string; name: string | null } | null;
 };
 
 type GiftCardBatchSnapshot = {
@@ -91,24 +112,56 @@ export class GiftCardsService {
     return join(process.cwd(), 'uploads');
   }
 
-  listMine(userId: string) {
-    return this.prisma.giftCard
-      .findMany({
-        where: { purchaserId: userId },
-        include: { batch: { select: { imageUrl: true } } },
-        orderBy: { createdAt: 'desc' },
-      })
-      .then((cards) => cards.map((card) => this.serializeUserGiftCard(card)));
+  listMine(userId: string, query: ListMyGiftCardsQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    const where = { purchaserId: userId };
+    const include = { batch: { select: { imageUrl: true } } };
+    const orderBy = { createdAt: 'desc' as const };
+
+    if (!hasPagination) {
+      return this.prisma.giftCard
+        .findMany({ where, include, orderBy })
+        .then((cards) => cards.map((card) => this.serializeUserGiftCard(card)));
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    return Promise.all([
+      this.prisma.giftCard.findMany({ where, include, orderBy, take, skip: offset }),
+      this.prisma.giftCard.count({ where }),
+    ]).then(([cards, total]) => ({
+      items: cards.map((card) => this.serializeUserGiftCard(card)),
+      total,
+      take,
+      offset,
+    }));
   }
 
-  listReceived(userId: string) {
-    return this.prisma.giftCard
-      .findMany({
-        where: { recipientId: userId },
-        include: { batch: { select: { imageUrl: true } } },
-        orderBy: { createdAt: 'desc' },
-      })
-      .then((cards) => cards.map((card) => this.serializeUserGiftCard(card)));
+  listReceived(userId: string, query: ListMyGiftCardsQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    const where = { recipientId: userId };
+    const include = { batch: { select: { imageUrl: true } } };
+    const orderBy = { createdAt: 'desc' as const };
+
+    if (!hasPagination) {
+      return this.prisma.giftCard
+        .findMany({ where, include, orderBy })
+        .then((cards) => cards.map((card) => this.serializeUserGiftCard(card)));
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    return Promise.all([
+      this.prisma.giftCard.findMany({ where, include, orderBy, take, skip: offset }),
+      this.prisma.giftCard.count({ where }),
+    ]).then(([cards, total]) => ({
+      items: cards.map((card) => this.serializeUserGiftCard(card)),
+      total,
+      take,
+      offset,
+    }));
   }
 
   listMarketBatches() {
@@ -183,27 +236,63 @@ export class GiftCardsService {
       );
   }
 
-  listAdminBoard() {
-    return this.loadAdminBoardWithFallback().then((batches) =>
-      batches.map((batch) => ({
-        ...batch,
-        amountAmd: this.readBatchAmount(batch),
-        amountCents: this.readBatchAmount(batch),
-      })),
-    );
+  listAdminBoard(query: ListAdminGiftCardBatchesQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+
+    if (!hasPagination) {
+      return this.loadAdminBoardLegacy().then((batches) =>
+        batches.map((batch) => this.serializeAdminBoardBatch(batch)),
+      );
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    return this.loadAdminBoardPage(take, offset).then(({ batches, total }) => ({
+      items: batches.map((batch) => this.serializeAdminBoardBatch(batch)),
+      total,
+      take,
+      offset,
+    }));
   }
 
-  private async loadAdminBoardWithFallback() {
+  private serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
+    return {
+      ...batch,
+      amountAmd: this.readBatchAmount(batch),
+      amountCents: this.readBatchAmount(batch),
+    };
+  }
+
+  private async loadAdminBoardLegacy(): Promise<AdminBoardBatchRow[]> {
+    const page = await this.loadAdminBoardPage(500, 0);
+    return page.batches;
+  }
+
+  private async loadAdminBoardPage(
+    take: number,
+    offset: number,
+  ): Promise<{ batches: AdminBoardBatchRow[]; total: number }> {
     try {
       const batchDelegate = this.giftCardBatchDelegate(this.prisma);
-      return await batchDelegate.findMany({
-        include: {
-          purchaser: { select: { email: true, name: true } },
-          recipient: { select: { email: true, name: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 500,
-      });
+      const where = {};
+      const [rows, total] = await Promise.all([
+        batchDelegate.findMany({
+          where,
+          include: {
+            purchaser: { select: { email: true, name: true } },
+            recipient: { select: { email: true, name: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take,
+          skip: offset,
+        }),
+        batchDelegate.count({ where }),
+      ]);
+      return {
+        batches: rows as unknown as AdminBoardBatchRow[],
+        total,
+      };
     } catch (error) {
       if (
         !(error instanceof PrismaClientKnownRequestError) ||
@@ -214,80 +303,70 @@ export class GiftCardsService {
       this.logger.warn(
         'GiftCardBatch table is missing; falling back to grouped GiftCard board response.',
       );
-      const cards = await this.prisma.giftCard.findMany({
-        include: {
-          purchaser: { select: { email: true, name: true } },
-          recipient: { select: { email: true, name: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 500,
-      });
-      const grouped = new Map<
-        string,
-        {
-          id: string;
-          amountAmd: number;
-          imageUrl: string | null;
-          status: GiftCardStatus;
-          totalQuantity: number;
-          availableQuantity: number;
-          recipientEmail: string | null;
-          recipientName: string | null;
-          message: string | null;
-          expiresAt: Date | null;
-          createdAt: Date;
-          purchaser: { email: string; name: string | null };
-          recipient: { email: string; name: string | null } | null;
-        }
-      >();
-
-      for (const card of cards) {
-        const key = [
-          this.readGiftCardAmount(card),
-          this.readGiftCardImage(card),
-          card.status,
-          card.purchaserId,
-          card.recipientId ?? '',
-          card.recipientEmail ?? '',
-          card.recipientName ?? '',
-          card.message ?? '',
-          card.expiresAt?.toISOString() ?? '',
-        ].join('|');
-        const existing = grouped.get(key);
-        const isAvailable =
-          card.status === GiftCardStatus.ACTIVE &&
-          this.readGiftCardBalance(card) > 0
-            ? 1
-            : 0;
-        if (!existing) {
-          grouped.set(key, {
-            id: card.id,
-            amountAmd: this.readGiftCardAmount(card),
-            imageUrl: this.readGiftCardImage(card),
-            status: card.status,
-            totalQuantity: 1,
-            availableQuantity: isAvailable,
-            recipientEmail: card.recipientEmail ?? null,
-            recipientName: card.recipientName ?? null,
-            message: card.message ?? null,
-            expiresAt: card.expiresAt ?? null,
-            createdAt: card.createdAt,
-            purchaser: card.purchaser,
-            recipient: card.recipient,
-          });
-          continue;
-        }
-        existing.totalQuantity += 1;
-        existing.availableQuantity += isAvailable;
-        if (card.createdAt > existing.createdAt) {
-          existing.createdAt = card.createdAt;
-        }
-      }
-
-      return [...grouped.values()].sort(
-        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-      );
+      const sorted = await this.loadGroupedAdminBoardFallback();
+      return {
+        batches: sorted.slice(offset, offset + take),
+        total: sorted.length,
+      };
     }
+  }
+
+  private async loadGroupedAdminBoardFallback(): Promise<AdminBoardBatchRow[]> {
+    const cards = await this.prisma.giftCard.findMany({
+      include: {
+        purchaser: { select: { email: true, name: true } },
+        recipient: { select: { email: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    const grouped = new Map<string, AdminBoardBatchRow>();
+
+    for (const card of cards) {
+      const key = [
+        this.readGiftCardAmount(card),
+        this.readGiftCardImage(card),
+        card.status,
+        card.purchaserId,
+        card.recipientId ?? '',
+        card.recipientEmail ?? '',
+        card.recipientName ?? '',
+        card.message ?? '',
+        card.expiresAt?.toISOString() ?? '',
+      ].join('|');
+      const existing = grouped.get(key);
+      const isAvailable =
+        card.status === GiftCardStatus.ACTIVE &&
+        this.readGiftCardBalance(card) > 0
+          ? 1
+          : 0;
+      if (!existing) {
+        grouped.set(key, {
+          id: card.id,
+          amountAmd: this.readGiftCardAmount(card),
+          imageUrl: this.readGiftCardImage(card),
+          status: card.status,
+          totalQuantity: 1,
+          availableQuantity: isAvailable,
+          recipientEmail: card.recipientEmail ?? null,
+          recipientName: card.recipientName ?? null,
+          message: card.message ?? null,
+          expiresAt: card.expiresAt ?? null,
+          createdAt: card.createdAt,
+          purchaser: card.purchaser,
+          recipient: card.recipient,
+        });
+        continue;
+      }
+      existing.totalQuantity += 1;
+      existing.availableQuantity += isAvailable;
+      if (card.createdAt > existing.createdAt) {
+        existing.createdAt = card.createdAt;
+      }
+    }
+
+    return [...grouped.values()].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
   }
 
   listAssignableUsers() {

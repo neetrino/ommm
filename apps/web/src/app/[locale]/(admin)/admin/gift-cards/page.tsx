@@ -2,10 +2,12 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminGiftCardsManagement } from "@/components/admin/admin-gift-cards-management";
-import type {
-  AdminAssignableUser,
-  AdminGiftCardBatchRow,
-} from "@/components/admin/admin-gift-cards-types";
+import {
+  buildAdminGiftCardsListEndpoint,
+  parseAdminGiftCardsPageParams,
+  type AdminGiftCardsListPayload,
+} from "@/components/admin/admin-gift-cards-query";
+import type { AdminAssignableUser } from "@/components/admin/admin-gift-cards-types";
 import { parseGiftCardFiltersFromSearch } from "@/components/admin/admin-gift-cards-url";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { parseAdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
@@ -22,8 +24,16 @@ export default async function AdminGiftCardsPage({
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.giftCards" });
   const cookie = (await headers()).get("cookie") ?? "";
+  const normalizedSearch = Object.fromEntries(
+    Object.entries(search).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value[0] : value,
+    ]),
+  ) as Record<string, string | undefined>;
+  const listPage = parseAdminGiftCardsPageParams(normalizedSearch);
+  const batchesEndpoint = buildAdminGiftCardsListEndpoint(listPage.take, listPage.offset);
   const [res, usersRes] = await Promise.all([
-    serverApiJson<AdminGiftCardBatchRow[]>("/gift-cards/admin/batches", cookie),
+    serverApiJson<AdminGiftCardsListPayload>(batchesEndpoint, cookie),
     serverApiJson<AdminAssignableUser[]>("/gift-cards/admin/users", cookie),
   ]);
 
@@ -44,7 +54,7 @@ export default async function AdminGiftCardsPage({
     <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminGiftCardsManagement
-          giftCards={res.data}
+          initial={res.data}
           assignableUsers={usersRes.ok ? usersRes.data : []}
           locale={locale}
           initialFilters={initialFilters}

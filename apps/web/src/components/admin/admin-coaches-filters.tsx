@@ -15,6 +15,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
+import { resetListPageQuery } from "@/lib/list-pagination";
 
 export type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
 
@@ -57,6 +58,7 @@ function buildQuery(
   for (const key of FILTER_QUERY_KEYS) {
     params.delete(key);
   }
+  resetListPageQuery(params);
   if (values.q.trim() !== "") {
     params.set("q", values.q.trim());
   }

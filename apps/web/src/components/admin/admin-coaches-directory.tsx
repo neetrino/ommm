@@ -17,10 +17,20 @@ import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
+import type { AdminCoachesListPayload } from "@/components/admin/admin-coaches-query";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 export type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 
 type AdminCoachesDirectoryProps = {
+  initial: AdminCoachesListPayload;
+  classTypeOptions: readonly string[];
+  classOptions: readonly CoachClassOption[];
+  locale?: string;
+};
+
+type AdminCoachesViewProps = {
   coaches: readonly AdminCoachDirectoryRow[];
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
@@ -33,7 +43,7 @@ function AdminCoachesListView({
   classOptions,
   locale = "en",
   onSelect,
-}: AdminCoachesDirectoryProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
+}: AdminCoachesViewProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   const t = useTranslations("adminPages.coaches");
 
   return (
@@ -66,7 +76,7 @@ function AdminCoachesBoardView({
   classOptions,
   locale = "en",
   onSelect,
-}: AdminCoachesDirectoryProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
+}: AdminCoachesViewProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   return (
     <ul className="grid grid-cols-1 items-start gap-6 overflow-x-clip sm:grid-cols-2 2xl:grid-cols-3">
       {coaches.map((coach, index) => (
@@ -85,7 +95,12 @@ function AdminCoachesBoardView({
   );
 }
 
-export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
+export function AdminCoachesDirectory({
+  initial,
+  classTypeOptions,
+  classOptions,
+  locale = "en",
+}: AdminCoachesDirectoryProps) {
   const t = useTranslations("adminPages.coaches");
   const { viewMode: preferredViewMode } = useAdminCoachesView();
   const viewMode = useEffectiveListBoardViewMode(preferredViewMode);
@@ -94,6 +109,12 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
   const searchParams = useSearchParams();
   const urlCoachId = searchParams.get("coachProfile");
   const [visibleCoachId, setVisibleCoachId] = useState<string | null>(urlCoachId);
+  const coaches = initial.items;
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
 
   useEffect(() => {
     setVisibleCoachId(urlCoachId);
@@ -103,8 +124,18 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
     if (visibleCoachId === null) {
       return null;
     }
-    return props.coaches.find((coach) => coach.id === visibleCoachId) ?? null;
-  }, [props.coaches, visibleCoachId]);
+    return coaches.find((coach) => coach.id === visibleCoachId) ?? null;
+  }, [coaches, visibleCoachId]);
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const updateQuery = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
@@ -133,26 +164,43 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
     });
   }, [updateQuery]);
 
+  const viewProps: AdminCoachesViewProps = {
+    coaches,
+    classTypeOptions,
+    classOptions,
+    locale,
+  };
+
   const content =
     viewMode === "board" ? (
-      <AdminCoachesBoardView {...props} onSelect={openProfileDrawer} />
+      <AdminCoachesBoardView {...viewProps} onSelect={openProfileDrawer} />
     ) : (
-      <AdminCoachesListView {...props} onSelect={openProfileDrawer} />
+      <AdminCoachesListView {...viewProps} onSelect={openProfileDrawer} />
     );
 
   return (
     <>
       {content}
-      {props.coaches.length === 0 ? (
+      {coaches.length === 0 ? (
         <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
           {t("emptyState")}
         </div>
       ) : null}
+      {initial.total > 0 ? (
+        <OmmListPagination
+          total={initial.total}
+          page={listPage.page}
+          pageSize={listPage.pageSize}
+          offset={initial.offset}
+          onPageChange={setListPage}
+          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        />
+      ) : null}
       <AdminCoachDetailsDrawer
         coach={selectedCoach}
-        locale={props.locale ?? "en"}
-        classTypeOptions={props.classTypeOptions}
-        classOptions={props.classOptions}
+        locale={locale}
+        classTypeOptions={classTypeOptions}
+        classOptions={classOptions}
         onClose={closeProfileDrawer}
       />
     </>

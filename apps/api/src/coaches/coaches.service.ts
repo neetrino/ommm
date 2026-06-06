@@ -18,6 +18,7 @@ import {
 } from '../cache/public-cache-keys';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { hashPassword } from '../common/password-crypto';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import { absolutePathForStoredUpload } from '../users/user-upload.helpers';
@@ -584,7 +585,9 @@ export class CoachesService {
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.coaches);
   }
 
-  listAdmin(query: AdminListCoachesQueryDto = {}) {
+  async listAdmin(query: AdminListCoachesQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
     const q = query.q?.trim();
     const specialization = query.specialization?.trim();
     const classType = query.classType?.trim();
@@ -684,8 +687,8 @@ export class CoachesService {
         createdAt: query.order === AdminCoachOrder.OLDEST ? 'asc' : 'desc',
       },
     } as Prisma.CoachProfileFindManyArgs;
-    return this.prisma.coachProfile.findMany(listAdminArgs).then((rows) =>
-      (rows as unknown as CoachAdminListRow[]).map((row) => ({
+    const mapRows = (rows: CoachAdminListRow[]) =>
+      rows.map((row) => ({
         id: row.id,
         bio: row.bio,
         specialization: row.specialization,
@@ -715,8 +718,30 @@ export class CoachesService {
           avatarUrl: row.user.avatarUrl,
         },
         age: this.calculateAgeFromDateOfBirth(row.user.dateOfBirth),
-      })),
-    );
+      }));
+
+    if (!hasPagination) {
+      return this.prisma.coachProfile
+        .findMany(listAdminArgs)
+        .then((rows) => mapRows(rows as unknown as CoachAdminListRow[]));
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const [rows, total] = await Promise.all([
+      this.prisma.coachProfile.findMany({
+        ...listAdminArgs,
+        take,
+        skip: offset,
+      }),
+      this.prisma.coachProfile.count({ where }),
+    ]);
+    return {
+      items: mapRows(rows as unknown as CoachAdminListRow[]),
+      total,
+      take,
+      offset,
+    };
   }
 
   private async assertValidCoachClassType(classType: string): Promise<void> {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { AdminWaitlistCompactRow } from "@/components/admin/admin-waitlist-compact-row";
 import {
@@ -10,33 +11,23 @@ import {
   ADMIN_WAITLIST_LIST_HEADER_CLASS,
   ADMIN_WAITLIST_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-waitlist-list-layout";
+import {
+  buildAdminWaitlistActiveEndpoint,
+  type AdminWaitlistActivePayload,
+  type AdminWaitlistRow,
+} from "@/components/admin/admin-waitlist-query";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
-
-type AdminWaitlistRow = {
-  id: string;
-  status: "ACTIVE" | "OFFERED" | "EXPIRED" | "CONVERTED" | "REMOVED";
-  waitlistDate: string;
-  sessionWaitlistCount: number;
-  user: {
-    id: string;
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    phone: string | null;
-  };
-  session: {
-    id: string;
-    classType: { id: string; name: string };
-  };
-};
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 type ToastTone = "ok" | "err";
 
 type AdminWaitlistManagementProps = {
   locale: string;
-  initialRows: AdminWaitlistRow[];
+  initial: AdminWaitlistActivePayload;
   initialLoadError: string | null;
 };
 
@@ -47,30 +38,80 @@ function toUserLabel(name: string | null, lastName: string | null, email: string
 
 export function AdminWaitlistManagement({
   locale,
-  initialRows,
+  initial,
   initialLoadError,
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
-  const [rows, setRows] = useState<AdminWaitlistRow[]>(initialRows);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [payload, setPayload] = useState(initial);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [toast, setToast] = useState<{ tone: ToastTone; message: string } | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [pendingRemove, setPendingRemove] = useState<AdminWaitlistRow | null>(null);
+  const [, startRefreshTransition] = useTransition();
+  const refreshRequestId = useRef(0);
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  useEffect(() => {
+    setPayload(initial);
+  }, [initial]);
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize);
+      });
+    },
+    [replaceSearchParams],
+  );
 
   const loadRows = useCallback(async () => {
+    const requestId = ++refreshRequestId.current;
     setLoading(true);
     setLoadError(null);
     try {
-      const payload = await apiFetch<AdminWaitlistRow[]>("/waitlist/admin/active?take=250");
-      setRows(payload);
+      const data = await apiFetch<AdminWaitlistActivePayload>(
+        buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset),
+      );
+      if (requestId !== refreshRequestId.current) {
+        return;
+      }
+      setPayload(data);
     } catch (error) {
+      if (requestId !== refreshRequestId.current) {
+        return;
+      }
       setLoadError(error instanceof ApiError ? error.message : t("loadFailed"));
     } finally {
-      setLoading(false);
+      if (requestId === refreshRequestId.current) {
+        setLoading(false);
+      }
     }
-  }, [t]);
+  }, [listPage.offset, listPage.take, t]);
+
+  const refreshList = useCallback(() => {
+    startRefreshTransition(() => {
+      router.refresh();
+    });
+  }, [router, startRefreshTransition]);
 
   async function runAction(
     row: AdminWaitlistRow,
@@ -88,6 +129,7 @@ export function AdminWaitlistManagement({
       await run();
       setToast({ tone: "ok", message: successMessage });
       await loadRows();
+      refreshList();
     } catch (error) {
       setToast({
         tone: "err",
@@ -98,6 +140,7 @@ export function AdminWaitlistManagement({
     }
   }
 
+  const rows = payload.items;
   const hasRows = rows.length > 0;
 
   const closeRemoveConfirm = useCallback(() => {
@@ -191,6 +234,15 @@ export function AdminWaitlistManagement({
               />
             );
           })}
+          <OmmListPagination
+            total={payload.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={payload.offset}
+            onPageChange={setListPage}
+            onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+            disabled={loading || busyAction !== null}
+          />
         </div>
       )}
 

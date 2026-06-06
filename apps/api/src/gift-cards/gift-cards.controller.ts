@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -21,6 +22,8 @@ import { RedeemGiftDto } from './dto/redeem-gift.dto';
 import { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import { AdminAssignGiftCardDto } from './dto/admin-assign-gift-card.dto';
 import { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
+import { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
+import { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import { GIFT_CARD_IMAGE_MAX_BYTES } from './gift-card-image.constants';
 import { GiftCardsService } from './gift-cards.service';
 
@@ -30,14 +33,20 @@ export class GiftCardsController {
 
   @Get('me/purchased')
   @UseGuards(JwtAuthGuard)
-  purchased(@CurrentUser() user: { id: string }) {
-    return this.giftCards.listMine(user.id);
+  purchased(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListMyGiftCardsQueryDto,
+  ) {
+    return this.giftCards.listMine(user.id, query);
   }
 
   @Get('me/received')
   @UseGuards(JwtAuthGuard)
-  received(@CurrentUser() user: { id: string }) {
-    return this.giftCards.listReceived(user.id);
+  received(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListMyGiftCardsQueryDto,
+  ) {
+    return this.giftCards.listReceived(user.id, query);
   }
 
   @Post('redeem')
@@ -56,8 +65,8 @@ export class GiftCardsController {
   @Get('admin/batches')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  adminBatchList() {
-    return this.giftCards.listAdminBoard();
+  adminBatchList(@Query() query: ListAdminGiftCardBatchesQueryDto) {
+    return this.giftCards.listAdminBoard(query);
   }
 
   @Get('admin/users')

@@ -29,10 +29,13 @@ import {
   buildGiftCardFiltersQuery,
   GIFT_CARD_FILTER_QUERY_KEYS,
 } from "@/components/admin/admin-gift-cards-url";
+import type { AdminGiftCardsListPayload } from "@/components/admin/admin-gift-cards-query";
 import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 type AdminGiftCardsManagementProps = {
-  giftCards: readonly AdminGiftCardBatchRow[];
+  initial: AdminGiftCardsListPayload;
   assignableUsers: readonly AdminAssignableUser[];
   locale: string;
   initialFilters: GiftCardFilterValues;
@@ -42,7 +45,7 @@ type AdminGiftCardsManagementProps = {
 const SEARCH_DEBOUNCE_MS = 300;
 
 export function AdminGiftCardsManagement({
-  giftCards,
+  initial,
   assignableUsers,
   locale,
   initialFilters,
@@ -59,6 +62,12 @@ export function AdminGiftCardsManagement({
   const [selectedGiftCardId, setSelectedGiftCardId] = useState<string | null>(null);
   const [isDebouncingSearch, setIsDebouncingSearch] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const giftCards = initial.items;
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
 
   const selectedGiftCard = useMemo(() => {
     if (selectedGiftCardId === null) {
@@ -92,11 +101,14 @@ export function AdminGiftCardsManagement({
   }, [initialFilters]);
 
   const syncFiltersToUrl = useCallback(
-    (values: GiftCardFilterValues) => {
+    (values: GiftCardFilterValues, resetPage = false) => {
       const currentSearchParams = searchParamsRef.current;
       const params = new URLSearchParams(currentSearchParams);
       for (const key of GIFT_CARD_FILTER_QUERY_KEYS) {
         params.delete(key);
+      }
+      if (resetPage) {
+        resetListPageQuery(params);
       }
       const filterQuery = buildGiftCardFiltersQuery(values);
       if (filterQuery.length > 0) {
@@ -115,6 +127,18 @@ export function AdminGiftCardsManagement({
     [pathname, router, startTransition],
   );
 
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParamsRef.current);
+      syncListPageQuery(params, page, pageSize);
+      const qs = params.toString();
+      startTransition(() => {
+        router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      });
+    },
+    [pathname, router, startTransition],
+  );
+
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
@@ -122,7 +146,7 @@ export function AdminGiftCardsManagement({
     }
     setIsDebouncingSearch(true);
     const handle = window.setTimeout(() => {
-      syncFiltersToUrl(filtersRef.current);
+      syncFiltersToUrl(filtersRef.current, true);
       setIsDebouncingSearch(false);
     }, SEARCH_DEBOUNCE_MS);
     return () => {
@@ -135,7 +159,7 @@ export function AdminGiftCardsManagement({
     if (!hasMounted.current) {
       return;
     }
-    syncFiltersToUrl(filtersRef.current);
+    syncFiltersToUrl(filtersRef.current, true);
   }, [
     filters.status,
     filters.expiration,
@@ -164,7 +188,7 @@ export function AdminGiftCardsManagement({
       quick: "",
     };
     setFilters(cleared);
-    syncFiltersToUrl(cleared);
+    syncFiltersToUrl(cleared, true);
   }
 
   const selectGiftCard = useCallback((card: AdminGiftCardBatchRow) => {
@@ -203,13 +227,24 @@ export function AdminGiftCardsManagement({
     >
       {filtered.length === 0 ? <p className="text-sm text-sage-500">{t("empty")}</p> : null}
       {filtered.length > 0 ? (
-        <AdminGiftCardsDirectory
-          cards={filtered}
-          locale={locale}
-          onSelect={selectGiftCard}
-          onEdit={openEditModal}
-          onChanged={handleChanged}
-        />
+        <>
+          <AdminGiftCardsDirectory
+            cards={filtered}
+            locale={locale}
+            onSelect={selectGiftCard}
+            onEdit={openEditModal}
+            onChanged={handleChanged}
+          />
+          <OmmListPagination
+            total={initial.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={initial.offset}
+            onPageChange={setListPage}
+            onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+            disabled={isUpdating}
+          />
+        </>
       ) : null}
 
       <AdminGiftCardDetailsSheet

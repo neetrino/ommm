@@ -44,14 +44,14 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 - [x] Frontend: paginaciya v list view; calendar views — fetch po diapazonu dat bez paginacii
 
 ### Admin Waitlists — P1
-- [ ] Stranica: `/admin/waitlists`
-- [ ] API: `offset` + `total` (seychas tolko `take=250`)
-- [ ] Frontend: pager v `AdminWaitlistManagement`
+- [x] Stranica: `/admin/waitlists`
+- [x] API: `offset` + `total` (seychas tolko `take=250`)
+- [x] Frontend: pager v `AdminWaitlistManagement`
 
 ### Admin Gift cards — P1
-- [ ] Stranica: `/admin/gift-cards`
-- [ ] API: `take` / `offset` dlya batches (seychas do 500 bez offset)
-- [ ] Frontend: `AdminGiftCardsManagement`
+- [x] Stranica: `/admin/gift-cards`
+- [x] API: `take` / `offset` dlya batches (seychas do 500 bez offset)
+- [x] Frontend: `AdminGiftCardsManagement`
 
 ### Admin Notifications — P1
 - [ ] Stranica: `/admin/notifications`
@@ -64,9 +64,9 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 - [ ] Calendar view: ostavit diapazon dat, ne postrannuyu paginaciyu
 
 ### Admin Coaches — P1
-- [ ] Stranica: `/admin/coaches`
-- [ ] API: `take` / `offset` dlya `/coaches/admin/list`
-- [ ] Frontend: `AdminCoachesDirectory`
+- [x] Stranica: `/admin/coaches`
+- [x] API: `take` / `offset` dlya `/coaches/admin/list`
+- [x] Frontend: `AdminCoachesDirectory`
 
 ### Admin Finance — coach tab — P2
 - [ ] Coach finance tab: paginaciya po spisku trenerov (seychas ves spisok + lokalnyy filtr)
@@ -86,9 +86,9 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 - [x] Frontend: `UserPaymentsHistory`
 
 ### User Gift cards — P1
-- [ ] Stranica: `/user/gift-cards`
-- [ ] API: `take` / `offset` na `/gift-cards/me/purchased` i `/me/received`
-- [ ] Frontend: `UserGiftCardsBoard` (dva spiska ili obshchiy pager)
+- [x] Stranica: `/user/gift-cards`
+- [x] API: `take` / `offset` na `/gift-cards/me/purchased` i `/me/received`
+- [x] Frontend: `UserGiftCardsBoard` (dva spiska ili obshchiy pager)
 
 ### Ne trebuet paginacii (user)
 - `/user/profile` — forma
