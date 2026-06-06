@@ -9,6 +9,10 @@ import {
 import { OmmButton } from "@/components/ui/omm-button";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 
+/** White pill with sand border + shadow — readable on white list cards. */
+const BOOKING_CONFIRM_BUTTON_CLASS =
+  "gap-1.5 border-sand-500/45 bg-white text-sage-900 shadow-[0_6px_18px_-12px_rgba(45,40,35,0.3)] hover:border-sand-500/60 hover:bg-white hover:text-sage-900 hover:shadow-[0_10px_22px_-14px_rgba(45,40,35,0.36)]";
+
 type BookingRecordType = "BOOKING" | "WAITLIST";
 type BookingStatus = "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
 
@@ -49,20 +53,25 @@ export function AdminBookingRowActions({
       className={
         variant === "sheet"
           ? "flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-          : "flex items-center justify-end gap-1"
+          : "flex items-center justify-end gap-2"
       }
     >
       {hasPrimaryActions ? (
-        <div className="flex items-center gap-1" role="group" aria-label={t("colActions")}>
+        <div className="flex items-center gap-2" role="group" aria-label={t("colActions")}>
           {canMarkAttended ? (
-            <AdminRowIconButton
-              ariaLabel={t("actionMarkAttended")}
-              title={t("actionMarkAttended")}
-              onClick={onMarkAttended}
+            <OmmButton
+              type="button"
+              variant="ghost"
+              size="sm"
               disabled={busy}
+              aria-label={t("actionMarkAttended")}
+              title={t("actionMarkAttended")}
+              className={BOOKING_CONFIRM_BUTTON_CLASS}
+              onClick={onMarkAttended}
             >
-              <CheckCircleGlyph className={ADMIN_ACTION_ICON_CLASS} />
-            </AdminRowIconButton>
+              <CheckCircleGlyph className="h-3.5 w-3.5 shrink-0" />
+              {t("actionConfirm")}
+            </OmmButton>
           ) : null}
           {canCancel ? (
             <AdminRowIconButton

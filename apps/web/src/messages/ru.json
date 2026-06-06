@@ -1233,6 +1233,7 @@
       "actionCancel": "Отменить бронирование",
       "actionMove": "Перенести в другой класс",
       "actionMarkAttended": "Отметить посещение",
+      "actionConfirm": "Подтвердить",
       "actionAddNote": "Добавить внутреннюю заметку",
       "actionEdit": "Редактировать",
       "actionDelete": "Удалить",
