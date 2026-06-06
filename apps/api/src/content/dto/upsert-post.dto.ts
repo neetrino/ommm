@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { ContentPostTranslationDto } from './content-post-translation.dto';
@@ -60,9 +61,10 @@ export class UpsertPostDto {
   submittedForReviewAt?: string;
 
   @IsOptional()
+  @ValidateIf((_object, value: string | null | undefined) => value !== null)
   @IsString()
   @MaxLength(2000)
-  coverImageUrl?: string;
+  coverImageUrl?: string | null;
 
   @IsOptional()
   @IsDateString()

@@ -128,7 +128,7 @@ export class ContentService {
         submittedForReviewAt: dto.submittedForReviewAt
           ? new Date(dto.submittedForReviewAt)
           : null,
-        coverImageUrl: dto.coverImageUrl,
+        coverImageUrl: dto.coverImageUrl ?? null,
         publishedAt: this.resolvePublishedAt(dto),
         translations: {
           create: translations,
@@ -185,7 +185,8 @@ export class ContentService {
         submittedForReviewAt: dto.submittedForReviewAt
           ? new Date(dto.submittedForReviewAt)
           : null,
-        coverImageUrl: dto.coverImageUrl,
+        coverImageUrl:
+          dto.coverImageUrl !== undefined ? (dto.coverImageUrl ?? null) : existing.coverImageUrl,
         publishedAt: this.resolvePublishedAt(dto, existing.publishedAt),
         translations: {
           deleteMany: {},

@@ -81,6 +81,7 @@ export function ContentPostCoverImageField({
   }
 
   function handleRemove(event: React.MouseEvent): void {
+    event.preventDefault();
     event.stopPropagation();
     if (disabled || uploading) {
       return;
@@ -148,7 +149,7 @@ export function ContentPostCoverImageField({
               ariaLabel={t("remove")}
               title={t("remove")}
               variant="danger"
-              className="absolute -right-1 -top-1"
+              className="absolute -right-1 -top-1 z-10"
               disabled={disabled || uploading}
               onClick={handleRemove}
             >

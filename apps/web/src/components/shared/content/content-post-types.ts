@@ -204,7 +204,7 @@ export function contentPostFormPayload(values: ContentPostFormValues): Record<st
     editorialNotes:
       values.editorialNotes.trim().length > 0 ? values.editorialNotes.trim() : undefined,
     coverImageUrl:
-      values.coverImageUrl.trim().length > 0 ? values.coverImageUrl.trim() : undefined,
+      values.coverImageUrl.trim().length > 0 ? values.coverImageUrl.trim() : null,
     translations,
   };
 }
