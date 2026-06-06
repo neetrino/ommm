@@ -88,10 +88,12 @@ function AdminClientDrawerInner({
   const [actionTone, setActionTone] = useState<"ok" | "err">("ok");
   const [note, setNote] = useState("");
   const [giftAmount, setGiftAmount] = useState("10000");
+  const [tabRefreshKey, setTabRefreshKey] = useState(0);
 
   const refreshDetail = useCallback(async () => {
     const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
     setDetail(fresh);
+    setTabRefreshKey((current) => current + 1);
     return fresh;
   }, [client.id]);
 
@@ -292,6 +294,7 @@ function AdminClientDrawerInner({
             onGiftAmountChange={setGiftAmount}
             onNoteChange={setNote}
             onRun={runAction}
+            tabRefreshKey={tabRefreshKey}
           />
         )}
       </div>

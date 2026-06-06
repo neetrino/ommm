@@ -23,7 +23,7 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 
 ### Admin Clients — P0
 - [x] `/admin/clients` — URL → API `take`/`offset`, pager, summary po polnomu naboru
-- [ ] ⚠️ **Tech debt (Faza 4):** API slice v pamyati posle fetch 500 — nuzhna DB-pagination + `count`
+- [x] DB-pagination: Prisma `where` + `count`; fallback post-process pri computed filter/sort (limit 3000)
 
 ### Admin Finance — user tab + payments — P0
 - [x] `/admin/finance` — payments: `payPage`/`payPageSize`; clients tab: `userPage`/`userPageSize`
@@ -63,14 +63,14 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 
 ## Faza 4 — Sleduyushchiy etap
 
-### Clients API — P0 (tech debt)
-- [ ] Filtraciya v Prisma; ubrat in-memory slice posle fetch 500
-- [ ] `pagination.total` iz `count`, ne iz `rows.length` posle filter
+### Clients API — P0 ✅
+- [x] Filtraciya v Prisma (`clients-list-query.builder.ts`); ubran fetch 500 + slice
+- [x] `pagination.total` iz DB `count` (post-process path: total po otfiltrovannomu scan do 3000)
 
 ### Client sheet tabs — P2
-- [ ] Bookings tab — `GET /clients/:id/bookings?take&offset` (seychas `take: 100` v include)
-- [ ] Payments tab — otdelnyy endpoint s paginaciyey (seychas `take: 50`)
-- [ ] Gifts tab — pager v tabe (seychas `take: 20`)
+- [x] Bookings tab — `GET /clients/:id/bookings?take&offset`
+- [x] Payments tab — `GET /clients/:id/payments?take&offset`
+- [x] Gifts tab — `GET /clients/:id/gift-cards?take&offset`
 
 ### Coach finance drawer — P2
 - [ ] Sessii za mesyac — pager esli > ~50
@@ -89,7 +89,7 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 
 | Oblast | Stranica | API | UI pager | Status |
 |--------|----------|-----|----------|--------|
-| Admin | `/admin/clients` | take/offset (in-memory ⚠️) | da | done, DB debt |
+| Admin | `/admin/clients` | take/offset/total (DB + post-process fallback) | da | done |
 | Admin | `/admin/bookings` list | take/offset/total | da | done |
 | Admin | `/admin/finance` payments | take/offset/total | da | done |
 | Admin | `/admin/finance` coach tab | salary-summaries take/offset | da | done |
@@ -98,7 +98,7 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 | Admin | `/admin/notifications` | scheduled + deliveries paginated | da | done |
 | Admin | `/admin/schedule` list | take/offset/total | da | done |
 | Admin | `/admin/coaches` | take/offset/total | da | done |
-| Admin | client sheet tabs | hard limits | net | Faza 4 |
+| Admin | client sheet tabs | bookings/payments/gift-cards endpoints | da | done |
 | User | `/user/bookings` past | scope + take/offset | da | done |
 | User | `/user/payments` | take/offset/total | da | done |
 | User | `/user/gift-cards` | take/offset (2 sekcii) | da | done |
@@ -107,7 +107,6 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 
 ## Rekomenduemyy poryadok (dalnee)
 
-1. **Faza 4 P0** — Clients API DB pagination (razblokiruet korrektnyy total pri filtrah)
-2. **Faza 4 P2** — Client sheet tabs (bookings → payments → gifts)
-3. **Faza 4 P2** — Coach finance drawer sessions
-4. **Faza 5** — Manager stranicy (povtorit pattern admin)
+1. **Faza 4 P2** — Client sheet tabs (bookings → payments → gifts)
+2. **Faza 4 P2** — Coach finance drawer sessions
+3. **Faza 5** — Manager stranicy (povtorit pattern admin)

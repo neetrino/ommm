@@ -3,12 +3,17 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
-import type { ClientDetail } from "@/components/admin/admin-clients-types";
+import type {
+  ClientDetail,
+  ClientSheetBookingItem,
+  ClientSheetGiftCardItem,
+  ClientSheetPaymentItem,
+} from "@/components/admin/admin-clients-types";
 import {
   ClientGiftActionPanel,
-  ClientHistoryList,
   ClientNotesPanel,
 } from "@/components/admin/admin-client-drawer-sections";
+import { ClientSheetPaginatedTab } from "@/components/admin/admin-client-sheet-paginated-tab";
 import {
   AdminSheetEditableField,
   ADMIN_SHEET_FORM_SECTION_CLASS,
@@ -36,6 +41,7 @@ type ClientSheetTabPanelsProps = {
   onGiftAmountChange: (value: string) => void;
   onNoteChange: (value: string) => void;
   onRun: (key: string, action: () => Promise<void>, ok: string) => Promise<void>;
+  tabRefreshKey?: number;
 };
 
 export function ClientSheetTabPanels({
@@ -52,6 +58,7 @@ export function ClientSheetTabPanels({
   onGiftAmountChange,
   onNoteChange,
   onRun,
+  tabRefreshKey = 0,
 }: ClientSheetTabPanelsProps) {
   const t = useTranslations("adminPages.clients");
   const activity = detail.activity;
@@ -172,10 +179,14 @@ export function ClientSheetTabPanels({
 
   if (activeTab === "bookings") {
     return (
-      <ClientHistoryList
+      <ClientSheetPaginatedTab<ClientSheetBookingItem>
+        clientId={detail.id}
+        active
+        refreshKey={tabRefreshKey}
+        endpoint={`/clients/${detail.id}/bookings`}
         title={t("drawer.bookingHistory")}
         empty={t("drawer.noBookings")}
-        items={detail.bookings.map((booking) => ({
+        mapItem={(booking) => ({
           id: booking.id,
           main: booking.session.classType.name,
           meta: `${formatDateTimeForUi(booking.session.startsAt, locale)} · ${booking.status} · ${booking.session.level ?? "—"}`,
@@ -184,22 +195,26 @@ export function ClientSheetTabPanels({
             : booking.attendedAt
               ? `${t("drawer.attended")} ${formatDateForUi(booking.attendedAt)}`
               : null,
-        }))}
+        })}
       />
     );
   }
 
   if (activeTab === "payments") {
     return (
-      <ClientHistoryList
+      <ClientSheetPaginatedTab<ClientSheetPaymentItem>
+        clientId={detail.id}
+        active
+        refreshKey={tabRefreshKey}
+        endpoint={`/clients/${detail.id}/payments`}
         title={t("drawer.paymentHistory")}
         empty={t("drawer.noPayments")}
-        items={detail.payments.map((payment) => ({
+        mapItem={(payment) => ({
           id: payment.id,
           main: formatAmdFromCents(payment.amountCents, locale),
           meta: `${payment.status} · ${formatDateForUi(payment.createdAt)}`,
           extra: payment.description,
-        }))}
+        })}
       />
     );
   }
@@ -214,15 +229,19 @@ export function ClientSheetTabPanels({
           onGiftAmountChange={onGiftAmountChange}
           onRun={onRun}
         />
-        <ClientHistoryList
+        <ClientSheetPaginatedTab<ClientSheetGiftCardItem>
+          clientId={detail.id}
+          active
+          refreshKey={tabRefreshKey}
+          endpoint={`/clients/${detail.id}/gift-cards`}
           title={t("drawer.giftCards")}
           empty={t("drawer.noGiftCards")}
-          items={[...detail.giftCardsPurchased, ...detail.giftCardsReceived].map((card) => ({
+          mapItem={(card) => ({
             id: card.id,
             main: `${formatAmdFromCents(card.balanceCents, locale)} / ${formatAmdFromCents(card.amountCents, locale)}`,
-            meta: `${card.status} · ${formatDateForUi(card.createdAt)}`,
+            meta: `${card.status} · ${card.relation} · ${formatDateForUi(card.createdAt)}`,
             extra: card.recipientName ?? card.recipientEmail,
-          }))}
+          })}
         />
       </div>
     );

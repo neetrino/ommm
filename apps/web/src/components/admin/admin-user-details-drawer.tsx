@@ -19,7 +19,10 @@ type UserDetailsPayload = {
   lastName: string | null;
   email: string;
   phone: string | null;
-  bookings?: Array<{
+};
+
+type UserBookingsPreview = {
+  items: Array<{
     id: string;
     status: string;
     session: { startsAt: string; classType: { name: string } };
@@ -45,6 +48,7 @@ export function AdminUserDetailsDrawer({
   const t = useTranslations("adminPages.waitlists");
   const titleId = useId();
   const [data, setData] = useState<UserDetailsPayload | null>(null);
+  const [bookings, setBookings] = useState<UserBookingsPreview["items"]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
 
@@ -54,8 +58,14 @@ export function AdminUserDetailsDrawer({
     }
     setLoading(true);
     setLoadFailed(false);
-    void apiFetch<UserDetailsPayload>(`/clients/${userId}`)
-      .then((payload) => setData(payload))
+    void Promise.all([
+      apiFetch<UserDetailsPayload>(`/clients/${userId}`),
+      apiFetch<UserBookingsPreview>(`/clients/${userId}/bookings?take=8&offset=0`),
+    ])
+      .then(([profile, bookingsPayload]) => {
+        setData(profile);
+        setBookings(bookingsPayload.items);
+      })
       .catch(() => {
         setLoadFailed(true);
       })
@@ -105,10 +115,10 @@ export function AdminUserDetailsDrawer({
                 {t("drawer.bookings")}
               </p>
               <div className="space-y-1">
-                {(data.bookings ?? []).length === 0 ? (
+                {bookings.length === 0 ? (
                   <p className="text-sage-500">—</p>
                 ) : (
-                  (data.bookings ?? []).slice(0, 8).map((booking) => (
+                  bookings.map((booking) => (
                     <p key={booking.id} className="rounded-lg bg-white px-2 py-1 text-xs text-sage-800">
                       {formatDateTimeForUi(booking.session.startsAt, locale)} ·{" "}
                       {booking.session.classType.name} · {booking.status}

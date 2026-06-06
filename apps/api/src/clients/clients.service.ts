@@ -21,9 +21,22 @@ import {
   type AdminListClientsQueryDto,
 } from './dto/admin-list-clients-query.dto';
 import type { UpdateClientDto } from './dto/update-client.dto';
-
-const NEW_CLIENT_DAYS = 30;
-const INACTIVE_CLIENT_DAYS = 30;
+import {
+  CLIENTS_POST_PROCESS_SCAN_LIMIT,
+  INACTIVE_CLIENT_DAYS,
+  NEW_CLIENT_DAYS,
+} from './clients-list.constants';
+import {
+  buildClientsListWhere,
+  requiresClientsPostProcessing,
+  resolveClientsListOrderBy,
+} from './clients-list-query.builder';
+import {
+  computeClientsFilterOptionsFromDb,
+  computeClientsSummaryFromDb,
+  filterOptionsFromRows,
+  summaryFromRows,
+} from './clients-list-summary';
 
 const clientInclude = Prisma.validator<Prisma.UserInclude>()({
   bookings: {
@@ -71,45 +84,79 @@ export class ClientsService {
   ) {}
 
   async list(query: AdminListClientsQueryDto) {
-    const q = (query.search ?? query.q)?.trim();
-    const where: Prisma.UserWhereInput = {
-      role: Role.USER,
-      ...(q
-        ? {
-            OR: [
-              { id: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { email: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { name: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { lastName: { contains: q, mode: Prisma.QueryMode.insensitive } },
-              { phone: { contains: q, mode: Prisma.QueryMode.insensitive } },
-            ],
-          }
-        : {}),
+    const where = buildClientsListWhere(query);
+    const take = query.take ?? (query.meta ? 100 : 500);
+    const offset = query.offset ?? 0;
+
+    if (requiresClientsPostProcessing(query)) {
+      return this.listWithPostProcessing(query, where, take, offset);
+    }
+
+    if (!query.meta) {
+      const users = await this.prisma.user.findMany({
+        where,
+        include: clientInclude,
+        orderBy: resolveClientsListOrderBy(query),
+        take,
+      });
+      return users.map((user) => this.toClientRow(user));
+    }
+
+    const [total, users, summary, filterOptions] = await Promise.all([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        include: clientInclude,
+        orderBy: resolveClientsListOrderBy(query),
+        skip: offset,
+        take,
+      }),
+      computeClientsSummaryFromDb(this.prisma, where),
+      computeClientsFilterOptionsFromDb(
+        this.prisma,
+        where,
+        clientInclude,
+        (user) => this.toClientRow(user),
+      ),
+    ]);
+
+    return {
+      rows: users.map((user) => this.toClientRow(user)),
+      summary,
+      filterOptions,
+      pagination: { total, take, offset },
     };
+  }
+
+  private async listWithPostProcessing(
+    query: AdminListClientsQueryDto,
+    where: Prisma.UserWhereInput,
+    take: number,
+    offset: number,
+  ) {
+    const order = query.order ?? AdminClientOrder.NEWEST;
     const users = await this.prisma.user.findMany({
       where,
       include: clientInclude,
-      orderBy: {
-        createdAt: query.order === AdminClientOrder.OLDEST ? 'asc' : 'desc',
-      },
-      take: 500,
+      orderBy: { createdAt: 'desc' },
+      take: CLIENTS_POST_PROCESS_SCAN_LIMIT,
     });
-    const rows = this.sortRows(
-      users.map((user) => this.toClientRow(user)),
-      query.order ?? AdminClientOrder.NEWEST,
-    ).filter((row) => this.matchesClientFilters(row, query));
+    const filtered = this.sortRows(
+      users
+        .map((user) => this.toClientRow(user))
+        .filter((row) => this.matchesClientFilters(row, query)),
+      order,
+    );
 
     if (!query.meta) {
-      return rows.slice(0, query.take ?? 500);
+      return filtered.slice(0, take);
     }
 
-    const offset = query.offset ?? 0;
-    const take = query.take ?? 100;
     return {
-      rows: rows.slice(offset, offset + take),
-      summary: this.toSummary(rows),
-      filterOptions: this.toFilterOptions(rows),
-      pagination: { total: rows.length, take, offset },
+      rows: filtered.slice(offset, offset + take),
+      summary: summaryFromRows(filtered),
+      filterOptions: filterOptionsFromRows(filtered),
+      pagination: { total: filtered.length, take, offset },
     };
   }
 
@@ -122,12 +169,21 @@ export class ClientsService {
       throw new NotFoundException();
     }
     const notes = await this.listNotes(id);
-    const { passwordHash, ...rest } = user;
+    const { passwordHash, bookings, payments, giftCardsPurchased, giftCardsReceived, ...rest } =
+      user;
     void passwordHash;
+    void bookings;
+    void payments;
+    void giftCardsPurchased;
+    void giftCardsReceived;
     return {
       ...rest,
       activity: this.toClientRow(user),
       notes,
+      bookings: [],
+      payments: [],
+      giftCardsPurchased: [],
+      giftCardsReceived: [],
     };
   }
 
@@ -583,36 +639,4 @@ export class ClientsService {
     return value?.getTime() ?? 0;
   }
 
-  private toSummary(rows: Array<ReturnType<ClientsService['toClientRow']>>) {
-    return {
-      total: rows.length,
-      active: rows.filter((row) => row.status === 'Active').length,
-      vip: rows.filter((row) => row.tags.includes('VIP')).length,
-      atRisk: rows.filter((row) => row.tags.includes('At Risk')).length,
-      totalVisits: rows.reduce((sum, row) => sum + row.totalVisits, 0),
-      lifetimeValueCents: rows.reduce(
-        (sum, row) => sum + row.lifetimeValueCents,
-        0,
-      ),
-    };
-  }
-
-  private toFilterOptions(
-    rows: Array<ReturnType<ClientsService['toClientRow']>>,
-  ) {
-    const coaches = new Map<string, string>();
-    for (const row of rows) {
-      if (row.preferredCoach)
-        coaches.set(row.preferredCoach.id, row.preferredCoach.name);
-    }
-    return {
-      preferredCoaches: [...coaches.entries()].map(([id, name]) => ({
-        id,
-        name,
-      })),
-      classLevels: Array.from(
-        new Set(rows.flatMap((row) => row.classLevels)),
-      ).sort(),
-    };
-  }
 }

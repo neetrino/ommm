@@ -95,6 +95,21 @@ export type ClientDetail = {
   activity: ClientRow;
 };
 
+export type ClientSheetBookingItem = ClientDetail["bookings"][number];
+
+export type ClientSheetPaymentItem = ClientDetail["payments"][number];
+
+export type ClientSheetGiftCardItem = GiftCardRow & {
+  relation: "purchased" | "received";
+};
+
+export type ClientSheetPaginatedResponse<T> = {
+  items: T[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type GiftCardRow = {
   id: string;
   amountCents: number;
