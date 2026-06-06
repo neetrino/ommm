@@ -3,6 +3,7 @@
 import {
   AdminBookingsListViewIcon,
   AdminBookingsViewIcon,
+  type BookingsView,
 } from "@/components/admin/admin-bookings-view-icons";
 
 export type AdminCalendarView = "list" | "monthly" | "weekly" | "daily";
@@ -58,6 +59,8 @@ export function AdminCalendarViewSwitcher({
         const active = value === nextView;
         const letter = CALENDAR_VIEW_LETTERS[nextView];
 
+        const iconView: BookingsView = nextView === "list" ? "list" : "weekly";
+
         return (
           <button
             key={nextView}
@@ -70,7 +73,7 @@ export function AdminCalendarViewSwitcher({
           >
             {letter ? (
               <>
-                <AdminBookingsViewIcon view={nextView} className="h-3.5 w-3.5 shrink-0" />
+                <AdminBookingsViewIcon view={iconView} className="h-3.5 w-3.5 shrink-0" />
                 <span className="text-[10px] font-bold leading-none">{letter}</span>
               </>
             ) : (

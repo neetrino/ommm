@@ -5,7 +5,11 @@ import {
   AdminCalendarViewSwitcher,
   type AdminCalendarView,
 } from "@/components/admin/admin-calendar-view-switcher";
-import type { BookingsView } from "@/components/admin/admin-bookings-view-icons";
+import {
+  BOOKINGS_VIEW_MODES,
+  resolveBookingsView,
+  type BookingsView,
+} from "@/components/admin/admin-bookings-view";
 
 type AdminBookingsViewSwitcherProps = {
   value: BookingsView;
@@ -18,7 +22,8 @@ export function AdminBookingsViewSwitcher({ value, onChange }: AdminBookingsView
   return (
     <AdminCalendarViewSwitcher
       value={value}
-      onChange={onChange}
+      onChange={(nextView) => onChange(resolveBookingsView(nextView))}
+      modes={BOOKINGS_VIEW_MODES}
       labels={{
         groupAria: t("views.aria"),
         list: t("viewList"),

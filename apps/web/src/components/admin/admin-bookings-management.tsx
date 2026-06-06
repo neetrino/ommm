@@ -28,14 +28,17 @@ import {
 } from "@/components/admin/admin-bookings-list-layout";
 import {
   type BookingsView,
-} from "@/components/admin/admin-bookings-view-icons";
+  resolveBookingsView,
+} from "@/components/admin/admin-bookings-view";
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
+import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatDateTimeForUi } from "@/lib/date-display";
+import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
 type BookingRow = AdminBookingRow;
@@ -71,9 +74,9 @@ export function AdminBookingsManagement({
 }: Props) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.bookings");
+  const tSchedule = useTranslations("adminPages.schedule");
   const router = useRouter();
   const [view, setView] = useState<BookingsView>("list");
-  const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
   const {
     payload,
     calendarRows,
@@ -89,7 +92,6 @@ export function AdminBookingsManagement({
     initial,
     initialFilters,
     view: isStaff ? "list" : view,
-    selectedDay,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -112,13 +114,9 @@ export function AdminBookingsManagement({
     }
     try {
       const saved = window.localStorage.getItem(VIEW_KEY);
-      if (
-        saved === "monthly" ||
-        saved === "weekly" ||
-        saved === "daily"
-      ) {
+      if (saved !== null) {
         startTransition(() => {
-          setView(saved);
+          setView(resolveBookingsView(saved));
         });
       }
     } catch {
@@ -127,9 +125,10 @@ export function AdminBookingsManagement({
   }, [isStaff]);
 
   const setViewAndPersist = useCallback((nextView: BookingsView) => {
-    setView(nextView);
+    const resolved = resolveBookingsView(nextView);
+    setView(resolved);
     try {
-      window.localStorage.setItem(VIEW_KEY, nextView);
+      window.localStorage.setItem(VIEW_KEY, resolved);
     } catch {
       /* ignore */
     }
@@ -326,15 +325,20 @@ export function AdminBookingsManagement({
     }
   }
 
-  const dayRows = calendarRows
-    .filter((row) => sessionDayKey(row.session.startsAt) === selectedDay)
-    .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
-  const daySessions = filteredSessions
-    .filter((session) => sessionDayKey(session.startsAt) === selectedDay)
-    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-  const bookedSessionIdsForDay = new Set(dayRows.map((row) => row.session.id));
-  const openDaySessions = daySessions.filter((session) => !bookedSessionIdsForDay.has(session.id));
-  const visibleListRows = view === "daily" && !isStaff ? dayRows : listRows;
+  const weekRows = useMemo(
+    () => filteredSessions.map(mapAdminBookingSessionToWeekRow),
+    [filteredSessions],
+  );
+
+  const handleWeekSessionClick = useCallback(
+    (sessionId: string) => {
+      const booking = calendarRows.find((row) => row.session.id === sessionId);
+      if (booking) {
+        setSelectedRowKey(bookingRowKey(booking));
+      }
+    },
+    [calendarRows],
+  );
 
   const bookingsList = (
     <>
@@ -351,7 +355,7 @@ export function AdminBookingsManagement({
           </span>
           <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         </div>
-        {visibleListRows.map((row) => {
+        {listRows.map((row) => {
           const handlers = rowActionHandlers(row);
           return (
             <AdminBookingCompactRow
@@ -453,35 +457,19 @@ export function AdminBookingsManagement({
               {statusMessage}
             </div>
           ) : null}
-          {view === "daily" && openDaySessions.length > 0 ? (
-            <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
-              <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
-              <div className="grid gap-2 md:grid-cols-2">
-                {openDaySessions.map((session) => (
-                  <SessionSlotCard key={session.id} session={session} locale={locale} />
-                ))}
-              </div>
-            </div>
-          ) : null}
-          {view === "list" || view === "daily" ? bookingsList : null}
-          {view === "monthly" ? (
-            <MonthlyPanel
-              rows={calendarRows}
-              sessions={filteredSessions}
-              selectedDay={selectedDay}
-              onSelect={setSelectedDay}
-              locale={locale}
-              title={t("viewMonthly")}
-            />
-          ) : null}
+          {view === "list" ? bookingsList : null}
           {view === "weekly" ? (
-            <WeeklyPanel
-              rows={calendarRows}
-              sessions={filteredSessions}
-              selectedDay={selectedDay}
-              onSelect={setSelectedDay}
+            <ScheduleWeekColumnsView
               locale={locale}
-              title={t("viewWeekly")}
+              rows={weekRows}
+              showCoach
+              cardVariant="staff"
+              onSessionClick={(session) => handleWeekSessionClick(session.id)}
+              labels={{
+                gridAria: tSchedule("weekView.gridAria"),
+                todayBadge: tSchedule("weekView.todayBadge"),
+                emptyDay: tSchedule("weekView.emptyDay"),
+              }}
             />
           ) : null}
         </>
@@ -553,210 +541,6 @@ export function AdminBookingsManagement({
 
 function Metric({ title, value }: { title: string; value: number }) {
   return <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3"><p className="text-xs uppercase tracking-wide text-sage-500">{title}</p><p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p></div>;
-}
-
-function sessionDayKey(startsAt: string): string {
-  return startsAt.slice(0, 10);
-}
-
-function CalendarGrid({
-  rows,
-  sessions,
-  selectedDay,
-  onSelect,
-  title,
-}: {
-  rows: BookingRow[];
-  sessions: readonly AdminBookingSessionSlot[];
-  selectedDay: string;
-  onSelect: (value: string) => void;
-  title: string;
-}) {
-  const days = useMemo(() => {
-    const map = new Map<string, { bookings: number; sessions: number }>();
-    for (const session of sessions) {
-      const day = sessionDayKey(session.startsAt);
-      const current = map.get(day) ?? { bookings: 0, sessions: 0 };
-      current.sessions += 1;
-      map.set(day, current);
-    }
-    for (const row of rows) {
-      const day = sessionDayKey(row.session.startsAt);
-      const current = map.get(day) ?? { bookings: 0, sessions: 0 };
-      current.bookings += 1;
-      map.set(day, current);
-    }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-  }, [rows, sessions]);
-
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
-      <p className="text-sm font-medium text-sage-900">{title}</p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-        {days.map(([day, counts]) => (
-          <button
-            key={day}
-            className={`rounded-xl border px-3 py-2 text-left ${day === selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`}
-            onClick={() => onSelect(day)}
-          >
-            <p className="text-sm text-sage-900">{formatDateForUi(day)}</p>
-            <p className="text-xs text-sage-600">
-              {counts.sessions} · {counts.bookings}
-            </p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SessionSlotCard({
-  session,
-  locale,
-}: {
-  session: AdminBookingSessionSlot;
-  locale: string;
-}) {
-  return (
-    <div className="rounded-xl border border-mint-200/80 bg-mint-50/60 px-3 py-2 text-sm">
-      <div className="font-medium text-sage-900">{session.title}</div>
-      <div className="text-xs text-sage-600">
-        {formatDateTimeForUi(session.startsAt, locale)} · {session.classType.name} ·{" "}
-        {session.coach.name ?? "—"} · {session.spotsLeft}/{session.capacity}
-      </div>
-    </div>
-  );
-}
-
-function MonthlyPanel({
-  rows,
-  sessions,
-  selectedDay,
-  onSelect,
-  locale,
-  title,
-}: {
-  rows: BookingRow[];
-  sessions: readonly AdminBookingSessionSlot[];
-  selectedDay: string;
-  onSelect: (value: string) => void;
-  locale: string;
-  title: string;
-}) {
-  const dayRows = rows
-    .filter((row) => sessionDayKey(row.session.startsAt) === selectedDay)
-    .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
-  const daySessions = sessions
-    .filter((session) => sessionDayKey(session.startsAt) === selectedDay)
-    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-  const bookedSessionIds = new Set(dayRows.map((row) => row.session.id));
-  const openSessions = daySessions.filter((session) => !bookedSessionIds.has(session.id));
-
-  return (
-    <div className="space-y-3">
-      <CalendarGrid
-        rows={rows}
-        sessions={sessions}
-        selectedDay={selectedDay}
-        onSelect={onSelect}
-        title={title}
-      />
-      <div className="rounded-2xl border border-white/60 bg-white/70 p-3">
-        <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
-        <div className="mt-2 space-y-2">
-          {dayRows.length === 0 && openSessions.length === 0 ? (
-            <p className="text-sm text-sage-500">—</p>
-          ) : (
-            <>
-              {openSessions.map((session) => (
-                <SessionSlotCard key={session.id} session={session} locale={locale} />
-              ))}
-              {dayRows.map((row) => (
-                <div
-                  key={`${row.recordType}-${row.id}`}
-                  className="rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm"
-                >
-                  <div className="font-medium text-sage-900">{row.user.name ?? row.user.email}</div>
-                  <div className="text-xs text-sage-600">
-                    {formatDateTimeForUi(row.session.startsAt, locale)} · {row.session.classType.name}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function WeeklyPanel({
-  rows,
-  sessions,
-  selectedDay,
-  onSelect,
-  locale,
-  title,
-}: {
-  rows: BookingRow[];
-  sessions: readonly AdminBookingSessionSlot[];
-  selectedDay: string;
-  onSelect: (value: string) => void;
-  locale: string;
-  title: string;
-}) {
-  const selected = new Date(`${selectedDay}T00:00:00`);
-  const mondayOffset = (selected.getDay() + 6) % 7;
-  const monday = new Date(selected);
-  monday.setDate(selected.getDate() - mondayOffset);
-  const days = Array.from({ length: 7 }, (_, index) => {
-    const day = new Date(monday);
-    day.setDate(monday.getDate() + index);
-    const iso = day.toISOString().slice(0, 10);
-    const dayRows = rows
-      .filter((row) => sessionDayKey(row.session.startsAt) === iso)
-      .sort((a, b) => a.session.startsAt.localeCompare(b.session.startsAt));
-    const daySessions = sessions
-      .filter((session) => sessionDayKey(session.startsAt) === iso)
-      .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-    return { iso, rows: dayRows, sessions: daySessions };
-  });
-
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
-      <p className="text-sm font-medium text-sage-900">{title}</p>
-      <div className="mt-3 grid gap-2 lg:grid-cols-7">
-        {days.map((day) => (
-          <button
-            key={day.iso}
-            className={`rounded-xl border px-2 py-2 text-left align-top ${day.iso === selectedDay ? "border-indigo-300 bg-indigo-50" : "border-white/70 bg-white/80"}`}
-            onClick={() => onSelect(day.iso)}
-          >
-            <p className="text-xs font-medium text-sage-700">{formatDateForUi(day.iso)}</p>
-            <div className="mt-1 space-y-1">
-              {day.sessions.slice(0, 4).map((session) => (
-                <div
-                  key={session.id}
-                  className="rounded-md border border-mint-200/70 bg-mint-50/70 px-2 py-1 text-[11px] text-sage-700"
-                >
-                  {formatDateTimeForUi(session.startsAt, locale).split(" ")[1]} · {session.title}
-                </div>
-              ))}
-              {day.rows.slice(0, 6).map((row) => (
-                <div
-                  key={`${row.recordType}-${row.id}`}
-                  className="rounded-md bg-white/70 px-2 py-1 text-[11px] text-sage-700"
-                >
-                  {formatDateTimeForUi(row.session.startsAt, locale).split(" ")[1]} ·{" "}
-                  {row.user.name ?? row.user.email}
-                </div>
-              ))}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {

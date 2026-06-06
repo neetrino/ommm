@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import type { BookingsView } from "@/components/admin/admin-bookings-view-icons";
+import type { BookingsView } from "@/components/admin/admin-bookings-view";
 import {
   buildAdminBookingsCalendarEndpoint,
   buildAdminBookingsListEndpoint,
@@ -26,14 +26,12 @@ type UseAdminBookingsListDataOptions = {
   initial: AdminBookingsManagementPayload;
   initialFilters: AdminBookingsFilterState;
   view: BookingsView;
-  selectedDay: string;
 };
 
 export function useAdminBookingsListData({
   initial,
   initialFilters,
   view,
-  selectedDay,
 }: UseAdminBookingsListDataOptions) {
   const router = useRouter();
   const pathname = usePathname();
@@ -152,7 +150,7 @@ export function useAdminBookingsListData({
       return undefined;
     }
 
-    const range = resolveAdminBookingsCalendarRange(view, selectedDay);
+    const range = resolveAdminBookingsCalendarRange();
     const nextRequestId = calendarRequestId.current + 1;
     calendarRequestId.current = nextRequestId;
     startCalendarTransition(() => {
@@ -169,7 +167,7 @@ export function useAdminBookingsListData({
           }
         });
     });
-  }, [filters, selectedDay, view]);
+  }, [filters, view]);
 
   const calendarRows = isCalendarBookingsView(view)
     ? (calendarPayload?.rows ?? [])

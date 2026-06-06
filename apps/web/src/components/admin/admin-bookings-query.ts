@@ -1,6 +1,7 @@
-import type { BookingsView } from "@/components/admin/admin-bookings-view-icons";
-import { parseListPageParams } from "@/lib/list-pagination";
+import type { BookingsView } from "@/components/admin/admin-bookings-view";
+import { buildScheduleWeekDayKeys } from "@/components/shared/schedule/schedule-week-view-utils";
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
+import { parseListPageParams } from "@/lib/list-pagination";
 
 export const ADMIN_BOOKINGS_FILTER_KEYS = [
   "search",
@@ -107,30 +108,20 @@ function isoDateLocal(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-/** Visible date range for calendar views (daily / weekly / monthly). */
-export function resolveAdminBookingsCalendarRange(
-  view: Extract<BookingsView, "daily" | "weekly" | "monthly">,
-  selectedDay: string,
-): { from: string; to: string } {
-  const base = new Date(`${selectedDay}T12:00:00`);
-  if (Number.isNaN(base.getTime())) {
+/** Same rolling window as schedule week board: today plus the next three days. */
+export function resolveAdminBookingsCalendarRange(): { from: string; to: string } {
+  const dayKeys = buildScheduleWeekDayKeys();
+  const from = dayKeys[0];
+  const to = dayKeys[dayKeys.length - 1];
+  if (!from || !to) {
     const today = isoDateLocal(new Date());
     return { from: today, to: today };
   }
-  if (view === "daily") {
-    return { from: selectedDay, to: selectedDay };
-  }
-  if (view === "weekly") {
-    const mondayOffset = (base.getDay() + 6) % 7;
-    const monday = new Date(base);
-    monday.setDate(base.getDate() - mondayOffset);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    return { from: isoDateLocal(monday), to: isoDateLocal(sunday) };
-  }
-  const first = new Date(base.getFullYear(), base.getMonth(), 1);
-  const last = new Date(base.getFullYear(), base.getMonth() + 1, 0);
-  return { from: isoDateLocal(first), to: isoDateLocal(last) };
+  return { from, to };
+}
+
+export function isCalendarBookingsView(view: BookingsView): view is "weekly" {
+  return view === "weekly";
 }
 
 export const MANAGER_BOOKINGS_WINDOW_PAST_DAYS = 7;
@@ -227,10 +218,4 @@ export function buildAdminBookingsCalendarEndpoint(
   const params = new URLSearchParams();
   appendFilterParams(params, filters, calendarRange);
   return `/bookings/admin/management?${params.toString()}`;
-}
-
-export function isCalendarBookingsView(
-  view: BookingsView,
-): view is Extract<BookingsView, "daily" | "weekly" | "monthly"> {
-  return view === "daily" || view === "weekly" || view === "monthly";
 }
