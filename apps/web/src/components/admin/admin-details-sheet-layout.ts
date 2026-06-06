@@ -1,21 +1,45 @@
-export const ADMIN_DETAILS_SHEET_WIDTH_CLASS =
-  "w-full sm:w-1/4 sm:max-w-[25vw] sm:min-w-[18rem]";
+/** Default admin side sheet height — inset from top/bottom via overlay `items-end`. */
+export const ADMIN_DETAILS_SHEET_HEIGHT_CLASS = "h-[95dvh]";
 
-export const ADMIN_DETAILS_SHEET_HEIGHT_CLASS = "h-[90dvh]";
-
-export const ADMIN_DETAILS_SHEET_PANEL_CLASS = [
+const ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS = [
   "relative z-10 flex flex-col overflow-hidden",
-  ADMIN_DETAILS_SHEET_WIDTH_CLASS,
   ADMIN_DETAILS_SHEET_HEIGHT_CLASS,
   "rounded-tl-[28px] border border-white/70 border-b-0 border-r-0",
   "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
 ].join(" ");
 
-export const ADMIN_WIDE_DRAWER_PANEL_CLASS = [
-  "relative z-10 flex h-full w-full max-w-3xl flex-col overflow-hidden",
-  "border-l border-white/70",
-  "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
+/** Narrow detail sheets (bookings, schedule rows). */
+export const ADMIN_DETAILS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-1/4 sm:max-w-[25vw] sm:min-w-[18rem]";
+
+/** Medium sheets (user lookup, finance session list). */
+export const ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS =
+  "w-full sm:max-w-md sm:min-w-[20rem]";
+
+/** Wide form / profile sheets (clients, coaches, class types). */
+export const ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS =
+  "w-full sm:w-1/2 sm:max-w-3xl sm:min-w-[24rem]";
+
+export const ADMIN_DETAILS_SHEET_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_DETAILS_SHEET_WIDTH_CLASS,
 ].join(" ");
+
+export const ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_WIDE_DRAWER_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_DETAILS_SHEET_OVERLAY_CLASS =
+  "ommm-drawer-overlay z-[105] items-end";
+
+export const ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS =
+  "ommm-drawer-overlay z-[110] items-end";
 
 export const ADMIN_DETAILS_SHEET_HEADER_CLASS =
   "shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5";

@@ -1,9 +1,16 @@
 "use client";
 
-import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -36,6 +43,7 @@ export function AdminUserDetailsDrawer({
   onClose,
 }: AdminUserDetailsDrawerProps) {
   const t = useTranslations("adminPages.waitlists");
+  const titleId = useId();
   const [data, setData] = useState<UserDetailsPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -44,6 +52,8 @@ export function AdminUserDetailsDrawer({
     if (userId === null) {
       return;
     }
+    setLoading(true);
+    setLoadFailed(false);
     void apiFetch<UserDetailsPayload>(`/clients/${userId}`)
       .then((payload) => setData(payload))
       .catch(() => {
@@ -52,42 +62,31 @@ export function AdminUserDetailsDrawer({
       .finally(() => setLoading(false));
   }, [userId]);
 
-  useEffect(() => {
-    if (userId === null) {
-      return;
-    }
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [userId]);
-
-  useCloseOnEscape(userId !== null, onClose);
-
-  if (userId === null || typeof document === "undefined") {
-    return null;
-  }
-
-  return createPortal(
-    <div className="ommm-drawer-overlay z-[90]">
-      <button
-        type="button"
-        className="ommm-modal-backdrop"
-        aria-label={t("drawer.close")}
-        onClick={onClose}
-      />
-      <aside className="relative z-10 h-full w-full max-w-md overflow-auto border-l border-white/60 bg-white/90 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-semibold text-sage-900">{t("drawer.title")}</h3>
+  return (
+    <OmmDrawerPortal
+      isOpen={userId !== null}
+      onClose={onClose}
+      backdropAriaLabel={t("drawer.close")}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+            {t("drawer.title")}
+          </h2>
           <button
             type="button"
-            className="rounded-full border border-white/60 bg-white/80 px-2 py-1 text-sm text-sage-700 hover:bg-white"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("drawer.close")}
             onClick={onClose}
           >
-            {t("drawer.close")}
+            ×
           </button>
         </div>
+      </header>
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
         {loading ? (
           <p className="text-sm text-sage-600">{t("drawer.loading")}</p>
         ) : loadFailed ? (
@@ -120,8 +119,7 @@ export function AdminUserDetailsDrawer({
             </section>
           </div>
         )}
-      </aside>
-    </div>,
-    document.body,
+      </div>
+    </OmmDrawerPortal>
   );
 }

@@ -1,20 +1,21 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachStatusAction } from "@/components/admin/admin-coach-status-action";
 import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { coachCardDisplayName, coachCardInitials } from "@/components/coaches/coach-card-display";
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -76,53 +77,43 @@ export function AdminCoachDetailsDrawer({
   onEdit,
 }: AdminCoachDetailsDrawerProps) {
   const t = useTranslations("adminPages.coaches");
+  const titleId = useId();
 
-  useEffect(() => {
-    if (coach === null) {
-      return undefined;
-    }
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [coach]);
-
-  useCloseOnEscape(coach !== null, onClose);
-
-  if (coach === null || typeof document === "undefined") {
+  if (coach === null) {
     return null;
   }
 
   const displayName = coachCardDisplayName(coach.user);
   const assignedClasses = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
 
-  return createPortal(
-    <div className="ommm-drawer-overlay z-[80]">
-      <button
-        type="button"
-        className="ommm-modal-backdrop"
-        aria-label={t("drawer.close")}
-        onClick={onClose}
-      />
-      <aside className={`${ADMIN_WIDE_DRAWER_PANEL_CLASS} overflow-y-auto p-5 sm:p-6`}>
-        <div className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} mb-5 border-b-0 px-0 py-0 sm:px-0 sm:py-0`}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-                {t("drawer.eyebrow")}
-              </p>
-              <h2 className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>{displayName}</h2>
-              <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
-                {coach.user.phone ?? "—"} · {coach.user.email}
-              </p>
-            </div>
-            <button
-              type="button"
-              className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}`}
-              aria-label={t("drawer.close")}
-              onClick={onClose}
-            >
+  return (
+    <OmmDrawerPortal
+      isOpen
+      onClose={onClose}
+      backdropAriaLabel={t("drawer.close")}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+              {t("drawer.eyebrow")}
+            </p>
+            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+              {displayName}
+            </h2>
+            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
+              {coach.user.phone ?? "—"} · {coach.user.email}
+            </p>
+          </div>
+          <button
+            type="button"
+            className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}`}
+            aria-label={t("drawer.close")}
+            onClick={onClose}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -136,10 +127,10 @@ export function AdminCoachDetailsDrawer({
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>
-          </div>
         </div>
+      </header>
 
-        <div className="space-y-4">
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} space-y-4`}>
           <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
             <div className="flex flex-col gap-4 sm:flex-row">
               <CoachAvatar coach={coach} />
@@ -254,10 +245,8 @@ export function AdminCoachDetailsDrawer({
               />
             </div>
           </section>
-        </div>
-      </aside>
-    </div>,
-    document.body,
+      </div>
+    </OmmDrawerPortal>
   );
 }
 

@@ -1,10 +1,14 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { ADMIN_WIDE_DRAWER_PANEL_CLASS } from "@/components/admin/admin-details-sheet-layout";
+import {
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { AdminClassTypesDeleteDialog } from "@/components/admin/admin-class-types-delete-dialog";
 import {
   AdminClassTypesEditor,
@@ -14,11 +18,11 @@ import {
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { DeleteActionButton } from "@/components/ui/delete-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import { formatDateForUi } from "@/lib/date-display";
-import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
 export type AdminClassTypeRow = {
   id: string;
@@ -142,7 +146,6 @@ export function AdminClassTypesModal({
   const [resolvedSessionCounts, setResolvedSessionCounts] = useState<
     Record<string, number>
   >(() => ({ ...sessionCountByTypeId }));
-  const portalReady = useIsClientMounted();
   const submitLockRef = useRef(false);
   const onChangedRef = useRef(onChanged);
   const tRef = useRef(t);
@@ -282,19 +285,6 @@ export function AdminClassTypesModal({
   }, [classTypes, initialSelectedId, isOpen]);
 
   useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape" && !pending && !pendingDelete) {
-        onClose();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose, pending, pendingDelete]);
-
-  useEffect(() => {
     if (banner === null) {
       return undefined;
     }
@@ -302,18 +292,7 @@ export function AdminClassTypesModal({
     return () => window.clearTimeout(handle);
   }, [banner]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
-
-  if (!isOpen || !portalReady) {
+  if (!isOpen) {
     return null;
   }
 
@@ -494,30 +473,18 @@ export function AdminClassTypesModal({
   const listBusy = loadState === "loading";
   const showSearch = types.length >= LIST_SEARCH_MIN_COUNT;
 
-  return createPortal(
+  return (
     <>
-      <div
-        className="ommm-drawer-overlay z-[105] items-end"
-        role="presentation"
+      <OmmDrawerPortal
+        isOpen
+        onClose={onClose}
+        closeDisabled={pending || pendingDelete}
+        backdropAriaLabel={t("modalBackdropClose")}
+        ariaLabelledBy={titleId}
+        overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+        panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
       >
-        <button
-          type="button"
-          className="ommm-modal-backdrop"
-          onClick={() => {
-            if (!pending && !pendingDelete) {
-              onClose();
-            }
-          }}
-          aria-label={t("modalBackdropClose")}
-        />
-        <aside
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          aria-describedby={descId}
-          className={ADMIN_WIDE_DRAWER_PANEL_CLASS}
-        >
-          <header className="shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5">
+          <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id={titleId} className={adminChrome.panelHeading}>
@@ -529,7 +496,7 @@ export function AdminClassTypesModal({
               </div>
               <button
                 type="button"
-                className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-sand-50 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 disabled:opacity-50"
+                className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS} disabled:opacity-50`}
                 onClick={onClose}
                 disabled={pending || pendingDelete}
                 aria-label={t("modalCloseAria")}
@@ -744,8 +711,7 @@ export function AdminClassTypesModal({
               )}
             </section>
           </div>
-        </aside>
-      </div>
+      </OmmDrawerPortal>
 
       {pendingDelete && pendingDeleteType !== null ? (
         <AdminClassTypesDeleteDialog
@@ -758,7 +724,6 @@ export function AdminClassTypesModal({
           }}
         />
       ) : null}
-    </>,
-    document.body,
+    </>
   );
 }

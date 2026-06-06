@@ -1,6 +1,5 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import {
   useCallback,
   useEffect,
@@ -8,7 +7,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -21,6 +19,13 @@ import {
 } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import {
   ScheduleFilterDropdown,
@@ -48,6 +53,7 @@ import {
 } from "@/components/admin/admin-coach-form-helpers";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 
 type AdminCoachActionsProps = {
@@ -246,11 +252,6 @@ export function AdminCoachActions({
   const [busy, setBusy] = useState(false);
   const [inlineMessage, setInlineMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const isMounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false,
-  );
   const isOpen = searchParams.get(EDIT_COACH_QUERY_KEY) === coachId;
   const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
     (value) => ({
@@ -410,32 +411,6 @@ export function AdminCoachActions({
     router.replace(query ? `${pathname}?${query}` : pathname);
     setErrors({});
   }, [busy, pathname, router, searchParams]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeModal();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [closeModal, isOpen]);
 
   useEffect(() => {
     if (!isOpen || panelRef.current === null) {
@@ -629,53 +604,46 @@ export function AdminCoachActions({
         </div>
       ) : null}
 
-      {isOpen && isMounted
-        ? createPortal(
-            <div
-              className="ommm-drawer-overlay z-[90]"
-              role="presentation"
-            >
+      <OmmDrawerPortal
+        isOpen={isOpen}
+        onClose={closeModal}
+        closeDisabled={busy}
+        backdropAriaLabel={t("modalBackdropClose")}
+        ariaLabelledBy={titleId}
+        overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+        panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+      >
+        <div ref={panelRef} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id={titleId} className={adminChrome.panelHeading}>
+                  {t("editModalTitle")}
+                </h2>
+                <p id={descId} className="ommm-body-muted mt-1 text-sm">
+                  {t("editModalDescription")}
+                </p>
+              </div>
               <button
                 type="button"
-                className="ommm-modal-backdrop"
-                aria-label={t("modalBackdropClose")}
+                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+                aria-label={t("modalCloseAria")}
                 onClick={closeModal}
-              />
-              <div
-                ref={panelRef}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={titleId}
-                aria-describedby={descId}
-                className="relative z-10 h-full w-full max-w-3xl overflow-x-hidden overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
+                disabled={busy}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 id={titleId} className={adminChrome.panelHeading}>
-                      {t("editModalTitle")}
-                    </h2>
-                    <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                      {t("editModalDescription")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                    aria-label={t("modalCloseAria")}
-                    onClick={closeModal}
-                    disabled={busy}
-                  >
-                    <CloseGlyph className="h-5 w-5" />
-                  </button>
-                </div>
+                <CloseGlyph className="h-5 w-5" />
+              </button>
+            </div>
+          </header>
 
-                <form
-                  className="mt-5 flex min-w-0 flex-col gap-5"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    void onSave();
-                  }}
-                >
+          <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} overflow-x-hidden`}>
+            <form
+              className="flex min-w-0 flex-col gap-5"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void onSave();
+              }}
+            >
                   <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
@@ -1017,11 +985,9 @@ export function AdminCoachActions({
                     </OmmButton>
                   </div>
                 </form>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+          </div>
+        </div>
+      </OmmDrawerPortal>
     </>
   );
 }

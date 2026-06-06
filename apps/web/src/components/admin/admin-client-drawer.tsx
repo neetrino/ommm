@@ -1,33 +1,23 @@
 "use client";
 
-
-
-import { createPortal } from "react-dom";
-
 import { useCallback, useEffect, useRef, useState } from "react";
-
 import Image from "next/image";
-
 import { useTranslations } from "next-intl";
-
 import { useSearchParams } from "next/navigation";
-
 import { usePathname, useRouter } from "@/i18n/navigation";
-
 import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
-
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-
 import { EditActionButton } from "@/components/ui/edit-action-button";
-
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
-
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 
 import { formatDateForUi } from "@/lib/date-display";
@@ -200,31 +190,7 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: Props)
 
 
 
-  useEffect(() => {
-
-    if (!client) return undefined;
-
-    const previous = document.body.style.overflow;
-
-    document.body.style.overflow = "hidden";
-
-    return () => {
-
-      document.body.style.overflow = previous;
-
-    };
-
-  }, [client]);
-
-
-
-  useCloseOnEscape(client !== null, onClose);
-
-
-
-  if (!client || typeof document === "undefined") return null;
-
-
+  if (!client) return null;
 
   async function run(key: string, action: () => Promise<void>, ok: string) {
 
@@ -272,160 +238,88 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: Props)
 
 
 
-  return createPortal(
-
-    <div className="ommm-drawer-overlay z-[90]">
-
-      <button
-
-        className="ommm-modal-backdrop"
-
-        type="button"
-
-        aria-label={t("modalBackdropClose")}
-
-        onClick={onClose}
-
-      />
-
-      <aside className={`${ADMIN_WIDE_DRAWER_PANEL_CLASS} overflow-y-auto p-5 sm:p-6`}>
-
-        <div className="mb-4 flex items-start justify-between gap-3">
-
+  return (
+    <OmmDrawerPortal
+      isOpen
+      onClose={onClose}
+      backdropAriaLabel={t("modalBackdropClose")}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
           <div>
-
             <p className="text-xs uppercase tracking-wide text-sage-500">Client profile</p>
-
             <h2 className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>{fullName(client)}</h2>
-
-            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>{client.phone ?? "—"} · {client.email}</p>
-
+            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
+              {client.phone ?? "—"} · {client.email}
+            </p>
           </div>
-
           <div className="flex items-center gap-2">
-
             <EditActionButton
-
               ariaLabel={t("editClient")}
-
               title={t("editClient")}
-
               onClick={openEditModal}
-
             />
-
             <button
-
               type="button"
-
               className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}`}
-
               aria-label={t("modalCloseAria")}
-
               title={t("modalCloseAria")}
-
               onClick={onClose}
-
             >
-
               <CancelGlyph className="h-5 w-5" />
-
             </button>
-
           </div>
-
         </div>
+      </header>
 
-
-
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
         {message ? (
-
           <AdminCenterToast
-
             message={message}
-
             tone={messageTone}
-
             onDismiss={() => setMessage(null)}
-
           />
-
         ) : null}
 
-
-
         {loading || !data ? (
-
-          <p className="text-sm text-sage-600">{loading ? "Loading client data..." : "Client data unavailable."}</p>
-
+          <p className="text-sm text-sage-600">
+            {loading ? "Loading client data..." : "Client data unavailable."}
+          </p>
         ) : (
-
           <div className="space-y-4">
-
             <BasicInfo data={data} locale={locale} />
-
             <SummaryGrid client={activity} locale={locale} />
-
             <ActionSection
-
               client={data}
-
               giftAmount={giftAmount}
-
               busy={busy}
-
               onGiftAmountChange={setGiftAmount}
-
               onRun={run}
-
             />
-
             <HistorySections data={data} locale={locale} />
-
             <NotesSection
-
               notes={data.notes}
-
               note={note}
-
               busy={busy !== null}
-
               onNoteChange={setNote}
-
               onAdd={() =>
-
                 void run(
-
                   "note",
-
                   () =>
-
                     apiFetch(`/clients/${client.id}/notes`, {
-
                       method: "POST",
-
                       body: JSON.stringify({ body: note.trim() }),
-
                     }).then(() => setNote("")),
-
                   "Note added",
-
                 )
-
               }
-
             />
-
           </div>
-
         )}
-
-      </aside>
-
-    </div>,
-
-    document.body,
-
+      </div>
+    </OmmDrawerPortal>
   );
 
 }

@@ -101,51 +101,51 @@ export function AdminAccordionPanel({
       data-expanded={open ? "true" : "false"}
     >
       <div className="flex min-h-[46px] items-center justify-between gap-4">
-        <h3
-          className={
-            open
-              ? "font-serif text-[2rem] font-normal leading-[2.6rem] tracking-[-0.02em] text-[#1b1c1a]"
-              : "font-serif text-xl font-normal tracking-[-0.02em] text-[#464646] sm:text-[1.625rem] sm:leading-[2.6rem]"
-          }
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center justify-between gap-4 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen(!open)}
         >
-          {title}
-        </h3>
-        <div className="flex shrink-0 items-center justify-center gap-5">
-          {editLabel && onEdit ? (
-            <button
-              type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#464646] transition-colors hover:bg-white/60 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
-              aria-label={editLabel}
-              title={editLabel}
-              onClick={onEdit}
-            >
-              <span className="sr-only">{editLabel}</span>
-              <EditGlyph />
-            </button>
-          ) : null}
-          {deleteLabel && onDelete ? (
-            <button
-              type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-red-700/80 transition-colors hover:bg-red-50/90 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
-              aria-label={deleteLabel}
-              title={deleteLabel}
-              onClick={onDelete}
-            >
-              <span className="sr-only">{deleteLabel}</span>
-              <DeleteGlyph />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
-            aria-expanded={open}
-            aria-controls={panelId}
-            onClick={() => setOpen(!open)}
+          <h3
+            className={
+              open
+                ? "font-serif text-[2rem] font-normal leading-[2.6rem] tracking-[-0.02em] text-[#1b1c1a]"
+                : "font-serif text-xl font-normal tracking-[-0.02em] text-[#464646] sm:text-[1.625rem] sm:leading-[2.6rem]"
+            }
           >
+            {title}
+          </h3>
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
             <span className="sr-only">{open ? "Collapse" : "Expand"}</span>
             <ChevronGlyph open={open} />
+          </span>
+        </button>
+        {editLabel && onEdit ? (
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#464646] transition-colors hover:bg-white/60 hover:text-sand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2"
+            aria-label={editLabel}
+            title={editLabel}
+            onClick={onEdit}
+          >
+            <span className="sr-only">{editLabel}</span>
+            <EditGlyph />
           </button>
-        </div>
+        ) : null}
+        {deleteLabel && onDelete ? (
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-red-700/80 transition-colors hover:bg-red-50/90 hover:text-red-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+            aria-label={deleteLabel}
+            title={deleteLabel}
+            onClick={onDelete}
+          >
+            <span className="sr-only">{deleteLabel}</span>
+            <DeleteGlyph />
+          </button>
+        ) : null}
       </div>
       {open ? (
         <div

@@ -1,14 +1,21 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import type { CoachFinanceRow, CoachSessionRow } from "@/components/admin/admin-finance-types";
+import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
+import { OmmButton } from "@/components/ui/omm-button";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
-import type { CoachFinanceRow, CoachSessionRow } from "@/components/admin/admin-finance-types";
-import { OmmButton } from "@/components/ui/omm-button";
 
 type Props = {
   coach: CoachFinanceRow | null;
@@ -81,51 +88,29 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
     };
   }, [coach, month, t]);
 
-  useEffect(() => {
-    if (!coach) {
-      return undefined;
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-    };
-  }, [coach, onClose]);
+  const coachName =
+    coach !== null
+      ? coachCardDisplayName({
+          name: coach.user.name,
+          lastName: coach.user.lastName,
+          email: coach.user.email,
+          avatarUrl: null,
+        })
+      : "";
 
-  if (!coach || typeof document === "undefined") {
-    return null;
-  }
-
-  const coachName = coachCardDisplayName({
-    name: coach.user.name,
-    lastName: coach.user.lastName,
-    email: coach.user.email,
-    avatarUrl: null,
-  });
-
-  return createPortal(
-    <div className="ommm-drawer-overlay z-[70]">
-      <button
-        type="button"
-        className="ommm-modal-backdrop"
-        aria-label={t("close")}
-        onClick={onClose}
-      />
-      <aside
-        role="dialog"
-        aria-labelledby={titleId}
-        className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-white/60 bg-white/95 p-5 shadow-2xl"
-      >
+  return (
+    <OmmDrawerPortal
+      isOpen={coach !== null}
+      onClose={onClose}
+      backdropAriaLabel={t("close")}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id={titleId} className="text-lg font-semibold text-sage-900">
+            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
               {coachName}
             </h2>
             <p className="mt-1 text-sm text-sage-600">{t("monthLabel", { month })}</p>
@@ -135,38 +120,37 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
           </OmmButton>
         </div>
         <p className="mt-3 text-xs text-sage-500">{t("earningsHint")}</p>
-        <div className="mt-4 flex-1 overflow-y-auto">
-          {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
-          {error ? <p className="text-sm text-red-800">{error}</p> : null}
-          {!loading && !error && sessions.length === 0 ? (
-            <p className="text-sm text-sage-600">{t("empty")}</p>
-          ) : null}
-          <ul className="space-y-2">
-            {sessions.map((session) => {
-              const earnings = sessionEarningsCents(session, coach.salary);
-              return (
-                <li
-                  key={session.id}
-                  className="rounded-2xl border border-sage-100 bg-white p-3 text-sm"
-                >
-                  <p className="font-medium text-sage-900">
-                    {formatDateTimeForUi(session.startsAt, locale)}
-                  </p>
-                  <p className="mt-1 text-sage-600">{session.classType.name}</p>
-                  <p className="mt-1 text-xs text-sage-500">
-                    {earnings !== null
-                      ? t("attribution", {
-                          amount: formatAmdFromCents(earnings, locale),
-                        })
-                      : t("noAttribution")}
-                  </p>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </aside>
-    </div>,
-    document.body,
+      </header>
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
+        {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
+        {error ? <p className="text-sm text-red-800">{error}</p> : null}
+        {!loading && !error && sessions.length === 0 ? (
+          <p className="text-sm text-sage-600">{t("empty")}</p>
+        ) : null}
+        <ul className="space-y-2">
+          {sessions.map((session) => {
+            const earnings = coach !== null ? sessionEarningsCents(session, coach.salary) : null;
+            return (
+              <li
+                key={session.id}
+                className="rounded-2xl border border-sage-100 bg-white p-3 text-sm"
+              >
+                <p className="font-medium text-sage-900">
+                  {formatDateTimeForUi(session.startsAt, locale)}
+                </p>
+                <p className="mt-1 text-sage-600">{session.classType.name}</p>
+                <p className="mt-1 text-xs text-sage-500">
+                  {earnings !== null
+                    ? t("attribution", {
+                        amount: formatAmdFromCents(earnings, locale),
+                      })
+                    : t("noAttribution")}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </OmmDrawerPortal>
   );
 }

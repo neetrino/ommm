@@ -6,6 +6,14 @@ import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
 import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
 import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import {
   adminBookingsFilterValuesFromState,
   buildAdminBookingsFilterFields,
 } from "@/components/admin/admin-bookings-filter-fields";
@@ -23,13 +31,11 @@ import {
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
-
-const DRAWER_CLOSE_BUTTON_CLASSES =
-  "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-sage-500 transition-[background-color,color,transform] hover:bg-sand-50 hover:text-sage-900 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 focus-visible:ring-offset-2";
 
 type AdminBookingSessionSlot = {
   id: string;
@@ -772,7 +778,6 @@ function WeeklyPanel({
 
 function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }) {
   const t = useTranslations("adminPages.bookings");
-  useCloseOnEscape(true, onClose);
   const [data, setData] = useState<null | {
     name: string | null;
     email: string;
@@ -798,13 +803,27 @@ function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }
       .catch(() => setData(null));
   }, [userId]);
   return (
-    <div className="ommm-drawer-overlay z-40">
-      <button className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} />
-      <aside className="relative z-10 h-full w-full max-w-md overflow-auto bg-white p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-semibold">{t("userDetailsTitle")}</h3>
-          <button type="button" className={DRAWER_CLOSE_BUTTON_CLASSES} onClick={onClose}>x</button>
+    <OmmDrawerPortal
+      isOpen
+      onClose={onClose}
+      backdropAriaLabel={t("close")}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-center justify-between gap-3">
+          <h3 className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>{t("userDetailsTitle")}</h3>
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            onClick={onClose}
+            aria-label={t("close")}
+          >
+            ×
+          </button>
         </div>
+      </header>
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
         {data === null ? (
           <p className="text-sm text-sage-500">{t("emptyUserData")}</p>
         ) : (
@@ -826,8 +845,8 @@ function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }
             </div>
           </div>
         )}
-      </aside>
-    </div>
+      </div>
+    </OmmDrawerPortal>
   );
 }
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {

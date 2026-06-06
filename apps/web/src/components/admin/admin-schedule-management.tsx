@@ -49,6 +49,7 @@ import {
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
@@ -1573,7 +1574,7 @@ function SessionFormSheet({
       backdropAriaLabel={t("modalBackdropClose")}
       ariaLabelledBy={titleId}
       closeDisabled={pending}
-      overlayClassName="ommm-drawer-overlay z-[105] items-end"
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
       panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>

@@ -5,6 +5,7 @@ import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS,
   ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
@@ -61,7 +62,7 @@ export function AdminConfirmSheet({
       backdropAriaLabel={backdropAriaLabel}
       ariaLabelledBy={titleId}
       closeDisabled={pending}
-      overlayClassName="ommm-drawer-overlay z-[110] items-end"
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_ELEVATED_CLASS}
       panelClassName={`${ADMIN_DETAILS_SHEET_PANEL_CLASS} ${CONFIRM_SHEET_TONE_CLASS[tone]}`.trim()}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
