@@ -3,8 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
+import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
-import { AccountSection } from "@/components/layout/account-page-frame";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
@@ -34,18 +34,16 @@ export default async function UserGiftCardsPage({
           : undefined
       }
     >
-      <div className="space-y-10">
-        <AccountSection title={t("redeem")}>
+      <div className="space-y-0">
+        <UserGiftCardsSection title={t("redeem")}>
           <div className="max-w-sm">
             <GiftRedeemForm />
           </div>
-        </AccountSection>
+        </UserGiftCardsSection>
 
-        <AccountSection title={t("purchase")}>
-          <div className="mt-4">
-            <GiftPurchaseForm />
-          </div>
-        </AccountSection>
+        <UserGiftCardsSection title={t("purchase")}>
+          <GiftPurchaseForm locale={locale} />
+        </UserGiftCardsSection>
 
         <UserGiftCardsBoard
           locale={locale}

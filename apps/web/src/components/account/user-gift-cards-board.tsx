@@ -4,6 +4,20 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
+import {
+  USER_GIFT_CARD_GRID_CLASS,
+  USER_GIFT_CARD_STATUS_BADGE_CLASS,
+  USER_GIFT_CARD_TILE_AMOUNT_CLASS,
+  USER_GIFT_CARD_TILE_BODY_CLASS,
+  USER_GIFT_CARD_TILE_HEADER_CLASS,
+  USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS,
+  USER_GIFT_CARD_TILE_INTERACTIVE_CLASS,
+  USER_GIFT_CARD_TILE_META_DL_CLASS,
+  USER_GIFT_CARD_TILE_META_LABEL_CLASS,
+  USER_GIFT_CARD_TILE_META_ROW_CLASS,
+  USER_GIFT_CARD_TILE_META_VALUE_CLASS,
+  UserGiftCardsSection,
+} from "@/components/account/user-gift-card-tile-layout";
 import type {
   UserGiftCardRow,
   UserGiftCardSectionKind,
@@ -89,23 +103,22 @@ function UserGiftCardSection({
     kind === "purchased" ? t("emptyPurchasedDescription") : t("emptyReceivedDescription");
 
   return (
-    <section className="mt-10 first:mt-0">
-      <h2 className="ommm-h3 text-sage-800">{heading}</h2>
+    <UserGiftCardsSection title={heading}>
       {errorStatus !== null ? (
-        <div className="app-alert-warn mt-4 text-sm">
+        <div className="app-alert-warn text-sm">
           {errorStatus === 401 || errorStatus === 403
             ? t("signInRequired")
             : t("loadError", { status: errorStatus })}
         </div>
       ) : cards.length === 0 ? (
-        <div className="mt-4 rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+        <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
           <p className="font-medium text-sage-900">{emptyTitle}</p>
           <p className="ommm-body-muted mt-2 text-sm">{emptyDescription}</p>
         </div>
       ) : (
         <UserGiftCardGrid locale={locale} cards={cards} kind={kind} onSelect={onSelect} />
       )}
-    </section>
+    </UserGiftCardsSection>
   );
 }
 
@@ -118,7 +131,7 @@ type UserGiftCardGridProps = {
 
 function UserGiftCardGrid({ locale, cards, kind, onSelect }: UserGiftCardGridProps) {
   return (
-    <div className="mt-5 grid gap-6 lg:grid-cols-2">
+    <div className={USER_GIFT_CARD_GRID_CLASS}>
       {cards.map((card) => (
         <UserGiftCardTile
           key={card.id}
@@ -165,9 +178,9 @@ function UserGiftCardTile({
           openDetails();
         }
       }}
-      className="group cursor-pointer rounded-[32px] border border-white/80 bg-white/95 p-6 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:-translate-y-0.5 hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:p-7"
+      className={USER_GIFT_CARD_TILE_INTERACTIVE_CLASS}
     >
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] border border-white/70 bg-sage-100 shadow-[0_14px_26px_-18px_rgba(45,40,35,0.45)]">
+      <div className={USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS}>
         <GiftCardThumbnail
           imageUrl={card.imageUrl}
           alt={t("cardImageAlt")}
@@ -177,40 +190,48 @@ function UserGiftCardTile({
           <UserGiftCardCopyCodeButton code={card.code} stopClickPropagation className="pointer-events-auto" />
         </div>
       </div>
-      <div className="mt-6 space-y-5">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-2xl font-semibold tracking-tight text-sage-950">{amountLabel}</p>
-          <span className={`${giftCardStatusBadgeClass(card.status)} px-3 py-1 text-sm leading-none`}>
+      <div className={USER_GIFT_CARD_TILE_BODY_CLASS}>
+        <div className={USER_GIFT_CARD_TILE_HEADER_CLASS}>
+          <p className={USER_GIFT_CARD_TILE_AMOUNT_CLASS}>{amountLabel}</p>
+          <span
+            className={`${giftCardStatusBadgeClass(card.status)} ${USER_GIFT_CARD_STATUS_BADGE_CLASS}`}
+          >
             {t(`statusValues.${card.status}`)}
           </span>
         </div>
-        <dl className="grid gap-2.5 text-lg text-sage-700">
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("cardCreated")}</dt>
-            <dd className="text-right text-sage-800">{displayGiftCardDate(card.createdAt)}</dd>
+        <dl className={USER_GIFT_CARD_TILE_META_DL_CLASS}>
+          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
+            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardCreated")}</dt>
+            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
+              {displayGiftCardDate(card.createdAt)}
+            </dd>
           </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("cardExpiration")}</dt>
-            <dd className="text-right text-sage-800">
+          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
+            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardExpiration")}</dt>
+            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
               {card.expiresAt !== null
                 ? displayGiftCardDate(card.expiresAt)
                 : t("cardNoExpiration")}
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("cardBalance")}</dt>
-            <dd className="text-right text-sage-800">{balanceLabel}</dd>
+          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
+            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardBalance")}</dt>
+            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>{balanceLabel}</dd>
           </div>
           {kind === "purchased" && recipient.length > 0 ? (
-            <div className="flex items-center justify-between gap-4">
-              <dt className="text-sage-600">{t("cardRecipient")}</dt>
-              <dd className="truncate text-right text-sage-800">{recipient}</dd>
+            <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
+              <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("cardRecipient")}</dt>
+              <dd className={`truncate ${USER_GIFT_CARD_TILE_META_VALUE_CLASS}`}>{recipient}</dd>
             </div>
           ) : null}
           {kind === "received" && card.message ? (
             <div className="flex items-start justify-between gap-4">
-              <dt className="shrink-0 text-sage-600">{t("cardMessage")}</dt>
-              <dd className="line-clamp-2 text-right text-sage-800">{card.message}</dd>
+              <dt className={`shrink-0 ${USER_GIFT_CARD_TILE_META_LABEL_CLASS}`}>
+                {t("cardMessage")}
+              </dt>
+              <dd className={`line-clamp-2 ${USER_GIFT_CARD_TILE_META_VALUE_CLASS}`}>
+                {card.message}
+              </dd>
             </div>
           ) : null}
         </dl>

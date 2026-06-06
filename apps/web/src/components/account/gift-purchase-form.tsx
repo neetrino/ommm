@@ -3,10 +3,26 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import {
+  USER_GIFT_CARD_GRID_CLASS,
+  USER_GIFT_CARD_STATUS_BADGE_CLASS,
+  USER_GIFT_CARD_TILE_AMOUNT_CLASS,
+  USER_GIFT_CARD_TILE_BODY_CLASS,
+  USER_GIFT_CARD_TILE_HEADER_CLASS,
+  USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS,
+  USER_GIFT_CARD_TILE_META_DL_CLASS,
+  USER_GIFT_CARD_TILE_META_LABEL_CLASS,
+  USER_GIFT_CARD_TILE_META_ROW_CLASS,
+  USER_GIFT_CARD_TILE_META_VALUE_CLASS,
+  USER_GIFT_CARD_TILE_SHELL_CLASS,
+} from "@/components/account/user-gift-card-tile-layout";
 import { OmmButton } from "@/components/ui/omm-button";
 import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { ApiError, apiFetch } from "@/lib/api";
-import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
+import {
+  displayGiftCardDate,
+  giftCardStatusBadgeClass,
+} from "@/components/gift-cards/gift-card-display-helpers";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
 type GiftBatchMarketItem = {
@@ -23,7 +39,11 @@ type PendingPaymentResponse = {
   paymentReference: string | null;
 };
 
-export function GiftPurchaseForm() {
+type GiftPurchaseFormProps = {
+  locale: string;
+};
+
+export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
   const router = useRouter();
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const [items, setItems] = useState<GiftBatchMarketItem[]>([]);
@@ -103,11 +123,12 @@ export function GiftPurchaseForm() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className={USER_GIFT_CARD_GRID_CLASS}>
         {items.map((item) => (
           <PurchaseGiftCardPreview
             key={item.id}
             item={item}
+            locale={locale}
             busy={busyBatchId !== null}
             onBuy={onBuy}
           />
@@ -120,45 +141,49 @@ export function GiftPurchaseForm() {
 
 function PurchaseGiftCardPreview({
   item,
+  locale,
   busy,
   onBuy,
 }: {
   item: GiftBatchMarketItem;
+  locale: string;
   busy: boolean;
   onBuy: (item: GiftBatchMarketItem) => Promise<void>;
 }) {
   const t = useTranslations("userPages.giftCards.purchaseForm");
   const giftCardsT = useTranslations("userPages.giftCards");
-  const amountLabel = formatAmdFromCents(item.amountCents, "hy");
+  const amountLabel = formatAmdFromCents(item.amountCents, locale);
 
   return (
-    <article className="rounded-[32px] border border-white/80 bg-white/95 p-6 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] sm:p-7">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] border border-white/70 bg-sage-100 shadow-[0_14px_26px_-18px_rgba(45,40,35,0.45)]">
+    <article className={USER_GIFT_CARD_TILE_SHELL_CLASS}>
+      <div className={USER_GIFT_CARD_TILE_IMAGE_FRAME_CLASS}>
         <GiftCardThumbnail
           imageUrl={item.imageUrl}
           alt={t("selectedImageAlt")}
           fallbackLabel={t("noImage")}
         />
       </div>
-      <div className="mt-6 space-y-5">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-2xl font-semibold tracking-tight text-sage-950">{amountLabel}</p>
-          <span className="inline-flex rounded-full border border-sage-900/70 bg-white px-3 py-1 text-sm leading-none text-sage-900">
+      <div className={USER_GIFT_CARD_TILE_BODY_CLASS}>
+        <div className={USER_GIFT_CARD_TILE_HEADER_CLASS}>
+          <p className={USER_GIFT_CARD_TILE_AMOUNT_CLASS}>{amountLabel}</p>
+          <span
+            className={`${giftCardStatusBadgeClass(item.status)} ${USER_GIFT_CARD_STATUS_BADGE_CLASS}`}
+          >
             {giftCardsT(`statusValues.${item.status}`)}
           </span>
         </div>
-        <dl className="grid gap-2.5 text-lg text-sage-700">
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{giftCardsT("cardExpiration")}</dt>
-            <dd className="text-right text-sage-800">
+        <dl className={USER_GIFT_CARD_TILE_META_DL_CLASS}>
+          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
+            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{giftCardsT("cardExpiration")}</dt>
+            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
               {item.expiresAt !== null
                 ? displayGiftCardDate(item.expiresAt)
                 : giftCardsT("cardNoExpiration")}
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("availableLabel")}</dt>
-            <dd className="text-right text-sage-800">
+          <div className={USER_GIFT_CARD_TILE_META_ROW_CLASS}>
+            <dt className={USER_GIFT_CARD_TILE_META_LABEL_CLASS}>{t("availableLabel")}</dt>
+            <dd className={USER_GIFT_CARD_TILE_META_VALUE_CLASS}>
               {item.availableQuantity} / {item.totalQuantity}
             </dd>
           </div>
