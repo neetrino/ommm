@@ -17,7 +17,6 @@ export type CoachEditFormState = {
   assignedClassTypeIds: string[];
   schedule: CoachScheduleInput[];
   specialization: string;
-  classType: string;
 };
 
 export type CoachEditFormErrors = {
@@ -33,7 +32,6 @@ export type CoachEditFormErrors = {
   assignedClassTypeIds?: string;
   schedule?: string;
   specialization?: string;
-  classType?: string;
 };
 
 export type CoachEditInitialValues = {
@@ -49,7 +47,6 @@ export type CoachEditInitialValues = {
   assignedClassTypeIds: readonly string[];
   schedule: readonly { id: string; date: string; time: string; spots: number }[];
   specialization: string;
-  classType: string;
 };
 
 export type CoachUpdatePayload = {
@@ -61,7 +58,6 @@ export type CoachUpdatePayload = {
   birthday?: string | null;
   bio: string | null;
   specialization: string | null;
-  classType: string | null;
   experienceYears: number | null;
   assignedClassTypeIds: string[];
   schedule: { date: string; time: string; spots: number }[];
@@ -90,7 +86,6 @@ export function coachFormFromInitial(initial: CoachEditInitialValues): CoachEdit
           }))
         : [createScheduleRow()],
     specialization: initial.specialization,
-    classType: initial.classType,
   };
 }
 

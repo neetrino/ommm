@@ -213,7 +213,6 @@ export function AdminCoachesDirectory({
       <AdminCoachDetailsDrawer
         coach={selectedCoach}
         locale={locale}
-        classTypeOptions={classTypeOptions}
         classOptions={classOptions}
         onClose={closeProfileDrawer}
       />

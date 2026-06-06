@@ -27,7 +27,6 @@ type ValidateCoachFormArgs = {
   form: CoachEditFormState;
   photoFile: File | null;
   photoRemoved: boolean;
-  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   labels: {
     emailRequired: string;
@@ -42,7 +41,6 @@ type ValidateCoachFormArgs = {
     bioTooLong: string;
     experienceInvalid: string;
     specializationTooLong: string;
-    classTypeInvalid: string;
     assignedClassesInvalid: string;
     photoTooLarge: string;
     scheduleInvalid: string;
@@ -53,7 +51,6 @@ export function validateCoachEditForm({
   form,
   photoFile,
   photoRemoved,
-  classTypeOptions,
   classOptions,
   labels,
 }: ValidateCoachFormArgs): { errors: CoachEditFormErrors; payload: CoachUpdatePayload | null } {
@@ -69,7 +66,6 @@ export function validateCoachEditForm({
   const experienceRaw = form.experienceYears.trim();
   const experienceYears = experienceRaw.length > 0 ? Number(experienceRaw) : null;
   const specialization = form.specialization.trim();
-  const classType = form.classType.trim();
   const assignedClassTypeIds = form.assignedClassTypeIds;
   const scheduleRows = nonEmptyCoachScheduleRows(form.schedule);
   const errors: CoachEditFormErrors = {};
@@ -116,13 +112,6 @@ export function validateCoachEditForm({
   if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
     errors.specialization = labels.specializationTooLong;
   }
-  if (
-    classType.length > 0 &&
-    classTypeOptions.length > 0 &&
-    !classTypeOptions.includes(classType)
-  ) {
-    errors.classType = labels.classTypeInvalid;
-  }
   if (classOptions.length > 0) {
     const allowedClassIds = new Set(classOptions.map((option) => option.id));
     if (assignedClassTypeIds.some((id) => !allowedClassIds.has(id))) {
@@ -156,7 +145,6 @@ export function validateCoachEditForm({
     birthday: birthdayDisplay === "" ? null : birthday,
     bio: bio.length > 0 ? bio : null,
     specialization: specialization.length > 0 ? specialization : null,
-    classType: classType.length > 0 ? classType : null,
     experienceYears,
     assignedClassTypeIds,
     schedule: normalizeScheduleForApi(scheduleRows),

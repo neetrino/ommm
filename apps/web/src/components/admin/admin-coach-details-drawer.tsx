@@ -33,7 +33,6 @@ import { coachCardInitials } from "@/components/coaches/coach-card-display";
 type AdminCoachDetailsDrawerProps = {
   coach: AdminCoachDirectoryRow | null;
   locale: string;
-  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
 };
@@ -41,7 +40,6 @@ type AdminCoachDetailsDrawerProps = {
 export function AdminCoachDetailsDrawer({
   coach,
   locale,
-  classTypeOptions,
   classOptions,
   onClose,
 }: AdminCoachDetailsDrawerProps) {
@@ -53,7 +51,6 @@ export function AdminCoachDetailsDrawer({
     <AdminCoachDetailsDrawerInner
       coach={coach}
       locale={locale}
-      classTypeOptions={classTypeOptions}
       classOptions={classOptions}
       onClose={onClose}
     />
@@ -74,20 +71,17 @@ function coachInitialValues(coach: AdminCoachDirectoryRow): CoachEditInitialValu
     assignedClassTypeIds: coach.assignedClassTypeIds,
     schedule: coach.schedule,
     specialization: coach.specialization ?? "",
-    classType: coach.classType ?? "",
   };
 }
 
 function AdminCoachDetailsDrawerInner({
   coach,
   locale,
-  classTypeOptions,
   classOptions,
   onClose,
 }: {
   coach: AdminCoachDirectoryRow;
   locale: string;
-  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
 }) {
@@ -114,7 +108,6 @@ function AdminCoachDetailsDrawerInner({
       bioTooLong: t("bioTooLong"),
       experienceInvalid: t("experienceInvalid"),
       specializationTooLong: t("specializationTooLong"),
-      classTypeInvalid: t("classTypeInvalid"),
       assignedClassesInvalid: t("assignedClassesInvalid"),
       photoTooLarge: t("photoTooLarge"),
       scheduleInvalid: t("scheduleInvalid"),
@@ -126,7 +119,6 @@ function AdminCoachDetailsDrawerInner({
     coachId: coach.id,
     resetKey: `${coach.id}:${coach.updatedAt}`,
     initial,
-    classTypeOptions,
     classOptions,
     labels: validationLabels,
   });
@@ -217,7 +209,6 @@ function AdminCoachDetailsDrawerInner({
           activeTab={activeTab}
           coachId={coach.id}
           locale={locale}
-          classTypeOptions={classTypeOptions}
           classOptions={classOptions}
           form={editForm.form}
           errors={editForm.errors}

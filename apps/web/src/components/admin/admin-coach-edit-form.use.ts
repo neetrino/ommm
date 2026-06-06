@@ -22,7 +22,6 @@ type UseCoachEditFormArgs = {
   coachId: string;
   resetKey: string;
   initial: CoachEditInitialValues;
-  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   labels: Parameters<typeof validateCoachEditForm>[0]["labels"];
   onSaved?: () => void;
@@ -32,7 +31,6 @@ export function useCoachEditForm({
   coachId,
   resetKey,
   initial,
-  classTypeOptions,
   classOptions,
   labels,
   onSaved,
@@ -240,7 +238,6 @@ export function useCoachEditForm({
       form,
       photoFile,
       photoRemoved,
-      classTypeOptions,
       classOptions,
       labels,
     });

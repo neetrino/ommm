@@ -25,10 +25,6 @@ import {
   type CoachEditFormState,
 } from "@/components/admin/admin-coach-edit-form.types";
 import type { useCoachEditForm } from "@/components/admin/admin-coach-edit-form.use";
-import {
-  ScheduleFilterDropdown,
-  type ScheduleFilterOption,
-} from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -53,7 +49,6 @@ type CoachSheetTabPanelsProps = {
   activeTab: string;
   coachId: string;
   locale: string;
-  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   form: CoachEditFormState;
   errors: CoachEditFormErrors;
@@ -69,7 +64,6 @@ export function CoachSheetTabPanels({
   activeTab,
   coachId,
   locale,
-  classTypeOptions,
   classOptions,
   form,
   errors,
@@ -80,9 +74,6 @@ export function CoachSheetTabPanels({
 }: CoachSheetTabPanelsProps) {
   const t = useTranslations("adminPages.coaches");
   const labels = getCoachFormSectionLabels(locale);
-  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
-    (value) => ({ value, label: value }),
-  );
   const photoPreview = useMemo(() => {
     const localPreview =
       photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
@@ -272,16 +263,6 @@ export function CoachSheetTabPanels({
               className="ommm-input"
               value={form.experienceYears}
               onChange={(event) => controller.updateField("experienceYears", event.target.value)}
-              disabled={busy}
-            />
-          </AdminSheetEditableField>
-          <AdminSheetEditableField label={t("fieldClassType")} error={errors.classType}>
-            <ScheduleFilterDropdown
-              label={t("fieldClassTypePlaceholder")}
-              ariaLabel={t("fieldClassType")}
-              value={form.classType}
-              options={classTypeDropdownOptions}
-              onChange={(value) => controller.updateField("classType", value)}
               disabled={busy}
             />
           </AdminSheetEditableField>
