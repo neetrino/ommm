@@ -116,7 +116,16 @@ function ScheduleDayCard({
   const date = new Date(`${day}T00:00:00`);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
+  const isToday = day === scheduleTodayIsoDate();
   const isActiveFilter = selected;
+
+  const todayAccentClass = "font-serif text-sand-700";
+  const defaultAccentClass = "font-serif text-sage-950";
+  const weekdayClass = isActiveFilter ? "opacity-75" : isToday ? todayAccentClass : defaultAccentClass;
+  const monthClass = isActiveFilter ? "opacity-75" : isToday ? todayAccentClass : defaultAccentClass;
+  const dayNumberClass = `${styles.dayNumber} font-serif leading-none ${
+    isActiveFilter ? "text-white" : isToday ? "text-sand-700" : "text-sage-950"
+  }`;
 
   return (
     <button
@@ -130,25 +139,31 @@ function ScheduleDayCard({
       className={`${styles.card} flex flex-col rounded-2xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${
         isActiveFilter
           ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)] ring-2 ring-sage-900/30"
-          : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200"
+          : isToday
+            ? "border-sand-700/25 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200"
+            : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200"
       }`}
     >
       <span className="flex items-start justify-between gap-1">
-        <span className="min-w-0 truncate text-[10px] font-semibold uppercase tracking-[0.12em] opacity-75">
+        <span
+          className={`min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.12em] ${weekdayClass}`}
+        >
           {weekday}
         </span>
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            isActiveFilter ? "bg-white/20" : "bg-sand-50 text-sage-700"
+            isActiveFilter ? "bg-white/20" : isToday ? "bg-sand-100 text-sand-700" : "bg-sand-50 text-sage-700"
           }`}
         >
           {sessionCount}
         </span>
       </span>
       <span className="flex min-h-0 flex-1 items-center justify-center">
-        <span className={styles.dayNumber}>{date.getDate()}</span>
+        <span className={dayNumberClass}>{date.getDate()}</span>
       </span>
-      <span className="text-left text-sm font-medium capitalize opacity-75">{month}</span>
+      <span className={`text-left text-sm font-semibold uppercase tracking-wide ${monthClass}`}>
+        {month}
+      </span>
     </button>
   );
 }

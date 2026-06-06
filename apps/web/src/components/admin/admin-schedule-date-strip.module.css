@@ -38,8 +38,7 @@
 }
 
 .dayNumber {
-  font-size: clamp(2.5rem, 52cqi, 4.5rem);
-  font-weight: 600;
+  font-size: clamp(2rem, 44cqi, 3.5rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
