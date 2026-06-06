@@ -5,9 +5,12 @@ import {
   AdminScheduleManagement,
   type AdminScheduleClassType,
   type AdminScheduleCoach,
+  type AdminScheduleSession,
 } from "@/components/admin/admin-schedule-management";
+import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
 import {
   buildAdminScheduleListEndpoint,
+  isScheduleListView,
   parseAdminScheduleListPageParams,
   resolveManagerScheduleInitialFilterState,
   type AdminScheduleListPayload,
@@ -26,6 +29,9 @@ export default async function ManagerClassesPage({
 }) {
   const { locale } = await params;
   const search = await searchParams;
+  const requestedView = search.view;
+  const initialView = resolveScheduleView(requestedView);
+  const listView = isScheduleListView(requestedView);
   const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const tManager = await getTranslations({ locale, namespace: "managerPages.classes" });
   const cookie = (await headers()).get("cookie") ?? "";
@@ -50,16 +56,18 @@ export default async function ManagerClassesPage({
     );
   }
 
-  const sessionsRes = await serverApiJson<AdminScheduleListPayload>(
-    buildAdminScheduleListEndpoint(
-      listPage.take,
-      listPage.offset,
-      scheduleFilterState,
-      packagesRes.data,
-      classTypesRes.data,
-    ),
-    cookie,
-  );
+  const sessionsRes = listView
+    ? await serverApiJson<AdminScheduleListPayload>(
+        buildAdminScheduleListEndpoint(
+          listPage.take,
+          listPage.offset,
+          scheduleFilterState,
+          packagesRes.data,
+          classTypesRes.data,
+        ),
+        cookie,
+      )
+    : await serverApiJson<AdminScheduleSession[]>("/classes/admin/sessions", cookie);
 
   if (!sessionsRes.ok) {
     return (
@@ -73,12 +81,16 @@ export default async function ManagerClassesPage({
     );
   }
 
-  const sessions = sessionsRes.data.items;
-  const listPagination = {
-    total: sessionsRes.data.total,
-    take: sessionsRes.data.take,
-    offset: sessionsRes.data.offset,
-  };
+  const sessions = listView
+    ? (sessionsRes.data as AdminScheduleListPayload).items
+    : (sessionsRes.data as AdminScheduleSession[]);
+  const listPagination = listView
+    ? {
+        total: (sessionsRes.data as AdminScheduleListPayload).total,
+        take: (sessionsRes.data as AdminScheduleListPayload).take,
+        offset: (sessionsRes.data as AdminScheduleListPayload).offset,
+      }
+    : null;
 
   return (
     <AdminContentFrame>
@@ -90,7 +102,7 @@ export default async function ManagerClassesPage({
           classTypes={classTypesRes.data}
           packages={packagesRes.data}
           coaches={coachesRes.data}
-          initialView="list"
+          initialView={initialView}
           initialFilterState={scheduleFilterState}
           variant="staff"
           staffBanner={tManager("scheduleWindowHint", {

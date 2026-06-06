@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL, USER_SCHEDULE_LIST_HEADER_CLASS } from "@/components/account/user-schedule-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
-import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import {
   buildUserSessionFilterFields,
   DEFAULT_USER_SESSION_FILTER_VALUES,
@@ -15,11 +14,14 @@ import {
   type UserSessionAvailabilityFilter,
   type UserSessionFilterValues,
 } from "@/components/account/user-session-filters";
-import { UserSessionBoardCard } from "@/components/account/user-session-board-card";
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
+import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
+import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
+import { mapUserSessionToWeekRow } from "@/lib/map-user-session-to-week-row";
+import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { UserSessionRow } from "@/lib/user-booking-types";
 import type { UserSessionBookingMap } from "@/lib/user-session-bookings-map";
 
@@ -27,15 +29,18 @@ type UserClassesSectionProps = {
   locale: string;
   sessions: readonly UserSessionRow[];
   sessionBookings: UserSessionBookingMap;
+  initialView: ScheduleView;
 };
 
 export function UserClassesSection({
   locale,
   sessions,
   sessionBookings,
+  initialView,
 }: UserClassesSectionProps) {
   const t = useTranslations("userPages.classes");
-  const [viewMode, setView] = useUserListBoardView("classes");
+  const tSchedule = useTranslations("adminPages.schedule");
+  const [view, setView] = useScheduleViewUrl(initialView);
   const [filters, setFilters] = useState<UserSessionFilterValues>(DEFAULT_USER_SESSION_FILTER_VALUES);
 
   const filterOptions = useMemo(() => extractSessionFilterOptions(sessions), [sessions]);
@@ -70,6 +75,11 @@ export function UserClassesSection({
   const filteredSessions = useMemo(
     () => sessions.filter((session) => matchesUserSessionFilters(session, filters)),
     [filters, sessions],
+  );
+
+  const weekRows = useMemo(
+    () => filteredSessions.map(mapUserSessionToWeekRow),
+    [filteredSessions],
   );
 
   const filtersActive = hasActiveUserSessionFilters(filters, true);
@@ -115,12 +125,7 @@ export function UserClassesSection({
         onClearAll={resetFilters}
         resetLabel={t("filters.resetFilters")}
       />
-      <UserListBoardViewSwitcher
-        pageId="classes"
-        namespace="userPages.classes"
-        value={viewMode}
-        onChange={setView}
-      />
+      <ScheduleViewSwitcher value={view} onChange={setView} />
     </div>
   );
 
@@ -141,18 +146,17 @@ export function UserClassesSection({
               <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
               <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
             </div>
-          ) : viewMode === "board" ? (
-            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredSessions.map((session) => (
-                <li key={session.id} className="min-w-0 list-none">
-                  <UserSessionBoardCard
-                    locale={locale}
-                    session={session}
-                    userBookingId={sessionBookings[session.id]}
-                  />
-                </li>
-              ))}
-            </ul>
+          ) : view === "weekly" ? (
+            <ScheduleWeekColumnsView
+              locale={locale}
+              rows={weekRows}
+              showCoach
+              labels={{
+                gridAria: tSchedule("weekView.gridAria"),
+                todayBadge: tSchedule("weekView.todayBadge"),
+                emptyDay: tSchedule("weekView.emptyDay"),
+              }}
+            />
           ) : (
             <div className={USER_LIST_STACK_CLASS}>
               <div className={USER_SCHEDULE_LIST_HEADER_CLASS}>

@@ -4,7 +4,6 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNod
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminCalendarViewSwitcher } from "@/components/admin/admin-calendar-view-switcher";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
@@ -29,10 +28,11 @@ import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedul
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
+import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import {
   resolveScheduleView,
-  SCHEDULE_VIEW_MODES,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
 import {
@@ -65,7 +65,6 @@ import {
 } from "@/components/admin/admin-schedule-package-filter-options";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
-import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -435,9 +434,7 @@ export function AdminScheduleManagement({
   const [rows, setRows] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
-  const [view, setView] = useState<ScheduleView>(
-    isStaff ? "list" : resolveScheduleView(initialView),
-  );
+  const [view, setView] = useState<ScheduleView>(resolveScheduleView(initialView));
   const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
     () => initialFilterState.quickFilters,
@@ -907,16 +904,19 @@ export function AdminScheduleManagement({
               resetLabel={t("filters.reset")}
             />
           }
+          searchTrailing={<ScheduleViewSwitcher value={view} onChange={updateView} />}
           metrics={<SummaryGrid summary={summary} />}
         >
-          <StaffScheduleSessionsTable
+          <StaffScheduleListWeekViews
             locale={locale}
+            view={view}
             rows={staffRows}
+            preset="staffWithCoach"
+            showCoachInWeek
             emptyTitle={t("empty.filteredTitle")}
             emptyBody={t("empty.filteredBody")}
-            preset="staffWithCoach"
           />
-          {listPagination !== null && listPagination.total > 0 ? (
+          {view === "list" && listPagination !== null && listPagination.total > 0 ? (
             <OmmListPagination
               total={listPagination.total}
               page={listPage.page}
@@ -961,18 +961,7 @@ export function AdminScheduleManagement({
               onClearAll={resetFilters}
               resetLabel={t("filters.reset")}
             />
-            <AdminCalendarViewSwitcher
-              value={view}
-              onChange={(nextView) => updateView(resolveScheduleView(nextView))}
-              modes={SCHEDULE_VIEW_MODES}
-              labels={{
-                groupAria: t("views.aria"),
-                list: t("views.list"),
-                monthly: t("views.monthly"),
-                weekly: t("views.weekly"),
-                daily: t("views.daily"),
-              }}
-            />
+            <ScheduleViewSwitcher value={view} onChange={updateView} />
           </div>
         }
         trailing={

@@ -12,19 +12,28 @@ import {
   type CoachScheduleFilterValues,
   type CoachScheduleStatusFilter,
 } from "@/components/coach/coach-schedule-filter-fields";
-import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
+import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
+import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
+import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { CoachPanelSessionRow } from "@/lib/coach-panel-types";
 
 type CoachScheduleSectionProps = {
   locale: string;
   sessions: readonly CoachPanelSessionRow[];
+  initialView: ScheduleView;
 };
 
-export function CoachScheduleSection({ locale, sessions }: CoachScheduleSectionProps) {
+export function CoachScheduleSection({
+  locale,
+  sessions,
+  initialView,
+}: CoachScheduleSectionProps) {
   const t = useTranslations("coachPages.schedule");
   const tStatus = useTranslations("adminPages.classes.status");
+  const [view, setView] = useScheduleViewUrl(initialView);
   const [filters, setFilters] = useState<CoachScheduleFilterValues>(
     DEFAULT_COACH_SCHEDULE_FILTER_VALUES,
   );
@@ -112,6 +121,7 @@ export function CoachScheduleSection({ locale, sessions }: CoachScheduleSectionP
           resetLabel={t("filters.resetFilters")}
         />
       }
+      searchTrailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
     >
       {sessions.length > 0 ? (
         <p className="text-sm text-sage-600">
@@ -121,12 +131,13 @@ export function CoachScheduleSection({ locale, sessions }: CoachScheduleSectionP
         </p>
       ) : null}
 
-      <StaffScheduleSessionsTable
+      <StaffScheduleListWeekViews
         locale={locale}
+        view={view}
         rows={filteredSessions}
+        preset="staffReadOnly"
         emptyTitle={emptyTitle}
         emptyBody={emptyBody}
-        preset="staffReadOnly"
       />
     </StaffListPageLayout>
   );
