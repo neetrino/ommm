@@ -7,6 +7,7 @@ import { IntegratedSearchFilterPanel } from "@/components/shared/search/integrat
 import {
   buildIntegratedFilterChips,
   clearIntegratedFilterValues,
+  resolveIntegratedFilterEmptyValue,
   type IntegratedFilterField,
 } from "@/components/shared/search/integrated-search-filter-types";
 
@@ -116,6 +117,7 @@ export function IntegratedSearchFilters({
   portalFilterPanel = true,
 }: IntegratedSearchFiltersProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [draftFilters, setDraftFilters] = useState(filterValues);
@@ -196,6 +198,41 @@ export function IntegratedSearchFilters({
     setPanelOpen(false);
   }
 
+  function handleRemoveChip(key: string) {
+    if (!onFilterChange || !fields) {
+      return;
+    }
+    const field = fields.find((item) => item.key === key);
+    if (!field) {
+      return;
+    }
+    onFilterChange(key, resolveIntegratedFilterEmptyValue(field));
+  }
+
+  function focusSearchField() {
+    if (hideSearch) {
+      return;
+    }
+    searchInputRef.current?.focus();
+  }
+
+  function handleBarPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (hideSearch) {
+      return;
+    }
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+    if (target.closest("button")) {
+      return;
+    }
+    if (target === searchInputRef.current) {
+      return;
+    }
+    focusSearchField();
+  }
+
   function openPanel() {
     setSearchFocused(true);
     if (!hasFilters) {
@@ -224,7 +261,7 @@ export function IntegratedSearchFilters({
     }
   }
 
-  const showClearButton = !hideSearch && (search.trim().length > 0 || chips.length > 0);
+  const showClearButton = hideSearch ? chips.length > 0 : hasQuery;
 
   function handleSearchBlur() {
     window.setTimeout(() => {
@@ -296,27 +333,28 @@ export function IntegratedSearchFilters({
         aria-controls={barClickable ? PANEL_ID : undefined}
         onClick={barClickable ? handleFilterBarClick : undefined}
         onKeyDown={barIsPrimaryButton ? handleFilterBarKeyDown : undefined}
-        className={`flex min-h-11 w-full min-w-0 flex-wrap items-center gap-2 rounded-full border border-white/60 bg-[rgba(192,187,176,0.32)] px-2 shadow-none transition-shadow ${
+        onPointerDown={hideSearch ? undefined : handleBarPointerDown}
+        className={`flex min-h-11 w-full min-w-0 items-center gap-2 rounded-full border border-white/60 bg-[rgba(192,187,176,0.32)] px-2 shadow-none transition-shadow ${
           showQueryRing || showPanelRing ? "ring-2 ring-sand-500/35" : ""
         } ${searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""} ${
           barClickable ? "cursor-pointer" : ""
         }`}
       >
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-          <IntegratedSearchFilterChips
-            chips={chips}
-            onActivate={hasFilters ? openPanel : undefined}
-          />
-          {hideSearch && hasFilters && chips.length === 0 ? (
-            <span className="flex h-9 min-w-0 flex-1 items-center px-1 text-sm text-sage-600">
-              {searchPlaceholder}
-            </span>
-          ) : null}
-        </div>
+        <IntegratedSearchFilterChips
+          chips={chips}
+          onActivate={hasFilters ? openPanel : undefined}
+          onRemove={onFilterChange ? handleRemoveChip : undefined}
+        />
+        {hideSearch && hasFilters && chips.length === 0 ? (
+          <span className="flex h-9 min-w-0 flex-1 items-center px-1 text-sm text-sage-600">
+            {searchPlaceholder}
+          </span>
+        ) : null}
         {!hideSearch ? (
           <div className="relative min-w-0 flex-1">
             <SearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
             <input
+              ref={searchInputRef}
               type="search"
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
@@ -328,7 +366,7 @@ export function IntegratedSearchFilters({
               role="searchbox"
               aria-expanded={hasFilters ? panelOpen : undefined}
               aria-controls={hasFilters ? PANEL_ID : undefined}
-              className="ommm-admin-header-search h-9 w-full border-0 bg-transparent pl-9 pr-2 shadow-none focus-visible:outline-none focus-visible:ring-0"
+              className="h-9 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0"
             />
           </div>
         ) : null}
