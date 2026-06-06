@@ -11,10 +11,7 @@ import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-t
 import { dashboardNavPathActive, type DashboardNavItem } from "@/lib/dashboard-nav";
 import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
-const ADMIN_MUTED_NAV_HREFS = new Set([
-  "/admin/feedback",
-  "/admin/guest-users",
-]);
+const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
 
 function navActive(pathname: string, href: string) {
   return dashboardNavPathActive(pathname, href);

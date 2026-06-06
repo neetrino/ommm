@@ -26,6 +26,7 @@ export type ContentPostStatus = (typeof CONTENT_POST_STATUSES)[number];
 export type ContentPostLocaleFormValues = {
   title: string;
   slug: string;
+  excerpt: string;
   body: string;
   seoTitle: string;
   seoDescription: string;
@@ -58,6 +59,7 @@ export type ContentPostRow = {
   submittedForReviewAt?: string | null;
   reviewedAt?: string | null;
   updatedAt: string;
+  coverImageUrl?: string | null;
   translations?: ContentPostTranslationRow[];
 };
 
@@ -67,6 +69,7 @@ export type ContentPostFormValues = {
   authorName: string;
   tagsCsv: string;
   editorialNotes: string;
+  coverImageUrl: string;
   locales: Record<ContentPostLocale, ContentPostLocaleFormValues>;
 };
 
@@ -74,6 +77,7 @@ function emptyLocaleFormValues(): ContentPostLocaleFormValues {
   return {
     title: "",
     slug: "",
+    excerpt: "",
     body: "",
     seoTitle: "",
     seoDescription: "",
@@ -87,6 +91,7 @@ export function emptyContentPostFormValues(): ContentPostFormValues {
     authorName: "",
     tagsCsv: "",
     editorialNotes: "",
+    coverImageUrl: "",
     locales: {
       hy: emptyLocaleFormValues(),
       ru: emptyLocaleFormValues(),
@@ -103,6 +108,7 @@ function localeValuesFromTranslation(
     return {
       title: fallback?.title ?? "",
       slug: fallback?.slug ?? "",
+      excerpt: fallback?.excerpt ?? "",
       body: fallback?.body ?? "",
       seoTitle: fallback?.seoTitle ?? "",
       seoDescription: fallback?.seoDescription ?? "",
@@ -111,6 +117,7 @@ function localeValuesFromTranslation(
   return {
     title: translation.title ?? "",
     slug: translation.slug ?? "",
+    excerpt: translation.excerpt ?? "",
     body: translation.body ?? "",
     seoTitle: translation.seoTitle ?? "",
     seoDescription: translation.seoDescription ?? "",
@@ -124,6 +131,7 @@ export function contentPostFormValuesFromRow(row: ContentPostRow): ContentPostFo
   const englishFallback = {
     title: row.title,
     slug: row.slug,
+    excerpt: row.excerpt ?? "",
     body: row.body ?? "",
     seoTitle: row.seoTitle ?? "",
     seoDescription: row.seoDescription ?? "",
@@ -135,6 +143,7 @@ export function contentPostFormValuesFromRow(row: ContentPostRow): ContentPostFo
     authorName: row.authorName ?? "",
     tagsCsv: row.tags?.join(", ") ?? "",
     editorialNotes: row.editorialNotes ?? "",
+    coverImageUrl: row.coverImageUrl ?? "",
     locales: {
       hy: localeValuesFromTranslation(byLocale.get("hy")),
       ru: localeValuesFromTranslation(byLocale.get("ru")),
@@ -176,6 +185,8 @@ export function contentPostFormPayload(values: ContentPostFormValues): Record<st
       locale,
       slug: resolveLocaleSlug(locale, localeValues, englishSlug).toLowerCase(),
       title: localeValues.title.trim(),
+      excerpt:
+        localeValues.excerpt.trim().length > 0 ? localeValues.excerpt.trim() : undefined,
       body: localeValues.body.trim().length > 0 ? localeValues.body.trim() : undefined,
       seoTitle: localeValues.seoTitle.trim().length > 0 ? localeValues.seoTitle.trim() : undefined,
       seoDescription:
@@ -192,6 +203,8 @@ export function contentPostFormPayload(values: ContentPostFormValues): Record<st
     tags: parseContentPostTags(values.tagsCsv),
     editorialNotes:
       values.editorialNotes.trim().length > 0 ? values.editorialNotes.trim() : undefined,
+    coverImageUrl:
+      values.coverImageUrl.trim().length > 0 ? values.coverImageUrl.trim() : undefined,
     translations,
   };
 }
@@ -218,6 +231,7 @@ export function hasContentPostLocaleDraft(values: ContentPostLocaleFormValues): 
   return (
     values.title.trim().length > 0 ||
     values.slug.trim().length > 0 ||
+    values.excerpt.trim().length > 0 ||
     values.body.trim().length > 0 ||
     values.seoTitle.trim().length > 0 ||
     values.seoDescription.trim().length > 0

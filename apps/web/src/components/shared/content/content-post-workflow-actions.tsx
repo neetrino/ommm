@@ -45,7 +45,7 @@ export function ContentPostWorkflowActions({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-sand-200/80 px-6 py-3">
+    <div className="flex flex-wrap items-center gap-2">
       {showSubmit ? (
         <OmmButton
           type="button"

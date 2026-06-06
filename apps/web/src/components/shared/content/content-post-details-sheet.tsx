@@ -3,26 +3,31 @@
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_LEDE_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { contentPostStatusBadgeClass } from "@/components/shared/content/content-post-display-helpers";
-import { ContentPostFormFields } from "@/components/shared/content/content-post-form-fields";
-import { ContentPostWorkflowActions } from "@/components/shared/content/content-post-workflow-actions";
+import { ContentPostLocaleFormFields } from "@/components/shared/content/content-post-locale-form-fields";
 import {
+  CONTENT_POST_SHEET_TITLE_INPUT_CLASS,
+  ContentPostLocaleTabBar,
+} from "@/components/shared/content/content-post-locale-tab-bar";
+import { ContentPostSharedFormFields } from "@/components/shared/content/content-post-shared-form-fields";
+import { ContentPostSheetFooter } from "@/components/shared/content/content-post-sheet-footer";
+import {
+  CONTENT_POST_LOCALES,
   contentPostFormPayload,
   contentPostFormValuesFromRow,
   emptyContentPostFormValues,
+  hasContentPostLocaleDraft,
   type ContentPostFormValues,
+  type ContentPostLocale,
   type ContentPostRow,
 } from "@/components/shared/content/content-post-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -76,6 +81,7 @@ function ContentPostDetailsSheetInner({
     [post],
   );
   const [values, setValues] = useState<ContentPostFormValues>(initialValues);
+  const [activeLocale, setActiveLocale] = useState<ContentPostLocale>("en");
   const [busy, setBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
   const [notice, setNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(null);
@@ -87,6 +93,35 @@ function ContentPostDetailsSheetInner({
   const dirty = useMemo(
     () => JSON.stringify(values) !== JSON.stringify(initialValues),
     [initialValues, values],
+  );
+
+  const localeTabs = useMemo(
+    () =>
+      CONTENT_POST_LOCALES.map((locale) => ({
+        value: locale,
+        label: hasContentPostLocaleDraft(values.locales[locale])
+          ? `${t(`localeTabs.${locale}`)} ·`
+          : t(`localeTabs.${locale}`),
+      })),
+    [t, values.locales],
+  );
+
+  const activeTitle = values.locales[activeLocale].title;
+
+  const updateActiveLocaleTitle = useCallback(
+    (title: string) => {
+      setValues((current) => ({
+        ...current,
+        locales: {
+          ...current.locales,
+          [activeLocale]: {
+            ...current.locales[activeLocale],
+            title,
+          },
+        },
+      }));
+    },
+    [activeLocale],
   );
 
   const handleClose = useCallback(() => {
@@ -150,9 +185,6 @@ function ContentPostDetailsSheetInner({
     }
   }
 
-  const sheetTitle =
-    mode === "create" ? t("sheetCreateTitle") : (post?.title ?? t("sheetEditTitle"));
-
   return (
     <>
       <OmmDrawerPortal
@@ -164,62 +196,77 @@ function ContentPostDetailsSheetInner({
         overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
         panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
       >
-        <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 id={titleId} className={`truncate ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
-                {sheetTitle}
-              </h2>
-              {post !== null ? (
-                <span className={`mt-2 inline-flex ${contentPostStatusBadgeClass(post.status)}`}>
-                  {t(`statusValues.${post.status}`)}
-                </span>
+        <ContentPostLocaleTabBar
+          tabs={localeTabs}
+          activeTab={activeLocale}
+          onTabChange={setActiveLocale}
+          ariaLabel={t("localeTabs.aria")}
+        />
+
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <div key={activeLocale} className="shrink-0">
+            <header className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} border-t-0`}>
+              {mode === "create" ? (
+                <p className={`mb-2 ${ADMIN_DETAILS_SHEET_LEDE_CLASS}`}>{t("sheetCreateTitle")}</p>
               ) : null}
-            </div>
-            {mode === "edit" && post !== null ? (
-              <OmmButton
-                type="button"
-                variant="ghost"
-                size="sm"
+              <input
+                id={titleId}
+                className={CONTENT_POST_SHEET_TITLE_INPUT_CLASS}
+                value={activeTitle}
                 disabled={busy}
-                onClick={() => setPendingDelete(true)}
-              >
-                {t("labels.delete")}
-              </OmmButton>
-            ) : null}
+                placeholder={t("placeholders.title")}
+                onChange={(event) => updateActiveLocaleTitle(event.target.value)}
+              />
+            </header>
+
+            <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} pt-0`}>
+              <ContentPostLocaleFormFields
+                values={values}
+                activeLocale={activeLocale}
+                disabled={busy}
+                onChange={setValues}
+              />
+            </div>
           </div>
-        </header>
 
-        {mode === "edit" && post !== null ? (
-          <ContentPostWorkflowActions post={post} busy={busy} onChanged={onChanged} />
-        ) : null}
-
-        <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
-          {notice ? (
-            <AdminCenterToast
-              message={notice.message}
-              tone={notice.tone}
-              onDismiss={() => setNotice(null)}
-            />
-          ) : null}
-          {post?.reviewNotes ? (
-            <p className="mb-4 rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm text-amber-900">
-              {t("labels.review")}: {post.reviewNotes}
-            </p>
-          ) : null}
-          <ContentPostFormFields values={values} disabled={busy} onChange={setValues} />
+          <div className="shrink-0 border-t border-white/60">
+            <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} space-y-4`}>
+              {notice ? (
+                <AdminCenterToast
+                  message={notice.message}
+                  tone={notice.tone}
+                  onDismiss={() => setNotice(null)}
+                />
+              ) : null}
+              {post?.reviewNotes ? (
+                <p className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm text-amber-900">
+                  {t("labels.review")}: {post.reviewNotes}
+                </p>
+              ) : null}
+              <ContentPostSharedFormFields
+                values={values}
+                disabled={busy}
+                onChange={setValues}
+              />
+            </div>
+          </div>
         </div>
 
-        <AdminDetailSheetFormFooter
+        <ContentPostSheetFooter
+          mode={mode}
+          post={post}
+          busy={busy}
+          dirty={dirty}
           saveLabel={mode === "create" ? t("labels.create") : t("saveButton")}
           cancelLabel={t("cancelButton")}
           savingLabel={t("savingButton")}
-          dirty={dirty || mode === "create"}
-          busy={busy}
+          deleteLabel={t("labels.delete")}
           onSave={() => {
             void handleSave();
           }}
           onCancel={handleClose}
+          onDelete={() => setPendingDelete(true)}
+          onChanged={onChanged}
         />
       </OmmDrawerPortal>
 
