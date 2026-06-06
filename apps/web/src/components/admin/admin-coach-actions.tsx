@@ -1,60 +1,45 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { ApiError, apiFetch } from "@/lib/api";
+import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
+import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
 import {
-  formatBirthdayInput,
-  formatIsoDateToUi,
-  parseBirthdayDisplayToIso,
-} from "@/lib/date-display";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { adminChrome } from "@/components/admin/admin-chrome";
-import {
-  ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_WIDE_DRAWER_PANEL_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
-import { PlusIcon } from "@/components/ui/plus-icon";
-import {
-  ScheduleFilterDropdown,
-  type ScheduleFilterOption,
-} from "@/components/marketing/schedule/schedule-filter-dropdown";
-import {
-  ACCEPT_PHOTO,
-  calculateAgeFromBirthday,
   COACH_MAX_AGE,
   COACH_MIN_AGE,
-  createScheduleRow,
-  hasDuplicateScheduleRows,
-  isValidTime,
-  MAX_BIO_LENGTH,
-  MAX_EXPERIENCE_YEARS,
-  MAX_PHOTO_BYTES,
-  MAX_PHONE_CHARS,
-  MAX_SPECIALIZATION_LENGTH,
-  MIN_SCHEDULE_SPOTS,
-  normalizeScheduleForApi,
-  readFileAsBase64Payload,
-  sanitizeCoachPreviewSrc,
   type CoachClassOption,
-  type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
+import type { CoachEditInitialValues } from "@/components/admin/admin-coach-edit-form.types";
+import { useCoachEditForm } from "@/components/admin/admin-coach-edit-form.use";
+import {
+  COACH_SHEET_TAB_CLASSES,
+  COACH_SHEET_TAB_DETAILS,
+  COACH_SHEET_TAB_PROFILE,
+  COACH_SHEET_TAB_SCHEDULE,
+  type CoachSheetTabId,
+} from "@/components/admin/admin-coach-sheet-tabs";
+import { CoachSheetTabPanels } from "@/components/admin/admin-coach-sheet-tab-panels";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { EditActionButton } from "@/components/ui/edit-action-button";
-import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
+
+export const EDIT_COACH_QUERY_KEY = "editCoach";
+
+const MANAGER_EDIT_TABS: readonly CoachSheetTabId[] = [
+  COACH_SHEET_TAB_PROFILE,
+  COACH_SHEET_TAB_DETAILS,
+  COACH_SHEET_TAB_CLASSES,
+  COACH_SHEET_TAB_SCHEDULE,
+];
 
 type AdminCoachActionsProps = {
   coachId: string;
@@ -77,123 +62,6 @@ type AdminCoachActionsProps = {
   initialBio?: string;
 };
 
-type FormState = {
-  email: string;
-  name: string;
-  lastName: string;
-  phone: string;
-  age: string;
-  birthday: string;
-  photoUrl: string;
-  bio: string;
-  experienceYears: string;
-  assignedClassTypeIds: string[];
-  schedule: CoachScheduleInput[];
-  specialization: string;
-  classType: string;
-};
-
-type FormErrors = {
-  email?: string;
-  name?: string;
-  lastName?: string;
-  phone?: string;
-  age?: string;
-  birthday?: string;
-  photo?: string;
-  bio?: string;
-  experienceYears?: string;
-  assignedClassTypeIds?: string;
-  schedule?: string;
-  specialization?: string;
-  classType?: string;
-};
-
-const EDIT_COACH_QUERY_KEY = "editCoach";
-const MIN_PHONE_DIGITS = 8;
-const MAX_PHONE_DIGITS = 15;
-
-type UpdateCoachPayload = {
-  email: string;
-  name: string;
-  lastName: string;
-  phone: string;
-  age?: number;
-  birthday?: string | null;
-  bio: string | null;
-  specialization: string | null;
-  classType: string | null;
-  experienceYears: number | null;
-  assignedClassTypeIds: string[];
-  schedule: { date: string; time: string; spots: number }[];
-  photoUrl?: string;
-};
-
-function nonEmptyScheduleRows(rows: readonly CoachScheduleInput[]): CoachScheduleInput[] {
-  return rows.filter((row) => {
-    return (
-      row.date.trim() !== "" ||
-      row.time.trim() !== "" ||
-      row.spots.trim() !== ""
-    );
-  });
-}
-
-function getCoachActionLabels(locale: string) {
-  if (locale === "hy") {
-    return {
-      personalInfoHeading: "Անձնական տվյալներ",
-      personalInfoDescription: "Հաշվի և ինքնության հիմնական տվյալներ",
-      coachDetailsHeading: "Մարզչի տվյալներ",
-      coachDetailsDescription: "Փորձ, մասնագիտացում և պրոֆիլի մեդիա",
-      assignedClassesHeading: "Կցված դասեր",
-      assignedClassesDescription: "Ընտրեք այս մարզչի վարած դասերի տեսակները",
-      scheduleHeading: "Ժամանակացույց / հասանելիություն",
-      birthdayPlaceholder: "ՕՕ/ԱԱ/ՏՏՏՏ",
-    };
-  }
-  if (locale === "ru") {
-    return {
-      personalInfoHeading: "Личные данные",
-      personalInfoDescription: "Основные данные учётной записи и личности",
-      coachDetailsHeading: "Данные тренера",
-      coachDetailsDescription: "Опыт, специализация и медиа профиля",
-      assignedClassesHeading: "Назначенные занятия",
-      assignedClassesDescription: "Выберите типы занятий, которые ведёт тренер",
-      scheduleHeading: "Расписание / доступность",
-      birthdayPlaceholder: "ДД/ММ/ГГГГ",
-    };
-  }
-  return {
-    personalInfoHeading: "Personal Information",
-    personalInfoDescription: "Core account and identity details",
-    coachDetailsHeading: "Coach Details",
-    coachDetailsDescription: "Experience, specialization, and profile media",
-    assignedClassesHeading: "Assigned Classes",
-    assignedClassesDescription: "Select class types coached by this person",
-    scheduleHeading: "Schedule / Availability",
-    birthdayPlaceholder: "DD/MM/YYYY",
-  };
-}
-
-function CloseGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M6 6l12 12M18 6L6 18" />
-    </svg>
-  );
-}
-
 export function AdminCoachActions({
   coachId,
   showEditTrigger = true,
@@ -215,368 +83,103 @@ export function AdminCoachActions({
   initialBio = "",
 }: AdminCoachActionsProps) {
   const t = useTranslations("adminPages.coaches");
-  const labels = getCoachActionLabels(locale);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const titleId = useId();
-  const descId = useId();
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [form, setForm] = useState<FormState>({
-    email: initialEmail,
-    name: initialName,
-    lastName: initialLastName,
-    phone: initialPhone,
-    age: initialAge === null ? "" : String(initialAge),
-    birthday: formatIsoDateToUi(initialBirthday),
-    photoUrl: initialPhotoUrl ?? "",
-    bio: initialBio,
-    experienceYears: initialExperienceYears === null ? "" : String(initialExperienceYears),
-    assignedClassTypeIds: [...initialAssignedClassTypeIds],
-    schedule:
-      initialSchedule.length > 0
-        ? initialSchedule.map((slot) => ({
-            id: slot.id,
-            date: slot.date.slice(0, 10),
-            time: slot.time,
-            spots: String(slot.spots),
-          }))
-        : [createScheduleRow()],
-    specialization: initialSpecialization,
-    classType: initialClassType,
-  });
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
-  const [photoRemoved, setPhotoRemoved] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [busy, setBusy] = useState(false);
-  const [inlineMessage, setInlineMessage] = useState<string | null>(null);
-  const [tone, setTone] = useState<"ok" | "err">("ok");
   const isOpen = searchParams.get(EDIT_COACH_QUERY_KEY) === coachId;
-  const classTypeDropdownOptions: ScheduleFilterOption<string>[] = classTypeOptions.map(
-    (value) => ({
-      value,
-      label: value,
-    }),
-  );
-  const photoPreview = useMemo(() => {
-    const localPreview =
-      photoPreviewUrl !== null ? sanitizeCoachPreviewSrc(photoPreviewUrl) : null;
-    if (localPreview !== null) {
-      return localPreview;
-    }
-    const remote =
-      form.photoUrl.trim() === ""
-        ? null
-        : sanitizeCoachPreviewSrc(
-            resolveApiAssetUrl(form.photoUrl.trim()) ?? form.photoUrl.trim(),
-            { allowRemoteHttp: true },
-          );
-    return remote;
-  }, [form.photoUrl, photoPreviewUrl]);
-  const photoPreviewImgSrc = useMemo(() => {
-    return photoPreview !== null ? encodeURI(photoPreview) : null;
-  }, [photoPreview]);
+  const [activeTab, setActiveTab] = useState<CoachSheetTabId>(COACH_SHEET_TAB_PROFILE);
 
-  const resetForm = useCallback(() => {
-    setForm({
+  const initial = useMemo<CoachEditInitialValues>(
+    () => ({
       email: initialEmail,
       name: initialName,
       lastName: initialLastName,
       phone: initialPhone,
-      age: initialAge === null ? "" : String(initialAge),
-      birthday: formatIsoDateToUi(initialBirthday),
-      photoUrl: initialPhotoUrl ?? "",
+      age: initialAge,
+      birthday: initialBirthday,
+      photoUrl: initialPhotoUrl,
       bio: initialBio,
-      experienceYears: initialExperienceYears === null ? "" : String(initialExperienceYears),
-      assignedClassTypeIds: [...initialAssignedClassTypeIds],
-      schedule:
-        initialSchedule.length > 0
-          ? initialSchedule.map((slot) => ({
-              id: slot.id,
-              date: slot.date.slice(0, 10),
-              time: slot.time,
-              spots: String(slot.spots),
-            }))
-          : [createScheduleRow()],
+      experienceYears: initialExperienceYears,
+      assignedClassTypeIds: initialAssignedClassTypeIds,
+      schedule: initialSchedule,
       specialization: initialSpecialization,
       classType: initialClassType,
-    });
-    if (photoPreviewUrl !== null) {
-      URL.revokeObjectURL(photoPreviewUrl);
-    }
-    setPhotoPreviewUrl(null);
-    setPhotoFile(null);
-    setPhotoRemoved(false);
-    setErrors({});
-  }, [
-    initialAge,
-    initialAssignedClassTypeIds,
-    initialBirthday,
-    initialBio,
-    initialEmail,
-    initialExperienceYears,
-    initialLastName,
-    initialName,
-    initialPhotoUrl,
-    initialPhone,
-    initialSchedule,
-    initialSpecialization,
-    initialClassType,
-    photoPreviewUrl,
-  ]);
+    }),
+    [
+      initialAge,
+      initialAssignedClassTypeIds,
+      initialBio,
+      initialBirthday,
+      initialClassType,
+      initialEmail,
+      initialExperienceYears,
+      initialLastName,
+      initialName,
+      initialPhone,
+      initialPhotoUrl,
+      initialSchedule,
+      initialSpecialization,
+    ],
+  );
 
-  function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: undefined }));
-  }
+  const validationLabels = useMemo(
+    () => ({
+      emailRequired: t("emailRequired"),
+      emailInvalid: t("emailInvalid"),
+      nameRequired: t("nameRequired"),
+      lastNameRequired: t("lastNameRequired"),
+      phoneRequired: t("phoneRequired"),
+      phoneInvalid: t("phoneInvalid"),
+      ageInvalid: t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }),
+      birthdayInvalid: t("birthdayInvalid"),
+      ageBirthdayMismatch: t("ageBirthdayMismatch"),
+      bioTooLong: t("bioTooLong"),
+      experienceInvalid: t("experienceInvalid"),
+      specializationTooLong: t("specializationTooLong"),
+      classTypeInvalid: t("classTypeInvalid"),
+      assignedClassesInvalid: t("assignedClassesInvalid"),
+      photoTooLarge: t("photoTooLarge"),
+      scheduleInvalid: t("scheduleInvalid"),
+    }),
+    [t],
+  );
 
-  function onPhotoSelected(file: File | null): void {
-    if (photoPreviewUrl !== null) {
-      URL.revokeObjectURL(photoPreviewUrl);
-    }
-    setPhotoFile(file);
-    setPhotoPreviewUrl(file !== null ? URL.createObjectURL(file) : null);
-    if (file !== null) {
-      setPhotoRemoved(false);
-    }
-    setErrors((prev) => ({ ...prev, photo: undefined }));
-  }
+  const tabs = MANAGER_EDIT_TABS.map((value) => ({
+    value,
+    label: t(`sheetTabs.${value}`),
+  }));
 
-  function onPhotoDeleted(): void {
-    if (photoPreviewUrl !== null) {
-      URL.revokeObjectURL(photoPreviewUrl);
-    }
-    setPhotoPreviewUrl(null);
-    setPhotoFile(null);
-    setPhotoRemoved(true);
-    updateField("photoUrl", "");
-    setErrors((prev) => ({ ...prev, photo: undefined }));
-  }
-
-  function toggleClassSelection(classTypeId: string): void {
-    setForm((prev) => ({
-      ...prev,
-      assignedClassTypeIds: prev.assignedClassTypeIds.includes(classTypeId)
-        ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
-        : [...prev.assignedClassTypeIds, classTypeId],
-    }));
-    setErrors((prev) => ({ ...prev, assignedClassTypeIds: undefined }));
-  }
-
-  function updateSchedule(
-    rowId: string,
-    key: keyof Omit<CoachScheduleInput, "id">,
-    value: string,
-  ): void {
-    setForm((prev) => ({
-      ...prev,
-      schedule: prev.schedule.map((row) =>
-        row.id === rowId ? { ...row, [key]: value } : row,
-      ),
-    }));
-    setErrors((prev) => ({ ...prev, schedule: undefined }));
-  }
-
-  function addScheduleRow(): void {
-    setForm((prev) => ({ ...prev, schedule: [...prev.schedule, createScheduleRow()] }));
-  }
-
-  function removeScheduleRow(rowId: string): void {
-    setForm((prev) => ({
-      ...prev,
-      schedule:
-        prev.schedule.length <= 1
-          ? prev.schedule
-          : prev.schedule.filter((row) => row.id !== rowId),
-    }));
-  }
-
-  function openModal() {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(EDIT_COACH_QUERY_KEY, coachId);
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname);
-    setInlineMessage(null);
-    resetForm();
-  }
-
-  const closeModal = useCallback(() => {
-    if (busy) {
-      return;
-    }
+  const closeSheet = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(EDIT_COACH_QUERY_KEY);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
-    setErrors({});
-  }, [busy, pathname, router, searchParams]);
+  }, [pathname, router, searchParams]);
 
-  useEffect(() => {
-    if (!isOpen || panelRef.current === null) {
-      return;
-    }
-    const input = panelRef.current.querySelector<HTMLInputElement>(
-      'input[name="email"]',
-    );
-    input?.focus();
-  }, [isOpen]);
+  const editForm = useCoachEditForm({
+    coachId,
+    resetKey: isOpen ? `${coachId}:open` : `${coachId}:closed`,
+    initial,
+    classTypeOptions,
+    classOptions,
+    labels: validationLabels,
+    onSaved: closeSheet,
+  });
 
-  async function run(action: () => Promise<void>, okLabel: string) {
-    if (busy) {
-      return;
-    }
-    setBusy(true);
-    setInlineMessage(null);
-    try {
-      await action();
-      setTone("ok");
-      setInlineMessage(okLabel);
-      closeModal();
-      router.refresh();
-    } catch (error) {
-      setTone("err");
-      setInlineMessage(error instanceof ApiError ? error.message : t("genericError"));
-    } finally {
-      setBusy(false);
-    }
+  function openSheet(): void {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(EDIT_COACH_QUERY_KEY, coachId);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
   }
 
-  async function onSave() {
-    const email = form.email.trim().toLowerCase();
-    const name = form.name.trim();
-    const lastName = form.lastName.trim();
-    const phone = form.phone.trim();
-    const ageRaw = form.age.trim();
-    const age = ageRaw.length > 0 ? Number(ageRaw) : null;
-    const birthdayDisplay = form.birthday.trim();
-    const birthday = parseBirthdayDisplayToIso(birthdayDisplay);
-    const bio = form.bio.trim();
-    const experienceRaw = form.experienceYears.trim();
-    const experienceYears =
-      experienceRaw.length > 0 ? Number(experienceRaw) : null;
-    const specialization = form.specialization.trim();
-    const classType = form.classType.trim();
-    const assignedClassTypeIds = form.assignedClassTypeIds;
-    const scheduleRows = nonEmptyScheduleRows(form.schedule);
-    const nextErrors: FormErrors = {};
-    if (email === "") {
-      nextErrors.email = t("emailRequired");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      nextErrors.email = t("emailInvalid");
-    }
-    if (name.length === 0) {
-      nextErrors.name = t("nameRequired");
-    }
-    if (lastName.length === 0) {
-      nextErrors.lastName = t("lastNameRequired");
-    }
-    const phoneDigits = phone.replace(/\D/g, "").length;
-    if (phone.length === 0) {
-      nextErrors.phone = t("phoneRequired");
-    } else if (phoneDigits < MIN_PHONE_DIGITS || phoneDigits > MAX_PHONE_DIGITS) {
-      nextErrors.phone = t("phoneInvalid");
-    }
-    if (
-      age !== null &&
-      (!Number.isInteger(age) || age < COACH_MIN_AGE || age > COACH_MAX_AGE)
-    ) {
-      nextErrors.age = t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE });
-    }
-    if (birthdayDisplay !== "") {
-      const derivedAge =
-        birthday === null ? null : calculateAgeFromBirthday(birthday);
-      if (birthday === null || derivedAge === null) {
-        nextErrors.birthday = t("birthdayInvalid");
-      } else if (age !== null && Math.abs(derivedAge - age) > 1) {
-        nextErrors.birthday = t("ageBirthdayMismatch");
-      }
-    }
-    if (bio.length > MAX_BIO_LENGTH) {
-      nextErrors.bio = t("bioTooLong");
-    }
-    if (
-      experienceYears !== null &&
-      (!Number.isInteger(experienceYears) ||
-        experienceYears < 0 ||
-        experienceYears > MAX_EXPERIENCE_YEARS)
-    ) {
-      nextErrors.experienceYears = t("experienceInvalid");
-    }
-    if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
-      nextErrors.specialization = t("specializationTooLong");
-    }
-    if (
-      classType.length > 0 &&
-      classTypeOptions.length > 0 &&
-      !classTypeOptions.includes(classType)
-    ) {
-      nextErrors.classType = t("classTypeInvalid");
-    }
-    if (classOptions.length > 0) {
-      const allowedClassIds = new Set(classOptions.map((option) => option.id));
-      if (assignedClassTypeIds.some((id) => !allowedClassIds.has(id))) {
-        nextErrors.assignedClassTypeIds = t("assignedClassesInvalid");
-      }
-    }
-    if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
-      nextErrors.photo = t("photoTooLarge");
-    }
-    const scheduleInvalid = scheduleRows.some((row) => {
-      if (row.date.trim() === "" || row.time.trim() === "" || row.spots.trim() === "") {
-        return true;
-      }
-      const spots = Number(row.spots);
-      return (
-        !isValidTime(row.time.trim()) ||
-        !Number.isInteger(spots) ||
-        spots < MIN_SCHEDULE_SPOTS
-      );
-    });
-    if (scheduleInvalid || hasDuplicateScheduleRows(scheduleRows)) {
-      nextErrors.schedule = t("scheduleInvalid");
-    }
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
+  function handleClose(): void {
+    if (editForm.busy) {
       return;
     }
-    const payload: UpdateCoachPayload = {
-      email,
-      name,
-      lastName,
-      phone,
-      ...(age !== null ? { age } : {}),
-      birthday: birthdayDisplay === "" ? null : birthday,
-      bio: bio.length > 0 ? bio : null,
-      specialization: specialization.length > 0 ? specialization : null,
-      classType: classType.length > 0 ? classType : null,
-      experienceYears,
-      assignedClassTypeIds,
-      schedule: normalizeScheduleForApi(scheduleRows),
-      ...(photoRemoved ? { photoUrl: "" } : {}),
-    };
-
-    await run(
-      async () => {
-        await apiFetch(`/coaches/${coachId}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload),
-        });
-        if (photoFile !== null) {
-          const payload = await readFileAsBase64Payload(photoFile);
-          const uploaded = await apiFetch<{ avatarUrl: string }>(
-            `/coaches/${coachId}/photo-json`,
-            {
-              method: "POST",
-              body: JSON.stringify(payload),
-            },
-          );
-          updateField("photoUrl", uploaded.avatarUrl);
-          onPhotoSelected(null);
-        }
-      },
-      t("updateSuccess"),
-    );
+    closeSheet();
+    editForm.clearMessage();
   }
 
   return (
@@ -586,407 +189,66 @@ export function AdminCoachActions({
           <EditActionButton
             ariaLabel={t("editCoach")}
             title={t("editCoach")}
-            onClick={openModal}
+            onClick={openSheet}
           />
-        </div>
-      ) : null}
-
-      {inlineMessage ? (
-        <div
-          role="status"
-          className={`fixed bottom-4 right-4 max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
-            tone === "ok"
-              ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
-              : "border-red-200/80 bg-red-50/95 text-red-900"
-          }`}
-        >
-          {inlineMessage}
         </div>
       ) : null}
 
       <OmmDrawerPortal
         isOpen={isOpen}
-        onClose={closeModal}
-        closeDisabled={busy}
+        onClose={handleClose}
+        closeDisabled={editForm.busy}
         backdropAriaLabel={t("modalBackdropClose")}
         ariaLabelledBy={titleId}
         overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
         panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
       >
-        <div ref={panelRef} className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 id={titleId} className={adminChrome.panelHeading}>
-                  {t("editModalTitle")}
-                </h2>
-                <p id={descId} className="ommm-body-muted mt-1 text-sm">
-                  {t("editModalDescription")}
-                </p>
-              </div>
-              <button
-                type="button"
-                className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-                aria-label={t("modalCloseAria")}
-                onClick={closeModal}
-                disabled={busy}
-              >
-                <CloseGlyph className="h-5 w-5" />
-              </button>
-            </div>
-          </header>
+        <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+          <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+            {t("editModalTitle")}
+          </h2>
+          <p className="ommm-body-muted mt-1 text-sm">{t("editModalDescription")}</p>
+        </header>
 
-          <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} overflow-x-hidden`}>
-            <form
-              className="flex min-w-0 flex-col gap-5"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void onSave();
-              }}
-            >
-                  <section className="relative z-20 rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        {labels.personalInfoHeading}
-                      </h3>
-                      <p className="text-xs text-sage-500">{labels.personalInfoDescription}</p>
-                    </div>
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <label className="flex flex-col gap-1 lg:col-span-2">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldEmail")}</span>
-                        <input
-                          id={`email-${coachId}`}
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          className="ommm-input"
-                          value={form.email}
-                          onChange={(event) => updateField("email", event.target.value)}
-                          disabled={busy}
-                        />
-                        {errors.email ? <p className="text-xs text-red-800">{errors.email}</p> : null}
-                      </label>
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldName")}</span>
-                        <input
-                          id={`name-${coachId}`}
-                          type="text"
-                          autoComplete="given-name"
-                          className="ommm-input"
-                          value={form.name}
-                          onChange={(event) => updateField("name", event.target.value)}
-                          disabled={busy}
-                        />
-                        {errors.name ? <p className="text-xs text-red-800">{errors.name}</p> : null}
-                      </label>
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">
-                          {t("fieldLastName")}
-                        </span>
-                        <input
-                          id={`last-name-${coachId}`}
-                          type="text"
-                          autoComplete="family-name"
-                          className="ommm-input"
-                          value={form.lastName}
-                          onChange={(event) => updateField("lastName", event.target.value)}
-                          disabled={busy}
-                        />
-                        {errors.lastName ? <p className="text-xs text-red-800">{errors.lastName}</p> : null}
-                      </label>
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPhone")}</span>
-                        <input
-                          id={`phone-${coachId}`}
-                          type="tel"
-                          autoComplete="tel"
-                          className="ommm-input"
-                          value={form.phone}
-                          onChange={(event) => updateField("phone", event.target.value)}
-                          maxLength={MAX_PHONE_CHARS}
-                          disabled={busy}
-                        />
-                        {errors.phone ? <p className="text-xs text-red-800">{errors.phone}</p> : null}
-                      </label>
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldBirthday")}</span>
-                        <input
-                          id={`birthday-${coachId}`}
-                          name="birthdayDisplay"
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="bday"
-                          maxLength={10}
-                          className="ommm-input"
-                          value={form.birthday}
-                          placeholder={labels.birthdayPlaceholder}
-                          onChange={(event) => {
-                            const nextValue = formatBirthdayInput(event.target.value);
-                            updateField("birthday", nextValue);
-                            const iso = parseBirthdayDisplayToIso(nextValue);
-                            const derivedAge =
-                              iso === null ? null : calculateAgeFromBirthday(iso);
-                            if (derivedAge !== null) {
-                              updateField("age", String(derivedAge));
-                            }
-                          }}
-                          disabled={busy}
-                        />
-                        {errors.birthday ? <p className="text-xs text-red-800">{errors.birthday}</p> : null}
-                      </label>
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAge")}</span>
-                        <input
-                          id={`age-${coachId}`}
-                          type="number"
-                          min={COACH_MIN_AGE}
-                          max={COACH_MAX_AGE}
-                          inputMode="numeric"
-                          className="ommm-input"
-                          value={form.age}
-                          onChange={(event) => updateField("age", event.target.value)}
-                          disabled={busy}
-                        />
-                        {errors.age ? <p className="text-xs text-red-800">{errors.age}</p> : null}
-                      </label>
-                    </div>
-                  </section>
+        <AdminDetailSheetTabBar
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(value) => setActiveTab(value as CoachSheetTabId)}
+        />
 
-                  <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        {labels.coachDetailsHeading}
-                      </h3>
-                      <p className="text-xs text-sage-500">{labels.coachDetailsDescription}</p>
-                    </div>
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">
-                          {t("fieldSpecialization")}
-                        </span>
-                        <input
-                          id={`specialization-${coachId}`}
-                          type="text"
-                          className="ommm-input"
-                          value={form.specialization}
-                          maxLength={MAX_SPECIALIZATION_LENGTH}
-                          onChange={(event) =>
-                            updateField("specialization", event.target.value)
-                          }
-                          placeholder={t("fieldSpecializationPlaceholder")}
-                          disabled={busy}
-                        />
-                        {errors.specialization ? (
-                          <p className="text-xs text-red-800">{errors.specialization}</p>
-                        ) : null}
-                      </label>
-                      <label className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">
-                          {t("fieldExperience")}
-                        </span>
-                        <input
-                          id={`experience-${coachId}`}
-                          type="number"
-                          min={0}
-                          max={MAX_EXPERIENCE_YEARS}
-                          className="ommm-input"
-                          value={form.experienceYears}
-                          onChange={(event) =>
-                            updateField("experienceYears", event.target.value)
-                          }
-                          disabled={busy}
-                        />
-                        {errors.experienceYears ? (
-                          <p className="text-xs text-red-800">{errors.experienceYears}</p>
-                        ) : null}
-                      </label>
-                      <div className="flex flex-col gap-1">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldClassType")}</span>
-                        <ScheduleFilterDropdown
-                          label={t("fieldClassTypePlaceholder")}
-                          ariaLabel={t("fieldClassType")}
-                          value={form.classType}
-                          options={classTypeDropdownOptions}
-                          onChange={(value) => updateField("classType", value)}
-                          disabled={busy}
-                        />
-                        {errors.classType ? (
-                          <p className="text-xs text-red-800">{errors.classType}</p>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPhoto")}</span>
-                        <div className="rounded-2xl border border-sand-500/20 bg-white/80 p-3">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <label className="inline-flex cursor-pointer items-center rounded-xl border border-sand-500/30 px-3 py-2 text-xs text-sage-700 hover:bg-sand-50/60">
-                              <input
-                                type="file"
-                                accept={ACCEPT_PHOTO}
-                                className="sr-only"
-                                disabled={busy}
-                                onChange={(event) => {
-                                  const file = event.target.files?.[0] ?? null;
-                                  onPhotoSelected(file);
-                                }}
-                              />
-                              {t("fieldPhotoChoose")}
-                            </label>
-                            {photoPreview !== null ? (
-                              <OmmButton
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 rounded-xl px-3 text-xs"
-                                onClick={onPhotoDeleted}
-                                disabled={busy}
-                              >
-                                {t("fieldScheduleRemove")}
-                              </OmmButton>
-                            ) : null}
-                          </div>
-                          {photoPreviewImgSrc !== null ? (
-                            <div className="mt-3 overflow-hidden rounded-xl border border-white/70 bg-sage-50">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={photoPreviewImgSrc}
-                                alt={t("fieldPhotoPreviewAlt")}
-                                className="h-40 w-full object-contain"
-                              />
-                            </div>
-                          ) : (
-                            <p className="mt-2 text-xs text-sage-500">{t("fieldPhotoHint")}</p>
-                          )}
-                        </div>
-                        {errors.photo ? <p className="text-xs text-red-800">{errors.photo}</p> : null}
-                      </div>
-                      <label className="flex flex-col gap-1 lg:col-span-2">
-                        <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldBio")}</span>
-                        <textarea
-                          id={`bio-${coachId}`}
-                          className="ommm-input min-h-[150px] resize-y"
-                          value={form.bio}
-                          maxLength={MAX_BIO_LENGTH}
-                          onChange={(event) => updateField("bio", event.target.value)}
-                          disabled={busy}
-                        />
-                        {errors.bio ? <p className="text-xs text-red-800">{errors.bio}</p> : null}
-                      </label>
-                    </div>
-                  </section>
-
-                  <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        {labels.assignedClassesHeading}
-                      </h3>
-                      <p className="text-xs text-sage-500">{labels.assignedClassesDescription}</p>
-                    </div>
-                    <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
-                      {classOptions.map((option) => (
-                        <label
-                          key={option.id}
-                          className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-sage-700"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={form.assignedClassTypeIds.includes(option.id)}
-                            onChange={() => toggleClassSelection(option.id)}
-                            disabled={busy}
-                          />
-                          <span>{option.name}</span>
-                        </label>
-                      ))}
-                      {classOptions.length === 0 ? (
-                        <p className="text-sm text-sage-500">{t("fieldAssignedClassesEmpty")}</p>
-                      ) : null}
-                    </div>
-                    {errors.assignedClassTypeIds ? (
-                      <p className="mt-2 text-xs text-red-800">{errors.assignedClassTypeIds}</p>
-                    ) : null}
-                  </section>
-
-                  <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
-                    <div className="mb-4 flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">
-                        {labels.scheduleHeading}
-                      </h3>
-                      <OmmButton
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={addScheduleRow}
-                        disabled={busy}
-                        className="gap-1.5"
-                      >
-                        <PlusIcon className="h-3.5 w-3.5 shrink-0" />
-                        {t("fieldScheduleAdd")}
-                      </OmmButton>
-                    </div>
-                    <div className="flex flex-col gap-3 rounded-2xl border border-sand-500/20 bg-white/80 p-3">
-                      {form.schedule.map((slot, index) => (
-                        <div
-                          key={slot.id}
-                          className="grid gap-2 rounded-xl border border-white/70 bg-white/85 p-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_130px_auto]"
-                        >
-                          <DatePickerInput
-                            name={`slot-date-${index}`}
-                            ariaLabel={t("fieldSchedule")}
-                            placeholder={t("fieldSchedule")}
-                            value={slot.date}
-                            onChange={(nextValue) => updateSchedule(slot.id, "date", nextValue)}
-                            disabled={busy}
-                          />
-                          <input
-                            type="time"
-                            className="ommm-input"
-                            value={slot.time}
-                            onChange={(event) =>
-                              updateSchedule(slot.id, "time", event.target.value)
-                            }
-                            disabled={busy}
-                          />
-                          <input
-                            type="number"
-                            min={MIN_SCHEDULE_SPOTS}
-                            className="ommm-input"
-                            value={slot.spots}
-                            onChange={(event) =>
-                              updateSchedule(slot.id, "spots", event.target.value)
-                            }
-                            disabled={busy}
-                          />
-                          <OmmButton
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeScheduleRow(slot.id)}
-                            disabled={busy || form.schedule.length <= 1}
-                          >
-                            {t("fieldScheduleRemove")}
-                          </OmmButton>
-                        </div>
-                      ))}
-                    </div>
-                    {errors.schedule ? <p className="mt-2 text-xs text-red-800">{errors.schedule}</p> : null}
-                  </section>
-
-                  <div className="-mx-5 mt-1 flex flex-wrap items-center justify-end gap-3 border-t border-white/60 bg-white/65 px-5 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
-                    <OmmButton
-                      type="button"
-                      variant="secondary"
-                      size="md"
-                      onClick={closeModal}
-                      disabled={busy}
-                    >
-                      {t("cancelButton")}
-                    </OmmButton>
-                    <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
-                      {busy ? t("savingButton") : t("saveButton")}
-                    </OmmButton>
-                  </div>
-                </form>
-          </div>
+        <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+          {editForm.message ? (
+            <AdminCenterToast
+              message={editForm.message}
+              tone={editForm.messageTone}
+              onDismiss={editForm.clearMessage}
+            />
+          ) : null}
+          <CoachSheetTabPanels
+            activeTab={activeTab}
+            coachId={coachId}
+            locale={locale}
+            classTypeOptions={classTypeOptions}
+            classOptions={classOptions}
+            form={editForm.form}
+            errors={editForm.errors}
+            busy={editForm.busy}
+            photoPreviewUrl={editForm.photoPreviewUrl}
+            controller={editForm}
+          />
         </div>
+
+        <AdminDetailSheetFormFooter
+          saveLabel={t("saveButton")}
+          cancelLabel={t("cancelButton")}
+          savingLabel={t("savingButton")}
+          dirty={editForm.dirty}
+          busy={editForm.busy}
+          onCancel={editForm.cancelEdits}
+          onSave={() => {
+            void editForm.save(t("updateSuccess"), t("genericError"));
+          }}
+        />
       </OmmDrawerPortal>
     </>
   );

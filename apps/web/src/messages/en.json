@@ -1424,6 +1424,10 @@
       "fieldScheduleRemove": "Remove",
       "fieldPhoto": "Photo",
       "fieldPhotoChoose": "Choose photo",
+      "fieldPhotoUploading": "Uploading…",
+      "fieldPhotoUploadSuccess": "Photo updated.",
+      "fieldPhotoRemove": "Remove photo",
+      "fieldPhotoRemoveSuccess": "Photo removed.",
       "fieldPhotoPlaceholder": "Or paste photo URL",
       "fieldPhotoPreviewAlt": "Coach photo preview",
       "fieldPhotoHint": "Upload JPG/JPEG/PNG/WEBP (up to 10 MB).",
@@ -1484,6 +1488,13 @@
         "profile": "Profile",
         "actions": "Admin actions",
         "spots": "{count} spots"
+      },
+      "sheetTabs": {
+        "overview": "Overview",
+        "profile": "Profile",
+        "details": "Coach details",
+        "classes": "Classes",
+        "schedule": "Schedule"
       },
       "create": {
         "panelTitle": "Add Coach",

@@ -1427,6 +1427,10 @@
       "fieldScheduleRemove": "Հեռացնել",
       "fieldPhoto": "Լուսանկար",
       "fieldPhotoChoose": "Ընտրել լուսանկար",
+      "fieldPhotoUploading": "Բեռնվում է…",
+      "fieldPhotoUploadSuccess": "Լուսանկարը թարմացվել է։",
+      "fieldPhotoRemove": "Հեռացնել լուսանկարը",
+      "fieldPhotoRemoveSuccess": "Լուսանկարը հեռացվել է։",
       "fieldPhotoPlaceholder": "Կամ տեղադրեք լուսանկարի հղում",
       "fieldPhotoPreviewAlt": "Մարզիչի լուսանկարի նախադիտում",
       "fieldPhotoHint": "Բեռնեք JPG/JPEG/PNG/WEBP (մինչև 10 ՄԲ) կամ նշեք հղում։",
@@ -1487,6 +1491,13 @@
         "profile": "Պրոֆիլ",
         "actions": "Ադմինի գործողություններ",
         "spots": "{count} տեղ"
+      },
+      "sheetTabs": {
+        "overview": "Ամփոփ",
+        "profile": "Պրոֆիլ",
+        "details": "Մարզիչի տվյալներ",
+        "classes": "Դասեր",
+        "schedule": "Գրաֆիկ"
       },
       "create": {
         "panelTitle": "Ավելացնել մարզիչ",

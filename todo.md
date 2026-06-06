@@ -2,13 +2,16 @@
 
 **Goal:** один side sheet на сущность — просмотр и редактирование на месте, без отдельной modal / второго sheet. Поле → изменить → **Save** в footer.
 
+**Стратегия:** гибрид — пилот на одной сущности → shared primitives → rollout. **Пилот: A2 Coach** (A1 Clients — отдельный подход позже).
+
 ---
 
-## Shared (после A1 — вынести в переиспользуемые компоненты)
+## Shared (Phase 0 — из пилота Coach)
 
-- [ ] `AdminSheetEditableField` — label + view / input toggle по клику
-- [ ] Dirty state + footer **Save / Cancel** (`ADMIN_DETAILS_SHEET_FOOTER_CLASS`)
-- [ ] Паттерн: sheet всегда открыт → edit mode не меняет layout
+- [x] `AdminDetailSheetTabBar` — pill tabs для detail sheets
+- [x] `AdminDetailSheetFormFooter` — Save / Cancel при dirty или busy
+- [x] `admin-details-sheet-layout.ts` — единый shell (95dvh, rounded-tl, overlay)
+- [ ] `AdminSheetEditableField` — label + view / input toggle по клику (опционально, позже)
 
 ---
 
@@ -16,10 +19,13 @@
 
 | ID | Раздел | Detail | Edit сейчас | Статус |
 |----|--------|--------|-------------|--------|
-| **A1** | **Clients** | `admin-client-drawer.tsx` | `admin-client-actions.tsx` (center modal) | **→ START** |
-| A2 | Coaches | `admin-coach-details-drawer.tsx` | `admin-coach-actions.tsx` (sheet `?editCoach=`) | pending |
+| A1 | **Clients** | `admin-client-drawer.tsx` | `admin-client-actions.tsx` (center modal) | pending — **другой подход** |
+| **A2** | **Coaches** | `admin-coach-details-drawer.tsx` | ~~`?editCoach=` второй sheet~~ | **✓ done (admin)** |
 | A3 | Schedule sessions | `admin-schedule-session-details-sheet.tsx` | `SessionFormSheet` | pending |
 | A4 | Gift cards | `admin-gift-card-details-sheet.tsx` | `admin-gift-cards-shell` modal | pending |
+
+**A2 admin:** один sheet с tabs (Overview / Profile / Classes / Schedule), inline edit, footer Save/Cancel.  
+**Manager** (`/manager/coaches`): пока `AdminCoachActions` + `?editCoach=` — отдельная итерация.
 
 ## Priority B — частично inline / polish
 
@@ -38,32 +44,38 @@ Packages, recurring schedule templates, create modals (coach, gift card, class t
 
 ---
 
-## A1 — Clients (первая итерация)
+## A2 — Coaches (пилот, admin) ✓
+
+**Файлы:** `admin-coach-details-drawer.tsx`, `admin-coach-edit-form.*`, `admin-coach-sheet-tab-panels.tsx`, `admin-coach-sheet-tabs.ts`
+
+### Сделано
+
+1. [x] Tabs: Overview, Profile, Classes, Schedule
+2. [x] Inline edit через `useCoachEditForm`; footer Save / Cancel
+3. [x] Убран «Edit coach» и второй sheet из admin directory (`?editCoach=` только cleanup в URL)
+4. [x] i18n `sheetTabs.*` (en / ru / hy)
+5. [x] Shared tab bar + form footer
+
+### DoD A2 (admin)
+
+- [x] Клик по coach row → один sheet с tabs, правки на месте
+- [x] Отдельный edit sheet из admin drawer не открывается
+- [ ] Ручной smoke `/admin/coaches`
+
+---
+
+## A1 — Clients (следующий, отдельный дизайн)
 
 **Файлы:** `admin-client-drawer.tsx`, `admin-client-actions.tsx`, `admin-client-row-actions.tsx`
 
-### Do
-
-1. [ ] Убрать center modal из `AdminClientActions` (или свести к save-only helper без portal)
-2. [ ] В `AdminClientDrawer`: поля email, name, lastName, phone, dateOfBirth — editable inline
-3. [ ] Footer sheet: Save / Cancel; disabled когда нет изменений или идёт save
-4. [ ] Убрать `EditActionButton` из header drawer (edit = сам sheet)
-5. [ ] Убрать URL `?editClient=` flow если больше не нужен
-6. [ ] Сохранить: notes, gift, history sections без изменений
-7. [ ] i18n: save / cancel / saved / validation errors
+Не копировать Coach 1:1 — нужен свой UX (notes, gift, history, center modal сегодня).
 
 ### API
 
 - `PATCH /clients/:id` — уже используется в `AdminClientActions`
 
-### DoD A1
-
-- [ ] Клик по client row → один sheet, правки на месте, Save работает
-- [ ] Отдельная edit modal для client не открывается
-- [ ] Typecheck + ручной smoke на `/admin/clients`
-
 ---
 
-## Порядок после A1
+## Порядок после A2
 
-A1 → A4 (gift cards) → B2 (class types) → A2 (coaches) → A3 (schedule sessions)
+A4 (gift cards) → B2 (class types) → A1 (clients) → A3 (schedule sessions) → manager coaches unified sheet

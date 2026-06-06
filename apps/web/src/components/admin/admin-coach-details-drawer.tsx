@@ -1,95 +1,175 @@
 "use client";
 
-import Image from "next/image";
-import { useId } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachStatusAction } from "@/components/admin/admin-coach-status-action";
+import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
+import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
+import {
+  COACH_MAX_AGE,
+  COACH_MIN_AGE,
+  type CoachClassOption,
+} from "@/components/admin/admin-coach-form-helpers";
+import { useCoachEditForm } from "@/components/admin/admin-coach-edit-form.use";
+import type { CoachEditInitialValues } from "@/components/admin/admin-coach-edit-form.types";
+import {
+  COACH_SHEET_TAB_ORDER,
+  COACH_SHEET_TAB_PROFILE,
+  type CoachSheetTabId,
+} from "@/components/admin/admin-coach-sheet-tabs";
+import { CoachSheetTabPanels } from "@/components/admin/admin-coach-sheet-tab-panels";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_LEDE_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
   ADMIN_WIDE_DRAWER_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { OmmButton } from "@/components/ui/omm-button";
+import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
-import { coachCardDisplayName, coachCardInitials } from "@/components/coaches/coach-card-display";
-import { formatDateForUi } from "@/lib/date-display";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-
-type CoachDrawerRow = {
-  id: string;
-  userId: string;
-  bio: string | null;
-  specialization: string | null;
-  classType: string | null;
-  assignedClassTypeIds: string[];
-  schedule: {
-    id: string;
-    date: string;
-    time: string;
-    spots: number;
-  }[];
-  experienceYears: number | null;
-  age: number | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  totalClasses: number;
-  substituteClasses: number;
-  user: {
-    id: string;
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    phone: string | null;
-    dateOfBirth: string | null;
-    avatarUrl: string | null;
-  };
-};
-
-type CoachClassOption = {
-  id: string;
-  name: string;
-};
+import { coachCardInitials } from "@/components/coaches/coach-card-display";
 
 type AdminCoachDetailsDrawerProps = {
-  coach: CoachDrawerRow | null;
+  coach: AdminCoachDirectoryRow | null;
+  locale: string;
+  classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
-  onEdit: (coachId: string) => void;
 };
-
-function classNamesForCoach(
-  classIds: readonly string[],
-  classOptions: readonly CoachClassOption[],
-): string[] {
-  const namesById = new Map(classOptions.map((option) => [option.id, option.name]));
-  return classIds.map((id) => namesById.get(id) ?? id);
-}
 
 export function AdminCoachDetailsDrawer({
   coach,
+  locale,
+  classTypeOptions,
   classOptions,
   onClose,
-  onEdit,
 }: AdminCoachDetailsDrawerProps) {
-  const t = useTranslations("adminPages.coaches");
-  const titleId = useId();
-
   if (coach === null) {
     return null;
   }
 
-  const displayName = coachCardDisplayName(coach.user);
-  const assignedClasses = classNamesForCoach(coach.assignedClassTypeIds, classOptions);
+  return (
+    <AdminCoachDetailsDrawerInner
+      coach={coach}
+      locale={locale}
+      classTypeOptions={classTypeOptions}
+      classOptions={classOptions}
+      onClose={onClose}
+    />
+  );
+}
+
+function coachInitialValues(coach: AdminCoachDirectoryRow): CoachEditInitialValues {
+  return {
+    email: coach.user.email,
+    name: coach.user.name ?? "",
+    lastName: coach.user.lastName ?? "",
+    phone: coach.user.phone ?? "",
+    age: coach.age,
+    birthday: coach.user.dateOfBirth,
+    photoUrl: coach.user.avatarUrl,
+    bio: coach.bio ?? "",
+    experienceYears: coach.experienceYears,
+    assignedClassTypeIds: coach.assignedClassTypeIds,
+    schedule: coach.schedule,
+    specialization: coach.specialization ?? "",
+    classType: coach.classType ?? "",
+  };
+}
+
+function AdminCoachDetailsDrawerInner({
+  coach,
+  locale,
+  classTypeOptions,
+  classOptions,
+  onClose,
+}: {
+  coach: AdminCoachDirectoryRow;
+  locale: string;
+  classTypeOptions: readonly string[];
+  classOptions: readonly CoachClassOption[];
+  onClose: () => void;
+}) {
+  const t = useTranslations("adminPages.coaches");
+  const titleId = useId();
+  const [activeTab, setActiveTab] = useState<CoachSheetTabId>(COACH_SHEET_TAB_PROFILE);
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
+    null,
+  );
+  const initial = useMemo(() => coachInitialValues(coach), [coach]);
+
+  const validationLabels = useMemo(
+    () => ({
+      emailRequired: t("emailRequired"),
+      emailInvalid: t("emailInvalid"),
+      nameRequired: t("nameRequired"),
+      lastNameRequired: t("lastNameRequired"),
+      phoneRequired: t("phoneRequired"),
+      phoneInvalid: t("phoneInvalid"),
+      ageInvalid: t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }),
+      birthdayInvalid: t("birthdayInvalid"),
+      ageBirthdayMismatch: t("ageBirthdayMismatch"),
+      bioTooLong: t("bioTooLong"),
+      experienceInvalid: t("experienceInvalid"),
+      specializationTooLong: t("specializationTooLong"),
+      classTypeInvalid: t("classTypeInvalid"),
+      assignedClassesInvalid: t("assignedClassesInvalid"),
+      photoTooLarge: t("photoTooLarge"),
+      scheduleInvalid: t("scheduleInvalid"),
+    }),
+    [t],
+  );
+
+  const editForm = useCoachEditForm({
+    coachId: coach.id,
+    resetKey: `${coach.id}:${coach.updatedAt}`,
+    initial,
+    classTypeOptions,
+    classOptions,
+    labels: validationLabels,
+  });
+
+  const headerName = useMemo(() => {
+    const fullName = [coach.user.name, coach.user.lastName].filter(Boolean).join(" ").trim();
+    return fullName.length > 0 ? fullName : "—";
+  }, [coach.user.lastName, coach.user.name]);
+  const tabs = COACH_SHEET_TAB_ORDER.map((value) => ({
+    value,
+    label: t(`sheetTabs.${value}`),
+  }));
+
+  function handleClose(): void {
+    if (editForm.busy || statusBusy) {
+      return;
+    }
+    onClose();
+  }
+
+  const statusLabels = useMemo(
+    () => ({
+      activate: t("activateCoach"),
+      deactivate: t("deactivateCoach"),
+      saving: t("savingButton"),
+      confirmActivate: t("confirmActivate"),
+      confirmDeactivate: t("confirmDeactivate"),
+      activated: t("activateSuccess"),
+      deactivated: t("deactivateSuccess"),
+      failed: t("genericError"),
+    }),
+    [t],
+  );
+
+  const sheetBusy = editForm.busy || statusBusy;
+  const toastMessage = editForm.message ?? statusNotice?.message ?? null;
+  const toastTone = editForm.message ? editForm.messageTone : statusNotice?.tone ?? "ok";
 
   return (
     <OmmDrawerPortal
       isOpen
-      onClose={onClose}
+      onClose={handleClose}
+      closeDisabled={sheetBusy}
       backdropAriaLabel={t("drawer.close")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
@@ -97,207 +177,76 @@ export function AdminCoachDetailsDrawer({
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-              {t("drawer.eyebrow")}
-            </p>
-            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
-              {displayName}
-            </h2>
-            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
-              {coach.user.phone ?? "—"} · {coach.user.email}
-            </p>
+          <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+            {headerName}
+          </h2>
+          <div className="flex shrink-0 items-center">
+            <AdminCoachStatusAction
+              coachId={coach.id}
+              isActive={coach.isActive}
+              labels={statusLabels}
+              layout="inline"
+              disabled={editForm.busy}
+              onBusyChange={setStatusBusy}
+              onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+              onChanged={onClose}
+            />
           </div>
-          <button
-            type="button"
-            className={`shrink-0 ${ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}`}
-            aria-label={t("drawer.close")}
-            onClick={onClose}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              className="h-5 w-5"
-              aria-hidden
-            >
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
         </div>
       </header>
 
-      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} space-y-4`}>
-          <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <CoachAvatar coach={coach} />
-              <div className="grid flex-1 gap-3 text-sm sm:grid-cols-2">
-                <Field label={t("drawer.coachId")} value={coach.id} mono />
-                <Field label={t("drawer.userId")} value={coach.userId} mono />
-                <Field
-                  label={t("drawer.status")}
-                  value={
-                    coach.isActive ? t("filters.statusActive") : t("filters.statusInactive")
-                  }
-                />
-                <Field label={t("fieldSpecialization")} value={coach.specialization ?? "—"} />
-                <Field label={t("fieldClassType")} value={coach.classType ?? "—"} />
-                <Field
-                  label={t("fieldBirthday")}
-                  value={
-                    coach.user.dateOfBirth !== null
-                      ? formatDateForUi(coach.user.dateOfBirth)
-                      : "—"
-                  }
-                />
-                <Field
-                  label={t("fieldAge")}
-                  value={coach.age !== null ? String(coach.age) : "—"}
-                />
-                <Field
-                  label={t("drawer.registrationDate")}
-                  value={formatDateForUi(coach.createdAt)}
-                />
-              </div>
-            </div>
-          </section>
-
-          <div className="grid gap-3 sm:grid-cols-4">
-            <Metric label={t("drawer.totalClasses")} value={coach.totalClasses} />
-            <Metric label={t("drawer.substitutions")} value={coach.substituteClasses} />
-            <Metric label={t("drawer.assignedClasses")} value={assignedClasses.length} />
-            <Metric label={t("drawer.availabilitySlots")} value={coach.schedule.length} />
-          </div>
-
-          <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
-            <p className="font-medium text-sage-900">{t("drawer.profile")}</p>
-            <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-              <Field
-                label={t("fieldExperience")}
-                value={coach.experienceYears !== null ? String(coach.experienceYears) : "—"}
-              />
-              <Field label={t("colEmail")} value={coach.user.email} />
-              <Field label={t("colPhone")} value={coach.user.phone ?? "—"} />
-            </div>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-sage-700">
-              {coach.bio ?? "—"}
-            </p>
-          </section>
-
-          <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
-            <p className="font-medium text-sage-900">{t("fieldAssignedClasses")}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {assignedClasses.length > 0 ? (
-                assignedClasses.map((name) => <Badge key={name} label={name} />)
-              ) : (
-                <span className="text-sm text-sage-500">—</span>
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
-            <p className="font-medium text-sage-900">{t("fieldSchedule")}</p>
-            <div className="mt-3 space-y-2">
-              {coach.schedule.length > 0 ? (
-                coach.schedule.map((slot) => (
-                  <div
-                    key={slot.id}
-                    className="rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-sage-700"
-                  >
-                    {formatDateForUi(slot.date)} · {slot.time} ·{" "}
-                    {t("drawer.spots", { count: slot.spots })}
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-sage-500">—</p>
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
-            <p className="font-medium text-sage-900">{t("drawer.actions")}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <OmmButton
-                type="button"
-                size="sm"
-                variant="primary"
-                onClick={() => onEdit(coach.id)}
-              >
-                {t("editCoach")}
-              </OmmButton>
-              <AdminCoachStatusAction
-                coachId={coach.id}
-                isActive={coach.isActive}
-                labels={{
-                  activate: t("activateCoach"),
-                  deactivate: t("deactivateCoach"),
-                  saving: t("savingButton"),
-                  confirmActivate: t("confirmActivate"),
-                  confirmDeactivate: t("confirmDeactivate"),
-                  activated: t("activateSuccess"),
-                  deactivated: t("deactivateSuccess"),
-                  failed: t("genericError"),
-                }}
-                onChanged={onClose}
-              />
-            </div>
-          </section>
-      </div>
-    </OmmDrawerPortal>
-  );
-}
-
-function CoachAvatar({ coach }: { coach: CoachDrawerRow }) {
-  const src =
-    coach.user.avatarUrl !== null
-      ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
-      : null;
-  if (src !== null) {
-    return (
-      <Image
-        src={src}
-        alt=""
-        width={96}
-        height={96}
-        className="h-24 w-24 shrink-0 rounded-2xl object-cover"
-        unoptimized
+      <AdminDetailSheetTabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(value) => setActiveTab(value as CoachSheetTabId)}
       />
-    );
-  }
-  return (
-    <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-sand-100 text-2xl font-semibold text-sage-800">
-      {coachCardInitials(coach.user)}
-    </div>
-  );
-}
 
-function Field({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <p>
-      <span className="block text-xs uppercase tracking-wide text-sage-500">{label}</span>
-      <span className={mono ? "font-mono text-xs text-sage-800" : "text-sage-800"}>
-        {value}
-      </span>
-    </p>
-  );
-}
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+        {toastMessage ? (
+          <AdminCenterToast
+            message={toastMessage}
+            tone={toastTone}
+            onDismiss={() => {
+              editForm.clearMessage();
+              setStatusNotice(null);
+            }}
+          />
+        ) : null}
 
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3">
-      <p className="text-xs uppercase tracking-wide text-sage-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p>
-    </div>
-  );
-}
+        <CoachSheetTabPanels
+          activeTab={activeTab}
+          coachId={coach.id}
+          locale={locale}
+          classTypeOptions={classTypeOptions}
+          classOptions={classOptions}
+          form={editForm.form}
+          errors={editForm.errors}
+          busy={editForm.busy}
+          photoPreviewUrl={editForm.photoPreviewUrl}
+          controller={editForm}
+          overview={{
+            isActive: coach.isActive,
+            createdAt: coach.createdAt,
+            totalClasses: coach.totalClasses,
+            substituteClasses: coach.substituteClasses,
+            assignedClassesCount: coach.assignedClassTypeIds.length,
+            availabilitySlotsCount: coach.schedule.length,
+            initials: coachCardInitials(coach.user),
+          }}
+        />
+      </div>
 
-function Badge({ label }: { label: string }) {
-  return (
-    <span className="rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs font-medium text-sage-800">
-      {label}
-    </span>
+      <AdminDetailSheetFormFooter
+        saveLabel={t("saveButton")}
+        cancelLabel={t("cancelButton")}
+        savingLabel={t("savingButton")}
+        dirty={editForm.dirty}
+        busy={editForm.busy}
+        onCancel={editForm.cancelEdits}
+        onSave={() => {
+          void editForm.save(t("updateSuccess"), t("genericError"));
+        }}
+      />
+    </OmmDrawerPortal>
   );
 }

@@ -122,18 +122,9 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
   const closeProfileDrawer = useCallback(() => {
     updateQuery((params) => {
       params.delete("coachProfile");
+      params.delete("editCoach");
     });
   }, [updateQuery]);
-
-  const openEditModal = useCallback(
-    (coachId: string) => {
-      updateQuery((params) => {
-        params.delete("coachProfile");
-        params.set("editCoach", coachId);
-      });
-    },
-    [updateQuery],
-  );
 
   const content =
     viewMode === "board" ? (
@@ -152,9 +143,10 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
       ) : null}
       <AdminCoachDetailsDrawer
         coach={selectedCoach}
+        locale={props.locale ?? "en"}
+        classTypeOptions={props.classTypeOptions}
         classOptions={props.classOptions}
         onClose={closeProfileDrawer}
-        onEdit={openEditModal}
       />
     </>
   );

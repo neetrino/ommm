@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { AdminCoachActions } from "@/components/admin/admin-coach-actions";
 import {
   ADMIN_COACH_STATUS_BADGE_CLASS,
   coachStatusBadgeTone,
@@ -14,8 +13,11 @@ import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-ty
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const COACH_ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
+
+type PendingConfirm = "activate" | "deactivate";
 
 type AdminCoachRowActionsProps = {
   coach: AdminCoachDirectoryRow;
@@ -26,27 +28,37 @@ type AdminCoachRowActionsProps = {
 
 export function AdminCoachRowActions({
   coach,
-  classTypeOptions,
-  classOptions,
-  locale = "en",
 }: AdminCoachRowActionsProps) {
   const t = useTranslations("adminPages.coaches");
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
-  const isActive = pendingIsActive ?? coach.isActive;
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
+  const isActive = coach.isActive;
   const toggleLabel = isActive ? t("deactivateCoach") : t("activateCoach");
   const statusLabel = isActive ? t("statusActive") : t("statusInactive");
 
-  async function toggleStatus(): Promise<void> {
+  function openConfirm(): void {
     if (busy) {
       return;
     }
+    setPendingConfirm(isActive ? "deactivate" : "activate");
+  }
 
-    const nextIsActive = !isActive;
-    setPendingIsActive(nextIsActive);
+  function closeConfirm(): void {
+    if (busy) {
+      return;
+    }
+    setPendingConfirm(null);
+  }
+
+  async function confirmStatusChange(): Promise<void> {
+    if (busy || pendingConfirm === null) {
+      return;
+    }
+
+    const nextIsActive = pendingConfirm === "activate";
     setBusy(true);
     setMessage(null);
 
@@ -57,16 +69,32 @@ export function AdminCoachRowActions({
       });
       setTone("ok");
       setMessage(nextIsActive ? t("activateSuccess") : t("deactivateSuccess"));
+      setPendingConfirm(null);
       router.refresh();
     } catch (error) {
-      setPendingIsActive(null);
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
     } finally {
       setBusy(false);
-      setPendingIsActive(null);
     }
   }
+
+  const confirmCopy =
+    pendingConfirm === "deactivate"
+      ? {
+          title: t("deactivateCoach"),
+          description: t("confirmDeactivate"),
+          confirmLabel: t("deactivateCoach"),
+          tone: "danger" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--danger",
+        }
+      : {
+          title: t("activateCoach"),
+          description: t("confirmActivate"),
+          confirmLabel: t("activateCoach"),
+          tone: "success" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--success",
+        };
 
   return (
     <>
@@ -85,7 +113,7 @@ export function AdminCoachRowActions({
           disabled={busy}
           onClick={(event) => {
             event.stopPropagation();
-            void toggleStatus();
+            openConfirm();
           }}
         >
           <AnimatedToggleSwitch checked={isActive} />
@@ -100,25 +128,20 @@ export function AdminCoachRowActions({
         />
       ) : null}
 
-      <AdminCoachActions
-        showEditTrigger={false}
-        coachId={coach.id}
-        locale={locale}
-        initialEmail={coach.user.email}
-        initialName={coach.user.name ?? ""}
-        initialLastName={coach.user.lastName ?? ""}
-        initialPhone={coach.user.phone ?? ""}
-        initialAge={coach.age}
-        initialBirthday={coach.user.dateOfBirth}
-        initialPhotoUrl={coach.user.avatarUrl}
-        initialBio={coach.bio ?? ""}
-        initialExperienceYears={coach.experienceYears}
-        initialAssignedClassTypeIds={coach.assignedClassTypeIds}
-        initialSchedule={coach.schedule}
-        initialSpecialization={coach.specialization ?? ""}
-        initialClassType={coach.classType ?? ""}
-        classTypeOptions={classTypeOptions}
-        classOptions={classOptions}
+      <OmmConfirmDialog
+        isOpen={pendingConfirm !== null}
+        title={confirmCopy.title}
+        description={confirmCopy.description}
+        confirmLabel={busy ? t("savingButton") : confirmCopy.confirmLabel}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone={confirmCopy.tone}
+        confirmClassName={confirmCopy.confirmClassName}
+        pending={busy}
+        onConfirm={() => {
+          void confirmStatusChange();
+        }}
+        onCancel={closeConfirm}
       />
     </>
   );

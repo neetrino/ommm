@@ -1415,6 +1415,10 @@
       "fieldScheduleRemove": "Удалить",
       "fieldPhoto": "Фото",
       "fieldPhotoChoose": "Выбрать фото",
+      "fieldPhotoUploading": "Загрузка…",
+      "fieldPhotoUploadSuccess": "Фото обновлено.",
+      "fieldPhotoRemove": "Удалить фото",
+      "fieldPhotoRemoveSuccess": "Фото удалено.",
       "fieldPhotoPlaceholder": "Или вставьте URL фото",
       "fieldPhotoPreviewAlt": "Предпросмотр фото тренера",
       "fieldPhotoHint": "Загрузите JPG/JPEG/PNG/WEBP (до 10 МБ) или укажите URL.",
@@ -1475,6 +1479,13 @@
         "profile": "Профиль",
         "actions": "Действия админа",
         "spots": "{count} мест"
+      },
+      "sheetTabs": {
+        "overview": "Обзор",
+        "profile": "Профиль",
+        "details": "Данные тренера",
+        "classes": "Классы",
+        "schedule": "Расписание"
       },
       "create": {
         "panelTitle": "Добавить тренера",
