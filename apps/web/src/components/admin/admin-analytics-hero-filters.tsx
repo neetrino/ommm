@@ -90,18 +90,6 @@ export function AdminAnalyticsHeroFilters({
     [values],
   );
 
-  const activeFilterCount = useMemo(() => {
-    const defaults = defaultAnalyticsFilterValues();
-    return [
-      values.rangeDays !== defaults.rangeDays,
-      values.coachId.length > 0,
-      values.classTypeId.length > 0,
-      values.bookingStatus.length > 0,
-      values.sort !== defaults.sort,
-      values.quick.trim().length > 0,
-    ].filter(Boolean).length;
-  }, [values]);
-
   useEffect(() => {
     setValues(initialValues);
   }, [initialValues]);
@@ -160,9 +148,9 @@ export function AdminAnalyticsHeroFilters({
       trailing={
         <>
           {trailing}
-          {isPending || activeFilterCount > 0 ? (
+          {isPending ? (
             <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
+              {tFilters("loading")}
             </p>
           ) : null}
         </>

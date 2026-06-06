@@ -63,12 +63,30 @@ const QUICK_FILTER_LABEL_KEYS: Record<AnalyticsQuickFilterOption, keyof BuildAdm
   popularClasses: "quickPopularClasses",
 };
 
-function resolveQuickChipLabel(label: string, value: string): string | null {
-  const count = parseAnalyticsQuickFilters(value).length;
-  if (count === 0) {
-    return null;
+function resolveQuickChipLabel(
+  label: string,
+  allLabel: string,
+  value: string,
+  options: readonly { value: string; label: string }[],
+): string {
+  const selected = parseAnalyticsQuickFilters(value);
+  if (selected.length === 0) {
+    return `${label}: ${allLabel}`;
   }
-  return count === 1 ? `${label}: 1` : `${label}: ${count}`;
+  if (selected.length === 1) {
+    const option = options.find((item) => item.value === selected[0]);
+    return option ? `${label}: ${option.label}` : `${label}: 1`;
+  }
+  return `${label}: ${selected.length}`;
+}
+
+function resolveSortChipLabel(
+  label: string,
+  value: string,
+  options: readonly { value: string; label: string }[],
+): string {
+  const option = options.find((item) => item.value === value);
+  return `${label}: ${option?.label ?? value}`;
 }
 
 export function adminAnalyticsIntegratedFilterValues(
@@ -94,22 +112,29 @@ export function buildAdminAnalyticsFilterFields({
     label: labels[QUICK_FILTER_LABEL_KEYS[value]] as string,
   }));
 
+  const sortOptions = [
+    { value: "revenue-desc", label: labels.sortRevenueDesc },
+    { value: "revenue-asc", label: labels.sortRevenueAsc },
+    { value: "bookings-desc", label: labels.sortBookingsDesc },
+    { value: "bookings-asc", label: labels.sortBookingsAsc },
+    { value: "attendance-desc", label: labels.sortAttendanceDesc },
+    { value: "attendance-asc", label: labels.sortAttendanceAsc },
+    { value: "name-asc", label: labels.sortNameAsc },
+  ] as const;
+
   const fields: AdminIntegratedFilterField[] = [
     {
       key: "rangeDays",
       label: labels.rangeLabel,
       emptyValue: "30",
+      alwaysShowChip: true,
       resolveChipLabel: (value) => {
-        if (value === "30") {
-          return null;
-        }
         const rangeLabels: Record<string, string> = {
           "7": labels.range7,
+          "30": labels.range30,
           "90": labels.range90,
         };
-        return rangeLabels[value]
-          ? `${labels.rangeLabel}: ${rangeLabels[value]}`
-          : `${labels.rangeLabel}: ${value}`;
+        return `${labels.rangeLabel}: ${rangeLabels[value] ?? value}`;
       },
       options: [
         { value: "7", label: labels.range7 },
@@ -165,7 +190,14 @@ export function buildAdminAnalyticsFilterFields({
       label: labels.quickFilterLabel,
       fieldType: "custom",
       emptyValue: "",
-      resolveChipLabel: (value) => resolveQuickChipLabel(labels.quickFilterLabel, value),
+      alwaysShowChip: true,
+      resolveChipLabel: (value) =>
+        resolveQuickChipLabel(
+          labels.quickFilterLabel,
+          labels.allQuickFilters,
+          value,
+          quickFilterOptions,
+        ),
       render: ({ value, onChange }) => (
         <OmmFilterMultiSelect
           variant="accent"
@@ -187,17 +219,9 @@ export function buildAdminAnalyticsFilterFields({
       key: "sort",
       label: labels.sortLabel,
       emptyValue: "revenue-desc",
-      resolveChipLabel: (value) =>
-        value === "revenue-desc" ? null : `${labels.sortLabel}: ${value}`,
-      options: [
-        { value: "revenue-desc", label: labels.sortRevenueDesc },
-        { value: "revenue-asc", label: labels.sortRevenueAsc },
-        { value: "bookings-desc", label: labels.sortBookingsDesc },
-        { value: "bookings-asc", label: labels.sortBookingsAsc },
-        { value: "attendance-desc", label: labels.sortAttendanceDesc },
-        { value: "attendance-asc", label: labels.sortAttendanceAsc },
-        { value: "name-asc", label: labels.sortNameAsc },
-      ],
+      alwaysShowChip: true,
+      resolveChipLabel: (value) => resolveSortChipLabel(labels.sortLabel, value, sortOptions),
+      options: [...sortOptions],
     },
   );
 

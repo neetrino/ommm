@@ -4,48 +4,41 @@ import type { AdminIntegratedFilterChip } from "@/components/admin/admin-integra
 
 type AdminIntegratedSearchFilterChipsProps = {
   chips: readonly AdminIntegratedFilterChip[];
-  onRemove: (key: string) => void;
+  onActivate?: () => void;
 };
+
+const CHIP_CLASS =
+  "inline-flex max-w-[12rem] items-center rounded-lg bg-white/75 px-2 py-0.5 text-xs font-medium text-sage-800 ring-1 ring-white/70";
 
 export function AdminIntegratedSearchFilterChips({
   chips,
-  onRemove,
+  onActivate,
 }: AdminIntegratedSearchFilterChipsProps) {
   if (chips.length === 0) {
     return null;
   }
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-1.5 pe-2">
-      {chips.map((chip) => (
-        <span
-          key={chip.key}
-          className="inline-flex max-w-[12rem] items-center gap-1 rounded-lg bg-sand-100/90 px-2 py-0.5 text-xs font-medium text-sage-800"
-        >
-          <span className="truncate">{chip.label}</span>
+    <>
+      {chips.map((chip) =>
+        onActivate ? (
           <button
+            key={chip.key}
             type="button"
-            className="rounded p-0.5 transition-colors hover:bg-sand-200/80"
-            aria-label={`Remove filter ${chip.label}`}
+            className={`${CHIP_CLASS} cursor-pointer transition-colors hover:bg-white/90`}
             onClick={(event) => {
               event.stopPropagation();
-              onRemove(chip.key);
+              onActivate();
             }}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              className="h-3 w-3"
-              aria-hidden
-            >
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            </svg>
+            <span className="truncate">{chip.label}</span>
           </button>
-        </span>
-      ))}
-    </div>
+        ) : (
+          <span key={chip.key} className={CHIP_CLASS}>
+            <span className="truncate">{chip.label}</span>
+          </span>
+        ),
+      )}
+    </>
   );
 }

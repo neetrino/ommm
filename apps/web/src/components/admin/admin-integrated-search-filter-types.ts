@@ -13,6 +13,8 @@ export type AdminIntegratedFilterField = {
   options?: readonly AdminIntegratedFilterOption[];
   allLabel?: string;
   fieldType?: "select" | "date" | "custom";
+  /** When true, chip is shown even when value equals {@link emptyValue}. */
+  alwaysShowChip?: boolean;
   resolveChipLabel?: (value: string) => string | null;
   render?: (args: { value: string; onChange: (next: string) => void }) => ReactNode;
 };
@@ -59,7 +61,10 @@ export function buildAdminIntegratedFilterChips(
   }
 
   return fields.flatMap((field) => {
-    if (!isAdminIntegratedFilterActive(field, filterValues)) {
+    const showChip =
+      field.alwaysShowChip === true ||
+      isAdminIntegratedFilterActive(field, filterValues);
+    if (!showChip) {
       return [];
     }
     const value = resolveAdminIntegratedFilterActiveValue(field, filterValues);

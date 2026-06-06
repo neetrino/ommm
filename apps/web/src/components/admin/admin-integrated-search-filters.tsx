@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { AdminIntegratedSearchFilterChips } from "@/components/admin/admin-integrated-search-filter-chips";
 import { AdminIntegratedSearchFilterPanel } from "@/components/admin/admin-integrated-search-filter-panel";
 import {
   buildAdminIntegratedFilterChips,
   clearAdminIntegratedFilterValues,
-  resolveAdminIntegratedFilterEmptyValue,
   type AdminIntegratedFilterField,
 } from "@/components/admin/admin-integrated-search-filter-types";
 
@@ -175,14 +174,6 @@ export function AdminIntegratedSearchFilters({
     };
   }, [panelOpen]);
 
-  function handleRemoveChip(key: string) {
-    const field = fields?.find((item) => item.key === key);
-    if (!field || !onFilterChange) {
-      return;
-    }
-    onFilterChange(key, resolveAdminIntegratedFilterEmptyValue(field));
-  }
-
   function handleApply() {
     if (!onFilterChange || !fields) {
       setPanelOpen(false);
@@ -216,6 +207,25 @@ export function AdminIntegratedSearchFilters({
     setDraftFilters(filterValues);
     setPanelOpen(true);
   }
+
+  function handleFilterBarClick() {
+    if (hideSearch && hasFilters) {
+      openPanel();
+    }
+  }
+
+  function handleFilterBarKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!hideSearch || !hasFilters) {
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openPanel();
+    }
+  }
+
+  const showClearButton =
+    !hideSearch && (search.trim().length > 0 || chips.length > 0);
 
   function handleSearchBlur() {
     window.setTimeout(() => {
@@ -275,27 +285,36 @@ export function AdminIntegratedSearchFilters({
       </div>
     ) : null;
 
+  const barClickable = hideSearch && hasFilters;
+  const barIsPrimaryButton = barClickable && chips.length === 0;
+
   return (
     <div ref={containerRef} className={`relative w-full min-w-0 ${className}`}>
       <div
-        className={`flex min-h-11 w-full min-w-0 items-center gap-2 rounded-full border border-white/60 bg-[rgba(192,187,176,0.32)] px-2 shadow-none transition-shadow ${
+        role={barIsPrimaryButton ? "button" : undefined}
+        tabIndex={barIsPrimaryButton ? 0 : undefined}
+        aria-expanded={barClickable ? panelOpen : undefined}
+        aria-controls={barClickable ? PANEL_ID : undefined}
+        onClick={barClickable ? handleFilterBarClick : undefined}
+        onKeyDown={barIsPrimaryButton ? handleFilterBarKeyDown : undefined}
+        className={`flex min-h-11 w-full min-w-0 flex-wrap items-center gap-2 rounded-full border border-white/60 bg-[rgba(192,187,176,0.32)] px-2 shadow-none transition-shadow ${
           showQueryRing || showPanelRing ? "ring-2 ring-sand-500/35" : ""
-        } ${searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""}`}
+        } ${searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""} ${
+          barClickable ? "cursor-pointer" : ""
+        }`}
       >
-        <AdminIntegratedSearchFilterChips chips={chips} onRemove={handleRemoveChip} />
-        {hideSearch ? (
-          hasFilters ? (
-            <button
-              type="button"
-              className="ommm-admin-header-search flex h-9 min-w-0 flex-1 items-center px-3 text-left text-sm text-sage-600"
-              onClick={openPanel}
-              aria-expanded={panelOpen}
-              aria-controls={PANEL_ID}
-            >
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+          <AdminIntegratedSearchFilterChips
+            chips={chips}
+            onActivate={hasFilters ? openPanel : undefined}
+          />
+          {hideSearch && hasFilters && chips.length === 0 ? (
+            <span className="flex h-9 min-w-0 flex-1 items-center px-1 text-sm text-sage-600">
               {searchPlaceholder}
-            </button>
-          ) : null
-        ) : (
+            </span>
+          ) : null}
+        </div>
+        {!hideSearch ? (
           <div className="relative min-w-0 flex-1">
             <SearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
             <input
@@ -313,8 +332,8 @@ export function AdminIntegratedSearchFilters({
               className="ommm-admin-header-search h-9 w-full border-0 bg-transparent pl-9 pr-2 shadow-none focus-visible:outline-none focus-visible:ring-0"
             />
           </div>
-        )}
-        {hasQuery ? (
+        ) : null}
+        {showClearButton ? (
           <button
             type="button"
             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sage-600 transition-colors hover:bg-white/50 hover:text-sage-900"

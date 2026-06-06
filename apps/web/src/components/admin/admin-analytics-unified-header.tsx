@@ -57,13 +57,13 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
       className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
-      <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-        <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
+      <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminAnalyticsTabNav />
         </div>
         {section ? (
-          <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-nowrap">
+          <div className="flex min-w-0 w-full items-center gap-2">
             <AdminAnalyticsHeroFilters
               key={section}
               section={section}
@@ -93,8 +93,8 @@ function AdminAnalyticsUnifiedHeaderFallback() {
       className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-        <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminAnalyticsTabNav />
         </div>
