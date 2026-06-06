@@ -23,19 +23,33 @@
 
 | ID | Раздел | Статус |
 |----|--------|--------|
-| A1 | Clients — **свой UX** (notes, gift, history) | pending |
-| **A2** | **Coaches** — admin canon ✓ | **done** |
+| **A1** | **Clients** — Profile · Bookings · Payments · Gifts · Notes | **done** |
+| **A2** | **Coaches** — Profile · Details · Classes · Schedule | **done** |
 | A3 | Schedule sessions | pending |
 | A4 | Gift cards | pending |
 
 **A2 tabs:** Profile · Coach details · Classes · Schedule  
+**A1 tabs:** Profile · Bookings · Payments · Gift cards · Notes  
 **Manager** `/manager/coaches`: legacy `AdminCoachActions` — унифицировать позже.
+
+---
+
+## A1 — Clients ✓ (admin)
+
+**Файлы:** `admin-client-drawer.tsx`, `admin-client-sheet-tabs.ts`, `admin-client-sheet-tab-panels.tsx`, `admin-client-edit-form.*`, `admin-client-status-action.tsx`
+
+- [x] Canon sheet: wide, tabs, header имя + Deactivate, без ×
+- [x] Inline edit Profile fields + footer Save/Cancel
+- [x] History в отдельных tabs (bookings / payments / gifts / notes)
+- [x] Optimistic close backdrop
+- [x] Row toggle + confirm dialog
+- [ ] Smoke `/admin/clients`
 
 ---
 
 ## Rollout
 
-A4 → B2 (class types) → A1 (clients) → A3 (schedule) → manager coaches
+~~A1 (clients)~~ ✓ → A4 (gift cards) → B2 (class types) → A3 (schedule) → manager coaches
 
 ---
 

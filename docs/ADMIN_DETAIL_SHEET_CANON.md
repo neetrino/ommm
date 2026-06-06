@@ -1,7 +1,7 @@
 # Admin detail sheet — canon (аканон)
 
 Краткий эталон для **side sheet** в admin: просмотр + inline edit **в одном** sheet.  
-**Reference implementation:** Coach (`/admin/coaches`) — все следующие сущности наследуют этот паттерн, если не оговорено иначе.
+**Reference implementation:** Coach + **Clients** (`/admin/clients`).
 
 Связанные файлы:
 
@@ -12,7 +12,8 @@
 | Save footer | `apps/web/src/components/admin/admin-detail-sheet-form-footer.tsx` |
 | Confirm (destructive) | `apps/web/src/components/ui/omm-confirm-dialog.tsx` |
 | Confirm (nested sheet, редко) | `apps/web/src/components/admin/admin-confirm-sheet.tsx` |
-| Coach (эталон) | `admin-coach-details-drawer.tsx`, `admin-coach-sheet-tabs.ts`, `admin-coach-sheet-tab-panels.tsx`, `admin-coach-edit-form.*` |
+| Coach (эталон) | `admin-coach-details-drawer.tsx`, … |
+| Client (эталон #2) | `admin-client-drawer.tsx`, `admin-client-sheet-tabs.ts`, … |
 
 План rollout: `todo.md` (Admin sheets — inline edit).
 
@@ -92,16 +93,19 @@ export const COACH_SHEET_TAB_ORDER: readonly CoachSheetTabId[] = […];
 
 **i18n:** `adminPages.{section}.sheetTabs.{tabId}` — en / ru / hy.
 
-**Coach tabs (эталон):**
+**Coach tabs:** Profile · Details · Classes · Schedule
+
+**Client tabs (история / оплаты разнесены):**
 
 | Tab | Содержимое |
 |-----|------------|
-| **Profile** | Avatar + metrics + status badge + personal fields (email, name, phone, birthday, age) |
-| **Details** | Domain-specific профиль (specialization, experience, class type, bio) |
-| **Classes** | Assigned classes (checkboxes) |
-| **Schedule** | Availability rows |
+| **Profile** | Avatar (read-only), metrics, tags, CRM summary, editable personal fields |
+| **Bookings** | Booking history list |
+| **Payments** | Payment history list |
+| **Gift cards** | Give gift action + gift card history |
+| **Notes** | Internal notes + add note |
 
-Разделение: **Profile** = человек + summary metrics; **Details** = роль/домен; остальное — отдельные tabs по смыслу данных.
+Разделение: **Profile** = человек + metrics + edit; **остальные tabs** = read/history/actions по домену.
 
 **Tab panels:** `{entity}-sheet-tab-panels.tsx` — один компонент, `activeTab` switch. Не 100 ad-hoc tab UI.
 
@@ -214,7 +218,7 @@ apps/web/src/components/admin/
 
 | Сущность | Заметка |
 |----------|---------|
-| **Clients** | Notes, gift, history — отдельный UX/tab plan |
+| **Clients** | ✓ реализовано — 5 tabs, gifts/notes отдельно |
 | **Bookings** | Уже narrow read + actions; edit полей по необходимости |
 | **Create flows** | Center modal / dedicated page, не detail sheet |
 | **Manager zone** | Пока legacy `?editCoach=` — унифицировать после admin |
@@ -224,7 +228,8 @@ apps/web/src/components/admin/
 ## 13. Rollout (порядок)
 
 1. ~~Coach (A2)~~ ✓ admin
-2. Gift cards (A4)
+2. ~~Clients (A1)~~ ✓ admin
+3. Gift cards (A4)
 3. Class types (B2)
 4. Clients (A1) — свой tab layout
 5. Schedule sessions (A3)

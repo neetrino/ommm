@@ -39,6 +39,8 @@ export function useCoachEditForm({
 }: UseCoachEditFormArgs) {
   const router = useRouter();
   const submitLockRef = useRef(false);
+  const initialRef = useRef(initial);
+  initialRef.current = initial;
   const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
   const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -50,7 +52,7 @@ export function useCoachEditForm({
   const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
 
   useEffect(() => {
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initialRef.current);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -63,7 +65,7 @@ export function useCoachEditForm({
     setPhotoRemoved(false);
     setErrors({});
     setMessage(null);
-  }, [resetKey, initial]);
+  }, [resetKey]);
 
   const dirty = useMemo(() => isCoachFormDirty(form, snapshot) || photoFile !== null || photoRemoved, [
     form,
@@ -214,7 +216,7 @@ export function useCoachEditForm({
   }
 
   function cancelEdits(): void {
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initialRef.current);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {

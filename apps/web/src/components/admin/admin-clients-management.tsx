@@ -81,20 +81,25 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
+  const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
+
+  useEffect(() => {
+    setVisibleClientId(viewClientId);
+  }, [viewClientId]);
 
   const selected = useMemo(() => {
-    if (!viewClientId) {
+    if (visibleClientId === null) {
       return null;
     }
-    const fromRows = payload.rows.find((row) => row.id === viewClientId);
+    const fromRows = payload.rows.find((row) => row.id === visibleClientId);
     if (fromRows) {
       return fromRows;
     }
-    if (fetchedClient?.id === viewClientId) {
+    if (fetchedClient?.id === visibleClientId) {
       return fetchedClient;
     }
     return null;
-  }, [fetchedClient, payload.rows, viewClientId]);
+  }, [fetchedClient, payload.rows, visibleClientId]);
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -108,6 +113,7 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
 
   const selectClient = useCallback(
     (row: ClientRow) => {
+      setVisibleClientId(row.id);
       replaceSearchParams((params) => {
         params.set(VIEW_CLIENT_QUERY_KEY, row.id);
       });
@@ -116,8 +122,10 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   );
 
   const closeClientView = useCallback(() => {
+    setVisibleClientId(null);
     replaceSearchParams((params) => {
       params.delete(VIEW_CLIENT_QUERY_KEY);
+      params.delete("editClient");
     });
   }, [replaceSearchParams]);
 

@@ -3,23 +3,21 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
-import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const CLIENT_ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
 
 const CLIENT_STATUS_BADGE_CLASS =
   "inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide";
 
+type PendingConfirm = "activate" | "deactivate";
+
 function clientStatusBadgeTone(isActive: boolean): string {
   return isActive ? "bg-mint-100 text-sage-800" : "bg-sand-100 text-sage-600";
-}
-
-function isoDate(value: string | null): string {
-  return value ? value.slice(0, 10) : "";
 }
 
 type AdminClientRowActionsProps = {
@@ -32,19 +30,31 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const serverIsActive = !(client.isBlocked ?? false);
-  const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
-  const isActive = pendingIsActive ?? serverIsActive;
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
+  const isActive = !(client.isBlocked ?? false);
   const toggleLabel = isActive ? t("deactivateClient") : t("activateClient");
   const statusLabel = isActive ? t("packageActiveBadge") : t("statusInactive");
 
-  async function toggleStatus(): Promise<void> {
+  function openConfirm(): void {
     if (busy) {
       return;
     }
+    setPendingConfirm(isActive ? "deactivate" : "activate");
+  }
 
-    const nextIsActive = !isActive;
-    setPendingIsActive(nextIsActive);
+  function closeConfirm(): void {
+    if (busy) {
+      return;
+    }
+    setPendingConfirm(null);
+  }
+
+  async function confirmStatusChange(): Promise<void> {
+    if (busy || pendingConfirm === null) {
+      return;
+    }
+
+    const nextIsActive = pendingConfirm === "activate";
     setBusy(true);
     setMessage(null);
 
@@ -55,16 +65,32 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
       });
       setTone("ok");
       setMessage(nextIsActive ? t("activateSuccess") : t("deactivateSuccess"));
+      setPendingConfirm(null);
       onChanged();
     } catch (error) {
-      setPendingIsActive(null);
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
     } finally {
       setBusy(false);
-      setPendingIsActive(null);
     }
   }
+
+  const confirmCopy =
+    pendingConfirm === "deactivate"
+      ? {
+          title: t("deactivateClient"),
+          description: t("confirmDeactivate"),
+          confirmLabel: t("deactivateClient"),
+          tone: "danger" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--danger",
+        }
+      : {
+          title: t("activateClient"),
+          description: t("confirmActivate"),
+          confirmLabel: t("activateClient"),
+          tone: "success" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--success",
+        };
 
   return (
     <>
@@ -83,7 +109,7 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
           disabled={busy}
           onClick={(event) => {
             event.stopPropagation();
-            void toggleStatus();
+            openConfirm();
           }}
         >
           <AnimatedToggleSwitch checked={isActive} />
@@ -91,22 +117,23 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
       </div>
 
       {message ? (
-        <AdminCenterToast
-          message={message}
-          tone={tone}
-          onDismiss={() => setMessage(null)}
-        />
+        <AdminCenterToast message={message} tone={tone} onDismiss={() => setMessage(null)} />
       ) : null}
 
-      <AdminClientActions
-        showEditTrigger={false}
-        clientId={client.id}
-        initialEmail={client.email}
-        initialName={client.name ?? ""}
-        initialLastName={client.lastName ?? ""}
-        initialPhone={client.phone ?? ""}
-        initialDateOfBirth={isoDate(client.dateOfBirth)}
-        onChanged={onChanged}
+      <OmmConfirmDialog
+        isOpen={pendingConfirm !== null}
+        title={confirmCopy.title}
+        description={confirmCopy.description}
+        confirmLabel={busy ? t("savingButton") : confirmCopy.confirmLabel}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone={confirmCopy.tone}
+        confirmClassName={confirmCopy.confirmClassName}
+        pending={busy}
+        onConfirm={() => {
+          void confirmStatusChange();
+        }}
+        onCancel={closeConfirm}
       />
     </>
   );
