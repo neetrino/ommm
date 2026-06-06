@@ -37,9 +37,12 @@ export const ADMIN_BOOKINGS_LIST_HEADER_CLASS = [
 
 const ADMIN_BOOKINGS_LIST_ROW_SURFACE = [
   "rounded-[24px] border border-white/80 bg-white/95",
-  "shadow-[0_32px_72px_-28px_rgba(45,40,35,0.42)]",
-  "transition-[border-color,box-shadow,transform] duration-200",
-  "hover:border-white hover:shadow-[0_44px_96px_-26px_rgba(45,40,35,0.5)]",
+  "shadow-[0_10px_28px_-18px_rgba(45,40,35,0.28)]",
+  "transition-[border-color,background-color,box-shadow,transform] duration-200",
+  "hover:-translate-y-px hover:border-sand-500/35 hover:bg-white",
+  "hover:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
+  "focus-within:-translate-y-px focus-within:border-sand-500/45 focus-within:bg-sand-50/50",
+  "focus-within:shadow-[0_18px_40px_-20px_rgba(45,40,35,0.34)]",
 ].join(" ");
 
 export const ADMIN_BOOKINGS_LIST_ROW_CLASS = [
