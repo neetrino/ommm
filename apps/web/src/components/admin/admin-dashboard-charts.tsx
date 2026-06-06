@@ -79,21 +79,23 @@ export function AdminDashboardCharts({
           />
         </AdminAnalyticsChartPanel>
 
-        <AdminAnalyticsChartPanel title={t("todayBookingsTitle")}>
-          <div className="flex min-h-[220px] flex-col justify-between sm:min-h-[240px]">
-            <AdminAnalyticsDonutChart
-              items={todayBookingsItems}
-              emptyLabel={t("empty")}
-              ariaLabel={t("todayBookingsAria")}
-              layout="stacked"
-            />
+        <AdminAnalyticsChartPanel
+          title={t("todayBookingsTitle")}
+          titleAction={
             <Link
               href="/admin/analytics/overview"
-              className="mt-4 inline-flex text-xs font-medium text-sage-600 underline-offset-4 transition hover:text-sage-900 hover:underline"
+              className="text-xs font-medium text-sage-500 underline-offset-4 transition hover:text-sage-900 hover:underline"
             >
               {t("viewAnalytics")}
             </Link>
-          </div>
+          }
+        >
+          <AdminAnalyticsDonutChart
+            items={todayBookingsItems}
+            emptyLabel={t("empty")}
+            ariaLabel={t("todayBookingsAria")}
+            layout="stacked"
+          />
         </AdminAnalyticsChartPanel>
       </div>
     </div>

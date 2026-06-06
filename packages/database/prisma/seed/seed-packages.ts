@@ -130,6 +130,7 @@ export async function seedMemberPackages(
     paymentStatus: PaymentStatus.SUCCEEDED,
     paymentReference: "seed-pay-member-active",
     paymentMethod: ManualPaymentMethod.CARD,
+    paymentAt: addDays(now, -38),
   });
 
   await upsertUserPackage(prisma, {
@@ -143,6 +144,7 @@ export async function seedMemberPackages(
     paymentStatus: PaymentStatus.PENDING,
     paymentReference: "seed-pay-member-pending",
     paymentMethod: ManualPaymentMethod.BANK_TRANSFER,
+    paymentAt: addDays(now, -1),
   });
 
   await upsertUserPackage(prisma, {
@@ -157,6 +159,7 @@ export async function seedMemberPackages(
     paymentStatus: PaymentStatus.SUCCEEDED,
     paymentReference: "seed-pay-member-paused",
     paymentMethod: ManualPaymentMethod.CASH,
+    paymentAt: addDays(now, -22),
   });
 
   await upsertUserPackage(prisma, {
@@ -170,6 +173,7 @@ export async function seedMemberPackages(
     paymentStatus: PaymentStatus.SUCCEEDED,
     paymentReference: "seed-pay-member-expired",
     paymentMethod: ManualPaymentMethod.CARD,
+    paymentAt: addDays(now, -88),
   });
 
   await upsertUserPackage(prisma, {
@@ -183,6 +187,7 @@ export async function seedMemberPackages(
     paymentStatus: PaymentStatus.REFUNDED,
     paymentReference: "seed-pay-member-cancelled",
     paymentMethod: ManualPaymentMethod.OTHER,
+    paymentAt: addDays(now, -52),
   });
 
   await seedMemberStandalonePayments(prisma, memberId);
@@ -204,6 +209,7 @@ async function seedMemberStandalonePayments(
       source: PaymentSource.DROPIN,
       description: "Drop-in reformer — card declined",
       paymentMethod: ManualPaymentMethod.CARD,
+      paymentAt: addDays(new Date(), -11),
     },
     {
       paymentReference: "seed-pay-member-gift-succeeded",
@@ -212,6 +218,7 @@ async function seedMemberStandalonePayments(
       source: PaymentSource.GIFT,
       description: "Gift card purchase for a friend",
       paymentMethod: ManualPaymentMethod.CASH,
+      paymentAt: addDays(new Date(), -4),
     },
     {
       paymentReference: "seed-pay-member-other-pending",
@@ -220,6 +227,7 @@ async function seedMemberStandalonePayments(
       source: PaymentSource.OTHER,
       description: "Manual studio adjustment — awaiting confirmation",
       paymentMethod: ManualPaymentMethod.OTHER,
+      paymentAt: addDays(new Date(), -2),
     },
   ] as const;
 
@@ -231,7 +239,8 @@ async function seedMemberStandalonePayments(
         source: payment.source,
         description: payment.description,
         paymentMethod: payment.paymentMethod,
-        confirmedAt: payment.status === PaymentStatus.SUCCEEDED ? new Date() : null,
+        createdAt: payment.paymentAt,
+        confirmedAt: payment.status === PaymentStatus.SUCCEEDED ? payment.paymentAt : null,
       },
       create: {
         userId: memberId,
@@ -242,7 +251,8 @@ async function seedMemberStandalonePayments(
         source: payment.source,
         description: payment.description,
         paymentMethod: payment.paymentMethod,
-        confirmedAt: payment.status === PaymentStatus.SUCCEEDED ? new Date() : null,
+        createdAt: payment.paymentAt,
+        confirmedAt: payment.status === PaymentStatus.SUCCEEDED ? payment.paymentAt : null,
       },
     });
   }
@@ -260,12 +270,25 @@ type UserPackageSeed = {
   paymentStatus: PaymentStatus;
   paymentReference: string;
   paymentMethod?: ManualPaymentMethod;
+  paymentAt?: Date;
 };
+
+function resolvePaymentTimestamp(seed: UserPackageSeed): Date | null {
+  if (
+    seed.paymentStatus !== PaymentStatus.SUCCEEDED &&
+    seed.paymentStatus !== PaymentStatus.REFUNDED
+  ) {
+    return null;
+  }
+  return seed.paymentAt ?? seed.periodStart;
+}
 
 async function upsertUserPackage(
   prisma: PrismaClient,
   seed: UserPackageSeed,
 ): Promise<void> {
+  const paymentTimestamp = resolvePaymentTimestamp(seed);
+
   const existingPayment = await prisma.payment.findUnique({
     where: { paymentReference: seed.paymentReference },
     include: { userPackage: true },
@@ -288,11 +311,9 @@ async function upsertUserPackage(
       data: {
         status: seed.paymentStatus,
         paymentMethod: seed.paymentMethod ?? null,
-        confirmedAt:
-          seed.paymentStatus === PaymentStatus.SUCCEEDED ||
-          seed.paymentStatus === PaymentStatus.REFUNDED
-            ? new Date()
-            : null,
+        ...(paymentTimestamp
+          ? { createdAt: paymentTimestamp, confirmedAt: paymentTimestamp }
+          : { confirmedAt: null }),
       },
     });
     return;
@@ -325,11 +346,9 @@ async function upsertUserPackage(
       sourceId: userPackage.id,
       description: `Seed payment for ${plan.name}`,
       paymentMethod: seed.paymentMethod ?? null,
-      confirmedAt:
-        seed.paymentStatus === PaymentStatus.SUCCEEDED ||
-        seed.paymentStatus === PaymentStatus.REFUNDED
-          ? new Date()
-          : null,
+      ...(paymentTimestamp
+        ? { createdAt: paymentTimestamp, confirmedAt: paymentTimestamp }
+        : { confirmedAt: null }),
     },
   });
 }

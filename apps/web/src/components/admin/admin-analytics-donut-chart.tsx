@@ -56,34 +56,42 @@ export function AdminAnalyticsDonutChart({
     <div
       className={cn(
         "flex w-full",
-        isStacked ? "flex-col items-center gap-5" : "flex-col items-center gap-4 sm:flex-row sm:items-center",
+        isStacked
+          ? "min-h-[228px] flex-col sm:min-h-[248px]"
+          : "flex-col items-center gap-4 sm:flex-row sm:items-center",
       )}
     >
       <div
         className={cn(
-          "relative shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto",
-          isStacked ? "size-48 sm:size-52 lg:size-56" : "size-40",
+          isStacked ? "flex flex-1 items-center justify-center py-1" : "contents",
         )}
-        style={{ background: gradient }}
-        role="img"
-        aria-label={ariaLabel}
       >
-        <div className="absolute inset-[22%] flex aspect-square items-center justify-center rounded-full border border-white/70 bg-white/90 text-center shadow-sm">
-          <span
-            className={cn(
-              "px-2 font-semibold tabular-nums text-sage-800",
-              isStacked ? "text-2xl" : "text-xs",
-            )}
-          >
-            {total}
-          </span>
+        <div
+          className={cn(
+            "relative shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto",
+            isStacked ? "size-52 sm:size-56 lg:size-60" : "size-40",
+          )}
+          style={{ background: gradient }}
+          role="img"
+          aria-label={ariaLabel}
+        >
+          <div className="absolute inset-[22%] flex aspect-square items-center justify-center rounded-full border border-white/70 bg-white/90 text-center shadow-sm">
+            <span
+              className={cn(
+                "px-2 font-semibold tabular-nums text-sage-800",
+                isStacked ? "text-2xl sm:text-3xl" : "text-xs",
+              )}
+            >
+              {total}
+            </span>
+          </div>
         </div>
       </div>
       <ul
         className={cn(
           "w-full min-w-0",
           isStacked
-            ? "grid grid-cols-2 gap-x-4 gap-y-2.5"
+            ? "mt-auto grid grid-cols-2 gap-x-4 gap-y-2 rounded-2xl border border-white/60 bg-white/45 px-3 py-2.5"
             : "flex-1 space-y-2 sm:w-auto",
         )}
         aria-hidden

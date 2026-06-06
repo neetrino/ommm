@@ -1109,7 +1109,7 @@
         "bookingsChartAria": "Daily bookings trend for the last seven days",
         "todayBookingsTitle": "Today's bookings",
         "todayBookingsAria": "Breakdown of today's bookings by status",
-        "viewAnalytics": "Open full analytics →",
+        "viewAnalytics": "Full analytics",
         "empty": "No data for this period yet."
       },
       "cards": {

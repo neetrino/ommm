@@ -599,7 +599,7 @@ export class ReportsService {
       if (payment.status !== PaymentStatus.SUCCEEDED) {
         continue;
       }
-      const day = payment.createdAt.toISOString().slice(0, 10);
+      const day = this.localDateKey(payment.createdAt);
       dailyRevenueMap.set(day, (dailyRevenueMap.get(day) ?? 0) + payment.amountCents);
     }
     const dailyRevenue = [...dailyRevenueMap.entries()]
@@ -986,6 +986,13 @@ export class ReportsService {
       ...(range.from ? { gte: new Date(range.from) } : {}),
       ...(range.to ? { lte: new Date(range.to) } : {}),
     };
+  }
+
+  private localDateKey(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private detectPaymentSource(

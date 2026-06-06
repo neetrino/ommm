@@ -12,6 +12,18 @@ type RevenueDailyRow = {
   amountCents: number;
 };
 
+/** Calendar date key in local time — avoids UTC slice mismatches on charts. */
+export function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function dateKeyFromIso(iso: string): string {
+  return localDateKey(new Date(iso));
+}
+
 function eachDayInRange(fromIso: string, toIso: string): string[] {
   const days: string[] = [];
   const from = new Date(fromIso);
@@ -20,7 +32,7 @@ function eachDayInRange(fromIso: string, toIso: string): string[] {
   to.setHours(0, 0, 0, 0);
 
   for (let cursor = new Date(from); cursor <= to; cursor.setDate(cursor.getDate() + 1)) {
-    days.push(cursor.toISOString().slice(0, 10));
+    days.push(localDateKey(cursor));
   }
 
   return days;
@@ -39,7 +51,7 @@ export function buildAnalyticsDailyBuckets(
   const labelFormatter = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" });
 
   for (const row of bookingRows) {
-    const day = row.session.startsAt.slice(0, 10);
+    const day = dateKeyFromIso(row.session.startsAt);
     const entry = bookingByDay.get(day) ?? { total: 0, completed: 0 };
     entry.total += 1;
     if (row.status === "COMPLETED") {
