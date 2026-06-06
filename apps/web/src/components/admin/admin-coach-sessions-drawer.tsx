@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -9,11 +9,17 @@ import {
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import type { CoachFinanceRow, CoachSessionRow } from "@/components/admin/admin-finance-types";
+import type {
+  CoachFinanceRow,
+  CoachSessionRow,
+  CoachSessionsPayload,
+} from "@/components/admin/admin-finance-types";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
+import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -47,34 +53,62 @@ function sessionEarningsCents(
   return salary.basePerSessionCents + attendees * salary.perAttendeeShareCents;
 }
 
+function buildSessionsEndpoint(
+  coachProfileId: string,
+  month: string,
+  take: number,
+  offset: number,
+): string {
+  const { from, to } = monthBounds(month);
+  const params = new URLSearchParams({
+    coachId: coachProfileId,
+    from,
+    to,
+    take: String(take),
+    offset: String(offset),
+  });
+  return `/classes/admin/sessions?${params.toString()}`;
+}
+
 export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Props) {
   const t = useTranslations("adminPages.finance.coachDrawer");
   const titleId = useId();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_LIST_PAGE_SIZE);
   const [sessions, setSessions] = useState<CoachSessionRow[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const coachProfileId = coach?.coachProfileId ?? null;
+
   useEffect(() => {
-    if (!coach) {
+    setPage(1);
+  }, [coachProfileId, month]);
+
+  useEffect(() => {
+    if (coachProfileId === null) {
       return undefined;
     }
     let cancelled = false;
-    const { from, to } = monthBounds(month);
+    const offset = (page - 1) * pageSize;
 
     void (async () => {
       setLoading(true);
       setError(null);
       try {
-        const rows = await apiFetch<CoachSessionRow[]>(
-          `/classes/admin/sessions?coachId=${encodeURIComponent(coach.coachProfileId)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+        const payload = await apiFetch<CoachSessionsPayload>(
+          buildSessionsEndpoint(coachProfileId, month, pageSize, offset),
         );
         if (!cancelled) {
-          setSessions(rows);
+          setSessions(payload.items);
+          setTotal(payload.total);
         }
       } catch {
         if (!cancelled) {
           setError(t("loadFailed"));
           setSessions([]);
+          setTotal(0);
         }
       } finally {
         if (!cancelled) {
@@ -86,17 +120,22 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
     return () => {
       cancelled = true;
     };
-  }, [coach, month, t]);
+  }, [coachProfileId, month, page, pageSize, t]);
 
-  const coachName =
-    coach !== null
-      ? coachCardDisplayName({
-          name: coach.user.name,
-          lastName: coach.user.lastName,
-          email: coach.user.email,
-          avatarUrl: null,
-        })
-      : "";
+  const coachName = useMemo(
+    () =>
+      coach !== null
+        ? coachCardDisplayName({
+            name: coach.user.name,
+            lastName: coach.user.lastName,
+            email: coach.user.email,
+            avatarUrl: null,
+          })
+        : "",
+    [coach],
+  );
+
+  const listOffset = (page - 1) * pageSize;
 
   return (
     <OmmDrawerPortal
@@ -121,7 +160,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
         </div>
         <p className="mt-3 text-xs text-sage-500">{t("earningsHint")}</p>
       </header>
-      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} space-y-4`}>
         {loading ? <p className="text-sm text-sage-500">{t("loading")}</p> : null}
         {error ? <p className="text-sm text-red-800">{error}</p> : null}
         {!loading && !error && sessions.length === 0 ? (
@@ -150,6 +189,18 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
             );
           })}
         </ul>
+        <OmmListPagination
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          offset={listOffset}
+          disabled={loading}
+          onPageChange={setPage}
+          onPageSizeChange={(nextPageSize) => {
+            setPage(1);
+            setPageSize(nextPageSize);
+          }}
+        />
       </div>
     </OmmDrawerPortal>
   );

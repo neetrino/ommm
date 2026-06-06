@@ -78,6 +78,13 @@ export type CoachSessionRow = {
   _count?: { bookings: number };
 };
 
+export type CoachSessionsPayload = {
+  items: CoachSessionRow[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type UserFinanceFilters = {
   search: string;
   paymentStatus: string;

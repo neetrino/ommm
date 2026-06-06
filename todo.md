@@ -4,7 +4,7 @@ Postrannaya paginaciya dlya spiskov v admin i user account.
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
 **Sostoyanie (2026-06):** Fazy 0–3 i bolshinstvo Fazy 2 zaversheny. Obshchaya infrastruktura i pager na stranicakh nizhe.  
-**Ostalos:** Coach finance drawer sessions pager, Faza 5 (manager).
+**Ostalos:** Faza 5 (manager stranicy).
 
 **Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
 **URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.  
@@ -72,8 +72,8 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 - [x] Payments tab — `GET /clients/:id/payments?take&offset`
 - [x] Gifts tab — `GET /clients/:id/gift-cards?take&offset`
 
-### Coach finance drawer — P2
-- [ ] Sessii za mesyac — pager esli > ~50
+### Coach finance drawer — P2 ✅
+- [x] Sessii za mesyac — `GET /classes/admin/sessions?coachId&from&to&take&offset` + pager v drawer
 
 ---
 
@@ -99,6 +99,7 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 | Admin | `/admin/schedule` list | take/offset/total | da | done |
 | Admin | `/admin/coaches` | take/offset/total | da | done |
 | Admin | client sheet tabs | bookings/payments/gift-cards endpoints | da | done |
+| Admin | coach finance drawer | sessions take/offset/total | da | done |
 | User | `/user/bookings` past | scope + take/offset | da | done |
 | User | `/user/payments` | take/offset/total | da | done |
 | User | `/user/gift-cards` | take/offset (2 sekcii) | da | done |
@@ -107,6 +108,4 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 
 ## Rekomenduemyy poryadok (dalnee)
 
-1. **Faza 4 P2** — Client sheet tabs (bookings → payments → gifts)
-2. **Faza 4 P2** — Coach finance drawer sessions
-3. **Faza 5** — Manager stranicy (povtorit pattern admin)
+1. **Faza 5** — Manager stranicy (povtorit pattern admin)
