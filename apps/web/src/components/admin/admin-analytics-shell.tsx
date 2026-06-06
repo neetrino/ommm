@@ -234,6 +234,19 @@ export function AdminAnalyticsShell({ data }: Props) {
         <AdminAnalyticsFilters filterOptions={data.bookings.filterOptions} />
       </div>
 
+      {data.bookings.isSampled ? (
+        <p
+          className="mt-4 rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-xs text-amber-900"
+          role="status"
+        >
+          {t("bookingsSampleBanner", {
+            limit: data.bookings.sampledLimit,
+            total: data.bookings.matchedTotal,
+            shown: data.bookings.sampledRowCount,
+          })}
+        </p>
+      ) : null}
+
       <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("kpiRangeRevenue")}</p>

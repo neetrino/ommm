@@ -2495,6 +2495,7 @@
       "viewChart": "График",
       "viewSwitcherAria": "Режим отображения аналитики",
       "rangeHint": "Период: {from} → {to}",
+      "bookingsSampleBanner": "Графики и рейтинги строятся по выборке до {limit} бронирований. В периоде найдено {total} записей; метрики считаются по {shown} строкам выборки.",
       "kpiRangeRevenue": "Выручка (выбранный период)",
       "kpiBookingsInRange": "Бронирования (выбранный период)",
       "kpiActiveMembers": "Активные абонементы",

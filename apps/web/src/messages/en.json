@@ -2425,6 +2425,7 @@
       "viewChart": "Chart",
       "viewSwitcherAria": "Analytics view mode",
       "rangeHint": "Range: {from} → {to}",
+      "bookingsSampleBanner": "Charts and rankings use a sample of up to {limit} bookings. This range matches {total} records; metrics are computed from {shown} rows in the sample.",
       "kpiRangeRevenue": "Revenue (selected range)",
       "kpiBookingsInRange": "Bookings (selected range)",
       "kpiActiveMembers": "Active members",

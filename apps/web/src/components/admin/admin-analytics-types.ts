@@ -94,6 +94,12 @@ export type AnalyticsBookingsPayload = {
     coaches: Array<{ id: string; name: string }>;
   };
   sampledLimit: number;
+  /** True when the date range has more bookings than {@link sampledLimit}. */
+  isSampled: boolean;
+  /** Total bookings in range before the sample cap (from API pagination.total). */
+  matchedTotal: number;
+  /** Booking rows included in the sample (excludes waitlist rows). */
+  sampledRowCount: number;
 };
 
 export type AnalyticsClientsSummary = {

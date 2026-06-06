@@ -3,8 +3,7 @@
 Postrannaya paginaciya dlya spiskov v admin i user account.  
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
-**Sostoyanie (2026-06):** Fazy 0–3 i bolshinstvo Fazy 2 zaversheny. Obshchaya infrastruktura i pager na stranicakh nizhe.  
-**Ostalos:** Admin Packages (nizkiy prioritet), Analytics disclaimer.
+**Sostoyanie (2026-06):** Plan zavershen. Obshchaya infrastruktura i pager na vseh tselevyh stranicah.
 
 **Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
 **URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.  
@@ -61,27 +60,24 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 
 ---
 
-## Faza 4 — Sleduyushchiy etap
+## Faza 4 ✅
 
-### Clients API — P0 ✅
-- [x] Filtraciya v Prisma (`clients-list-query.builder.ts`); ubran fetch 500 + slice
-- [x] `pagination.total` iz DB `count` (post-process path: total po otfiltrovannomu scan do 3000)
+### Clients API — P0
+- [x] Filtraciya v Prisma; `pagination.total` iz DB `count`
 
 ### Client sheet tabs — P2
-- [x] Bookings tab — `GET /clients/:id/bookings?take&offset`
-- [x] Payments tab — `GET /clients/:id/payments?take&offset`
-- [x] Gifts tab — `GET /clients/:id/gift-cards?take&offset`
+- [x] Bookings / payments / gift-cards endpoints + pager v tabah
 
-### Coach finance drawer — P2 ✅
-- [x] Sessii za mesyac — `GET /classes/admin/sessions?coachId&from&to&take&offset` + pager v drawer
+### Coach finance drawer — P2
+- [x] Sessii za mesyac — paginated sessions + pager v drawer
 
 ---
 
-## Faza 5 — Po neobhodimosti
+## Faza 5 ✅
 
-- [x] Manager: `/manager/clients`, `/manager/bookings`, `/manager/coaches`, `/manager/waitlists` — URL `page`/`pageSize`, paginated API
-- [ ] Admin Packages — nizkiy prioritet
-- [ ] Admin Analytics — ne row-list; disclaimer `ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000`
+- [x] Manager: clients, bookings, coaches, waitlists — URL `page`/`pageSize`
+- [x] Admin Packages — pager v tablice kategorii (>25 tiers)
+- [x] Admin Analytics — sample cap `ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000`, banner pri prevyshenii
 
 ---
 
@@ -100,14 +96,9 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 | Admin | `/admin/coaches` | take/offset/total | da | done |
 | Admin | client sheet tabs | bookings/payments/gift-cards endpoints | da | done |
 | Admin | coach finance drawer | sessions take/offset/total | da | done |
+| Admin | `/admin/packages` | client-side per category table | da | done |
+| Admin | `/admin/analytics` | sample cap 1000 + banner | n/a | done |
 | User | `/user/bookings` past | scope + take/offset | da | done |
 | User | `/user/payments` | take/offset/total | da | done |
 | Manager | clients, bookings, coaches, waitlists | take/offset/total | da | done |
 | User | `/user/gift-cards` | take/offset (2 sekcii) | da | done |
-
----
-
-## Rekomenduemyy poryadok (dalnee)
-
-1. **Admin Packages** — paginaciya (nizkiy prioritet)
-2. **Analytics** — sample limit disclaimer (uzhe chastichno v UI)

@@ -2507,6 +2507,7 @@
       "viewChart": "Գрафիկ",
       "viewSwitcherAria": "Անալիտիկայի տեսակ",
       "rangeHint": "Միջակայք՝ {from} → {to}",
+      "bookingsSampleBanner": "Գրաֆիկներն ու rankings-ը հիմնված են մինչև {limit} ամրագրումների նմուշի վրա։ Միջակայքում կա {total} գրառում, ցուցանիշները հաշվարկված են {shown} տողից։",
       "kpiRangeRevenue": "Եկամուտ (ընտրված միջակայք)",
       "kpiBookingsInRange": "Ամրագրումներ (ընտրված միջակայք)",
       "kpiActiveMembers": "Ակտիվ անդամներ",

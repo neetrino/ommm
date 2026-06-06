@@ -56,6 +56,7 @@ type BookingsManagementResponse = {
     classTypes: Array<{ id: string; name: string }>;
     coaches: Array<{ id: string; name: string }>;
   };
+  pagination?: { total: number; take: number; offset: number };
 };
 
 function buildBookingsQuery(
@@ -77,6 +78,8 @@ function buildBookingsQuery(
   if (bookingStatus) {
     params.set("status", bookingStatus);
   }
+  params.set("take", String(ANALYTICS_BOOKINGS_SAMPLE_LIMIT));
+  params.set("offset", "0");
   return `/bookings/admin/management?${params.toString()}`;
 }
 
@@ -146,6 +149,8 @@ export default async function AdminAnalyticsPage({
     (row) => row.recordType === undefined || row.recordType === "BOOKING",
   );
   const missed = bookingRows.filter((row) => row.status === "MISSED").length;
+  const matchedTotal = bookingsRes.data.pagination?.total ?? bookingRows.length;
+  const isSampled = matchedTotal >= ANALYTICS_BOOKINGS_SAMPLE_LIMIT;
 
   const payload: AdminAnalyticsPayload = {
     locale,
@@ -170,6 +175,9 @@ export default async function AdminAnalyticsPage({
       coachAttendance: buildCoachAttendance(bookingRows),
       filterOptions: bookingsRes.data.filterOptions,
       sampledLimit: ANALYTICS_BOOKINGS_SAMPLE_LIMIT,
+      isSampled,
+      matchedTotal,
+      sampledRowCount: bookingRows.length,
     },
     clients: clientsRes.data.summary,
     coaches: coachesRes.data,
