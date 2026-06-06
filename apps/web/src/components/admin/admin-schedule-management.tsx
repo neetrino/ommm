@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -42,7 +42,16 @@ import {
   SCHEDULE_QUICK_FILTER_VALUES,
   type ScheduleQuickFilter,
 } from "@/components/admin/admin-schedule-quick-filters";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 type ScheduleDayOfWeek =
@@ -1025,7 +1034,7 @@ export function AdminScheduleManagement({
         onDuplicate={(row) => setEditing({ ...row, id: "" })}
       />
       {sessionModalConfig ? (
-        <SessionModal
+        <SessionFormSheet
           isOpen
           mode={sessionModalConfig.mode}
           row={sessionModalConfig.row}
@@ -1462,7 +1471,7 @@ function DailyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
   );
 }
 
-function SessionModal({
+function SessionFormSheet({
   isOpen,
   mode,
   row,
@@ -1480,6 +1489,8 @@ function SessionModal({
   onSaved: (row: AdminScheduleSession | AdminScheduleSession[]) => void;
 }) {
   const t = useTranslations("adminPages.classes");
+  const titleId = useId();
+  const formId = useId();
   const [form, setForm] = useState(() => initialForm(classTypeOptions, coaches, row));
   const [calendarStartDate, setCalendarStartDate] = useState(form.date);
   const [calendarEndDate, setCalendarEndDate] = useState(isoDate(addDays(`${form.date}T00:00:00`, 29)));
@@ -1556,40 +1567,52 @@ function SessionModal({
   }
 
   return (
-    <OmmModalPortal
+    <OmmDrawerPortal
       isOpen={isOpen}
       onClose={onClose}
       backdropAriaLabel={t("modalBackdropClose")}
+      ariaLabelledBy={titleId}
       closeDisabled={pending}
-      panelClassName="max-w-2xl rounded-t-[28px] border border-white/60 bg-white p-5 shadow-xl sm:rounded-[24px]"
+      overlayClassName="ommm-drawer-overlay z-[105] items-end"
+      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className={adminChrome.panelHeading}>
-            {mode === "create"
-              ? t("createTitle")
-              : mode === "duplicate"
-                ? t("duplicateTitle")
-                : t("editTitle")}
-          </h2>
-          <p className="ommm-body-muted mt-1 text-sm">
-            {mode === "duplicate"
-              ? t("duplicateDescription")
-              : mode === "create"
-                ? t("createDescription")
-                : t("editDescription")}
-          </p>
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+              {mode === "create"
+                ? t("createTitle")
+                : mode === "duplicate"
+                  ? t("duplicateTitle")
+                  : t("editTitle")}
+            </h2>
+            <p className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
+              {mode === "duplicate"
+                ? t("duplicateDescription")
+                : mode === "create"
+                  ? t("createDescription")
+                  : t("editDescription")}
+            </p>
+          </div>
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            onClick={onClose}
+            aria-label={t("modalCloseAria")}
+            disabled={pending}
+          >
+            ×
+          </button>
         </div>
-        <button
-          className="rounded-full p-2 text-sage-500 hover:bg-sand-50"
-          onClick={onClose}
-          aria-label={t("modalCloseAria")}
-          type="button"
+      </header>
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
+        <form
+          id={formId}
+          className="grid gap-3 sm:grid-cols-2"
+          onSubmit={(event) => {
+            void submit(event);
+          }}
         >
-          x
-        </button>
-      </div>
-      <form className="mt-5 grid gap-3 sm:grid-cols-2" onSubmit={(event) => { void submit(event); }}>
         <input
           className="ommm-input sm:col-span-2"
           value={form.title}
@@ -1757,15 +1780,16 @@ function SessionModal({
           placeholder={t("form.description")}
         />
         {error ? <p className="app-alert-warn text-sm sm:col-span-2">{error}</p> : null}
-        <div className="flex justify-end gap-2 sm:col-span-2">
-          <OmmButton type="button" size="sm" variant="ghost" onClick={onClose} disabled={pending}>
-            {t("cancelButton")}
-          </OmmButton>
-          <OmmButton type="submit" size="sm" variant="primary" disabled={pending}>
-            {pending ? t("savingButton") : mode === "create" ? t("createButton") : t("saveButton")}
-          </OmmButton>
-        </div>
-      </form>
-    </OmmModalPortal>
+        </form>
+      </div>
+      <footer className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex justify-end gap-2`}>
+        <OmmButton type="button" size="sm" variant="ghost" onClick={onClose} disabled={pending}>
+          {t("cancelButton")}
+        </OmmButton>
+        <OmmButton type="submit" size="sm" variant="primary" form={formId} disabled={pending}>
+          {pending ? t("savingButton") : mode === "create" ? t("createButton") : t("saveButton")}
+        </OmmButton>
+      </footer>
+    </OmmDrawerPortal>
   );
 }

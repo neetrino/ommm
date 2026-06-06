@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/admin-action-glyphs";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import { AdminConfirmSheet } from "@/components/admin/admin-confirm-sheet";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 
@@ -190,7 +190,7 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
           ) : null}
         </div>
 
-        <OmmConfirmDialog
+        <AdminConfirmSheet
           isOpen={pendingConfirm !== null}
           title={confirmCopy.title}
           description={confirmCopy.description}
@@ -266,7 +266,7 @@ export function AdminScheduleSessionRowActions<TRow extends SessionRowRef>({
         ) : null}
       </div>
 
-      <OmmConfirmDialog
+      <AdminConfirmSheet
         isOpen={pendingConfirm !== null}
         title={confirmCopy.title}
         description={confirmCopy.description}

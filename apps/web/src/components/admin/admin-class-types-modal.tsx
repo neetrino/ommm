@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { ADMIN_WIDE_DRAWER_PANEL_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { AdminClassTypesDeleteDialog } from "@/components/admin/admin-class-types-delete-dialog";
 import {
   AdminClassTypesEditor,
@@ -496,7 +497,7 @@ export function AdminClassTypesModal({
   return createPortal(
     <>
       <div
-        className="ommm-modal-overlay z-50"
+        className="ommm-drawer-overlay z-[105] items-end"
         role="presentation"
       >
         <button
@@ -509,14 +510,12 @@ export function AdminClassTypesModal({
           }}
           aria-label={t("modalBackdropClose")}
         />
-        <div
+        <aside
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={descId}
-          className={`relative z-10 mt-auto flex max-h-[min(92vh,760px)] w-full flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/90 shadow-[0_24px_60px_-28px_rgba(45,40,35,0.35)] backdrop-blur-md sm:mt-0 sm:rounded-[24px] ${
-            mode === "idle" ? "max-w-2xl" : "max-w-3xl"
-          }`}
+          className={ADMIN_WIDE_DRAWER_PANEL_CLASS}
         >
           <header className="shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5">
             <div className="flex items-start justify-between gap-4">
@@ -745,7 +744,7 @@ export function AdminClassTypesModal({
               )}
             </section>
           </div>
-        </div>
+        </aside>
       </div>
 
       {pendingDelete && pendingDeleteType !== null ? (
