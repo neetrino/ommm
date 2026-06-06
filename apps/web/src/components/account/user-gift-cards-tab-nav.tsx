@@ -17,6 +17,11 @@ const TAB_LABEL_KEY: Record<UserGiftCardsTab, string> = {
   shop: "shop",
 };
 
+export const USER_GIFT_CARDS_TAB_CLASS =
+  "ommm-admin-pill-tab h-auto min-h-12 shrink-0 px-6 py-2.5 text-sm font-semibold normal-case tracking-normal sm:min-h-[3.25rem] sm:px-8 sm:py-3 sm:text-base";
+
+export const USER_GIFT_CARDS_TAB_ACTIVE_CLASS = `${USER_GIFT_CARDS_TAB_CLASS} ommm-admin-pill-tab-active`;
+
 export function UserGiftCardsTabNav({ className = "" }: { className?: string }) {
   const t = useTranslations("userPages.giftCards.tabs");
   const router = useRouter();
@@ -42,7 +47,7 @@ export function UserGiftCardsTabNav({ className = "" }: { className?: string }) 
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className={`flex min-w-0 shrink-0 items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={`flex min-w-0 shrink-0 items-center gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
     >
       {USER_GIFT_CARDS_TABS.map((tab) => {
         const active = activeTab === tab;
@@ -53,11 +58,7 @@ export function UserGiftCardsTabNav({ className = "" }: { className?: string }) 
             role="tab"
             aria-selected={active}
             onClick={() => setTab(tab)}
-            className={
-              active
-                ? "ommm-admin-pill-tab ommm-admin-pill-tab-active shrink-0 px-4 normal-case tracking-normal"
-                : "ommm-admin-pill-tab shrink-0 px-4 normal-case tracking-normal"
-            }
+            className={active ? USER_GIFT_CARDS_TAB_ACTIVE_CLASS : USER_GIFT_CARDS_TAB_CLASS}
           >
             {t(TAB_LABEL_KEY[tab])}
           </button>
