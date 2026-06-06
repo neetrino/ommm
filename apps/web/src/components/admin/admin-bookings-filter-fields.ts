@@ -1,4 +1,5 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
+import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 
 type BookingFilterOptions = {
   classTypes: Array<{ id: string; name: string }>;
@@ -24,14 +25,14 @@ export function buildAdminBookingsFilterFields(
       label: options.labels.dateFrom,
       fieldType: "date",
       emptyValue: "",
-      resolveChipLabel: (value) => (value ? `${options.labels.dateFrom}: ${value}` : null),
+      resolveChipLabel: (value) => formatFilterDateChipLabel(options.labels.dateFrom, value),
     },
     {
       key: "to",
       label: options.labels.dateTo,
       fieldType: "date",
       emptyValue: "",
-      resolveChipLabel: (value) => (value ? `${options.labels.dateTo}: ${value}` : null),
+      resolveChipLabel: (value) => formatFilterDateChipLabel(options.labels.dateTo, value),
     },
     {
       key: "classTypeId",

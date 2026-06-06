@@ -27,6 +27,7 @@ type AdminCoachCompactRowProps = {
   classOptions: readonly CoachClassOption[];
   locale: string;
   onSelect: (coach: AdminCoachDirectoryRow) => void;
+  readOnly?: boolean;
 };
 
 export function AdminCoachCompactRow({
@@ -35,6 +36,7 @@ export function AdminCoachCompactRow({
   classOptions,
   locale,
   onSelect,
+  readOnly = false,
 }: AdminCoachCompactRowProps) {
   const t = useTranslations("adminPages.coaches");
   const displayName = coachCardDisplayName(coach.user);
@@ -97,21 +99,25 @@ export function AdminCoachCompactRow({
         </p>
       </div>
 
-      <div className={ADMIN_COACHES_LIST_SPACER_CELL} aria-hidden="true" />
+      {readOnly ? null : (
+        <div className={ADMIN_COACHES_LIST_SPACER_CELL} aria-hidden="true" />
+      )}
 
-      <div
-        className={ADMIN_COACHES_LIST_ACTIONS_CELL}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminListMobileLabel label={t("colActions")} />
-        <AdminCoachRowActions
-          coach={coach}
-          classTypeOptions={classTypeOptions}
-          classOptions={classOptions}
-          locale={locale}
-        />
-      </div>
+      {readOnly ? null : (
+        <div
+          className={ADMIN_COACHES_LIST_ACTIONS_CELL}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminListMobileLabel label={t("colActions")} />
+          <AdminCoachRowActions
+            coach={coach}
+            classTypeOptions={classTypeOptions}
+            classOptions={classOptions}
+            locale={locale}
+          />
+        </div>
+      )}
     </article>
   );
 }

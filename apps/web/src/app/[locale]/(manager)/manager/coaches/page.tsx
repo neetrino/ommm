@@ -1,37 +1,23 @@
-import { headers } from "next/headers";
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminCoachesDirectory } from "@/components/admin/admin-coaches-directory";
+import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
+import {
+  buildAdminCoachesListEndpoint,
+  parseAdminCoachesPageParams,
+  pickAdminCoachesFilters,
+  type AdminCoachesListPayload,
+} from "@/components/admin/admin-coaches-query";
+import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
-import { ManagerListPagination } from "@/components/manager/manager-list-pagination";
-import { ManagerStaffTableShell } from "@/components/manager/manager-staff-table-shell";
-import { parseListPageParams } from "@/lib/list-pagination";
+import { parseAdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
 import { serverApiJson } from "@/lib/server-api";
 
-type CoachAdminRow = {
+type ClassTypeRow = {
   id: string;
-  bio: string | null;
-  specialization: string | null;
-  user: {
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    phone: string | null;
-  };
+  name: string;
 };
-
-type ManagerCoachesPayload = {
-  items: CoachAdminRow[];
-  total: number;
-  take: number;
-  offset: number;
-};
-
-function coachDisplayName(user: CoachAdminRow["user"]): string {
-  const value = [user.name, user.lastName].filter(Boolean).join(" ").trim();
-  return value.length > 0 ? value : "—";
-}
 
 export default async function ManagerCoachesPage({
   params,
@@ -45,11 +31,23 @@ export default async function ManagerCoachesPage({
   const t = await getTranslations({ locale, namespace: "adminPages.coaches" });
   const tManager = await getTranslations({ locale, namespace: "managerPages.coaches" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const listPage = parseListPageParams(search);
-  const res = await serverApiJson<ManagerCoachesPayload>(
-    `/coaches/admin/list?take=${listPage.take}&offset=${listPage.offset}`,
-    cookie,
+  const filters = pickAdminCoachesFilters(search);
+  const listPage = parseAdminCoachesPageParams(search);
+  const initialViewMode = parseAdminCoachesViewMode(search.view);
+  const coachesEndpoint = buildAdminCoachesListEndpoint(
+    filters,
+    listPage.take,
+    listPage.offset,
   );
+  const [res, scheduleData, classTypesRes] = await Promise.all([
+    serverApiJson<AdminCoachesListPayload>(coachesEndpoint, cookie),
+    fetchPublicScheduleItems(),
+    serverApiJson<ClassTypeRow[]>("/classes/types", cookie),
+  ]);
+  const classTypeOptions = scheduleData.classTypes;
+  const classOptions = classTypesRes.ok
+    ? classTypesRes.data.map((item) => ({ id: item.id, name: item.name }))
+    : [];
 
   if (!res.ok) {
     return (
@@ -65,52 +63,25 @@ export default async function ManagerCoachesPage({
 
   return (
     <AdminContentFrame>
-      <AdminSectionShell banner={tManager("readOnlyHint")}>
-        <ManagerStaffTableShell>
-          <table className={`${adminChrome.table} min-w-[34rem] table-fixed`}>
-            <colgroup>
-              <col className="w-[28%]" />
-              <col className="w-[30%]" />
-              <col className="w-[22%]" />
-              <col className="w-[20%]" />
-            </colgroup>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colName")}</th>
-                <th className={adminChrome.th}>{t("colEmail")}</th>
-                <th className={`${adminChrome.th} text-center`}>{tManager("colPhone")}</th>
-                <th className={`${adminChrome.th} text-center`}>
-                  {tManager("colSpecialization")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className={adminChrome.tableBodyDividers}>
-              {res.data.items.map((coach) => (
-                <tr key={coach.id}>
-                  <td className={adminChrome.tdStrong}>{coachDisplayName(coach.user)}</td>
-                  <td className={adminChrome.td}>{coach.user.email}</td>
-                  <td className={`${adminChrome.td} text-center`}>
-                    {coach.user.phone ?? "—"}
-                  </td>
-                  <td className={`${adminChrome.tdMuted} text-center`}>
-                    {coach.specialization ?? "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </ManagerStaffTableShell>
-      </AdminSectionShell>
-      <div className="mt-4">
-        <Suspense fallback={null}>
-          <ManagerListPagination
-            total={res.data.total}
-            page={listPage.page}
-            pageSize={listPage.pageSize}
-            offset={listPage.offset}
+      <Suspense fallback={null}>
+        <AdminCoachesShell
+          classTypeOptions={classTypeOptions}
+          classOptions={classOptions}
+          initialViewMode={initialViewMode}
+          filterInitialValues={filters}
+          variant="staff"
+          staffBanner={tManager("readOnlyHint")}
+          readOnly
+        >
+          <AdminCoachesDirectory
+            initial={res.data}
+            classTypeOptions={classTypeOptions}
+            classOptions={classOptions}
+            locale={locale}
+            readOnly
           />
-        </Suspense>
-      </div>
+        </AdminCoachesShell>
+      </Suspense>
     </AdminContentFrame>
   );
 }

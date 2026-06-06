@@ -7,6 +7,7 @@ import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCalendarViewSwitcher } from "@/components/admin/admin-calendar-view-switcher";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
   adminScheduleIntegratedFilterValues,
   buildAdminScheduleFilterFields,
@@ -61,6 +62,8 @@ import {
   type SchedulePackageOption,
 } from "@/components/admin/admin-schedule-package-filter-options";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
+import { StaffScheduleSessionsTable } from "@/components/shared/schedule/staff-schedule-sessions-table";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -122,6 +125,9 @@ type Props = {
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
   initialFilterState: ScheduleListFilterState;
+  /** Staff surfaces (manager): list-only read-only rows with admin filters. */
+  variant?: "full" | "staff";
+  staffBanner?: string;
 };
 
 type Filters = {
@@ -413,7 +419,10 @@ export function AdminScheduleManagement({
   coaches,
   initialView,
   initialFilterState,
+  variant = "full",
+  staffBanner,
 }: Props) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.classes");
   const tPage = useTranslations("adminPages.schedule");
   const tSearchTools = useTranslations("adminPages.searchTools");
@@ -425,7 +434,7 @@ export function AdminScheduleManagement({
   const [rows, setRows] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
-  const [view, setView] = useState<ScheduleView>(initialView);
+  const [view, setView] = useState<ScheduleView>(isStaff ? "list" : initialView);
   const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
     () => initialFilterState.quickFilters,
@@ -595,7 +604,7 @@ export function AdminScheduleManagement({
     [classTypes, packageOptions],
   );
 
-  const isListView = view === "list";
+  const isListView = isStaff || view === "list";
 
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
@@ -874,6 +883,74 @@ export function AdminScheduleManagement({
     } finally {
       setBusyId(null);
     }
+  }
+
+  if (isStaff) {
+    const staffRows = displayRows.map(mapAdminScheduleSessionToListRow);
+    return (
+      <div className="space-y-5">
+        <StaffListPageLayout
+          title={tPage("title")}
+          banner={staffBanner}
+          search={
+            <AdminIntegratedSearchFilters
+              className="min-w-0 flex-1"
+              search={searchDraft}
+              onSearchChange={setSearchDraft}
+              searchPlaceholder={t("filters.searchPlaceholder")}
+              fields={filterFields}
+              filterValues={integratedFilterValues}
+              onFilterChange={handleIntegratedFilterChange}
+              onClearAll={resetFilters}
+              applyLabel={tSearchTools("applyFilters")}
+              resetLabel={t("filters.reset")}
+              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+            />
+          }
+          headerTrailing={
+            activeFilterCount > 0 ? (
+              <p className="whitespace-nowrap text-xs text-sage-600" role="status">
+                {t("filters.activeCount", { count: activeFilterCount })}
+              </p>
+            ) : undefined
+          }
+          metrics={<SummaryGrid summary={summary} />}
+        >
+          <StaffScheduleSessionsTable
+            locale={locale}
+            rows={staffRows}
+            emptyTitle={t("empty.filteredTitle")}
+            emptyBody={t("empty.filteredBody")}
+            preset="staffWithCoach"
+          />
+          {listPagination !== null && listPagination.total > 0 ? (
+            <OmmListPagination
+              total={listPagination.total}
+              page={listPage.page}
+              pageSize={listPage.pageSize}
+              offset={listPagination.offset}
+              onPageChange={setListPage}
+              onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+              disabled={busyId !== null}
+            />
+          ) : null}
+        </StaffListPageLayout>
+        {toast ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`fixed bottom-4 right-4 z-[95] max-w-sm rounded-xl border px-4 py-3 text-sm shadow-[0_12px_32px_-20px_rgba(45,40,35,0.4)] backdrop-blur-md ${
+              toast.tone === "ok"
+                ? "border-mint-200/80 bg-mint-50/95 text-sage-900"
+                : "border-red-200/80 bg-red-50/95 text-red-900"
+            }`}
+          >
+            {toast.message}
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   return (

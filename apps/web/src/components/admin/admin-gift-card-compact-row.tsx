@@ -26,6 +26,7 @@ type AdminGiftCardCompactRowProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  readOnly?: boolean;
 };
 
 export function AdminGiftCardCompactRow({
@@ -34,6 +35,7 @@ export function AdminGiftCardCompactRow({
   onSelect,
   onEdit,
   onChanged,
+  readOnly = false,
 }: AdminGiftCardCompactRowProps) {
   const t = useTranslations("adminPages.giftCards");
 
@@ -92,20 +94,24 @@ export function AdminGiftCardCompactRow({
         <p className="text-sm text-sage-800">{giftCardQuantityLabel(card)}</p>
       </div>
 
-      <div className={ADMIN_GIFT_CARDS_LIST_SPACER_CELL} aria-hidden="true" />
+      {readOnly ? null : (
+        <>
+          <div className={ADMIN_GIFT_CARDS_LIST_SPACER_CELL} aria-hidden="true" />
 
-      <div
-        className={`${ADMIN_GIFT_CARDS_LIST_ACTIONS_CELL} ${ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <AdminListMobileLabel label={t("colActions")} />
-        <AdminGiftCardRowActions
-          card={card}
-          onEdit={onEdit}
-          onChanged={onChanged}
-        />
-      </div>
+          <div
+            className={`${ADMIN_GIFT_CARDS_LIST_ACTIONS_CELL} ${ADMIN_GIFT_CARDS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <AdminListMobileLabel label={t("colActions")} />
+            <AdminGiftCardRowActions
+              card={card}
+              onEdit={onEdit}
+              onChanged={onChanged}
+            />
+          </div>
+        </>
+      )}
     </article>
   );
 }

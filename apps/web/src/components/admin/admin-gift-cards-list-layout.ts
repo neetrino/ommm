@@ -14,7 +14,14 @@ import {
 const GIFT_CARDS_GRID_CLASS =
   "md:grid-cols-[minmax(0,auto)_minmax(0,auto)_auto_auto_auto_auto_1fr_auto]";
 
+const GIFT_CARDS_GRID_READONLY_CLASS =
+  "md:grid-cols-[minmax(0,auto)_minmax(0,auto)_auto_auto_auto_auto]";
+
 export const ADMIN_GIFT_CARDS_LIST_TABLE_CLASS = buildAdminListTableClass(GIFT_CARDS_GRID_CLASS);
+
+export const ADMIN_GIFT_CARDS_LIST_TABLE_READONLY_CLASS = buildAdminListTableClass(
+  GIFT_CARDS_GRID_READONLY_CLASS,
+);
 
 export const ADMIN_GIFT_CARDS_LIST_HEADER_CLASS = buildAdminListHeaderClass();
 

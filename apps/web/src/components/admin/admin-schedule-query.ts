@@ -6,11 +6,13 @@ import {
   resolveScheduleSelectedClassTypeIds,
 } from "@/components/admin/admin-schedule-package-filter-options";
 import {
+  defaultScheduleListFilters,
   parseScheduleListFilterStateFromSearch,
   scheduleFiltersToApiParams,
   type ScheduleListFilterState,
 } from "@/components/admin/admin-schedule-url";
 import { parseListPageParams } from "@/lib/list-pagination";
+import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 
 export const ADMIN_SCHEDULE_LIST_PAGE_KEYS = {
   pageKey: "schedulePage",
@@ -67,3 +69,33 @@ export function isScheduleListView(view: string | undefined): boolean {
 }
 
 export { parseScheduleListFilterStateFromSearch, type ScheduleListFilterState };
+
+function isoDateLocal(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/** Default list window for manager staff schedule when URL has no date range. */
+export function resolveManagerScheduleInitialFilterState(
+  search: Record<string, string | undefined>,
+): ScheduleListFilterState {
+  const parsed = parseScheduleListFilterStateFromSearch(search);
+  if (parsed.filters.from.length > 0 && parsed.filters.to.length > 0) {
+    return parsed;
+  }
+  const from = new Date();
+  from.setHours(0, 0, 0, 0);
+  const to = new Date(from);
+  to.setDate(to.getDate() + ACCOUNT_SESSION_RANGE_DAYS);
+  return {
+    ...parsed,
+    filters: {
+      ...defaultScheduleListFilters,
+      ...parsed.filters,
+      from: parsed.filters.from || isoDateLocal(from),
+      to: parsed.filters.to || isoDateLocal(to),
+    },
+  };
+}

@@ -9,6 +9,7 @@ import {
   ADMIN_COACHES_LIST_EMPHASIZED_HEADER,
   ADMIN_COACHES_LIST_HEADER_CLASS,
   ADMIN_COACHES_LIST_TABLE_CLASS,
+  ADMIN_COACHES_LIST_TABLE_READONLY_CLASS,
 } from "@/components/admin/admin-coaches-list-layout";
 import { AdminCoachBoardCard } from "@/components/admin/admin-coach-board-card";
 import { AdminCoachDetailsDrawer } from "@/components/admin/admin-coach-details-drawer";
@@ -28,6 +29,7 @@ type AdminCoachesDirectoryProps = {
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   locale?: string;
+  readOnly?: boolean;
 };
 
 type AdminCoachesViewProps = {
@@ -35,6 +37,7 @@ type AdminCoachesViewProps = {
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   locale?: string;
+  readOnly?: boolean;
 };
 
 function AdminCoachesListView({
@@ -42,19 +45,27 @@ function AdminCoachesListView({
   classTypeOptions,
   classOptions,
   locale = "en",
+  readOnly = false,
   onSelect,
 }: AdminCoachesViewProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   const t = useTranslations("adminPages.coaches");
+  const tableClass = readOnly
+    ? ADMIN_COACHES_LIST_TABLE_READONLY_CLASS
+    : ADMIN_COACHES_LIST_TABLE_CLASS;
 
   return (
-    <div className={ADMIN_COACHES_LIST_TABLE_CLASS}>
+    <div className={tableClass}>
       <div className={ADMIN_COACHES_LIST_HEADER_CLASS}>
         <span>{t("colCoaches")}</span>
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colSpecialization")}</span>
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colWorkload")}</span>
-        <span aria-hidden="true" />
-        <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        {readOnly ? null : (
+          <>
+            <span aria-hidden="true" />
+            <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          </>
+        )}
       </div>
       {coaches.map((coach) => (
         <AdminCoachCompactRow
@@ -63,6 +74,7 @@ function AdminCoachesListView({
           classTypeOptions={classTypeOptions}
           classOptions={classOptions}
           locale={locale}
+          readOnly={readOnly}
           onSelect={onSelect}
         />
       ))}
@@ -100,6 +112,7 @@ export function AdminCoachesDirectory({
   classTypeOptions,
   classOptions,
   locale = "en",
+  readOnly = false,
 }: AdminCoachesDirectoryProps) {
   const t = useTranslations("adminPages.coaches");
   const { viewMode: preferredViewMode } = useAdminCoachesView();
@@ -169,6 +182,7 @@ export function AdminCoachesDirectory({
     classTypeOptions,
     classOptions,
     locale,
+    readOnly,
   };
 
   const content =

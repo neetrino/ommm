@@ -39,6 +39,7 @@ type GiftCardSheetTabPanelsProps = {
   assignableUsers: readonly AdminAssignableUser[];
   onChanged: () => void;
   onRemoved?: () => void;
+  readOnly?: boolean;
 };
 
 export function GiftCardSheetTabPanels({
@@ -48,12 +49,16 @@ export function GiftCardSheetTabPanels({
   assignableUsers,
   onChanged,
   onRemoved,
+  readOnly = false,
 }: GiftCardSheetTabPanelsProps) {
   if (activeTab === GIFT_CARD_SHEET_TAB_OVERVIEW) {
     return <GiftCardOverviewPanel card={card} locale={locale} />;
   }
 
   if (activeTab === GIFT_CARD_SHEET_TAB_ACTIONS) {
+    if (readOnly) {
+      return null;
+    }
     return (
       <GiftCardActionsPanel
         card={card}

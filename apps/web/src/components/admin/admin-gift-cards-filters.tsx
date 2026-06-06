@@ -7,7 +7,7 @@ import {
   buildAdminGiftCardsFilterFields,
 } from "@/components/admin/admin-gift-cards-filter-fields";
 import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import type {
   GiftCardExpirationFilter,
@@ -48,6 +48,9 @@ type AdminGiftCardsFiltersProps = {
   onReset: () => void;
   onViewChange: (mode: AdminGiftCardsViewMode) => void;
   onCreate: () => void;
+  /** Staff layout: search row only (hero lives in StaffListPageLayout). */
+  variant?: "full" | "embedded";
+  hideCreate?: boolean;
 };
 
 function AddGiftCardGlyph({ className }: { className?: string }) {
@@ -77,10 +80,11 @@ export function AdminGiftCardsFilters({
   onReset,
   onViewChange,
   onCreate,
+  variant = "full",
+  hideCreate = false,
 }: AdminGiftCardsFiltersProps) {
   const t = useTranslations("adminPages.giftCards");
   const tFilters = useTranslations("adminPages.giftCards.filters");
-  const tSearchTools = useTranslations("adminPages.searchTools");
 
   const filterFields = useMemo(
     () =>
@@ -190,45 +194,52 @@ export function AdminGiftCardsFilters({
     }
   }
 
+  const filterSearchRow = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={values.search}
+        onSearchChange={(value) => onChange("search", value)}
+        searchPlaceholder={tFilters("searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={onReset}
+        resetLabel={tFilters("reset")}
+      />
+      <AdminGiftCardsViewSwitcher value={viewMode} onChange={onViewChange} />
+    </div>
+  );
+
+  const filterTrailing =
+    isUpdating || activeFilterCount > 0 ? (
+      <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+        {isUpdating ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
+      </p>
+    ) : null;
+
+  if (variant === "embedded") {
+    return filterSearchRow;
+  }
+
   return (
     <AdminPageHero
       title={t("title")}
-      search={
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <AdminIntegratedSearchFilters
-            className="min-w-0 flex-1"
-            search={values.search}
-            onSearchChange={(value) => onChange("search", value)}
-            searchPlaceholder={tFilters("searchPlaceholder")}
-            fields={filterFields}
-            filterValues={integratedFilterValues}
-            onFilterChange={handleIntegratedFilterChange}
-            onClearAll={onReset}
-            applyLabel={tSearchTools("applyFilters")}
-            resetLabel={tFilters("reset")}
-            clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-            filterPanelAriaLabel={tSearchTools("filterPanelAria")}
-          />
-          <AdminGiftCardsViewSwitcher value={viewMode} onChange={onViewChange} />
-        </div>
-      }
+      search={filterSearchRow}
       trailing={
         <>
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={onCreate}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-          >
-            <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-            {t("createButton")}
-          </OmmButton>
-          {(isUpdating || activeFilterCount > 0) ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {isUpdating ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-            </p>
-          ) : null}
+          {hideCreate ? null : (
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={onCreate}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+            >
+              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
+              {t("createButton")}
+            </OmmButton>
+          )}
+          {filterTrailing}
         </>
       }
     />

@@ -19,7 +19,7 @@ import type {
 } from "@/components/admin/admin-bookings-query";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
   ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER,
@@ -417,50 +417,96 @@ export function AdminBookingsManagement({
         </div>
       ) : null}
 
-      {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
-      {loading ? (
-        <p className="text-sm text-sage-500" role="status">
-          {tSearchTools("loadingResults")}
-        </p>
-      ) : null}
-
-      {!isStaff && view === "daily" && openDaySessions.length > 0 ? (
-        <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
-          <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
-          <div className="grid gap-2 md:grid-cols-2">
-            {openDaySessions.map((session) => (
-              <SessionSlotCard key={session.id} session={session} locale={locale} />
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       {isStaff ? (
-        <AdminSectionShell banner={staffBanner}>{bookingsList}</AdminSectionShell>
-      ) : (view === "list" || view === "daily") ? (
-        bookingsList
-      ) : null}
-
-      {!isStaff && view === "monthly" ? (
-        <MonthlyPanel
-          rows={calendarRows}
-          sessions={filteredSessions}
-          selectedDay={selectedDay}
-          onSelect={setSelectedDay}
-          locale={locale}
-          title={t("viewMonthly")}
-        />
-      ) : null}
-      {!isStaff && view === "weekly" ? (
-        <WeeklyPanel
-          rows={calendarRows}
-          sessions={filteredSessions}
-          selectedDay={selectedDay}
-          onSelect={setSelectedDay}
-          locale={locale}
-          title={t("viewWeekly")}
-        />
-      ) : null}
+        <StaffListPageLayout
+          title={t("title")}
+          banner={staffBanner}
+          search={
+            <AdminIntegratedSearchFilters
+              className="min-w-0 flex-1"
+              search={filters.search}
+              onSearchChange={(value) => updateFilter("search", value)}
+              searchPlaceholder={t("filterSearch")}
+              fields={bookingFilterFields}
+              filterValues={integratedFilterValues}
+              onFilterChange={handleIntegratedFilterChange}
+              onClearAll={resetFilters}
+              applyLabel={tSearchTools("applyFilters")}
+              resetLabel={t("resetFilters")}
+              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+            />
+          }
+          headerTrailing={
+            loading ? (
+              <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+                {tSearchTools("loadingResults")}
+              </p>
+            ) : undefined
+          }
+          metrics={
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <Metric title={t("summaryTotal")} value={summary.total} />
+              <Metric title={t("summaryBooked")} value={summary.booked} />
+              <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
+              <Metric title={t("summaryToday")} value={summary.today} />
+            </div>
+          }
+          status={
+            statusMessage ? (
+              <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">
+                {statusMessage}
+              </div>
+            ) : null
+          }
+        >
+          {bookingsList}
+        </StaffListPageLayout>
+      ) : (
+        <>
+          {statusMessage ? (
+            <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">
+              {statusMessage}
+            </div>
+          ) : null}
+          {loading ? (
+            <p className="text-sm text-sage-500" role="status">
+              {tSearchTools("loadingResults")}
+            </p>
+          ) : null}
+          {view === "daily" && openDaySessions.length > 0 ? (
+            <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
+              <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
+              <div className="grid gap-2 md:grid-cols-2">
+                {openDaySessions.map((session) => (
+                  <SessionSlotCard key={session.id} session={session} locale={locale} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {view === "list" || view === "daily" ? bookingsList : null}
+          {view === "monthly" ? (
+            <MonthlyPanel
+              rows={calendarRows}
+              sessions={filteredSessions}
+              selectedDay={selectedDay}
+              onSelect={setSelectedDay}
+              locale={locale}
+              title={t("viewMonthly")}
+            />
+          ) : null}
+          {view === "weekly" ? (
+            <WeeklyPanel
+              rows={calendarRows}
+              sessions={filteredSessions}
+              selectedDay={selectedDay}
+              onSelect={setSelectedDay}
+              locale={locale}
+              title={t("viewWeekly")}
+            />
+          ) : null}
+        </>
+      )}
 
       {activeUserId ? (
         <AdminUserDetailsDrawer

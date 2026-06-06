@@ -17,6 +17,7 @@ type AdminGiftCardBoardCardProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  readOnly?: boolean;
 };
 
 export function AdminGiftCardBoardCard({
@@ -25,6 +26,7 @@ export function AdminGiftCardBoardCard({
   onSelect,
   onEdit,
   onChanged,
+  readOnly = false,
 }: AdminGiftCardBoardCardProps) {
   const t = useTranslations("adminPages.giftCards");
 
@@ -46,14 +48,16 @@ export function AdminGiftCardBoardCard({
         { label: t("colRecipient"), value: recipientLabel(card) || "—" },
         { label: t("colAvailableQuantity"), value: giftCardQuantityLabel(card) },
       ]}
-      footerAriaLabel={t("colActions")}
+      footerAriaLabel={readOnly ? undefined : t("colActions")}
       footerActions={
-        <AdminGiftCardRowActions
-          variant="board"
-          card={card}
-          onEdit={onEdit}
-          onChanged={onChanged}
-        />
+        readOnly ? undefined : (
+          <AdminGiftCardRowActions
+            variant="board"
+            card={card}
+            onEdit={onEdit}
+            onChanged={onChanged}
+          />
+        )
       }
     />
   );

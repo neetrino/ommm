@@ -12,7 +12,14 @@ import {
 const COACHES_GRID_CLASS =
   "md:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)_minmax(8.5rem,auto)_minmax(7.5rem,auto)_1fr_auto]";
 
+const COACHES_GRID_READONLY_CLASS =
+  "md:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)_minmax(8.5rem,auto)_minmax(7.5rem,auto)]";
+
 export const ADMIN_COACHES_LIST_TABLE_CLASS = buildAdminListTableClass(COACHES_GRID_CLASS);
+
+export const ADMIN_COACHES_LIST_TABLE_READONLY_CLASS = buildAdminListTableClass(
+  COACHES_GRID_READONLY_CLASS,
+);
 
 export const ADMIN_COACHES_LIST_HEADER_CLASS = buildAdminListHeaderClass();
 

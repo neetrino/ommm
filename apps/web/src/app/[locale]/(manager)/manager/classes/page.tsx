@@ -1,32 +1,63 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
-import { StaffScheduleSessionsList } from "@/components/shared/schedule/staff-schedule-sessions-list";
-import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import {
-  mapPublicSessionToScheduleListRow,
-  type PublicClassSessionRow,
-} from "@/lib/map-public-session-to-list-row";
+  AdminScheduleManagement,
+  type AdminScheduleClassType,
+  type AdminScheduleCoach,
+} from "@/components/admin/admin-schedule-management";
+import {
+  buildAdminScheduleListEndpoint,
+  parseAdminScheduleListPageParams,
+  resolveManagerScheduleInitialFilterState,
+  type AdminScheduleListPayload,
+} from "@/components/admin/admin-schedule-query";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function ManagerClassesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
-  const tClients = await getTranslations({ locale, namespace: "adminPages.clients" });
+  const search = await searchParams;
+  const t = await getTranslations({ locale, namespace: "adminPages.schedule" });
   const tManager = await getTranslations({ locale, namespace: "managerPages.classes" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const from = new Date();
-  from.setHours(0, 0, 0, 0);
-  const to = new Date(from);
-  to.setDate(to.getDate() + ACCOUNT_SESSION_RANGE_DAYS);
-  const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
+  const listPage = parseAdminScheduleListPageParams(search);
+  const scheduleFilterState = resolveManagerScheduleInitialFilterState(search);
 
-  const sessionsRes = await serverApiJson<PublicClassSessionRow[]>(
-    `/classes/sessions?${q}`,
+  const [classTypesRes, coachesRes, packagesRes] = await Promise.all([
+    serverApiJson<AdminScheduleClassType[]>("/classes/types", cookie),
+    serverApiJson<AdminScheduleCoach[]>("/coaches/admin/list", cookie),
+    serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie),
+  ]);
+
+  if (!classTypesRes.ok || !coachesRes.ok || !packagesRes.ok) {
+    const failed = [classTypesRes, coachesRes, packagesRes].find((res) => !res.ok);
+    const status = failed && !failed.ok ? failed.status : 500;
+    return (
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">
+          {status === 401 || status === 403 ? t("errorAuth") : t("errorLoad", { status })}
+        </div>
+      </AdminContentFrame>
+    );
+  }
+
+  const sessionsRes = await serverApiJson<AdminScheduleListPayload>(
+    buildAdminScheduleListEndpoint(
+      listPage.take,
+      listPage.offset,
+      scheduleFilterState,
+      packagesRes.data,
+      classTypesRes.data,
+    ),
     cookie,
   );
 
@@ -35,29 +66,38 @@ export default async function ManagerClassesPage({
       <AdminContentFrame>
         <div className="app-alert-warn max-w-xl">
           {sessionsRes.status === 401 || sessionsRes.status === 403
-            ? tClients("errorAuth")
+            ? t("errorAuth")
             : tManager("loadSessionsFailed", { status: sessionsRes.status })}
         </div>
       </AdminContentFrame>
     );
   }
 
-  const sessions = sessionsRes.data.map(mapPublicSessionToScheduleListRow);
+  const sessions = sessionsRes.data.items;
+  const listPagination = {
+    total: sessionsRes.data.total,
+    take: sessionsRes.data.take,
+    offset: sessionsRes.data.offset,
+  };
 
   return (
     <AdminContentFrame>
-      <AdminSectionShell
-        banner={tManager("scheduleWindowHint", {
-          days: ACCOUNT_SESSION_RANGE_DAYS,
-        })}
-      >
-        <StaffScheduleSessionsList
+      <Suspense fallback={null}>
+        <AdminScheduleManagement
           locale={locale}
           sessions={sessions}
-          emptyMessage={tManager("sessionsEmpty")}
-          preset="staffWithCoach"
+          listPagination={listPagination}
+          classTypes={classTypesRes.data}
+          packages={packagesRes.data}
+          coaches={coachesRes.data}
+          initialView="list"
+          initialFilterState={scheduleFilterState}
+          variant="staff"
+          staffBanner={tManager("scheduleWindowHint", {
+            days: ACCOUNT_SESSION_RANGE_DAYS,
+          })}
         />
-      </AdminSectionShell>
+      </Suspense>
     </AdminContentFrame>
   );
 }

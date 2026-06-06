@@ -8,7 +8,6 @@ import {
 } from "@/components/admin/admin-waitlist-query";
 import { AdminWaitlistManagement } from "@/components/admin/admin-waitlist-management";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminWaitlistsPage({
@@ -36,15 +35,13 @@ export default async function AdminWaitlistsPage({
 
   return (
     <AdminContentFrame description={t("description")}>
-      <AdminSectionShell>
-        <Suspense fallback={null}>
-          <AdminWaitlistManagement
-            locale={locale}
-            initial={initialPayload}
-            initialLoadError={initialLoadError}
-          />
-        </Suspense>
-      </AdminSectionShell>
+      <Suspense fallback={null}>
+        <AdminWaitlistManagement
+          locale={locale}
+          initial={initialPayload}
+          initialLoadError={initialLoadError}
+        />
+      </Suspense>
     </AdminContentFrame>
   );
 }

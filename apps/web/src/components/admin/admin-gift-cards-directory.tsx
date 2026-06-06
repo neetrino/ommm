@@ -8,6 +8,7 @@ import {
   ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER,
   ADMIN_GIFT_CARDS_LIST_HEADER_CLASS,
   ADMIN_GIFT_CARDS_LIST_TABLE_CLASS,
+  ADMIN_GIFT_CARDS_LIST_TABLE_READONLY_CLASS,
 } from "@/components/admin/admin-gift-cards-list-layout";
 import { useAdminGiftCardsView } from "@/components/admin/admin-gift-cards-view-context";
 import { GIFT_CARD_BOARD_GRID_CLASS } from "@/components/gift-cards/gift-card-board-tile";
@@ -20,6 +21,7 @@ type AdminGiftCardsDirectoryProps = {
   onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
+  readOnly?: boolean;
 };
 
 function AdminGiftCardsBoardView(props: AdminGiftCardsDirectoryProps) {
@@ -38,11 +40,15 @@ function AdminGiftCardsListView({
   onSelect,
   onEdit,
   onChanged,
+  readOnly = false,
 }: AdminGiftCardsDirectoryProps) {
   const t = useTranslations("adminPages.giftCards");
+  const tableClass = readOnly
+    ? ADMIN_GIFT_CARDS_LIST_TABLE_READONLY_CLASS
+    : ADMIN_GIFT_CARDS_LIST_TABLE_CLASS;
 
   return (
-    <div className={ADMIN_GIFT_CARDS_LIST_TABLE_CLASS}>
+    <div className={tableClass}>
       <div className={ADMIN_GIFT_CARDS_LIST_HEADER_CLASS}>
         <span>{t("colImage")}</span>
         <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
@@ -60,14 +66,19 @@ function AdminGiftCardsListView({
         <span className={`${ADMIN_GIFT_CARDS_LIST_EMPHASIZED_HEADER} md:text-center`}>
           {t("colAvailableQuantity")}
         </span>
-        <span aria-hidden="true" />
-        <span className={ADMIN_GIFT_CARDS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        {readOnly ? null : (
+          <>
+            <span aria-hidden="true" />
+            <span className={ADMIN_GIFT_CARDS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          </>
+        )}
       </div>
       {cards.map((card) => (
         <AdminGiftCardCompactRow
           key={card.id}
           card={card}
           locale={locale}
+          readOnly={readOnly}
           onSelect={onSelect}
           onEdit={onEdit}
           onChanged={onChanged}

@@ -36,6 +36,9 @@ type AdminGiftCardsManagementProps = {
   locale: string;
   initialFilters: GiftCardFilterValues;
   initialViewMode: AdminGiftCardsViewMode;
+  variant?: "full" | "staff";
+  staffBanner?: string;
+  readOnly?: boolean;
 };
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -46,7 +49,11 @@ export function AdminGiftCardsManagement({
   locale,
   initialFilters,
   initialViewMode,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
 }: AdminGiftCardsManagementProps) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.giftCards");
   const router = useRouter();
   const pathname = usePathname();
@@ -208,6 +215,9 @@ export function AdminGiftCardsManagement({
       assignableUsers={assignableUsers}
       giftCards={giftCards}
       initialViewMode={initialViewMode}
+      variant={variant}
+      staffBanner={staffBanner}
+      readOnly={readOnly || isStaff}
       filterProps={{
         values: filters,
         activeFilterCount,
@@ -222,6 +232,7 @@ export function AdminGiftCardsManagement({
           <AdminGiftCardsDirectory
             cards={giftCards}
             locale={locale}
+            readOnly={readOnly || isStaff}
             onSelect={selectGiftCard}
             onEdit={openEditModal}
             onChanged={handleChanged}
@@ -242,6 +253,7 @@ export function AdminGiftCardsManagement({
         card={selectedGiftCard}
         locale={locale}
         assignableUsers={assignableUsers}
+        readOnly={readOnly || isStaff}
         onClose={closeGiftCardDetails}
         onChanged={handleChanged}
       />

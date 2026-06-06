@@ -27,6 +27,7 @@ import {
   GIFT_CARD_EDIT_MODAL_VALUE,
   GIFT_CARD_MODAL_QUERY_KEY,
 } from "@/components/admin/admin-gift-cards-url";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 
 const BANNER_MS = 8000;
 
@@ -47,6 +48,9 @@ type AdminGiftCardsShellProps = {
   initialViewMode: AdminGiftCardsViewMode;
   filterProps: AdminGiftCardsShellFilterProps;
   children: ReactNode;
+  variant?: "full" | "staff";
+  staffBanner?: string;
+  readOnly?: boolean;
 };
 
 export function AdminGiftCardsShell({
@@ -55,6 +59,9 @@ export function AdminGiftCardsShell({
   initialViewMode,
   filterProps,
   children,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
 }: AdminGiftCardsShellProps) {
   return (
     <AdminGiftCardsViewProvider key={initialViewMode} initialViewMode={initialViewMode}>
@@ -62,6 +69,9 @@ export function AdminGiftCardsShell({
         assignableUsers={assignableUsers}
         giftCards={giftCards}
         filterProps={filterProps}
+        variant={variant}
+        staffBanner={staffBanner}
+        readOnly={readOnly}
       >
         {children}
       </AdminGiftCardsShellInner>
@@ -74,8 +84,13 @@ function AdminGiftCardsShellInner({
   giftCards,
   filterProps,
   children,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
 }: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.giftCards");
+  const tFilters = useTranslations("adminPages.giftCards.filters");
   const { viewMode, setViewMode } = useAdminGiftCardsView();
   const router = useRouter();
   const pathname = usePathname();
@@ -177,6 +192,44 @@ function AdminGiftCardsShellInner({
     focusable?.focus();
   }, [isModalOpen]);
 
+  const filters = (
+    <AdminGiftCardsFilters
+      values={filterProps.values}
+      activeFilterCount={filterProps.activeFilterCount}
+      isUpdating={filterProps.isUpdating}
+      onChange={filterProps.onChange}
+      onReset={filterProps.onReset}
+      viewMode={viewMode}
+      onViewChange={setView}
+      onCreate={openModal}
+      variant={isStaff ? "embedded" : "full"}
+      hideCreate={readOnly || isStaff}
+    />
+  );
+
+  const operationalBanner = banner ?? staffBanner ?? null;
+
+  if (isStaff) {
+    return (
+      <StaffListPageLayout
+        title={t("title")}
+        banner={operationalBanner}
+        search={filters}
+        headerTrailing={
+          filterProps.isUpdating || filterProps.activeFilterCount > 0 ? (
+            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+              {filterProps.isUpdating
+                ? tFilters("loading")
+                : tFilters("activeCount", { count: filterProps.activeFilterCount })}
+            </p>
+          ) : undefined
+        }
+      >
+        {children}
+      </StaffListPageLayout>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {banner !== null ? (
@@ -188,20 +241,11 @@ function AdminGiftCardsShellInner({
         </p>
       ) : null}
 
-      <AdminGiftCardsFilters
-        values={filterProps.values}
-        activeFilterCount={filterProps.activeFilterCount}
-        isUpdating={filterProps.isUpdating}
-        onChange={filterProps.onChange}
-        onReset={filterProps.onReset}
-        viewMode={viewMode}
-        onViewChange={setView}
-        onCreate={openModal}
-      />
+      {filters}
 
       {children}
 
-      {isModalOpen ? (
+      {isModalOpen && !readOnly ? (
         <div
           className="ommm-modal-overlay z-50"
           role="presentation"

@@ -1,5 +1,6 @@
 import type { BookingsView } from "@/components/admin/admin-bookings-view-icons";
 import { parseListPageParams } from "@/lib/list-pagination";
+import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 
 export const ADMIN_BOOKINGS_FILTER_KEYS = [
   "search",
@@ -146,17 +147,27 @@ export function resolveManagerBookingsInitialFilters(
   from.setDate(from.getDate() - MANAGER_BOOKINGS_WINDOW_PAST_DAYS);
   const to = new Date();
   to.setDate(to.getDate() + MANAGER_BOOKINGS_WINDOW_FUTURE_DAYS);
-  return {
+  return normalizeBookingsFilterDates({
     ...picked,
-    from: picked.from || from.toISOString(),
-    to: picked.to || to.toISOString(),
+    from: picked.from || isoDateLocal(from),
+    to: picked.to || isoDateLocal(to),
+  });
+}
+
+function normalizeBookingsFilterDates(
+  filters: AdminBookingsFilterState,
+): AdminBookingsFilterState {
+  return {
+    ...filters,
+    from: normalizeFilterDateValue(filters.from),
+    to: normalizeFilterDateValue(filters.to),
   };
 }
 
 export function pickAdminBookingsInitialFilters(
   search: Record<string, string | undefined>,
 ): AdminBookingsFilterState {
-  return {
+  return normalizeBookingsFilterDates({
     search: search.search?.trim() ?? "",
     from: search.from ?? "",
     to: search.to ?? "",
@@ -164,7 +175,7 @@ export function pickAdminBookingsInitialFilters(
     coachId: search.coachId ?? "",
     clientId: search.clientId ?? "",
     status: search.status ?? "",
-  };
+  });
 }
 
 function appendFilterParams(

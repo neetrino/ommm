@@ -10,7 +10,7 @@ import {
   buildAdminCoachesFilterFields,
 } from "@/components/admin/admin-coaches-filter-fields";
 import { AdminCoachesViewSwitcher } from "@/components/admin/admin-coaches-view-switcher";
-import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
@@ -25,7 +25,19 @@ type AdminCoachesFiltersProps = {
   viewMode: AdminCoachesViewMode;
   onViewChange: (mode: AdminCoachesViewMode) => void;
   onAddCoach: () => void;
+  /** Staff layout: search row only (hero lives in StaffListPageLayout). */
+  variant?: "full" | "embedded";
 };
+
+export function countActiveCoachesFilters(values: AdminCoachesFilterValues): number {
+  return [
+    values.q.trim(),
+    values.specialization.trim(),
+    values.classType.trim(),
+    values.isActive === "all" ? "" : values.isActive,
+    values.order === "newest" ? "" : values.order,
+  ].filter(Boolean).length;
+}
 
 const FILTER_DEBOUNCE_MS = 300;
 const FILTER_QUERY_KEYS = ["q", "specialization", "classType", "isActive", "order"] as const;
@@ -83,10 +95,10 @@ export function AdminCoachesFilters({
   viewMode,
   onViewChange,
   onAddCoach,
+  variant = "full",
 }: AdminCoachesFiltersProps) {
   const t = useTranslations("adminPages.coaches");
   const tFilters = useTranslations("adminPages.coaches.filters");
-  const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -95,14 +107,7 @@ export function AdminCoachesFilters({
   const [values, setValues] = useState(initialValues);
 
   const activeFilterCount = useMemo(
-    () =>
-      [
-        values.q.trim(),
-        values.specialization.trim(),
-        values.classType.trim(),
-        values.isActive === "all" ? "" : values.isActive,
-        values.order === "newest" ? "" : values.order,
-      ].filter(Boolean).length,
+    () => countActiveCoachesFilters(values),
     [values],
   );
 
@@ -218,28 +223,37 @@ export function AdminCoachesFilters({
     }
   }
 
+  const filterSearchRow = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={values.q}
+        onSearchChange={(value) => updateField("q", value)}
+        searchPlaceholder={tFilters("searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={resetFilters}
+        resetLabel={tFilters("resetFilters")}
+      />
+      <AdminCoachesViewSwitcher value={viewMode} onChange={onViewChange} />
+    </div>
+  );
+
+  const filterTrailing =
+    isPending || activeFilterCount > 0 ? (
+      <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+        {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
+      </p>
+    ) : null;
+
+  if (variant === "embedded") {
+    return filterSearchRow;
+  }
+
   return (
     <AdminPageHero
       title={t("title")}
-      search={
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <AdminIntegratedSearchFilters
-            className="min-w-0 flex-1"
-            search={values.q}
-            onSearchChange={(value) => updateField("q", value)}
-            searchPlaceholder={tFilters("searchPlaceholder")}
-            fields={filterFields}
-            filterValues={integratedFilterValues}
-            onFilterChange={handleIntegratedFilterChange}
-            onClearAll={resetFilters}
-            applyLabel={tSearchTools("applyFilters")}
-            resetLabel={tFilters("resetFilters")}
-            clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-            filterPanelAriaLabel={tSearchTools("filterPanelAria")}
-          />
-          <AdminCoachesViewSwitcher value={viewMode} onChange={onViewChange} />
-        </div>
-      }
+      search={filterSearchRow}
       trailing={
         <>
           <OmmButton
@@ -252,11 +266,7 @@ export function AdminCoachesFilters({
             <AddCoachGlyph className="h-5 w-5 shrink-0" />
             {t("addCoachButton")}
           </OmmButton>
-          {(isPending || activeFilterCount > 0) ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-            </p>
-          ) : null}
+          {filterTrailing}
         </>
       }
     />

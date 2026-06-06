@@ -6,6 +6,7 @@ import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-ta
 import { AdminGiftCardStatusAction } from "@/components/admin/admin-gift-card-status-action";
 import { GiftCardSheetTabPanels } from "@/components/admin/admin-gift-card-sheet-tab-panels";
 import {
+  GIFT_CARD_SHEET_TAB_ACTIONS,
   GIFT_CARD_SHEET_TAB_ORDER,
   GIFT_CARD_SHEET_TAB_OVERVIEW,
   type GiftCardSheetTabId,
@@ -31,6 +32,7 @@ type AdminGiftCardDetailsSheetProps = {
   assignableUsers: readonly AdminAssignableUser[];
   onClose: () => void;
   onChanged: () => void;
+  readOnly?: boolean;
 };
 
 function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): boolean {
@@ -43,6 +45,7 @@ export function AdminGiftCardDetailsSheet({
   assignableUsers,
   onClose,
   onChanged,
+  readOnly = false,
 }: AdminGiftCardDetailsSheetProps) {
   if (card === null) {
     return null;
@@ -53,6 +56,7 @@ export function AdminGiftCardDetailsSheet({
       card={card}
       locale={locale}
       assignableUsers={assignableUsers}
+      readOnly={readOnly}
       onClose={onClose}
       onChanged={onChanged}
     />
@@ -65,12 +69,14 @@ function AdminGiftCardDetailsSheetInner({
   assignableUsers,
   onClose,
   onChanged,
+  readOnly = false,
 }: {
   card: AdminGiftCardBatchRow;
   locale: string;
   assignableUsers: readonly AdminAssignableUser[];
   onClose: () => void;
   onChanged: () => void;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("adminPages.giftCards");
   const tActions = useTranslations("adminPages.giftCards.actions");
@@ -100,7 +106,9 @@ function AdminGiftCardDetailsSheetInner({
     onChanged();
   }, [onChanged, onClose, resetSheet]);
 
-  const tabs = GIFT_CARD_SHEET_TAB_ORDER.map((value) => ({
+  const tabs = GIFT_CARD_SHEET_TAB_ORDER.filter(
+    (value) => !readOnly || value !== GIFT_CARD_SHEET_TAB_ACTIONS,
+  ).map((value) => ({
     value,
     label: t(`sheetTabs.${value}`),
   }));
@@ -121,7 +129,7 @@ function AdminGiftCardDetailsSheetInner({
 
   const amountLabel = formatAmdFromCents(card.amountAmd, locale);
   const isActive = card.status === "ACTIVE";
-  const canToggleStatus = isGiftCardStatusToggleable(card.status);
+  const canToggleStatus = !readOnly && isGiftCardStatusToggleable(card.status);
 
   return (
     <OmmDrawerPortal
@@ -138,16 +146,18 @@ function AdminGiftCardDetailsSheetInner({
           <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
             {amountLabel}
           </h2>
-          <AdminGiftCardStatusAction
-            batchId={card.id}
-            isActive={isActive}
-            canToggle={canToggleStatus}
-            labels={statusLabels}
-            layout="inline"
-            onBusyChange={setStatusBusy}
-            onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
-            onChanged={onChanged}
-          />
+          {canToggleStatus ? (
+            <AdminGiftCardStatusAction
+              batchId={card.id}
+              isActive={isActive}
+              canToggle={canToggleStatus}
+              labels={statusLabels}
+              layout="inline"
+              onBusyChange={setStatusBusy}
+              onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+              onChanged={onChanged}
+            />
+          ) : null}
         </div>
       </header>
 
@@ -171,6 +181,7 @@ function AdminGiftCardDetailsSheetInner({
           card={card}
           locale={locale}
           assignableUsers={assignableUsers}
+          readOnly={readOnly}
           onChanged={onChanged}
           onRemoved={handleRemoved}
         />

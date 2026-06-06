@@ -1,5 +1,6 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import type { ScheduleQuickFilter } from "@/components/admin/admin-schedule-quick-filters";
+import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 type AvailabilityOption = "available" | "full";
@@ -91,14 +92,14 @@ export function buildAdminScheduleFilterFields({
       label: labels.fromDate,
       fieldType: "date",
       emptyValue: "",
-      resolveChipLabel: (value) => (value ? `${labels.fromDate}: ${value}` : null),
+      resolveChipLabel: (value) => formatFilterDateChipLabel(labels.fromDate, value),
     },
     {
       key: "to",
       label: labels.toDate,
       fieldType: "date",
       emptyValue: "",
-      resolveChipLabel: (value) => (value ? `${labels.toDate}: ${value}` : null),
+      resolveChipLabel: (value) => formatFilterDateChipLabel(labels.toDate, value),
     },
     {
       key: "coachIds",

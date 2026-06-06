@@ -32,7 +32,7 @@ import {
 } from "@/components/admin/admin-clients-segment-filters";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -374,7 +374,6 @@ export function AdminClientsManagement({
 
   const clientsList = (
     <>
-      {error ? <div className="app-alert-warn">{error}</div> : null}
       <ClientsTable
         rows={payload.rows}
         onSelect={selectClient}
@@ -400,11 +399,13 @@ export function AdminClientsManagement({
 
   return (
     <div className="flex flex-col gap-6">
-      {!isStaff ? (
-        <AdminPageHero
+      {isStaff ? (
+        <StaffListPageLayout
           title={t("title")}
+          banner={staffBanner}
           search={
             <AdminIntegratedSearchFilters
+              className="min-w-0 flex-1"
               search={filters.search}
               onSearchChange={(value) => updateFilter("search", value)}
               searchPlaceholder={tFilters("searchPlaceholder")}
@@ -418,7 +419,7 @@ export function AdminClientsManagement({
               filterPanelAriaLabel={tSearchTools("filterPanelAria")}
             />
           }
-          trailing={
+          headerTrailing={
             loading || activeFilterCount > 0 ? (
               <p className="whitespace-nowrap text-xs text-sage-500" role="status">
                 {loading
@@ -427,13 +428,44 @@ export function AdminClientsManagement({
               </p>
             ) : undefined
           }
-        />
-      ) : null}
-      {!isStaff ? <Summary payload={payload} locale={locale} /> : null}
-      {isStaff ? (
-        <AdminSectionShell banner={staffBanner}>{clientsList}</AdminSectionShell>
+          metrics={<Summary payload={payload} locale={locale} />}
+          status={error ? <div className="app-alert-warn">{error}</div> : null}
+        >
+          {clientsList}
+        </StaffListPageLayout>
       ) : (
-        clientsList
+        <>
+          <AdminPageHero
+            title={t("title")}
+            search={
+              <AdminIntegratedSearchFilters
+                search={filters.search}
+                onSearchChange={(value) => updateFilter("search", value)}
+                searchPlaceholder={tFilters("searchPlaceholder")}
+                fields={filterFields}
+                filterValues={integratedFilterValues}
+                onFilterChange={handleIntegratedFilterChange}
+                onClearAll={resetFilters}
+                applyLabel={tFilters("apply")}
+                resetLabel={tFilters("resetFilters")}
+                clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+                filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+              />
+            }
+            trailing={
+              loading || activeFilterCount > 0 ? (
+                <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+                  {loading
+                    ? tSearchTools("loadingResults")
+                    : tSearchTools("activeCount", { count: activeFilterCount })}
+                </p>
+              ) : undefined
+            }
+          />
+          <Summary payload={payload} locale={locale} />
+          {error ? <div className="app-alert-warn">{error}</div> : null}
+          {clientsList}
+        </>
       )}
       <AdminClientDrawer
         client={selected}

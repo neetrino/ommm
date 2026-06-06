@@ -17,6 +17,7 @@ import { AdminCreateCoachForm } from "@/components/admin/admin-create-coach-form
 import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
 import { AdminCoachesViewProvider, useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
   ADMIN_COACHES_VIEW_QUERY_KEY,
   type AdminCoachesViewMode,
@@ -32,6 +33,9 @@ type AdminCoachesShellProps = {
   initialViewMode: AdminCoachesViewMode;
   filterInitialValues: AdminCoachesFilterValues;
   children: ReactNode;
+  variant?: "full" | "staff";
+  staffBanner?: string;
+  readOnly?: boolean;
 };
 
 export function AdminCoachesShell({
@@ -40,6 +44,9 @@ export function AdminCoachesShell({
   initialViewMode,
   filterInitialValues,
   children,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
 }: AdminCoachesShellProps) {
   return (
     <AdminCoachesViewProvider
@@ -50,6 +57,9 @@ export function AdminCoachesShell({
         classTypeOptions={classTypeOptions}
         classOptions={classOptions}
         filterInitialValues={filterInitialValues}
+        variant={variant}
+        staffBanner={staffBanner}
+        readOnly={readOnly}
       >
         {children}
       </AdminCoachesShellInner>
@@ -62,7 +72,11 @@ function AdminCoachesShellInner({
   classOptions,
   filterInitialValues,
   children,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
 }: Omit<AdminCoachesShellProps, "initialViewMode">) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.coaches");
   const { viewMode, setViewMode } = useAdminCoachesView();
   const searchParams = useSearchParams();
@@ -157,6 +171,31 @@ function AdminCoachesShellInner({
     focusable?.focus();
   }, [isModalOpen]);
 
+  const filters = (
+    <AdminCoachesFilters
+      initialValues={filterInitialValues}
+      classTypeOptions={classTypeOptions}
+      viewMode={viewMode}
+      onViewChange={setView}
+      onAddCoach={openModal}
+      variant={isStaff ? "embedded" : "full"}
+    />
+  );
+
+  const operationalBanner = banner ?? staffBanner ?? null;
+
+  if (isStaff) {
+    return (
+      <StaffListPageLayout
+        title={t("title")}
+        banner={operationalBanner}
+        search={filters}
+      >
+        {children}
+      </StaffListPageLayout>
+    );
+  }
+
   return (
     <div className="flex flex-col">
       {banner !== null ? (
@@ -168,17 +207,11 @@ function AdminCoachesShellInner({
         </p>
       ) : null}
 
-      <AdminCoachesFilters
-        initialValues={filterInitialValues}
-        classTypeOptions={classTypeOptions}
-        viewMode={viewMode}
-        onViewChange={setView}
-        onAddCoach={openModal}
-      />
+      {filters}
 
       {children}
 
-      {isModalOpen ? (
+      {isModalOpen && !readOnly ? (
         <div
           className="ommm-modal-overlay z-50"
           role="presentation"
