@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -77,7 +78,9 @@ export class PaymentsController {
     return this.payments.listPayments(user.id, query);
   }
 
+  /** Admin finance table — RSC/prefetch bursts in Next.js dev must not 429. */
   @Get('admin')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   adminList(@Query() query: AdminListPaymentsQueryDto) {

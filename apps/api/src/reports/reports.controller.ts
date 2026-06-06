@@ -6,6 +6,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import type { Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -23,6 +24,7 @@ export class ReportsController {
   constructor(private readonly reports: ReportsService) {}
 
   @Get('dashboard')
+  @SkipThrottle()
   @Roles(Role.ADMIN, Role.MANAGER)
   dashboard(
     @CurrentUser() user: { role: Role },
@@ -60,6 +62,7 @@ export class ReportsController {
   }
 
   @Get('finance/summary')
+  @SkipThrottle()
   @Roles(Role.ADMIN, Role.MANAGER)
   financeSummary(@Query() query: DateRangeQueryDto) {
     return this.reports.financeSummary(query);

@@ -55,6 +55,7 @@ export class CoachesController {
   }
 
   @Get('admin/salary-summaries')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   adminSalarySummaries(@Query() query: AdminSalarySummariesQueryDto) {

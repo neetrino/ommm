@@ -111,7 +111,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateField<K extends keyof FinanceFilterValues>(
     key: K,

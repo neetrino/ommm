@@ -91,7 +91,7 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, rangeDays]);
+  }, [pathname, router, rangeDays]);
 
   function handleFilterChange(key: string, value: string): void {
     if (key === "rangeDays") {

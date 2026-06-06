@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { User } from '@prisma/client';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -31,7 +32,9 @@ export class ClientsController {
     private readonly tabLists: ClientsTabListsService,
   ) {}
 
+  /** Admin lists (clients, finance members) — same RSC burst pattern as coaches admin list. */
   @Get()
+  @SkipThrottle()
   list(@Query() query: AdminListClientsQueryDto) {
     return this.clients.list(query);
   }

@@ -99,7 +99,7 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateValues(next: CoachesFilterState): void {
     setValues(next);

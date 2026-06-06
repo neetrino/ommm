@@ -105,7 +105,7 @@ export function AdminFinanceMembersFilters({ initialValues }: AdminFinanceMember
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, searchParams, values]);
+  }, [pathname, router, values]);
 
   function updateValues(next: MembersFilterState): void {
     setValues(next);
