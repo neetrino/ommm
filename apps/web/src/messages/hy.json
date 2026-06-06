@@ -2390,7 +2390,10 @@
         "statusPending": "Սպասման",
         "statusRefunded": "Վերադարձված",
         "searchLabel": "Որոնում",
-        "searchPlaceholder": "Հաճախորդ, email, վճարման ID, հղում"
+        "searchPlaceholder": "Հաճախորդ, email, վճարման ID, հղում",
+        "resetFilters": "Վերակայել ֆիլտրերը",
+        "loading": "Ֆինանսական տվյալները բեռնվում են…",
+        "activeCount": "{count} ակտիվ ֆիլտր"
       },
       "paymentMethods": {
         "CASH": "Կանխիկ",

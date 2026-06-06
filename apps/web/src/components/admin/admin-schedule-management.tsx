@@ -977,9 +977,11 @@ export function AdminScheduleManagement({
               <PlusIcon className="h-5 w-5 shrink-0" />
               {t("addClassButton")}
             </OmmButton>
-            <p className="whitespace-nowrap text-xs text-sage-600" role="status">
-              {t("filters.activeCount", { count: activeFilterCount })}
-            </p>
+            {activeFilterCount > 0 ? (
+              <p className="whitespace-nowrap text-xs text-sage-600" role="status">
+                {t("filters.activeCount", { count: activeFilterCount })}
+              </p>
+            ) : null}
           </>
         }
       />

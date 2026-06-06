@@ -9,9 +9,9 @@ import type {
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
+import { AdminFinanceFilters, parseFinanceFiltersFromSearch } from "@/components/admin/admin-finance-filters";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { serverApiJson } from "@/lib/server-api";
-import { FinanceFilters } from "./finance-filters";
 
 type Dashboard = {
   revenueCentsTotal?: number;
@@ -94,14 +94,6 @@ type PageSearchParams = Promise<{
   tab?: string;
 }>;
 
-function parseRangeDays(value?: string): number {
-  const parsed = Number(value);
-  if (parsed === 7 || parsed === 30 || parsed === 90) {
-    return parsed;
-  }
-  return 30;
-}
-
 function parseTab(value?: string): FinanceTab {
   return value === "coach" ? "coach" : "user";
 }
@@ -151,11 +143,14 @@ export default async function AdminFinancePage({
   const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.finance" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const rangeDays = parseRangeDays(search.rangeDays);
+  const financeFilters = parseFinanceFiltersFromSearch(search);
+  const rangeDays = financeFilters.rangeDays;
   const from = computeFromDate(rangeDays);
   const monthFrom = computeMonthStart();
-  const statusFilter = search.status && search.status !== "all" ? `&status=${search.status}` : "";
-  const sourceFilter = search.source && search.source !== "all" ? `&source=${search.source}` : "";
+  const statusFilter =
+    financeFilters.status !== "all" ? `&status=${financeFilters.status}` : "";
+  const sourceFilter =
+    financeFilters.source !== "all" ? `&source=${financeFilters.source}` : "";
 
   const [
     dashboardRes,
@@ -221,10 +216,15 @@ export default async function AdminFinancePage({
   const coachRows = mergeCoachRows(coachesRes.data, salariesRes.data.items);
 
   return (
-    <AdminContentFrame description={t("description")}>
-      <FinanceFilters />
+    <AdminContentFrame>
+      <Suspense fallback={null}>
+        <AdminFinanceFilters
+          key={`${financeFilters.q}|${financeFilters.rangeDays}|${financeFilters.source}|${financeFilters.status}`}
+          initialValues={financeFilters}
+        />
+      </Suspense>
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <article className="ommm-stack-card">
           <p className="text-xs uppercase tracking-wide text-sage-500">{t("kpiTotalRevenue")}</p>
           <p className="mt-2 text-2xl font-semibold text-sage-900">

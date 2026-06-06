@@ -41,7 +41,7 @@ export default async function AdminGiftCardsPage({
   const initialViewMode = parseAdminGiftCardsViewMode(search.view);
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminGiftCardsManagement
           giftCards={res.data}

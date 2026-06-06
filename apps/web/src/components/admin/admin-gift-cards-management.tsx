@@ -19,7 +19,6 @@ import {
   filterGiftCards,
   sortGiftCards,
 } from "@/components/admin/admin-gift-cards-filter-logic";
-import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import { AdminGiftCardsShell } from "@/components/admin/admin-gift-cards-shell";
 import type {
   AdminAssignableUser,
@@ -230,15 +229,14 @@ export function AdminGiftCardsManagement({
       assignableUsers={assignableUsers}
       giftCards={giftCards}
       initialViewMode={initialViewMode}
+      filterProps={{
+        values: filters,
+        activeFilterCount,
+        isUpdating,
+        onChange: updateFilter,
+        onReset: resetFilters,
+      }}
     >
-      <AdminGiftCardsFilters
-        values={filters}
-        activeFilterCount={activeFilterCount}
-        isUpdating={isUpdating}
-        onChange={updateFilter}
-        onReset={resetFilters}
-      />
-
       {feedback ? (
         <p
           className={`text-sm ${feedback.tone === "ok" ? "text-sage-700" : "text-red-800"}`}

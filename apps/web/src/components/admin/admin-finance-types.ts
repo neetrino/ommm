@@ -2,6 +2,24 @@ import type { ClientRow } from "./admin-clients-types";
 
 export type FinanceTab = "user" | "coach";
 
+export type FinanceDateRangeDays = 7 | 30 | 90;
+
+export type FinanceSourceFilter = "all" | "package" | "dropin" | "gift" | "other";
+
+export type FinanceStatusFilter =
+  | "all"
+  | "SUCCEEDED"
+  | "FAILED"
+  | "PENDING"
+  | "REFUNDED";
+
+export type FinanceFilterValues = {
+  q: string;
+  rangeDays: FinanceDateRangeDays;
+  source: FinanceSourceFilter;
+  status: FinanceStatusFilter;
+};
+
 export type FinancePaymentItem = {
   id: string;
   amountCents: number;

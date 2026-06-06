@@ -219,7 +219,6 @@ export function AdminCoachesFilters({
   return (
     <AdminPageHero
       title={t("title")}
-      description={t("description")}
       search={
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <AdminIntegratedSearchFilters
@@ -251,9 +250,11 @@ export function AdminCoachesFilters({
             <AddCoachGlyph className="h-5 w-5 shrink-0" />
             {t("addCoachButton")}
           </OmmButton>
-          <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-            {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-          </p>
+          {(isPending || activeFilterCount > 0) ? (
+            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+              {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
+            </p>
+          ) : null}
         </>
       }
     />

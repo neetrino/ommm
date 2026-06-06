@@ -316,7 +316,6 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
     <div className="flex flex-col gap-6">
       <AdminPageHero
         title={t("title")}
-        description={t("description")}
         search={
           <AdminIntegratedSearchFilters
             search={filters.search}
@@ -333,11 +332,13 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
           />
         }
         trailing={
-          <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-            {loading
-              ? tSearchTools("loadingResults")
-              : tSearchTools("activeCount", { count: activeFilterCount })}
-          </p>
+          loading || activeFilterCount > 0 ? (
+            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+              {loading
+                ? tSearchTools("loadingResults")
+                : tSearchTools("activeCount", { count: activeFilterCount })}
+            </p>
+          ) : undefined
         }
       />
       <Summary payload={payload} locale={locale} />

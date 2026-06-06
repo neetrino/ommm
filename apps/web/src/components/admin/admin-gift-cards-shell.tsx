@@ -7,15 +7,15 @@ import { useRouter } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import {
   AdminGiftCardsViewProvider,
   useAdminGiftCardsView,
 } from "@/components/admin/admin-gift-cards-view-context";
-import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
-import { OmmButton } from "@/components/ui/omm-button";
 import type {
   AdminAssignableUser,
   AdminGiftCardBatchRow,
+  GiftCardFilterValues,
 } from "@/components/admin/admin-gift-cards-types";
 import {
   ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
@@ -27,28 +27,22 @@ const MODAL_QUERY_KEY = "modal";
 const MODAL_QUERY_VALUE = "create-gift-card";
 const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
-function AddGiftCardGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 2v20M2 12h20" />
-    </svg>
-  );
-}
+type AdminGiftCardsShellFilterProps = {
+  values: GiftCardFilterValues;
+  activeFilterCount: number;
+  isUpdating: boolean;
+  onChange: <K extends keyof GiftCardFilterValues>(
+    key: K,
+    value: GiftCardFilterValues[K],
+  ) => void;
+  onReset: () => void;
+};
 
 type AdminGiftCardsShellProps = {
   assignableUsers: readonly AdminAssignableUser[];
   giftCards: readonly AdminGiftCardBatchRow[];
   initialViewMode: AdminGiftCardsViewMode;
+  filterProps: AdminGiftCardsShellFilterProps;
   children: ReactNode;
 };
 
@@ -56,11 +50,16 @@ export function AdminGiftCardsShell({
   assignableUsers,
   giftCards,
   initialViewMode,
+  filterProps,
   children,
 }: AdminGiftCardsShellProps) {
   return (
     <AdminGiftCardsViewProvider key={initialViewMode} initialViewMode={initialViewMode}>
-      <AdminGiftCardsShellInner assignableUsers={assignableUsers} giftCards={giftCards}>
+      <AdminGiftCardsShellInner
+        assignableUsers={assignableUsers}
+        giftCards={giftCards}
+        filterProps={filterProps}
+      >
         {children}
       </AdminGiftCardsShellInner>
     </AdminGiftCardsViewProvider>
@@ -70,6 +69,7 @@ export function AdminGiftCardsShell({
 function AdminGiftCardsShellInner({
   assignableUsers,
   giftCards,
+  filterProps,
   children,
 }: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
   const t = useTranslations("adminPages.giftCards");
@@ -176,36 +176,27 @@ function AdminGiftCardsShellInner({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-        {banner !== null ? (
-          <p
-            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
-            role="status"
-          >
-            {banner}
-          </p>
-        ) : null}
+      {banner !== null ? (
+        <p
+          className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+          role="status"
+        >
+          {banner}
+        </p>
+      ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex justify-start">
-            <AdminGiftCardsViewSwitcher value={viewMode} onChange={setView} />
-          </div>
-          <div className="flex justify-start sm:justify-end">
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={openModal}
-              className="inline-flex cursor-pointer items-center gap-2 shadow-sm transition-transform hover:-translate-y-px"
-            >
-              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-              {t("createButton")}
-            </OmmButton>
-          </div>
-        </div>
+      <AdminGiftCardsFilters
+        values={filterProps.values}
+        activeFilterCount={filterProps.activeFilterCount}
+        isUpdating={filterProps.isUpdating}
+        onChange={filterProps.onChange}
+        onReset={filterProps.onReset}
+        viewMode={viewMode}
+        onViewChange={setView}
+        onCreate={openModal}
+      />
 
-        {children}
-      </div>
+      {children}
 
       {isModalOpen ? (
         <div

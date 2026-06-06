@@ -2553,7 +2553,10 @@
         "statusPending": "Pending",
         "statusRefunded": "Refunded",
         "searchLabel": "Search",
-        "searchPlaceholder": "Client, email, payment ID, reference"
+        "searchPlaceholder": "Client, email, payment ID, reference",
+        "resetFilters": "Reset Filters",
+        "loading": "Loading finance data…",
+        "activeCount": "{count} active filters"
       },
       "paymentMethods": {
         "CASH": "Cash",
