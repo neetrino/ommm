@@ -3105,6 +3105,10 @@
         "resetFilters": "Reset filters",
         "previewOnSite": "Preview on site"
       },
+      "fieldHints": {
+        "type": "How the post is categorized on the site (blog, news, event, update, or article).",
+        "status": "Publication state — draft, in review, published, hidden from visitors, or rejected."
+      },
       "statusValues": {
         "DRAFT": "Draft",
         "IN_REVIEW": "In review",

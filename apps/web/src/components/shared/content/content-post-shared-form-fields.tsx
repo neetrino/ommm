@@ -31,66 +31,81 @@ export function ContentPostSharedFormFields({
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <OmmSelectDropdown
-          ariaLabel={t("labels.type")}
-          label={t(`typeValues.${values.type}`)}
-          value={values.type}
+      <div className="grid gap-4 sm:grid-cols-2 sm:items-stretch">
+        <div className="grid min-w-0 gap-2">
+          <label className="flex flex-col gap-1.5">
+            <span
+              className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500"
+              title={t("fieldHints.type")}
+            >
+              {t("labels.type")}
+            </span>
+            <OmmSelectDropdown
+              ariaLabel={t("labels.type")}
+              value={values.type}
+              disabled={disabled}
+              triggerClassName="ommm-dropdown-trigger--compact"
+              options={CONTENT_POST_TYPES.map((value) => ({
+                value,
+                label: t(`typeValues.${value}`),
+              }))}
+              onChange={(next) => updateSharedField("type", next as ContentPostFormValues["type"])}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span
+              className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500"
+              title={t("fieldHints.status")}
+            >
+              {t("labels.status")}
+            </span>
+            <OmmSelectDropdown
+              ariaLabel={t("labels.status")}
+              value={values.status}
+              disabled={disabled}
+              triggerClassName="ommm-dropdown-trigger--compact"
+              options={CONTENT_POST_STATUSES.map((value) => ({
+                value,
+                label: t(`statusValues.${value}`),
+              }))}
+              onChange={(next) =>
+                updateSharedField("status", next as ContentPostFormValues["status"])
+              }
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+              {t("placeholders.authorName")}
+            </span>
+            <input
+              className="ommm-input h-10"
+              value={values.authorName}
+              disabled={disabled}
+              onChange={(event) => updateSharedField("authorName", event.target.value)}
+              placeholder={t("placeholders.authorName")}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+              {t("placeholders.tagsCsv")}
+            </span>
+            <input
+              className="ommm-input h-10"
+              value={values.tagsCsv}
+              disabled={disabled}
+              onChange={(event) => updateSharedField("tagsCsv", event.target.value)}
+              placeholder={t("placeholders.tagsCsv")}
+            />
+          </label>
+        </div>
+
+        <ContentPostCoverImageField
+          layout="compact"
+          coverImageUrl={values.coverImageUrl}
           disabled={disabled}
-          options={CONTENT_POST_TYPES.map((value) => ({
-            value,
-            label: t(`typeValues.${value}`),
-          }))}
-          onChange={(next) => updateSharedField("type", next as ContentPostFormValues["type"])}
-        />
-        <OmmSelectDropdown
-          ariaLabel={t("labels.status")}
-          label={t(`statusValues.${values.status}`)}
-          value={values.status}
-          disabled={disabled}
-          options={CONTENT_POST_STATUSES.map((value) => ({
-            value,
-            label: t(`statusValues.${value}`),
-          }))}
-          onChange={(next) =>
-            updateSharedField("status", next as ContentPostFormValues["status"])
-          }
+          onChange={(coverImageUrl) => updateSharedField("coverImageUrl", coverImageUrl)}
         />
       </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-            {t("placeholders.authorName")}
-          </span>
-          <input
-            className="ommm-input h-10"
-            value={values.authorName}
-            disabled={disabled}
-            onChange={(event) => updateSharedField("authorName", event.target.value)}
-            placeholder={t("placeholders.authorName")}
-          />
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-            {t("placeholders.tagsCsv")}
-          </span>
-          <input
-            className="ommm-input h-10"
-            value={values.tagsCsv}
-            disabled={disabled}
-            onChange={(event) => updateSharedField("tagsCsv", event.target.value)}
-            placeholder={t("placeholders.tagsCsv")}
-          />
-        </label>
-      </div>
-
-      <ContentPostCoverImageField
-        coverImageUrl={values.coverImageUrl}
-        disabled={disabled}
-        onChange={(coverImageUrl) => updateSharedField("coverImageUrl", coverImageUrl)}
-      />
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
