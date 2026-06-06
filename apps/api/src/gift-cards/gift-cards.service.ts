@@ -19,6 +19,10 @@ import { R2HomeImageStorage } from '../storage/r2-home-image.storage';
 import type { AdminCreateGiftCardDto } from './dto/admin-create-gift-card.dto';
 import type { AdminUpdateGiftCardBatchDto } from './dto/admin-update-gift-card-batch.dto';
 import type { ListAdminGiftCardBatchesQueryDto } from './dto/list-admin-gift-card-batches-query.dto';
+import {
+  buildGiftCardBatchWhere,
+  resolveGiftCardBatchOrderBy,
+} from './gift-cards-list-query.builder';
 import type { ListMyGiftCardsQueryDto } from './dto/list-my-gift-cards-query.dto';
 import { absolutePathForStoredGiftCardUpload } from './gift-card-upload.helpers';
 import {
@@ -248,12 +252,14 @@ export class GiftCardsService {
 
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
-    return this.loadAdminBoardPage(take, offset).then(({ batches, total }) => ({
-      items: batches.map((batch) => this.serializeAdminBoardBatch(batch)),
-      total,
-      take,
-      offset,
-    }));
+    return this.loadAdminBoardPage(query, take, offset).then(
+      ({ batches, total }) => ({
+        items: batches.map((batch) => this.serializeAdminBoardBatch(batch)),
+        total,
+        take,
+        offset,
+      }),
+    );
   }
 
   private serializeAdminBoardBatch(batch: AdminBoardBatchRow) {
@@ -265,17 +271,23 @@ export class GiftCardsService {
   }
 
   private async loadAdminBoardLegacy(): Promise<AdminBoardBatchRow[]> {
-    const page = await this.loadAdminBoardPage(500, 0);
+    const page = await this.loadAdminBoardPage({}, 500, 0);
     return page.batches;
   }
 
   private async loadAdminBoardPage(
+    query: ListAdminGiftCardBatchesQueryDto,
     take: number,
     offset: number,
   ): Promise<{ batches: AdminBoardBatchRow[]; total: number }> {
     try {
       const batchDelegate = this.giftCardBatchDelegate(this.prisma);
-      const where = {};
+      const where = buildGiftCardBatchWhere(query);
+      const orderBy = resolveGiftCardBatchOrderBy(query) as {
+        createdAt?: 'asc' | 'desc';
+        amountAmd?: 'asc' | 'desc';
+        expiresAt?: 'asc' | 'desc';
+      };
       const [rows, total] = await Promise.all([
         batchDelegate.findMany({
           where,
@@ -283,7 +295,7 @@ export class GiftCardsService {
             purchaser: { select: { email: true, name: true } },
             recipient: { select: { email: true, name: true } },
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy,
           take,
           skip: offset,
         }),
@@ -303,12 +315,117 @@ export class GiftCardsService {
       this.logger.warn(
         'GiftCardBatch table is missing; falling back to grouped GiftCard board response.',
       );
-      const sorted = await this.loadGroupedAdminBoardFallback();
+      const sorted = this.filterGroupedAdminBoardFallback(
+        await this.loadGroupedAdminBoardFallback(),
+        query,
+      );
       return {
         batches: sorted.slice(offset, offset + take),
         total: sorted.length,
       };
     }
+  }
+
+  private filterGroupedAdminBoardFallback(
+    batches: AdminBoardBatchRow[],
+    query: ListAdminGiftCardBatchesQueryDto,
+  ): AdminBoardBatchRow[] {
+    const now = Date.now();
+    const search = query.search?.trim().toLowerCase() ?? '';
+    let rows = batches;
+
+    if (search.length > 0) {
+      rows = rows.filter((batch) => {
+        const haystack = [
+          batch.purchaser.name,
+          batch.purchaser.email,
+          batch.recipient?.name,
+          batch.recipient?.email,
+          batch.recipientEmail,
+          batch.recipientName,
+          batch.message,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(search);
+      });
+    }
+
+    if (query.status && query.status !== 'all') {
+      rows = rows.filter((batch) => batch.status === query.status);
+    }
+
+    if (query.expiration === 'valid') {
+      rows = rows.filter((batch) => {
+        if (batch.status === GiftCardStatus.EXPIRED) {
+          return false;
+        }
+        if (batch.expiresAt === null) {
+          return true;
+        }
+        return new Date(batch.expiresAt).getTime() >= now;
+      });
+    } else if (query.expiration === 'expired') {
+      rows = rows.filter((batch) => {
+        if (batch.status === GiftCardStatus.EXPIRED) {
+          return true;
+        }
+        if (batch.expiresAt === null) {
+          return false;
+        }
+        return new Date(batch.expiresAt).getTime() < now;
+      });
+    }
+
+    if (query.amountMin !== undefined) {
+      rows = rows.filter(
+        (batch) => this.readBatchAmount(batch) >= query.amountMin!,
+      );
+    }
+    if (query.amountMax !== undefined) {
+      rows = rows.filter(
+        (batch) => this.readBatchAmount(batch) <= query.amountMax!,
+      );
+    }
+
+    if (query.quick === 'active') {
+      rows = rows.filter((batch) => batch.status === GiftCardStatus.ACTIVE);
+    } else if (query.quick === 'expired') {
+      rows = rows.filter((batch) => {
+        if (batch.status === GiftCardStatus.EXPIRED) {
+          return true;
+        }
+        if (batch.expiresAt === null) {
+          return false;
+        }
+        return new Date(batch.expiresAt).getTime() < now;
+      });
+    } else if (query.quick === 'unredeemed') {
+      rows = rows.filter(
+        (batch) =>
+          batch.status === GiftCardStatus.ACTIVE && batch.availableQuantity > 0,
+      );
+    }
+
+    const order = query.order ?? 'newest';
+    return [...rows].sort((a, b) => {
+      if (order === 'oldest') {
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      }
+      if (order === 'amountHigh') {
+        return this.readBatchAmount(b) - this.readBatchAmount(a);
+      }
+      if (order === 'amountLow') {
+        return this.readBatchAmount(a) - this.readBatchAmount(b);
+      }
+      if (order === 'expirationSoon') {
+        const aTime = a.expiresAt?.getTime() ?? Number.POSITIVE_INFINITY;
+        const bTime = b.expiresAt?.getTime() ?? Number.POSITIVE_INFINITY;
+        return aTime - bTime;
+      }
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
   }
 
   private async loadGroupedAdminBoardFallback(): Promise<AdminBoardBatchRow[]> {

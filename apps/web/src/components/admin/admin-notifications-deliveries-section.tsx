@@ -34,12 +34,17 @@ import {
   ADMIN_NOTIFICATIONS_DELIVERIES_PAGE_KEYS,
   parseAdminNotificationsDeliveriesPageParams,
 } from "@/components/admin/admin-notifications-query";
+import {
+  defaultDeliveriesListFilters,
+  type DeliveriesListFilters,
+} from "@/components/admin/admin-notifications-url";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
   payload: AdminNotificationsListPayload<DeliveryRow>;
   loadFailed: boolean;
+  initialFilters?: DeliveriesListFilters;
 };
 
 type DeliveryQuickFilter = "" | "scheduled" | "immediate" | "sent-today";
@@ -57,20 +62,12 @@ const sortOptions = [
   ["oldest", "sortOldest"],
 ] as const;
 
-function isToday(iso: string): boolean {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return false;
-  }
-  const now = new Date();
-  return (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
-  );
-}
-
-export function AdminNotificationsDeliveriesSection({ locale, payload, loadFailed }: Props) {
+export function AdminNotificationsDeliveriesSection({
+  locale,
+  payload,
+  loadFailed,
+  initialFilters,
+}: Props) {
   const t = useTranslations("adminPages.notifications");
   const router = useRouter();
   const pathname = usePathname();
@@ -79,57 +76,18 @@ export function AdminNotificationsDeliveriesSection({ locale, payload, loadFaile
   const listPage = parseAdminNotificationsDeliveriesPageParams(
     Object.fromEntries(searchParams.entries()),
   );
-  const [search, setSearch] = useState("");
-  const [audience, setAudience] = useState<BroadcastAudience | "">("");
-  const [channel, setChannel] = useState("");
-  const [timing, setTiming] = useState<"" | "scheduled" | "immediate">("");
-  const [order, setOrder] = useState<"newest" | "oldest">("newest");
-  const [quick, setQuick] = useState<DeliveryQuickFilter>("");
+  const resolvedFilters = initialFilters ?? defaultDeliveriesListFilters;
+  const [search, setSearch] = useState(resolvedFilters.search);
+  const [audience, setAudience] = useState<BroadcastAudience | "">(resolvedFilters.audience);
+  const [channel, setChannel] = useState(resolvedFilters.channel);
+  const [timing, setTiming] = useState<"" | "scheduled" | "immediate">(resolvedFilters.timing);
+  const [order, setOrder] = useState<"newest" | "oldest">(resolvedFilters.order);
+  const [quick, setQuick] = useState<DeliveryQuickFilter>(resolvedFilters.quick);
 
   const channels = useMemo(() => {
     const unique = new Set(items.map((item) => item.channel).filter(Boolean));
     return [...unique].sort();
   }, [items]);
-
-  const filtered = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    let rows = items.filter((row) => {
-      if (needle !== "") {
-        const haystack = `${row.subject} ${row.recipientEmail} ${row.channel}`.toLowerCase();
-        if (!haystack.includes(needle)) {
-          return false;
-        }
-      }
-      if (audience !== "" && row.audience !== audience) {
-        return false;
-      }
-      if (channel !== "" && row.channel !== channel) {
-        return false;
-      }
-      if (timing === "scheduled" && !row.scheduled) {
-        return false;
-      }
-      if (timing === "immediate" && row.scheduled) {
-        return false;
-      }
-      if (quick === "scheduled" && !row.scheduled) {
-        return false;
-      }
-      if (quick === "immediate" && row.scheduled) {
-        return false;
-      }
-      if (quick === "sent-today" && !isToday(row.createdAt)) {
-        return false;
-      }
-      return true;
-    });
-    rows = [...rows].sort((a, b) => {
-      const aTime = new Date(a.createdAt).getTime();
-      const bTime = new Date(b.createdAt).getTime();
-      return order === "newest" ? bTime - aTime : aTime - bTime;
-    });
-    return rows;
-  }, [audience, channel, items, order, quick, search, timing]);
 
   function resetFilters() {
     setSearch("");
@@ -253,7 +211,7 @@ export function AdminNotificationsDeliveriesSection({ locale, payload, loadFaile
         label={t("filters.reset")}
         meta={
           <span className={adminChrome.metaText}>
-            {t("filters.resultCount", { count: filtered.length })}
+            {t("filters.resultCount", { count: payload.total })}
           </span>
         }
       />
@@ -266,12 +224,12 @@ export function AdminNotificationsDeliveriesSection({ locale, payload, loadFaile
           <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.channel")}</span>
           <span className={ADMIN_NOTIFICATIONS_LIST_EMPHASIZED_HEADER}>{t("table.timing")}</span>
         </div>
-        {filtered.length === 0 ? (
+        {items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
-            {items.length === 0 ? t("deliveryListEmpty") : t("filters.noMatches")}
+            {payload.total === 0 ? t("deliveryListEmpty") : t("filters.noMatches")}
           </p>
         ) : (
-          filtered.map((row) => (
+          items.map((row) => (
             <article key={row.id} className={ADMIN_NOTIFICATIONS_LIST_ROW_CLASS}>
               <div className={ADMIN_NOTIFICATIONS_LIST_CELL}>
                 <AdminListMobileLabel label={t("table.sentAt")} />

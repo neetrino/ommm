@@ -31,7 +31,12 @@ export default async function AdminGiftCardsPage({
     ]),
   ) as Record<string, string | undefined>;
   const listPage = parseAdminGiftCardsPageParams(normalizedSearch);
-  const batchesEndpoint = buildAdminGiftCardsListEndpoint(listPage.take, listPage.offset);
+  const initialFilters = parseGiftCardFiltersFromSearch(search);
+  const batchesEndpoint = buildAdminGiftCardsListEndpoint(
+    listPage.take,
+    listPage.offset,
+    initialFilters,
+  );
   const [res, usersRes] = await Promise.all([
     serverApiJson<AdminGiftCardsListPayload>(batchesEndpoint, cookie),
     serverApiJson<AdminAssignableUser[]>("/gift-cards/admin/users", cookie),
@@ -47,7 +52,6 @@ export default async function AdminGiftCardsPage({
     );
   }
 
-  const initialFilters = parseGiftCardFiltersFromSearch(search);
   const initialViewMode = parseAdminGiftCardsViewMode(search.view);
 
   return (

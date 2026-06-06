@@ -2578,18 +2578,23 @@
     },
     "finance": {
       "title": "Finance",
-      "description": "Revenue, payments, refunds, and transaction history in one place.",
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load finance data ({status}).",
-      "loadingTabs": "Loading finance tabs…",
-      "tabsAria": "Finance sections",
-      "tabUserFinance": "User finance",
-      "tabCoachFinance": "Coach finance",
+      "tabs": {
+        "aria": "Finance sections",
+        "overview": "Overview",
+        "payments": "Payments",
+        "members": "Members",
+        "coaches": "Coaches"
+      },
       "kpiTotalRevenue": "Total revenue",
       "kpiMonthlyRevenue": "Monthly revenue",
       "kpiPendingPayments": "Pending payments",
       "kpiCompletedPayments": "Completed payments",
       "kpiRefundedPayments": "Refunded payments",
+      "kpiPeriodAllTime": "All time",
+      "kpiPeriodThisMonth": "This calendar month",
+      "kpiPeriodRangeDays": "Last {days} days",
       "giftCreditsHeading": "Gift credits ledger",
       "kpiGiftIssued": "Gift credits issued",
       "kpiGiftRedeemed": "Gift cards redeemed",
@@ -2673,6 +2678,11 @@
         "sendButton": "Send",
         "notifySuccess": "Notification sent to {name}.",
         "notifyFailed": "Could not send notification."
+      },
+      "paymentsTab": {
+        "loading": "Loading…",
+        "loadFailed": "Could not load payments.",
+        "rowCount": "{count} payments"
       },
       "userTab": {
         "searchPlaceholder": "Search name, phone, or email",

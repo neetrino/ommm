@@ -1,3 +1,8 @@
+import type {
+  DeliveriesListFilters,
+  ScheduledListFilters,
+} from "@/components/admin/admin-notifications-url";
+
 export type BroadcastAudience = "users" | "coaches" | "staff" | "all";
 
 export type ScheduledBroadcastStatus = "PENDING" | "SENT" | "FAILED" | "CANCELLED";
@@ -65,6 +70,8 @@ export type AdminNotificationsPayload = {
   stats: NotificationStats;
   scheduled: AdminNotificationsListPayload<ScheduledBroadcast>;
   deliveries: AdminNotificationsListPayload<DeliveryRow>;
+  scheduledFilters: ScheduledListFilters;
+  deliveriesFilters: DeliveriesListFilters;
   analytics: NotificationAnalytics;
   loadErrors: {
     stats: boolean;

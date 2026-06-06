@@ -34,6 +34,13 @@ import {
   type CoachScheduleSlotDto,
 } from './dto/coach-schedule-slot.dto';
 import type { AdminSalarySummariesQueryDto } from './dto/admin-salary-summaries-query.dto';
+import {
+  COACH_SALARY_FILTER_SCAN_LIMIT,
+  filterCoachSalaryRows,
+  requiresCoachSalaryPostProcessing,
+  resolveSalaryMonthRange,
+  sortCoachSalaryRows,
+} from './coaches-salary-list-filters';
 import type { UploadCoachPhotoJsonDto } from './dto/upload-coach-photo-json.dto';
 import type { UpdateCoachDto } from './dto/update-coach.dto';
 
@@ -969,6 +976,21 @@ export class CoachesService {
       },
     } as const;
     const orderBy = { createdAt: 'desc' as const };
+    const search = query.search?.trim();
+    const profileWhere = search
+      ? {
+          OR: [
+            { user: { name: { contains: search, mode: 'insensitive' as const } } },
+            {
+              user: {
+                lastName: { contains: search, mode: 'insensitive' as const },
+              },
+            },
+            { user: { email: { contains: search, mode: 'insensitive' as const } } },
+            { user: { phone: { contains: search, mode: 'insensitive' as const } } },
+          ],
+        }
+      : undefined;
 
     const mapProfile = async (
       profile: {
@@ -990,11 +1012,12 @@ export class CoachesService {
       isActive: profile.isActive,
       user: profile.user,
       totalClasses: profile._count.sessions,
-      salary: await this.salarySummary(profile.userId),
+      salary: await this.salarySummary(profile.userId, query.month),
     });
 
     if (!hasPagination) {
       const profiles = await this.prisma.coachProfile.findMany({
+        where: profileWhere,
         include,
         orderBy,
       });
@@ -1004,24 +1027,56 @@ export class CoachesService {
 
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
+
+    if (requiresCoachSalaryPostProcessing(query)) {
+      const profiles = await this.prisma.coachProfile.findMany({
+        where: profileWhere,
+        include,
+        orderBy,
+        take: COACH_SALARY_FILTER_SCAN_LIMIT,
+      });
+      const mapped = await Promise.all(profiles.map(mapProfile));
+      const filtered = sortCoachSalaryRows(
+        filterCoachSalaryRows(mapped, query),
+        query.order,
+      );
+      return {
+        items: filtered.slice(offset, offset + take),
+        total: filtered.length,
+        take,
+        offset,
+      };
+    }
+
     const [profiles, total] = await Promise.all([
-      this.prisma.coachProfile.findMany({ include, orderBy, take, skip: offset }),
-      this.prisma.coachProfile.count(),
+      this.prisma.coachProfile.findMany({
+        where: profileWhere,
+        include,
+        orderBy,
+        take,
+        skip: offset,
+      }),
+      this.prisma.coachProfile.count({ where: profileWhere }),
     ]);
-    const items = await Promise.all(profiles.map(mapProfile));
+    const items = sortCoachSalaryRows(
+      await Promise.all(profiles.map(mapProfile)),
+      query.order,
+    );
     return { items, total, take, offset };
   }
 
-  async salarySummary(userId: string) {
+  async salarySummary(userId: string, month?: string) {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { userId },
     });
     if (!profile) {
       return null;
     }
+    const { from, to } = resolveSalaryMonthRange(month);
     const sessions = await this.prisma.classSession.findMany({
       where: {
         coachId: profile.id,
+        startsAt: { gte: from, lt: to },
       },
       include: {
         bookings: {

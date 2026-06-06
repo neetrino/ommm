@@ -8,23 +8,26 @@ import {
   adminFinanceIntegratedFilterValues,
   buildAdminFinanceFilterFields,
 } from "@/components/admin/admin-finance-filter-fields";
+import { AdminFinanceExportLinks } from "@/components/admin/admin-finance-export-links";
+import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
-import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import type { FinanceFilterValues } from "@/components/admin/admin-finance-types";
 import {
-  buildFinanceFiltersQuery,
+  buildFinancePaymentsFiltersQuery,
   parseFinanceDateRangeDays,
+  parseFinancePaymentsFiltersFromSearch,
   parseFinanceSourceFilter,
   parseFinanceStatusFilter,
 } from "@/components/admin/admin-finance-url";
 
 const FILTER_DEBOUNCE_MS = 300;
 
-type AdminFinanceFiltersProps = {
+type AdminFinancePaymentsFiltersProps = {
   initialValues: FinanceFilterValues;
 };
 
-export function AdminFinanceFilters({ initialValues }: AdminFinanceFiltersProps) {
+export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePaymentsFiltersProps) {
   const t = useTranslations("adminPages.finance");
   const tFilters = useTranslations("adminPages.finance.filters");
   const tSearchTools = useTranslations("adminPages.searchTools");
@@ -81,6 +84,8 @@ export function AdminFinanceFilters({ initialValues }: AdminFinanceFiltersProps)
     [values],
   );
 
+  const fromIso = useMemo(() => computeFinanceFromDate(values.rangeDays), [values.rangeDays]);
+
   useEffect(() => {
     setValues(initialValues);
   }, [initialValues]);
@@ -92,9 +97,11 @@ export function AdminFinanceFilters({ initialValues }: AdminFinanceFiltersProps)
     }
 
     const handle = window.setTimeout(() => {
-      const query = buildFinanceFiltersQuery(values, new URLSearchParams(searchParams.toString()));
-      const currentQuery = searchParams.toString();
-      if (query === currentQuery) {
+      const query = buildFinancePaymentsFiltersQuery(
+        values,
+        new URLSearchParams(searchParams.toString()),
+      );
+      if (query === searchParams.toString()) {
         return;
       }
       startTransition(() => {
@@ -138,9 +145,7 @@ export function AdminFinanceFilters({ initialValues }: AdminFinanceFiltersProps)
   }
 
   return (
-    <AdminPageHero
-      title={t("title")}
-      description={t("description")}
+    <AdminFinanceFiltersBar
       search={
         <AdminIntegratedSearchFilters
           className="min-w-0 flex-1"
@@ -158,14 +163,15 @@ export function AdminFinanceFilters({ initialValues }: AdminFinanceFiltersProps)
         />
       }
       trailing={
-        isPending || activeFilterCount > 0 ? (
-          <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-            {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-          </p>
-        ) : undefined
+        <>
+          <AdminFinanceExportLinks fromIso={fromIso} paymentsLabel={t("exportPaymentsCsv")} />
+          {isPending || activeFilterCount > 0 ? (
+            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
+              {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
+            </p>
+          ) : null}
+        </>
       }
     />
   );
 }
-
-export type { FinanceFilterValues } from "@/components/admin/admin-finance-types";

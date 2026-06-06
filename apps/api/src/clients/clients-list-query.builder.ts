@@ -48,6 +48,9 @@ export function requiresClientsPostProcessing(
   if (query.birthdayMonth !== undefined) {
     return true;
   }
+  if (query.giftCardOnly) {
+    return true;
+  }
   if (query.quick?.includes(AdminClientQuickFilter.BIRTHDAY_THIS_MONTH)) {
     return true;
   }
@@ -113,6 +116,10 @@ export function buildClientsListWhere(
     and.push({ bookings: { some: { channel: 'WEBSITE' } } });
   } else if (query.source === 'admin') {
     and.push({ bookings: { none: {} } });
+  }
+
+  if (query.birthdayMonth !== undefined) {
+    and.push({ dateOfBirth: { not: null } });
   }
 
   if (query.classLevel?.trim()) {

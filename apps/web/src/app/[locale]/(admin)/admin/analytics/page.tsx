@@ -65,6 +65,7 @@ function buildBookingsQuery(
   coachId: string,
   classTypeId: string,
   bookingStatus: string,
+  options?: { countOnly?: boolean; sampleTake?: number },
 ) {
   const params = new URLSearchParams();
   params.set("from", fromIso);
@@ -78,7 +79,11 @@ function buildBookingsQuery(
   if (bookingStatus) {
     params.set("status", bookingStatus);
   }
-  params.set("take", String(ANALYTICS_BOOKINGS_SAMPLE_LIMIT));
+  if (options?.countOnly) {
+    params.set("countOnly", "true");
+    return `/bookings/admin/management?${params.toString()}`;
+  }
+  params.set("take", String(options?.sampleTake ?? ANALYTICS_BOOKINGS_SAMPLE_LIMIT));
   params.set("offset", "0");
   return `/bookings/admin/management?${params.toString()}`;
 }
@@ -104,9 +109,24 @@ export default async function AdminAnalyticsPage({
   const sortFromQuick = resolveQuickFiltersSort(quickFilters);
   const sortKey = sortFromQuick ?? parseAnalyticsSortKey(search.sort);
 
-  const bookingsQuery = buildBookingsQuery(fromIso, toIso, coachId, classTypeId, bookingStatus);
+  const bookingsCountQuery = buildBookingsQuery(
+    fromIso,
+    toIso,
+    coachId,
+    classTypeId,
+    bookingStatus,
+    { countOnly: true },
+  );
+  const bookingsSampleQuery = buildBookingsQuery(
+    fromIso,
+    toIso,
+    coachId,
+    classTypeId,
+    bookingStatus,
+    { sampleTake: ANALYTICS_BOOKINGS_SAMPLE_LIMIT },
+  );
 
-  const [dashboardRes, financeRes, bookingsRes, clientsRes, coachesRes] =
+  const [dashboardRes, financeRes, bookingsCountRes, bookingsRes, clientsRes, coachesRes] =
     await Promise.all([
       serverApiJson<AnalyticsDashboardOverview>(
         "/reports/dashboard?includeRevenue=true&includeOverview=true",
@@ -116,7 +136,8 @@ export default async function AdminAnalyticsPage({
         `/reports/finance/summary?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`,
         cookie,
       ),
-      serverApiJson<BookingsManagementResponse>(bookingsQuery, cookie),
+      serverApiJson<BookingsManagementResponse>(bookingsCountQuery, cookie),
+      serverApiJson<BookingsManagementResponse>(bookingsSampleQuery, cookie),
       serverApiJson<{ summary: AnalyticsClientsSummary }>("/clients?meta=true", cookie),
       serverApiJson<AnalyticsCoachRow[]>("/coaches/admin/list", cookie),
     ]);
@@ -124,6 +145,7 @@ export default async function AdminAnalyticsPage({
   if (
     !dashboardRes.ok ||
     !financeRes.ok ||
+    !bookingsCountRes.ok ||
     !bookingsRes.ok ||
     !clientsRes.ok ||
     !coachesRes.ok
@@ -131,6 +153,7 @@ export default async function AdminAnalyticsPage({
     const failed = [
       dashboardRes,
       financeRes,
+      bookingsCountRes,
       bookingsRes,
       clientsRes,
       coachesRes,
@@ -149,8 +172,9 @@ export default async function AdminAnalyticsPage({
     (row) => row.recordType === undefined || row.recordType === "BOOKING",
   );
   const missed = bookingRows.filter((row) => row.status === "MISSED").length;
-  const matchedTotal = bookingsRes.data.pagination?.total ?? bookingRows.length;
-  const isSampled = matchedTotal >= ANALYTICS_BOOKINGS_SAMPLE_LIMIT;
+  const matchedTotal =
+    bookingsCountRes.data.pagination?.total ?? bookingsCountRes.data.summary.total;
+  const isSampled = matchedTotal > bookingRows.length;
 
   const payload: AdminAnalyticsPayload = {
     locale,

@@ -14,6 +14,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { BroadcastAudience } from './dto/broadcast.dto';
 import type { AdminListDeliveriesQueryDto } from './dto/admin-list-deliveries-query.dto';
 import type { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
+import {
+  filterDeliveryRows,
+  filterScheduledRows,
+  NOTIFICATIONS_FILTER_SCAN_LIMIT,
+  paginateFilteredRows,
+  requiresDeliveriesPostProcessing,
+  requiresScheduledPostProcessing,
+} from './notifications-list-filters';
 import { randomUUID } from 'node:crypto';
 
 const REMINDER_HOURS_BEFORE = 2;
@@ -289,6 +297,8 @@ export class NotificationsService {
       entityType: 'Notification',
     };
     const orderBy = { createdAt: 'desc' as const };
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
 
     if (!hasPagination) {
       const scheduled = await this.prisma.auditLog.findMany({
@@ -299,8 +309,20 @@ export class NotificationsService {
       return this.mapScheduledBroadcasts(scheduled);
     }
 
-    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
-    const offset = query.offset ?? 0;
+    if (requiresScheduledPostProcessing(query)) {
+      const scheduled = await this.prisma.auditLog.findMany({
+        where,
+        orderBy,
+        take: NOTIFICATIONS_FILTER_SCAN_LIMIT,
+      });
+      const mapped = await this.mapScheduledBroadcasts(scheduled);
+      return paginateFilteredRows(
+        filterScheduledRows(mapped, query),
+        take,
+        offset,
+      );
+    }
+
     const [scheduled, total] = await Promise.all([
       this.prisma.auditLog.findMany({ where, orderBy, take, skip: offset }),
       this.prisma.auditLog.count({ where }),
@@ -541,6 +563,8 @@ export class NotificationsService {
       entityType: 'Notification',
     };
     const orderBy = { createdAt: 'desc' as const };
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
 
     if (!hasPagination) {
       const limit = 100;
@@ -552,8 +576,16 @@ export class NotificationsService {
       return this.mapDeliveryRows(deliveries);
     }
 
-    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
-    const offset = query.offset ?? 0;
+    if (requiresDeliveriesPostProcessing(query)) {
+      const deliveries = await this.prisma.auditLog.findMany({
+        where,
+        orderBy,
+        take: NOTIFICATIONS_FILTER_SCAN_LIMIT,
+      });
+      const mapped = this.mapDeliveryRows(deliveries);
+      return paginateFilteredRows(filterDeliveryRows(mapped, query), take, offset);
+    }
+
     const [deliveries, total] = await Promise.all([
       this.prisma.auditLog.findMany({ where, orderBy, take, skip: offset }),
       this.prisma.auditLog.count({ where }),

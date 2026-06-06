@@ -3,11 +3,34 @@
 Postrannaya paginaciya dlya spiskov v admin i user account.  
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
-**Sostoyanie (2026-06):** Plan zavershen. Obshchaya infrastruktura i pager na vseh tselevyh stranicah.
+**Sostoyanie (2026-06):** Plan zavershen. Polish (server-side filtry) — v rabote, sm. nizhe.
 
 **Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
-**URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.  
-**Ogranichenie:** client-side filtry na nekotoryh stranicah (gift cards, notifications, schedule list, coach finance, payments source) primenyayutsya k **tekushchey stranice**, ne ko vsemu naboru.
+**URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.
+
+---
+
+## Pagination polish (2026-06)
+
+Filtry primenyayutsya k **polnomu naboru** cherez API (ne k tekushchey stranice):
+
+| Oblast | Status | API / UI |
+|--------|--------|----------|
+| Gift cards | done | `ListAdminGiftCardBatchesQueryDto` + `gift-cards-list-query.builder.ts`; SSR peredaet filtry iz URL |
+| Finance members | done | `giftCardOnly`, quick → `/clients`; ubran client-side filter v panel |
+| Finance coaches | done | search/month/payout/quick → `/coaches/admin/salary-summaries` |
+| Notifications scheduled | done | post-process filter + URL keys `sched*`; SSR |
+| Notifications deliveries | partial | API filtry + SSR; UI filter → URL sync eshche nuzhen (`del*`) |
+| Analytics bookings | done | `countOnly=true` dlya tochnogo `matchedTotal`; sample ostetsya cap 1000 |
+| Clients post-process | improved | `giftCardOnly`, `birthdayMonth` prefilter `dateOfBirth not null` |
+| Schedule list view | **todo** | client-side filter v `admin-schedule-management.tsx` — nuzhny API filtry + URL |
+
+**Ogranicheniya polish:**
+
+- Notifications: scan limit 2000 pri aktivnyh filtrah (`NOTIFICATIONS_FILTER_SCAN_LIMIT`)
+- Coach finance: scan limit 500 pri payout/quick/order filtrah
+- Clients post-process: scan limit 3000 (computed preferredCoach, attendance, VIP, …)
+- Deliveries tab: filtry v UI poka ne sinhroniziruyutsya s URL (pagination korrektna bez filtrov)
 
 ---
 
@@ -25,7 +48,8 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 - [x] DB-pagination: Prisma `where` + `count`; fallback post-process pri computed filter/sort (limit 3000)
 
 ### Admin Finance — user tab + payments — P0
-- [x] `/admin/finance` — payments: `payPage`/`payPageSize`; clients tab: `userPage`/`userPageSize`
+- [x] `/admin/finance/members` — payments otdelno; clients tab paginated
+- [x] `/admin/finance/payments` — paginated
 
 ---
 
@@ -35,15 +59,13 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 |----------|-------------------|-----|
 | Bookings (list) | `page`, `pageSize` | `GET /bookings/admin/management?take&offset` |
 | Waitlists | `page`, `pageSize` | `GET /waitlist/admin/active?take&offset` |
-| Gift cards | `page`, `pageSize` | `GET /gift-cards/admin/batches?take&offset` |
-| Notifications scheduled | `scheduledPage`, `scheduledPageSize` | `GET /notifications/admin/scheduled?take&offset` |
-| Notifications deliveries | `deliveriesPage`, `deliveriesPageSize` | `GET /notifications/admin/deliveries?take&offset` |
+| Gift cards | `page`, `pageSize` + filter keys | `GET /gift-cards/admin/batches?take&offset&…` |
+| Notifications scheduled | `scheduledPage`, `schedSearch`, … | `GET /notifications/admin/scheduled?take&offset&…` |
+| Notifications deliveries | `deliveriesPage`, … | `GET /notifications/admin/deliveries?take&offset&…` |
 | Schedule **list view** | `schedulePage`, `schedulePageSize` | `GET /classes/admin/sessions?take&offset` |
 | Schedule calendar views | — | polnaya vyborka bez pagination (kak ranshe) |
-| Coaches | `page`, `pageSize` | `GET /coaches/admin/list?take&offset` (bez params → legacy massiv dlya finance/schedule/analytics) |
-| Finance coach tab | `coachPage`, `coachPageSize` | `GET /coaches/admin/salary-summaries?take&offset` |
-
-Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy paginacii.
+| Coaches | `page`, `pageSize` | `GET /coaches/admin/list?take&offset` |
+| Finance coach tab | `coachPage`, `month`, `q`, … | `GET /coaches/admin/salary-summaries?take&offset&…` |
 
 ---
 
@@ -53,52 +75,42 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 |----------|----------|-----|
 | Bookings (past) | `pastPage`, `pastPageSize` | `GET /bookings/me?scope=past&take&offset` |
 | Payments | `page`, `pageSize` | `GET /payments/me?take&offset` |
-| Gift cards purchased | `purchasedPage`, `purchasedPageSize` | `GET /gift-cards/me/purchased?take&offset` |
-| Gift cards received | `receivedPage`, `receivedPageSize` | `GET /gift-cards/me/received?take&offset` |
-
-**Bez paginacii (dostatochno malo zapisey):** `/user/profile`, `/user/notifications` (prefs), `/user/packages`, `/user/progress`, `/user/classes` (14 dney).
+| Gift cards purchased / received | `purchasedPage`, `receivedPage`, … | paginated endpoints |
 
 ---
 
 ## Faza 4 ✅
 
-### Clients API — P0
-- [x] Filtraciya v Prisma; `pagination.total` iz DB `count`
-
-### Client sheet tabs — P2
-- [x] Bookings / payments / gift-cards endpoints + pager v tabah
-
-### Coach finance drawer — P2
-- [x] Sessii za mesyac — paginated sessions + pager v drawer
+- [x] Clients API DB pagination
+- [x] Client sheet tabs paginated
+- [x] Coach finance drawer sessions paginated
 
 ---
 
 ## Faza 5 ✅
 
-- [x] Manager: clients, bookings, coaches, waitlists — URL `page`/`pageSize`
-- [x] Admin Packages — pager v tablice kategorii (>25 tiers)
-- [x] Admin Analytics — sample cap `ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000`, banner pri prevyshenii
+- [x] Manager pages paginated
+- [x] Admin Packages category table pager
+- [x] Admin Analytics sample + accurate total via `countOnly`
 
 ---
 
 ## Inventar (aktualno)
 
-| Oblast | Stranica | API | UI pager | Status |
-|--------|----------|-----|----------|--------|
-| Admin | `/admin/clients` | take/offset/total (DB + post-process fallback) | da | done |
-| Admin | `/admin/bookings` list | take/offset/total | da | done |
-| Admin | `/admin/finance` payments | take/offset/total | da | done |
-| Admin | `/admin/finance` coach tab | salary-summaries take/offset | da | done |
-| Admin | `/admin/waitlists` | take/offset/total | da | done |
-| Admin | `/admin/gift-cards` | take/offset/total | da | done |
-| Admin | `/admin/notifications` | scheduled + deliveries paginated | da | done |
-| Admin | `/admin/schedule` list | take/offset/total | da | done |
-| Admin | `/admin/coaches` | take/offset/total | da | done |
-| Admin | client sheet tabs | bookings/payments/gift-cards endpoints | da | done |
-| Admin | coach finance drawer | sessions take/offset/total | da | done |
-| Admin | `/admin/packages` | client-side per category table | da | done |
-| Admin | `/admin/analytics` | sample cap 1000 + banner | n/a | done |
-| User | `/user/bookings` past | scope + take/offset | da | done |
-| User | `/user/payments` | take/offset/total | da | done |
-| Manager | clients, bookings, coaches, waitlists | take/offset/total | da | done |
-| User | `/user/gift-cards` | take/offset (2 sekcii) | da | done |
+| Oblast | UI pager | Server-side filters | Status |
+|--------|----------|---------------------|--------|
+| Admin clients | da | DB + post-process | done |
+| Admin gift cards | da | da | polish done |
+| Finance members | da | da | polish done |
+| Finance coaches | da | da | polish done |
+| Notifications scheduled | da | da | polish done |
+| Notifications deliveries | da | API da, URL partial | partial |
+| Schedule list | da | net | todo |
+| Analytics | n/a | count + sample | polish done |
+
+---
+
+## Backlog (melochi) ✅ 2026-06
+
+- [x] `finance-payments-table.tsx` — otdelnyy fayl udalen ranee; tablica v `admin-finance-payments-panel.tsx`
+- [x] Web `tsc`: `user/bookings/page.tsx` (ServerApiResult narrow), `studio-social-links.ts` (missing module)

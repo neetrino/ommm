@@ -1,6 +1,4 @@
-import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
-
-export type FinanceTab = "user" | "coach";
+export type FinanceSectionId = "overview" | "payments" | "members" | "coaches";
 
 export type FinanceDateRangeDays = 7 | 30 | 90;
 
@@ -106,15 +104,4 @@ export type CoachFinancePayload = {
   total: number;
   take: number;
   offset: number;
-};
-
-export type AdminFinanceManagementProps = {
-  locale: string;
-  initialTab: FinanceTab;
-  initialClients: AdminClientsPayload;
-  initialCoachFinance: CoachFinancePayload;
-  initialPayments: FinancePaymentsPayload;
-  paymentsFrom: string;
-  paymentsStatus: FinanceStatusFilter;
-  paymentsSource: FinanceSourceFilter;
 };

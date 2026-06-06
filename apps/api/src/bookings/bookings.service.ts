@@ -524,6 +524,32 @@ export class BookingsService {
           }
         : undefined;
 
+    const bookingWhere: Prisma.BookingWhereInput = {
+      ...(params.query.status ? { status: params.query.status } : {}),
+      ...(params.query.channel ? { channel: params.query.channel } : {}),
+      ...(params.query.userId ? { userId: params.query.userId } : {}),
+      ...(sessionFilter ? { session: sessionFilter } : {}),
+      ...(userSearch ? { user: userSearch } : {}),
+    };
+
+    if (params.query.countOnly) {
+      const matchedTotal = await this.prisma.booking.count({ where: bookingWhere });
+      return {
+        rows: [],
+        sessionSlots: [],
+        filterOptions: { classTypes: [], coaches: [] },
+        summary: {
+          total: matchedTotal,
+          booked: 0,
+          completed: 0,
+          cancelled: 0,
+          waitlisted: 0,
+          today: 0,
+        },
+        pagination: { total: matchedTotal, take: 0, offset: 0 },
+      };
+    }
+
     const adminSessionStatuses: ClassSessionStatus[] = [
       ClassSessionStatus.DRAFT,
       ClassSessionStatus.ACTIVE,
@@ -533,13 +559,7 @@ export class BookingsService {
     const [bookingsRaw, waitlistsRaw, classTypes, coaches, sessionsRaw] =
       await Promise.all([
         this.prisma.booking.findMany({
-          where: {
-            ...(params.query.status ? { status: params.query.status } : {}),
-            ...(params.query.channel ? { channel: params.query.channel } : {}),
-            ...(params.query.userId ? { userId: params.query.userId } : {}),
-            ...(sessionFilter ? { session: sessionFilter } : {}),
-            ...(userSearch ? { user: userSearch } : {}),
-          },
+          where: bookingWhere,
           include: {
             user: {
               select: {

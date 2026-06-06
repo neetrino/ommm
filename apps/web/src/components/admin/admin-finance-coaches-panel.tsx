@@ -19,25 +19,16 @@ import type {
   CoachFinanceRow,
 } from "@/components/admin/admin-finance-types";
 import { FINANCE_COACH_PAGE_KEYS } from "@/components/admin/admin-finance-url";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
 import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type Props = {
   locale: string;
   initial: CoachFinancePayload;
-};
-
-const defaultFilters: CoachFinanceFilters = {
-  search: "",
-  month: new Date().toISOString().slice(0, 7),
-  payoutStatus: "",
-  order: "newest",
-  quick: "",
+  filters: CoachFinanceFilters & { q: string };
 };
 
 function displayName(row: CoachFinanceRow): string {
@@ -59,87 +50,47 @@ function payoutStatus(row: CoachFinanceRow): "pending" | "paid" | "none" {
   return "paid";
 }
 
-function sortRows(rows: CoachFinanceRow[], order: string): CoachFinanceRow[] {
-  const copy = [...rows];
-  if (order === "oldest") {
-    return copy.sort((a, b) => a.coachProfileId.localeCompare(b.coachProfileId));
-  }
-  if (order === "highest-salary") {
-    return copy.sort(
-      (a, b) => (b.salary?.totalEarningsCents ?? 0) - (a.salary?.totalEarningsCents ?? 0),
-    );
-  }
-  return copy.sort(
-    (a, b) => (b.salary?.totalEarningsCents ?? 0) - (a.salary?.totalEarningsCents ?? 0),
-  );
-}
-
-function applyFilters(rows: CoachFinanceRow[], filters: CoachFinanceFilters): CoachFinanceRow[] {
-  const q = filters.search.trim().toLowerCase();
-  return rows.filter((row) => {
-    if (q.length > 0) {
-      const haystack = `${displayName(row)} ${row.user.phone ?? ""} ${row.user.email}`.toLowerCase();
-      if (!haystack.includes(q)) {
-        return false;
-      }
-    }
-    const status = payoutStatus(row);
-    if (filters.payoutStatus && status !== filters.payoutStatus) {
-      return false;
-    }
-    if (filters.quick === "paid" && status !== "paid") return false;
-    if (filters.quick === "pending" && status !== "pending") return false;
-    if (filters.quick === "high-salary") {
-      const earnings = row.salary?.totalEarningsCents ?? 0;
-      if (earnings < 50000) return false;
-    }
-    if (filters.quick === "recent-payments" && status !== "paid") return false;
-    return true;
-  });
-}
-
-export function AdminCoachFinanceTab({ locale, initial }: Props) {
+export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
   const t = useTranslations("adminPages.finance.coachTab");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [filters, setFilters] = useState<CoachFinanceFilters>(defaultFilters);
   const [drawerCoach, setDrawerCoach] = useState<CoachFinanceRow | null>(null);
-  const initialRows = initial.items;
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries()), FINANCE_COACH_PAGE_KEYS),
     [searchParams],
   );
 
-  const filteredRows = useMemo(
-    () => sortRows(applyFilters(initialRows, filters), filters.order),
-    [filters, initialRows],
-  );
-
-  const setListPage = useCallback(
-    (page: number, pageSize?: number) => {
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
       const params = new URLSearchParams(searchParams.toString());
-      syncListPageQuery(params, page, pageSize, FINANCE_COACH_PAGE_KEYS);
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams],
   );
 
-  function resetCoachFilters() {
-    setFilters(defaultFilters);
-    const params = new URLSearchParams(searchParams.toString());
-    resetListPageQuery(params, FINANCE_COACH_PAGE_KEYS);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize, FINANCE_COACH_PAGE_KEYS);
+      });
+    },
+    [replaceSearchParams],
+  );
 
-  function updateFilter<K extends keyof CoachFinanceFilters>(
-    key: K,
-    value: CoachFinanceFilters[K],
-  ) {
-    setFilters((current) => ({ ...current, [key]: value }));
+  function setQuickFilter(value: string): void {
+    const nextQuick = filters.quick === value ? "" : value;
+    replaceSearchParams((params) => {
+      resetListPageQuery(params, FINANCE_COACH_PAGE_KEYS);
+      if (nextQuick) {
+        params.set("quick", nextQuick);
+      } else {
+        params.delete("quick");
+      }
+    });
   }
 
   return (
@@ -149,7 +100,7 @@ export function AdminCoachFinanceTab({ locale, initial }: Props) {
       </p>
       <QuickFilters
         active={filters.quick}
-        onChange={(value) => updateFilter("quick", value)}
+        onChange={setQuickFilter}
         labels={{
           paid: t("quickPaid"),
           pending: t("quickPending"),
@@ -157,51 +108,7 @@ export function AdminCoachFinanceTab({ locale, initial }: Props) {
           recent: t("quickRecent"),
         }}
       />
-      <div className="grid gap-2 rounded-2xl border border-white/60 bg-white/70 p-3 md:grid-cols-4 xl:grid-cols-5">
-        <input
-          className="ommm-input h-10 md:col-span-2"
-          placeholder={t("searchPlaceholder")}
-          value={filters.search}
-          onChange={(event) => updateFilter("search", event.target.value)}
-        />
-        <label className="text-xs text-sage-600">
-          <span className="mb-1 block">{t("monthLabel")}</span>
-          <input
-            type="month"
-            className="ommm-input h-10 w-full"
-            value={filters.month}
-            onChange={(event) => updateFilter("month", event.target.value)}
-          />
-        </label>
-        <OmmSelectDropdown
-          ariaLabel={t("payoutStatusLabel")}
-          label={t("payoutStatusLabel")}
-          value={filters.payoutStatus || "all"}
-          onChange={(value) => updateFilter("payoutStatus", value === "all" ? "" : value)}
-          options={[
-            { value: "all", label: t("filterAll") },
-            { value: "paid", label: t("statusPaid") },
-            { value: "pending", label: t("statusPending") },
-            { value: "none", label: t("statusNone") },
-          ]}
-        />
-        <OmmSelectDropdown
-          ariaLabel={t("sortLabel")}
-          label={t("sortLabel")}
-          value={filters.order}
-          onChange={(value) => updateFilter("order", value)}
-          options={[
-            { value: "newest", label: t("sortHighestSalary") },
-            { value: "highest-salary", label: t("sortHighestSalary") },
-            { value: "oldest", label: t("sortOldest") },
-          ]}
-        />
-      </div>
-      <AdminFilterResetBar
-        onReset={resetCoachFilters}
-        label={t("clearFilters")}
-      />
-      <p className="text-xs text-sage-500">{t("rowCount", { count: filteredRows.length })}</p>
+      <p className="text-xs text-sage-500">{t("rowCount", { count: initial.total })}</p>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
           <span>{t("colCoach")}</span>
@@ -212,12 +119,12 @@ export function AdminCoachFinanceTab({ locale, initial }: Props) {
           <span aria-hidden="true" />
           <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colActions")}</span>
         </div>
-        {filteredRows.length === 0 ? (
+        {initial.items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
             {t("empty")}
           </p>
         ) : (
-          filteredRows.map((row) => {
+          initial.items.map((row) => {
             const status = payoutStatus(row);
             const sessionCount = row.salary?.completedSessions ?? row.totalClasses;
             return (
@@ -303,7 +210,7 @@ function QuickFilters(props: {
           key={value}
           size="sm"
           variant={props.active === value ? "primary" : "ghost"}
-          onClick={() => props.onChange(props.active === value ? "" : value)}
+          onClick={() => props.onChange(value)}
         >
           {label}
         </OmmButton>

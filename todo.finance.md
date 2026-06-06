@@ -18,7 +18,7 @@ Analytics (`/admin/analytics`) — otdelno (charts/trends); Finance — operacii
 - KPI s **raznymi periodami** bez podpisey (Total = all time, Monthly = calendar month, Pending/… = rangeDays).
 - CSV export — otdelnyy blok poseredine stranicy.
 - Description v hero dubliruet nav subtitle.
-- `finance-payments-table.tsx` — mertvyy kod (ne importiruetsya).
+- `finance-payments-table.tsx` — udaleno; lokalnyy `FinancePaymentsTable` v `admin-finance-payments-panel.tsx`.
 - Members tab nepolnyy vs spec §9.3 (net Plan / Cost / Expiration).
 - Coaches tab — MVP (estimated salary, month ne filtruet API).
 
@@ -117,7 +117,7 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 - [ ] CSV knopki → `trailing` hero (Overview: 2 knopki; Payments: 1 knopka)
 - [ ] Ubrat vnutrennie search-bary iz Members / Coaches tabov
 - [ ] Ubrat Billing history iz Members taba (uzhe v Payments)
-- [ ] Udalit mertvyy `finance-payments-table.tsx` (ili podklyuchit v Payments esli nuzhen mobile layout)
+- [x] ~~Udalit mertvyy `finance-payments-table.tsx`~~ — udaleno / vstroeno v `admin-finance-payments-panel.tsx` (`FinancePaymentsTable`)
 
 ---
 
@@ -228,7 +228,7 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 | Refaktor | `admin-coach-finance-tab.tsx` → coaches page content |
 | Refaktor | `admin-finance-filters.tsx` → razbit po tabam |
 | Udalit? | `admin/finance/page.tsx` (posle migracii) |
-| Udalit? | `finance-payments-table.tsx` |
+| Udalit? | ~~`finance-payments-table.tsx`~~ — done (inline v panel) |
 
 ---
 

@@ -2419,14 +2419,23 @@
     },
     "finance": {
       "title": "Ֆինանսներ",
-      "description": "Եկամուտ, վճարումներ, վերադարձներ և գործարքների պատմություն մեկ վայրում։",
       "errorAuth": "Պահանջվում է ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել ֆինանսական տվյալները ({status})։",
+      "tabs": {
+        "aria": "Ֆինանսի բաժիններ",
+        "overview": "Ամփոփ",
+        "payments": "Վճարումներ",
+        "members": "Հաճախորդներ",
+        "coaches": "Coach-եր"
+      },
       "kpiTotalRevenue": "Ընդհանուր եկամուտ",
       "kpiMonthlyRevenue": "Ամսական եկամուտ",
       "kpiPendingPayments": "Սպասող վճարումներ",
       "kpiCompletedPayments": "Ավարտված վճարումներ",
       "kpiRefundedPayments": "Վերադարձված վճարումներ",
+      "kpiPeriodAllTime": "Բոլոր ժամանակների",
+      "kpiPeriodThisMonth": "Ընթացիկ օրացույցային ամիս",
+      "kpiPeriodRangeDays": "Վերջին {days} օր",
       "giftCreditsHeading": "Նվեր կրեդիտների մատյան",
       "kpiGiftIssued": "Թողարկված նվեր կրեդիտներ",
       "kpiGiftRedeemed": "Մարած նվեր քարտեր",
@@ -2493,6 +2502,11 @@
         "colStatus": "Կարգավիճակ",
         "colActions": "Գործողություններ",
         "colDescription": "Նկարագրություն"
+      },
+      "paymentsTab": {
+        "loading": "Բեռնում…",
+        "loadFailed": "Չհաջողվեց բեռնել վճարումները։",
+        "rowCount": "{count} վճարում"
       }
     },
     "analytics": {

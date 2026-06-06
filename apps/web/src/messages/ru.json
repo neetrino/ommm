@@ -2407,14 +2407,23 @@
     },
     "finance": {
       "title": "Финансы",
-      "description": "Выручка, платежи, возвраты и история транзакций в одном месте.",
       "errorAuth": "Требуется вход администратора.",
       "errorLoad": "Не удалось загрузить финансовые данные ({status}).",
+      "tabs": {
+        "aria": "Разделы финансов",
+        "overview": "Обзор",
+        "payments": "Платежи",
+        "members": "Клиенты",
+        "coaches": "Тренеры"
+      },
       "kpiTotalRevenue": "Общая выручка",
       "kpiMonthlyRevenue": "Выручка за месяц",
       "kpiPendingPayments": "Ожидающие платежи",
       "kpiCompletedPayments": "Завершённые платежи",
       "kpiRefundedPayments": "Возвращённые платежи",
+      "kpiPeriodAllTime": "За всё время",
+      "kpiPeriodThisMonth": "Текущий календарный месяц",
+      "kpiPeriodRangeDays": "Последние {days} дн.",
       "giftCreditsHeading": "Леджер подарочных кредитов",
       "kpiGiftIssued": "Начислено подарочных кредитов",
       "kpiGiftRedeemed": "Погашено подарочных карт",
@@ -2481,6 +2490,11 @@
         "colStatus": "Статус",
         "colActions": "Действия",
         "colDescription": "Описание"
+      },
+      "paymentsTab": {
+        "loading": "Загрузка…",
+        "loadFailed": "Не удалось загрузить платежи.",
+        "rowCount": "{count} платежей"
       }
     },
     "analytics": {

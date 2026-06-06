@@ -33,6 +33,8 @@ export type AdminIntegratedSearchFiltersProps = {
   clearAriaLabel: string;
   filterPanelAriaLabel: string;
   className?: string;
+  /** When true, omits the text search input — filter panel opens via filter button (overview period-only). */
+  hideSearch?: boolean;
 };
 
 function SearchGlyph({ className }: { className?: string }) {
@@ -66,6 +68,7 @@ export function AdminIntegratedSearchFilters({
   clearAriaLabel,
   filterPanelAriaLabel,
   className = "",
+  hideSearch = false,
 }: AdminIntegratedSearchFiltersProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -150,7 +153,10 @@ export function AdminIntegratedSearchFilters({
 
   function openPanel() {
     setSearchFocused(true);
-    if (!hasFilters || search.trim().length > 0) {
+    if (!hasFilters) {
+      return;
+    }
+    if (!hideSearch && search.trim().length > 0) {
       return;
     }
     setDraftFilters(filterValues);
@@ -185,23 +191,37 @@ export function AdminIntegratedSearchFilters({
         } ${searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""}`}
       >
         <AdminIntegratedSearchFilterChips chips={chips} onRemove={handleRemoveChip} />
-        <div className="relative min-w-0 flex-1">
-          <SearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => handleSearchChange(event.target.value)}
-            onFocus={openPanel}
-            onClick={openPanel}
-            onBlur={handleSearchBlur}
-            placeholder={searchPlaceholder}
-            aria-label={searchPlaceholder}
-            role="searchbox"
-            aria-expanded={hasFilters ? panelOpen : undefined}
-            aria-controls={hasFilters ? PANEL_ID : undefined}
-            className="ommm-admin-header-search h-9 w-full border-0 bg-transparent pl-9 pr-2 shadow-none focus-visible:outline-none focus-visible:ring-0"
-          />
-        </div>
+        {hideSearch ? (
+          hasFilters ? (
+            <button
+              type="button"
+              className="ommm-admin-header-search flex h-9 min-w-0 flex-1 items-center px-3 text-left text-sm text-sage-600"
+              onClick={openPanel}
+              aria-expanded={panelOpen}
+              aria-controls={PANEL_ID}
+            >
+              {searchPlaceholder}
+            </button>
+          ) : null
+        ) : (
+          <div className="relative min-w-0 flex-1">
+            <SearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              onFocus={openPanel}
+              onClick={openPanel}
+              onBlur={handleSearchBlur}
+              placeholder={searchPlaceholder}
+              aria-label={searchPlaceholder}
+              role="searchbox"
+              aria-expanded={hasFilters ? panelOpen : undefined}
+              aria-controls={hasFilters ? PANEL_ID : undefined}
+              className="ommm-admin-header-search h-9 w-full border-0 bg-transparent pl-9 pr-2 shadow-none focus-visible:outline-none focus-visible:ring-0"
+            />
+          </div>
+        )}
         {hasQuery ? (
           <button
             type="button"

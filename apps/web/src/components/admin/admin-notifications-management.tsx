@@ -146,6 +146,7 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
         locale={locale}
         payload={scheduled}
         loadFailed={loadErrors.scheduled}
+        initialFilters={initial.scheduledFilters}
         onRefresh={refreshAll}
       />
 
@@ -188,6 +189,7 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
         locale={locale}
         payload={deliveries}
         loadFailed={loadErrors.deliveries}
+        initialFilters={initial.deliveriesFilters}
       />
 
       <p className={adminChrome.metaText}>{t("unsupportedNote")}</p>

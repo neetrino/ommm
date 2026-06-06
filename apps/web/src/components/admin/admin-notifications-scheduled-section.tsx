@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL,
@@ -35,12 +35,21 @@ import {
   ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS,
   parseAdminNotificationsScheduledPageParams,
 } from "@/components/admin/admin-notifications-query";
+import {
+  ADMIN_NOTIFICATIONS_SCHEDULED_FILTER_KEYS,
+  buildScheduledFiltersQuery,
+  defaultScheduledListFilters,
+  type ScheduledListFilters,
+} from "@/components/admin/admin-notifications-url";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 type Props = {
   locale: string;
   payload: AdminNotificationsListPayload<ScheduledBroadcast>;
   loadFailed: boolean;
+  initialFilters: ScheduledListFilters;
   onRefresh: () => void;
 };
 
@@ -66,6 +75,7 @@ export function AdminNotificationsScheduledSection({
   locale,
   payload,
   loadFailed,
+  initialFilters,
   onRefresh,
 }: Props) {
   const t = useTranslations("adminPages.notifications");
@@ -76,11 +86,9 @@ export function AdminNotificationsScheduledSection({
   const listPage = parseAdminNotificationsScheduledPageParams(
     Object.fromEntries(searchParams.entries()),
   );
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<ScheduledBroadcastStatus | "">("");
-  const [audience, setAudience] = useState<BroadcastAudience | "">("");
-  const [order, setOrder] = useState<"newest" | "oldest" | "schedule">("newest");
-  const [quick, setQuick] = useState<ScheduledQuickFilter>("");
+  const hasMounted = useRef(false);
+  const filtersRef = useRef(initialFilters);
+  const [filters, setFilters] = useState(initialFilters);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState<ScheduledBroadcast | null>(null);
@@ -93,50 +101,57 @@ export function AdminNotificationsScheduledSection({
     scheduleTime: "",
   });
 
-  const filtered = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    let rows = items.filter((row) => {
-      if (needle !== "" && !`${row.subject} ${row.html}`.toLowerCase().includes(needle)) {
-        return false;
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
+
+  const syncFiltersToUrl = useCallback(
+    (values: ScheduledListFilters, resetPage = false) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const key of ADMIN_NOTIFICATIONS_SCHEDULED_FILTER_KEYS) {
+        params.delete(key);
       }
-      if (status !== "" && row.status !== status) {
-        return false;
+      if (resetPage) {
+        resetListPageQuery(params, ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS);
       }
-      if (audience !== "" && row.audience !== audience) {
-        return false;
+      const filterQuery = buildScheduledFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, value] of new URLSearchParams(filterQuery)) {
+          params.set(key, value);
+        }
       }
-      if (quick === "pending" && row.status !== "PENDING") {
-        return false;
-      }
-      if (quick === "failed" && row.status !== "FAILED") {
-        return false;
-      }
-      if (quick === "sent" && row.status !== "SENT") {
-        return false;
-      }
-      return true;
-    });
-    rows = [...rows].sort((a, b) => {
-      if (order === "schedule") {
-        return new Date(a.scheduleAt).getTime() - new Date(b.scheduleAt).getTime();
-      }
-      const aTime = new Date(a.createdAt).getTime();
-      const bTime = new Date(b.createdAt).getTime();
-      return order === "newest" ? bTime - aTime : aTime - bTime;
-    });
-    return rows;
-  }, [audience, items, order, quick, search, status]);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  function patchFilters(patch: Partial<ScheduledListFilters>, resetPage = true): void {
+    const next = { ...filtersRef.current, ...patch };
+    setFilters(next);
+    syncFiltersToUrl(next, resetPage);
+  }
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+    const handle = window.setTimeout(() => {
+      syncFiltersToUrl(filtersRef.current, true);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [filters.search, syncFiltersToUrl]);
+
+  const filtered = items;
 
   function resetFilters() {
-    setSearch("");
-    setStatus("");
-    setAudience("");
-    setOrder("newest");
-    setQuick("");
-    const params = new URLSearchParams(searchParams.toString());
-    resetListPageQuery(params, ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    setFilters(defaultScheduledListFilters);
+    syncFiltersToUrl(defaultScheduledListFilters, true);
   }
 
   function setListPage(page: number, pageSize?: number) {
@@ -226,11 +241,11 @@ export function AdminNotificationsScheduledSection({
             key={value || "all"}
             type="button"
             className={
-              quick === value
+              filters.quick === value
                 ? "rounded-full bg-sage-800 px-3 py-1 text-xs font-medium text-white"
                 : "rounded-full border border-white/60 bg-white/55 px-3 py-1 text-xs font-medium text-sage-700"
             }
-            onClick={() => setQuick(value)}
+            onClick={() => patchFilters({ quick: filters.quick === value ? "" : value })}
           >
             {t(labelKey)}
           </button>
@@ -241,8 +256,8 @@ export function AdminNotificationsScheduledSection({
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.search")}</span>
           <input
             className="ommm-input"
-            value={search}
-            onChange={(ev) => setSearch(ev.target.value)}
+            value={filters.search}
+            onChange={(ev) => setFilters((current) => ({ ...current, search: ev.target.value }))}
             placeholder={t("filters.searchPlaceholder")}
             autoComplete="off"
           />
@@ -251,24 +266,28 @@ export function AdminNotificationsScheduledSection({
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.status")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.status")}
-            label={t(statusOptions.find(([value]) => value === status)?.[1] ?? "statusAll")}
-            value={status}
+            label={t(statusOptions.find(([value]) => value === filters.status)?.[1] ?? "statusAll")}
+            value={filters.status}
             options={ommOptionsFromTuples(
               statusOptions.map(([value, labelKey]) => [value, t(labelKey)]),
             )}
-            onChange={(value) => setStatus(value as ScheduledBroadcastStatus | "")}
+            onChange={(value) =>
+              patchFilters({ status: value as ScheduledBroadcastStatus | "" })
+            }
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.audience")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.audience")}
-            label={t(audienceOptions.find(([value]) => value === audience)?.[1] ?? "audienceAll")}
-            value={audience}
+            label={t(audienceOptions.find(([value]) => value === filters.audience)?.[1] ?? "audienceAll")}
+            value={filters.audience}
             options={ommOptionsFromTuples(
               audienceOptions.map(([value, labelKey]) => [value, t(labelKey)]),
             )}
-            onChange={(value) => setAudience(value as BroadcastAudience | "")}
+            onChange={(value) =>
+              patchFilters({ audience: value as BroadcastAudience | "" })
+            }
           />
         </label>
         <label className="flex flex-col gap-1">
@@ -276,19 +295,21 @@ export function AdminNotificationsScheduledSection({
           <OmmSelectDropdown
             ariaLabel={t("filters.sort")}
             label={
-              order === "schedule"
+              filters.order === "schedule"
                 ? t("sortSchedule")
-                : order === "oldest"
+                : filters.order === "oldest"
                   ? t("sortOldest")
                   : t("sortNewest")
             }
-            value={order}
+            value={filters.order}
             options={[
               { value: "newest", label: t("sortNewest") },
               { value: "oldest", label: t("sortOldest") },
               { value: "schedule", label: t("sortSchedule") },
             ]}
-            onChange={(value) => setOrder(value as "newest" | "oldest" | "schedule")}
+            onChange={(value) =>
+              patchFilters({ order: value as ScheduledListFilters["order"] })
+            }
           />
         </label>
       </div>
@@ -297,7 +318,7 @@ export function AdminNotificationsScheduledSection({
         label={t("filters.reset")}
         meta={
           <span className={adminChrome.metaText}>
-            {t("filters.resultCount", { count: filtered.length })}
+            {t("filters.resultCount", { count: payload.total })}
           </span>
         }
       />

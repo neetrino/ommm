@@ -13,11 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminGiftCardDetailsSheet } from "@/components/admin/admin-gift-card-details-sheet";
 import { AdminGiftCardsDirectory } from "@/components/admin/admin-gift-cards-directory";
-import {
-  countActiveGiftCardFilters,
-  filterGiftCards,
-  sortGiftCards,
-} from "@/components/admin/admin-gift-cards-filter-logic";
+import { countActiveGiftCardFilters } from "@/components/admin/admin-gift-cards-filter-logic";
 import { AdminGiftCardsShell } from "@/components/admin/admin-gift-cards-shell";
 import type {
   AdminAssignableUser,
@@ -75,11 +71,6 @@ export function AdminGiftCardsManagement({
     }
     return giftCards.find((card) => card.id === selectedGiftCardId) ?? null;
   }, [giftCards, selectedGiftCardId]);
-
-  const filtered = useMemo(
-    () => sortGiftCards(filterGiftCards(giftCards, filters), filters.order),
-    [filters, giftCards],
-  );
 
   const activeFilterCount = countActiveGiftCardFilters(filters);
   const isUpdating = isDebouncingSearch || isPending;
@@ -225,11 +216,11 @@ export function AdminGiftCardsManagement({
         onReset: resetFilters,
       }}
     >
-      {filtered.length === 0 ? <p className="text-sm text-sage-500">{t("empty")}</p> : null}
-      {filtered.length > 0 ? (
+      {giftCards.length === 0 ? <p className="text-sm text-sage-500">{t("empty")}</p> : null}
+      {giftCards.length > 0 ? (
         <>
           <AdminGiftCardsDirectory
-            cards={filtered}
+            cards={giftCards}
             locale={locale}
             onSelect={selectGiftCard}
             onEdit={openEditModal}

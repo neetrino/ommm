@@ -34,7 +34,8 @@ export default async function UserBookingsPage({
   ]);
 
   if (!upcomingRes.ok || !pastRes.ok) {
-    const status = !upcomingRes.ok ? upcomingRes.status : pastRes.status;
+    const failed = [upcomingRes, pastRes].find((res) => !res.ok);
+    const status = failed && !failed.ok ? failed.status : 500;
     return (
       <div className="ommm-container pt-6 sm:pt-8">
         <div className="app-alert-warn">

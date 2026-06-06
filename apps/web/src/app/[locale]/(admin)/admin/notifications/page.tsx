@@ -10,6 +10,10 @@ import {
   parseAdminNotificationsScheduledPageParams,
   type AdminNotificationsListPayload,
 } from "@/components/admin/admin-notifications-query";
+import {
+  parseDeliveriesListFiltersFromSearch,
+  parseScheduledListFiltersFromSearch,
+} from "@/components/admin/admin-notifications-url";
 import type { DeliveryRow, ScheduledBroadcast } from "@/components/admin/admin-notifications-types";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
@@ -28,14 +32,24 @@ export default async function AdminNotificationsPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const scheduledPage = parseAdminNotificationsScheduledPageParams(search);
   const deliveriesPage = parseAdminNotificationsDeliveriesPageParams(search);
+  const scheduledFilters = parseScheduledListFiltersFromSearch(search);
+  const deliveriesFilters = parseDeliveriesListFiltersFromSearch(search);
   const [statsRes, scheduledRes, deliveriesRes, analyticsRes] = await Promise.all([
     serverApiJson<AdminNotificationsPayload["stats"]>("/notifications/admin/stats", cookie),
     serverApiJson<AdminNotificationsListPayload<ScheduledBroadcast>>(
-      buildAdminNotificationsScheduledEndpoint(scheduledPage.take, scheduledPage.offset),
+      buildAdminNotificationsScheduledEndpoint(
+        scheduledPage.take,
+        scheduledPage.offset,
+        scheduledFilters,
+      ),
       cookie,
     ),
     serverApiJson<AdminNotificationsListPayload<DeliveryRow>>(
-      buildAdminNotificationsDeliveriesEndpoint(deliveriesPage.take, deliveriesPage.offset),
+      buildAdminNotificationsDeliveriesEndpoint(
+        deliveriesPage.take,
+        deliveriesPage.offset,
+        deliveriesFilters,
+      ),
       cookie,
     ),
     serverApiJson<{
@@ -73,6 +87,8 @@ export default async function AdminNotificationsPage({
         },
     scheduled: scheduledRes.ok ? scheduledRes.data : emptyScheduled,
     deliveries: deliveriesRes.ok ? deliveriesRes.data : emptyDeliveries,
+    scheduledFilters,
+    deliveriesFilters,
     analytics: analyticsRes.ok
       ? {
           summary: analyticsRes.data.summary,
