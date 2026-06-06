@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   contentPostStatusBadgeClass,
   contentPostTypeBadgeClass,
+  CONTENT_POST_LIST_TITLE_CLASS,
 } from "@/components/shared/content/content-post-display-helpers";
 import { ContentPostRowActions } from "@/components/shared/content/content-post-row-actions";
 import { ContentPostUpdatedDatetime } from "@/components/shared/content/content-post-updated-datetime";
@@ -64,7 +65,7 @@ export function ContentPostCompactRow({
         <AdminListMobileLabel label={t("colTitle")} />
         <button
           type="button"
-          className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
+          className={CONTENT_POST_LIST_TITLE_CLASS}
           title={post.title}
           onClick={(event) => {
             event.stopPropagation();

@@ -7,6 +7,13 @@ import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 export const CONTENT_POST_TYPE_BADGE_CLASS =
   "inline-flex max-w-full shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]";
 
+export const CONTENT_POST_TITLE_FONT_CLASS = "font-serif font-normal text-sage-900";
+
+export const CONTENT_POST_LIST_TITLE_CLASS = [
+  CONTENT_POST_TITLE_FONT_CLASS,
+  "block max-w-full truncate text-left text-xl leading-snug tracking-tight underline-offset-2 hover:underline",
+].join(" ");
+
 const CONTENT_POST_TYPE_BADGE_TONES: Record<ContentPostType, string> = {
   EVENT: "bg-sky-100 text-sky-900",
   BLOG: "bg-violet-100 text-violet-900",

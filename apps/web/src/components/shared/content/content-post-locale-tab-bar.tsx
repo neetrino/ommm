@@ -1,6 +1,7 @@
 "use client";
 
 import type { ContentPostLocale } from "@/components/shared/content/content-post-types";
+import { CONTENT_POST_TITLE_FONT_CLASS } from "@/components/shared/content/content-post-display-helpers";
 
 export type ContentPostLocaleTabItem = {
   value: ContentPostLocale;
@@ -58,4 +59,4 @@ export function ContentPostLocaleTabBar({
 }
 
 export const CONTENT_POST_SHEET_TITLE_INPUT_CLASS =
-  "w-full min-w-0 border-0 bg-transparent p-0 font-serif text-2xl font-normal text-sage-900 placeholder:text-sage-400 focus:outline-none focus:ring-0 disabled:opacity-60";
+  `w-full min-w-0 border-0 bg-transparent p-0 text-2xl ${CONTENT_POST_TITLE_FONT_CLASS} placeholder:text-sage-400 focus:outline-none focus:ring-0 disabled:opacity-60`;
