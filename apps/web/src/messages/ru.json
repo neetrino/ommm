@@ -479,6 +479,7 @@
       "CONTENT_ADMIN": {
         "home": "Главная",
         "content": "Контент",
+        "notifications": "Уведомления",
         "profile": "Профиль"
       },
       "ADMIN": {
@@ -2999,8 +3000,28 @@
       "openProfile": "Профиль"
     },
     "content": {
+      "title": "Контент",
       "errorAuth": "Нужна роль админа или контента.",
       "errorLoad": "Не удалось загрузить посты ({status}).",
+      "createButton": "Новый пост",
+      "empty": "Нет постов по вашим фильтрам.",
+      "colTitle": "Заголовок",
+      "colType": "Тип",
+      "colStatus": "Статус",
+      "colUpdated": "Обновлено",
+      "colActions": "Действия",
+      "editPost": "Редактировать",
+      "openPostAria": "Открыть {title}",
+      "sheetCreateTitle": "Новый пост",
+      "sheetEditTitle": "Редактирование",
+      "saveButton": "Сохранить",
+      "cancelButton": "Отмена",
+      "savingButton": "Сохранение…",
+      "modalBackdropClose": "Закрыть панель",
+      "deleteConfirmTitle": "Удалить пост?",
+      "deleteConfirmBody": "Удалить «{title}»? Это необратимо.",
+      "activeFilterCount": "Активных фильтров: {count}",
+      "resultsCount": "Показано {shown} из {total}",
       "placeholders": {
         "title": "Заголовок",
         "slug": "Slug",
@@ -3027,9 +3048,24 @@
         "review": "ревью",
         "resetFilters": "Сбросить фильтры"
       },
+      "statusValues": {
+        "DRAFT": "Черновик",
+        "IN_REVIEW": "На проверке",
+        "REJECTED": "Отклонён",
+        "PUBLISHED": "Опубликован",
+        "HIDDEN": "Скрыт"
+      },
+      "typeValues": {
+        "EVENT": "Событие",
+        "BLOG": "Блог",
+        "NEWS": "Новость",
+        "UPDATE": "Обновление",
+        "KNOWLEDGE_ARTICLE": "Статья"
+      },
       "feedback": {
         "actionFailed": "Действие не выполнено",
         "postCreated": "Пост создан",
+        "postSaved": "Пост сохранён",
         "visibilityUpdated": "Видимость обновлена",
         "submittedForReview": "Отправлено на ревью",
         "postApproved": "Пост одобрен",

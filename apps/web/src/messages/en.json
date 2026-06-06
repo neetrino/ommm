@@ -479,6 +479,7 @@
       "CONTENT_ADMIN": {
         "home": "Home",
         "content": "Content",
+        "notifications": "Notifications",
         "profile": "Profile"
       },
       "ADMIN": {
@@ -3053,8 +3054,28 @@
       "openProfile": "Profile"
     },
     "content": {
+      "title": "Content",
       "errorAuth": "Admin or content role required.",
       "errorLoad": "Could not load posts ({status}).",
+      "createButton": "New post",
+      "empty": "No posts match your filters.",
+      "colTitle": "Title",
+      "colType": "Type",
+      "colStatus": "Status",
+      "colUpdated": "Updated",
+      "colActions": "Actions",
+      "editPost": "Edit post",
+      "openPostAria": "Open {title}",
+      "sheetCreateTitle": "New post",
+      "sheetEditTitle": "Edit post",
+      "saveButton": "Save changes",
+      "cancelButton": "Cancel",
+      "savingButton": "Saving…",
+      "modalBackdropClose": "Close panel",
+      "deleteConfirmTitle": "Delete post?",
+      "deleteConfirmBody": "Delete “{title}”? This cannot be undone.",
+      "activeFilterCount": "{count} active filters",
+      "resultsCount": "Showing {shown} of {total} posts",
       "placeholders": {
         "title": "Title",
         "slug": "Slug",
@@ -3081,9 +3102,24 @@
         "review": "review",
         "resetFilters": "Reset filters"
       },
+      "statusValues": {
+        "DRAFT": "Draft",
+        "IN_REVIEW": "In review",
+        "REJECTED": "Rejected",
+        "PUBLISHED": "Published",
+        "HIDDEN": "Hidden"
+      },
+      "typeValues": {
+        "EVENT": "Event",
+        "BLOG": "Blog",
+        "NEWS": "News",
+        "UPDATE": "Update",
+        "KNOWLEDGE_ARTICLE": "Article"
+      },
       "feedback": {
         "actionFailed": "Action failed",
         "postCreated": "Post created",
+        "postSaved": "Post saved",
         "visibilityUpdated": "Visibility updated",
         "submittedForReview": "Submitted for review",
         "postApproved": "Post approved",

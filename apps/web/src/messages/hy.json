@@ -491,6 +491,7 @@
       "CONTENT_ADMIN": {
         "home": "Գլխավոր",
         "content": "Բովանդակություն",
+        "notifications": "Ծանուցումներ",
         "profile": "Պրոֆիլ"
       },
       "ADMIN": {
@@ -3011,8 +3012,28 @@
       "openProfile": "Պրոֆիլ"
     },
     "content": {
+      "title": "Բովանդակություն",
       "errorAuth": "Պահանջվում է ադմինի կամ բովանդակության դեր։",
       "errorLoad": "Չհաջողվեց բեռնել գրառումները ({status})։",
+      "createButton": "Նոր գրառում",
+      "empty": "Ֆիլտրերով գրառումներ չկան։",
+      "colTitle": "Վերնագիր",
+      "colType": "Տեսակ",
+      "colStatus": "Կարգավիճակ",
+      "colUpdated": "Թարմացվել է",
+      "colActions": "Գործողություններ",
+      "editPost": "Խմբագրել",
+      "openPostAria": "Բացել {title}",
+      "sheetCreateTitle": "Նոր գրառում",
+      "sheetEditTitle": "Խմբագրում",
+      "saveButton": "Պահպանել",
+      "cancelButton": "Չեղարկել",
+      "savingButton": "Պահպանում…",
+      "modalBackdropClose": "Փակել պանելը",
+      "deleteConfirmTitle": "Ջնջե՞լ գրառումը",
+      "deleteConfirmBody": "Ջնջե՞լ «{title}»-ը։ Գործողությունը հետversible չէ։",
+      "activeFilterCount": "Ակտիվ ֆիլտրեր՝ {count}",
+      "resultsCount": "Ցուցադրվում է {shown}/{total}",
       "placeholders": {
         "title": "Վերնագիր",
         "slug": "Slug",
@@ -3039,9 +3060,24 @@
         "review": "վերանայում",
         "resetFilters": "Մաքրել ֆիլտրերը"
       },
+      "statusValues": {
+        "DRAFT": "Սևագիր",
+        "IN_REVIEW": "Ստուգման մեջ",
+        "REJECTED": "Մերժված",
+        "PUBLISHED": "Հրապարակված",
+        "HIDDEN": "Թաքնված"
+      },
+      "typeValues": {
+        "EVENT": "Միջոցառում",
+        "BLOG": "Բլոգ",
+        "NEWS": "Նորություն",
+        "UPDATE": "Թարմացում",
+        "KNOWLEDGE_ARTICLE": "Հոդված"
+      },
       "feedback": {
         "actionFailed": "Գործողությունը չհաջողվեց",
         "postCreated": "Գրառումը ստեղծված է",
+        "postSaved": "Գրառումը պահպանված է",
         "visibilityUpdated": "Տեսանելիությունը թարմացվել է",
         "submittedForReview": "Ուղարկվեց վերանայման",
         "postApproved": "Գրառումը հաստատվեց",
