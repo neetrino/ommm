@@ -458,7 +458,6 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
             <span>{t("colClassType")}</span>
             <span>{t("colPaymentStatus")}</span>
             <span>{t("colAttendanceStatus")}</span>
-            <span>{t("colChannel")}</span>
             <span>{t("colStatus")}</span>
             <span aria-hidden="true" />
             <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>

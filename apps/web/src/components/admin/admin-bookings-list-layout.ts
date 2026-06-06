@@ -15,12 +15,12 @@ import {
 } from "@/components/account/user-list-table-layout";
 
 export const ADMIN_BOOKINGS_LIST_GRID_COLS =
-  "minmax(0,1fr)_minmax(0,1.15fr)_auto_auto_auto_auto_1fr_auto";
+  "minmax(0,1fr)_minmax(0,1.15fr)_auto_auto_auto_1fr_auto";
 
 export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = [
   "max-md:space-y-3",
   "md:grid",
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_auto_auto_auto_auto_1fr_auto]",
+  "md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_auto_auto_auto_1fr_auto]",
   USER_LIST_TABLE_GRID_GAP,
   "md:gap-y-3",
 ].join(" ");

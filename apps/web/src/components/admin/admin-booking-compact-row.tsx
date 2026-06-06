@@ -116,14 +116,6 @@ export function AdminBookingCompactRow({
         <BookingBadge tone="sand" label={attendanceLabel(t, row.attendanceStatus)} />
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
-        <MobileLabel label={t("colChannel")} />
-        <BookingBadge
-          tone="mint"
-          label={row.channel === "APP" ? t("channelApp") : t("channelWebsite")}
-        />
-      </div>
-
       <div
         className={ADMIN_BOOKINGS_LIST_STATUS_CELL}
         onClick={(event) => event.stopPropagation()}
