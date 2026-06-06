@@ -7,6 +7,15 @@ import type { ContentPostRow } from "@/components/shared/content/content-post-ty
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
+export function hasContentPostWorkflowActions(post: ContentPostRow): boolean {
+  return (
+    post.status === "DRAFT" ||
+    post.status === "REJECTED" ||
+    post.status === "HIDDEN" ||
+    post.status === "IN_REVIEW"
+  );
+}
+
 type ContentPostWorkflowActionsProps = {
   post: ContentPostRow;
   busy: boolean;
@@ -40,17 +49,17 @@ export function ContentPostWorkflowActions({
     post.status === "DRAFT" || post.status === "REJECTED" || post.status === "HIDDEN";
   const showReview = post.status === "IN_REVIEW";
 
-  if (!showSubmit && !showReview) {
+  if (!hasContentPostWorkflowActions(post)) {
     return null;
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-3">
       {showSubmit ? (
         <OmmButton
           type="button"
-          size="sm"
-          variant="secondary"
+          size="md"
+          variant="primary"
           disabled={disabled}
           onClick={() =>
             void run(() =>
@@ -66,24 +75,8 @@ export function ContentPostWorkflowActions({
         <>
           <OmmButton
             type="button"
-            size="sm"
-            variant="primary"
-            disabled={disabled}
-            onClick={() =>
-              void run(() =>
-                apiFetch(`/content/admin/posts/${post.id}/review`, {
-                  method: "POST",
-                  body: JSON.stringify({ decision: "APPROVE" }),
-                }),
-              )
-            }
-          >
-            {t("labels.approve")}
-          </OmmButton>
-          <OmmButton
-            type="button"
-            size="sm"
-            variant="ghost"
+            size="md"
+            variant="secondary"
             disabled={disabled}
             onClick={() => {
               const note = window.prompt(t("feedback.rejectionNotePrompt"));
@@ -99,6 +92,22 @@ export function ContentPostWorkflowActions({
             }}
           >
             {t("labels.reject")}
+          </OmmButton>
+          <OmmButton
+            type="button"
+            size="md"
+            variant="primary"
+            disabled={disabled}
+            onClick={() =>
+              void run(() =>
+                apiFetch(`/content/admin/posts/${post.id}/review`, {
+                  method: "POST",
+                  body: JSON.stringify({ decision: "APPROVE" }),
+                }),
+              )
+            }
+          >
+            {t("labels.approve")}
           </OmmButton>
         </>
       ) : null}

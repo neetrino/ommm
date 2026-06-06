@@ -2,7 +2,8 @@
 
 import { ADMIN_DETAILS_SHEET_FOOTER_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import type { ContentPostRow } from "@/components/shared/content/content-post-types";
-import { ContentPostWorkflowActions } from "@/components/shared/content/content-post-workflow-actions";
+import { ContentPostWorkflowActions, hasContentPostWorkflowActions } from "@/components/shared/content/content-post-workflow-actions";
+import { DeleteActionButton } from "@/components/ui/delete-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type ContentPostSheetFooterProps = {
@@ -34,55 +35,51 @@ export function ContentPostSheetFooter({
   onDelete,
   onChanged,
 }: ContentPostSheetFooterProps) {
-  const showWorkflow = mode === "edit" && post !== null;
+  const showSaveActions = mode === "create" || dirty || busy;
+  const showWorkflow =
+    mode === "edit" &&
+    post !== null &&
+    !showSaveActions &&
+    hasContentPostWorkflowActions(post);
   const showDelete = mode === "edit" && post !== null;
-  const showSaveActions = dirty || busy || mode === "create";
+
+  if (!showDelete && !showSaveActions && !showWorkflow) {
+    return null;
+  }
 
   return (
-    <footer className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} shrink-0`}>
-      <div className="flex flex-col gap-3">
-        {showWorkflow ? (
-          <ContentPostWorkflowActions post={post} busy={busy} onChanged={onChanged} />
+    <footer
+      className={`${ADMIN_DETAILS_SHEET_FOOTER_CLASS} flex shrink-0 flex-wrap items-center gap-3`}
+    >
+      {showDelete ? (
+        <DeleteActionButton
+          ariaLabel={deleteLabel}
+          title={deleteLabel}
+          disabled={busy}
+          onClick={onDelete}
+        />
+      ) : null}
+
+      <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
+        {showSaveActions ? (
+          <>
+            <OmmButton type="button" variant="secondary" size="md" onClick={onCancel} disabled={busy}>
+              {cancelLabel}
+            </OmmButton>
+            <OmmButton
+              type="button"
+              variant="primary"
+              size="md"
+              onClick={onSave}
+              disabled={busy || (!dirty && mode !== "create")}
+            >
+              {busy ? savingLabel : saveLabel}
+            </OmmButton>
+          </>
         ) : null}
 
-        {(showDelete || showSaveActions) ? (
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            {showDelete ? (
-              <OmmButton
-                type="button"
-                variant="ghost"
-                size="md"
-                disabled={busy}
-                className="mr-auto"
-                onClick={onDelete}
-              >
-                {deleteLabel}
-              </OmmButton>
-            ) : null}
-
-            {showSaveActions ? (
-              <>
-                <OmmButton
-                  type="button"
-                  variant="secondary"
-                  size="md"
-                  onClick={onCancel}
-                  disabled={busy}
-                >
-                  {cancelLabel}
-                </OmmButton>
-                <OmmButton
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  onClick={onSave}
-                  disabled={busy || (!dirty && mode !== "create")}
-                >
-                  {busy ? savingLabel : saveLabel}
-                </OmmButton>
-              </>
-            ) : null}
-          </div>
+        {showWorkflow && post !== null ? (
+          <ContentPostWorkflowActions post={post} busy={busy} onChanged={onChanged} />
         ) : null}
       </div>
     </footer>
