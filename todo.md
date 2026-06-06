@@ -26,7 +26,7 @@
 | **A1** | **Clients** — Profile · Bookings · Payments · Gifts · Notes | **done** |
 | **A2** | **Coaches** — Profile · Details · Classes · Schedule | **done** |
 | A3 | Schedule sessions | pending |
-| A4 | Gift cards | pending |
+| A4 | Gift cards | **done** |
 
 **A2 tabs:** Profile · Coach details · Classes · Schedule  
 **A1 tabs:** Profile · Bookings · Payments · Gift cards · Notes  
@@ -49,7 +49,19 @@
 
 ## Rollout
 
-~~A1 (clients)~~ ✓ → A4 (gift cards) → B2 (class types) → A3 (schedule) → manager coaches
+~~A1 (clients)~~ ✓ → ~~A4 (gift cards)~~ ✓ → B2 (class types) → A3 (schedule) → manager coaches
+
+---
+
+## A4 — Gift cards ✓ (admin)
+
+**Файлы:** `admin-gift-card-details-sheet.tsx`, `admin-gift-card-sheet-tabs.ts`, `admin-gift-card-sheet-tab-panels.tsx`, `admin-gift-card-status-action.tsx`
+
+- [x] Canon sheet: wide, tabs (Overview · Actions · History), header сумма + Deactivate, без ×
+- [x] Assign / resend / delete в Actions tab; history в отдельном tab
+- [x] `OmmConfirmDialog` вместо `window.confirm` (row toggle, delete, lifecycle)
+- [x] Edit остаётся в center modal (`?modal=edit-gift-card`)
+- [ ] Smoke `/admin/gift-cards`
 
 ---
 

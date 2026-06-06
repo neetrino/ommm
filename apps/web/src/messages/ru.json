@@ -2053,6 +2053,8 @@
         "assigned": "Подарочная карта назначена.",
         "history": "История погашения",
         "historyLoaded": "История загружена.",
+        "historyLoading": "Загрузка истории…",
+        "historyEmpty": "Событий погашения пока нет.",
         "historyTitle": "История погашения",
         "historyClose": "Закрыть историю",
         "historySummary": "Сумма: {amount} • Баланс: {balance}",
@@ -2060,6 +2062,7 @@
         "resend": "Отправить повторно",
         "deactivate": "Деактивировать",
         "delete": "Удалить",
+        "deleting": "Удаление…",
         "deactivateConfirm": "Деактивировать эту карту? Её больше нельзя будет погасить.",
         "deleteConfirm": "Удалить эту подарочную карту навсегда?",
         "resent": "Письмо с картой отправлено повторно.",
@@ -2078,7 +2081,13 @@
       "detailsModalLead": "{available} доступно · просмотрите детали и управляйте действиями ниже.",
       "detailsModalInfoHeading": "Информация о карте",
       "activateGiftCard": "Активировать",
-      "deactivateGiftCard": "Деактивировать"
+      "deactivateGiftCard": "Деактивировать",
+      "confirmActivate": "Активировать эту подарочную карту?",
+      "sheetTabs": {
+        "overview": "Обзор",
+        "actions": "Действия",
+        "history": "История"
+      }
     },
     "packages": {
       "title": "Пакеты",

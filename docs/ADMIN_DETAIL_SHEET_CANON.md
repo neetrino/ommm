@@ -1,7 +1,7 @@
 # Admin detail sheet — canon (аканон)
 
 Краткий эталон для **side sheet** в admin: просмотр + inline edit **в одном** sheet.  
-**Reference implementation:** Coach + **Clients** (`/admin/clients`).
+**Reference implementation:** Coach + **Clients** + **Gift cards** (read-only tabs, edit в center modal).
 
 Связанные файлы:
 
@@ -14,6 +14,7 @@
 | Confirm (nested sheet, редко) | `apps/web/src/components/admin/admin-confirm-sheet.tsx` |
 | Coach (эталон) | `admin-coach-details-drawer.tsx`, … |
 | Client (эталон #2) | `admin-client-drawer.tsx`, `admin-client-sheet-tabs.ts`, … |
+| Gift cards (эталон #3) | `admin-gift-card-details-sheet.tsx`, `admin-gift-card-sheet-tabs.ts`, … |
 
 План rollout: `todo.md` (Admin sheets — inline edit).
 

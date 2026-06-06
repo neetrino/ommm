@@ -2065,6 +2065,8 @@
         "assigned": "Նվեր քարտը կցվեց։",
         "history": "Փոխարժման պատմություն",
         "historyLoaded": "Պատմությունը բեռնվեց։",
+        "historyLoading": "Պատմությունը բեռնվում է…",
+        "historyEmpty": "Փոխարժման իրադարձություններ դեռ չկան։",
         "historyTitle": "Փոխարժման պատմություն",
         "historyClose": "Փակել պատմությունը",
         "historySummary": "Գումար՝ {amount} • Մնացորդ՝ {balance}",
@@ -2072,6 +2074,7 @@
         "resend": "Կրկին ուղարկել",
         "deactivate": "Ապաակտիվացնել",
         "delete": "Ջնջել",
+        "deleting": "Ջնջվում է…",
         "deactivateConfirm": "Ապաակտիվացնե՞լ այս նվեր քարտը։ Այլևս հնարավոր չի լինի փոխարժել։",
         "deleteConfirm": "Ջնջե՞լ այս նվեր քարտը ընդմիշտ։",
         "resent": "Նվեր քարտի նամակը կրկին ուղարկվեց։",
@@ -2090,7 +2093,13 @@
       "detailsModalLead": "{available} հասանելի · ստուգեք մանրամասները և կարավարեք գործություները ներցևֈմ։",
       "detailsModalInfoHeading": "Քարտի տեղեկություն",
       "activateGiftCard": "Ակտիվացնել",
-      "deactivateGiftCard": "Անջատել"
+      "deactivateGiftCard": "Անջատել",
+      "confirmActivate": "Ակտիվացնե՞լ այս նվեր քարտը։",
+      "sheetTabs": {
+        "overview": "Ակնարկ",
+        "actions": "Գործողություններ",
+        "history": "Պատմություն"
+      }
     },
     "packages": {
       "title": "Փաթեթներ",

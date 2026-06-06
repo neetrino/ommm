@@ -14,6 +14,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminGiftCardDetailsSheet } from "@/components/admin/admin-gift-card-details-sheet";
 import { AdminGiftCardsDirectory } from "@/components/admin/admin-gift-cards-directory";
 import { ApiError, apiFetch } from "@/lib/api";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import {
   countActiveGiftCardFilters,
   filterGiftCards,
@@ -63,6 +64,7 @@ export function AdminGiftCardsManagement({
   const [isPending, startTransition] = useTransition();
   const [busyBatchId, setBusyBatchId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+  const [pendingDeleteBatchId, setPendingDeleteBatchId] = useState<string | null>(null);
 
   const selectedGiftCard = useMemo(() => {
     if (selectedGiftCardId === null) {
@@ -200,9 +202,6 @@ export function AdminGiftCardsManagement({
       if (busyBatchId !== null) {
         return;
       }
-      if (!window.confirm(t("actions.deleteConfirm"))) {
-        return;
-      }
       setBusyBatchId(batchId);
       setFeedback(null);
       try {
@@ -219,10 +218,25 @@ export function AdminGiftCardsManagement({
         });
       } finally {
         setBusyBatchId(null);
+        setPendingDeleteBatchId(null);
       }
     },
     [busyBatchId, router, selectedGiftCardId, t],
   );
+
+  function requestDeleteBatch(batchId: string): void {
+    if (busyBatchId !== null) {
+      return;
+    }
+    setPendingDeleteBatchId(batchId);
+  }
+
+  function cancelDeleteBatch(): void {
+    if (busyBatchId !== null) {
+      return;
+    }
+    setPendingDeleteBatchId(null);
+  }
 
   return (
     <AdminGiftCardsShell
@@ -254,7 +268,7 @@ export function AdminGiftCardsManagement({
           busyBatchId={busyBatchId}
           onOpenActions={openGiftCardDetails}
           onEdit={openEditModal}
-          onDelete={(batchId) => void deleteBatch(batchId)}
+          onDelete={requestDeleteBatch}
           onChanged={handleChanged}
         />
       ) : null}
@@ -265,6 +279,24 @@ export function AdminGiftCardsManagement({
         assignableUsers={assignableUsers}
         onClose={closeGiftCardDetails}
         onChanged={handleChanged}
+      />
+
+      <OmmConfirmDialog
+        isOpen={pendingDeleteBatchId !== null}
+        title={t("actions.delete")}
+        description={t("actions.deleteConfirm")}
+        confirmLabel={busyBatchId !== null ? t("actions.deleting") : t("actions.delete")}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone="danger"
+        confirmClassName="ommm-btn-lifecycle-action--danger"
+        pending={busyBatchId !== null}
+        onConfirm={() => {
+          if (pendingDeleteBatchId !== null) {
+            void deleteBatch(pendingDeleteBatchId);
+          }
+        }}
+        onCancel={cancelDeleteBatch}
       />
     </AdminGiftCardsShell>
   );
