@@ -10,6 +10,10 @@ import {
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
+import type {
+  ClientSheetBookingItem,
+  ClientSheetPaginatedResponse,
+} from "@/components/admin/admin-clients-types";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
@@ -19,14 +23,6 @@ type UserDetailsPayload = {
   lastName: string | null;
   email: string;
   phone: string | null;
-};
-
-type UserBookingsPreview = {
-  items: Array<{
-    id: string;
-    status: string;
-    session: { startsAt: string; classType: { name: string } };
-  }>;
 };
 
 type AdminUserDetailsDrawerProps = {
@@ -48,7 +44,7 @@ export function AdminUserDetailsDrawer({
   const t = useTranslations("adminPages.waitlists");
   const titleId = useId();
   const [data, setData] = useState<UserDetailsPayload | null>(null);
-  const [bookings, setBookings] = useState<UserBookingsPreview["items"]>([]);
+  const [bookings, setBookings] = useState<ClientSheetBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
 
@@ -60,7 +56,9 @@ export function AdminUserDetailsDrawer({
     setLoadFailed(false);
     void Promise.all([
       apiFetch<UserDetailsPayload>(`/clients/${userId}`),
-      apiFetch<UserBookingsPreview>(`/clients/${userId}/bookings?take=8&offset=0`),
+      apiFetch<ClientSheetPaginatedResponse<ClientSheetBookingItem>>(
+        `/clients/${userId}/bookings?take=8&offset=0`,
+      ),
     ])
       .then(([profile, bookingsPayload]) => {
         setData(profile);

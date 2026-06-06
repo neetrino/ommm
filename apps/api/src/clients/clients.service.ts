@@ -169,21 +169,17 @@ export class ClientsService {
       throw new NotFoundException();
     }
     const notes = await this.listNotes(id);
-    const { passwordHash, bookings, payments, giftCardsPurchased, giftCardsReceived, ...rest } =
-      user;
-    void passwordHash;
-    void bookings;
-    void payments;
-    void giftCardsPurchased;
-    void giftCardsReceived;
     return {
-      ...rest,
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      lastName: user.lastName,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      avatarUrl: user.avatarUrl,
+      createdAt: user.createdAt,
       activity: this.toClientRow(user),
       notes,
-      bookings: [],
-      payments: [],
-      giftCardsPurchased: [],
-      giftCardsReceived: [],
     };
   }
 
@@ -277,7 +273,7 @@ export class ClientsService {
     });
   }
 
-  async listNotes(userId: string) {
+  private async listNotes(userId: string) {
     await this.assertUserExists(userId);
     return this.prisma.clientNote.findMany({
       where: { userId },

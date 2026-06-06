@@ -86,11 +86,6 @@ export class ClientsController {
     return this.clients.remove(user, id);
   }
 
-  @Get(':id/notes')
-  notes(@Param('id') id: string) {
-    return this.clients.listNotes(id);
-  }
-
   @Post(':id/notes')
   addNote(
     @CurrentUser() user: User,

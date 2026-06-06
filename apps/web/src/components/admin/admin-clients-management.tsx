@@ -51,7 +51,7 @@ import {
   mergeAdminClientsUrlQuery,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
-import type { AdminClientsPayload, ClientDetail, ClientRow } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
 
 type Props = {
   initial: AdminClientsPayload;
@@ -167,7 +167,7 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
     restoredViewClientIdRef.current = viewClientId;
     let cancelled = false;
 
-    void apiFetch<ClientDetail>(`/clients/${viewClientId}`)
+    void apiFetch<{ activity: ClientRow }>(`/clients/${viewClientId}`)
       .then((detail) => {
         if (!cancelled) {
           setFetchedClient(detail.activity);

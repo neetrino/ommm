@@ -9,7 +9,7 @@ import type { ClientDetail } from "./admin-clients-types";
 type RunAction = (key: string, action: () => Promise<void>, ok: string) => Promise<void>;
 
 export function ClientGiftActionPanel(props: {
-  client: ClientDetail;
+  client: Pick<ClientDetail, "email" | "name" | "lastName">;
   giftAmount: string;
   busy: string | null;
   onGiftAmountChange: (value: string) => void;

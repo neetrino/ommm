@@ -2,16 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { ClientHistoryList } from "@/components/admin/admin-client-drawer-sections";
+import type { ClientSheetPaginatedResponse } from "@/components/admin/admin-clients-types";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { apiFetch } from "@/lib/api";
 import { DEFAULT_LIST_PAGE_SIZE } from "@/lib/list-pagination";
-
-type PaginatedPayload<T> = {
-  items: T[];
-  total: number;
-  take: number;
-  offset: number;
-};
 
 type ClientSheetPaginatedTabProps<T> = {
   clientId: string;
@@ -49,7 +43,9 @@ export function ClientSheetPaginatedTab<T>({
     let cancelled = false;
     const offset = (page - 1) * pageSize;
     setLoading(true);
-    void apiFetch<PaginatedPayload<T>>(`${endpoint}?take=${pageSize}&offset=${offset}`)
+    void apiFetch<ClientSheetPaginatedResponse<T>>(
+      `${endpoint}?take=${pageSize}&offset=${offset}`,
+    )
       .then((payload) => {
         if (cancelled) {
           return;

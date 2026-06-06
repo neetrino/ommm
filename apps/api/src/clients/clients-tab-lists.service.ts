@@ -17,7 +17,7 @@ const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
 
 type BookingRecord = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
 
-export type ClientBookingsPage = {
+type ClientBookingsPage = {
   items: Array<{
     id: string;
     status: string;
@@ -32,7 +32,7 @@ export type ClientBookingsPage = {
   offset: number;
 };
 
-export type ClientPaymentsPage = {
+type ClientPaymentsPage = {
   items: Array<{
     id: string;
     amountCents: number;
@@ -46,7 +46,7 @@ export type ClientPaymentsPage = {
   offset: number;
 };
 
-export type ClientGiftCardsPage = {
+type ClientGiftCardsPage = {
   items: Array<{
     id: string;
     amountCents: number;

@@ -4,7 +4,7 @@ Postrannaya paginaciya dlya spiskov v admin i user account.
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
 **Sostoyanie (2026-06):** Fazy 0–3 i bolshinstvo Fazy 2 zaversheny. Obshchaya infrastruktura i pager na stranicakh nizhe.  
-**Ostalos:** Faza 4 (sheet tabs + Clients DB pagination), Faza 5 (manager, nizkiy prioritet).
+**Ostalos:** Coach finance drawer sessions pager, Faza 5 (manager).
 
 **Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
 **URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.  

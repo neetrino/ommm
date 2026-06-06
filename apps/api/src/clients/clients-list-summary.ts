@@ -9,7 +9,7 @@ import {
   INACTIVE_CLIENT_DAYS,
 } from './clients-list.constants';
 
-export type ClientListRowSummaryFields = {
+type ClientListRowSummaryFields = {
   classLevels: string[];
   preferredCoach: { id: string; name: string } | null;
   tags: Array<'VIP' | 'New' | 'At Risk' | 'Beginner'>;

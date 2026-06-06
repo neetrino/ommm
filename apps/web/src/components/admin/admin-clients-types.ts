@@ -53,6 +53,14 @@ export type AdminClientsPayload = {
   pagination: { total: number; take: number; offset: number };
 };
 
+export type ClientNote = {
+  id: string;
+  body: string;
+  createdAt: string;
+  author: { id: string; name: string | null; email: string };
+};
+
+/** Profile + activity from `GET /clients/:id`. Tab lists load via dedicated paginated endpoints. */
 export type ClientDetail = {
   id: string;
   email: string;
@@ -62,52 +70,32 @@ export type ClientDetail = {
   dateOfBirth: string | null;
   avatarUrl: string | null;
   createdAt: string;
-  bookings: Array<{
-    id: string;
-    status: string;
-    channel: string;
-    attendedAt: string | null;
-    cancelledAt: string | null;
-    createdAt: string;
-    session: {
-      startsAt: string;
-      level: string | null;
-      classType: { name: string };
-      coach: { user: { name: string | null; lastName: string | null } };
-    };
-  }>;
-  payments: Array<{
-    id: string;
-    amountCents: number;
-    currency: string;
-    status: string;
-    description: string | null;
-    createdAt: string;
-  }>;
-  giftCardsPurchased: Array<GiftCardRow>;
-  giftCardsReceived: Array<GiftCardRow>;
-  notes: Array<{
-    id: string;
-    body: string;
-    createdAt: string;
-    author: { id: string; name: string | null; email: string };
-  }>;
+  notes: ClientNote[];
   activity: ClientRow;
 };
 
-export type ClientSheetBookingItem = ClientDetail["bookings"][number];
-
-export type ClientSheetPaymentItem = ClientDetail["payments"][number];
-
-export type ClientSheetGiftCardItem = GiftCardRow & {
-  relation: "purchased" | "received";
+export type ClientSheetBookingItem = {
+  id: string;
+  status: string;
+  channel: string;
+  attendedAt: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  session: {
+    startsAt: string;
+    level: string | null;
+    classType: { name: string };
+    coach: { user: { name: string | null; lastName: string | null } };
+  };
 };
 
-export type ClientSheetPaginatedResponse<T> = {
-  items: T[];
-  total: number;
-  take: number;
-  offset: number;
+export type ClientSheetPaymentItem = {
+  id: string;
+  amountCents: number;
+  currency: string;
+  status: string;
+  description: string | null;
+  createdAt: string;
 };
 
 export type GiftCardRow = {
@@ -118,4 +106,15 @@ export type GiftCardRow = {
   recipientEmail: string | null;
   recipientName: string | null;
   createdAt: string;
+};
+
+export type ClientSheetGiftCardItem = GiftCardRow & {
+  relation: "purchased" | "received";
+};
+
+export type ClientSheetPaginatedResponse<T> = {
+  items: T[];
+  total: number;
+  take: number;
+  offset: number;
 };
