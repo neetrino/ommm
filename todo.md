@@ -4,7 +4,7 @@ Postrannaya paginaciya dlya spiskov v admin i user account.
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
 **Sostoyanie (2026-06):** Fazy 0–3 i bolshinstvo Fazy 2 zaversheny. Obshchaya infrastruktura i pager na stranicakh nizhe.  
-**Ostalos:** Faza 5 (manager stranicy).
+**Ostalos:** Admin Packages (nizkiy prioritet), Analytics disclaimer.
 
 **Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
 **URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.  
@@ -79,7 +79,7 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 
 ## Faza 5 — Po neobhodimosti
 
-- [ ] Manager: `/manager/clients`, `/manager/bookings`, `/manager/coaches`, `/manager/waitlists`
+- [x] Manager: `/manager/clients`, `/manager/bookings`, `/manager/coaches`, `/manager/waitlists` — URL `page`/`pageSize`, paginated API
 - [ ] Admin Packages — nizkiy prioritet
 - [ ] Admin Analytics — ne row-list; disclaimer `ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000`
 
@@ -102,10 +102,12 @@ Calendar views bookings/schedule — fetch po diapazonu dat, bez postrannoy pagi
 | Admin | coach finance drawer | sessions take/offset/total | da | done |
 | User | `/user/bookings` past | scope + take/offset | da | done |
 | User | `/user/payments` | take/offset/total | da | done |
+| Manager | clients, bookings, coaches, waitlists | take/offset/total | da | done |
 | User | `/user/gift-cards` | take/offset (2 sekcii) | da | done |
 
 ---
 
 ## Rekomenduemyy poryadok (dalnee)
 
-1. **Faza 5** — Manager stranicy (povtorit pattern admin)
+1. **Admin Packages** — paginaciya (nizkiy prioritet)
+2. **Analytics** — sample limit disclaimer (uzhe chastichno v UI)

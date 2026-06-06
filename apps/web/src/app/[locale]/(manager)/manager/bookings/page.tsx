@@ -1,10 +1,14 @@
 import { headers } from "next/headers";
+import { Suspense } from "react";
 import { AdminBookingActions } from "@/components/admin/admin-booking-actions";
+import { ManagerListPagination } from "@/components/manager/manager-list-pagination";
 import { formatDateTimeForUi } from "@/lib/date-display";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
 
-type BookingAdminRow = {
+type ManagerBookingRow = {
   id: string;
+  recordType?: string;
   status: string;
   user: { name: string | null; email: string };
   session: {
@@ -12,6 +16,11 @@ type BookingAdminRow = {
     startsAt: string;
     classType: { name: string };
   };
+};
+
+type ManagerBookingsPayload = {
+  rows: ManagerBookingRow[];
+  pagination: { total: number; take: number; offset: number };
 };
 
 function getManagerBookingsLabels(locale: string) {
@@ -56,20 +65,29 @@ function getManagerBookingsLabels(locale: string) {
 
 export default async function ManagerBookingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const labels = getManagerBookingsLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
+  const listPage = parseListPageParams(search);
   const from = new Date();
   from.setDate(from.getDate() - 7);
   const to = new Date();
   to.setDate(to.getDate() + 30);
-  const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
+  const q = new URLSearchParams({
+    from: from.toISOString(),
+    to: to.toISOString(),
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
 
-  const res = await serverApiJson<BookingAdminRow[]>(
-    `/bookings/admin?${q}`,
+  const res = await serverApiJson<ManagerBookingsPayload>(
+    `/bookings/admin/management?${q.toString()}`,
     cookie,
   );
 
@@ -82,6 +100,8 @@ export default async function ManagerBookingsPage({
       </div>
     );
   }
+
+  const rows = res.data.rows.filter((row) => row.recordType === "BOOKING");
 
   return (
     <div>
@@ -99,26 +119,26 @@ export default async function ManagerBookingsPage({
             </tr>
           </thead>
           <tbody>
-            {res.data.map((b) => (
-              <tr key={b.id} className="border-b border-zinc-100">
+            {rows.map((booking) => (
+              <tr key={booking.id} className="border-b border-zinc-100">
                 <td className="px-4 py-3 text-zinc-900">
                   <span className="font-medium">
-                    {b.user.name ?? b.user.email}
+                    {booking.user.name ?? booking.user.email}
                   </span>
                   <br />
-                  <span className="text-xs text-zinc-500">{b.user.email}</span>
+                  <span className="text-xs text-zinc-500">{booking.user.email}</span>
                 </td>
                 <td className="px-4 py-3 text-zinc-700">
-                  {b.session.classType.name}
+                  {booking.session.classType.name}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
-                  {formatDateTimeForUi(b.session.startsAt)}
+                  {formatDateTimeForUi(booking.session.startsAt, locale)}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">{b.status}</td>
+                <td className="px-4 py-3 text-zinc-600">{booking.status}</td>
                 <td className="px-4 py-3">
                   <AdminBookingActions
-                    bookingId={b.id}
-                    defaultSessionId={b.session.id}
+                    bookingId={booking.id}
+                    defaultSessionId={booking.session.id}
                     locale={locale}
                   />
                 </td>
@@ -126,6 +146,16 @@ export default async function ManagerBookingsPage({
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-4">
+        <Suspense fallback={null}>
+          <ManagerListPagination
+            total={res.data.pagination.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={listPage.offset}
+          />
+        </Suspense>
       </div>
     </div>
   );

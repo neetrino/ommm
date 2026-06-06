@@ -1,4 +1,7 @@
 import { headers } from "next/headers";
+import { Suspense } from "react";
+import { ManagerListPagination } from "@/components/manager/manager-list-pagination";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
 
 type CoachAdminRow = {
@@ -13,9 +16,16 @@ type CoachAdminRow = {
   };
 };
 
-function coachDisplayName(u: CoachAdminRow["user"]): string {
-  const s = [u.name, u.lastName].filter(Boolean).join(" ").trim();
-  return s.length > 0 ? s : "—";
+type ManagerCoachesPayload = {
+  items: CoachAdminRow[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
+function coachDisplayName(user: CoachAdminRow["user"]): string {
+  const value = [user.name, user.lastName].filter(Boolean).join(" ").trim();
+  return value.length > 0 ? value : "—";
 }
 
 function getManagerCoachesLabels(locale: string) {
@@ -60,13 +70,20 @@ function getManagerCoachesLabels(locale: string) {
 
 export default async function ManagerCoachesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const labels = getManagerCoachesLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<CoachAdminRow[]>("/coaches/admin/list", cookie);
+  const listPage = parseListPageParams(search);
+  const res = await serverApiJson<ManagerCoachesPayload>(
+    `/coaches/admin/list?take=${listPage.take}&offset=${listPage.offset}`,
+    cookie,
+  );
 
   if (!res.ok) {
     return (
@@ -99,22 +116,32 @@ export default async function ManagerCoachesPage({
             </tr>
           </thead>
           <tbody>
-            {res.data.map((c) => (
-              <tr key={c.id} className="border-b border-zinc-100">
+            {res.data.items.map((coach) => (
+              <tr key={coach.id} className="border-b border-zinc-100">
                 <td className="px-4 py-3 font-medium text-zinc-900">
-                  {coachDisplayName(c.user)}
+                  {coachDisplayName(coach.user)}
                 </td>
-                <td className="px-4 py-3 text-zinc-700">{c.user.email}</td>
+                <td className="px-4 py-3 text-zinc-700">{coach.user.email}</td>
                 <td className="px-4 py-3 text-center text-zinc-700">
-                  {c.user.phone ?? "—"}
+                  {coach.user.phone ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-center text-zinc-600">
-                  {c.specialization ?? "—"}
+                  {coach.specialization ?? "—"}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-4">
+        <Suspense fallback={null}>
+          <ManagerListPagination
+            total={res.data.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={listPage.offset}
+          />
+        </Suspense>
       </div>
     </div>
   );

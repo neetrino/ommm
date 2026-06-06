@@ -1,6 +1,9 @@
 import { headers } from "next/headers";
+import { Suspense } from "react";
 import { AdminWaitlistActions } from "@/components/admin/admin-waitlist-actions";
+import { ManagerListPagination } from "@/components/manager/manager-list-pagination";
 import { formatDateTimeForUi } from "@/lib/date-display";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
 
 type WaitlistAdminRow = {
@@ -12,6 +15,13 @@ type WaitlistAdminRow = {
   createdAt: string;
   user: { id: string; name: string | null; email: string };
   session: { id: string; startsAt: string; classType: { name: string } };
+};
+
+type ManagerWaitlistsPayload = {
+  items: WaitlistAdminRow[];
+  total: number;
+  take: number;
+  offset: number;
 };
 
 function getManagerWaitlistsLabels(locale: string) {
@@ -65,14 +75,18 @@ function getManagerWaitlistsLabels(locale: string) {
 
 export default async function ManagerWaitlistsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const labels = getManagerWaitlistsLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<WaitlistAdminRow[]>(
-    "/waitlist/admin/recent?take=200",
+  const listPage = parseListPageParams(search);
+  const res = await serverApiJson<ManagerWaitlistsPayload>(
+    `/waitlist/admin/active?take=${listPage.take}&offset=${listPage.offset}`,
     cookie,
   );
 
@@ -104,32 +118,46 @@ export default async function ManagerWaitlistsPage({
             </tr>
           </thead>
           <tbody>
-            {res.data.map((w) => (
-              <tr key={w.id} className="border-b border-zinc-100">
+            {res.data.items.map((entry) => (
+              <tr key={entry.id} className="border-b border-zinc-100">
                 <td className="px-4 py-3 text-zinc-900">
-                  <div className="font-medium">{w.user.name ?? "—"}</div>
-                  <div className="text-xs text-zinc-500">{w.user.email}</div>
+                  <div className="font-medium">{entry.user.name ?? "—"}</div>
+                  <div className="text-xs text-zinc-500">{entry.user.email}</div>
                 </td>
                 <td className="px-4 py-3 text-zinc-700">
-                  {w.session.classType.name}
+                  {entry.session.classType.name}
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
-                  {formatDateTimeForUi(w.session.startsAt)}
+                  {formatDateTimeForUi(entry.session.startsAt, locale)}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">{w.position}</td>
-                <td className="px-4 py-3 text-zinc-600">{w.status}</td>
+                <td className="px-4 py-3 text-zinc-600">{entry.position}</td>
+                <td className="px-4 py-3 text-zinc-600">{entry.status}</td>
                 <td className="px-4 py-3 text-zinc-600">
-                  {w.offerExpiresAt
-                    ? formatDateTimeForUi(w.offerExpiresAt)
+                  {entry.offerExpiresAt
+                    ? formatDateTimeForUi(entry.offerExpiresAt, locale)
                     : "—"}
                 </td>
                 <td className="px-4 py-3">
-                  <AdminWaitlistActions entryId={w.id} sessionId={w.session.id} locale={locale} />
+                  <AdminWaitlistActions
+                    entryId={entry.id}
+                    sessionId={entry.session.id}
+                    locale={locale}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-4">
+        <Suspense fallback={null}>
+          <ManagerListPagination
+            total={res.data.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={listPage.offset}
+          />
+        </Suspense>
       </div>
     </div>
   );

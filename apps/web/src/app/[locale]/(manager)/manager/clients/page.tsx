@@ -1,16 +1,10 @@
 import { headers } from "next/headers";
+import { Suspense } from "react";
+import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
+import { ManagerListPagination } from "@/components/manager/manager-list-pagination";
 import { formatDateForUi } from "@/lib/date-display";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
-
-type ClientRow = {
-  id: string;
-  email: string;
-  name: string | null;
-  lastName?: string | null;
-  phone?: string | null;
-  role: string;
-  createdAt: string;
-};
 
 function getManagerClientsLabels(locale: string) {
   if (locale === "hy") {
@@ -21,8 +15,9 @@ function getManagerClientsLabels(locale: string) {
       description: "Հաճախորդների ցուցակ (դիտում)։ Խմբագրումը՝ ադմին CRM-ում։",
       colName: "Անուն",
       colEmail: "Էլ. փոստ",
-      colRole: "Դեր",
+      colRole: "Տեսակ",
       colJoined: "Միացել է",
+      roleClient: "Հաճախորդ",
     };
   }
   if (locale === "ru") {
@@ -33,8 +28,9 @@ function getManagerClientsLabels(locale: string) {
       description: "Каталог клиентов (просмотр). Редактирование — в admin CRM.",
       colName: "Имя",
       colEmail: "Email",
-      colRole: "Роль",
+      colRole: "Тип",
       colJoined: "Дата регистрации",
+      roleClient: "Клиент",
     };
   }
   return {
@@ -44,20 +40,28 @@ function getManagerClientsLabels(locale: string) {
     description: "Client directory (read-only). Edit in admin CRM.",
     colName: "Name",
     colEmail: "Email",
-    colRole: "Role",
+    colRole: "Type",
     colJoined: "Joined",
+    roleClient: "Client",
   };
 }
 
 export default async function ManagerClientsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const labels = getManagerClientsLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<ClientRow[]>("/clients", cookie);
+  const listPage = parseListPageParams(search);
+  const res = await serverApiJson<AdminClientsPayload>(
+    `/clients?meta=true&take=${listPage.take}&offset=${listPage.offset}`,
+    cookie,
+  );
 
   if (!res.ok) {
     return (
@@ -68,6 +72,8 @@ export default async function ManagerClientsPage({
       </div>
     );
   }
+
+  const rows = res.data.rows;
 
   return (
     <div>
@@ -84,20 +90,30 @@ export default async function ManagerClientsPage({
             </tr>
           </thead>
           <tbody>
-            {res.data.map((c) => (
-              <tr key={c.id} className="border-b border-zinc-100">
+            {rows.map((client) => (
+              <tr key={client.id} className="border-b border-zinc-100">
                 <td className="px-4 py-3 font-medium text-zinc-900">
-                  {c.name ?? "—"}
+                  {[client.name, client.lastName].filter(Boolean).join(" ") || "—"}
                 </td>
-                <td className="px-4 py-3 text-zinc-700">{c.email}</td>
-                <td className="px-4 py-3 text-zinc-600">{c.role}</td>
+                <td className="px-4 py-3 text-zinc-700">{client.email}</td>
+                <td className="px-4 py-3 text-zinc-600">{labels.roleClient}</td>
                 <td className="px-4 py-3 text-zinc-500">
-                  {formatDateForUi(c.createdAt)}
+                  {formatDateForUi(client.createdAt)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-4">
+        <Suspense fallback={null}>
+          <ManagerListPagination
+            total={res.data.pagination.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={listPage.offset}
+          />
+        </Suspense>
       </div>
     </div>
   );
