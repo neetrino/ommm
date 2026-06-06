@@ -41,6 +41,7 @@ import { apiFetch } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   ADMIN_CLIENTS_FILTER_KEYS,
+  areUrlSearchQueriesEqual,
   mergeAdminClientsUrlQuery,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
@@ -61,6 +62,9 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const routerRef = useRef(router);
+  routerRef.current = router;
+  const searchParamsStringRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const requestId = useRef(0);
   const [payload, setPayload] = useState(initial);
@@ -84,6 +88,10 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
 
   useEffect(() => {
+    searchParamsStringRef.current = searchParams.toString();
+  }, [searchParams]);
+
+  useEffect(() => {
     setVisibleClientId(viewClientId);
   }, [viewClientId]);
 
@@ -103,12 +111,12 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParamsStringRef.current);
       mutator(params);
       const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      routerRef.current.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [pathname],
   );
 
   const selectClient = useCallback(
@@ -208,18 +216,22 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
             }
           });
       });
-      const currentQuery = window.location.search.replace(/^\?/, "");
+      const currentQuery = searchParamsStringRef.current;
       const nextQuery = mergeAdminClientsUrlQuery(
         urlQueryString,
-        Object.fromEntries(new URLSearchParams(window.location.search)),
+        Object.fromEntries(new URLSearchParams(currentQuery)),
       );
-      if (currentQuery !== nextQuery) {
+      if (!areUrlSearchQueriesEqual(currentQuery, nextQuery)) {
         const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
-        router.replace(nextUrl, { scroll: false });
+        routerRef.current.replace(nextUrl, { scroll: false });
       }
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [apiQueryString, pathname, router, urlQueryString]);
+  }, [apiQueryString, pathname, urlQueryString]);
+
+  const handleClientChanged = useCallback(() => {
+    routerRef.current.refresh();
+  }, []);
 
   function updateFilter(key: keyof typeof filters, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
@@ -364,7 +376,7 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
         client={selected}
         locale={locale}
         onClose={closeClientView}
-        onChanged={() => router.refresh()}
+        onChanged={handleClientChanged}
       />
     </div>
   );

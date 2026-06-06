@@ -65,3 +65,17 @@ export function mergeAdminClientsUrlQuery(
   }
   return params.toString();
 }
+
+/** Compares query strings by key/value pairs (order-independent). */
+export function areUrlSearchQueriesEqual(a: string, b: string): boolean {
+  const paramsA = new URLSearchParams(a);
+  const paramsB = new URLSearchParams(b);
+  const keysA = [...new Set(paramsA.keys())].sort();
+  const keysB = [...new Set(paramsB.keys())].sort();
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+  return keysA.every((key, index) => {
+    return key === keysB[index] && paramsA.get(key) === paramsB.get(key);
+  });
+}
