@@ -817,10 +817,6 @@
       "viewDetails": "Подробнее",
       "openCardAria": "Просмотреть детали подарочной карты на {amount}",
       "sheetBackdropClose": "Закрыть детали подарочной карты",
-      "sheetTabs": {
-        "overview": "Обзор",
-        "actions": "Действия"
-      },
       "drawerExpired": "Истёк срок",
       "drawerValid": "Действительна",
       "copyCode": "Скопировать код",

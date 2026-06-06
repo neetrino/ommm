@@ -817,10 +817,6 @@
       "viewDetails": "View details",
       "openCardAria": "View gift card details for {amount}",
       "sheetBackdropClose": "Close gift card details",
-      "sheetTabs": {
-        "overview": "Overview",
-        "actions": "Actions"
-      },
       "drawerExpired": "Expired",
       "drawerValid": "Valid",
       "copyCode": "Copy code",

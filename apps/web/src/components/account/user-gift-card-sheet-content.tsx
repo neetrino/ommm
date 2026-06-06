@@ -1,12 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
-import {
-  USER_GIFT_CARD_SHEET_TAB_ACTIONS,
-  USER_GIFT_CARD_SHEET_TAB_OVERVIEW,
-} from "@/components/account/user-gift-card-sheet-tabs";
 import {
   displayGiftCardDate,
   giftCardStatusBadgeClass,
@@ -16,48 +11,25 @@ import {
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
-import { OmmButton } from "@/components/ui/omm-button";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 const SECTION_CLASS =
   "rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]";
 
-type UserGiftCardSheetTabPanelsProps = {
-  activeTab: string;
+type UserGiftCardSheetContentProps = {
   card: UserGiftCardRow;
   locale: string;
 };
 
-export function UserGiftCardSheetTabPanels({
-  activeTab,
-  card,
-  locale,
-}: UserGiftCardSheetTabPanelsProps) {
-  if (activeTab === USER_GIFT_CARD_SHEET_TAB_OVERVIEW) {
-    return <UserGiftCardOverviewPanel card={card} locale={locale} />;
-  }
-
-  if (activeTab === USER_GIFT_CARD_SHEET_TAB_ACTIONS) {
-    return <UserGiftCardActionsPanel card={card} />;
-  }
-
-  return null;
-}
-
-function UserGiftCardOverviewPanel({
-  card,
-  locale,
-}: {
-  card: UserGiftCardRow;
-  locale: string;
-}) {
+export function UserGiftCardSheetContent({ card, locale }: UserGiftCardSheetContentProps) {
   const t = useTranslations("userPages.giftCards");
   const resolvedImage = resolveApiAssetUrl(card.imageUrl);
   const amountLabel = formatAmdFromCents(card.amountCents, locale);
   const balanceLabel = formatAmdFromCents(card.balanceCents, locale);
   const expired = isGiftCardDateExpired(card.status, card.expiresAt);
   const recipient = card.recipientName?.trim() || card.recipientEmail?.trim() || "";
+  const canRedeem = card.status === "ACTIVE" && card.balanceCents > 0 && !expired;
 
   return (
     <div className="space-y-4">
@@ -117,37 +89,11 @@ function UserGiftCardOverviewPanel({
           <DetailField label={t("cardCode")} value={card.code} className="sm:col-span-2" />
         </dl>
       </section>
-    </div>
-  );
-}
 
-function UserGiftCardActionsPanel({ card }: { card: UserGiftCardRow }) {
-  const t = useTranslations("userPages.giftCards");
-  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
-  const expired = isGiftCardDateExpired(card.status, card.expiresAt);
-  const canRedeem = card.status === "ACTIVE" && card.balanceCents > 0 && !expired;
-
-  const onCopyCode = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(card.code);
-      setCopyFeedback(t("copyCodeSuccess"));
-    } catch {
-      setCopyFeedback(t("copyCodeFailed"));
-    }
-  }, [card.code, t]);
-
-  return (
-    <section className={`${SECTION_CLASS} p-4 sm:p-5`}>
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <OmmButton type="button" variant="secondary" size="sm" onClick={() => void onCopyCode()}>
-          {t("copyCode")}
-        </OmmButton>
-      </div>
-      {copyFeedback ? <p className="mt-2 text-sm text-sage-600">{copyFeedback}</p> : null}
       {canRedeem ? (
-        <p className="ommm-body-muted mt-3 text-sm">{t("redeemHint")}</p>
+        <p className="ommm-body-muted text-sm">{t("redeemHint")}</p>
       ) : null}
-    </section>
+    </div>
   );
 }
 

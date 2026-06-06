@@ -829,10 +829,6 @@
       "viewDetails": "Դիտել մանրամասները",
       "openCardAria": "Դիտել {amount} նվեր քարտի մանրամասները",
       "sheetBackdropClose": "Փակել նվեր քարտի մանրամասները",
-      "sheetTabs": {
-        "overview": "Ակնարկ",
-        "actions": "Գործողություններ"
-      },
       "drawerExpired": "Ժամկետը լրացել է",
       "drawerValid": "Գործող",
       "copyCode": "Պատճենել կոդը",

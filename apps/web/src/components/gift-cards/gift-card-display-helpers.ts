@@ -12,7 +12,7 @@ export function displayGiftCardDate(value: string | null): string {
 
 export function giftCardStatusBadgeClass(status: GiftCardStatusValue | string): string {
   if (status === "ACTIVE") {
-    return "inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900";
+    return "inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800";
   }
   if (status === "REDEEMED") {
     return "inline-flex rounded-full border border-sand-200 bg-sand-50 px-2 py-0.5 text-xs text-sage-900";

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
 import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import type {
   UserGiftCardRow,
@@ -9,6 +10,7 @@ import type {
 } from "@/components/account/user-gift-cards-types";
 import {
   displayGiftCardDate,
+  giftCardStatusBadgeClass,
 } from "@/components/gift-cards/gift-card-display-helpers";
 import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -163,7 +165,7 @@ function UserGiftCardTile({
           openDetails();
         }
       }}
-      className="cursor-pointer rounded-[32px] border border-white/80 bg-white/95 p-6 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:-translate-y-0.5 hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:p-7"
+      className="group cursor-pointer rounded-[32px] border border-white/80 bg-white/95 p-6 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:-translate-y-0.5 hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:p-7"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] border border-white/70 bg-sage-100 shadow-[0_14px_26px_-18px_rgba(45,40,35,0.45)]">
         <GiftCardThumbnail
@@ -171,11 +173,14 @@ function UserGiftCardTile({
           alt={t("cardImageAlt")}
           fallbackLabel={t("cardImageFallback")}
         />
+        <div className="pointer-events-none absolute inset-0 flex items-start justify-end bg-gradient-to-b from-sage-900/25 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+          <UserGiftCardCopyCodeButton code={card.code} stopClickPropagation className="pointer-events-auto" />
+        </div>
       </div>
       <div className="mt-6 space-y-5">
         <div className="flex items-center justify-between gap-4">
           <p className="text-2xl font-semibold tracking-tight text-sage-950">{amountLabel}</p>
-          <span className="inline-flex rounded-full border border-sage-900/70 bg-white px-3 py-1 text-sm leading-none text-sage-900">
+          <span className={`${giftCardStatusBadgeClass(card.status)} px-3 py-1 text-sm leading-none`}>
             {t(`statusValues.${card.status}`)}
           </span>
         </div>
