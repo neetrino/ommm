@@ -34,6 +34,8 @@ type AdminCalendarViewSwitcherProps = {
   value: AdminCalendarView;
   onChange: (view: AdminCalendarView) => void;
   labels: AdminCalendarViewLabels;
+  /** Subset of views to show; defaults to all four modes. */
+  modes?: readonly AdminCalendarView[];
 };
 
 /** List icon-only; calendar views show icon + letter (W / M / Y). */
@@ -41,6 +43,7 @@ export function AdminCalendarViewSwitcher({
   value,
   onChange,
   labels,
+  modes = VIEW_MODES,
 }: AdminCalendarViewSwitcherProps) {
   const ariaLabels: Record<AdminCalendarView, string> = {
     list: labels.list,
@@ -51,7 +54,7 @@ export function AdminCalendarViewSwitcher({
 
   return (
     <div className="flex shrink-0 items-center gap-1" role="group" aria-label={labels.groupAria}>
-      {VIEW_MODES.map((nextView) => {
+      {modes.map((nextView) => {
         const active = value === nextView;
         const letter = CALENDAR_VIEW_LETTERS[nextView];
 

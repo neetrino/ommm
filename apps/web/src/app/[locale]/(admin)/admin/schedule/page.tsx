@@ -6,8 +6,8 @@ import {
   type AdminScheduleClassType,
   type AdminScheduleCoach,
   type AdminScheduleSession,
-  type ScheduleView,
 } from "@/components/admin/admin-schedule-management";
+import { resolveScheduleView, type ScheduleView } from "@/components/admin/admin-schedule-view";
 import {
   buildAdminScheduleListEndpoint,
   isScheduleListView,
@@ -19,10 +19,6 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { serverApiJson } from "@/lib/server-api";
 
-function isScheduleView(value: string | undefined): value is ScheduleView {
-  return value === "list" || value === "monthly" || value === "weekly" || value === "daily";
-}
-
 export default async function AdminSchedulePage({
   params,
   searchParams,
@@ -33,7 +29,7 @@ export default async function AdminSchedulePage({
   const { locale } = await params;
   const search = await searchParams;
   const requestedView = search.view;
-  const initialView: ScheduleView = isScheduleView(requestedView) ? requestedView : "list";
+  const initialView: ScheduleView = resolveScheduleView(requestedView);
   const listView = isScheduleListView(requestedView);
   const listPage = parseAdminScheduleListPageParams(search);
   const scheduleFilterState = parseScheduleListFilterStateFromSearch(search);

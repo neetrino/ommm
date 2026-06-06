@@ -28,11 +28,12 @@ import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
-import {
-  ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
-  sessionStatusBadgeTone,
-} from "@/components/admin/admin-schedule-session-list-badges";
 import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import {
+  resolveScheduleView,
+  SCHEDULE_VIEW_MODES,
+  type ScheduleView,
+} from "@/components/admin/admin-schedule-view";
 import {
   ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER,
@@ -84,7 +85,7 @@ type ScheduleDayOfWeek =
   | "THURSDAY"
   | "FRIDAY"
   | "SATURDAY";
-export type ScheduleView = "list" | "monthly" | "weekly" | "daily";
+export type { ScheduleView } from "@/components/admin/admin-schedule-view";
 type AvailabilityOption = "available" | "full";
 type TimeOfDayOption = "morning" | "afternoon" | "evening";
 
@@ -433,7 +434,9 @@ export function AdminScheduleManagement({
   const [rows, setRows] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
-  const [view, setView] = useState<ScheduleView>(isStaff ? "list" : initialView);
+  const [view, setView] = useState<ScheduleView>(
+    isStaff ? "list" : resolveScheduleView(initialView),
+  );
   const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
     () => initialFilterState.quickFilters,
@@ -959,7 +962,8 @@ export function AdminScheduleManagement({
             />
             <AdminCalendarViewSwitcher
               value={view}
-              onChange={updateView}
+              onChange={(nextView) => updateView(resolveScheduleView(nextView))}
+              modes={SCHEDULE_VIEW_MODES}
               labels={{
                 groupAria: t("views.aria"),
                 list: t("views.list"),
@@ -1212,9 +1216,7 @@ function ScheduleViews(props: {
   onDelete: (row: AdminScheduleSession) => void;
   onDuplicate: (row: AdminScheduleSession) => void;
 }) {
-  if (props.view === "monthly") return <MonthlyPanel {...props} />;
   if (props.view === "weekly") return <WeeklyPanel {...props} />;
-  if (props.view === "daily") return <DailyPanel {...props} />;
   return (
     <div className="space-y-3">
       <CalendarSummaryCard locale={props.locale} rows={props.rows} selectedDay={props.selectedDay} onSelectDay={props.onSelectDay} />
@@ -1261,53 +1263,6 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
   );
 }
 
-function SessionStatusBadge({ status }: { status: AdminScheduleSession["status"] }) {
-  const t = useTranslations("adminPages.classes");
-  return (
-    <span
-      className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(status)}`}
-    >
-      {t(`status.${status}`)}
-    </span>
-  );
-}
-
-function SessionAgendaCard({ row, locale, busyId, onDetails, onCancel, onActivate, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
-  const t = useTranslations("adminPages.classes");
-  const busy = busyId === row.id;
-  return (
-    <article className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-[0_14px_34px_-26px_rgba(45,40,35,0.35)]">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
-            {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.startsAt))} - {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(row.endsAt))}
-          </p>
-          <button type="button" className="mt-1 text-left text-base font-semibold text-sage-900 underline-offset-2 hover:underline" onClick={() => onDetails(row)}>
-            {row.title}
-          </button>
-          <p className="mt-1 text-sm text-sage-600">
-            {row.classType.name} · {coachName(row.coach)} · {durationMinutes(row)}m
-          </p>
-          <p className="mt-2 text-xs text-sage-500">
-            {row._count.bookings}/{row.capacity} · {t("fields.spotsLeft", { count: spotsLeft(row) })}
-            {row.level ? ` · ${row.level}` : ""}
-          </p>
-        </div>
-        <SessionStatusBadge status={row.status} />
-      </div>
-      <div className="mt-4 flex justify-end">
-        <AdminScheduleSessionRowActions
-          row={row}
-          busy={busy}
-          onDuplicate={onDuplicate}
-          onCancel={onCancel}
-          onActivate={onActivate}
-        />
-      </div>
-    </article>
-  );
-}
-
 function CalendarSummaryCard({ locale, rows, selectedDay, onSelectDay }: { locale: string; rows: readonly AdminScheduleSession[]; selectedDay: string; onSelectDay: (day: string) => void }) {
   const grouped = groupRowsByDay(rows);
   const days = Array.from(grouped.keys()).sort().slice(0, 14);
@@ -1323,7 +1278,7 @@ function CalendarSummaryCard({ locale, rows, selectedDay, onSelectDay }: { local
   );
 }
 
-function DayCard({ locale, day, rows, selected, onSelect, muted = false, compact = false }: { locale: string; day: string; rows: readonly AdminScheduleSession[]; selected: boolean; onSelect: (day: string) => void; muted?: boolean; compact?: boolean }) {
+function DayCard({ locale, day, rows, selected, onSelect, compact = false }: { locale: string; day: string; rows: readonly AdminScheduleSession[]; selected: boolean; onSelect: (day: string) => void; compact?: boolean }) {
   const date = new Date(`${day}T00:00:00`);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const isToday = day === isoDate(new Date());
@@ -1336,8 +1291,6 @@ function DayCard({ locale, day, rows, selected, onSelect, muted = false, compact
           ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)]"
           : selected
             ? "border-sage-700/20 bg-sage-50/90 text-sage-900 shadow-[0_14px_28px_-24px_rgba(45,40,35,0.35)]"
-          : muted
-            ? "border-white/50 bg-white/35 text-sage-500 hover:bg-white/55"
             : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white"
       }`}
     >
@@ -1361,28 +1314,6 @@ function DayCard({ locale, day, rows, selected, onSelect, muted = false, compact
         </span>
       )}
     </button>
-  );
-}
-
-function MonthlyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
-  const grouped = groupRowsByDay(props.rows);
-  const selected = new Date(`${props.selectedDay}T00:00:00`);
-  const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
-  const gridStart = startOfWeek(monthStart);
-  const days = Array.from({ length: 42 }, (_, index) => {
-    const date = addDays(gridStart, index);
-    return date.toISOString().slice(0, 10);
-  });
-  return (
-    <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
-      <p className="mb-3 text-sm font-semibold text-sage-900">{new Intl.DateTimeFormat(props.locale, { month: "long", year: "numeric" }).format(selected)}</p>
-      <div className="grid gap-2 md:grid-cols-7">
-        {days.map((day) => {
-          const date = new Date(`${day}T00:00:00`);
-          return <DayCard key={day} locale={props.locale} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} muted={date.getMonth() !== selected.getMonth()} />;
-        })}
-      </div>
-    </div>
   );
 }
 
@@ -1440,44 +1371,6 @@ function WeeklyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
             </div>
           </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function DailyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
-  const selected = new Date(`${props.selectedDay}T00:00:00`);
-  const weekStart = startOfWeek(selected);
-  const grouped = groupRowsByDay(props.rows);
-  const days = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index).toISOString().slice(0, 10));
-  const selectedRows = grouped.get(props.selectedDay) ?? [];
-  return (
-    <div className="space-y-3">
-      <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-sage-900">{formatDateForUi(props.selectedDay)}</p>
-            <p className="text-xs text-sage-500">{new Intl.DateTimeFormat(props.locale, { weekday: "long" }).format(selected)}</p>
-          </div>
-          <div className="flex gap-2">
-            <OmmButton size="sm" variant="ghost" onClick={() => props.onSelectDay(addDays(selected, -1).toISOString().slice(0, 10))}>{"<"}</OmmButton>
-            <OmmButton size="sm" variant="ghost" onClick={() => props.onSelectDay(addDays(selected, 1).toISOString().slice(0, 10))}>{">"}</OmmButton>
-          </div>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
-          {days.map((day) => <DayCard key={day} locale={props.locale} day={day} rows={grouped.get(day) ?? []} selected={day === props.selectedDay} onSelect={props.onSelectDay} compact />)}
-        </div>
-      </div>
-      <div className="rounded-[30px] border border-white/70 bg-white/55 p-4 shadow-[0_20px_50px_-32px_rgba(45,40,35,0.35)] backdrop-blur-md">
-        {selectedRows.length === 0 ? (
-          <div className="rounded-2xl border border-white/70 bg-white/70 px-4 py-10 text-center text-sm text-sage-500">—</div>
-        ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {selectedRows.map((row) => (
-              <SessionAgendaCard key={row.id} row={row} locale={props.locale} busyId={props.busyId} onDetails={props.onDetails} onCancel={props.onCancel} onActivate={props.onActivate} onDuplicate={props.onDuplicate} />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
