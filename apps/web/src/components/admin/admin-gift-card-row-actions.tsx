@@ -5,16 +5,30 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
-import { PencilGlyph, TrashGlyph } from "@/components/ui/admin-action-glyphs";
+import {
+  ADMIN_ACTION_ICON_CLASS,
+  PencilGlyph,
+  TrashGlyph,
+} from "@/components/ui/admin-action-glyphs";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
-import { AdminRowIconButton, AdminRowIconGroup } from "@/components/ui/admin-row-icon-button";
+import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 
-const ROW_ICON_CLASS = "h-5 w-5 shrink-0";
-const ROW_ICON_BUTTON_CLASS = "ommm-admin-row-icon-button-lg";
-const ROW_TOGGLE_BUTTON_CLASS =
-  "ommm-admin-row-icon-button-lg ommm-admin-row-icon-button-toggle";
+const LIST_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
+
+const BOARD_TOOLBAR_CLASS =
+  "mt-auto flex flex-wrap items-center justify-center gap-1 pt-3";
+
+const BOARD_TOGGLE_BUTTON_CLASS =
+  "inline-flex shrink-0 cursor-pointer items-center rounded-full p-1 transition-opacity hover:opacity-85 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
+
+const BOARD_TEXT_ACTION_CLASS =
+  "inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-sm font-medium text-sage-700 transition-colors hover:bg-sand-100/90 active:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
+
+const BOARD_DELETE_ACTION_CLASS =
+  "inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50/90 active:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
 
 type AdminGiftCardRowActionsProps = {
+  variant?: "list" | "board";
   card: AdminGiftCardBatchRow;
   busyBatchId: string | null;
   onEdit: (batchId: string) => void;
@@ -29,6 +43,7 @@ function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): bo
 }
 
 export function AdminGiftCardRowActions({
+  variant = "list",
   card,
   busyBatchId,
   onEdit,
@@ -72,14 +87,81 @@ export function AdminGiftCardRowActions({
     }
   }
 
+  function handleToggleClick(event: React.MouseEvent<HTMLButtonElement>): void {
+    event.stopPropagation();
+    void toggleStatus();
+  }
+
+  if (variant === "board") {
+    return (
+      <div
+        className={BOARD_TOOLBAR_CLASS}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+        role="toolbar"
+        aria-label={t("colActions")}
+      >
+        {canToggleStatus ? (
+          <button
+            type="button"
+            className={BOARD_TOGGLE_BUTTON_CLASS}
+            aria-label={toggleLabel}
+            title={toggleLabel}
+            disabled={disabled}
+            onClick={handleToggleClick}
+          >
+            <AnimatedToggleSwitch checked={isActive} className="ommm-toggle-switch-board" />
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className={BOARD_TEXT_ACTION_CLASS}
+          disabled={disabled}
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit(card.id);
+          }}
+        >
+          <PencilGlyph className="h-4 w-4 shrink-0" />
+          {t("boardEditButton")}
+        </button>
+        <button
+          type="button"
+          className={BOARD_DELETE_ACTION_CLASS}
+          disabled={disabled}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete(card.id);
+          }}
+        >
+          <TrashGlyph className="h-4 w-4 shrink-0" />
+          {t("actions.delete")}
+        </button>
+      </div>
+    );
+  }
+
+  const listToggleControl = canToggleStatus ? (
+    <AdminRowIconButton
+      ariaLabel={toggleLabel}
+      title={toggleLabel}
+      className={LIST_TOGGLE_BUTTON_CLASS}
+      disabled={disabled}
+      onClick={handleToggleClick}
+    >
+      <AnimatedToggleSwitch checked={isActive} />
+    </AdminRowIconButton>
+  ) : null;
+
   return (
     <div
-      className={`flex flex-wrap items-center gap-3 ${
+      className={`flex flex-wrap items-center gap-2 ${
         showOpenActionsLink ? "justify-center" : "justify-end"
       }`}
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
-      role="presentation"
+      role="group"
+      aria-label={t("colActions")}
     >
       {showOpenActionsLink ? (
         <button
@@ -95,47 +177,30 @@ export function AdminGiftCardRowActions({
         </button>
       ) : null}
 
-      <AdminRowIconGroup size="lg">
-        <AdminRowIconButton
-          ariaLabel={t("editTitle")}
-          title={t("editTitle")}
-          className={ROW_ICON_BUTTON_CLASS}
-          onClick={(event) => {
-            event.stopPropagation();
-            onEdit(card.id);
-          }}
-          disabled={disabled}
-        >
-          <PencilGlyph className={ROW_ICON_CLASS} />
-        </AdminRowIconButton>
-        {canToggleStatus ? (
-          <AdminRowIconButton
-            ariaLabel={toggleLabel}
-            title={toggleLabel}
-            className={ROW_TOGGLE_BUTTON_CLASS}
-            onClick={(event) => {
-              event.stopPropagation();
-              void toggleStatus();
-            }}
-            disabled={disabled}
-          >
-            <AnimatedToggleSwitch checked={isActive} />
-          </AdminRowIconButton>
-        ) : null}
-        <AdminRowIconButton
-          ariaLabel={t("actions.delete")}
-          title={t("actions.delete")}
-          variant="danger"
-          className={ROW_ICON_BUTTON_CLASS}
-          onClick={(event) => {
-            event.stopPropagation();
-            onDelete(card.id);
-          }}
-          disabled={disabled}
-        >
-          <TrashGlyph className={ROW_ICON_CLASS} />
-        </AdminRowIconButton>
-      </AdminRowIconGroup>
+      <AdminRowIconButton
+        ariaLabel={t("editTitle")}
+        title={t("editTitle")}
+        disabled={disabled}
+        onClick={(event) => {
+          event.stopPropagation();
+          onEdit(card.id);
+        }}
+      >
+        <PencilGlyph className={ADMIN_ACTION_ICON_CLASS} />
+      </AdminRowIconButton>
+      {listToggleControl}
+      <AdminRowIconButton
+        ariaLabel={t("actions.delete")}
+        title={t("actions.delete")}
+        variant="danger"
+        disabled={disabled}
+        onClick={(event) => {
+          event.stopPropagation();
+          onDelete(card.id);
+        }}
+      >
+        <TrashGlyph className={ADMIN_ACTION_ICON_CLASS} />
+      </AdminRowIconButton>
     </div>
   );
 }

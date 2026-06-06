@@ -504,6 +504,26 @@ html {
     transform: translateX(0.75rem);
   }
 
+  .ommm-toggle-switch-board .ommm-toggle-switch-track {
+    @apply h-5 w-9;
+  }
+
+  .ommm-toggle-switch-board .ommm-toggle-switch-knob {
+    @apply h-4 w-4 shadow-none;
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-on .ommm-toggle-switch-knob {
+    transform: translateX(1rem);
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-off .ommm-toggle-switch-track {
+    @apply bg-zinc-300;
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-on .ommm-toggle-switch-track {
+    background-color: #7cb868;
+  }
+
   .ommm-admin-row-icon-button-danger {
     @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
   }

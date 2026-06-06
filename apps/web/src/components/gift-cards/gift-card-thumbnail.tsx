@@ -28,9 +28,11 @@ export function GiftCardThumbnail({
 
   return (
     <div
-      className={`flex items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 ${className ?? "h-full w-full"}`}
+      className={`flex items-center justify-center bg-gradient-to-br from-sand-50 via-paper to-mint-50 ${className ?? "h-full w-full"}`}
     >
-      <span className="text-xs font-medium text-sage-600">{fallbackLabel}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+        {fallbackLabel}
+      </span>
     </div>
   );
 }

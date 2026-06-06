@@ -5,14 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
 import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
-import {
-  ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS,
-  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_TITLE_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
 import {
   adminBookingsFilterValuesFromState,
   buildAdminBookingsFilterFields,
@@ -31,7 +24,6 @@ import {
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
@@ -510,7 +502,13 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         />
       ) : null}
 
-      {activeUserId ? <UserDrawer userId={activeUserId} onClose={() => setActiveUserId(null)} /> : null}
+      {activeUserId ? (
+        <AdminUserDetailsDrawer
+          locale={locale}
+          userId={activeUserId}
+          onClose={() => setActiveUserId(null)}
+        />
+      ) : null}
       {selectedRow ? (
         <AdminBookingDetailsSheet
           row={selectedRow}
@@ -776,79 +774,6 @@ function WeeklyPanel({
   );
 }
 
-function UserDrawer({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const t = useTranslations("adminPages.bookings");
-  const [data, setData] = useState<null | {
-    name: string | null;
-    email: string;
-    phone: string | null;
-    bookings?: Array<{ id: string; status: string; session: { startsAt: string; classType: { name: string } } }>;
-  }>(null);
-  useEffect(() => {
-    void apiFetch(`/clients/${userId}`)
-      .then((payload) =>
-        setData(
-          payload as {
-            name: string | null;
-            email: string;
-            phone: string | null;
-            bookings?: Array<{
-              id: string;
-              status: string;
-              session: { startsAt: string; classType: { name: string } };
-            }>;
-          },
-        ),
-      )
-      .catch(() => setData(null));
-  }, [userId]);
-  return (
-    <OmmDrawerPortal
-      isOpen
-      onClose={onClose}
-      backdropAriaLabel={t("close")}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
-    >
-      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-        <div className="flex items-center justify-between gap-3">
-          <h3 className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>{t("userDetailsTitle")}</h3>
-          <button
-            type="button"
-            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-            onClick={onClose}
-            aria-label={t("close")}
-          >
-            ×
-          </button>
-        </div>
-      </header>
-      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
-        {data === null ? (
-          <p className="text-sm text-sage-500">{t("emptyUserData")}</p>
-        ) : (
-          <div className="space-y-3 text-sm">
-            <div>
-              <p className="font-medium text-sage-900">{data.name ?? data.email}</p>
-              <p className="text-sage-600">{data.phone ?? "—"}</p>
-              <p className="text-sage-600">{data.email}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-sage-500">{t("bookingHistory")}</p>
-              <div className="mt-1 space-y-1">
-                {(data.bookings ?? []).slice(0, 8).map((booking) => (
-                  <p key={booking.id} className="rounded-md bg-white/80 px-2 py-1 text-xs">
-                    {formatDateTimeForUi(booking.session.startsAt)} · {booking.session.classType.name} · {booking.status}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </OmmDrawerPortal>
-  );
-}
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {
   const t = useTranslations("adminPages.bookings");
   useCloseOnEscape(true, onClose);

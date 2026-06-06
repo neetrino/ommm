@@ -1931,6 +1931,7 @@
       "createButton": "Create gift card",
       "createTitle": "Create gift card",
       "editTitle": "Edit gift card",
+      "boardEditButton": "Edit",
       "createDescription": "Issue a gift card manually. An email is sent when a recipient address is provided.",
       "createHeading": "Create gift card",
       "modalCloseAria": "Close",

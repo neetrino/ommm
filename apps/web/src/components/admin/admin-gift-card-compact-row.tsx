@@ -110,6 +110,7 @@ export function AdminGiftCardCompactRow({
           onEdit={onEdit}
           onDelete={onDelete}
           onOpenActions={onOpenActions}
+          showOpenActionsLink={false}
           onChanged={onChanged}
         />
       </div>
