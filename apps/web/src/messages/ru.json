@@ -1186,6 +1186,7 @@
       "colActions": "Действия",
       "colUserPhone": "Клиент / Телефон",
       "colClassType": "Тип занятия",
+      "colDateTime": "Дата и время",
       "colSessionCount": "Сессии",
       "colPaymentStatus": "Оплата",
       "colAttendanceStatus": "Посещение",

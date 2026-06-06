@@ -1195,6 +1195,7 @@
       "colActions": "Actions",
       "colUserPhone": "User / Phone",
       "colClassType": "Class type",
+      "colDateTime": "Date & time",
       "colSessionCount": "Session count",
       "colPaymentStatus": "Payment",
       "colAttendanceStatus": "Attendance",

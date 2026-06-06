@@ -13,6 +13,7 @@ import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrate
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import {
   ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER,
   ADMIN_BOOKINGS_LIST_HEADER_CLASS,
   ADMIN_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-bookings-list-layout";
@@ -455,10 +456,11 @@ export function AdminBookingsManagement({ locale, initial }: Props) {
         <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
           <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
             <span>{t("colUserPhone")}</span>
-            <span>{t("colClassType")}</span>
-            <span>{t("colPaymentStatus")}</span>
-            <span>{t("colAttendanceStatus")}</span>
-            <span>{t("colStatus")}</span>
+            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
+            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
+            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
+            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colAttendanceStatus")}</span>
+            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colStatus")}</span>
             <span aria-hidden="true" />
             <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
           </div>

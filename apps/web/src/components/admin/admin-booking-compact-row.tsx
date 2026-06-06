@@ -1,18 +1,21 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { SessionClassTitle } from "@/components/account/session-class-title";
+import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import {
   ADMIN_BOOKINGS_LIST_ACTIONS_CELL,
   ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_BOOKINGS_LIST_CELL,
+  ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_SPACER_CELL,
   ADMIN_BOOKINGS_LIST_STATUS_CELL,
+  ADMIN_BOOKINGS_LIST_VALUE_BADGE_CLASS,
 } from "@/components/admin/admin-bookings-list-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
-import { formatDateTimeForUi } from "@/lib/date-display";
 
 type BookingRow = {
   id: string;
@@ -79,7 +82,7 @@ export function AdminBookingCompactRow({
         <MobileLabel label={t("colUserPhone")} />
         <button
           type="button"
-          className="block max-w-full truncate text-left font-medium text-sage-900 underline-offset-2 hover:underline"
+          className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
           title={userLabel}
           onClick={(event) => {
             event.stopPropagation();
@@ -93,27 +96,46 @@ export function AdminBookingCompactRow({
 
       <div className={ADMIN_BOOKINGS_LIST_CELL}>
         <MobileLabel label={t("colClassType")} />
-        <p className="truncate font-serif text-lg leading-snug tracking-tight text-sage-950">
-          {row.session.classType.name}
-        </p>
-        <p className="mt-0.5 truncate text-xs font-medium text-sage-500">
-          {formatDateTimeForUi(row.session.startsAt, locale)}
-        </p>
+        <SessionClassTitle variant="list" name={row.session.classType.name} />
         {row.package !== null ? (
-          <p className="mt-0.5 truncate text-xs text-sage-500">
+          <p className="mt-1 truncate text-[11px] text-sage-500">
             {formatPackagePlanName(row.package.planName, row.package.sessionsPerMonth)}
           </p>
         ) : null}
       </div>
 
+      <div className={ADMIN_BOOKINGS_LIST_DATE_TIME_CELL}>
+        <MobileLabel label={t("colDateTime")} />
+        <div className="flex min-w-0 items-center gap-3">
+          <SessionDateTimeHighlight
+            locale={locale}
+            startsAt={row.session.startsAt}
+            endsAt={row.session.endsAt}
+            variant="listDate"
+          />
+          <SessionDateTimeHighlight
+            locale={locale}
+            startsAt={row.session.startsAt}
+            endsAt={row.session.endsAt}
+            variant="listTime"
+          />
+        </div>
+      </div>
+
       <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
         <MobileLabel label={t("colPaymentStatus")} />
-        <BookingBadge tone="slate" label={paymentLabel(t, row.paymentStatus)} />
+        <BookingValueBadge
+          label={paymentLabel(t, row.paymentStatus)}
+          className={paymentBadgeClass(row.paymentStatus)}
+        />
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
         <MobileLabel label={t("colAttendanceStatus")} />
-        <BookingBadge tone="sand" label={attendanceLabel(t, row.attendanceStatus)} />
+        <BookingValueBadge
+          label={attendanceLabel(t, row.attendanceStatus)}
+          className={attendanceBadgeClass(row.attendanceStatus)}
+        />
       </div>
 
       <div
@@ -153,35 +175,32 @@ export function AdminBookingCompactRow({
 
 function MobileLabel({ label }: { label: string }) {
   return (
-    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sage-500 md:hidden">
+    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600 md:hidden">
       {label}
     </p>
   );
 }
 
-function BookingBadge({
-  label,
-  tone,
-}: {
-  label: string;
-  tone: "slate" | "sand" | "mint" | "indigo";
-}) {
-  const styles =
-    tone === "mint"
-      ? "border-mint-200 bg-mint-50 text-sage-900"
-      : tone === "indigo"
-        ? "border-indigo-200 bg-indigo-50 text-indigo-900"
-        : tone === "sand"
-          ? "border-sand-300 bg-sand-50 text-sage-900"
-          : "border-zinc-200 bg-zinc-50 text-zinc-800";
-
+function BookingValueBadge({ label, className }: { label: string; className: string }) {
   return (
-    <span
-      className={`inline-flex max-w-full shrink-0 truncate rounded-full border px-2 py-0.5 text-[11px] font-medium leading-tight ${styles}`}
-    >
+    <span className={`${ADMIN_BOOKINGS_LIST_VALUE_BADGE_CLASS} ${className}`}>
       {label}
     </span>
   );
+}
+
+function paymentBadgeClass(value: BookingRow["paymentStatus"]): string {
+  if (value === "PAID") return "border-mint-200 bg-mint-100 text-mint-900";
+  if (value === "CASH") return "border-sand-300 bg-sand-100 text-sand-800";
+  if (value === "REFUNDED") return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-amber-200 bg-amber-100 text-amber-900";
+}
+
+function attendanceBadgeClass(value: BookingRow["attendanceStatus"]): string {
+  if (value === "ATTENDED") return "border-mint-200 bg-mint-100 text-mint-900";
+  if (value === "NO_SHOW") return "border-red-200 bg-red-100 text-red-800";
+  if (value === "LATE_CANCEL") return "border-sand-300 bg-sand-100 text-sand-800";
+  return "border-zinc-200 bg-zinc-100 text-zinc-700";
 }
 
 function paymentLabel(

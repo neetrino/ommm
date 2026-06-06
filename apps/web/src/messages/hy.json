@@ -1198,6 +1198,7 @@
       "colActions": "Գործողություններ",
       "colUserPhone": "Հաճախորդ / Հեռախոս",
       "colClassType": "Դասի տեսակ",
+      "colDateTime": "Ամսաթիվ և ժամ",
       "colSessionCount": "Սեսիաների քանակ",
       "colPaymentStatus": "Վճարում",
       "colAttendanceStatus": "Ներկայություն",

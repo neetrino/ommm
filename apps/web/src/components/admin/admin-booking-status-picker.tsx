@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
+import { ADMIN_BOOKINGS_LIST_STATUS_BADGE_CLASS } from "@/components/admin/admin-bookings-list-layout";
 
 const MENU_MIN_WIDTH = 152;
 const MENU_GAP = 4;
@@ -174,7 +175,7 @@ export function AdminBookingStatusPicker({
       >
         <span className="truncate">{label}</span>
         <ChevronDownGlyph
-          className={`h-2.5 w-2.5 shrink-0 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-3 w-3 shrink-0 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {menu}
@@ -197,13 +198,12 @@ function ChevronDownGlyph({ className }: { className: string }) {
 }
 
 function statusBadgeClass(status: AdminBookingStatus): string {
-  const base =
-    "inline-flex max-w-full shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-tight tracking-wide";
-  if (status === "BOOKED") return `${base} border-indigo-200 bg-indigo-50 text-indigo-900`;
-  if (status === "COMPLETED") return `${base} border-mint-200 bg-mint-50 text-sage-900`;
-  if (status === "CANCELLED") return `${base} border-sand-300 bg-sand-50 text-sage-800`;
-  if (status === "WAITLISTED") return `${base} border-zinc-200 bg-zinc-50 text-zinc-800`;
-  return `${base} border-red-200 bg-red-50 text-red-800`;
+  const base = `${ADMIN_BOOKINGS_LIST_STATUS_BADGE_CLASS} gap-1`;
+  if (status === "BOOKED") return `${base} border-mint-200 bg-mint-100 text-mint-900`;
+  if (status === "COMPLETED") return `${base} border-sky-200 bg-sky-100 text-sky-900`;
+  if (status === "CANCELLED") return `${base} border-sage-200 bg-sage-100 text-sage-700`;
+  if (status === "WAITLISTED") return `${base} border-zinc-200 bg-zinc-100 text-zinc-800`;
+  return `${base} border-amber-200 bg-amber-100 text-amber-900`;
 }
 
 function statusLabel(

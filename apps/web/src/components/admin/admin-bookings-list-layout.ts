@@ -1,6 +1,7 @@
 import {
   USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
+  USER_LIST_DATE_CELL,
   USER_LIST_HEADER_SURFACE,
   USER_LIST_ROW_INTERACTIVE,
   USER_LIST_SPACER_CELL,
@@ -15,12 +16,12 @@ import {
 } from "@/components/account/user-list-table-layout";
 
 export const ADMIN_BOOKINGS_LIST_GRID_COLS =
-  "minmax(0,1fr)_minmax(0,1.15fr)_auto_auto_auto_1fr_auto";
+  "minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_auto_1fr_auto";
 
 export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = [
   "max-md:space-y-3",
   "md:grid",
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_auto_auto_auto_1fr_auto]",
+  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_auto_1fr_auto]",
   USER_LIST_TABLE_GRID_GAP,
   "md:gap-y-3",
 ].join(" ");
@@ -64,6 +65,8 @@ export const ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL = [
 
 export const ADMIN_BOOKINGS_LIST_CELL = USER_LIST_CELL_CLASS;
 
+export const ADMIN_BOOKINGS_LIST_DATE_TIME_CELL = USER_LIST_DATE_CELL;
+
 export const ADMIN_BOOKINGS_LIST_STATUS_CELL = USER_LIST_TRAILING_CELL;
 
 export const ADMIN_BOOKINGS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
@@ -73,3 +76,14 @@ export const ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER
 export const ADMIN_BOOKINGS_LIST_SPACER_CELL = USER_LIST_SPACER_CELL;
 
 export const ADMIN_BOOKINGS_LIST_STACK_CLASS = USER_LIST_STACK_CLASS;
+
+/** Payment / attendance value chips in list rows. */
+export const ADMIN_BOOKINGS_LIST_VALUE_BADGE_CLASS =
+  "inline-flex max-w-full shrink-0 truncate rounded-full border px-2.5 py-1 text-xs font-medium uppercase tracking-wide";
+
+/** Booking status chip — slightly larger than payment / attendance. */
+export const ADMIN_BOOKINGS_LIST_STATUS_BADGE_CLASS =
+  "inline-flex max-w-full shrink-0 items-center rounded-full border px-2.5 py-1 text-xs font-medium uppercase tracking-wide";
+
+export const ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER =
+  "text-[11px] font-semibold uppercase tracking-[0.1em] text-sage-600";
