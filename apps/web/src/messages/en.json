@@ -41,12 +41,7 @@
   },
   "language": {
     "switcherAria": "Interface language",
-    "expandPicker": "Open language menu",
-    "optionNames": {
-      "hy": "Հայերեն",
-      "en": "English",
-      "ru": "Русский"
-    }
+    "expandPicker": "Open language menu"
   },
   "home": {
     "bookNow": "Book now",

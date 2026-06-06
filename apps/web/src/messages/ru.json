@@ -41,12 +41,7 @@
   },
   "language": {
     "switcherAria": "Язык интерфейса",
-    "expandPicker": "Открыть меню языка",
-    "optionNames": {
-      "hy": "Հայերեն",
-      "en": "Английский",
-      "ru": "Русский"
-    }
+    "expandPicker": "Открыть меню языка"
   },
   "home": {
     "bookNow": "Записаться",
