@@ -30,13 +30,3 @@ export function ListPageSearchFilters({
     />
   );
 }
-
-/** Shared loading / active-filter status copy for list page headers. */
-export function useListPageSearchStatus() {
-  const tSearchTools = useTranslations("adminPages.searchTools");
-
-  return {
-    loadingLabel: tSearchTools("loadingResults"),
-    activeCountLabel: (count: number) => tSearchTools("activeCount", { count }),
-  };
-}

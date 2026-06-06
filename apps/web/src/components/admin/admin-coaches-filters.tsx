@@ -239,13 +239,6 @@ export function AdminCoachesFilters({
     </div>
   );
 
-  const filterTrailing =
-    isPending || activeFilterCount > 0 ? (
-      <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-        {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-      </p>
-    ) : null;
-
   if (variant === "embedded") {
     return filterSearchRow;
   }
@@ -266,7 +259,6 @@ export function AdminCoachesFilters({
             <AddCoachGlyph className="h-5 w-5 shrink-0" />
             {t("addCoachButton")}
           </OmmButton>
-          {filterTrailing}
         </>
       }
     />

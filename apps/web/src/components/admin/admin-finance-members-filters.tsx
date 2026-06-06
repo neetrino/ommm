@@ -139,13 +139,6 @@ export function AdminFinanceMembersFilters({ initialValues }: AdminFinanceMember
           resetLabel={tFilters("clearFilters")}
         />
       }
-      trailing={
-        isPending || activeFilterCount > 0 ? (
-          <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-            {isPending ? tFinanceFilters("loading") : tFinanceFilters("activeCount", { count: activeFilterCount })}
-          </p>
-        ) : undefined
-      }
     />
   );
 }

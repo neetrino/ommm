@@ -32,7 +32,7 @@ import {
   comparePayments,
   normalizePaymentSource,
 } from "@/components/account/user-payment-display";
-import { ListPageSearchFilters, useListPageSearchStatus } from "@/components/shared/search/list-page-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import { apiFetch } from "@/lib/api";
@@ -73,7 +73,6 @@ function buildPaymentsEndpoint(
 
 export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHistoryProps) {
   const t = useTranslations("userPages.payments");
-  const { loadingLabel } = useListPageSearchStatus();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -252,12 +251,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
           onClearAll={resetFilters}
           resetLabel={t("filters.resetFilters")}
         />
-        <div className="ml-auto flex shrink-0 items-center gap-3">
-          {loading ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {loadingLabel}
-            </p>
-          ) : null}
+        <div className="ml-auto flex shrink-0 items-center">
           <UserListBoardViewSwitcher
             pageId="payments"
             namespace="userPages.payments"

@@ -17,10 +17,7 @@ import type {
   AdminBookingsFilterState,
   AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
-import {
-  ListPageSearchFilters,
-  useListPageSearchStatus,
-} from "@/components/shared/search/list-page-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
@@ -74,7 +71,6 @@ export function AdminBookingsManagement({
 }: Props) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.bookings");
-  const { loadingLabel } = useListPageSearchStatus();
   const router = useRouter();
   const [view, setView] = useState<BookingsView>("list");
   const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
@@ -432,13 +428,6 @@ export function AdminBookingsManagement({
               resetLabel={t("resetFilters")}
             />
           }
-          headerTrailing={
-            loading ? (
-              <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                {loadingLabel}
-              </p>
-            ) : undefined
-          }
           metrics={
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <Metric title={t("summaryTotal")} value={summary.total} />
@@ -463,11 +452,6 @@ export function AdminBookingsManagement({
             <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">
               {statusMessage}
             </div>
-          ) : null}
-          {loading ? (
-            <p className="text-sm text-sage-500" role="status">
-              {loadingLabel}
-            </p>
           ) : null}
           {view === "daily" && openDaySessions.length > 0 ? (
             <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">

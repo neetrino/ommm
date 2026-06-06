@@ -210,13 +210,6 @@ export function AdminGiftCardsFilters({
     </div>
   );
 
-  const filterTrailing =
-    isUpdating || activeFilterCount > 0 ? (
-      <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-        {isUpdating ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-      </p>
-    ) : null;
-
   if (variant === "embedded") {
     return filterSearchRow;
   }
@@ -226,21 +219,18 @@ export function AdminGiftCardsFilters({
       title={t("title")}
       search={filterSearchRow}
       trailing={
-        <>
-          {hideCreate ? null : (
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={onCreate}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
-            >
-              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-              {t("createButton")}
-            </OmmButton>
-          )}
-          {filterTrailing}
-        </>
+        hideCreate ? null : (
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onCreate}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+          >
+            <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
+            {t("createButton")}
+          </OmmButton>
+        )
       }
     />
   );

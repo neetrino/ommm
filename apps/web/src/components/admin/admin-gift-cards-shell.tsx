@@ -215,15 +215,6 @@ function AdminGiftCardsShellInner({
         title={t("title")}
         banner={operationalBanner}
         search={filters}
-        headerTrailing={
-          filterProps.isUpdating || filterProps.activeFilterCount > 0 ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {filterProps.isUpdating
-                ? tFilters("loading")
-                : tFilters("activeCount", { count: filterProps.activeFilterCount })}
-            </p>
-          ) : undefined
-        }
       >
         {children}
       </StaffListPageLayout>

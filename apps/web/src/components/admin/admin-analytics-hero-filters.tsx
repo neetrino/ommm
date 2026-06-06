@@ -145,16 +145,7 @@ export function AdminAnalyticsHeroFilters({
           resetLabel={tFilters("resetFilters")}
         />
       }
-      trailing={
-        <>
-          {trailing}
-          {isPending ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {tFilters("loading")}
-            </p>
-          ) : null}
-        </>
-      }
+      trailing={trailing}
     />
   );
 }

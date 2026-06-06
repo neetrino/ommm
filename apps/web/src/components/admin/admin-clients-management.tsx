@@ -30,10 +30,7 @@ import {
   parseAdminClientSegmentFilters,
   type AdminClientSegmentFilter,
 } from "@/components/admin/admin-clients-segment-filters";
-import {
-  ListPageSearchFilters,
-  useListPageSearchStatus,
-} from "@/components/shared/search/list-page-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -81,7 +78,6 @@ export function AdminClientsManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.clients");
   const tFilters = useTranslations("adminPages.clients.filters");
-  const { loadingLabel, activeCountLabel } = useListPageSearchStatus();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -310,8 +306,6 @@ export function AdminClientsManagement({
     });
   }
 
-  const activeFilterCount = useMemo(() => countActiveClientFilters(filters), [filters]);
-
   const segmentOptions = useMemo(
     () =>
       segmentFilterOptions.map(([value, label]) => ({
@@ -418,13 +412,6 @@ export function AdminClientsManagement({
               resetLabel={tFilters("resetFilters")}
             />
           }
-          headerTrailing={
-            loading || activeFilterCount > 0 ? (
-              <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                {loading ? loadingLabel : activeCountLabel(activeFilterCount)}
-              </p>
-            ) : undefined
-          }
           metrics={<Summary payload={payload} locale={locale} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
@@ -445,13 +432,6 @@ export function AdminClientsManagement({
                 onClearAll={resetFilters}
                 resetLabel={tFilters("resetFilters")}
               />
-            }
-            trailing={
-              loading || activeFilterCount > 0 ? (
-                <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-                  {loading ? loadingLabel : activeCountLabel(activeFilterCount)}
-                </p>
-              ) : undefined
             }
           />
           <Summary payload={payload} locale={locale} />
@@ -488,24 +468,6 @@ function Summary({ payload, locale }: { payload: AdminClientsPayload; locale: st
       ))}
     </section>
   );
-}
-
-function countActiveClientFilters(
-  filters: Record<(typeof filterKeys)[number], string>,
-): number {
-  return [
-    filters.search.trim(),
-    filters.tag,
-    filters.status,
-    filters.classLevel,
-    filters.paymentStatus,
-    filters.source,
-    filters.preferredCoachId,
-    filters.attendance,
-    filters.birthdayMonth,
-    filters.order !== "newest" ? filters.order : "",
-    filters.quick.trim() ? "quick" : "",
-  ].filter(Boolean).length;
 }
 
 function orderLabel(order: string): string {

@@ -30,7 +30,6 @@ import {
 } from "@/components/admin/admin-packages-category-multi-select";
 import { AdminPackagesFilters } from "@/components/admin/admin-packages-filters";
 import {
-  countActivePackageFilters,
   filterPackages,
   sortPackages,
 } from "@/components/admin/admin-packages-filter-logic";
@@ -110,11 +109,6 @@ export function AdminPackagesManagement({
   const filteredPackages = useMemo(
     () => sortPackages(filterPackages(sortedPackages, filterValues), filterValues.order),
     [filterValues, sortedPackages],
-  );
-
-  const activeFilterCount = useMemo(
-    () => countActivePackageFilters(filterValues),
-    [filterValues],
   );
 
   function updatePackageFilter<K extends keyof PackageFilterValues>(
@@ -365,11 +359,6 @@ export function AdminPackagesManagement({
           onChange={updatePackageFilter}
           onReset={resetPackageFilters}
         />
-        {activeFilterCount > 0 ? (
-          <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-            {t("filters.activeCount", { count: activeFilterCount })}
-          </p>
-        ) : null}
       </div>
       <div className="ommm-admin-packages-toolbar">
       {categoryOptions.length > 0 ? (

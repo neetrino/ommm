@@ -120,18 +120,11 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
         />
       }
       trailing={
-        <>
-          <AdminFinanceExportLinks
-            fromIso={fromIso}
-            paymentsLabel={t("exportPaymentsCsv")}
-            giftCreditsLabel={t("exportGiftCreditsCsv")}
-          />
-          {isPending || activeFilterCount > 0 ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-            </p>
-          ) : null}
-        </>
+        <AdminFinanceExportLinks
+          fromIso={fromIso}
+          paymentsLabel={t("exportPaymentsCsv")}
+          giftCreditsLabel={t("exportGiftCreditsCsv")}
+        />
       }
     />
   );

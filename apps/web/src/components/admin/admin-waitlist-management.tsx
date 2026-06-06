@@ -16,10 +16,7 @@ import {
   type AdminWaitlistActivePayload,
   type AdminWaitlistRow,
 } from "@/components/admin/admin-waitlist-query";
-import {
-  ListPageSearchFilters,
-  useListPageSearchStatus,
-} from "@/components/shared/search/list-page-search-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
@@ -54,7 +51,6 @@ export function AdminWaitlistManagement({
   staffBanner,
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
-  const { loadingLabel } = useListPageSearchStatus();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -386,13 +382,6 @@ export function AdminWaitlistManagement({
             onClearAll={resetWaitlistFilters}
             resetLabel={t("resetFilters")}
           />
-        }
-        headerTrailing={
-          loading ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {loadingLabel}
-            </p>
-          ) : undefined
         }
         status={loadError ? <div className="app-alert-warn max-w-xl">{loadError}</div> : null}
       >

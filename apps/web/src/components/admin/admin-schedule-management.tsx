@@ -903,13 +903,6 @@ export function AdminScheduleManagement({
               resetLabel={t("filters.reset")}
             />
           }
-          headerTrailing={
-            activeFilterCount > 0 ? (
-              <p className="whitespace-nowrap text-xs text-sage-600" role="status">
-                {t("filters.activeCount", { count: activeFilterCount })}
-              </p>
-            ) : undefined
-          }
           metrics={<SummaryGrid summary={summary} />}
         >
           <StaffScheduleSessionsTable
@@ -989,11 +982,6 @@ export function AdminScheduleManagement({
               <PlusIcon className="h-5 w-5 shrink-0" />
               {t("addClassButton")}
             </OmmButton>
-            {activeFilterCount > 0 ? (
-              <p className="whitespace-nowrap text-xs text-sage-600" role="status">
-                {t("filters.activeCount", { count: activeFilterCount })}
-              </p>
-            ) : null}
           </>
         }
       />

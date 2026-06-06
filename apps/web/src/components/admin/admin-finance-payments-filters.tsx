@@ -159,14 +159,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
         />
       }
       trailing={
-        <>
-          <AdminFinanceExportLinks fromIso={fromIso} paymentsLabel={t("exportPaymentsCsv")} />
-          {isPending || activeFilterCount > 0 ? (
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {isPending ? tFilters("loading") : tFilters("activeCount", { count: activeFilterCount })}
-            </p>
-          ) : null}
-        </>
+        <AdminFinanceExportLinks fromIso={fromIso} paymentsLabel={t("exportPaymentsCsv")} />
       }
     />
   );
