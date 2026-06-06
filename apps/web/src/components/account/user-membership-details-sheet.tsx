@@ -10,24 +10,20 @@ import {
   formatMembershipStatusLabel,
   memberStatusClassName,
 } from "@/components/account/user-membership-display";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
+  ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
+  ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
+  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_PANEL_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
-
-/** Side sheet — one quarter of the viewport width on larger screens. */
-const MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS =
-  "w-full sm:w-1/4 sm:max-w-[25vw] sm:min-w-[18rem]";
-
-/** Side sheet height — 90% of the viewport, anchored to the bottom edge. */
-const MEMBERSHIP_DETAILS_SHEET_HEIGHT_CLASS = "h-[90dvh]";
-
-export const USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS = [
-  "relative z-10 flex flex-col overflow-hidden",
-  MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS,
-  MEMBERSHIP_DETAILS_SHEET_HEIGHT_CLASS,
-  "rounded-tl-[28px] border border-white/70 border-b-0 border-r-0",
-  "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
-].join(" ");
 
 type UserMembershipDetailsSheetProps = {
   membership: UserMembershipRow | null;
@@ -60,46 +56,22 @@ export function UserMembershipDetailsSheet({
       onClose={onClose}
       backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
-      overlayClassName="ommm-drawer-overlay z-[105] items-end"
-      panelClassName={USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
     >
-      <header className="shrink-0 border-b border-white/60 px-5 py-4 sm:px-6 sm:py-5">
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
-              {display.sessionName}
-            </h2>
-            <p className="text-sm text-sage-600">{t("membershipDetailsLead")}</p>
-          </div>
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            <button
-              type="button"
-              className="rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-              aria-label={t("membershipDetailsClose")}
-              onClick={onClose}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.75}
-                strokeLinecap="round"
-                className="h-5 w-5"
-                aria-hidden
-              >
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            </button>
-            <span className={memberStatusClassName(status)}>
-              {formatMembershipStatusLabel(status, t)}
-            </span>
-          </div>
+          <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+            {display.sessionName}
+          </h2>
+          <span className={`shrink-0 ${memberStatusClassName(status)}`}>
+            {formatMembershipStatusLabel(status, t)}
+          </span>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
-        <dl className="space-y-3 rounded-2xl border border-white/60 bg-white/50 p-4">
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+        <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
           <DetailRow label={t("membershipDetailsSessionName")} value={display.sessionName} />
           <DetailRow label={t("membershipDetailsCategory")} value={membership.plan.categoryName} />
           <DetailRow
@@ -121,7 +93,7 @@ export function UserMembershipDetailsSheet({
           display.usedSessions !== null &&
           display.totalSessions > 0 ? (
             <div className="space-y-2 py-1">
-              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+              <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>
                 {t("membershipDetailsUsage")}
               </dt>
               <dd>
@@ -149,7 +121,7 @@ export function UserMembershipDetailsSheet({
         ) : null}
       </div>
 
-      <footer className="shrink-0 border-t border-white/60 px-5 py-5 sm:px-6">
+      <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
         <UserPackageLifecycleActions
           userPackageId={membership.id}
           status={status}
@@ -168,8 +140,8 @@ type DetailRowProps = {
 function DetailRow({ label, value }: DetailRowProps) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">{label}</dt>
-      <dd className="text-sm font-medium text-sage-800">{value}</dd>
+      <dt className={ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS}>{label}</dt>
+      <dd className={ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS}>{value}</dd>
     </div>
   );
 }

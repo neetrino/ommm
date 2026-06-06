@@ -696,9 +696,7 @@
         "PENDING": "Սպասում է վճարման"
       },
       "membershipViewDetailsHint": "Սեղմեք ամբողջական տվյալների համար",
-      "membershipDetailsLead": "Դիտեք փաթեթի մանրամասները և կառավարեք բաժանորդագրությունը։",
       "membershipDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
-      "membershipDetailsClose": "Փակել",
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Կատեգորիա",
       "membershipDetailsPrice": "Գին",
@@ -830,12 +828,11 @@
       "cardMessage": "Հաղորդագրություն",
       "viewDetails": "Դիտել մանրամասները",
       "openCardAria": "Դիտել {amount} նվեր քարտի մանրամասները",
-      "detailsModalEyebrow": "Նվեր քարտ",
-      "detailsModalLead": "Մնացորդ {balance} · պատճենեք կոդը կամ փոխարժեք կրեդիտները։",
-      "detailsModalInfoHeading": "Քարտի տեղեկություն",
-      "detailsModalActionsHeading": "Գործողություններ",
-      "modalCloseAria": "Փակել",
-      "modalBackdropClose": "Փակել պատուհանը",
+      "sheetBackdropClose": "Փակել նվեր քարտի մանրամասները",
+      "sheetTabs": {
+        "overview": "Ակնարկ",
+        "actions": "Գործողություններ"
+      },
       "drawerExpired": "Ժամկետը լրացել է",
       "drawerValid": "Գործող",
       "copyCode": "Պատճենել կոդը",

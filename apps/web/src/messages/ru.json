@@ -684,9 +684,7 @@
         "PENDING": "Ожидает оплаты"
       },
       "membershipViewDetailsHint": "Нажмите для подробностей",
-      "membershipDetailsLead": "Просмотрите детали пакета и управляйте подпиской.",
       "membershipDetailsCloseBackdrop": "Закрыть детали пакета",
-      "membershipDetailsClose": "Закрыть",
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
@@ -818,12 +816,11 @@
       "cardMessage": "Сообщение",
       "viewDetails": "Подробнее",
       "openCardAria": "Просмотреть детали подарочной карты на {amount}",
-      "detailsModalEyebrow": "Подарочная карта",
-      "detailsModalLead": "Баланс {balance} · скопируйте код ниже или погасите кредиты.",
-      "detailsModalInfoHeading": "Информация о карте",
-      "detailsModalActionsHeading": "Действия",
-      "modalCloseAria": "Закрыть",
-      "modalBackdropClose": "Закрыть окно",
+      "sheetBackdropClose": "Закрыть детали подарочной карты",
+      "sheetTabs": {
+        "overview": "Обзор",
+        "actions": "Действия"
+      },
       "drawerExpired": "Истёк срок",
       "drawerValid": "Действительна",
       "copyCode": "Скопировать код",

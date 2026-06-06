@@ -684,9 +684,7 @@
         "PENDING": "Pending payment"
       },
       "membershipViewDetailsHint": "Tap for full details",
-      "membershipDetailsLead": "Review your package details and manage your subscription.",
       "membershipDetailsCloseBackdrop": "Close package details",
-      "membershipDetailsClose": "Close",
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Category",
       "membershipDetailsPrice": "Price",
@@ -818,12 +816,11 @@
       "cardMessage": "Message",
       "viewDetails": "View details",
       "openCardAria": "View gift card details for {amount}",
-      "detailsModalEyebrow": "Gift card",
-      "detailsModalLead": "Balance {balance} · tap below to copy your code or redeem credits.",
-      "detailsModalInfoHeading": "Card information",
-      "detailsModalActionsHeading": "Actions",
-      "modalCloseAria": "Close",
-      "modalBackdropClose": "Close dialog",
+      "sheetBackdropClose": "Close gift card details",
+      "sheetTabs": {
+        "overview": "Overview",
+        "actions": "Actions"
+      },
       "drawerExpired": "Expired",
       "drawerValid": "Valid",
       "copyCode": "Copy code",

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { UserGiftCardDetailsModal } from "@/components/account/user-gift-card-details-modal";
+import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import type {
   UserGiftCardRow,
   UserGiftCardSectionKind,
@@ -55,7 +55,7 @@ export function UserGiftCardsBoard({
         errorStatus={receivedError}
         onSelect={setSelectedId}
       />
-      <UserGiftCardDetailsModal
+      <UserGiftCardDetailsSheet
         card={selectedCard}
         locale={locale}
         onClose={() => setSelectedId(null)}
