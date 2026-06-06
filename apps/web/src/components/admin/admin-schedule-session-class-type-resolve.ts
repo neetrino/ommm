@@ -1,5 +1,6 @@
 import type { AdminScheduleClassType } from "@/components/admin/admin-schedule-management";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
+import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 
 export type SessionClassTypeOption = {
   value: string;
@@ -7,14 +8,6 @@ export type SessionClassTypeOption = {
   classTypeId: string | null;
   packageLabel?: string;
 };
-
-function buildSlugFromClassTypeName(name: string): string {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 export async function resolveSessionClassTypeId(
   selectedValue: string,
@@ -31,7 +24,7 @@ export async function resolveSessionClassTypeId(
   if (existing?.classTypeId !== null && existing?.classTypeId !== undefined) {
     return { classTypeId: existing.classTypeId };
   }
-  const slug = buildSlugFromClassTypeName(name);
+  const slug = buildClassTypeSlugFromName(name);
   if (name.length === 0 || slug.length === 0) {
     throw new Error("Class type is required.");
   }

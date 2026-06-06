@@ -30,8 +30,11 @@ import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
-const SECTION_CLASS =
-  "rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.28)] backdrop-blur-md sm:p-5";
+import {
+  ADMIN_SHEET_FORM_SECTION_CLASS,
+} from "@/components/admin/admin-sheet-editable-field";
+
+const SECTION_CLASS = ADMIN_SHEET_FORM_SECTION_CLASS;
 
 type SessionSheetTabPanelsProps = {
   activeTab: SessionSheetTabId;

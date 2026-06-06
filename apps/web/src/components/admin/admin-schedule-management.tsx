@@ -21,11 +21,12 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
+import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
-import { buildSessionLevelOptions } from "@/components/admin/admin-schedule-session-class-type-resolve";
+import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
@@ -148,13 +149,6 @@ type SchedulePackageOption = {
   id: string;
   label: string;
   classTypeIds: string[];
-};
-
-type SessionClassTypeOption = {
-  value: string;
-  label: string;
-  classTypeId: string | null;
-  packageLabel?: string;
 };
 
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
@@ -460,15 +454,6 @@ function resolveSelectedClassTypeIds(
   return [...classTypeIds];
 }
 
-function buildSlugFromClassTypeName(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 120);
-}
-
 function buildSessionClassTypeOptions(
   classTypes: readonly AdminScheduleClassType[],
   packageOptions: readonly SchedulePackageOption[],
@@ -494,32 +479,6 @@ function buildSessionClassTypeOptions(
   }
 
   return options.sort((left, right) => left.label.localeCompare(right.label));
-}
-
-async function resolveSessionClassTypeId(
-  selectedValue: string,
-  options: readonly SessionClassTypeOption[],
-): Promise<{ classTypeId: string; created?: AdminScheduleClassType }> {
-  const option = options.find((item) => item.value === selectedValue);
-  if (option?.classTypeId !== null && option?.classTypeId !== undefined) {
-    return { classTypeId: option.classTypeId };
-  }
-  const name = option?.packageLabel?.trim() ?? "";
-  const existing = options.find(
-    (item) => item.classTypeId !== null && item.label.toLocaleLowerCase() === name.toLocaleLowerCase(),
-  );
-  if (existing?.classTypeId !== null && existing?.classTypeId !== undefined) {
-    return { classTypeId: existing.classTypeId };
-  }
-  const slug = buildSlugFromClassTypeName(name);
-  if (name.length === 0 || slug.length === 0) {
-    throw new Error("Class type is required.");
-  }
-  const created = await apiFetch<AdminScheduleClassType>("/classes/types", {
-    method: "POST",
-    body: JSON.stringify({ name, slug }),
-  });
-  return { classTypeId: created.id, created };
 }
 
 export function AdminScheduleManagement({
@@ -1027,7 +986,7 @@ export function AdminScheduleManagement({
                   byId.set(type.id, {
                     id: type.id,
                     name: type.name,
-                    slug: buildSlugFromClassTypeName(type.name),
+                    slug: buildClassTypeSlugFromName(type.name),
                   });
                 }
                 return Array.from(byId.values()).sort((first, second) =>
