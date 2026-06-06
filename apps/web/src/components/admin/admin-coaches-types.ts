@@ -28,3 +28,11 @@ export type AdminCoachDirectoryRow = {
     avatarUrl: string | null;
   };
 };
+
+export type AdminCoachesFilterValues = {
+  q: string;
+  specialization: string;
+  classType: string;
+  isActive: "all" | "active" | "inactive";
+  order: "newest" | "oldest";
+};

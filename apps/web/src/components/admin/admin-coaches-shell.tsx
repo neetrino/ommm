@@ -14,9 +14,9 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import { AdminCreateCoachForm } from "@/components/admin/admin-create-coach-form";
+import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
+import type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
 import { AdminCoachesViewProvider, useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
-import { AdminCoachesViewSwitcher } from "@/components/admin/admin-coaches-view-switcher";
-import { OmmButton } from "@/components/ui/omm-button";
 import {
   ADMIN_COACHES_VIEW_QUERY_KEY,
   type AdminCoachesViewMode,
@@ -26,30 +26,11 @@ const COACH_MODAL_QUERY_KEY = "modal";
 const COACH_MODAL_QUERY_VALUE = "add-coach";
 const COACH_MODAL_BANNER_MS = 8000;
 
-function AddCoachGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M19 8v6m3-3h-6" />
-    </svg>
-  );
-}
-
 type AdminCoachesShellProps = {
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   initialViewMode: AdminCoachesViewMode;
+  filterInitialValues: AdminCoachesFilterValues;
   children: ReactNode;
 };
 
@@ -57,6 +38,7 @@ export function AdminCoachesShell({
   classTypeOptions,
   classOptions,
   initialViewMode,
+  filterInitialValues,
   children,
 }: AdminCoachesShellProps) {
   return (
@@ -67,6 +49,7 @@ export function AdminCoachesShell({
       <AdminCoachesShellInner
         classTypeOptions={classTypeOptions}
         classOptions={classOptions}
+        filterInitialValues={filterInitialValues}
       >
         {children}
       </AdminCoachesShellInner>
@@ -77,6 +60,7 @@ export function AdminCoachesShell({
 function AdminCoachesShellInner({
   classTypeOptions,
   classOptions,
+  filterInitialValues,
   children,
 }: Omit<AdminCoachesShellProps, "initialViewMode">) {
   const t = useTranslations("adminPages.coaches");
@@ -184,23 +168,13 @@ function AdminCoachesShellInner({
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex justify-start">
-          <AdminCoachesViewSwitcher value={viewMode} onChange={setView} />
-        </div>
-        <div className="flex justify-start sm:justify-end">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openModal}
-            className="inline-flex h-11 min-w-[10rem] items-center justify-center gap-2 rounded-full"
-          >
-            <AddCoachGlyph className="h-5 w-5 shrink-0" />
-            {t("addCoachButton")}
-          </OmmButton>
-        </div>
-      </div>
+      <AdminCoachesFilters
+        initialValues={filterInitialValues}
+        classTypeOptions={classTypeOptions}
+        viewMode={viewMode}
+        onViewChange={setView}
+        onAddCoach={openModal}
+      />
 
       {children}
 

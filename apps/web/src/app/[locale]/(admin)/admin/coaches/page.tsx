@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminCoachesDirectory } from "@/components/admin/admin-coaches-directory";
-import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import { AdminCoachesShell } from "@/components/admin/admin-coaches-shell";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
@@ -111,17 +110,13 @@ export default async function AdminCoachesPage({
   }
 
   return (
-    <AdminContentFrame description={t("description")}>
-      <AdminCoachesFilters
-        key={`${q}|${specialization}|${classType}|${isActive}|${order}`}
-        initialValues={{ q, specialization, classType, isActive, order }}
-        classTypeOptions={classTypeOptions}
-      />
+    <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminCoachesShell
           classTypeOptions={classTypeOptions}
           classOptions={classOptions}
           initialViewMode={initialViewMode}
+          filterInitialValues={{ q, specialization, classType, isActive, order }}
         >
           <AdminCoachesDirectory
             coaches={res.data}
