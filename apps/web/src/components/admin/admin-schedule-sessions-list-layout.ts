@@ -1,37 +1,27 @@
-import {
-  ADMIN_LIST_EMPHASIZED_HEADER,
-  ADMIN_LIST_ROW_CLASS,
-  USER_LIST_ACTIONS_CELL,
-  USER_LIST_CELL_CLASS,
-  USER_LIST_DATE_CELL,
-  USER_LIST_SPACER_CELL,
-  USER_LIST_TRAILING_HEADER_CELL,
-  buildAdminListHeaderClass,
-  buildAdminListTableClass,
-} from "@/components/admin/admin-list-table-layout";
+import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
 
-const SESSIONS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8rem,auto)_minmax(7rem,auto)_minmax(8.5rem,auto)_1fr_auto]";
+const adminLayout = getScheduleSessionsListLayout("admin");
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS =
-  buildAdminListTableClass(SESSIONS_GRID_CLASS);
+export const ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS = adminLayout.tableClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS = buildAdminListHeaderClass();
+export const ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS = adminLayout.headerClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS = ADMIN_LIST_ROW_CLASS;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_ROW_CLASS = adminLayout.rowClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_CELL = USER_LIST_CELL_CLASS;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_CELL = adminLayout.cellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL = USER_LIST_DATE_CELL;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL = adminLayout.dateTimeCellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL = `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5`;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL = adminLayout.tagsCellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL = adminLayout.capacityCellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_CELL = adminLayout.actionsCellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL =
+  adminLayout.actionsHeaderCellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL = USER_LIST_SPACER_CELL;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL = adminLayout.spacerCellClass;
 
-export const ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;
+export const ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER =
+  adminLayout.emphasizedHeaderClass;

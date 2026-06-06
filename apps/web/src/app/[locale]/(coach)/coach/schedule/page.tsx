@@ -37,7 +37,9 @@ export default async function CoachSchedulePage({
     <AdminContentFrame>
       <AdminSectionShell>
         <h2 className={adminChrome.sectionTitle}>{t("sessions")}</h2>
-        <CoachUpcomingSessionsSection locale={locale} sessions={panel.sessions} />
+        <div className="mt-4">
+          <CoachUpcomingSessionsSection locale={locale} sessions={panel.sessions} />
+        </div>
       </AdminSectionShell>
     </AdminContentFrame>
   );

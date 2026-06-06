@@ -7,39 +7,33 @@ import {
   splitSessionLevels,
 } from "@/components/admin/admin-schedule-session-display";
 import {
-  ADMIN_SCHEDULE_LEVEL_BADGE_CLASS,
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
-  sessionLevelBadgeTone,
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
-import { CoachScheduleSessionDateTime } from "@/components/coach/coach-schedule-session-datetime";
-import {
-  COACH_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL,
-  COACH_SCHEDULE_SESSIONS_LIST_CELL,
-  COACH_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL,
-  COACH_SCHEDULE_SESSIONS_LIST_ROW_CLASS,
-  COACH_SCHEDULE_SESSIONS_LIST_STATUS_CELL,
-  COACH_SCHEDULE_SESSIONS_LIST_TAGS_CELL,
-} from "@/components/coach/coach-schedule-sessions-list-layout";
-import type { CoachPanelSessionRow } from "@/lib/coach-panel-types";
+import { ScheduleSessionDateTimeCell } from "@/components/shared/schedule/schedule-session-datetime-cell";
+import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
+import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
+import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 
-type CoachScheduleSessionRowProps = {
+type StaffScheduleSessionRowProps = {
   locale: string;
-  row: CoachPanelSessionRow;
+  row: ScheduleSessionListRow;
 };
 
-export async function CoachScheduleSessionRow({
+/** Read-only schedule session row — coach/manager staff views. */
+export async function StaffScheduleSessionRow({
   locale,
   row,
-}: CoachScheduleSessionRowProps) {
+}: StaffScheduleSessionRowProps) {
   const t = await getTranslations({ locale, namespace: "adminPages.classes" });
+  const layout = getScheduleSessionsListLayout("staffReadOnly");
   const classFormat = row.classFormat?.trim();
   const levels = splitSessionLevels(row.level);
   const duration = durationMinutes(row);
 
   return (
-    <article className={COACH_SCHEDULE_SESSIONS_LIST_ROW_CLASS}>
-      <div className={COACH_SCHEDULE_SESSIONS_LIST_CELL}>
+    <article className={layout.rowClass}>
+      <div className={layout.cellClass}>
         <AdminListMobileLabel label={t("colClass")} />
         <p className="truncate text-sm font-medium text-sage-900" title={row.title}>
           {row.title}
@@ -51,16 +45,16 @@ export async function CoachScheduleSessionRow({
         </p>
       </div>
 
-      <div className={COACH_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL}>
+      <div className={layout.dateTimeCellClass}>
         <AdminListMobileLabel label={t("colDateTime")} />
-        <CoachScheduleSessionDateTime
+        <ScheduleSessionDateTimeCell
           locale={locale}
           startsAt={row.startsAt}
           endsAt={row.endsAt}
         />
       </div>
 
-      <div className={COACH_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL}>
+      <div className={layout.capacityCellClass}>
         <AdminListMobileLabel label={t("colCapacity")} />
         <p className="text-sm font-medium text-sage-800">
           {row._count.bookings}/{row.capacity}
@@ -70,12 +64,15 @@ export async function CoachScheduleSessionRow({
         </p>
       </div>
 
-      <div className={COACH_SCHEDULE_SESSIONS_LIST_TAGS_CELL}>
+      <div className={layout.tagsCellClass}>
         <AdminListMobileLabel label={t("colTags")} />
-        <SessionLevelLabels levels={levels} fallback={t("fallback.notSpecified")} />
+        <ScheduleSessionLevelLabels
+          levels={levels}
+          emptyLabel={t("fallback.notSpecified")}
+        />
       </div>
 
-      <div className={COACH_SCHEDULE_SESSIONS_LIST_STATUS_CELL}>
+      <div className={layout.statusCellClass}>
         <AdminListMobileLabel label={t("colStatus")} />
         <span
           className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(row.status)}`}
@@ -84,30 +81,5 @@ export async function CoachScheduleSessionRow({
         </span>
       </div>
     </article>
-  );
-}
-
-function SessionLevelLabels({
-  levels,
-  fallback,
-}: {
-  levels: readonly string[];
-  fallback: string;
-}) {
-  if (levels.length === 0) {
-    return <span className="text-sm text-sage-400">{fallback}</span>;
-  }
-
-  return (
-    <>
-      {levels.map((level, index) => (
-        <span
-          key={`${level}-${index}`}
-          className={`${ADMIN_SCHEDULE_LEVEL_BADGE_CLASS} ${sessionLevelBadgeTone(level, index)}`}
-        >
-          {level}
-        </span>
-      ))}
-    </>
   );
 }

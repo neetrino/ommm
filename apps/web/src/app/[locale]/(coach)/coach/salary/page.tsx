@@ -35,7 +35,7 @@ export default async function CoachSalaryPage({
     );
   }
 
-  if (res.data == null) {
+  if (res.data === null) {
     return (
       <AdminContentFrame>
         <div className="app-alert-warn max-w-xl">{t("noProfile")}</div>
@@ -44,41 +44,47 @@ export default async function CoachSalaryPage({
   }
 
   const data = res.data;
+
   return (
     <AdminContentFrame>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("total")}</p>
-          <p className={adminChrome.metricValue}>
-            {formatAmdFromCents(data.totalEarningsCents, locale)}
-          </p>
-        </li>
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("pending")}</p>
-          <p className={adminChrome.metricValue}>
-            {formatAmdFromCents(data.pendingPayoutCents, locale)}
-          </p>
-        </li>
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("paid")}</p>
-          <p className={adminChrome.metricValue}>
-            {formatAmdFromCents(data.paidOutCents, locale)}
-          </p>
-        </li>
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("sessions")}</p>
-          <p className={adminChrome.metricValue}>{data.completedSessions}</p>
-        </li>
-      </ul>
+      <AdminSectionShell>
+        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("total")}</dt>
+            <dd className={adminChrome.metricValue}>
+              {formatAmdFromCents(data.totalEarningsCents, locale)}
+            </dd>
+          </div>
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("pending")}</dt>
+            <dd className={adminChrome.metricValue}>
+              {formatAmdFromCents(data.pendingPayoutCents, locale)}
+            </dd>
+          </div>
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("paid")}</dt>
+            <dd className={adminChrome.metricValue}>
+              {formatAmdFromCents(data.paidOutCents, locale)}
+            </dd>
+          </div>
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("sessions")}</dt>
+            <dd className={adminChrome.metricValue}>{data.completedSessions}</dd>
+          </div>
+        </dl>
+      </AdminSectionShell>
+
       <div className="mt-8">
         <AdminSectionShell>
-          <p className={adminChrome.panelHeading}>{t("lead")}</p>
-          <p className="mt-2 text-sm text-sage-700">
-            {t("formula", {
-              base: formatAmdFromCents(data.basePerSessionCents, locale),
-              perAttendee: formatAmdFromCents(data.perAttendeeShareCents, locale),
-            })}
-          </p>
+          <article className={adminChrome.panel}>
+            <p className={adminChrome.panelHeading}>{t("lead")}</p>
+            <p className={`mt-2 ${adminChrome.metaText}`}>
+              {t("formula", {
+                base: formatAmdFromCents(data.basePerSessionCents, locale),
+                perAttendee: formatAmdFromCents(data.perAttendeeShareCents, locale),
+              })}
+            </p>
+          </article>
         </AdminSectionShell>
       </div>
     </AdminContentFrame>

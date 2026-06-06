@@ -1,21 +1,13 @@
 /** Coach dashboard API row shapes (web panel). */
 
-export type CoachPanelSessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
+import type {
+  ScheduleSessionListRow,
+  ScheduleSessionListStatus,
+} from "@/components/shared/schedule/schedule-session-list-types";
 
-export type CoachPanelSessionRow = {
-  id: string;
-  title: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  level: string | null;
-  classFormat: string | null;
-  status: CoachPanelSessionStatus;
-  classType: { id: string; name: string };
-  coachId: string;
-  coach: { id: string; user: { name: string | null } };
-  _count: { bookings: number };
-};
+export type CoachPanelSessionStatus = ScheduleSessionListStatus;
+
+export type CoachPanelSessionRow = ScheduleSessionListRow;
 
 export type CoachPanelBookingRow = {
   id: string;

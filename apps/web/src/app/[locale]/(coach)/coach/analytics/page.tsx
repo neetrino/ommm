@@ -62,20 +62,22 @@ export default async function CoachAnalyticsPage({
 
   return (
     <AdminContentFrame>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("sessionsInRange")}</p>
-          <p className={adminChrome.metricValue}>{d.totals.sessions}</p>
-        </li>
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("bookingsInRange")}</p>
-          <p className={adminChrome.metricValue}>{d.totals.bookings}</p>
-        </li>
-        <li className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{t("activeWaitlists")}</p>
-          <p className={adminChrome.metricValue}>{d.totals.activeWaitlists}</p>
-        </li>
-      </ul>
+      <AdminSectionShell>
+        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("sessionsInRange")}</dt>
+            <dd className={adminChrome.metricValue}>{d.totals.sessions}</dd>
+          </div>
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("bookingsInRange")}</dt>
+            <dd className={adminChrome.metricValue}>{d.totals.bookings}</dd>
+          </div>
+          <div className={adminChrome.metricCard}>
+            <dt className={adminChrome.metricLabel}>{t("activeWaitlists")}</dt>
+            <dd className={adminChrome.metricValue}>{d.totals.activeWaitlists}</dd>
+          </div>
+        </dl>
+      </AdminSectionShell>
 
       <section className="mt-8 grid gap-4 sm:grid-cols-2">
         <article className={adminChrome.panel}>
@@ -99,20 +101,20 @@ export default async function CoachAnalyticsPage({
 
       <div className="mt-8">
         <AdminSectionShell>
-          <p className={adminChrome.sectionTitle}>{t("trendTitle")}</p>
-          <ul className="mt-3 grid gap-2">
+          <h2 className={adminChrome.sectionTitle}>{t("trendTitle")}</h2>
+          <ul className="mt-4 space-y-3">
             {trendPoints.map((point) => (
-              <li key={point.date} className="ommm-inset-row">
-                <span className="font-medium text-sage-800">
+              <li key={point.date} className={adminChrome.panel}>
+                <p className="text-sm font-medium text-sage-900">
                   {formatDateForUi(point.date)}
-                </span>
-                <span className="ml-2 text-sage-500">
+                </p>
+                <p className={`mt-1 ${adminChrome.metaText}`}>
                   {t("trendRow", {
                     sessions: point.sessions,
                     bookings: point.bookings,
                     waitlists: point.waitlists,
                   })}
-                </span>
+                </p>
               </li>
             ))}
           </ul>

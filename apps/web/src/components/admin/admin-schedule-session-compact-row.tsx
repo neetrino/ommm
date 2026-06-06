@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
   ADMIN_SCHEDULE_LEVEL_BADGE_CLASS,
   sessionLevelBadgeTone,
@@ -25,6 +24,8 @@ import {
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
+import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 
 type AdminScheduleSessionCompactRowProps = {
   row: AdminScheduleSession;
@@ -85,20 +86,11 @@ export function AdminScheduleSessionCompactRow({
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_CELL}>
         <AdminListMobileLabel label={t("colDateTime")} />
-        <div className="flex min-w-0 items-center gap-3">
-          <SessionDateTimeHighlight
-            locale={locale}
-            startsAt={row.startsAt}
-            endsAt={row.endsAt}
-            variant="listDate"
-          />
-          <SessionDateTimeHighlight
-            locale={locale}
-            startsAt={row.startsAt}
-            endsAt={row.endsAt}
-            variant="listTime"
-          />
-        </div>
+        <ScheduleSessionDateTimeCellClient
+          locale={locale}
+          startsAt={row.startsAt}
+          endsAt={row.endsAt}
+        />
       </div>
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_CELL}>
@@ -120,7 +112,7 @@ export function AdminScheduleSessionCompactRow({
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL}>
         <AdminListMobileLabel label={t("colTags")} />
-        <SessionLevelLabels levels={levels} />
+        <ScheduleSessionLevelLabels levels={levels} />
       </div>
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_SPACER_CELL} aria-hidden="true" />
@@ -140,24 +132,5 @@ export function AdminScheduleSessionCompactRow({
         />
       </div>
     </article>
-  );
-}
-
-function SessionLevelLabels({ levels }: { levels: readonly string[] }) {
-  if (levels.length === 0) {
-    return <span className="text-sm text-sage-400">—</span>;
-  }
-
-  return (
-    <>
-      {levels.map((level, index) => (
-        <span
-          key={`${level}-${index}`}
-          className={`${ADMIN_SCHEDULE_LEVEL_BADGE_CLASS} ${sessionLevelBadgeTone(level, index)}`}
-        >
-          {level}
-        </span>
-      ))}
-    </>
   );
 }

@@ -35,12 +35,13 @@ export default async function CoachGroupsPage({
 
   return (
     <AdminContentFrame>
-      <AdminSectionShell>
-        <div>
-          <h2 className={adminChrome.sectionTitle}>{t("attendanceBooked")}</h2>
-          <p className={`mt-2 ${adminChrome.metaText}`}>{t("helpText")}</p>
+      <AdminSectionShell
+        banner={t("helpText")}
+      >
+        <h2 className={adminChrome.sectionTitle}>{t("attendanceBooked")}</h2>
+        <div className="mt-4">
+          <CoachAttendanceRosterSection locale={locale} roster={panel.roster} />
         </div>
-        <CoachAttendanceRosterSection locale={locale} roster={panel.roster} />
       </AdminSectionShell>
     </AdminContentFrame>
   );
