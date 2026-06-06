@@ -10,7 +10,7 @@ import {
   statusBadgeClass,
   toPaymentIso,
 } from "@/components/account/user-payment-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
 type UserPaymentBoardCardProps = {
@@ -23,7 +23,6 @@ export function UserPaymentBoardCard({ locale, payment }: UserPaymentBoardCardPr
   const source = normalizePaymentSource(payment.description);
   const relatedItem = resolveRelatedItemName(payment.description);
   const itemLabel = relatedItem ?? t(`source.${source}`);
-  const amountLabel = formatAmdFromCents(payment.amountCents, locale);
   const methodLabel = resolvePaymentMethodLabel(payment.paymentMethod, t);
   const paidAtIso = toPaymentIso(payment.createdAt);
 
@@ -55,9 +54,11 @@ export function UserPaymentBoardCard({ locale, payment }: UserPaymentBoardCardPr
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
             {t("table.amount")}
           </p>
-          <p className="mt-1 font-serif text-2xl leading-none tracking-tight text-sage-950 sm:text-[1.75rem]">
-            {amountLabel}
-          </p>
+          <AmdMoneyText
+            cents={payment.amountCents}
+            locale={locale}
+            className="mt-1 block font-serif text-2xl leading-none tracking-tight text-sage-950 sm:text-[1.75rem]"
+          />
         </div>
       </div>
 

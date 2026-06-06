@@ -19,7 +19,7 @@ import {
   USER_PAYMENTS_LIST_TIME_CELL,
 } from "@/components/account/user-payments-list-layout";
 import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
 type UserPaymentCompactRowProps = {
@@ -31,7 +31,6 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
   const t = useTranslations("userPages.payments");
   const source = normalizePaymentSource(payment.description);
   const relatedItem = resolveRelatedItemName(payment.description);
-  const amountLabel = formatAmdFromCents(payment.amountCents, locale);
   const paidAtIso = toPaymentIso(payment.createdAt);
   const timeLabel = formatPaymentTime(payment.createdAt, locale);
   const itemLabel = relatedItem ?? t(`source.${source}`);
@@ -49,9 +48,11 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
 
       <div className={USER_PAYMENTS_LIST_CELL_CLASS}>
         <MobileLabel label={t("table.amount")} />
-        <p className="whitespace-nowrap font-serif text-xl tabular-nums leading-none text-sage-950">
-          {amountLabel}
-        </p>
+        <AmdMoneyText
+          cents={payment.amountCents}
+          locale={locale}
+          className="whitespace-nowrap font-serif text-xl tabular-nums leading-none text-sage-950"
+        />
       </div>
 
       <div className={USER_PAYMENTS_LIST_DATE_CELL}>

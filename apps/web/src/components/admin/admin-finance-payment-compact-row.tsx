@@ -28,8 +28,8 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminFinancePaymentCompactRowProps = {
   locale: string;
@@ -81,9 +81,11 @@ export function AdminFinancePaymentCompactRow({
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
         <AdminListMobileLabel label={tTable("colAmount")} />
-        <p className={ADMIN_FINANCE_MONEY_CLASS}>
-          {formatAmdFromCents(row.amountCents, locale)}
-        </p>
+        <AmdMoneyText
+          cents={row.amountCents}
+          locale={locale}
+          className={ADMIN_FINANCE_MONEY_CLASS}
+        />
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL}>

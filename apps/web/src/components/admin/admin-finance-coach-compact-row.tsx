@@ -16,7 +16,7 @@ import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { CoachFinanceRow } from "@/components/admin/admin-finance-types";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 
 type AdminFinanceCoachCompactRowProps = {
   locale: string;
@@ -68,9 +68,15 @@ export function AdminFinanceCoachCompactRow({
 
       <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
         <AdminListMobileLabel label={t("colSalary")} />
-        <p className={ADMIN_FINANCE_MONEY_CLASS}>
-          {row.salary ? formatAmdFromCents(row.salary.totalEarningsCents, locale) : "—"}
-        </p>
+        {row.salary ? (
+          <AmdMoneyText
+            cents={row.salary.totalEarningsCents}
+            locale={locale}
+            className={ADMIN_FINANCE_MONEY_CLASS}
+          />
+        ) : (
+          <p className={ADMIN_FINANCE_MONEY_CLASS}>—</p>
+        )}
       </div>
 
       <div className={ADMIN_FINANCE_COACH_LIST_CELL}>

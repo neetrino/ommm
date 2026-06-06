@@ -5,6 +5,7 @@ import type {
   GiftCardQuickFilter,
   GiftCardSortOrder,
 } from "@/components/admin/admin-gift-cards-types";
+import { formatAmdFromCents, parseAmdMoneyInput } from "@/lib/price-amd";
 
 type BuildAdminGiftCardsFilterFieldsArgs = {
   labels: {
@@ -76,16 +77,32 @@ export function buildAdminGiftCardsFilterFields({
       key: "amountMin",
       label: labels.amountMin,
       emptyValue: "",
-      resolveChipLabel: (value) =>
-        value.trim() ? `${labels.amountMin}: ${value.trim()}` : null,
+      resolveChipLabel: (value) => {
+        const trimmed = value.trim();
+        if (!trimmed) {
+          return null;
+        }
+        const parsed = parseAmdMoneyInput(trimmed);
+        const amount =
+          parsed !== null ? formatAmdFromCents(parsed, "en") : trimmed;
+        return `${labels.amountMin}: ${amount}`;
+      },
       render: renderAmountMin,
     },
     {
       key: "amountMax",
       label: labels.amountMax,
       emptyValue: "",
-      resolveChipLabel: (value) =>
-        value.trim() ? `${labels.amountMax}: ${value.trim()}` : null,
+      resolveChipLabel: (value) => {
+        const trimmed = value.trim();
+        if (!trimmed) {
+          return null;
+        }
+        const parsed = parseAmdMoneyInput(trimmed);
+        const amount =
+          parsed !== null ? formatAmdFromCents(parsed, "en") : trimmed;
+        return `${labels.amountMax}: ${amount}`;
+      },
       render: renderAmountMax,
     },
     {

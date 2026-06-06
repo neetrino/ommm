@@ -37,6 +37,7 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import { apiFetch } from "@/lib/api";
+import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   parseListPageParams,
   resetListPageQuery,
@@ -189,12 +190,12 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
         if (search.length === 0) {
           return true;
         }
-        const haystack = `${payment.description ?? ""} ${payment.amountCents}`.toLowerCase();
+        const haystack = `${payment.description ?? ""} ${payment.amountCents} ${formatAmdFromCents(payment.amountCents, locale)}`.toLowerCase();
         return haystack.includes(search);
       })
       .slice()
       .sort((left, right) => comparePayments(left, right, filters.order));
-  }, [filters.order, filters.search, filters.source, paymentsPayload.items]);
+  }, [filters.order, filters.search, filters.source, locale, paymentsPayload.items]);
 
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {

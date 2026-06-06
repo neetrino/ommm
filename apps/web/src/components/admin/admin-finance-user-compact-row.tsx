@@ -20,7 +20,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 
 type AdminFinanceUserCompactRowProps = {
   row: ClientRow;
@@ -85,11 +85,15 @@ export function AdminFinanceUserCompactRow({
 
       <div className={ADMIN_FINANCE_USER_LIST_CELL}>
         <AdminListMobileLabel label={t("colCost")} />
-        <p className={ADMIN_FINANCE_MONEY_CLASS}>
-          {row.activePlanCostCents !== null
-            ? formatAmdFromCents(row.activePlanCostCents, locale)
-            : "—"}
-        </p>
+        {row.activePlanCostCents !== null ? (
+          <AmdMoneyText
+            cents={row.activePlanCostCents}
+            locale={locale}
+            className={ADMIN_FINANCE_MONEY_CLASS}
+          />
+        ) : (
+          <p className={ADMIN_FINANCE_MONEY_CLASS}>—</p>
+        )}
       </div>
 
       <div className={ADMIN_FINANCE_USER_LIST_DATE_CELL}>
