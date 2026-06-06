@@ -26,6 +26,7 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_TIME_CELL,
 } from "@/components/admin/admin-finance-payments-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { FinancePaymentItem } from "@/components/admin/admin-finance-types";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -74,7 +75,7 @@ export function AdminFinancePaymentCompactRow({
     <article className={ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS}>
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
         <AdminListMobileLabel label={tTable("colUser")} />
-        <p className="truncate text-sm font-medium text-sage-900">{userLabel}</p>
+        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? row.user.email}</p>
       </div>
 

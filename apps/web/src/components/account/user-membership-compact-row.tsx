@@ -15,6 +15,7 @@ import {
   USER_PACKAGES_LIST_SPACER_CELL,
   USER_PACKAGES_LIST_STATUS_CELL,
 } from "@/components/account/user-packages-list-layout";
+import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
@@ -52,7 +53,7 @@ export function UserMembershipCompactRow({
       className={USER_PACKAGES_LIST_ROW_CLASS}
     >
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>
-        <p className="truncate font-serif text-xl leading-snug tracking-tight text-sage-950">
+        <p className={USER_LIST_TITLE_SERIF_CLASS} title={display.sessionName}>
           {display.sessionName}
         </p>
         <p className="mt-1 truncate text-xs font-medium text-sage-500">

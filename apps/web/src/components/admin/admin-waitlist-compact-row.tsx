@@ -10,6 +10,7 @@ import {
   ADMIN_WAITLIST_LIST_SPACER_CELL,
 } from "@/components/admin/admin-waitlist-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
 type AdminWaitlistRow = {
@@ -58,7 +59,7 @@ export function AdminWaitlistCompactRow({
         <AdminListMobileLabel label={t("colUser")} />
         <button
           type="button"
-          className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
+          className={ADMIN_LIST_TITLE_LINK_CLASS}
           title={userLabel}
           onClick={() => onOpenUser(row.user.id)}
         >

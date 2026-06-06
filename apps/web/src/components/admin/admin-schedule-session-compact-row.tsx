@@ -23,6 +23,7 @@ import {
   ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL,
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
@@ -68,7 +69,7 @@ export function AdminScheduleSessionCompactRow({
         <AdminListMobileLabel label={t("colClass")} />
         <button
           type="button"
-          className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
+          className={ADMIN_LIST_TITLE_LINK_CLASS}
           title={row.title}
           onClick={(event) => {
             event.stopPropagation();

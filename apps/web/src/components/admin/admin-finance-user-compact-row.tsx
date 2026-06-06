@@ -18,6 +18,7 @@ import {
   ADMIN_FINANCE_USER_LIST_SPACER_CELL,
 } from "@/components/admin/admin-finance-notifications-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -71,7 +72,7 @@ export function AdminFinanceUserCompactRow({
     >
       <div className={ADMIN_FINANCE_USER_LIST_CELL}>
         <AdminListMobileLabel label={t("colUser")} />
-        <p className="truncate text-sm font-medium text-sage-900">{userLabel}</p>
+        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? row.email}</p>
       </div>
 

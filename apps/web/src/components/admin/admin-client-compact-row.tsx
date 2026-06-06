@@ -18,6 +18,7 @@ import {
   ADMIN_CLIENTS_LIST_TAGS_CELL,
 } from "@/components/admin/admin-clients-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
 import { formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
@@ -59,7 +60,7 @@ export function AdminClientCompactRow({
           <div className="min-w-0 flex-1">
             <button
               type="button"
-              className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
+              className={ADMIN_LIST_TITLE_LINK_CLASS}
               title={name}
               onClick={(event) => {
                 event.stopPropagation();

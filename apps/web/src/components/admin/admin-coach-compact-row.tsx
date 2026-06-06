@@ -18,6 +18,7 @@ import {
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -63,7 +64,7 @@ export function AdminCoachCompactRow({
           <div className="min-w-0 flex-1">
             <button
               type="button"
-              className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
+              className={ADMIN_LIST_TITLE_LINK_CLASS}
               title={displayName}
               onClick={(event) => {
                 event.stopPropagation();

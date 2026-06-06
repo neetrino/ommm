@@ -13,6 +13,7 @@ import {
   ADMIN_FINANCE_COACH_LIST_ROW_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { CoachFinanceRow } from "@/components/admin/admin-finance-types";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -61,7 +62,7 @@ export function AdminFinanceCoachCompactRow({
     <article className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
       <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
         <AdminListMobileLabel label={t("colCoach")} />
-        <p className="truncate text-sm font-medium text-sage-900">{displayName(row)}</p>
+        <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName(row)}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? row.user.email}</p>
       </div>
 

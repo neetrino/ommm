@@ -19,7 +19,15 @@ export const USER_LIST_HEADER_SURFACE = [
 
 export const USER_LIST_STACK_CLASS = "space-y-3";
 
-export const USER_LIST_CELL_CLASS = "min-w-0 justify-self-start text-left";
+export const USER_LIST_CELL_CLASS =
+  "min-w-0 w-full max-w-full overflow-hidden justify-self-stretch text-left";
+
+/** Wraps primary title/name content so ellipsis stays inside the grid column. */
+export const USER_LIST_TITLE_CELL_CLASS = USER_LIST_CELL_CLASS;
+
+/** Primary serif title in user account lists. */
+export const USER_LIST_TITLE_SERIF_CLASS =
+  "block w-full min-w-0 truncate font-serif text-xl leading-snug tracking-tight text-sage-950";
 
 export const USER_LIST_DATE_CELL = USER_LIST_CELL_CLASS;
 

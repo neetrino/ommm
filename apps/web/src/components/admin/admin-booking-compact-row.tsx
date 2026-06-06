@@ -21,6 +21,7 @@ import {
   ADMIN_BOOKINGS_LIST_STATUS_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
+import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 
 type BookingRow = {
@@ -88,7 +89,7 @@ export function AdminBookingCompactRow({
         <AdminListMobileLabel label={t("colUserPhone")} />
         <button
           type="button"
-          className="block max-w-full truncate text-left text-sm font-medium text-sage-900 underline-offset-2 hover:underline"
+          className={ADMIN_LIST_TITLE_LINK_CLASS}
           title={userLabel}
           onClick={(event) => {
             event.stopPropagation();

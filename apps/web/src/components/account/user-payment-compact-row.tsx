@@ -18,6 +18,7 @@ import {
   USER_PAYMENTS_LIST_STATUS_CELL,
   USER_PAYMENTS_LIST_TIME_CELL,
 } from "@/components/account/user-payments-list-layout";
+import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
@@ -40,7 +41,7 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
     <article className={USER_PAYMENTS_LIST_ROW_CLASS}>
       <div className={USER_PAYMENTS_LIST_CELL_CLASS}>
         <MobileLabel label={t("table.related")} />
-        <p className="truncate font-serif text-xl leading-snug tracking-tight text-sage-950">
+        <p className={USER_LIST_TITLE_SERIF_CLASS} title={itemLabel}>
           {itemLabel}
         </p>
         <p className="mt-1 truncate text-xs font-medium text-sage-500">{t(`source.${source}`)}</p>

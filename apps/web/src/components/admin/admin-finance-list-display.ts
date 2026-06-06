@@ -3,7 +3,7 @@ export const ADMIN_FINANCE_MONEY_CLASS =
   "whitespace-nowrap font-serif text-xl tabular-nums leading-none text-sage-950";
 
 export const ADMIN_FINANCE_PRIMARY_TITLE_CLASS =
-  "truncate font-serif text-xl leading-snug tracking-tight text-sage-950";
+  "block w-full min-w-0 truncate font-serif text-xl leading-snug tracking-tight text-sage-950";
 
 export const ADMIN_FINANCE_VALUE_BADGE_CLASS =
   "inline-flex max-w-full shrink-0 truncate rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-wide";
