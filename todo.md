@@ -12,27 +12,27 @@ Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, p
 
 ## Faza 0 — Obshchaya infrastruktura
 
-- [ ] `OmmListPagination` — footer pod spiskom: «Pokazano X–Y iz Z», Prev/Next, nomera stranic
-- [ ] Opcionalno: vybor razmera stranicy (25 / 50 / 100)
-- [ ] Helpers: `parseListPageParams`, `buildListPageQuery`, konvertaciya page ↔ offset
-- [ ] i18n: `adminPages.pagination.*`, `userPages.pagination.*`
-- [ ] Layout token dlya pagera pod admin/user tablicami
+- [x] `OmmListPagination` — footer pod spiskom: «Pokazano X–Y iz Z», Prev/Next, nomera stranic
+- [x] Opcionalno: vybor razmera stranicy (25 / 50 / 100)
+- [x] Helpers: `parseListPageParams`, `buildListPageQuery`, konvertaciya page ↔ offset
+- [x] i18n: `adminPages.pagination.*`, `userPages.pagination.*`
+- [x] Layout token dlya pagera pod admin/user tablicami
 
 ---
 
 ## Faza 1 — Quick wins (API uzhe podderzhivaet take/offset)
 
 ### Admin Clients — P0
-- [ ] Stranica: `/admin/clients`
-- [ ] Peredavat `take` / `offset` iz URL v `buildAdminClientsApiSearchParams`
-- [ ] `AdminClientsManagement`: render `OmmListPagination` po `payload.pagination`
-- [ ] Summary cards — po vsem rezultatam (`summary`), ne po tekushchey stranice
+- [x] Stranica: `/admin/clients`
+- [x] Peredavat `take` / `offset` iz URL v `buildAdminClientsApiSearchParams`
+- [x] `AdminClientsManagement`: render `OmmListPagination` po `payload.pagination`
+- [x] Summary cards — po vsem rezultatam (`summary`), ne po tekushchey stranice
 - [ ] ⚠️ Pozzhe (Faza 4): API seychas slice v pamyati posle fetch 500 — nuzhna DB-pagination
 
 ### Admin Finance — payments — P0
-- [ ] Stranica: `/admin/finance`
-- [ ] Tablica platezhey: `offset` iz URL, pokazat `total` iz `FinancePaymentsPayload`
-- [ ] User finance tab: tot zhe pager dlya spiska klientov + payments sub-list
+- [x] Stranica: `/admin/finance`
+- [x] Tablica platezhey: `offset` iz URL, pokazat `total` iz `FinancePaymentsPayload`
+- [x] User finance tab: tot zhe pager dlya spiska klientov + payments sub-list
 
 ---
 

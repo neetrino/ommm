@@ -7,6 +7,16 @@ import type {
 
 export const FINANCE_FILTER_QUERY_KEYS = ["q", "rangeDays", "source", "status"] as const;
 
+export const FINANCE_USER_PAGE_KEYS = {
+  pageKey: "userPage",
+  pageSizeKey: "userPageSize",
+} as const;
+
+export const FINANCE_PAYMENTS_PAGE_KEYS = {
+  pageKey: "payPage",
+  pageSizeKey: "payPageSize",
+} as const;
+
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];

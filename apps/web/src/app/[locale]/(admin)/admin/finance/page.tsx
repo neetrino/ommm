@@ -10,8 +10,13 @@ import type { AdminClientsPayload } from "@/components/admin/admin-clients-types
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { AdminFinanceFilters } from "@/components/admin/admin-finance-filters";
-import { parseFinanceFiltersFromSearch } from "@/components/admin/admin-finance-url";
+import {
+  FINANCE_PAYMENTS_PAGE_KEYS,
+  FINANCE_USER_PAGE_KEYS,
+  parseFinanceFiltersFromSearch,
+} from "@/components/admin/admin-finance-url";
 import { formatAmdFromCents } from "@/lib/price-amd";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
 
 type Dashboard = {
@@ -93,7 +98,21 @@ type PageSearchParams = Promise<{
   status?: string;
   q?: string;
   tab?: string;
+  userPage?: string;
+  userPageSize?: string;
+  payPage?: string;
+  payPageSize?: string;
 }>;
+
+function normalizeSearch(
+  search: Record<string, string | string[] | undefined>,
+): Record<string, string | undefined> {
+  const normalized: Record<string, string | undefined> = {};
+  for (const [key, value] of Object.entries(search)) {
+    normalized[key] = Array.isArray(value) ? value[0] : value;
+  }
+  return normalized;
+}
 
 function parseTab(value?: string): FinanceTab {
   return value === "coach" ? "coach" : "user";
@@ -142,9 +161,12 @@ export default async function AdminFinancePage({
 }) {
   const { locale } = await params;
   const search = await searchParams;
+  const normalizedSearch = normalizeSearch(search);
   const t = await getTranslations({ locale, namespace: "adminPages.finance" });
   const cookie = (await headers()).get("cookie") ?? "";
   const financeFilters = parseFinanceFiltersFromSearch(search);
+  const userListPage = parseListPageParams(normalizedSearch, FINANCE_USER_PAGE_KEYS);
+  const payListPage = parseListPageParams(normalizedSearch, FINANCE_PAYMENTS_PAGE_KEYS);
   const rangeDays = financeFilters.rangeDays;
   const from = computeFromDate(rangeDays);
   const monthFrom = computeMonthStart();
@@ -172,10 +194,13 @@ export default async function AdminFinancePage({
       cookie,
     ),
     serverApiJson<PaymentsResponse>(
-      `/payments/admin?from=${encodeURIComponent(from)}${statusFilter}${sourceFilter}&take=100`,
+      `/payments/admin?from=${encodeURIComponent(from)}${statusFilter}${sourceFilter}&take=${payListPage.take}&offset=${payListPage.offset}`,
       cookie,
     ),
-    serverApiJson<AdminClientsPayload>("/clients?meta=true", cookie),
+    serverApiJson<AdminClientsPayload>(
+      `/clients?meta=true&take=${userListPage.take}&offset=${userListPage.offset}`,
+      cookie,
+    ),
     serverApiJson<CoachListRow[]>("/coaches/admin/list", cookie),
     serverApiJson<CoachSalaryPayload>("/coaches/admin/salary-summaries", cookie),
   ]);
@@ -345,10 +370,12 @@ export default async function AdminFinancePage({
           <AdminFinanceManagement
             locale={locale}
             initialTab={parseTab(search.tab)}
-            initialUserRows={clientsRes.data.rows}
+            initialClients={clientsRes.data}
             initialCoachRows={coachRows}
             initialPayments={paymentsRes.data}
             paymentsFrom={from}
+            paymentsStatus={financeFilters.status}
+            paymentsSource={financeFilters.source}
           />
         </Suspense>
       </AdminSectionShell>

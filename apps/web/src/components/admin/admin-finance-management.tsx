@@ -15,10 +15,12 @@ function parseTab(value: string | null): FinanceTab {
 export function AdminFinanceManagement({
   locale,
   initialTab,
-  initialUserRows,
+  initialClients,
   initialCoachRows,
   initialPayments,
   paymentsFrom,
+  paymentsStatus,
+  paymentsSource,
 }: AdminFinanceManagementProps) {
   const t = useTranslations("adminPages.finance");
   const router = useRouter();
@@ -50,9 +52,11 @@ export function AdminFinanceManagement({
       {tab === "user" ? (
         <AdminUserFinanceTab
           locale={locale}
-          initialRows={initialUserRows}
-          initialPayments={initialPayments.items}
+          initialClients={initialClients}
+          initialPayments={initialPayments}
           paymentsFrom={paymentsFrom}
+          paymentsStatus={paymentsStatus}
+          paymentsSource={paymentsSource}
         />
       ) : (
         <AdminCoachFinanceTab locale={locale} initialRows={initialCoachRows} />

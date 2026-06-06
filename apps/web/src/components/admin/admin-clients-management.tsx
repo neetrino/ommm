@@ -33,11 +33,17 @@ import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrate
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import {
   OmmSelectDropdown,
   ommOptionsFromTuples,
 } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
+import {
+  parseListPageParams,
+  resetListPageQuery,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   ADMIN_CLIENTS_FILTER_KEYS,
@@ -86,6 +92,10 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const [error, setError] = useState<string | null>(null);
   const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
   const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
 
   useEffect(() => {
     searchParamsStringRef.current = searchParams.toString();
@@ -191,8 +201,19 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const apiQueryString = useMemo(() => {
     const params = new URLSearchParams(urlQueryString);
     params.set("meta", "true");
+    params.set("take", String(listPage.take));
+    params.set("offset", String(listPage.offset));
     return params.toString();
-  }, [urlQueryString]);
+  }, [listPage.offset, listPage.take, urlQueryString]);
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize);
+      });
+    },
+    [replaceSearchParams],
+  );
 
   useEffect(() => {
     if (!hasMounted.current) {
@@ -227,7 +248,7 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
       }
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [apiQueryString, pathname, urlQueryString]);
+  }, [apiQueryString, listPage.offset, listPage.page, pathname, urlQueryString]);
 
   const handleClientChanged = useCallback(() => {
     routerRef.current.refresh();
@@ -235,6 +256,9 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
 
   function updateFilter(key: keyof typeof filters, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+    });
   }
 
   function refetchClients(): void {
@@ -263,6 +287,9 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
       birthdayMonth: "",
       order: "newest",
       quick: "",
+    });
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
     });
   }
 
@@ -366,6 +393,15 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
         rows={payload.rows}
         onSelect={selectClient}
         onChanged={refetchClients}
+      />
+      <OmmListPagination
+        total={payload.pagination.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={payload.pagination.offset}
+        onPageChange={(nextPage) => setListPage(nextPage)}
+        onPageSizeChange={(nextSize) => setListPage(1, nextSize)}
+        disabled={loading}
       />
       {payload.rows.length === 0 ? (
         <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">

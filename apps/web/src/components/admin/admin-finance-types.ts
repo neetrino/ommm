@@ -1,4 +1,4 @@
-import type { ClientRow } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
 
 export type FinanceTab = "user" | "coach";
 
@@ -97,8 +97,10 @@ export type CoachFinanceFilters = {
 export type AdminFinanceManagementProps = {
   locale: string;
   initialTab: FinanceTab;
-  initialUserRows: ClientRow[];
+  initialClients: AdminClientsPayload;
   initialCoachRows: CoachFinanceRow[];
   initialPayments: FinancePaymentsPayload;
   paymentsFrom: string;
+  paymentsStatus: FinanceStatusFilter;
+  paymentsSource: FinanceSourceFilter;
 };

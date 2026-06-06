@@ -652,6 +652,18 @@
     "lead": "Դուք մուտք եք գործել Google-ով։ Սահմանեք գաղտնաբառ՝ նաև email-ով մուտք գործելու համար։"
   },
   "userPages": {
+    "pagination": {
+      "ariaLabel": "Ցանկի էջավորում",
+      "empty": "Արդյունքներ չկան",
+      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "prev": "Նախորդ",
+      "next": "Հաջորդ",
+      "prevAria": "Նախորդ էջ",
+      "nextAria": "Հաջորդ էջ",
+      "pagesAria": "Էջեր",
+      "pageSizeAria": "Գրառումներ էջում",
+      "pageSizeLabel": "{size} էջում"
+    },
     "packages": {
       "title": "Փաթեթներ",
       "description": "Ընտրեք պլան և կատարեք վճարումը ձեր նախընտրած եղանակով։ Փաթեթը կհայտնվի այստեղ վճարումից հետո։",
@@ -1175,6 +1187,18 @@
       "filterPanelAria": "Որոնման ֆիլտրեր",
       "loadingResults": "Բեռնվում են համապատասխան արդյունքները…",
       "activeCount": "{count} ակտիվ ֆիլտր"
+    },
+    "pagination": {
+      "ariaLabel": "Ցանկի էջավորում",
+      "empty": "Արդյունքներ չկան",
+      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "prev": "Նախորդ",
+      "next": "Հաջորդ",
+      "prevAria": "Նախորդ էջ",
+      "nextAria": "Հաջորդ էջ",
+      "pagesAria": "Էջեր",
+      "pageSizeAria": "Գրառումներ էջում",
+      "pageSizeLabel": "{size} էջում"
     },
     "home": {
       "signInPrompt": "Մուտք գործեք՝ ադմինի վահանակը բացելու համար։"

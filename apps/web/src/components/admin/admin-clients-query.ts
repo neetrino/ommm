@@ -1,3 +1,9 @@
+import {
+  LIST_PAGE_QUERY_KEY,
+  LIST_PAGE_SIZE_QUERY_KEY,
+  parseListPageParams,
+} from "@/lib/list-pagination";
+
 /** URL filter keys synced with `AdminListClientsQueryDto` (excluding `meta`). */
 export const ADMIN_CLIENTS_FILTER_KEYS = [
   "search",
@@ -13,15 +19,16 @@ export const ADMIN_CLIENTS_FILTER_KEYS = [
   "quick",
 ] as const;
 
-const ADMIN_CLIENTS_API_QUERY_KEYS = [
-  ...ADMIN_CLIENTS_FILTER_KEYS,
-  "q",
-  "take",
-  "offset",
-] as const;
+const ADMIN_CLIENTS_API_QUERY_KEYS = [...ADMIN_CLIENTS_FILTER_KEYS, "q"] as const;
 
 /** UI-only query keys kept in the URL but not sent to `GET /clients`. */
-export const ADMIN_CLIENTS_UI_QUERY_KEYS = ["viewClient"] as const;
+export const ADMIN_CLIENTS_UI_QUERY_KEYS = [
+  "viewClient",
+  LIST_PAGE_QUERY_KEY,
+  LIST_PAGE_SIZE_QUERY_KEY,
+] as const;
+
+export { LIST_PAGE_QUERY_KEY, LIST_PAGE_SIZE_QUERY_KEY };
 
 export const VIEW_CLIENT_QUERY_KEY = "viewClient";
 
@@ -36,6 +43,9 @@ export function buildAdminClientsApiSearchParams(
       params.set(key, value);
     }
   }
+  const listPage = parseListPageParams(search);
+  params.set("take", String(listPage.take));
+  params.set("offset", String(listPage.offset));
   return params;
 }
 

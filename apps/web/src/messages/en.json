@@ -640,6 +640,18 @@
     "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
+    "pagination": {
+      "ariaLabel": "List pagination",
+      "empty": "No results",
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "prevAria": "Previous page",
+      "nextAria": "Next page",
+      "pagesAria": "Pages",
+      "pageSizeAria": "Results per page",
+      "pageSizeLabel": "{size} per page"
+    },
     "packages": {
       "title": "Packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
@@ -1172,6 +1184,18 @@
       "filterPanelAria": "Search filters",
       "loadingResults": "Loading matching results…",
       "activeCount": "{count} active filters"
+    },
+    "pagination": {
+      "ariaLabel": "List pagination",
+      "empty": "No results",
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "prevAria": "Previous page",
+      "nextAria": "Next page",
+      "pagesAria": "Pages",
+      "pageSizeAria": "Results per page",
+      "pageSizeLabel": "{size} per page"
     },
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."

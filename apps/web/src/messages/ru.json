@@ -640,6 +640,18 @@
     "lead": "Вы вошли через Google. Установите пароль, чтобы входить также по email."
   },
   "userPages": {
+    "pagination": {
+      "ariaLabel": "Пагинация списка",
+      "empty": "Нет результатов",
+      "range": "Показано {from}–{to} из {total}",
+      "prev": "Назад",
+      "next": "Вперёд",
+      "prevAria": "Предыдущая страница",
+      "nextAria": "Следующая страница",
+      "pagesAria": "Страницы",
+      "pageSizeAria": "Записей на странице",
+      "pageSizeLabel": "{size} на странице"
+    },
     "packages": {
       "title": "Пакеты",
       "description": "Выберите план и оплатите удобным способом. Пакет появится здесь после оплаты.",
@@ -1163,6 +1175,18 @@
       "filterPanelAria": "Фильтры поиска",
       "loadingResults": "Загрузка результатов…",
       "activeCount": "{count} активных фильтров"
+    },
+    "pagination": {
+      "ariaLabel": "Пагинация списка",
+      "empty": "Нет результатов",
+      "range": "Показано {from}–{to} из {total}",
+      "prev": "Назад",
+      "next": "Вперёд",
+      "prevAria": "Предыдущая страница",
+      "nextAria": "Следующая страница",
+      "pagesAria": "Страницы",
+      "pageSizeAria": "Записей на странице",
+      "pageSizeLabel": "{size} на странице"
     },
     "home": {
       "signInPrompt": "Войдите, чтобы открыть админ-панель."
