@@ -136,6 +136,7 @@ export function AdminFinanceCoachesFilters({ initialValues }: AdminFinanceCoache
           resetLabel={tFilters("clearFilters")}
           clearAriaLabel={tSearchTools("clearSearchAndFilters")}
           filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+          portalFilterPanel
         />
       }
       trailing={

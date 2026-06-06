@@ -142,6 +142,7 @@ export function AdminFinanceMembersFilters({ initialValues }: AdminFinanceMember
           resetLabel={tFilters("clearFilters")}
           clearAriaLabel={tSearchTools("clearSearchAndFilters")}
           filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+          portalFilterPanel
         />
       }
       trailing={

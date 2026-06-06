@@ -161,6 +161,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
           resetLabel={tFilters("resetFilters")}
           clearAriaLabel={tSearchTools("clearSearchAndFilters")}
           filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+          portalFilterPanel
         />
       }
       trailing={

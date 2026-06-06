@@ -122,6 +122,7 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
           resetLabel={tFilters("resetFilters")}
           clearAriaLabel={tSearchTools("clearSearchAndFilters")}
           filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+          portalFilterPanel
         />
       }
       trailing={

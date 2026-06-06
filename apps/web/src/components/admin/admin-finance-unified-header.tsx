@@ -85,13 +85,11 @@ function AdminFinanceUnifiedHeaderInner() {
       className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
-      <div className="ommm-admin-header-bar flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto sm:gap-3">
+      <div className="ommm-admin-header-bar overflow-visible flex min-h-[3.25rem] flex-nowrap items-center gap-2 py-2 sm:gap-3">
         <h1 className="ommm-admin-header-title shrink-0 text-xl sm:text-2xl">{t("title")}</h1>
         <AdminFinanceTabNav />
         {section ? (
-          <div className="flex min-w-[10rem] flex-1 items-center sm:min-w-[14rem]">
-            <AdminFinanceTabFilters section={section} search={search} />
-          </div>
+          <AdminFinanceTabFilters section={section} search={search} />
         ) : null}
       </div>
     </header>
@@ -108,7 +106,7 @@ function AdminFinanceUnifiedHeaderFallback() {
       className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
-      <div className="ommm-admin-header-bar flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto sm:gap-3">
+      <div className="ommm-admin-header-bar flex min-h-[3.25rem] flex-nowrap items-center gap-2 py-2 sm:gap-3">
         <h1 className="ommm-admin-header-title shrink-0 text-xl sm:text-2xl">{t("title")}</h1>
         <AdminFinanceTabNav />
       </div>
@@ -116,7 +114,7 @@ function AdminFinanceUnifiedHeaderFallback() {
   );
 }
 
-/** Sticky finance hero — title, tabs, and search on one horizontal row inside one card. */
+/** Finance module header — title, tabs, search, and export on one line. */
 export function AdminFinanceUnifiedHeader() {
   return (
     <Suspense fallback={<AdminFinanceUnifiedHeaderFallback />}>

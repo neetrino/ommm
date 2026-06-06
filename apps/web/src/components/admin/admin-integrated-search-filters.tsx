@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { AdminIntegratedSearchFilterChips } from "@/components/admin/admin-integrated-search-filter-chips";
 import { AdminIntegratedSearchFilterPanel } from "@/components/admin/admin-integrated-search-filter-panel";
 import {
@@ -20,6 +21,48 @@ const PANEL_POSITION_CLASS =
 const PANEL_SURFACE_CLASS =
   "rounded-2xl border border-white/60 bg-white/95 p-4 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] backdrop-blur-md ring-1 ring-sage-700/10";
 
+const PANEL_GAP_PX = 8;
+const PANEL_MIN_WIDTH_PX = 384;
+const PANEL_MAX_WIDTH_PX = 640;
+
+function usePortaledFilterPanelPosition(
+  containerRef: RefObject<HTMLDivElement | null>,
+  panelOpen: boolean,
+  enabled: boolean,
+): { top: number; left: number; width: number } | null {
+  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!enabled || !panelOpen) {
+      setPosition(null);
+      return undefined;
+    }
+
+    const update = (): void => {
+      const element = containerRef.current;
+      if (element === null) {
+        return;
+      }
+      const rect = element.getBoundingClientRect();
+      const width = Math.min(PANEL_MAX_WIDTH_PX, Math.max(rect.width, PANEL_MIN_WIDTH_PX));
+      const left = Math.min(rect.left, window.innerWidth - width - PANEL_GAP_PX);
+      setPosition({ top: rect.bottom + PANEL_GAP_PX, left, width });
+    };
+
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [containerRef, enabled, panelOpen]);
+
+  return position;
+}
+
 export type AdminIntegratedSearchFiltersProps = {
   search: string;
   onSearchChange: (value: string) => void;
@@ -35,6 +78,8 @@ export type AdminIntegratedSearchFiltersProps = {
   className?: string;
   /** When true, omits the text search input — filter panel opens via filter button (overview period-only). */
   hideSearch?: boolean;
+  /** Renders the filter panel in a body portal (NBOS module tabs + search layout). */
+  portalFilterPanel?: boolean;
 };
 
 function SearchGlyph({ className }: { className?: string }) {
@@ -69,12 +114,18 @@ export function AdminIntegratedSearchFilters({
   filterPanelAriaLabel,
   className = "",
   hideSearch = false,
+  portalFilterPanel = false,
 }: AdminIntegratedSearchFiltersProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [draftFilters, setDraftFilters] = useState(filterValues);
   const hasFilters = Boolean(fields?.length);
+  const portaledPanelPosition = usePortaledFilterPanelPosition(
+    containerRef,
+    panelOpen,
+    portalFilterPanel,
+  );
 
   const chips = useMemo(
     () => buildAdminIntegratedFilterChips(fields, filterValues),
@@ -96,6 +147,9 @@ export function AdminIntegratedSearchFilters({
         return;
       }
       if (containerRef.current?.contains(target)) {
+        return;
+      }
+      if (target.closest(`#${PANEL_ID}`)) {
         return;
       }
       if (target.closest(".ommm-dropdown-menu")) {
@@ -169,6 +223,9 @@ export function AdminIntegratedSearchFilters({
       if (containerRef.current?.contains(active)) {
         return;
       }
+      if (active instanceof Element && active.closest(`#${PANEL_ID}`)) {
+        return;
+      }
       if (active instanceof Element && active.closest(".ommm-dropdown-menu")) {
         return;
       }
@@ -182,6 +239,41 @@ export function AdminIntegratedSearchFilters({
       setPanelOpen(false);
     }
   }
+
+  const filterPanel =
+    hasFilters && panelOpen ? (
+      <div
+        id={PANEL_ID}
+        role="dialog"
+        aria-label={filterPanelAriaLabel}
+        className={
+          portalFilterPanel
+            ? `fixed z-[120] ${PANEL_SURFACE_CLASS}`
+            : `${PANEL_POSITION_CLASS} ${PANEL_SURFACE_CLASS}`
+        }
+        style={
+          portalFilterPanel && portaledPanelPosition
+            ? {
+                top: portaledPanelPosition.top,
+                left: portaledPanelPosition.left,
+                width: portaledPanelPosition.width,
+              }
+            : undefined
+        }
+      >
+        <AdminIntegratedSearchFilterPanel
+          fields={fields ?? []}
+          filterValues={panelFilterValues}
+          onFilterChange={(key, value) =>
+            setDraftFilters((prev) => ({ ...prev, [key]: value }))
+          }
+          onApply={handleApply}
+          onReset={handleReset}
+          applyLabel={applyLabel}
+          resetLabel={resetLabel}
+        />
+      </div>
+    ) : null;
 
   return (
     <div ref={containerRef} className={`relative w-full min-w-0 ${className}`}>
@@ -244,26 +336,9 @@ export function AdminIntegratedSearchFilters({
         ) : null}
       </div>
 
-      {hasFilters && panelOpen ? (
-        <div
-          id={PANEL_ID}
-          role="dialog"
-          aria-label={filterPanelAriaLabel}
-          className={`${PANEL_POSITION_CLASS} ${PANEL_SURFACE_CLASS}`}
-        >
-          <AdminIntegratedSearchFilterPanel
-            fields={fields ?? []}
-            filterValues={panelFilterValues}
-            onFilterChange={(key, value) =>
-              setDraftFilters((prev) => ({ ...prev, [key]: value }))
-            }
-            onApply={handleApply}
-            onReset={handleReset}
-            applyLabel={applyLabel}
-            resetLabel={resetLabel}
-          />
-        </div>
-      ) : null}
+      {portalFilterPanel && filterPanel && typeof document !== "undefined"
+        ? createPortal(filterPanel, document.body)
+        : filterPanel}
     </div>
   );
 }
