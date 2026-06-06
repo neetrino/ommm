@@ -2607,6 +2607,9 @@
       "filters": {
         "heading": "Ֆիլտրեր",
         "reset": "Reset Filters",
+        "resetFilters": "Reset Filters",
+        "loading": "Տվյալների թարմացում…",
+        "activeCount": "{count} ակտիվ ֆիլտր",
         "rangeLabel": "Միջակայք",
         "range7": "Վերջին 7 օրը",
         "range30": "Վերջին 30 օրը",
@@ -2718,7 +2721,8 @@
         "excelUnsupported": "Excel արտահանում հասանելի չէ — նախագիծը աջակցում է միայն CSV reports API-ով։",
         "paymentsCsv": "Արտահանել payments CSV",
         "bookingsCsv": "Արտահանել bookings CSV",
-        "giftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV"
+        "giftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV",
+        "menuAria": "Ներբեռնել CSV հաշվետվություններ"
       },
       "limitations": {
         "heading": "Չաջակցվող կամ մասնակի ցուցանիշներ",

@@ -29,6 +29,16 @@ export type AnalyticsBookingStatusFilter =
   | "CANCELLED"
   | "MISSED";
 
+export type AnalyticsFilterValues = {
+  rangeDays: AnalyticsRangeDays;
+  coachId: string;
+  classTypeId: string;
+  bookingStatus: AnalyticsBookingStatusFilter;
+  sort: AnalyticsSortKey;
+  /** Comma-separated quick filter keys; empty means all selected. */
+  quick: string;
+};
+
 export type AnalyticsBarItem = {
   key: string;
   label: string;

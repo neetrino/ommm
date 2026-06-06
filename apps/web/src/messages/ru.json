@@ -2595,6 +2595,9 @@
       "filters": {
         "heading": "Фильтры",
         "reset": "Сбросить фильтры",
+        "resetFilters": "Сбросить фильтры",
+        "loading": "Обновление результатов…",
+        "activeCount": "{count} активных фильтров",
         "rangeLabel": "Период",
         "range7": "Последние 7 дней",
         "range30": "Последние 30 дней",
@@ -2706,7 +2709,8 @@
         "excelUnsupported": "Экспорт Excel недоступен — проект поддерживает только CSV через reports API.",
         "paymentsCsv": "Экспорт CSV платежей",
         "bookingsCsv": "Экспорт CSV бронирований",
-        "giftCreditsCsv": "Экспорт CSV подарочных кредитов"
+        "giftCreditsCsv": "Экспорт CSV подарочных кредитов",
+        "menuAria": "Скачать CSV-отчёты"
       },
       "limitations": {
         "heading": "Неподдерживаемые или частичные метрики",

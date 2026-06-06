@@ -2455,6 +2455,9 @@
       "filters": {
         "heading": "Filters",
         "reset": "Reset Filters",
+        "resetFilters": "Reset Filters",
+        "loading": "Updating results…",
+        "activeCount": "{count} active filters",
         "rangeLabel": "Range",
         "range7": "Last 7 days",
         "range30": "Last 30 days",
@@ -2566,7 +2569,8 @@
         "excelUnsupported": "Excel export is not available — the project only provides CSV exports via the reports API.",
         "paymentsCsv": "Export payments CSV",
         "bookingsCsv": "Export bookings CSV",
-        "giftCreditsCsv": "Export gift credits CSV"
+        "giftCreditsCsv": "Export gift credits CSV",
+        "menuAria": "Download CSV reports"
       },
       "limitations": {
         "heading": "Unsupported or partial metrics",
