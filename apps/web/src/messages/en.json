@@ -2523,6 +2523,8 @@
         "users": {
           "title": "User activity report",
           "hint": "Client summary from `/clients?meta=true`. Retention trends are not available.",
+          "segmentsTitle": "Client segments",
+          "inactive": "Other clients",
           "total": "Total clients",
           "active": "Active clients",
           "vip": "VIP clients",
@@ -2540,6 +2542,7 @@
         "coachPerformance": {
           "title": "Coach performance",
           "hint": "Bookings and attendance per coach within the management query sample.",
+          "topBookings": "Top coach bookings",
           "chartAria": "Coach bookings chart",
           "bookingsTitle": "Bookings per coach",
           "attendanceTitle": "Attendance rate per coach",
@@ -2556,6 +2559,9 @@
         "coachSessions": {
           "title": "Coach session load",
           "hint": "Total scheduled sessions per coach from the coach directory API.",
+          "coachesCount": "Coaches",
+          "activeCoaches": "Active coaches",
+          "totalSessions": "Total sessions",
           "chartAria": "Coach session load chart"
         },
         "paymentStatus": {

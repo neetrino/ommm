@@ -4,7 +4,6 @@ import type {
   AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
-  AnalyticsViewMode,
 } from "@/components/admin/admin-analytics-types";
 import { MAX_LIST_PAGE_SIZE } from "@/lib/list-pagination";
 
@@ -35,10 +34,6 @@ export function parseAnalyticsRangeDays(value?: string): AnalyticsRangeDays {
     return parsed;
   }
   return 30;
-}
-
-export function parseAnalyticsViewMode(value?: string): AnalyticsViewMode {
-  return value === "chart" ? "chart" : "table";
 }
 
 export function parseAnalyticsSortKey(value?: string): AnalyticsSortKey {

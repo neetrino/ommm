@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { AdminIntegratedSearchFilterChips } from "@/components/admin/admin-integrated-search-filter-chips";
 import { AdminIntegratedSearchFilterPanel } from "@/components/admin/admin-integrated-search-filter-panel";
@@ -214,7 +214,7 @@ export function AdminIntegratedSearchFilters({
     }
   }
 
-  function handleFilterBarKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+  function handleFilterBarKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (!hideSearch || !hasFilters) {
       return;
     }

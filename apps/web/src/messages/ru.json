@@ -2663,6 +2663,8 @@
         "users": {
           "title": "Активность пользователей",
           "hint": "Сводка клиентов из `/clients?meta=true`. Тренды удержания недоступны.",
+          "segmentsTitle": "Сегменты клиентов",
+          "inactive": "Прочие клиенты",
           "total": "Всего клиентов",
           "active": "Активные клиенты",
           "vip": "VIP клиенты",
@@ -2680,6 +2682,7 @@
         "coachPerformance": {
           "title": "Эффективность тренеров",
           "hint": "Бронирования и посещаемость по тренерам (выборка management query).",
+          "topBookings": "Лидер по бронированиям",
           "chartAria": "График бронирований по тренерам",
           "bookingsTitle": "Бронирования по тренерам",
           "attendanceTitle": "Посещаемость по тренерам",
@@ -2696,6 +2699,9 @@
         "coachSessions": {
           "title": "Нагрузка тренеров по сессиям",
           "hint": "Всего сессий на тренера из coach directory API.",
+          "coachesCount": "Тренеры",
+          "activeCoaches": "Активные тренеры",
+          "totalSessions": "Всего сессий",
           "chartAria": "График нагрузки тренеров"
         },
         "paymentStatus": {

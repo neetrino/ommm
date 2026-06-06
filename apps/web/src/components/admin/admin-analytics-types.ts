@@ -1,7 +1,5 @@
 export type AnalyticsRangeDays = 7 | 30 | 90;
 
-export type AnalyticsViewMode = "table" | "chart";
-
 export type AnalyticsSortKey =
   | "revenue-desc"
   | "revenue-asc"
@@ -138,7 +136,6 @@ export type AdminAnalyticsPayload = {
   rangeDays: AnalyticsRangeDays;
   fromIso: string;
   toIso: string;
-  viewMode: AnalyticsViewMode;
   sortKey: AnalyticsSortKey;
   coachId: string;
   classTypeId: string;

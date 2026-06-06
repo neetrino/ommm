@@ -8,7 +8,7 @@ import {
 } from "@/components/admin/admin-analytics-helpers";
 import type { AnalyticsFilterValues } from "@/components/admin/admin-analytics-types";
 
-export const ANALYTICS_GLOBAL_QUERY_KEYS = ["rangeDays", "view", "quick", "sort"] as const;
+export const ANALYTICS_GLOBAL_QUERY_KEYS = ["rangeDays", "quick", "sort"] as const;
 
 export const ANALYTICS_BOOKINGS_QUERY_KEYS = [
   ...ANALYTICS_GLOBAL_QUERY_KEYS,
@@ -112,10 +112,6 @@ export function buildAnalyticsFiltersQuery(
   section: AnalyticsSectionId,
 ): string {
   const params = new URLSearchParams();
-  const view = currentParams.get("view");
-  if (view) {
-    params.set("view", view);
-  }
 
   if (values.rangeDays !== 30) {
     params.set("rangeDays", String(values.rangeDays));

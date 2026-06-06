@@ -12,7 +12,6 @@ import {
   parseAnalyticsQuickFilters,
   parseAnalyticsRangeDays,
   parseAnalyticsSortKey,
-  parseAnalyticsViewMode,
   resolveAnalyticsDateRange,
   resolveQuickFiltersSort,
 } from "@/components/admin/admin-analytics-helpers";
@@ -121,7 +120,6 @@ export async function loadAdminAnalyticsPayload(
   const sortFromQuick = resolveQuickFiltersSort(quickFilters);
   const sortRaw = Array.isArray(search.sort) ? search.sort[0] : search.sort;
   const sortKey = sortFromQuick ?? parseAnalyticsSortKey(sortRaw);
-  const viewRaw = Array.isArray(search.view) ? search.view[0] : search.view;
 
   const bookingsCountQuery = buildBookingsQuery(
     fromIso,
@@ -190,7 +188,6 @@ export async function loadAdminAnalyticsPayload(
       rangeDays,
       fromIso,
       toIso,
-      viewMode: parseAnalyticsViewMode(viewRaw),
       sortKey,
       coachId,
       classTypeId,
