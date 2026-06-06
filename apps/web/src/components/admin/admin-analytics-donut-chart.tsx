@@ -1,6 +1,7 @@
 "use client";
 
 import type { AnalyticsBarItem } from "@/components/admin/admin-analytics-types";
+import { cn } from "@/lib/cn";
 
 const SEGMENT_COLORS = [
   "#b8956f",
@@ -11,10 +12,13 @@ const SEGMENT_COLORS = [
   "#8a9a88",
 ] as const;
 
+type AdminAnalyticsDonutLayout = "inline" | "stacked";
+
 type AdminAnalyticsDonutChartProps = {
   items: readonly AnalyticsBarItem[];
   emptyLabel: string;
   ariaLabel: string;
+  layout?: AdminAnalyticsDonutLayout;
 };
 
 function buildConicGradient(
@@ -36,9 +40,11 @@ export function AdminAnalyticsDonutChart({
   items,
   emptyLabel,
   ariaLabel,
+  layout = "inline",
 }: AdminAnalyticsDonutChartProps) {
   const positiveItems = items.filter((item) => item.value > 0);
   const total = positiveItems.reduce((sum, item) => sum + item.value, 0);
+  const isStacked = layout === "stacked";
 
   if (positiveItems.length === 0 || total <= 0) {
     return <p className="text-sm text-sage-500">{emptyLabel}</p>;
@@ -47,20 +53,41 @@ export function AdminAnalyticsDonutChart({
   const gradient = buildConicGradient(positiveItems, total);
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+    <div
+      className={cn(
+        "flex w-full",
+        isStacked ? "flex-col items-center gap-5" : "flex-col items-center gap-4 sm:flex-row sm:items-center",
+      )}
+    >
       <div
-        className="relative size-40 shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto"
+        className={cn(
+          "relative shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto",
+          isStacked ? "size-48 sm:size-52 lg:size-56" : "size-40",
+        )}
         style={{ background: gradient }}
         role="img"
         aria-label={ariaLabel}
       >
         <div className="absolute inset-[22%] flex aspect-square items-center justify-center rounded-full border border-white/70 bg-white/90 text-center shadow-sm">
-          <span className="px-2 text-xs font-semibold tabular-nums text-sage-800">
-            {positiveItems.length}
+          <span
+            className={cn(
+              "px-2 font-semibold tabular-nums text-sage-800",
+              isStacked ? "text-2xl" : "text-xs",
+            )}
+          >
+            {total}
           </span>
         </div>
       </div>
-      <ul className="w-full min-w-0 flex-1 space-y-2 sm:w-auto" aria-hidden>
+      <ul
+        className={cn(
+          "w-full min-w-0",
+          isStacked
+            ? "grid grid-cols-2 gap-x-4 gap-y-2.5"
+            : "flex-1 space-y-2 sm:w-auto",
+        )}
+        aria-hidden
+      >
         {positiveItems.map((item, index) => {
           const pct = Math.round((item.value / total) * 100);
           const display = item.displayValue ?? String(item.value);
