@@ -68,6 +68,10 @@ import {
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
 import {
+  AdminScheduleDateStrip,
+  sortScheduleRowsFromTodayForward,
+} from "@/components/admin/admin-schedule-date-strip";
+import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
@@ -442,7 +446,7 @@ export function AdminScheduleManagement({
     () => initialFilterState.quickFilters,
   );
   const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
-  const [selectedDay, setSelectedDay] = useState(() => isoDate(new Date()));
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -1000,7 +1004,7 @@ export function AdminScheduleManagement({
         view={view}
         rows={displayRows}
         selectedDay={selectedDay}
-        onSelectDay={setSelectedDay}
+        onSelectDay={(day) => setSelectedDay((current) => (current === day ? null : day))}
         onDetails={setDetails}
         busyId={busyId}
         onCancel={(row) => {
@@ -1179,23 +1183,11 @@ function SummaryGrid({ summary }: { summary: Record<"total" | "active" | "upcomi
   );
 }
 
-function groupRowsByDay(rows: readonly AdminScheduleSession[]): Map<string, AdminScheduleSession[]> {
-  const map = new Map<string, AdminScheduleSession[]>();
-  for (const row of rows) {
-    const key = row.startsAt.slice(0, 10);
-    map.set(key, [...(map.get(key) ?? []), row]);
-  }
-  for (const [key, value] of map) {
-    map.set(key, value.sort((a, b) => a.startsAt.localeCompare(b.startsAt)));
-  }
-  return map;
-}
-
 function ScheduleViews(props: {
   locale: string;
   view: ScheduleView;
   rows: AdminScheduleSession[];
-  selectedDay: string;
+  selectedDay: string | null;
   busyId: string | null;
   onSelectDay: (day: string) => void;
   onDetails: (row: AdminScheduleSession) => void;
@@ -1207,7 +1199,12 @@ function ScheduleViews(props: {
   if (props.view === "weekly") return <ScheduleWeekPanel {...props} />;
   return (
     <div className="space-y-3">
-      <CalendarSummaryCard locale={props.locale} rows={props.rows} selectedDay={props.selectedDay} onSelectDay={props.onSelectDay} />
+      <AdminScheduleDateStrip
+        locale={props.locale}
+        rows={props.rows}
+        selectedDay={props.selectedDay}
+        onSelectDay={props.onSelectDay}
+      />
       <SessionTable {...props} rows={props.rows} />
     </div>
   );
@@ -1215,7 +1212,11 @@ function ScheduleViews(props: {
 
 function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
   const t = useTranslations("adminPages.classes");
-  const rows = [...props.rows].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const rows = sortScheduleRowsFromTodayForward(
+    props.selectedDay === null
+      ? props.rows
+      : props.rows.filter((row) => row.startsAt.slice(0, 10) === props.selectedDay),
+  );
   if (rows.length === 0) {
     return (
       <div className={adminChrome.panel}>
@@ -1248,60 +1249,6 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
         />
       ))}
     </div>
-  );
-}
-
-function CalendarSummaryCard({ locale, rows, selectedDay, onSelectDay }: { locale: string; rows: readonly AdminScheduleSession[]; selectedDay: string; onSelectDay: (day: string) => void }) {
-  const grouped = groupRowsByDay(rows);
-  const days = Array.from(grouped.keys()).sort().slice(0, 14);
-  if (days.length === 0) return null;
-  return (
-    <div className="rounded-[28px] border border-white/70 bg-white/55 p-4 shadow-[0_18px_44px_-30px_rgba(45,40,35,0.3)] backdrop-blur-md">
-      <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
-        {days.map((day) => (
-          <DayCard key={day} locale={locale} day={day} rows={grouped.get(day) ?? []} selected={day === selectedDay} onSelect={onSelectDay} compact />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function DayCard({ locale, day, rows, selected, onSelect, compact = false }: { locale: string; day: string; rows: readonly AdminScheduleSession[]; selected: boolean; onSelect: (day: string) => void; compact?: boolean }) {
-  const date = new Date(`${day}T00:00:00`);
-  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
-  const isToday = day === isoDate(new Date());
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(day)}
-      className={`min-h-28 rounded-2xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${
-        isToday
-          ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)]"
-          : selected
-            ? "border-sage-700/20 bg-sage-50/90 text-sage-900 shadow-[0_14px_28px_-24px_rgba(45,40,35,0.35)]"
-            : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white"
-      }`}
-    >
-      <span className="flex items-start justify-between gap-2">
-        <span>
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] opacity-75">{weekday}</span>
-          <span className="mt-1 block text-lg font-semibold tabular-nums">{date.getDate()}</span>
-        </span>
-        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${isToday ? "bg-white/20" : selected ? "bg-sage-800/10 text-sage-900" : "bg-sand-50 text-sage-700"}`}>
-          {rows.length}
-        </span>
-      </span>
-      {compact ? null : (
-        <span className="mt-3 block space-y-1">
-          {rows.slice(0, 3).map((row) => (
-            <span key={row.id} className={`block truncate rounded-lg px-2 py-1 text-[11px] ${isToday ? "bg-white/15" : "bg-sage-50/80 text-sage-700"}`}>
-              {timeValue(row.startsAt)} · {row.title}
-            </span>
-          ))}
-          {rows.length > 3 ? <span className="block text-[11px] opacity-70">+{rows.length - 3}</span> : null}
-        </span>
-      )}
-    </button>
   );
 }
 

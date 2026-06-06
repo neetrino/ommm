@@ -1,0 +1,35 @@
+.viewport {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-auto-flow: column;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  touch-action: pan-x;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.dayNumber {
+  font-size: clamp(2.5rem, 52cqi, 4.5rem);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
