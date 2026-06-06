@@ -11,7 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminGiftCardDetailsModal } from "@/components/admin/admin-gift-card-details-modal";
+import { AdminGiftCardDetailsSheet } from "@/components/admin/admin-gift-card-details-sheet";
 import { AdminGiftCardsDirectory } from "@/components/admin/admin-gift-cards-directory";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
@@ -259,7 +259,7 @@ export function AdminGiftCardsManagement({
         />
       ) : null}
 
-      <AdminGiftCardDetailsModal
+      <AdminGiftCardDetailsSheet
         card={selectedGiftCard}
         locale={locale}
         assignableUsers={assignableUsers}

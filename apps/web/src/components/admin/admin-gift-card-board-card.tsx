@@ -18,7 +18,6 @@ type AdminGiftCardBoardCardProps = {
   busyBatchId: string | null;
   onOpenActions: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
-  onDelete: (batchId: string) => void;
   onChanged?: () => void;
 };
 
@@ -28,7 +27,6 @@ export function AdminGiftCardBoardCard({
   busyBatchId,
   onOpenActions,
   onEdit,
-  onDelete,
   onChanged,
 }: AdminGiftCardBoardCardProps) {
   const t = useTranslations("adminPages.giftCards");
@@ -84,7 +82,6 @@ export function AdminGiftCardBoardCard({
           card={card}
           busyBatchId={busyBatchId}
           onEdit={onEdit}
-          onDelete={onDelete}
           onOpenActions={onOpenActions}
           showOpenActionsLink={false}
           onChanged={onChanged}

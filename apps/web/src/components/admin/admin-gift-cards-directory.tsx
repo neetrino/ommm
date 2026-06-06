@@ -39,7 +39,6 @@ function AdminGiftCardsListView({
   busyBatchId,
   onOpenActions,
   onEdit,
-  onDelete,
   onChanged,
 }: AdminGiftCardsDirectoryProps) {
   const t = useTranslations("adminPages.giftCards");
@@ -74,7 +73,6 @@ function AdminGiftCardsListView({
           busyBatchId={busyBatchId}
           onOpenActions={onOpenActions}
           onEdit={onEdit}
-          onDelete={onDelete}
           onChanged={onChanged}
         />
       ))}

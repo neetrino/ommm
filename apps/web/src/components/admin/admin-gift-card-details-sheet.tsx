@@ -18,11 +18,20 @@ import type {
   AdminAssignableUser,
   AdminGiftCardBatchRow,
 } from "@/components/admin/admin-gift-cards-types";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_LEDE_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
-type AdminGiftCardDetailsModalProps = {
+type AdminGiftCardDetailsSheetProps = {
   card: AdminGiftCardBatchRow | null;
   locale: string;
   assignableUsers: readonly AdminAssignableUser[];
@@ -30,41 +39,40 @@ type AdminGiftCardDetailsModalProps = {
   onChanged: () => void;
 };
 
-const MODAL_PANEL_CLASS =
-  "mt-auto flex max-h-[min(92vh,840px)] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
-
-export function AdminGiftCardDetailsModal({
+export function AdminGiftCardDetailsSheet({
   card,
   locale,
   assignableUsers,
   onClose,
   onChanged,
-}: AdminGiftCardDetailsModalProps) {
+}: AdminGiftCardDetailsSheetProps) {
   const t = useTranslations("adminPages.giftCards");
   const titleId = useId();
   const descId = useId();
-  const isOpen = card !== null;
+
+  if (card === null) {
+    return null;
+  }
 
   return (
-    <OmmModalPortal
-      isOpen={isOpen}
+    <OmmDrawerPortal
+      isOpen
       onClose={onClose}
       backdropAriaLabel={t("modalBackdropClose")}
-      overlayClassName="ommm-modal-overlay z-[80] items-center p-4 sm:p-6"
-      panelClassName={MODAL_PANEL_CLASS}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
     >
-      {card === null ? null : (
-        <GiftCardDetailsContent
-          card={card}
-          locale={locale}
-          assignableUsers={assignableUsers}
-          titleId={titleId}
-          descId={descId}
-          onClose={onClose}
-          onChanged={onChanged}
-        />
-      )}
-    </OmmModalPortal>
+      <GiftCardDetailsContent
+        card={card}
+        locale={locale}
+        assignableUsers={assignableUsers}
+        titleId={titleId}
+        descId={descId}
+        onClose={onClose}
+        onChanged={onChanged}
+      />
+    </OmmDrawerPortal>
   );
 }
 
@@ -95,27 +103,31 @@ function GiftCardDetailsContent({
 
   return (
     <>
-      <div className="flex items-start justify-between gap-4 border-b border-white/60 bg-white/55 px-5 py-4 sm:px-7 sm:py-5">
-        <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wide text-sage-500">{t("detailsModalEyebrow")}</p>
-          <h2 id={titleId} className="mt-1 font-serif text-xl font-semibold text-sage-900 sm:text-2xl">
-            {amountLabel}
-          </h2>
-          <p id={descId} className="ommm-body-muted mt-1 text-sm">
-            {t("detailsModalLead", { available: giftCardQuantityLabel(card) })}
-          </p>
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs uppercase tracking-wide text-sage-500">
+              {t("detailsModalEyebrow")}
+            </p>
+            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+              {amountLabel}
+            </h2>
+            <p id={descId} className={ADMIN_DETAILS_SHEET_LEDE_CLASS}>
+              {t("detailsModalLead", { available: giftCardQuantityLabel(card) })}
+            </p>
+          </div>
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("modalCloseAria")}
+            onClick={onClose}
+          >
+            <CloseGlyph />
+          </button>
         </div>
-        <button
-          type="button"
-          className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-          aria-label={t("modalCloseAria")}
-          onClick={onClose}
-        >
-          <CloseGlyph />
-        </button>
-      </div>
+      </header>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} space-y-4`}>
         <section className="overflow-hidden rounded-[24px] border border-white/60 bg-white/75 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)]">
           <div className="flex w-full items-center justify-center bg-sage-100 p-4">
             {resolvedImage ? (
@@ -123,7 +135,7 @@ function GiftCardDetailsContent({
               <img
                 src={resolvedImage}
                 alt={t("cardImageAlt")}
-                className="h-auto max-h-[min(55vh,420px)] w-full object-contain"
+                className="h-auto max-h-[min(40vh,320px)] w-full object-contain"
               />
             ) : (
               <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 sm:h-48">

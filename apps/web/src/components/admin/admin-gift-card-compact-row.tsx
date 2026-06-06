@@ -26,7 +26,6 @@ type AdminGiftCardCompactRowProps = {
   busyBatchId: string | null;
   onOpenActions: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
-  onDelete: (batchId: string) => void;
   onChanged?: () => void;
 };
 
@@ -36,7 +35,6 @@ export function AdminGiftCardCompactRow({
   busyBatchId,
   onOpenActions,
   onEdit,
-  onDelete,
   onChanged,
 }: AdminGiftCardCompactRowProps) {
   const t = useTranslations("adminPages.giftCards");
@@ -108,7 +106,6 @@ export function AdminGiftCardCompactRow({
           card={card}
           busyBatchId={busyBatchId}
           onEdit={onEdit}
-          onDelete={onDelete}
           onOpenActions={onOpenActions}
           showOpenActionsLink={false}
           onChanged={onChanged}

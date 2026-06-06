@@ -8,7 +8,6 @@ import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-
 import {
   ADMIN_ACTION_ICON_CLASS,
   PencilGlyph,
-  TrashGlyph,
 } from "@/components/ui/admin-action-glyphs";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
@@ -24,15 +23,11 @@ const BOARD_TOGGLE_BUTTON_CLASS =
 const BOARD_TEXT_ACTION_CLASS =
   "inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-sm font-medium text-sage-700 transition-colors hover:bg-sand-100/90 active:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
 
-const BOARD_DELETE_ACTION_CLASS =
-  "inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50/90 active:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40";
-
 type AdminGiftCardRowActionsProps = {
   variant?: "list" | "board";
   card: AdminGiftCardBatchRow;
   busyBatchId: string | null;
   onEdit: (batchId: string) => void;
-  onDelete: (batchId: string) => void;
   onOpenActions: (card: AdminGiftCardBatchRow) => void;
   onChanged?: () => void;
   showOpenActionsLink?: boolean;
@@ -47,7 +42,6 @@ export function AdminGiftCardRowActions({
   card,
   busyBatchId,
   onEdit,
-  onDelete,
   onOpenActions,
   onChanged,
   showOpenActionsLink = true,
@@ -125,18 +119,6 @@ export function AdminGiftCardRowActions({
           <PencilGlyph className="h-4 w-4 shrink-0" />
           {t("boardEditButton")}
         </button>
-        <button
-          type="button"
-          className={BOARD_DELETE_ACTION_CLASS}
-          disabled={disabled}
-          onClick={(event) => {
-            event.stopPropagation();
-            onDelete(card.id);
-          }}
-        >
-          <TrashGlyph className="h-4 w-4 shrink-0" />
-          {t("actions.delete")}
-        </button>
       </div>
     );
   }
@@ -189,18 +171,6 @@ export function AdminGiftCardRowActions({
         <PencilGlyph className={ADMIN_ACTION_ICON_CLASS} />
       </AdminRowIconButton>
       {listToggleControl}
-      <AdminRowIconButton
-        ariaLabel={t("actions.delete")}
-        title={t("actions.delete")}
-        variant="danger"
-        disabled={disabled}
-        onClick={(event) => {
-          event.stopPropagation();
-          onDelete(card.id);
-        }}
-      >
-        <TrashGlyph className={ADMIN_ACTION_ICON_CLASS} />
-      </AdminRowIconButton>
     </div>
   );
 }
