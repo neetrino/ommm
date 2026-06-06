@@ -2926,7 +2926,8 @@
       "colCoach": "Тренер",
       "colBooked": "Записано",
       "loadClassTypesFailed": "Не удалось загрузить типы классов ({status}).",
-      "loadSessionsFailed": "Не удалось загрузить сессии ({status})."
+      "loadSessionsFailed": "Не удалось загрузить сессии ({status}).",
+      "sessionsEmpty": "В выбранном окне сессий нет."
     }
   },
   "coachPages": {

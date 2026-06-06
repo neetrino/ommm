@@ -2980,7 +2980,8 @@
       "colCoach": "Coach",
       "colBooked": "Booked",
       "loadClassTypesFailed": "Could not load class types ({status}).",
-      "loadSessionsFailed": "Could not load sessions ({status})."
+      "loadSessionsFailed": "Could not load sessions ({status}).",
+      "sessionsEmpty": "No sessions in this window."
     }
   },
   "coachPages": {

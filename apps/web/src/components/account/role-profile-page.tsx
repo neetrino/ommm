@@ -5,7 +5,6 @@ import { AccountChangePasswordForm } from "@/components/account/account-change-p
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
 import { DeleteAccountButton } from "@/components/account/delete-account-button";
 import {
-  AccountPageFrame,
   AccountSection,
 } from "@/components/layout/account-page-frame";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
@@ -103,14 +102,8 @@ export async function RoleProfilePage({
       <AdminContentFrame description={t("description")}>{body}</AdminContentFrame>
     );
   }
-  if (shellChrome === "member") {
-    return (
-      <MemberContentFrame description={t("description")}>{body}</MemberContentFrame>
-    );
-  }
+
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      {body}
-    </AccountPageFrame>
+    <MemberContentFrame description={t("description")}>{body}</MemberContentFrame>
   );
 }

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import {
+  coachName,
   durationMinutes,
   spotsLeft,
   splitSessionLevels,
@@ -12,24 +13,35 @@ import {
 } from "@/components/admin/admin-schedule-session-list-badges";
 import { ScheduleSessionDateTimeCell } from "@/components/shared/schedule/schedule-session-datetime-cell";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
-import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
+import {
+  getScheduleSessionsListLayout,
+  type ScheduleSessionsListPreset,
+} from "@/components/shared/schedule/schedule-sessions-list-layout";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
+
+type StaffSchedulePreset = Extract<
+  ScheduleSessionsListPreset,
+  "staffReadOnly" | "staffWithCoach"
+>;
 
 type StaffScheduleSessionRowProps = {
   locale: string;
   row: ScheduleSessionListRow;
+  preset?: StaffSchedulePreset;
 };
 
 /** Read-only schedule session row — coach/manager staff views. */
 export async function StaffScheduleSessionRow({
   locale,
   row,
+  preset = "staffReadOnly",
 }: StaffScheduleSessionRowProps) {
   const t = await getTranslations({ locale, namespace: "adminPages.classes" });
-  const layout = getScheduleSessionsListLayout("staffReadOnly");
+  const layout = getScheduleSessionsListLayout(preset);
   const classFormat = row.classFormat?.trim();
   const levels = splitSessionLevels(row.level);
   const duration = durationMinutes(row);
+  const showCoach = preset === "staffWithCoach";
 
   return (
     <article className={layout.rowClass}>
@@ -54,6 +66,18 @@ export async function StaffScheduleSessionRow({
         />
       </div>
 
+      {showCoach ? (
+        <div className={layout.coachCellClass}>
+          <AdminListMobileLabel label={t("colCoach")} />
+          <p
+            className="truncate text-sm text-sage-800"
+            title={row.coach ? coachName(row.coach) : undefined}
+          >
+            {row.coach ? coachName(row.coach) : t("fallback.notSpecified")}
+          </p>
+        </div>
+      ) : null}
+
       <div className={layout.capacityCellClass}>
         <AdminListMobileLabel label={t("colCapacity")} />
         <p className="text-sm font-medium text-sage-800">
@@ -64,13 +88,15 @@ export async function StaffScheduleSessionRow({
         </p>
       </div>
 
-      <div className={layout.tagsCellClass}>
-        <AdminListMobileLabel label={t("colTags")} />
-        <ScheduleSessionLevelLabels
-          levels={levels}
-          emptyLabel={t("fallback.notSpecified")}
-        />
-      </div>
+      {showCoach ? null : (
+        <div className={layout.tagsCellClass}>
+          <AdminListMobileLabel label={t("colTags")} />
+          <ScheduleSessionLevelLabels
+            levels={levels}
+            emptyLabel={t("fallback.notSpecified")}
+          />
+        </div>
+      )}
 
       <div className={layout.statusCellClass}>
         <AdminListMobileLabel label={t("colStatus")} />

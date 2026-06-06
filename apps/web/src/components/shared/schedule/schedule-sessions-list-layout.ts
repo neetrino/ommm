@@ -12,13 +12,15 @@ import {
   USER_LIST_TABLE_ROW_PAD,
 } from "@/components/admin/admin-list-table-layout";
 
-export type ScheduleSessionsListPreset = "admin" | "staffReadOnly";
+export type ScheduleSessionsListPreset = "admin" | "staffReadOnly" | "staffWithCoach";
 
 const PRESET_GRID_CLASS: Record<ScheduleSessionsListPreset, string> = {
   admin:
     "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8rem,auto)_minmax(7rem,auto)_minmax(8.5rem,auto)_1fr_auto]",
   staffReadOnly:
     "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(7rem,auto)_minmax(8.5rem,auto)_minmax(6.5rem,auto)]",
+  staffWithCoach:
+    "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8rem,auto)_minmax(7rem,auto)_minmax(6.5rem,auto)]",
 };
 
 const READ_ONLY_ROW_CLASS = [

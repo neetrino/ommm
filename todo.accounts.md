@@ -59,10 +59,10 @@ Coach / Manager / Content-admin — **часть одной экосистемы
 | Фаза | Account | Статус |
 |------|---------|--------|
 | **1** | **COACH** | ✅ done |
-| **2** | **MANAGER** | ✅ done (shell, frames, i18n, tables) |
+| **2** | **MANAGER** | ✅ done |
 | **3** | **CONTENT_ADMIN** | ✅ done |
-| 4 | USER (дочистка) | только если остались расхождения |
-| 5 | Global cleanup | удаление мёртвого кода |
+| **4** | **USER (дочистка)** | ✅ done |
+| 5 | Global cleanup | следующий |
 
 ---
 
@@ -165,9 +165,9 @@ Subtitle для каждого route уже в `dashboard-subtitle-path.ts` + `d
 
 Member уже на `MemberContentFrame` + `variant="member"`. Проверить:
 
-- [ ] Все `/user/*` без локального h1
-- [ ] Lists/boards используют общие list tokens
-- [ ] Нет `AccountPageFrame` на user routes (profile/notifications → `MemberContentFrame`)
+- [x] Все `/user/*` без локального h1
+- [x] Lists/boards используют общие list tokens
+- [x] Нет `AccountPageFrame` на user routes (profile → `MemberContentFrame` via `shellChrome="member"`)
 
 ---
 

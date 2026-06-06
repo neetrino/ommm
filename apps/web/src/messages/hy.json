@@ -2938,7 +2938,8 @@
       "colCoach": "Մարզիչ",
       "colBooked": "Ամրագրված",
       "loadClassTypesFailed": "Չհաջողվեց բեռնել դասերի տեսակները ({status})։",
-      "loadSessionsFailed": "Չհաջողվեց բեռնել սեսիաները ({status})։"
+      "loadSessionsFailed": "Չհաջողվեց բեռնել սեսիաները ({status})։",
+      "sessionsEmpty": "Միջակայքում սեսիաներ չկան։"
     }
   },
   "coachPages": {
