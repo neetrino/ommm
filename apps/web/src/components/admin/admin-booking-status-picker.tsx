@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { ADMIN_BOOKINGS_LIST_STATUS_BADGE_CLASS } from "@/components/admin/admin-bookings-list-layout";
+import {
+  ADMIN_BOOKING_STATUS_PICKER_CLASS,
+  ADMIN_BOOKING_STATUS_STATIC_CLASS,
+  bookingStatusTone,
+} from "@/components/admin/admin-booking-list-badges";
 
 const MENU_MIN_WIDTH = 152;
 const MENU_GAP = 4;
@@ -108,7 +112,9 @@ export function AdminBookingStatusPicker({
 
   if (!isInteractive) {
     return (
-      <span className={`${statusBadgeClass(status)} pointer-events-none`}>
+      <span
+        className={`${ADMIN_BOOKING_STATUS_STATIC_CLASS} ${bookingStatusTone(status)} pointer-events-none`}
+      >
         {label}
       </span>
     );
@@ -161,7 +167,7 @@ export function AdminBookingStatusPicker({
       <button
         ref={triggerRef}
         type="button"
-        className={`${statusBadgeClass(status)} cursor-pointer gap-0.5 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${ADMIN_BOOKING_STATUS_PICKER_CLASS} ${bookingStatusTone(status)} disabled:cursor-not-allowed disabled:opacity-50`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
@@ -175,7 +181,7 @@ export function AdminBookingStatusPicker({
       >
         <span className="truncate">{label}</span>
         <ChevronDownGlyph
-          className={`h-3 w-3 shrink-0 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-2.5 w-2.5 shrink-0 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {menu}
@@ -195,15 +201,6 @@ function ChevronDownGlyph({ className }: { className: string }) {
       <path d="M6 9l6 6 6-6H6z" />
     </svg>
   );
-}
-
-function statusBadgeClass(status: AdminBookingStatus): string {
-  const base = `${ADMIN_BOOKINGS_LIST_STATUS_BADGE_CLASS} gap-1`;
-  if (status === "BOOKED") return `${base} border-mint-200 bg-mint-100 text-mint-900`;
-  if (status === "COMPLETED") return `${base} border-sky-200 bg-sky-100 text-sky-900`;
-  if (status === "CANCELLED") return `${base} border-sage-200 bg-sage-100 text-sage-700`;
-  if (status === "WAITLISTED") return `${base} border-zinc-200 bg-zinc-100 text-zinc-800`;
-  return `${base} border-amber-200 bg-amber-100 text-amber-900`;
 }
 
 function statusLabel(

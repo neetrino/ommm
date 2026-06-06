@@ -3,6 +3,11 @@
 import { useTranslations } from "next-intl";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
+import {
+  ADMIN_BOOKING_VALUE_BADGE_CLASS,
+  attendanceValueBadgeTone,
+  paymentValueBadgeTone,
+} from "@/components/admin/admin-booking-list-badges";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import {
@@ -11,9 +16,9 @@ import {
   ADMIN_BOOKINGS_LIST_CELL,
   ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
+  ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
   ADMIN_BOOKINGS_LIST_SPACER_CELL,
   ADMIN_BOOKINGS_LIST_STATUS_CELL,
-  ADMIN_BOOKINGS_LIST_VALUE_BADGE_CLASS,
 } from "@/components/admin/admin-bookings-list-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 
@@ -126,7 +131,7 @@ export function AdminBookingCompactRow({
         <MobileLabel label={t("colPaymentStatus")} />
         <BookingValueBadge
           label={paymentLabel(t, row.paymentStatus)}
-          className={paymentBadgeClass(row.paymentStatus)}
+          className={paymentValueBadgeTone(row.paymentStatus)}
         />
       </div>
 
@@ -134,12 +139,14 @@ export function AdminBookingCompactRow({
         <MobileLabel label={t("colAttendanceStatus")} />
         <BookingValueBadge
           label={attendanceLabel(t, row.attendanceStatus)}
-          className={attendanceBadgeClass(row.attendanceStatus)}
+          className={attendanceValueBadgeTone(row.attendanceStatus)}
         />
       </div>
 
+      <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
+
       <div
-        className={ADMIN_BOOKINGS_LIST_STATUS_CELL}
+        className={ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
@@ -151,8 +158,6 @@ export function AdminBookingCompactRow({
           onChangeStatus={onChangeStatus}
         />
       </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
         className={`${ADMIN_BOOKINGS_LIST_ACTIONS_CELL} ${ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
@@ -183,24 +188,10 @@ function MobileLabel({ label }: { label: string }) {
 
 function BookingValueBadge({ label, className }: { label: string; className: string }) {
   return (
-    <span className={`${ADMIN_BOOKINGS_LIST_VALUE_BADGE_CLASS} ${className}`}>
+    <span className={`${ADMIN_BOOKING_VALUE_BADGE_CLASS} ${className}`}>
       {label}
     </span>
   );
-}
-
-function paymentBadgeClass(value: BookingRow["paymentStatus"]): string {
-  if (value === "PAID") return "border-mint-200 bg-mint-100 text-mint-900";
-  if (value === "CASH") return "border-sand-300 bg-sand-100 text-sand-800";
-  if (value === "REFUNDED") return "border-slate-200 bg-slate-100 text-slate-700";
-  return "border-amber-200 bg-amber-100 text-amber-900";
-}
-
-function attendanceBadgeClass(value: BookingRow["attendanceStatus"]): string {
-  if (value === "ATTENDED") return "border-mint-200 bg-mint-100 text-mint-900";
-  if (value === "NO_SHOW") return "border-red-200 bg-red-100 text-red-800";
-  if (value === "LATE_CANCEL") return "border-sand-300 bg-sand-100 text-sand-800";
-  return "border-zinc-200 bg-zinc-100 text-zinc-700";
 }
 
 function paymentLabel(
