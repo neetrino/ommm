@@ -3072,6 +3072,18 @@
         "en": "Английский",
         "slugHint": "Оставьте пустым — slug сгенерируется из английского."
       },
+      "coverImage": {
+        "label": "Обложка",
+        "choose": "Выбрать изображение",
+        "remove": "Удалить",
+        "hint": "JPG, PNG или WEBP до 5 МБ.",
+        "previewAlt": "Превью обложки",
+        "fallback": "Обложка",
+        "uploading": "Загрузка…",
+        "uploadFailed": "Не удалось загрузить",
+        "invalidType": "Допустимы только JPG, PNG или WEBP.",
+        "tooLarge": "Размер файла не более 5 МБ."
+      },
       "feedback": {
         "actionFailed": "Действие не выполнено",
         "postCreated": "Пост создан",

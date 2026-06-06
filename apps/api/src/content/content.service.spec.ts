@@ -25,11 +25,20 @@ describe('ContentService', () => {
       invalidate: jest.fn().mockResolvedValue(undefined),
       invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
     };
+    const config = {
+      get: jest.fn().mockReturnValue(undefined),
+    };
+    const r2Storage = {
+      isConfigured: jest.fn().mockReturnValue(false),
+      putObject: jest.fn(),
+    };
     return {
       service: new ContentService(
         prisma as never,
         audit as never,
         cache as never,
+        config as never,
+        r2Storage as never,
       ),
       prisma,
       audit,

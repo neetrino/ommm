@@ -7,14 +7,19 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Express } from 'express';
 import { ContentType, Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { ContentService } from './content.service';
+import { CONTENT_COVER_IMAGE_MAX_BYTES } from './content-cover-image.constants';
 import { ReviewPostDto } from './dto/review-post.dto';
 import { UpsertPostDto } from './dto/upsert-post.dto';
 
@@ -82,6 +87,21 @@ export class ContentController {
     @Body() dto: ReviewPostDto,
   ) {
     return this.content.review(id, dto, user);
+  }
+
+  @Post('admin/cover-image')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.CONTENT_ADMIN)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: { fileSize: CONTENT_COVER_IMAGE_MAX_BYTES },
+    }),
+  )
+  uploadCoverImage(
+    @CurrentUser() user: { id: string },
+    @UploadedFile() image: Express.Multer.File | undefined,
+  ) {
+    return this.content.uploadCoverImage(user.id, image);
   }
 
   @Delete('admin/posts/:id')

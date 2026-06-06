@@ -3126,6 +3126,18 @@
         "en": "English",
         "slugHint": "Leave empty to auto-generate from the English slug."
       },
+      "coverImage": {
+        "label": "Cover image",
+        "choose": "Choose image",
+        "remove": "Remove",
+        "hint": "JPG, PNG or WEBP up to 5 MB.",
+        "previewAlt": "Cover preview",
+        "fallback": "Cover",
+        "uploading": "Uploading…",
+        "uploadFailed": "Upload failed",
+        "invalidType": "Only JPG, PNG or WEBP images are allowed.",
+        "tooLarge": "Image must be 5 MB or smaller."
+      },
       "feedback": {
         "actionFailed": "Action failed",
         "postCreated": "Post created",

@@ -3084,6 +3084,18 @@
         "en": "English",
         "slugHint": "Դատարկ թողեք — slug-ը կստեղծվի անգլերեն slug-ից։"
       },
+      "coverImage": {
+        "label": "Շապիկ",
+        "choose": "Ընտրել նկար",
+        "remove": "Հեռացնել",
+        "hint": "JPG, PNG կամ WEBP մինչև 5 ՄԲ։",
+        "previewAlt": "Շապիկի նախադիտում",
+        "fallback": "Շապիկ",
+        "uploading": "Բեռնվում է…",
+        "uploadFailed": "Բեռնումը ձախողվեց",
+        "invalidType": "Թույլատրվում են միայն JPG, PNG կամ WEBP։",
+        "tooLarge": "Ֆայլը չպետք է գերազանցի 5 ՄԲ-ը։"
+      },
       "feedback": {
         "actionFailed": "Գործողությունը չհաջողվեց",
         "postCreated": "Գրառումը ստեղծված է",

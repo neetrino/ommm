@@ -6,6 +6,7 @@ import {
   CONTENT_POST_STATUSES,
   CONTENT_POST_TYPES,
 } from "@/components/shared/content/content-post-types";
+import { ContentPostCoverImageField } from "@/components/shared/content/content-post-cover-image-field";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 type ContentPostSharedFormFieldsProps = {
@@ -57,44 +58,39 @@ export function ContentPostSharedFormFields({
         />
       </div>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-          {t("placeholders.authorName")}
-        </span>
-        <input
-          className="ommm-input h-10"
-          value={values.authorName}
-          disabled={disabled}
-          onChange={(event) => updateSharedField("authorName", event.target.value)}
-          placeholder={t("placeholders.authorName")}
-        />
-      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+            {t("placeholders.authorName")}
+          </span>
+          <input
+            className="ommm-input h-10"
+            value={values.authorName}
+            disabled={disabled}
+            onChange={(event) => updateSharedField("authorName", event.target.value)}
+            placeholder={t("placeholders.authorName")}
+          />
+        </label>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-          {t("placeholders.tagsCsv")}
-        </span>
-        <input
-          className="ommm-input h-10"
-          value={values.tagsCsv}
-          disabled={disabled}
-          onChange={(event) => updateSharedField("tagsCsv", event.target.value)}
-          placeholder={t("placeholders.tagsCsv")}
-        />
-      </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+            {t("placeholders.tagsCsv")}
+          </span>
+          <input
+            className="ommm-input h-10"
+            value={values.tagsCsv}
+            disabled={disabled}
+            onChange={(event) => updateSharedField("tagsCsv", event.target.value)}
+            placeholder={t("placeholders.tagsCsv")}
+          />
+        </label>
+      </div>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
-          {t("placeholders.coverImageUrl")}
-        </span>
-        <input
-          className="ommm-input h-10"
-          value={values.coverImageUrl}
-          disabled={disabled}
-          onChange={(event) => updateSharedField("coverImageUrl", event.target.value)}
-          placeholder={t("placeholders.coverImageUrl")}
-        />
-      </label>
+      <ContentPostCoverImageField
+        coverImageUrl={values.coverImageUrl}
+        disabled={disabled}
+        onChange={(coverImageUrl) => updateSharedField("coverImageUrl", coverImageUrl)}
+      />
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
