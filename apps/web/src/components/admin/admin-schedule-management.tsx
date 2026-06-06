@@ -995,7 +995,6 @@ export function AdminScheduleManagement({
         selectedDay={selectedDay}
         onSelectDay={setSelectedDay}
         onDetails={setDetails}
-        onEdit={setDetails}
         busyId={busyId}
         onCancel={(row) => {
           void runRowAction(
@@ -1186,7 +1185,6 @@ function ScheduleViews(props: {
   busyId: string | null;
   onSelectDay: (day: string) => void;
   onDetails: (row: AdminScheduleSession) => void;
-  onEdit: (row: AdminScheduleSession) => void;
   onCancel: (row: AdminScheduleSession) => void;
   onActivate: (row: AdminScheduleSession) => void;
   onDelete: (row: AdminScheduleSession) => void;
@@ -1232,7 +1230,6 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
           locale={props.locale}
           busy={props.busyId === row.id}
           onDetails={props.onDetails}
-          onEdit={props.onEdit}
           onDuplicate={props.onDuplicate}
           onCancel={props.onCancel}
           onActivate={props.onActivate}
@@ -1253,7 +1250,7 @@ function SessionStatusBadge({ status }: { status: AdminScheduleSession["status"]
   );
 }
 
-function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
+function SessionAgendaCard({ row, locale, busyId, onDetails, onCancel, onActivate, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
   const t = useTranslations("adminPages.classes");
   const busy = busyId === row.id;
   return (
@@ -1278,10 +1275,8 @@ function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, o
       </div>
       <div className="mt-4 flex justify-end">
         <AdminScheduleSessionRowActions
-          variant="list"
           row={row}
           busy={busy}
-          onEdit={onEdit}
           onDuplicate={onDuplicate}
           onCancel={onCancel}
           onActivate={onActivate}
@@ -1457,7 +1452,7 @@ function DailyPanel(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
             {selectedRows.map((row) => (
-              <SessionAgendaCard key={row.id} row={row} locale={props.locale} busyId={props.busyId} onDetails={props.onDetails} onEdit={props.onEdit} onCancel={props.onCancel} onActivate={props.onActivate} onDuplicate={props.onDuplicate} />
+              <SessionAgendaCard key={row.id} row={row} locale={props.locale} busyId={props.busyId} onDetails={props.onDetails} onCancel={props.onCancel} onActivate={props.onActivate} onDuplicate={props.onDuplicate} />
             ))}
           </div>
         )}

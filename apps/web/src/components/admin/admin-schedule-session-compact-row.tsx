@@ -31,7 +31,6 @@ type AdminScheduleSessionCompactRowProps = {
   locale: string;
   busy: boolean;
   onDetails: (row: AdminScheduleSession) => void;
-  onEdit: (row: AdminScheduleSession) => void;
   onDuplicate: (row: AdminScheduleSession) => void;
   onCancel: (row: AdminScheduleSession) => void;
   onActivate: (row: AdminScheduleSession) => void;
@@ -42,7 +41,6 @@ export function AdminScheduleSessionCompactRow({
   locale,
   busy,
   onDetails,
-  onEdit,
   onDuplicate,
   onCancel,
   onActivate,
@@ -134,10 +132,8 @@ export function AdminScheduleSessionCompactRow({
       >
         <AdminListMobileLabel label={t("colActions")} />
         <AdminScheduleSessionRowActions
-          variant="list"
           row={row}
           busy={busy}
-          onEdit={onEdit}
           onDuplicate={onDuplicate}
           onCancel={onCancel}
           onActivate={onActivate}
