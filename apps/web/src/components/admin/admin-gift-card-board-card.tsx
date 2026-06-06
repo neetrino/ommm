@@ -15,8 +15,7 @@ import { formatAmdFromCents } from "@/lib/price-amd";
 type AdminGiftCardBoardCardProps = {
   card: AdminGiftCardBatchRow;
   locale: string;
-  busyBatchId: string | null;
-  onOpenActions: (card: AdminGiftCardBatchRow) => void;
+  onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
   onChanged?: () => void;
 };
@@ -24,8 +23,7 @@ type AdminGiftCardBoardCardProps = {
 export function AdminGiftCardBoardCard({
   card,
   locale,
-  busyBatchId,
-  onOpenActions,
+  onSelect,
   onEdit,
   onChanged,
 }: AdminGiftCardBoardCardProps) {
@@ -38,11 +36,11 @@ export function AdminGiftCardBoardCard({
       aria-label={t("openCardAria", {
         amount: formatAmdFromCents(card.amountAmd, locale),
       })}
-      onClick={() => onOpenActions(card)}
+      onClick={() => onSelect(card)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onOpenActions(card);
+          onSelect(card);
         }
       }}
       className="flex cursor-pointer flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white/90 shadow-[0_20px_44px_-22px_rgba(45,40,35,0.28)] transition-all hover:-translate-y-0.5 hover:border-sand-500/30 hover:shadow-[0_26px_52px_-22px_rgba(45,40,35,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
@@ -80,10 +78,7 @@ export function AdminGiftCardBoardCard({
         <AdminGiftCardRowActions
           variant="board"
           card={card}
-          busyBatchId={busyBatchId}
           onEdit={onEdit}
-          onOpenActions={onOpenActions}
-          showOpenActionsLink={false}
           onChanged={onChanged}
         />
       </div>

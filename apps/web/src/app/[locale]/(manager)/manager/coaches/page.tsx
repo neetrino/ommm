@@ -1,5 +1,4 @@
 import { headers } from "next/headers";
-import { AdminCoachActions } from "@/components/admin/admin-coach-actions";
 import { serverApiJson } from "@/lib/server-api";
 
 type CoachAdminRow = {
@@ -26,12 +25,11 @@ function getManagerCoachesLabels(locale: string) {
       loadFailed: "Չհաջողվեց բեռնել մարզիչներին ({status})։",
       title: "Մարզիչներ",
       description:
-        "Գործառնական ցուցակ։ Մարզիչի պրոֆիլի deactivate/delete գործողությունները մնում են միայն ադմինին՝ CRM պահանջով։",
+        "Գործառնական ցուցակ (դիտում)։ Պրոֆիլի խմբագրումն ու lifecycle գործողությունները՝ ադմին CRM-ում։",
       colName: "Անուն",
       colEmail: "Էլ. փոստ",
       colPhone: "Հեռախոս",
       colSpecialization: "Մասնագիտացում",
-      colActions: "Գործողություններ",
     };
   }
   if (locale === "ru") {
@@ -40,12 +38,11 @@ function getManagerCoachesLabels(locale: string) {
       loadFailed: "Не удалось загрузить тренеров ({status}).",
       title: "Тренеры",
       description:
-        "Операционный каталог. Деактивация/удаление профилей тренеров остаётся только у админа по CRM-матрице.",
+        "Операционный каталог (просмотр). Редактирование и deactivate/delete — в admin CRM.",
       colName: "Имя",
       colEmail: "Email",
       colPhone: "Телефон",
       colSpecialization: "Специализация",
-      colActions: "Действия",
     };
   }
   return {
@@ -53,12 +50,11 @@ function getManagerCoachesLabels(locale: string) {
     loadFailed: "Could not load coaches ({status}).",
     title: "Coaches",
     description:
-      "Directory view for operations. Deactivate/delete coach profiles stay admin-only per CRM.",
+      "Directory view (read-only). Edit and lifecycle actions are in admin CRM.",
     colName: "Name",
     colEmail: "Email",
     colPhone: "Phone",
     colSpecialization: "Specialization",
-    colActions: "Actions",
   };
 }
 
@@ -89,11 +85,10 @@ export default async function ManagerCoachesPage({
       <div className="mt-6 overflow-x-auto rounded-[24px] border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-[34rem] w-full table-fixed text-left text-sm">
           <colgroup>
-            <col className="w-[24%]" />
-            <col className="w-[26%]" />
-            <col className="w-[18%]" />
+            <col className="w-[28%]" />
+            <col className="w-[30%]" />
+            <col className="w-[22%]" />
             <col className="w-[20%]" />
-            <col className="w-[12%]" />
           </colgroup>
           <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase text-zinc-500">
             <tr>
@@ -101,7 +96,6 @@ export default async function ManagerCoachesPage({
               <th className="px-4 py-3">{labels.colEmail}</th>
               <th className="px-4 py-3 text-center">{labels.colPhone}</th>
               <th className="px-4 py-3 text-center">{labels.colSpecialization}</th>
-              <th className="px-4 py-3 text-center">{labels.colActions}</th>
             </tr>
           </thead>
           <tbody>
@@ -116,14 +110,6 @@ export default async function ManagerCoachesPage({
                 </td>
                 <td className="px-4 py-3 text-center text-zinc-600">
                   {c.specialization ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <AdminCoachActions
-                    coachId={c.id}
-                    locale={locale}
-                    initialSpecialization={c.specialization ?? ""}
-                    initialBio={c.bio ?? ""}
-                  />
                 </td>
               </tr>
             ))}

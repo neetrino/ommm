@@ -29,11 +29,8 @@ type PendingConfirm = "activate" | "deactivate";
 type AdminGiftCardRowActionsProps = {
   variant?: "list" | "board";
   card: AdminGiftCardBatchRow;
-  busyBatchId: string | null;
   onEdit: (batchId: string) => void;
-  onOpenActions: (card: AdminGiftCardBatchRow) => void;
   onChanged?: () => void;
-  showOpenActionsLink?: boolean;
 };
 
 function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): boolean {
@@ -43,11 +40,8 @@ function isGiftCardStatusToggleable(status: AdminGiftCardBatchRow["status"]): bo
 export function AdminGiftCardRowActions({
   variant = "list",
   card,
-  busyBatchId,
   onEdit,
-  onOpenActions,
   onChanged,
-  showOpenActionsLink = true,
 }: AdminGiftCardRowActionsProps) {
   const t = useTranslations("adminPages.giftCards");
   const tActions = useTranslations("adminPages.giftCards.actions");
@@ -57,7 +51,7 @@ export function AdminGiftCardRowActions({
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
   const isActive = pendingIsActive ?? card.status === "ACTIVE";
   const canToggleStatus = isGiftCardStatusToggleable(card.status);
-  const disabled = busyBatchId !== null || busy;
+  const disabled = busy;
   const toggleLabel = isActive ? t("deactivateGiftCard") : t("activateGiftCard");
 
   function openConfirm(): void {
@@ -193,28 +187,12 @@ export function AdminGiftCardRowActions({
   return (
     <>
       <div
-        className={`flex flex-wrap items-center gap-2 ${
-          showOpenActionsLink ? "justify-center" : "justify-end"
-        }`}
+        className="flex flex-wrap items-center justify-end gap-2"
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
         role="group"
         aria-label={t("colActions")}
       >
-        {showOpenActionsLink ? (
-          <button
-            type="button"
-            className="text-sm text-sage-700 underline-offset-2 hover:underline"
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpenActions(card);
-            }}
-            disabled={disabled}
-          >
-            {t("openActions")}
-          </button>
-        ) : null}
-
         <AdminRowIconButton
           ariaLabel={t("editTitle")}
           title={t("editTitle")}

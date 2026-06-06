@@ -1,5 +1,4 @@
 import { headers } from "next/headers";
-import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -19,12 +18,11 @@ function getManagerClientsLabels(locale: string) {
       authRequired: "Պահանջվում է մենեջերի կամ ադմինի մուտք։",
       loadFailed: "Չհաջողվեց բեռնել հաճախորդներին ({status})։",
       title: "Հաճախորդներ",
-      description: "Հաճախորդների ցուցակ։",
+      description: "Հաճախորդների ցուցակ (դիտում)։ Խմբագրումը՝ ադմին CRM-ում։",
       colName: "Անուն",
       colEmail: "Էլ. փոստ",
       colRole: "Դեր",
       colJoined: "Միացել է",
-      colActions: "Գործողություններ",
     };
   }
   if (locale === "ru") {
@@ -32,24 +30,22 @@ function getManagerClientsLabels(locale: string) {
       authRequired: "Нужен вход менеджера или админа.",
       loadFailed: "Не удалось загрузить клиентов ({status}).",
       title: "Клиенты",
-      description: "Каталог клиентов.",
+      description: "Каталог клиентов (просмотр). Редактирование — в admin CRM.",
       colName: "Имя",
       colEmail: "Email",
       colRole: "Роль",
       colJoined: "Дата регистрации",
-      colActions: "Действия",
     };
   }
   return {
     authRequired: "Manager or admin sign-in required.",
     loadFailed: "Could not load clients ({status}).",
     title: "Clients",
-    description: "Client directory.",
+    description: "Client directory (read-only). Edit in admin CRM.",
     colName: "Name",
     colEmail: "Email",
     colRole: "Role",
     colJoined: "Joined",
-    colActions: "Actions",
   };
 }
 
@@ -85,7 +81,6 @@ export default async function ManagerClientsPage({
               <th className="px-4 py-3">{labels.colEmail}</th>
               <th className="px-4 py-3">{labels.colRole}</th>
               <th className="px-4 py-3">{labels.colJoined}</th>
-              <th className="px-4 py-3">{labels.colActions}</th>
             </tr>
           </thead>
           <tbody>
@@ -98,15 +93,6 @@ export default async function ManagerClientsPage({
                 <td className="px-4 py-3 text-zinc-600">{c.role}</td>
                 <td className="px-4 py-3 text-zinc-500">
                   {formatDateForUi(c.createdAt)}
-                </td>
-                <td className="px-4 py-3">
-                  <AdminClientActions
-                    clientId={c.id}
-                    initialEmail={c.email}
-                    initialName={c.name ?? ""}
-                    initialLastName={c.lastName ?? ""}
-                    initialPhone={c.phone ?? ""}
-                  />
                 </td>
               </tr>
             ))}

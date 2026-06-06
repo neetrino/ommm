@@ -222,7 +222,8 @@ apps/web/src/components/admin/
 | **Clients** | ✓ реализовано — 5 tabs, gifts/notes отдельно |
 | **Bookings** | Уже narrow read + actions; edit полей по необходимости |
 | **Create flows** | Center modal / dedicated page, не detail sheet |
-| **Manager zone** | Пока legacy `?editCoach=` — унифицировать после admin |
+| **Gift cards** | ✓ detail sheet + tabs; create/edit batch — center modal |
+| **Manager zone** | Read-only каталоги; edit/lifecycle только в admin CRM |
 
 ---
 
@@ -230,11 +231,9 @@ apps/web/src/components/admin/
 
 1. ~~Coach (A2)~~ ✓ admin
 2. ~~Clients (A1)~~ ✓ admin
-3. Gift cards (A4)
-3. Class types (B2)
-4. Clients (A1) — свой tab layout
+3. ~~Gift cards (A4)~~ ✓ admin
+4. Class types (B2)
 5. Schedule sessions (A3)
-6. Manager coaches → тот же drawer canon
 
 ---
 

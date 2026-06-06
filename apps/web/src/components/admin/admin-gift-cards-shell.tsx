@@ -21,11 +21,14 @@ import {
   ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
   type AdminGiftCardsViewMode,
 } from "@/lib/admin-gift-cards-view-preference";
+import {
+  GIFT_CARD_BATCH_ID_QUERY_KEY,
+  GIFT_CARD_CREATE_MODAL_VALUE,
+  GIFT_CARD_EDIT_MODAL_VALUE,
+  GIFT_CARD_MODAL_QUERY_KEY,
+} from "@/components/admin/admin-gift-cards-url";
 
 const BANNER_MS = 8000;
-const MODAL_QUERY_KEY = "modal";
-const MODAL_QUERY_VALUE = "create-gift-card";
-const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
 type AdminGiftCardsShellFilterProps = {
   values: GiftCardFilterValues;
@@ -81,10 +84,10 @@ function AdminGiftCardsShellInner({
   const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const modalMode = searchParams.get(MODAL_QUERY_KEY);
-  const editBatchId = searchParams.get("batchId");
-  const isCreateMode = modalMode === MODAL_QUERY_VALUE;
-  const isEditMode = modalMode === EDIT_MODAL_QUERY_VALUE && editBatchId !== null;
+  const modalMode = searchParams.get(GIFT_CARD_MODAL_QUERY_KEY);
+  const editBatchId = searchParams.get(GIFT_CARD_BATCH_ID_QUERY_KEY);
+  const isCreateMode = modalMode === GIFT_CARD_CREATE_MODAL_VALUE;
+  const isEditMode = modalMode === GIFT_CARD_EDIT_MODAL_VALUE && editBatchId !== null;
   const isModalOpen = isCreateMode || isEditMode;
   const editingBatch =
     isEditMode && editBatchId !== null
@@ -103,15 +106,15 @@ function AdminGiftCardsShellInner({
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete(MODAL_QUERY_KEY);
-    params.delete("batchId");
+    params.delete(GIFT_CARD_MODAL_QUERY_KEY);
+    params.delete(GIFT_CARD_BATCH_ID_QUERY_KEY);
     const query = params.toString();
     router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router, searchParams]);
 
   const openModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
+    params.set(GIFT_CARD_MODAL_QUERY_KEY, GIFT_CARD_CREATE_MODAL_VALUE);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 

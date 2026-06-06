@@ -130,7 +130,6 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
     setVisibleCoachId(null);
     updateQuery((params) => {
       params.delete("coachProfile");
-      params.delete("editCoach");
     });
   }, [updateQuery]);
 

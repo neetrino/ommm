@@ -125,7 +125,6 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
     setVisibleClientId(null);
     replaceSearchParams((params) => {
       params.delete(VIEW_CLIENT_QUERY_KEY);
-      params.delete("editClient");
     });
   }, [replaceSearchParams]);
 

@@ -16,10 +16,8 @@ import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-
 type AdminGiftCardsDirectoryProps = {
   cards: readonly AdminGiftCardBatchRow[];
   locale: string;
-  busyBatchId: string | null;
-  onOpenActions: (card: AdminGiftCardBatchRow) => void;
+  onSelect: (card: AdminGiftCardBatchRow) => void;
   onEdit: (batchId: string) => void;
-  onDelete: (batchId: string) => void;
   onChanged?: () => void;
 };
 
@@ -36,8 +34,7 @@ function AdminGiftCardsBoardView(props: AdminGiftCardsDirectoryProps) {
 function AdminGiftCardsListView({
   cards,
   locale,
-  busyBatchId,
-  onOpenActions,
+  onSelect,
   onEdit,
   onChanged,
 }: AdminGiftCardsDirectoryProps) {
@@ -70,8 +67,7 @@ function AdminGiftCardsListView({
           key={card.id}
           card={card}
           locale={locale}
-          busyBatchId={busyBatchId}
-          onOpenActions={onOpenActions}
+          onSelect={onSelect}
           onEdit={onEdit}
           onChanged={onChanged}
         />

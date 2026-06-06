@@ -30,7 +30,7 @@
 
 **A2 tabs:** Profile · Coach details · Classes · Schedule  
 **A1 tabs:** Profile · Bookings · Payments · Gift cards · Notes  
-**Manager** `/manager/coaches`: legacy `AdminCoachActions` — унифицировать позже.
+**Manager** `/manager/clients` и `/manager/coaches` — read-only каталоги (edit в admin CRM).
 
 ---
 

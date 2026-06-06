@@ -21,9 +21,8 @@ const ADMIN_CLIENTS_API_QUERY_KEYS = [
 ] as const;
 
 /** UI-only query keys kept in the URL but not sent to `GET /clients`. */
-export const ADMIN_CLIENTS_UI_QUERY_KEYS = ["editClient", "viewClient"] as const;
+export const ADMIN_CLIENTS_UI_QUERY_KEYS = ["viewClient"] as const;
 
-export const EDIT_CLIENT_QUERY_KEY = "editClient";
 export const VIEW_CLIENT_QUERY_KEY = "viewClient";
 
 export function buildAdminClientsApiSearchParams(
