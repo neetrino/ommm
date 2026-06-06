@@ -132,6 +132,27 @@ export function resolveAdminBookingsCalendarRange(
   return { from: isoDateLocal(first), to: isoDateLocal(last) };
 }
 
+export const MANAGER_BOOKINGS_WINDOW_PAST_DAYS = 7;
+export const MANAGER_BOOKINGS_WINDOW_FUTURE_DAYS = 30;
+
+export function resolveManagerBookingsInitialFilters(
+  search: Record<string, string | undefined>,
+): AdminBookingsFilterState {
+  const picked = pickAdminBookingsInitialFilters(search);
+  if (picked.from.length > 0 && picked.to.length > 0) {
+    return picked;
+  }
+  const from = new Date();
+  from.setDate(from.getDate() - MANAGER_BOOKINGS_WINDOW_PAST_DAYS);
+  const to = new Date();
+  to.setDate(to.getDate() + MANAGER_BOOKINGS_WINDOW_FUTURE_DAYS);
+  return {
+    ...picked,
+    from: picked.from || from.toISOString(),
+    to: picked.to || to.toISOString(),
+  };
+}
+
 export function pickAdminBookingsInitialFilters(
   search: Record<string, string | undefined>,
 ): AdminBookingsFilterState {

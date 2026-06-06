@@ -2913,7 +2913,7 @@
       "roleClient": "Հաճախորդ"
     },
     "bookings": {
-      "rollingWindowHint": "Շարժական միջակայք API-ից (մարզիչը roster-ը տեսնում է coach panel ֆիլտրերով)։"
+      "rollingWindowHint": "Ամրագրումներ վերջին 7 օրվա և հաջորդ 30 օրվա համար — admin-ի նույն կոմպակտ տողերն ու գործողությունները։"
     },
     "waitlists": {
       "operationalHint": "Գործառնական տեսք՝ CRM manager matrix-ին համահունչ (տեղափոխում/հեռացում՝ API-ով կամ ապագա row action-ներով)։",

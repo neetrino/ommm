@@ -19,6 +19,7 @@ import type {
 } from "@/components/admin/admin-bookings-query";
 import { AdminIntegratedSearchFilters } from "@/components/admin/admin-integrated-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
   ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER,
@@ -43,6 +44,9 @@ type Props = {
   locale: string;
   initial: AdminBookingsManagementPayload;
   initialFilters: AdminBookingsFilterState;
+  /** Staff surfaces (manager): list-only canon rows, no calendar hero/metrics. */
+  variant?: "full" | "staff";
+  staffBanner?: string;
 };
 
 const VIEW_KEY = "admin.bookings.view";
@@ -58,7 +62,14 @@ type PendingBookingConfirm = {
   row: BookingRow;
 };
 
-export function AdminBookingsManagement({ locale, initial, initialFilters }: Props) {
+export function AdminBookingsManagement({
+  locale,
+  initial,
+  initialFilters,
+  variant = "full",
+  staffBanner,
+}: Props) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.bookings");
   const tSearchTools = useTranslations("adminPages.searchTools");
   const router = useRouter();
@@ -78,7 +89,7 @@ export function AdminBookingsManagement({ locale, initial, initialFilters }: Pro
   } = useAdminBookingsListData({
     initial,
     initialFilters,
-    view,
+    view: isStaff ? "list" : view,
     selectedDay,
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -97,6 +108,9 @@ export function AdminBookingsManagement({ locale, initial, initialFilters }: Pro
   }, [calendarRows, payload.rows, selectedRowKey]);
 
   useEffect(() => {
+    if (isStaff) {
+      return;
+    }
     try {
       const saved = window.localStorage.getItem(VIEW_KEY);
       if (
@@ -111,7 +125,7 @@ export function AdminBookingsManagement({ locale, initial, initialFilters }: Pro
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [isStaff]);
 
   const setViewAndPersist = useCallback((nextView: BookingsView) => {
     setView(nextView);
@@ -321,89 +335,39 @@ export function AdminBookingsManagement({ locale, initial, initialFilters }: Pro
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const bookedSessionIdsForDay = new Set(dayRows.map((row) => row.session.id));
   const openDaySessions = daySessions.filter((session) => !bookedSessionIdsForDay.has(session.id));
+  const visibleListRows = view === "daily" && !isStaff ? dayRows : listRows;
 
-  return (
-    <div className="space-y-4">
-      <AdminPageHero
-        title={t("title")}
-        search={
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <AdminIntegratedSearchFilters
-              className="min-w-0 flex-1"
-              search={filters.search}
-              onSearchChange={(value) => updateFilter("search", value)}
-              searchPlaceholder={t("filterSearch")}
-              fields={bookingFilterFields}
-              filterValues={integratedFilterValues}
-              onFilterChange={handleIntegratedFilterChange}
-              onClearAll={resetFilters}
-              applyLabel={tSearchTools("applyFilters")}
-              resetLabel={t("resetFilters")}
-              clearAriaLabel={tSearchTools("clearSearchAndFilters")}
-              filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+  const bookingsList = (
+    <>
+      <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
+        <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
+          <span>{t("colUserPhone")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colAttendanceStatus")}</span>
+          <span aria-hidden="true" />
+          <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} justify-self-end text-right`}>
+            {t("colStatus")}
+          </span>
+          <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        </div>
+        {visibleListRows.map((row) => {
+          const handlers = rowActionHandlers(row);
+          return (
+            <AdminBookingCompactRow
+              key={bookingRowKey(row)}
+              locale={locale}
+              row={row}
+              busy={busyId === row.id}
+              onOpenDetails={() => setSelectedRowKey(bookingRowKey(row))}
+              onOpenUser={setActiveUserId}
+              {...handlers}
             />
-            <AdminBookingsViewSwitcher value={view} onChange={setViewAndPersist} />
-          </div>
-        }
-      />
-
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric title={t("summaryTotal")} value={summary.total} />
-        <Metric title={t("summaryBooked")} value={summary.booked} />
-        <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
-        <Metric title={t("summaryToday")} value={summary.today} />
+          );
+        })}
       </div>
-
-      {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
-      {loading ? (
-        <p className="text-sm text-sage-500" role="status">
-          {tSearchTools("loadingResults")}
-        </p>
-      ) : null}
-
-      {view === "daily" && openDaySessions.length > 0 ? (
-        <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
-          <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
-          <div className="grid gap-2 md:grid-cols-2">
-            {openDaySessions.map((session) => (
-              <SessionSlotCard key={session.id} session={session} locale={locale} />
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {(view === "list" || view === "daily") && (
-        <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
-          <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
-            <span>{t("colUserPhone")}</span>
-            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
-            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
-            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
-            <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colAttendanceStatus")}</span>
-            <span aria-hidden="true" />
-            <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} justify-self-end text-right`}>
-              {t("colStatus")}
-            </span>
-            <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-          </div>
-          {(view === "daily" ? dayRows : listRows).map((row) => {
-            const handlers = rowActionHandlers(row);
-            return (
-              <AdminBookingCompactRow
-                key={bookingRowKey(row)}
-                locale={locale}
-                row={row}
-                busy={busyId === row.id}
-                onOpenDetails={() => setSelectedRowKey(bookingRowKey(row))}
-                onOpenUser={setActiveUserId}
-                {...handlers}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {view === "list" && pagination ? (
+      {(isStaff || view === "list") && pagination ? (
         <OmmListPagination
           total={pagination.total}
           page={listPage.page}
@@ -414,8 +378,70 @@ export function AdminBookingsManagement({ locale, initial, initialFilters }: Pro
           disabled={loading}
         />
       ) : null}
+    </>
+  );
 
-      {view === "monthly" ? (
+  return (
+    <div className="space-y-4">
+      {!isStaff ? (
+        <AdminPageHero
+          title={t("title")}
+          search={
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <AdminIntegratedSearchFilters
+                className="min-w-0 flex-1"
+                search={filters.search}
+                onSearchChange={(value) => updateFilter("search", value)}
+                searchPlaceholder={t("filterSearch")}
+                fields={bookingFilterFields}
+                filterValues={integratedFilterValues}
+                onFilterChange={handleIntegratedFilterChange}
+                onClearAll={resetFilters}
+                applyLabel={tSearchTools("applyFilters")}
+                resetLabel={t("resetFilters")}
+                clearAriaLabel={tSearchTools("clearSearchAndFilters")}
+                filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+              />
+              <AdminBookingsViewSwitcher value={view} onChange={setViewAndPersist} />
+            </div>
+          }
+        />
+      ) : null}
+
+      {!isStaff ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric title={t("summaryTotal")} value={summary.total} />
+          <Metric title={t("summaryBooked")} value={summary.booked} />
+          <Metric title={t("summaryWaitlisted")} value={summary.waitlisted} />
+          <Metric title={t("summaryToday")} value={summary.today} />
+        </div>
+      ) : null}
+
+      {statusMessage ? <div className="rounded-xl border border-sand-500/30 bg-white/70 p-3 text-sm text-sage-900">{statusMessage}</div> : null}
+      {loading ? (
+        <p className="text-sm text-sage-500" role="status">
+          {tSearchTools("loadingResults")}
+        </p>
+      ) : null}
+
+      {!isStaff && view === "daily" && openDaySessions.length > 0 ? (
+        <div className="space-y-2 rounded-2xl border border-white/60 bg-white/70 p-3">
+          <p className="text-sm font-medium text-sage-900">{formatDateForUi(selectedDay)}</p>
+          <div className="grid gap-2 md:grid-cols-2">
+            {openDaySessions.map((session) => (
+              <SessionSlotCard key={session.id} session={session} locale={locale} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {isStaff ? (
+        <AdminSectionShell banner={staffBanner}>{bookingsList}</AdminSectionShell>
+      ) : (view === "list" || view === "daily") ? (
+        bookingsList
+      ) : null}
+
+      {!isStaff && view === "monthly" ? (
         <MonthlyPanel
           rows={calendarRows}
           sessions={filteredSessions}
@@ -425,7 +451,7 @@ export function AdminBookingsManagement({ locale, initial, initialFilters }: Pro
           title={t("viewMonthly")}
         />
       ) : null}
-      {view === "weekly" ? (
+      {!isStaff && view === "weekly" ? (
         <WeeklyPanel
           rows={calendarRows}
           sessions={filteredSessions}

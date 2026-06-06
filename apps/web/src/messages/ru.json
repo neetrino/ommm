@@ -2901,7 +2901,7 @@
       "roleClient": "Клиент"
     },
     "bookings": {
-      "rollingWindowHint": "Скользящее окно из API (тренер видит состав через фильтры coach panel)."
+      "rollingWindowHint": "Бронирования за последние 7 дней и следующие 30 — те же компактные строки и действия, что в админке."
     },
     "waitlists": {
       "operationalHint": "Операционный вид в рамках CRM manager matrix (перемещение/удаление через API или будущие row actions).",

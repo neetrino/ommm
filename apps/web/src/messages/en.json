@@ -2955,7 +2955,7 @@
       "roleClient": "Client"
     },
     "bookings": {
-      "rollingWindowHint": "Rolling window from API (coach sees roster via coach panel filters)."
+      "rollingWindowHint": "Bookings from the past 7 days through the next 30 days — same compact rows and actions as admin."
     },
     "waitlists": {
       "operationalHint": "Operational view aligned with the CRM manager matrix (move/remove via API or future row actions).",
