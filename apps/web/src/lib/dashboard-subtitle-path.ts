@@ -33,6 +33,7 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/user/packages": "user.packages",
   "/user/payments": "user.payments",
   "/user/bookings": "user.bookings",
+  "/user/waitlists": "user.waitlists",
   "/user/gift-cards": "user.giftCards",
   "/user/profile": "user.profile",
   "/user/notifications": "user.notifications",

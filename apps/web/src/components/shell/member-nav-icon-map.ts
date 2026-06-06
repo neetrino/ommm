@@ -6,6 +6,7 @@ const MEMBER_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> = {
   "/user": "dashboard",
   "/dashboard": "dashboard",
   "/user/bookings": "bookings",
+  "/user/waitlists": "waitlists",
   "/user/classes": "schedule",
   "/user/packages": "packages",
   "/user/payments": "finance",

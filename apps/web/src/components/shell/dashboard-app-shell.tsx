@@ -86,6 +86,7 @@ export function DashboardAppShell({
       navDefinitions.map((d) => ({
         href: d.href,
         icon: d.icon,
+        oliveIconSlug: d.oliveIconSlug,
         label: (tNav as (key: string) => string)(`${navRole}.${d.labelKey}`),
       })),
     [navDefinitions, navRole, tNav],

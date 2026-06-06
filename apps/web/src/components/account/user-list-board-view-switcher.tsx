@@ -15,6 +15,7 @@ type UserListBoardViewSwitcherProps = {
   namespace:
     | "userPages.packages"
     | "userPages.bookings"
+    | "userPages.waitlists"
     | "userPages.classes"
     | "userPages.payments";
   value: UserListBoardViewMode;

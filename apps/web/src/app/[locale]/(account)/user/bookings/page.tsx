@@ -9,7 +9,7 @@ import {
 } from "@/lib/user-bookings-query";
 import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
-import type { UserBookingRow, UserWaitlistRow } from "@/lib/user-booking-types";
+import type { UserBookingRow } from "@/lib/user-booking-types";
 
 export default async function UserBookingsPage({
   params,
@@ -24,13 +24,12 @@ export default async function UserBookingsPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const pastListPage = parseListPageParams(search, USER_BOOKINGS_PAST_PAGE_KEYS);
 
-  const [upcomingRes, pastRes, waitlistRes] = await Promise.all([
+  const [upcomingRes, pastRes] = await Promise.all([
     serverApiJson<UserBookingRow[]>("/bookings/me?scope=upcoming", cookie),
     serverApiJson<UserBookingsPastPayload>(
       buildUserBookingsPastEndpoint(pastListPage.take, pastListPage.offset),
       cookie,
     ),
-    serverApiJson<UserWaitlistRow[]>("/waitlist/me", cookie),
   ]);
 
   if (!upcomingRes.ok || !pastRes.ok) {
@@ -51,8 +50,6 @@ export default async function UserBookingsPage({
         locale={locale}
         initialUpcoming={upcomingRes.data}
         initialPast={pastRes.data}
-        waitlist={waitlistRes.ok ? waitlistRes.data : []}
-        waitlistLoadError={!waitlistRes.ok}
       />
     </MemberContentFrame>
   );

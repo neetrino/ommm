@@ -29,10 +29,13 @@ function accentBorder(variant: DashboardShellVariant) {
 
 function oliveNavIconSlug(
   variant: DashboardShellVariant,
-  href: string,
+  item: DashboardNavItem,
 ): ReturnType<typeof adminNavIconSlugForHref> {
-  if (variant === "admin") return adminNavIconSlugForHref(href);
-  if (variant === "member") return memberNavIconSlugForHref(href);
+  if (item.oliveIconSlug) {
+    return item.oliveIconSlug;
+  }
+  if (variant === "admin") return adminNavIconSlugForHref(item.href);
+  if (variant === "member") return memberNavIconSlugForHref(item.href);
   return null;
 }
 
@@ -111,7 +114,7 @@ export function DashboardSidebarNav({
         const active = navActive(pathname, item.href);
         const muted = isAdminMutedNavItem(variant, item.href);
         const oliveIconSlug = isOliveShell
-          ? oliveNavIconSlug(variant, item.href)
+          ? oliveNavIconSlug(variant, item)
           : null;
         const showMutedDivider = isAdmin && index === firstMutedIndex;
 

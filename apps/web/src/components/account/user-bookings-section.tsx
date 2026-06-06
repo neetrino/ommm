@@ -4,28 +4,26 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type 
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import {
-  resolveSessionCoachName,
-  SessionCoachLine,
-} from "@/components/account/session-coach-line";
-import { SessionClassTitle } from "@/components/account/session-class-title";
-import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserBookingBoardCard } from "@/components/account/user-booking-board-card";
 import { UserBookingCompactRow } from "@/components/account/user-booking-compact-row";
 import {
-  USER_BOOKINGS_LIST_ACTIONS_CELL,
+  buildUserBookingsFilterFields,
+  DEFAULT_USER_BOOKING_FILTER_VALUES,
+  extractUserBookingFilterOptions,
+  hasActiveUserBookingFilters,
+  matchesUserBookingFilters,
+  userBookingsIntegratedFilterValues,
+  type UserBookingFilterValues,
+  type UserBookingStatusFilter,
+} from "@/components/account/user-bookings-filter-fields";
+import {
   USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
-  USER_BOOKINGS_LIST_CLASS_CELL,
-  USER_BOOKINGS_LIST_DATE_CELL,
   USER_BOOKINGS_LIST_HEADER_CLASS,
-  USER_BOOKINGS_LIST_ROW_CLASS,
-  USER_BOOKINGS_LIST_SPACER_CELL,
-  USER_BOOKINGS_LIST_STATUS_CELL,
-  USER_BOOKINGS_LIST_TIME_CELL,
 } from "@/components/account/user-bookings-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
-import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import { apiFetch } from "@/lib/api";
@@ -33,7 +31,7 @@ import {
   parseListPageParams,
   syncListPageQuery,
 } from "@/lib/list-pagination";
-import type { UserBookingRow, UserWaitlistRow } from "@/lib/user-booking-types";
+import type { UserBookingRow } from "@/lib/user-booking-types";
 import {
   buildUserBookingsPastEndpoint,
   USER_BOOKINGS_PAST_PAGE_KEYS,
@@ -44,16 +42,12 @@ type UserBookingsSectionProps = {
   locale: string;
   initialUpcoming: readonly UserBookingRow[];
   initialPast: UserBookingsPastPayload;
-  waitlist: readonly UserWaitlistRow[];
-  waitlistLoadError: boolean;
 };
 
 export function UserBookingsSection({
   locale,
   initialUpcoming,
   initialPast,
-  waitlist,
-  waitlistLoadError,
 }: UserBookingsSectionProps) {
   const t = useTranslations("userPages.bookings");
   const router = useRouter();
@@ -61,6 +55,7 @@ export function UserBookingsSection({
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("bookings");
   const [pastPayload, setPastPayload] = useState(initialPast);
+  const [filters, setFilters] = useState<UserBookingFilterValues>(DEFAULT_USER_BOOKING_FILTER_VALUES);
   const [loadingPast, startPastTransition] = useTransition();
   const pastRequestId = useRef(0);
   const pastHasMounted = useRef(false);
@@ -109,58 +104,155 @@ export function UserBookingsSection({
     [pathname, router, searchParams],
   );
 
-  const totalCount = initialUpcoming.length + pastPayload.total;
+  const filterOptions = useMemo(
+    () => extractUserBookingFilterOptions([...initialUpcoming, ...pastPayload.rows]),
+    [initialUpcoming, pastPayload.rows],
+  );
+
+  const filterFields = useMemo(
+    () =>
+      buildUserBookingsFilterFields({
+        classTypes: filterOptions.classTypes,
+        coaches: filterOptions.coaches,
+        labels: {
+          dateFrom: t("filters.dateFrom"),
+          dateTo: t("filters.dateTo"),
+          classAll: t("filters.classAll"),
+          coachAll: t("filters.coachAll"),
+          status: t("filters.status"),
+          statusAll: t("filters.statusAll"),
+          statusValues: {
+            BOOKED: t("status.BOOKED"),
+            COMPLETED: t("status.COMPLETED"),
+            CANCELLED: t("status.CANCELLED"),
+            MISSED: t("status.MISSED"),
+          },
+          searchPlaceholder: t("filters.searchPlaceholder"),
+          resetFilters: t("filters.resetFilters"),
+        },
+      }),
+    [filterOptions.classTypes, filterOptions.coaches, t],
+  );
+
+  const integratedFilterValues = useMemo(
+    () => userBookingsIntegratedFilterValues(filters),
+    [filters],
+  );
+
+  const filteredUpcoming = useMemo(
+    () => initialUpcoming.filter((row) => matchesUserBookingFilters(row, filters)),
+    [filters, initialUpcoming],
+  );
+
+  const filteredPast = useMemo(
+    () => pastPayload.rows.filter((row) => matchesUserBookingFilters(row, filters)),
+    [filters, pastPayload.rows],
+  );
+
+  const filtersActive = hasActiveUserBookingFilters(filters);
+  const totalCount = filtersActive
+    ? filteredUpcoming.length + filteredPast.length
+    : initialUpcoming.length + pastPayload.total;
+  const hasAnyBookings = initialUpcoming.length > 0 || pastPayload.total > 0;
+
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    switch (key) {
+      case "from":
+        setFilters((current) => ({ ...current, from: value }));
+        break;
+      case "to":
+        setFilters((current) => ({ ...current, to: value }));
+        break;
+      case "classType":
+        setFilters((current) => ({ ...current, classType: value }));
+        break;
+      case "coach":
+        setFilters((current) => ({ ...current, coach: value }));
+        break;
+      case "status":
+        setFilters((current) => ({ ...current, status: value as UserBookingStatusFilter }));
+        break;
+      default:
+        break;
+    }
+  }
+
+  function resetFilters(): void {
+    setFilters(DEFAULT_USER_BOOKING_FILTER_VALUES);
+  }
+
+  const heroSearch = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={filters.search}
+        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+        searchPlaceholder={t("filters.searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={resetFilters}
+        resetLabel={t("filters.resetFilters")}
+      />
+      <UserListBoardViewSwitcher
+        pageId="bookings"
+        namespace="userPages.bookings"
+        value={viewMode}
+        onChange={setView}
+      />
+    </div>
+  );
 
   return (
-    <div className="space-y-8">
-      {totalCount > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
-          <UserListBoardViewSwitcher
-            pageId="bookings"
-            namespace="userPages.bookings"
-            value={viewMode}
-            onChange={setView}
+    <div className="space-y-4">
+      <AdminPageHero title={t("title")} search={heroSearch} />
+
+      {!hasAnyBookings ? (
+        <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+          <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
+          <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+        </section>
+      ) : (
+        <>
+          {totalCount > 0 ? (
+            <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
+          ) : (
+            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+            </div>
+          )}
+
+          <BookingGroup
+            title={t("upcoming")}
+            locale={locale}
+            rows={filteredUpcoming}
+            viewMode={viewMode}
+            showCancel
+            emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
           />
-        </div>
-      ) : null}
 
-      <BookingGroup
-        title={t("upcoming")}
-        locale={locale}
-        rows={initialUpcoming}
-        viewMode={viewMode}
-        showCancel
-        emptyLabel={t("emptySection")}
-      />
-
-      <BookingGroup
-        title={t("pastOther")}
-        locale={locale}
-        rows={pastPayload.rows}
-        viewMode={viewMode}
-        showRebook
-        emptyLabel={t("emptySection")}
-        pagination={
-          <OmmListPagination
-            namespace="userPages.pagination"
-            total={pastPayload.total}
-            page={pastListPage.page}
-            pageSize={pastListPage.pageSize}
-            offset={pastPayload.offset}
-            onPageChange={(page) => setPastListPage(page)}
-            onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
-            disabled={loadingPast}
+          <BookingGroup
+            title={t("pastOther")}
+            locale={locale}
+            rows={filteredPast}
+            viewMode={viewMode}
+            showRebook
+            emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
+            pagination={
+              <OmmListPagination
+                namespace="userPages.pagination"
+                total={pastPayload.total}
+                page={pastListPage.page}
+                pageSize={pastListPage.pageSize}
+                offset={pastPayload.offset}
+                onPageChange={(page) => setPastListPage(page)}
+                onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
+                disabled={loadingPast}
+              />
+            }
           />
-        }
-      />
-
-      <WaitlistGroup
-        locale={locale}
-        rows={waitlist}
-        viewMode={viewMode}
-        loadError={waitlistLoadError}
-      />
+        </>
+      )}
     </div>
   );
 }
@@ -231,84 +323,6 @@ function BookingGroup({
         </div>
       )}
       {pagination ? <div className="mt-4">{pagination}</div> : null}
-    </section>
-  );
-}
-
-type WaitlistGroupProps = {
-  locale: string;
-  rows: readonly UserWaitlistRow[];
-  viewMode: "list" | "board";
-  loadError: boolean;
-};
-
-function WaitlistGroup({ locale, rows, viewMode, loadError }: WaitlistGroupProps) {
-  const t = useTranslations("userPages.bookings");
-
-  return (
-    <section>
-      <h2 className="ommm-h3 text-sage-800">{t("waitlists")}</h2>
-      {loadError ? (
-        <p className="ommm-body-muted mt-2 text-sm">{t("waitlistsLoadError")}</p>
-      ) : rows.length === 0 ? (
-        <p className="ommm-body-muted mt-2 text-sm">{t("waitlistsEmpty")}</p>
-      ) : viewMode === "board" ? (
-        <ul className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {rows.map((item) => (
-            <li key={item.id} className="min-w-0 list-none">
-              <UserWaitlistBoardCard locale={locale} waitlist={item} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className={`mt-4 ${USER_LIST_STACK_CLASS}`}>
-          <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
-            <span>{t("listHeaderDate")}</span>
-            <span>{t("listHeaderClass")}</span>
-            <span>{t("listHeaderTime")}</span>
-            <span>{t("listHeaderStatus")}</span>
-            <span aria-hidden="true" />
-            <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
-          </div>
-          <ul className={USER_LIST_STACK_CLASS}>
-            {rows.map((item) => (
-              <li key={item.id} className={`list-none ${USER_BOOKINGS_LIST_ROW_CLASS}`}>
-                <div className={USER_BOOKINGS_LIST_DATE_CELL}>
-                  <SessionDateTimeHighlight
-                    locale={locale}
-                    startsAt={item.session.startsAt}
-                    endsAt={item.session.endsAt}
-                    variant="listDate"
-                  />
-                </div>
-                <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
-                  <SessionClassTitle variant="list" name={item.session.classType.name} />
-                  <SessionCoachLine
-                    coachName={resolveSessionCoachName(item.session.coach)}
-                    variant="list"
-                    className="mt-1"
-                  />
-                </div>
-                <div className={USER_BOOKINGS_LIST_TIME_CELL}>
-                  <SessionDateTimeHighlight
-                    locale={locale}
-                    startsAt={item.session.startsAt}
-                    endsAt={item.session.endsAt}
-                    variant="listTime"
-                  />
-                </div>
-                <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
-                    {t("waitlistBadge", { pos: item.position, status: item.status })}
-                  </p>
-                </div>
-                <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
-                <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </section>
   );
 }
