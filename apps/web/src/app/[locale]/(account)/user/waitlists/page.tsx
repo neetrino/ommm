@@ -17,7 +17,7 @@ export default async function UserWaitlistsPage({
 
   if (!waitlistRes.ok) {
     return (
-      <MemberContentFrame description={t("description")}>
+      <MemberContentFrame>
         <section className="rounded-[20px] border border-rose-100 bg-rose-50/70 p-5 text-sm text-rose-800">
           {waitlistRes.status === 401 ? t("signInRequired") : t("loadError")}
         </section>
@@ -26,7 +26,7 @@ export default async function UserWaitlistsPage({
   }
 
   return (
-    <MemberContentFrame description={t("description")}>
+    <MemberContentFrame>
       <UserWaitlistsSection locale={locale} rows={waitlistRes.data} loadError={false} />
     </MemberContentFrame>
   );

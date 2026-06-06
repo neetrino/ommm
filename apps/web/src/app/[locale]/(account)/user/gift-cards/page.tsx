@@ -5,6 +5,7 @@ import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
 import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
 import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
@@ -50,14 +51,13 @@ export default async function UserGiftCardsPage({
     ? receivedRes.data
     : { items: [], total: 0, take: receivedPage.take, offset: receivedPage.offset };
 
+  const heroDescription =
+    credits != null ? t("giftBalance", { amount: formatAmdFromCents(credits, locale) }) : undefined;
+
   return (
-    <MemberContentFrame
-      description={
-        credits != null
-          ? t("giftBalance", { amount: formatAmdFromCents(credits, locale) })
-          : undefined
-      }
-    >
+    <MemberContentFrame>
+      <div className="space-y-4">
+        <AdminPageHero title={t("title")} description={heroDescription} />
       <div className="space-y-0">
         <UserGiftCardsSection title={t("redeem")}>
           <div className="max-w-sm">
@@ -78,6 +78,7 @@ export default async function UserGiftCardsPage({
             receivedError={receivedRes.ok ? null : receivedRes.status}
           />
         </Suspense>
+      </div>
       </div>
     </MemberContentFrame>
   );

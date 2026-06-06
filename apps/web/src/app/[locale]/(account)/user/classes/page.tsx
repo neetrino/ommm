@@ -44,11 +44,10 @@ export default async function UserClassesPage({
     : {};
 
   return (
-    <MemberContentFrame
-      description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
-    >
+    <MemberContentFrame>
       <UserClassesSection
         locale={locale}
+        description={t("description", { days: ACCOUNT_SESSION_RANGE_DAYS })}
         sessions={sessions}
         sessionBookings={sessionBookings}
       />

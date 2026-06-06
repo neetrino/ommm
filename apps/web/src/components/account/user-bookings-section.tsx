@@ -204,7 +204,7 @@ export function UserBookingsSection({
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} search={heroSearch} />
+      <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
 
       {!hasAnyBookings ? (
         <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">

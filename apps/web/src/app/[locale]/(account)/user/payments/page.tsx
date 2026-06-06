@@ -25,7 +25,7 @@ export default async function UserPaymentsPage({
 
   if (!paymentsRes.ok) {
     return (
-      <MemberContentFrame description={t("description")}>
+      <MemberContentFrame>
         <section className="rounded-[20px] border border-rose-100 bg-rose-50/70 p-5 text-sm text-rose-800">
           {paymentsRes.status === 401
             ? t("signInRequired")
@@ -36,7 +36,7 @@ export default async function UserPaymentsPage({
   }
 
   return (
-    <MemberContentFrame description={t("description")}>
+    <MemberContentFrame>
       <UserPaymentsHistory locale={locale} initialPayments={paymentsRes.data} />
     </MemberContentFrame>
   );

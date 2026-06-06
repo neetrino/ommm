@@ -6,6 +6,7 @@ import { AccountHomeImageForm } from "@/components/account/account-home-image-fo
 import { DeleteAccountButton } from "@/components/account/delete-account-button";
 import { AccountSection } from "@/components/layout/account-section";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { userDisplayInitials } from "@/lib/user-display-initials";
@@ -102,6 +103,11 @@ export async function RoleProfilePage({
   }
 
   return (
-    <MemberContentFrame description={t("description")}>{body}</MemberContentFrame>
+    <MemberContentFrame>
+      <div className="space-y-4">
+        <AdminPageHero title={t("title")} description={t("description")} />
+        {body}
+      </div>
+    </MemberContentFrame>
   );
 }
