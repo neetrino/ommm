@@ -11,14 +11,7 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
 const CLIENT_ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
 
-const CLIENT_STATUS_BADGE_CLASS =
-  "inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide";
-
 type PendingConfirm = "activate" | "deactivate";
-
-function clientStatusBadgeTone(isActive: boolean): string {
-  return isActive ? "bg-mint-100 text-sage-800" : "bg-sand-100 text-sage-600";
-}
 
 type AdminClientRowActionsProps = {
   client: ClientRow;
@@ -33,7 +26,6 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
   const isActive = !(client.isBlocked ?? false);
   const toggleLabel = isActive ? t("deactivateClient") : t("activateClient");
-  const statusLabel = isActive ? t("packageActiveBadge") : t("statusInactive");
 
   function openConfirm(): void {
     if (busy) {
@@ -95,13 +87,10 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   return (
     <>
       <div
-        className="flex items-center justify-end gap-2"
+        className="flex items-center justify-end"
         role="group"
         aria-label={t("colActions")}
       >
-        <span className={`${CLIENT_STATUS_BADGE_CLASS} ${clientStatusBadgeTone(isActive)}`}>
-          {statusLabel}
-        </span>
         <AdminRowIconButton
           ariaLabel={toggleLabel}
           title={toggleLabel}

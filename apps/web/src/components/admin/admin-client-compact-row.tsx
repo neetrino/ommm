@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   ADMIN_CLIENT_TAG_BADGE_CLASS,
   clientTagBadgeTone,
@@ -12,7 +12,6 @@ import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
   ADMIN_CLIENTS_LIST_CELL,
   ADMIN_CLIENTS_LIST_DATE_CELL,
-  ADMIN_CLIENTS_LIST_NOTES_CELL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
   ADMIN_CLIENTS_LIST_SPACER_CELL,
   ADMIN_CLIENTS_LIST_TAGS_CELL,
@@ -20,7 +19,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
-import { formatDateForUi } from "@/lib/date-display";
+import { formatDateCompactForUi, formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type AdminClientCompactRowProps = {
@@ -37,6 +36,7 @@ export function AdminClientCompactRow({
   readOnly = false,
 }: AdminClientCompactRowProps) {
   const t = useTranslations("adminPages.clients");
+  const locale = useLocale();
   const name = fullName(row);
 
   return (
@@ -88,15 +88,7 @@ export function AdminClientCompactRow({
 
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
         <AdminListMobileLabel label={t("colJoined")} />
-        <p className="text-sm text-sage-800">{formatDateForUi(row.createdAt)}</p>
-      </div>
-
-      <div className={ADMIN_CLIENTS_LIST_NOTES_CELL}>
-        <AdminListMobileLabel label={t("noteLabel")} />
-        <p className="text-sm font-medium text-sage-900">{row.noteCount}</p>
-        {row.latestNote ? (
-          <p className="mt-0.5 max-w-[12rem] truncate text-xs text-sage-500">{row.latestNote.body}</p>
-        ) : null}
+        <p className="text-sm text-sage-800">{formatDateCompactForUi(row.createdAt, locale)}</p>
       </div>
 
       {readOnly ? null : (

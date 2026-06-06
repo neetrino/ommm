@@ -7,19 +7,26 @@ import {
   USER_LIST_SPACER_CELL,
   USER_LIST_TRAILING_HEADER_CELL,
   buildAdminListHeaderClass,
-  buildAdminListTableClass,
+  USER_LIST_TABLE_GRID_GAP,
 } from "@/components/admin/admin-list-table-layout";
+import clientsListLayoutStyles from "@/components/admin/admin-clients-list-layout.module.css";
 
-const CLIENTS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(9.5rem,auto)_minmax(8.5rem,auto)_minmax(9.5rem,auto)_minmax(4.5rem,auto)_1fr_auto]";
+function buildClientsListTableClass(gridClass: string): string {
+  return [
+    "max-md:space-y-3",
+    "md:grid",
+    gridClass,
+    USER_LIST_TABLE_GRID_GAP,
+    "md:gap-y-3",
+  ].join(" ");
+}
 
-const CLIENTS_GRID_READONLY_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(9.5rem,auto)_minmax(8.5rem,auto)_minmax(9.5rem,auto)_minmax(4.5rem,auto)]";
+export const ADMIN_CLIENTS_LIST_TABLE_CLASS = buildClientsListTableClass(
+  clientsListLayoutStyles.tableEditable,
+);
 
-export const ADMIN_CLIENTS_LIST_TABLE_CLASS = buildAdminListTableClass(CLIENTS_GRID_CLASS);
-
-export const ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS = buildAdminListTableClass(
-  CLIENTS_GRID_READONLY_CLASS,
+export const ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS = buildClientsListTableClass(
+  clientsListLayoutStyles.tableReadOnly,
 );
 
 export const ADMIN_CLIENTS_LIST_HEADER_CLASS = buildAdminListHeaderClass();
@@ -33,8 +40,6 @@ export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
 
 export const ADMIN_CLIENTS_LIST_TAGS_CELL = `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5`;
-
-export const ADMIN_CLIENTS_LIST_NOTES_CELL = `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-start`;
 
 export const ADMIN_CLIENTS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
 

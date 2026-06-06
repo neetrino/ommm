@@ -24,6 +24,34 @@ export function formatDateForUi(value: Date | string): string {
   return `${day}/${month}/${year}`;
 }
 
+/** Compact list date: `06/Jun/26`. */
+export function formatDateCompactForUi(value: Date | string, locale = "en"): string {
+  let date: Date | null = null;
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+      if (match !== null) {
+        date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      }
+    }
+  }
+
+  if (date === null) {
+    date = asDate(value);
+  }
+
+  if (date === null) {
+    return "";
+  }
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+}
+
 export function formatDateTimeForUi(value: Date | string, locale?: string): string {
   const date = asDate(value);
   if (date === null) {

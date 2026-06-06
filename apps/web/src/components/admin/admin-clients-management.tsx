@@ -507,7 +507,6 @@ function ClientsTable({
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
-        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("noteLabel")}</span>
         {readOnly ? null : (
           <>
             <span aria-hidden="true" />
