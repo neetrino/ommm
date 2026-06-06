@@ -25,6 +25,7 @@ import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
+import { buildSessionLevelOptions } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import {
   ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
@@ -157,7 +158,6 @@ type SessionClassTypeOption = {
 };
 
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
-const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
 const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
   "MONDAY",
   "TUESDAY",
@@ -383,35 +383,6 @@ function batchFormPayload(
     timezoneOffsetMinutes: new Date().getTimezoneOffset(),
     slots: slots.map(({ weekday, startTime, endTime }) => ({ weekday, startTime, endTime })),
   };
-}
-
-function buildSessionLevelOptions(
-  translate: (
-    key: "form.levels.beginner" | "form.levels.intermediate" | "form.levels.advanced",
-  ) => string,
-  extraLevels?: readonly string[],
-): Array<{ value: string; label: string }> {
-  const options = SESSION_LEVEL_VALUES.map((value) => ({
-    value,
-    label:
-      value === "Beginner"
-        ? translate("form.levels.beginner")
-        : value === "Intermediate"
-          ? translate("form.levels.intermediate")
-          : translate("form.levels.advanced"),
-  }));
-  const extraOptions = (extraLevels ?? [])
-    .map((level) => level.trim())
-    .filter(
-      (level) =>
-        level.length > 0 &&
-        !SESSION_LEVEL_VALUES.includes(level as (typeof SESSION_LEVEL_VALUES)[number]),
-    )
-    .map((level) => ({ value: level, label: level }));
-  if (extraOptions.length > 0) {
-    return [...extraOptions, ...options];
-  }
-  return options;
 }
 
 function buildPackageFilterOptions(

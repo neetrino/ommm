@@ -50,7 +50,7 @@ export function buildSessionLevelOptions(
   ) => string,
   extraLevels?: readonly string[],
 ): Array<{ value: string; label: string }> {
-  const options = SESSION_LEVEL_VALUES.map((value) => ({
+  const standardOptions = SESSION_LEVEL_VALUES.map((value) => ({
     value,
     label:
       value === "Beginner"
@@ -59,16 +59,22 @@ export function buildSessionLevelOptions(
           ? translate("form.levels.intermediate")
           : translate("form.levels.advanced"),
   }));
-  const extraOptions = (extraLevels ?? [])
-    .map((level) => level.trim())
-    .filter(
-      (level) =>
-        level.length > 0 &&
-        !SESSION_LEVEL_VALUES.includes(level as (typeof SESSION_LEVEL_VALUES)[number]),
-    )
-    .map((level) => ({ value: level, label: level }));
-  if (extraOptions.length > 0) {
-    return [...extraOptions, ...options];
+
+  const seen = new Set<string>(SESSION_LEVEL_VALUES);
+  const extraOptions: Array<{ value: string; label: string }> = [];
+
+  for (const level of extraLevels ?? []) {
+    const trimmed = level.trim();
+    if (trimmed.length === 0 || seen.has(trimmed)) {
+      continue;
+    }
+    seen.add(trimmed);
+    extraOptions.push({ value: trimmed, label: trimmed });
   }
-  return options;
+
+  if (extraOptions.length === 0) {
+    return standardOptions;
+  }
+
+  return [...extraOptions, ...standardOptions];
 }
