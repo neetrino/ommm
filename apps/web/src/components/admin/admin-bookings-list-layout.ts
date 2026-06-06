@@ -2,7 +2,6 @@ import {
   USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_HEADER_SURFACE,
-  USER_LIST_ROW_CARD,
   USER_LIST_ROW_INTERACTIVE,
   USER_LIST_SPACER_CELL,
   USER_LIST_STACK_CLASS,
@@ -36,12 +35,28 @@ export const ADMIN_BOOKINGS_LIST_HEADER_CLASS = [
   "md:items-end",
 ].join(" ");
 
+const ADMIN_BOOKINGS_LIST_ROW_SURFACE = [
+  "rounded-[24px] border border-white/80 bg-white/95",
+  "shadow-[0_32px_72px_-28px_rgba(45,40,35,0.42)]",
+  "transition-[border-color,box-shadow,transform] duration-200",
+  "hover:border-white hover:shadow-[0_44px_96px_-26px_rgba(45,40,35,0.5)]",
+].join(" ");
+
 export const ADMIN_BOOKINGS_LIST_ROW_CLASS = [
-  USER_LIST_ROW_CARD,
+  ADMIN_BOOKINGS_LIST_ROW_SURFACE,
   USER_LIST_ROW_INTERACTIVE,
+  "group",
   "grid w-full grid-cols-1 gap-3 text-left",
   USER_LIST_TABLE_ROW_PAD,
   "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
+].join(" ");
+
+/** List row actions — visible on hover/focus; always shown on touch/narrow viewports. */
+export const ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL = [
+  "max-md:opacity-100 max-md:pointer-events-auto",
+  "md:opacity-0 md:pointer-events-none md:transition-opacity md:duration-200",
+  "md:group-hover:opacity-100 md:group-hover:pointer-events-auto",
+  "md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto",
 ].join(" ");
 
 export const ADMIN_BOOKINGS_LIST_CELL = USER_LIST_CELL_CLASS;

@@ -5,6 +5,7 @@ import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-act
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import {
   ADMIN_BOOKINGS_LIST_ACTIONS_CELL,
+  ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_BOOKINGS_LIST_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_SPACER_CELL,
@@ -140,7 +141,7 @@ export function AdminBookingCompactRow({
       <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
-        className={ADMIN_BOOKINGS_LIST_ACTIONS_CELL}
+        className={`${ADMIN_BOOKINGS_LIST_ACTIONS_CELL} ${ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
