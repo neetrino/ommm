@@ -191,6 +191,7 @@ function PurchaseGiftCardPreview({
         <OmmButton
           type="button"
           variant="primary"
+          size="sm"
           className="w-full"
           disabled={busy || item.availableQuantity <= 0}
           onClick={() => void onBuy(item)}
