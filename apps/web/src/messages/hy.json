@@ -881,6 +881,7 @@
     },
     "giftCards": {
       "title": "Նվեր քարտեր",
+      "giftBalanceLabel": "Նվերի մնացորդ",
       "giftBalance": "Նվերի մնացորդ (կրեդիտներ)՝ {amount}",
       "redeem": "Փոխարժել",
       "purchase": "Գնել",

@@ -9,7 +9,6 @@ import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-l
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
 import { mergeUserGiftCards } from "@/lib/merge-user-gift-cards";
-import { formatAmdFromCents } from "@/lib/price-amd";
 import { parseUserGiftCardsTab } from "@/lib/user-gift-cards-tab";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -38,13 +37,14 @@ export default async function UserGiftCardsPage({
   const mergedCards = mergeUserGiftCards(purchased, received);
   const loadError = !purchasedRes.ok && !receivedRes.ok ? purchasedRes.status : null;
 
-  const heroDescription =
-    credits != null ? t("giftBalance", { amount: formatAmdFromCents(credits, locale) }) : undefined;
-
   return (
     <MemberContentFrame>
       <div className="space-y-4">
-        <UserGiftCardsPageHero title={t("title")} description={heroDescription} />
+        <UserGiftCardsPageHero
+          title={t("title")}
+          locale={locale}
+          giftBalanceCents={credits}
+        />
 
         {tab === "my" ? (
           <div className="space-y-0">

@@ -1,17 +1,23 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { useTranslations } from "next-intl";
+import { UserGiftCardsBalanceDisplay } from "@/components/account/user-gift-cards-balance-display";
 import { UserGiftCardsTabNav } from "@/components/account/user-gift-cards-tab-nav";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
 
 type UserGiftCardsPageHeroProps = {
   title: string;
-  description?: ReactNode;
+  locale: string;
+  giftBalanceCents: number | null;
 };
 
-function UserGiftCardsPageHeroInner({ title, description }: UserGiftCardsPageHeroProps) {
+function UserGiftCardsPageHeroInner({
+  title,
+  locale,
+  giftBalanceCents,
+}: UserGiftCardsPageHeroProps) {
+  const t = useTranslations("userPages.giftCards");
   const headerRef = useAdminStickyHeaderOffset(true);
 
   return (
@@ -20,16 +26,18 @@ function UserGiftCardsPageHeroInner({ title, description }: UserGiftCardsPageHer
       className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
-          <div className="min-w-0">
-            <h1 className="ommm-admin-header-title">{title}</h1>
-            {description ? (
-              <p className="mt-1 max-w-2xl text-sm text-sage-600">{description}</p>
-            ) : null}
-          </div>
+          <h1 className="ommm-admin-header-title">{title}</h1>
           <UserGiftCardsTabNav />
         </div>
+        {giftBalanceCents !== null ? (
+          <UserGiftCardsBalanceDisplay
+            label={t("giftBalanceLabel")}
+            amountCents={giftBalanceCents}
+            locale={locale}
+          />
+        ) : null}
       </div>
     </header>
   );
@@ -45,7 +53,7 @@ function UserGiftCardsPageHeroFallback({ title }: { title: string }) {
       className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
-      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+      <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{title}</h1>
           <nav

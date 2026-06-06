@@ -869,6 +869,7 @@
     },
     "giftCards": {
       "title": "Подарочные карты",
+      "giftBalanceLabel": "Баланс подарков",
       "giftBalance": "Баланс подарков (кредиты): {amount}",
       "redeem": "Погасить",
       "purchase": "Купить",

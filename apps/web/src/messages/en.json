@@ -869,6 +869,7 @@
     },
     "giftCards": {
       "title": "Gift cards",
+      "giftBalanceLabel": "Gift balance",
       "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
       "purchase": "Purchase",
