@@ -721,7 +721,15 @@
       "listHeaderSessions": "Занятия",
       "listHeaderPeriod": "Период",
       "listHeaderStatus": "Статус",
-      "listHeaderActions": "Действия"
+      "listHeaderActions": "Действия",
+      "filteredEmptyTitle": "Нет пакетов по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить статус или поисковый запрос.",
+      "filters": {
+        "searchPlaceholder": "Поиск по пакету или категории…",
+        "status": "Статус",
+        "statusAll": "Все статусы",
+        "resetFilters": "Сбросить фильтры"
+      }
     },
     "progress": {
       "title": "Прогресс",
@@ -805,7 +813,17 @@
       "listHeaderTime": "Время",
       "listHeaderStatus": "Статус",
       "listHeaderActions": "Действия",
-      "coachFallback": "Тренер"
+      "coachFallback": "Тренер",
+      "filteredEmptyTitle": "Нет листов ожидания по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия или тренера.",
+      "filters": {
+        "searchPlaceholder": "Поиск по занятию или тренеру…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "coachAll": "Все тренеры",
+        "resetFilters": "Сбросить фильтры"
+      }
     },
     "classes": {
       "title": "Классы",
@@ -827,7 +845,21 @@
       "listHeaderCoach": "Тренер",
       "listHeaderSpots": "Места",
       "listHeaderActions": "Действия",
-      "bookedBadge": "Забронировано"
+      "bookedBadge": "Забронировано",
+      "filteredEmptyTitle": "Нет сессий по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия, тренера или доступность.",
+      "filters": {
+        "searchPlaceholder": "Поиск по занятию или тренеру…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "coachAll": "Все тренеры",
+        "availability": "Доступность",
+        "availabilityAll": "Любая доступность",
+        "availabilityAvailable": "Есть свободные места",
+        "availabilityFull": "Полно / лист ожидания",
+        "resetFilters": "Сбросить фильтры"
+      }
     },
     "notifications": {
       "title": "Уведомления",

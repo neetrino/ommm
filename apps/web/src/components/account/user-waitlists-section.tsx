@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   resolveSessionCoachName,
@@ -8,6 +9,15 @@ import {
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import {
+  buildUserSessionFilterFields,
+  DEFAULT_USER_SESSION_FILTER_VALUES,
+  extractSessionFilterOptions,
+  hasActiveUserSessionFilters,
+  matchesUserWaitlistFilters,
+  userSessionIntegratedFilterValues,
+  type UserSessionFilterValues,
+} from "@/components/account/user-session-filters";
 import { UserWaitlistBoardCard } from "@/components/account/user-waitlist-board-card";
 import {
   USER_BOOKINGS_LIST_ACTIONS_CELL,
@@ -22,6 +32,7 @@ import {
 } from "@/components/account/user-bookings-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 
@@ -34,9 +45,77 @@ type UserWaitlistsSectionProps = {
 export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsSectionProps) {
   const t = useTranslations("userPages.waitlists");
   const [viewMode, setView] = useUserListBoardView("waitlists");
+  const [filters, setFilters] = useState<UserSessionFilterValues>(DEFAULT_USER_SESSION_FILTER_VALUES);
+
+  const filterOptions = useMemo(
+    () => extractSessionFilterOptions(rows.map((row) => row.session)),
+    [rows],
+  );
+
+  const filterFields = useMemo(
+    () =>
+      buildUserSessionFilterFields({
+        classTypes: filterOptions.classTypes,
+        coaches: filterOptions.coaches,
+        labels: {
+          dateFrom: t("filters.dateFrom"),
+          dateTo: t("filters.dateTo"),
+          classAll: t("filters.classAll"),
+          coachAll: t("filters.coachAll"),
+          searchPlaceholder: t("filters.searchPlaceholder"),
+          resetFilters: t("filters.resetFilters"),
+        },
+      }),
+    [filterOptions.classTypes, filterOptions.coaches, t],
+  );
+
+  const integratedFilterValues = useMemo(
+    () => userSessionIntegratedFilterValues(filters, false),
+    [filters],
+  );
+
+  const filteredRows = useMemo(
+    () => rows.filter((row) => matchesUserWaitlistFilters(row, filters)),
+    [filters, rows],
+  );
+
+  const filtersActive = hasActiveUserSessionFilters(filters, false);
+
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    switch (key) {
+      case "from":
+        setFilters((current) => ({ ...current, from: value }));
+        break;
+      case "to":
+        setFilters((current) => ({ ...current, to: value }));
+        break;
+      case "classType":
+        setFilters((current) => ({ ...current, classType: value }));
+        break;
+      case "coach":
+        setFilters((current) => ({ ...current, coach: value }));
+        break;
+      default:
+        break;
+    }
+  }
+
+  function resetFilters(): void {
+    setFilters(DEFAULT_USER_SESSION_FILTER_VALUES);
+  }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={filters.search}
+        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+        searchPlaceholder={t("filters.searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={resetFilters}
+        resetLabel={t("filters.resetFilters")}
+      />
       <UserListBoardViewSwitcher
         pageId="waitlists"
         namespace="userPages.waitlists"
@@ -61,11 +140,18 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
         </section>
       ) : (
         <>
-          <p className="text-sm text-sage-600">{t("waitlistsCount", { count: rows.length })}</p>
+          <p className="text-sm text-sage-600">
+            {t("waitlistsCount", { count: filtersActive ? filteredRows.length : rows.length })}
+          </p>
 
-          {viewMode === "board" ? (
+          {filteredRows.length === 0 ? (
+            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+            </div>
+          ) : viewMode === "board" ? (
             <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {rows.map((item) => (
+              {filteredRows.map((item) => (
                 <li key={item.id} className="min-w-0 list-none">
                   <UserWaitlistBoardCard locale={locale} waitlist={item} />
                 </li>
@@ -82,7 +168,7 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
                 <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
               </div>
               <ul className={USER_LIST_STACK_CLASS}>
-                {rows.map((item) => (
+                {filteredRows.map((item) => (
                   <li key={item.id} className={`list-none ${USER_BOOKINGS_LIST_ROW_CLASS}`}>
                     <div className={USER_BOOKINGS_LIST_DATE_CELL}>
                       <SessionDateTimeHighlight

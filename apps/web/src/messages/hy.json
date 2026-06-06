@@ -733,7 +733,15 @@
       "listHeaderSessions": "Դասեր",
       "listHeaderPeriod": "ժամանակաշրջան",
       "listHeaderStatus": "Կարգավիճակ",
-      "listHeaderActions": "Գործողություններ"
+      "listHeaderActions": "Գործողություններ",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան փաթեթներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել կարգավիճակը կամ որոնման տեքստը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել փաթեթ կամ կատեգորիա…",
+        "status": "Կարգավիճակ",
+        "statusAll": "Բոլոր կարգավիճակները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      }
     },
     "progress": {
       "title": "Առաջընթաց",
@@ -817,7 +825,17 @@
       "listHeaderTime": "Ժամ",
       "listHeaderStatus": "Կարգավիճակ",
       "listHeaderActions": "Գործողություններ",
-      "coachFallback": "Մարզիչ"
+      "coachFallback": "Մարզիչ",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան սպասման ցուցակներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը կամ մարզիչը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել դաս կամ մարզիչ…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "coachAll": "Բոլոր մարզիչները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      }
     },
     "classes": {
       "title": "Դասեր",
@@ -839,7 +857,21 @@
       "listHeaderCoach": "Մարզիչ",
       "listHeaderSpots": "Տեղեր",
       "listHeaderActions": "Գործողություններ",
-      "bookedBadge": "Ամրագրված"
+      "bookedBadge": "Ամրագրված",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան սեսիաներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը, մարզիչը կամ հասանելիությունը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել դաս կամ մարզիչ…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "coachAll": "Բոլոր մարզիչները",
+        "availability": "Հասանելիություն",
+        "availabilityAll": "Ցանկացած հասանելիություն",
+        "availabilityAvailable": "Ազատ տեղեր կան",
+        "availabilityFull": "Լիքը / սպասման ցուցակ",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      }
     },
     "notifications": {
       "title": "Ծանուցումներ",

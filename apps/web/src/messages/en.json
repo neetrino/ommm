@@ -721,7 +721,15 @@
       "listHeaderSessions": "Sessions",
       "listHeaderPeriod": "Period",
       "listHeaderStatus": "Status",
-      "listHeaderActions": "Actions"
+      "listHeaderActions": "Actions",
+      "filteredEmptyTitle": "No packages match your filters",
+      "filteredEmptyDescription": "Try adjusting the status or search term.",
+      "filters": {
+        "searchPlaceholder": "Search package or category…",
+        "status": "Status",
+        "statusAll": "All statuses",
+        "resetFilters": "Reset filters"
+      }
     },
     "progress": {
       "title": "Progress",
@@ -805,7 +813,17 @@
       "listHeaderTime": "Time",
       "listHeaderStatus": "Status",
       "listHeaderActions": "Actions",
-      "coachFallback": "Coach"
+      "coachFallback": "Coach",
+      "filteredEmptyTitle": "No waitlists match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, or coach.",
+      "filters": {
+        "searchPlaceholder": "Search class or coach…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "coachAll": "All coaches",
+        "resetFilters": "Reset filters"
+      }
     },
     "classes": {
       "title": "Classes",
@@ -827,7 +845,21 @@
       "listHeaderCoach": "Coach",
       "listHeaderSpots": "Spots",
       "listHeaderActions": "Actions",
-      "bookedBadge": "Booked"
+      "bookedBadge": "Booked",
+      "filteredEmptyTitle": "No sessions match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or availability.",
+      "filters": {
+        "searchPlaceholder": "Search class or coach…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "coachAll": "All coaches",
+        "availability": "Availability",
+        "availabilityAll": "Any availability",
+        "availabilityAvailable": "Spots available",
+        "availabilityFull": "Full / waitlist",
+        "resetFilters": "Reset filters"
+      }
     },
     "notifications": {
       "title": "Notifications",
