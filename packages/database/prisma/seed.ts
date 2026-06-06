@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { seedAnalyticsDashboard } from "./seed/seed-analytics-dashboard";
 import { seedClassSessionsAndBookings } from "./seed/seed-classes";
 import { seedContentPosts } from "./seed/seed-content";
 import {
@@ -22,6 +23,7 @@ async function main(): Promise<void> {
   await seedMemberPackages(prisma, users, plans);
 
   await seedClassSessionsAndBookings(prisma, users);
+  await seedAnalyticsDashboard(prisma, users, plans);
   await seedContentPosts(prisma);
   await seedScheduleItems(prisma);
   await seedGiftCards(prisma, users);
