@@ -3107,7 +3107,7 @@
   "adminActions": {
     "studio": {
       "title": "Studio Settings",
-      "description": "Studio-level policy and contact settings.",
+      "description": "Manage how your studio appears to members — contact details, location, and booking policies.",
       "loadFailed": "Could not load studio settings ({status}).",
       "studioName": "Studio name",
       "contactEmail": "Contact email",
@@ -3117,12 +3117,64 @@
       "mapEmbedUrl": "Map embed URL",
       "workingHours": "Working hours",
       "socialLinksJson": "Social links JSON",
-      "cancellationHoursNotice": "Cancellation hours notice",
-      "waitlistOfferMinutes": "Waitlist offer minutes",
+      "cancellationHoursNotice": "Cancellation notice (hours)",
+      "waitlistOfferMinutes": "Waitlist offer window (minutes)",
       "save": "Save settings",
       "saving": "Saving...",
       "saved": "Settings updated.",
-      "failed": "Could not update settings."
+      "failed": "Could not update settings.",
+      "tiles": {
+        "identity": {
+          "title": "Studio identity",
+          "empty": "Name not set",
+          "helper": "Shown across the site, emails, and member tools."
+        },
+        "contact": {
+          "title": "Primary contact",
+          "empty": "No contact details yet",
+          "helper": "Used on the contact page and in member notifications.",
+          "helperPhone": "Phone: {phone}"
+        },
+        "policies": {
+          "title": "Booking rules",
+          "value": "{hours}h cancel · {minutes}m waitlist",
+          "helper": "Controls cancellation windows and waitlist offers."
+        }
+      },
+      "sections": {
+        "identity": {
+          "heading": "Identity",
+          "description": "Public studio name"
+        },
+        "contact": {
+          "heading": "Contact",
+          "description": "How members reach your team"
+        },
+        "location": {
+          "heading": "Location",
+          "description": "Address, map, and hours on the site"
+        },
+        "social": {
+          "heading": "Social links",
+          "description": "Optional JSON for footer and contact page"
+        },
+        "policies": {
+          "heading": "Policies",
+          "description": "Cancellation and waitlist timing"
+        }
+      },
+      "hints": {
+        "studioName": "Keep it short — this is your public brand name.",
+        "contactEmail": "Studio inbox for contact form and admin alerts.",
+        "contactPhone": "Optional. Shown on the contact page.",
+        "whatsappUrl": "Full link to your WhatsApp chat or business profile.",
+        "address": "Street address shown on the contact page.",
+        "mapEmbedUrl": "Google Maps or similar embed URL for the contact page.",
+        "workingHours": "Free text — e.g. Mon–Fri 9:00–21:00, Sat 10:00–18:00.",
+        "socialLinksJson": "JSON object mapping platform names to URLs (instagram, facebook, etc.).",
+        "cancellationHoursNotice": "How many hours before class start members can cancel.",
+        "waitlistOfferMinutes": "How long a waitlist spot stays reserved after an offer."
+      }
     }
   }
 }

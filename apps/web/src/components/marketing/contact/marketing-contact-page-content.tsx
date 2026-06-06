@@ -7,6 +7,7 @@ import { MarketingContactStudioCard } from "@/components/marketing/contact/marke
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { isMarketingMemberUser } from "@/lib/marketing-audience";
 import { userDisplayName } from "@/lib/user-display-name";
+import { listStudioSocialLinks } from "@/lib/studio-social-links";
 import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 type StudioPublic = {
@@ -19,31 +20,6 @@ type StudioPublic = {
   workingHours: string | null;
   socialLinksJson: string | null;
 };
-
-function parseSocialLinks(raw: string | null): { label: string; url: string }[] {
-  if (raw === null || raw.trim() === "") {
-    return [];
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed
-      .filter(
-        (row): row is { label: string; url: string } =>
-          typeof row === "object" &&
-          row !== null &&
-          "label" in row &&
-          "url" in row &&
-          typeof (row as { label: unknown }).label === "string" &&
-          typeof (row as { url: unknown }).url === "string",
-      )
-      .map((row) => ({ label: row.label, url: row.url }));
-  } catch {
-    return [];
-  }
-}
 
 function pickStudioValue(
   value: string | null | undefined,
@@ -66,7 +42,7 @@ export async function MarketingContactPageContent({
     getOptionalLayoutAuthUser(),
   ]);
   const studio = studioRes.ok ? studioRes.data : null;
-  const social = studio !== null ? parseSocialLinks(studio.socialLinksJson) : [];
+  const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
 
   const phone = pickStudioValue(studio?.contactPhone, t("fallbackPhone"));
   const email = pickStudioValue(studio?.contactEmail, t("fallbackEmail"));
