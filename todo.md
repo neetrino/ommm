@@ -3,7 +3,7 @@
 Postrannaya paginaciya dlya spiskov v admin i user account.  
 Profile-stranicy (`/admin/profile`, `/user/profile`, coach/manager) — formy, paginaciya ne nuzhna.
 
-**Sostoyanie (2026-06):** Plan zavershen. Polish (server-side filtry) — v rabote, sm. nizhe.
+**Sostoyanie (2026-06):** Plan zavershen. Pagination polish zavershen.
 
 **Konstanty:** `DEFAULT_LIST_PAGE_SIZE = 25`, `MAX_LIST_PAGE_SIZE = 100` (`apps/web/src/lib/list-pagination.ts`, `ListPaginationQueryDto`).  
 **URL:** `page` (1-based) + `pageSize` → `offset = (page - 1) * pageSize`. Pri smene filtrov — sbros na `page=1`.
@@ -20,17 +20,17 @@ Filtry primenyayutsya k **polnomu naboru** cherez API (ne k tekushchey stranice)
 | Finance members | done | `giftCardOnly`, quick → `/clients`; ubran client-side filter v panel |
 | Finance coaches | done | search/month/payout/quick → `/coaches/admin/salary-summaries` |
 | Notifications scheduled | done | post-process filter + URL keys `sched*`; SSR |
-| Notifications deliveries | partial | API filtry + SSR; UI filter → URL sync eshche nuzhen (`del*`) |
+| Notifications deliveries | done | API filtry + SSR; URL keys `del*` |
 | Analytics bookings | done | `countOnly=true` dlya tochnogo `matchedTotal`; sample ostetsya cap 1000 |
 | Clients post-process | improved | `giftCardOnly`, `birthdayMonth` prefilter `dateOfBirth not null` |
-| Schedule list view | **todo** | client-side filter v `admin-schedule-management.tsx` — nuzhny API filtry + URL |
+| Schedule list view | done | API filtry + URL keys `sched*`; calendar — client-side filter |
 
 **Ogranicheniya polish:**
 
 - Notifications: scan limit 2000 pri aktivnyh filtrah (`NOTIFICATIONS_FILTER_SCAN_LIMIT`)
 - Coach finance: scan limit 500 pri payout/quick/order filtrah
 - Clients post-process: scan limit 3000 (computed preferredCoach, attendance, VIP, …)
-- Deliveries tab: filtry v UI poka ne sinhroniziruyutsya s URL (pagination korrektna bez filtrov)
+- Deliveries tab: filtry sinhroniziruyutsya s URL (`del*`)
 
 ---
 
@@ -62,7 +62,7 @@ Filtry primenyayutsya k **polnomu naboru** cherez API (ne k tekushchey stranice)
 | Gift cards | `page`, `pageSize` + filter keys | `GET /gift-cards/admin/batches?take&offset&…` |
 | Notifications scheduled | `scheduledPage`, `schedSearch`, … | `GET /notifications/admin/scheduled?take&offset&…` |
 | Notifications deliveries | `deliveriesPage`, … | `GET /notifications/admin/deliveries?take&offset&…` |
-| Schedule **list view** | `schedulePage`, `schedulePageSize` | `GET /classes/admin/sessions?take&offset` |
+| Schedule **list view** | `schedulePage`, `schedulePageSize`, `schedQ`, … | `GET /classes/admin/sessions?take&offset&…` |
 | Schedule calendar views | — | polnaya vyborka bez pagination (kak ranshe) |
 | Coaches | `page`, `pageSize` | `GET /coaches/admin/list?take&offset` |
 | Finance coach tab | `coachPage`, `month`, `q`, … | `GET /coaches/admin/salary-summaries?take&offset&…` |
@@ -104,8 +104,8 @@ Filtry primenyayutsya k **polnomu naboru** cherez API (ne k tekushchey stranice)
 | Finance members | da | da | polish done |
 | Finance coaches | da | da | polish done |
 | Notifications scheduled | da | da | polish done |
-| Notifications deliveries | da | API da, URL partial | partial |
-| Schedule list | da | net | todo |
+| Notifications deliveries | da | da | polish done |
+| Schedule list | da | da | polish done |
 | Analytics | n/a | count + sample | polish done |
 
 ---

@@ -348,6 +348,7 @@ export class PaymentsService {
       throw new BadRequestException('Invalid date range');
     }
     const sourceFilter = this.buildSourceFilter(query.source);
+    const search = query.q?.trim();
     const where: Prisma.PaymentWhereInput = {
       ...(query.userId ? { userId: query.userId } : {}),
       ...(query.status ? { status: query.status } : {}),
@@ -358,6 +359,35 @@ export class PaymentsService {
               ...(query.from ? { gte: new Date(query.from) } : {}),
               ...(query.to ? { lte: new Date(query.to) } : {}),
             },
+          }
+        : {}),
+      ...(search
+        ? {
+            OR: [
+              { id: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+              { paymentReference: { contains: search, mode: 'insensitive' } },
+              {
+                user: {
+                  email: { contains: search, mode: 'insensitive' },
+                },
+              },
+              {
+                user: {
+                  name: { contains: search, mode: 'insensitive' },
+                },
+              },
+              {
+                user: {
+                  lastName: { contains: search, mode: 'insensitive' },
+                },
+              },
+              {
+                user: {
+                  phone: { contains: search, mode: 'insensitive' },
+                },
+              },
+            ],
           }
         : {}),
     };

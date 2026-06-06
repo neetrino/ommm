@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ADMIN_NOTIFICATIONS_LIST_CELL,
@@ -8,14 +8,6 @@ import {
   ADMIN_NOTIFICATIONS_LIST_HEADER_CLASS,
   ADMIN_NOTIFICATIONS_LIST_ROW_CLASS,
   ADMIN_NOTIFICATIONS_LIST_TABLE_CLASS,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_HEADER_CLASS,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_ACTIONS_HOVER_REVEAL,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_CLASS,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_SPACER_CELL,
-  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -35,19 +27,23 @@ import {
   parseAdminNotificationsDeliveriesPageParams,
 } from "@/components/admin/admin-notifications-query";
 import {
+  ADMIN_NOTIFICATIONS_DELIVERIES_FILTER_KEYS,
+  buildDeliveriesFiltersQuery,
   defaultDeliveriesListFilters,
   type DeliveriesListFilters,
 } from "@/components/admin/admin-notifications-url";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
+const SEARCH_DEBOUNCE_MS = 300;
+
 type Props = {
   locale: string;
   payload: AdminNotificationsListPayload<DeliveryRow>;
   loadFailed: boolean;
-  initialFilters?: DeliveriesListFilters;
+  initialFilters: DeliveriesListFilters;
 };
 
-type DeliveryQuickFilter = "" | "scheduled" | "immediate" | "sent-today";
+type DeliveryQuickFilter = DeliveriesListFilters["quick"];
 
 const audienceOptions: Array<[BroadcastAudience | "", string]> = [
   ["", "audienceAll"],
@@ -76,13 +72,55 @@ export function AdminNotificationsDeliveriesSection({
   const listPage = parseAdminNotificationsDeliveriesPageParams(
     Object.fromEntries(searchParams.entries()),
   );
-  const resolvedFilters = initialFilters ?? defaultDeliveriesListFilters;
-  const [search, setSearch] = useState(resolvedFilters.search);
-  const [audience, setAudience] = useState<BroadcastAudience | "">(resolvedFilters.audience);
-  const [channel, setChannel] = useState(resolvedFilters.channel);
-  const [timing, setTiming] = useState<"" | "scheduled" | "immediate">(resolvedFilters.timing);
-  const [order, setOrder] = useState<"newest" | "oldest">(resolvedFilters.order);
-  const [quick, setQuick] = useState<DeliveryQuickFilter>(resolvedFilters.quick);
+  const hasMounted = useRef(false);
+  const filtersRef = useRef(initialFilters);
+  const [filters, setFilters] = useState(initialFilters);
+
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
+
+  const syncFiltersToUrl = useCallback(
+    (values: DeliveriesListFilters, resetPage = false) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const key of ADMIN_NOTIFICATIONS_DELIVERIES_FILTER_KEYS) {
+        params.delete(key);
+      }
+      if (resetPage) {
+        resetListPageQuery(params, ADMIN_NOTIFICATIONS_DELIVERIES_PAGE_KEYS);
+      }
+      const filterQuery = buildDeliveriesFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, value] of new URLSearchParams(filterQuery)) {
+          params.set(key, value);
+        }
+      }
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  function patchFilters(patch: Partial<DeliveriesListFilters>, resetPage = true): void {
+    const next = { ...filtersRef.current, ...patch };
+    setFilters(next);
+    syncFiltersToUrl(next, resetPage);
+  }
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+    const handle = window.setTimeout(() => {
+      syncFiltersToUrl(filtersRef.current, true);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [filters.search, syncFiltersToUrl]);
 
   const channels = useMemo(() => {
     const unique = new Set(items.map((item) => item.channel).filter(Boolean));
@@ -90,16 +128,8 @@ export function AdminNotificationsDeliveriesSection({
   }, [items]);
 
   function resetFilters() {
-    setSearch("");
-    setAudience("");
-    setChannel("");
-    setTiming("");
-    setOrder("newest");
-    setQuick("");
-    const params = new URLSearchParams(searchParams.toString());
-    resetListPageQuery(params, ADMIN_NOTIFICATIONS_DELIVERIES_PAGE_KEYS);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    setFilters(defaultDeliveriesListFilters);
+    syncFiltersToUrl(defaultDeliveriesListFilters, true);
   }
 
   function setListPage(page: number, pageSize?: number) {
@@ -129,11 +159,11 @@ export function AdminNotificationsDeliveriesSection({
             key={value || "all"}
             type="button"
             className={
-              quick === value
+              filters.quick === value
                 ? "rounded-full bg-sage-800 px-3 py-1 text-xs font-medium text-white"
                 : "rounded-full border border-white/60 bg-white/55 px-3 py-1 text-xs font-medium text-sage-700"
             }
-            onClick={() => setQuick(value)}
+            onClick={() => patchFilters({ quick: filters.quick === value ? "" : value })}
           >
             {t(labelKey)}
           </button>
@@ -144,8 +174,8 @@ export function AdminNotificationsDeliveriesSection({
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.search")}</span>
           <input
             className="ommm-input"
-            value={search}
-            onChange={(ev) => setSearch(ev.target.value)}
+            value={filters.search}
+            onChange={(ev) => setFilters((current) => ({ ...current, search: ev.target.value }))}
             placeholder={t("filters.searchPlaceholder")}
             autoComplete="off"
           />
@@ -154,25 +184,25 @@ export function AdminNotificationsDeliveriesSection({
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.audience")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.audience")}
-            label={t(audienceOptions.find(([value]) => value === audience)?.[1] ?? "audienceAll")}
-            value={audience}
+            label={t(audienceOptions.find(([value]) => value === filters.audience)?.[1] ?? "audienceAll")}
+            value={filters.audience}
             options={ommOptionsFromTuples(
               audienceOptions.map(([value, labelKey]) => [value, t(labelKey)]),
             )}
-            onChange={(value) => setAudience(value as BroadcastAudience | "")}
+            onChange={(value) => patchFilters({ audience: value as BroadcastAudience | "" })}
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.channel")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.channel")}
-            label={channel === "" ? t("filters.channelAll") : channel}
-            value={channel}
+            label={filters.channel === "" ? t("filters.channelAll") : filters.channel}
+            value={filters.channel}
             options={[
               { value: "", label: t("filters.channelAll") },
               ...channels.map((value) => ({ value, label: value })),
             ]}
-            onChange={setChannel}
+            onChange={(value) => patchFilters({ channel: value })}
           />
         </label>
         <label className="flex flex-col gap-1">
@@ -180,29 +210,31 @@ export function AdminNotificationsDeliveriesSection({
           <OmmSelectDropdown
             ariaLabel={t("filters.timing")}
             label={
-              timing === "scheduled"
+              filters.timing === "scheduled"
                 ? t("scheduledTag")
-                : timing === "immediate"
+                : filters.timing === "immediate"
                   ? t("immediateTag")
                   : t("filters.timingAll")
             }
-            value={timing}
+            value={filters.timing}
             options={[
               { value: "", label: t("filters.timingAll") },
               { value: "scheduled", label: t("scheduledTag") },
               { value: "immediate", label: t("immediateTag") },
             ]}
-            onChange={(value) => setTiming(value as "" | "scheduled" | "immediate")}
+            onChange={(value) =>
+              patchFilters({ timing: value as "" | "scheduled" | "immediate" })
+            }
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.sort")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.sort")}
-            label={t(sortOptions.find(([value]) => value === order)?.[1] ?? "sortNewest")}
-            value={order}
+            label={t(sortOptions.find(([value]) => value === filters.order)?.[1] ?? "sortNewest")}
+            value={filters.order}
             options={sortOptions.map(([value, labelKey]) => ({ value, label: t(labelKey) }))}
-            onChange={(value) => setOrder(value as "newest" | "oldest")}
+            onChange={(value) => patchFilters({ order: value as "newest" | "oldest" })}
           />
         </label>
       </div>

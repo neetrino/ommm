@@ -11,9 +11,12 @@ import {
 } from "@/components/admin/admin-finance-notifications-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
+import { formatDateForUi } from "@/lib/date-display";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 type AdminFinanceUserCompactRowProps = {
   row: ClientRow;
+  locale: string;
   onEdit: () => void;
   onChanged: () => void;
 };
@@ -33,6 +36,7 @@ function paymentBadgeClass(status: string): string {
 
 export function AdminFinanceUserCompactRow({
   row,
+  locale,
   onEdit,
   onChanged,
 }: AdminFinanceUserCompactRowProps) {
@@ -56,6 +60,27 @@ export function AdminFinanceUserCompactRow({
         <AdminListMobileLabel label={t("colUser")} />
         <p className="text-sm font-medium text-sage-900">{displayName(row)}</p>
         <p className="mt-0.5 text-xs text-sage-500">{row.phone ?? "—"}</p>
+      </div>
+
+      <div className={ADMIN_FINANCE_USER_LIST_CELL}>
+        <AdminListMobileLabel label={t("colPlan")} />
+        <p className="text-sm text-sage-800">{row.activePlanName ?? t("noActivePackage")}</p>
+      </div>
+
+      <div className={ADMIN_FINANCE_USER_LIST_CELL}>
+        <AdminListMobileLabel label={t("colCost")} />
+        <p className="text-sm text-sage-800">
+          {row.activePlanCostCents !== null
+            ? formatAmdFromCents(row.activePlanCostCents, locale)
+            : "—"}
+        </p>
+      </div>
+
+      <div className={ADMIN_FINANCE_USER_LIST_CELL}>
+        <AdminListMobileLabel label={t("colExpiration")} />
+        <p className="text-sm text-sage-800">
+          {row.activePlanExpiresAt ? formatDateForUi(row.activePlanExpiresAt) : "—"}
+        </p>
       </div>
 
       <div className={ADMIN_FINANCE_USER_LIST_CELL}>

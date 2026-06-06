@@ -11,8 +11,15 @@ import {
   type Prisma,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildSessionsListWhere,
+  filterSessionRows,
+  paginateSessionRows,
+  requiresSessionsPostProcessing,
+  SESSIONS_FILTER_SCAN_LIMIT,
+} from './classes-sessions-list-filters';
 import { ScheduleService } from '../schedule/schedule.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
@@ -242,23 +249,10 @@ export class ClassesService {
         offset: number;
       }
   > {
+    const normalizedQuery = this.normalizeSessionsListQuery(query);
     const hasPagination =
-      query.take !== undefined || query.offset !== undefined;
-    const where: Prisma.ClassSessionWhereInput = {
-      ...(query.from || query.to
-        ? {
-            startsAt: {
-              ...(query.from ? { gte: new Date(query.from) } : {}),
-              ...(query.to ? { lte: new Date(query.to) } : {}),
-            },
-          }
-        : {}),
-      ...(query.status ? { status: query.status } : {}),
-      ...(query.coachId ? { coachId: query.coachId } : {}),
-      ...(query.typeId ? { classTypeId: query.typeId } : {}),
-      ...(query.level ? { level: query.level } : {}),
-      ...(query.classFormat ? { classFormat: query.classFormat } : {}),
-    };
+      normalizedQuery.take !== undefined || normalizedQuery.offset !== undefined;
+    const where = buildSessionsListWhere(normalizedQuery);
     const findArgs = {
       where,
       include: ADMIN_SESSION_INCLUDE,
@@ -287,8 +281,19 @@ export class ClassesService {
       return mapSessions(sessions);
     }
 
-    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
-    const offset = query.offset ?? 0;
+    const take = normalizedQuery.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = normalizedQuery.offset ?? 0;
+
+    if (requiresSessionsPostProcessing(normalizedQuery)) {
+      const sessions = await this.prisma.classSession.findMany({
+        ...findArgs,
+        take: SESSIONS_FILTER_SCAN_LIMIT,
+      });
+      const mapped = mapSessions(sessions);
+      const filtered = filterSessionRows(mapped, normalizedQuery);
+      return paginateSessionRows(filtered, take, offset);
+    }
+
     const [sessions, total] = await Promise.all([
       this.prisma.classSession.findMany({ ...findArgs, take, skip: offset }),
       this.prisma.classSession.count({ where }),
@@ -298,6 +303,36 @@ export class ClassesService {
       total,
       take,
       offset,
+    };
+  }
+
+  private normalizeSessionsListQuery(
+    query: AdminListSessionsQueryDto,
+  ): AdminListSessionsQueryDto {
+    const coachIds = [
+      ...(query.coachIds?.split(',').map((item) => item.trim()).filter(Boolean) ?? []),
+      ...(query.coachId ? [query.coachId] : []),
+    ];
+    const classTypeIds = [
+      ...(query.classTypeIds?.split(',').map((item) => item.trim()).filter(Boolean) ?? []),
+      ...(query.typeId ? [query.typeId] : []),
+    ];
+    const statuses = [
+      ...(query.statuses?.split(',').map((item) => item.trim()).filter(Boolean) ?? []),
+      ...(query.status ? [query.status] : []),
+    ];
+    const levels = [
+      ...(query.levels?.split(',').map((item) => item.trim()).filter(Boolean) ?? []),
+      ...(query.level ? [query.level] : []),
+    ];
+
+    return {
+      ...query,
+      coachIds: coachIds.length > 0 ? [...new Set(coachIds)].join(',') : query.coachIds,
+      classTypeIds:
+        classTypeIds.length > 0 ? [...new Set(classTypeIds)].join(',') : query.classTypeIds,
+      statuses: statuses.length > 0 ? [...new Set(statuses)].join(',') : query.statuses,
+      levels: levels.length > 0 ? [...new Set(levels)].join(',') : query.levels,
     };
   }
 

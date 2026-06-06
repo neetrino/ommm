@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -24,7 +24,6 @@ import { formatDateForUi } from "@/lib/date-display";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
-import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
@@ -50,6 +49,17 @@ import {
   ADMIN_SCHEDULE_LIST_PAGE_KEYS,
   parseAdminScheduleListPageParams,
 } from "@/components/admin/admin-schedule-query";
+import {
+  ADMIN_SCHEDULE_LIST_FILTER_KEYS,
+  buildScheduleFiltersQuery,
+  defaultScheduleListFilters,
+  type ScheduleListFilterState,
+} from "@/components/admin/admin-schedule-url";
+import {
+  buildSchedulePackageFilterOptions,
+  resolveScheduleSelectedClassTypeIds,
+  type SchedulePackageOption,
+} from "@/components/admin/admin-schedule-package-filter-options";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -111,6 +121,7 @@ type Props = {
   packages: AdminPackageRow[];
   coaches: AdminScheduleCoach[];
   initialView: ScheduleView;
+  initialFilterState: ScheduleListFilterState;
 };
 
 type Filters = {
@@ -150,12 +161,6 @@ type ScheduleToastTone = "ok" | "err";
 type ScheduleToast = {
   tone: ScheduleToastTone;
   message: string;
-};
-
-type SchedulePackageOption = {
-  id: string;
-  label: string;
-  classTypeIds: string[];
 };
 
 const STATUS_OPTIONS: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
@@ -259,20 +264,6 @@ function durationMinutes(row: AdminScheduleSession): number {
 
 function spotsLeft(row: AdminScheduleSession): number {
   return Math.max(row.capacity - row._count.bookings, 0);
-}
-
-function initialFilters(): Filters {
-  return {
-    q: "",
-    from: "",
-    to: "",
-    coachIds: [],
-    typeIds: [],
-    levels: [],
-    statuses: [],
-    availability: [],
-    timeOfDay: [],
-  };
 }
 
 function splitSessionLevels(level: string | null | undefined): string[] {
@@ -386,81 +377,6 @@ function batchFormPayload(
   };
 }
 
-function buildPackageFilterOptions(
-  packages: readonly AdminPackageRow[],
-  classTypes: readonly AdminScheduleClassType[],
-): SchedulePackageOption[] {
-  const classTypeIdByCategoryKey = new Map(
-    classTypes.map((type) => [normalizePackageCategoryKey(type.name), type.id]),
-  );
-  const byCategoryKey = new Map<
-    string,
-    { label: string; classTypeIds: Set<string> }
-  >();
-  const shellLabelByCategoryKey = new Map<string, string>();
-
-  for (const pkg of packages) {
-    const categoryKey = normalizePackageCategoryKey(pkg.categoryName);
-    const name = pkg.name.trim();
-    if (pkg.isActive && pkg.priceCents <= 0 && categoryKey.length > 0 && name.length > 0) {
-      shellLabelByCategoryKey.set(categoryKey, name);
-    }
-  }
-
-  for (const pkg of packages) {
-    if (!pkg.isActive) {
-      continue;
-    }
-    const categoryLabel = pkg.categoryName.trim();
-    if (categoryLabel.length === 0) {
-      continue;
-    }
-    const categoryKey = normalizePackageCategoryKey(categoryLabel);
-    const label = shellLabelByCategoryKey.get(categoryKey) ?? categoryLabel;
-    const mappedClassTypeId =
-      pkg.classTypeId ?? classTypeIdByCategoryKey.get(categoryKey);
-    const current = byCategoryKey.get(categoryKey);
-    if (current === undefined) {
-      byCategoryKey.set(categoryKey, {
-        label,
-        classTypeIds: new Set(mappedClassTypeId === undefined ? [] : [mappedClassTypeId]),
-      });
-      continue;
-    }
-    if (mappedClassTypeId !== undefined) {
-      current.classTypeIds.add(mappedClassTypeId);
-    }
-  }
-
-  return [...byCategoryKey.entries()]
-    .map(([id, option]) => ({
-      id,
-      label: option.label,
-      classTypeIds: [...option.classTypeIds],
-    }))
-    .sort((left, right) => left.label.localeCompare(right.label));
-}
-
-function resolveSelectedClassTypeIds(
-  selectedPackageIds: readonly string[],
-  packageOptions: readonly SchedulePackageOption[],
-): string[] {
-  if (selectedPackageIds.length === 0) {
-    return [];
-  }
-  const selected = new Set(selectedPackageIds);
-  const classTypeIds = new Set<string>();
-  for (const option of packageOptions) {
-    if (!selected.has(option.id)) {
-      continue;
-    }
-    for (const classTypeId of option.classTypeIds) {
-      classTypeIds.add(classTypeId);
-    }
-  }
-  return [...classTypeIds];
-}
-
 function buildSessionClassTypeOptions(
   classTypes: readonly AdminScheduleClassType[],
   packageOptions: readonly SchedulePackageOption[],
@@ -496,6 +412,7 @@ export function AdminScheduleManagement({
   packages,
   coaches,
   initialView,
+  initialFilterState,
 }: Props) {
   const t = useTranslations("adminPages.classes");
   const tPage = useTranslations("adminPages.schedule");
@@ -503,13 +420,17 @@ export function AdminScheduleManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const hasMounted = useRef(false);
+  const filterStateRef = useRef(initialFilterState);
   const [rows, setRows] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
   const [view, setView] = useState<ScheduleView>(initialView);
-  const [filters, setFilters] = useState<Filters>(() => initialFilters());
-  const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>([]);
-  const [searchDraft, setSearchDraft] = useState("");
+  const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
+  const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
+    () => initialFilterState.quickFilters,
+  );
+  const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
   const [selectedDay, setSelectedDay] = useState(() => isoDate(new Date()));
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
@@ -568,17 +489,77 @@ export function AdminScheduleManagement({
     setRows(sessions);
   }, [sessions]);
 
+  useEffect(() => {
+    filterStateRef.current = { filters, quickFilters };
+  }, [filters, quickFilters]);
+
+  useEffect(() => {
+    setFilters(initialFilterState.filters);
+    setQuickFilters(initialFilterState.quickFilters);
+    setSearchDraft(initialFilterState.filters.q);
+    filterStateRef.current = initialFilterState;
+  }, [initialFilterState]);
+
   const listPage = useMemo(
     () => parseAdminScheduleListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
 
+  const syncFilterStateToUrl = useCallback(
+    (state: ScheduleListFilterState, resetPage = false) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const key of ADMIN_SCHEDULE_LIST_FILTER_KEYS) {
+        params.delete(key);
+      }
+      if (resetPage && listPagination !== null) {
+        resetListPageQuery(params, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
+      }
+      const filterQuery = buildScheduleFiltersQuery(state.filters, state.quickFilters);
+      if (filterQuery.length > 0) {
+        for (const [key, value] of new URLSearchParams(filterQuery)) {
+          params.set(key, value);
+        }
+      }
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [listPagination, pathname, router, searchParams],
+  );
+
+  const patchFilterState = useCallback(
+    (
+      patch: {
+        filters?: Partial<Filters>;
+        quickFilters?: ScheduleQuickFilter[];
+      },
+      resetPage = true,
+    ) => {
+      const next: ScheduleListFilterState = {
+        filters: { ...filterStateRef.current.filters, ...patch.filters },
+        quickFilters: patch.quickFilters ?? filterStateRef.current.quickFilters,
+      };
+      setFilters(next.filters);
+      setQuickFilters(next.quickFilters);
+      filterStateRef.current = next;
+      syncFilterStateToUrl(next, resetPage);
+    },
+    [syncFilterStateToUrl],
+  );
+
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
     const handle = window.setTimeout(() => {
-      setFilters((current) => ({ ...current, q: searchDraft }));
+      const trimmed = searchDraft.trim();
+      if (filterStateRef.current.filters.q === trimmed) {
+        return;
+      }
+      patchFilterState({ filters: { q: trimmed } }, true);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [searchDraft]);
+  }, [patchFilterState, searchDraft]);
 
   useEffect(() => {
     if (toast === null) {
@@ -595,7 +576,7 @@ export function AdminScheduleManagement({
   }, [rows]);
 
   const packageOptions = useMemo(
-    () => buildPackageFilterOptions(packages, classTypes),
+    () => buildSchedulePackageFilterOptions(packages, classTypes),
     [classTypes, packages],
   );
 
@@ -605,7 +586,7 @@ export function AdminScheduleManagement({
   }, [filters.typeIds, packageOptions]);
 
   const selectedClassTypeIds = useMemo(
-    () => resolveSelectedClassTypeIds(validSelectedPackageIds, packageOptions),
+    () => resolveScheduleSelectedClassTypeIds(validSelectedPackageIds, packageOptions),
     [packageOptions, validSelectedPackageIds],
   );
 
@@ -613,6 +594,8 @@ export function AdminScheduleManagement({
     () => buildSessionClassTypeOptions(classTypes, packageOptions),
     [classTypes, packageOptions],
   );
+
+  const isListView = view === "list";
 
   const filteredRows = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
@@ -633,17 +616,20 @@ export function AdminScheduleManagement({
     });
   }, [filters, quickFilters, rows, selectedClassTypeIds, validSelectedPackageIds]);
 
+  const displayRows = isListView ? rows : filteredRows;
+
   const summary = useMemo(() => {
     const now = new Date();
+    const source = displayRows;
     return {
-      total: filteredRows.length,
-      active: filteredRows.filter((row) => row.status === "ACTIVE").length,
-      upcoming: filteredRows.filter((row) => new Date(row.startsAt) >= now).length,
-      full: filteredRows.filter((row) => spotsLeft(row) === 0).length,
-      cancelled: filteredRows.filter((row) => row.status === "CANCELLED").length,
-      draft: filteredRows.filter((row) => row.status === "DRAFT").length,
+      total: isListView && listPagination !== null ? listPagination.total : source.length,
+      active: source.filter((row) => row.status === "ACTIVE").length,
+      upcoming: source.filter((row) => new Date(row.startsAt) >= now).length,
+      full: source.filter((row) => spotsLeft(row) === 0).length,
+      cancelled: source.filter((row) => row.status === "CANCELLED").length,
+      draft: source.filter((row) => row.status === "DRAFT").length,
     };
-  }, [filteredRows]);
+  }, [displayRows, isListView, listPagination]);
 
   const sessionCountByTypeId = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -653,20 +639,16 @@ export function AdminScheduleManagement({
     return counts;
   }, [rows]);
 
-  function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
-    setFilters((current) => ({ ...current, [key]: value }));
-  }
-
   function resetFilters() {
+    const cleared: ScheduleListFilterState = {
+      filters: defaultScheduleListFilters,
+      quickFilters: [],
+    };
     setSearchDraft("");
-    setFilters(initialFilters());
-    setQuickFilters([]);
-    if (listPagination !== null) {
-      const params = new URLSearchParams(searchParams.toString());
-      resetListPageQuery(params, ADMIN_SCHEDULE_LIST_PAGE_KEYS);
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    }
+    setFilters(cleared.filters);
+    setQuickFilters(cleared.quickFilters);
+    filterStateRef.current = cleared;
+    syncFilterStateToUrl(cleared, true);
   }
 
   const setListPage = useCallback(
@@ -828,31 +810,41 @@ export function AdminScheduleManagement({
   function handleIntegratedFilterChange(key: string, value: string) {
     switch (key) {
       case "from":
-        updateFilter("from", value);
+        patchFilterState({ filters: { from: value } });
         break;
       case "to":
-        updateFilter("to", value);
+        patchFilterState({ filters: { to: value } });
         break;
       case "coachIds":
-        updateFilter("coachIds", parseAdminScheduleListFilter(value));
+        patchFilterState({ filters: { coachIds: parseAdminScheduleListFilter(value) } });
         break;
       case "typeIds":
-        updateFilter("typeIds", parseAdminScheduleListFilter(value));
+        patchFilterState({ filters: { typeIds: parseAdminScheduleListFilter(value) } });
         break;
       case "levels":
-        updateFilter("levels", parseAdminScheduleListFilter(value));
+        patchFilterState({ filters: { levels: parseAdminScheduleListFilter(value) } });
         break;
       case "statuses":
-        updateFilter("statuses", parseAdminScheduleListFilter(value) as SessionStatus[]);
+        patchFilterState({
+          filters: { statuses: parseAdminScheduleListFilter(value) as SessionStatus[] },
+        });
         break;
       case "availability":
-        updateFilter("availability", parseAdminScheduleListFilter(value) as AvailabilityOption[]);
+        patchFilterState({
+          filters: {
+            availability: parseAdminScheduleListFilter(value) as AvailabilityOption[],
+          },
+        });
         break;
       case "timeOfDay":
-        updateFilter("timeOfDay", parseAdminScheduleListFilter(value) as TimeOfDayOption[]);
+        patchFilterState({
+          filters: { timeOfDay: parseAdminScheduleListFilter(value) as TimeOfDayOption[] },
+        });
         break;
       case "quick":
-        setQuickFilters(parseAdminScheduleListFilter(value) as ScheduleQuickFilter[]);
+        patchFilterState({
+          quickFilters: parseAdminScheduleListFilter(value) as ScheduleQuickFilter[],
+        });
         break;
       default:
         break;
@@ -954,7 +946,7 @@ export function AdminScheduleManagement({
       <ScheduleViews
         locale={locale}
         view={view}
-        rows={filteredRows}
+        rows={displayRows}
         selectedDay={selectedDay}
         onSelectDay={setSelectedDay}
         onDetails={setDetails}

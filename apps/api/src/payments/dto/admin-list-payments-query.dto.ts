@@ -38,6 +38,11 @@ export class AdminListPaymentsQueryDto {
   @IsString()
   userId?: string;
 
+  /** Matches payment id, reference, description, or user name/email/phone. */
+  @IsOptional()
+  @IsString()
+  q?: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

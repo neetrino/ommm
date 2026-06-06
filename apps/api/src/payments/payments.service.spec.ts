@@ -162,6 +162,25 @@ describe('PaymentsService', () => {
     expect(result.items[0]?.source).toBe('package');
   });
 
+  it('adminListPayments applies q search filter', async () => {
+    const { service, prisma } = createService();
+    await service.adminListPayments({ q: 'alice@studio.test', take: 10, offset: 0 });
+
+    expect(prisma.payment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.arrayContaining([
+            expect.objectContaining({
+              user: expect.objectContaining({
+                email: expect.objectContaining({ contains: 'alice@studio.test' }),
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
+  });
+
   it('createDropInCheckout rejects when session is already booked', async () => {
     const { service, prisma } = createService();
     prisma.classSession.findUnique.mockResolvedValue({

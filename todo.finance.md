@@ -79,9 +79,9 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ## Faza 0 — Podgotovka i dogovorennosti
 
-- [ ] Utverdit 4 taba i imena URL (Overview / Payments / Members / Coaches)
-- [ ] Utverdit: routes vs odin page + `?tab=` (plan = **routes**)
-- [ ] Zafiksirovat granicu Finance vs Analytics (ne perenosit charts syuda)
+- [x] Utverdit 4 taba i imena URL (Overview / Payments / Members / Coaches)
+- [x] Utverdit: routes vs odin page + `?tab=` (plan = **routes**)
+- [x] Zafiksirovat granicu Finance vs Analytics (ne perenosit charts syuda)
 
 ---
 
@@ -89,34 +89,34 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ### 1.1 Finance layout
 
-- [ ] `apps/web/src/app/[locale]/(admin)/admin/finance/layout.tsx`
+- [x] `apps/web/src/app/[locale]/(admin)/admin/finance/layout.tsx`
   - `AdminPageHero` s title «Finance»
   - Tab nav: `PageHeroNavLinks` pattern (ili analog na `Link` + active state)
   - Slot dlya tab-specific search (children ili context)
-- [ ] Redirect `/admin/finance` → `/admin/finance/overview`
-- [ ] Legacy redirect `?tab=user|coach` → members|coaches
+- [x] Redirect `/admin/finance` → `/admin/finance/overview`
+- [x] Legacy redirect `?tab=user|coach` → members|coaches
 
 ### 1.2 Stranicy tabov
 
-- [ ] `finance/overview/page.tsx` — perenesti KPI, revenue by source, gift credits iz tekushchego `page.tsx`
-- [ ] `finance/payments/page.tsx` — billing history (iz `AdminUserFinanceTab` → otdelnyy komponent)
-- [ ] `finance/members/page.tsx` — user finance list (bez billing history)
-- [ ] `finance/coaches/page.tsx` — coach finance tab
+- [x] `finance/overview/page.tsx` — perenesti KPI, revenue by source, gift credits iz tekushchego `page.tsx`
+- [x] `finance/payments/page.tsx` — billing history (iz `AdminUserFinanceTab` → otdelnyy komponent)
+- [x] `finance/members/page.tsx` — user finance list (bez billing history)
+- [x] `finance/coaches/page.tsx` — coach finance tab
 
 ### 1.3 Obshchie komponenty
 
-- [ ] `admin-finance-tab-nav.tsx` — tab links + i18n
-- [ ] `admin-finance-hero-filters.tsx` — render raznyh `AdminIntegratedSearchFilters` po aktivnomu tabu
-- [ ] Razbit `admin-finance-url.ts` na tab-specific parse/build helpers
-- [ ] Udalit / ne ispolzovat staryy monolit `admin/finance/page.tsx` (posle migracii)
+- [x] `admin-finance-tab-nav.tsx` — tab links + i18n
+- [x] `admin-finance-hero-filters.tsx` — render raznyh `AdminIntegratedSearchFilters` po aktivnomu tabu
+- [x] Razbit `admin-finance-url.ts` na tab-specific parse/build helpers
+- [x] Udalit / ne ispolzovat staryy monolit `admin/finance/page.tsx` (posle migracii)
 
 ### 1.4 Uborka dublej (v ramkah Fazy 1)
 
-- [ ] Ubrat description iz hero (ostavit tolko nav subtitle)
-- [ ] Ubrat CSV export block poseredine stranicy
-- [ ] CSV knopki → `trailing` hero (Overview: 2 knopki; Payments: 1 knopka)
-- [ ] Ubrat vnutrennie search-bary iz Members / Coaches tabov
-- [ ] Ubrat Billing history iz Members taba (uzhe v Payments)
+- [x] Ubrat description iz hero (ostavit tolko nav subtitle)
+- [x] Ubrat CSV export block poseredine stranicy
+- [x] CSV knopki → `trailing` hero (Overview: 2 knopki; Payments: 1 knopka)
+- [x] Ubrat vnutrennie search-bary iz Members / Coaches tabov
+- [x] Ubrat Billing history iz Members taba (uzhe v Payments)
 - [x] ~~Udalit mertvyy `finance-payments-table.tsx`~~ — udaleno / vstroeno v `admin-finance-payments-panel.tsx` (`FinancePaymentsTable`)
 
 ---
@@ -125,41 +125,41 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ### Overview
 
-- [ ] Hero: tolko `rangeDays` (7 / 30 / 90) + opcionalno «This month»
-- [ ] Net text search
-- [ ] Trailing: Export payments CSV, Export gift credits CSV (`from` iz rangeDays)
-- [ ] Podpisi u KPI: «All time», «This month», «Last N days» — chtoby cifry ne putalis
+- [x] Hero: tolko `rangeDays` (7 / 30 / 90) + opcionalno «This month»
+- [x] Net text search
+- [x] Trailing: Export payments CSV, Export gift credits CSV (`from` iz rangeDays)
+- [x] Podpisi u KPI: «All time», «This month», «Last N days» — chtoby cifry ne putalis
 
 ### Payments
 
-- [ ] Hero search `q` → API `/payments/admin` (nuzhen backend: sm. Faza 4)
-- [ ] Filtry: rangeDays, source, status (kak seychas, no tolko na etom tabe)
-- [ ] `BillingHistoryTable` / payments table + `OmmListPagination`
-- [ ] `AdminFinancePaymentActions` (Mark paid / Reject)
+- [x] Hero search `q` → API `/payments/admin` (nuzhen backend: sm. Faza 4)
+- [x] Filtry: rangeDays, source, status (kak seychas, no tolko na etom tabe)
+- [x] `BillingHistoryTable` / payments table + `OmmListPagination`
+- [x] `AdminFinancePaymentActions` (Mark paid / Reject)
 
 ### Members
 
-- [ ] Hero search → `/clients?search=…&meta=true`
-- [ ] Filtry: paymentStatus, order, giftCardOnly, quick chips
-- [ ] Ubrat dubli payment status filtra esli oni est v hero
-- [ ] `AdminFinanceUserCompactRow` + drawer
-- [ ] Pagination: `userPage`, `userPageSize`
+- [x] Hero search → `/clients?search=…&meta=true`
+- [x] Filtry: paymentStatus, order, giftCardOnly, quick chips
+- [x] Ubrat dubli payment status filtra esli oni est v hero
+- [x] `AdminFinanceUserCompactRow` + drawer
+- [x] Pagination: `userPage`, `userPageSize`
 
 ### Coaches
 
-- [ ] Hero search — lokalno ili server (posle Fazy 4 pagination)
-- [ ] Filtry: month, payoutStatus, order, quick chips
-- [ ] `AdminCoachSessionsDrawer`
-- [ ] Ostavit informacionnyy banner pro estimated salary (do backend payroll)
+- [x] Hero search — server (`/coaches/admin/salary-summaries?search=…`)
+- [x] Filtry: month, payoutStatus, order, quick chips
+- [x] `AdminCoachSessionsDrawer`
+- [x] Ostavit informacionnyy banner pro estimated salary (do backend payroll)
 
 ---
 
 ## Faza 3 — KPI i periody (P1)
 
-- [ ] Total revenue — yavno «All time» (ili peremestit na Overview s podpisyu)
-- [ ] Monthly revenue — «This calendar month»
-- [ ] Pending / Completed / Refunded — sinhron s `rangeDays` + podpis «Last N days»
-- [ ] Revenue by source + Gift credits — tot zhe `rangeDays` chto na Overview
+- [x] Total revenue — yavno «All time» (ili peremestit na Overview s podpisyu)
+- [x] Monthly revenue — «This calendar month»
+- [x] Pending / Completed / Refunded — sinhron s `rangeDays` + podpis «Last N days»
+- [x] Revenue by source + Gift credits — tot zhe `rangeDays` chto na Overview
 - [ ] (Opcionalno) ubrat `dashboardRes.revenueCentsTotal` s Overview esli dubliruet Monthly + range — soglasovat s product
 
 ---
@@ -168,20 +168,20 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ### Payments search
 
-- [ ] API `GET /payments/admin` — param `q` (email, name, payment id, description)
-- [ ] Frontend: peredavat `q` iz hero Payments tab
+- [x] API `GET /payments/admin` — param `q` (email, name, payment id, description)
+- [x] Frontend: peredavat `q` iz hero Payments tab
 
 ### Members — polnye kolonki (spec §9.3)
 
-- [ ] API `/clients` — v `meta=true` otdavat active package: plan name, cost, expiration (esli net — dobavit v clients.service)
-- [ ] UI kolonki: Plan, Cost, Expiration (i18n uzhe est v `userTab`)
+- [x] API `/clients` — v `meta=true` otdavat active package: plan name, cost, expiration (esli net — dobavit v clients.service)
+- [x] UI kolonki: Plan, Cost, Expiration (i18n uzhe est v `userTab`)
 - [ ] Actions: pause membership, refund request, notification (chastichno est modalki — dovesti do spec)
 
 ### Coaches
 
-- [ ] API: `GET /coaches/admin/salary-summaries?month=YYYY-MM` — filtr po mesyacu
+- [x] API: `GET /coaches/admin/salary-summaries?month=YYYY-MM` — filtr po mesyacu
 - [ ] Pagination `/coaches/admin/list` — `take` / `offset` (svyaz s `todo.md` Faza 2 Coaches)
-- [ ] Coach finance tab: server pagination vmesto lokalnogo filtra
+- [x] Coach finance tab: server pagination vmesto lokalnogo filtra
 
 ### Clients API hardening (svyaz s todo.md Faza 4)
 
@@ -191,10 +191,10 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ## Faza 5 — i18n i docs (P1)
 
-- [ ] `adminPages.finance.tabs.overview|payments|members|coaches`
-- [ ] Tab-specific filter labels / placeholders
+- [x] `adminPages.finance.tabs.overview|payments|members|coaches`
+- [x] Tab-specific filter labels / placeholders
 - [ ] Ubrat neispolzuemye klyuchi (`exportHeading`, `exportHint` esli block udalen)
-- [ ] Obnovit `hy.json`, `ru.json`, `en.json`
+- [x] Obnovit `hy.json`, `ru.json`, `en.json`
 - [ ] (Opcionalno) kratkaya zametka v `docs/SITE_FULL_ANALYSIS.md` — novaya struktura Finance
 
 ---
@@ -254,10 +254,10 @@ Legacy: `/admin/finance?tab=user` → redirect `/admin/finance/members`; `?tab=c
 
 ## Kriterii gotovnosti (DoD)
 
-- [ ] Odin search-bar v hero; pri smene taba menyayutsya placeholder, filtry i trailing
-- [ ] Net vtorogo poiska nad tablicami v Members / Coaches
-- [ ] Billing history tolko na tabe Payments
-- [ ] CSV export v hero, ne otdelnym blokom
-- [ ] `/admin/finance?tab=*` redirect na novye URL
-- [ ] Vse 3 locale obnovleny
-- [ ] Net mertvogo `q` bez effekta (libo rabotaet na Payments, libo ubran)
+- [x] Odin search-bar v hero; pri smene taba menyayutsya placeholder, filtry i trailing
+- [x] Net vtorogo poiska nad tablicami v Members / Coaches
+- [x] Billing history tolko na tabe Payments
+- [x] CSV export v hero, ne otdelnym blokom
+- [x] `/admin/finance?tab=*` redirect na novye URL
+- [x] Vse 3 locale obnovleny
+- [x] Net mertvogo `q` bez effekta (libo rabotaet na Payments, libo ubran)

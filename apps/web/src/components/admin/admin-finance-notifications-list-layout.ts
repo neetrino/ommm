@@ -11,7 +11,7 @@ import {
 } from "@/components/admin/admin-list-table-layout";
 
 const FINANCE_USER_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1.4fr)_auto_auto_1fr_auto]";
+  "md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)_auto_auto_auto_auto_1fr_auto]";
 
 export const ADMIN_FINANCE_USER_LIST_TABLE_CLASS = buildAdminListTableClass(FINANCE_USER_GRID_CLASS);
 

@@ -91,6 +91,9 @@ export function AdminFinanceMembersPanel({ locale, initialClients, filters }: Pr
       <div className={ADMIN_FINANCE_USER_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_USER_LIST_HEADER_CLASS}>
           <span>{t("colUser")}</span>
+          <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colPlan")}</span>
+          <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colCost")}</span>
+          <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colExpiration")}</span>
           <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
           <span className={ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER}>{t("colGiftCard")}</span>
           <span aria-hidden="true" />
@@ -105,6 +108,7 @@ export function AdminFinanceMembersPanel({ locale, initialClients, filters }: Pr
             <AdminFinanceUserCompactRow
               key={row.id}
               row={row}
+              locale={locale}
               onEdit={() => setSelected(row)}
               onChanged={refetchClients}
             />

@@ -34,6 +34,9 @@ export type ClientRow = {
   lastVisitDate: string | null;
   birthdayMonth: number | null;
   hasGiftCardActivity: boolean;
+  activePlanName: string | null;
+  activePlanCostCents: number | null;
+  activePlanExpiresAt: string | null;
 };
 
 export type AdminClientsPayload = {
