@@ -42,13 +42,11 @@ export async function StaffScheduleSessionsList({
         {showCoach ? (
           <span className={layout.emphasizedHeaderClass}>{tCols("colCoach")}</span>
         ) : null}
+        <span className={layout.emphasizedHeaderClass}>{tCols("colCapacity")}</span>
         {showCoach ? null : (
           <span className={layout.emphasizedHeaderClass}>{tCols("colTags")}</span>
         )}
         <span className={layout.emphasizedHeaderClass}>{tCols("colStatus")}</span>
-        <span className={`${layout.emphasizedHeaderClass} md:justify-self-end md:text-right`}>
-          {tCols("colCapacity")}
-        </span>
       </div>
       {sessions.map((row) => (
         <StaffScheduleSessionRow key={row.id} locale={locale} row={row} preset={preset} />

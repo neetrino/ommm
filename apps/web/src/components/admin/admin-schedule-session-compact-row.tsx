@@ -24,7 +24,7 @@ import {
 } from "@/components/admin/admin-schedule-sessions-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { ScheduleSessionCapacityIndicator } from "@/components/shared/schedule/schedule-session-capacity-indicator";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 
@@ -50,6 +50,9 @@ export function AdminScheduleSessionCompactRow({
   const t = useTranslations("adminPages.classes");
   const classFormat = row.classFormat?.trim();
   const levels = splitSessionLevels(row.level);
+  const booked = row._count.bookings;
+  const capacityLabel = t("fields.spotsBooked", { booked, capacity: row.capacity });
+  const spotsLeftLabel = t("fields.spotsLeft", { count: spotsLeft(row) });
 
   return (
     <article
@@ -103,12 +106,12 @@ export function AdminScheduleSessionCompactRow({
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_CAPACITY_CELL}>
         <AdminListMobileLabel label={t("colCapacity")} />
-        <p className="text-sm font-medium text-sage-800">
-          {row._count.bookings}/{row.capacity}
-        </p>
-        <p className={`${adminChrome.metaText} mt-0.5`}>
-          {t("fields.spotsLeft", { count: spotsLeft(row) })}
-        </p>
+        <ScheduleSessionCapacityIndicator
+          booked={booked}
+          capacity={row.capacity}
+          spotsLabel={capacityLabel}
+          secondaryLabel={spotsLeftLabel}
+        />
       </div>
 
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_CELL}>

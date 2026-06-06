@@ -56,13 +56,11 @@ export function StaffScheduleSessionsTable({
         {showCoach ? (
           <span className={layout.emphasizedHeaderClass}>{t("colCoach")}</span>
         ) : null}
+        <span className={layout.emphasizedHeaderClass}>{t("colCapacity")}</span>
         {showCoach ? null : (
           <span className={layout.emphasizedHeaderClass}>{t("colTags")}</span>
         )}
         <span className={layout.emphasizedHeaderClass}>{t("colStatus")}</span>
-        <span className={`${layout.emphasizedHeaderClass} md:justify-self-end md:text-right`}>
-          {t("colCapacity")}
-        </span>
       </div>
       {sorted.map((row) => (
         <StaffScheduleSessionRowClient
@@ -130,6 +128,16 @@ function StaffScheduleSessionRowClient({
         </div>
       ) : null}
 
+      <div className={layout.capacityCellClass}>
+        <AdminListMobileLabel label={t("colCapacity")} />
+        <ScheduleSessionCapacityIndicator
+          booked={booked}
+          capacity={row.capacity}
+          spotsLabel={capacityLabel}
+          secondaryLabel={spotsLeftLabel}
+        />
+      </div>
+
       {showCoach ? null : (
         <div className={layout.tagsCellClass}>
           <AdminListMobileLabel label={t("colTags")} />
@@ -147,16 +155,6 @@ function StaffScheduleSessionRowClient({
         >
           {t(`status.${row.status}`)}
         </span>
-      </div>
-
-      <div className={layout.capacityCellClass}>
-        <AdminListMobileLabel label={t("colCapacity")} />
-        <ScheduleSessionCapacityIndicator
-          booked={booked}
-          capacity={row.capacity}
-          spotsLabel={capacityLabel}
-          secondaryLabel={spotsLeftLabel}
-        />
       </div>
     </article>
   );

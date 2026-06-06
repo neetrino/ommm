@@ -81,6 +81,16 @@ export async function StaffScheduleSessionRow({
         </div>
       ) : null}
 
+      <div className={layout.capacityCellClass}>
+        <AdminListMobileLabel label={t("colCapacity")} />
+        <ScheduleSessionCapacityIndicator
+          booked={booked}
+          capacity={row.capacity}
+          spotsLabel={capacityLabel}
+          secondaryLabel={spotsLeftLabel}
+        />
+      </div>
+
       {showCoach ? null : (
         <div className={layout.tagsCellClass}>
           <AdminListMobileLabel label={t("colTags")} />
@@ -98,16 +108,6 @@ export async function StaffScheduleSessionRow({
         >
           {t(`status.${row.status}`)}
         </span>
-      </div>
-
-      <div className={layout.capacityCellClass}>
-        <AdminListMobileLabel label={t("colCapacity")} />
-        <ScheduleSessionCapacityIndicator
-          booked={booked}
-          capacity={row.capacity}
-          spotsLabel={capacityLabel}
-          secondaryLabel={spotsLeftLabel}
-        />
       </div>
     </article>
   );

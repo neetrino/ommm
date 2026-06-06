@@ -18,9 +18,9 @@ const PRESET_GRID_CLASS: Record<ScheduleSessionsListPreset, string> = {
   admin:
     "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8rem,auto)_minmax(7rem,auto)_minmax(8.5rem,auto)_1fr_auto]",
   staffReadOnly:
-    "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8.5rem,auto)_minmax(6.5rem,auto)_minmax(8.5rem,10rem)]",
+    "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(7rem,auto)_minmax(8.5rem,auto)_minmax(6.5rem,auto)]",
   staffWithCoach:
-    "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8rem,auto)_minmax(6.5rem,auto)_minmax(8.5rem,10rem)]",
+    "md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)_minmax(8rem,auto)_minmax(7rem,auto)_minmax(6.5rem,auto)]",
 };
 
 const READ_ONLY_ROW_CLASS = [
@@ -55,7 +55,7 @@ export function getScheduleSessionsListLayout(
     rowClass: preset === "admin" ? ADMIN_LIST_ROW_CLASS : READ_ONLY_ROW_CLASS,
     cellClass: USER_LIST_CELL_CLASS,
     dateTimeCellClass: USER_LIST_DATE_CELL,
-    capacityCellClass: `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-end md:text-right`,
+    capacityCellClass: `${USER_LIST_CELL_CLASS} tabular-nums`,
     tagsCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5`,
     statusCellClass: USER_LIST_CELL_CLASS,
     coachCellClass: USER_LIST_CELL_CLASS,
