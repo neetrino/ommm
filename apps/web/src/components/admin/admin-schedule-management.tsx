@@ -20,17 +20,29 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatDateForUi } from "@/lib/date-display";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
-import { AdminScheduleSessionActions } from "@/components/admin/admin-schedule-session-actions";
+import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
+import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
+import {
+  ADMIN_SCHEDULE_STATUS_BADGE_CLASS,
+  sessionStatusBadgeTone,
+} from "@/components/admin/admin-schedule-session-list-badges";
+import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
+import {
+  ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER,
+  ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
+  ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-schedule-sessions-list-layout";
 import {
   matchesScheduleQuickFilters,
   SCHEDULE_QUICK_FILTER_VALUES,
   type ScheduleQuickFilter,
 } from "@/components/admin/admin-schedule-quick-filters";
-import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
+import { OmmModalPortal } from "@/components/ui/omm-modal";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 type ScheduleDayOfWeek =
@@ -237,36 +249,6 @@ function durationMinutes(row: AdminScheduleSession): number {
 function spotsLeft(row: AdminScheduleSession): number {
   return Math.max(row.capacity - row._count.bookings, 0);
 }
-
-function formatSessionTimes(
-  locale: string,
-  startsAt: string,
-  endsAt: string,
-): { start: string; end: string } {
-  const formatter = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
-  return {
-    start: formatter.format(new Date(startsAt)),
-    end: formatter.format(new Date(endsAt)),
-  };
-}
-
-const scheduleTable = {
-  wrap: adminChrome.tableWrap,
-  table: "w-full min-w-[56rem] table-fixed border-collapse text-left text-xs sm:text-sm",
-  row: `${adminChrome.tr} transition-colors hover:bg-white/40`,
-  th: `${adminChrome.th} px-3 py-3 align-middle first:pl-5 last:pr-5`,
-  thCompact: `${adminChrome.th} px-3 py-3 text-center align-middle whitespace-nowrap`,
-  thGroup: `${adminChrome.th} w-[9%] px-4 py-3 align-middle whitespace-nowrap`,
-  thGroupCenter: `${adminChrome.th} w-[9%] px-4 py-3 text-center align-middle whitespace-nowrap`,
-  thActions: `${adminChrome.th} w-[6.5rem] px-2 py-3 text-center align-middle`,
-  tdPrimary: `${adminChrome.tdStrong} min-w-0 px-3 py-3.5 align-middle first:pl-5`,
-  td: `${adminChrome.td} min-w-0 px-3 py-3.5 align-middle`,
-  tdMuted: `${adminChrome.tdMuted} min-w-0 px-3 py-3.5 align-middle`,
-  tdCompact: `${adminChrome.td} px-3 py-3.5 text-center align-middle whitespace-nowrap tabular-nums`,
-  tdGroup: `${adminChrome.td} w-[9%] min-w-0 px-4 py-3.5 align-middle`,
-  tdGroupCenter: `${adminChrome.td} w-[9%] px-4 py-3.5 text-center align-middle whitespace-nowrap tabular-nums`,
-  tdActions: "w-[6.5rem] min-w-0 px-2 py-2 align-middle last:pr-3",
-} as const;
 
 function initialFilters(): Filters {
   return {
@@ -1089,7 +1071,55 @@ export function AdminScheduleManagement({
           }}
         />
       ) : null}
-      {details ? <DetailsDrawer locale={locale} row={details} onClose={() => setDetails(null)} /> : null}
+      <AdminScheduleSessionDetailsSheet
+        locale={locale}
+        row={details}
+        busy={busyId !== null}
+        onClose={() => setDetails(null)}
+        onEdit={(row) => {
+          setDetails(null);
+          setEditing(row);
+        }}
+        onDuplicate={(row) => setEditing({ ...row, id: "" })}
+        onCancel={(row) => {
+          if (window.confirm(t("confirmCancel"))) {
+            void runRowAction(
+              row,
+              () =>
+                apiFetch(`/classes/sessions/${row.id}/status`, {
+                  method: "POST",
+                  body: JSON.stringify({ status: "CANCELLED" }),
+                }),
+              t("messages.cancelSuccess"),
+            );
+          }
+        }}
+        onActivate={(row) => {
+          if (window.confirm(t("confirmActivate"))) {
+            void runRowAction(
+              row,
+              () =>
+                apiFetch(`/classes/sessions/${row.id}/status`, {
+                  method: "POST",
+                  body: JSON.stringify({ status: "ACTIVE" }),
+                }),
+              t("messages.activateSuccess"),
+            );
+          }
+        }}
+        onDelete={(row) => {
+          if (window.confirm(t("deleteConfirm"))) {
+            void runRowAction(
+              row,
+              async () => {
+                await apiFetch(`/classes/sessions/${row.id}`, { method: "DELETE" });
+                setRows((current) => current.filter((item) => item.id !== row.id));
+              },
+              t("messages.deleteSuccess"),
+            );
+          }
+        }}
+      />
       <AdminClassTypesModal
         isOpen={classTypesOpen}
         classTypes={classTypes}
@@ -1164,127 +1194,50 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
   const t = useTranslations("adminPages.classes");
   const rows = [...props.rows].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   if (rows.length === 0) {
-    return <div className={adminChrome.panel}><p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p><p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p></div>;
+    return (
+      <div className={adminChrome.panel}>
+        <p className="font-medium text-sage-900">{t("empty.filteredTitle")}</p>
+        <p className="mt-1 text-sm text-sage-600">{t("empty.filteredBody")}</p>
+      </div>
+    );
   }
   return (
-    <div className={scheduleTable.wrap}>
-      <table className={scheduleTable.table}>
-        <colgroup>
-          <col className="w-[16%]" />
-          <col className="w-[12%]" />
-          <col className="w-[9%]" />
-          <col className="w-[10%]" />
-          <col className="w-[9%]" />
-          <col className="w-[9%]" />
-          <col className="w-[9%]" />
-          <col className="w-[9%]" />
-          <col className="w-[8%]" />
-          <col className="w-[9%]" />
-        </colgroup>
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={scheduleTable.th}>{t("colClass")}</th>
-            <th className={scheduleTable.th}>{t("colType")}</th>
-            <th className={scheduleTable.th}>{t("colDate")}</th>
-            <th className={scheduleTable.th}>{t("colTime")}</th>
-            <th className={scheduleTable.thGroupCenter}>{t("fields.duration")}</th>
-            <th className={scheduleTable.thGroup}>{t("colCoach")}</th>
-            <th className={scheduleTable.thGroupCenter}>{t("colCapacity")}</th>
-            <th className={scheduleTable.th}>{t("colLevel")}</th>
-            <th className={scheduleTable.thCompact}>{t("colStatus")}</th>
-            <th className={scheduleTable.thActions}>{t("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>{rows.map((row) => <SessionRow key={row.id} row={row} {...props} />)}</tbody>
-      </table>
+    <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
+      <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
+        <span>{t("colClass")}</span>
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCoach")}</span>
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCapacity")}</span>
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
+        <span aria-hidden="true" />
+        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+      </div>
+      {rows.map((row) => (
+        <AdminScheduleSessionCompactRow
+          key={row.id}
+          row={row}
+          locale={props.locale}
+          busy={props.busyId === row.id}
+          includeDelete
+          onDetails={props.onDetails}
+          onEdit={props.onEdit}
+          onDuplicate={props.onDuplicate}
+          onCancel={props.onCancel}
+          onActivate={props.onActivate}
+          onDelete={props.onDelete}
+        />
+      ))}
     </div>
   );
 }
 
-function SessionRow({ row, locale, busyId, onDetails, onEdit, onCancel, onActivate, onDelete, onDuplicate }: { row: AdminScheduleSession; locale: string; busyId: string | null; onDetails: (row: AdminScheduleSession) => void; onEdit: (row: AdminScheduleSession) => void; onCancel: (row: AdminScheduleSession) => void; onActivate: (row: AdminScheduleSession) => void; onDelete: (row: AdminScheduleSession) => void; onDuplicate: (row: AdminScheduleSession) => void }) {
+function SessionStatusBadge({ status }: { status: AdminScheduleSession["status"] }) {
   const t = useTranslations("adminPages.classes");
-  const busy = busyId === row.id;
-  const times = formatSessionTimes(locale, row.startsAt, row.endsAt);
-  const classFormat = row.classFormat?.trim();
-
   return (
-    <tr className={scheduleTable.row}>
-      <td className={scheduleTable.tdPrimary}>
-        <button
-          type="button"
-          className="block max-w-full truncate text-left underline-offset-2 hover:underline"
-          title={row.title}
-          onClick={() => onDetails(row)}
-        >
-          {row.title}
-        </button>
-      </td>
-      <td className={scheduleTable.td}>
-        <span className="block truncate font-medium text-sage-800" title={row.classType.name}>
-          {row.classType.name}
-        </span>
-        {classFormat ? (
-          <span className={`${adminChrome.metaText} block truncate`} title={classFormat}>
-            {classFormat}
-          </span>
-        ) : null}
-      </td>
-      <td className={scheduleTable.td}>
-        <span className="block whitespace-nowrap tabular-nums">{formatDateForUi(row.startsAt)}</span>
-      </td>
-      <td className={scheduleTable.td}>
-        <span className="block whitespace-nowrap tabular-nums">{times.start}</span>
-        <span className="block whitespace-nowrap tabular-nums text-xs text-sage-500">{times.end}</span>
-      </td>
-      <td className={scheduleTable.tdGroupCenter}>{durationMinutes(row)}m</td>
-      <td className={scheduleTable.tdGroup}>
-        <span className="block truncate" title={coachName(row.coach)}>
-          {coachName(row.coach)}
-        </span>
-      </td>
-      <td className={scheduleTable.tdGroupCenter}>
-        <span className="block font-medium tabular-nums">
-          {row._count.bookings}/{row.capacity}
-        </span>
-        <span className={`${adminChrome.metaText} block`}>
-          {t("fields.spotsLeft", { count: spotsLeft(row) })}
-        </span>
-      </td>
-      <td className={scheduleTable.tdMuted}>
-        <span className="block whitespace-normal break-words">{row.level ?? "—"}</span>
-      </td>
-      <td className={scheduleTable.tdCompact}>
-        <div className="flex justify-center">
-          <Badge
-            label={t(`status.${row.status}`)}
-            tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"}
-          />
-        </div>
-      </td>
-      <td className={scheduleTable.tdActions}>
-        <div className="flex items-center justify-center">
-          <AdminScheduleSessionActions
-            row={row}
-            busy={busy}
-            includeDelete
-            onDetails={onDetails}
-            onEdit={onEdit}
-            onDuplicate={onDuplicate}
-            onCancel={onCancel}
-            onActivate={onActivate}
-            onDelete={onDelete}
-          />
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function Badge({ label, tone }: { label: string; tone: "slate" | "sand" | "mint" }) {
-  const classes = tone === "mint" ? "border-mint-200 bg-mint-50 text-sage-900" : tone === "sand" ? "border-sand-300 bg-sand-50 text-sage-900" : "border-zinc-200 bg-zinc-50 text-zinc-800";
-  return (
-    <span className={`inline-flex shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium leading-tight ${classes}`}>
-      {label}
+    <span
+      className={`${ADMIN_SCHEDULE_STATUS_BADGE_CLASS} ${sessionStatusBadgeTone(status)}`}
+    >
+      {t(`status.${status}`)}
     </span>
   );
 }
@@ -1310,15 +1263,13 @@ function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, o
             {row.level ? ` · ${row.level}` : ""}
           </p>
         </div>
-        <Badge label={t(`status.${row.status}`)} tone={row.status === "CANCELLED" ? "sand" : row.status === "ACTIVE" ? "mint" : "slate"} />
+        <SessionStatusBadge status={row.status} />
       </div>
       <div className="mt-4 flex justify-end">
-        <AdminScheduleSessionActions
+        <AdminScheduleSessionRowActions
+          variant="list"
           row={row}
           busy={busy}
-          onDetails={onDetails}
-          onEdit={onEdit}
-          onDuplicate={onDuplicate}
           onCancel={onCancel}
           onActivate={onActivate}
         />
@@ -1807,64 +1758,5 @@ function SessionModal({
         </div>
       </form>
     </OmmModalPortal>
-  );
-}
-
-function DetailsDrawer({
-  locale,
-  row,
-  onClose,
-}: {
-  locale: string;
-  row: AdminScheduleSession;
-  onClose: () => void;
-}) {
-  const t = useTranslations("adminPages.classes");
-  return (
-    <OmmDrawerPortal isOpen onClose={onClose} backdropAriaLabel={t("modalCloseAria")}>
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-sage-900">{row.title}</h3>
-        <button
-          type="button"
-          className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-sage-500 transition-[background-color,color,transform] hover:bg-sand-50 hover:text-sage-900 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/40 focus-visible:ring-offset-2"
-          onClick={onClose}
-        >
-          x
-        </button>
-      </div>
-      <div className="space-y-3 text-sm text-sage-700">
-        <p>
-          <span className="text-sage-500">{t("colType")}:</span> {row.classType.name}
-        </p>
-        <p>
-          <span className="text-sage-500">{t("colDate")}:</span> {formatDateTimeForUi(row.startsAt, locale)}
-        </p>
-        <p>
-          <span className="text-sage-500">{t("form.endTime")}:</span>{" "}
-          {formatDateTimeForUi(row.endsAt, locale)}
-        </p>
-        <p>
-          <span className="text-sage-500">{t("fields.duration")}:</span> {durationMinutes(row)}m
-        </p>
-        <p>
-          <span className="text-sage-500">{t("colCoach")}:</span> {coachName(row.coach)}
-        </p>
-        <p>
-          <span className="text-sage-500">{t("colCapacity")}:</span> {row._count.bookings}/{row.capacity}{" "}
-          · {t("fields.spotsLeft", { count: spotsLeft(row) })}
-        </p>
-        <p>
-          <span className="text-sage-500">{t("colLevel")}:</span> {row.level ?? "—"}
-        </p>
-        <p>
-          <span className="text-sage-500">{t("colStatus")}:</span> {t(`status.${row.status}`)}
-        </p>
-        {row.description ? (
-          <p>
-            <span className="text-sage-500">{t("form.description")}:</span> {row.description}
-          </p>
-        ) : null}
-      </div>
-    </OmmDrawerPortal>
   );
 }
