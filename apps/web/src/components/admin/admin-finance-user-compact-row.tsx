@@ -36,7 +36,7 @@ export function AdminFinanceUserCompactRow({
   onEdit,
   onChanged,
 }: AdminFinanceUserCompactRowProps) {
-  const t = useTranslations("adminPages.finance");
+  const t = useTranslations("adminPages.finance.userTab");
 
   return (
     <article
