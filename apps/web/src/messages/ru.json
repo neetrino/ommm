@@ -2920,12 +2920,6 @@
     },
     "classes": {
       "scheduleWindowHint": "То же окно расписания, что и у админа ({days} дней). Создание и редактирование сессий при необходимости остаются в админ-инструментах.",
-      "classTypesTitle": "Типы классов",
-      "sessionsTitle": "Ближайшие сессии",
-      "colSlug": "Slug",
-      "colCoach": "Тренер",
-      "colBooked": "Записано",
-      "loadClassTypesFailed": "Не удалось загрузить типы классов ({status}).",
       "loadSessionsFailed": "Не удалось загрузить сессии ({status}).",
       "sessionsEmpty": "В выбранном окне сессий нет."
     }

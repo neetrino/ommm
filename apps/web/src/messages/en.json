@@ -2974,12 +2974,6 @@
     },
     "classes": {
       "scheduleWindowHint": "Same schedule window as admin ({days} days). Create and edit sessions remain in the admin tools when needed.",
-      "classTypesTitle": "Class types",
-      "sessionsTitle": "Upcoming sessions",
-      "colSlug": "Slug",
-      "colCoach": "Coach",
-      "colBooked": "Booked",
-      "loadClassTypesFailed": "Could not load class types ({status}).",
       "loadSessionsFailed": "Could not load sessions ({status}).",
       "sessionsEmpty": "No sessions in this window."
     }
