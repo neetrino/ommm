@@ -12,7 +12,6 @@ type StudioSettings = {
   address: string | null;
   mapEmbedUrl: string | null;
   workingHours: string | null;
-  socialLinksJson: string | null;
   cancellationHoursNotice: number;
   waitlistOfferMinutes: number;
 };

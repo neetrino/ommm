@@ -14,7 +14,6 @@ type StudioSettings = {
   address: string | null;
   mapEmbedUrl: string | null;
   workingHours: string | null;
-  socialLinksJson: string | null;
   cancellationHoursNotice: number;
   waitlistOfferMinutes: number;
 };
@@ -95,7 +94,6 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
   const [address, setAddress] = useState(initial.address ?? "");
   const [mapEmbedUrl, setMapEmbedUrl] = useState(initial.mapEmbedUrl ?? "");
   const [workingHours, setWorkingHours] = useState(initial.workingHours ?? "");
-  const [socialLinksJson, setSocialLinksJson] = useState(initial.socialLinksJson ?? "");
   const [cancellationHoursNotice, setCancellationHoursNotice] = useState(
     String(initial.cancellationHoursNotice),
   );
@@ -148,7 +146,6 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
           address: address.trim() || null,
           mapEmbedUrl: mapEmbedUrl.trim() || null,
           workingHours: workingHours.trim() || null,
-          socialLinksJson: socialLinksJson.trim() || null,
           cancellationHoursNotice: Number.parseInt(cancellationHoursNotice, 10),
           waitlistOfferMinutes: Number.parseInt(waitlistOfferMinutes, 10),
         }),
@@ -270,21 +267,6 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
               />
             </SettingsField>
           </div>
-        </CompactSection>
-
-        <CompactSection
-          heading={t("sections.social.heading")}
-          description={t("sections.social.description")}
-        >
-          <SettingsField label={t("socialLinksJson")} hint={t("hints.socialLinksJson")}>
-            <textarea
-              className="ommm-input min-h-[4.5rem] resize-y py-2 font-mono text-xs"
-              value={socialLinksJson}
-              onChange={(event) => setSocialLinksJson(event.target.value)}
-              disabled={busy}
-              spellCheck={false}
-            />
-          </SettingsField>
         </CompactSection>
 
         <CompactSection
