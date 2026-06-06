@@ -1743,6 +1743,12 @@
         "nameDuplicate": "Նույն անունով տեսակ արդեն կա։",
         "slugInvalid": "Slug-ը վավեր չէ — օգտագործեք լatin տառեր և թվեր։",
         "descriptionTooLong": "Նկարագրությունը չափազանց երկար է։",
+        "sheetTabs": {
+          "details": "Մանրամասներ",
+          "usage": "Օգտագործում"
+        },
+        "usageHeading": "Պլանավորված դասեր",
+        "usageEmpty": "Այս տեսակով պլանավորված դասեր դեռ չկան։",
         "messages": {
           "createSuccess": "Դասի տեսակը ստեղծվեց։",
           "updateSuccess": "Դասի տեսակը թարմացվեց։",

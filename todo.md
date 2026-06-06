@@ -27,6 +27,7 @@
 | **A2** | **Coaches** — Profile · Details · Classes · Schedule | **done** |
 | A3 | Schedule sessions | pending |
 | A4 | Gift cards | **done** |
+| **B2** | **Class types** | **done** |
 
 **A2 tabs:** Profile · Coach details · Classes · Schedule  
 **A1 tabs:** Profile · Bookings · Payments · Gift cards · Notes  
@@ -49,7 +50,20 @@
 
 ## Rollout
 
-~~A1 (clients)~~ ✓ → ~~A4 (gift cards)~~ ✓ → B2 (class types) → A3 (schedule) → manager coaches
+~~A1 (clients)~~ ✓ → ~~A4 (gift cards)~~ ✓ → ~~B2 (class types)~~ ✓ → A3 (schedule)
+
+---
+
+## B2 — Class types ✓ (schedule catalog)
+
+**Файлы:** `admin-class-types-modal.tsx`, `admin-class-type-sheet-tabs.ts`, `admin-class-type-sheet-tab-panels.tsx`, `admin-class-type-edit-form.*`, `admin-class-type-delete-action.tsx`
+
+- [x] Catalog list → click row opens detail sheet (Details · Usage tabs)
+- [x] Inline edit + `AdminDetailSheetFormFooter`; create via header Add
+- [x] Header: имя типа + Delete; без ×
+- [x] `OmmConfirmDialog` для delete (вместо `AdminConfirmSheet`)
+- [x] URL `?modal=class-types&editClassType=id` сохранён
+- [ ] Smoke `/admin/schedule` → Class types → manager coaches
 
 ---
 

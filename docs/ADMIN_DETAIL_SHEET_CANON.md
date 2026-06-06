@@ -223,6 +223,7 @@ apps/web/src/components/admin/
 | **Bookings** | Уже narrow read + actions; edit полей по необходимости |
 | **Create flows** | Center modal / dedicated page, не detail sheet |
 | **Gift cards** | ✓ detail sheet + tabs; create/edit batch — center modal |
+| **Class types** | ✓ catalog sheet + detail tabs (Details · Usage); create/edit inline |
 | **Manager zone** | Read-only каталоги; edit/lifecycle только в admin CRM |
 
 ---
@@ -232,7 +233,7 @@ apps/web/src/components/admin/
 1. ~~Coach (A2)~~ ✓ admin
 2. ~~Clients (A1)~~ ✓ admin
 3. ~~Gift cards (A4)~~ ✓ admin
-4. Class types (B2)
+4. ~~Class types (B2)~~ ✓ admin
 5. Schedule sessions (A3)
 
 ---

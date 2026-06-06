@@ -1731,6 +1731,12 @@
         "nameDuplicate": "Тип с таким названием уже существует.",
         "slugInvalid": "Некорректный slug — используйте буквы и цифры.",
         "descriptionTooLong": "Описание слишком длинное.",
+        "sheetTabs": {
+          "details": "Детали",
+          "usage": "Использование"
+        },
+        "usageHeading": "Запланированные занятия",
+        "usageEmpty": "Нет занятий с этим типом.",
         "messages": {
           "createSuccess": "Тип занятия создан.",
           "updateSuccess": "Тип занятия обновлён.",

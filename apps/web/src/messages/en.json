@@ -1740,6 +1740,12 @@
         "nameDuplicate": "A class type with this name already exists.",
         "slugInvalid": "Slug is invalid — use letters and numbers.",
         "descriptionTooLong": "Description is too long.",
+        "sheetTabs": {
+          "details": "Details",
+          "usage": "Usage"
+        },
+        "usageHeading": "Scheduled classes",
+        "usageEmpty": "No scheduled classes use this type yet.",
         "messages": {
           "createSuccess": "Class type created.",
           "updateSuccess": "Class type updated.",
