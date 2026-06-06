@@ -431,6 +431,7 @@ function ClientsTable({
       <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
         <span>{t("colName")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("noteLabel")}</span>
         <span aria-hidden="true" />

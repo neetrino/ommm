@@ -2,18 +2,23 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import {
+  ADMIN_CLIENT_TAG_BADGE_CLASS,
+  clientTagBadgeTone,
+  clientTagLabelKey,
+} from "@/components/admin/admin-client-list-badges";
 import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
 import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
   ADMIN_CLIENTS_LIST_CELL,
   ADMIN_CLIENTS_LIST_DATE_CELL,
   ADMIN_CLIENTS_LIST_NOTES_CELL,
-  ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
   ADMIN_CLIENTS_LIST_SPACER_CELL,
+  ADMIN_CLIENTS_LIST_TAGS_CELL,
 } from "@/components/admin/admin-clients-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import type { ClientRow } from "@/components/admin/admin-clients-types";
+import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
 import { formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -43,7 +48,7 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
     >
       <div className={ADMIN_CLIENTS_LIST_CELL}>
         <AdminListMobileLabel label={t("colName")} />
-        <div className="flex min-w-0 items-start gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <ClientAvatar row={row} />
           <div className="min-w-0 flex-1">
             <button
@@ -58,13 +63,6 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
               {name}
             </button>
             <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? row.email}</p>
-            {row.tags.length > 0 ? (
-              <div className="mt-1 flex max-w-full flex-wrap gap-1">
-                {row.tags.slice(0, 3).map((tag) => (
-                  <ClientBadge key={tag} label={tag} />
-                ))}
-              </div>
-            ) : null}
           </div>
         </div>
       </div>
@@ -74,6 +72,11 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
         <p className="text-sm text-sage-800">
           {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
         </p>
+      </div>
+
+      <div className={ADMIN_CLIENTS_LIST_TAGS_CELL}>
+        <AdminListMobileLabel label={t("colTags")} />
+        <ClientTags tags={row.tags} />
       </div>
 
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
@@ -92,7 +95,7 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
       <div className={ADMIN_CLIENTS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
-        className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+        className={ADMIN_CLIENTS_LIST_ACTIONS_CELL}
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
       >
@@ -100,6 +103,27 @@ export function AdminClientCompactRow({ row, onSelect, onChanged }: AdminClientC
         <AdminClientRowActions client={row} onChanged={onChanged} />
       </div>
     </article>
+  );
+}
+
+function ClientTags({ tags }: { tags: readonly ClientTag[] }) {
+  const t = useTranslations("adminPages.clients");
+
+  if (tags.length === 0) {
+    return <span className="text-sm text-sage-400">—</span>;
+  }
+
+  return (
+    <>
+      {tags.map((tag) => (
+        <span
+          key={tag}
+          className={`${ADMIN_CLIENT_TAG_BADGE_CLASS} ${clientTagBadgeTone(tag)}`}
+        >
+          {t(clientTagLabelKey(tag))}
+        </span>
+      ))}
+    </>
   );
 }
 
@@ -126,14 +150,6 @@ function ClientAvatar({ row }: { row: ClientRow }) {
     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
       {initials || "?"}
     </div>
-  );
-}
-
-function ClientBadge({ label }: { label: string }) {
-  return (
-    <span className="inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900">
-      {label}
-    </span>
   );
 }
 

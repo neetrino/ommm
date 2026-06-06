@@ -11,7 +11,7 @@ import {
 } from "@/components/admin/admin-list-table-layout";
 
 const CLIENTS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(9.5rem,auto)_minmax(9.5rem,auto)_minmax(4.5rem,auto)_1fr_auto]";
+  "md:grid-cols-[minmax(0,1fr)_minmax(9.5rem,auto)_minmax(8.5rem,auto)_minmax(9.5rem,auto)_minmax(4.5rem,auto)_1fr_auto]";
 
 export const ADMIN_CLIENTS_LIST_TABLE_CLASS = buildAdminListTableClass(CLIENTS_GRID_CLASS);
 
@@ -24,6 +24,8 @@ export const ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL = ADMIN_LIST_ROW_ACTION
 export const ADMIN_CLIENTS_LIST_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_CLIENTS_LIST_DATE_CELL = `${USER_LIST_CELL_CLASS} tabular-nums`;
+
+export const ADMIN_CLIENTS_LIST_TAGS_CELL = `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5`;
 
 export const ADMIN_CLIENTS_LIST_NOTES_CELL = `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-start`;
 

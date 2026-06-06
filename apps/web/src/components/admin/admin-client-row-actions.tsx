@@ -7,20 +7,15 @@ import { AdminClientActions } from "@/components/admin/admin-client-actions";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
+import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 
-const CLIENT_STATUS_TOGGLE_CLASS = [
-  "inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5",
-  "text-[11px] font-medium uppercase tracking-[0.08em]",
-  "transition-[border-color,background-color,box-shadow,transform] duration-200",
-  "hover:shadow-[0_4px_12px_-8px_rgba(45,40,35,0.16)]",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
-  "disabled:cursor-not-allowed disabled:opacity-50",
-].join(" ");
+const CLIENT_ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
 
-function clientStatusTone(isActive: boolean): string {
-  return isActive
-    ? "border-mint-200/80 bg-mint-50/90 text-sage-800"
-    : "border-sand-300/70 bg-sand-50/90 text-sage-600";
+const CLIENT_STATUS_BADGE_CLASS =
+  "inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide";
+
+function clientStatusBadgeTone(isActive: boolean): string {
+  return isActive ? "bg-mint-100 text-sage-800" : "bg-sand-100 text-sage-600";
 }
 
 function isoDate(value: string | null): string {
@@ -73,20 +68,27 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
 
   return (
     <>
-      <button
-        type="button"
-        className={`${CLIENT_STATUS_TOGGLE_CLASS} ${clientStatusTone(isActive)}`}
-        aria-label={toggleLabel}
-        title={toggleLabel}
-        disabled={busy}
-        onClick={(event) => {
-          event.stopPropagation();
-          void toggleStatus();
-        }}
+      <div
+        className="flex items-center justify-end gap-2"
+        role="group"
+        aria-label={t("colActions")}
       >
-        <AnimatedToggleSwitch checked={isActive} />
-        <span>{statusLabel}</span>
-      </button>
+        <span className={`${CLIENT_STATUS_BADGE_CLASS} ${clientStatusBadgeTone(isActive)}`}>
+          {statusLabel}
+        </span>
+        <AdminRowIconButton
+          ariaLabel={toggleLabel}
+          title={toggleLabel}
+          className={CLIENT_ROW_TOGGLE_BUTTON_CLASS}
+          disabled={busy}
+          onClick={(event) => {
+            event.stopPropagation();
+            void toggleStatus();
+          }}
+        >
+          <AnimatedToggleSwitch checked={isActive} />
+        </AdminRowIconButton>
+      </div>
 
       {message ? (
         <AdminCenterToast
