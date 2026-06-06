@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
@@ -107,6 +107,11 @@ function ContentPostDetailsSheetInner({
   );
 
   const activeTitle = values.locales[activeLocale].title;
+  const activeSlug = values.locales[activeLocale].slug.trim();
+  const canPreviewOnSite =
+    values.status === "PUBLISHED" &&
+    activeSlug.length > 0 &&
+    activeTitle.trim().length > 0;
 
   const updateActiveLocaleTitle = useCallback(
     (title: string) => {
@@ -217,6 +222,18 @@ function ContentPostDetailsSheetInner({
                 placeholder={t("placeholders.title")}
                 onChange={(event) => updateActiveLocaleTitle(event.target.value)}
               />
+              {canPreviewOnSite ? (
+                <p className="mt-3">
+                  <Link
+                    href={`/explore/${activeSlug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-sage-700 underline decoration-sand-500/50 underline-offset-4 transition-colors hover:text-sage-900"
+                  >
+                    {t("labels.previewOnSite")}
+                  </Link>
+                </p>
+              ) : null}
             </header>
 
             <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} pt-0`}>

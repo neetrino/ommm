@@ -58,6 +58,19 @@ export function ContentPostLocaleFormFields({
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+          {t("placeholders.excerpt")}
+        </span>
+        <textarea
+          className="ommm-input min-h-20"
+          value={activeLocaleValues.excerpt}
+          disabled={disabled}
+          onChange={(event) => updateLocaleField("excerpt", event.target.value)}
+          placeholder={t("placeholders.excerpt")}
+        />
+      </label>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
           {t("placeholders.body")}
         </span>
         <textarea

@@ -85,6 +85,19 @@ export function ContentPostSharedFormFields({
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+          {t("placeholders.coverImageUrl")}
+        </span>
+        <input
+          className="ommm-input h-10"
+          value={values.coverImageUrl}
+          disabled={disabled}
+          onChange={(event) => updateSharedField("coverImageUrl", event.target.value)}
+          placeholder={t("placeholders.coverImageUrl")}
+        />
+      </label>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
           {t("placeholders.editorialNotes")}
         </span>
         <textarea

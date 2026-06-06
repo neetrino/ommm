@@ -3037,7 +3037,9 @@
       "placeholders": {
         "title": "Վերնագիր",
         "slug": "Slug",
+        "excerpt": "Հակիրճ նկարագրություն",
         "body": "Բովանդակություն",
+        "coverImageUrl": "Շապիկի URL",
         "authorName": "Հեղինակի անուն",
         "tagsCsv": "Թեգեր (ստորակետով)",
         "seoTitle": "SEO վերնագիր",
@@ -3058,7 +3060,8 @@
         "delete": "Ջնջել",
         "tags": "թեգեր",
         "review": "վերանայում",
-        "resetFilters": "Մաքրել ֆիլտրերը"
+        "resetFilters": "Մաքրել ֆիլտրերը",
+        "previewOnSite": "Դիտել կայքում"
       },
       "statusValues": {
         "DRAFT": "Սևագիր",

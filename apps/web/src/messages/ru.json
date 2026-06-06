@@ -3025,7 +3025,9 @@
       "placeholders": {
         "title": "Заголовок",
         "slug": "Slug",
+        "excerpt": "Краткое описание",
         "body": "Контент",
+        "coverImageUrl": "URL обложки",
         "authorName": "Имя автора",
         "tagsCsv": "Теги (через запятую)",
         "seoTitle": "SEO заголовок",
@@ -3046,7 +3048,8 @@
         "delete": "Удалить",
         "tags": "теги",
         "review": "ревью",
-        "resetFilters": "Сбросить фильтры"
+        "resetFilters": "Сбросить фильтры",
+        "previewOnSite": "Открыть на сайте"
       },
       "statusValues": {
         "DRAFT": "Черновик",

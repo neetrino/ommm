@@ -3079,7 +3079,9 @@
       "placeholders": {
         "title": "Title",
         "slug": "Slug",
+        "excerpt": "Excerpt",
         "body": "Body",
+        "coverImageUrl": "Cover image URL",
         "authorName": "Author name",
         "tagsCsv": "Tags (comma separated)",
         "seoTitle": "SEO title",
@@ -3100,7 +3102,8 @@
         "delete": "Delete",
         "tags": "tags",
         "review": "review",
-        "resetFilters": "Reset filters"
+        "resetFilters": "Reset filters",
+        "previewOnSite": "Preview on site"
       },
       "statusValues": {
         "DRAFT": "Draft",
