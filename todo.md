@@ -63,7 +63,24 @@
 - [x] Header: имя типа + Delete; без ×
 - [x] `OmmConfirmDialog` для delete (вместо `AdminConfirmSheet`)
 - [x] URL `?modal=class-types&editClassType=id` сохранён
-- [ ] Smoke `/admin/schedule` → Class types → manager coaches
+- [ ] Smoke `/admin/schedule` → Class types
+- [ ] **UI entry point** — кнопка «Типы занятий» на Schedule (см. restore ниже)
+
+### Restore: кнопка «Типы занятий» на `/admin/schedule`
+
+**Контекст:** sheet и `AdminClassTypesModal` работают; открытие только по URL `?modal=class-types`. Кнопку из UI убрали **до B2**, не в рамках rollout sheet.
+
+| | |
+|---|---|
+| **Удалено** | commit `2642916` (*Add Class Type hanel em Schdule-ic*, 2026-06-04) |
+| **Добавлено** | commit `5504b76` (*class type button in Admin Schedule*, 2026-06-01) |
+| **Файл** | `apps/web/src/components/admin/admin-schedule-management.tsx` |
+
+**Как вернуть:** в `admin-schedule-management.tsx` добавить `openClassTypesModal()` → `replaceScheduleModalInUrl(..., "class-types")` и кнопку в hero/trailing (рядом с «Добавить занятие»). i18n уже есть: `adminPages.classes.classTypes.manageButton`.
+
+**Старый UX (опционально):** reveal через иконку глаза + localStorage — см. `2642916^` (`SchedulePageActions`, `CLASS_TYPES_VISIBLE_STORAGE_KEY`).
+
+**Проверка после restore:** Schedule → кнопка → catalog sheet → create/edit/delete; URL sync `editClassType`.
 
 ---
 
