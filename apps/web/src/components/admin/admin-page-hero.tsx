@@ -19,7 +19,7 @@ export function AdminPageHero({ title, description, search, trailing }: AdminPag
   return (
     <header
       ref={headerRef}
-      className="ommm-admin-sticky-header sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+      className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
       style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
     >
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
