@@ -1708,6 +1708,10 @@
       "confirmCancel": "Отменить это занятие?",
       "confirmActivate": "Активировать это занятие?",
       "deleteConfirm": "Удалить эту сессию занятия? Это действие нельзя отменить.",
+      "confirmDeleteTitle": "Удалить сессию занятия",
+      "confirmDialogNo": "Нет",
+      "confirmDialogDelete": "Удалить",
+      "confirmDialogBackdrop": "Закрыть диалог подтверждения",
       "confirm": {
         "cancelTitle": "Отменить занятие",
         "cancelDescription": "Занятие будет отмечено как отменённое. Позже вы сможете снова активировать его.",

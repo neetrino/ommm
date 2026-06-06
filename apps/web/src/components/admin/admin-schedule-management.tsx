@@ -991,22 +991,36 @@ export function AdminScheduleManagement({
         onEdit={setEditing}
         busyId={busyId}
         onCancel={(row) => {
-          if (window.confirm(t("confirmCancel"))) {
-            void runRowAction(row, () => apiFetch(`/classes/sessions/${row.id}/status`, { method: "POST", body: JSON.stringify({ status: "CANCELLED" }) }), t("messages.cancelSuccess"));
-          }
+          void runRowAction(
+            row,
+            () =>
+              apiFetch(`/classes/sessions/${row.id}/status`, {
+                method: "POST",
+                body: JSON.stringify({ status: "CANCELLED" }),
+              }),
+            t("messages.cancelSuccess"),
+          );
         }}
         onActivate={(row) => {
-          if (window.confirm(t("confirmActivate"))) {
-            void runRowAction(row, () => apiFetch(`/classes/sessions/${row.id}/status`, { method: "POST", body: JSON.stringify({ status: "ACTIVE" }) }), t("messages.activateSuccess"));
-          }
+          void runRowAction(
+            row,
+            () =>
+              apiFetch(`/classes/sessions/${row.id}/status`, {
+                method: "POST",
+                body: JSON.stringify({ status: "ACTIVE" }),
+              }),
+            t("messages.activateSuccess"),
+          );
         }}
         onDelete={(row) => {
-          if (window.confirm(t("deleteConfirm"))) {
-            void runRowAction(row, async () => {
+          void runRowAction(
+            row,
+            async () => {
               await apiFetch(`/classes/sessions/${row.id}`, { method: "DELETE" });
               setRows((current) => current.filter((item) => item.id !== row.id));
-            }, t("messages.deleteSuccess"));
-          }
+            },
+            t("messages.deleteSuccess"),
+          );
         }}
         onDuplicate={(row) => setEditing({ ...row, id: "" })}
       />
@@ -1082,42 +1096,37 @@ export function AdminScheduleManagement({
         }}
         onDuplicate={(row) => setEditing({ ...row, id: "" })}
         onCancel={(row) => {
-          if (window.confirm(t("confirmCancel"))) {
-            void runRowAction(
-              row,
-              () =>
-                apiFetch(`/classes/sessions/${row.id}/status`, {
-                  method: "POST",
-                  body: JSON.stringify({ status: "CANCELLED" }),
-                }),
-              t("messages.cancelSuccess"),
-            );
-          }
+          void runRowAction(
+            row,
+            () =>
+              apiFetch(`/classes/sessions/${row.id}/status`, {
+                method: "POST",
+                body: JSON.stringify({ status: "CANCELLED" }),
+              }),
+            t("messages.cancelSuccess"),
+          );
         }}
         onActivate={(row) => {
-          if (window.confirm(t("confirmActivate"))) {
-            void runRowAction(
-              row,
-              () =>
-                apiFetch(`/classes/sessions/${row.id}/status`, {
-                  method: "POST",
-                  body: JSON.stringify({ status: "ACTIVE" }),
-                }),
-              t("messages.activateSuccess"),
-            );
-          }
+          void runRowAction(
+            row,
+            () =>
+              apiFetch(`/classes/sessions/${row.id}/status`, {
+                method: "POST",
+                body: JSON.stringify({ status: "ACTIVE" }),
+              }),
+            t("messages.activateSuccess"),
+          );
         }}
         onDelete={(row) => {
-          if (window.confirm(t("deleteConfirm"))) {
-            void runRowAction(
-              row,
-              async () => {
-                await apiFetch(`/classes/sessions/${row.id}`, { method: "DELETE" });
-                setRows((current) => current.filter((item) => item.id !== row.id));
-              },
-              t("messages.deleteSuccess"),
-            );
-          }
+          void runRowAction(
+            row,
+            async () => {
+              await apiFetch(`/classes/sessions/${row.id}`, { method: "DELETE" });
+              setRows((current) => current.filter((item) => item.id !== row.id));
+              setDetails(null);
+            },
+            t("messages.deleteSuccess"),
+          );
         }}
       />
       <AdminClassTypesModal
@@ -1218,13 +1227,11 @@ function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) 
           row={row}
           locale={props.locale}
           busy={props.busyId === row.id}
-          includeDelete
           onDetails={props.onDetails}
           onEdit={props.onEdit}
           onDuplicate={props.onDuplicate}
           onCancel={props.onCancel}
           onActivate={props.onActivate}
-          onDelete={props.onDelete}
         />
       ))}
     </div>
@@ -1270,6 +1277,8 @@ function SessionAgendaCard({ row, locale, busyId, onDetails, onEdit, onCancel, o
           variant="list"
           row={row}
           busy={busy}
+          onEdit={onEdit}
+          onDuplicate={onDuplicate}
           onCancel={onCancel}
           onActivate={onActivate}
         />

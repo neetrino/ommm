@@ -30,26 +30,22 @@ type AdminScheduleSessionCompactRowProps = {
   row: AdminScheduleSession;
   locale: string;
   busy: boolean;
-  includeDelete?: boolean;
   onDetails: (row: AdminScheduleSession) => void;
   onEdit: (row: AdminScheduleSession) => void;
   onDuplicate: (row: AdminScheduleSession) => void;
   onCancel: (row: AdminScheduleSession) => void;
   onActivate: (row: AdminScheduleSession) => void;
-  onDelete?: (row: AdminScheduleSession) => void;
 };
 
 export function AdminScheduleSessionCompactRow({
   row,
   locale,
   busy,
-  includeDelete = false,
   onDetails,
   onEdit,
   onDuplicate,
   onCancel,
   onActivate,
-  onDelete,
 }: AdminScheduleSessionCompactRowProps) {
   const t = useTranslations("adminPages.classes");
   const classFormat = row.classFormat?.trim();
@@ -141,12 +137,10 @@ export function AdminScheduleSessionCompactRow({
           variant="list"
           row={row}
           busy={busy}
-          includeDelete={includeDelete}
           onEdit={onEdit}
           onDuplicate={onDuplicate}
           onCancel={onCancel}
           onActivate={onActivate}
-          onDelete={onDelete}
         />
       </div>
     </article>

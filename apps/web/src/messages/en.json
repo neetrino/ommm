@@ -1717,6 +1717,10 @@
       "confirmCancel": "Cancel this class?",
       "confirmActivate": "Activate this class?",
       "deleteConfirm": "Delete this class session? This cannot be undone.",
+      "confirmDeleteTitle": "Delete class session",
+      "confirmDialogNo": "No",
+      "confirmDialogDelete": "Delete",
+      "confirmDialogBackdrop": "Close confirmation dialog",
       "confirm": {
         "cancelTitle": "Cancel class",
         "cancelDescription": "This class will be marked as cancelled. You can activate it again later.",

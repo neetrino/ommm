@@ -1720,6 +1720,10 @@
       "confirmCancel": "Չեղարկե՞լ այս դասը։",
       "confirmActivate": "Ակտիվացնե՞լ այս դասը։",
       "deleteConfirm": "Ջնջե՞լ այս դասի սեսիան։ Գործողությունը հնարավոր չէ հետարկել։",
+      "confirmDeleteTitle": "Ջնջել դասի սեսիան",
+      "confirmDialogNo": "Ոչ",
+      "confirmDialogDelete": "Ջնջել",
+      "confirmDialogBackdrop": "Փակել հաստատման պատուհանը",
       "confirm": {
         "cancelTitle": "Չեղարկել դասը",
         "cancelDescription": "Դասը կնշվի որպես չեղարկված։ Կարող եք հետո կրկին ակտիվացնել։",
