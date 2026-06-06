@@ -1,6 +1,7 @@
 "use client";
 
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { TimePickerInput } from "@/components/ui/time-picker-input";
 
 export type DateTimePickerFieldsProps = {
   dateName: string;
@@ -39,14 +40,15 @@ export function DateTimePickerFields({
           disabled={disabled}
         />
       </div>
-      <input
-        type="time"
-        className="ommm-input h-11 w-[8.5rem] shrink-0"
-        aria-label={timeAriaLabel}
-        value={timeValue}
-        onChange={(event) => onTimeChange(event.target.value)}
-        disabled={disabled}
-      />
+      <div className="shrink-0">
+        <TimePickerInput
+          name={`${dateName}-time`}
+          ariaLabel={timeAriaLabel}
+          value={timeValue}
+          onChange={onTimeChange}
+          disabled={disabled}
+        />
+      </div>
     </div>
   );
 }

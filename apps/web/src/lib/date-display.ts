@@ -84,6 +84,50 @@ export function formatBirthdayInput(rawValue: string): string {
   return `${day}/${month}/${yearRaw}`;
 }
 
+/** Splits an `HH:MM` (or partial) value into hour and minute digit groups. */
+export function splitTimeInputValue(value: string): { hours: string; minutes: string } {
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return { hours: "", minutes: "" };
+  }
+
+  const colonIndex = trimmed.indexOf(":");
+  if (colonIndex === -1) {
+    return { hours: trimmed.replace(/\D/g, "").slice(0, 2), minutes: "" };
+  }
+
+  return {
+    hours: trimmed.slice(0, colonIndex).replace(/\D/g, "").slice(0, 2),
+    minutes: trimmed.slice(colonIndex + 1).replace(/\D/g, "").slice(0, 2),
+  };
+}
+
+/** Combines hour and minute digit groups into an `HH:MM` (or partial) value. */
+export function combineTimeInputValue(hours: string, minutes: string): string {
+  const hourDigits = hours.replace(/\D/g, "").slice(0, 2);
+  const minuteDigits = minutes.replace(/\D/g, "").slice(0, 2);
+
+  if (hourDigits === "" && minuteDigits === "") {
+    return "";
+  }
+  if (minuteDigits === "") {
+    return hourDigits.length === 2
+      ? String(Math.min(23, Number(hourDigits))).padStart(2, "0")
+      : hourDigits;
+  }
+
+  const hour =
+    hourDigits.length === 2
+      ? String(Math.min(23, Number(hourDigits))).padStart(2, "0")
+      : hourDigits;
+  const minute =
+    minuteDigits.length === 2
+      ? String(Math.min(59, Number(minuteDigits))).padStart(2, "0")
+      : minuteDigits;
+
+  return `${hour}:${minute}`;
+}
+
 /** Parses a `DD/MM/YYYY` display value into an ISO date (`YYYY-MM-DD`). */
 export function parseBirthdayDisplayToIso(displayValue: string): string | null {
   const trimmed = displayValue.trim();

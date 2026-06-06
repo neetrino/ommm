@@ -32,6 +32,7 @@ import {
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { formatBirthdayInput, formatDateForUi, parseBirthdayDisplayToIso } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
@@ -364,11 +365,11 @@ export function CoachSheetTabPanels({
                 onChange={(nextValue) => controller.updateSchedule(slot.id, "date", nextValue)}
                 disabled={busy}
               />
-              <input
-                type="time"
-                className="ommm-input"
+              <TimePickerInput
+                name={`slot-time-${coachId}-${index}`}
+                ariaLabel={t("fieldSchedule")}
                 value={slot.time}
-                onChange={(event) => controller.updateSchedule(slot.id, "time", event.target.value)}
+                onChange={(nextValue) => controller.updateSchedule(slot.id, "time", nextValue)}
                 disabled={busy}
               />
               <input
