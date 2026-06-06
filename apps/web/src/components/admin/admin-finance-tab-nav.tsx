@@ -15,7 +15,7 @@ const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
   coaches: "coaches",
 };
 
-export function AdminFinanceTabNav() {
+export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
   const t = useTranslations("adminPages.finance.tabs");
   const pathname = usePathname();
 
@@ -23,7 +23,7 @@ export function AdminFinanceTabNav() {
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className="inline-flex max-w-full overflow-x-auto rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md"
+      className={`inline-flex max-w-full shrink-0 overflow-x-auto rounded-full border border-white/60 bg-white/55 p-0.5 shadow-sm backdrop-blur-md sm:p-1 ${className}`}
     >
       {FINANCE_SECTION_IDS.map((section) => {
         const href = FINANCE_SECTION_HREF[section];
@@ -36,7 +36,7 @@ export function AdminFinanceTabNav() {
             aria-selected={active}
             aria-current={active ? "page" : undefined}
             scroll={false}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-[background-color,box-shadow,color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
+            className={`whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium sm:px-3 sm:py-2 sm:text-sm transition-[background-color,box-shadow,color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
               active
                 ? "bg-sage-800 text-white shadow-sm hover:bg-sage-900 hover:shadow-md"
                 : "text-sage-700 hover:bg-white/70 hover:text-sage-900 hover:shadow-sm"

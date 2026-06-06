@@ -1,3 +1,8 @@
+import { DownloadGlyph } from "@/components/ui/admin-action-glyphs";
+
+const FINANCE_EXPORT_ICON_LINK_CLASS =
+  "ommm-admin-row-icon-button inline-flex h-9 w-9 shrink-0 items-center justify-center";
+
 type AdminFinanceExportLinksProps = {
   fromIso: string;
   paymentsLabel: string;
@@ -10,21 +15,25 @@ export function AdminFinanceExportLinks({
   giftCreditsLabel,
 }: AdminFinanceExportLinksProps) {
   return (
-    <>
+    <div className="flex shrink-0 items-center gap-1">
       <a
-        className="inline-flex rounded-xl border border-sage-300 bg-white px-3 py-2 text-xs font-medium text-sage-700"
+        className={FINANCE_EXPORT_ICON_LINK_CLASS}
         href={`/api/v1/reports/payments.csv?from=${encodeURIComponent(fromIso)}`}
+        aria-label={paymentsLabel}
+        title={paymentsLabel}
       >
-        {paymentsLabel}
+        <DownloadGlyph className="h-4 w-4 shrink-0" />
       </a>
       {giftCreditsLabel ? (
         <a
-          className="inline-flex rounded-xl border border-sage-300 bg-white px-3 py-2 text-xs font-medium text-sage-700"
+          className={FINANCE_EXPORT_ICON_LINK_CLASS}
           href={`/api/v1/reports/gift-credits.csv?from=${encodeURIComponent(fromIso)}`}
+          aria-label={giftCreditsLabel}
+          title={giftCreditsLabel}
         >
-          {giftCreditsLabel}
+          <DownloadGlyph className="h-4 w-4 shrink-0" />
         </a>
       ) : null}
-    </>
+    </div>
   );
 }

@@ -85,6 +85,16 @@ export function ArrowRightGlyph({ className }: GlyphProps) {
   );
 }
 
+export function DownloadGlyph({ className }: GlyphProps) {
+  return (
+    <svg {...GLYPH_PROPS} className={className}>
+      <path d="M12 3v10" />
+      <path d="m8 11 4 4 4-4" />
+      <path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" />
+    </svg>
+  );
+}
+
 export function MoreVerticalGlyph({ className }: GlyphProps) {
   return (
     <svg

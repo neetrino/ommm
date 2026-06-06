@@ -1,7 +1,5 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
-import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceCoachesPanel } from "@/components/admin/admin-finance-coaches-panel";
 import type { CoachFinancePayload } from "@/components/admin/admin-finance-types";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
@@ -49,12 +47,6 @@ export default async function AdminFinanceCoachesPage({
 
   return (
     <AdminSectionShell>
-      <Suspense fallback={null}>
-        <AdminFinanceCoachesFilters
-          key={`${coachFilters.q}|${coachFilters.month}|${coachFilters.payoutStatus}|${coachFilters.order}|${coachFilters.quick}`}
-          initialValues={coachFilters}
-        />
-      </Suspense>
       <AdminFinanceCoachesPanel
         locale={locale}
         initial={coachFinanceRes.data}

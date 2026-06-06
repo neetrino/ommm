@@ -1,8 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import type { AdminClientsPayload } from "@/components/admin/admin-clients-types";
-import { AdminFinanceMembersFilters } from "@/components/admin/admin-finance-members-filters";
 import { AdminFinanceMembersPanel } from "@/components/admin/admin-finance-members-panel";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
@@ -49,12 +47,6 @@ export default async function AdminFinanceMembersPage({
 
   return (
     <AdminSectionShell>
-      <Suspense fallback={null}>
-        <AdminFinanceMembersFilters
-          key={`${memberFilters.q}|${memberFilters.paymentStatus}|${memberFilters.order}|${memberFilters.giftCardOnly}|${memberFilters.quick}`}
-          initialValues={memberFilters}
-        />
-      </Suspense>
       <AdminFinanceMembersPanel
         locale={locale}
         initialClients={clientsRes.data}

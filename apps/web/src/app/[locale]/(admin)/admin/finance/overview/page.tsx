@@ -1,7 +1,5 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
-import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
 import { AdminFinanceOverviewSections } from "@/components/admin/admin-finance-overview-sections";
 import { computeFinanceFromDate, computeFinanceMonthStart } from "@/components/admin/admin-finance-dates";
 import {
@@ -64,9 +62,6 @@ export default async function AdminFinanceOverviewPage({
 
   return (
     <AdminSectionShell>
-      <Suspense fallback={null}>
-        <AdminFinanceOverviewFilters initialRangeDays={rangeDays} />
-      </Suspense>
       <AdminFinanceOverviewSections
         locale={locale}
         rangeDays={rangeDays}

@@ -7,10 +7,10 @@ type AdminFinanceFiltersBarProps = {
   trailing?: ReactNode;
 };
 
-/** Compact filter row below finance module tabs (NBOS module hero search row). */
+/** Search + trailing row inside the finance unified header (single-line layout). */
 export function AdminFinanceFiltersBar({ search, trailing }: AdminFinanceFiltersBarProps) {
   return (
-    <div className="mb-6 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+    <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center">{search}</div>
       {trailing ? (
         <div className="flex shrink-0 flex-wrap items-center gap-2">{trailing}</div>

@@ -1,7 +1,5 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { Suspense } from "react";
-import { AdminFinancePaymentsFilters } from "@/components/admin/admin-finance-payments-filters";
 import { AdminFinancePaymentsPanel } from "@/components/admin/admin-finance-payments-panel";
 import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import type { FinancePaymentsPayload } from "@/components/admin/admin-finance-types";
@@ -58,12 +56,6 @@ export default async function AdminFinancePaymentsPage({
 
   return (
     <AdminSectionShell>
-      <Suspense fallback={null}>
-        <AdminFinancePaymentsFilters
-          key={`${financeFilters.q}|${financeFilters.rangeDays}|${financeFilters.source}|${financeFilters.status}`}
-          initialValues={financeFilters}
-        />
-      </Suspense>
       <AdminFinancePaymentsPanel
         locale={locale}
         initialPayments={paymentsRes.data}
