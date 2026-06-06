@@ -376,6 +376,8 @@ export class ClientsService {
       activePlanName: activePackage?.plan.name ?? null,
       activePlanCostCents: activePackage?.plan.priceCents ?? null,
       activePlanExpiresAt: activePackage?.currentPeriodEnd.toISOString() ?? null,
+      activePackageId: activePackage?.id ?? null,
+      activePackageStatus: activePackage?.status ?? null,
     };
   }
 

@@ -37,6 +37,14 @@ export type ClientRow = {
   activePlanName: string | null;
   activePlanCostCents: number | null;
   activePlanExpiresAt: string | null;
+  activePackageId: string | null;
+  activePackageStatus:
+    | "ACTIVE"
+    | "PAUSED"
+    | "CANCELLED"
+    | "EXPIRED"
+    | "PENDING"
+    | null;
 };
 
 export type AdminClientsPayload = {
