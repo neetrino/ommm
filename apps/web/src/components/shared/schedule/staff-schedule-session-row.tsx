@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { ScheduleSessionCapacityIndicator } from "@/components/shared/schedule/schedule-session-capacity-indicator";
 import {
   coachName,
   durationMinutes,
@@ -42,6 +42,9 @@ export async function StaffScheduleSessionRow({
   const levels = splitSessionLevels(row.level);
   const duration = durationMinutes(row);
   const showCoach = preset === "staffWithCoach";
+  const booked = row._count.bookings;
+  const capacityLabel = t("fields.spotsBooked", { booked, capacity: row.capacity });
+  const spotsLeftLabel = t("fields.spotsLeft", { count: spotsLeft(row) });
 
   return (
     <article className={layout.rowClass}>
@@ -78,16 +81,6 @@ export async function StaffScheduleSessionRow({
         </div>
       ) : null}
 
-      <div className={layout.capacityCellClass}>
-        <AdminListMobileLabel label={t("colCapacity")} />
-        <p className="text-sm font-medium text-sage-800">
-          {row._count.bookings}/{row.capacity}
-        </p>
-        <p className={`${adminChrome.metaText} mt-0.5`}>
-          {t("fields.spotsLeft", { count: spotsLeft(row) })}
-        </p>
-      </div>
-
       {showCoach ? null : (
         <div className={layout.tagsCellClass}>
           <AdminListMobileLabel label={t("colTags")} />
@@ -105,6 +98,16 @@ export async function StaffScheduleSessionRow({
         >
           {t(`status.${row.status}`)}
         </span>
+      </div>
+
+      <div className={layout.capacityCellClass}>
+        <AdminListMobileLabel label={t("colCapacity")} />
+        <ScheduleSessionCapacityIndicator
+          booked={booked}
+          capacity={row.capacity}
+          spotsLabel={capacityLabel}
+          secondaryLabel={spotsLeftLabel}
+        />
       </div>
     </article>
   );

@@ -1964,6 +1964,7 @@
       },
       "fields": {
         "duration": "Տևողություն",
+        "spotsBooked": "{booked}/{capacity} ամրագրված",
         "spotsLeft": "{count} ազատ տեղ"
       },
       "actions": {

@@ -1961,6 +1961,7 @@
       },
       "fields": {
         "duration": "Duration",
+        "spotsBooked": "{booked}/{capacity} booked",
         "spotsLeft": "{count} spots left"
       },
       "actions": {

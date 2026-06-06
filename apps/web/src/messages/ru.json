@@ -1952,6 +1952,7 @@
       },
       "fields": {
         "duration": "Длительность",
+        "spotsBooked": "{booked}/{capacity} занято",
         "spotsLeft": "Осталось мест: {count}"
       },
       "actions": {
