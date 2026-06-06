@@ -1,8 +1,12 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { AdminCoachEditableAvatar } from "@/components/admin/admin-coach-editable-avatar";
+import {
+  AdminSheetEditableField,
+  ADMIN_SHEET_FORM_SECTION_CLASS,
+} from "@/components/admin/admin-sheet-editable-field";
 import {
   calculateAgeFromBirthday,
   COACH_MAX_AGE,
@@ -58,8 +62,7 @@ type CoachSheetTabPanelsProps = {
   overview?: CoachSheetOverviewContext;
 };
 
-const SECTION_CLASS =
-  "rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5";
+const SECTION_CLASS = ADMIN_SHEET_FORM_SECTION_CLASS;
 
 export function CoachSheetTabPanels({
   activeTab,
@@ -159,7 +162,7 @@ export function CoachSheetTabPanels({
             description={labels.personalInfoDescription}
           />
           <div className="grid gap-4 lg:grid-cols-2">
-            <Field label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
+            <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
               <input
                 name="email"
                 type="email"
@@ -169,8 +172,8 @@ export function CoachSheetTabPanels({
                 onChange={(event) => controller.updateField("email", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldName")} error={errors.name}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldName")} error={errors.name}>
               <input
                 type="text"
                 autoComplete="given-name"
@@ -179,8 +182,8 @@ export function CoachSheetTabPanels({
                 onChange={(event) => controller.updateField("name", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldLastName")} error={errors.lastName}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldLastName")} error={errors.lastName}>
               <input
                 type="text"
                 autoComplete="family-name"
@@ -189,8 +192,8 @@ export function CoachSheetTabPanels({
                 onChange={(event) => controller.updateField("lastName", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldPhone")} error={errors.phone}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldPhone")} error={errors.phone}>
               <input
                 type="tel"
                 autoComplete="tel"
@@ -200,8 +203,8 @@ export function CoachSheetTabPanels({
                 maxLength={MAX_PHONE_CHARS}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldBirthday")} error={errors.birthday}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldBirthday")} error={errors.birthday}>
               <input
                 name="birthdayDisplay"
                 type="text"
@@ -222,8 +225,8 @@ export function CoachSheetTabPanels({
                 }}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldAge")} error={errors.age}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldAge")} error={errors.age}>
               <input
                 type="number"
                 min={COACH_MIN_AGE}
@@ -234,7 +237,7 @@ export function CoachSheetTabPanels({
                 onChange={(event) => controller.updateField("age", event.target.value)}
                 disabled={busy}
               />
-            </Field>
+            </AdminSheetEditableField>
           </div>
         </section>
       </div>
@@ -249,7 +252,7 @@ export function CoachSheetTabPanels({
           description={labels.coachDetailsDescription}
         />
         <div className="grid gap-4 lg:grid-cols-2">
-          <Field label={t("fieldSpecialization")} error={errors.specialization}>
+          <AdminSheetEditableField label={t("fieldSpecialization")} error={errors.specialization}>
             <input
               type="text"
               className="ommm-input"
@@ -259,8 +262,8 @@ export function CoachSheetTabPanels({
               placeholder={t("fieldSpecializationPlaceholder")}
               disabled={busy}
             />
-          </Field>
-          <Field label={t("fieldExperience")} error={errors.experienceYears}>
+          </AdminSheetEditableField>
+          <AdminSheetEditableField label={t("fieldExperience")} error={errors.experienceYears}>
             <input
               type="number"
               min={0}
@@ -270,8 +273,8 @@ export function CoachSheetTabPanels({
               onChange={(event) => controller.updateField("experienceYears", event.target.value)}
               disabled={busy}
             />
-          </Field>
-          <Field label={t("fieldClassType")} error={errors.classType}>
+          </AdminSheetEditableField>
+          <AdminSheetEditableField label={t("fieldClassType")} error={errors.classType}>
             <ScheduleFilterDropdown
               label={t("fieldClassTypePlaceholder")}
               ariaLabel={t("fieldClassType")}
@@ -280,8 +283,8 @@ export function CoachSheetTabPanels({
               onChange={(value) => controller.updateField("classType", value)}
               disabled={busy}
             />
-          </Field>
-          <Field label={t("fieldBio")} error={errors.bio} className="lg:col-span-2">
+          </AdminSheetEditableField>
+          <AdminSheetEditableField label={t("fieldBio")} error={errors.bio} className="lg:col-span-2">
             <textarea
               className="ommm-input min-h-[150px] resize-y"
               value={form.bio}
@@ -289,7 +292,7 @@ export function CoachSheetTabPanels({
               onChange={(event) => controller.updateField("bio", event.target.value)}
               disabled={busy}
             />
-          </Field>
+          </AdminSheetEditableField>
         </div>
       </section>
     );
@@ -411,25 +414,5 @@ function SectionHeading({ title, description }: { title: string; description: st
       <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-sage-800">{title}</h3>
       <p className="text-xs text-sage-500">{description}</p>
     </div>
-  );
-}
-
-function Field({
-  label,
-  error,
-  className = "",
-  children,
-}: {
-  label: string;
-  error?: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className={`flex flex-col gap-1 ${className}`}>
-      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
-      {children}
-      {error ? <p className="text-xs text-red-800">{error}</p> : null}
-    </label>
   );
 }

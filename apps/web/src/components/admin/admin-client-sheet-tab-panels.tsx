@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
 import type { ClientDetail } from "@/components/admin/admin-clients-types";
@@ -10,6 +9,10 @@ import {
   ClientHistoryList,
   ClientNotesPanel,
 } from "@/components/admin/admin-client-drawer-sections";
+import {
+  AdminSheetEditableField,
+  ADMIN_SHEET_FORM_SECTION_CLASS,
+} from "@/components/admin/admin-sheet-editable-field";
 import { apiFetch } from "@/lib/api";
 import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -17,8 +20,7 @@ import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type ClientFormController = ReturnType<typeof useClientEditForm>;
 
-const SECTION_CLASS =
-  "rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5";
+const SECTION_CLASS = ADMIN_SHEET_FORM_SECTION_CLASS;
 
 type ClientSheetTabPanelsProps = {
   activeTab: string;
@@ -106,7 +108,7 @@ export function ClientSheetTabPanels({
             {t("drawer.personalInfo")}
           </h3>
           <div className="grid gap-4 lg:grid-cols-2">
-            <Field label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
+            <AdminSheetEditableField label={t("fieldEmail")} error={errors.email} className="lg:col-span-2">
               <input
                 name="email"
                 type="email"
@@ -116,8 +118,8 @@ export function ClientSheetTabPanels({
                 onChange={(event) => controller.updateField("email", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldName")} error={undefined}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldName")} error={undefined}>
               <input
                 type="text"
                 autoComplete="given-name"
@@ -126,8 +128,8 @@ export function ClientSheetTabPanels({
                 onChange={(event) => controller.updateField("name", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldLastName")} error={undefined}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldLastName")} error={undefined}>
               <input
                 type="text"
                 autoComplete="family-name"
@@ -136,8 +138,8 @@ export function ClientSheetTabPanels({
                 onChange={(event) => controller.updateField("lastName", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldPhone")} error={undefined}>
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldPhone")} error={undefined}>
               <input
                 type="tel"
                 autoComplete="tel"
@@ -146,8 +148,8 @@ export function ClientSheetTabPanels({
                 onChange={(event) => controller.updateField("phone", event.target.value)}
                 disabled={busy}
               />
-            </Field>
-            <Field label={t("fieldBirthday")} error={errors.dateOfBirth} className="lg:col-span-2">
+            </AdminSheetEditableField>
+            <AdminSheetEditableField label={t("fieldBirthday")} error={errors.dateOfBirth} className="lg:col-span-2">
               <input
                 type="text"
                 inputMode="numeric"
@@ -161,7 +163,7 @@ export function ClientSheetTabPanels({
                 }
                 disabled={busy}
               />
-            </Field>
+            </AdminSheetEditableField>
           </div>
         </section>
       </div>
@@ -317,25 +319,5 @@ function Badge({ label }: { label: string }) {
     <span className="rounded-full border border-sand-200 bg-sand-50 px-2 py-0.5 text-xs font-medium text-sage-800">
       {label}
     </span>
-  );
-}
-
-function Field({
-  label,
-  error,
-  className = "",
-  children,
-}: {
-  label: string;
-  error?: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className={`flex flex-col gap-1 ${className}`}>
-      <span className="ommm-label text-xs uppercase tracking-wide">{label}</span>
-      {children}
-      {error ? <p className="text-xs text-red-800">{error}</p> : null}
-    </label>
   );
 }

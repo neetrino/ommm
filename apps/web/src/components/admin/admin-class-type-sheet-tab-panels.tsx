@@ -12,12 +12,17 @@ import {
   CLASS_TYPE_SHEET_TAB_USAGE,
 } from "@/components/admin/admin-class-type-sheet-tabs";
 import type { AdminClassTypeRow } from "@/components/admin/admin-class-types-types";
+import {
+  adminSheetFieldInputClass,
+  AdminSheetEditableField,
+  AdminSheetReadOnlyField,
+  ADMIN_SHEET_FORM_SECTION_CLASS,
+} from "@/components/admin/admin-sheet-editable-field";
 import { formatDateForUi } from "@/lib/date-display";
 
 type ClassTypeFormController = ReturnType<typeof useClassTypeEditForm>;
 
-const SECTION_CLASS =
-  "rounded-[24px] border border-white/60 bg-white/75 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] sm:p-5";
+const SECTION_CLASS = ADMIN_SHEET_FORM_SECTION_CLASS;
 
 type ClassTypeSheetTabPanelsProps = {
   activeTab: string;
@@ -52,16 +57,13 @@ export function ClassTypeSheetTabPanels({
         ) : null}
 
         <div className="space-y-4">
-          <label className="flex flex-col gap-1.5">
-            <span className="ommm-label text-xs uppercase tracking-wide">
-              {t("fieldName")}
-              <span className="text-red-600" aria-hidden>
-                {" "}
-                *
-              </span>
-            </span>
+          <AdminSheetEditableField
+            label={t("fieldName")}
+            error={controller.errors.name}
+            required
+          >
             <input
-              className={`ommm-input ${controller.errors.name ? "border-red-300" : ""}`}
+              className={adminSheetFieldInputClass(controller.errors.name !== undefined)}
               value={controller.form.name}
               maxLength={CLASS_TYPE_MAX_NAME_LENGTH}
               onChange={(event) =>
@@ -72,25 +74,20 @@ export function ClassTypeSheetTabPanels({
               required
               aria-invalid={controller.errors.name !== undefined}
             />
-            {controller.errors.name ? (
-              <p className="text-xs text-red-700" role="alert">
-                {controller.errors.name}
-              </p>
-            ) : null}
-          </label>
+          </AdminSheetEditableField>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSlug")}</span>
-            <p className="ommm-input bg-white/40 text-sage-600" aria-live="polite">
-              {buildClassTypeSlugFromName(controller.form.name) || "—"}
-            </p>
-            <p className="text-[11px] text-sage-500">{t("slugHint")}</p>
-          </div>
+          <AdminSheetReadOnlyField
+            label={t("fieldSlug")}
+            value={buildClassTypeSlugFromName(controller.form.name) || "—"}
+            hint={t("slugHint")}
+          />
 
-          <label className="flex flex-col gap-1.5">
-            <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDescription")}</span>
+          <AdminSheetEditableField label={t("fieldDescription")} error={controller.errors.description}>
             <textarea
-              className={`ommm-input min-h-28 ${controller.errors.description ? "border-red-300" : ""}`}
+              className={adminSheetFieldInputClass(
+                controller.errors.description !== undefined,
+                "min-h-28",
+              )}
               value={controller.form.description}
               maxLength={CLASS_TYPE_MAX_DESCRIPTION_LENGTH}
               onChange={(event) =>
@@ -99,12 +96,7 @@ export function ClassTypeSheetTabPanels({
               onBlur={() => controller.validateField("description")}
               disabled={controller.busy}
             />
-            {controller.errors.description ? (
-              <p className="text-xs text-red-700" role="alert">
-                {controller.errors.description}
-              </p>
-            ) : null}
-          </label>
+          </AdminSheetEditableField>
         </div>
       </section>
     );

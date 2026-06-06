@@ -10,6 +10,7 @@
 | Layout tokens | `apps/web/src/components/admin/admin-details-sheet-layout.ts` |
 | Tabs | `apps/web/src/components/admin/admin-detail-sheet-tab-bar.tsx` |
 | Save footer | `apps/web/src/components/admin/admin-detail-sheet-form-footer.tsx` |
+| Editable field | `apps/web/src/components/admin/admin-sheet-editable-field.tsx` |
 | Confirm (destructive) | `apps/web/src/components/ui/omm-confirm-dialog.tsx` |
 | Coach (эталон) | `admin-coach-details-drawer.tsx`, … |
 | Client (эталон #2) | `admin-client-drawer.tsx`, `admin-client-sheet-tabs.ts`, … |
@@ -115,12 +116,9 @@ export const COACH_SHEET_TAB_ORDER: readonly CoachSheetTabId[] = […];
 
 **Scroll:** `ADMIN_DETAILS_SHEET_BODY_CLASS` + `min-h-0 flex-1` на wrapper внутри panel.
 
-**Секция внутри tab:**
+**Секция внутри tab:** `ADMIN_SHEET_FORM_SECTION_CLASS` из `admin-sheet-editable-field.tsx`.
 
-```ts
-const SECTION_CLASS =
-  "rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[…] backdrop-blur-md sm:p-5";
-```
+**Поля формы:** `AdminSheetEditableField` (label + error + hint + required) + `AdminSheetReadOnlyField` для read-only значений. Input class: `adminSheetFieldInputClass(invalid)`.
 
 **Toast:** `AdminCenterToast` в body (save success, photo upload, lifecycle errors). Один toast channel на sheet.
 
@@ -190,6 +188,7 @@ apps/web/src/components/admin/
   admin-{entity}-edit-form.use.ts      # use{Entity}EditForm
   admin-{entity}-editable-avatar.tsx   # если есть фото (optional)
   admin-{entity}-status-action.tsx     # если есть activate/deactivate (optional)
+  admin-sheet-editable-field.tsx       # shared — не копировать Field локально
 ```
 
 **Drawer:** тонкая оболочка; hooks только когда entity !== null (wrapper + inner).
