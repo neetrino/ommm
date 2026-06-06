@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { AdminCoachCompactRow } from "@/components/admin/admin-coach-compact-row";
@@ -92,13 +92,19 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selectedCoachId = searchParams.get("coachProfile");
+  const urlCoachId = searchParams.get("coachProfile");
+  const [visibleCoachId, setVisibleCoachId] = useState<string | null>(urlCoachId);
+
+  useEffect(() => {
+    setVisibleCoachId(urlCoachId);
+  }, [urlCoachId]);
+
   const selectedCoach = useMemo(() => {
-    if (selectedCoachId === null) {
+    if (visibleCoachId === null) {
       return null;
     }
-    return props.coaches.find((coach) => coach.id === selectedCoachId) ?? null;
-  }, [props.coaches, selectedCoachId]);
+    return props.coaches.find((coach) => coach.id === visibleCoachId) ?? null;
+  }, [props.coaches, visibleCoachId]);
 
   const updateQuery = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
@@ -112,6 +118,7 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
 
   const openProfileDrawer = useCallback(
     (coach: AdminCoachDirectoryRow) => {
+      setVisibleCoachId(coach.id);
       updateQuery((params) => {
         params.set("coachProfile", coach.id);
       });
@@ -120,6 +127,7 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
   );
 
   const closeProfileDrawer = useCallback(() => {
+    setVisibleCoachId(null);
     updateQuery((params) => {
       params.delete("coachProfile");
       params.delete("editCoach");
