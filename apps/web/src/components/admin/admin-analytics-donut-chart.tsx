@@ -47,20 +47,20 @@ export function AdminAnalyticsDonutChart({
   const gradient = buildConicGradient(positiveItems, total);
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
       <div
-        className="relative mx-auto h-40 w-40 shrink-0 rounded-full shadow-inner"
+        className="relative size-40 shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto"
         style={{ background: gradient }}
         role="img"
         aria-label={ariaLabel}
       >
-        <div className="absolute inset-[22%] flex items-center justify-center rounded-full border border-white/70 bg-white/90 text-center shadow-sm">
+        <div className="absolute inset-[22%] flex aspect-square items-center justify-center rounded-full border border-white/70 bg-white/90 text-center shadow-sm">
           <span className="px-2 text-xs font-semibold tabular-nums text-sage-800">
             {positiveItems.length}
           </span>
         </div>
       </div>
-      <ul className="min-w-0 flex-1 space-y-2" aria-hidden>
+      <ul className="w-full min-w-0 flex-1 space-y-2 sm:w-auto" aria-hidden>
         {positiveItems.map((item, index) => {
           const pct = Math.round((item.value / total) * 100);
           const display = item.displayValue ?? String(item.value);
