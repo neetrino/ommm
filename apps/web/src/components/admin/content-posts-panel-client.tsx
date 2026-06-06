@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
+import { adminChrome } from "@/components/admin/admin-chrome";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
+import { OmmButton } from "@/components/ui/omm-button";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 type ContentAdminRow = {
@@ -27,7 +29,6 @@ type ContentAdminRow = {
 
 type ContentPostsPanelClientProps = {
   items: ContentAdminRow[];
-  wellnessChrome?: boolean;
   labels: {
     placeholders: {
       title: string;
@@ -77,7 +78,6 @@ const STATUS_OPTIONS: readonly DropdownOption<(typeof CONTENT_STATUS)[number]>[]
 
 export function ContentPostsPanelClient({
   items,
-  wellnessChrome = false,
   labels,
 }: ContentPostsPanelClientProps) {
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -204,13 +204,9 @@ export function ContentPostsPanelClient({
           triggerClassName="ommm-dropdown-trigger--compact"
           menuClassName="text-xs"
         />
-        <button
-          type="submit"
-          className="rounded-md border border-slate-300 px-3 text-xs text-slate-700 hover:bg-slate-50"
-          disabled={busyId !== null}
-        >
+        <OmmButton type="submit" size="sm" variant="secondary" disabled={busyId !== null}>
           {labels.labels.create}
-        </button>
+        </OmmButton>
         <textarea
           className="app-input min-h-20 text-xs sm:col-span-6"
           placeholder={labels.placeholders.body}
@@ -258,11 +254,7 @@ export function ContentPostsPanelClient({
         />
         <OmmSelectDropdown
           ariaLabel={labels.labels.allTypes}
-          label={
-            typeFilter === "ALL"
-              ? labels.labels.allTypes
-              : typeFilter
-          }
+          label={typeFilter === "ALL" ? labels.labels.allTypes : typeFilter}
           value={typeFilter}
           triggerClassName="ommm-dropdown-trigger--compact"
           options={[
@@ -275,11 +267,7 @@ export function ContentPostsPanelClient({
         />
         <OmmSelectDropdown
           ariaLabel={labels.labels.allStatuses}
-          label={
-            statusFilter === "ALL"
-              ? labels.labels.allStatuses
-              : statusFilter
-          }
+          label={statusFilter === "ALL" ? labels.labels.allStatuses : statusFilter}
           value={statusFilter}
           triggerClassName="ommm-dropdown-trigger--compact"
           options={[
@@ -292,42 +280,22 @@ export function ContentPostsPanelClient({
         />
       </div>
 
-      <ul className={wellnessChrome ? "mt-2 space-y-3" : "mt-6 space-y-2"}>
+      <ul className="mt-2 space-y-3">
         {filteredItems.map((p) => (
-          <li
-            key={p.id}
-            className={
-              wellnessChrome
-                ? "ommm-list-row"
-                : "rounded-[22px] border border-zinc-200 bg-white px-4 py-3 text-sm shadow-sm"
-            }
-          >
+          <li key={p.id} className={adminChrome.panel}>
             <div className="w-full">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span
-                    className={
-                      wellnessChrome
-                        ? "font-medium text-sage-800"
-                        : "font-medium text-zinc-900"
-                    }
-                  >
-                    {p.title}
-                  </span>
-                  <span
-                    className={
-                      wellnessChrome
-                        ? "ml-2 text-xs text-sage-500"
-                        : "ml-2 text-xs text-zinc-500"
-                    }
-                  >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className={adminChrome.panelHeading}>{p.title}</p>
+                  <p className={`mt-1 ${adminChrome.metaText}`}>
                     {p.type} · {p.status}
-                  </span>
+                  </p>
                 </div>
-                <div className="flex gap-2">
-                  <button
+                <div className="flex flex-wrap gap-2">
+                  <OmmButton
                     type="button"
-                    className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                    size="sm"
+                    variant="ghost"
                     disabled={busyId !== null}
                     onClick={() =>
                       void run(
@@ -354,11 +322,12 @@ export function ContentPostsPanelClient({
                     }
                   >
                     {labels.labels.toggleHide}
-                  </button>
-                  {(p.status === "DRAFT" || p.status === "REJECTED" || p.status === "HIDDEN") ? (
-                    <button
+                  </OmmButton>
+                  {p.status === "DRAFT" || p.status === "REJECTED" || p.status === "HIDDEN" ? (
+                    <OmmButton
                       type="button"
-                      className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      size="sm"
+                      variant="secondary"
                       disabled={busyId !== null}
                       onClick={() =>
                         void run(
@@ -372,13 +341,14 @@ export function ContentPostsPanelClient({
                       }
                     >
                       {labels.labels.submitReview}
-                    </button>
+                    </OmmButton>
                   ) : null}
                   {p.status === "IN_REVIEW" ? (
                     <>
-                      <button
+                      <OmmButton
                         type="button"
-                        className="rounded-md border border-emerald-300 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                        size="sm"
+                        variant="primary"
                         disabled={busyId !== null}
                         onClick={() =>
                           void run(
@@ -393,10 +363,11 @@ export function ContentPostsPanelClient({
                         }
                       >
                         {labels.labels.approve}
-                      </button>
-                      <button
+                      </OmmButton>
+                      <OmmButton
                         type="button"
-                        className="rounded-md border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                        size="sm"
+                        variant="ghost"
                         disabled={busyId !== null}
                         onClick={() => {
                           const note = window.prompt(labels.feedback.rejectionNotePrompt);
@@ -415,12 +386,13 @@ export function ContentPostsPanelClient({
                         }}
                       >
                         {labels.labels.reject}
-                      </button>
+                      </OmmButton>
                     </>
                   ) : null}
-                  <button
+                  <OmmButton
                     type="button"
-                    className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50"
+                    size="sm"
+                    variant="ghost"
                     disabled={busyId !== null}
                     onClick={() =>
                       void run(
@@ -434,19 +406,19 @@ export function ContentPostsPanelClient({
                     }
                   >
                     {labels.labels.delete}
-                  </button>
+                  </OmmButton>
                 </div>
               </div>
-              <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
+              <p className={`mt-2 ${adminChrome.metaText}`}>
                 /{p.slug} · {formatDateTimeForUi(p.updatedAt)}
               </p>
               {p.tags && p.tags.length > 0 ? (
-                <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
+                <p className={adminChrome.metaText}>
                   {labels.labels.tags}: {p.tags.join(", ")}
                 </p>
               ) : null}
               {p.reviewNotes ? (
-                <p className={wellnessChrome ? "text-xs text-sage-500" : "text-xs text-zinc-500"}>
+                <p className={adminChrome.metaText}>
                   {labels.labels.review}: {p.reviewNotes}
                 </p>
               ) : null}
@@ -454,7 +426,7 @@ export function ContentPostsPanelClient({
           </li>
         ))}
       </ul>
-      {message ? <p className="text-xs text-sage-700">{message}</p> : null}
+      {message ? <p className={adminChrome.metaText}>{message}</p> : null}
     </div>
   );
 }

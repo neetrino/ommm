@@ -1,8 +1,7 @@
 import { headers } from "next/headers";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { serverApiJson } from "@/lib/server-api";
 import { ContentPostsPanelClient } from "@/components/admin/content-posts-panel-client";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
 
 type ContentAdminRow = {
   id: string;
@@ -23,146 +22,52 @@ type ContentAdminRow = {
   updatedAt: string;
 };
 
-type ContentPostsPanelProps = {
-  /** When true (admin workspace), match member dashboard glass surfaces. */
-  wellnessChrome?: boolean;
-};
-
-function getContentPanelLabels(locale: string) {
-  if (locale === "hy") {
-    return {
-      errorAuth: "Պահանջվում է ադմինի կամ բովանդակության դեր։",
-      errorLoad: "Չհաջողվեց բեռնել գրառումները ({status})։",
-      title: "Բովանդակություն",
-      description: "Կառավարեք գրառումները և տեսանելիության կարգավիճակները։",
-      placeholders: {
-        title: "Վերնագիր",
-        slug: "Slug",
-        body: "Բովանդակություն",
-        authorName: "Հեղինակի անուն",
-        tagsCsv: "Թեգեր (ստորակետով)",
-        seoTitle: "SEO վերնագիր",
-        seoDescription: "SEO նկարագրություն",
-        editorialNotes: "Խմբագրական նշումներ",
-        searchPosts: "Որոնել գրառումներ",
-      },
-      labels: {
-        type: "Տեսակ",
-        status: "Կարգավիճակ",
-        allTypes: "Բոլոր տեսակները",
-        allStatuses: "Բոլոր կարգավիճակները",
-        create: "Ստեղծել",
-        toggleHide: "Փոխել տեսանելիությունը",
-        submitReview: "Ուղարկել վերանայման",
-        approve: "Հաստատել",
-        reject: "Մերժել",
-        delete: "Ջնջել",
-        tags: "թեգեր",
-        review: "վերանայում",
-      },
-      feedback: {
-        actionFailed: "Գործողությունը չհաջողվեց",
-        postCreated: "Գրառումը ստեղծված է",
-        visibilityUpdated: "Տեսանելիությունը թարմացվել է",
-        submittedForReview: "Ուղարկվեց վերանայման",
-        postApproved: "Գրառումը հաստատվեց",
-        postRejected: "Գրառումը մերժվեց",
-        postDeleted: "Գրառումը ջնջվեց",
-        rejectionNotePrompt: "Մերժման նշում",
-      },
-    };
-  }
-  if (locale === "ru") {
-    return {
-      errorAuth: "Нужна роль админа или контента.",
-      errorLoad: "Не удалось загрузить посты ({status}).",
-      title: "Контент",
-      description: "Управляйте постами и статусами видимости.",
-      placeholders: {
-        title: "Заголовок",
-        slug: "Slug",
-        body: "Контент",
-        authorName: "Имя автора",
-        tagsCsv: "Теги (через запятую)",
-        seoTitle: "SEO заголовок",
-        seoDescription: "SEO описание",
-        editorialNotes: "Редакционные заметки",
-        searchPosts: "Поиск постов",
-      },
-      labels: {
-        type: "Тип",
-        status: "Статус",
-        allTypes: "Все типы",
-        allStatuses: "Все статусы",
-        create: "Создать",
-        toggleHide: "Переключить видимость",
-        submitReview: "Отправить на ревью",
-        approve: "Одобрить",
-        reject: "Отклонить",
-        delete: "Удалить",
-        tags: "теги",
-        review: "ревью",
-      },
-      feedback: {
-        actionFailed: "Действие не выполнено",
-        postCreated: "Пост создан",
-        visibilityUpdated: "Видимость обновлена",
-        submittedForReview: "Отправлено на ревью",
-        postApproved: "Пост одобрен",
-        postRejected: "Пост отклонён",
-        postDeleted: "Пост удалён",
-        rejectionNotePrompt: "Комментарий к отклонению",
-      },
-    };
-  }
+async function loadContentPanelLabels(locale: string) {
+  const t = await getTranslations({ locale, namespace: "contentAdminPages.content" });
   return {
-    errorAuth: "Admin or content role required.",
-    errorLoad: "Could not load posts ({status}).",
-    title: "Content",
-    description: "Manage posts and visibility states.",
+    errorAuth: t("errorAuth"),
+    errorLoad: t("errorLoad"),
     placeholders: {
-      title: "Title",
-      slug: "Slug",
-      body: "Body",
-      authorName: "Author name",
-      tagsCsv: "Tags (comma separated)",
-      seoTitle: "SEO title",
-      seoDescription: "SEO description",
-      editorialNotes: "Editorial notes",
-      searchPosts: "Search posts",
+      title: t("placeholders.title"),
+      slug: t("placeholders.slug"),
+      body: t("placeholders.body"),
+      authorName: t("placeholders.authorName"),
+      tagsCsv: t("placeholders.tagsCsv"),
+      seoTitle: t("placeholders.seoTitle"),
+      seoDescription: t("placeholders.seoDescription"),
+      editorialNotes: t("placeholders.editorialNotes"),
+      searchPosts: t("placeholders.searchPosts"),
     },
     labels: {
-      type: "Type",
-      status: "Status",
-      allTypes: "All types",
-      allStatuses: "All statuses",
-      create: "Create",
-      toggleHide: "Toggle hide",
-      submitReview: "Submit review",
-      approve: "Approve",
-      reject: "Reject",
-      delete: "Delete",
-      tags: "tags",
-      review: "review",
+      type: t("labels.type"),
+      status: t("labels.status"),
+      allTypes: t("labels.allTypes"),
+      allStatuses: t("labels.allStatuses"),
+      create: t("labels.create"),
+      toggleHide: t("labels.toggleHide"),
+      submitReview: t("labels.submitReview"),
+      approve: t("labels.approve"),
+      reject: t("labels.reject"),
+      delete: t("labels.delete"),
+      tags: t("labels.tags"),
+      review: t("labels.review"),
     },
     feedback: {
-      actionFailed: "Action failed",
-      postCreated: "Post created",
-      visibilityUpdated: "Visibility updated",
-      submittedForReview: "Submitted for review",
-      postApproved: "Post approved",
-      postRejected: "Post rejected",
-      postDeleted: "Post deleted",
-      rejectionNotePrompt: "Rejection note",
+      actionFailed: t("feedback.actionFailed"),
+      postCreated: t("feedback.postCreated"),
+      visibilityUpdated: t("feedback.visibilityUpdated"),
+      submittedForReview: t("feedback.submittedForReview"),
+      postApproved: t("feedback.postApproved"),
+      postRejected: t("feedback.postRejected"),
+      postDeleted: t("feedback.postDeleted"),
+      rejectionNotePrompt: t("feedback.rejectionNotePrompt"),
     },
   };
 }
 
-export async function ContentPostsPanel({
-  wellnessChrome = false,
-}: ContentPostsPanelProps) {
+export async function ContentPostsPanel() {
   const locale = await getLocale();
-  const labels = getContentPanelLabels(locale);
+  const labels = await loadContentPanelLabels(locale);
   const cookie = (await headers()).get("cookie") ?? "";
   const res = await serverApiJson<ContentAdminRow[]>(
     "/content/admin/posts",
@@ -174,36 +79,8 @@ export async function ContentPostsPanel({
       res.status === 401 || res.status === 403
         ? labels.errorAuth
         : labels.errorLoad.replace("{status}", String(res.status));
-    return wellnessChrome ? (
-      <div className="app-alert-warn max-w-xl">{message}</div>
-    ) : (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-        {message}
-      </div>
-    );
+    return <div className="app-alert-warn max-w-xl">{message}</div>;
   }
 
-  const list = (
-    <ContentPostsPanelClient
-      items={res.data}
-      wellnessChrome={wellnessChrome}
-      labels={labels}
-    />
-  );
-
-  if (wellnessChrome) {
-    return (
-      <AccountPageFrame title={labels.title} description={labels.description}>
-        {list}
-      </AccountPageFrame>
-    );
-  }
-
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-zinc-900">{labels.title}</h1>
-      <p className="mt-2 text-sm text-zinc-600">{labels.description}</p>
-      {list}
-    </div>
-  );
+  return <ContentPostsPanelClient items={res.data} labels={labels} />;
 }

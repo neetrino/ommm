@@ -2941,6 +2941,10 @@
       "manager": {
         "heading": "Operational defaults",
         "body": "Operational defaults are managed centrally. Reach out to studio admins for billing, integrations, or policy changes."
+      },
+      "contentAdmin": {
+        "heading": "Editorial workflow",
+        "body": "Publish and review studio posts from the Content section. Contact admins for role or approval policy changes."
       }
     }
   },
@@ -3044,6 +3048,51 @@
       "paid": "Paid out",
       "sessions": "Completed sessions",
       "formula": "Formula: base {base} per completed session + {perAttendee} per attended participant."
+    }
+  },
+  "contentAdminPages": {
+    "home": {
+      "openContent": "Open content",
+      "openProfile": "Profile"
+    },
+    "content": {
+      "errorAuth": "Admin or content role required.",
+      "errorLoad": "Could not load posts ({status}).",
+      "placeholders": {
+        "title": "Title",
+        "slug": "Slug",
+        "body": "Body",
+        "authorName": "Author name",
+        "tagsCsv": "Tags (comma separated)",
+        "seoTitle": "SEO title",
+        "seoDescription": "SEO description",
+        "editorialNotes": "Editorial notes",
+        "searchPosts": "Search posts"
+      },
+      "labels": {
+        "type": "Type",
+        "status": "Status",
+        "allTypes": "All types",
+        "allStatuses": "All statuses",
+        "create": "Create",
+        "toggleHide": "Toggle hide",
+        "submitReview": "Submit review",
+        "approve": "Approve",
+        "reject": "Reject",
+        "delete": "Delete",
+        "tags": "tags",
+        "review": "review"
+      },
+      "feedback": {
+        "actionFailed": "Action failed",
+        "postCreated": "Post created",
+        "visibilityUpdated": "Visibility updated",
+        "submittedForReview": "Submitted for review",
+        "postApproved": "Post approved",
+        "postRejected": "Post rejected",
+        "postDeleted": "Post deleted",
+        "rejectionNotePrompt": "Rejection note"
+      }
     }
   },
   "verifyEmail": {

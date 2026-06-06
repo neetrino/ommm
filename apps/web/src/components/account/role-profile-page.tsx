@@ -28,7 +28,7 @@ type MeResponse = {
   };
 };
 
-type WorkspaceNoteVariant = "admin" | "coach" | "manager";
+type WorkspaceNoteVariant = "admin" | "coach" | "manager" | "contentAdmin";
 
 type RoleProfilePageProps = {
   locale: string;

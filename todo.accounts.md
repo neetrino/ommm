@@ -60,7 +60,7 @@ Coach / Manager / Content-admin — **часть одной экосистемы
 |------|---------|--------|
 | **1** | **COACH** | ✅ done |
 | **2** | **MANAGER** | ✅ done (shell, frames, i18n, tables) |
-| 3 | CONTENT_ADMIN | следующий |
+| **3** | **CONTENT_ADMIN** | ✅ done |
 | 4 | USER (дочистка) | только если остались расхождения |
 | 5 | Global cleanup | удаление мёртвого кода |
 
