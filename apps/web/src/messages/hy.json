@@ -2643,6 +2643,17 @@
         "bookingStatusMissed": "Բաց թողնված"
       },
       "sections": {
+        "trends": {
+          "revenueTitle": "Եկամտի դինամիկա",
+          "revenueHint": "Օրական հաջողված վճարումներ ընտրված միջակայքում։",
+          "revenueSeries": "Եկամուտ",
+          "revenueChartAria": "Օրական եկամտի գրաֆիկ",
+          "bookingsTitle": "Ամրագրումների դինամիկա",
+          "bookingsHint": "Օրական ամրագրումներ նմուշից (մինչև {limit} գրառում)։",
+          "bookingsSeries": "Ամրագրումներ",
+          "completedSeries": "Ավարտված",
+          "bookingsChartAria": "Օրական ամրագրումների գրաֆիկ"
+        },
         "revenue": {
           "title": "Եկամտի հաշվետվություն",
           "hint": "Ընդհանուր ցուցանիշներ `/reports/finance/summary`-ից ընտրված միջակայքի համար։",

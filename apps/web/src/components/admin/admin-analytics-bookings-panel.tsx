@@ -2,6 +2,12 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { AdminAnalyticsAreaChart } from "@/components/admin/admin-analytics-area-chart";
+import {
+  ANALYTICS_CHART_BLUE,
+  ANALYTICS_CHART_INK,
+  mapDailyTrendForChart,
+} from "@/components/admin/admin-analytics-area-chart-config";
 import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-list";
 import { AdminAnalyticsChartPanel } from "@/components/admin/admin-analytics-chart-panel";
 import {
@@ -13,6 +19,7 @@ import {
 } from "@/components/admin/admin-analytics-chart-data";
 import { AdminAnalyticsDonutChart } from "@/components/admin/admin-analytics-donut-chart";
 import { AdminAnalyticsKpiStrip } from "@/components/admin/admin-analytics-kpi-strip";
+import { sumBucketValues } from "@/components/admin/admin-analytics-trend-data";
 import type { AdminAnalyticsPayload } from "@/components/admin/admin-analytics-types";
 
 type AdminAnalyticsBookingsPanelProps = {
@@ -54,6 +61,9 @@ export function AdminAnalyticsBookingsPanel({ data }: AdminAnalyticsBookingsPane
     () => sliceSortedBarItems(data.bookings.classPopularity, sortKey, 10),
     [data.bookings.classPopularity, sortKey],
   );
+  const trendChartData = useMemo(() => mapDailyTrendForChart(data.dailyTrend), [data.dailyTrend]);
+  const bookingsTrendTotal = sumBucketValues(data.dailyTrend, "total");
+  const completedTrendTotal = sumBucketValues(data.dailyTrend, "completed");
 
   const rangeAttendanceRate = resolveRangeAttendanceRate(data);
   const todayAttendanceRate = resolveTodayAttendanceRate(data);
@@ -101,6 +111,31 @@ export function AdminAnalyticsBookingsPanel({ data }: AdminAnalyticsBookingsPane
         </p>
       ) : null}
       <AdminAnalyticsKpiStrip items={kpis} />
+      <AdminAnalyticsChartPanel
+        title={t("sections.trends.bookingsTitle")}
+        hint={t("sections.trends.bookingsHint", { limit: data.bookings.sampledLimit })}
+      >
+        <AdminAnalyticsAreaChart
+          data={trendChartData}
+          xKey="label"
+          series={[
+            {
+              key: "bookings",
+              label: t("sections.trends.bookingsSeries"),
+              color: ANALYTICS_CHART_BLUE,
+              totalLabel: String(bookingsTrendTotal),
+            },
+            {
+              key: "completed",
+              label: t("sections.trends.completedSeries"),
+              color: ANALYTICS_CHART_INK,
+              totalLabel: String(completedTrendTotal),
+            },
+          ]}
+          emptyLabel={t("empty")}
+          ariaLabel={t("sections.trends.bookingsChartAria")}
+        />
+      </AdminAnalyticsChartPanel>
       <div className="grid gap-4 lg:grid-cols-2">
         <AdminAnalyticsChartPanel
           title={t("sections.bookings.title")}

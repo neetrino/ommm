@@ -2491,6 +2491,17 @@
         "bookingStatusMissed": "Missed"
       },
       "sections": {
+        "trends": {
+          "revenueTitle": "Revenue trend",
+          "revenueHint": "Daily successful payments for the selected date range.",
+          "revenueSeries": "Revenue",
+          "revenueChartAria": "Daily revenue area chart",
+          "bookingsTitle": "Bookings trend",
+          "bookingsHint": "Daily session bookings from the sample (up to {limit} records).",
+          "bookingsSeries": "Bookings",
+          "completedSeries": "Completed",
+          "bookingsChartAria": "Daily bookings area chart"
+        },
         "revenue": {
           "title": "Revenue report",
           "hint": "Totals from `/reports/finance/summary` for the selected date range.",

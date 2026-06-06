@@ -2631,6 +2631,17 @@
         "bookingStatusMissed": "Пропущено"
       },
       "sections": {
+        "trends": {
+          "revenueTitle": "Динамика выручки",
+          "revenueHint": "Ежедневные успешные платежи за выбранный период.",
+          "revenueSeries": "Выручка",
+          "revenueChartAria": "График выручки по дням",
+          "bookingsTitle": "Динамика бронирований",
+          "bookingsHint": "Ежедневные бронирования из выборки (до {limit} записей).",
+          "bookingsSeries": "Бронирования",
+          "completedSeries": "Завершённые",
+          "bookingsChartAria": "График бронирований по дням"
+        },
         "revenue": {
           "title": "Отчёт по выручке",
           "hint": "Итоги из `/reports/finance/summary` за выбранный период.",

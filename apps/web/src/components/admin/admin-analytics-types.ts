@@ -74,6 +74,7 @@ export type AnalyticsFinanceSummary = {
     "package" | "dropin" | "gift" | "other",
     { count: number; amountCents: number }
   >;
+  dailyRevenue?: Array<{ date: string; amountCents: number }>;
   giftCredits?: {
     issuedCents: number;
     issuedCount: number;
@@ -131,6 +132,14 @@ export type AnalyticsCoachRow = {
   };
 };
 
+export type AnalyticsDailyBucket = {
+  dateKey: string;
+  label: string;
+  total: number;
+  completed: number;
+  revenueCents: number;
+};
+
 export type AdminAnalyticsPayload = {
   locale: string;
   rangeDays: AnalyticsRangeDays;
@@ -146,4 +155,5 @@ export type AdminAnalyticsPayload = {
   bookings: AnalyticsBookingsPayload;
   clients: AnalyticsClientsSummary;
   coaches: AnalyticsCoachRow[];
+  dailyTrend: AnalyticsDailyBucket[];
 };

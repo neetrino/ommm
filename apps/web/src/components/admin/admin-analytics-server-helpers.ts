@@ -15,6 +15,9 @@ import {
   resolveAnalyticsDateRange,
   resolveQuickFiltersSort,
 } from "@/components/admin/admin-analytics-helpers";
+import {
+  buildAnalyticsDailyBuckets,
+} from "@/components/admin/admin-analytics-trend-data";
 import type {
   AdminAnalyticsPayload,
   AnalyticsClientsSummary,
@@ -33,6 +36,7 @@ type BookingsManagementResponse = {
     recordType?: "BOOKING" | "WAITLIST";
     status: string;
     session: {
+      startsAt: string;
       classType: { id: string; name: string };
       coach: { id: string; name: string | null };
     };
@@ -180,6 +184,13 @@ export async function loadAdminAnalyticsPayload(
   const matchedTotal =
     bookingsCountRes.data.pagination?.total ?? bookingsCountRes.data.summary.total;
   const isSampled = matchedTotal > bookingRows.length;
+  const dailyTrend = buildAnalyticsDailyBuckets(
+    fromIso,
+    toIso,
+    locale,
+    bookingRows,
+    financeRes.data.dailyRevenue ?? [],
+  );
 
   return {
     ok: true,
@@ -211,6 +222,7 @@ export async function loadAdminAnalyticsPayload(
       },
       clients: clientsRes.data.summary,
       coaches: coachesRes.data,
+      dailyTrend,
     },
   };
 }

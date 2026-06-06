@@ -2,6 +2,11 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { AdminAnalyticsAreaChart } from "@/components/admin/admin-analytics-area-chart";
+import {
+  ANALYTICS_CHART_BLUE,
+  mapDailyTrendForChart,
+} from "@/components/admin/admin-analytics-area-chart-config";
 import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-list";
 import { AdminAnalyticsChartPanel } from "@/components/admin/admin-analytics-chart-panel";
 import {
@@ -10,6 +15,7 @@ import {
 } from "@/components/admin/admin-analytics-chart-data";
 import { AdminAnalyticsDonutChart } from "@/components/admin/admin-analytics-donut-chart";
 import { AdminAnalyticsKpiStrip } from "@/components/admin/admin-analytics-kpi-strip";
+import { sumBucketValues } from "@/components/admin/admin-analytics-trend-data";
 import type { AdminAnalyticsPayload } from "@/components/admin/admin-analytics-types";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -40,6 +46,8 @@ export function AdminAnalyticsRevenuePanel({ data }: AdminAnalyticsRevenuePanelP
     () => buildPaymentStatusItems(data, sortKey),
     [data, sortKey],
   );
+  const trendChartData = useMemo(() => mapDailyTrendForChart(data.dailyTrend), [data.dailyTrend]);
+  const revenueTrendTotal = sumBucketValues(data.dailyTrend, "revenueCents");
 
   const kpis = [
     {
@@ -67,6 +75,23 @@ export function AdminAnalyticsRevenuePanel({ data }: AdminAnalyticsRevenuePanelP
   return (
     <div className="flex flex-col gap-6">
       <AdminAnalyticsKpiStrip items={kpis} />
+      <AdminAnalyticsChartPanel title={t("sections.trends.revenueTitle")} hint={t("sections.trends.revenueHint")}>
+        <AdminAnalyticsAreaChart
+          data={trendChartData}
+          xKey="label"
+          series={[
+            {
+              key: "revenue",
+              label: t("sections.trends.revenueSeries"),
+              color: ANALYTICS_CHART_BLUE,
+              totalLabel: formatAmdFromCents(revenueTrendTotal, locale),
+            },
+          ]}
+          emptyLabel={t("empty")}
+          ariaLabel={t("sections.trends.revenueChartAria")}
+          valueFormatter={(value) => formatAmdFromCents(value, locale)}
+        />
+      </AdminAnalyticsChartPanel>
       <div className="grid gap-4 lg:grid-cols-2">
         <AdminAnalyticsChartPanel title={t("sections.revenue.title")} hint={t("sections.revenue.hint")}>
           <AdminAnalyticsDonutChart

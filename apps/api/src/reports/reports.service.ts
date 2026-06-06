@@ -519,6 +519,7 @@ export class ReportsService {
           amountCents: true,
           description: true,
           status: true,
+          createdAt: true,
         },
       }),
       this.prisma.giftCard.findMany({
@@ -593,6 +594,18 @@ export class ReportsService {
       0,
     );
 
+    const dailyRevenueMap = new Map<string, number>();
+    for (const payment of payments) {
+      if (payment.status !== PaymentStatus.SUCCEEDED) {
+        continue;
+      }
+      const day = payment.createdAt.toISOString().slice(0, 10);
+      dailyRevenueMap.set(day, (dailyRevenueMap.get(day) ?? 0) + payment.amountCents);
+    }
+    const dailyRevenue = [...dailyRevenueMap.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([date, amountCents]) => ({ date, amountCents }));
+
     return {
       range: this.resolveRange(range),
       totals: {
@@ -602,6 +615,7 @@ export class ReportsService {
       },
       byStatus,
       bySource,
+      dailyRevenue,
       giftCredits: {
         issuedCents,
         issuedCount,

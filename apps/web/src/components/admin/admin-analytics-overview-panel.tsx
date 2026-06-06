@@ -2,17 +2,21 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { AdminAnalyticsAreaChart } from "@/components/admin/admin-analytics-area-chart";
+import {
+  ANALYTICS_CHART_BLUE,
+  ANALYTICS_CHART_INK,
+  mapDailyTrendForChart,
+} from "@/components/admin/admin-analytics-area-chart-config";
 import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-list";
 import { AdminAnalyticsChartPanel } from "@/components/admin/admin-analytics-chart-panel";
 import {
-  buildBookingStatusItems,
   buildMemberSegmentItems,
-  buildRevenueSourceItems,
   resolveRangeAttendanceRate,
   sliceSortedBarItems,
 } from "@/components/admin/admin-analytics-chart-data";
-import { AdminAnalyticsDonutChart } from "@/components/admin/admin-analytics-donut-chart";
 import { AdminAnalyticsKpiStrip } from "@/components/admin/admin-analytics-kpi-strip";
+import { sumBucketValues } from "@/components/admin/admin-analytics-trend-data";
 import type { AdminAnalyticsPayload } from "@/components/admin/admin-analytics-types";
 import { formatAmdFromCents } from "@/lib/price-amd";
 
@@ -25,27 +29,6 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
   const sortKey = data.sortKey;
   const locale = data.locale;
 
-  const sourceLabels = useMemo(
-    () => ({
-      package: t("sources.package"),
-      dropin: t("sources.dropin"),
-      gift: t("sources.gift"),
-      other: t("sources.other"),
-    }),
-    [t],
-  );
-
-  const bookingStatusLabels = useMemo(
-    () => ({
-      booked: t("bookingStatus.booked"),
-      completed: t("bookingStatus.completed"),
-      cancelled: t("bookingStatus.cancelled"),
-      missed: t("bookingStatus.missed"),
-      waitlisted: t("bookingStatus.waitlisted"),
-    }),
-    [t],
-  );
-
   const userLabels = useMemo(
     () => ({
       active: t("sections.users.active"),
@@ -55,14 +38,6 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
     [t],
   );
 
-  const revenueSourceItems = useMemo(
-    () => buildRevenueSourceItems(data, sortKey, sourceLabels),
-    [data, sortKey, sourceLabels],
-  );
-  const bookingStatusItems = useMemo(
-    () => buildBookingStatusItems(data, sortKey, bookingStatusLabels),
-    [bookingStatusLabels, data, sortKey],
-  );
   const memberSegments = useMemo(
     () => buildMemberSegmentItems(data, userLabels),
     [data, userLabels],
@@ -71,7 +46,11 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
     () => sliceSortedBarItems(data.bookings.classPopularity, sortKey, 6),
     [data.bookings.classPopularity, sortKey],
   );
+  const trendChartData = useMemo(() => mapDailyTrendForChart(data.dailyTrend), [data.dailyTrend]);
   const rangeAttendanceRate = resolveRangeAttendanceRate(data);
+  const revenueTrendTotal = sumBucketValues(data.dailyTrend, "revenueCents");
+  const bookingsTrendTotal = sumBucketValues(data.dailyTrend, "total");
+  const completedTrendTotal = sumBucketValues(data.dailyTrend, "completed");
 
   const kpis = [
     {
@@ -116,24 +95,49 @@ export function AdminAnalyticsOverviewPanel({ data }: AdminAnalyticsOverviewPane
         </p>
       ) : null}
       <AdminAnalyticsKpiStrip items={kpis} />
+      <AdminAnalyticsChartPanel title={t("sections.trends.revenueTitle")} hint={t("sections.trends.revenueHint")}>
+        <AdminAnalyticsAreaChart
+          data={trendChartData}
+          xKey="label"
+          series={[
+            {
+              key: "revenue",
+              label: t("sections.trends.revenueSeries"),
+              color: ANALYTICS_CHART_BLUE,
+              totalLabel: formatAmdFromCents(revenueTrendTotal, locale),
+            },
+          ]}
+          emptyLabel={t("empty")}
+          ariaLabel={t("sections.trends.revenueChartAria")}
+          valueFormatter={(value) => formatAmdFromCents(value, locale)}
+        />
+      </AdminAnalyticsChartPanel>
+      <AdminAnalyticsChartPanel
+        title={t("sections.trends.bookingsTitle")}
+        hint={t("sections.trends.bookingsHint", { limit: data.bookings.sampledLimit })}
+      >
+        <AdminAnalyticsAreaChart
+          data={trendChartData}
+          xKey="label"
+          series={[
+            {
+              key: "bookings",
+              label: t("sections.trends.bookingsSeries"),
+              color: ANALYTICS_CHART_BLUE,
+              totalLabel: String(bookingsTrendTotal),
+            },
+            {
+              key: "completed",
+              label: t("sections.trends.completedSeries"),
+              color: ANALYTICS_CHART_INK,
+              totalLabel: String(completedTrendTotal),
+            },
+          ]}
+          emptyLabel={t("empty")}
+          ariaLabel={t("sections.trends.bookingsChartAria")}
+        />
+      </AdminAnalyticsChartPanel>
       <div className="grid gap-4 lg:grid-cols-2">
-        <AdminAnalyticsChartPanel title={t("sections.revenue.title")} hint={t("sections.revenue.hint")}>
-          <AdminAnalyticsDonutChart
-            items={revenueSourceItems}
-            emptyLabel={t("empty")}
-            ariaLabel={t("sections.revenue.chartAria")}
-          />
-        </AdminAnalyticsChartPanel>
-        <AdminAnalyticsChartPanel
-          title={t("sections.bookings.title")}
-          hint={t("sections.bookings.hint", { limit: data.bookings.sampledLimit })}
-        >
-          <AdminAnalyticsDonutChart
-            items={bookingStatusItems}
-            emptyLabel={t("empty")}
-            ariaLabel={t("sections.bookings.chartAria")}
-          />
-        </AdminAnalyticsChartPanel>
         <AdminAnalyticsChartPanel title={t("sections.users.title")} hint={t("sections.users.hint")}>
           <AdminAnalyticsBarList
             items={memberSegments}
