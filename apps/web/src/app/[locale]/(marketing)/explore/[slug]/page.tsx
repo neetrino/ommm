@@ -7,8 +7,8 @@ import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-p
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const res = await fetchExplorePost(slug);
+  const { locale, slug } = await params;
+  const res = await fetchExplorePost(slug, locale);
   if (!res.ok) {
     return { title: "Post" };
   }

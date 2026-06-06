@@ -3116,6 +3116,13 @@
         "UPDATE": "Update",
         "KNOWLEDGE_ARTICLE": "Article"
       },
+      "localeTabs": {
+        "aria": "Content language",
+        "hy": "Armenian",
+        "ru": "Russian",
+        "en": "English",
+        "slugHint": "Leave empty to auto-generate from the English slug."
+      },
       "feedback": {
         "actionFailed": "Action failed",
         "postCreated": "Post created",

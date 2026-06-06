@@ -89,13 +89,6 @@ function ContentPostDetailsSheetInner({
     [initialValues, values],
   );
 
-  const updateField = useCallback(
-    <K extends keyof ContentPostFormValues>(key: K, value: ContentPostFormValues[K]) => {
-      setValues((current) => ({ ...current, [key]: value }));
-    },
-    [],
-  );
-
   const handleClose = useCallback(() => {
     if (busy) {
       return;
@@ -214,7 +207,7 @@ function ContentPostDetailsSheetInner({
               {t("labels.review")}: {post.reviewNotes}
             </p>
           ) : null}
-          <ContentPostFormFields values={values} disabled={busy} onChange={updateField} />
+          <ContentPostFormFields values={values} disabled={busy} onChange={setValues} />
         </div>
 
         <AdminDetailSheetFormFooter

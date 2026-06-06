@@ -13,6 +13,8 @@ type AdminDetailSheetTabBarProps = {
   tabs: readonly AdminDetailSheetTabItem[];
   activeTab: string;
   onTabChange: (value: string) => void;
+  className?: string;
+  ariaLabel?: string;
 };
 
 const TAB_BUTTON_BASE_CLASS =
@@ -28,12 +30,14 @@ export function AdminDetailSheetTabBar({
   tabs,
   activeTab,
   onTabChange,
+  className = "",
+  ariaLabel = "Sheet sections",
 }: AdminDetailSheetTabBarProps) {
   return (
     <div
-      className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} shrink-0 border-b border-t-0 py-3`}
+      className={`${ADMIN_DETAILS_SHEET_HEADER_CLASS} shrink-0 border-b border-t-0 py-3 ${className}`.trim()}
       role="tablist"
-      aria-label="Sheet sections"
+      aria-label={ariaLabel}
     >
       <div className="flex gap-2 overflow-x-auto pb-0.5">
         {tabs.map((tab) => {

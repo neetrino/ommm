@@ -3074,6 +3074,13 @@
         "UPDATE": "Թարմացում",
         "KNOWLEDGE_ARTICLE": "Հոդված"
       },
+      "localeTabs": {
+        "aria": "Բովանդակության լեզու",
+        "hy": "Հայերեն",
+        "ru": "Русский",
+        "en": "English",
+        "slugHint": "Դատարկ թողեք — slug-ը կստեղծվի անգլերեն slug-ից։"
+      },
       "feedback": {
         "actionFailed": "Գործողությունը չհաջողվեց",
         "postCreated": "Գրառումը ստեղծված է",

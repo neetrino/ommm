@@ -132,8 +132,23 @@ describe('ContentService', () => {
       {
         type: ContentType.BLOG,
         status: ContentStatus.PUBLISHED,
-        slug: 'Morning-Flow',
-        title: 'Morning flow',
+        translations: [
+          {
+            locale: 'en',
+            slug: 'Morning-Flow',
+            title: 'Morning flow',
+          },
+          {
+            locale: 'hy',
+            slug: 'morning-flow-hy',
+            title: '',
+          },
+          {
+            locale: 'ru',
+            slug: 'morning-flow-ru',
+            title: '',
+          },
+        ],
         tags: [' yoga ', 'Flow', 'yoga'],
       },
       { id: 'admin-1', role: Role.ADMIN },
@@ -142,7 +157,12 @@ describe('ContentService', () => {
     const createCalls = prisma.contentPost.create.mock.calls as Array<
       [
         {
-          data: { slug: string; tags: string[]; publishedAt: Date | null };
+          data: {
+            slug: string;
+            tags: string[];
+            publishedAt: Date | null;
+            translations: { create: Array<{ locale: string; slug: string }> };
+          };
         },
       ]
     >;
@@ -150,5 +170,6 @@ describe('ContentService', () => {
     expect(createArgs.data.slug).toBe('morning-flow');
     expect(createArgs.data.tags).toEqual(['yoga', 'flow']);
     expect(createArgs.data.publishedAt).toBeInstanceOf(Date);
+    expect(createArgs.data.translations.create).toHaveLength(3);
   });
 });

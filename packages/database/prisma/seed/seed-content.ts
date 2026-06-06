@@ -1,5 +1,7 @@
 import { ContentStatus, ContentType, PrismaClient } from "@prisma/client";
 
+const CONTENT_POST_LOCALES = ["en", "hy", "ru"] as const;
+
 type ContentSeed = {
   slug: string;
   type: ContentType;
@@ -114,9 +116,13 @@ const CONTENT_POST_SEEDS: readonly ContentSeed[] = [
   },
 ];
 
+function translationSlug(postSlug: string, locale: (typeof CONTENT_POST_LOCALES)[number]): string {
+  return locale === "en" ? postSlug : `${postSlug}-${locale}`;
+}
+
 export async function seedContentPosts(prisma: PrismaClient): Promise<void> {
   for (const post of CONTENT_POST_SEEDS) {
-    await prisma.contentPost.upsert({
+    const saved = await prisma.contentPost.upsert({
       where: { slug: post.slug },
       update: {
         type: post.type,
@@ -140,5 +146,31 @@ export async function seedContentPosts(prisma: PrismaClient): Promise<void> {
         publishedAt: post.publishedAt ?? null,
       },
     });
+
+    for (const locale of CONTENT_POST_LOCALES) {
+      const slug = translationSlug(post.slug, locale);
+      await prisma.contentPostTranslation.upsert({
+        where: {
+          postId_locale: {
+            postId: saved.id,
+            locale,
+          },
+        },
+        update: {
+          slug,
+          title: locale === "en" ? post.title : "",
+          excerpt: locale === "en" ? post.excerpt : null,
+          body: locale === "en" ? post.body : null,
+        },
+        create: {
+          postId: saved.id,
+          locale,
+          slug,
+          title: locale === "en" ? post.title : "",
+          excerpt: locale === "en" ? post.excerpt : null,
+          body: locale === "en" ? post.body : null,
+        },
+      });
+    }
   }
 }

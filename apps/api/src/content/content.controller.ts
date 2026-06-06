@@ -23,13 +23,16 @@ export class ContentController {
   constructor(private readonly content: ContentService) {}
 
   @Get('posts')
-  listPublished(@Query('type') type?: ContentType) {
-    return this.content.listPublished(type);
+  listPublished(
+    @Query('type') type?: ContentType,
+    @Query('locale') locale?: string,
+  ) {
+    return this.content.listPublished(type, locale);
   }
 
   @Get('posts/:slug')
-  bySlug(@Param('slug') slug: string) {
-    return this.content.getBySlug(slug);
+  bySlug(@Param('slug') slug: string, @Query('locale') locale?: string) {
+    return this.content.getBySlug(slug, locale);
   }
 
   @Get('admin/posts')
