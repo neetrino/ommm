@@ -17,6 +17,7 @@ import type {
   GiftCardStatusFilter,
 } from "@/components/admin/admin-gift-cards-types";
 import { OmmButton } from "@/components/ui/omm-button";
+import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 
@@ -121,21 +122,19 @@ export function AdminGiftCardsFilters({
           quickUnredeemed: tFilters("quickUnredeemed"),
         },
         renderAmountMin: ({ value, onChange: onFieldChange }) => (
-          <input
-            className="ommm-input h-10"
-            inputMode="numeric"
+          <AmdMoneyInput
+            className="h-10"
             value={value}
-            onChange={(event) => onFieldChange(event.target.value)}
+            onValueChange={onFieldChange}
             placeholder={tFilters("amountMinPlaceholder")}
             aria-label={tFilters("amountMin")}
           />
         ),
         renderAmountMax: ({ value, onChange: onFieldChange }) => (
-          <input
-            className="ommm-input h-10"
-            inputMode="numeric"
+          <AmdMoneyInput
+            className="h-10"
             value={value}
-            onChange={(event) => onFieldChange(event.target.value)}
+            onValueChange={onFieldChange}
             placeholder={tFilters("amountMaxPlaceholder")}
             aria-label={tFilters("amountMax")}
           />

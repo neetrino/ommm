@@ -3,6 +3,7 @@ import type {
   GiftCardFilterValues,
   GiftCardSortOrder,
 } from "@/components/admin/admin-gift-cards-types";
+import { parseAmdMoneyInput } from "@/lib/price-amd";
 
 export function isGiftCardExpired(card: AdminGiftCardBatchRow, now = Date.now()): boolean {
   if (card.status === "EXPIRED") {
@@ -30,12 +31,7 @@ export function recipientLabel(card: AdminGiftCardBatchRow): string {
 }
 
 function parseAmountFilter(value: string): number | null {
-  const trimmed = value.trim();
-  if (trimmed.length === 0) {
-    return null;
-  }
-  const parsed = Number.parseInt(trimmed, 10);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+  return parseAmdMoneyInput(value);
 }
 
 function matchesSearch(card: AdminGiftCardBatchRow, search: string): boolean {

@@ -1,9 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { apiFetch } from "@/lib/api";
 import { formatDateForUi } from "@/lib/date-display";
+import { parseAmdMoneyInput } from "@/lib/price-amd";
 import type { ClientDetail } from "./admin-clients-types";
 
 type RunAction = (key: string, action: () => Promise<void>, ok: string) => Promise<void>;
@@ -21,12 +23,10 @@ export function ClientGiftActionPanel(props: {
     <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">
       <p className="font-medium text-sage-900">{t("drawer.giveGift")}</p>
       <div className="mt-3 flex gap-2">
-        <input
-          className="ommm-input h-10 flex-1"
-          type="number"
-          min={1}
+        <AmdMoneyInput
+          className="h-10 flex-1"
           value={props.giftAmount}
-          onChange={(event) => props.onGiftAmountChange(event.target.value)}
+          onValueChange={props.onGiftAmountChange}
           aria-label={t("drawer.giftAmountAria")}
         />
         <OmmButton
@@ -39,7 +39,7 @@ export function ClientGiftActionPanel(props: {
                 apiFetch("/gift-cards/admin", {
                   method: "POST",
                   body: JSON.stringify({
-                    amountCents: Number.parseInt(props.giftAmount, 10),
+                    amountCents: parseAmdMoneyInput(props.giftAmount) ?? 0,
                     recipientEmail: props.client.email,
                     recipientName: clientDisplayName(props.client),
                   }),
