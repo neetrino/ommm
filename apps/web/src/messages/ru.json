@@ -1077,6 +1077,29 @@
       "pageDescription": "Быстрый операционный обзор занятий, бронирований, участников, выручки и алертов.",
       "errorAuth": "Требуется вход администратора.",
       "errorLoad": "Не удалось загрузить данные дашборда ({status}).",
+      "kpi": {
+        "sessions": "Занятия сегодня",
+        "bookings": "Бронирования сегодня",
+        "members": "Активные участники",
+        "revenue": "Выручка за месяц",
+        "waitlist": "Лист ожидания",
+        "alerts": "Алерты"
+      },
+      "charts": {
+        "revenueTitle": "Динамика выручки",
+        "revenueHint": "Последние 7 дней",
+        "revenueSeries": "Выручка",
+        "revenueChartAria": "Динамика выручки за последние семь дней",
+        "bookingsTitle": "Динамика бронирований",
+        "bookingsHint": "Последние 7 дней",
+        "bookingsSeries": "Бронирования",
+        "completedSeries": "Завершено",
+        "bookingsChartAria": "Динамика бронирований за последние семь дней",
+        "todayBookingsTitle": "Бронирования сегодня",
+        "todayBookingsAria": "Распределение сегодняшних бронирований по статусам",
+        "viewAnalytics": "Открыть полную аналитику →",
+        "empty": "За этот период данных пока нет."
+      },
       "cards": {
         "todayClasses": {
           "title": "Занятия сегодня",
@@ -1122,6 +1145,12 @@
       },
       "todayBookings": {
         "title": "Статусы бронирований за сегодня",
+        "statusLabels": {
+          "booked": "Подтверждено",
+          "completed": "Завершено",
+          "cancelled": "Отменено",
+          "missed": "Пропущено"
+        },
         "breakdown": {
           "booked": "Подтверждено: {count}",
           "completed": "Завершено: {count}",

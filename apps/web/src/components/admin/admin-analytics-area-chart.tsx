@@ -24,6 +24,7 @@ type AdminAnalyticsAreaChartProps = {
   ariaLabel: string;
   valueFormatter?: (value: number, seriesKey: string) => string;
   className?: string;
+  chartClassName?: string;
 };
 
 type TrendTooltipProps = {
@@ -70,6 +71,7 @@ export function AdminAnalyticsAreaChart({
   ariaLabel,
   valueFormatter,
   className,
+  chartClassName,
 }: AdminAnalyticsAreaChartProps) {
   const chartConfig = useMemo(
     () =>
@@ -103,7 +105,10 @@ export function AdminAnalyticsAreaChart({
         ))}
       </div>
 
-      <ChartContainer config={chartConfig} className="aspect-auto h-[280px] w-full sm:h-[320px]">
+      <ChartContainer
+        config={chartConfig}
+        className={cn("aspect-auto h-[280px] w-full sm:h-[320px]", chartClassName)}
+      >
         <AreaChart
           accessibilityLayer
           data={data}

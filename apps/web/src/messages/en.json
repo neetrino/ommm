@@ -1086,6 +1086,29 @@
       "pageDescription": "Fast operational overview of classes, bookings, members, revenue, and alerts.",
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load dashboard data ({status}).",
+      "kpi": {
+        "sessions": "Classes today",
+        "bookings": "Bookings today",
+        "members": "Active members",
+        "revenue": "Revenue this month",
+        "waitlist": "Waitlist",
+        "alerts": "Alerts"
+      },
+      "charts": {
+        "revenueTitle": "Revenue trend",
+        "revenueHint": "Last 7 days",
+        "revenueSeries": "Revenue",
+        "revenueChartAria": "Daily revenue trend for the last seven days",
+        "bookingsTitle": "Bookings trend",
+        "bookingsHint": "Last 7 days",
+        "bookingsSeries": "Bookings",
+        "completedSeries": "Completed",
+        "bookingsChartAria": "Daily bookings trend for the last seven days",
+        "todayBookingsTitle": "Today's bookings",
+        "todayBookingsAria": "Breakdown of today's bookings by status",
+        "viewAnalytics": "Open full analytics →",
+        "empty": "No data for this period yet."
+      },
       "cards": {
         "todayClasses": {
           "title": "Today's Classes",
@@ -1131,6 +1154,12 @@
       },
       "todayBookings": {
         "title": "Today's bookings breakdown",
+        "statusLabels": {
+          "booked": "Confirmed",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "missed": "Missed"
+        },
         "breakdown": {
           "booked": "Confirmed: {count}",
           "completed": "Completed: {count}",

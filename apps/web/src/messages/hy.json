@@ -1089,6 +1089,29 @@
       "pageDescription": "Արագ օպերացիոն ակնարկ՝ դասերի, ամրագրումների, անդամների, եկամտի և ազդանշանների մասին։",
       "errorAuth": "Պահանջվում է ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել dashboard-ի տվյալները ({status})։",
+      "kpi": {
+        "sessions": "Այսօրվա դասեր",
+        "bookings": "Այսօրվա ամրագրումներ",
+        "members": "Ակտիվ անդամներ",
+        "revenue": "Այս ամսվա եկամուտ",
+        "waitlist": "Սպասման ցուցակ",
+        "alerts": "Ազդանշաններ"
+      },
+      "charts": {
+        "revenueTitle": "Եկամտի դինամիկա",
+        "revenueHint": "Վերջին 7 օր",
+        "revenueSeries": "Եկամուտ",
+        "revenueChartAria": "Եկամտի օրական դինամիկա վերջին յոթ օրվա համար",
+        "bookingsTitle": "Ամրագրումների դինամիկա",
+        "bookingsHint": "Վերջին 7 օր",
+        "bookingsSeries": "Ամրագրումներ",
+        "completedSeries": "Ավարտված",
+        "bookingsChartAria": "Ամրագրումների օրական դինամիկա վերջին յոթ օրվա համար",
+        "todayBookingsTitle": "Այսօրվա ամրագրումներ",
+        "todayBookingsAria": "Այսօրվա ամրագրումների բաշխում ըստ կարգավիճակի",
+        "viewAnalytics": "Բացել ամբողջական վերլուծությունը →",
+        "empty": "Այս ժամանակահատվածի համար տվյալներ դեռ չկան։"
+      },
       "cards": {
         "todayClasses": {
           "title": "Այսօրվա դասեր",
@@ -1134,6 +1157,12 @@
       },
       "todayBookings": {
         "title": "Այսօրվա ամրագրումների բաժանում",
+        "statusLabels": {
+          "booked": "Հաստատված",
+          "completed": "Ավարտված",
+          "cancelled": "Չեղարկված",
+          "missed": "Բաց թողնված"
+        },
         "breakdown": {
           "booked": "Հաստատված՝ {count}",
           "completed": "Ավարտված՝ {count}",
