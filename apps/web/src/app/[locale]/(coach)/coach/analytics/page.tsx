@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { formatDateForUi } from "@/lib/date-display";
 import { serverApiJson } from "@/lib/server-api";
 
@@ -38,19 +39,21 @@ export default async function CoachAnalyticsPage({
 
   if (!res.ok) {
     return (
-      <div className="app-alert-warn max-w-xl">
-        {res.status === 401 || res.status === 403
-          ? t("signInRequired")
-          : t("loadFailed")}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">
+          {res.status === 401 || res.status === 403
+            ? t("signInRequired")
+            : t("loadFailed")}
+        </div>
+      </AdminContentFrame>
     );
   }
 
   if (res.data === null) {
     return (
-      <div className="app-alert-warn max-w-xl">
-        {t("noProfile")}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">{t("noProfile")}</div>
+      </AdminContentFrame>
     );
   }
 
@@ -58,8 +61,8 @@ export default async function CoachAnalyticsPage({
   const trendPoints = d.trend.slice(-7);
 
   return (
-    <AccountPageFrame title={t("title")} description={t("lead")}>
-      <ul className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <AdminContentFrame>
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <li className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{t("sessionsInRange")}</p>
           <p className={adminChrome.metricValue}>{d.totals.sessions}</p>
@@ -73,11 +76,12 @@ export default async function CoachAnalyticsPage({
           <p className={adminChrome.metricValue}>{d.totals.activeWaitlists}</p>
         </li>
       </ul>
+
       <section className="mt-8 grid gap-4 sm:grid-cols-2">
         <article className={adminChrome.panel}>
           <p className={adminChrome.metricLabel}>{t("utilizationTitle")}</p>
           <p className={adminChrome.metricValue}>{d.totals.utilizationPercent}%</p>
-          <p className={adminChrome.metaText}>
+          <p className={`mt-2 ${adminChrome.metaText}`}>
             {t("utilizationDescription", {
               booked: d.totals.bookings,
               sessions: d.totals.sessions,
@@ -87,30 +91,33 @@ export default async function CoachAnalyticsPage({
         <article className={adminChrome.panel}>
           <p className={adminChrome.metricLabel}>{t("waitlistPressureTitle")}</p>
           <p className={adminChrome.metricValue}>{d.totals.waitlistPressurePercent}%</p>
-          <p className={adminChrome.metaText}>
+          <p className={`mt-2 ${adminChrome.metaText}`}>
             {t("waitlistPressureDescription")}
           </p>
         </article>
       </section>
-      <section className="mt-8 rounded-[20px] border border-white/60 bg-white/70 p-4 text-sm text-sage-700">
-        <p className="font-medium text-sage-900">{t("trendTitle")}</p>
-        <ul className="mt-3 grid gap-2">
-          {trendPoints.map((point) => (
-            <li key={point.date} className="ommm-inset-row">
-              <span className="font-medium text-sage-800">
-                {formatDateForUi(point.date)}
-              </span>
-              <span className="ml-2 text-sage-500">
-                {t("trendRow", {
-                  sessions: point.sessions,
-                  bookings: point.bookings,
-                  waitlists: point.waitlists,
-                })}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </AccountPageFrame>
+
+      <div className="mt-8">
+        <AdminSectionShell>
+          <p className={adminChrome.sectionTitle}>{t("trendTitle")}</p>
+          <ul className="mt-3 grid gap-2">
+            {trendPoints.map((point) => (
+              <li key={point.date} className="ommm-inset-row">
+                <span className="font-medium text-sage-800">
+                  {formatDateForUi(point.date)}
+                </span>
+                <span className="ml-2 text-sage-500">
+                  {t("trendRow", {
+                    sessions: point.sessions,
+                    bookings: point.bookings,
+                    waitlists: point.waitlists,
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </AdminSectionShell>
+      </div>
+    </AdminContentFrame>
   );
 }

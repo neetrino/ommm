@@ -2,13 +2,10 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
-import { LogoutButton } from "@/components/logout-button";
-import { Link } from "@/i18n/navigation";
 import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
-import { USER_DASHBOARD_PATH } from "@/lib/role-home";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -16,9 +13,6 @@ import {
 } from "@/server/require-role-layout";
 
 const COACH_ROLES = new Set<string>(["COACH"]);
-
-const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 export default async function CoachSectionLayout({
   children,
@@ -45,19 +39,11 @@ export default async function CoachSectionLayout({
       brandHref="/coach/home"
       brandLabel={tDash("brand.coach.title")}
       brandSubline={tDash("brand.coach.subline")}
-      variant="wellness"
+      variant="admin"
       contentMaxClass="w-full"
       navRole="COACH"
       navDefinitions={navDefinitions}
       notificationRoute={notificationRoute}
-      trailing={
-        <>
-          <LogoutButton className={`${trailingClass} text-left`} />
-          <Link href={USER_DASHBOARD_PATH} className={trailingClass}>
-            {tDash("links.memberZone")}
-          </Link>
-        </>
-      }
     >
       {children}
     </WorkspaceShellFromAuth>

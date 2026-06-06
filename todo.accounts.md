@@ -1,10 +1,41 @@
 # Account UI unification — plan
 
-Привести все workspace-аккаунты к **одному канону Admin**: shell, page frame, списки, метрики, sheets (где нужно).  
-**Не создавать новое**, если уже есть в `apps/web/src/components/admin/` или `components/shell/`.  
-**Удалять** старые one-off стили, дубли заголовков, мёртвый код после каждой фазы.
+## Философия (как работаем)
 
-**Эталоны (reuse as-is):**
+**Цель — одна система, не копипаста экранов.**
+
+«1:1» **не значит** слепо повторить каждый admin-экран на coach/manager.  
+Значит: **один визуальный и компонентный язык** — как у **Admin** и **User** account, которые уже согласованы между собой (shell, frames, tokens, lists, sheets).
+
+| Что унифицируем | Что **не** копируем слепо |
+|-----------------|---------------------------|
+| Shell, sidebar, backdrop, mobile drawer | Admin-only секции (Finance, Settings, …) |
+| Page frame (`*ContentFrame`), один title в header | CRUD/permissions другой роли |
+| `adminChrome`, `ommm-*`, `OmmButton`, pagination | Полный admin management UI на read-only manager |
+| Sheet canon где нужен detail view | Inline edit там, где роль read-only |
+| i18n через `dashboard.subtitles.*` | Inline `getManager*Labels()` в page |
+
+**Профессиональный поток на каждую роль:**
+
+1. **Audit** — что на странице по смыслу (метрики, список, форма, read-only).
+2. **Map** — какой **существующий** паттерн admin/user ближе (dashboard KPI, bookings list, profile, …).
+3. **Reuse** — тот же компонент/тoken; адаптируем только data + actions под роль.
+4. **Delete** — старые frame, zinc-стили, дубли, мёртвый код в **той же фазе**.
+
+Coach / Manager / Content-admin — **часть одной экосистемы**, не отдельные «дизайны».
+
+**Два эталона workspace:**
+
+- **Staff** (admin, coach, manager, content-admin) → shell `variant="admin"`, `AdminContentFrame`, staff profile chrome.
+- **Member** (user) → shell `variant="member"`, `MemberContentFrame` (уже aligned по width/padding с admin).
+
+---
+
+Привести оставшиеся staff-аккаунты к **этому канону**.  
+**Не создавать новое**, если уже есть в `components/admin/`, `components/shell/`, `components/account/`.  
+**Удалять** one-off стили и legacy после каждой фазы.
+
+**Reuse map (существующее):**
 
 | Область | Файлы |
 |--------|--------|
@@ -27,7 +58,7 @@
 
 | Фаза | Account | Статус |
 |------|---------|--------|
-| **1** | **COACH** | ⏳ ждёт подтверждения 1:1 ниже |
+| **1** | **COACH** | ✅ done (shell, frames, profile, components) |
 | 2 | MANAGER | после COACH |
 | 3 | CONTENT_ADMIN | после MANAGER |
 | 4 | USER (дочистка) | только если остались расхождения |
@@ -35,7 +66,7 @@
 
 ---
 
-## Фаза 1 — COACH (1:1 с Admin shell + frames)
+## Фаза 1 — COACH (unification по staff-канону)
 
 **Login для QA:** `coach@ommm.local` / `Demo1234!`
 
@@ -82,11 +113,11 @@ Subtitle для каждого route уже в `dashboard-subtitle-path.ts` + `d
 
 ### 1.5 Удалить после COACH
 
-- [ ] `AccountPageFrame` imports из всех `coach/**/page.tsx`
-- [ ] `variant="wellness"` на coach layout (если нигде больше не нужен для coach)
-- [ ] Дублирующие page titles / descriptions в coach pages
-- [ ] One-off glass/zinc классы в `coach/analytics/page.tsx`
-- [ ] Sidebar `trailing` блок coach (есь совпадает с admin UX)
+- [x] `AccountPageFrame` imports из всех `coach/**/page.tsx`
+- [x] `variant="wellness"` на coach layout
+- [x] Дублирующие page titles / descriptions в coach pages
+- [x] One-off glass/zinc классы в `coach/analytics/page.tsx`
+- [x] Sidebar `trailing` блок coach
 
 ### 1.6 QA checklist (COACH)
 
@@ -155,22 +186,34 @@ Member уже на `MemberContentFrame` + `variant="member"`. Проверить
 
 ## Принципы (hard rules)
 
-1. **Reuse > rewrite** — admin component first.
-2. **One title** — shell header only; subtitle из `dashboard.subtitles`.
-3. **No new design tokens** — только `adminChrome`, `ommm-*`, shell classes.
-4. **Delete old** — в той же PR/фазе убираем заменённое.
-5. **Sheets** — только по `ADMIN_DETAIL_SHEET_CANON.md`; coach/manager sheets — отдельные подзадачи после frame unification.
+1. **One system** — компоненты/токены/каноны admin + user; не третий стиль на роль.
+2. **Reuse > rewrite** — сначала ищем паттерн в admin/user; новое только если реально нет.
+3. **Adapt, don’t clone** — контент и actions по роли; оболочка общая.
+4. **One title** — shell header + `dashboard.subtitles`; без page-level h1.
+5. **No new design tokens** — `adminChrome`, `ommm-*`, shell classes.
+6. **Delete old** — в той же фазе убираем заменённое (не копим legacy).
+7. **Sheets** — `ADMIN_DETAIL_SHEET_CANON.md`; добавляем только где роли нужен detail view.
+
+### Surfaces — list vs form (global, не чинить на каждой странице)
+
+| Тип страницы | Обёртка | Строки / блоки |
+|--------------|---------|----------------|
+| **Lists** (bookings, clients, coach roster, …) | `AdminContentFrame` only | `adminChrome.tableWrap` или `adminChrome.panel` на **строку**; **без** outer `ommm-card` |
+| **Section stack** (filters + list) | `AdminSectionShell` **`surface="plain"`** (default) | см. выше |
+| **Grouped panel** (packages block, auth card) | `AdminSectionShell surface="card"` или явный `ommm-card` | один surface на весь блок |
+| **Profile forms** | `AdminContentFrame` / `MemberContentFrame` | `AccountSection` → `ommm-account-section` **на секцию формы** (OK) |
+
+**Источник «лишнего фона»:** `AdminSectionShell` раньше всегда давал `ommm-card` → двойной glass на list pages.  
+**Fix:** default `surface="plain"` в `admin-section-shell.tsx` — одна правка, все потребители (coach, waitlists, notifications) без ручного снятия на странице.
 
 ---
 
-## Подтверждение перед стартом COACH
+## COACH — scope фазы 1 (готово к реализации)
 
-Нужно OK на:
+Staff-канон для coach (не копия admin dashboard):
 
-1. Coach shell → **`variant="admin"`** (визуально 1:1 с admin, не wellness/member).
-2. Все coach pages → **`AdminContentFrame`** (без page-level h1).
-3. Profile → **`shellChrome="admin"`** (как admin profile).
-4. Sidebar trailing (logout/member link) → **убрать** на coach, как у admin.
-5. Sheets для coach **не в scope** фазы 1.
-
-После подтверждения — реализация фазы 1 по таблице 1.2–1.5.
+1. Shell → `variant="admin"` (как admin/manager target).
+2. Pages → `AdminContentFrame`, subtitle из shell.
+3. Profile → `shellChrome="admin"`.
+4. Убрать coach-only UI (wellness variant, `AccountPageFrame`, sidebar trailing, inline styles).
+5. Sheets — **после** frames; только если нужны по UX роли.
