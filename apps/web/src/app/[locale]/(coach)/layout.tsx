@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
+import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
+
+export const dynamic = "force-dynamic";
+
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
@@ -21,6 +25,7 @@ export default async function CoachSectionLayout({
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }) {
+  await connection();
   const { locale } = await params;
   const authOutcome = await requireAuthForLayout(locale);
   if (authOutcome.kind === "api_unavailable") {

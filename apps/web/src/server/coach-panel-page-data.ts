@@ -20,7 +20,8 @@ export type CoachPanelPageData =
 
 function sessionRangeQuery(coachId: string): string {
   const from = new Date();
-  const to = new Date();
+  from.setHours(0, 0, 0, 0);
+  const to = new Date(from);
   to.setDate(to.getDate() + ACCOUNT_SESSION_RANGE_DAYS);
   return `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&coachId=${encodeURIComponent(coachId)}`;
 }
@@ -41,43 +42,63 @@ const loadCoachRoster = cache(async (coachId: string, cookie: string) => {
   return myBookings.filter((b) => b.status === "BOOKED");
 });
 
-/**
- * Coach panel data — one `/users/me` via {@link getSessionAuth}; sessions/roster cached per request.
- * Use scope to avoid fetching both endpoints on every coach subpage.
- */
-export const loadCoachPanelPageData = cache(
-  async (scope: CoachPanelDataScope = "full"): Promise<CoachPanelPageData> => {
-    const session = await getSessionAuth();
-    if (!session.ok) {
-      return { ok: false, reason: "not_signed_in" };
-    }
+type CoachPanelCoreData = Extract<CoachPanelPageData, { ok: true }>;
 
-    if (session.user.role !== "COACH") {
-      return {
-        ok: false,
-        reason: "not_coach_role",
-        role: session.user.role,
-      };
-    }
+const loadCoachPanelCoreData = cache(async (): Promise<CoachPanelPageData> => {
+  const session = await getSessionAuth();
+  if (!session.ok) {
+    return { ok: false, reason: "not_signed_in" };
+  }
 
-    const coachId = session.coachProfileId;
-    if (coachId === null || coachId.length === 0) {
-      return { ok: false, reason: "no_coach_profile" };
-    }
-
-    const needsSessions = scope === "full" || scope === "sessions";
-    const needsRoster = scope === "full" || scope === "roster";
-
-    const [sessions, roster] = await Promise.all([
-      needsSessions ? loadCoachSessions(coachId, session.cookie) : Promise.resolve([]),
-      needsRoster ? loadCoachRoster(coachId, session.cookie) : Promise.resolve([]),
-    ]);
-
+  if (session.user.role !== "COACH") {
     return {
-      ok: true,
-      userName: session.user.name ?? null,
-      sessions,
-      roster,
+      ok: false,
+      reason: "not_coach_role",
+      role: session.user.role,
     };
-  },
-);
+  }
+
+  const coachId = session.coachProfileId;
+  if (coachId === null || coachId.length === 0) {
+    return { ok: false, reason: "no_coach_profile" };
+  }
+
+  const [sessions, roster] = await Promise.all([
+    loadCoachSessions(coachId, session.cookie),
+    loadCoachRoster(coachId, session.cookie),
+  ]);
+
+  return {
+    ok: true,
+    userName: session.user.name ?? null,
+    sessions,
+    roster,
+  };
+});
+
+function sliceCoachPanelData(
+  panel: CoachPanelCoreData,
+  scope: CoachPanelDataScope,
+): CoachPanelCoreData {
+  if (scope === "full") {
+    return panel;
+  }
+  if (scope === "sessions") {
+    return { ...panel, roster: [] };
+  }
+  return { ...panel, sessions: [] };
+}
+
+/**
+ * Coach panel data — one `/users/me` and one sessions/roster fetch per RSC request (shared cache).
+ * Scope only trims the returned payload for pages that do not need both lists.
+ */
+export async function loadCoachPanelPageData(
+  scope: CoachPanelDataScope = "full",
+): Promise<CoachPanelPageData> {
+  const panel = await loadCoachPanelCoreData();
+  if (!panel.ok) {
+    return panel;
+  }
+  return sliceCoachPanelData(panel, scope);
+}

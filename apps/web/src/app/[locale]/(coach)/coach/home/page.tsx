@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
@@ -82,10 +83,18 @@ export default async function CoachHomePage({
       </section>
 
       <section className="mt-8 flex flex-wrap gap-3">
-        <Link href="/coach/schedule" className="ommm-cta-primary inline-flex text-sm">
+        <Link
+          href="/coach/schedule"
+          prefetch={WORKSPACE_ROUTE_PREFETCH}
+          className="ommm-cta-primary inline-flex text-sm"
+        >
           {t("openSchedule")}
         </Link>
-        <Link href="/coach/groups" className="ommm-cta-ghost inline-flex text-sm">
+        <Link
+          href="/coach/groups"
+          prefetch={WORKSPACE_ROUTE_PREFETCH}
+          className="ommm-cta-ghost inline-flex text-sm"
+        >
           {t("viewParticipantsAttendance")}
         </Link>
       </section>
