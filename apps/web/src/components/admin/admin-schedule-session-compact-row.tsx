@@ -2,10 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_SCHEDULE_LEVEL_BADGE_CLASS,
-  sessionLevelBadgeTone,
-} from "@/components/admin/admin-schedule-session-list-badges";
-import {
   coachName,
   durationMinutes,
   spotsLeft,

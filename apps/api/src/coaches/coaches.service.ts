@@ -980,33 +980,43 @@ export class CoachesService {
     const profileWhere = search
       ? {
           OR: [
-            { user: { name: { contains: search, mode: 'insensitive' as const } } },
+            {
+              user: {
+                name: { contains: search, mode: 'insensitive' as const },
+              },
+            },
             {
               user: {
                 lastName: { contains: search, mode: 'insensitive' as const },
               },
             },
-            { user: { email: { contains: search, mode: 'insensitive' as const } } },
-            { user: { phone: { contains: search, mode: 'insensitive' as const } } },
+            {
+              user: {
+                email: { contains: search, mode: 'insensitive' as const },
+              },
+            },
+            {
+              user: {
+                phone: { contains: search, mode: 'insensitive' as const },
+              },
+            },
           ],
         }
       : undefined;
 
-    const mapProfile = async (
-      profile: {
+    const mapProfile = async (profile: {
+      id: string;
+      userId: string;
+      isActive: boolean;
+      user: {
         id: string;
-        userId: string;
-        isActive: boolean;
-        user: {
-          id: string;
-          name: string | null;
-          lastName: string | null;
-          phone: string | null;
-          email: string;
-        };
-        _count: { sessions: number };
-      },
-    ) => ({
+        name: string | null;
+        lastName: string | null;
+        phone: string | null;
+        email: string;
+      };
+      _count: { sessions: number };
+    }) => ({
       coachProfileId: profile.id,
       userId: profile.userId,
       isActive: profile.isActive,

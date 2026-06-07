@@ -74,8 +74,6 @@ function AddGiftCardGlyph({ className }: { className?: string }) {
 
 export function AdminGiftCardsFilters({
   values,
-  activeFilterCount,
-  isUpdating,
   viewMode,
   onChange,
   onReset,

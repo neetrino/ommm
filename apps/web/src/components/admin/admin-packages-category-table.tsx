@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { adminFilterRevealVariants } from "@/components/admin/admin-filter-reveal-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
@@ -61,10 +61,11 @@ export function AdminPackagesCategoryTable({
   const reducedMotion = usePrefersReducedMotion();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PACKAGE_CATEGORY_TABLE_PAGE_SIZE);
-
-  useEffect(() => {
+  const [prevPackages, setPrevPackages] = useState(packages);
+  if (packages !== prevPackages) {
+    setPrevPackages(packages);
     setPage(1);
-  }, [packages]);
+  }
 
   const visiblePackages = useMemo(() => {
     const offset = (page - 1) * pageSize;

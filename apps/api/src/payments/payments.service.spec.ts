@@ -164,21 +164,38 @@ describe('PaymentsService', () => {
 
   it('adminListPayments applies q search filter', async () => {
     const { service, prisma } = createService();
-    await service.adminListPayments({ q: 'alice@studio.test', take: 10, offset: 0 });
+    await service.adminListPayments({
+      q: 'alice@studio.test',
+      take: 10,
+      offset: 0,
+    });
 
-    expect(prisma.payment.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          OR: expect.arrayContaining([
-            expect.objectContaining({
-              user: expect.objectContaining({
-                email: expect.objectContaining({ contains: 'alice@studio.test' }),
-              }),
-            }),
-          ]),
-        }),
-      }),
+    type FindManyArgs = {
+      where: {
+        OR: Array<{
+          user?: { email: { contains: string; mode: string } };
+        }>;
+      };
+    };
+
+    const findManyMock = prisma.payment.findMany as jest.Mock<
+      Promise<unknown>,
+      [FindManyArgs]
+    >;
+    expect(findManyMock).toHaveBeenCalledTimes(1);
+    const callArgs = findManyMock.mock.calls[0][0];
+    const emailClause = callArgs.where.OR.find(
+      (clause) => clause.user?.email !== undefined,
     );
+
+    expect(emailClause).toEqual({
+      user: {
+        email: {
+          contains: 'alice@studio.test',
+          mode: 'insensitive',
+        },
+      },
+    });
   });
 
   it('createDropInCheckout rejects when session is already booked', async () => {

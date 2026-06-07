@@ -103,13 +103,8 @@ export function AdminCoachesFilters({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [values, setValues] = useState(initialValues);
-
-  const activeFilterCount = useMemo(
-    () => countActiveCoachesFilters(values),
-    [values],
-  );
 
   const filterFields = useMemo(
     () =>

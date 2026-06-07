@@ -42,10 +42,10 @@ export function requiresScheduledPostProcessing(
 ): boolean {
   return Boolean(
     query.search?.trim() ||
-      query.status ||
-      query.audience ||
-      query.quick ||
-      (query.order && query.order !== 'newest'),
+    query.status ||
+    query.audience ||
+    query.quick ||
+    (query.order && query.order !== 'newest'),
   );
 }
 
@@ -55,7 +55,10 @@ export function filterScheduledRows(
 ): ScheduledRow[] {
   const needle = query.search?.trim().toLowerCase() ?? '';
   let filtered = rows.filter((row) => {
-    if (needle !== '' && !`${row.subject} ${row.html}`.toLowerCase().includes(needle)) {
+    if (
+      needle !== '' &&
+      !`${row.subject} ${row.html}`.toLowerCase().includes(needle)
+    ) {
       return false;
     }
     if (query.status && row.status !== query.status) {
@@ -72,7 +75,9 @@ export function filterScheduledRows(
 
   filtered = [...filtered].sort((a, b) => {
     if (query.order === 'schedule') {
-      return new Date(a.scheduleAt).getTime() - new Date(b.scheduleAt).getTime();
+      return (
+        new Date(a.scheduleAt).getTime() - new Date(b.scheduleAt).getTime()
+      );
     }
     const aTime = new Date(a.createdAt).getTime();
     const bTime = new Date(b.createdAt).getTime();
@@ -100,11 +105,11 @@ export function requiresDeliveriesPostProcessing(
 ): boolean {
   return Boolean(
     query.search?.trim() ||
-      query.audience ||
-      query.channel ||
-      query.timing ||
-      query.quick ||
-      (query.order && query.order !== 'newest'),
+    query.audience ||
+    query.channel ||
+    query.timing ||
+    query.quick ||
+    (query.order && query.order !== 'newest'),
   );
 }
 
@@ -115,7 +120,8 @@ export function filterDeliveryRows(
   const needle = query.search?.trim().toLowerCase() ?? '';
   let filtered = rows.filter((row) => {
     if (needle !== '') {
-      const haystack = `${row.subject} ${row.recipientEmail} ${row.channel}`.toLowerCase();
+      const haystack =
+        `${row.subject} ${row.recipientEmail} ${row.channel}`.toLowerCase();
       if (!haystack.includes(needle)) {
         return false;
       }
@@ -143,8 +149,6 @@ export function filterDeliveryRows(
   return filtered;
 }
 
-export function defaultNotificationsTake(query: {
-  take?: number;
-}): number {
+export function defaultNotificationsTake(query: { take?: number }): number {
   return query.take ?? DEFAULT_LIST_PAGE_SIZE;
 }

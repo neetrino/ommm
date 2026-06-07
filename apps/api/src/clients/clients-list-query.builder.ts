@@ -1,9 +1,4 @@
-import {
-  BookingStatus,
-  PaymentStatus,
-  Prisma,
-  Role,
-} from '@prisma/client';
+import { BookingStatus, PaymentStatus, Prisma, Role } from '@prisma/client';
 import {
   AdminClientAttendanceFilter,
   AdminClientOrder,

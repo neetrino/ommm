@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { AdminWaitlistCompactRow } from "@/components/admin/admin-waitlist-compact-row";
 import {
   ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL,
@@ -54,7 +55,7 @@ export function AdminWaitlistManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [payload, setPayload] = useState(initial);
+  const [payload, setPayload] = usePropSyncedState(initial);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
@@ -63,23 +64,19 @@ export function AdminWaitlistManagement({
   const [pendingRemove, setPendingRemove] = useState<AdminWaitlistRow | null>(null);
   const [, startRefreshTransition] = useTransition();
   const refreshRequestId = useRef(0);
-  const [searchDraft, setSearchDraft] = useState(
-    () => searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "",
-  );
+  const urlSearchDraft = searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "";
+  const [searchDraft, setSearchDraft] = useState(urlSearchDraft);
+  const [prevUrlSearchDraft, setPrevUrlSearchDraft] = useState(urlSearchDraft);
+  if (urlSearchDraft !== prevUrlSearchDraft) {
+    setPrevUrlSearchDraft(urlSearchDraft);
+    setSearchDraft(urlSearchDraft);
+  }
   const classTypeFilter = searchParams.get(WAITLIST_CLASS_TYPE_KEY)?.trim() ?? "";
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-
-  useEffect(() => {
-    setPayload(initial);
-  }, [initial]);
-
-  useEffect(() => {
-    setSearchDraft(searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "");
-  }, [searchParams]);
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -218,7 +215,7 @@ export function AdminWaitlistManagement({
         setLoading(false);
       }
     }
-  }, [listPage.offset, listPage.take, t]);
+  }, [listPage.offset, listPage.take, setPayload, t]);
 
   const refreshList = useCallback(() => {
     startRefreshTransition(() => {

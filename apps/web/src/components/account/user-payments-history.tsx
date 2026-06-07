@@ -36,6 +36,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import {
@@ -79,7 +80,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("payments");
-  const [paymentsPayload, setPaymentsPayload] = useState(initialPayments);
+  const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
   const [filters, setFilters] = useState<UserPaymentFilterValues>(DEFAULT_FILTER_VALUES);
   const [loading, startTransition] = useTransition();
   const requestId = useRef(0);
@@ -89,10 +90,6 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-
-  useEffect(() => {
-    setPaymentsPayload(initialPayments);
-  }, [initialPayments]);
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -140,7 +137,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
           }
         });
     });
-  }, [filters.order, filters.status, listPage.offset, listPage.take]);
+  }, [filters.order, filters.status, listPage, setPaymentsPayload]);
 
   const filterFields = useMemo(
     () =>

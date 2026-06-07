@@ -71,7 +71,7 @@ export function GiftCardSheetTabPanels({
   }
 
   if (activeTab === GIFT_CARD_SHEET_TAB_HISTORY) {
-    return <GiftCardHistoryPanel batchId={card.id} locale={locale} />;
+    return <GiftCardHistoryPanel key={card.id} batchId={card.id} locale={locale} />;
   }
 
   return null;
@@ -185,9 +185,6 @@ function GiftCardHistoryPanel({ batchId, locale }: { batchId: string; locale: st
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-    setHistory(null);
 
     void apiFetch<AdminGiftCardRedemptionHistory>(`/gift-cards/admin/batches/${batchId}/history`)
       .then((result) => {

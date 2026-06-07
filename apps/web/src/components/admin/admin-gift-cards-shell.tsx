@@ -90,7 +90,6 @@ function AdminGiftCardsShellInner({
 }: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.giftCards");
-  const tFilters = useTranslations("adminPages.giftCards.filters");
   const { viewMode, setViewMode } = useAdminGiftCardsView();
   const router = useRouter();
   const pathname = usePathname();

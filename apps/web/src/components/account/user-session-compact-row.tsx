@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   resolveSessionCoachName,
 } from "@/components/account/session-coach-line";
@@ -38,13 +38,15 @@ export function UserSessionCompactRow({
 }: UserSessionCompactRowProps) {
   const t = useTranslations("userPages.classes");
   const [activeBookingId, setActiveBookingId] = useState<string | undefined>(userBookingId);
+  const [prevUserBookingId, setPrevUserBookingId] = useState(userBookingId);
+  if (userBookingId !== prevUserBookingId) {
+    setPrevUserBookingId(userBookingId);
+    setActiveBookingId(userBookingId);
+  }
   const booked = session._count.bookings;
   const full = booked >= session.capacity;
   const isUserBooked = Boolean(activeBookingId);
 
-  useEffect(() => {
-    setActiveBookingId(userBookingId);
-  }, [userBookingId]);
   const coachName = resolveSessionCoachName(session.coach);
   const spotsLabel = t("spotsBooked", { booked, capacity: session.capacity });
   const pricing =

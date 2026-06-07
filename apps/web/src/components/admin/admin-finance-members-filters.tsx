@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -16,6 +16,7 @@ import {
   buildFinanceMembersFiltersQuery,
   FINANCE_USER_PAGE_KEYS,
 } from "@/components/admin/admin-finance-url";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
 const FILTER_DEBOUNCE_MS = 300;
@@ -28,25 +29,12 @@ type MembersFilterState = UserFinanceFilters & { q: string };
 
 export function AdminFinanceMembersFilters({ initialValues }: AdminFinanceMembersFiltersProps) {
   const tFilters = useTranslations("adminPages.finance.userTab");
-  const tFinanceFilters = useTranslations("adminPages.finance.filters");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
-  const [isPending, startTransition] = useTransition();
-  const [values, setValues] = useState(initialValues);
-
-  const activeFilterCount = useMemo(
-    () =>
-      [
-        values.q.trim(),
-        values.paymentStatus,
-        values.order === "newest" ? "" : values.order,
-        values.giftCardOnly ? "gift" : "",
-        values.quick,
-      ].filter(Boolean).length,
-    [values],
-  );
+  const [, startTransition] = useTransition();
+  const [values, setValues] = usePropSyncedState(initialValues);
 
   const filterFields = useMemo(
     () =>
@@ -82,10 +70,6 @@ export function AdminFinanceMembersFilters({ initialValues }: AdminFinanceMember
   );
 
   useEffect(() => {
-    setValues(initialValues);
-  }, [initialValues]);
-
-  useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
       return undefined;
@@ -104,7 +88,7 @@ export function AdminFinanceMembersFilters({ initialValues }: AdminFinanceMember
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, values]);
+  }, [pathname, router, searchParams, values]);
 
   function updateValues(next: MembersFilterState): void {
     setValues(next);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -17,10 +17,10 @@ import {
   buildFinancePaymentsFiltersQuery,
   FINANCE_PAYMENTS_PAGE_KEYS,
   parseFinanceDateRangeDays,
-  parseFinancePaymentsFiltersFromSearch,
   parseFinanceSourceFilter,
   parseFinanceStatusFilter,
 } from "@/components/admin/admin-finance-url";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { resetListPageQuery } from "@/lib/list-pagination";
 
 const FILTER_DEBOUNCE_MS = 300;
@@ -36,19 +36,8 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
-  const [isPending, startTransition] = useTransition();
-  const [values, setValues] = useState(initialValues);
-
-  const activeFilterCount = useMemo(
-    () =>
-      [
-        values.q.trim(),
-        values.rangeDays === 30 ? "" : String(values.rangeDays),
-        values.source === "all" ? "" : values.source,
-        values.status === "all" ? "" : values.status,
-      ].filter(Boolean).length,
-    [values],
-  );
+  const [, startTransition] = useTransition();
+  const [values, setValues] = usePropSyncedState(initialValues);
 
   const filterFields = useMemo(
     () =>
@@ -88,10 +77,6 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
   const fromIso = useMemo(() => computeFinanceFromDate(values.rangeDays), [values.rangeDays]);
 
   useEffect(() => {
-    setValues(initialValues);
-  }, [initialValues]);
-
-  useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
       return undefined;
@@ -110,7 +95,7 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, values]);
+  }, [pathname, router, searchParams, values]);
 
   function updateField<K extends keyof FinanceFilterValues>(
     key: K,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   createScheduleRow,
@@ -37,8 +37,6 @@ export function useCoachEditForm({
 }: UseCoachEditFormArgs) {
   const router = useRouter();
   const submitLockRef = useRef(false);
-  const initialRef = useRef(initial);
-  initialRef.current = initial;
   const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
   const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -48,9 +46,11 @@ export function useCoachEditForm({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
 
-  useEffect(() => {
-    const nextForm = coachFormFromInitial(initialRef.current);
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
+    const nextForm = coachFormFromInitial(initial);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -63,7 +63,7 @@ export function useCoachEditForm({
     setPhotoRemoved(false);
     setErrors({});
     setMessage(null);
-  }, [resetKey]);
+  }
 
   const dirty = useMemo(() => isCoachFormDirty(form, snapshot) || photoFile !== null || photoRemoved, [
     form,
@@ -214,7 +214,7 @@ export function useCoachEditForm({
   }
 
   function cancelEdits(): void {
-    const nextForm = coachFormFromInitial(initialRef.current);
+    const nextForm = coachFormFromInitial(initial);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {

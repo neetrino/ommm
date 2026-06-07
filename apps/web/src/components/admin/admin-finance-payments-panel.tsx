@@ -18,6 +18,7 @@ import type {
 } from "@/components/admin/admin-finance-types";
 import { FINANCE_PAYMENTS_PAGE_KEYS } from "@/components/admin/admin-finance-url";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
@@ -67,7 +68,7 @@ export function AdminFinancePaymentsPanel({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [paymentsPayload, setPaymentsPayload] = useState(initialPayments);
+  const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
@@ -99,10 +100,6 @@ export function AdminFinancePaymentsPanel({
   );
 
   useEffect(() => {
-    setPaymentsPayload(initialPayments);
-  }, [initialPayments]);
-
-  useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
       return undefined;
@@ -131,15 +128,7 @@ export function AdminFinancePaymentsPanel({
           }
         });
     });
-  }, [
-    payListPage.offset,
-    payListPage.take,
-    paymentsFrom,
-    paymentsSource,
-    paymentsStatus,
-    searchQuery,
-    t,
-  ]);
+  }, [payListPage, paymentsFrom, paymentsSource, paymentsStatus, searchQuery, setPaymentsPayload, t]);
 
   return (
     <div className="space-y-4">

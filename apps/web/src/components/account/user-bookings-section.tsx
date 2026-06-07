@@ -26,6 +26,7 @@ import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import {
   parseListPageParams,
@@ -54,7 +55,7 @@ export function UserBookingsSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("bookings");
-  const [pastPayload, setPastPayload] = useState(initialPast);
+  const [pastPayload, setPastPayload] = usePropSyncedState(initialPast);
   const [filters, setFilters] = useState<UserBookingFilterValues>(DEFAULT_USER_BOOKING_FILTER_VALUES);
   const [loadingPast, startPastTransition] = useTransition();
   const pastRequestId = useRef(0);
@@ -65,10 +66,6 @@ export function UserBookingsSection({
       parseListPageParams(Object.fromEntries(searchParams.entries()), USER_BOOKINGS_PAST_PAGE_KEYS),
     [searchParams],
   );
-
-  useEffect(() => {
-    setPastPayload(initialPast);
-  }, [initialPast]);
 
   useEffect(() => {
     if (!pastHasMounted.current) {
@@ -92,7 +89,7 @@ export function UserBookingsSection({
           }
         });
     });
-  }, [pastListPage.offset, pastListPage.take]);
+  }, [pastListPage, setPastPayload]);
 
   const setPastListPage = useCallback(
     (page: number, pageSize?: number) => {

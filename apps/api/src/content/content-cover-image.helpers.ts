@@ -8,7 +8,9 @@ export function absolutePathForStoredContentCoverUpload(
   if (!storedPublicPath.startsWith(CONTENT_COVER_UPLOAD_PUBLIC_PREFIX)) {
     return null;
   }
-  const relative = storedPublicPath.slice(CONTENT_COVER_UPLOAD_PUBLIC_PREFIX.length);
+  const relative = storedPublicPath.slice(
+    CONTENT_COVER_UPLOAD_PUBLIC_PREFIX.length,
+  );
   const normalized = relative.replace(/^\/+/, '');
   if (normalized.includes('..')) {
     return null;

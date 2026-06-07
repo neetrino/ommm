@@ -65,6 +65,7 @@ export function formatPublicPackageTierPricePerSession(
   plan: PublicPackageTierPlan,
   locale: string,
 ): string | null {
+  void locale;
   if (plan.isUnlimited) {
     return null;
   }

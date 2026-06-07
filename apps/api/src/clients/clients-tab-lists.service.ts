@@ -15,7 +15,9 @@ const bookingInclude = Prisma.validator<Prisma.BookingInclude>()({
   },
 });
 
-type BookingRecord = Prisma.BookingGetPayload<{ include: typeof bookingInclude }>;
+type BookingRecord = Prisma.BookingGetPayload<{
+  include: typeof bookingInclude;
+}>;
 
 type ClientBookingsPage = {
   items: Array<{

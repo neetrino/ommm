@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminNotificationBroadcastForm } from "@/components/admin/admin-notification-broadcast-form";
 import { AdminNotificationsDeliveriesSection } from "@/components/admin/admin-notifications-deliveries-section";
@@ -8,6 +8,7 @@ import { AdminNotificationsScheduledSection } from "@/components/admin/admin-not
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
 import { useRouter } from "@/i18n/navigation";
+import { useSyncStateOnPropChange } from "@/hooks/sync-state-on-prop-change";
 
 type Props = {
   locale: string;
@@ -23,13 +24,13 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
   const [analytics, setAnalytics] = useState(initial.analytics);
   const [loadErrors, setLoadErrors] = useState(initial.loadErrors);
 
-  useEffect(() => {
-    setStats(initial.stats);
-    setScheduled(initial.scheduled);
-    setDeliveries(initial.deliveries);
-    setAnalytics(initial.analytics);
-    setLoadErrors(initial.loadErrors);
-  }, [initial]);
+  useSyncStateOnPropChange(initial, (next) => {
+    setStats(next.stats);
+    setScheduled(next.scheduled);
+    setDeliveries(next.deliveries);
+    setAnalytics(next.analytics);
+    setLoadErrors(next.loadErrors);
+  });
 
   const refreshAll = useCallback(() => {
     router.refresh();

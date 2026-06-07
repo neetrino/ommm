@@ -17,6 +17,12 @@ type ClientSheetPaginatedTabProps<T> = {
   mapItem: (item: T) => { id: string; main: string; meta: string; extra: string | null };
 };
 
+type PaginatedFetchResult<T> = {
+  key: string;
+  items: T[];
+  total: number;
+};
+
 export function ClientSheetPaginatedTab<T>({
   clientId,
   active,
@@ -27,22 +33,26 @@ export function ClientSheetPaginatedTab<T>({
   mapItem,
 }: ClientSheetPaginatedTabProps<T>) {
   const [page, setPage] = useState(1);
+  const [prevClientId, setPrevClientId] = useState(clientId);
   const [pageSize, setPageSize] = useState(DEFAULT_LIST_PAGE_SIZE);
-  const [items, setItems] = useState<T[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<PaginatedFetchResult<T> | null>(null);
 
-  useEffect(() => {
+  if (clientId !== prevClientId) {
+    setPrevClientId(clientId);
     setPage(1);
-  }, [clientId]);
+  }
+
+  const fetchKey = `${clientId}:${page}:${pageSize}:${refreshKey}`;
+  const loading = active && (result === null || result.key !== fetchKey);
+  const items = result?.key === fetchKey ? result.items : [];
+  const total = result?.key === fetchKey ? result.total : 0;
 
   useEffect(() => {
     if (!active) {
-      return;
+      return undefined;
     }
     let cancelled = false;
     const offset = (page - 1) * pageSize;
-    setLoading(true);
     void apiFetch<ClientSheetPaginatedResponse<T>>(
       `${endpoint}?take=${pageSize}&offset=${offset}`,
     )
@@ -50,24 +60,17 @@ export function ClientSheetPaginatedTab<T>({
         if (cancelled) {
           return;
         }
-        setItems(payload.items);
-        setTotal(payload.total);
+        setResult({ key: fetchKey, items: payload.items, total: payload.total });
       })
       .catch(() => {
         if (!cancelled) {
-          setItems([]);
-          setTotal(0);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
+          setResult({ key: fetchKey, items: [], total: 0 });
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [active, clientId, endpoint, page, pageSize, refreshKey]);
+  }, [active, endpoint, fetchKey, page, pageSize]);
 
   const offset = (page - 1) * pageSize;
 

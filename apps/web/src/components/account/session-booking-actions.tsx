@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { BookSessionButton } from "@/components/account/book-session-button";
 import {
@@ -33,10 +33,11 @@ export function SessionBookingActions({
   const tClasses = useTranslations("userPages.classes");
   const router = useRouter();
   const [bookingId, setBookingId] = useState<string | undefined>(userBookingId);
-
-  useEffect(() => {
+  const [prevUserBookingId, setPrevUserBookingId] = useState(userBookingId);
+  if (userBookingId !== prevUserBookingId) {
+    setPrevUserBookingId(userBookingId);
     setBookingId(userBookingId);
-  }, [userBookingId]);
+  }
 
   if (bookingId) {
     const bookedButtonClass =

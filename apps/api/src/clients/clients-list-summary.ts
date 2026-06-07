@@ -108,19 +108,25 @@ export function filterOptionsFromRows(
     }
   }
   return {
-    preferredCoaches: [...coaches.entries()].map(([id, name]) => ({ id, name })),
-    classLevels: Array.from(new Set(rows.flatMap((row) => row.classLevels))).sort(),
+    preferredCoaches: [...coaches.entries()].map(([id, name]) => ({
+      id,
+      name,
+    })),
+    classLevels: Array.from(
+      new Set(rows.flatMap((row) => row.classLevels)),
+    ).sort(),
   };
 }
 
-export async function computeClientsFilterOptionsFromDb<T extends Prisma.UserInclude>(
+export async function computeClientsFilterOptionsFromDb<
+  T extends Prisma.UserInclude,
+>(
   prisma: PrismaClient,
   where: Prisma.UserWhereInput,
   include: T,
-  mapUser: (user: Prisma.UserGetPayload<{ include: T }>) => Pick<
-    ClientListRowSummaryFields,
-    'preferredCoach' | 'classLevels'
-  >,
+  mapUser: (
+    user: Prisma.UserGetPayload<{ include: T }>,
+  ) => Pick<ClientListRowSummaryFields, 'preferredCoach' | 'classLevels'>,
 ) {
   const users = await prisma.user.findMany({
     where,

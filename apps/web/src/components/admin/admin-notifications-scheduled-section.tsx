@@ -41,6 +41,7 @@ import {
   defaultScheduledListFilters,
   type ScheduledListFilters,
 } from "@/components/admin/admin-notifications-url";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -91,7 +92,7 @@ export function AdminNotificationsScheduledSection({
     () => undefined,
   );
   const filtersRef = useRef(initialFilters);
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = usePropSyncedState(initialFilters);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState<ScheduledBroadcast | null>(null);
@@ -107,10 +108,6 @@ export function AdminNotificationsScheduledSection({
   useEffect(() => {
     filtersRef.current = filters;
   }, [filters]);
-
-  useEffect(() => {
-    setFilters(initialFilters);
-  }, [initialFilters]);
 
   const syncFiltersToUrl = useCallback(
     (values: ScheduledListFilters, resetPage = false) => {

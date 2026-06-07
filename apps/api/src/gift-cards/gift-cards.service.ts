@@ -132,7 +132,13 @@ export class GiftCardsService {
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
     return Promise.all([
-      this.prisma.giftCard.findMany({ where, include, orderBy, take, skip: offset }),
+      this.prisma.giftCard.findMany({
+        where,
+        include,
+        orderBy,
+        take,
+        skip: offset,
+      }),
       this.prisma.giftCard.count({ where }),
     ]).then(([cards, total]) => ({
       items: cards.map((card) => this.serializeUserGiftCard(card)),
@@ -158,7 +164,13 @@ export class GiftCardsService {
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
     return Promise.all([
-      this.prisma.giftCard.findMany({ where, include, orderBy, take, skip: offset }),
+      this.prisma.giftCard.findMany({
+        where,
+        include,
+        orderBy,
+        take,
+        skip: offset,
+      }),
       this.prisma.giftCard.count({ where }),
     ]).then(([cards, total]) => ({
       items: cards.map((card) => this.serializeUserGiftCard(card)),

@@ -18,7 +18,10 @@ export type CoachSalaryRow = {
   salary: SalarySummary;
 };
 
-export function resolveSalaryMonthRange(month?: string): { from: Date; to: Date } {
+export function resolveSalaryMonthRange(month?: string): {
+  from: Date;
+  to: Date;
+} {
   if (month && /^\d{4}-\d{2}$/.test(month)) {
     const [yearRaw, monthRaw] = month.split('-');
     const year = Number.parseInt(yearRaw, 10);
@@ -38,13 +41,18 @@ export function requiresCoachSalaryPostProcessing(
 ): boolean {
   return Boolean(
     query.payoutStatus ||
-      query.quick ||
-      (query.order && query.order !== 'newest' && query.order !== 'highest-salary'),
+    query.quick ||
+    (query.order &&
+      query.order !== 'newest' &&
+      query.order !== 'highest-salary'),
   );
 }
 
 function displayName(row: CoachSalaryRow): string {
-  return [row.user.name, row.user.lastName].filter(Boolean).join(' ').trim() || row.user.email;
+  return (
+    [row.user.name, row.user.lastName].filter(Boolean).join(' ').trim() ||
+    row.user.email
+  );
 }
 
 export function payoutStatus(row: CoachSalaryRow): 'pending' | 'paid' | 'none' {
@@ -64,7 +72,8 @@ export function filterCoachSalaryRows(
   const q = query.search?.trim().toLowerCase() ?? '';
   return rows.filter((row) => {
     if (q.length > 0) {
-      const haystack = `${displayName(row)} ${row.user.phone ?? ''} ${row.user.email}`.toLowerCase();
+      const haystack =
+        `${displayName(row)} ${row.user.phone ?? ''} ${row.user.email}`.toLowerCase();
       if (!haystack.includes(q)) {
         return false;
       }
@@ -90,9 +99,12 @@ export function sortCoachSalaryRows(
 ): CoachSalaryRow[] {
   const copy = [...rows];
   if (order === 'oldest') {
-    return copy.sort((a, b) => a.coachProfileId.localeCompare(b.coachProfileId));
+    return copy.sort((a, b) =>
+      a.coachProfileId.localeCompare(b.coachProfileId),
+    );
   }
   return copy.sort(
-    (a, b) => (b.salary?.totalEarningsCents ?? 0) - (a.salary?.totalEarningsCents ?? 0),
+    (a, b) =>
+      (b.salary?.totalEarningsCents ?? 0) - (a.salary?.totalEarningsCents ?? 0),
   );
 }

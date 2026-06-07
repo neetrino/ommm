@@ -375,7 +375,8 @@ export class ClientsService {
       isBlocked: user.isBlocked,
       activePlanName: activePackage?.plan.name ?? null,
       activePlanCostCents: activePackage?.plan.priceCents ?? null,
-      activePlanExpiresAt: activePackage?.currentPeriodEnd.toISOString() ?? null,
+      activePlanExpiresAt:
+        activePackage?.currentPeriodEnd.toISOString() ?? null,
       activePackageId: activePackage?.id ?? null,
       activePackageStatus: activePackage?.status ?? null,
     };
@@ -652,5 +653,4 @@ export class ClientsService {
   private dateValue(value: Date | null) {
     return value?.getTime() ?? 0;
   }
-
 }

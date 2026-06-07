@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
@@ -81,14 +81,15 @@ function ContentPostDetailsSheetInner({
     [post],
   );
   const [values, setValues] = useState<ContentPostFormValues>(initialValues);
+  const [prevInitialValues, setPrevInitialValues] = useState(initialValues);
+  if (initialValues !== prevInitialValues) {
+    setPrevInitialValues(initialValues);
+    setValues(initialValues);
+  }
   const [activeLocale, setActiveLocale] = useState<ContentPostLocale>("en");
   const [busy, setBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
   const [notice, setNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(null);
-
-  useEffect(() => {
-    setValues(initialValues);
-  }, [initialValues]);
 
   const dirty = useMemo(
     () => JSON.stringify(values) !== JSON.stringify(initialValues),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
 import {
   resolveSessionClassTypeId,
@@ -32,8 +32,6 @@ export function useSessionEditForm({
   onClassTypeCreated,
 }: UseSessionEditFormArgs) {
   const submitLockRef = useRef(false);
-  const initialRef = useRef(initial);
-  initialRef.current = initial;
 
   const [form, setForm] = useState<SessionEditFormState>(initial);
   const [snapshot, setSnapshot] = useState<SessionEditFormState>(initial);
@@ -41,12 +39,14 @@ export function useSessionEditForm({
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
 
-  useEffect(() => {
-    const next = { ...initialRef.current };
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
+    const next = { ...initial };
     setForm(next);
     setSnapshot(next);
     setMessage(null);
-  }, [resetKey]);
+  }
 
   const dirty = useMemo(() => isSessionEditFormDirty(form, snapshot), [form, snapshot]);
 

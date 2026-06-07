@@ -19,7 +19,10 @@ export type SessionListFilterRow = {
   level: string | null;
   status: string;
   classType: { id: string; name: string };
-  coach: { id: string; user: { name: string | null; lastName?: string | null } };
+  coach: {
+    id: string;
+    user: { name: string | null; lastName?: string | null };
+  };
   _count: { bookings: number };
 };
 
@@ -77,7 +80,9 @@ export function buildSessionsListWhere(
     and.push({
       startsAt: {
         ...(query.from ? { gte: new Date(query.from) } : {}),
-        ...(query.to ? { lte: new Date(`${query.to.slice(0, 10)}T23:59:59.999Z`) } : {}),
+        ...(query.to
+          ? { lte: new Date(`${query.to.slice(0, 10)}T23:59:59.999Z`) }
+          : {}),
       },
     });
   }
@@ -149,7 +154,10 @@ function matchesAvailability(
   );
 }
 
-function matchesTimeOfDay(row: SessionListFilterRow, selected: readonly string[]): boolean {
+function matchesTimeOfDay(
+  row: SessionListFilterRow,
+  selected: readonly string[],
+): boolean {
   if (selected.length === 0) {
     return true;
   }
@@ -161,19 +169,28 @@ function matchesTimeOfDay(row: SessionListFilterRow, selected: readonly string[]
   );
 }
 
-function matchesQuickFilters(row: SessionListFilterRow, quick: readonly string[]): boolean {
+function matchesQuickFilters(
+  row: SessionListFilterRow,
+  quick: readonly string[],
+): boolean {
   if (quick.length === 0) {
     return true;
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const weekEnd = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  const weekEnd = new Date(Date.now() + 7 * 86400000)
+    .toISOString()
+    .slice(0, 10);
   const rowDate = startsAtDateOnly(row.startsAt);
 
-  const dateQuick = quick.filter((item) => item === 'today' || item === 'thisWeek');
+  const dateQuick = quick.filter(
+    (item) => item === 'today' || item === 'thisWeek',
+  );
   if (dateQuick.length > 0) {
     const matchesDate = dateQuick.some((item) =>
-      item === 'today' ? rowDate === today : rowDate >= today && rowDate <= weekEnd,
+      item === 'today'
+        ? rowDate === today
+        : rowDate >= today && rowDate <= weekEnd,
     );
     if (!matchesDate) {
       return false;
@@ -194,7 +211,10 @@ function matchesQuickFilters(row: SessionListFilterRow, quick: readonly string[]
     }
   }
 
-  if (quick.includes('cancelled') && row.status !== ClassSessionStatus.CANCELLED) {
+  if (
+    quick.includes('cancelled') &&
+    row.status !== ClassSessionStatus.CANCELLED
+  ) {
     return false;
   }
   if (
@@ -203,7 +223,10 @@ function matchesQuickFilters(row: SessionListFilterRow, quick: readonly string[]
   ) {
     return false;
   }
-  if (quick.includes('evening') && new Date(startsAtIso(row.startsAt)).getHours() < 17) {
+  if (
+    quick.includes('evening') &&
+    new Date(startsAtIso(row.startsAt)).getHours() < 17
+  ) {
     return false;
   }
 
@@ -229,7 +252,10 @@ export function filterSessionRows<T extends SessionListFilterRow>(
         return false;
       }
     }
-    if (query.from && startsAtDateOnly(row.startsAt) < query.from.slice(0, 10)) {
+    if (
+      query.from &&
+      startsAtDateOnly(row.startsAt) < query.from.slice(0, 10)
+    ) {
       return false;
     }
     if (query.to && startsAtDateOnly(row.startsAt) > query.to.slice(0, 10)) {

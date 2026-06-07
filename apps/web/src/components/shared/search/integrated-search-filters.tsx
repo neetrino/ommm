@@ -33,10 +33,10 @@ function usePortaledFilterPanelPosition(
   const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(
     null,
   );
+  const panelEnabled = enabled && panelOpen;
 
   useEffect(() => {
-    if (!enabled || !panelOpen) {
-      setPosition(null);
+    if (!panelEnabled) {
       return undefined;
     }
 
@@ -58,9 +58,10 @@ function usePortaledFilterPanelPosition(
       window.removeEventListener("scroll", update, true);
       window.removeEventListener("resize", update);
     };
-  }, [containerRef, enabled, panelOpen]);
+  }, [containerRef, panelEnabled]);
 
-  return position;
+  const resolvedPosition = panelEnabled ? position : null;
+  return resolvedPosition;
 }
 
 export type IntegratedSearchFiltersProps = {
@@ -363,7 +364,7 @@ export function IntegratedSearchFilters({
               onBlur={handleSearchBlur}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
-              role="searchbox"
+              role={hasFilters ? "combobox" : "searchbox"}
               aria-expanded={hasFilters ? panelOpen : undefined}
               aria-controls={hasFilters ? PANEL_ID : undefined}
               className="ommm-search-input-no-native-clear h-9 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0"

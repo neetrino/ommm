@@ -81,8 +81,6 @@ export function AdminClientsManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const routerRef = useRef(router);
-  routerRef.current = router;
   const searchParamsStringRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const requestId = useRef(0);
@@ -105,6 +103,11 @@ export function AdminClientsManagement({
   const [error, setError] = useState<string | null>(null);
   const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
   const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
+  const [prevViewClientId, setPrevViewClientId] = useState(viewClientId);
+  if (viewClientId !== prevViewClientId) {
+    setPrevViewClientId(viewClientId);
+    setVisibleClientId(viewClientId);
+  }
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
@@ -113,10 +116,6 @@ export function AdminClientsManagement({
   useEffect(() => {
     searchParamsStringRef.current = searchParams.toString();
   }, [searchParams]);
-
-  useEffect(() => {
-    setVisibleClientId(viewClientId);
-  }, [viewClientId]);
 
   const selected = useMemo(() => {
     if (visibleClientId === null) {
@@ -137,9 +136,9 @@ export function AdminClientsManagement({
       const params = new URLSearchParams(searchParamsStringRef.current);
       mutator(params);
       const query = params.toString();
-      routerRef.current.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname],
+    [pathname, router],
   );
 
   const selectClient = useCallback(

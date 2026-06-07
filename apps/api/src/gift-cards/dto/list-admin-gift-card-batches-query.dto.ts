@@ -11,7 +11,12 @@ const GIFT_CARD_SORT_ORDERS = [
   'expirationSoon',
 ] as const;
 
-const GIFT_CARD_QUICK_FILTERS = ['', 'active', 'expired', 'unredeemed'] as const;
+const GIFT_CARD_QUICK_FILTERS = [
+  '',
+  'active',
+  'expired',
+  'unredeemed',
+] as const;
 
 export class ListAdminGiftCardBatchesQueryDto extends ListPaginationQueryDto {
   @IsOptional()

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { AdminClassTypeRow } from "@/components/admin/admin-class-types-types";
 import {
   classTypeFormFromRow,
@@ -31,8 +31,6 @@ export function useClassTypeEditForm({
   onSaved,
 }: UseClassTypeEditFormArgs) {
   const submitLockRef = useRef(false);
-  const initialRef = useRef(initial);
-  initialRef.current = initial;
 
   const [form, setForm] = useState<ClassTypeEditFormState>(initial);
   const [snapshot, setSnapshot] = useState<ClassTypeEditFormState>(initial);
@@ -41,16 +39,18 @@ export function useClassTypeEditForm({
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
 
-  useEffect(() => {
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
     const nextForm = classTypeFormFromRow({
-      name: initialRef.current.name,
-      description: initialRef.current.description,
+      name: initial.name,
+      description: initial.description,
     });
     setForm(nextForm);
     setSnapshot(nextForm);
     setErrors({});
     setMessage(null);
-  }, [resetKey]);
+  }
 
   const dirty = useMemo(() => isClassTypeFormDirty(form, snapshot), [form, snapshot]);
 

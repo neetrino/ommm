@@ -600,7 +600,10 @@ export class ReportsService {
         continue;
       }
       const day = this.localDateKey(payment.createdAt);
-      dailyRevenueMap.set(day, (dailyRevenueMap.get(day) ?? 0) + payment.amountCents);
+      dailyRevenueMap.set(
+        day,
+        (dailyRevenueMap.get(day) ?? 0) + payment.amountCents,
+      );
     }
     const dailyRevenue = [...dailyRevenueMap.entries()]
       .sort(([left], [right]) => left.localeCompare(right))

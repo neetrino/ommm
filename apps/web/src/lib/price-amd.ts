@@ -22,12 +22,14 @@ function formatAmdNumber(
 }
 
 /** Formats whole AMD amounts stored in `priceCents` / `amountCents` fields. */
-export function formatAmdFromCents(cents: number, _locale: string): string {
+export function formatAmdFromCents(cents: number, locale?: string): string {
+  void locale;
   return `${formatAmdNumber(Math.round(cents))} ${AMD_SYMBOL}`;
 }
 
 /** Formats whole AMD amounts already expressed in major units. */
-export function formatAmdFromMajor(amount: number, _locale: string): string {
+export function formatAmdFromMajor(amount: number, locale?: string): string {
+  void locale;
   return `${formatAmdNumber(Math.round(amount))} ${AMD_SYMBOL}`;
 }
 

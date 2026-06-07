@@ -84,12 +84,59 @@ export function AdminClassTypesModal({
     () => ({ ...sessionCountByTypeId }),
   );
   const fetchGenerationRef = useRef(0);
-  const wasOpenRef = useRef(false);
   const onChangedRef = useRef(onChanged);
+  const lastNotifiedSelectionRef = useRef<string | null | false>(false);
+  const [pendingSelectionNotify, setPendingSelectionNotify] = useState<
+    string | null | false
+  >(false);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setListFilter("");
+      setListError(null);
+      setBanner(null);
+      setTypes(sortTypes(classTypes));
+      setLoadState("idle");
+      setActiveTab(CLASS_TYPE_SHEET_TAB_DETAILS);
+      setResolvedSessionCounts({ ...sessionCountByTypeId });
+      const initialType =
+        initialSelectedId !== null
+          ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
+          : null;
+      if (initialType !== null) {
+        setView("edit");
+        setSelectedId(initialType.id);
+        setPendingSelectionNotify(initialType.id);
+      } else {
+        setView("catalog");
+        setSelectedId(null);
+        setPendingSelectionNotify(false);
+      }
+    } else {
+      setPendingSelectionNotify(false);
+    }
+  }
 
   useEffect(() => {
     onChangedRef.current = onChanged;
   }, [onChanged]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      fetchGenerationRef.current += 1;
+      lastNotifiedSelectionRef.current = false;
+      return;
+    }
+    if (
+      pendingSelectionNotify !== false &&
+      pendingSelectionNotify !== lastNotifiedSelectionRef.current
+    ) {
+      lastNotifiedSelectionRef.current = pendingSelectionNotify;
+      onSelectedTypeIdChange?.(pendingSelectionNotify);
+    }
+  }, [isOpen, onSelectedTypeIdChange, pendingSelectionNotify]);
 
   const selectedType = types.find((row) => row.id === selectedId) ?? null;
   const selectedSessionCount =
@@ -177,7 +224,6 @@ export function AdminClassTypesModal({
       return undefined;
     }
     let cancelled = false;
-    setResolvedSessionCounts({ ...sessionCountByTypeId });
     void (async () => {
       try {
         const sessions = await apiFetch<AdminSessionClassTypeRef[]>("/classes/admin/sessions");
@@ -199,38 +245,6 @@ export function AdminClassTypesModal({
       cancelled = true;
     };
   }, [isOpen, sessionCountByTypeId]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      wasOpenRef.current = false;
-      fetchGenerationRef.current += 1;
-      return;
-    }
-    if (wasOpenRef.current) {
-      return;
-    }
-    wasOpenRef.current = true;
-    setListFilter("");
-    setListError(null);
-    setBanner(null);
-    setTypes(sortTypes(classTypes));
-    setLoadState("idle");
-    setActiveTab(CLASS_TYPE_SHEET_TAB_DETAILS);
-
-    const initialType =
-      initialSelectedId !== null
-        ? sortTypes(classTypes).find((type) => type.id === initialSelectedId) ?? null
-        : null;
-
-    if (initialType !== null) {
-      setView("edit");
-      setSelectedId(initialType.id);
-      onSelectedTypeIdChange?.(initialType.id);
-    } else {
-      setView("catalog");
-      setSelectedId(null);
-    }
-  }, [classTypes, initialSelectedId, isOpen, onSelectedTypeIdChange]);
 
   useEffect(() => {
     if (banner === null) {

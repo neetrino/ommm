@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useTransition, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -18,6 +18,7 @@ import {
 } from "@/components/admin/admin-analytics-url";
 import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -39,9 +40,8 @@ export function AdminAnalyticsHeroFilters({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
-  const valuesFromUrlRef = useRef(false);
-  const [isPending, startTransition] = useTransition();
-  const [values, setValues] = useState(initialValues);
+  const [, startTransition] = useTransition();
+  const [values, setValues] = usePropSyncedState(initialValues);
 
   const filterFields = useMemo(
     () =>
@@ -91,17 +91,8 @@ export function AdminAnalyticsHeroFilters({
   );
 
   useEffect(() => {
-    setValues(initialValues);
-    valuesFromUrlRef.current = true;
-  }, [initialValues]);
-
-  useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
-      return undefined;
-    }
-    if (valuesFromUrlRef.current) {
-      valuesFromUrlRef.current = false;
       return undefined;
     }
 

@@ -13,6 +13,7 @@ import {
   type AdminBookingsFilterState,
   type AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import {
   parseListPageParams,
@@ -36,7 +37,7 @@ export function useAdminBookingsListData({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [payload, setPayload] = useState(initial);
+  const [payload, setPayload] = usePropSyncedState(initial);
   const [calendarPayload, setCalendarPayload] = useState<AdminBookingsManagementPayload | null>(
     null,
   );
@@ -51,10 +52,6 @@ export function useAdminBookingsListData({
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-
-  useEffect(() => {
-    setPayload(initial);
-  }, [initial]);
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
@@ -143,7 +140,7 @@ export function useAdminBookingsListData({
     }, SEARCH_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [filters, listPage.offset, listPage.take]);
+  }, [filters, listPage, setPayload]);
 
   useEffect(() => {
     if (!isCalendarBookingsView(view)) {

@@ -81,10 +81,12 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
   const [error, setError] = useState<string | null>(null);
 
   const coachProfileId = coach?.coachProfileId ?? null;
-
-  useEffect(() => {
+  const [prevPaginationKey, setPrevPaginationKey] = useState(`${coachProfileId}:${month}`);
+  const paginationKey = `${coachProfileId}:${month}`;
+  if (paginationKey !== prevPaginationKey) {
+    setPrevPaginationKey(paginationKey);
     setPage(1);
-  }, [coachProfileId, month]);
+  }
 
   useEffect(() => {
     if (coachProfileId === null) {

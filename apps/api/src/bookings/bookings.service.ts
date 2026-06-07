@@ -533,7 +533,9 @@ export class BookingsService {
     };
 
     if (params.query.countOnly) {
-      const matchedTotal = await this.prisma.booking.count({ where: bookingWhere });
+      const matchedTotal = await this.prisma.booking.count({
+        where: bookingWhere,
+      });
       return {
         rows: [],
         sessionSlots: [],
@@ -828,8 +830,10 @@ export class BookingsService {
     const summary = {
       total: rows.length,
       booked: rows.filter((row) => row.status === BookingStatus.BOOKED).length,
-      completed: rows.filter((row) => row.status === BookingStatus.COMPLETED).length,
-      cancelled: rows.filter((row) => row.status === BookingStatus.CANCELLED).length,
+      completed: rows.filter((row) => row.status === BookingStatus.COMPLETED)
+        .length,
+      cancelled: rows.filter((row) => row.status === BookingStatus.CANCELLED)
+        .length,
       waitlisted: rows.filter((row) => row.status === 'WAITLISTED').length,
       today: rows.filter((row) => {
         const starts = new Date(row.session.startsAt);

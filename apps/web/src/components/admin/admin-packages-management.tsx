@@ -118,6 +118,12 @@ export function AdminPackagesManagement({
     useState(packagesFromServer);
   const [filterValues, setFilterValues] = useState<PackageFilterValues>(initialFilters);
   const [searchDraft, setSearchDraft] = useState(() => initialFilters.search);
+  const [prevUrlSearch, setPrevUrlSearch] = useState(() => initialFilters.search);
+  const [prevSearchDraft, setPrevSearchDraft] = useState(() => initialFilters.search);
+  const [prevInitialFilterStatusOrder, setPrevInitialFilterStatusOrder] = useState({
+    status: initialFilters.status,
+    order: initialFilters.order,
+  });
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
@@ -127,37 +133,39 @@ export function AdminPackagesManagement({
     filtersRef.current = filterValues;
   }, [filterValues]);
 
-  useEffect(() => {
-    const urlFilters = parsePackageFiltersFromSearch(
-      Object.fromEntries(searchParams.entries()),
-    );
+  const urlFilters = parsePackageFiltersFromSearch(
+    Object.fromEntries(searchParams.entries()),
+  );
+  if (urlFilters.search !== prevUrlSearch) {
+    setPrevUrlSearch(urlFilters.search);
     setSearchDraft(urlFilters.search);
-  }, [searchParams]);
+  }
 
-  useEffect(() => {
-    setFilterValues((current) => {
-      if (current.search === searchDraft) {
-        return current;
-      }
-      return { ...current, search: searchDraft };
-    });
-  }, [searchDraft]);
+  if (searchDraft !== prevSearchDraft) {
+    setPrevSearchDraft(searchDraft);
+    setFilterValues((current) =>
+      current.search === searchDraft ? current : { ...current, search: searchDraft },
+    );
+  }
 
-  useEffect(() => {
-    setFilterValues((current) => {
-      if (
-        current.status === initialFilters.status &&
-        current.order === initialFilters.order
-      ) {
-        return current;
-      }
-      return {
-        ...current,
-        status: initialFilters.status,
-        order: initialFilters.order,
-      };
+  if (
+    initialFilters.status !== prevInitialFilterStatusOrder.status ||
+    initialFilters.order !== prevInitialFilterStatusOrder.order
+  ) {
+    setPrevInitialFilterStatusOrder({
+      status: initialFilters.status,
+      order: initialFilters.order,
     });
-  }, [initialFilters.order, initialFilters.status]);
+    setFilterValues((current) =>
+      current.status === initialFilters.status && current.order === initialFilters.order
+        ? current
+        : {
+            ...current,
+            status: initialFilters.status,
+            order: initialFilters.order,
+          },
+    );
+  }
 
   const syncFiltersToUrl = useCallback(
     (values: PackageFilterValues) => {

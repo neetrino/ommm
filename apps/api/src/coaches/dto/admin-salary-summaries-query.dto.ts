@@ -3,7 +3,13 @@ import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.d
 
 const PAYOUT_STATUSES = ['', 'paid', 'pending', 'none'] as const;
 const SALARY_ORDERS = ['newest', 'oldest', 'highest-salary'] as const;
-const SALARY_QUICK = ['', 'paid', 'pending', 'high-salary', 'recent-payments'] as const;
+const SALARY_QUICK = [
+  '',
+  'paid',
+  'pending',
+  'high-salary',
+  'recent-payments',
+] as const;
 
 export class AdminSalarySummariesQueryDto extends ListPaginationQueryDto {
   @IsOptional()

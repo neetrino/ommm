@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { AdminCoachCompactRow } from "@/components/admin/admin-coach-compact-row";
@@ -122,16 +122,17 @@ export function AdminCoachesDirectory({
   const searchParams = useSearchParams();
   const urlCoachId = searchParams.get("coachProfile");
   const [visibleCoachId, setVisibleCoachId] = useState<string | null>(urlCoachId);
+  const [prevUrlCoachId, setPrevUrlCoachId] = useState(urlCoachId);
+  if (urlCoachId !== prevUrlCoachId) {
+    setPrevUrlCoachId(urlCoachId);
+    setVisibleCoachId(urlCoachId);
+  }
   const coaches = initial.items;
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
     [searchParams],
   );
-
-  useEffect(() => {
-    setVisibleCoachId(urlCoachId);
-  }, [urlCoachId]);
 
   const selectedCoach = useMemo(() => {
     if (visibleCoachId === null) {

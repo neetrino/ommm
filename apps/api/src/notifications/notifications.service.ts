@@ -332,7 +332,11 @@ export class NotificationsService {
   }
 
   private async mapScheduledBroadcasts(
-    scheduled: Array<{ entityId: string; createdAt: Date; payload: string | null }>,
+    scheduled: Array<{
+      entityId: string;
+      createdAt: Date;
+      payload: string | null;
+    }>,
   ) {
     if (scheduled.length === 0) {
       return [];
@@ -583,7 +587,11 @@ export class NotificationsService {
         take: NOTIFICATIONS_FILTER_SCAN_LIMIT,
       });
       const mapped = this.mapDeliveryRows(deliveries);
-      return paginateFilteredRows(filterDeliveryRows(mapped, query), take, offset);
+      return paginateFilteredRows(
+        filterDeliveryRows(mapped, query),
+        take,
+        offset,
+      );
     }
 
     const [deliveries, total] = await Promise.all([

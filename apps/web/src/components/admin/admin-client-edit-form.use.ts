@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   clientFormFromInitial,
@@ -29,8 +29,6 @@ export function useClientEditForm({
 }: UseClientEditFormArgs) {
   const router = useRouter();
   const submitLockRef = useRef(false);
-  const initialRef = useRef(initial);
-  initialRef.current = initial;
   const [form, setForm] = useState<ClientEditFormState>(() => clientFormFromInitial(initial));
   const [snapshot, setSnapshot] = useState<ClientEditFormState>(() => clientFormFromInitial(initial));
   const [errors, setErrors] = useState<ClientEditFormErrors>({});
@@ -38,13 +36,15 @@ export function useClientEditForm({
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
 
-  useEffect(() => {
-    const nextForm = clientFormFromInitial(initialRef.current);
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
+    const nextForm = clientFormFromInitial(initial);
     setForm(nextForm);
     setSnapshot(nextForm);
     setErrors({});
     setMessage(null);
-  }, [resetKey]);
+  }
 
   const dirty = useMemo(() => isClientFormDirty(form, snapshot), [form, snapshot]);
 
@@ -56,7 +56,7 @@ export function useClientEditForm({
   }
 
   function cancelEdits(): void {
-    const nextForm = clientFormFromInitial(initialRef.current);
+    const nextForm = clientFormFromInitial(initial);
     setForm(nextForm);
     setSnapshot(nextForm);
     setErrors({});

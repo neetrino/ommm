@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { ApiError, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import type { AdminGiftCardBatchRow } from "@/components/admin/admin-gift-cards-types";
 import {
   ADMIN_ACTION_ICON_CLASS,

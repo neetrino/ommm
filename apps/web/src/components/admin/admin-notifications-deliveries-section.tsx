@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import {
   ADMIN_NOTIFICATIONS_LIST_CELL,
@@ -32,6 +32,7 @@ import {
   defaultDeliveriesListFilters,
   type DeliveriesListFilters,
 } from "@/components/admin/admin-notifications-url";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -77,15 +78,11 @@ export function AdminNotificationsDeliveriesSection({
     () => undefined,
   );
   const filtersRef = useRef(initialFilters);
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = usePropSyncedState(initialFilters);
 
   useEffect(() => {
     filtersRef.current = filters;
   }, [filters]);
-
-  useEffect(() => {
-    setFilters(initialFilters);
-  }, [initialFilters]);
 
   const syncFiltersToUrl = useCallback(
     (values: DeliveriesListFilters, resetPage = false) => {

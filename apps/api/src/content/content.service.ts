@@ -186,7 +186,9 @@ export class ContentService {
           ? new Date(dto.submittedForReviewAt)
           : null,
         coverImageUrl:
-          dto.coverImageUrl !== undefined ? (dto.coverImageUrl ?? null) : existing.coverImageUrl,
+          dto.coverImageUrl !== undefined
+            ? (dto.coverImageUrl ?? null)
+            : existing.coverImageUrl,
         publishedAt: this.resolvePublishedAt(dto, existing.publishedAt),
         translations: {
           deleteMany: {},
@@ -380,7 +382,9 @@ export class ContentService {
     },
     locale: ContentPostLocale,
   ): PublicContentPost | null {
-    const translation = post.translations.find((item) => item.locale === locale);
+    const translation = post.translations.find(
+      (item) => item.locale === locale,
+    );
     const title = translation?.title?.trim() || post.title;
     if (title.trim().length === 0) {
       return null;
@@ -426,7 +430,9 @@ export class ContentService {
       }
       const slugKey = `${translation.locale}:${slug}`;
       if (seenSlugs.has(slugKey)) {
-        throw new BadRequestException(`Duplicate slug for locale ${translation.locale}`);
+        throw new BadRequestException(
+          `Duplicate slug for locale ${translation.locale}`,
+        );
       }
       seenSlugs.add(slugKey);
       return {

@@ -9,7 +9,6 @@ import {
   bookingStatusTone,
 } from "@/components/admin/admin-booking-list-badges";
 
-const MENU_MIN_WIDTH = 152;
 const MENU_GAP = 4;
 
 export type AdminBookingStatus =

@@ -55,6 +55,7 @@ export function AdminClientDrawer({ client, locale, onClose, onChanged }: AdminC
 
   return (
     <AdminClientDrawerInner
+      key={client.id}
       client={client}
       locale={locale}
       onClose={onClose}
@@ -99,10 +100,6 @@ function AdminClientDrawerInner({
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setDetail(null);
-    setNote("");
-    setActiveTab(CLIENT_SHEET_TAB_PROFILE);
     void apiFetch<ClientDetail>(`/clients/${client.id}`)
       .then((payload) => {
         if (!cancelled) {

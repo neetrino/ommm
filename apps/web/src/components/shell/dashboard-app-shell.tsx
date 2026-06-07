@@ -4,7 +4,6 @@ import { startTransition, useEffect, useMemo, useState, type ReactNode } from "r
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  dashboardNavPathActive,
   type DashboardNavDefinition,
   type DashboardNavItem,
   type DashboardRoleNotificationRoute,
@@ -63,7 +62,6 @@ export function DashboardAppShell({
   brandSubline,
   navRole,
   navDefinitions,
-  notificationRoute,
   variant = "neutral",
   contentMaxClass = "max-w-6xl",
   withSiteHeader = false,

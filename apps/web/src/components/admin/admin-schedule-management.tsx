@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -20,14 +20,12 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateForUi } from "@/lib/date-display";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
-import { AdminScheduleSessionRowActions } from "@/components/admin/admin-schedule-session-row-actions";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
@@ -272,10 +270,6 @@ function coachName(coach: AdminScheduleCoach | AdminScheduleSession["coach"]): s
   return coach.user.name ?? "—";
 }
 
-function durationMinutes(row: AdminScheduleSession): number {
-  return Math.max(0, Math.round((new Date(row.endsAt).getTime() - new Date(row.startsAt).getTime()) / 60000));
-}
-
 function spotsLeft(row: AdminScheduleSession): number {
   return Math.max(row.capacity - row._count.bookings, 0);
 }
@@ -317,21 +311,6 @@ function matchesTimeOfDaySelection(row: AdminScheduleSession, selected: readonly
     (selected.includes("afternoon") && hour >= 12 && hour < 17) ||
     (selected.includes("evening") && hour >= 17)
   );
-}
-
-function countActiveFilters(values: Filters, quickFilters: readonly ScheduleQuickFilter[]): number {
-  return [
-    values.q.trim(),
-    values.from,
-    values.to,
-    values.coachIds.length > 0 ? "coach" : "",
-    values.typeIds.length > 0 ? "type" : "",
-    values.levels.length > 0 ? "level" : "",
-    values.statuses.length > 0 ? "status" : "",
-    values.availability.length > 0 ? "availability" : "",
-    values.timeOfDay.length > 0 ? "timeOfDay" : "",
-    quickFilters.length > 0 ? "quick" : "",
-  ].filter(Boolean).length;
 }
 
 function initialForm(
@@ -439,6 +418,7 @@ export function AdminScheduleManagement({
   const hasMounted = useRef(false);
   const filterStateRef = useRef(initialFilterState);
   const [rows, setRows] = useState(sessions);
+  const [prevSessions, setPrevSessions] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
   const [view, setView] = useState<ScheduleView>(resolveScheduleView(initialView));
@@ -447,6 +427,7 @@ export function AdminScheduleManagement({
     () => initialFilterState.quickFilters,
   );
   const [searchDraft, setSearchDraft] = useState(() => initialFilterState.filters.q);
+  const [prevInitialFilterState, setPrevInitialFilterState] = useState(initialFilterState);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [editing, setEditing] = useState<AdminScheduleSession | null>(null);
   const [details, setDetails] = useState<AdminScheduleSession | null>(null);
@@ -501,20 +482,21 @@ export function AdminScheduleManagement({
     setClassTypes(initialClassTypes);
   }
 
-  useEffect(() => {
+  if (sessions !== prevSessions) {
+    setPrevSessions(sessions);
     setRows(sessions);
-  }, [sessions]);
+  }
+
+  if (initialFilterState !== prevInitialFilterState) {
+    setPrevInitialFilterState(initialFilterState);
+    setFilters(initialFilterState.filters);
+    setQuickFilters(initialFilterState.quickFilters);
+    setSearchDraft(initialFilterState.filters.q);
+  }
 
   useEffect(() => {
     filterStateRef.current = { filters, quickFilters };
   }, [filters, quickFilters]);
-
-  useEffect(() => {
-    setFilters(initialFilterState.filters);
-    setQuickFilters(initialFilterState.quickFilters);
-    setSearchDraft(initialFilterState.filters.q);
-    filterStateRef.current = initialFilterState;
-  }, [initialFilterState]);
 
   const listPage = useMemo(
     () => parseAdminScheduleListPageParams(Object.fromEntries(searchParams.entries())),
@@ -675,11 +657,6 @@ export function AdminScheduleManagement({
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams],
-  );
-
-  const activeFilterCount = useMemo(
-    () => countActiveFilters(filters, quickFilters),
-    [filters, quickFilters],
   );
 
   const quickOptions = useMemo(

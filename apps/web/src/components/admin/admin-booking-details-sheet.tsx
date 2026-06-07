@@ -116,35 +116,51 @@ export function AdminBookingDetailsSheet({
 }: AdminBookingDetailsSheetProps) {
   const t = useTranslations("adminPages.bookings");
   const titleId = useId();
-  const [details, setDetails] = useState<BookingDetails | null>(null);
-  const [notes, setNotes] = useState<BookingNote[]>([]);
-  const [loading, setLoading] = useState(false);
+  const fetchKey =
+    isOpen && row !== null && row.recordType === "BOOKING" ? row.id : null;
+  const [result, setResult] = useState<{
+    key: string;
+    details: BookingDetails | null;
+    notes: BookingNote[];
+  } | null>(null);
+  const loading = fetchKey !== null && (result === null || result.key !== fetchKey);
+  const details =
+    fetchKey !== null && result?.key === fetchKey ? result.details : null;
+  const notes =
+    fetchKey !== null && result?.key === fetchKey ? result.notes : [];
 
   useEffect(() => {
-    if (!isOpen || row === null) {
-      setDetails(null);
-      setNotes([]);
-      return;
-    }
-    if (row.recordType !== "BOOKING") {
-      setDetails(null);
-      setNotes([]);
-      return;
+    if (fetchKey === null || row === null) {
+      return undefined;
     }
 
-    setLoading(true);
-    void apiFetch(`/bookings/admin/${row.id}`)
+    let cancelled = false;
+    void apiFetch(`/bookings/admin/${fetchKey}`)
       .then((payload) => {
+        if (cancelled) {
+          return;
+        }
         const nextDetails = payload as BookingDetails;
-        setDetails(nextDetails);
-        setNotes(nextDetails.notes ?? fallbackNotes(row));
+        setResult({
+          key: fetchKey,
+          details: nextDetails,
+          notes: nextDetails.notes ?? fallbackNotes(row),
+        });
       })
       .catch(() => {
-        setDetails(null);
-        setNotes(fallbackNotes(row));
-      })
-      .finally(() => setLoading(false));
-  }, [isOpen, row]);
+        if (!cancelled) {
+          setResult({
+            key: fetchKey,
+            details: null,
+            notes: fallbackNotes(row),
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchKey, row]);
 
   if (row === null) {
     return null;

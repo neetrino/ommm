@@ -14,24 +14,38 @@ export function buildGiftCardBatchWhere(
         {
           purchaser: {
             OR: [
-              { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-              { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
+              {
+                name: { contains: search, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                email: { contains: search, mode: Prisma.QueryMode.insensitive },
+              },
             ],
           },
         },
         {
           recipient: {
             OR: [
-              { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-              { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
+              {
+                name: { contains: search, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                email: { contains: search, mode: Prisma.QueryMode.insensitive },
+              },
             ],
           },
         },
         {
-          recipientEmail: { contains: search, mode: Prisma.QueryMode.insensitive },
+          recipientEmail: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
         },
         {
-          recipientName: { contains: search, mode: Prisma.QueryMode.insensitive },
+          recipientName: {
+            contains: search,
+            mode: Prisma.QueryMode.insensitive,
+          },
         },
         { message: { contains: search, mode: Prisma.QueryMode.insensitive } },
       ],
@@ -49,10 +63,7 @@ export function buildGiftCardBatchWhere(
     });
   } else if (query.expiration === 'expired') {
     and.push({
-      OR: [
-        { status: GiftCardStatus.EXPIRED },
-        { expiresAt: { lt: now } },
-      ],
+      OR: [{ status: GiftCardStatus.EXPIRED }, { expiresAt: { lt: now } }],
     });
   }
 
@@ -67,10 +78,7 @@ export function buildGiftCardBatchWhere(
     and.push({ status: GiftCardStatus.ACTIVE });
   } else if (query.quick === 'expired') {
     and.push({
-      OR: [
-        { status: GiftCardStatus.EXPIRED },
-        { expiresAt: { lt: now } },
-      ],
+      OR: [{ status: GiftCardStatus.EXPIRED }, { expiresAt: { lt: now } }],
     });
   } else if (query.quick === 'unredeemed') {
     and.push({

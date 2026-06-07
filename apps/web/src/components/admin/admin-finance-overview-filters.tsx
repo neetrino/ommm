@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -12,6 +12,7 @@ import { AdminFinanceExportLinks } from "@/components/admin/admin-finance-export
 import { AdminFinanceFiltersBar } from "@/components/admin/admin-finance-filters-bar";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import {
   buildFinanceOverviewFiltersQuery,
   parseFinanceDateRangeDays,
@@ -31,8 +32,8 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
-  const [isPending, startTransition] = useTransition();
-  const [rangeDays, setRangeDays] = useState(initialRangeDays);
+  const [, startTransition] = useTransition();
+  const [rangeDays, setRangeDays] = usePropSyncedState(initialRangeDays);
 
   const filterFields = useMemo(
     () =>
@@ -67,10 +68,6 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
   const fromIso = useMemo(() => computeFinanceFromDate(rangeDays), [rangeDays]);
 
   useEffect(() => {
-    setRangeDays(initialRangeDays);
-  }, [initialRangeDays]);
-
-  useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
       return undefined;
@@ -90,7 +87,7 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
     }, FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(handle);
-  }, [pathname, router, rangeDays]);
+  }, [pathname, router, searchParams, rangeDays]);
 
   function handleFilterChange(key: string, value: string): void {
     if (key === "rangeDays") {
@@ -101,8 +98,6 @@ export function AdminFinanceOverviewFilters({ initialRangeDays }: AdminFinanceOv
   function resetFilters(): void {
     setRangeDays(30);
   }
-
-  const activeFilterCount = rangeDays === 30 ? 0 : 1;
 
   return (
     <AdminFinanceFiltersBar

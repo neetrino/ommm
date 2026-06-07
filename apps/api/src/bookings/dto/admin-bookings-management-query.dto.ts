@@ -1,6 +1,12 @@
 import { Transform } from 'class-transformer';
 import { BookingChannel, BookingStatus } from '@prisma/client';
-import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
 export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
