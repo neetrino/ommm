@@ -1,4 +1,7 @@
-import type { FinanceSectionId } from "@/components/admin/admin-finance-module";
+import {
+  FINANCE_SECTION_HREF,
+  type FinanceSectionId,
+} from "@/components/admin/admin-finance-module";
 import type {
   CoachFinanceFilters,
   FinanceDateRangeDays,
@@ -95,6 +98,16 @@ function pickFinanceSectionParams(
     }
   }
   return params;
+}
+
+/** Preserves section-allowed query keys when switching finance tabs. */
+export function buildFinanceTabHref(
+  section: FinanceSectionId,
+  search: Record<string, string | string[] | undefined>,
+): string {
+  const base = FINANCE_SECTION_HREF[section];
+  const query = buildSanitizedFinanceSectionQueryString(section, search);
+  return query.length > 0 ? `${base}?${query}` : base;
 }
 
 /** Builds a query string containing only keys valid for the given finance tab. */
