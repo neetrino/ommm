@@ -63,6 +63,7 @@ import {
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
+  parsePackageFiltersFromSearch,
 } from "@/components/admin/admin-packages-url";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 
@@ -77,6 +78,8 @@ const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
   status: "all",
   order: "displayOrder",
 };
+
+const PACKAGE_SEARCH_DEBOUNCE_MS = 300;
 
 function PackagesEmptyState({ children }: { children: ReactNode }) {
   const reducedMotion = usePrefersReducedMotion();
@@ -114,6 +117,7 @@ export function AdminPackagesManagement({
   const [prevPackagesFromServer, setPrevPackagesFromServer] =
     useState(packagesFromServer);
   const [filterValues, setFilterValues] = useState<PackageFilterValues>(initialFilters);
+  const [searchDraft, setSearchDraft] = useState(() => initialFilters.search);
 
   useEffect(() => {
     searchParamsRef.current = searchParams.toString();
@@ -122,6 +126,22 @@ export function AdminPackagesManagement({
   useEffect(() => {
     filtersRef.current = filterValues;
   }, [filterValues]);
+
+  useEffect(() => {
+    const urlFilters = parsePackageFiltersFromSearch(
+      Object.fromEntries(searchParams.entries()),
+    );
+    setSearchDraft(urlFilters.search);
+  }, [searchParams]);
+
+  useEffect(() => {
+    setFilterValues((current) => {
+      if (current.search === searchDraft) {
+        return current;
+      }
+      return { ...current, search: searchDraft };
+    });
+  }, [searchDraft]);
 
   useEffect(() => {
     setFilterValues((current) => {
@@ -160,6 +180,19 @@ export function AdminPackagesManagement({
     [pathname, router],
   );
 
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const trimmed = searchDraft.trim();
+      const currentSearch =
+        new URLSearchParams(searchParamsRef.current).get("search")?.trim() ?? "";
+      if (trimmed === currentSearch) {
+        return;
+      }
+      syncFiltersToUrl({ ...filtersRef.current, search: searchDraft });
+    }, PACKAGE_SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [searchDraft, syncFiltersToUrl]);
+
   if (packagesFromServer !== prevPackagesFromServer) {
     setPrevPackagesFromServer(packagesFromServer);
     setPackageRows((current) =>
@@ -184,16 +217,19 @@ export function AdminPackagesManagement({
     key: K,
     value: PackageFilterValues[K],
   ): void {
+    if (key === "search") {
+      setSearchDraft(value);
+      return;
+    }
     setFilterValues((current) => {
       const next = { ...current, [key]: value };
-      if (key !== "search") {
-        syncFiltersToUrl(next);
-      }
+      syncFiltersToUrl({ ...next, search: searchDraft });
       return next;
     });
   }
 
   function resetPackageFilters(): void {
+    setSearchDraft("");
     setFilterValues(DEFAULT_PACKAGE_FILTER_VALUES);
     syncFiltersToUrl(DEFAULT_PACKAGE_FILTER_VALUES);
   }
@@ -442,7 +478,7 @@ export function AdminPackagesManagement({
     <div className="space-y-3">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <AdminPackagesFilters
-          values={filterValues}
+          values={{ ...filterValues, search: searchDraft }}
           onChange={updatePackageFilter}
           onReset={resetPackageFilters}
         />
