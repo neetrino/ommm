@@ -92,7 +92,7 @@ export async function RoleProfilePage({
         </AccountSection>
       ) : null}
 
-      <DeleteAccountButton />
+      {user.role !== "COACH" ? <DeleteAccountButton /> : null}
     </div>
   );
 
