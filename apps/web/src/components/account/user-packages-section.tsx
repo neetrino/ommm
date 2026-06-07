@@ -34,14 +34,12 @@ import {
 
 type UserPackagesSectionProps = {
   locale: string;
-  description: string;
   memberships: readonly UserMembershipRow[];
   apiOk: boolean;
 };
 
 export function UserPackagesSection({
   locale,
-  description,
   memberships,
   apiOk,
 }: UserPackagesSectionProps) {
@@ -144,7 +142,7 @@ export function UserPackagesSection({
 
   return (
     <div id="your-packages" className="space-y-4">
-      <AdminPageHero title={t("title")} description={description} search={heroSearch} />
+      <AdminPageHero title={t("title")} search={heroSearch} />
 
       {!apiOk ? (
         <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
