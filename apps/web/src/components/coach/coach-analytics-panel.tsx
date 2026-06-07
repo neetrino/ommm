@@ -9,7 +9,6 @@ import {
 import { AdminAnalyticsAreaChart } from "@/components/admin/admin-analytics-area-chart";
 import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-list";
 import { AdminAnalyticsChartPanel } from "@/components/admin/admin-analytics-chart-panel";
-import { AdminAnalyticsKpiStrip } from "@/components/admin/admin-analytics-kpi-strip";
 import {
   buildCoachAnalyticsInsights,
   formatPeakTimeLabel,
@@ -18,6 +17,7 @@ import {
   mapHourlyBarItems,
 } from "@/components/coach/coach-analytics-helpers";
 import { CoachAnalyticsPeriodSelector } from "@/components/coach/coach-analytics-period-selector";
+import { CoachAnalyticsKpiHero } from "@/components/coach/coach-analytics-kpi-hero";
 import type {
   CoachAnalyticsPayload,
   CoachAnalyticsPeriod,
@@ -53,37 +53,34 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
       ? formatPeakTimeLabel(totals.peakTime.hour, locale)
       : t("notAvailable");
 
-  const kpis = [
+  const activityKpis = [
     {
-      key: "classes",
       label: t("totalClassesTaught"),
       value: String(totals.totalClassesTaught),
     },
     {
-      key: "clients",
       label: t("totalClientsTrained"),
       value: String(totals.totalClientsTrained),
     },
     {
-      key: "attendance",
       label: t("averageAttendanceRate"),
       value:
         totals.averageAttendanceRate === null
           ? t("notAvailable")
           : `${totals.averageAttendanceRate}%`,
     },
+  ];
+
+  const performanceKpis = [
     {
-      key: "fillRate",
       label: t("classFillRate"),
       value: `${totals.classFillRate}%`,
     },
     {
-      key: "popularClass",
       label: t("mostPopularClassType"),
       value: totals.mostPopularClassType ?? t("notAvailable"),
     },
     {
-      key: "peakTime",
       label: t("peakTime"),
       value: peakTimeLabel,
     },
@@ -92,10 +89,14 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
   return (
     <StaffListPageLayout
       title={t("title")}
-      description={t("lead")}
       headerTrailing={<CoachAnalyticsPeriodSelector value={period} />}
     >
-      <AdminAnalyticsKpiStrip items={kpis} />
+      <CoachAnalyticsKpiHero
+        activityTitle={t("kpiGroupActivity")}
+        performanceTitle={t("kpiGroupPerformance")}
+        activity={activityKpis}
+        performance={performanceKpis}
+      />
 
       {insights.length > 0 ? (
         <section className="grid gap-3 sm:grid-cols-2">

@@ -3172,7 +3172,6 @@
     },
     "analytics": {
       "title": "Analytics",
-      "lead": "Track your teaching performance and spot trends to improve results.",
       "signInRequired": "Coach sign-in required.",
       "loadFailed": "Could not load coach analytics.",
       "noProfile": "No coach profile is linked to this account.",
@@ -3182,6 +3181,8 @@
       "periodAria": "Analytics period",
       "periodMonth": "Month",
       "periodYear": "Year",
+      "kpiGroupActivity": "Activity",
+      "kpiGroupPerformance": "Performance",
       "totalClassesTaught": "Total classes taught",
       "totalClientsTrained": "Total clients trained",
       "averageAttendanceRate": "Average attendance rate",

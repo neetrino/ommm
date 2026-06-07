@@ -3118,7 +3118,6 @@
     },
     "analytics": {
       "title": "Аналитика",
-      "lead": "Отслеживайте эффективность преподавания и находите точки роста.",
       "signInRequired": "Требуется вход тренера.",
       "loadFailed": "Не удалось загрузить аналитику тренера.",
       "noProfile": "К этому аккаунту не привязан профиль тренера.",
@@ -3128,6 +3127,8 @@
       "periodAria": "Период аналитики",
       "periodMonth": "Месяц",
       "periodYear": "Год",
+      "kpiGroupActivity": "Активность",
+      "kpiGroupPerformance": "Эффективность",
       "totalClassesTaught": "Проведено занятий",
       "totalClientsTrained": "Клиентов обучено",
       "averageAttendanceRate": "Средняя посещаемость",
