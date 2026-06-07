@@ -507,10 +507,7 @@ function ClientsTable({
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
         {readOnly ? null : (
-          <>
-            <span aria-hidden="true" />
-            <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-          </>
+          <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         )}
       </div>
       {rows.map((row) => (
