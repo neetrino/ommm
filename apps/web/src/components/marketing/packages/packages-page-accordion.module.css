@@ -86,18 +86,23 @@
 
 .expandedBody {
   display: flex;
-  flex: 1 1 var(--packages-page-expanded-scroll-height);
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  max-height: var(--packages-page-expanded-scroll-height);
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.expandedBody[data-tier-scroll="enabled"] {
+  flex: 1 1 var(--packages-page-expanded-scroll-height);
+  max-height: var(--packages-page-expanded-scroll-height);
+  overflow-y: auto;
   overscroll-behavior: contain;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.expandedBody::-webkit-scrollbar {
+.expandedBody[data-tier-scroll="enabled"]::-webkit-scrollbar {
   display: none;
 }
 

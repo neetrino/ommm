@@ -15,6 +15,8 @@ export const PACKAGES_PAGE_ACCORDION_LAYOUT = {
   expandedHeaderBlockPx: 52,
   tierTableSectionGapPx: 18,
   columnHeaderHeightPx: 23,
+  /** Extra row height so ≤5 tiers never clip or scroll from subpixel layout. */
+  rowHeightBufferPx: 8,
 } as const;
 
 /** Shared card chrome from Figma `395:1652`. */
@@ -125,7 +127,8 @@ export function resolvePackagesPageAccordionRowHeightPx(): number {
     layout.columnHeaderHeightPx +
     visibleTierBlockHeight +
     card.fabSizePx +
-    accordion.fabFooterInsetPx
+    accordion.fabFooterInsetPx +
+    layout.rowHeightBufferPx
   );
 }
 

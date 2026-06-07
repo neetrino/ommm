@@ -22,6 +22,7 @@ import {
   PACKAGES_PAGE_CARD_FIGMA,
   PACKAGES_PAGE_LAYOUT,
   PACKAGES_PAGE_MOBILE_FIGMA,
+  PACKAGES_PAGE_VISIBLE_TIER_COUNT,
   buildPackagesPageCategoryGradient,
   resolvePackagesPageAccordionRowHeightPx,
   resolvePackagesPageCategoryAccentColor,
@@ -283,6 +284,7 @@ function DesktopAccordionPanel({
 }: DesktopAccordionPanelProps) {
   const isExpanded = mode === "expanded";
   const isIdle = mode === "idle";
+  const tierScrollEnabled = category.plans.length > PACKAGES_PAGE_VISIBLE_TIER_COUNT;
   const accentColor = resolvePackagesPageCategoryAccentColor(category.id);
 
   const panelClassName = isIdle
@@ -338,7 +340,10 @@ function DesktopAccordionPanel({
       ) : null}
 
       {isExpanded ? (
-        <div className={accordionStyles.expandedBody}>
+        <div
+          className={accordionStyles.expandedBody}
+          data-tier-scroll={tierScrollEnabled ? "enabled" : "disabled"}
+        >
           <div className={accordionStyles.expandedBodyInner}>
             <h2 className={accordionStyles.expandedHeader}>{category.label}</h2>
             {category.plans.length > 0 ? (
