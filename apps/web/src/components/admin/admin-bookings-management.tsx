@@ -63,7 +63,7 @@ type Props = {
   staffBanner?: string;
 };
 
-type BookingConfirmKind = "cancel" | "delete" | "attended";
+type BookingConfirmKind = "cancel" | "delete" | "attended" | "activate";
 
 type PendingBookingConfirm = {
   kind: BookingConfirmKind;
@@ -352,6 +352,19 @@ export function AdminBookingsManagement({
           ),
         }));
       }, t("successCancelled"));
+    } else if (kind === "activate") {
+      await runRowAction(row.id, async () => {
+        await apiFetch(`/bookings/admin/${row.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: "BOOKED" }),
+        });
+        setPayload((prev) => ({
+          ...prev,
+          rows: prev.rows.map((item) =>
+            item.id === row.id ? { ...item, status: "BOOKED" } : item,
+          ),
+        }));
+      }, t("successActivated"));
     } else {
       await runRowAction(row.id, async () => {
         await apiFetch(`/bookings/admin/${row.id}/permanent`, { method: "DELETE" });
@@ -370,8 +383,11 @@ export function AdminBookingsManagement({
 
   function rowActionHandlers(row: BookingRow) {
     return {
+      onEdit: () => openBookingDetails(row),
       onMarkAttended: () => openBookingConfirm("attended", row),
       onCancel: () => openBookingConfirm("cancel", row),
+      onDeactivate: () => openBookingConfirm("cancel", row),
+      onActivate: () => openBookingConfirm("activate", row),
       onMove: () => openMoveModal(row),
       onChangeStatus: (nextStatus: BookingRow["status"]) => {
         if (nextStatus === row.status) {
@@ -481,7 +497,6 @@ export function AdminBookingsManagement({
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
-          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colAttendanceStatus")}</span>
           <span aria-hidden="true" />
           <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} justify-self-end text-right`}>
             {t("colStatus")}
@@ -498,7 +513,11 @@ export function AdminBookingsManagement({
               busy={busyId === row.id}
               onOpenDetails={() => openBookingDetails(row)}
               onOpenUser={setActiveUserId}
-              {...handlers}
+              onEdit={handlers.onEdit}
+              onMove={handlers.onMove}
+              onDeactivate={handlers.onDeactivate}
+              onActivate={handlers.onActivate}
+              onChangeStatus={handlers.onChangeStatus}
             />
           );
         })}
@@ -516,6 +535,9 @@ export function AdminBookingsManagement({
       ) : null}
     </>
   );
+
+  const detailActionRow = drawerRow ? (selectedRow ?? drawerRow) : null;
+  const detailHandlers = detailActionRow ? rowActionHandlers(detailActionRow) : null;
 
   return (
     <div className="space-y-4">
@@ -615,7 +637,7 @@ export function AdminBookingsManagement({
           onClose={() => setActiveUserId(null)}
         />
       ) : null}
-      {drawerRow ? (
+      {drawerRow && detailHandlers ? (
         <AdminBookingDetailsSheet
           row={drawerRow}
           locale={locale}
@@ -627,7 +649,9 @@ export function AdminBookingsManagement({
             setStatusMessage(t("successNote"));
             router.refresh();
           }}
-          {...rowActionHandlers(selectedRow ?? drawerRow)}
+          onMove={detailHandlers.onMove}
+          onChangeStatus={detailHandlers.onChangeStatus}
+          onDelete={detailHandlers.onDelete}
         />
       ) : null}
       {showMoveModal && selectedRow ? (
@@ -657,27 +681,37 @@ export function AdminBookingsManagement({
             ? t("confirmDeleteTitle")
             : pendingConfirm?.kind === "attended"
               ? t("confirmAttendedTitle")
-              : t("confirmCancelTitle")
+              : pendingConfirm?.kind === "activate"
+                ? t("confirmActivateTitle")
+                : t("confirmCancelTitle")
         }
         description={
           pendingConfirm?.kind === "delete"
             ? t("confirmDelete")
             : pendingConfirm?.kind === "attended"
               ? t("confirmAttended")
-              : t("confirmCancel")
+              : pendingConfirm?.kind === "activate"
+                ? t("confirmActivate")
+                : t("confirmCancel")
         }
         confirmLabel={
           pendingConfirm?.kind === "delete"
             ? t("confirmDialogDelete")
             : pendingConfirm?.kind === "attended"
               ? t("confirmDialogYes")
-              : t("confirmDialogCancel")
+              : pendingConfirm?.kind === "activate"
+                ? t("confirmDialogYes")
+                : t("confirmDialogCancel")
         }
         cancelLabel={t("confirmDialogNo")}
         backdropAriaLabel={t("confirmDialogBackdrop")}
-        tone={pendingConfirm?.kind === "attended" ? "success" : "danger"}
+        tone={
+          pendingConfirm?.kind === "attended" || pendingConfirm?.kind === "activate"
+            ? "success"
+            : "danger"
+        }
         confirmClassName={
-          pendingConfirm?.kind === "attended"
+          pendingConfirm?.kind === "attended" || pendingConfirm?.kind === "activate"
             ? "ommm-btn-lifecycle-action--success"
             : "ommm-btn-lifecycle-action--danger"
         }

@@ -14,10 +14,10 @@ import {
 } from "@/components/admin/admin-list-table-layout";
 
 export const ADMIN_BOOKINGS_LIST_GRID_COLS =
-  "minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_1fr_auto_auto";
+  "minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_1fr_auto_auto";
 
 const BOOKINGS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_auto_1fr_auto_auto]";
+  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_1fr_auto_auto]";
 
 export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = buildAdminListTableClass(BOOKINGS_GRID_CLASS);
 

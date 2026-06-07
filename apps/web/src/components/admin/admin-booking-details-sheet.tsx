@@ -78,8 +78,6 @@ export type AdminBookingDetailsSheetProps = {
   busy: boolean;
   onClose: () => void;
   onOpenUser: (userId: string) => void;
-  onMarkAttended: () => void;
-  onCancel: () => void;
   onMove: () => void;
   onChangeStatus: (status: ListRow["status"]) => void;
   onDelete: () => void;
@@ -107,8 +105,6 @@ export function AdminBookingDetailsSheet({
   busy,
   onClose,
   onOpenUser,
-  onMarkAttended,
-  onCancel,
   onMove,
   onChangeStatus,
   onDelete,
@@ -279,8 +275,6 @@ export function AdminBookingDetailsSheet({
             recordType={row.recordType}
             status={row.status}
             busy={busy}
-            onMarkAttended={onMarkAttended}
-            onCancel={onCancel}
             onMove={onMove}
             onDelete={onDelete}
           />

@@ -5,7 +5,6 @@ import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
   ADMIN_BOOKING_VALUE_BADGE_CLASS,
-  attendanceValueBadgeTone,
   paymentValueBadgeTone,
 } from "@/components/admin/admin-booking-list-badges";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
@@ -53,8 +52,10 @@ type AdminBookingCompactRowProps = {
   busy: boolean;
   onOpenDetails: () => void;
   onOpenUser: (userId: string) => void;
-  onMarkAttended: () => void;
-  onCancel: () => void;
+  onEdit: () => void;
+  onMove: () => void;
+  onDeactivate: () => void;
+  onActivate: () => void;
   onChangeStatus: (status: BookingRow["status"]) => void;
 };
 
@@ -64,8 +65,10 @@ export function AdminBookingCompactRow({
   busy,
   onOpenDetails,
   onOpenUser,
-  onMarkAttended,
-  onCancel,
+  onEdit,
+  onMove,
+  onDeactivate,
+  onActivate,
   onChangeStatus,
 }: AdminBookingCompactRowProps) {
   const t = useTranslations("adminPages.bookings");
@@ -137,14 +140,6 @@ export function AdminBookingCompactRow({
         />
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
-        <AdminListMobileLabel label={t("colAttendanceStatus")} />
-        <BookingValueBadge
-          label={attendanceLabel(t, row.attendanceStatus)}
-          className={attendanceValueBadgeTone(row.attendanceStatus)}
-        />
-      </div>
-
       <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
@@ -172,8 +167,10 @@ export function AdminBookingCompactRow({
           recordType={row.recordType}
           status={row.status}
           busy={busy}
-          onMarkAttended={onMarkAttended}
-          onCancel={onCancel}
+          onEdit={onEdit}
+          onMove={onMove}
+          onDeactivate={onDeactivate}
+          onActivate={onActivate}
         />
       </div>
     </article>
@@ -196,14 +193,4 @@ function paymentLabel(
   if (value === "CASH") return t("paymentCash");
   if (value === "REFUNDED") return t("paymentRefunded");
   return t("paymentUnpaid");
-}
-
-function attendanceLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: BookingRow["attendanceStatus"],
-): string {
-  if (value === "ATTENDED") return t("attendanceAttended");
-  if (value === "NO_SHOW") return t("attendanceNoShow");
-  if (value === "LATE_CANCEL") return t("attendanceLateCancel");
-  return t("attendanceNotAttended");
 }
