@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
 import { AdminBookingDetailsSheet } from "@/components/admin/admin-booking-details-sheet";
@@ -11,11 +11,19 @@ import {
   buildAdminBookingsFilterFields,
 } from "@/components/admin/admin-bookings-filter-fields";
 import { useAdminBookingsListData } from "@/components/admin/admin-bookings-list-data";
-import type {
-  AdminBookingRow,
-  AdminBookingSessionSlot,
-  AdminBookingsFilterState,
-  AdminBookingsManagementPayload,
+import {
+  ADMIN_BOOKINGS_ACTION_QUERY_KEY,
+  ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY,
+  ADMIN_BOOKINGS_MOVE_ACTION,
+  bookingRowKey,
+  buildLoadingBookingRow,
+  mapAdminBookingDetailToRow,
+  parseBookingRowKey,
+  type AdminBookingDetailPayload,
+  type AdminBookingRow,
+  type AdminBookingSessionSlot,
+  type AdminBookingsFilterState,
+  type AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -38,10 +46,11 @@ import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 type BookingRow = AdminBookingRow;
 
@@ -53,10 +62,6 @@ type Props = {
   variant?: "full" | "staff";
   staffBanner?: string;
 };
-
-function bookingRowKey(row: Pick<BookingRow, "id" | "recordType">): string {
-  return `${row.recordType}-${row.id}`;
-}
 
 type BookingConfirmKind = "cancel" | "delete" | "attended";
 
@@ -76,6 +81,10 @@ export function AdminBookingsManagement({
   const t = useTranslations("adminPages.bookings");
   const tSchedule = useTranslations("adminPages.schedule");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlBookingKey = searchParams.get(ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY);
+  const urlAction = searchParams.get(ADMIN_BOOKINGS_ACTION_QUERY_KEY);
   const [view, setViewAndPersist] = useUrlViewState(LIST_BOARD_VIEW_QUERY_KEY, (value) =>
     resolveBookingsView(value ?? undefined),
   );
@@ -97,18 +106,156 @@ export function AdminBookingsManagement({
   });
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
-  const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
-  const [moveBooking, setMoveBooking] = useState<BookingRow | null>(null);
+  const [selectedRowKey, setSelectedRowKey] = useState<string | null>(urlBookingKey);
+  const [prevUrlBookingKey, setPrevUrlBookingKey] = useState(urlBookingKey);
+  const [fetchedRow, setFetchedRow] = useState<BookingRow | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [pendingConfirm, setPendingConfirm] = useState<PendingBookingConfirm | null>(null);
+
+  if (urlBookingKey !== prevUrlBookingKey) {
+    setPrevUrlBookingKey(urlBookingKey);
+    setSelectedRowKey(urlBookingKey);
+  }
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const pushSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const openBookingDetails = useCallback(
+    (row: BookingRow) => {
+      const key = bookingRowKey(row);
+      setSelectedRowKey(key);
+      pushSearchParams((params) => {
+        params.set(ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY, key);
+      });
+    },
+    [pushSearchParams],
+  );
+
+  const closeBookingDetails = useCallback(() => {
+    setSelectedRowKey(null);
+    setFetchedRow(null);
+    replaceSearchParams((params) => {
+      params.delete(ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY);
+      params.delete(ADMIN_BOOKINGS_ACTION_QUERY_KEY);
+    });
+  }, [replaceSearchParams]);
+
+  const openMoveModal = useCallback(
+    (row: BookingRow) => {
+      const key = bookingRowKey(row);
+      setSelectedRowKey(key);
+      pushSearchParams((params) => {
+        params.set(ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY, key);
+        params.set(ADMIN_BOOKINGS_ACTION_QUERY_KEY, ADMIN_BOOKINGS_MOVE_ACTION);
+      });
+    },
+    [pushSearchParams],
+  );
+
+  const closeMoveModal = useCallback(() => {
+    replaceSearchParams((params) => {
+      params.delete(ADMIN_BOOKINGS_ACTION_QUERY_KEY);
+    });
+  }, [replaceSearchParams]);
 
   const selectedRow = useMemo(() => {
     if (selectedRowKey === null) {
       return null;
     }
     const combined = [...payload.rows, ...calendarRows];
-    return combined.find((row) => bookingRowKey(row) === selectedRowKey) ?? null;
-  }, [calendarRows, payload.rows, selectedRowKey]);
+    const found = combined.find((row) => bookingRowKey(row) === selectedRowKey);
+    if (found !== undefined) {
+      return found;
+    }
+    if (fetchedRow !== null && bookingRowKey(fetchedRow) === selectedRowKey) {
+      return fetchedRow;
+    }
+    return null;
+  }, [calendarRows, fetchedRow, payload.rows, selectedRowKey]);
+
+  const showMoveModal =
+    urlAction === ADMIN_BOOKINGS_MOVE_ACTION &&
+    selectedRow !== null &&
+    selectedRow.recordType === "BOOKING";
+
+  const drawerRow = useMemo(() => {
+    if (selectedRow !== null) {
+      return selectedRow;
+    }
+    if (selectedRowKey === null) {
+      return null;
+    }
+    return buildLoadingBookingRow(selectedRowKey);
+  }, [selectedRow, selectedRowKey]);
+
+  useEffect(() => {
+    if (selectedRowKey === null) {
+      setFetchedRow(null);
+      return undefined;
+    }
+
+    const combined = [...payload.rows, ...calendarRows];
+    if (combined.some((row) => bookingRowKey(row) === selectedRowKey)) {
+      setFetchedRow(null);
+      return undefined;
+    }
+
+    const parsed = parseBookingRowKey(selectedRowKey);
+    if (parsed === null || parsed.recordType !== "BOOKING") {
+      return undefined;
+    }
+
+    let cancelled = false;
+    void apiFetch(`/bookings/admin/${parsed.id}`)
+      .then((payload) => {
+        if (cancelled) {
+          return;
+        }
+        setFetchedRow(mapAdminBookingDetailToRow(payload as AdminBookingDetailPayload));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFetchedRow(null);
+          replaceSearchParams((params) => {
+            params.delete(ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY);
+            params.delete(ADMIN_BOOKINGS_ACTION_QUERY_KEY);
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [calendarRows, payload.rows, replaceSearchParams, selectedRowKey]);
+
+  useEffect(() => {
+    if (
+      urlAction === ADMIN_BOOKINGS_MOVE_ACTION &&
+      selectedRow !== null &&
+      selectedRow.recordType !== "BOOKING"
+    ) {
+      replaceSearchParams((params) => {
+        params.delete(ADMIN_BOOKINGS_ACTION_QUERY_KEY);
+      });
+    }
+  }, [replaceSearchParams, selectedRow, urlAction]);
 
   const uniqueClients = useMemo(() => {
     const map = new Map<string, string>();
@@ -213,7 +360,7 @@ export function AdminBookingsManagement({
           rows: prev.rows.filter((item) => item.id !== row.id),
         }));
         if (selectedRowKey === bookingRowKey(row)) {
-          setSelectedRowKey(null);
+          closeBookingDetails();
         }
       }, t("successDeleted"));
     }
@@ -225,7 +372,7 @@ export function AdminBookingsManagement({
     return {
       onMarkAttended: () => openBookingConfirm("attended", row),
       onCancel: () => openBookingConfirm("cancel", row),
-      onMove: () => setMoveBooking(row),
+      onMove: () => openMoveModal(row),
       onChangeStatus: (nextStatus: BookingRow["status"]) => {
         if (nextStatus === row.status) {
           return;
@@ -320,10 +467,10 @@ export function AdminBookingsManagement({
     (sessionId: string) => {
       const booking = calendarRows.find((row) => row.session.id === sessionId);
       if (booking) {
-        setSelectedRowKey(bookingRowKey(booking));
+        openBookingDetails(booking);
       }
     },
-    [calendarRows],
+    [calendarRows, openBookingDetails],
   );
 
   const bookingsList = (
@@ -349,7 +496,7 @@ export function AdminBookingsManagement({
               locale={locale}
               row={row}
               busy={busyId === row.id}
-              onOpenDetails={() => setSelectedRowKey(bookingRowKey(row))}
+              onOpenDetails={() => openBookingDetails(row)}
               onOpenUser={setActiveUserId}
               {...handlers}
             />
@@ -468,22 +615,41 @@ export function AdminBookingsManagement({
           onClose={() => setActiveUserId(null)}
         />
       ) : null}
-      {selectedRow ? (
+      {drawerRow ? (
         <AdminBookingDetailsSheet
-          row={selectedRow}
+          row={drawerRow}
           locale={locale}
           isOpen
-          busy={busyId === selectedRow.id}
-          onClose={() => setSelectedRowKey(null)}
+          busy={busyId === drawerRow.id}
+          onClose={closeBookingDetails}
           onOpenUser={setActiveUserId}
           onNoteAdded={() => {
             setStatusMessage(t("successNote"));
             router.refresh();
           }}
-          {...rowActionHandlers(selectedRow)}
+          {...rowActionHandlers(selectedRow ?? drawerRow)}
         />
       ) : null}
-      {moveBooking ? <MoveBookingDialog booking={moveBooking} onClose={() => setMoveBooking(null)} onSubmit={(targetSessionId) => { void runRowAction(moveBooking.id, async () => { await apiFetch(`/bookings/admin/${moveBooking.id}/move`, { method: "PATCH", body: JSON.stringify({ targetSessionId }) }); }, t("successMoved")); setMoveBooking(null); }} /> : null}
+      {showMoveModal && selectedRow ? (
+        <MoveBookingDialog
+          isOpen
+          booking={selectedRow}
+          onClose={closeMoveModal}
+          onSubmit={(targetSessionId) => {
+            void runRowAction(
+              selectedRow.id,
+              async () => {
+                await apiFetch(`/bookings/admin/${selectedRow.id}/move`, {
+                  method: "PATCH",
+                  body: JSON.stringify({ targetSessionId }),
+                });
+              },
+              t("successMoved"),
+            );
+            closeMoveModal();
+          }}
+        />
+      ) : null}
       <OmmConfirmDialog
         isOpen={pendingConfirm !== null}
         title={
@@ -529,11 +695,28 @@ function Metric({ title, value }: { title: string; value: number }) {
   return <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3"><p className="text-xs uppercase tracking-wide text-sage-500">{title}</p><p className="mt-1 text-2xl font-semibold text-sage-900">{value}</p></div>;
 }
 
-function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {
+function MoveBookingDialog({
+  isOpen,
+  booking,
+  onClose,
+  onSubmit,
+}: {
+  isOpen: boolean;
+  booking: BookingRow;
+  onClose: () => void;
+  onSubmit: (targetSessionId: string) => void;
+}) {
   const t = useTranslations("adminPages.bookings");
-  useCloseOnEscape(true, onClose);
+  const titleId = useId();
   const [targetSessionId, setTargetSessionId] = useState("");
-  const [options, setOptions] = useState<Array<{ id: string; startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }>>([]);
+  const [options, setOptions] = useState<
+    Array<{
+      id: string;
+      startsAt: string;
+      classType: { name: string };
+      coach: { user: { name: string | null } };
+    }>
+  >([]);
   useEffect(() => {
     const from = new Date();
     const to = new Date();
@@ -573,41 +756,47 @@ function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow
   }));
 
   return (
-    <div className="ommm-modal-overlay z-50 items-center p-4" role="presentation">
-      <button type="button" className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} />
-      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4">
-        <h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3>
-        <p className="mt-1 text-sm text-sage-600">
-          {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
-        </p>
-        <div className="mt-3">
-          <OmmFilterDropdown
-            allValue=""
-            value={targetSessionId}
-            ariaLabel={t("selectClassSlot")}
-            allLabel={t("selectClassSlot")}
-            onChange={setTargetSessionId}
-            options={slotOptions}
-            disabled={slotOptions.length === 0}
-          />
-        </div>
-        {options.length === 0 ? (
-          <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
-        ) : null}
-        <div className="mt-4 flex justify-end gap-2">
-          <OmmButton size="sm" variant="ghost" onClick={onClose}>
-            {t("close")}
-          </OmmButton>
-          <OmmButton
-            size="sm"
-            variant="primary"
-            disabled={targetSessionId === ""}
-            onClick={() => onSubmit(targetSessionId)}
-          >
-            {t("actionMove")}
-          </OmmButton>
-        </div>
+    <OmmModalPortal
+      isOpen={isOpen}
+      onClose={onClose}
+      backdropAriaLabel={t("close")}
+      ariaLabelledBy={titleId}
+      overlayClassName="ommm-modal-overlay z-[110] items-center p-4"
+      panelClassName="w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4"
+    >
+      <h3 id={titleId} className="text-base font-semibold text-sage-900">
+        {t("actionMove")}
+      </h3>
+      <p className="mt-1 text-sm text-sage-600">
+        {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
+      </p>
+      <div className="mt-3">
+        <OmmFilterDropdown
+          allValue=""
+          value={targetSessionId}
+          ariaLabel={t("selectClassSlot")}
+          allLabel={t("selectClassSlot")}
+          onChange={setTargetSessionId}
+          options={slotOptions}
+          disabled={slotOptions.length === 0}
+        />
       </div>
-    </div>
+      {options.length === 0 ? (
+        <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
+      ) : null}
+      <div className="mt-4 flex justify-end gap-2">
+        <OmmButton size="sm" variant="ghost" onClick={onClose}>
+          {t("close")}
+        </OmmButton>
+        <OmmButton
+          size="sm"
+          variant="primary"
+          disabled={targetSessionId === ""}
+          onClick={() => onSubmit(targetSessionId)}
+        >
+          {t("actionMove")}
+        </OmmButton>
+      </div>
+    </OmmModalPortal>
   );
 }

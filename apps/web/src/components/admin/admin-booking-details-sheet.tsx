@@ -9,6 +9,7 @@ import { formatPackagePlanName } from "@/components/admin/admin-packages-display
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
@@ -16,7 +17,6 @@ import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
@@ -179,7 +179,7 @@ export function AdminBookingDetailsSheet({
       backdropAriaLabel={t("bookingDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
+      panelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
