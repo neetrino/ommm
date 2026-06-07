@@ -35,7 +35,6 @@ import {
 import {
   resolveBookingSessionOrderBy,
   sortBookingManagementRows,
-  sortRowsBySessionStartsAt,
 } from '../common/list-order.helpers';
 
 type ManagementBooking = {

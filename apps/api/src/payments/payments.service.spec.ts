@@ -364,14 +364,19 @@ describe('PaymentsService', () => {
       confirmedAt: new Date('2026-01-01T12:00:00.000Z'),
     });
 
-    await service.adminUpdatePaymentStatus('p1', PaymentStatus.FAILED, 'admin1');
+    await service.adminUpdatePaymentStatus(
+      'p1',
+      PaymentStatus.FAILED,
+      'admin1',
+    );
 
-    expect(prisma.payment.update).toHaveBeenCalledWith({
+    const paymentUpdateCall = prisma.payment.update.mock.calls[0]?.[0];
+    expect(paymentUpdateCall).toMatchObject({
       where: { id: 'p1' },
-      data: expect.objectContaining({
-        status: PaymentStatus.FAILED,
-        confirmedByAdminId: 'admin1',
-      }),
+    });
+    expect(paymentUpdateCall.data).toMatchObject({
+      status: PaymentStatus.FAILED,
+      confirmedByAdminId: 'admin1',
     });
   });
 

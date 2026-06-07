@@ -236,7 +236,10 @@ export class PaymentsService {
           payment.confirmedAt,
         ),
         confirmedByAdminId: adminId,
-        ...(this.shouldSetDefaultManualPaymentMethod(status, payment.paymentMethod)
+        ...(this.shouldSetDefaultManualPaymentMethod(
+          status,
+          payment.paymentMethod,
+        )
           ? { paymentMethod: ManualPaymentMethod.CASH }
           : {}),
       }),
@@ -386,7 +389,9 @@ export class PaymentsService {
           status: PaymentStatus.SUCCEEDED,
           confirmedAt: new Date(),
           ...(adminId ? { confirmedByAdminId: adminId } : {}),
-          ...(options?.paymentMethod ? { paymentMethod: options.paymentMethod } : {}),
+          ...(options?.paymentMethod
+            ? { paymentMethod: options.paymentMethod }
+            : {}),
         }),
       });
     });
@@ -692,7 +697,9 @@ export class PaymentsService {
 
   private buildPackageSessionsPlanFilter(
     sessions: string | undefined,
-  ): Pick<Prisma.PackagePlanWhereInput, 'isUnlimited' | 'sessionsPerMonth'> | undefined {
+  ):
+    | Pick<Prisma.PackagePlanWhereInput, 'isUnlimited' | 'sessionsPerMonth'>
+    | undefined {
     const raw = sessions?.trim();
     if (!raw) {
       return undefined;

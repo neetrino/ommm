@@ -8,8 +8,6 @@ import {
 
 type SessionStartsAtRow = { session: { startsAt: Date | string } };
 
-type RegisterDateRow = SessionStartsAtRow & { registerDate?: string; createdAt?: Date };
-
 function toIso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : value;
 }
@@ -76,7 +74,10 @@ export function sortAdminSessionRows<T extends { startsAt: Date | string }>(
 
 export function sortBookingManagementRows<
   T extends SessionStartsAtRow & { registerDate: string },
->(rows: readonly T[], order: BookingManagementOrder = BookingManagementOrder.UPCOMING): T[] {
+>(
+  rows: readonly T[],
+  order: BookingManagementOrder = BookingManagementOrder.UPCOMING,
+): T[] {
   const copy = [...rows];
   copy.sort((left, right) => {
     if (
@@ -123,13 +124,17 @@ export function resolveWaitlistAdminOrderBy(
   return { createdAt: resolveDateListPrismaOrder(order) };
 }
 
-export function resolveSessionListOrderBy(order: SessionListOrder | undefined): {
+export function resolveSessionListOrderBy(
+  order: SessionListOrder | undefined,
+): {
   startsAt: 'asc' | 'desc';
 } {
   return { startsAt: resolveSessionListPrismaOrder(order) };
 }
 
-export function resolveBookingSessionOrderBy(order: SessionListOrder | undefined): {
+export function resolveBookingSessionOrderBy(
+  order: SessionListOrder | undefined,
+): {
   session: { startsAt: 'asc' | 'desc' };
 } {
   return { session: { startsAt: resolveSessionListPrismaOrder(order) } };

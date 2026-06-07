@@ -33,9 +33,12 @@ export type LayoutAuthOutcome =
  * Kept for call sites — no redirect so English (or any URL segment) stays default.
  */
 export async function redirectIfPreferredAccountLocale(
-  _segmentLocale: string,
-  _userLocale: string | null | undefined,
-): Promise<void> {}
+  segmentLocale: string,
+  userLocale: string | null | undefined,
+): Promise<void> {
+  void segmentLocale;
+  void userLocale;
+}
 
 type SessionAuthResult =
   | { ok: true; cookie: string; user: MeApiUser; coachProfileId: string | null }

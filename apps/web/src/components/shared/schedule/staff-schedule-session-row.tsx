@@ -14,7 +14,6 @@ import {
 import { ScheduleSessionDateTimeCell } from "@/components/shared/schedule/schedule-session-datetime-cell";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 import {
-  StaffScheduleHeaderCell,
   StaffScheduleMobileLabel,
   StaffScheduleValueWithIcon,
 } from "@/components/shared/schedule/staff-schedule-column-chrome";

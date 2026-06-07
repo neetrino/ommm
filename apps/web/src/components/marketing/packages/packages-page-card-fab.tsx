@@ -1,8 +1,6 @@
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import { PackagesPageCardFabGraphic } from "@/components/marketing/packages/packages-page-card-fab-graphic";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
-import { PACKAGES_PAGE_CARD_FIGMA } from "@/components/marketing/packages/packages-page-tokens";
-
 type PackagesPageCardFabImageProps = {
   direction?: "open" | "close";
   sizePx?: number;

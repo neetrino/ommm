@@ -1,7 +1,6 @@
 import { parseListPageParams } from "@/lib/list-pagination";
 import {
   parseDateSortOrder,
-  parseSessionSortOrder,
   type DateSortOrder,
   type SessionSortOrder,
 } from "@/lib/list-sort";

@@ -8,7 +8,8 @@ import {
 
 /** Member list/board toggle backed by `?view=list|board`. */
 export function useUserListBoardView(
-  _page: UserListBoardViewPage,
+  page: UserListBoardViewPage,
 ): [UserListBoardViewMode, (mode: UserListBoardViewMode) => void] {
+  void page;
   return useListBoardViewUrl();
 }

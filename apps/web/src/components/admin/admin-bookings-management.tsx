@@ -35,10 +35,7 @@ import {
   ADMIN_BOOKINGS_LIST_HEADER_CLASS,
   ADMIN_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-bookings-list-layout";
-import {
-  type BookingsView,
-  resolveBookingsView,
-} from "@/components/admin/admin-bookings-view";
+import { resolveBookingsView } from "@/components/admin/admin-bookings-view";
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
 import { useUrlViewState } from "@/hooks/use-url-view-state";
 import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
@@ -116,6 +113,10 @@ export function AdminBookingsManagement({
   if (urlBookingKey !== prevUrlBookingKey) {
     setPrevUrlBookingKey(urlBookingKey);
     setSelectedRowKey(urlBookingKey);
+  }
+
+  if (selectedRowKey === null && fetchedRow !== null) {
+    setFetchedRow(null);
   }
 
   const replaceSearchParams = useCallback(
@@ -208,13 +209,11 @@ export function AdminBookingsManagement({
 
   useEffect(() => {
     if (selectedRowKey === null) {
-      setFetchedRow(null);
       return undefined;
     }
 
     const combined = [...payload.rows, ...calendarRows];
     if (combined.some((row) => bookingRowKey(row) === selectedRowKey)) {
-      setFetchedRow(null);
       return undefined;
     }
 
