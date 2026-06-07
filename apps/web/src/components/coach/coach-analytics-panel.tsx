@@ -7,6 +7,7 @@ import {
   ANALYTICS_CHART_INK,
 } from "@/components/admin/admin-analytics-area-chart-config";
 import { AdminAnalyticsAreaChart } from "@/components/admin/admin-analytics-area-chart";
+import { AdminAnalyticsColumnChart } from "@/components/admin/admin-analytics-column-chart";
 import { AdminAnalyticsBarList } from "@/components/admin/admin-analytics-bar-list";
 import { AdminAnalyticsChartPanel } from "@/components/admin/admin-analytics-chart-panel";
 import {
@@ -145,6 +146,26 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
           />
         </AdminAnalyticsChartPanel>
 
+        <AdminAnalyticsChartPanel
+          title={t("attendanceColumnTitle")}
+          hint={t("attendanceColumnHint")}
+        >
+          <AdminAnalyticsColumnChart
+            data={trendChartData}
+            xKey="label"
+            series={[
+              {
+                key: "attendance",
+                label: t("attendanceSeries"),
+                color: ANALYTICS_CHART_BLUE,
+                totalLabel: String(totals.completed),
+              },
+            ]}
+            emptyLabel={t("empty")}
+            ariaLabel={t("attendanceColumnAria")}
+          />
+        </AdminAnalyticsChartPanel>
+
         <AdminAnalyticsChartPanel title={t("fillRateTrendTitle")} hint={t("fillRateTrendHint")}>
           <AdminAnalyticsAreaChart
             data={trendChartData}
@@ -159,6 +180,25 @@ export function CoachAnalyticsPanel({ data, locale, period }: CoachAnalyticsPane
             ]}
             emptyLabel={t("empty")}
             ariaLabel={t("fillRateTrendAria")}
+            valueFormatter={(value) => `${value}%`}
+          />
+        </AdminAnalyticsChartPanel>
+
+        <AdminAnalyticsChartPanel title={t("fillRateColumnTitle")} hint={t("fillRateColumnHint")}>
+          <AdminAnalyticsColumnChart
+            data={trendChartData}
+            xKey="label"
+            series={[
+              {
+                key: "fillRate",
+                label: t("fillRateSeries"),
+                color: ANALYTICS_CHART_INK,
+                totalLabel: `${totals.classFillRate}%`,
+              },
+            ]}
+            emptyLabel={t("empty")}
+            ariaLabel={t("fillRateColumnAria")}
+            yMax={100}
             valueFormatter={(value) => `${value}%`}
           />
         </AdminAnalyticsChartPanel>
