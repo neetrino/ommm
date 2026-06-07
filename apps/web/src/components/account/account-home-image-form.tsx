@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
@@ -58,10 +58,17 @@ export function AccountHomeImageForm({
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   const rawPreview = objectUrl ?? initialPreviewUrl ?? null;
-  const previewSrc =
-    rawPreview !== null
-      ? sanitizeImageSrcUrl(rawPreview, { allowBlob: true })
-      : null;
+  const previewSrc = useMemo(
+    () =>
+      rawPreview !== null
+        ? sanitizeImageSrcUrl(rawPreview, { allowBlob: true })
+        : null,
+    [rawPreview],
+  );
+  const previewImgSrc = useMemo(
+    () => (previewSrc !== null ? encodeURI(previewSrc) : null),
+    [previewSrc],
+  );
 
   async function uploadFile(file: File) {
     setBusy(true);
@@ -117,13 +124,13 @@ export function AccountHomeImageForm({
         disabled={busy}
         onClick={() => inputRef.current?.click()}
       >
-        {previewSrc ? (
-          previewSrc.startsWith("blob:") ? (
+        {previewImgSrc ? (
+          previewImgSrc.startsWith("blob:") ? (
             // eslint-disable-next-line @next/next/no-img-element -- local preview before refresh
-            <img src={previewSrc} alt="" className="h-full w-full object-cover" />
+            <img src={previewImgSrc} alt="" className="h-full w-full object-cover" />
           ) : (
             <Image
-              src={previewSrc}
+              src={previewImgSrc}
               alt=""
               fill
               sizes="(min-width: 1024px) 320px, 280px"

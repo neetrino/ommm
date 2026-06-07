@@ -17,12 +17,13 @@ export function GiftCardThumbnail({
   const apiImageUrl = resolveApiAssetUrl(imageUrl);
   const resolvedImage =
     apiImageUrl !== undefined ? sanitizeImageSrcUrl(apiImageUrl) : null;
+  const imageSrc = resolvedImage !== null ? encodeURI(resolvedImage) : null;
 
-  if (resolvedImage) {
+  if (imageSrc) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- supports API and blob/image URLs
       <img
-        src={resolvedImage}
+        src={imageSrc}
         alt={alt}
         className={className ?? "h-full w-full object-cover"}
       />
