@@ -5,6 +5,7 @@ import { computeFinanceFromDate } from "@/components/admin/admin-finance-dates";
 import type { FinancePaymentsPayload } from "@/components/admin/admin-finance-types";
 import { normalizeFinanceSearch, redirectIfUnscopedFinanceSearchParams } from "@/components/admin/admin-finance-server-helpers";
 import {
+  buildFinancePaymentsAdminApiQuery,
   FINANCE_PAYMENTS_PAGE_KEYS,
   parseFinancePaymentsFiltersFromSearch,
 } from "@/components/admin/admin-finance-url";
@@ -29,17 +30,9 @@ export default async function AdminFinancePaymentsPage({
   const financeFilters = parseFinancePaymentsFiltersFromSearch(search);
   const payListPage = parseListPageParams(normalizedSearch, FINANCE_PAYMENTS_PAGE_KEYS);
   const from = computeFinanceFromDate(financeFilters.rangeDays);
-  const statusFilter =
-    financeFilters.status !== "all" ? `&status=${financeFilters.status}` : "";
-  const sourceFilter =
-    financeFilters.source !== "all" ? `&source=${financeFilters.source}` : "";
-  const queryFilter =
-    financeFilters.q.trim() !== ""
-      ? `&q=${encodeURIComponent(financeFilters.q.trim())}`
-      : "";
 
   const paymentsRes = await serverApiJson<FinancePaymentsPayload>(
-    `/payments/admin?from=${encodeURIComponent(from)}${statusFilter}${sourceFilter}${queryFilter}&take=${payListPage.take}&offset=${payListPage.offset}`,
+    buildFinancePaymentsAdminApiQuery(financeFilters, from, payListPage),
     cookie,
   );
 
@@ -58,9 +51,7 @@ export default async function AdminFinancePaymentsPage({
       locale={locale}
       initialPayments={paymentsRes.data}
       paymentsFrom={from}
-      paymentsStatus={financeFilters.status}
-      paymentsSource={financeFilters.source}
-      searchQuery={financeFilters.q}
+      financeFilters={financeFilters}
     />
   );
 }

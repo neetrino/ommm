@@ -97,8 +97,8 @@ export function useAdminBookingsListData({
         "to",
         "classTypeId",
         "coachId",
-        "clientId",
         "status",
+        "paymentStatus",
       ] as const) {
         params.delete(key);
       }

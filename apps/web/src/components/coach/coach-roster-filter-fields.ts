@@ -1,12 +1,14 @@
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import type { CoachPanelBookingRow } from "@/lib/coach-panel-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 
 export type CoachRosterFilterValues = {
   search: string;
   from: string;
   to: string;
   classType: string;
+  order: SessionSortOrder;
 };
 
 export const DEFAULT_COACH_ROSTER_FILTER_VALUES: CoachRosterFilterValues = {
@@ -14,6 +16,7 @@ export const DEFAULT_COACH_ROSTER_FILTER_VALUES: CoachRosterFilterValues = {
   from: "",
   to: "",
   classType: "all",
+  order: "upcoming",
 };
 
 type BuildCoachRosterFilterFieldsArgs = {
@@ -24,6 +27,10 @@ type BuildCoachRosterFilterFieldsArgs = {
     classAll: string;
     searchPlaceholder: string;
     resetFilters: string;
+    sort: string;
+    sortUpcoming: string;
+    sortDateAsc: string;
+    sortDateDesc: string;
   };
 };
 
@@ -34,6 +41,7 @@ export function coachRosterIntegratedFilterValues(
     from: values.from,
     to: values.to,
     classType: values.classType,
+    order: values.order,
   };
 }
 
@@ -63,6 +71,11 @@ export function buildCoachRosterFilterFields({
       allLabel: labels.classAll,
       options: classTypes.map((name) => ({ value: name, label: name })),
     },
+    buildSessionSortFilterField(labels.sort, {
+      upcoming: labels.sortUpcoming,
+      "date-asc": labels.sortDateAsc,
+      "date-desc": labels.sortDateDesc,
+    }),
   ];
 }
 
@@ -107,6 +120,7 @@ export function hasActiveCoachRosterFilters(filters: CoachRosterFilterValues): b
     filters.search.trim().length > 0 ||
     filters.from.length > 0 ||
     filters.to.length > 0 ||
-    filters.classType !== "all"
+    filters.classType !== "all" ||
+    filters.order !== "upcoming"
   );
 }

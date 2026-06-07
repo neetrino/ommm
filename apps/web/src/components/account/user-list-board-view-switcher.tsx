@@ -2,13 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
-import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import {
   userListBoardViewButtonId,
   userListBoardViewSwitcherId,
   type UserListBoardViewMode,
   type UserListBoardViewPage,
 } from "@/lib/user-list-board-view-preference";
+import { LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS } from "@/lib/viewport-breakpoints";
 
 type UserListBoardViewSwitcherProps = {
   pageId: UserListBoardViewPage;
@@ -38,18 +38,13 @@ export function UserListBoardViewSwitcher({
   onChange,
 }: UserListBoardViewSwitcherProps) {
   const t = useTranslations(namespace);
-  const supportsListView = useSupportsListBoardView();
-
-  if (!supportsListView) {
-    return null;
-  }
 
   return (
     <div
       id={userListBoardViewSwitcherId(pageId)}
       role="group"
       aria-label={t("viewSwitcherAria")}
-      className="inline-flex rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md"
+      className={`${LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS} shrink-0 rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md`}
     >
       <button
         id={userListBoardViewButtonId(pageId, "list")}

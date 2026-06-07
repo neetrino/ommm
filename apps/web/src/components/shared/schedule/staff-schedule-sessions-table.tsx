@@ -16,6 +16,11 @@ import {
   sessionStatusBadgeTone,
 } from "@/components/admin/admin-schedule-session-list-badges";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
+import {
+  StaffScheduleHeaderCell,
+  StaffScheduleMobileLabel,
+  StaffScheduleValueWithIcon,
+} from "@/components/shared/schedule/staff-schedule-column-chrome";
 import { getScheduleSessionsListLayout } from "@/components/shared/schedule/schedule-sessions-list-layout";
 import type { ScheduleSessionListRow } from "@/components/shared/schedule/schedule-session-list-types";
 
@@ -36,6 +41,7 @@ export function StaffScheduleSessionsTable({
 }: StaffScheduleSessionsTableProps) {
   const t = useTranslations("adminPages.classes");
   const layout = getScheduleSessionsListLayout(preset);
+  const isStaffReadOnly = preset === "staffReadOnly";
   const showCoach = preset === "staffWithCoach";
   const sorted = [...rows].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 
@@ -51,17 +57,37 @@ export function StaffScheduleSessionsTable({
   return (
     <div className={layout.tableClass}>
       <div className={layout.headerClass}>
-        <span>{t("colClass")}</span>
-        <span className={layout.dateTimeHeaderCellClass}>{t("colDateTime")}</span>
-        {showCoach ? (
-          <span className={layout.emphasizedHeaderClass}>{t("colCoach")}</span>
-        ) : null}
-        <span aria-hidden="true" />
-        <span className={layout.emphasizedHeaderClass}>{t("colCapacity")}</span>
-        {showCoach ? null : (
-          <span className={layout.tagsHeaderCellClass}>{t("colTags")}</span>
+        {isStaffReadOnly ? (
+          <>
+            <StaffScheduleHeaderCell column="class" label={t("colClass")} />
+            <StaffScheduleHeaderCell
+              column="dateTime"
+              label={t("colDateTime")}
+              className={layout.dateTimeHeaderCellClass}
+            />
+            <StaffScheduleHeaderCell
+              column="capacity"
+              label={t("colCapacity")}
+              className={layout.emphasizedHeaderClass}
+            />
+            <StaffScheduleHeaderCell
+              column="level"
+              label={t("colLevel")}
+              className={layout.levelHeaderCellClass}
+            />
+          </>
+        ) : (
+          <>
+            <span>{t("colClass")}</span>
+            <span className={layout.dateTimeHeaderCellClass}>{t("colDateTime")}</span>
+            {showCoach ? (
+              <span className={layout.emphasizedHeaderClass}>{t("colCoach")}</span>
+            ) : null}
+            <span aria-hidden="true" />
+            <span className={layout.emphasizedHeaderClass}>{t("colCapacity")}</span>
+            <span className={layout.statusHeaderCellClass}>{t("colStatus")}</span>
+          </>
         )}
-        <span className={layout.statusHeaderCellClass}>{t("colStatus")}</span>
       </div>
       {sorted.map((row) => (
         <StaffScheduleSessionRowClient
@@ -86,6 +112,7 @@ function StaffScheduleSessionRowClient({
 }) {
   const t = useTranslations("adminPages.classes");
   const layout = getScheduleSessionsListLayout(preset);
+  const isStaffReadOnly = preset === "staffReadOnly";
   const classFormat = row.classFormat?.trim();
   const levels = splitSessionLevels(row.level);
   const duration = durationMinutes(row);
@@ -93,6 +120,59 @@ function StaffScheduleSessionRowClient({
   const booked = row._count.bookings;
   const capacityLabel = t("fields.spotsBooked", { booked, capacity: row.capacity });
   const spotsLeftLabel = t("fields.spotsLeft", { count: spotsLeft(row) });
+
+  if (isStaffReadOnly) {
+    return (
+      <article className={layout.rowClass}>
+        <div className={layout.cellClass}>
+          <StaffScheduleMobileLabel column="class" label={t("colClass")} />
+          <StaffScheduleValueWithIcon column="class">
+            <p className="truncate text-sm font-medium text-sage-900" title={row.title}>
+              {row.title}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">
+              {row.classType.name}
+              {classFormat ? ` · ${classFormat}` : ""}
+              {` · ${duration}m`}
+            </p>
+          </StaffScheduleValueWithIcon>
+        </div>
+
+        <div className={layout.dateTimeCellClass}>
+          <StaffScheduleMobileLabel column="dateTime" label={t("colDateTime")} />
+          <StaffScheduleValueWithIcon column="dateTime">
+            <ScheduleSessionDateTimeCellClient
+              locale={locale}
+              startsAt={row.startsAt}
+              endsAt={row.endsAt}
+            />
+          </StaffScheduleValueWithIcon>
+        </div>
+
+        <div className={layout.capacityCellClass}>
+          <StaffScheduleMobileLabel column="capacity" label={t("colCapacity")} />
+          <StaffScheduleValueWithIcon column="capacity">
+            <ScheduleSessionCapacityIndicator
+              booked={booked}
+              capacity={row.capacity}
+              spotsLabel={capacityLabel}
+              secondaryLabel={spotsLeftLabel}
+            />
+          </StaffScheduleValueWithIcon>
+        </div>
+
+        <div className={layout.levelCellClass}>
+          <StaffScheduleMobileLabel column="level" label={t("colLevel")} />
+          <StaffScheduleValueWithIcon column="level">
+            <ScheduleSessionLevelLabels
+              levels={levels}
+              emptyLabel={t("fallback.notSpecified")}
+            />
+          </StaffScheduleValueWithIcon>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className={layout.rowClass}>
@@ -140,16 +220,6 @@ function StaffScheduleSessionRowClient({
           secondaryLabel={spotsLeftLabel}
         />
       </div>
-
-      {showCoach ? null : (
-        <div className={layout.tagsCellClass}>
-          <AdminListMobileLabel label={t("colTags")} />
-          <ScheduleSessionLevelLabels
-            levels={levels}
-            emptyLabel={t("fallback.notSpecified")}
-          />
-        </div>
-      )}
 
       <div className={layout.statusCellClass}>
         <AdminListMobileLabel label={t("colStatus")} />

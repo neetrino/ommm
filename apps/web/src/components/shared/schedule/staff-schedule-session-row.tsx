@@ -14,6 +14,10 @@ import {
 import { ScheduleSessionDateTimeCell } from "@/components/shared/schedule/schedule-session-datetime-cell";
 import { ScheduleSessionLevelLabels } from "@/components/shared/schedule/schedule-session-level-labels";
 import {
+  StaffScheduleMobileLabel,
+  StaffScheduleValueWithIcon,
+} from "@/components/shared/schedule/staff-schedule-column-chrome";
+import {
   getScheduleSessionsListLayout,
   type ScheduleSessionsListPreset,
 } from "@/components/shared/schedule/schedule-sessions-list-layout";
@@ -38,6 +42,7 @@ export async function StaffScheduleSessionRow({
 }: StaffScheduleSessionRowProps) {
   const t = await getTranslations({ locale, namespace: "adminPages.classes" });
   const layout = getScheduleSessionsListLayout(preset);
+  const isStaffReadOnly = preset === "staffReadOnly";
   const classFormat = row.classFormat?.trim();
   const levels = splitSessionLevels(row.level);
   const duration = durationMinutes(row);
@@ -45,6 +50,59 @@ export async function StaffScheduleSessionRow({
   const booked = row._count.bookings;
   const capacityLabel = t("fields.spotsBooked", { booked, capacity: row.capacity });
   const spotsLeftLabel = t("fields.spotsLeft", { count: spotsLeft(row) });
+
+  if (isStaffReadOnly) {
+    return (
+      <article className={layout.rowClass}>
+        <div className={layout.cellClass}>
+          <StaffScheduleMobileLabel column="class" label={t("colClass")} />
+          <StaffScheduleValueWithIcon column="class">
+            <p className="truncate text-sm font-medium text-sage-900" title={row.title}>
+              {row.title}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">
+              {row.classType.name}
+              {classFormat ? ` · ${classFormat}` : ""}
+              {` · ${duration}m`}
+            </p>
+          </StaffScheduleValueWithIcon>
+        </div>
+
+        <div className={layout.dateTimeCellClass}>
+          <StaffScheduleMobileLabel column="dateTime" label={t("colDateTime")} />
+          <StaffScheduleValueWithIcon column="dateTime">
+            <ScheduleSessionDateTimeCell
+              locale={locale}
+              startsAt={row.startsAt}
+              endsAt={row.endsAt}
+            />
+          </StaffScheduleValueWithIcon>
+        </div>
+
+        <div className={layout.capacityCellClass}>
+          <StaffScheduleMobileLabel column="capacity" label={t("colCapacity")} />
+          <StaffScheduleValueWithIcon column="capacity">
+            <ScheduleSessionCapacityIndicator
+              booked={booked}
+              capacity={row.capacity}
+              spotsLabel={capacityLabel}
+              secondaryLabel={spotsLeftLabel}
+            />
+          </StaffScheduleValueWithIcon>
+        </div>
+
+        <div className={layout.levelCellClass}>
+          <StaffScheduleMobileLabel column="level" label={t("colLevel")} />
+          <StaffScheduleValueWithIcon column="level">
+            <ScheduleSessionLevelLabels
+              levels={levels}
+              emptyLabel={t("fallback.notSpecified")}
+            />
+          </StaffScheduleValueWithIcon>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className={layout.rowClass}>
@@ -92,16 +150,6 @@ export async function StaffScheduleSessionRow({
           secondaryLabel={spotsLeftLabel}
         />
       </div>
-
-      {showCoach ? null : (
-        <div className={layout.tagsCellClass}>
-          <AdminListMobileLabel label={t("colTags")} />
-          <ScheduleSessionLevelLabels
-            levels={levels}
-            emptyLabel={t("fallback.notSpecified")}
-          />
-        </div>
-      )}
 
       <div className={layout.statusCellClass}>
         <AdminListMobileLabel label={t("colStatus")} />

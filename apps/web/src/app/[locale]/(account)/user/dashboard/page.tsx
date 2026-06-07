@@ -53,7 +53,7 @@ export default async function UserDashboardPage({
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
   if (!meRes.ok) {
     return (
-      <div className="ommm-admin-content pt-6 sm:pt-8">
+      <div className="ommm-admin-content">
         <div className="rounded-[28px] border border-amber-200/80 bg-amber-50/90 p-8 text-amber-950 backdrop-blur-md">
           <p className="font-serif text-lg font-semibold">{tDash("signIn.title")}</p>
           <p className="mt-2 text-sm text-amber-900/90">{tDash("signIn.body")}</p>

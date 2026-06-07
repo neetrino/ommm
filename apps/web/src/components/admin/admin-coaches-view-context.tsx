@@ -5,10 +5,15 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
-import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import {
+  ADMIN_COACHES_VIEW_QUERY_KEY,
+  parseAdminCoachesViewMode,
+  type AdminCoachesViewMode,
+} from "@/lib/admin-coaches-view-preference";
 
 type AdminCoachesViewContextValue = {
   viewMode: AdminCoachesViewMode;
@@ -20,19 +25,28 @@ const AdminCoachesViewContext = createContext<AdminCoachesViewContextValue | nul
 );
 
 type AdminCoachesViewProviderProps = {
-  initialViewMode: AdminCoachesViewMode;
   children: ReactNode;
 };
 
-export function AdminCoachesViewProvider({
-  initialViewMode,
-  children,
-}: AdminCoachesViewProviderProps) {
-  const [viewMode, setViewModeState] = useState<AdminCoachesViewMode>(initialViewMode);
+export function AdminCoachesViewProvider({ children }: AdminCoachesViewProviderProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const setViewMode = useCallback((mode: AdminCoachesViewMode) => {
-    setViewModeState(mode);
-  }, []);
+  const viewMode = useMemo(
+    () => parseAdminCoachesViewMode(searchParams.get(ADMIN_COACHES_VIEW_QUERY_KEY)),
+    [searchParams],
+  );
+
+  const setViewMode = useCallback(
+    (mode: AdminCoachesViewMode) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(ADMIN_COACHES_VIEW_QUERY_KEY, mode);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const value = useMemo(
     () => ({

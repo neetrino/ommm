@@ -1,6 +1,7 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import type { ScheduleQuickFilter } from "@/components/admin/admin-schedule-quick-filters";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { buildSessionSortFilterField } from "@/lib/list-sort";
 
 type SessionStatus = "ACTIVE" | "CANCELLED" | "FULL" | "DRAFT";
 type AvailabilityOption = "available" | "full";
@@ -31,7 +32,7 @@ export function parseAdminScheduleListFilter(value: string): string[] {
 }
 
 export function adminScheduleIntegratedFilterValues(
-  filters: ScheduleFiltersState,
+  filters: ScheduleFiltersState & { order?: string },
   quickFilters: readonly ScheduleQuickFilter[],
 ): Record<string, string> {
   return {
@@ -44,6 +45,7 @@ export function adminScheduleIntegratedFilterValues(
     availability: serializeAdminScheduleListFilter(filters.availability),
     timeOfDay: serializeAdminScheduleListFilter(filters.timeOfDay),
     quick: serializeAdminScheduleListFilter(quickFilters),
+    order: filters.order ?? "upcoming",
   };
 }
 
@@ -66,6 +68,10 @@ type BuildAdminScheduleFilterFieldsArgs = {
     availability: string;
     timeOfDay: string;
     quick: string;
+    sort: string;
+    sortUpcoming: string;
+    sortDateAsc: string;
+    sortDateDesc: string;
   };
   renderCoachIds: AdminIntegratedFilterField["render"];
   renderTypeIds: AdminIntegratedFilterField["render"];
@@ -150,5 +156,10 @@ export function buildAdminScheduleFilterFields({
       resolveChipLabel: (value) => multiSelectChipLabel(labels.quick, value),
       render: renderQuick,
     },
+    buildSessionSortFilterField(labels.sort, {
+      upcoming: labels.sortUpcoming,
+      "date-asc": labels.sortDateAsc,
+      "date-desc": labels.sortDateDesc,
+    }),
   ];
 }

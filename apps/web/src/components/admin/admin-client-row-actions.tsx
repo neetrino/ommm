@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
+import {
+  PencilGlyph,
+} from "@/components/ui/admin-action-glyphs";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
 import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
@@ -16,9 +19,10 @@ type PendingConfirm = "activate" | "deactivate";
 type AdminClientRowActionsProps = {
   client: ClientRow;
   onChanged: () => void;
+  onEdit: () => void;
 };
 
-export function AdminClientRowActions({ client, onChanged }: AdminClientRowActionsProps) {
+export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClientRowActionsProps) {
   const t = useTranslations("adminPages.clients");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -87,10 +91,23 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
   return (
     <>
       <div
-        className="flex items-center justify-end"
+        className="flex items-center justify-end gap-2"
         role="group"
         aria-label={t("colActions")}
       >
+        <AdminRowIconButton
+          ariaLabel={t("editClient")}
+          title={t("edit")}
+          variant="subtle"
+          className="ommm-admin-row-icon-button-lg"
+          disabled={busy}
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit();
+          }}
+        >
+          <PencilGlyph className="h-5 w-5 shrink-0" />
+        </AdminRowIconButton>
         <AdminRowIconButton
           ariaLabel={toggleLabel}
           title={toggleLabel}

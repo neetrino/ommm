@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   resolveSessionCoachName,
   SessionCoachLine,
@@ -34,6 +36,11 @@ import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layo
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { parseSessionSortOrder, sortBySessionStartsAt } from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 
 type UserWaitlistsSectionProps = {
@@ -44,8 +51,29 @@ type UserWaitlistsSectionProps = {
 
 export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsSectionProps) {
   const t = useTranslations("userPages.waitlists");
+  const tSort = useTranslations("listSort");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("waitlists");
-  const [filters, setFilters] = useState<UserSessionFilterValues>(DEFAULT_USER_SESSION_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserSessionFilterValues>(() => ({
+    ...DEFAULT_USER_SESSION_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "session",
+      "upcoming",
+    ),
+  }));
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const filterOptions = useMemo(
     () => extractSessionFilterOptions(rows.map((row) => row.session)),
@@ -64,9 +92,13 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
           coachAll: t("filters.coachAll"),
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
       }),
-    [filterOptions.classTypes, filterOptions.coaches, t],
+    [filterOptions.classTypes, filterOptions.coaches, t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -75,7 +107,12 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
   );
 
   const filteredRows = useMemo(
-    () => rows.filter((row) => matchesUserWaitlistFilters(row, filters)),
+    () =>
+      sortBySessionStartsAt(
+        rows.filter((row) => matchesUserWaitlistFilters(row, filters)),
+        (row) => row.session.startsAt,
+        filters.order,
+      ),
     [filters, rows],
   );
 
@@ -95,6 +132,15 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
       case "coach":
         setFilters((current) => ({ ...current, coach: value }));
         break;
+      case "order":
+        setFilters((current) => ({
+          ...current,
+          order: parseSessionSortOrder(value),
+        }));
+        replaceSearchParams((params) => {
+          syncUserListOrderQuery(params, value, "upcoming");
+        });
+        break;
       default:
         break;
     }
@@ -102,6 +148,9 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
 
   function resetFilters(): void {
     setFilters(DEFAULT_USER_SESSION_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      params.delete("order");
+    });
   }
 
   const heroSearch = (

@@ -15,6 +15,7 @@ import {
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import { resolveWaitlistAdminOrderBy } from '../common/list-order.helpers';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StudioService } from '../studio/studio.service';
@@ -142,7 +143,7 @@ export class WaitlistService {
       query.take !== undefined || query.offset !== undefined;
     const activeStatuses = [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED];
     const where = { status: { in: activeStatuses } };
-    const orderBy = { createdAt: 'desc' as const };
+    const orderBy = resolveWaitlistAdminOrderBy(query.order);
     const include = {
       user: {
         select: {

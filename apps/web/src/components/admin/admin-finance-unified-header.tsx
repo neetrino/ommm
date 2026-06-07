@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceMembersFilters } from "@/components/admin/admin-finance-members-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
@@ -42,7 +43,7 @@ function AdminFinanceTabFilters({ section, search }: AdminFinanceTabFiltersProps
       const initialValues = parseFinancePaymentsFiltersFromSearch(search);
       return (
         <AdminFinancePaymentsFilters
-          key={`${initialValues.q}|${initialValues.rangeDays}|${initialValues.source}|${initialValues.status}`}
+          key={`${initialValues.q}|${initialValues.rangeDays}|${initialValues.source}|${initialValues.status}|${initialValues.planId}|${initialValues.packageClass}|${initialValues.sessions}`}
           initialValues={initialValues}
         />
       );
@@ -80,11 +81,7 @@ function AdminFinanceUnifiedHeaderInner() {
   );
 
   return (
-    <header
-      ref={headerRef}
-      className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
       <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
@@ -96,7 +93,7 @@ function AdminFinanceUnifiedHeaderInner() {
           </div>
         ) : null}
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
 
@@ -105,18 +102,14 @@ function AdminFinanceUnifiedHeaderFallback() {
   const headerRef = useAdminStickyHeaderOffset(true);
 
   return (
-    <header
-      ref={headerRef}
-      className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminFinanceTabNav />
         </div>
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
 

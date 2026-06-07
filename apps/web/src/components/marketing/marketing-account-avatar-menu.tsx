@@ -86,7 +86,12 @@ export function MarketingAccountAvatarMenu({
               }}
               {...hoverHandlers}
             >
-              <LogoutButton showLabel className="ommm-marketing-account-logout-btn" />
+              <LogoutButton
+                showLabel
+                className="ommm-marketing-account-logout-btn"
+                iconClassName="h-3.5 w-3.5 shrink-0 align-middle"
+                spinnerClassName="h-6 w-6"
+              />
             </div>,
             document.body,
           )

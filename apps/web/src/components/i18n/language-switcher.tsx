@@ -55,7 +55,7 @@ export function LanguageSwitcher({
     current ??
     (isLanguageSwitcherLocale(routing.defaultLocale)
       ? routing.defaultLocale
-      : "hy");
+      : "en");
 
   const isIconMarketing =
     context === "marketing" && appearance === "icon";

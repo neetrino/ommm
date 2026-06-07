@@ -18,10 +18,6 @@ import type {
   GiftCardFilterValues,
 } from "@/components/admin/admin-gift-cards-types";
 import {
-  ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
-  type AdminGiftCardsViewMode,
-} from "@/lib/admin-gift-cards-view-preference";
-import {
   GIFT_CARD_BATCH_ID_QUERY_KEY,
   GIFT_CARD_CREATE_MODAL_VALUE,
   GIFT_CARD_EDIT_MODAL_VALUE,
@@ -45,7 +41,6 @@ type AdminGiftCardsShellFilterProps = {
 type AdminGiftCardsShellProps = {
   assignableUsers: readonly AdminAssignableUser[];
   giftCards: readonly AdminGiftCardBatchRow[];
-  initialViewMode: AdminGiftCardsViewMode;
   filterProps: AdminGiftCardsShellFilterProps;
   children: ReactNode;
   variant?: "full" | "staff";
@@ -56,7 +51,6 @@ type AdminGiftCardsShellProps = {
 export function AdminGiftCardsShell({
   assignableUsers,
   giftCards,
-  initialViewMode,
   filterProps,
   children,
   variant = "full",
@@ -64,7 +58,7 @@ export function AdminGiftCardsShell({
   readOnly = false,
 }: AdminGiftCardsShellProps) {
   return (
-    <AdminGiftCardsViewProvider key={initialViewMode} initialViewMode={initialViewMode}>
+    <AdminGiftCardsViewProvider>
       <AdminGiftCardsShellInner
         assignableUsers={assignableUsers}
         giftCards={giftCards}
@@ -87,7 +81,7 @@ function AdminGiftCardsShellInner({
   variant = "full",
   staffBanner,
   readOnly = false,
-}: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
+}: AdminGiftCardsShellProps) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.giftCards");
   const { viewMode, setViewMode } = useAdminGiftCardsView();
@@ -107,16 +101,6 @@ function AdminGiftCardsShellInner({
     isEditMode && editBatchId !== null
       ? giftCards.find((batch) => batch.id === editBatchId) ?? null
       : null;
-
-  const setView = useCallback(
-    (mode: AdminGiftCardsViewMode) => {
-      setViewMode(mode);
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(ADMIN_GIFT_CARDS_VIEW_QUERY_KEY, mode);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [pathname, router, searchParams, setViewMode],
-  );
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -199,7 +183,7 @@ function AdminGiftCardsShellInner({
       onChange={filterProps.onChange}
       onReset={filterProps.onReset}
       viewMode={viewMode}
-      onViewChange={setView}
+      onViewChange={setViewMode}
       onCreate={openModal}
       variant={isStaff ? "embedded" : "full"}
       hideCreate={readOnly || isStaff}

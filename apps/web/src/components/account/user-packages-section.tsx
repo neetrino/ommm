@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { UserMembershipBoardCard } from "@/components/account/user-membership-board-card";
 import { UserMembershipCompactRow } from "@/components/account/user-membership-compact-row";
 import { UserMembershipDetailsSheet } from "@/components/account/user-membership-details-sheet";
@@ -23,27 +24,62 @@ import {
 } from "@/components/account/user-packages-list-layout";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserMembershipRow } from "@/lib/user-package-types";
+import {
+  parseUserPackagesPackageId,
+  USER_PACKAGES_PACKAGE_ID_QUERY_KEY,
+} from "@/lib/user-packages-query";
+import {
+  parseUserPackageSortOrder,
+  sortUserPackages,
+} from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 
 type UserPackagesSectionProps = {
   locale: string;
-  description: string;
   memberships: readonly UserMembershipRow[];
   apiOk: boolean;
 };
 
 export function UserPackagesSection({
   locale,
-  description,
   memberships,
   apiOk,
 }: UserPackagesSectionProps) {
   const t = useTranslations("userPages.packages");
+  const tSort = useTranslations("listSort");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("packages");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [filters, setFilters] = useState<UserPackageFilterValues>(DEFAULT_USER_PACKAGE_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserPackageFilterValues>(() => ({
+    ...DEFAULT_USER_PACKAGE_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "package",
+      "upcoming",
+    ),
+  }));
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const selectedId = useMemo(
+    () => parseUserPackagesPackageId(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
 
   const selectedMembership = useMemo(() => {
     if (selectedId === null) {
@@ -51,6 +87,22 @@ export function UserPackagesSection({
     }
     return memberships.find((membership) => membership.id === selectedId) ?? null;
   }, [memberships, selectedId]);
+
+  const openPackageDetails = useCallback(
+    (packageId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(USER_PACKAGES_PACKAGE_ID_QUERY_KEY, packageId);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const closePackageDetails = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(USER_PACKAGES_PACKAGE_ID_QUERY_KEY);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const selectedStatus = selectedMembership
     ? normalizeUserPackageStatus(selectedMembership.status)
@@ -71,9 +123,13 @@ export function UserPackagesSection({
           },
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortNewest: tSort("newest"),
+          sortOldest: tSort("oldest"),
         },
       }),
-    [t],
+    [t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -82,7 +138,11 @@ export function UserPackagesSection({
   );
 
   const filteredMemberships = useMemo(
-    () => memberships.filter((row) => matchesUserPackageFilters(row, filters)),
+    () =>
+      sortUserPackages(
+        memberships.filter((row) => matchesUserPackageFilters(row, filters)),
+        filters.order,
+      ),
     [filters, memberships],
   );
 
@@ -91,11 +151,24 @@ export function UserPackagesSection({
   function handleIntegratedFilterChange(key: string, value: string): void {
     if (key === "status") {
       setFilters((current) => ({ ...current, status: value as UserPackageStatusFilter }));
+      return;
+    }
+    if (key === "order") {
+      setFilters((current) => ({
+        ...current,
+        order: parseUserPackageSortOrder(value),
+      }));
+      replaceSearchParams((params) => {
+        syncUserListOrderQuery(params, value, "upcoming");
+      });
     }
   }
 
   function resetFilters(): void {
     setFilters(DEFAULT_USER_PACKAGE_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      params.delete("order");
+    });
   }
 
   const heroSearch = (
@@ -116,7 +189,7 @@ export function UserPackagesSection({
 
   return (
     <div id="your-packages" className="space-y-4">
-      <AdminPageHero title={t("title")} description={description} search={heroSearch} />
+      <AdminPageHero title={t("title")} search={heroSearch} />
 
       {!apiOk ? (
         <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
@@ -153,7 +226,7 @@ export function UserPackagesSection({
                       membership={membership}
                       locale={locale}
                       status={status}
-                      onOpenDetails={() => setSelectedId(membership.id)}
+                      onOpenDetails={() => openPackageDetails(membership.id)}
                     />
                   </li>
                 );
@@ -163,6 +236,7 @@ export function UserPackagesSection({
             <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
               <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
                 <span>{t("listHeaderPackage")}</span>
+                <span>{t("listHeaderValidity")}</span>
                 <span>{t("listHeaderPrice")}</span>
                 <span>{t("listHeaderSessions")}</span>
                 <span>{t("listHeaderPeriod")}</span>
@@ -178,7 +252,7 @@ export function UserPackagesSection({
                     membership={membership}
                     locale={locale}
                     status={status}
-                    onOpenDetails={() => setSelectedId(membership.id)}
+                    onOpenDetails={() => openPackageDetails(membership.id)}
                   />
                 );
               })}
@@ -191,8 +265,8 @@ export function UserPackagesSection({
         membership={selectedMembership}
         locale={locale}
         status={selectedStatus}
-        isOpen={selectedId !== null}
-        onClose={() => setSelectedId(null)}
+        isOpen={selectedMembership !== null}
+        onClose={closePackageDetails}
       />
     </div>
   );

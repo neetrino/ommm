@@ -5,10 +5,12 @@ import { useTranslations } from "next-intl";
 import { AdminBookingNotesSection } from "@/components/admin/admin-booking-notes-section";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
+import { adminBookingPaymentLabel } from "@/components/admin/admin-booking-list-badges";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_LABEL_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_VALUE_CLASS,
@@ -16,7 +18,6 @@ import {
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_LEDE_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
@@ -28,7 +29,7 @@ type ListRow = {
   recordType: "BOOKING" | "WAITLIST";
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   channel: "WEBSITE" | "APP";
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };
@@ -78,8 +79,6 @@ export type AdminBookingDetailsSheetProps = {
   busy: boolean;
   onClose: () => void;
   onOpenUser: (userId: string) => void;
-  onMarkAttended: () => void;
-  onCancel: () => void;
   onMove: () => void;
   onChangeStatus: (status: ListRow["status"]) => void;
   onDelete: () => void;
@@ -107,8 +106,6 @@ export function AdminBookingDetailsSheet({
   busy,
   onClose,
   onOpenUser,
-  onMarkAttended,
-  onCancel,
   onMove,
   onChangeStatus,
   onDelete,
@@ -179,7 +176,7 @@ export function AdminBookingDetailsSheet({
       backdropAriaLabel={t("bookingDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
+      panelClassName={ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
@@ -239,7 +236,7 @@ export function AdminBookingDetailsSheet({
               />
               <DetailRow
                 label={t("colPaymentStatus")}
-                value={paymentLabel(t, row.paymentStatus)}
+                value={adminBookingPaymentLabel(t, row.paymentStatus)}
               />
               <DetailRow
                 label={t("colAttendanceStatus")}
@@ -279,8 +276,6 @@ export function AdminBookingDetailsSheet({
             recordType={row.recordType}
             status={row.status}
             busy={busy}
-            onMarkAttended={onMarkAttended}
-            onCancel={onCancel}
             onMove={onMove}
             onDelete={onDelete}
           />
@@ -314,16 +309,6 @@ function CloseGlyph() {
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
-}
-
-function paymentLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: ListRow["paymentStatus"],
-): string {
-  if (value === "PAID") return t("paymentPaid");
-  if (value === "CASH") return t("paymentCash");
-  if (value === "REFUNDED") return t("paymentRefunded");
-  return t("paymentUnpaid");
 }
 
 function attendanceLabel(

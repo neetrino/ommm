@@ -43,14 +43,6 @@ export function MarkAttendanceButtons({ bookingId }: Props) {
         >
           {t("attended")}
         </OmmButton>
-        <OmmButton
-          size="sm"
-          variant="ghost"
-          disabled={busy}
-          onClick={() => void send(false)}
-        >
-          {t("noShow")}
-        </OmmButton>
       </div>
       {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
     </div>

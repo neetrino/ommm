@@ -1,4 +1,7 @@
-import type { FinanceSectionId } from "@/components/admin/admin-finance-module";
+import {
+  FINANCE_SECTION_HREF,
+  type FinanceSectionId,
+} from "@/components/admin/admin-finance-module";
 import type {
   CoachFinanceFilters,
   FinanceDateRangeDays,
@@ -15,6 +18,10 @@ export const FINANCE_PAYMENTS_QUERY_KEYS = [
   "rangeDays",
   "source",
   "status",
+  "planId",
+  "packageClass",
+  "sessions",
+  "order",
   "payPage",
   "payPageSize",
 ] as const;
@@ -95,6 +102,16 @@ function pickFinanceSectionParams(
     }
   }
   return params;
+}
+
+/** Preserves section-allowed query keys when switching finance tabs. */
+export function buildFinanceTabHref(
+  section: FinanceSectionId,
+  search: Record<string, string | string[] | undefined>,
+): string {
+  const base = FINANCE_SECTION_HREF[section];
+  const query = buildSanitizedFinanceSectionQueryString(section, search);
+  return query.length > 0 ? `${base}?${query}` : base;
 }
 
 /** Builds a query string containing only keys valid for the given finance tab. */
@@ -182,6 +199,37 @@ export function parseFinanceStatusFilter(
   return "all";
 }
 
+export function parseFinancePackagePlanFilter(
+  value: string | string[] | undefined,
+): FinanceFilterValues["planId"] {
+  const raw = firstParam(value)?.trim();
+  return raw && raw !== "all" ? raw : "all";
+}
+
+export function parseFinancePackageClassFilter(
+  value: string | string[] | undefined,
+): FinanceFilterValues["packageClass"] {
+  const raw = firstParam(value)?.trim();
+  return raw && raw !== "all" ? raw : "all";
+}
+
+export function parseFinancePackageSessionsFilter(
+  value: string | string[] | undefined,
+): FinanceFilterValues["sessions"] {
+  const raw = firstParam(value)?.trim();
+  if (!raw || raw === "all") {
+    return "all";
+  }
+  if (raw === "unlimited") {
+    return "unlimited";
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (Number.isInteger(parsed) && parsed > 0) {
+    return String(parsed);
+  }
+  return "all";
+}
+
 export function parseFinanceOverviewFiltersFromSearch(
   search: Record<string, string | string[] | undefined>,
 ): Pick<FinanceFilterValues, "rangeDays"> {
@@ -193,11 +241,16 @@ export function parseFinanceOverviewFiltersFromSearch(
 export function parseFinancePaymentsFiltersFromSearch(
   search: Record<string, string | string[] | undefined>,
 ): FinanceFilterValues {
+  const order = firstParam(search.order);
   return {
     q: firstParam(search.q)?.trim() ?? "",
     rangeDays: parseFinanceDateRangeDays(search.rangeDays),
     source: parseFinanceSourceFilter(search.source),
     status: parseFinanceStatusFilter(search.status),
+    planId: parseFinancePackagePlanFilter(search.planId),
+    packageClass: parseFinancePackageClassFilter(search.packageClass),
+    sessions: parseFinancePackageSessionsFilter(search.sessions),
+    order: order === "oldest" ? "oldest" : "newest",
   };
 }
 
@@ -286,8 +339,47 @@ export function buildFinancePaymentsFiltersQuery(
     rangeDays: values.rangeDays !== 30 ? String(values.rangeDays) : undefined,
     source: values.source !== "all" ? values.source : undefined,
     status: values.status !== "all" ? values.status : undefined,
+    planId: values.planId !== "all" ? values.planId : undefined,
+    packageClass: values.packageClass !== "all" ? values.packageClass : undefined,
+    sessions: values.sessions !== "all" ? values.sessions : undefined,
+    order: values.order !== "newest" ? values.order : undefined,
   });
   return params.toString();
+}
+
+/** Builds the admin payments list API query with finance tab filters applied server-side. */
+export function buildFinancePaymentsAdminApiQuery(
+  filters: FinanceFilterValues,
+  from: string,
+  listPage: { take: number; offset: number },
+): string {
+  const params = new URLSearchParams({
+    from,
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+  });
+  if (filters.status !== "all") {
+    params.set("status", filters.status);
+  }
+  if (filters.source !== "all") {
+    params.set("source", filters.source);
+  }
+  if (filters.q.trim()) {
+    params.set("q", filters.q.trim());
+  }
+  if (filters.planId !== "all") {
+    params.set("planId", filters.planId);
+  }
+  if (filters.packageClass !== "all") {
+    params.set("packageClass", filters.packageClass);
+  }
+  if (filters.sessions !== "all") {
+    params.set("sessions", filters.sessions);
+  }
+  if (filters.order !== "newest") {
+    params.set("order", filters.order);
+  }
+  return `/payments/admin?${params.toString()}`;
 }
 
 export function buildFinanceMembersFiltersQuery(

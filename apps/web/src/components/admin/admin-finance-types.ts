@@ -11,11 +11,21 @@ export type FinanceStatusFilter =
   | "PENDING"
   | "REFUNDED";
 
+export type FinancePackagePlanFilter = "all" | (string & {});
+
+export type FinancePackageClassFilter = "all" | (string & {});
+
+export type FinancePackageSessionsFilter = "all" | "unlimited" | (string & {});
+
 export type FinanceFilterValues = {
   q: string;
   rangeDays: FinanceDateRangeDays;
   source: FinanceSourceFilter;
   status: FinanceStatusFilter;
+  planId: FinancePackagePlanFilter;
+  packageClass: FinancePackageClassFilter;
+  sessions: FinancePackageSessionsFilter;
+  order: "newest" | "oldest";
 };
 
 export type FinancePaymentItem = {
@@ -25,8 +35,11 @@ export type FinancePaymentItem = {
   status: string;
   description: string | null;
   paymentMethod: string | null;
+  paymentReference: string | null;
+  sourceId: string | null;
   source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
+  confirmedAt: string | null;
   user: {
     email: string;
     name: string | null;

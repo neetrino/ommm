@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { StaffRosterHeaderCell } from "@/components/shared/staff/staff-roster-header-cell";
 import {
   STAFF_ROSTER_LIST_EMPHASIZED_HEADER,
   STAFF_ROSTER_LIST_HEADER_CLASS,
@@ -37,10 +38,22 @@ export async function StaffRosterList({
   return (
     <div className={STAFF_ROSTER_LIST_TABLE_CLASS}>
       <div className={STAFF_ROSTER_LIST_HEADER_CLASS}>
-        <span>{t("colUserPhone")}</span>
-        <span className={STAFF_ROSTER_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
-        <span className={STAFF_ROSTER_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
-        <span className={STAFF_ROSTER_LIST_EMPHASIZED_HEADER}>{t("colAttendanceStatus")}</span>
+        <StaffRosterHeaderCell label={t("colUserPhone")} icon="userPhone" />
+        <StaffRosterHeaderCell
+          label={t("colClassType")}
+          icon="classType"
+          className={STAFF_ROSTER_LIST_EMPHASIZED_HEADER}
+        />
+        <StaffRosterHeaderCell
+          label={t("colDateTime")}
+          icon="dateTime"
+          className={STAFF_ROSTER_LIST_EMPHASIZED_HEADER}
+        />
+        <StaffRosterHeaderCell
+          label={t("colAttendanceStatus")}
+          icon="attendance"
+          className={`${STAFF_ROSTER_LIST_EMPHASIZED_HEADER} justify-end`}
+        />
       </div>
       {items.map(({ row, actions }) => (
         <StaffRosterRow

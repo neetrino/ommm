@@ -23,7 +23,7 @@ export default async function AdminDashboardPage({
   const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
   if (!meRes.ok) {
     return (
-      <div className="pt-6 sm:pt-8">
+      <div>
         <div className="rounded-[28px] border border-amber-200/80 bg-amber-50/90 p-8 text-amber-950 backdrop-blur-md">
           <p className="font-serif text-lg font-semibold">
             {tAdmin("signInPrompt")}

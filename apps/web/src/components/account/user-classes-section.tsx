@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL, USER_SCHEDULE_LIST_HEADER_CLASS } from "@/components/account/user-schedule-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import {
@@ -21,6 +23,11 @@ import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { mapUserSessionToWeekRow } from "@/lib/map-user-session-to-week-row";
+import { parseSessionSortOrder, sortBySessionStartsAt } from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { UserSessionRow } from "@/lib/user-booking-types";
 import type { UserSessionBookingMap } from "@/lib/user-session-bookings-map";
@@ -40,8 +47,29 @@ export function UserClassesSection({
 }: UserClassesSectionProps) {
   const t = useTranslations("userPages.classes");
   const tSchedule = useTranslations("adminPages.schedule");
+  const tSort = useTranslations("listSort");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [view, setView] = useScheduleViewUrl(initialView);
-  const [filters, setFilters] = useState<UserSessionFilterValues>(DEFAULT_USER_SESSION_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserSessionFilterValues>(() => ({
+    ...DEFAULT_USER_SESSION_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "session",
+      "upcoming",
+    ),
+  }));
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const filterOptions = useMemo(() => extractSessionFilterOptions(sessions), [sessions]);
 
@@ -62,9 +90,13 @@ export function UserClassesSection({
           availabilityFull: t("filters.availabilityFull"),
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
       }),
-    [filterOptions.classTypes, filterOptions.coaches, t],
+    [filterOptions.classTypes, filterOptions.coaches, t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -73,7 +105,12 @@ export function UserClassesSection({
   );
 
   const filteredSessions = useMemo(
-    () => sessions.filter((session) => matchesUserSessionFilters(session, filters)),
+    () =>
+      sortBySessionStartsAt(
+        sessions.filter((session) => matchesUserSessionFilters(session, filters)),
+        (session) => session.startsAt,
+        filters.order,
+      ),
     [filters, sessions],
   );
 
@@ -104,6 +141,15 @@ export function UserClassesSection({
           availability: value as UserSessionAvailabilityFilter,
         }));
         break;
+      case "order":
+        setFilters((current) => ({
+          ...current,
+          order: parseSessionSortOrder(value),
+        }));
+        replaceSearchParams((params) => {
+          syncUserListOrderQuery(params, value, "upcoming");
+        });
+        break;
       default:
         break;
     }
@@ -111,6 +157,9 @@ export function UserClassesSection({
 
   function resetFilters(): void {
     setFilters(DEFAULT_USER_SESSION_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      params.delete("order");
+    });
   }
 
   const heroSearch = (

@@ -15,6 +15,8 @@ import {
   Prisma,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { isCardAutoConfirmable } from '../payments/payment-confirmation.util';
+import { PaymentsService } from '../payments/payments.service';
 import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
@@ -37,6 +39,7 @@ export class PackagesService {
     private readonly audit: AuditService,
     private readonly cache: RedisCacheService,
     private readonly packageUsage: PackageUsageService,
+    private readonly payments: PaymentsService,
   ) {}
 
   async listPlans() {
@@ -376,36 +379,41 @@ export class PackagesService {
     const end = new Date(start);
     end.setDate(end.getDate() + plan.periodDays);
     const sessionAllocation = this.packageUsage.resolveInitialSessions(plan);
-    const userPackage = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.userPackage.create({
-        data: {
-          userId,
-          planId,
-          status: PackageStatus.PENDING,
-          sessionsTotal: sessionAllocation.sessionsTotal,
-          sessionsRemaining: sessionAllocation.sessionsRemaining,
-          currentPeriodStart: start,
-          currentPeriodEnd: end,
-        },
-        include: { plan: true },
-      });
-      await tx.payment.create({
-        data: this.withInternalPaymentCreateFields({
-          userId,
-          amountCents: plan.priceCents,
-          currency: plan.currency.toLowerCase(),
-          status: PaymentStatus.PENDING,
-          paymentReference: this.createPaymentReference('PACKAGE'),
-          source: PACKAGE_PAYMENT_SOURCE,
-          sourceId: created.id,
-          planId: plan.id,
-          userPackageId: created.id,
-          paymentMethod,
-          description: `Package subscription: ${plan.name}`,
-        }),
-      });
-      return created;
-    });
+    const { userPackage, paymentId } = await this.prisma.$transaction(
+      async (tx) => {
+        const created = await tx.userPackage.create({
+          data: {
+            userId,
+            planId,
+            status: PackageStatus.PENDING,
+            sessionsTotal: sessionAllocation.sessionsTotal,
+            sessionsRemaining: sessionAllocation.sessionsRemaining,
+            currentPeriodStart: start,
+            currentPeriodEnd: end,
+          },
+          include: { plan: true },
+        });
+        const payment = await tx.payment.create({
+          data: this.withInternalPaymentCreateFields({
+            userId,
+            amountCents: plan.priceCents,
+            currency: plan.currency.toLowerCase(),
+            status: PaymentStatus.PENDING,
+            paymentReference: this.createPaymentReference('PACKAGE'),
+            source: PACKAGE_PAYMENT_SOURCE,
+            sourceId: created.id,
+            planId: plan.id,
+            userPackageId: created.id,
+            paymentMethod,
+            description: `Package subscription: ${plan.name}`,
+          }),
+        });
+        return { userPackage: created, paymentId: payment.id };
+      },
+    );
+    if (isCardAutoConfirmable(paymentMethod)) {
+      await this.payments.confirmPendingCardPayment(paymentId);
+    }
     await this.audit.log({
       actorId: userId,
       actorRole: 'USER',

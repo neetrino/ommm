@@ -1,4 +1,5 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { SessionListOrder } from '../../common/enums/list-order.enum';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
 export class AdminListSessionsQueryDto extends ListPaginationQueryDto {
@@ -83,4 +84,12 @@ export class AdminListSessionsQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsString()
   classFormat?: string;
+
+  @IsOptional()
+  @IsIn([
+    SessionListOrder.UPCOMING,
+    SessionListOrder.DATE_ASC,
+    SessionListOrder.DATE_DESC,
+  ])
+  order?: SessionListOrder;
 }

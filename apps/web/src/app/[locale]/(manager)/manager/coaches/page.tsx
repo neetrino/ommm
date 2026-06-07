@@ -11,7 +11,6 @@ import {
 } from "@/components/admin/admin-coaches-query";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { parseAdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
 import { serverApiJson } from "@/lib/server-api";
 
 type ClassTypeRow = {
@@ -33,7 +32,6 @@ export default async function ManagerCoachesPage({
   const cookie = (await headers()).get("cookie") ?? "";
   const filters = pickAdminCoachesFilters(search);
   const listPage = parseAdminCoachesPageParams(search);
-  const initialViewMode = parseAdminCoachesViewMode(search.view);
   const coachesEndpoint = buildAdminCoachesListEndpoint(
     filters,
     listPage.take,
@@ -67,7 +65,6 @@ export default async function ManagerCoachesPage({
         <AdminCoachesShell
           classTypeOptions={classTypeOptions}
           classOptions={classOptions}
-          initialViewMode={initialViewMode}
           filterInitialValues={filters}
           variant="staff"
           staffBanner={tManager("readOnlyHint")}

@@ -48,7 +48,7 @@ export async function RoleProfilePage({
 
   if (!res.ok) {
     return (
-      <div className="ommm-container pt-6 sm:pt-8">
+      <div className="ommm-container">
         <div className="app-alert-warn">{t("signInPrompt")}</div>
       </div>
     );
@@ -92,7 +92,7 @@ export async function RoleProfilePage({
         </AccountSection>
       ) : null}
 
-      <DeleteAccountButton />
+      {user.role !== "COACH" ? <DeleteAccountButton /> : null}
     </div>
   );
 

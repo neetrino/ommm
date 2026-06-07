@@ -47,6 +47,8 @@ export type ScheduleSessionsListLayout = {
   dateTimeCellClass: string;
   dateTimeHeaderCellClass: string;
   capacityCellClass: string;
+  levelCellClass: string;
+  levelHeaderCellClass: string;
   tagsCellClass: string;
   tagsHeaderCellClass: string;
   statusCellClass: string;
@@ -61,14 +63,22 @@ export type ScheduleSessionsListLayout = {
 export function getScheduleSessionsListLayout(
   preset: ScheduleSessionsListPreset,
 ): ScheduleSessionsListLayout {
+  const isStaffReadOnly = preset === "staffReadOnly";
+
   return {
     tableClass: buildScheduleSessionsListTableClass(preset),
     headerClass: buildAdminListHeaderClass(),
     rowClass: preset === "admin" ? ADMIN_LIST_ROW_CLASS : READ_ONLY_ROW_CLASS,
     cellClass: USER_LIST_CELL_CLASS,
-    dateTimeCellClass: `${USER_LIST_DATE_CELL} md:pl-6`,
-    dateTimeHeaderCellClass: `${ADMIN_LIST_EMPHASIZED_HEADER} md:pl-6`,
-    capacityCellClass: `${USER_LIST_CELL_CLASS} tabular-nums md:min-w-[14rem] md:justify-self-stretch`,
+    dateTimeCellClass: isStaffReadOnly ? USER_LIST_DATE_CELL : `${USER_LIST_DATE_CELL} md:pl-6`,
+    dateTimeHeaderCellClass: isStaffReadOnly
+      ? ADMIN_LIST_EMPHASIZED_HEADER
+      : `${ADMIN_LIST_EMPHASIZED_HEADER} md:pl-6`,
+    capacityCellClass: isStaffReadOnly
+      ? `${USER_LIST_CELL_CLASS} tabular-nums md:justify-self-stretch`
+      : `${USER_LIST_CELL_CLASS} tabular-nums md:min-w-[14rem] md:justify-self-stretch`,
+    levelCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
+    levelHeaderCellClass: ADMIN_LIST_EMPHASIZED_HEADER,
     tagsCellClass: `${USER_LIST_CELL_CLASS} flex flex-wrap items-center gap-1.5 md:justify-self-stretch`,
     tagsHeaderCellClass: ADMIN_LIST_EMPHASIZED_HEADER,
     statusCellClass: `${USER_LIST_TRAILING_CELL} md:justify-self-end`,

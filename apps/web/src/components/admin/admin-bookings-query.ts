@@ -1,7 +1,17 @@
 import type { BookingsView } from "@/components/admin/admin-bookings-view";
 import { buildScheduleWeekDayKeys } from "@/components/shared/schedule/schedule-week-view-utils";
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
+import {
+  ADMIN_BOOKING_PAYMENT_FILTER_VALUES,
+  type AdminBookingPaymentStatus,
+} from "@/components/admin/admin-booking-list-badges";
 import { parseListPageParams } from "@/lib/list-pagination";
+
+export const ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY = "bookingId";
+
+export const ADMIN_BOOKINGS_ACTION_QUERY_KEY = "action";
+
+export const ADMIN_BOOKINGS_MOVE_ACTION = "move";
 
 export const ADMIN_BOOKINGS_FILTER_KEYS = [
   "search",
@@ -9,8 +19,8 @@ export const ADMIN_BOOKINGS_FILTER_KEYS = [
   "to",
   "classTypeId",
   "coachId",
-  "clientId",
   "status",
+  "paymentStatus",
 ] as const;
 
 export type AdminBookingsFilterState = {
@@ -19,9 +29,21 @@ export type AdminBookingsFilterState = {
   to: string;
   classTypeId: string;
   coachId: string;
-  clientId: string;
   status: string;
+  paymentStatus: AdminBookingPaymentStatus | "";
 };
+
+export function parseAdminBookingPaymentFilter(
+  value: string | undefined | null,
+): AdminBookingPaymentStatus | "" {
+  if (!value) {
+    return "";
+  }
+  const normalized = value.toUpperCase();
+  return ADMIN_BOOKING_PAYMENT_FILTER_VALUES.includes(normalized as AdminBookingPaymentStatus)
+    ? (normalized as AdminBookingPaymentStatus)
+    : "";
+}
 
 export type AdminBookingSessionSlot = {
   id: string;
@@ -43,7 +65,7 @@ export type AdminBookingRow = {
   recordType: "BOOKING" | "WAITLIST";
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   channel: "WEBSITE" | "APP";
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };
@@ -97,8 +119,8 @@ export const defaultAdminBookingsFilters: AdminBookingsFilterState = {
   to: "",
   classTypeId: "",
   coachId: "",
-  clientId: "",
   status: "",
+  paymentStatus: "",
 };
 
 function isoDateLocal(date: Date): string {
@@ -164,8 +186,8 @@ export function pickAdminBookingsInitialFilters(
     to: search.to ?? "",
     classTypeId: search.classTypeId ?? "",
     coachId: search.coachId ?? "",
-    clientId: search.clientId ?? "",
     status: search.status ?? "",
+    paymentStatus: parseAdminBookingPaymentFilter(search.paymentStatus),
   });
 }
 
@@ -192,11 +214,11 @@ function appendFilterParams(
   if (filters.coachId) {
     params.set("coachId", filters.coachId);
   }
-  if (filters.clientId) {
-    params.set("userId", filters.clientId);
-  }
   if (filters.status) {
     params.set("status", filters.status);
+  }
+  if (filters.paymentStatus) {
+    params.set("paymentStatus", filters.paymentStatus);
   }
 }
 
@@ -218,4 +240,107 @@ export function buildAdminBookingsCalendarEndpoint(
   const params = new URLSearchParams();
   appendFilterParams(params, filters, calendarRange);
   return `/bookings/admin/management?${params.toString()}`;
+}
+
+export function bookingRowKey(row: Pick<AdminBookingRow, "id" | "recordType">): string {
+  return `${row.recordType}-${row.id}`;
+}
+
+export function parseBookingRowKey(
+  key: string,
+): { recordType: AdminBookingRow["recordType"]; id: string } | null {
+  const match = /^(BOOKING|WAITLIST)-(.+)$/.exec(key);
+  if (match === null) {
+    return null;
+  }
+  return {
+    recordType: match[1] as AdminBookingRow["recordType"],
+    id: match[2],
+  };
+}
+
+export type AdminBookingDetailPayload = {
+  id: string;
+  status: AdminBookingRow["status"];
+  channel: AdminBookingRow["channel"];
+  createdAt: string;
+  paymentStatus: AdminBookingRow["paymentStatus"];
+  attendanceStatus: AdminBookingRow["attendanceStatus"];
+  user: AdminBookingRow["user"];
+  session: {
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    classType: { id: string; name: string };
+    coach: { id: string; user: { name: string | null } };
+  };
+  notes?: Array<{
+    id: string;
+    body: string;
+    createdAt: string;
+    author: { name: string | null };
+  }>;
+};
+
+/** Maps admin booking detail API payload to a management list row. */
+export function mapAdminBookingDetailToRow(payload: AdminBookingDetailPayload): AdminBookingRow {
+  return {
+    id: payload.id,
+    recordType: "BOOKING",
+    status: payload.status,
+    attendanceStatus: payload.attendanceStatus,
+    paymentStatus: payload.paymentStatus,
+    channel: payload.channel,
+    registerDate: payload.createdAt,
+    user: payload.user,
+    session: {
+      id: payload.session.id,
+      startsAt: payload.session.startsAt,
+      endsAt: payload.session.endsAt,
+      classType: payload.session.classType,
+      coach: {
+        id: payload.session.coach.id,
+        name: payload.session.coach.user.name,
+      },
+    },
+    package: null,
+    latestNote:
+      payload.notes?.[0] === undefined
+        ? null
+        : {
+            id: payload.notes[0].id,
+            body: payload.notes[0].body,
+            authorName: payload.notes[0].author.name,
+            createdAt: payload.notes[0].createdAt,
+          },
+  };
+}
+
+/** Placeholder row so the detail sheet can open while list data is still resolving. */
+export function buildLoadingBookingRow(key: string): AdminBookingRow | null {
+  const parsed = parseBookingRowKey(key);
+  if (parsed === null) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  return {
+    id: parsed.id,
+    recordType: parsed.recordType,
+    status: "BOOKED",
+    attendanceStatus: null,
+    paymentStatus: "UNPAID",
+    channel: "WEBSITE",
+    registerDate: now,
+    user: { id: "", name: null, email: "…", phone: null },
+    session: {
+      id: "",
+      startsAt: now,
+      endsAt: now,
+      classType: { id: "", name: "…" },
+      coach: { id: "", name: null },
+    },
+    package: null,
+    latestNote: null,
+  };
 }

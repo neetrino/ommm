@@ -8,9 +8,13 @@ const ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS = [
   "bg-white/95 shadow-[-16px_0_48px_-24px_rgba(45,40,35,0.4)] backdrop-blur-md",
 ].join(" ");
 
-/** Narrow detail sheets (bookings, schedule rows). */
+/** Narrow detail sheets (schedule rows). */
 export const ADMIN_DETAILS_SHEET_WIDTH_CLASS =
   "w-full sm:w-1/4 sm:max-w-[25vw] sm:min-w-[18rem]";
+
+/** Bookings detail sheet — slightly wider for details, notes, and actions. */
+export const ADMIN_BOOKINGS_DETAILS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-1/3 sm:max-w-[32rem] sm:min-w-[22rem]";
 
 /** Medium sheets (user lookup, finance session list). */
 export const ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS =
@@ -23,6 +27,11 @@ export const ADMIN_DETAILS_SHEET_WIDE_WIDTH_CLASS =
 export const ADMIN_DETAILS_SHEET_PANEL_CLASS = [
   ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_DETAILS_SHEET_WIDTH_CLASS,
+].join(" ");
+
+export const ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  ADMIN_BOOKINGS_DETAILS_SHEET_WIDTH_CLASS,
 ].join(" ");
 
 export const ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS = [

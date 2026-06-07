@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-payment-compact-row";
+import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
+import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
 import {
   ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER,
@@ -12,63 +14,45 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
 import type {
+  FinanceFilterValues,
+  FinancePaymentItem,
   FinancePaymentsPayload,
-  FinanceSourceFilter,
-  FinanceStatusFilter,
 } from "@/components/admin/admin-finance-types";
-import { FINANCE_PAYMENTS_PAGE_KEYS } from "@/components/admin/admin-finance-url";
+import {
+  buildFinancePaymentsAdminApiQuery,
+  FINANCE_PAYMENTS_PAGE_KEYS,
+} from "@/components/admin/admin-finance-url";
+import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
   locale: string;
   initialPayments: FinancePaymentsPayload;
   paymentsFrom: string;
-  paymentsStatus: FinanceStatusFilter;
-  paymentsSource: FinanceSourceFilter;
-  searchQuery: string;
+  financeFilters: FinanceFilterValues;
 };
 
-function buildPaymentsQuery(
-  from: string,
-  status: FinanceStatusFilter,
-  source: FinanceSourceFilter,
-  searchQuery: string,
-  listPage: ReturnType<typeof parseListPageParams>,
-): string {
-  const params = new URLSearchParams({
-    from,
-    take: String(listPage.take),
-    offset: String(listPage.offset),
-  });
-  if (status !== "all") {
-    params.set("status", status);
-  }
-  if (source !== "all") {
-    params.set("source", source);
-  }
-  if (searchQuery.trim()) {
-    params.set("q", searchQuery.trim());
-  }
-  return `/payments/admin?${params.toString()}`;
-}
+type ToastState = { message: string; tone: AdminCenterToastTone } | null;
 
 export function AdminFinancePaymentsPanel({
   locale,
   initialPayments,
   paymentsFrom,
-  paymentsStatus,
-  paymentsSource,
-  searchQuery,
+  financeFilters,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
+  const tFinance = useTranslations("adminPages.finance");
   const tTable = useTranslations("adminPages.finance.table");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
+  const [selectedPayment, setSelectedPayment] = useState<FinancePaymentItem | null>(null);
+  const [busyPaymentId, setBusyPaymentId] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>(null);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
@@ -109,13 +93,7 @@ export function AdminFinancePaymentsPanel({
     requestId.current = nextRequestId;
     startTransition(() => {
       void apiFetch<FinancePaymentsPayload>(
-        buildPaymentsQuery(
-          paymentsFrom,
-          paymentsStatus,
-          paymentsSource,
-          searchQuery,
-          payListPage,
-        ),
+        buildFinancePaymentsAdminApiQuery(financeFilters, paymentsFrom, payListPage),
       )
         .then((payload) => {
           if (requestId.current !== nextRequestId) return;
@@ -128,7 +106,57 @@ export function AdminFinancePaymentsPanel({
           }
         });
     });
-  }, [payListPage, paymentsFrom, paymentsSource, paymentsStatus, searchQuery, setPaymentsPayload, t]);
+  }, [financeFilters, payListPage, paymentsFrom, setPaymentsPayload, t]);
+
+  function handlePaymentUpdated(updated: FinancePaymentItem): void {
+    setPaymentsPayload((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => (item.id === updated.id ? updated : item)),
+    }));
+    setSelectedPayment((current) => (current?.id === updated.id ? updated : current));
+  }
+
+  async function handlePaymentStatusChange(
+    payment: FinancePaymentItem,
+    nextStatus: AdminUpdatablePaymentStatus,
+  ): Promise<void> {
+    if (nextStatus === payment.status) {
+      return;
+    }
+
+    setBusyPaymentId(payment.id);
+    try {
+      await apiFetch(`/payments/admin/${payment.id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      handlePaymentUpdated({
+        ...payment,
+        status: nextStatus,
+        paymentMethod:
+          payment.paymentMethod ??
+          (nextStatus === "SUCCEEDED" || nextStatus === "FAILED" ? "CASH" : null),
+        confirmedAt:
+          nextStatus === "PENDING"
+            ? null
+            : (payment.confirmedAt ?? new Date().toISOString()),
+      });
+      setToast({
+        message: tFinance("paymentActions.statusUpdated"),
+        tone: "ok",
+      });
+    } catch (updateError) {
+      setToast({
+        message:
+          updateError instanceof ApiError
+            ? updateError.message
+            : tFinance("paymentActions.actionFailed"),
+        tone: "err",
+      });
+    } finally {
+      setBusyPaymentId(null);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -147,7 +175,6 @@ export function AdminFinancePaymentsPanel({
           <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>
             {tTable("colPaymentMethod")}
           </span>
-          <span aria-hidden="true" />
           <span className={ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL}>{tTable("colActions")}</span>
         </div>
         {paymentsPayload.items.length === 0 ? (
@@ -156,10 +183,26 @@ export function AdminFinancePaymentsPanel({
           </p>
         ) : (
           paymentsPayload.items.map((row) => (
-            <AdminFinancePaymentCompactRow key={row.id} locale={locale} row={row} />
+            <AdminFinancePaymentCompactRow
+              key={row.id}
+              locale={locale}
+              row={row}
+              busy={busyPaymentId === row.id}
+              onOpenDetails={() => setSelectedPayment(row)}
+              onChangeStatus={(nextStatus) => {
+                void handlePaymentStatusChange(row, nextStatus);
+              }}
+            />
           ))
         )}
       </div>
+
+      <AdminFinancePaymentDetailsSheet
+        payment={selectedPayment}
+        locale={locale}
+        onClose={() => setSelectedPayment(null)}
+        onPaymentUpdated={handlePaymentUpdated}
+      />
 
       <OmmListPagination
         total={paymentsPayload.total}
@@ -169,6 +212,12 @@ export function AdminFinancePaymentsPanel({
         onPageChange={(page) => setPayListPage(page)}
         onPageSizeChange={(pageSize) => setPayListPage(1, pageSize)}
         disabled={loading}
+      />
+
+      <AdminCenterToast
+        message={toast?.message ?? null}
+        tone={toast?.tone}
+        onDismiss={() => setToast(null)}
       />
     </div>
   );

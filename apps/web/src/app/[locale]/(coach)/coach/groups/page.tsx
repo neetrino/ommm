@@ -33,7 +33,7 @@ export default async function CoachGroupsPage({
 
   return (
     <AdminContentFrame>
-      <CoachGroupsSection locale={locale} roster={panel.roster} banner={t("helpText")} />
+      <CoachGroupsSection locale={locale} roster={panel.roster} />
     </AdminContentFrame>
   );
 }

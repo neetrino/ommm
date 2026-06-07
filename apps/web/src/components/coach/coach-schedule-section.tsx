@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   buildCoachScheduleFilterFields,
   coachScheduleIntegratedFilterValues,
@@ -17,6 +19,11 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
+import { parseSessionSortOrder, sortBySessionStartsAt } from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { ScheduleView } from "@/components/admin/admin-schedule-view";
 import type { CoachPanelSessionRow } from "@/lib/coach-panel-types";
 
@@ -33,9 +40,28 @@ export function CoachScheduleSection({
 }: CoachScheduleSectionProps) {
   const t = useTranslations("coachPages.schedule");
   const tStatus = useTranslations("adminPages.classes.status");
+  const tSort = useTranslations("listSort");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [view, setView] = useScheduleViewUrl(initialView);
-  const [filters, setFilters] = useState<CoachScheduleFilterValues>(
-    DEFAULT_COACH_SCHEDULE_FILTER_VALUES,
+  const [filters, setFilters] = useState<CoachScheduleFilterValues>(() => ({
+    ...DEFAULT_COACH_SCHEDULE_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "session",
+      "upcoming",
+    ),
+  }));
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
   );
 
   const classTypes = useMemo(() => extractCoachScheduleClassTypes(sessions), [sessions]);
@@ -58,9 +84,13 @@ export function CoachScheduleSection({
           },
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
       }),
-    [classTypes, t, tStatus],
+    [classTypes, t, tSort, tStatus],
   );
 
   const integratedFilterValues = useMemo(
@@ -69,7 +99,12 @@ export function CoachScheduleSection({
   );
 
   const filteredSessions = useMemo(
-    () => sessions.filter((session) => matchesCoachScheduleFilters(session, filters)),
+    () =>
+      sortBySessionStartsAt(
+        sessions.filter((session) => matchesCoachScheduleFilters(session, filters)),
+        (session) => session.startsAt,
+        filters.order,
+      ),
     [filters, sessions],
   );
 
@@ -92,6 +127,15 @@ export function CoachScheduleSection({
           status: value as CoachScheduleStatusFilter,
         }));
         break;
+      case "order":
+        setFilters((current) => ({
+          ...current,
+          order: parseSessionSortOrder(value),
+        }));
+        replaceSearchParams((params) => {
+          syncUserListOrderQuery(params, value, "upcoming");
+        });
+        break;
       default:
         break;
     }
@@ -99,6 +143,9 @@ export function CoachScheduleSection({
 
   function resetFilters(): void {
     setFilters(DEFAULT_COACH_SCHEDULE_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      params.delete("order");
+    });
   }
 
   const emptyTitle = filtersActive

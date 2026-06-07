@@ -11,6 +11,7 @@ import {
   formatPaymentTime,
 } from "@/components/account/user-payment-display";
 import {
+  USER_PAYMENTS_LIST_AMOUNT_CELL,
   USER_PAYMENTS_LIST_CELL_CLASS,
   USER_PAYMENTS_LIST_DATE_CELL,
   USER_PAYMENTS_LIST_METHOD_CELL,
@@ -46,12 +47,12 @@ export function UserPaymentCompactRow({ locale, payment }: UserPaymentCompactRow
         <p className="mt-1 truncate text-xs font-medium text-sage-500">{t(`source.${source}`)}</p>
       </div>
 
-      <div className={USER_PAYMENTS_LIST_CELL_CLASS}>
+      <div className={USER_PAYMENTS_LIST_AMOUNT_CELL}>
         <MobileLabel label={t("table.amount")} />
         <AmdMoneyText
           cents={payment.amountCents}
           locale={locale}
-          className="whitespace-nowrap font-serif text-xl tabular-nums leading-none text-sage-950"
+          className="font-serif text-xl leading-none text-sage-950"
         />
       </div>
 

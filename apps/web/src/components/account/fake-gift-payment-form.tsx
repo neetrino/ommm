@@ -12,7 +12,7 @@ type FakeGiftPaymentFormProps = {
   paymentReference: string | null;
 };
 
-type PaymentStep = "summary" | "method" | "success";
+type PaymentStep = "summary" | "method" | "success" | "cashPending";
 type GiftPaymentMethod = Extract<ManualPaymentMethod, "CARD" | "CASH">;
 
 const GIFT_PAYMENT_METHODS: readonly GiftPaymentMethod[] = ["CARD", "CASH"];
@@ -40,7 +40,7 @@ export function FakeGiftPaymentForm({
         method: "POST",
         body: JSON.stringify({ paymentMethod }),
       });
-      setStep("success");
+      setStep(paymentMethod === "CASH" ? "cashPending" : "success");
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("payFailed"));
@@ -55,10 +55,18 @@ export function FakeGiftPaymentForm({
         {t("eyebrow")}
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-sage-950">
-        {step === "success" ? t("successTitle") : t("title")}
+        {step === "success"
+          ? t("successTitle")
+          : step === "cashPending"
+            ? t("cashPendingTitle")
+            : t("title")}
       </h1>
       <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-sage-600">
-        {step === "success" ? t("successLead") : t("lead")}
+        {step === "success"
+          ? t("successLead")
+          : step === "cashPending"
+            ? t("cashPendingLead")
+            : t("lead")}
       </p>
 
       <PaymentSummary amountLabel={amountLabel} paymentReference={paymentReference} />
@@ -89,7 +97,7 @@ export function FakeGiftPaymentForm({
           </OmmButton>
         ) : null}
         <Link href="/user/gift-cards" className="ommm-cta-ghost inline-flex justify-center">
-          {step === "success" ? t("doneButton") : t("backButton")}
+          {step === "success" || step === "cashPending" ? t("doneButton") : t("backButton")}
         </Link>
       </div>
     </section>

@@ -12,6 +12,11 @@ import {
   type ScheduleDayOfWeek,
 } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import {
+  resolveSessionListOrderBy,
+  sortAdminSessionRows,
+  SessionListOrder,
+} from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   buildSessionsListWhere,
@@ -254,10 +259,13 @@ export class ClassesService {
       normalizedQuery.take !== undefined ||
       normalizedQuery.offset !== undefined;
     const where = buildSessionsListWhere(normalizedQuery);
+    const sessionOrder = resolveSessionListOrderBy(
+      normalizedQuery.order ?? SessionListOrder.UPCOMING,
+    );
     const findArgs = {
       where,
       include: ADMIN_SESSION_INCLUDE,
-      orderBy: { startsAt: 'asc' as const },
+      orderBy: sessionOrder,
     };
     const mapSessions = (
       sessions: Array<
@@ -292,7 +300,11 @@ export class ClassesService {
       });
       const mapped = mapSessions(sessions);
       const filtered = filterSessionRows(mapped, normalizedQuery);
-      return paginateSessionRows(filtered, take, offset);
+      const sorted = sortAdminSessionRows(
+        filtered,
+        normalizedQuery.order ?? SessionListOrder.UPCOMING,
+      );
+      return paginateSessionRows(sorted, take, offset);
     }
 
     const [sessions, total] = await Promise.all([
@@ -358,6 +370,26 @@ export class ClassesService {
     return trimmed && trimmed.length > 0 ? trimmed : null;
   }
 
+  private async resolveSessionTitle(
+    title: string | undefined,
+    classTypeId: string,
+  ): Promise<string> {
+    const trimmedTitle = title?.trim() ?? '';
+    if (trimmedTitle.length > 0) {
+      return trimmedTitle;
+    }
+
+    const classType = await this.prisma.classType.findUnique({
+      where: { id: classTypeId },
+      select: { name: true },
+    });
+    const classTypeName = classType?.name?.trim() ?? '';
+    if (classTypeName.length === 0) {
+      throw new BadRequestException('Class type is required.');
+    }
+    return classTypeName;
+  }
+
   private assertTimeRange(startsAt: Date, endsAt: Date): void {
     if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) {
       throw new BadRequestException('Invalid class date range');
@@ -421,6 +453,7 @@ export class ClassesService {
 
   private buildBatchSessionData(
     dto: CreateSessionBatchDto,
+    title: string,
   ): Prisma.ClassSessionUncheckedCreateInput[] {
     const startDate = this.parseLocalDate(dto.startDate);
     const endDate = this.parseLocalDate(dto.endDate);
@@ -440,7 +473,7 @@ export class ClassesService {
         if (cursor.getUTCDay() !== SCHEDULE_DAY_INDEX[slot.weekday]) {
           continue;
         }
-        rows.push(this.buildBatchSessionSlotData(dto, slot, cursor));
+        rows.push(this.buildBatchSessionSlotData(dto, slot, cursor, title));
       }
     }
 
@@ -461,6 +494,7 @@ export class ClassesService {
     dto: CreateSessionBatchDto,
     slot: CreateSessionBatchSlotDto,
     date: Date,
+    title: string,
   ): Prisma.ClassSessionUncheckedCreateInput {
     const startsAt = this.localDateTimeToUtc(
       date,
@@ -474,7 +508,7 @@ export class ClassesService {
     );
     this.assertTimeRange(startsAt, endsAt);
     return {
-      title: dto.title.trim(),
+      title,
       description: this.normalizeOptional(dto.description),
       classTypeId: dto.classTypeId,
       coachId: dto.coachId,
@@ -567,9 +601,10 @@ export class ClassesService {
     const endsAt = new Date(dto.endsAt);
     this.assertTimeRange(startsAt, endsAt);
     const recurrence = this.buildRecurrencePayloadForCreate(dto);
+    const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
 
     const createData = {
-      title: dto.title.trim(),
+      title,
       description: this.normalizeOptional(dto.description),
       classTypeId: dto.classTypeId,
       coachId: dto.coachId,
@@ -598,7 +633,8 @@ export class ClassesService {
   async createSessionBatch(
     dto: CreateSessionBatchDto,
   ): Promise<AdminSessionRow[]> {
-    const createRows = this.buildBatchSessionData(dto);
+    const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
+    const createRows = this.buildBatchSessionData(dto, title);
     const created = await this.prisma.$transaction(
       createRows.map((data) => this.prisma.classSession.create({ data })),
     );

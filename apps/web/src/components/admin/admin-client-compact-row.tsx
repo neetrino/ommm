@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   ADMIN_CLIENT_TAG_BADGE_CLASS,
   clientTagBadgeTone,
@@ -12,8 +12,8 @@ import {
   ADMIN_CLIENTS_LIST_ACTIONS_CELL,
   ADMIN_CLIENTS_LIST_CELL,
   ADMIN_CLIENTS_LIST_DATE_CELL,
+  ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_CLIENTS_LIST_ROW_CLASS,
-  ADMIN_CLIENTS_LIST_SPACER_CELL,
   ADMIN_CLIENTS_LIST_TAGS_CELL,
 } from "@/components/admin/admin-clients-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
@@ -36,7 +36,6 @@ export function AdminClientCompactRow({
   readOnly = false,
 }: AdminClientCompactRowProps) {
   const t = useTranslations("adminPages.clients");
-  const locale = useLocale();
   const name = fullName(row);
 
   return (
@@ -88,22 +87,22 @@ export function AdminClientCompactRow({
 
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
         <AdminListMobileLabel label={t("colJoined")} />
-        <p className="text-sm text-sage-800">{formatDateCompactForUi(row.createdAt, locale)}</p>
+        <p className="text-sm text-sage-800">{formatDateCompactForUi(row.createdAt)}</p>
       </div>
 
       {readOnly ? null : (
-        <>
-          <div className={ADMIN_CLIENTS_LIST_SPACER_CELL} aria-hidden="true" />
-
-          <div
-            className={ADMIN_CLIENTS_LIST_ACTIONS_CELL}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
-          >
-            <AdminListMobileLabel label={t("colActions")} />
-            <AdminClientRowActions client={row} onChanged={onChanged} />
-          </div>
-        </>
+        <div
+          className={`${ADMIN_CLIENTS_LIST_ACTIONS_CELL} ${ADMIN_CLIENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <AdminListMobileLabel label={t("colActions")} />
+          <AdminClientRowActions
+            client={row}
+            onChanged={onChanged}
+            onEdit={() => onSelect(row)}
+          />
+        </div>
       )}
     </article>
   );

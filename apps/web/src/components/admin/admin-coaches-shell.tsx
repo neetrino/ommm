@@ -18,11 +18,6 @@ import { AdminCoachesFilters } from "@/components/admin/admin-coaches-filters";
 import type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
 import { AdminCoachesViewProvider, useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
-import {
-  ADMIN_COACHES_VIEW_QUERY_KEY,
-  type AdminCoachesViewMode,
-} from "@/lib/admin-coaches-view-preference";
-
 const COACH_MODAL_QUERY_KEY = "modal";
 const COACH_MODAL_QUERY_VALUE = "add-coach";
 const COACH_MODAL_BANNER_MS = 8000;
@@ -30,7 +25,6 @@ const COACH_MODAL_BANNER_MS = 8000;
 type AdminCoachesShellProps = {
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
-  initialViewMode: AdminCoachesViewMode;
   filterInitialValues: AdminCoachesFilterValues;
   children: ReactNode;
   variant?: "full" | "staff";
@@ -41,7 +35,6 @@ type AdminCoachesShellProps = {
 export function AdminCoachesShell({
   classTypeOptions,
   classOptions,
-  initialViewMode,
   filterInitialValues,
   children,
   variant = "full",
@@ -49,10 +42,7 @@ export function AdminCoachesShell({
   readOnly = false,
 }: AdminCoachesShellProps) {
   return (
-    <AdminCoachesViewProvider
-      key={initialViewMode}
-      initialViewMode={initialViewMode}
-    >
+    <AdminCoachesViewProvider>
       <AdminCoachesShellInner
         classTypeOptions={classTypeOptions}
         classOptions={classOptions}
@@ -75,7 +65,7 @@ function AdminCoachesShellInner({
   variant = "full",
   staffBanner,
   readOnly = false,
-}: Omit<AdminCoachesShellProps, "initialViewMode">) {
+}: AdminCoachesShellProps) {
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.coaches");
   const { viewMode, setViewMode } = useAdminCoachesView();
@@ -90,16 +80,6 @@ function AdminCoachesShellInner({
 
   const isModalOpen =
     searchParams.get(COACH_MODAL_QUERY_KEY) === COACH_MODAL_QUERY_VALUE;
-
-  const setView = useCallback(
-    (mode: AdminCoachesViewMode) => {
-      setViewMode(mode);
-      const p = new URLSearchParams(searchParams.toString());
-      p.set(ADMIN_COACHES_VIEW_QUERY_KEY, mode);
-      router.replace(`${pathname}?${p.toString()}`, { scroll: false });
-    },
-    [pathname, router, searchParams, setViewMode],
-  );
 
   const closeModal = useCallback(() => {
     const p = new URLSearchParams(searchParams.toString());
@@ -176,7 +156,7 @@ function AdminCoachesShellInner({
       initialValues={filterInitialValues}
       classTypeOptions={classTypeOptions}
       viewMode={viewMode}
-      onViewChange={setView}
+      onViewChange={setViewMode}
       onAddCoach={openModal}
       variant={isStaff ? "embedded" : "full"}
     />

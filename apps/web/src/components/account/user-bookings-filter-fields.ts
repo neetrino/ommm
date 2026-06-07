@@ -1,6 +1,7 @@
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 
 export type UserBookingStatusFilter = "all" | "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED";
@@ -12,6 +13,7 @@ export type UserBookingFilterValues = {
   classType: string;
   coach: string;
   status: UserBookingStatusFilter;
+  order: SessionSortOrder;
 };
 
 export const DEFAULT_USER_BOOKING_FILTER_VALUES: UserBookingFilterValues = {
@@ -21,6 +23,7 @@ export const DEFAULT_USER_BOOKING_FILTER_VALUES: UserBookingFilterValues = {
   classType: "all",
   coach: "all",
   status: "all",
+  order: "upcoming",
 };
 
 const BOOKING_STATUS_OPTIONS: readonly Exclude<UserBookingStatusFilter, "all">[] = [
@@ -43,6 +46,10 @@ type BuildUserBookingsFilterFieldsArgs = {
     statusValues: Record<Exclude<UserBookingStatusFilter, "all">, string>;
     searchPlaceholder: string;
     resetFilters: string;
+    sort: string;
+    sortUpcoming: string;
+    sortDateAsc: string;
+    sortDateDesc: string;
   };
 };
 
@@ -55,6 +62,7 @@ export function userBookingsIntegratedFilterValues(
     classType: values.classType,
     coach: values.coach,
     status: values.status,
+    order: values.order,
   };
 }
 
@@ -102,6 +110,11 @@ export function buildUserBookingsFilterFields({
         label: labels.statusValues[status],
       })),
     },
+    buildSessionSortFilterField(labels.sort, {
+      upcoming: labels.sortUpcoming,
+      "date-asc": labels.sortDateAsc,
+      "date-desc": labels.sortDateDesc,
+    }),
   ];
 }
 
@@ -170,6 +183,7 @@ export function hasActiveUserBookingFilters(filters: UserBookingFilterValues): b
     filters.to.length > 0 ||
     filters.classType !== "all" ||
     filters.coach !== "all" ||
-    filters.status !== "all"
+    filters.status !== "all" ||
+    filters.order !== "upcoming"
   );
 }

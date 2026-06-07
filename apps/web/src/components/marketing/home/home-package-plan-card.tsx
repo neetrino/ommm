@@ -11,11 +11,14 @@ import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { Link } from "@/i18n/navigation";
 
 export type HomePackagePlanCardProps = {
+  id?: string;
   planName: string;
   details: string;
   priceAmount: string;
   priceFromPrefix?: string;
   ctaAria: string;
+  href?: string;
+  onActivate?: () => void;
 };
 
 type HomePackagePlanCardPriceCopyProps = Pick<
@@ -65,14 +68,11 @@ export function HomePackagePlanCard({
   priceAmount,
   priceFromPrefix,
   ctaAria,
+  href = "/packages",
+  onActivate,
 }: HomePackagePlanCardProps) {
-  return (
-    <Link
-      href="/packages"
-      aria-label={ctaAria}
-      className={`${marketingMontserrat.variable} ${styles.card} group`}
-      style={planCardStyleVars()}
-    >
+  const cardBody = (
+    <>
       <div className={styles.cardMedia}>
         <div className={styles.imageCrop}>
           <div className={styles.imageFrame}>
@@ -112,6 +112,31 @@ export function HomePackagePlanCard({
           </span>
         </div>
       </div>
+    </>
+  );
+
+  if (onActivate !== undefined) {
+    return (
+      <button
+        type="button"
+        aria-label={ctaAria}
+        onClick={onActivate}
+        className={`${marketingMontserrat.variable} ${styles.card} group`}
+        style={planCardStyleVars()}
+      >
+        {cardBody}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={ctaAria}
+      className={`${marketingMontserrat.variable} ${styles.card} group`}
+      style={planCardStyleVars()}
+    >
+      {cardBody}
     </Link>
   );
 }
@@ -125,7 +150,7 @@ export function HomePackagePlanCardsRow({ cards }: HomePackagePlanCardsRowProps)
   return (
     <div className={styles.cardsRow} style={planCardStyleVars()}>
       {cards.map((card, index) => (
-        <HomePackagePlanCard key={`plan-card-${index}`} {...card} />
+        <HomePackagePlanCard key={card.id ?? `plan-card-${index}`} {...card} />
       ))}
     </div>
   );

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { cn } from "@/lib/cn";
 
 /** Marketing home path; locale is preserved from the active session. */
 const POST_LOGOUT_PATH = "/";
@@ -11,9 +12,12 @@ const POST_LOGOUT_PATH = "/";
 type LogoutButtonProps = {
   className?: string;
   iconClassName?: string;
+  spinnerClassName?: string;
   showLabel?: boolean;
   labelClassName?: string;
 };
+
+const DEFAULT_LOGOUT_SPINNER_CLASS = "h-5 w-5";
 
 function LogoutGlyph({ className }: { className?: string }) {
   return (
@@ -34,20 +38,25 @@ function LogoutGlyph({ className }: { className?: string }) {
   );
 }
 
-function LogoutPendingOverlay({ label }: { label: string }) {
+/** Arc-only spinner — no box, border, or background artifacts. */
+function CircularSpinner({ className }: { className?: string }) {
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-paper text-sage-700"
-      role="status"
-      aria-live="polite"
-      aria-label={label}
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={cn("shrink-0 animate-spin", className)}
+      aria-hidden
     >
-      <span
-        className="h-8 w-8 animate-spin rounded-full border-2 border-sage-700/25 border-t-sage-700"
-        aria-hidden
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeDasharray="42 84"
       />
-      <span className="sr-only">{label}</span>
-    </div>
+    </svg>
   );
 }
 
@@ -57,6 +66,7 @@ const DEFAULT_LOGOUT_ICON_CLASS =
 export function LogoutButton({
   className,
   iconClassName,
+  spinnerClassName,
   showLabel = false,
   labelClassName,
 }: LogoutButtonProps) {
@@ -65,6 +75,8 @@ export function LogoutButton({
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const label = t("logout");
+  const resolvedIconClassName = iconClassName ?? DEFAULT_LOGOUT_ICON_CLASS;
+  const resolvedSpinnerClassName = spinnerClassName ?? DEFAULT_LOGOUT_SPINNER_CLASS;
 
   async function handleLogout() {
     setPending(true);
@@ -79,37 +91,31 @@ export function LogoutButton({
   }
 
   return (
-    <>
-      {pending ? <LogoutPendingOverlay label={label} /> : null}
-      <button
-        type="button"
-        className={[
-          className ?? "",
-          "transition-[transform,opacity] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        onClick={() => {
-          void handleLogout();
-        }}
-        disabled={pending}
-        aria-label={label}
-        title={label}
-      >
-        {pending ? (
-          <span
-            className="inline-block h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-current/30 border-t-current align-middle opacity-80"
-            aria-hidden
-          />
-        ) : (
-          <>
-            <LogoutGlyph className={iconClassName ?? DEFAULT_LOGOUT_ICON_CLASS} />
-            {showLabel ? (
-              <span className={labelClassName ?? "whitespace-nowrap"}>{label}</span>
-            ) : null}
-          </>
-        )}
-      </button>
-    </>
+    <button
+      type="button"
+      className={cn(
+        pending ? "ommm-logout-btn-pending" : className,
+        !pending && "transition-[transform,opacity] active:scale-[0.97]",
+        !pending && "disabled:pointer-events-none disabled:opacity-45",
+      )}
+      onClick={() => {
+        void handleLogout();
+      }}
+      disabled={pending}
+      aria-busy={pending}
+      aria-label={label}
+      title={label}
+    >
+      {pending ? (
+        <CircularSpinner className={resolvedSpinnerClassName} />
+      ) : (
+        <>
+          <LogoutGlyph className={resolvedIconClassName} />
+          {showLabel ? (
+            <span className={labelClassName ?? "whitespace-nowrap"}>{label}</span>
+          ) : null}
+        </>
+      )}
+    </button>
   );
 }
