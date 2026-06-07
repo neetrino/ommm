@@ -390,8 +390,7 @@ export function AdminWaitlistManagement({
         page={listPage.page}
         pageSize={listPage.pageSize}
         offset={payload.offset}
-        onPageChange={setListPage}
-        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        onPageChange={(page) => setListPage(page)}
         disabled={loading || busyAction !== null}
       />
     </div>
