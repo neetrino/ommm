@@ -396,11 +396,13 @@ export class PaymentsService {
       throw new BadRequestException('Invalid date range');
     }
     const sourceFilter = this.buildSourceFilter(query.source);
+    const packageFilter = await this.buildPackagePaymentFilter(query);
     const search = query.q?.trim();
     const where: Prisma.PaymentWhereInput = {
       ...(query.userId ? { userId: query.userId } : {}),
       ...(query.status ? { status: query.status } : {}),
       ...(sourceFilter ?? {}),
+      ...(packageFilter ?? {}),
       ...(query.from || query.to
         ? {
             createdAt: {
@@ -603,6 +605,70 @@ export class PaymentsService {
       },
     });
     return recipientEmail ? { to: recipientEmail, code } : null;
+  }
+
+  private async buildPackagePaymentFilter(
+    query: AdminListPaymentsQueryDto,
+  ): Promise<Prisma.PaymentWhereInput | undefined> {
+    const filters: Prisma.PaymentWhereInput[] = [];
+    const planWhere: Prisma.PackagePlanWhereInput = {};
+
+    if (query.planId?.trim()) {
+      filters.push({ planId: query.planId.trim() });
+    }
+
+    if (query.packageClass?.trim()) {
+      const matchingPlans = await this.prisma.packagePlan.findMany({
+        where: {
+          categoryName: {
+            equals: query.packageClass.trim(),
+            mode: 'insensitive',
+          },
+        },
+        select: { id: true },
+      });
+      if (matchingPlans.length === 0) {
+        return { planId: { in: [] } };
+      }
+      planWhere.id = { in: matchingPlans.map((plan) => plan.id) };
+    }
+
+    const sessionsFilter = this.buildPackageSessionsPlanFilter(query.sessions);
+    if (sessionsFilter) {
+      Object.assign(planWhere, sessionsFilter);
+    }
+
+    if (Object.keys(planWhere).length > 0) {
+      filters.push({ plan: planWhere });
+    }
+
+    if (filters.length === 0) {
+      return undefined;
+    }
+    if (filters.length === 1) {
+      return filters[0];
+    }
+    return { AND: filters };
+  }
+
+  private buildPackageSessionsPlanFilter(
+    sessions: string | undefined,
+  ): Pick<Prisma.PackagePlanWhereInput, 'isUnlimited' | 'sessionsPerMonth'> | undefined {
+    const raw = sessions?.trim();
+    if (!raw) {
+      return undefined;
+    }
+    if (raw === 'unlimited') {
+      return { isUnlimited: true };
+    }
+    const count = Number.parseInt(raw, 10);
+    if (!Number.isInteger(count) || count <= 0) {
+      return undefined;
+    }
+    return {
+      sessionsPerMonth: count,
+      isUnlimited: false,
+    };
   }
 
   private buildSourceFilter(

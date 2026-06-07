@@ -11,11 +11,20 @@ export type FinanceStatusFilter =
   | "PENDING"
   | "REFUNDED";
 
+export type FinancePackagePlanFilter = "all" | (string & {});
+
+export type FinancePackageClassFilter = "all" | (string & {});
+
+export type FinancePackageSessionsFilter = "all" | "unlimited" | (string & {});
+
 export type FinanceFilterValues = {
   q: string;
   rangeDays: FinanceDateRangeDays;
   source: FinanceSourceFilter;
   status: FinanceStatusFilter;
+  planId: FinancePackagePlanFilter;
+  packageClass: FinancePackageClassFilter;
+  sessions: FinancePackageSessionsFilter;
 };
 
 export type FinancePaymentItem = {

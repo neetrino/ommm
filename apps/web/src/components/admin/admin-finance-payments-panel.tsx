@@ -12,12 +12,14 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
 import type {
+  FinanceFilterValues,
   FinancePaymentItem,
   FinancePaymentsPayload,
-  FinanceSourceFilter,
-  FinanceStatusFilter,
 } from "@/components/admin/admin-finance-types";
-import { FINANCE_PAYMENTS_PAGE_KEYS } from "@/components/admin/admin-finance-url";
+import {
+  buildFinancePaymentsAdminApiQuery,
+  FINANCE_PAYMENTS_PAGE_KEYS,
+} from "@/components/admin/admin-finance-url";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
@@ -27,42 +29,14 @@ type Props = {
   locale: string;
   initialPayments: FinancePaymentsPayload;
   paymentsFrom: string;
-  paymentsStatus: FinanceStatusFilter;
-  paymentsSource: FinanceSourceFilter;
-  searchQuery: string;
+  financeFilters: FinanceFilterValues;
 };
-
-function buildPaymentsQuery(
-  from: string,
-  status: FinanceStatusFilter,
-  source: FinanceSourceFilter,
-  searchQuery: string,
-  listPage: ReturnType<typeof parseListPageParams>,
-): string {
-  const params = new URLSearchParams({
-    from,
-    take: String(listPage.take),
-    offset: String(listPage.offset),
-  });
-  if (status !== "all") {
-    params.set("status", status);
-  }
-  if (source !== "all") {
-    params.set("source", source);
-  }
-  if (searchQuery.trim()) {
-    params.set("q", searchQuery.trim());
-  }
-  return `/payments/admin?${params.toString()}`;
-}
 
 export function AdminFinancePaymentsPanel({
   locale,
   initialPayments,
   paymentsFrom,
-  paymentsStatus,
-  paymentsSource,
-  searchQuery,
+  financeFilters,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
   const tTable = useTranslations("adminPages.finance.table");
@@ -111,13 +85,7 @@ export function AdminFinancePaymentsPanel({
     requestId.current = nextRequestId;
     startTransition(() => {
       void apiFetch<FinancePaymentsPayload>(
-        buildPaymentsQuery(
-          paymentsFrom,
-          paymentsStatus,
-          paymentsSource,
-          searchQuery,
-          payListPage,
-        ),
+        buildFinancePaymentsAdminApiQuery(financeFilters, paymentsFrom, payListPage),
       )
         .then((payload) => {
           if (requestId.current !== nextRequestId) return;
@@ -130,7 +98,7 @@ export function AdminFinancePaymentsPanel({
           }
         });
     });
-  }, [payListPage, paymentsFrom, paymentsSource, paymentsStatus, searchQuery, setPaymentsPayload, t]);
+  }, [financeFilters, payListPage, paymentsFrom, setPaymentsPayload, t]);
 
   function handlePaymentUpdated(updated: FinancePaymentItem): void {
     setPaymentsPayload((prev) => ({

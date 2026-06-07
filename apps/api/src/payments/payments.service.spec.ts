@@ -35,6 +35,9 @@ type PaymentsServiceTestPrisma = {
     create: jest.Mock;
     update: jest.Mock;
   };
+  packagePlan: {
+    findMany: jest.Mock;
+  };
   payment: {
     findFirst: jest.Mock;
     findUnique: jest.Mock;
@@ -92,6 +95,9 @@ describe('PaymentsService', () => {
         count: jest.fn().mockResolvedValue(0),
         create: jest.fn(),
         update: jest.fn(),
+      },
+      packagePlan: {
+        findMany: jest.fn().mockResolvedValue([]),
       },
       payment: {
         findFirst: jest.fn(),
@@ -197,6 +203,51 @@ describe('PaymentsService', () => {
         },
       },
     });
+  });
+
+  it('adminListPayments applies package plan and session filters', async () => {
+    const { service, prisma } = createService();
+    prisma.packagePlan.findMany.mockResolvedValue([
+      { id: 'plan-dance' },
+      { id: 'plan-pilates' },
+    ]);
+
+    await service.adminListPayments({
+      planId: 'plan-dance-8',
+      packageClass: 'Dance',
+      sessions: '8',
+      take: 10,
+      offset: 0,
+    });
+
+    type FindManyArgs = {
+      where: {
+        AND: Array<{
+          planId?: string;
+          plan?: {
+            id?: { in: string[] };
+            sessionsPerMonth?: number;
+            isUnlimited?: boolean;
+          };
+        }>;
+      };
+    };
+
+    const findManyMock = prisma.payment.findMany as jest.Mock<
+      Promise<unknown>,
+      [FindManyArgs]
+    >;
+    const callArgs = findManyMock.mock.calls[0][0];
+    expect(callArgs.where.AND).toEqual([
+      { planId: 'plan-dance-8' },
+      {
+        plan: {
+          id: { in: ['plan-dance', 'plan-pilates'] },
+          sessionsPerMonth: 8,
+          isUnlimited: false,
+        },
+      },
+    ]);
   });
 
   it('createDropInCheckout rejects when session is already booked', async () => {
