@@ -486,6 +486,7 @@ export function AdminBookingsManagement({
       <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
         <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
           <span className={ADMIN_BOOKINGS_LIST_HEADER_CELL}>{t("colUserPhone")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colCoach")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>

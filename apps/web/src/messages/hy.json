@@ -1347,6 +1347,8 @@
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
       "colUserPhone": "Հաճախորդ / Հեռախոս",
+      "colCoach": "Մարզիչ",
+      "coachNotAssigned": "Նշանակված չէ",
       "colClassType": "Դասի տեսակ",
       "colDateTime": "Ամսաթիվ և ժամ",
       "colSessionCount": "Սեսիաների քանակ",

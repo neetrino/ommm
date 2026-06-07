@@ -1344,6 +1344,8 @@
       "colStatus": "Status",
       "colActions": "Actions",
       "colUserPhone": "User / Phone",
+      "colCoach": "Coach",
+      "coachNotAssigned": "Not assigned",
       "colClassType": "Class type",
       "colDateTime": "Date & time",
       "colSessionCount": "Session count",

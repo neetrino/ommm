@@ -9,10 +9,9 @@ import {
   buildAdminListTableClass,
 } from "@/components/admin/admin-list-table-layout";
 
-/** User · Class · Date/time · Payment · Status · Actions — six equal tracks. */
-export const ADMIN_BOOKINGS_LIST_GRID_COLS = "repeat(6,minmax(0,1fr))";
-
-const BOOKINGS_GRID_CLASS = "md:grid-cols-6";
+/** User · Coach · Class · Date/time · Payment · Status · Actions. */
+const BOOKINGS_GRID_CLASS =
+  "md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,auto)_auto_auto_auto]";
 
 export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = buildAdminListTableClass(BOOKINGS_GRID_CLASS);
 
@@ -23,6 +22,8 @@ export const ADMIN_BOOKINGS_LIST_ROW_CLASS = ADMIN_LIST_ROW_CLASS;
 export const ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL = ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL;
 
 export const ADMIN_BOOKINGS_LIST_CELL = USER_LIST_CELL_CLASS;
+
+export const ADMIN_BOOKINGS_LIST_COACH_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_BOOKINGS_LIST_DATE_TIME_CELL = USER_LIST_DATE_CELL;
 

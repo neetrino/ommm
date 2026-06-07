@@ -14,13 +14,17 @@ import {
   ADMIN_BOOKINGS_LIST_ACTIONS_CELL,
   ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_BOOKINGS_LIST_CELL,
+  ADMIN_BOOKINGS_LIST_COACH_CELL,
   ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
   ADMIN_BOOKINGS_LIST_PAYMENT_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
+import {
+  ADMIN_LIST_TITLE_LINK_CLASS,
+  ADMIN_LIST_TITLE_TEXT_CLASS,
+} from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 
 type BookingRow = {
@@ -73,6 +77,8 @@ export function AdminBookingCompactRow({
 }: AdminBookingCompactRowProps) {
   const t = useTranslations("adminPages.bookings");
   const userLabel = row.user.name ?? row.user.email;
+  const coachName = row.session.coach.name?.trim();
+  const coachLabel = coachName ? coachName : t("coachNotAssigned");
 
   return (
     <article
@@ -102,6 +108,16 @@ export function AdminBookingCompactRow({
           {userLabel}
         </button>
         <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? "—"}</p>
+      </div>
+
+      <div className={ADMIN_BOOKINGS_LIST_COACH_CELL}>
+        <AdminListMobileLabel label={t("colCoach")} />
+        <p
+          className={`${ADMIN_LIST_TITLE_TEXT_CLASS} ${coachName ? "text-sage-900" : "text-sage-500"}`}
+          title={coachLabel}
+        >
+          {coachLabel}
+        </p>
       </div>
 
       <div className={ADMIN_BOOKINGS_LIST_CELL}>

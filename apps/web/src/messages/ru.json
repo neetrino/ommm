@@ -1335,6 +1335,8 @@
       "colStatus": "Статус",
       "colActions": "Действия",
       "colUserPhone": "Клиент / Телефон",
+      "colCoach": "Тренер",
+      "coachNotAssigned": "Не назначен",
       "colClassType": "Тип занятия",
       "colDateTime": "Дата и время",
       "colSessionCount": "Сессии",
