@@ -964,6 +964,8 @@
         "payFailed": "Could not complete fake payment.",
         "successTitle": "Payment completed",
         "successLead": "Your gift card payment was confirmed and the card is now available in your account.",
+        "cashPendingTitle": "Cash payment pending",
+        "cashPendingLead": "Your cash payment request was submitted. A studio admin will confirm it after receiving payment.",
         "methods": {
           "CARD": "Card",
           "CASH": "Cash"
@@ -2803,9 +2805,32 @@
       "paymentActions": {
         "markPaid": "Mark paid",
         "reject": "Reject",
+        "confirming": "Confirming…",
+        "rejecting": "Rejecting…",
         "markedPaid": "Marked as paid.",
         "markedRejected": "Request rejected.",
         "actionFailed": "Could not update payment."
+      },
+      "paymentDetails": {
+        "title": "Payment details",
+        "lead": "Review payment information and confirm cash receipts when needed.",
+        "customer": "Customer",
+        "email": "Email",
+        "relatedLabel": "Related item",
+        "reference": "Reference",
+        "createdAt": "Created",
+        "confirmedAt": "Confirmed at",
+        "confirmedDate": "Confirmed date",
+        "methodUnknown": "Not selected yet",
+        "close": "Close payment details",
+        "closeBackdrop": "Close payment details",
+        "viewFor": "View payment details for {name}",
+        "related": {
+          "package": "Package subscription ({id})",
+          "dropin": "Drop-in booking ({id})",
+          "gift": "Gift card ({id})",
+          "other": "Other ({id})"
+        }
       },
       "table": {
         "empty": "No payments found for selected filters.",

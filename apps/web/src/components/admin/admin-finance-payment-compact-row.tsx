@@ -6,7 +6,6 @@ import {
   formatPaymentTime,
   toPaymentIso,
 } from "@/components/account/user-payment-display";
-import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
 import {
   ADMIN_FINANCE_MONEY_CLASS,
   ADMIN_FINANCE_VALUE_BADGE_CLASS,
@@ -14,14 +13,11 @@ import {
   financeSourceTone,
 } from "@/components/admin/admin-finance-list-display";
 import {
-  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_DATE_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL,
-  ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL,
-  ADMIN_FINANCE_PAYMENTS_LIST_SPACER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_TIME_CELL,
 } from "@/components/admin/admin-finance-payments-list-layout";
@@ -34,6 +30,7 @@ import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 type AdminFinancePaymentCompactRowProps = {
   locale: string;
   row: FinancePaymentItem;
+  onOpenDetails: () => void;
 };
 
 function displayName(row: FinancePaymentItem): string {
@@ -65,6 +62,7 @@ function resolveMethodLabel(
 export function AdminFinancePaymentCompactRow({
   locale,
   row,
+  onOpenDetails,
 }: AdminFinancePaymentCompactRowProps) {
   const t = useTranslations("adminPages.finance");
   const tTable = useTranslations("adminPages.finance.table");
@@ -72,7 +70,19 @@ export function AdminFinancePaymentCompactRow({
   const userLabel = displayName(row);
 
   return (
-    <article className={ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS}>
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={t("paymentDetails.viewFor", { name: userLabel })}
+      onClick={onOpenDetails}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenDetails();
+        }
+      }}
+      className={ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS}
+    >
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
         <AdminListMobileLabel label={tTable("colUser")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
@@ -126,15 +136,6 @@ export function AdminFinancePaymentCompactRow({
         <p className="truncate text-sm font-medium text-sage-800">
           {resolveMethodLabel(t, row.paymentMethod)}
         </p>
-      </div>
-
-      <div className={ADMIN_FINANCE_PAYMENTS_LIST_SPACER_CELL} aria-hidden="true" />
-
-      <div
-        className={`${ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL} ${ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
-      >
-        <AdminListMobileLabel label={tTable("colActions")} />
-        <AdminFinancePaymentActions paymentId={row.id} status={row.status} />
       </div>
     </article>
   );

@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import {
   ClassSessionStatus,
   GiftCardStatus,
+  ManualPaymentMethod,
   PaymentStatus,
 } from '@prisma/client';
 import { PaymentsService } from './payments.service';
@@ -258,7 +259,7 @@ describe('PaymentsService', () => {
     });
   });
 
-  it('adminUpdatePaymentStatus confirms drop-in payments transactionally', async () => {
+  it('adminUpdatePaymentStatus rejects non-cash pending payments', async () => {
     const { service, prisma } = createService();
     prisma.payment.findUnique.mockResolvedValue({
       id: 'p1',
@@ -267,6 +268,24 @@ describe('PaymentsService', () => {
       source: PAYMENT_SOURCE.DROPIN,
       sourceId: 's1',
       status: PaymentStatus.PENDING,
+      paymentMethod: ManualPaymentMethod.CARD,
+    });
+
+    await expect(
+      service.adminUpdatePaymentStatus('p1', PaymentStatus.SUCCEEDED, 'admin1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('adminUpdatePaymentStatus confirms cash drop-in payments transactionally', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      userPackageId: null,
+      source: PAYMENT_SOURCE.DROPIN,
+      sourceId: 's1',
+      status: PaymentStatus.PENDING,
+      paymentMethod: ManualPaymentMethod.CASH,
     });
     prisma.classSession.findUnique.mockResolvedValue({
       id: 's1',
@@ -330,6 +349,7 @@ describe('PaymentsService', () => {
       source: PAYMENT_SOURCE.GIFT,
       sourceId: 'batch1',
       status: PaymentStatus.PENDING,
+      paymentMethod: ManualPaymentMethod.CASH,
       metadata: {},
     });
     prisma.giftCardBatch.updateMany.mockResolvedValue({ count: 1 });

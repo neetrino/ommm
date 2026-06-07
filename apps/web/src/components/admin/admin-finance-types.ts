@@ -25,8 +25,11 @@ export type FinancePaymentItem = {
   status: string;
   description: string | null;
   paymentMethod: string | null;
+  paymentReference: string | null;
+  sourceId: string | null;
   source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
+  confirmedAt: string | null;
   user: {
     email: string;
     name: string | null;

@@ -5,13 +5,14 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-payment-compact-row";
+import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
 import {
-  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-payments-list-layout";
 import type {
+  FinancePaymentItem,
   FinancePaymentsPayload,
   FinanceSourceFilter,
   FinanceStatusFilter,
@@ -69,6 +70,7 @@ export function AdminFinancePaymentsPanel({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
+  const [selectedPayment, setSelectedPayment] = useState<FinancePaymentItem | null>(null);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
@@ -130,6 +132,14 @@ export function AdminFinancePaymentsPanel({
     });
   }, [payListPage, paymentsFrom, paymentsSource, paymentsStatus, searchQuery, setPaymentsPayload, t]);
 
+  function handlePaymentUpdated(updated: FinancePaymentItem): void {
+    setPaymentsPayload((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => (item.id === updated.id ? updated : item)),
+    }));
+    setSelectedPayment(updated);
+  }
+
   return (
     <div className="space-y-4">
       {error ? <div className="app-alert-warn">{error}</div> : null}
@@ -147,8 +157,6 @@ export function AdminFinancePaymentsPanel({
           <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>
             {tTable("colPaymentMethod")}
           </span>
-          <span aria-hidden="true" />
-          <span className={ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL}>{tTable("colActions")}</span>
         </div>
         {paymentsPayload.items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
@@ -156,10 +164,22 @@ export function AdminFinancePaymentsPanel({
           </p>
         ) : (
           paymentsPayload.items.map((row) => (
-            <AdminFinancePaymentCompactRow key={row.id} locale={locale} row={row} />
+            <AdminFinancePaymentCompactRow
+              key={row.id}
+              locale={locale}
+              row={row}
+              onOpenDetails={() => setSelectedPayment(row)}
+            />
           ))
         )}
       </div>
+
+      <AdminFinancePaymentDetailsSheet
+        payment={selectedPayment}
+        locale={locale}
+        onClose={() => setSelectedPayment(null)}
+        onPaymentUpdated={handlePaymentUpdated}
+      />
 
       <OmmListPagination
         total={paymentsPayload.total}

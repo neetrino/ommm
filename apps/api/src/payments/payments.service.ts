@@ -9,6 +9,7 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
+  ManualPaymentMethod,
   PackageStatus,
   Prisma,
   PaymentStatus,
@@ -24,6 +25,7 @@ import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
+import { requiresManualAdminConfirmation } from './payment-confirmation.util';
 
 type PaymentListSource = 'package' | 'dropin' | 'gift' | 'other';
 
@@ -196,26 +198,44 @@ export class PaymentsService {
     status: AdminUpdatablePaymentStatus,
     adminId: string,
   ) {
-    if (status === PaymentStatus.SUCCEEDED) {
-      return this.confirmPayment(paymentId, adminId);
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (payment.status !== PaymentStatus.PENDING) {
+      throw new ConflictException('Only pending payments can be updated');
+    }
+    if (!requiresManualAdminConfirmation(payment)) {
+      throw new BadRequestException(
+        'Only pending cash payments can be manually updated',
+      );
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.findUnique({ where: { id: paymentId } });
-      if (!payment) {
-        throw new NotFoundException('Payment not found');
-      }
-      if (payment.status !== PaymentStatus.PENDING) {
-        throw new ConflictException('Only pending payments can be updated');
-      }
-      return tx.payment.update({
+    if (status === PaymentStatus.SUCCEEDED) {
+      return this.confirmPayment(paymentId, adminId, {
+        paymentMethod: ManualPaymentMethod.CASH,
+      });
+    }
+
+    return this.prisma.$transaction(async (tx) =>
+      tx.payment.update({
         where: { id: paymentId },
         data: this.withInternalPaymentUpdateFields({
           status,
           confirmedAt: new Date(),
           confirmedByAdminId: adminId,
+          paymentMethod: ManualPaymentMethod.CASH,
         }),
-      });
+      }),
+    );
+  }
+
+  /** Confirms a pending card payment after the user checkout flow completes. */
+  async confirmPendingCardPayment(paymentId: string): Promise<void> {
+    await this.confirmPayment(paymentId, null, {
+      paymentMethod: ManualPaymentMethod.CARD,
     });
   }
 
@@ -224,6 +244,29 @@ export class PaymentsService {
     paymentReference: string,
     paymentMethod: GiftPaymentMethod,
   ) {
+    if (paymentMethod === ManualPaymentMethod.CASH) {
+      return this.prisma.$transaction(async (tx) => {
+        const existing = (await tx.payment.findFirst({
+          where: this.withInternalPaymentWhereFields({ paymentReference }),
+        })) as InternalPaymentRecord | null;
+        if (!existing || existing.userId !== userId) {
+          throw new NotFoundException('Payment not found');
+        }
+        if (existing.status !== PaymentStatus.PENDING) {
+          throw new ConflictException('Only pending payments can be confirmed');
+        }
+        if (existing.source !== INTERNAL_PAYMENT_SOURCE.GIFT) {
+          throw new BadRequestException('Payment is not a gift purchase');
+        }
+        return tx.payment.update({
+          where: { id: existing.id },
+          data: this.withInternalPaymentUpdateFields({
+            paymentMethod: ManualPaymentMethod.CASH,
+          }),
+        });
+      });
+    }
+
     const giftEmails: GiftEmailPayload[] = [];
     const payment = await this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findFirst({
@@ -262,7 +305,11 @@ export class PaymentsService {
     return payment;
   }
 
-  private async confirmPayment(paymentId: string, adminId: string) {
+  private async confirmPayment(
+    paymentId: string,
+    adminId: string | null,
+    options?: { paymentMethod?: ManualPaymentMethod },
+  ) {
     const giftEmails: GiftEmailPayload[] = [];
     const payment = await this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findUnique({
@@ -300,7 +347,8 @@ export class PaymentsService {
         data: this.withInternalPaymentUpdateFields({
           status: PaymentStatus.SUCCEEDED,
           confirmedAt: new Date(),
-          confirmedByAdminId: adminId,
+          ...(adminId ? { confirmedByAdminId: adminId } : {}),
+          ...(options?.paymentMethod ? { paymentMethod: options.paymentMethod } : {}),
         }),
       });
     });
