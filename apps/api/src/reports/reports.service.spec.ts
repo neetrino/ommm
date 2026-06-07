@@ -224,6 +224,8 @@ describe('ReportsService', () => {
             id: 's1',
             capacity: 10,
             startsAt,
+            classTypeId: 'ct1',
+            classType: { name: 'Vinyasa' },
             status: ClassSessionStatus.ACTIVE,
           },
         ]),
@@ -232,7 +234,11 @@ describe('ReportsService', () => {
         findMany: jest
           .fn()
           .mockResolvedValue([
-            { sessionId: 's1', status: BookingStatus.BOOKED },
+            {
+              sessionId: 's1',
+              userId: 'u1',
+              status: BookingStatus.COMPLETED,
+            },
           ]),
       },
       waitlistEntry: {
@@ -244,8 +250,10 @@ describe('ReportsService', () => {
 
     expect(result?.totals.sessions).toBe(1);
     expect(result?.totals.bookings).toBe(1);
+    expect(result?.totals.totalClientsTrained).toBe(1);
     expect(result?.totals.utilizationPercent).toBe(10);
     expect(result?.trend.length).toBe(1);
+    expect(result?.classTypeBreakdown[0]?.name).toBe('Vinyasa');
   });
 
   it('giftCreditsCsv includes issued, redeemed and spent rows', async () => {

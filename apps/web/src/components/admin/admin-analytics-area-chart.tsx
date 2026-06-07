@@ -30,7 +30,12 @@ type AdminAnalyticsAreaChartProps = {
 type TrendTooltipProps = {
   active?: boolean;
   label?: string;
-  payload?: Array<{ dataKey?: string | number; value?: number; color?: string }>;
+  payload?: Array<{
+    dataKey?: string | number;
+    value?: number;
+    color?: string;
+    payload?: Record<string, string | number>;
+  }>;
   series: AdminAnalyticsAreaSeries[];
   valueFormatter?: (value: number, seriesKey: string) => string;
 };
@@ -40,9 +45,18 @@ function TrendTooltip({ active, label, payload, series, valueFormatter }: TrendT
     return null;
   }
 
+  const tooltipLabel =
+    typeof payload[0]?.payload?.tooltipLabel === "string"
+      ? payload[0].payload.tooltipLabel
+      : label;
+
   return (
     <div className="min-w-40 rounded-lg border border-white/60 bg-white/95 px-3 py-2 text-xs shadow-xl backdrop-blur-sm">
-      {label ? <div className="mb-2 border-b border-sage-500/15 pb-1.5 font-medium text-sage-900">{label}</div> : null}
+      {tooltipLabel ? (
+        <div className="mb-2 border-b border-sage-500/15 pb-1.5 font-medium text-sage-900">
+          {tooltipLabel}
+        </div>
+      ) : null}
       <div className="space-y-1.5">
         {series.map((item) => {
           const point = payload.find((entry) => entry.dataKey === item.key);
@@ -83,6 +97,7 @@ export function AdminAnalyticsAreaChart({
   );
 
   const axisInterval = resolveTrendAxisInterval(data.length);
+  const showPointDots = data.length <= 14;
   const hasData = data.some((point) => series.some((item) => Number(point[item.key]) > 0));
 
   if (!hasData) {
@@ -112,7 +127,7 @@ export function AdminAnalyticsAreaChart({
         <AreaChart
           accessibilityLayer
           data={data}
-          margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+          margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
         >
           <defs>
             {series.map((item) => (
@@ -129,7 +144,8 @@ export function AdminAnalyticsAreaChart({
             axisLine={false}
             tickMargin={10}
             interval={axisInterval}
-            tick={{ fontSize: 12 }}
+            minTickGap={56}
+            tick={{ fontSize: 11, fill: "var(--color-sage-500, #6b7280)" }}
           />
           <YAxis hide domain={[0, "auto"]} />
           <Tooltip
@@ -145,7 +161,11 @@ export function AdminAnalyticsAreaChart({
               fillOpacity={1}
               stroke={`var(--color-${item.key})`}
               strokeWidth={2}
-              dot={{ r: 3, fill: `var(--color-${item.key})`, stroke: "#fff", strokeWidth: 1.5 }}
+              dot={
+                showPointDots
+                  ? { r: 3, fill: `var(--color-${item.key})`, stroke: "#fff", strokeWidth: 1.5 }
+                  : false
+              }
               activeDot={{ r: 4, stroke: "#fff", strokeWidth: 1.5 }}
             />
           ))}
