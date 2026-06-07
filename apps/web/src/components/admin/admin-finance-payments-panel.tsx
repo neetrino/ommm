@@ -6,7 +6,9 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminFinancePaymentCompactRow } from "@/components/admin/admin-finance-payment-compact-row";
 import { AdminFinancePaymentDetailsSheet } from "@/components/admin/admin-finance-payment-details-sheet";
+import type { AdminUpdatablePaymentStatus } from "@/components/admin/admin-finance-payment-status-picker";
 import {
+  ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER,
   ADMIN_FINANCE_PAYMENTS_LIST_HEADER_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_TABLE_CLASS,
@@ -20,9 +22,10 @@ import {
   buildFinancePaymentsAdminApiQuery,
   FINANCE_PAYMENTS_PAGE_KEYS,
 } from "@/components/admin/admin-finance-url";
+import { AdminCenterToast, type AdminCenterToastTone } from "@/components/ui/admin-center-toast";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 type Props = {
@@ -32,6 +35,8 @@ type Props = {
   financeFilters: FinanceFilterValues;
 };
 
+type ToastState = { message: string; tone: AdminCenterToastTone } | null;
+
 export function AdminFinancePaymentsPanel({
   locale,
   initialPayments,
@@ -39,12 +44,15 @@ export function AdminFinancePaymentsPanel({
   financeFilters,
 }: Props) {
   const t = useTranslations("adminPages.finance.paymentsTab");
+  const tFinance = useTranslations("adminPages.finance");
   const tTable = useTranslations("adminPages.finance.table");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
   const [selectedPayment, setSelectedPayment] = useState<FinancePaymentItem | null>(null);
+  const [busyPaymentId, setBusyPaymentId] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>(null);
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
@@ -105,7 +113,49 @@ export function AdminFinancePaymentsPanel({
       ...prev,
       items: prev.items.map((item) => (item.id === updated.id ? updated : item)),
     }));
-    setSelectedPayment(updated);
+    setSelectedPayment((current) => (current?.id === updated.id ? updated : current));
+  }
+
+  async function handlePaymentStatusChange(
+    payment: FinancePaymentItem,
+    nextStatus: AdminUpdatablePaymentStatus,
+  ): Promise<void> {
+    if (nextStatus === payment.status) {
+      return;
+    }
+
+    setBusyPaymentId(payment.id);
+    try {
+      await apiFetch(`/payments/admin/${payment.id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      handlePaymentUpdated({
+        ...payment,
+        status: nextStatus,
+        paymentMethod:
+          payment.paymentMethod ??
+          (nextStatus === "SUCCEEDED" || nextStatus === "FAILED" ? "CASH" : null),
+        confirmedAt:
+          nextStatus === "PENDING"
+            ? null
+            : (payment.confirmedAt ?? new Date().toISOString()),
+      });
+      setToast({
+        message: tFinance("paymentActions.statusUpdated"),
+        tone: "ok",
+      });
+    } catch (updateError) {
+      setToast({
+        message:
+          updateError instanceof ApiError
+            ? updateError.message
+            : tFinance("paymentActions.actionFailed"),
+        tone: "err",
+      });
+    } finally {
+      setBusyPaymentId(null);
+    }
   }
 
   return (
@@ -125,6 +175,7 @@ export function AdminFinancePaymentsPanel({
           <span className={ADMIN_FINANCE_PAYMENTS_LIST_EMPHASIZED_HEADER}>
             {tTable("colPaymentMethod")}
           </span>
+          <span className={ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_HEADER_CELL}>{tTable("colActions")}</span>
         </div>
         {paymentsPayload.items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
@@ -136,7 +187,11 @@ export function AdminFinancePaymentsPanel({
               key={row.id}
               locale={locale}
               row={row}
+              busy={busyPaymentId === row.id}
               onOpenDetails={() => setSelectedPayment(row)}
+              onChangeStatus={(nextStatus) => {
+                void handlePaymentStatusChange(row, nextStatus);
+              }}
             />
           ))
         )}
@@ -157,6 +212,12 @@ export function AdminFinancePaymentsPanel({
         onPageChange={(page) => setPayListPage(page)}
         onPageSizeChange={(pageSize) => setPayListPage(1, pageSize)}
         disabled={loading}
+      />
+
+      <AdminCenterToast
+        message={toast?.message ?? null}
+        tone={toast?.tone}
+        onDismiss={() => setToast(null)}
       />
     </div>
   );

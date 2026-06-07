@@ -310,7 +310,7 @@ describe('PaymentsService', () => {
     });
   });
 
-  it('adminUpdatePaymentStatus rejects non-cash pending payments', async () => {
+  it('adminUpdatePaymentStatus auto-confirms pending card payments', async () => {
     const { service, prisma } = createService();
     prisma.payment.findUnique.mockResolvedValue({
       id: 'p1',
@@ -321,10 +321,87 @@ describe('PaymentsService', () => {
       status: PaymentStatus.PENDING,
       paymentMethod: ManualPaymentMethod.CARD,
     });
+    prisma.classSession.findUnique.mockResolvedValue({
+      id: 's1',
+      status: ClassSessionStatus.ACTIVE,
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      capacity: 2,
+    });
+    prisma.booking.findUnique.mockResolvedValue(null);
+    prisma.booking.count.mockResolvedValue(1);
+
+    await service.adminUpdatePaymentStatus(
+      'p1',
+      PaymentStatus.SUCCEEDED,
+      'admin1',
+    );
+
+    expect(prisma.payment.update).toHaveBeenCalled();
+  });
+
+  it('adminUpdatePaymentStatus rejects manual status changes on confirmed card payments', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      status: PaymentStatus.SUCCEEDED,
+      paymentMethod: ManualPaymentMethod.CARD,
+      confirmedAt: new Date('2026-01-01T12:00:00.000Z'),
+    });
 
     await expect(
-      service.adminUpdatePaymentStatus('p1', PaymentStatus.SUCCEEDED, 'admin1'),
+      service.adminUpdatePaymentStatus('p1', PaymentStatus.FAILED, 'admin1'),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('adminUpdatePaymentStatus updates settled manual payments without fulfillment', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      status: PaymentStatus.SUCCEEDED,
+      paymentMethod: ManualPaymentMethod.CASH,
+      confirmedAt: new Date('2026-01-01T12:00:00.000Z'),
+    });
+
+    await service.adminUpdatePaymentStatus('p1', PaymentStatus.FAILED, 'admin1');
+
+    expect(prisma.payment.update).toHaveBeenCalledWith({
+      where: { id: 'p1' },
+      data: expect.objectContaining({
+        status: PaymentStatus.FAILED,
+        confirmedByAdminId: 'admin1',
+      }),
+    });
+  });
+
+  it('adminUpdatePaymentStatus confirms pending drop-in without preset payment method', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      userPackageId: null,
+      source: PAYMENT_SOURCE.DROPIN,
+      sourceId: 's1',
+      status: PaymentStatus.PENDING,
+      paymentMethod: null,
+    });
+    prisma.classSession.findUnique.mockResolvedValue({
+      id: 's1',
+      status: ClassSessionStatus.ACTIVE,
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      capacity: 2,
+    });
+    prisma.booking.findUnique.mockResolvedValue(null);
+    prisma.booking.count.mockResolvedValue(1);
+
+    await service.adminUpdatePaymentStatus(
+      'p1',
+      PaymentStatus.SUCCEEDED,
+      'admin1',
+    );
+
+    expect(prisma.payment.update).toHaveBeenCalled();
   });
 
   it('adminUpdatePaymentStatus confirms cash drop-in payments transactionally', async () => {

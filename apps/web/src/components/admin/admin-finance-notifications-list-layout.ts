@@ -35,7 +35,7 @@ export const ADMIN_FINANCE_USER_LIST_SPACER_CELL = USER_LIST_SPACER_CELL;
 export const ADMIN_FINANCE_USER_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;
 
 const FINANCE_COACH_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1.2fr)_minmax(0,auto)_auto_auto_auto_1fr_auto]";
+  "md:grid-cols-[minmax(0,1.2fr)_minmax(0,auto)_auto_auto_auto]";
 
 export const ADMIN_FINANCE_COACH_LIST_TABLE_CLASS = buildAdminListTableClass(FINANCE_COACH_GRID_CLASS);
 

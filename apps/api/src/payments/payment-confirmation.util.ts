@@ -5,13 +5,13 @@ type PaymentConfirmationFields = {
   paymentMethod: ManualPaymentMethod | null;
 };
 
-/** Cash payments stay pending until an admin confirms receipt. */
+/** Manual payments stay pending until an admin confirms receipt. Card checkout auto-confirms. */
 export function requiresManualAdminConfirmation(
   payment: PaymentConfirmationFields,
 ): boolean {
   return (
     payment.status === PaymentStatus.PENDING &&
-    payment.paymentMethod === ManualPaymentMethod.CASH
+    payment.paymentMethod !== ManualPaymentMethod.CARD
   );
 }
 

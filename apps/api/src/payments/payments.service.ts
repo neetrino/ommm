@@ -26,7 +26,6 @@ import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto'
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
-import { requiresManualAdminConfirmation } from './payment-confirmation.util';
 
 type PaymentListSource = 'package' | 'dropin' | 'gift' | 'other';
 
@@ -205,31 +204,69 @@ export class PaymentsService {
     if (!payment) {
       throw new NotFoundException('Payment not found');
     }
-    if (payment.status !== PaymentStatus.PENDING) {
-      throw new ConflictException('Only pending payments can be updated');
-    }
-    if (!requiresManualAdminConfirmation(payment)) {
+    if (payment.paymentMethod === ManualPaymentMethod.CARD) {
+      if (payment.status === PaymentStatus.PENDING) {
+        return this.confirmPayment(paymentId, adminId, {
+          paymentMethod: ManualPaymentMethod.CARD,
+        });
+      }
       throw new BadRequestException(
-        'Only pending cash payments can be manually updated',
+        'Card payment status is confirmed automatically',
       );
     }
+    if (payment.status === status) {
+      return payment;
+    }
 
-    if (status === PaymentStatus.SUCCEEDED) {
+    if (
+      status === PaymentStatus.SUCCEEDED &&
+      payment.status === PaymentStatus.PENDING
+    ) {
       return this.confirmPayment(paymentId, adminId, {
-        paymentMethod: ManualPaymentMethod.CASH,
+        paymentMethod: payment.paymentMethod ?? ManualPaymentMethod.CASH,
       });
     }
 
-    return this.prisma.$transaction(async (tx) =>
-      tx.payment.update({
-        where: { id: paymentId },
-        data: this.withInternalPaymentUpdateFields({
+    return this.prisma.payment.update({
+      where: { id: paymentId },
+      data: this.withInternalPaymentUpdateFields({
+        status,
+        confirmedAt: this.resolveAdminStatusConfirmedAt(
           status,
-          confirmedAt: new Date(),
-          confirmedByAdminId: adminId,
-          paymentMethod: ManualPaymentMethod.CASH,
-        }),
+          payment.confirmedAt,
+        ),
+        confirmedByAdminId: adminId,
+        ...(this.shouldSetDefaultManualPaymentMethod(status, payment.paymentMethod)
+          ? { paymentMethod: ManualPaymentMethod.CASH }
+          : {}),
       }),
+    });
+  }
+
+  private resolveAdminStatusConfirmedAt(
+    status: PaymentStatus,
+    existingConfirmedAt: Date | null,
+  ): Date | null {
+    if (status === PaymentStatus.PENDING) {
+      return null;
+    }
+    if (
+      status === PaymentStatus.SUCCEEDED ||
+      status === PaymentStatus.FAILED ||
+      status === PaymentStatus.REFUNDED
+    ) {
+      return existingConfirmedAt ?? new Date();
+    }
+    return existingConfirmedAt;
+  }
+
+  private shouldSetDefaultManualPaymentMethod(
+    status: PaymentStatus,
+    paymentMethod: ManualPaymentMethod | null,
+  ): boolean {
+    return (
+      paymentMethod === null &&
+      (status === PaymentStatus.SUCCEEDED || status === PaymentStatus.FAILED)
     );
   }
 

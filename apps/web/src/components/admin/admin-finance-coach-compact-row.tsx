@@ -112,13 +112,6 @@ export function AdminFinanceCoachCompactRow({
               : t("statusPending")}
         </span>
       </div>
-
-      <span aria-hidden="true" className="hidden min-w-0 md:block" />
-
-      <div className={`${ADMIN_FINANCE_COACH_LIST_CELL} md:justify-self-end`}>
-        <AdminListMobileLabel label={t("colActions")} />
-        <p className="text-xs text-sage-500">{t("actionsUnsupported")}</p>
-      </div>
     </article>
   );
 }

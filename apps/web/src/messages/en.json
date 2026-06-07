@@ -2843,8 +2843,11 @@
         "rejecting": "Rejecting…",
         "markedPaid": "Marked as paid.",
         "markedRejected": "Request rejected.",
+        "statusUpdated": "Payment status updated.",
+        "cardStatusAuto": "Card payments are confirmed automatically.",
         "actionFailed": "Could not update payment."
       },
+      "changeStatusAria": "Change payment status — current: {status}",
       "paymentDetails": {
         "title": "Payment details",
         "lead": "Review payment information and confirm cash receipts when needed.",
@@ -2877,6 +2880,7 @@
         "colSource": "Source",
         "colStatus": "Status",
         "colActions": "Actions",
+        "actionEditPayment": "Edit payment",
         "colDescription": "Description"
       },
       "actions": {
@@ -2970,8 +2974,6 @@
         "colSessions": "Sessions",
         "colMonth": "Month",
         "colPayoutStatus": "Payout status",
-        "colActions": "Actions",
-        "actionsUnsupported": "Edit and pause are not supported for coach payroll.",
         "quickPaid": "Paid coaches",
         "quickPending": "Pending salaries",
         "quickHighSalary": "High salary",
