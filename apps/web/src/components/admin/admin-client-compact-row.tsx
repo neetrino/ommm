@@ -19,7 +19,7 @@ import {
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
-import { formatDateForUi } from "@/lib/date-display";
+import { formatDateCompactForUi, formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
 type AdminClientCompactRowProps = {
@@ -87,7 +87,7 @@ export function AdminClientCompactRow({
 
       <div className={ADMIN_CLIENTS_LIST_DATE_CELL}>
         <AdminListMobileLabel label={t("colJoined")} />
-        <p className="text-sm text-sage-800">{formatDateForUi(row.createdAt)}</p>
+        <p className="text-sm text-sage-800">{formatDateCompactForUi(row.createdAt)}</p>
       </div>
 
       {readOnly ? null : (

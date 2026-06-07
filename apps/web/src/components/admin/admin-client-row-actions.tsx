@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
 import {
-  ADMIN_ACTION_ICON_CLASS,
   PencilGlyph,
 } from "@/components/ui/admin-action-glyphs";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -92,7 +91,7 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
   return (
     <>
       <div
-        className="flex items-center justify-end gap-1"
+        className="flex items-center justify-end gap-2"
         role="group"
         aria-label={t("colActions")}
       >
@@ -100,13 +99,14 @@ export function AdminClientRowActions({ client, onChanged, onEdit }: AdminClient
           ariaLabel={t("editClient")}
           title={t("edit")}
           variant="subtle"
+          className="ommm-admin-row-icon-button-lg"
           disabled={busy}
           onClick={(event) => {
             event.stopPropagation();
             onEdit();
           }}
         >
-          <PencilGlyph className={ADMIN_ACTION_ICON_CLASS} />
+          <PencilGlyph className="h-5 w-5 shrink-0" />
         </AdminRowIconButton>
         <AdminRowIconButton
           ariaLabel={toggleLabel}
