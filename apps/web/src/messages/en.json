@@ -1305,6 +1305,7 @@
       "applyFilters": "Apply filters",
       "clearSearchAndFilters": "Clear search and filters",
       "filterPanelAria": "Search filters",
+      "filterToggleAria": "Show or hide filters",
       "loadingResults": "Loading matching results…",
       "activeCount": "{count} active filters"
     },

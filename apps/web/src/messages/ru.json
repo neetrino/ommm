@@ -1296,6 +1296,7 @@
       "applyFilters": "Применить фильтры",
       "clearSearchAndFilters": "Очистить поиск и фильтры",
       "filterPanelAria": "Фильтры поиска",
+      "filterToggleAria": "Показать или скрыть фильтры",
       "loadingResults": "Загрузка результатов…",
       "activeCount": "{count} активных фильтров"
     },

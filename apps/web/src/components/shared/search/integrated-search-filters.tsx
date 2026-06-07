@@ -76,6 +76,8 @@ export type IntegratedSearchFiltersProps = {
   resetLabel: string;
   clearAriaLabel: string;
   filterPanelAriaLabel: string;
+  /** Accessible label for the in-field filter toggle (search + filter inputs). */
+  filterToggleAriaLabel?: string;
   className?: string;
   /** When true, omits the text search input — filter panel opens via filter button (overview period-only). */
   hideSearch?: boolean;
@@ -100,6 +102,24 @@ function SearchGlyph({ className }: { className?: string }) {
   );
 }
 
+function FilterGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.85}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
+    </svg>
+  );
+}
+
 /** Compact search bar — filter panel opens on focus when search is empty (NBOS pattern). */
 export function IntegratedSearchFilters({
   search,
@@ -113,6 +133,7 @@ export function IntegratedSearchFilters({
   resetLabel,
   clearAriaLabel,
   filterPanelAriaLabel,
+  filterToggleAriaLabel = filterPanelAriaLabel,
   className = "",
   hideSearch = false,
   portalFilterPanel = true,
@@ -246,6 +267,24 @@ export function IntegratedSearchFilters({
     setPanelOpen(true);
   }
 
+  function toggleFilterPanel() {
+    if (!hasFilters) {
+      return;
+    }
+    if (panelOpen) {
+      setPanelOpen(false);
+      return;
+    }
+    setDraftFilters(filterValues);
+    setPanelOpen(true);
+    setSearchFocused(true);
+  }
+
+  function handleFilterToggleClick(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    toggleFilterPanel();
+  }
+
   function handleFilterBarClick() {
     if (hideSearch && hasFilters) {
       openPanel();
@@ -354,6 +393,24 @@ export function IntegratedSearchFilters({
         {!hideSearch ? (
           <div className="relative min-w-0 flex-1">
             <SearchGlyph className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-sage-500" />
+            {hasFilters ? (
+              <button
+                type="button"
+                className={`absolute top-1/2 right-1.5 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-white/50 ${
+                  panelOpen
+                    ? "bg-white/50 text-sage-900"
+                    : chips.length > 0
+                      ? "text-sage-700"
+                      : "text-sage-500"
+                }`}
+                aria-label={filterToggleAriaLabel}
+                aria-expanded={panelOpen}
+                aria-controls={PANEL_ID}
+                onClick={handleFilterToggleClick}
+              >
+                <FilterGlyph className="h-4 w-4 shrink-0" />
+              </button>
+            ) : null}
             <input
               ref={searchInputRef}
               type="search"
@@ -367,7 +424,9 @@ export function IntegratedSearchFilters({
               role={hasFilters ? "combobox" : "searchbox"}
               aria-expanded={hasFilters ? panelOpen : undefined}
               aria-controls={hasFilters ? PANEL_ID : undefined}
-              className="ommm-search-input-no-native-clear h-9 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0"
+              className={`ommm-search-input-no-native-clear h-9 w-full min-w-0 border-0 bg-transparent pl-9 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0 ${
+                hasFilters ? "pr-10" : "pr-2"
+              }`}
             />
           </div>
         ) : null}

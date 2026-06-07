@@ -1308,6 +1308,7 @@
       "applyFilters": "Կիրառել ֆիլտրերը",
       "clearSearchAndFilters": "Մաքրել որոնումն ու ֆիլտրերը",
       "filterPanelAria": "Որոնման ֆիլտրեր",
+      "filterToggleAria": "Ցույց տալ կամ թաքցնել ֆիլտրերը",
       "loadingResults": "Բեռնվում են համապատասխան արդյունքները…",
       "activeCount": "{count} ակտիվ ֆիլտր"
     },
