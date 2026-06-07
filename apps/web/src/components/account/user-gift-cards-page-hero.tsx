@@ -9,6 +9,8 @@ import {
   UserGiftCardsTabNav,
 } from "@/components/account/user-gift-cards-tab-nav";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { ADMIN_PAGE_HERO_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
+import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
 
 type UserGiftCardsPageHeroProps = {
   title: string;
@@ -27,8 +29,8 @@ function UserGiftCardsPageHeroInner({
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_HERO_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-4">
@@ -54,8 +56,8 @@ function UserGiftCardsPageHeroFallback({ title }: { title: string }) {
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_HERO_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-4">

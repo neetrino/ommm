@@ -36,7 +36,7 @@ export default async function UserBookingsPage({
     const failed = [upcomingRes, pastRes].find((res) => !res.ok);
     const status = failed && !failed.ok ? failed.status : 500;
     return (
-      <div className="ommm-container pt-6 sm:pt-8">
+      <div className="ommm-container">
         <div className="app-alert-warn">
           {status === 401 ? t("signInRequired") : t("loadError", { status })}
         </div>

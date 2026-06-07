@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
-
+import { ADMIN_PAGE_HERO_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
+import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
 type AdminPageHeroProps = {
   title: string;
   description?: ReactNode;
@@ -19,8 +20,8 @@ export function AdminPageHero({ title, description, search, trailing }: AdminPag
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 mb-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_HERO_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="min-w-0 shrink-0">

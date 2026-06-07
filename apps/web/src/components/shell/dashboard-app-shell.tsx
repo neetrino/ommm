@@ -32,6 +32,7 @@ import {
   sidebarAsideBgClass,
   sidebarBrandStripClass,
   sidebarShellBorderClass,
+  WORKSPACE_MAIN_SAFE_TOP_CLASS,
 } from "@/components/shell/dashboard-shell-classes";
 
 export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
@@ -138,23 +139,31 @@ export function DashboardAppShell({
   const sidebarStickyClass = withSiteHeader
     ? offsetStyles.sidebarFixedBelowMarketingHeader
     : "lg:sticky lg:top-0 lg:h-screen lg:max-h-screen lg:self-start";
+  const mainClassName = [
+    isOliveShell
+      ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
+      : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10",
+    withSiteHeader ? WORKSPACE_MAIN_SAFE_TOP_CLASS : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const layoutMinHeightClass = withSiteHeader ? "min-h-full" : "min-h-screen";
 
-  return (
-    <div className={rootClassName}>
-      <div
-        className={`mx-auto flex min-h-screen w-full flex-col lg:flex-row ${contentMaxClass}`}
+  const workspaceBody = (
+    <div
+      className={`mx-auto flex ${layoutMinHeightClass} w-full flex-col lg:flex-row ${contentMaxClass}`}
+    >
+      {withSiteHeader ? (
+        <div className={`hidden shrink-0 lg:block ${asideWidth}`} aria-hidden />
+      ) : null}
+      <aside
+        className={`hidden shrink-0 flex-col shadow-sm lg:flex ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
+          isOliveShell
+            ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
+            : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
+        } transition-[width] duration-200 ease-out`}
+        aria-label={tShell("workspaceAria")}
       >
-        {withSiteHeader ? (
-          <div className={`hidden shrink-0 lg:block ${asideWidth}`} aria-hidden />
-        ) : null}
-        <aside
-          className={`hidden shrink-0 flex-col shadow-sm lg:flex ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
-            isOliveShell
-              ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
-              : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
-          } transition-[width] duration-200 ease-out`}
-          aria-label={tShell("workspaceAria")}
-        >
           <div
             className={
               isOliveShell
@@ -256,17 +265,20 @@ export function DashboardAppShell({
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <main
-            className={
-              isOliveShell
-                ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
-                : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
-            }
-          >
-            {children}
-          </main>
+          <main className={mainClassName}>{children}</main>
         </div>
       </div>
+  );
+
+  return (
+    <div className={rootClassName}>
+      {withSiteHeader ? (
+        <div className={offsetStyles.dashboardWithMarketingHeaderScroll}>
+          {workspaceBody}
+        </div>
+      ) : (
+        workspaceBody
+      )}
 
       {drawerOpen ? (
         <div

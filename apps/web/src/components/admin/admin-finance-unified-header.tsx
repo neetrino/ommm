@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { ADMIN_PAGE_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
+import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceMembersFilters } from "@/components/admin/admin-finance-members-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
@@ -82,8 +84,8 @@ function AdminFinanceUnifiedHeaderInner() {
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
@@ -107,8 +109,8 @@ function AdminFinanceUnifiedHeaderFallback() {
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">

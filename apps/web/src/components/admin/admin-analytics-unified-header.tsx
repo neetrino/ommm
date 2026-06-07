@@ -16,6 +16,8 @@ import type { AnalyticsFilterOptions } from "@/components/admin/admin-analytics-
 import { AdminAnalyticsTabNav } from "@/components/admin/admin-analytics-tab-nav";
 import { parseAnalyticsFiltersFromSearch } from "@/components/admin/admin-analytics-url";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
+import { ADMIN_PAGE_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
+import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
 
 type AdminAnalyticsUnifiedHeaderProps = {
   filterOptions: AnalyticsFilterOptions;
@@ -44,8 +46,8 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
@@ -75,8 +77,8 @@ function AdminAnalyticsUnifiedHeaderFallback() {
   return (
     <header
       ref={headerRef}
-      className="sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
-      style={{ top: "var(--ommm-marketing-site-header-offset, 4.25rem)" }}
+      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
+      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
     >
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">

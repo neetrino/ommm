@@ -15,7 +15,7 @@ export function MemberContentFrame({
   children,
 }: MemberContentFrameProps) {
   return (
-    <div className="ommm-admin-content pb-6 pt-4 sm:pb-8 sm:pt-6">
+    <div className="ommm-admin-content pb-6 sm:pb-8">
       {description ? (
         <p className="ommm-body-muted mb-6 text-sm">{description}</p>
       ) : null}

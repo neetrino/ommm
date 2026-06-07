@@ -5,6 +5,7 @@
  */
 .shellWithMarketingHeader {
   --ommm-marketing-site-header-offset: var(--marketing-mobile-header-height, 4.25rem);
+  scroll-padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
 }
 
 @media (min-width: 744px) {
@@ -36,8 +37,19 @@
 
 .dashboardWithMarketingHeader {
   box-sizing: border-box;
-  padding-top: var(--ommm-marketing-site-header-offset);
-  min-height: calc(100dvh - var(--ommm-marketing-site-header-offset));
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+}
+
+.dashboardWithMarketingHeaderScroll {
+  --ommm-workspace-sticky-top: 0px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 .stickyBelowMarketingHeader {
