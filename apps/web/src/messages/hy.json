@@ -729,6 +729,7 @@
       "packagesCount": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
       "emptyPackagesHint": "Դիտեք հասանելի պլանները և բաժանորդագրվեք, երբ պատրաստ լինեք։",
       "listHeaderPackage": "Փաթեթ",
+      "listHeaderValidity": "Վավերականություն",
       "listHeaderPrice": "Գին",
       "listHeaderSessions": "Դասեր",
       "listHeaderPeriod": "ժամանակաշրջան",
@@ -3368,6 +3369,7 @@
       "done": "Պատրաստ է"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Փաթեթի գործողություններ",
       "pause": "Դադարեցնել",
       "cancelAction": "Չեղարկել",
       "renew": "Թարմացնել",

@@ -717,6 +717,7 @@
       "packagesCount": "{count, plural, one {# package} other {# packages}}",
       "emptyPackagesHint": "Browse available plans and subscribe when you are ready.",
       "listHeaderPackage": "Package",
+      "listHeaderValidity": "Validity",
       "listHeaderPrice": "Price",
       "listHeaderSessions": "Sessions",
       "listHeaderPeriod": "Period",
@@ -3410,6 +3411,7 @@
       "done": "Done"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Package actions",
       "pause": "Pause",
       "cancelAction": "Cancel",
       "renew": "Renew",

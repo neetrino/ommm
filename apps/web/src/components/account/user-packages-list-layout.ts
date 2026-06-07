@@ -20,7 +20,8 @@ export { USER_PACKAGES_LIST_GRID_COLS };
 export const USER_PACKAGES_LIST_TABLE_CLASS = [
   "max-md:space-y-3",
   "md:grid",
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_1fr_auto]",
+  // Literal required — Tailwind JIT does not emit classes built from template literals.
+  "md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_1fr_auto]",
   USER_LIST_TABLE_GRID_GAP,
   "md:gap-y-3",
 ].join(" ");

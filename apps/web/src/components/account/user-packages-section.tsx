@@ -189,6 +189,7 @@ export function UserPackagesSection({
             <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
               <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
                 <span>{t("listHeaderPackage")}</span>
+                <span>{t("listHeaderValidity")}</span>
                 <span>{t("listHeaderPrice")}</span>
                 <span>{t("listHeaderSessions")}</span>
                 <span>{t("listHeaderPeriod")}</span>

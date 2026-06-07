@@ -717,6 +717,7 @@
       "packagesCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
       "emptyPackagesHint": "Просмотрите доступные планы и оформите подписку, когда будете готовы.",
       "listHeaderPackage": "Пакет",
+      "listHeaderValidity": "Срок действия",
       "listHeaderPrice": "Цена",
       "listHeaderSessions": "Занятия",
       "listHeaderPeriod": "Период",
@@ -3356,6 +3357,7 @@
       "done": "Готово"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Действия с пакетом",
       "pause": "Пауза",
       "cancelAction": "Отменить",
       "renew": "Продлить",
