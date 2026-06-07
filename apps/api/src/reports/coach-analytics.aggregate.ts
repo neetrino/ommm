@@ -73,7 +73,9 @@ function localDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function countBySessionId(items: Array<{ sessionId: string }>): Map<string, number> {
+function countBySessionId(
+  items: Array<{ sessionId: string }>,
+): Map<string, number> {
   const result = new Map<string, number>();
   for (const item of items) {
     result.set(item.sessionId, (result.get(item.sessionId) ?? 0) + 1);
@@ -81,7 +83,10 @@ function countBySessionId(items: Array<{ sessionId: string }>): Map<string, numb
   return result;
 }
 
-function computeAttendanceRate(completed: number, missed: number): number | null {
+function computeAttendanceRate(
+  completed: number,
+  missed: number,
+): number | null {
   const total = completed + missed;
   if (total <= 0) {
     return null;
@@ -152,7 +157,13 @@ export function aggregateCoachAnalytics(
   }));
   const classTypeMap = new Map<
     string,
-    { classTypeId: string; name: string; sessions: number; bookings: number; attendance: number }
+    {
+      classTypeId: string;
+      name: string;
+      sessions: number;
+      bookings: number;
+      attendance: number;
+    }
   >();
   const daily = new Map<
     string,
@@ -229,7 +240,13 @@ export function aggregateCoachAnalytics(
       acc.attendance += day.attendance;
       return acc;
     },
-    { sessions: 0, bookings: 0, activeWaitlists: 0, capacity: 0, attendance: 0 },
+    {
+      sessions: 0,
+      bookings: 0,
+      activeWaitlists: 0,
+      capacity: 0,
+      attendance: 0,
+    },
   );
 
   const classFillRate =

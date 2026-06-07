@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
@@ -45,7 +45,6 @@ import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
@@ -646,7 +645,6 @@ export function AdminBookingsManagement({
       ) : null}
       {showMoveModal && selectedRow ? (
         <MoveBookingDialog
-          isOpen
           booking={selectedRow}
           onClose={closeMoveModal}
           onSubmit={(targetSessionId) => {
@@ -720,12 +718,10 @@ function Metric({ title, value }: { title: string; value: number }) {
 }
 
 function MoveBookingDialog({
-  isOpen,
   booking,
   onClose,
   onSubmit,
 }: {
-  isOpen: boolean;
   booking: BookingRow;
   onClose: () => void;
   onSubmit: (targetSessionId: string) => void;

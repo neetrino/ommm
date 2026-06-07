@@ -231,15 +231,13 @@ describe('ReportsService', () => {
         ]),
       },
       booking: {
-        findMany: jest
-          .fn()
-          .mockResolvedValue([
-            {
-              sessionId: 's1',
-              userId: 'u1',
-              status: BookingStatus.COMPLETED,
-            },
-          ]),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            sessionId: 's1',
+            userId: 'u1',
+            status: BookingStatus.COMPLETED,
+          },
+        ]),
       },
       waitlistEntry: {
         findMany: jest.fn().mockResolvedValue([]),
