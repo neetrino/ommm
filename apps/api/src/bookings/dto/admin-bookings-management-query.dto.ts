@@ -10,6 +10,14 @@ import {
 import { BookingManagementOrder } from '../../common/enums/list-order.enum';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
+/** Derived booking payment labels returned by admin management rows. */
+export enum AdminBookingPaymentStatusFilter {
+  PAID = 'PAID',
+  CASH = 'CASH',
+  UNPAID = 'UNPAID',
+  CANCELLED = 'CANCELLED',
+}
+
 export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsDateString()
@@ -44,8 +52,8 @@ export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   channel?: BookingChannel;
 
   @IsOptional()
-  @IsString()
-  paymentStatus?: string;
+  @IsEnum(AdminBookingPaymentStatusFilter)
+  paymentStatus?: AdminBookingPaymentStatusFilter;
 
   @IsOptional()
   @IsString()

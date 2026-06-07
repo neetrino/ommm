@@ -2,9 +2,9 @@ import type { BookingsView } from "@/components/admin/admin-bookings-view";
 import { buildScheduleWeekDayKeys } from "@/components/shared/schedule/schedule-week-view-utils";
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
 import {
-  parseBookingManagementSortOrder,
-  type BookingManagementSortOrder,
-} from "@/lib/list-sort";
+  ADMIN_BOOKING_PAYMENT_FILTER_VALUES,
+  type AdminBookingPaymentStatus,
+} from "@/components/admin/admin-booking-list-badges";
 import { parseListPageParams } from "@/lib/list-pagination";
 
 export const ADMIN_BOOKINGS_BOOKING_ID_QUERY_KEY = "bookingId";
@@ -19,9 +19,8 @@ export const ADMIN_BOOKINGS_FILTER_KEYS = [
   "to",
   "classTypeId",
   "coachId",
-  "clientId",
   "status",
-  "order",
+  "paymentStatus",
 ] as const;
 
 export type AdminBookingsFilterState = {
@@ -30,10 +29,21 @@ export type AdminBookingsFilterState = {
   to: string;
   classTypeId: string;
   coachId: string;
-  clientId: string;
   status: string;
-  order: BookingManagementSortOrder;
+  paymentStatus: AdminBookingPaymentStatus | "";
 };
+
+export function parseAdminBookingPaymentFilter(
+  value: string | undefined | null,
+): AdminBookingPaymentStatus | "" {
+  if (!value) {
+    return "";
+  }
+  const normalized = value.toUpperCase();
+  return ADMIN_BOOKING_PAYMENT_FILTER_VALUES.includes(normalized as AdminBookingPaymentStatus)
+    ? (normalized as AdminBookingPaymentStatus)
+    : "";
+}
 
 export type AdminBookingSessionSlot = {
   id: string;
@@ -109,9 +119,8 @@ export const defaultAdminBookingsFilters: AdminBookingsFilterState = {
   to: "",
   classTypeId: "",
   coachId: "",
-  clientId: "",
   status: "",
-  order: "upcoming",
+  paymentStatus: "",
 };
 
 function isoDateLocal(date: Date): string {
@@ -177,9 +186,8 @@ export function pickAdminBookingsInitialFilters(
     to: search.to ?? "",
     classTypeId: search.classTypeId ?? "",
     coachId: search.coachId ?? "",
-    clientId: search.clientId ?? "",
     status: search.status ?? "",
-    order: parseBookingManagementSortOrder(search.order),
+    paymentStatus: parseAdminBookingPaymentFilter(search.paymentStatus),
   });
 }
 
@@ -206,14 +214,11 @@ function appendFilterParams(
   if (filters.coachId) {
     params.set("coachId", filters.coachId);
   }
-  if (filters.clientId) {
-    params.set("userId", filters.clientId);
-  }
   if (filters.status) {
     params.set("status", filters.status);
   }
-  if (filters.order !== "upcoming") {
-    params.set("order", filters.order);
+  if (filters.paymentStatus) {
+    params.set("paymentStatus", filters.paymentStatus);
   }
 }
 

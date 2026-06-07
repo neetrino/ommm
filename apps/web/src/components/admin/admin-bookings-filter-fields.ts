@@ -1,27 +1,23 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
+import {
+  ADMIN_BOOKING_PAYMENT_FILTER_VALUES,
+  type AdminBookingPaymentStatus,
+} from "@/components/admin/admin-booking-list-badges";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
-import { buildBookingManagementSortFilterField } from "@/lib/list-sort";
 
 type BookingFilterOptions = {
   classTypes: Array<{ id: string; name: string }>;
   coaches: Array<{ id: string; name: string }>;
-  clients: Array<{ id: string; label: string }>;
   statusLabels: Record<string, string>;
+  paymentLabels: Record<AdminBookingPaymentStatus, string>;
   labels: {
     dateFrom: string;
     dateTo: string;
     classAll: string;
     coachAll: string;
-    clientAll: string;
     statusAll: string;
-    sort: string;
-    sortLabels: {
-      upcoming: string;
-      "date-asc": string;
-      "date-desc": string;
-      newest: string;
-      oldest: string;
-    };
+    payment: string;
+    paymentAll: string;
   };
 };
 
@@ -62,15 +58,6 @@ export function buildAdminBookingsFilterFields(
       })),
     },
     {
-      key: "clientId",
-      label: "Client",
-      allLabel: options.labels.clientAll,
-      options: options.clients.map((item) => ({
-        value: item.id,
-        label: item.label,
-      })),
-    },
-    {
       key: "status",
       label: "Status",
       allLabel: options.labels.statusAll,
@@ -79,7 +66,15 @@ export function buildAdminBookingsFilterFields(
         label,
       })),
     },
-    buildBookingManagementSortFilterField(options.labels.sort, options.labels.sortLabels),
+    {
+      key: "paymentStatus",
+      label: options.labels.payment,
+      allLabel: options.labels.paymentAll,
+      options: ADMIN_BOOKING_PAYMENT_FILTER_VALUES.map((value) => ({
+        value,
+        label: options.paymentLabels[value],
+      })),
+    },
   ];
 }
 
@@ -88,17 +83,15 @@ export function adminBookingsFilterValuesFromState(values: {
   to: string;
   classTypeId: string;
   coachId: string;
-  clientId: string;
   status: string;
-  order: string;
+  paymentStatus: string;
 }): Record<string, string> {
   return {
     from: values.from,
     to: values.to,
     classTypeId: values.classTypeId,
     coachId: values.coachId,
-    clientId: values.clientId,
     status: values.status,
-    order: values.order ?? "upcoming",
+    paymentStatus: values.paymentStatus,
   };
 }

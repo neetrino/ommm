@@ -1354,6 +1354,8 @@
       "filterClassAll": "Все типы занятий",
       "filterCoachAll": "Все тренеры",
       "filterClientAll": "Все клиенты",
+      "filterPayment": "Оплата",
+      "filterPaymentAll": "Все оплаты",
       "filterStatusAll": "Все статусы",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} активных фильтров",

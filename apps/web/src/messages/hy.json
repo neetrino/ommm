@@ -1366,6 +1366,8 @@
       "filterClassAll": "Բոլոր դասերի տեսակները",
       "filterCoachAll": "Բոլոր մարզիչները",
       "filterClientAll": "Բոլոր հաճախորդները",
+      "filterPayment": "Վճարում",
+      "filterPaymentAll": "Բոլոր վճարումները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} ակտիվ ֆիլտր",

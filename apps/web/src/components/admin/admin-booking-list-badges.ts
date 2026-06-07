@@ -22,7 +22,14 @@ export const ADMIN_BOOKING_STATUS_PICKER_CLASS = [
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
 
-export type AdminBookingPaymentStatus = "PAID" | "CASH" | "UNPAID" | "CANCELLED";
+export const ADMIN_BOOKING_PAYMENT_FILTER_VALUES = [
+  "PAID",
+  "CASH",
+  "UNPAID",
+  "CANCELLED",
+] as const;
+
+export type AdminBookingPaymentStatus = (typeof ADMIN_BOOKING_PAYMENT_FILTER_VALUES)[number];
 
 export type AdminBookingAttendanceStatus =
   | "ATTENDED"

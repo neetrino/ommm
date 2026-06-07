@@ -1363,6 +1363,8 @@
       "filterClassAll": "All class types",
       "filterCoachAll": "All coaches",
       "filterClientAll": "All clients",
+      "filterPayment": "Payment",
+      "filterPaymentAll": "All payments",
       "filterStatusAll": "All statuses",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} active filters",

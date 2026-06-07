@@ -18,6 +18,7 @@ import {
   bookingRowKey,
   buildLoadingBookingRow,
   mapAdminBookingDetailToRow,
+  parseAdminBookingPaymentFilter,
   parseBookingRowKey,
   type AdminBookingDetailPayload,
   type AdminBookingRow,
@@ -257,14 +258,6 @@ export function AdminBookingsManagement({
     }
   }, [replaceSearchParams, selectedRow, urlAction]);
 
-  const uniqueClients = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const row of [...payload.rows, ...calendarRows]) {
-      map.set(row.user.id, row.user.name ?? row.user.email);
-    }
-    return Array.from(map.entries()).map(([id, label]) => ({ id, label }));
-  }, [calendarRows, payload.rows]);
-
   const filteredSessions = useMemo(() => {
     return calendarSessions.filter((session) => {
       if (filters.from) {
@@ -418,37 +411,34 @@ export function AdminBookingsManagement({
     };
   }
 
-  const tSort = useTranslations("listSort");
   const bookingFilterFields = useMemo(
     () =>
       buildAdminBookingsFilterFields({
         classTypes: payload.filterOptions.classTypes,
         coaches: payload.filterOptions.coaches,
-        clients: uniqueClients,
         statusLabels: {
           BOOKED: t("statusBooked"),
           COMPLETED: t("statusCompleted"),
           CANCELLED: t("statusCancelled"),
           WAITLISTED: t("statusWaitlisted"),
         },
+        paymentLabels: {
+          PAID: t("paymentPaid"),
+          CASH: t("paymentCash"),
+          UNPAID: t("paymentUnpaid"),
+          CANCELLED: t("paymentCancelled"),
+        },
         labels: {
           dateFrom: t("filterDateFrom"),
           dateTo: t("filterDateTo"),
           classAll: t("filterClassAll"),
           coachAll: t("filterCoachAll"),
-          clientAll: t("filterClientAll"),
           statusAll: t("filterStatusAll"),
-          sort: tSort("sort"),
-          sortLabels: {
-            upcoming: tSort("upcoming"),
-            "date-asc": tSort("dateAsc"),
-            "date-desc": tSort("dateDesc"),
-            newest: tSort("newest"),
-            oldest: tSort("oldest"),
-          },
+          payment: t("filterPayment"),
+          paymentAll: t("filterPaymentAll"),
         },
       }),
-    [payload.filterOptions.classTypes, payload.filterOptions.coaches, t, tSort, uniqueClients],
+    [payload.filterOptions.classTypes, payload.filterOptions.coaches, t],
   );
 
   const integratedFilterValues = useMemo(
@@ -461,14 +451,16 @@ export function AdminBookingsManagement({
       updateFilter("search", value);
       return;
     }
+    if (key === "paymentStatus") {
+      updateFilter("paymentStatus", parseAdminBookingPaymentFilter(value));
+      return;
+    }
     if (
       key === "from" ||
       key === "to" ||
       key === "classTypeId" ||
       key === "coachId" ||
-      key === "clientId" ||
-      key === "status" ||
-      key === "order"
+      key === "status"
     ) {
       updateFilter(key, value);
     }
