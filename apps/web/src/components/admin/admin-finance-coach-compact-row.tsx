@@ -9,8 +9,12 @@ import {
   type FinanceCoachPayoutStatus,
 } from "@/components/admin/admin-finance-list-display";
 import {
-  ADMIN_FINANCE_COACH_LIST_CELL,
+  ADMIN_FINANCE_COACH_LIST_COACH_CELL,
+  ADMIN_FINANCE_COACH_LIST_MONEY_CELL,
+  ADMIN_FINANCE_COACH_LIST_MONTH_CELL,
+  ADMIN_FINANCE_COACH_LIST_PAYOUT_CELL,
   ADMIN_FINANCE_COACH_LIST_ROW_CLASS,
+  ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL,
 } from "@/components/admin/admin-finance-notifications-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
@@ -60,13 +64,13 @@ export function AdminFinanceCoachCompactRow({
 
   return (
     <article className={ADMIN_FINANCE_COACH_LIST_ROW_CLASS}>
-      <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+      <div className={ADMIN_FINANCE_COACH_LIST_COACH_CELL}>
         <AdminListMobileLabel label={t("colCoach")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{displayName(row)}</p>
         <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? row.user.email}</p>
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+      <div className={ADMIN_FINANCE_COACH_LIST_MONEY_CELL}>
         <AdminListMobileLabel label={t("colSalary")} />
         {row.salary ? (
           <AmdMoneyText
@@ -79,18 +83,18 @@ export function AdminFinanceCoachCompactRow({
         )}
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+      <div className={ADMIN_FINANCE_COACH_LIST_SESSIONS_CELL}>
         <AdminListMobileLabel label={t("colSessions")} />
         <button
           type="button"
-          className="font-serif text-xl leading-none tracking-tight text-sage-950 underline underline-offset-2"
+          className="font-serif text-xl tabular-nums leading-none tracking-tight text-sage-950 underline underline-offset-2"
           onClick={onOpenSessions}
         >
           {sessionCount}
         </button>
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+      <div className={ADMIN_FINANCE_COACH_LIST_MONTH_CELL}>
         <AdminListMobileLabel label={t("colMonth")} />
         <SessionDateTimeHighlight
           locale={locale}
@@ -100,7 +104,7 @@ export function AdminFinanceCoachCompactRow({
         />
       </div>
 
-      <div className={ADMIN_FINANCE_COACH_LIST_CELL}>
+      <div className={ADMIN_FINANCE_COACH_LIST_PAYOUT_CELL}>
         <AdminListMobileLabel label={t("colPayoutStatus")} />
         <span
           className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financeCoachPayoutTone(payoutStatus)}`}
