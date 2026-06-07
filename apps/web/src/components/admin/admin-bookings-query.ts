@@ -55,7 +55,7 @@ export type AdminBookingRow = {
   recordType: "BOOKING" | "WAITLIST";
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   channel: "WEBSITE" | "APP";
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };

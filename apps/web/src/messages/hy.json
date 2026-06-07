@@ -1385,7 +1385,7 @@
       "paymentPaid": "Վճարված",
       "paymentCash": "Կանխիկ",
       "paymentUnpaid": "Չվճարված",
-      "paymentRefunded": "Վերադարձված",
+      "paymentCancelled": "Չեղարկված",
       "attendanceAttended": "Մասնակցել է",
       "attendanceNotAttended": "Չի մասնակցել",
       "attendanceNoShow": "Չեկավ",

@@ -1071,11 +1071,15 @@ export class BookingsService {
       description: string | null;
     }>;
   }) {
+    if (params.booking.status === BookingStatus.CANCELLED) {
+      return 'CANCELLED';
+    }
+
     const sessionPayment = params.payments.find((payment) =>
       (payment.description ?? '').includes(params.booking.sessionId),
     );
     if (sessionPayment?.status === PaymentStatus.REFUNDED) {
-      return 'REFUNDED';
+      return 'CANCELLED';
     }
     if (
       sessionPayment?.status === PaymentStatus.SUCCEEDED &&
@@ -1085,9 +1089,6 @@ export class BookingsService {
     }
     if (sessionPayment?.status === PaymentStatus.SUCCEEDED) {
       return 'PAID';
-    }
-    if (params.booking.status === BookingStatus.CANCELLED) {
-      return 'UNPAID';
     }
     return 'UNPAID';
   }

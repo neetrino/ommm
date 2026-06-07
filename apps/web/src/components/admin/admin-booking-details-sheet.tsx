@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { AdminBookingNotesSection } from "@/components/admin/admin-booking-notes-section";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
+import { adminBookingPaymentLabel } from "@/components/admin/admin-booking-list-badges";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -28,7 +29,7 @@ type ListRow = {
   recordType: "BOOKING" | "WAITLIST";
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   channel: "WEBSITE" | "APP";
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };
@@ -235,7 +236,7 @@ export function AdminBookingDetailsSheet({
               />
               <DetailRow
                 label={t("colPaymentStatus")}
-                value={paymentLabel(t, row.paymentStatus)}
+                value={adminBookingPaymentLabel(t, row.paymentStatus)}
               />
               <DetailRow
                 label={t("colAttendanceStatus")}
@@ -308,16 +309,6 @@ function CloseGlyph() {
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
-}
-
-function paymentLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: ListRow["paymentStatus"],
-): string {
-  if (value === "PAID") return t("paymentPaid");
-  if (value === "CASH") return t("paymentCash");
-  if (value === "REFUNDED") return t("paymentRefunded");
-  return t("paymentUnpaid");
 }
 
 function attendanceLabel(

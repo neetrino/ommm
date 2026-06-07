@@ -5,6 +5,7 @@ import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
   ADMIN_BOOKING_VALUE_BADGE_CLASS,
+  adminBookingPaymentLabel,
   paymentValueBadgeTone,
 } from "@/components/admin/admin-booking-list-badges";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
@@ -27,7 +28,7 @@ type BookingRow = {
   recordType: "BOOKING" | "WAITLIST";
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   channel: "WEBSITE" | "APP";
   user: { id: string; name: string | null; email: string; phone: string | null };
   session: {
@@ -134,7 +135,7 @@ export function AdminBookingCompactRow({
       <div className={ADMIN_BOOKINGS_LIST_PAYMENT_CELL}>
         <AdminListMobileLabel label={t("colPaymentStatus")} />
         <BookingValueBadge
-          label={paymentLabel(t, row.paymentStatus)}
+          label={adminBookingPaymentLabel(t, row.paymentStatus)}
           className={paymentValueBadgeTone(row.paymentStatus)}
         />
       </div>
@@ -180,14 +181,4 @@ function BookingValueBadge({ label, className }: { label: string; className: str
       {label}
     </span>
   );
-}
-
-function paymentLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: BookingRow["paymentStatus"],
-): string {
-  if (value === "PAID") return t("paymentPaid");
-  if (value === "CASH") return t("paymentCash");
-  if (value === "REFUNDED") return t("paymentRefunded");
-  return t("paymentUnpaid");
 }

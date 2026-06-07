@@ -1382,7 +1382,7 @@
       "paymentPaid": "Paid",
       "paymentCash": "Cash",
       "paymentUnpaid": "Unpaid",
-      "paymentRefunded": "Refunded",
+      "paymentCancelled": "Cancelled",
       "attendanceAttended": "Attended",
       "attendanceNotAttended": "Not attended",
       "attendanceNoShow": "No-show",

@@ -1373,7 +1373,7 @@
       "paymentPaid": "Оплачено",
       "paymentCash": "Наличные",
       "paymentUnpaid": "Не оплачено",
-      "paymentRefunded": "Возврат",
+      "paymentCancelled": "Отменено",
       "attendanceAttended": "Посетил",
       "attendanceNotAttended": "Не посетил",
       "attendanceNoShow": "Неявка",
