@@ -631,8 +631,27 @@ html {
     @apply disabled:pointer-events-none disabled:opacity-45;
   }
 
+  .ommm-logout-btn-pending {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    opacity: 1;
+    outline: none;
+    appearance: none;
+    cursor: wait;
+    color: var(--color-sage-700);
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    backdrop-filter: none;
+  }
+
   .ommm-marketing-account-logout-btn svg {
-    @apply h-2.5 w-2.5 shrink-0;
+    @apply h-3.5 w-3.5 shrink-0;
   }
 
   .ommm-admin-menu-button {
