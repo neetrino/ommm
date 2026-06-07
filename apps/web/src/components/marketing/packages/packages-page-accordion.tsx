@@ -23,6 +23,7 @@ import {
   PACKAGES_PAGE_LAYOUT,
   PACKAGES_PAGE_MOBILE_FIGMA,
   buildPackagesPageCategoryGradient,
+  resolvePackagesPageAccordionRowHeightPx,
   resolvePackagesPageCategoryAccentColor,
 } from "@/components/marketing/packages/packages-page-tokens";
 import { PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
@@ -95,6 +96,8 @@ function layoutStyleVars(): CSSProperties {
     ["--packages-page-mobile-fab-size" as string]: PACKAGES_PAGE_LAYOUT.mobileFabSize,
     ["--packages-page-collapsed-width" as string]: PACKAGES_PAGE_LAYOUT.collapsedPanelWidth,
     ["--packages-page-row-height" as string]: PACKAGES_PAGE_LAYOUT.rowHeight,
+    ["--packages-page-expanded-scroll-height" as string]: PACKAGES_PAGE_LAYOUT.expandedScrollHeight,
+    ["--packages-page-tier-row-height" as string]: PACKAGES_PAGE_LAYOUT.tierRowHeight,
     ["--packages-page-expanded-table-min-width" as string]: PACKAGES_PAGE_LAYOUT.expandedTableMinWidth,
     ["--packages-page-transition-duration" as string]: `${PACKAGES_PAGE_ACCORDION_FIGMA.transitionDurationMs}ms`,
     ["--packages-page-transition-easing" as string]: PACKAGES_PAGE_ACCORDION_FIGMA.transitionEasing,
@@ -126,7 +129,8 @@ function defaultCardStyleVars(categoryId: string): CSSProperties {
 
   return {
     ...panelStyleVars(categoryId, resolvePackagesPageCategoryAccentColor(categoryId)),
-    ["--packages-page-card-aspect-ratio" as string]: `${figma.cardWidthPx} / ${figma.cardHeightPx}`,
+    ["--packages-page-card-aspect-ratio" as string]:
+      `${figma.cardWidthPx} / ${resolvePackagesPageAccordionRowHeightPx()}`,
     ["--packages-page-title-size" as string]: `${figma.titleFontSizePx}px`,
     ["--packages-page-title-line-height" as string]: `${figma.titleLineHeightPx}px`,
     ["--packages-page-title-letter-spacing" as string]: `${figma.titleLetterSpacingPx}px`,

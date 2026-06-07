@@ -86,9 +86,10 @@
 
 .expandedBody {
   display: flex;
-  flex: 1;
+  flex: 1 1 var(--packages-page-expanded-scroll-height);
   min-width: 0;
   min-height: 0;
+  max-height: var(--packages-page-expanded-scroll-height);
   flex-direction: column;
   overflow: auto;
   overscroll-behavior: contain;
@@ -226,6 +227,7 @@
 
 .tierRow {
   margin: 0;
+  min-height: var(--packages-page-tier-row-height);
 }
 
 .tierCell {
