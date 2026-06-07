@@ -1,33 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
-import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
-import {
-  type ChartConfig,
-  ChartContainer,
-} from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
+import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { resolveTrendAxisInterval } from "@/components/admin/admin-analytics-trend-data";
 import { cn } from "@/lib/cn";
 
-export type AdminAnalyticsAreaSeries = {
+export type AdminAnalyticsColumnSeries = {
   key: string;
   label: string;
   color: string;
   totalLabel: string;
 };
 
-type AdminAnalyticsAreaChartProps = {
+type AdminAnalyticsColumnChartProps = {
   data: Array<Record<string, string | number>>;
   xKey: string;
-  series: AdminAnalyticsAreaSeries[];
+  series: AdminAnalyticsColumnSeries[];
   emptyLabel: string;
   ariaLabel: string;
   valueFormatter?: (value: number, seriesKey: string) => string;
+  yMax?: number;
   className?: string;
   chartClassName?: string;
 };
 
-type TrendTooltipProps = {
+type ColumnTooltipProps = {
   active?: boolean;
   label?: string;
   payload?: Array<{
@@ -36,11 +34,11 @@ type TrendTooltipProps = {
     color?: string;
     payload?: Record<string, string | number>;
   }>;
-  series: AdminAnalyticsAreaSeries[];
+  series: AdminAnalyticsColumnSeries[];
   valueFormatter?: (value: number, seriesKey: string) => string;
 };
 
-function TrendTooltip({ active, label, payload, series, valueFormatter }: TrendTooltipProps) {
+function ColumnTooltip({ active, label, payload, series, valueFormatter }: ColumnTooltipProps) {
   if (!active || !payload?.length) {
     return null;
   }
@@ -77,16 +75,19 @@ function TrendTooltip({ active, label, payload, series, valueFormatter }: TrendT
   );
 }
 
-export function AdminAnalyticsAreaChart({
+const COLUMN_BAR_MAX_SIZE = 28;
+
+export function AdminAnalyticsColumnChart({
   data,
   xKey,
   series,
   emptyLabel,
   ariaLabel,
   valueFormatter,
+  yMax,
   className,
   chartClassName,
-}: AdminAnalyticsAreaChartProps) {
+}: AdminAnalyticsColumnChartProps) {
   const chartConfig = useMemo(
     () =>
       series.reduce<ChartConfig>((acc, item) => {
@@ -97,7 +98,6 @@ export function AdminAnalyticsAreaChart({
   );
 
   const axisInterval = resolveTrendAxisInterval(data.length);
-  const showPointDots = data.length <= 14;
   const hasData = data.some((point) => series.some((item) => Number(point[item.key]) > 0));
 
   if (!hasData) {
@@ -124,19 +124,7 @@ export function AdminAnalyticsAreaChart({
         config={chartConfig}
         className={cn("aspect-auto h-[280px] w-full sm:h-[320px]", chartClassName)}
       >
-        <AreaChart
-          accessibilityLayer
-          data={data}
-          margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
-        >
-          <defs>
-            {series.map((item) => (
-              <linearGradient key={item.key} id={`fill-${item.key}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={`var(--color-${item.key})`} stopOpacity={0.35} />
-                <stop offset="95%" stopColor={`var(--color-${item.key})`} stopOpacity={0.04} />
-              </linearGradient>
-            ))}
-          </defs>
+        <BarChart accessibilityLayer data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
             dataKey={xKey}
@@ -147,29 +135,21 @@ export function AdminAnalyticsAreaChart({
             minTickGap={56}
             tick={{ fontSize: 11, fill: "var(--color-sage-500, #6b7280)" }}
           />
-          <YAxis hide domain={[0, "auto"]} />
+          <YAxis hide domain={yMax !== undefined ? [0, yMax] : [0, "auto"]} />
           <Tooltip
-            cursor={{ strokeDasharray: "4 4", strokeOpacity: 0.35 }}
-            content={<TrendTooltip series={series} valueFormatter={valueFormatter} />}
+            cursor={{ fill: "rgba(67, 72, 67, 0.06)" }}
+            content={<ColumnTooltip series={series} valueFormatter={valueFormatter} />}
           />
           {series.map((item) => (
-            <Area
+            <Bar
               key={item.key}
               dataKey={item.key}
-              type="natural"
-              fill={`url(#fill-${item.key})`}
-              fillOpacity={1}
-              stroke={`var(--color-${item.key})`}
-              strokeWidth={2}
-              dot={
-                showPointDots
-                  ? { r: 3, fill: `var(--color-${item.key})`, stroke: "#fff", strokeWidth: 1.5 }
-                  : false
-              }
-              activeDot={{ r: 4, stroke: "#fff", strokeWidth: 1.5 }}
+              fill={`var(--color-${item.key})`}
+              maxBarSize={COLUMN_BAR_MAX_SIZE}
+              radius={[6, 6, 0, 0]}
             />
           ))}
-        </AreaChart>
+        </BarChart>
       </ChartContainer>
     </div>
   );

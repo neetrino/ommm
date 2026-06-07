@@ -42,6 +42,7 @@ import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
@@ -730,7 +731,6 @@ function MoveBookingDialog({
   onSubmit: (targetSessionId: string) => void;
 }) {
   const t = useTranslations("adminPages.bookings");
-  const titleId = useId();
   const [targetSessionId, setTargetSessionId] = useState("");
   const [options, setOptions] = useState<
     Array<{
@@ -780,16 +780,13 @@ function MoveBookingDialog({
 
   return (
     <OmmModalPortal
-      isOpen={isOpen}
+      isOpen
       onClose={onClose}
       backdropAriaLabel={t("close")}
-      ariaLabelledBy={titleId}
       overlayClassName="ommm-modal-overlay z-[110] items-center p-4"
       panelClassName="w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4"
     >
-      <h3 id={titleId} className="text-base font-semibold text-sage-900">
-        {t("actionMove")}
-      </h3>
+      <h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3>
       <p className="mt-1 text-sm text-sage-600">
         {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
       </p>

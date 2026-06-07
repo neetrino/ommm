@@ -72,15 +72,15 @@ export function buildAnalyticsDailyBuckets(
   });
 }
 
-/** Picks an x-axis label interval so longer ranges stay readable. */
+const TARGET_AXIS_TICKS = 6;
+
+/** Picks an x-axis label interval so longer ranges stay readable (~6 labels max). */
 export function resolveTrendAxisInterval(pointCount: number): number {
-  if (pointCount <= 7) {
+  if (pointCount <= TARGET_AXIS_TICKS) {
     return 0;
   }
-  if (pointCount <= 31) {
-    return 1;
-  }
-  return Math.max(1, Math.floor(pointCount / 12));
+  // Recharts interval is 0-based: show every (interval + 1)th label.
+  return Math.max(1, Math.ceil(pointCount / TARGET_AXIS_TICKS) - 1);
 }
 
 export function sumBucketValues(buckets: AnalyticsDailyBucket[], key: "total" | "completed" | "revenueCents"): number {

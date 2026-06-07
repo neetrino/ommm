@@ -10,6 +10,10 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
+import {
+  aggregateCoachAnalytics,
+  buildEmptyCoachAnalytics,
+} from './coach-analytics.aggregate';
 
 const GIFT_CREDIT_CURRENCY = 'amd';
 const UPCOMING_ITEMS_LIMIT = 6;
@@ -777,34 +781,34 @@ export class ReportsService {
     if (!profile) {
       return null;
     }
-    const range = this.resolveRelativeDays(days);
+
+    const safeDays = Math.min(Math.max(days, 7), 365);
+    const range = this.resolveRelativeDays(safeDays);
     const sessions = await this.prisma.classSession.findMany({
       where: {
         coachId: profile.id,
         startsAt: { gte: range.from, lte: range.to },
         status: { not: ClassSessionStatus.CANCELLED },
       },
-      select: { id: true, capacity: true, startsAt: true },
+      select: {
+        id: true,
+        capacity: true,
+        startsAt: true,
+        classTypeId: true,
+        classType: { select: { name: true } },
+      },
       orderBy: { startsAt: 'asc' },
     });
+
     if (sessions.length === 0) {
-      return {
-        range,
-        totals: {
-          sessions: 0,
-          bookings: 0,
-          activeWaitlists: 0,
-          utilizationPercent: 0,
-          waitlistPressurePercent: 0,
-        },
-        trend: [],
-      };
+      return buildEmptyCoachAnalytics(range, safeDays);
     }
-    const sessionIds = sessions.map((s) => s.id);
+
+    const sessionIds = sessions.map((session) => session.id);
     const [bookings, waitlists] = await Promise.all([
       this.prisma.booking.findMany({
-        where: { sessionId: { in: sessionIds }, status: BookingStatus.BOOKED },
-        select: { sessionId: true },
+        where: { sessionId: { in: sessionIds } },
+        select: { sessionId: true, userId: true, status: true },
       }),
       this.prisma.waitlistEntry.findMany({
         where: { sessionId: { in: sessionIds }, status: 'ACTIVE' },
@@ -812,64 +816,19 @@ export class ReportsService {
       }),
     ]);
 
-    const bookedBySession = this.countBySessionId(bookings);
-    const waitlistBySession = this.countBySessionId(waitlists);
-    const daily = new Map<
-      string,
-      {
-        date: string;
-        sessions: number;
-        bookings: number;
-        waitlists: number;
-        capacity: number;
-      }
-    >();
-    for (const session of sessions) {
-      const date = session.startsAt.toISOString().slice(0, 10);
-      const prev = daily.get(date) ?? {
-        date,
-        sessions: 0,
-        bookings: 0,
-        waitlists: 0,
-        capacity: 0,
-      };
-      prev.sessions += 1;
-      prev.bookings += bookedBySession.get(session.id) ?? 0;
-      prev.waitlists += waitlistBySession.get(session.id) ?? 0;
-      prev.capacity += session.capacity;
-      daily.set(date, prev);
-    }
-
-    const totals = [...daily.values()].reduce(
-      (acc, day) => {
-        acc.sessions += day.sessions;
-        acc.bookings += day.bookings;
-        acc.activeWaitlists += day.waitlists;
-        acc.capacity += day.capacity;
-        return acc;
-      },
-      { sessions: 0, bookings: 0, activeWaitlists: 0, capacity: 0 },
-    );
-    const utilizationPercent =
-      totals.capacity > 0
-        ? Math.round((totals.bookings / totals.capacity) * 100)
-        : 0;
-    const waitlistPressurePercent =
-      totals.sessions > 0
-        ? Math.round((totals.activeWaitlists / totals.sessions) * 100)
-        : 0;
-
-    return {
+    return aggregateCoachAnalytics(
       range,
-      totals: {
-        sessions: totals.sessions,
-        bookings: totals.bookings,
-        activeWaitlists: totals.activeWaitlists,
-        utilizationPercent,
-        waitlistPressurePercent,
-      },
-      trend: [...daily.values()],
-    };
+      safeDays,
+      sessions.map((session) => ({
+        id: session.id,
+        capacity: session.capacity,
+        startsAt: session.startsAt,
+        classTypeId: session.classTypeId,
+        classTypeName: session.classType.name,
+      })),
+      bookings,
+      waitlists,
+    );
   }
 
   async userAnalytics(userId: string, days: number) {
