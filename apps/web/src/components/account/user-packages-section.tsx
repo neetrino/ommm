@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { UserMembershipBoardCard } from "@/components/account/user-membership-board-card";
 import { UserMembershipCompactRow } from "@/components/account/user-membership-compact-row";
 import { UserMembershipDetailsSheet } from "@/components/account/user-membership-details-sheet";
@@ -23,9 +24,13 @@ import {
 } from "@/components/account/user-packages-list-layout";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import type { UserMembershipRow } from "@/lib/user-package-types";
+import {
+  parseUserPackagesPackageId,
+  USER_PACKAGES_PACKAGE_ID_QUERY_KEY,
+} from "@/lib/user-packages-query";
 
 type UserPackagesSectionProps = {
   locale: string;
@@ -41,9 +46,16 @@ export function UserPackagesSection({
   apiOk,
 }: UserPackagesSectionProps) {
   const t = useTranslations("userPages.packages");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("packages");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filters, setFilters] = useState<UserPackageFilterValues>(DEFAULT_USER_PACKAGE_FILTER_VALUES);
+
+  const selectedId = useMemo(
+    () => parseUserPackagesPackageId(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
 
   const selectedMembership = useMemo(() => {
     if (selectedId === null) {
@@ -51,6 +63,22 @@ export function UserPackagesSection({
     }
     return memberships.find((membership) => membership.id === selectedId) ?? null;
   }, [memberships, selectedId]);
+
+  const openPackageDetails = useCallback(
+    (packageId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(USER_PACKAGES_PACKAGE_ID_QUERY_KEY, packageId);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const closePackageDetails = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(USER_PACKAGES_PACKAGE_ID_QUERY_KEY);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const selectedStatus = selectedMembership
     ? normalizeUserPackageStatus(selectedMembership.status)
@@ -153,7 +181,7 @@ export function UserPackagesSection({
                       membership={membership}
                       locale={locale}
                       status={status}
-                      onOpenDetails={() => setSelectedId(membership.id)}
+                      onOpenDetails={() => openPackageDetails(membership.id)}
                     />
                   </li>
                 );
@@ -178,7 +206,7 @@ export function UserPackagesSection({
                     membership={membership}
                     locale={locale}
                     status={status}
-                    onOpenDetails={() => setSelectedId(membership.id)}
+                    onOpenDetails={() => openPackageDetails(membership.id)}
                   />
                 );
               })}
@@ -191,8 +219,8 @@ export function UserPackagesSection({
         membership={selectedMembership}
         locale={locale}
         status={selectedStatus}
-        isOpen={selectedId !== null}
-        onClose={() => setSelectedId(null)}
+        isOpen={selectedMembership !== null}
+        onClose={closePackageDetails}
       />
     </div>
   );

@@ -699,7 +699,7 @@
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
-      "membershipDetailsDuration": "Длительность",
+      "membershipDetailsValidity": "Срок действия",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
       "membershipDetailsStatus": "Статус",

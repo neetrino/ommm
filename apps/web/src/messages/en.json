@@ -699,7 +699,7 @@
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Category",
       "membershipDetailsPrice": "Price",
-      "membershipDetailsDuration": "Duration",
+      "membershipDetailsValidity": "Validity",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
       "membershipDetailsStatus": "Status",

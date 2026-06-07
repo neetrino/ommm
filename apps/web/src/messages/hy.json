@@ -711,7 +711,7 @@
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Կատեգորիա",
       "membershipDetailsPrice": "Գին",
-      "membershipDetailsDuration": "Տևողություն",
+      "membershipDetailsValidity": "Վավերականություն",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
       "membershipDetailsStatus": "Կարգավիճակ",
