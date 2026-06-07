@@ -16,8 +16,7 @@ import {
   ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
-  ADMIN_BOOKINGS_LIST_SPACER_CELL,
-  ADMIN_BOOKINGS_LIST_STATUS_CELL,
+  ADMIN_BOOKINGS_LIST_PAYMENT_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
@@ -132,15 +131,13 @@ export function AdminBookingCompactRow({
         </div>
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
+      <div className={ADMIN_BOOKINGS_LIST_PAYMENT_CELL}>
         <AdminListMobileLabel label={t("colPaymentStatus")} />
         <BookingValueBadge
           label={paymentLabel(t, row.paymentStatus)}
           className={paymentValueBadgeTone(row.paymentStatus)}
         />
       </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
         className={ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL}

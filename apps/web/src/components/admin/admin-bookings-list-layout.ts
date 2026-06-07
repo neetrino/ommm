@@ -2,22 +2,17 @@ import {
   ADMIN_LIST_EMPHASIZED_HEADER,
   ADMIN_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_LIST_ROW_CLASS,
-  USER_LIST_ACTIONS_CELL,
   USER_LIST_CELL_CLASS,
   USER_LIST_DATE_CELL,
-  USER_LIST_SPACER_CELL,
   USER_LIST_STACK_CLASS,
-  USER_LIST_TRAILING_CELL,
-  USER_LIST_TRAILING_HEADER_CELL,
   buildAdminListHeaderClass,
   buildAdminListTableClass,
 } from "@/components/admin/admin-list-table-layout";
 
-export const ADMIN_BOOKINGS_LIST_GRID_COLS =
-  "minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_1fr_auto_auto";
+/** User · Class · Date/time · Payment · Status · Actions — six equal tracks. */
+export const ADMIN_BOOKINGS_LIST_GRID_COLS = "repeat(6,minmax(0,1fr))";
 
-const BOOKINGS_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto_1fr_auto_auto]";
+const BOOKINGS_GRID_CLASS = "md:grid-cols-6";
 
 export const ADMIN_BOOKINGS_LIST_TABLE_CLASS = buildAdminListTableClass(BOOKINGS_GRID_CLASS);
 
@@ -31,17 +26,20 @@ export const ADMIN_BOOKINGS_LIST_CELL = USER_LIST_CELL_CLASS;
 
 export const ADMIN_BOOKINGS_LIST_DATE_TIME_CELL = USER_LIST_DATE_CELL;
 
-export const ADMIN_BOOKINGS_LIST_STATUS_CELL = USER_LIST_TRAILING_CELL;
+export const ADMIN_BOOKINGS_LIST_PAYMENT_CELL = USER_LIST_CELL_CLASS;
 
-export const ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL =
-  "flex shrink-0 justify-end justify-self-end md:items-center md:justify-end md:self-center";
+export const ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL = [
+  USER_LIST_CELL_CLASS,
+  "md:flex md:items-center",
+].join(" ");
 
-export const ADMIN_BOOKINGS_LIST_ACTIONS_CELL = USER_LIST_ACTIONS_CELL;
-
-export const ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
-
-export const ADMIN_BOOKINGS_LIST_SPACER_CELL = USER_LIST_SPACER_CELL;
+export const ADMIN_BOOKINGS_LIST_ACTIONS_CELL = [
+  USER_LIST_CELL_CLASS,
+  "flex md:items-center",
+].join(" ");
 
 export const ADMIN_BOOKINGS_LIST_STACK_CLASS = USER_LIST_STACK_CLASS;
 
 export const ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER = ADMIN_LIST_EMPHASIZED_HEADER;
+
+export const ADMIN_BOOKINGS_LIST_HEADER_CELL = ADMIN_LIST_EMPHASIZED_HEADER;

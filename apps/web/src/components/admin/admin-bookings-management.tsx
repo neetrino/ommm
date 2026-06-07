@@ -29,8 +29,8 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import {
-  ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER,
+  ADMIN_BOOKINGS_LIST_HEADER_CELL,
   ADMIN_BOOKINGS_LIST_HEADER_CLASS,
   ADMIN_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-bookings-list-layout";
@@ -493,15 +493,12 @@ export function AdminBookingsManagement({
     <>
       <div className={ADMIN_BOOKINGS_LIST_TABLE_CLASS}>
         <div className={ADMIN_BOOKINGS_LIST_HEADER_CLASS}>
-          <span>{t("colUserPhone")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_HEADER_CELL}>{t("colUserPhone")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colDateTime")}</span>
           <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colPaymentStatus")}</span>
-          <span aria-hidden="true" />
-          <span className={`${ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER} justify-self-end text-right`}>
-            {t("colStatus")}
-          </span>
-          <span className={ADMIN_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colStatus")}</span>
+          <span className={ADMIN_BOOKINGS_LIST_EMPHASIZED_HEADER}>{t("colActions")}</span>
         </div>
         {listRows.map((row) => {
           const handlers = rowActionHandlers(row);
