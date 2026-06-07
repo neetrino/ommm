@@ -366,7 +366,7 @@ export function IntegratedSearchFilters({
               role="searchbox"
               aria-expanded={hasFilters ? panelOpen : undefined}
               aria-controls={hasFilters ? PANEL_ID : undefined}
-              className="h-9 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0"
+              className="ommm-search-input-no-native-clear h-9 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-sage-700 placeholder:text-sage-500/70 shadow-none focus-visible:outline-none focus-visible:ring-0"
             />
           </div>
         ) : null}

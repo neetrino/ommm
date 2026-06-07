@@ -1,7 +1,10 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { adminFilterRevealVariants } from "@/components/admin/admin-filter-reveal-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { AdminPackageRowMenu } from "@/components/admin/admin-package-row-menu";
 import {
   PACKAGE_CATEGORY_TABLE_PAGE_SIZE,
@@ -55,8 +58,13 @@ export function AdminPackagesCategoryTable({
   onEditPackage,
 }: AdminPackagesCategoryTableProps) {
   const t = useTranslations("adminPages.packages");
+  const reducedMotion = usePrefersReducedMotion();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PACKAGE_CATEGORY_TABLE_PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [packages]);
 
   const visiblePackages = useMemo(() => {
     const offset = (page - 1) * pageSize;
@@ -78,38 +86,48 @@ export function AdminPackagesCategoryTable({
         <div className="ommm-admin-packages-table-actions sr-only">{t("rowActionsAria")}</div>
       </div>
       <div className="min-w-[60rem]">
-        {visiblePackages.map((pkg) => {
-          const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
-          const sessions = formatPackageSessionsLabel(pkg);
-          const pricePerSession = formatPackagePricePerSession(pkg, locale);
-          const guestCount = formatPackageGuestCount(pkg);
-          const validityLabel = formatPackageValidityLabel(pkg, {
-            days: (count) => t("validityDays", { count }),
-            months: (count) => t("validityMonths", { count }),
-          });
+        <AnimatePresence mode="popLayout" initial={false}>
+          {visiblePackages.map((pkg, index) => {
+            const packageName = formatPackagePlanName(pkg.name, pkg.sessionsPerMonth);
+            const sessions = formatPackageSessionsLabel(pkg);
+            const pricePerSession = formatPackagePricePerSession(pkg, locale);
+            const guestCount = formatPackageGuestCount(pkg);
+            const validityLabel = formatPackageValidityLabel(pkg, {
+              days: (count) => t("validityDays", { count }),
+              months: (count) => t("validityMonths", { count }),
+            });
 
-          return (
-            <div key={pkg.id} className="ommm-admin-packages-table-row">
-              <div className="ommm-admin-packages-table-grid">
-                <TableCell emphasis>{packageName}</TableCell>
-                <TableCell emphasis>
-                  {sessions !== null ? sessions : <EmptyCell />}
-                </TableCell>
-                <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
-                <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>
-                <TableCell>{validityLabel}</TableCell>
-                <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
-                <div className="ommm-admin-packages-table-actions">
-                  <AdminPackageRowMenu
-                    packageId={pkg.id}
-                    isActive={pkg.isActive}
-                    onEdit={() => onEditPackage(pkg.id)}
-                  />
+            return (
+              <motion.div
+                key={pkg.id}
+                layout={!reducedMotion}
+                className="ommm-admin-packages-table-row"
+                variants={adminFilterRevealVariants(index, reducedMotion)}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                <div className="ommm-admin-packages-table-grid">
+                  <TableCell emphasis>{packageName}</TableCell>
+                  <TableCell emphasis>
+                    {sessions !== null ? sessions : <EmptyCell />}
+                  </TableCell>
+                  <TableCell>{formatPackagePriceLabel(pkg, locale)}</TableCell>
+                  <TableCell>{pricePerSession ?? <EmptyCell />}</TableCell>
+                  <TableCell>{validityLabel}</TableCell>
+                  <TableCell>{guestCount !== null ? guestCount : <EmptyCell />}</TableCell>
+                  <div className="ommm-admin-packages-table-actions">
+                    <AdminPackageRowMenu
+                      packageId={pkg.id}
+                      isActive={pkg.isActive}
+                      onEdit={() => onEditPackage(pkg.id)}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
       {showPager ? (
         <div className="border-t border-[rgba(212,196,183,0.15)] px-3 py-4">

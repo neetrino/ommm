@@ -345,6 +345,17 @@ html {
     @apply placeholder:text-sage-500/60 focus:border-sand-500/50 focus:outline-none focus:ring-4 focus:ring-sand-500/15;
   }
 
+  /* Hide native clear control when a custom clear button is shown beside the field. */
+  .ommm-search-input-no-native-clear::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  .ommm-search-input-no-native-clear::-ms-clear {
+    display: none;
+  }
+
   /* Account & marketing list rows */
   .ommm-list-row {
     @apply flex flex-col gap-3 rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between;

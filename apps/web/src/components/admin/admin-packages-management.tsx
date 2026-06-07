@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import {
   useCallback,
   useEffect,
@@ -9,6 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
+import {
+  adminFilterEmptyStateVariants,
+  adminFilterRevealVariants,
+} from "@/components/admin/admin-filter-reveal-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
@@ -73,10 +79,20 @@ const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
 };
 
 function PackagesEmptyState({ children }: { children: ReactNode }) {
+  const reducedMotion = usePrefersReducedMotion();
+
   return (
-    <div className="flex min-h-[min(48vh,32rem)] w-full items-center justify-center px-4 py-16 sm:py-20">
-      <p className="max-w-xl text-center text-sm leading-relaxed text-sage-600">{children}</p>
-    </div>
+    <motion.div
+      className="flex min-h-[min(48vh,32rem)] w-full items-center justify-center px-4 py-16 sm:py-20"
+      variants={adminFilterEmptyStateVariants(reducedMotion)}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <div className="max-w-xl rounded-[22px] border border-white/60 bg-white/55 px-8 py-10 text-center shadow-[0_16px_36px_-24px_rgba(45,40,35,0.2)] backdrop-blur-md">
+        <p className="text-sm leading-relaxed text-sage-600">{children}</p>
+      </div>
+    </motion.div>
   );
 }
 
@@ -86,6 +102,7 @@ export function AdminPackagesManagement({
   initialFilters,
 }: AdminPackagesManagementProps) {
   const t = useTranslations("adminPages.packages");
+  const reducedMotion = usePrefersReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -461,36 +478,57 @@ export function AdminPackagesManagement({
           <PackagesEmptyState>{t("noPackageCategoriesYet")}</PackagesEmptyState>
         ) : visibleCategories.length === 0 ? (
           <p className="text-sm text-sage-500">{t("noCategoriesSelected")}</p>
-        ) : displayCategories.length === 0 ? (
-          <PackagesEmptyState>{t("empty")}</PackagesEmptyState>
         ) : (
-          <div className="flex flex-col gap-5">
-            {displayCategories.map((category) => (
-              <CategoryAccordion
-                key={category.id}
-                category={category}
-                packages={filteredPackages}
-                locale={locale}
-                open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
-                onOpenChange={(next) => {
-                  const categoryKey = normalizePackageCategoryKey(category.id);
-                  setExpandedCategoryKeys((current) => {
-                    const updated = new Set(current);
-                    if (next) {
-                      updated.add(categoryKey);
-                    } else {
-                      updated.delete(categoryKey);
-                    }
-                    return updated;
-                  });
-                }}
-                onEditCategory={() => openEditCategory(category.id)}
-                onDeleteCategory={() => openDeleteCategory(category.id)}
-                onEditPackage={openConfigurePricing}
-                onAddTier={() => openAddTier(category.id)}
-              />
-            ))}
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            {displayCategories.length === 0 ? (
+              <PackagesEmptyState key="packages-filter-empty">{t("empty")}</PackagesEmptyState>
+            ) : (
+              <motion.div
+                key="packages-filter-list"
+                className="flex flex-col gap-5"
+                initial={false}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reducedMotion ? 0 : 0.22 }}
+              >
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {displayCategories.map((category, index) => (
+                    <motion.div
+                      key={category.id}
+                      layout={!reducedMotion}
+                      variants={adminFilterRevealVariants(index, reducedMotion)}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                    >
+                      <CategoryAccordion
+                        category={category}
+                        packages={filteredPackages}
+                        locale={locale}
+                        open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
+                        onOpenChange={(next) => {
+                          const categoryKey = normalizePackageCategoryKey(category.id);
+                          setExpandedCategoryKeys((current) => {
+                            const updated = new Set(current);
+                            if (next) {
+                              updated.add(categoryKey);
+                            } else {
+                              updated.delete(categoryKey);
+                            }
+                            return updated;
+                          });
+                        }}
+                        onEditCategory={() => openEditCategory(category.id)}
+                        onDeleteCategory={() => openDeleteCategory(category.id)}
+                        onEditPackage={openConfigurePricing}
+                        onAddTier={() => openAddTier(category.id)}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </AdminPackagesShell>
 
