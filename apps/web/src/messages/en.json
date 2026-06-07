@@ -3193,7 +3193,6 @@
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "attendanceBooked": "Attendance (booked)",
-      "helpText": "This view reflects your assigned sessions only and keeps waitlist + roster visibility scoped by coach.",
       "rosterCount": "{count, plural, one {# participant} other {# participants}}",
       "filteredEmptyTitle": "No participants match your filters",
       "filteredEmptyDescription": "Try adjusting the date range, class type, or search term.",
@@ -3532,8 +3531,7 @@
     },
     "markAttendance": {
       "failed": "Could not update",
-      "attended": "Attended",
-      "noShow": "No-show"
+      "attended": "Attended"
     },
     "rebook": {
       "action": "Rebook",
