@@ -21,7 +21,6 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
-import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
@@ -188,9 +187,9 @@ const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
 const SEARCH_DEBOUNCE_MS = 300;
 const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
-const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
-const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
+const LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
+const LEGACY_EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
 const SESSION_LEVEL_SEPARATOR = ", ";
 const PACKAGE_CLASS_TYPE_VALUE_PREFIX = "package:";
 
@@ -203,29 +202,10 @@ function replaceScheduleModalInUrl(
   const params = new URLSearchParams(searchParams.toString());
   if (modal === null) {
     params.delete(SCHEDULE_MODAL_QUERY_KEY);
-    params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
+    params.delete(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY);
   } else {
     params.set(SCHEDULE_MODAL_QUERY_KEY, modal);
-    if (modal !== CLASS_TYPES_MODAL_QUERY_VALUE) {
-      params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
-    }
-  }
-  const qs = params.toString();
-  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-}
-
-function replaceEditingClassTypeInUrl(
-  pathname: string,
-  searchParams: URLSearchParams,
-  router: ReturnType<typeof useRouter>,
-  classTypeId: string | null,
-): void {
-  const params = new URLSearchParams(searchParams.toString());
-  params.set(SCHEDULE_MODAL_QUERY_KEY, CLASS_TYPES_MODAL_QUERY_VALUE);
-  if (classTypeId === null) {
-    params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
-  } else {
-    params.set(EDIT_CLASS_TYPE_QUERY_KEY, classTypeId);
+    params.delete(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY);
   }
   const qs = params.toString();
   router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -435,27 +415,7 @@ export function AdminScheduleManagement({
   const [toast, setToast] = useState<ScheduleToast | null>(null);
 
   const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
-  const classTypesOpen = scheduleModalParam === CLASS_TYPES_MODAL_QUERY_VALUE;
   const addClassOpen = scheduleModalParam === ADD_CLASS_MODAL_QUERY_VALUE;
-  const editingClassTypeIdParam = searchParams.get(EDIT_CLASS_TYPE_QUERY_KEY);
-  const editingClassTypeId =
-    editingClassTypeIdParam !== null &&
-    classTypes.some((type) => type.id === editingClassTypeIdParam)
-      ? editingClassTypeIdParam
-      : null;
-
-  const closeClassTypesModal = useCallback(() => {
-    if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
-      replaceScheduleModalInUrl(pathname, searchParams, router, null);
-    }
-  }, [pathname, router, searchParams]);
-
-  const setEditingClassTypeInUrl = useCallback(
-    (classTypeId: string | null) => {
-      replaceEditingClassTypeInUrl(pathname, searchParams, router, classTypeId);
-    },
-    [pathname, router, searchParams],
-  );
 
   const openAddClassModal = useCallback(() => {
     replaceScheduleModalInUrl(pathname, searchParams, router, ADD_CLASS_MODAL_QUERY_VALUE);
@@ -497,6 +457,16 @@ export function AdminScheduleManagement({
   useEffect(() => {
     filterStateRef.current = { filters, quickFilters };
   }, [filters, quickFilters]);
+
+  useEffect(() => {
+    const modal = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
+    if (
+      modal === LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE ||
+      searchParams.has(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY)
+    ) {
+      replaceScheduleModalInUrl(pathname, searchParams, router, null);
+    }
+  }, [pathname, router, searchParams]);
 
   const listPage = useMemo(
     () => parseAdminScheduleListPageParams(Object.fromEntries(searchParams.entries())),
@@ -628,14 +598,6 @@ export function AdminScheduleManagement({
       draft: source.filter((row) => row.status === "DRAFT").length,
     };
   }, [displayRows, isListView, listPagination]);
-
-  const sessionCountByTypeId = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const row of rows) {
-      counts[row.classType.id] = (counts[row.classType.id] ?? 0) + 1;
-    }
-    return counts;
-  }, [rows]);
 
   function resetFilters() {
     const cleared: ScheduleListFilterState = {
@@ -1130,17 +1092,6 @@ export function AdminScheduleManagement({
               first.name.localeCompare(second.name),
             );
           });
-        }}
-      />
-      <AdminClassTypesModal
-        isOpen={classTypesOpen}
-        classTypes={classTypes}
-        sessionCountByTypeId={sessionCountByTypeId}
-        initialSelectedId={editingClassTypeId}
-        onClose={closeClassTypesModal}
-        onSelectedTypeIdChange={setEditingClassTypeInUrl}
-        onChanged={(nextTypes) => {
-          setClassTypes(nextTypes);
         }}
       />
     </div>
