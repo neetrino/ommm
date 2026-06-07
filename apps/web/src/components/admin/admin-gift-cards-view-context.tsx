@@ -5,10 +5,15 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
-import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import {
+  ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
+  parseAdminGiftCardsViewMode,
+  type AdminGiftCardsViewMode,
+} from "@/lib/admin-gift-cards-view-preference";
 
 type AdminGiftCardsViewContextValue = {
   viewMode: AdminGiftCardsViewMode;
@@ -20,19 +25,27 @@ const AdminGiftCardsViewContext = createContext<AdminGiftCardsViewContextValue |
 );
 
 type AdminGiftCardsViewProviderProps = {
-  initialViewMode: AdminGiftCardsViewMode;
   children: ReactNode;
 };
 
-export function AdminGiftCardsViewProvider({
-  initialViewMode,
-  children,
-}: AdminGiftCardsViewProviderProps) {
-  const [viewMode, setViewModeState] = useState<AdminGiftCardsViewMode>(initialViewMode);
+export function AdminGiftCardsViewProvider({ children }: AdminGiftCardsViewProviderProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const setViewMode = useCallback((mode: AdminGiftCardsViewMode) => {
-    setViewModeState(mode);
-  }, []);
+  const viewMode = useMemo(
+    () => parseAdminGiftCardsViewMode(searchParams.get(ADMIN_GIFT_CARDS_VIEW_QUERY_KEY)),
+    [searchParams],
+  );
+
+  const setViewMode = useCallback(
+    (mode: AdminGiftCardsViewMode) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(ADMIN_GIFT_CARDS_VIEW_QUERY_KEY, mode);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const value = useMemo(
     () => ({

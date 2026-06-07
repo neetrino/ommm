@@ -30,8 +30,14 @@ import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
 import { apiFetch } from "@/lib/api";
 import {
   parseListPageParams,
+  resetListPageQuery,
   syncListPageQuery,
 } from "@/lib/list-pagination";
+import { parseSessionSortOrder, sortBySessionStartsAt, type SessionSortOrder } from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import {
   buildUserBookingsPastEndpoint,
@@ -51,12 +57,20 @@ export function UserBookingsSection({
   initialPast,
 }: UserBookingsSectionProps) {
   const t = useTranslations("userPages.bookings");
+  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("bookings");
   const [pastPayload, setPastPayload] = usePropSyncedState(initialPast);
-  const [filters, setFilters] = useState<UserBookingFilterValues>(DEFAULT_USER_BOOKING_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserBookingFilterValues>(() => ({
+    ...DEFAULT_USER_BOOKING_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "session",
+      "upcoming",
+    ),
+  }));
   const [loadingPast, startPastTransition] = useTransition();
   const pastRequestId = useRef(0);
   const pastHasMounted = useRef(false);
@@ -65,6 +79,16 @@ export function UserBookingsSection({
     () =>
       parseListPageParams(Object.fromEntries(searchParams.entries()), USER_BOOKINGS_PAST_PAGE_KEYS),
     [searchParams],
+  );
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
   );
 
   useEffect(() => {
@@ -77,7 +101,11 @@ export function UserBookingsSection({
     pastRequestId.current = nextRequestId;
     startPastTransition(() => {
       void apiFetch<UserBookingsPastPayload>(
-        buildUserBookingsPastEndpoint(pastListPage.take, pastListPage.offset),
+        buildUserBookingsPastEndpoint(
+          pastListPage.take,
+          pastListPage.offset,
+          filters.order,
+        ),
       )
         .then((payload) => {
           if (pastRequestId.current !== nextRequestId) return;
@@ -89,7 +117,7 @@ export function UserBookingsSection({
           }
         });
     });
-  }, [pastListPage, setPastPayload]);
+  }, [filters.order, pastListPage, setPastPayload]);
 
   const setPastListPage = useCallback(
     (page: number, pageSize?: number) => {
@@ -126,9 +154,13 @@ export function UserBookingsSection({
           },
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
       }),
-    [filterOptions.classTypes, filterOptions.coaches, t],
+    [filterOptions.classTypes, filterOptions.coaches, t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -137,12 +169,22 @@ export function UserBookingsSection({
   );
 
   const filteredUpcoming = useMemo(
-    () => initialUpcoming.filter((row) => matchesUserBookingFilters(row, filters)),
+    () =>
+      sortBySessionStartsAt(
+        initialUpcoming.filter((row) => matchesUserBookingFilters(row, filters)),
+        (row) => row.session.startsAt,
+        filters.order,
+      ),
     [filters, initialUpcoming],
   );
 
   const filteredPast = useMemo(
-    () => pastPayload.rows.filter((row) => matchesUserBookingFilters(row, filters)),
+    () =>
+      sortBySessionStartsAt(
+        pastPayload.rows.filter((row) => matchesUserBookingFilters(row, filters)),
+        (row) => row.session.startsAt,
+        filters.order,
+      ),
     [filters, pastPayload.rows],
   );
 
@@ -169,6 +211,16 @@ export function UserBookingsSection({
       case "status":
         setFilters((current) => ({ ...current, status: value as UserBookingStatusFilter }));
         break;
+      case "order":
+        setFilters((current) => ({
+          ...current,
+          order: parseSessionSortOrder(value) as SessionSortOrder,
+        }));
+        replaceSearchParams((params) => {
+          resetListPageQuery(params, USER_BOOKINGS_PAST_PAGE_KEYS);
+          syncUserListOrderQuery(params, value, "upcoming");
+        });
+        break;
       default:
         break;
     }
@@ -176,6 +228,10 @@ export function UserBookingsSection({
 
   function resetFilters(): void {
     setFilters(DEFAULT_USER_BOOKING_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      resetListPageQuery(params, USER_BOOKINGS_PAST_PAGE_KEYS);
+      params.delete("order");
+    });
   }
 
   const heroSearch = (

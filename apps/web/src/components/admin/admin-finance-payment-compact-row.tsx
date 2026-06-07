@@ -6,13 +6,16 @@ import {
   formatPaymentTime,
   toPaymentIso,
 } from "@/components/account/user-payment-display";
-import { AdminFinancePaymentActions } from "@/components/admin/admin-finance-payment-actions";
 import {
   ADMIN_FINANCE_MONEY_CLASS,
   ADMIN_FINANCE_VALUE_BADGE_CLASS,
-  financePaymentStatusTone,
   financeSourceTone,
 } from "@/components/admin/admin-finance-list-display";
+import { AdminFinancePaymentRowActions } from "@/components/admin/admin-finance-payment-row-actions";
+import {
+  AdminFinancePaymentStatusPicker,
+  type AdminUpdatablePaymentStatus,
+} from "@/components/admin/admin-finance-payment-status-picker";
 import {
   ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_CELL,
@@ -21,7 +24,6 @@ import {
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS,
   ADMIN_FINANCE_PAYMENTS_LIST_SOURCE_CELL,
-  ADMIN_FINANCE_PAYMENTS_LIST_SPACER_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL,
   ADMIN_FINANCE_PAYMENTS_LIST_TIME_CELL,
 } from "@/components/admin/admin-finance-payments-list-layout";
@@ -34,22 +36,14 @@ import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 type AdminFinancePaymentCompactRowProps = {
   locale: string;
   row: FinancePaymentItem;
+  busy: boolean;
+  onOpenDetails: () => void;
+  onChangeStatus: (nextStatus: AdminUpdatablePaymentStatus) => void;
 };
 
 function displayName(row: FinancePaymentItem): string {
   const merged = [row.user.name, row.user.lastName].filter(Boolean).join(" ").trim();
   return merged.length > 0 ? merged : row.user.email;
-}
-
-function paymentStatusLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.finance">>,
-  status: string,
-): string {
-  if (status === "SUCCEEDED") return t("filters.statusSucceeded");
-  if (status === "PENDING") return t("filters.statusPending");
-  if (status === "FAILED") return t("filters.statusFailed");
-  if (status === "REFUNDED") return t("filters.statusRefunded");
-  return status;
 }
 
 function resolveMethodLabel(
@@ -65,6 +59,9 @@ function resolveMethodLabel(
 export function AdminFinancePaymentCompactRow({
   locale,
   row,
+  busy,
+  onOpenDetails,
+  onChangeStatus,
 }: AdminFinancePaymentCompactRowProps) {
   const t = useTranslations("adminPages.finance");
   const tTable = useTranslations("adminPages.finance.table");
@@ -72,7 +69,19 @@ export function AdminFinancePaymentCompactRow({
   const userLabel = displayName(row);
 
   return (
-    <article className={ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS}>
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={t("paymentDetails.viewFor", { name: userLabel })}
+      onClick={onOpenDetails}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenDetails();
+        }
+      }}
+      className={ADMIN_FINANCE_PAYMENTS_LIST_ROW_CLASS}
+    >
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_CELL}>
         <AdminListMobileLabel label={tTable("colUser")} />
         <p className={ADMIN_LIST_TITLE_TEXT_CLASS}>{userLabel}</p>
@@ -112,13 +121,18 @@ export function AdminFinancePaymentCompactRow({
         </span>
       </div>
 
-      <div className={ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL}>
+      <div
+        className={ADMIN_FINANCE_PAYMENTS_LIST_STATUS_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
         <AdminListMobileLabel label={tTable("colStatus")} />
-        <span
-          className={`${ADMIN_FINANCE_VALUE_BADGE_CLASS} ${financePaymentStatusTone(row.status)}`}
-        >
-          {paymentStatusLabel(t, row.status)}
-        </span>
+        <AdminFinancePaymentStatusPicker
+          status={row.status}
+          paymentMethod={row.paymentMethod}
+          busy={busy}
+          onChangeStatus={onChangeStatus}
+        />
       </div>
 
       <div className={ADMIN_FINANCE_PAYMENTS_LIST_METHOD_CELL}>
@@ -128,13 +142,13 @@ export function AdminFinancePaymentCompactRow({
         </p>
       </div>
 
-      <div className={ADMIN_FINANCE_PAYMENTS_LIST_SPACER_CELL} aria-hidden="true" />
-
       <div
         className={`${ADMIN_FINANCE_PAYMENTS_LIST_ACTIONS_CELL} ${ADMIN_FINANCE_PAYMENTS_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
       >
         <AdminListMobileLabel label={tTable("colActions")} />
-        <AdminFinancePaymentActions paymentId={row.id} status={row.status} />
+        <AdminFinancePaymentRowActions busy={busy} onEdit={onOpenDetails} />
       </div>
     </article>
   );

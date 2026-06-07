@@ -27,7 +27,7 @@ export default async function UserNotificationsPage({
 
   if (!res.ok) {
     return (
-      <div className="ommm-container pt-6 sm:pt-8">
+      <div className="ommm-container">
         <div className="app-alert-warn">{t("signIn")}</div>
       </div>
     );

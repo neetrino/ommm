@@ -26,6 +26,7 @@ export function ListPageSearchFilters({
       applyLabel={tSearchTools("applyFilters")}
       clearAriaLabel={tSearchTools("clearSearchAndFilters")}
       filterPanelAriaLabel={tSearchTools("filterPanelAria")}
+      filterToggleAriaLabel={tSearchTools("filterToggleAria")}
       {...props}
     />
   );

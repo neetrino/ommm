@@ -35,6 +35,27 @@ export async function resolveSessionClassTypeId(
   return { classTypeId: created.id, created };
 }
 
+/** Session title for create flows — derived from the selected class type label. */
+export function sessionTitleFromClassTypeSelection(
+  selectedValue: string,
+  options: readonly SessionClassTypeOption[],
+  resolved: { classTypeId: string; created?: AdminScheduleClassType },
+): string {
+  const createdName = resolved.created?.name.trim();
+  if (createdName) {
+    return createdName;
+  }
+
+  const selectedLabel = options.find((item) => item.value === selectedValue)?.label.trim();
+  if (selectedLabel) {
+    return selectedLabel;
+  }
+
+  return (
+    options.find((item) => item.classTypeId === resolved.classTypeId)?.label.trim() ?? ""
+  );
+}
+
 export const SESSION_LEVEL_VALUES = ["Beginner", "Intermediate", "Advanced"] as const;
 
 export function buildSessionLevelOptions(

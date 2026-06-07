@@ -46,3 +46,7 @@ export const MIN_TOUCH_TARGET_PX = 44;
 export const LIST_BOARD_VIEW_MIN_WIDTH_PX = CANVAS_TABLET_MIN_WIDTH_PX;
 
 export const LIST_BOARD_VIEW_MEDIA_QUERY = `(min-width: ${LIST_BOARD_VIEW_MIN_WIDTH_PX}px)`;
+
+/** Keeps list/board toggles in layout on tablet+ without a hydration flash (matches min width above). */
+export const LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS =
+  "hidden min-[744px]:inline-flex" as const;

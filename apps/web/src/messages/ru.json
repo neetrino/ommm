@@ -13,6 +13,15 @@
     "sessionDurationMinutes": "{minutes} мин",
     "sessionCoach": "Тренер"
   },
+  "listSort": {
+    "sort": "Сортировка",
+    "newest": "Сначала новые",
+    "oldest": "Сначала старые",
+    "upcoming": "Сначала предстоящие",
+    "dateAsc": "Дата: по возрастанию",
+    "dateDesc": "Дата: по убыванию",
+    "expirationSoon": "Скоро истекают"
+  },
   "nav": {
     "studioBrand": "Ommm.",
     "spaceBrand": "Ommm.",
@@ -460,7 +469,7 @@
       "COACH": {
         "dashboard": "Панель",
         "schedule": "Моё расписание",
-        "groups": "Мои группы",
+        "groups": "Бронирования",
         "salary": "Выплаты",
         "analytics": "Аналитика",
         "notifications": "Уведомления",
@@ -699,7 +708,7 @@
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
-      "membershipDetailsDuration": "Длительность",
+      "membershipDetailsValidity": "Срок действия",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
       "membershipDetailsStatus": "Статус",
@@ -717,6 +726,7 @@
       "packagesCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
       "emptyPackagesHint": "Просмотрите доступные планы и оформите подписку, когда будете готовы.",
       "listHeaderPackage": "Пакет",
+      "listHeaderValidity": "Срок действия",
       "listHeaderPrice": "Цена",
       "listHeaderSessions": "Занятия",
       "listHeaderPeriod": "Период",
@@ -964,6 +974,8 @@
         "payFailed": "Не удалось завершить fake-оплату.",
         "successTitle": "Оплата завершена",
         "successLead": "Оплата подарочной карты подтверждена, карта уже доступна в вашем аккаунте.",
+        "cashPendingTitle": "Ожидается оплата наличными",
+        "cashPendingLead": "Запрос на оплату наличными отправлен. Администратор подтвердит его после получения платежа.",
         "methods": {
           "CARD": "Карта",
           "CASH": "Наличные"
@@ -1293,6 +1305,7 @@
       "applyFilters": "Применить фильтры",
       "clearSearchAndFilters": "Очистить поиск и фильтры",
       "filterPanelAria": "Фильтры поиска",
+      "filterToggleAria": "Показать или скрыть фильтры",
       "loadingResults": "Загрузка результатов…",
       "activeCount": "{count} активных фильтров"
     },
@@ -1322,6 +1335,8 @@
       "colStatus": "Статус",
       "colActions": "Действия",
       "colUserPhone": "Клиент / Телефон",
+      "colCoach": "Тренер",
+      "coachNotAssigned": "Не назначен",
       "colClassType": "Тип занятия",
       "colDateTime": "Дата и время",
       "colSessionCount": "Сессии",
@@ -1341,6 +1356,8 @@
       "filterClassAll": "Все типы занятий",
       "filterCoachAll": "Все тренеры",
       "filterClientAll": "Все клиенты",
+      "filterPayment": "Оплата",
+      "filterPaymentAll": "Все оплаты",
       "filterStatusAll": "Все статусы",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} активных фильтров",
@@ -1360,7 +1377,7 @@
       "paymentPaid": "Оплачено",
       "paymentCash": "Наличные",
       "paymentUnpaid": "Не оплачено",
-      "paymentRefunded": "Возврат",
+      "paymentCancelled": "Отменено",
       "attendanceAttended": "Посетил",
       "attendanceNotAttended": "Не посетил",
       "attendanceNoShow": "Неявка",
@@ -1374,11 +1391,16 @@
       "actionConfirm": "Подтвердить",
       "actionAddNote": "Добавить внутреннюю заметку",
       "actionEdit": "Редактировать",
+      "actionEditBooking": "Редактировать бронирование",
+      "actionMoveBooking": "Перенести бронирование",
+      "actionDeactivateBooking": "Деактивировать бронирование",
+      "actionActivateBooking": "Активировать бронирование",
       "actionDelete": "Удалить",
       "rowActionsAria": "Дополнительные действия с бронированием",
       "actionFailed": "Действие не выполнено",
       "successMarkedAttended": "Посещаемость обновлена",
       "successCancelled": "Бронирование отменено",
+      "successActivated": "Бронирование активировано",
       "successNote": "Внутренняя заметка добавлена",
       "successMoved": "Бронирование перенесено",
       "successEdited": "Бронирование обновлено",
@@ -1387,6 +1409,8 @@
       "confirmAttended": "Бронирование будет отмечено как завершённое.",
       "confirmCancelTitle": "Отменить бронирование?",
       "confirmCancel": "Отменить это бронирование?",
+      "confirmActivateTitle": "Активировать бронирование?",
+      "confirmActivate": "Снова активировать это бронирование? Статус будет «Забронировано».",
       "confirmDeleteTitle": "Удалить бронирование?",
       "confirmDelete": "Удалить бронирование навсегда? Это действие нельзя отменить.",
       "confirmDialogYes": "Да",
@@ -1447,6 +1471,7 @@
       "packageInactiveBadge": "Неактивен",
       "statusInactive": "Неактивен",
       "editClient": "Редактировать клиента",
+      "edit": "Редактировать",
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть окно",
       "fieldEmail": "Email",
@@ -2590,6 +2615,17 @@
         "statusRefunded": "Возврат",
         "searchLabel": "Поиск",
         "searchPlaceholder": "Клиент, email, ID платежа, референс",
+        "packageLabel": "Пакет",
+        "packageAll": "Все пакеты",
+        "packageClassLabel": "Класс пакета",
+        "packageClassAll": "Все классы",
+        "sessionsLabel": "Сеансы",
+        "sessionsAll": "Все количества сеансов",
+        "sessionsCount": "{count} сеансов",
+        "sessionsUnlimited": "Безлимит",
+        "noPackages": "Нет доступных пакетов",
+        "noClasses": "Нет доступных классов",
+        "noSessions": "Нет доступных количеств сеансов",
         "resetFilters": "Сбросить фильтры",
         "loading": "Загрузка финансовых данных…",
         "activeCount": "{count} активных фильтров"
@@ -2603,9 +2639,35 @@
       "paymentActions": {
         "markPaid": "Отметить оплаченным",
         "reject": "Отклонить",
+        "confirming": "Подтверждение…",
+        "rejecting": "Отклонение…",
         "markedPaid": "Отмечено как оплаченное.",
         "markedRejected": "Заявка отклонена.",
+        "statusUpdated": "Статус платежа обновлён.",
+        "cardStatusAuto": "Платежи картой подтверждаются автоматически.",
         "actionFailed": "Не удалось обновить платёж."
+      },
+      "changeStatusAria": "Изменить статус платежа — сейчас: {status}",
+      "paymentDetails": {
+        "title": "Детали платежа",
+        "lead": "Просмотрите информацию о платеже и подтверждайте получение наличных при необходимости.",
+        "customer": "Клиент",
+        "email": "Email",
+        "relatedLabel": "Связанный элемент",
+        "reference": "Референс",
+        "createdAt": "Создан",
+        "confirmedAt": "Подтверждён",
+        "confirmedDate": "Дата подтверждения",
+        "methodUnknown": "Ещё не выбран",
+        "close": "Закрыть детали платежа",
+        "closeBackdrop": "Закрыть детали платежа",
+        "viewFor": "Открыть детали платежа для {name}",
+        "related": {
+          "package": "Подписка на пакет ({id})",
+          "dropin": "Разовое бронирование ({id})",
+          "gift": "Подарочная карта ({id})",
+          "other": "Другое ({id})"
+        }
       },
       "table": {
         "empty": "Для выбранных фильтров платежи не найдены.",
@@ -2618,6 +2680,7 @@
         "colSource": "Источник",
         "colStatus": "Статус",
         "colActions": "Действия",
+        "actionEditPayment": "Редактировать платёж",
         "colDescription": "Описание"
       },
       "paymentsTab": {
@@ -3101,7 +3164,6 @@
       "signInRequired": "Войдите, чтобы открыть панель тренера.",
       "noProfile": "Этот раздел предназначен для тренеров студии. К вашему аккаунту не привязан профиль тренера.",
       "attendanceBooked": "Посещаемость (записанные)",
-      "helpText": "Этот экран показывает только назначенные вам сессии и ограничивает видимость листа ожидания и состава групп вашим профилем тренера.",
       "rosterCount": "{count, plural, one {# участник} few {# участника} many {# участников} other {# участника}}",
       "filteredEmptyTitle": "Нет участников по вашим фильтрам",
       "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия или поисковый запрос.",
@@ -3335,6 +3397,7 @@
       "title": "Подтвердить подписку",
       "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Закрыть",
       "methodLegend": "Способ оплаты",
       "methods": {
@@ -3356,6 +3419,7 @@
       "done": "Готово"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Действия с пакетом",
       "pause": "Пауза",
       "cancelAction": "Отменить",
       "renew": "Продлить",
@@ -3474,8 +3538,7 @@
     },
     "markAttendance": {
       "failed": "Не удалось обновить",
-      "attended": "Присутствовал",
-      "noShow": "Неявка"
+      "attended": "Присутствовал"
     },
     "rebook": {
       "action": "Записаться снова",

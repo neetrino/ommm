@@ -8,6 +8,26 @@ export const ADMIN_FINANCE_PRIMARY_TITLE_CLASS =
 export const ADMIN_FINANCE_VALUE_BADGE_CLASS =
   "inline-flex max-w-full shrink-0 truncate rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-wide";
 
+const ADMIN_FINANCE_STATUS_BADGE_BASE = [
+  "inline-flex w-max max-w-full shrink-0 items-center rounded-full py-1",
+  "px-2 text-[11px] font-medium uppercase tracking-wide",
+].join(" ");
+
+/** Read-only payment status in finance lists. */
+export const ADMIN_FINANCE_STATUS_STATIC_CLASS = [
+  ADMIN_FINANCE_STATUS_BADGE_BASE,
+  "justify-center",
+].join(" ");
+
+/** Interactive payment status picker in finance lists. */
+export const ADMIN_FINANCE_STATUS_PICKER_CLASS = [
+  ADMIN_FINANCE_STATUS_BADGE_BASE,
+  "justify-center gap-1",
+  "cursor-pointer transition-[box-shadow,opacity]",
+  "hover:shadow-[0_4px_12px_-8px_rgba(45,40,35,0.16)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+].join(" ");
+
 export type FinancePaymentStatus =
   | "SUCCEEDED"
   | "FAILED"

@@ -470,7 +470,7 @@ html {
   }
 
   .ommm-admin-sticky-header {
-    background-color: #ede9dd;
+    background-color: var(--ommm-admin-page, #ede9dd);
     padding-bottom: 1.5rem;
   }
 
@@ -631,8 +631,27 @@ html {
     @apply disabled:pointer-events-none disabled:opacity-45;
   }
 
+  .ommm-logout-btn-pending {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    opacity: 1;
+    outline: none;
+    appearance: none;
+    cursor: wait;
+    color: var(--color-sage-700);
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    backdrop-filter: none;
+  }
+
   .ommm-marketing-account-logout-btn svg {
-    @apply h-2.5 w-2.5 shrink-0;
+    @apply h-3.5 w-3.5 shrink-0;
   }
 
   .ommm-admin-menu-button {
@@ -740,8 +759,9 @@ html {
   }
 
   .ommm-admin-packages-toolbar-wrap {
-    @apply sticky z-[15] -mx-4 bg-[#ede9dd] px-4 pb-3 pt-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8;
-    top: var(--ommm-marketing-site-header-offset, var(--ommm-admin-header-sticky-offset, 7.5rem));
+    @apply sticky z-[15] -mx-4 px-4 pb-3 pt-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8;
+    background-color: var(--ommm-admin-page, #ede9dd);
+    top: var(--ommm-admin-header-sticky-offset, var(--ommm-workspace-sticky-top, 0px));
   }
 
   .ommm-admin-packages-toolbar {

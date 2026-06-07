@@ -26,7 +26,6 @@ import {
   GIFT_CARD_FILTER_QUERY_KEYS,
 } from "@/components/admin/admin-gift-cards-url";
 import type { AdminGiftCardsListPayload } from "@/components/admin/admin-gift-cards-query";
-import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 
@@ -35,7 +34,6 @@ type AdminGiftCardsManagementProps = {
   assignableUsers: readonly AdminAssignableUser[];
   locale: string;
   initialFilters: GiftCardFilterValues;
-  initialViewMode: AdminGiftCardsViewMode;
   variant?: "full" | "staff";
   staffBanner?: string;
   readOnly?: boolean;
@@ -48,7 +46,6 @@ export function AdminGiftCardsManagement({
   assignableUsers,
   locale,
   initialFilters,
-  initialViewMode,
   variant = "full",
   staffBanner,
   readOnly = false,
@@ -214,7 +211,6 @@ export function AdminGiftCardsManagement({
     <AdminGiftCardsShell
       assignableUsers={assignableUsers}
       giftCards={giftCards}
-      initialViewMode={initialViewMode}
       variant={variant}
       staffBanner={staffBanner}
       readOnly={readOnly || isStaff}

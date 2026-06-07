@@ -6,6 +6,7 @@ import { SessionClassTitle } from "@/components/account/session-class-title";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { ScheduleSessionDateTimeCellClient } from "@/components/shared/schedule/schedule-session-datetime-cell-client";
+import { StaffRosterHeaderCell } from "@/components/shared/staff/staff-roster-header-cell";
 import {
   STAFF_ROSTER_LIST_ACTIONS_CELL,
   STAFF_ROSTER_LIST_CLASS_CELL,
@@ -49,10 +50,14 @@ export function StaffRosterTable({
   return (
     <div className={STAFF_ROSTER_LIST_TABLE_CLASS}>
       <div className={STAFF_ROSTER_LIST_HEADER_CLASS}>
-        <span>{t("colUserPhone")}</span>
-        <span>{t("colClassType")}</span>
-        <span>{t("colDateTime")}</span>
-        <span>{t("colAttendanceStatus")}</span>
+        <StaffRosterHeaderCell label={t("colUserPhone")} icon="userPhone" />
+        <StaffRosterHeaderCell label={t("colClassType")} icon="classType" />
+        <StaffRosterHeaderCell label={t("colDateTime")} icon="dateTime" />
+        <StaffRosterHeaderCell
+          label={t("colAttendanceStatus")}
+          icon="attendance"
+          className="justify-end"
+        />
       </div>
       {items.map(({ row, actions }) => (
         <StaffRosterTableRow key={row.id} locale={locale} row={row} actions={actions} />

@@ -1,6 +1,7 @@
 import { resolveSessionCoachName } from "@/components/account/session-coach-line";
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 import type { UserSessionRow, UserWaitlistRow } from "@/lib/user-booking-types";
 
 export type UserSessionAvailabilityFilter = "all" | "available" | "full";
@@ -12,6 +13,7 @@ export type UserSessionFilterValues = {
   classType: string;
   coach: string;
   availability: UserSessionAvailabilityFilter;
+  order: SessionSortOrder;
 };
 
 export const DEFAULT_USER_SESSION_FILTER_VALUES: UserSessionFilterValues = {
@@ -21,6 +23,7 @@ export const DEFAULT_USER_SESSION_FILTER_VALUES: UserSessionFilterValues = {
   classType: "all",
   coach: "all",
   availability: "all",
+  order: "upcoming",
 };
 
 type SessionFilterSource = {
@@ -44,6 +47,10 @@ type BuildUserSessionFilterFieldsArgs = {
     availabilityFull?: string;
     searchPlaceholder: string;
     resetFilters: string;
+    sort: string;
+    sortUpcoming: string;
+    sortDateAsc: string;
+    sortDateDesc: string;
   };
 };
 
@@ -63,9 +70,9 @@ export function userSessionIntegratedFilterValues(
     coach: values.coach,
   };
   if (!includeAvailability) {
-    return base;
+    return { ...base, order: values.order };
   }
-  return { ...base, availability: values.availability };
+  return { ...base, availability: values.availability, order: values.order };
 }
 
 export function buildUserSessionFilterFields({
@@ -120,6 +127,14 @@ export function buildUserSessionFilterFields({
       })),
     });
   }
+
+  fields.push(
+    buildSessionSortFilterField(labels.sort, {
+      upcoming: labels.sortUpcoming,
+      "date-asc": labels.sortDateAsc,
+      "date-desc": labels.sortDateDesc,
+    }),
+  );
 
   return fields;
 }
@@ -215,6 +230,7 @@ export function hasActiveUserSessionFilters(
     filters.to.length > 0 ||
     filters.classType !== "all" ||
     filters.coach !== "all" ||
+    filters.order !== "upcoming" ||
     (includeAvailability && filters.availability !== "all")
   );
 }

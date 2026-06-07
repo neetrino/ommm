@@ -22,7 +22,14 @@ export const ADMIN_BOOKING_STATUS_PICKER_CLASS = [
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 ].join(" ");
 
-export type AdminBookingPaymentStatus = "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+export const ADMIN_BOOKING_PAYMENT_FILTER_VALUES = [
+  "PAID",
+  "CASH",
+  "UNPAID",
+  "CANCELLED",
+] as const;
+
+export type AdminBookingPaymentStatus = (typeof ADMIN_BOOKING_PAYMENT_FILTER_VALUES)[number];
 
 export type AdminBookingAttendanceStatus =
   | "ATTENDED"
@@ -41,8 +48,18 @@ export type AdminBookingListStatus =
 export function paymentValueBadgeTone(value: AdminBookingPaymentStatus): string {
   if (value === "PAID") return "bg-mint-100 text-sage-800";
   if (value === "CASH") return "bg-sand-100 text-sand-700";
-  if (value === "REFUNDED") return "bg-blue-100 text-sage-700";
+  if (value === "CANCELLED") return "bg-sand-100 text-sage-600";
   return "bg-peach-100 text-sand-700";
+}
+
+export function adminBookingPaymentLabel(
+  t: (key: string) => string,
+  value: AdminBookingPaymentStatus,
+): string {
+  if (value === "PAID") return t("paymentPaid");
+  if (value === "CASH") return t("paymentCash");
+  if (value === "CANCELLED") return t("paymentCancelled");
+  return t("paymentUnpaid");
 }
 
 export function attendanceValueBadgeTone(value: AdminBookingAttendanceStatus): string {

@@ -13,6 +13,15 @@
     "sessionDurationMinutes": "{minutes} min",
     "sessionCoach": "Coach"
   },
+  "listSort": {
+    "sort": "Sort",
+    "newest": "Newest first",
+    "oldest": "Oldest first",
+    "upcoming": "Upcoming first",
+    "dateAsc": "Date: ascending",
+    "dateDesc": "Date: descending",
+    "expirationSoon": "Expiring soon"
+  },
   "nav": {
     "studioBrand": "Ommm.",
     "spaceBrand": "Ommm.",
@@ -460,7 +469,7 @@
       "COACH": {
         "dashboard": "Dashboard",
         "schedule": "My schedule",
-        "groups": "My groups",
+        "groups": "Bookings",
         "salary": "Salary",
         "analytics": "Analytics",
         "notifications": "Notifications",
@@ -699,7 +708,7 @@
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Category",
       "membershipDetailsPrice": "Price",
-      "membershipDetailsDuration": "Duration",
+      "membershipDetailsValidity": "Validity",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
       "membershipDetailsStatus": "Status",
@@ -717,6 +726,7 @@
       "packagesCount": "{count, plural, one {# package} other {# packages}}",
       "emptyPackagesHint": "Browse available plans and subscribe when you are ready.",
       "listHeaderPackage": "Package",
+      "listHeaderValidity": "Validity",
       "listHeaderPrice": "Price",
       "listHeaderSessions": "Sessions",
       "listHeaderPeriod": "Period",
@@ -964,6 +974,8 @@
         "payFailed": "Could not complete fake payment.",
         "successTitle": "Payment completed",
         "successLead": "Your gift card payment was confirmed and the card is now available in your account.",
+        "cashPendingTitle": "Cash payment pending",
+        "cashPendingLead": "Your cash payment request was submitted. A studio admin will confirm it after receiving payment.",
         "methods": {
           "CARD": "Card",
           "CASH": "Cash"
@@ -1302,6 +1314,7 @@
       "applyFilters": "Apply filters",
       "clearSearchAndFilters": "Clear search and filters",
       "filterPanelAria": "Search filters",
+      "filterToggleAria": "Show or hide filters",
       "loadingResults": "Loading matching results…",
       "activeCount": "{count} active filters"
     },
@@ -1331,6 +1344,8 @@
       "colStatus": "Status",
       "colActions": "Actions",
       "colUserPhone": "User / Phone",
+      "colCoach": "Coach",
+      "coachNotAssigned": "Not assigned",
       "colClassType": "Class type",
       "colDateTime": "Date & time",
       "colSessionCount": "Session count",
@@ -1350,6 +1365,8 @@
       "filterClassAll": "All class types",
       "filterCoachAll": "All coaches",
       "filterClientAll": "All clients",
+      "filterPayment": "Payment",
+      "filterPaymentAll": "All payments",
       "filterStatusAll": "All statuses",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} active filters",
@@ -1369,7 +1386,7 @@
       "paymentPaid": "Paid",
       "paymentCash": "Cash",
       "paymentUnpaid": "Unpaid",
-      "paymentRefunded": "Refunded",
+      "paymentCancelled": "Cancelled",
       "attendanceAttended": "Attended",
       "attendanceNotAttended": "Not attended",
       "attendanceNoShow": "No-show",
@@ -1383,11 +1400,16 @@
       "actionConfirm": "Confirm",
       "actionAddNote": "Add internal note",
       "actionEdit": "Edit",
+      "actionEditBooking": "Edit booking",
+      "actionMoveBooking": "Move booking",
+      "actionDeactivateBooking": "Deactivate booking",
+      "actionActivateBooking": "Activate booking",
       "actionDelete": "Delete",
       "rowActionsAria": "More booking actions",
       "actionFailed": "Action failed",
       "successMarkedAttended": "Attendance updated",
       "successCancelled": "Booking cancelled",
+      "successActivated": "Booking activated",
       "successNote": "Internal note added",
       "successMoved": "Booking moved",
       "successEdited": "Booking updated",
@@ -1396,6 +1418,8 @@
       "confirmAttended": "Booking will be marked as completed.",
       "confirmCancelTitle": "Cancel booking?",
       "confirmCancel": "Cancel this booking?",
+      "confirmActivateTitle": "Activate booking?",
+      "confirmActivate": "Reactivate this booking? It will be marked as booked again.",
       "confirmDeleteTitle": "Delete booking?",
       "confirmDelete": "Delete this booking permanently? This cannot be undone.",
       "confirmDialogYes": "Yes",
@@ -1456,6 +1480,7 @@
       "packageInactiveBadge": "No active",
       "statusInactive": "Inactive",
       "editClient": "Edit client",
+      "edit": "Edit",
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
       "fieldEmail": "Email",
@@ -2790,6 +2815,17 @@
         "statusRefunded": "Refunded",
         "searchLabel": "Search",
         "searchPlaceholder": "Client, email, payment ID, reference",
+        "packageLabel": "Package",
+        "packageAll": "All packages",
+        "packageClassLabel": "Package class",
+        "packageClassAll": "All classes",
+        "sessionsLabel": "Sessions",
+        "sessionsAll": "All session counts",
+        "sessionsCount": "{count} sessions",
+        "sessionsUnlimited": "Unlimited",
+        "noPackages": "No packages available",
+        "noClasses": "No classes available",
+        "noSessions": "No session counts available",
         "resetFilters": "Reset Filters",
         "loading": "Loading finance data…",
         "activeCount": "{count} active filters"
@@ -2803,9 +2839,35 @@
       "paymentActions": {
         "markPaid": "Mark paid",
         "reject": "Reject",
+        "confirming": "Confirming…",
+        "rejecting": "Rejecting…",
         "markedPaid": "Marked as paid.",
         "markedRejected": "Request rejected.",
+        "statusUpdated": "Payment status updated.",
+        "cardStatusAuto": "Card payments are confirmed automatically.",
         "actionFailed": "Could not update payment."
+      },
+      "changeStatusAria": "Change payment status — current: {status}",
+      "paymentDetails": {
+        "title": "Payment details",
+        "lead": "Review payment information and confirm cash receipts when needed.",
+        "customer": "Customer",
+        "email": "Email",
+        "relatedLabel": "Related item",
+        "reference": "Reference",
+        "createdAt": "Created",
+        "confirmedAt": "Confirmed at",
+        "confirmedDate": "Confirmed date",
+        "methodUnknown": "Not selected yet",
+        "close": "Close payment details",
+        "closeBackdrop": "Close payment details",
+        "viewFor": "View payment details for {name}",
+        "related": {
+          "package": "Package subscription ({id})",
+          "dropin": "Drop-in booking ({id})",
+          "gift": "Gift card ({id})",
+          "other": "Other ({id})"
+        }
       },
       "table": {
         "empty": "No payments found for selected filters.",
@@ -2818,6 +2880,7 @@
         "colSource": "Source",
         "colStatus": "Status",
         "colActions": "Actions",
+        "actionEditPayment": "Edit payment",
         "colDescription": "Description"
       },
       "actions": {
@@ -2911,8 +2974,6 @@
         "colSessions": "Sessions",
         "colMonth": "Month",
         "colPayoutStatus": "Payout status",
-        "colActions": "Actions",
-        "actionsUnsupported": "Edit and pause are not supported for coach payroll.",
         "quickPaid": "Paid coaches",
         "quickPending": "Pending salaries",
         "quickHighSalary": "High salary",
@@ -3155,7 +3216,6 @@
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "attendanceBooked": "Attendance (booked)",
-      "helpText": "This view reflects your assigned sessions only and keeps waitlist + roster visibility scoped by coach.",
       "rosterCount": "{count, plural, one {# participant} other {# participants}}",
       "filteredEmptyTitle": "No participants match your filters",
       "filteredEmptyDescription": "Try adjusting the date range, class type, or search term.",
@@ -3389,6 +3449,7 @@
       "title": "Confirm subscription",
       "lead": "Select how you will pay. No card details are collected on this screen.",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Close",
       "methodLegend": "Payment method",
       "methods": {
@@ -3410,6 +3471,7 @@
       "done": "Done"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Package actions",
       "pause": "Pause",
       "cancelAction": "Cancel",
       "renew": "Renew",
@@ -3528,8 +3590,7 @@
     },
     "markAttendance": {
       "failed": "Could not update",
-      "attended": "Attended",
-      "noShow": "No-show"
+      "attended": "Attended"
     },
     "rebook": {
       "action": "Rebook",

@@ -23,7 +23,7 @@ type BuildAdminFinanceFilterFieldsArgs = {
 };
 
 export function adminFinanceIntegratedFilterValues(
-  values: Omit<FinanceFilterValues, "q">,
+  values: Pick<FinanceFilterValues, "rangeDays" | "source" | "status">,
 ): Record<string, string> {
   return {
     rangeDays: String(values.rangeDays),

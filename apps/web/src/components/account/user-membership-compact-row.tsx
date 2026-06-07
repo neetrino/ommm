@@ -62,9 +62,13 @@ export function UserMembershipCompactRow({
       </div>
 
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+        <MobileLabel label={t("listHeaderValidity")} />
+        <p className="whitespace-nowrap text-sm font-medium text-sage-800">{durationLabel}</p>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
         <MobileLabel label={t("listHeaderPrice")} />
         <p className="whitespace-nowrap font-medium tabular-nums text-sage-800">{priceLabel}</p>
-        <p className="mt-0.5 text-xs text-sage-500">{durationLabel}</p>
       </div>
 
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>

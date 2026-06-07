@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import {
   ClassSessionStatus,
   GiftCardStatus,
+  ManualPaymentMethod,
   PaymentStatus,
 } from '@prisma/client';
 import { PaymentsService } from './payments.service';
@@ -33,6 +34,9 @@ type PaymentsServiceTestPrisma = {
     count: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
+  };
+  packagePlan: {
+    findMany: jest.Mock;
   };
   payment: {
     findFirst: jest.Mock;
@@ -91,6 +95,9 @@ describe('PaymentsService', () => {
         count: jest.fn().mockResolvedValue(0),
         create: jest.fn(),
         update: jest.fn(),
+      },
+      packagePlan: {
+        findMany: jest.fn().mockResolvedValue([]),
       },
       payment: {
         findFirst: jest.fn(),
@@ -198,6 +205,51 @@ describe('PaymentsService', () => {
     });
   });
 
+  it('adminListPayments applies package plan and session filters', async () => {
+    const { service, prisma } = createService();
+    prisma.packagePlan.findMany.mockResolvedValue([
+      { id: 'plan-dance' },
+      { id: 'plan-pilates' },
+    ]);
+
+    await service.adminListPayments({
+      planId: 'plan-dance-8',
+      packageClass: 'Dance',
+      sessions: '8',
+      take: 10,
+      offset: 0,
+    });
+
+    type FindManyArgs = {
+      where: {
+        AND: Array<{
+          planId?: string;
+          plan?: {
+            id?: { in: string[] };
+            sessionsPerMonth?: number;
+            isUnlimited?: boolean;
+          };
+        }>;
+      };
+    };
+
+    const findManyMock = prisma.payment.findMany as jest.Mock<
+      Promise<unknown>,
+      [FindManyArgs]
+    >;
+    const callArgs = findManyMock.mock.calls[0][0];
+    expect(callArgs.where.AND).toEqual([
+      { planId: 'plan-dance-8' },
+      {
+        plan: {
+          id: { in: ['plan-dance', 'plan-pilates'] },
+          sessionsPerMonth: 8,
+          isUnlimited: false,
+        },
+      },
+    ]);
+  });
+
   it('createDropInCheckout rejects when session is already booked', async () => {
     const { service, prisma } = createService();
     prisma.classSession.findUnique.mockResolvedValue({
@@ -258,7 +310,7 @@ describe('PaymentsService', () => {
     });
   });
 
-  it('adminUpdatePaymentStatus confirms drop-in payments transactionally', async () => {
+  it('adminUpdatePaymentStatus auto-confirms pending card payments', async () => {
     const { service, prisma } = createService();
     prisma.payment.findUnique.mockResolvedValue({
       id: 'p1',
@@ -267,6 +319,106 @@ describe('PaymentsService', () => {
       source: PAYMENT_SOURCE.DROPIN,
       sourceId: 's1',
       status: PaymentStatus.PENDING,
+      paymentMethod: ManualPaymentMethod.CARD,
+    });
+    prisma.classSession.findUnique.mockResolvedValue({
+      id: 's1',
+      status: ClassSessionStatus.ACTIVE,
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      capacity: 2,
+    });
+    prisma.booking.findUnique.mockResolvedValue(null);
+    prisma.booking.count.mockResolvedValue(1);
+
+    await service.adminUpdatePaymentStatus(
+      'p1',
+      PaymentStatus.SUCCEEDED,
+      'admin1',
+    );
+
+    expect(prisma.payment.update).toHaveBeenCalled();
+  });
+
+  it('adminUpdatePaymentStatus rejects manual status changes on confirmed card payments', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      status: PaymentStatus.SUCCEEDED,
+      paymentMethod: ManualPaymentMethod.CARD,
+      confirmedAt: new Date('2026-01-01T12:00:00.000Z'),
+    });
+
+    await expect(
+      service.adminUpdatePaymentStatus('p1', PaymentStatus.FAILED, 'admin1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('adminUpdatePaymentStatus updates settled manual payments without fulfillment', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      status: PaymentStatus.SUCCEEDED,
+      paymentMethod: ManualPaymentMethod.CASH,
+      confirmedAt: new Date('2026-01-01T12:00:00.000Z'),
+    });
+
+    await service.adminUpdatePaymentStatus(
+      'p1',
+      PaymentStatus.FAILED,
+      'admin1',
+    );
+
+    const paymentUpdateCall = prisma.payment.update.mock.calls[0]?.[0];
+    expect(paymentUpdateCall).toMatchObject({
+      where: { id: 'p1' },
+    });
+    expect(paymentUpdateCall.data).toMatchObject({
+      status: PaymentStatus.FAILED,
+      confirmedByAdminId: 'admin1',
+    });
+  });
+
+  it('adminUpdatePaymentStatus confirms pending drop-in without preset payment method', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      userPackageId: null,
+      source: PAYMENT_SOURCE.DROPIN,
+      sourceId: 's1',
+      status: PaymentStatus.PENDING,
+      paymentMethod: null,
+    });
+    prisma.classSession.findUnique.mockResolvedValue({
+      id: 's1',
+      status: ClassSessionStatus.ACTIVE,
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      capacity: 2,
+    });
+    prisma.booking.findUnique.mockResolvedValue(null);
+    prisma.booking.count.mockResolvedValue(1);
+
+    await service.adminUpdatePaymentStatus(
+      'p1',
+      PaymentStatus.SUCCEEDED,
+      'admin1',
+    );
+
+    expect(prisma.payment.update).toHaveBeenCalled();
+  });
+
+  it('adminUpdatePaymentStatus confirms cash drop-in payments transactionally', async () => {
+    const { service, prisma } = createService();
+    prisma.payment.findUnique.mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      userPackageId: null,
+      source: PAYMENT_SOURCE.DROPIN,
+      sourceId: 's1',
+      status: PaymentStatus.PENDING,
+      paymentMethod: ManualPaymentMethod.CASH,
     });
     prisma.classSession.findUnique.mockResolvedValue({
       id: 's1',
@@ -330,6 +482,7 @@ describe('PaymentsService', () => {
       source: PAYMENT_SOURCE.GIFT,
       sourceId: 'batch1',
       status: PaymentStatus.PENDING,
+      paymentMethod: ManualPaymentMethod.CASH,
       metadata: {},
     });
     prisma.giftCardBatch.updateMany.mockResolvedValue({ count: 1 });

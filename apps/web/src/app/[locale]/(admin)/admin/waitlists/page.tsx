@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import {
   buildAdminWaitlistActiveEndpoint,
   parseAdminWaitlistPageParams,
+  parseAdminWaitlistSortOrder,
   type AdminWaitlistActivePayload,
 } from "@/components/admin/admin-waitlist-query";
 import { AdminWaitlistManagement } from "@/components/admin/admin-waitlist-management";
@@ -22,7 +23,8 @@ export default async function AdminWaitlistsPage({
   const t = await getTranslations({ locale, namespace: "adminPages.waitlists" });
   const cookie = (await headers()).get("cookie") ?? "";
   const listPage = parseAdminWaitlistPageParams(search);
-  const endpoint = buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset);
+  const order = parseAdminWaitlistSortOrder(search.order);
+  const endpoint = buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset, order);
   const response = await serverApiJson<AdminWaitlistActivePayload>(endpoint, cookie);
   const initialPayload = response.ok
     ? response.data

@@ -34,10 +34,11 @@ export class CreateSessionBatchSlotDto {
 }
 
 export class CreateSessionBatchDto {
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  title!: string;
+  title?: string;
 
   @IsString()
   classTypeId!: string;

@@ -9,8 +9,7 @@ import {
   ADMIN_LIST_EMPHASIZED_HEADER,
 } from "@/components/admin/admin-list-table-layout";
 
-const STAFF_ROSTER_GRID_CLASS =
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(11rem,auto)_auto]";
+const STAFF_ROSTER_GRID_CLASS = "md:grid-cols-[repeat(4,minmax(0,1fr))]";
 
 export const STAFF_ROSTER_LIST_TABLE_CLASS = buildAdminListTableClass(STAFF_ROSTER_GRID_CLASS);
 

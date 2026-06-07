@@ -8,6 +8,7 @@ import { AdminCoachSessionsDrawer } from "@/components/admin/admin-coach-session
 import { AdminFinanceCoachCompactRow } from "@/components/admin/admin-finance-coach-compact-row";
 import {
   ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER,
+  ADMIN_FINANCE_COACH_LIST_HEADER_CELL,
   ADMIN_FINANCE_COACH_LIST_HEADER_CLASS,
   ADMIN_FINANCE_COACH_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-finance-notifications-list-layout";
@@ -88,13 +89,19 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
       <p className="text-sm text-sage-600">{t("rowCount", { count: initial.total })}</p>
       <div className={ADMIN_FINANCE_COACH_LIST_TABLE_CLASS}>
         <div className={ADMIN_FINANCE_COACH_LIST_HEADER_CLASS}>
-          <span>{t("colCoach")}</span>
-          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colSalary")}</span>
-          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colSessions")}</span>
-          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colMonth")}</span>
-          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colPayoutStatus")}</span>
-          <span aria-hidden="true" />
-          <span className={ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}>{t("colActions")}</span>
+          <span className={ADMIN_FINANCE_COACH_LIST_HEADER_CELL}>{t("colCoach")}</span>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+            {t("colSalary")}
+          </span>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+            {t("colSessions")}
+          </span>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+            {t("colMonth")}
+          </span>
+          <span className={`${ADMIN_FINANCE_COACH_LIST_HEADER_CELL} ${ADMIN_FINANCE_COACH_LIST_EMPHASIZED_HEADER}`}>
+            {t("colPayoutStatus")}
+          </span>
         </div>
         {initial.items.length === 0 ? (
           <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">

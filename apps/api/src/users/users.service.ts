@@ -11,7 +11,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Express } from 'express';
-import { Prisma, BookingStatus } from '@prisma/client';
+import { Prisma, BookingStatus, Role } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';
@@ -383,6 +383,16 @@ export class UsersService {
   }
 
   async deleteOwnAccount(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (user.role === Role.COACH) {
+      throw new BadRequestException(
+        'Coach accounts can only be removed by an administrator.',
+      );
+    }
+
     const activeBookings = await this.prisma.booking.count({
       where: { userId, status: BookingStatus.BOOKED },
     });

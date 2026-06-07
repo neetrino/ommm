@@ -7,7 +7,7 @@ function isRoutingLocale(value: string): boolean {
   return routing.locales.includes(value as (typeof routing.locales)[number]);
 }
 
-/** Persists UI language for guests (middleware) and aligns with logged-in users. */
+/** Persists UI language after an explicit switch (login/register alignment). */
 export function setUiLocaleCookie(locale: string): void {
   if (typeof document === "undefined") return;
   if (!isRoutingLocale(locale)) return;
@@ -19,7 +19,7 @@ export function pickUiLocaleForUser(
   userLocale: string | undefined,
   fallback: string,
 ): string {
-  if (userLocale && isRoutingLocale(userLocale)) return userLocale;
   if (isRoutingLocale(fallback)) return fallback;
+  if (userLocale && isRoutingLocale(userLocale)) return userLocale;
   return routing.defaultLocale;
 }

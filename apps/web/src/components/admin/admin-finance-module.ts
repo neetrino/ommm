@@ -14,10 +14,24 @@ export const FINANCE_SECTION_HREF: Record<FinanceSectionId, string> = {
   coaches: "/admin/finance/coaches",
 };
 
+export const FINANCE_SECTION_COOKIE_NAME = "ommm_finance_section";
+
+/** Validates a finance section id from cookies, legacy `?tab=`, etc. */
+export function parseFinanceSectionId(value: string | undefined): FinanceSectionId | null {
+  if (value && FINANCE_SECTION_IDS.includes(value as FinanceSectionId)) {
+    return value as FinanceSectionId;
+  }
+  return null;
+}
+
 /** Legacy `?tab=` values from the monolith finance page. */
 export function resolveFinanceLegacyTabRedirect(
   tab: string | undefined,
 ): FinanceSectionId | null {
+  const section = parseFinanceSectionId(tab);
+  if (section) {
+    return section;
+  }
   if (tab === "user") {
     return "members";
   }

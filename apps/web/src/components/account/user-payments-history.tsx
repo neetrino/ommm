@@ -23,9 +23,9 @@ import {
   type UserPaymentStatusFilter,
 } from "@/components/account/user-payments-filter-fields";
 import {
+  USER_PAYMENTS_LIST_CENTER_HEADER_CELL,
   USER_PAYMENTS_LIST_HEADER_CLASS,
   USER_PAYMENTS_LIST_METHOD_HEADER_CELL,
-  USER_PAYMENTS_LIST_STATUS_HEADER_CELL,
   USER_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/account/user-payments-list-layout";
 import {
@@ -44,6 +44,10 @@ import {
   resetListPageQuery,
   syncListPageQuery,
 } from "@/lib/list-pagination";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { UserPaymentsPayload } from "@/lib/user-package-types";
 
 type UserPaymentsHistoryProps = {
@@ -81,7 +85,14 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("payments");
   const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
-  const [filters, setFilters] = useState<UserPaymentFilterValues>(DEFAULT_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserPaymentFilterValues>(() => ({
+    ...DEFAULT_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "date",
+      "newest",
+    ),
+  }));
   const [loading, startTransition] = useTransition();
   const requestId = useRef(0);
   const hasMounted = useRef(false);
@@ -209,6 +220,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
         setFilters((current) => ({ ...current, order: value as UserPaymentSortOrder }));
         replaceSearchParams((params) => {
           resetListPageQuery(params);
+          syncUserListOrderQuery(params, value, "newest");
         });
         break;
       default:
@@ -220,6 +232,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
     setFilters(DEFAULT_FILTER_VALUES);
     replaceSearchParams((params) => {
       resetListPageQuery(params);
+      params.delete("order");
     });
   }
 
@@ -280,10 +293,10 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
             <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
               <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
                 <span>{t("table.related")}</span>
-                <span>{t("table.amount")}</span>
-                <span>{t("table.date")}</span>
-                <span>{t("table.time")}</span>
-                <span className={USER_PAYMENTS_LIST_STATUS_HEADER_CELL}>{t("table.status")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
                 <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
               </div>
               {rows.map((row) => (

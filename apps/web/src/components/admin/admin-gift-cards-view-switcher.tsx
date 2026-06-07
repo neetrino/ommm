@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
-import { useSupportsListBoardView } from "@/hooks/use-supports-list-board-view";
 import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
+import { LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS } from "@/lib/viewport-breakpoints";
 
 type AdminGiftCardsViewSwitcherProps = {
   value: AdminGiftCardsViewMode;
@@ -24,17 +24,12 @@ export function AdminGiftCardsViewSwitcher({
   onChange,
 }: AdminGiftCardsViewSwitcherProps) {
   const t = useTranslations("adminPages.giftCards");
-  const supportsListView = useSupportsListBoardView();
-
-  if (!supportsListView) {
-    return null;
-  }
 
   return (
     <div
       role="group"
       aria-label={t("viewSwitcherAria")}
-      className="inline-flex rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md"
+      className={`${LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS} shrink-0 rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md`}
     >
       <button
         type="button"

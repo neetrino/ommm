@@ -5,7 +5,7 @@ import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
   ADMIN_BOOKING_VALUE_BADGE_CLASS,
-  attendanceValueBadgeTone,
+  adminBookingPaymentLabel,
   paymentValueBadgeTone,
 } from "@/components/admin/admin-booking-list-badges";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
@@ -14,14 +14,17 @@ import {
   ADMIN_BOOKINGS_LIST_ACTIONS_CELL,
   ADMIN_BOOKINGS_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_BOOKINGS_LIST_CELL,
+  ADMIN_BOOKINGS_LIST_COACH_CELL,
   ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
-  ADMIN_BOOKINGS_LIST_SPACER_CELL,
-  ADMIN_BOOKINGS_LIST_STATUS_CELL,
+  ADMIN_BOOKINGS_LIST_PAYMENT_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
+import {
+  ADMIN_LIST_TITLE_LINK_CLASS,
+  ADMIN_LIST_TITLE_TEXT_CLASS,
+} from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 
 type BookingRow = {
@@ -29,7 +32,7 @@ type BookingRow = {
   recordType: "BOOKING" | "WAITLIST";
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
-  paymentStatus: "PAID" | "CASH" | "UNPAID" | "REFUNDED";
+  paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
   channel: "WEBSITE" | "APP";
   user: { id: string; name: string | null; email: string; phone: string | null };
   session: {
@@ -53,8 +56,10 @@ type AdminBookingCompactRowProps = {
   busy: boolean;
   onOpenDetails: () => void;
   onOpenUser: (userId: string) => void;
-  onMarkAttended: () => void;
-  onCancel: () => void;
+  onEdit: () => void;
+  onMove: () => void;
+  onDeactivate: () => void;
+  onActivate: () => void;
   onChangeStatus: (status: BookingRow["status"]) => void;
 };
 
@@ -64,12 +69,16 @@ export function AdminBookingCompactRow({
   busy,
   onOpenDetails,
   onOpenUser,
-  onMarkAttended,
-  onCancel,
+  onEdit,
+  onMove,
+  onDeactivate,
+  onActivate,
   onChangeStatus,
 }: AdminBookingCompactRowProps) {
   const t = useTranslations("adminPages.bookings");
   const userLabel = row.user.name ?? row.user.email;
+  const coachName = row.session.coach.name?.trim();
+  const coachLabel = coachName ? coachName : t("coachNotAssigned");
 
   return (
     <article
@@ -101,6 +110,16 @@ export function AdminBookingCompactRow({
         <p className="mt-0.5 truncate text-xs text-sage-500">{row.user.phone ?? "—"}</p>
       </div>
 
+      <div className={ADMIN_BOOKINGS_LIST_COACH_CELL}>
+        <AdminListMobileLabel label={t("colCoach")} />
+        <p
+          className={`${ADMIN_LIST_TITLE_TEXT_CLASS} ${coachName ? "text-sage-900" : "text-sage-500"}`}
+          title={coachLabel}
+        >
+          {coachLabel}
+        </p>
+      </div>
+
       <div className={ADMIN_BOOKINGS_LIST_CELL}>
         <AdminListMobileLabel label={t("colClassType")} />
         <SessionClassTitle variant="list" name={row.session.classType.name} />
@@ -129,23 +148,13 @@ export function AdminBookingCompactRow({
         </div>
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
+      <div className={ADMIN_BOOKINGS_LIST_PAYMENT_CELL}>
         <AdminListMobileLabel label={t("colPaymentStatus")} />
         <BookingValueBadge
-          label={paymentLabel(t, row.paymentStatus)}
+          label={adminBookingPaymentLabel(t, row.paymentStatus)}
           className={paymentValueBadgeTone(row.paymentStatus)}
         />
       </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_STATUS_CELL}>
-        <AdminListMobileLabel label={t("colAttendanceStatus")} />
-        <BookingValueBadge
-          label={attendanceLabel(t, row.attendanceStatus)}
-          className={attendanceValueBadgeTone(row.attendanceStatus)}
-        />
-      </div>
-
-      <div className={ADMIN_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div
         className={ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL}
@@ -172,8 +181,10 @@ export function AdminBookingCompactRow({
           recordType={row.recordType}
           status={row.status}
           busy={busy}
-          onMarkAttended={onMarkAttended}
-          onCancel={onCancel}
+          onEdit={onEdit}
+          onMove={onMove}
+          onDeactivate={onDeactivate}
+          onActivate={onActivate}
         />
       </div>
     </article>
@@ -186,24 +197,4 @@ function BookingValueBadge({ label, className }: { label: string; className: str
       {label}
     </span>
   );
-}
-
-function paymentLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: BookingRow["paymentStatus"],
-): string {
-  if (value === "PAID") return t("paymentPaid");
-  if (value === "CASH") return t("paymentCash");
-  if (value === "REFUNDED") return t("paymentRefunded");
-  return t("paymentUnpaid");
-}
-
-function attendanceLabel(
-  t: ReturnType<typeof useTranslations<"adminPages.bookings">>,
-  value: BookingRow["attendanceStatus"],
-): string {
-  if (value === "ATTENDED") return t("attendanceAttended");
-  if (value === "NO_SHOW") return t("attendanceNoShow");
-  if (value === "LATE_CANCEL") return t("attendanceLateCancel");
-  return t("attendanceNotAttended");
 }

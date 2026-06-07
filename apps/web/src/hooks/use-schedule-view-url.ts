@@ -1,28 +1,20 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useUrlViewState } from "@/hooks/use-url-view-state";
 import {
   resolveScheduleView,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
+import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 
 /** Keeps schedule list/week mode in the URL (`?view=list|weekly`). */
-export function useScheduleViewUrl(initialView: ScheduleView): [ScheduleView, (view: ScheduleView) => void] {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [view, setView] = useState<ScheduleView>(resolveScheduleView(initialView));
-
-  const updateView = useCallback(
-    (nextView: ScheduleView) => {
-      setView(nextView);
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("view", nextView);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [pathname, router, searchParams],
-  );
-
-  return [view, updateView];
+export function useScheduleViewUrl(
+  fallbackView: ScheduleView,
+): [ScheduleView, (view: ScheduleView) => void] {
+  return useUrlViewState(LIST_BOARD_VIEW_QUERY_KEY, (value) => {
+    if (value === null) {
+      return fallbackView;
+    }
+    return resolveScheduleView(value);
+  });
 }

@@ -4,6 +4,7 @@ import {
   type ScheduleFiltersState,
 } from "@/components/admin/admin-schedule-filter-fields";
 import type { ScheduleQuickFilter } from "@/components/admin/admin-schedule-quick-filters";
+import { parseSessionSortOrder, type SessionSortOrder } from "@/lib/list-sort";
 
 export const ADMIN_SCHEDULE_LIST_FILTER_KEYS = [
   "schedQ",
@@ -16,6 +17,7 @@ export const ADMIN_SCHEDULE_LIST_FILTER_KEYS = [
   "schedAvailability",
   "schedTimeOfDay",
   "schedQuick",
+  "schedOrder",
 ] as const;
 
 type SessionStatus = ScheduleFiltersState["statuses"][number];
@@ -24,6 +26,7 @@ type TimeOfDayOption = ScheduleFiltersState["timeOfDay"][number];
 
 export type ScheduleListFilters = ScheduleFiltersState & {
   q: string;
+  order: SessionSortOrder;
 };
 
 export type ScheduleListFilterState = {
@@ -41,6 +44,7 @@ export const defaultScheduleListFilters: ScheduleListFilters = {
   statuses: [],
   availability: [],
   timeOfDay: [],
+  order: "upcoming",
 };
 
 const SESSION_STATUSES: readonly SessionStatus[] = ["DRAFT", "ACTIVE", "FULL", "CANCELLED"];
@@ -95,6 +99,7 @@ export function parseScheduleListFilterStateFromSearch(
       parseAdminScheduleListFilter(search.schedAvailability ?? ""),
     ),
     timeOfDay: parseTimeOfDay(parseAdminScheduleListFilter(search.schedTimeOfDay ?? "")),
+    order: parseSessionSortOrder(search.schedOrder),
   };
   return {
     filters,
@@ -124,6 +129,9 @@ export function buildScheduleFiltersQuery(
   if (timeOfDay) params.set("schedTimeOfDay", timeOfDay);
   const quick = serializeAdminScheduleListFilter(quickFilters);
   if (quick) params.set("schedQuick", quick);
+  if (filters.order !== "upcoming") {
+    params.set("schedOrder", filters.order);
+  }
   return params.toString();
 }
 
@@ -151,5 +159,8 @@ export function scheduleFiltersToApiParams(
   if (timeOfDay) params.set("timeOfDay", timeOfDay);
   const quick = serializeAdminScheduleListFilter(quickFilters);
   if (quick) params.set("quick", quick);
+  if (filters.order !== "upcoming") {
+    params.set("order", filters.order);
+  }
   return params;
 }

@@ -46,7 +46,6 @@ import {
   resetListPageQuery,
   syncListPageQuery,
 } from "@/lib/list-pagination";
-import { formatAmdFromCents } from "@/lib/price-amd";
 import {
   ADMIN_CLIENTS_FILTER_KEYS,
   areUrlSearchQueriesEqual,
@@ -411,7 +410,7 @@ export function AdminClientsManagement({
               resetLabel={tFilters("resetFilters")}
             />
           }
-          metrics={<Summary payload={payload} locale={locale} />}
+          metrics={<Summary payload={payload} />}
           status={error ? <div className="app-alert-warn">{error}</div> : null}
         >
           {clientsList}
@@ -433,7 +432,7 @@ export function AdminClientsManagement({
               />
             }
           />
-          <Summary payload={payload} locale={locale} />
+          <Summary payload={payload} />
           {error ? <div className="app-alert-warn">{error}</div> : null}
           {clientsList}
         </>
@@ -448,17 +447,15 @@ export function AdminClientsManagement({
   );
 }
 
-function Summary({ payload, locale }: { payload: AdminClientsPayload; locale: string }) {
+function Summary({ payload }: { payload: AdminClientsPayload }) {
   const cards = [
     ["Total", payload.summary.total],
     ["Active", payload.summary.active],
     ["VIP", payload.summary.vip],
-    ["At risk", payload.summary.atRisk],
     ["Visits", payload.summary.totalVisits],
-    ["Lifetime value", formatAmdFromCents(payload.summary.lifetimeValueCents, locale)],
   ];
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map(([label, value]) => (
         <article key={label} className={adminChrome.metricCard}>
           <p className={adminChrome.metricLabel}>{label}</p>
@@ -507,10 +504,7 @@ function ClientsTable({
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
         {readOnly ? null : (
-          <>
-            <span aria-hidden="true" />
-            <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-          </>
+          <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         )}
       </div>
       {rows.map((row) => (

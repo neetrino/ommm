@@ -21,12 +21,12 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
-import { AdminClassTypesModal } from "@/components/admin/admin-class-types-modal";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
-import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
+import { buildSessionLevelOptions, resolveSessionClassTypeId, sessionTitleFromClassTypeSelection, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
+import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import {
@@ -68,8 +68,8 @@ import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-lis
 import {
   AdminScheduleDateStrip,
   scheduleSessionLocalIsoDay,
-  sortScheduleRowsFromTodayForward,
 } from "@/components/admin/admin-schedule-date-strip";
+import { parseSessionSortOrder, sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -146,10 +146,10 @@ type Filters = {
   statuses: SessionStatus[];
   availability: AvailabilityOption[];
   timeOfDay: TimeOfDayOption[];
+  order: SessionSortOrder;
 };
 
 type FormState = {
-  title: string;
   description: string;
   classTypeId: string;
   coachId: string;
@@ -188,10 +188,11 @@ const SCHEDULE_WEEKDAYS: readonly ScheduleDayOfWeek[] = [
 const SEARCH_DEBOUNCE_MS = 300;
 const ADMIN_SCHEDULE_TOAST_DISMISS_MS = 5000;
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
-const CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
-const EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
+const LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
+const LEGACY_EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
 const SESSION_LEVEL_SEPARATOR = ", ";
+const DEFAULT_SESSION_CAPACITY = "10";
 const PACKAGE_CLASS_TYPE_VALUE_PREFIX = "package:";
 
 function replaceScheduleModalInUrl(
@@ -203,29 +204,10 @@ function replaceScheduleModalInUrl(
   const params = new URLSearchParams(searchParams.toString());
   if (modal === null) {
     params.delete(SCHEDULE_MODAL_QUERY_KEY);
-    params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
+    params.delete(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY);
   } else {
     params.set(SCHEDULE_MODAL_QUERY_KEY, modal);
-    if (modal !== CLASS_TYPES_MODAL_QUERY_VALUE) {
-      params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
-    }
-  }
-  const qs = params.toString();
-  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-}
-
-function replaceEditingClassTypeInUrl(
-  pathname: string,
-  searchParams: URLSearchParams,
-  router: ReturnType<typeof useRouter>,
-  classTypeId: string | null,
-): void {
-  const params = new URLSearchParams(searchParams.toString());
-  params.set(SCHEDULE_MODAL_QUERY_KEY, CLASS_TYPES_MODAL_QUERY_VALUE);
-  if (classTypeId === null) {
-    params.delete(EDIT_CLASS_TYPE_QUERY_KEY);
-  } else {
-    params.set(EDIT_CLASS_TYPE_QUERY_KEY, classTypeId);
+    params.delete(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY);
   }
   const qs = params.toString();
   router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -321,22 +303,21 @@ function initialForm(
   const start = row ? new Date(row.startsAt) : new Date();
   const end = row ? new Date(row.endsAt) : new Date(start.getTime() + 60 * 60000);
   return {
-    title: row?.title ?? "",
     description: row?.description ?? "",
     classTypeId: row?.classType.id ?? classTypeOptions[0]?.value ?? "",
     coachId: row?.coach.id ?? coaches[0]?.id ?? "",
     date: isoDate(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
-    capacity: row ? String(row.capacity) : "",
+    capacity: row ? String(row.capacity) : DEFAULT_SESSION_CAPACITY,
     levels: splitSessionLevels(row?.level),
     status: row?.status ?? "ACTIVE",
   };
 }
 
-function formPayload(form: FormState, classTypeId: string) {
+function formPayload(form: FormState, classTypeId: string, title: string) {
   return {
-    title: form.title.trim(),
+    title: title.trim(),
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
@@ -351,12 +332,13 @@ function formPayload(form: FormState, classTypeId: string) {
 function batchFormPayload(
   form: FormState,
   classTypeId: string,
+  title: string,
   startDate: string,
   endDate: string,
   slots: readonly CalendarScheduleSlot[],
 ) {
   return {
-    title: form.title.trim(),
+    title: title.trim(),
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
@@ -412,6 +394,7 @@ export function AdminScheduleManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.classes");
   const tPage = useTranslations("adminPages.schedule");
+  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -421,7 +404,7 @@ export function AdminScheduleManagement({
   const [prevSessions, setPrevSessions] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
-  const [view, setView] = useState<ScheduleView>(resolveScheduleView(initialView));
+  const [view, setView] = useScheduleViewUrl(resolveScheduleView(initialView));
   const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
     () => initialFilterState.quickFilters,
@@ -435,27 +418,7 @@ export function AdminScheduleManagement({
   const [toast, setToast] = useState<ScheduleToast | null>(null);
 
   const scheduleModalParam = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
-  const classTypesOpen = scheduleModalParam === CLASS_TYPES_MODAL_QUERY_VALUE;
   const addClassOpen = scheduleModalParam === ADD_CLASS_MODAL_QUERY_VALUE;
-  const editingClassTypeIdParam = searchParams.get(EDIT_CLASS_TYPE_QUERY_KEY);
-  const editingClassTypeId =
-    editingClassTypeIdParam !== null &&
-    classTypes.some((type) => type.id === editingClassTypeIdParam)
-      ? editingClassTypeIdParam
-      : null;
-
-  const closeClassTypesModal = useCallback(() => {
-    if (searchParams.get(SCHEDULE_MODAL_QUERY_KEY) === CLASS_TYPES_MODAL_QUERY_VALUE) {
-      replaceScheduleModalInUrl(pathname, searchParams, router, null);
-    }
-  }, [pathname, router, searchParams]);
-
-  const setEditingClassTypeInUrl = useCallback(
-    (classTypeId: string | null) => {
-      replaceEditingClassTypeInUrl(pathname, searchParams, router, classTypeId);
-    },
-    [pathname, router, searchParams],
-  );
 
   const openAddClassModal = useCallback(() => {
     replaceScheduleModalInUrl(pathname, searchParams, router, ADD_CLASS_MODAL_QUERY_VALUE);
@@ -497,6 +460,16 @@ export function AdminScheduleManagement({
   useEffect(() => {
     filterStateRef.current = { filters, quickFilters };
   }, [filters, quickFilters]);
+
+  useEffect(() => {
+    const modal = searchParams.get(SCHEDULE_MODAL_QUERY_KEY);
+    if (
+      modal === LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE ||
+      searchParams.has(LEGACY_EDIT_CLASS_TYPE_QUERY_KEY)
+    ) {
+      replaceScheduleModalInUrl(pathname, searchParams, router, null);
+    }
+  }, [pathname, router, searchParams]);
 
   const listPage = useMemo(
     () => parseAdminScheduleListPageParams(Object.fromEntries(searchParams.entries())),
@@ -629,14 +602,6 @@ export function AdminScheduleManagement({
     };
   }, [displayRows, isListView, listPagination]);
 
-  const sessionCountByTypeId = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const row of rows) {
-      counts[row.classType.id] = (counts[row.classType.id] ?? 0) + 1;
-    }
-    return counts;
-  }, [rows]);
-
   function resetFilters() {
     const cleared: ScheduleListFilterState = {
       filters: defaultScheduleListFilters,
@@ -686,6 +651,10 @@ export function AdminScheduleManagement({
           availability: t("filters.availabilityLabel"),
           timeOfDay: t("filters.timeOfDayLabel"),
           quick: t("filters.quickFilterLabel"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
         renderCoachIds: ({ value, onChange }) => (
           <OmmFilterMultiSelect
@@ -779,7 +748,7 @@ export function AdminScheduleManagement({
           />
         ),
       }),
-    [coaches, levels, packageOptions, quickOptions, scheduleMultiSelectFormat, t],
+    [coaches, levels, packageOptions, quickOptions, scheduleMultiSelectFormat, t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -794,6 +763,7 @@ export function AdminScheduleManagement({
           statuses: filters.statuses,
           availability: filters.availability,
           timeOfDay: filters.timeOfDay,
+          order: filters.order,
         },
         quickFilters,
       ),
@@ -807,6 +777,11 @@ export function AdminScheduleManagement({
         break;
       case "to":
         patchFilterState({ filters: { to: value } });
+        break;
+      case "order":
+        patchFilterState({
+          filters: { order: parseSessionSortOrder(value) },
+        });
         break;
       case "coachIds":
         patchFilterState({ filters: { coachIds: parseAdminScheduleListFilter(value) } });
@@ -842,13 +817,6 @@ export function AdminScheduleManagement({
       default:
         break;
     }
-  }
-
-  function updateView(nextView: ScheduleView): void {
-    setView(nextView);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", nextView);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   async function runRowAction(row: AdminScheduleSession, action: () => Promise<AdminScheduleSession | void>, ok: string) {
@@ -888,7 +856,7 @@ export function AdminScheduleManagement({
               resetLabel={t("filters.reset")}
             />
           }
-          searchTrailing={<ScheduleViewSwitcher value={view} onChange={updateView} />}
+          searchTrailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
           metrics={<SummaryGrid summary={summary} />}
         >
           <StaffScheduleListWeekViews
@@ -945,7 +913,7 @@ export function AdminScheduleManagement({
               onClearAll={resetFilters}
               resetLabel={t("filters.reset")}
             />
-            <ScheduleViewSwitcher value={view} onChange={updateView} />
+            <ScheduleViewSwitcher value={view} onChange={setView} />
           </div>
         }
         trailing={
@@ -981,6 +949,7 @@ export function AdminScheduleManagement({
         locale={locale}
         view={view}
         rows={displayRows}
+        sortOrder={filters.order}
         selectedDay={selectedDay}
         onSelectDay={(day) => setSelectedDay((current) => (current === day ? null : day))}
         onDetails={setDetails}
@@ -1132,17 +1101,6 @@ export function AdminScheduleManagement({
           });
         }}
       />
-      <AdminClassTypesModal
-        isOpen={classTypesOpen}
-        classTypes={classTypes}
-        sessionCountByTypeId={sessionCountByTypeId}
-        initialSelectedId={editingClassTypeId}
-        onClose={closeClassTypesModal}
-        onSelectedTypeIdChange={setEditingClassTypeInUrl}
-        onChanged={(nextTypes) => {
-          setClassTypes(nextTypes);
-        }}
-      />
     </div>
   );
 }
@@ -1165,6 +1123,7 @@ function ScheduleViews(props: {
   locale: string;
   view: ScheduleView;
   rows: AdminScheduleSession[];
+  sortOrder: SessionSortOrder;
   selectedDay: string | null;
   busyId: string | null;
   onSelectDay: (day: string) => void;
@@ -1183,19 +1142,22 @@ function ScheduleViews(props: {
         selectedDay={props.selectedDay}
         onSelectDay={props.onSelectDay}
       />
-      <SessionTable {...props} rows={props.rows} />
+      <SessionTable {...props} rows={props.rows} sortOrder={props.sortOrder} />
     </div>
   );
 }
 
-function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
+function SessionTable(
+  props: Omit<Parameters<typeof ScheduleViews>[0], "view"> & { sortOrder: SessionSortOrder },
+) {
   const t = useTranslations("adminPages.classes");
-  const rows = sortScheduleRowsFromTodayForward(
+  const rows = sortAdminSessionRows(
     props.selectedDay === null
       ? props.rows
       : props.rows.filter(
           (row) => scheduleSessionLocalIsoDay(row.startsAt) === props.selectedDay,
         ),
+    props.sortOrder,
   );
   if (rows.length === 0) {
     return (
@@ -1316,10 +1278,23 @@ function SessionFormSheet({
     setError(null);
     try {
       const resolvedClassType = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
+      const title = sessionTitleFromClassTypeSelection(
+        form.classTypeId,
+        classTypeOptions,
+        resolvedClassType,
+      );
+      if (title.length === 0) {
+        throw new Error(t("validation.classTypeRequired"));
+      }
+      const capacity = Number(form.capacity);
+      if (!Number.isInteger(capacity) || capacity < 1) {
+        throw new Error(t("validation.capacityInvalid"));
+      }
       if (isBatchCreate) {
         const payload = batchFormPayload(
           form,
           resolvedClassType.classTypeId,
+          title,
           calendarStartDate,
           calendarEndDate,
           calendarSlots,
@@ -1333,7 +1308,7 @@ function SessionFormSheet({
       }
       const saved = await apiFetch<AdminScheduleSession>(
         row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
-        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId)) },
+        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId, title)) },
       );
       onSaved(saved);
     } catch (requestError) {
@@ -1392,13 +1367,6 @@ function SessionFormSheet({
             void submit(event);
           }}
         >
-        <input
-          className="ommm-input sm:col-span-2"
-          value={form.title}
-          onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-          placeholder={t("form.className")}
-          required
-        />
         <OmmFormDropdown
           value={form.classTypeId}
           ariaLabel={t("form.classType")}
@@ -1436,7 +1404,7 @@ function SessionFormSheet({
             />
           </>
         ) : null}
-        <label className="flex flex-col gap-1">
+        <label className="flex min-w-0 flex-col gap-1">
           <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
             {t("form.capacityHint")}
           </span>
@@ -1453,16 +1421,20 @@ function SessionFormSheet({
             required
           />
         </label>
-        <OmmFilterMultiSelect
-          ariaLabel={t("form.level")}
-          allLabel={t("form.level")}
-          selectedValues={form.levels}
-          options={levelOptions}
-          onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
-          className="sm:col-span-2"
-          triggerClassName="text-center"
-          formatSelectedCount={(count) => t("filters.selectedCount", { count })}
-        />
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {t("form.level")}
+          </span>
+          <OmmFilterMultiSelect
+            ariaLabel={t("form.level")}
+            allLabel={t("filters.allLevels")}
+            selectedValues={form.levels}
+            options={levelOptions}
+            onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
+            className="w-full"
+            formatSelectedCount={(count) => t("filters.selectedCount", { count })}
+          />
+        </div>
         {isBatchCreate ? (
           <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
             <div className="space-y-1">

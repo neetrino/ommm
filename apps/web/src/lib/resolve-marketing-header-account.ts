@@ -1,6 +1,6 @@
 import type { MarketingHeaderAccount } from "@/components/marketing/marketing-site-header";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { homePathForRole, USER_PROFILE_PATH } from "@/lib/role-home";
+import { homePathForRole } from "@/lib/role-home";
 import { userDisplayInitials } from "@/lib/user-display-initials";
 import { userDisplayName } from "@/lib/user-display-name";
 import type { LayoutAuthUser } from "@/server/require-role-layout";
@@ -13,8 +13,7 @@ export function resolveMarketingHeaderAccount(
     return null;
   }
 
-  const href =
-    authUser.role === "USER" ? USER_PROFILE_PATH : homePathForRole(authUser.role);
+  const href = homePathForRole(authUser.role);
 
   return {
     href,

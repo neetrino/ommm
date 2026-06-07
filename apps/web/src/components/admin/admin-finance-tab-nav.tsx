@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -7,6 +9,7 @@ import {
   FINANCE_SECTION_IDS,
   type FinanceSectionId,
 } from "@/components/admin/admin-finance-module";
+import { buildFinanceTabHref } from "@/components/admin/admin-finance-url";
 
 const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
   overview: "overview",
@@ -18,6 +21,11 @@ const TAB_LABEL_KEY: Record<FinanceSectionId, string> = {
 export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
   const t = useTranslations("adminPages.finance.tabs");
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = useMemo(
+    () => Object.fromEntries(searchParams.entries()),
+    [searchParams],
+  );
 
   return (
     <nav
@@ -26,8 +34,9 @@ export function AdminFinanceTabNav({ className = "" }: { className?: string }) {
       className={`flex min-w-0 shrink-0 items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
     >
       {FINANCE_SECTION_IDS.map((section) => {
-        const href = FINANCE_SECTION_HREF[section];
-        const active = pathname === href || pathname.endsWith(href);
+        const basePath = FINANCE_SECTION_HREF[section];
+        const href = buildFinanceTabHref(section, search);
+        const active = pathname === basePath || pathname.endsWith(basePath);
         return (
           <Link
             key={section}
