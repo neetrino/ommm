@@ -37,6 +37,7 @@ import {
 } from "@/components/admin/package-category-utils";
 import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-utils";
 import { ApiError, apiFetch } from "@/lib/api";
+import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
@@ -487,23 +488,13 @@ export function AdminPackageForm({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
-              <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-3 z-10 inline-flex items-center text-sm font-semibold text-sage-700">
-                  ֏
-                </span>
-                <input
-                  name="price"
-                  type="number"
-                  className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  min={0}
-                  step={1}
-                  inputMode="numeric"
-                  value={values.price}
-                  onChange={(event) => updateValues({ price: event.target.value })}
-                  onKeyDown={preventNumberArrowStep}
-                  disabled={pending}
-                />
-              </div>
+              <AmdMoneyInput
+                name="price"
+                value={values.price}
+                onValueChange={(nextValue) => updateValues({ price: nextValue })}
+                disabled={pending}
+                required
+              />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationMonths")}</span>
@@ -571,24 +562,13 @@ export function AdminPackageForm({
               ) : null}
               <label className="flex flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
-                <div className="relative">
-                  <span className="pointer-events-none absolute inset-y-0 left-3 z-10 inline-flex items-center text-sm font-semibold text-sage-700">
-                    ֏
-                  </span>
-                  <input
-                    name="price"
-                    type="number"
-                    className="ommm-input pl-8 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    min={0}
-                    step={1}
-                    inputMode="numeric"
-                    value={values.price}
-                    onChange={(event) => updateValues({ price: event.target.value })}
-                    onKeyDown={preventNumberArrowStep}
-                    required
-                    disabled={pending}
-                  />
-                </div>
+                <AmdMoneyInput
+                  name="price"
+                  value={values.price}
+                  onValueChange={(nextValue) => updateValues({ price: nextValue })}
+                  required
+                  disabled={pending}
+                />
               </label>
               <label className="flex flex-col gap-1.5 sm:col-span-2">
                 <span className="ommm-label text-xs uppercase tracking-wide">

@@ -18,6 +18,19 @@ export const GIFT_CARD_FILTER_QUERY_KEYS = [
   "quick",
 ] as const;
 
+export const GIFT_CARD_MODAL_QUERY_KEY = "modal";
+export const GIFT_CARD_CREATE_MODAL_VALUE = "create-gift-card";
+export const GIFT_CARD_EDIT_MODAL_VALUE = "edit-gift-card";
+export const GIFT_CARD_BATCH_ID_QUERY_KEY = "batchId";
+
+/** Preserves filter/view params while opening the edit gift-card center modal. */
+export function buildGiftCardEditModalSearch(currentSearch: string, batchId: string): string {
+  const params = new URLSearchParams(currentSearch);
+  params.set(GIFT_CARD_MODAL_QUERY_KEY, GIFT_CARD_EDIT_MODAL_VALUE);
+  params.set(GIFT_CARD_BATCH_ID_QUERY_KEY, batchId);
+  return params.toString();
+}
+
 const SORT_ORDERS: readonly GiftCardSortOrder[] = [
   "newest",
   "oldest",

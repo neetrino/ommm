@@ -2,22 +2,30 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { UserPaymentsHistory } from "@/components/account/user-payments-history";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
+import { parseListPageParams } from "@/lib/list-pagination";
 import { serverApiJson } from "@/lib/server-api";
-import type { UserPaymentRow } from "@/lib/user-package-types";
+import type { UserPaymentsPayload } from "@/lib/user-package-types";
 
 export default async function UserPaymentsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "userPages.payments" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const paymentsRes = await serverApiJson<UserPaymentRow[]>("/payments/me", cookie);
+  const listPage = parseListPageParams(search);
+  const paymentsRes = await serverApiJson<UserPaymentsPayload>(
+    `/payments/me?take=${listPage.take}&offset=${listPage.offset}`,
+    cookie,
+  );
 
   if (!paymentsRes.ok) {
     return (
-      <MemberContentFrame description={t("description")}>
+      <MemberContentFrame>
         <section className="rounded-[20px] border border-rose-100 bg-rose-50/70 p-5 text-sm text-rose-800">
           {paymentsRes.status === 401
             ? t("signInRequired")
@@ -28,8 +36,8 @@ export default async function UserPaymentsPage({
   }
 
   return (
-    <MemberContentFrame description={t("description")}>
-      <UserPaymentsHistory locale={locale} payments={paymentsRes.data} />
+    <MemberContentFrame>
+      <UserPaymentsHistory locale={locale} initialPayments={paymentsRes.data} />
     </MemberContentFrame>
   );
 }

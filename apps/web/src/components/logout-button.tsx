@@ -11,6 +11,8 @@ const POST_LOGOUT_PATH = "/";
 type LogoutButtonProps = {
   className?: string;
   iconClassName?: string;
+  showLabel?: boolean;
+  labelClassName?: string;
 };
 
 function LogoutGlyph({ className }: { className?: string }) {
@@ -55,6 +57,8 @@ const DEFAULT_LOGOUT_ICON_CLASS =
 export function LogoutButton({
   className,
   iconClassName,
+  showLabel = false,
+  labelClassName,
 }: LogoutButtonProps) {
   const t = useTranslations("common");
   const locale = useLocale();
@@ -98,7 +102,12 @@ export function LogoutButton({
             aria-hidden
           />
         ) : (
-          <LogoutGlyph className={iconClassName ?? DEFAULT_LOGOUT_ICON_CLASS} />
+          <>
+            <LogoutGlyph className={iconClassName ?? DEFAULT_LOGOUT_ICON_CLASS} />
+            {showLabel ? (
+              <span className={labelClassName ?? "whitespace-nowrap"}>{label}</span>
+            ) : null}
+          </>
         )}
       </button>
     </>

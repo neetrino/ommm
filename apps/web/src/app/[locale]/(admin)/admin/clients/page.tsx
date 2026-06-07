@@ -36,7 +36,7 @@ export default async function AdminClientsPage({
   }
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <AdminClientsManagement
         initial={clientsRes.data}
         locale={locale}

@@ -1,34 +1,35 @@
 .shell {
+  position: relative;
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+  overflow-x: clip;
+}
+
+.foreground {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .main {
-  --auth-form-lift: 1rem;
   display: flex;
   flex: 1 1 auto;
   align-items: center;
   justify-content: center;
-  margin-top: calc(-1 * var(--auth-form-lift));
   padding: 0 1rem 2.5rem;
 }
 
 .card {
-  position: relative;
   width: 100%;
   max-width: 28rem;
-  overflow: hidden;
-}
-
-.cardContent {
-  position: relative;
-  z-index: 1;
 }
 
 @media (min-width: 768px) {
   .main {
-    --auth-form-lift: 1.5rem;
     padding-bottom: 3.5rem;
   }
 }

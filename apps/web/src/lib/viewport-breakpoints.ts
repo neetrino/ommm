@@ -41,3 +41,8 @@ export const HOME_CANVAS_SCALE_MIN_WIDTH_PX = APP_SIDEBAR_MIN_WIDTH_PX;
 
 /** Minimum effective touch target (px) when UI is canvas-scaled. */
 export const MIN_TOUCH_TARGET_PX = 44;
+
+/** List/board toggle — tablet and desktop; phones always use card view. */
+export const LIST_BOARD_VIEW_MIN_WIDTH_PX = CANVAS_TABLET_MIN_WIDTH_PX;
+
+export const LIST_BOARD_VIEW_MEDIA_QUERY = `(min-width: ${LIST_BOARD_VIEW_MIN_WIDTH_PX}px)`;

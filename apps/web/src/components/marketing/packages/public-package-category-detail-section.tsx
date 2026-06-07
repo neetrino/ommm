@@ -105,10 +105,10 @@ export async function PublicPackageCategoryDetailSection({
           <p className="mt-3 text-sm leading-relaxed text-sage-500">{description}</p>
         ) : null}
         <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-          {symbol.length > 0 ? <span className="mr-1.5 text-black">{symbol}</span> : null}
           {showFromPrice
             ? m("packagesPriceFromLine", { amount: value })
             : m("packagesPriceLine", { amount: value })}
+          {symbol.length > 0 ? <span className="ml-1.5 text-black">{symbol}</span> : null}
         </p>
         <p className="mt-2 text-sm text-sage-500">
           {m("packagesDetailsTierCount", { count: displayPlans.length })}

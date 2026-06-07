@@ -7,6 +7,9 @@ export const USER_ACCOUNT_PATH = "/user";
 /** Member dashboard (Prisma `Role.USER`). */
 export const USER_DASHBOARD_PATH = "/user/dashboard";
 
+/** Member profile and account settings (Prisma `Role.USER`). */
+export const USER_PROFILE_PATH = "/user/profile";
+
 /** @deprecated Use {@link USER_ACCOUNT_PATH} or {@link USER_DASHBOARD_PATH}. */
 export const USER_HOME_PATH = USER_ACCOUNT_PATH;
 
@@ -43,11 +46,11 @@ export function homePathForRole(role: string): string {
 
 /**
  * Path after successful login/register (email or OAuth entry via `/account`).
- * Regular members return to the public home; staff roles go to their workspace.
+ * Regular members land on My account; staff roles go to their workspace.
  */
 export function postAuthPathForRole(role: string): string {
   if (role === "USER") {
-    return PUBLIC_HOME_PATH;
+    return USER_ACCOUNT_PATH;
   }
   return homePathForRole(role);
 }

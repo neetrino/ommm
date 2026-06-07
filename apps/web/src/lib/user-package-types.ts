@@ -39,3 +39,10 @@ export type UserPaymentRow = {
   createdAt: string;
   updatedAt?: string;
 };
+
+export type UserPaymentsPayload = {
+  items: UserPaymentRow[];
+  total: number;
+  take: number;
+  offset: number;
+};

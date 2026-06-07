@@ -2,25 +2,16 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { AdminClientActions } from "@/components/admin/admin-client-actions";
-import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
 import type { ClientRow } from "@/components/admin/admin-clients-types";
-import { PencilGlyph, TrashGlyph } from "@/components/ui/admin-action-glyphs";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { AnimatedToggleSwitch } from "@/components/ui/animated-toggle-switch";
-import { AdminRowIconButton, AdminRowIconGroup } from "@/components/ui/admin-row-icon-button";
+import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
+import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 
-const CLIENT_ROW_ICON_CLASS = "h-5 w-5 shrink-0";
-const CLIENT_ROW_ICON_BUTTON_CLASS = "ommm-admin-row-icon-button-lg";
-const CLIENT_ROW_TOGGLE_BUTTON_CLASS =
-  "ommm-admin-row-icon-button-lg ommm-admin-row-icon-button-toggle";
+const CLIENT_ROW_TOGGLE_BUTTON_CLASS = "ommm-admin-row-icon-button-toggle";
 
-function isoDate(value: string | null): string {
-  return value ? value.slice(0, 10) : "";
-}
+type PendingConfirm = "activate" | "deactivate";
 
 type AdminClientRowActionsProps = {
   client: ClientRow;
@@ -29,50 +20,33 @@ type AdminClientRowActionsProps = {
 
 export function AdminClientRowActions({ client, onChanged }: AdminClientRowActionsProps) {
   const t = useTranslations("adminPages.clients");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const serverIsActive = !(client.isBlocked ?? false);
-  const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
-  const isActive = pendingIsActive ?? serverIsActive;
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
+  const isActive = !(client.isBlocked ?? false);
   const toggleLabel = isActive ? t("deactivateClient") : t("activateClient");
 
-  function openEditModal(): void {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(EDIT_CLIENT_QUERY_KEY, client.id);
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname);
-  }
-
-  async function run(action: () => Promise<void>, okLabel: string): Promise<void> {
+  function openConfirm(): void {
     if (busy) {
       return;
     }
-    setBusy(true);
-    setMessage(null);
-    try {
-      await action();
-      setTone("ok");
-      setMessage(okLabel);
-      onChanged();
-    } catch (error) {
-      setTone("err");
-      setMessage(error instanceof ApiError ? error.message : t("genericError"));
-    } finally {
-      setBusy(false);
-    }
+    setPendingConfirm(isActive ? "deactivate" : "activate");
   }
 
-  async function toggleStatus(): Promise<void> {
+  function closeConfirm(): void {
     if (busy) {
       return;
     }
+    setPendingConfirm(null);
+  }
 
-    const nextIsActive = !isActive;
-    setPendingIsActive(nextIsActive);
+  async function confirmStatusChange(): Promise<void> {
+    if (busy || pendingConfirm === null) {
+      return;
+    }
+
+    const nextIsActive = pendingConfirm === "activate";
     setBusy(true);
     setMessage(null);
 
@@ -83,81 +57,72 @@ export function AdminClientRowActions({ client, onChanged }: AdminClientRowActio
       });
       setTone("ok");
       setMessage(nextIsActive ? t("activateSuccess") : t("deactivateSuccess"));
+      setPendingConfirm(null);
       onChanged();
     } catch (error) {
-      setPendingIsActive(null);
       setTone("err");
       setMessage(error instanceof ApiError ? error.message : t("genericError"));
     } finally {
       setBusy(false);
-      setPendingIsActive(null);
     }
   }
 
-  async function onDelete(): Promise<void> {
-    if (!window.confirm(t("deleteConfirm"))) {
-      return;
-    }
-
-    await run(async () => {
-      await apiFetch(`/clients/${client.id}`, { method: "DELETE" });
-    }, t("deleteSuccess"));
-  }
+  const confirmCopy =
+    pendingConfirm === "deactivate"
+      ? {
+          title: t("deactivateClient"),
+          description: t("confirmDeactivate"),
+          confirmLabel: t("deactivateClient"),
+          tone: "danger" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--danger",
+        }
+      : {
+          title: t("activateClient"),
+          description: t("confirmActivate"),
+          confirmLabel: t("activateClient"),
+          tone: "success" as const,
+          confirmClassName: "ommm-btn-lifecycle-action--success",
+        };
 
   return (
     <>
-      <AdminRowIconGroup size="lg">
-        <AdminRowIconButton
-          ariaLabel={t("editClient")}
-          title={t("editClient")}
-          className={CLIENT_ROW_ICON_BUTTON_CLASS}
-          onClick={openEditModal}
-          disabled={busy}
-        >
-          <PencilGlyph className={CLIENT_ROW_ICON_CLASS} />
-        </AdminRowIconButton>
+      <div
+        className="flex items-center justify-end"
+        role="group"
+        aria-label={t("colActions")}
+      >
         <AdminRowIconButton
           ariaLabel={toggleLabel}
           title={toggleLabel}
           className={CLIENT_ROW_TOGGLE_BUTTON_CLASS}
-          onClick={() => {
-            void toggleStatus();
-          }}
           disabled={busy}
+          onClick={(event) => {
+            event.stopPropagation();
+            openConfirm();
+          }}
         >
           <AnimatedToggleSwitch checked={isActive} />
         </AdminRowIconButton>
-        <AdminRowIconButton
-          ariaLabel={t("deleteClient")}
-          title={t("deleteClient")}
-          variant="danger"
-          className={CLIENT_ROW_ICON_BUTTON_CLASS}
-          onClick={() => {
-            void onDelete();
-          }}
-          disabled={busy}
-        >
-          <TrashGlyph className={CLIENT_ROW_ICON_CLASS} />
-        </AdminRowIconButton>
-      </AdminRowIconGroup>
+      </div>
 
       {message ? (
-        <AdminCenterToast
-          message={message}
-          tone={tone}
-          onDismiss={() => setMessage(null)}
-        />
+        <AdminCenterToast message={message} tone={tone} onDismiss={() => setMessage(null)} />
       ) : null}
 
-      <AdminClientActions
-        showEditTrigger={false}
-        clientId={client.id}
-        initialEmail={client.email}
-        initialName={client.name ?? ""}
-        initialLastName={client.lastName ?? ""}
-        initialPhone={client.phone ?? ""}
-        initialDateOfBirth={isoDate(client.dateOfBirth)}
-        onChanged={onChanged}
+      <OmmConfirmDialog
+        isOpen={pendingConfirm !== null}
+        title={confirmCopy.title}
+        description={confirmCopy.description}
+        confirmLabel={busy ? t("savingButton") : confirmCopy.confirmLabel}
+        cancelLabel={t("cancelButton")}
+        backdropAriaLabel={t("modalBackdropClose")}
+        tone={confirmCopy.tone}
+        confirmClassName={confirmCopy.confirmClassName}
+        pending={busy}
+        onConfirm={() => {
+          void confirmStatusChange();
+        }}
+        onCancel={closeConfirm}
       />
     </>
   );

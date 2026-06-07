@@ -4,25 +4,63 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
+import type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
+import {
+  adminCoachesIntegratedFilterValues,
+  buildAdminCoachesFilterFields,
+} from "@/components/admin/admin-coaches-filter-fields";
+import { AdminCoachesViewSwitcher } from "@/components/admin/admin-coaches-view-switcher";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
+import { resetListPageQuery } from "@/lib/list-pagination";
 
-export type AdminCoachesFilterValues = {
-  q: string;
-  specialization: string;
-  classType: string;
-  isActive: "all" | "active" | "inactive";
-  order: "newest" | "oldest";
-};
+export type { AdminCoachesFilterValues } from "@/components/admin/admin-coaches-types";
 
 type AdminCoachesFiltersProps = {
   initialValues: AdminCoachesFilterValues;
   classTypeOptions: readonly string[];
+  viewMode: AdminCoachesViewMode;
+  onViewChange: (mode: AdminCoachesViewMode) => void;
+  onAddCoach: () => void;
+  /** Staff layout: search row only (hero lives in StaffListPageLayout). */
+  variant?: "full" | "embedded";
 };
+
+export function countActiveCoachesFilters(values: AdminCoachesFilterValues): number {
+  return [
+    values.q.trim(),
+    values.specialization.trim(),
+    values.classType.trim(),
+    values.isActive === "all" ? "" : values.isActive,
+    values.order === "newest" ? "" : values.order,
+  ].filter(Boolean).length;
+}
 
 const FILTER_DEBOUNCE_MS = 300;
 const FILTER_QUERY_KEYS = ["q", "specialization", "classType", "isActive", "order"] as const;
+
+function AddCoachGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.65}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M19 8v6m3-3h-6" />
+    </svg>
+  );
+}
 
 function buildQuery(
   values: AdminCoachesFilterValues,
@@ -32,6 +70,7 @@ function buildQuery(
   for (const key of FILTER_QUERY_KEYS) {
     params.delete(key);
   }
+  resetListPageQuery(params);
   if (values.q.trim() !== "") {
     params.set("q", values.q.trim());
   }
@@ -53,23 +92,72 @@ function buildQuery(
 export function AdminCoachesFilters({
   initialValues,
   classTypeOptions,
+  viewMode,
+  onViewChange,
+  onAddCoach,
+  variant = "full",
 }: AdminCoachesFiltersProps) {
-  const t = useTranslations("adminPages.coaches.filters");
+  const t = useTranslations("adminPages.coaches");
+  const tFilters = useTranslations("adminPages.coaches.filters");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasMounted = useRef(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [values, setValues] = useState(initialValues);
-  const activeFilterCount = useMemo(() => {
-    return [
-      values.q.trim(),
-      values.specialization.trim(),
-      values.classType.trim(),
-      values.isActive === "all" ? "" : values.isActive,
-      values.order === "newest" ? "" : values.order,
-    ].filter(Boolean).length;
-  }, [values]);
+
+  const filterFields = useMemo(
+    () =>
+      buildAdminCoachesFilterFields({
+        classTypeOptions,
+        labels: {
+          specialization: tFilters("specializationLabel"),
+          specializationPlaceholder: tFilters("specializationPlaceholder"),
+          classType: tFilters("classTypeLabel"),
+          classTypeAll: tFilters("classTypePlaceholder"),
+          status: tFilters("statusLabel"),
+          statusAll: tFilters("statusAll"),
+          statusActive: tFilters("statusActive"),
+          statusInactive: tFilters("statusInactive"),
+          order: tFilters("orderLabel"),
+          orderNewest: tFilters("orderNewest"),
+          orderOldest: tFilters("orderOldest"),
+        },
+        renderSpecialization: ({ value, onChange }) => (
+          <input
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={tFilters("specializationPlaceholder")}
+            className="ommm-input h-10"
+            aria-label={tFilters("specializationLabel")}
+          />
+        ),
+        renderOrder: ({ value, onChange }) => (
+          <OmmSelectDropdown
+            ariaLabel={tFilters("orderLabel")}
+            label={value === "oldest" ? tFilters("orderOldest") : tFilters("orderNewest")}
+            value={value}
+            options={[
+              { value: "newest", label: tFilters("orderNewest") },
+              { value: "oldest", label: tFilters("orderOldest") },
+            ]}
+            onChange={(next) => onChange(next === "oldest" ? "oldest" : "newest")}
+          />
+        ),
+      }),
+    [classTypeOptions, tFilters],
+  );
+
+  const integratedFilterValues = useMemo(
+    () =>
+      adminCoachesIntegratedFilterValues({
+        specialization: values.specialization,
+        classType: values.classType,
+        isActive: values.isActive,
+        order: values.order,
+      }),
+    [values],
+  );
 
   useEffect(() => {
     if (!hasMounted.current) {
@@ -108,106 +196,66 @@ export function AdminCoachesFilters({
     });
   }
 
-  return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <label className="flex flex-col gap-1 text-xs text-sage-700 sm:col-span-2 xl:col-span-1">
-          <span>{t("searchLabel")}</span>
-          <input
-            value={values.q}
-            onChange={(event) => updateField("q", event.target.value)}
-            placeholder={t("searchPlaceholder")}
-            className="ommm-input h-10"
-            aria-label={t("searchLabel")}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("specializationLabel")}</span>
-          <input
-            value={values.specialization}
-            onChange={(event) => updateField("specialization", event.target.value)}
-            placeholder={t("specializationPlaceholder")}
-            className="ommm-input h-10"
-            aria-label={t("specializationLabel")}
-          />
-        </label>
-        <div className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("classTypeLabel")}</span>
-          <OmmFilterDropdown
-            allValue=""
-            value={values.classType}
-            ariaLabel={t("classTypeLabel")}
-            allLabel={t("classTypePlaceholder")}
-            onChange={(value) => updateField("classType", value)}
-            options={classTypeOptions.map((classType) => ({ value: classType, label: classType }))}
-          />
-        </div>
-        <div className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("statusLabel")}</span>
-          <OmmFilterDropdown
-            allValue="all"
-            value={values.isActive}
-            ariaLabel={t("statusLabel")}
-            allLabel={t("statusAll")}
-            onChange={(value) =>
-              updateField(
-                "isActive",
-                value === "active" || value === "inactive" ? value : "all",
-              )
-            }
-            options={[
-              { value: "active", label: t("statusActive") },
-              { value: "inactive", label: t("statusInactive") },
-            ]}
-          />
-        </div>
-        <div className="flex flex-col gap-1 text-xs text-sage-700">
-          <span>{t("orderLabel")}</span>
-          <OmmSelectDropdown
-            ariaLabel={t("orderLabel")}
-            label={values.order === "oldest" ? t("orderOldest") : t("orderNewest")}
-            value={values.order}
-            options={[
-              { value: "newest", label: t("orderNewest") },
-              { value: "oldest", label: t("orderOldest") },
-            ]}
-            onChange={(value) => updateField("order", value === "oldest" ? "oldest" : "newest")}
-          />
-        </div>
-      </div>
-      <AdminFilterResetBar
-        onReset={resetFilters}
-        label={t("resetFilters")}
-        meta={
-          <p className="text-xs text-sage-500" role="status">
-            {isPending ? t("loading") : t("activeCount", { count: activeFilterCount })}
-          </p>
-        }
-        leading={
-          <>
-            <OmmButton
-              type="button"
-              size="sm"
-              variant={values.isActive === "active" ? "primary" : "ghost"}
-              onClick={() =>
-                updateField("isActive", values.isActive === "active" ? "all" : "active")
-              }
-            >
-              {t("quickActive")}
-            </OmmButton>
-            <OmmButton
-              type="button"
-              size="sm"
-              variant={values.isActive === "inactive" ? "primary" : "ghost"}
-              onClick={() =>
-                updateField("isActive", values.isActive === "inactive" ? "all" : "inactive")
-              }
-            >
-              {t("quickInactive")}
-            </OmmButton>
-          </>
-        }
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    switch (key) {
+      case "specialization":
+        updateField("specialization", value);
+        break;
+      case "classType":
+        updateField("classType", value);
+        break;
+      case "isActive":
+        updateField(
+          "isActive",
+          value === "active" || value === "inactive" ? value : "all",
+        );
+        break;
+      case "order":
+        updateField("order", value === "oldest" ? "oldest" : "newest");
+        break;
+      default:
+        break;
+    }
+  }
+
+  const filterSearchRow = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={values.q}
+        onSearchChange={(value) => updateField("q", value)}
+        searchPlaceholder={tFilters("searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={resetFilters}
+        resetLabel={tFilters("resetFilters")}
       />
+      <AdminCoachesViewSwitcher value={viewMode} onChange={onViewChange} />
     </div>
+  );
+
+  if (variant === "embedded") {
+    return filterSearchRow;
+  }
+
+  return (
+    <AdminPageHero
+      title={t("title")}
+      search={filterSearchRow}
+      trailing={
+        <>
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onAddCoach}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+          >
+            <AddCoachGlyph className="h-5 w-5 shrink-0" />
+            {t("addCoachButton")}
+          </OmmButton>
+        </>
+      }
+    />
   );
 }

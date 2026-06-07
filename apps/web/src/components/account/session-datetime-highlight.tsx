@@ -2,12 +2,16 @@
 
 import { useTranslations } from "next-intl";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
+import {
+  SessionDateTimeListDateChip,
+  SessionDateTimeListTimeBlock,
+} from "@/components/shared/schedule/session-datetime-list-display";
 
 type SessionDateTimeHighlightProps = {
   locale: string;
   startsAt: string;
   endsAt: string;
-  variant: "board" | "list";
+  variant: "board" | "boardDateYear" | "listDate" | "listDateYear" | "listTime";
   className?: string;
 };
 
@@ -16,9 +20,6 @@ const BOARD_SHELL =
 
 const CALENDAR_CHIP_BOARD =
   "flex min-w-[4.25rem] flex-col items-center justify-center rounded-2xl border border-white/90 bg-white px-3 py-2.5 shadow-sm";
-
-const CALENDAR_CHIP_LIST =
-  "flex w-[3.75rem] shrink-0 flex-col items-center justify-center rounded-xl border border-white/80 bg-sand-50/90 px-2 py-2";
 
 function relativeBadgeClass(relativeDay: "today" | "tomorrow"): string {
   return relativeDay === "today"
@@ -89,32 +90,73 @@ export function SessionDateTimeHighlight({
     );
   }
 
-  return (
-    <div className={`flex min-w-0 items-start gap-3 ${className}`.trim()}>
-      <div className={CALENDAR_CHIP_LIST} aria-hidden="true">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-sand-600">
-          {display.weekdayShort}
+  if (variant === "boardDateYear") {
+    return (
+      <div className={`${BOARD_SHELL} ${className}`.trim()}>
+        <div className="flex items-center gap-4">
+          <div className={CALENDAR_CHIP_BOARD} aria-hidden="true">
+            <span className="text-[10px] font-bold tabular-nums tracking-[0.08em] text-sand-600">
+              {display.year}
+            </span>
+            <span className="font-serif text-[2rem] leading-none text-sage-950">
+              {display.dayNumber}
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-sage-600">
+              {display.monthShort}
+            </span>
+          </div>
+          <div className="min-w-0 flex-1">
+            {relativeLabel !== null ? (
+              <span
+                className={`mb-2 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${relativeBadgeClass(display.relativeDay as "today" | "tomorrow")}`}
+              >
+                {relativeLabel}
+              </span>
+            ) : (
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sage-500">
+                {display.dateLine}
+              </p>
+            )}
+            <p className="mt-1 font-serif text-3xl leading-none tracking-tight text-sage-950 sm:text-[2rem]">
+              {display.startTime}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "listDate") {
+    return <SessionDateTimeListDateChip display={display} className={className} />;
+  }
+
+  if (variant === "listDateYear") {
+    return (
+      <div className={`flex w-[2.75rem] shrink-0 flex-col items-center justify-center text-center ${className}`.trim()} aria-hidden="true">
+        <span className="text-[10px] font-bold tabular-nums tracking-[0.08em] text-sand-600">
+          {display.year}
         </span>
-        <span className="text-xl font-semibold leading-none text-sage-950">
+        <span className="font-serif text-2xl leading-none text-sage-950">
           {display.dayNumber}
         </span>
-        <span className="text-[10px] font-semibold uppercase text-sage-500">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-sage-600">
           {display.monthShort}
         </span>
       </div>
-      <div className="min-w-0">
-        {relativeLabel !== null ? (
-          <span
-            className={`mb-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${relativeBadgeClass(display.relativeDay as "today" | "tomorrow")}`}
-          >
-            {relativeLabel}
-          </span>
-        ) : null}
-        <p className="font-semibold tabular-nums tracking-tight text-sage-900">
-          {display.timeRange}
-        </p>
-        <p className="mt-0.5 text-xs text-sage-500">{display.dateLine}</p>
-      </div>
-    </div>
+    );
+  }
+
+  const durationMinutesLabel =
+    display.durationMinutes > 0
+      ? t("sessionDurationMinutes", { minutes: display.durationMinutes })
+      : null;
+
+  return (
+    <SessionDateTimeListTimeBlock
+      display={display}
+      untilLabel={t("sessionUntil")}
+      durationMinutesLabel={durationMinutesLabel}
+      className={className}
+    />
   );
 }

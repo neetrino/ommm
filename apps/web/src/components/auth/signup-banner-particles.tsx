@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import styles from "@/components/auth/signup-banner-particles.module.css";
 
-const SIGNUP_BANNER_PARTICLE_COUNT = 56;
+const SIGNUP_BANNER_PARTICLE_COUNT = 90;
 const REPEL_RADIUS_PX = 120;
 const REPEL_STRENGTH_PX = 30;
 const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";

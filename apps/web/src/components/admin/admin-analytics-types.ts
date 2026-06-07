@@ -1,7 +1,5 @@
 export type AnalyticsRangeDays = 7 | 30 | 90;
 
-export type AnalyticsViewMode = "table" | "chart";
-
 export type AnalyticsSortKey =
   | "revenue-desc"
   | "revenue-asc"
@@ -28,6 +26,16 @@ export type AnalyticsBookingStatusFilter =
   | "COMPLETED"
   | "CANCELLED"
   | "MISSED";
+
+export type AnalyticsFilterValues = {
+  rangeDays: AnalyticsRangeDays;
+  coachId: string;
+  classTypeId: string;
+  bookingStatus: AnalyticsBookingStatusFilter;
+  sort: AnalyticsSortKey;
+  /** Comma-separated quick filter keys; empty means all selected. */
+  quick: string;
+};
 
 export type AnalyticsBarItem = {
   key: string;
@@ -66,6 +74,7 @@ export type AnalyticsFinanceSummary = {
     "package" | "dropin" | "gift" | "other",
     { count: number; amountCents: number }
   >;
+  dailyRevenue?: Array<{ date: string; amountCents: number }>;
   giftCredits?: {
     issuedCents: number;
     issuedCount: number;
@@ -94,6 +103,12 @@ export type AnalyticsBookingsPayload = {
     coaches: Array<{ id: string; name: string }>;
   };
   sampledLimit: number;
+  /** True when the date range has more bookings than {@link sampledLimit}. */
+  isSampled: boolean;
+  /** Total bookings in range before the sample cap (from API pagination.total). */
+  matchedTotal: number;
+  /** Booking rows included in the sample (excludes waitlist rows). */
+  sampledRowCount: number;
 };
 
 export type AnalyticsClientsSummary = {
@@ -117,12 +132,19 @@ export type AnalyticsCoachRow = {
   };
 };
 
+export type AnalyticsDailyBucket = {
+  dateKey: string;
+  label: string;
+  total: number;
+  completed: number;
+  revenueCents: number;
+};
+
 export type AdminAnalyticsPayload = {
   locale: string;
   rangeDays: AnalyticsRangeDays;
   fromIso: string;
   toIso: string;
-  viewMode: AnalyticsViewMode;
   sortKey: AnalyticsSortKey;
   coachId: string;
   classTypeId: string;
@@ -133,4 +155,5 @@ export type AdminAnalyticsPayload = {
   bookings: AnalyticsBookingsPayload;
   clients: AnalyticsClientsSummary;
   coaches: AnalyticsCoachRow[];
+  dailyTrend: AnalyticsDailyBucket[];
 };

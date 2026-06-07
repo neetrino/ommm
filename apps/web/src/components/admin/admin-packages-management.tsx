@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import {
   useCallback,
   useEffect,
@@ -9,6 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
+import {
+  adminFilterEmptyStateVariants,
+  adminFilterRevealVariants,
+} from "@/components/admin/admin-filter-reveal-motion";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminAccordionPanel } from "@/components/admin/admin-accordion-panel";
@@ -17,6 +23,7 @@ import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-packag
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
   buildPackageCategoryOptions,
+  categoryHasConfiguredPackages,
   packagesInCategory,
 } from "@/components/admin/admin-packages-categories";
 import {
@@ -28,54 +35,171 @@ import {
   syncPackageCategorySelection,
   type AdminPackagesCategoryOption,
 } from "@/components/admin/admin-packages-category-multi-select";
+import { AdminPackagesFilters } from "@/components/admin/admin-packages-filters";
+import {
+  filterPackages,
+  hasActivePackageFilters,
+  sortPackages,
+} from "@/components/admin/admin-packages-filter-logic";
 import {
   type AdminPackageRow,
   mergeAdminPackageRowsFromServer,
   normalizeAdminPackageRow,
+  type PackageFilterValues,
   upsertAdminPackageRow,
 } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import {
+  buildPackageUrlFiltersQuery,
   buildPackagesPathname,
   clearPackageModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_QUERY_KEY,
+  PACKAGE_FILTER_QUERY_KEYS,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
+  parsePackageFiltersFromSearch,
 } from "@/components/admin/admin-packages-url";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
   locale: string;
+  initialFilters: PackageFilterValues;
 };
 
+const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
+  search: "",
+  status: "all",
+  order: "displayOrder",
+};
+
+const PACKAGE_SEARCH_DEBOUNCE_MS = 300;
+
 function PackagesEmptyState({ children }: { children: ReactNode }) {
+  const reducedMotion = usePrefersReducedMotion();
+
   return (
-    <div className="flex min-h-[min(48vh,32rem)] w-full items-center justify-center px-4 py-16 sm:py-20">
-      <p className="max-w-xl text-center text-sm leading-relaxed text-sage-600">{children}</p>
-    </div>
+    <motion.div
+      className="flex min-h-[min(48vh,32rem)] w-full items-center justify-center px-4 py-16 sm:py-20"
+      variants={adminFilterEmptyStateVariants(reducedMotion)}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <div className="max-w-xl rounded-[22px] border border-white/60 bg-white/55 px-8 py-10 text-center shadow-[0_16px_36px_-24px_rgba(45,40,35,0.2)] backdrop-blur-md">
+        <p className="text-sm leading-relaxed text-sage-600">{children}</p>
+      </div>
+    </motion.div>
   );
 }
 
 export function AdminPackagesManagement({
   packages: packagesFromServer,
   locale,
+  initialFilters,
 }: AdminPackagesManagementProps) {
   const t = useTranslations("adminPages.packages");
+  const reducedMotion = usePrefersReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const filtersRef = useRef(initialFilters);
+  const searchParamsRef = useRef(searchParams.toString());
   const [packageRows, setPackageRows] = useState<readonly AdminPackageRow[]>(() =>
     packagesFromServer.map(normalizeAdminPackageRow),
   );
   const [prevPackagesFromServer, setPrevPackagesFromServer] =
     useState(packagesFromServer);
+  const [filterValues, setFilterValues] = useState<PackageFilterValues>(initialFilters);
+  const [searchDraft, setSearchDraft] = useState(() => initialFilters.search);
+  const [prevUrlSearch, setPrevUrlSearch] = useState(() => initialFilters.search);
+  const [prevSearchDraft, setPrevSearchDraft] = useState(() => initialFilters.search);
+  const [prevInitialFilterStatusOrder, setPrevInitialFilterStatusOrder] = useState({
+    status: initialFilters.status,
+    order: initialFilters.order,
+  });
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
+
+  useEffect(() => {
+    filtersRef.current = filterValues;
+  }, [filterValues]);
+
+  const urlFilters = parsePackageFiltersFromSearch(
+    Object.fromEntries(searchParams.entries()),
+  );
+  if (urlFilters.search !== prevUrlSearch) {
+    setPrevUrlSearch(urlFilters.search);
+    setSearchDraft(urlFilters.search);
+  }
+
+  if (searchDraft !== prevSearchDraft) {
+    setPrevSearchDraft(searchDraft);
+    setFilterValues((current) =>
+      current.search === searchDraft ? current : { ...current, search: searchDraft },
+    );
+  }
+
+  if (
+    initialFilters.status !== prevInitialFilterStatusOrder.status ||
+    initialFilters.order !== prevInitialFilterStatusOrder.order
+  ) {
+    setPrevInitialFilterStatusOrder({
+      status: initialFilters.status,
+      order: initialFilters.order,
+    });
+    setFilterValues((current) =>
+      current.status === initialFilters.status && current.order === initialFilters.order
+        ? current
+        : {
+            ...current,
+            status: initialFilters.status,
+            order: initialFilters.order,
+          },
+    );
+  }
+
+  const syncFiltersToUrl = useCallback(
+    (values: PackageFilterValues) => {
+      const params = new URLSearchParams(searchParamsRef.current);
+      for (const key of PACKAGE_FILTER_QUERY_KEYS) {
+        params.delete(key);
+      }
+      const filterQuery = buildPackageUrlFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
+          params.set(key, entryValue);
+        }
+      }
+      const qs = params.toString();
+      if (qs === searchParamsRef.current) {
+        return;
+      }
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const trimmed = searchDraft.trim();
+      const currentSearch =
+        new URLSearchParams(searchParamsRef.current).get("search")?.trim() ?? "";
+      if (trimmed === currentSearch) {
+        return;
+      }
+      syncFiltersToUrl({ ...filtersRef.current, search: searchDraft });
+    }, PACKAGE_SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [searchDraft, syncFiltersToUrl]);
 
   if (packagesFromServer !== prevPackagesFromServer) {
     setPrevPackagesFromServer(packagesFromServer);
@@ -91,6 +215,32 @@ export function AdminPackagesManagement({
     () => [...packageRows].sort((left, right) => left.displayOrder - right.displayOrder),
     [packageRows],
   );
+
+  const filteredPackages = useMemo(
+    () => sortPackages(filterPackages(sortedPackages, filterValues), filterValues.order),
+    [filterValues, sortedPackages],
+  );
+
+  function updatePackageFilter<K extends keyof PackageFilterValues>(
+    key: K,
+    value: PackageFilterValues[K],
+  ): void {
+    if (key === "search") {
+      setSearchDraft(value);
+      return;
+    }
+    setFilterValues((current) => {
+      const next = { ...current, [key]: value };
+      syncFiltersToUrl({ ...next, search: searchDraft });
+      return next;
+    });
+  }
+
+  function resetPackageFilters(): void {
+    setSearchDraft("");
+    setFilterValues(DEFAULT_PACKAGE_FILTER_VALUES);
+    syncFiltersToUrl(DEFAULT_PACKAGE_FILTER_VALUES);
+  }
 
   const categoryOptions = useMemo(
     () => buildPackageCategoryOptions(sortedPackages),
@@ -149,6 +299,17 @@ export function AdminPackagesManagement({
     () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
     [categoryOptions, selectedCategoryIds],
   );
+
+  const filtersActive = hasActivePackageFilters(filterValues);
+
+  const displayCategories = useMemo(() => {
+    if (!filtersActive) {
+      return visibleCategories;
+    }
+    return visibleCategories.filter((option) =>
+      categoryHasConfiguredPackages(filteredPackages, option.id),
+    );
+  }, [filteredPackages, filtersActive, visibleCategories]);
 
   const defaultCategoryId = useMemo(() => {
     const firstSelected = categoryOptions.find((option) => selectedCategoryIds.has(option.id));
@@ -322,7 +483,15 @@ export function AdminPackagesManagement({
   }, [pathname, router, searchParams]);
 
   const toolbar = (
-    <div className="ommm-admin-packages-toolbar">
+    <div className="space-y-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <AdminPackagesFilters
+          values={{ ...filterValues, search: searchDraft }}
+          onChange={updatePackageFilter}
+          onReset={resetPackageFilters}
+        />
+      </div>
+      <div className="ommm-admin-packages-toolbar">
       {categoryOptions.length > 0 ? (
         <AdminPackagesCategoryDropdown
           options={categoryOptions}
@@ -335,6 +504,7 @@ export function AdminPackagesManagement({
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
         <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
       </div>
+      </div>
     </div>
   );
 
@@ -342,7 +512,7 @@ export function AdminPackagesManagement({
     <>
       <AdminPackagesShell
         toolbar={toolbar}
-        packages={sortedPackages}
+        packages={filteredPackages}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
         onPackageCreated={handlePackageCreated}
@@ -353,33 +523,56 @@ export function AdminPackagesManagement({
         ) : visibleCategories.length === 0 ? (
           <p className="text-sm text-sage-500">{t("noCategoriesSelected")}</p>
         ) : (
-          <div className="flex flex-col gap-5">
-            {visibleCategories.map((category) => (
-              <CategoryAccordion
-                key={category.id}
-                category={category}
-                packages={sortedPackages}
-                locale={locale}
-                open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
-                onOpenChange={(next) => {
-                  const categoryKey = normalizePackageCategoryKey(category.id);
-                  setExpandedCategoryKeys((current) => {
-                    const updated = new Set(current);
-                    if (next) {
-                      updated.add(categoryKey);
-                    } else {
-                      updated.delete(categoryKey);
-                    }
-                    return updated;
-                  });
-                }}
-                onEditCategory={() => openEditCategory(category.id)}
-                onDeleteCategory={() => openDeleteCategory(category.id)}
-                onEditPackage={openConfigurePricing}
-                onAddTier={() => openAddTier(category.id)}
-              />
-            ))}
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            {displayCategories.length === 0 ? (
+              <PackagesEmptyState key="packages-filter-empty">{t("empty")}</PackagesEmptyState>
+            ) : (
+              <motion.div
+                key="packages-filter-list"
+                className="flex flex-col gap-5"
+                initial={false}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reducedMotion ? 0 : 0.22 }}
+              >
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {displayCategories.map((category, index) => (
+                    <motion.div
+                      key={category.id}
+                      layout={!reducedMotion}
+                      variants={adminFilterRevealVariants(index, reducedMotion)}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                    >
+                      <CategoryAccordion
+                        category={category}
+                        packages={filteredPackages}
+                        locale={locale}
+                        open={expandedCategoryKeys.has(normalizePackageCategoryKey(category.id))}
+                        onOpenChange={(next) => {
+                          const categoryKey = normalizePackageCategoryKey(category.id);
+                          setExpandedCategoryKeys((current) => {
+                            const updated = new Set(current);
+                            if (next) {
+                              updated.add(categoryKey);
+                            } else {
+                              updated.delete(categoryKey);
+                            }
+                            return updated;
+                          });
+                        }}
+                        onEditCategory={() => openEditCategory(category.id)}
+                        onDeleteCategory={() => openDeleteCategory(category.id)}
+                        onEditPackage={openConfigurePricing}
+                        onAddTier={() => openAddTier(category.id)}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </AdminPackagesShell>
 

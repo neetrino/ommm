@@ -5,6 +5,7 @@ export const DEFAULT_USER_LIST_BOARD_VIEW_MODE: UserListBoardViewMode = "board";
 export const USER_LIST_BOARD_VIEW_STORAGE_KEYS = {
   packages: "ommm:user-packages-view",
   bookings: "ommm:user-bookings-view",
+  waitlists: "ommm:user-waitlists-view",
   classes: "ommm:user-classes-view",
   payments: "ommm:user-payments-view",
 } as const;

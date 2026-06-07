@@ -1,11 +1,21 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import {
   buildMembershipDisplayModel,
   memberStatusClassName,
 } from "@/components/account/user-membership-display";
-import { formatDateForUi } from "@/lib/date-display";
+import { UserPackageLifecycleActions } from "@/components/account/user-package-lifecycle-actions";
+import {
+  USER_PACKAGES_LIST_ACTIONS_CELL,
+  USER_PACKAGES_LIST_CELL_CLASS,
+  USER_PACKAGES_LIST_PERIOD_CELL,
+  USER_PACKAGES_LIST_ROW_CLASS,
+  USER_PACKAGES_LIST_SPACER_CELL,
+  USER_PACKAGES_LIST_STATUS_CELL,
+} from "@/components/account/user-packages-list-layout";
+import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
@@ -27,121 +37,78 @@ export function UserMembershipCompactRow({
   const display = buildMembershipDisplayModel(membership, status, t, m);
   const priceLabel = formatAmdFromCents(membership.plan.priceCents, locale);
   const durationLabel = m("packagesPeriodDaysShort", { days: membership.plan.periodDays });
-  const periodStartLabel = formatDateForUi(membership.currentPeriodStart);
-  const periodEndLabel = formatDateForUi(membership.currentPeriodEnd);
-  const periodLabel = `${periodStartLabel} – ${periodEndLabel}`;
-  const sessionsCompact =
-    display.totalSessions !== null && display.usedSessions !== null
-      ? t("listSessionsCompact", {
-          used: display.usedSessions,
-          total: display.totalSessions,
-          remaining: display.remainingSessions ?? 0,
-        })
-      : display.sessionsSummary;
 
   return (
-    <>
-      <button
-        type="button"
-        aria-label={t("viewDetailsFor", { name: display.sessionName })}
-        onClick={onOpenDetails}
-        className="ommm-list-row ommm-membership-row-interactive flex w-full flex-col gap-3 text-left md:hidden"
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={t("viewDetailsFor", { name: display.sessionName })}
+      onClick={onOpenDetails}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpenDetails();
+        }
+      }}
+      className={USER_PACKAGES_LIST_ROW_CLASS}
+    >
+      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+        <p className={USER_LIST_TITLE_SERIF_CLASS} title={display.sessionName}>
+          {display.sessionName}
+        </p>
+        <p className="mt-1 truncate text-xs font-medium text-sage-500">
+          {membership.plan.categoryName}
+        </p>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+        <MobileLabel label={t("listHeaderPrice")} />
+        <p className="whitespace-nowrap font-medium tabular-nums text-sage-800">{priceLabel}</p>
+        <p className="mt-0.5 text-xs text-sage-500">{durationLabel}</p>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+        <MobileLabel label={t("listHeaderSessions")} />
+        <p className="truncate text-sm font-medium text-sage-800">{display.sessionsSummary}</p>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
+        <MobileLabel label={t("listHeaderPeriod")} />
+        <MembershipPeriodHighlight
+          locale={locale}
+          periodStart={membership.currentPeriodStart}
+          periodEnd={membership.currentPeriodEnd}
+          variant="list"
+        />
+      </div>
+
+      <div className={USER_PACKAGES_LIST_STATUS_CELL}>
+        <MobileLabel label={t("listHeaderStatus")} />
+        <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_SPACER_CELL} aria-hidden="true" />
+
+      <div
+        className={USER_PACKAGES_LIST_ACTIONS_CELL}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
       >
-        <MobileRowContent
-          display={display}
+        <MobileLabel label={t("listHeaderActions")} />
+        <UserPackageLifecycleActions
+          userPackageId={membership.id}
           status={status}
-          categoryName={membership.plan.categoryName}
-          priceLabel={priceLabel}
-          durationLabel={durationLabel}
-          periodLabel={periodLabel}
-          sessionsCompact={sessionsCompact}
-          viewDetailsLabel={t("viewDetails")}
+          layout="list"
         />
-      </button>
-
-      <button
-        type="button"
-        aria-label={t("viewDetailsFor", { name: display.sessionName })}
-        onClick={onOpenDetails}
-        className="ommm-list-row ommm-membership-row-interactive hidden w-full items-center gap-4 text-left md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1.1fr)_auto]"
-      >
-        <DesktopCell
-          title={display.sessionName}
-          subtitle={membership.plan.categoryName}
-          className="min-w-0"
-        />
-        <DesktopCell title={priceLabel} subtitle={durationLabel} />
-        <DesktopCell title={sessionsCompact} subtitle={display.sessionsUsedSummary ?? "—"} />
-        <DesktopCell title={periodStartLabel} subtitle={periodEndLabel} />
-        <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
-        <span className="text-xs font-medium uppercase tracking-[0.08em] text-sand-600">
-          {t("viewDetails")}
-        </span>
-      </button>
-    </>
+      </div>
+    </article>
   );
 }
 
-type MobileRowContentProps = {
-  display: ReturnType<typeof buildMembershipDisplayModel>;
-  status: UserPackageStatus;
-  categoryName: string;
-  priceLabel: string;
-  durationLabel: string;
-  periodLabel: string;
-  sessionsCompact: string;
-  viewDetailsLabel: string;
-};
-
-function MobileRowContent({
-  display,
-  status,
-  categoryName,
-  priceLabel,
-  durationLabel,
-  periodLabel,
-  sessionsCompact,
-  viewDetailsLabel,
-}: MobileRowContentProps) {
+function MobileLabel({ label }: { label: string }) {
   return (
-    <div className="w-full">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-medium text-sage-800">{display.sessionName}</p>
-          <p className="mt-0.5 text-xs text-sage-500">{categoryName}</p>
-        </div>
-        <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-sage-600">
-        <div>
-          <p className="text-sage-500">{priceLabel}</p>
-          <p className="font-medium text-sage-900">{durationLabel}</p>
-        </div>
-        <div>
-          <p className="text-sage-500">{sessionsCompact}</p>
-        </div>
-      </div>
-      <p className="mt-2 text-xs text-sage-500">{periodLabel}</p>
-      <p className="mt-2 text-xs font-medium uppercase tracking-[0.08em] text-sand-600">
-        {viewDetailsLabel}
-      </p>
-    </div>
-  );
-}
-
-function DesktopCell({
-  title,
-  subtitle,
-  className = "",
-}: {
-  title: string;
-  subtitle: string;
-  className?: string;
-}) {
-  return (
-    <div className={`min-w-0 ${className}`.trim()}>
-      <p className="truncate font-medium text-sage-800">{title}</p>
-      <p className="mt-0.5 truncate text-xs text-sage-500">{subtitle}</p>
-    </div>
+    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sage-500 md:hidden">
+      {label}
+    </p>
   );
 }

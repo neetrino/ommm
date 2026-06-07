@@ -14,9 +14,11 @@ import {
   WaitlistStatus,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StudioService } from '../studio/studio.service';
+import { AdminWaitlistActiveQueryDto } from './dto/admin-waitlist-active-query.dto';
 
 @Injectable()
 export class WaitlistService {
@@ -135,37 +137,86 @@ export class WaitlistService {
     });
   }
 
-  async listAdminActive(take: number) {
-    const safeTake = Math.min(Math.max(take, 1), 500);
+  async listAdminActive(query: AdminWaitlistActiveQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
     const activeStatuses = [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED];
-    const entries = await this.prisma.waitlistEntry.findMany({
-      where: { status: { in: activeStatuses } },
-      orderBy: { createdAt: 'desc' },
-      take: safeTake,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            email: true,
-            phone: true,
-          },
+    const where = { status: { in: activeStatuses } };
+    const orderBy = { createdAt: 'desc' as const };
+    const include = {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          lastName: true,
+          email: true,
+          phone: true,
         },
-        session: {
-          select: {
-            id: true,
-            startsAt: true,
-            classType: {
-              select: { id: true, name: true },
-            },
+      },
+      session: {
+        select: {
+          id: true,
+          startsAt: true,
+          classType: {
+            select: { id: true, name: true },
           },
         },
       },
-    });
+    };
+
+    if (!hasPagination) {
+      const take = Math.min(Math.max(query.take ?? 200, 1), 500);
+      const entries = await this.prisma.waitlistEntry.findMany({
+        where,
+        orderBy,
+        take,
+        include,
+      });
+      return this.mapAdminActiveEntries(entries);
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const [entries, total] = await Promise.all([
+      this.prisma.waitlistEntry.findMany({
+        where,
+        orderBy,
+        take,
+        skip: offset,
+        include,
+      }),
+      this.prisma.waitlistEntry.count({ where }),
+    ]);
+    const items = await this.mapAdminActiveEntries(entries);
+    return { items, total, take, offset };
+  }
+
+  private async mapAdminActiveEntries(
+    entries: {
+      id: string;
+      status: WaitlistStatus;
+      createdAt: Date;
+      offeredAt: Date | null;
+      offerExpiresAt: Date | null;
+      sessionId: string;
+      user: {
+        id: string;
+        name: string | null;
+        lastName: string | null;
+        email: string;
+        phone: string | null;
+      };
+      session: {
+        id: string;
+        startsAt: Date;
+        classType: { id: string; name: string };
+      };
+    }[],
+  ) {
     if (entries.length === 0) {
       return [];
     }
+    const activeStatuses = [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED];
     const sessionIds = [...new Set(entries.map((entry) => entry.sessionId))];
     const counts = await this.prisma.waitlistEntry.groupBy({
       by: ['sessionId'],

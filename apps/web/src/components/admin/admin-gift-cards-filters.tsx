@@ -1,8 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
-import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import {
+  adminGiftCardsIntegratedFilterValues,
+  buildAdminGiftCardsFilterFields,
+} from "@/components/admin/admin-gift-cards-filter-fields";
+import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import type {
   GiftCardExpirationFilter,
   GiftCardFilterValues,
@@ -10,18 +16,10 @@ import type {
   GiftCardSortOrder,
   GiftCardStatusFilter,
 } from "@/components/admin/admin-gift-cards-types";
-import { GIFT_CARD_STATUSES } from "@/components/admin/admin-gift-cards-types";
-
-type AdminGiftCardsFiltersProps = {
-  values: GiftCardFilterValues;
-  activeFilterCount: number;
-  isUpdating: boolean;
-  onChange: <K extends keyof GiftCardFilterValues>(
-    key: K,
-    value: GiftCardFilterValues[K],
-  ) => void;
-  onReset: () => void;
-};
+import { OmmButton } from "@/components/ui/omm-button";
+import { AmdMoneyInput } from "@/components/ui/amd-money-input";
+import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import type { AdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 
 const SORT_OPTIONS: readonly GiftCardSortOrder[] = [
   "newest",
@@ -39,131 +37,198 @@ const SORT_LABEL_KEYS: Record<GiftCardSortOrder, string> = {
   expirationSoon: "sortExpirationSoon",
 };
 
-const QUICK_OPTIONS: readonly GiftCardQuickFilter[] = ["", "active", "expired", "unredeemed"];
-
-const QUICK_LABEL_KEYS: Record<Exclude<GiftCardQuickFilter, "">, string> = {
-  active: "quickActive",
-  expired: "quickExpired",
-  unredeemed: "quickUnredeemed",
+type AdminGiftCardsFiltersProps = {
+  values: GiftCardFilterValues;
+  activeFilterCount: number;
+  isUpdating: boolean;
+  viewMode: AdminGiftCardsViewMode;
+  onChange: <K extends keyof GiftCardFilterValues>(
+    key: K,
+    value: GiftCardFilterValues[K],
+  ) => void;
+  onReset: () => void;
+  onViewChange: (mode: AdminGiftCardsViewMode) => void;
+  onCreate: () => void;
+  /** Staff layout: search row only (hero lives in StaffListPageLayout). */
+  variant?: "full" | "embedded";
+  hideCreate?: boolean;
 };
+
+function AddGiftCardGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.65}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M12 2v20M2 12h20" />
+    </svg>
+  );
+}
 
 export function AdminGiftCardsFilters({
   values,
-  activeFilterCount,
-  isUpdating,
+  viewMode,
   onChange,
   onReset,
+  onViewChange,
+  onCreate,
+  variant = "full",
+  hideCreate = false,
 }: AdminGiftCardsFiltersProps) {
-  const t = useTranslations("adminPages.giftCards.filters");
+  const t = useTranslations("adminPages.giftCards");
+  const tFilters = useTranslations("adminPages.giftCards.filters");
 
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="flex flex-col gap-1 sm:col-span-2">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("search")}</span>
-          <input
-            className="ommm-input"
-            value={values.search}
-            onChange={(event) => onChange("search", event.target.value)}
-            placeholder={t("searchPlaceholder")}
-            aria-label={t("search")}
+  const filterFields = useMemo(
+    () =>
+      buildAdminGiftCardsFilterFields({
+        labels: {
+          status: tFilters("status"),
+          statusAll: tFilters("statusAll"),
+          statusValues: {
+            ACTIVE: tFilters("statusValues.ACTIVE"),
+            REDEEMED: tFilters("statusValues.REDEEMED"),
+            EXPIRED: tFilters("statusValues.EXPIRED"),
+            DEACTIVATED: tFilters("statusValues.DEACTIVATED"),
+          },
+          expiration: tFilters("expiration"),
+          expirationAll: tFilters("expirationAll"),
+          expirationValid: tFilters("expirationValid"),
+          expirationExpired: tFilters("expirationExpired"),
+          amountMin: tFilters("amountMin"),
+          amountMinPlaceholder: tFilters("amountMinPlaceholder"),
+          amountMax: tFilters("amountMax"),
+          amountMaxPlaceholder: tFilters("amountMaxPlaceholder"),
+          sort: tFilters("sort"),
+          sortLabels: {
+            newest: tFilters("sortNewest"),
+            oldest: tFilters("sortOldest"),
+            amountHigh: tFilters("sortAmountHigh"),
+            amountLow: tFilters("sortAmountLow"),
+            expirationSoon: tFilters("sortExpirationSoon"),
+          },
+          quick: tFilters("quick"),
+          quickAll: tFilters("quickAll"),
+          quickActive: tFilters("quickActive"),
+          quickExpired: tFilters("quickExpired"),
+          quickUnredeemed: tFilters("quickUnredeemed"),
+        },
+        renderAmountMin: ({ value, onChange: onFieldChange }) => (
+          <AmdMoneyInput
+            className="h-10"
+            value={value}
+            onValueChange={onFieldChange}
+            placeholder={tFilters("amountMinPlaceholder")}
+            aria-label={tFilters("amountMin")}
           />
-        </label>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("status")}</span>
-          <OmmFilterDropdown
-            allValue="all"
-            value={values.status}
-            ariaLabel={t("status")}
-            allLabel={t("statusAll")}
-            onChange={(value) => onChange("status", value as GiftCardStatusFilter)}
-            options={GIFT_CARD_STATUSES.map((status) => ({
-              value: status,
-              label: t(`statusValues.${status}`),
-            }))}
+        ),
+        renderAmountMax: ({ value, onChange: onFieldChange }) => (
+          <AmdMoneyInput
+            className="h-10"
+            value={value}
+            onValueChange={onFieldChange}
+            placeholder={tFilters("amountMaxPlaceholder")}
+            aria-label={tFilters("amountMax")}
           />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("expiration")}</span>
-          <OmmFilterDropdown
-            allValue="all"
-            value={values.expiration}
-            ariaLabel={t("expiration")}
-            allLabel={t("expirationAll")}
-            onChange={(value) => onChange("expiration", value as GiftCardExpirationFilter)}
-            options={[
-              { value: "valid", label: t("expirationValid") },
-              { value: "expired", label: t("expirationExpired") },
-            ]}
-          />
-        </div>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("amountMin")}</span>
-          <input
-            className="ommm-input"
-            inputMode="numeric"
-            value={values.amountMin}
-            onChange={(event) => onChange("amountMin", event.target.value)}
-            placeholder={t("amountMinPlaceholder")}
-            aria-label={t("amountMin")}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("amountMax")}</span>
-          <input
-            className="ommm-input"
-            inputMode="numeric"
-            value={values.amountMax}
-            onChange={(event) => onChange("amountMax", event.target.value)}
-            placeholder={t("amountMaxPlaceholder")}
-            aria-label={t("amountMax")}
-          />
-        </label>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("sort")}</span>
+        ),
+        renderOrder: ({ value, onChange: onFieldChange }) => (
           <OmmSelectDropdown
-            ariaLabel={t("sort")}
-            label={t(SORT_LABEL_KEYS[values.order])}
-            value={values.order}
+            ariaLabel={tFilters("sort")}
+            label={tFilters(SORT_LABEL_KEYS[value as GiftCardSortOrder] ?? "sortNewest")}
+            value={value}
             options={SORT_OPTIONS.map((option) => ({
               value: option,
-              label: t(SORT_LABEL_KEYS[option]),
+              label: tFilters(SORT_LABEL_KEYS[option]),
             }))}
-            onChange={(value) => onChange("order", value as GiftCardSortOrder)}
+            onChange={(next) => onFieldChange(next as GiftCardSortOrder)}
           />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("quick")}</span>
-          <OmmSelectDropdown
-            ariaLabel={t("quick")}
-            label={
-              values.quick === ""
-                ? t("quickAll")
-                : t(QUICK_LABEL_KEYS[values.quick])
-            }
-            value={values.quick}
-            options={QUICK_OPTIONS.map((option) => ({
-              value: option,
-              label: option === "" ? t("quickAll") : t(QUICK_LABEL_KEYS[option]),
-            }))}
-            onChange={(value) => onChange("quick", value as GiftCardQuickFilter)}
-          />
-        </div>
-      </div>
+        ),
+      }),
+    [tFilters],
+  );
 
-      <AdminFilterResetBar
-        onReset={onReset}
-        label={t("reset")}
-        meta={
-          <p
-            className="min-h-5 whitespace-nowrap text-xs text-sage-500"
-            role="status"
-            aria-live="polite"
-          >
-            {isUpdating ? t("loading") : t("activeCount", { count: activeFilterCount })}
-          </p>
-        }
+  const integratedFilterValues = useMemo(
+    () =>
+      adminGiftCardsIntegratedFilterValues({
+        status: values.status,
+        expiration: values.expiration,
+        amountMin: values.amountMin,
+        amountMax: values.amountMax,
+        order: values.order,
+        quick: values.quick,
+      }),
+    [values],
+  );
+
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    switch (key) {
+      case "status":
+        onChange("status", value as GiftCardStatusFilter);
+        break;
+      case "expiration":
+        onChange("expiration", value as GiftCardExpirationFilter);
+        break;
+      case "amountMin":
+        onChange("amountMin", value);
+        break;
+      case "amountMax":
+        onChange("amountMax", value);
+        break;
+      case "order":
+        onChange("order", value as GiftCardSortOrder);
+        break;
+      case "quick":
+        onChange("quick", value as GiftCardQuickFilter);
+        break;
+      default:
+        break;
+    }
+  }
+
+  const filterSearchRow = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={values.search}
+        onSearchChange={(value) => onChange("search", value)}
+        searchPlaceholder={tFilters("searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={onReset}
+        resetLabel={tFilters("reset")}
       />
+      <AdminGiftCardsViewSwitcher value={viewMode} onChange={onViewChange} />
     </div>
+  );
+
+  if (variant === "embedded") {
+    return filterSearchRow;
+  }
+
+  return (
+    <AdminPageHero
+      title={t("title")}
+      search={filterSearchRow}
+      trailing={
+        hideCreate ? null : (
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onCreate}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+          >
+            <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
+            {t("createButton")}
+          </OmmButton>
+        )
+      }
+    />
   );
 }

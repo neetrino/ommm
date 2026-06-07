@@ -1,13 +1,19 @@
 import { memberChrome } from "@/components/account/member-chrome";
+import { SessionClassTitle } from "@/components/account/session-class-title";
+import { SessionCoachLine } from "@/components/account/session-coach-line";
+import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 
 export type MemberWaitlistItem = {
   id: string;
   spotLabel: string;
   title: string;
-  timeLine: string;
+  startsAt: string;
+  endsAt: string;
+  coachName: string | null;
 };
 
 export type MemberWaitlistSectionProps = {
+  locale: string;
   title: string;
   lead: string;
   emptyMessage?: string;
@@ -15,6 +21,7 @@ export type MemberWaitlistSectionProps = {
 };
 
 export function MemberWaitlistSection({
+  locale,
   title,
   lead,
   emptyMessage,
@@ -33,9 +40,25 @@ export function MemberWaitlistSection({
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((entry) => (
             <li key={entry.id} className={memberChrome.waitlistCard}>
-              <p className={memberChrome.cardMeta}>{entry.spotLabel}</p>
-              <p className={memberChrome.cardTitle}>{entry.title}</p>
-              <p className={memberChrome.cardSub}>{entry.timeLine}</p>
+              <span className={`${memberChrome.statusPill} self-start`}>
+                {entry.spotLabel}
+              </span>
+              <SessionClassTitle variant="list" name={entry.title} />
+              <div className="flex items-center gap-3">
+                <SessionDateTimeHighlight
+                  locale={locale}
+                  startsAt={entry.startsAt}
+                  endsAt={entry.endsAt}
+                  variant="listDate"
+                />
+                <SessionDateTimeHighlight
+                  locale={locale}
+                  startsAt={entry.startsAt}
+                  endsAt={entry.endsAt}
+                  variant="listTime"
+                />
+              </div>
+              <SessionCoachLine coachName={entry.coachName} variant="list" />
             </li>
           ))}
         </ul>

@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminStudioSettingsForm } from "@/components/admin/admin-studio-settings-form";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
 
 type StudioSettings = {
@@ -13,7 +12,6 @@ type StudioSettings = {
   address: string | null;
   mapEmbedUrl: string | null;
   workingHours: string | null;
-  socialLinksJson: string | null;
   cancellationHoursNotice: number;
   waitlistOfferMinutes: number;
 };
@@ -36,9 +34,7 @@ export default async function AdminSettingsPage({
   }
   return (
     <AdminContentFrame description={t("description")}>
-      <AdminSectionShell>
-        <AdminStudioSettingsForm initial={res.data} />
-      </AdminSectionShell>
+      <AdminStudioSettingsForm initial={res.data} />
     </AdminContentFrame>
   );
 }

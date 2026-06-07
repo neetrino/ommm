@@ -6,11 +6,18 @@ import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
+type BookSessionResponse = {
+  id: string;
+};
+
 type Props = {
   sessionId: string;
   label?: string;
   dropInLabel?: string;
   priceCents: number;
+  size?: "sm" | "md";
+  layout?: "board" | "list";
+  onBooked?: (bookingId: string) => void;
 };
 
 type PendingPaymentResponse = {
@@ -22,6 +29,9 @@ export function BookSessionButton({
   label,
   dropInLabel,
   priceCents,
+  size = "sm",
+  layout = "board",
+  onBooked,
 }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.bookSession");
@@ -34,7 +44,11 @@ export function BookSessionButton({
     setBusy(true);
     setMsg(null);
     try {
-      await apiFetch(`/bookings/sessions/${sessionId}`, { method: "POST" });
+      const booking = await apiFetch<BookSessionResponse>(
+        `/bookings/sessions/${sessionId}`,
+        { method: "POST" },
+      );
+      onBooked?.(booking.id);
       router.refresh();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("bookFailed"));
@@ -64,29 +78,48 @@ export function BookSessionButton({
     }
   }
 
+  const bookButton = (
+    <OmmButton
+      type="button"
+      variant="primary"
+      size={size}
+      disabled={busy}
+      onClick={() => void bookFreeOrMembership()}
+    >
+      {bookLabel}
+    </OmmButton>
+  );
+
+  const dropInButton =
+    priceCents > 0 ? (
+      <OmmButton
+        type="button"
+        variant="secondary"
+        size={size}
+        disabled={busy}
+        onClick={() => void bookDropIn()}
+      >
+        {payDropInLabel}
+      </OmmButton>
+    ) : null;
+
+  const buttonRowClass =
+    layout === "list" ? "flex flex-wrap items-center justify-end gap-2" : "flex flex-wrap gap-2";
+
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap gap-2">
-        <OmmButton
-          type="button"
-          variant="primary"
-          size="sm"
-          disabled={busy}
-          onClick={() => void bookFreeOrMembership()}
-        >
-          {bookLabel}
-        </OmmButton>
-        {priceCents > 0 ? (
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={busy}
-            onClick={() => void bookDropIn()}
-          >
-            {payDropInLabel}
-          </OmmButton>
-        ) : null}
+      <div className={buttonRowClass}>
+        {layout === "list" ? (
+          <>
+            {dropInButton}
+            {bookButton}
+          </>
+        ) : (
+          <>
+            {bookButton}
+            {dropInButton}
+          </>
+        )}
       </div>
       {msg ? <p className="text-xs text-amber-900">{msg}</p> : null}
     </div>

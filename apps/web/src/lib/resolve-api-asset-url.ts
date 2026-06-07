@@ -1,3 +1,5 @@
+import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
+
 function resolvePublicApiBase(): string {
   return (
     process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
@@ -15,13 +17,16 @@ export function resolveApiAssetUrl(
   if (pathOrUrl === null || pathOrUrl === undefined || pathOrUrl === "") {
     return undefined;
   }
+  let candidate: string | undefined;
   if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
-    return pathOrUrl;
+    candidate = pathOrUrl;
+  } else {
+    const base = resolvePublicApiBase();
+    const path = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+    if (base === "") {
+      return undefined;
+    }
+    candidate = `${base}${path}`;
   }
-  const base = resolvePublicApiBase();
-  const path = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
-  if (base === "") {
-    return undefined;
-  }
-  return `${base}${path}`;
+  return sanitizeImageSrcUrl(candidate) ?? undefined;
 }

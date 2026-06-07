@@ -1,21 +1,51 @@
-/** Shared grid for user Schedule list view — header and rows must match exactly. */
-export const USER_SCHEDULE_LIST_GRID_COLS =
-  "md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)_minmax(0,1.45fr)_minmax(0,1fr)_auto]";
+import {
+  USER_LIST_ACTIONS_CELL,
+  USER_LIST_CLASS_CELL,
+  USER_LIST_COACH_CELL,
+  USER_LIST_DATE_CELL,
+  USER_LIST_ROW_CARD,
+  USER_LIST_HEADER_SURFACE,
+  USER_LIST_SPACER_CELL,
+  USER_LIST_SPOTS_CELL,
+  USER_LIST_TABLE_GRID_GAP,
+  USER_LIST_TABLE_HEADER_PAD,
+  USER_LIST_TABLE_HEADER_TEXT,
+  USER_LIST_TABLE_ROW_PAD,
+  USER_LIST_TIME_CELL,
+  USER_LIST_TRAILING_HEADER_CELL,
+  USER_SCHEDULE_LIST_GRID_COLS,
+} from "@/components/account/user-list-table-layout";
+
+export { USER_SCHEDULE_LIST_GRID_COLS };
 
 export const USER_SCHEDULE_LIST_HEADER_CLASS = [
-  "hidden border-b border-white/70 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.08em] text-sage-500",
+  "hidden",
+  USER_LIST_HEADER_SURFACE,
+  USER_LIST_TABLE_HEADER_PAD,
+  USER_LIST_TABLE_HEADER_TEXT,
   "md:grid",
   USER_SCHEDULE_LIST_GRID_COLS,
-  "md:items-end md:gap-x-4",
+  USER_LIST_TABLE_GRID_GAP,
+  "md:items-end",
 ].join(" ");
 
 export const USER_SCHEDULE_LIST_ROW_CLASS = [
-  "grid w-full grid-cols-1 gap-4 px-4 py-4 text-left",
+  USER_LIST_ROW_CARD,
+  "grid w-full grid-cols-1 gap-3 text-left",
+  USER_LIST_TABLE_ROW_PAD,
   USER_SCHEDULE_LIST_GRID_COLS,
-  "md:items-start md:gap-x-4 md:gap-y-0",
+  USER_LIST_TABLE_GRID_GAP,
+  "md:items-center md:gap-y-0",
 ].join(" ");
 
-export const USER_SCHEDULE_LIST_CELL_CLASS = "min-w-0 justify-self-start text-left";
+export {
+  USER_LIST_ACTIONS_CELL as USER_SCHEDULE_LIST_ACTIONS_CLASS,
+  USER_LIST_CLASS_CELL as USER_SCHEDULE_LIST_CLASS_CELL,
+  USER_LIST_COACH_CELL as USER_SCHEDULE_LIST_COACH_CELL,
+  USER_LIST_DATE_CELL as USER_SCHEDULE_LIST_DATE_CELL,
+  USER_LIST_SPACER_CELL as USER_SCHEDULE_LIST_SPACER_CELL,
+  USER_LIST_SPOTS_CELL as USER_SCHEDULE_LIST_SPOTS_CELL,
+  USER_LIST_TIME_CELL as USER_SCHEDULE_LIST_TIME_CELL,
+};
 
-export const USER_SCHEDULE_LIST_ACTIONS_CLASS =
-  "flex shrink-0 justify-self-end md:items-center md:justify-end md:self-center";
+export const USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;

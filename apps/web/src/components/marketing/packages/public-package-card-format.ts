@@ -1,14 +1,11 @@
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { formatAmdFromCents, splitAmdFormatted } from "@/lib/price-amd";
 export { formatPackagePlanName as formatPublicPackagePlanName } from "@/components/admin/admin-packages-display";
 
 export function formatPublicPackagePriceParts(amount: string): {
   symbol: string;
   value: string;
 } {
-  if (amount.startsWith("֏")) {
-    return { symbol: "֏", value: amount.slice(1).trimStart() };
-  }
-  return { symbol: "", value: amount };
+  return splitAmdFormatted(amount);
 }
 
 export function normalizePublicPackageTierLabel(value: string): string {
@@ -32,6 +29,6 @@ export function formatPublicPackageTierPriceLine(
 ): string {
   const tierAmount = formatAmdFromCents(priceCents, locale);
   const tierPrice = formatPublicPackagePriceParts(tierAmount);
-  const prefix = tierPrice.symbol.length > 0 ? `${tierPrice.symbol} ` : "";
-  return `${prefix}${priceLine({ amount: tierPrice.value })}`;
+  const suffix = tierPrice.symbol.length > 0 ? ` ${tierPrice.symbol}` : "";
+  return `${priceLine({ amount: tierPrice.value })}${suffix}`;
 }

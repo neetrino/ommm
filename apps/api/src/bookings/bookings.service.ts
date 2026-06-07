@@ -22,7 +22,12 @@ import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
+import {
+  ListMyBookingsQueryDto,
+  MyBookingsScope,
+} from './dto/list-my-bookings-query.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 
 type ManagementBooking = {
   id: string;
@@ -277,19 +282,69 @@ export class BookingsService {
     await this.waitlist.offerNextIfSlot(booking.sessionId);
   }
 
-  listMine(userId: string) {
+  listMine(userId: string, query: ListMyBookingsQueryDto = {}) {
+    if (!query.scope) {
+      return this.listMineAll(userId);
+    }
+    if (query.scope === MyBookingsScope.UPCOMING) {
+      return this.listMineUpcoming(userId);
+    }
+    return this.listMinePast(userId, query);
+  }
+
+  private listMineAll(userId: string) {
     return this.prisma.booking.findMany({
       where: { userId },
-      include: {
-        session: {
-          include: {
-            classType: true,
-            coach: { include: { user: { select: { name: true } } } },
-          },
-        },
-      },
+      include: this.listMineInclude(),
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  private listMineUpcoming(userId: string) {
+    return this.prisma.booking.findMany({
+      where: {
+        userId,
+        status: BookingStatus.BOOKED,
+        session: { startsAt: { gt: new Date() } },
+      },
+      include: this.listMineInclude(),
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  private async listMinePast(userId: string, query: ListMyBookingsQueryDto) {
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const now = new Date();
+    const where: Prisma.BookingWhereInput = {
+      userId,
+      OR: [
+        { status: { not: BookingStatus.BOOKED } },
+        { session: { startsAt: { lte: now } } },
+      ],
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.booking.findMany({
+        where,
+        include: this.listMineInclude(),
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip: offset,
+      }),
+      this.prisma.booking.count({ where }),
+    ]);
+    return { rows, total, take, offset };
+  }
+
+  private listMineInclude() {
+    return {
+      session: {
+        include: {
+          classType: true,
+          coach: { include: { user: { select: { name: true } } } },
+        },
+      },
+    } satisfies Prisma.BookingInclude;
   }
 
   async adminCancel(bookingId: string) {
@@ -469,6 +524,34 @@ export class BookingsService {
           }
         : undefined;
 
+    const bookingWhere: Prisma.BookingWhereInput = {
+      ...(params.query.status ? { status: params.query.status } : {}),
+      ...(params.query.channel ? { channel: params.query.channel } : {}),
+      ...(params.query.userId ? { userId: params.query.userId } : {}),
+      ...(sessionFilter ? { session: sessionFilter } : {}),
+      ...(userSearch ? { user: userSearch } : {}),
+    };
+
+    if (params.query.countOnly) {
+      const matchedTotal = await this.prisma.booking.count({
+        where: bookingWhere,
+      });
+      return {
+        rows: [],
+        sessionSlots: [],
+        filterOptions: { classTypes: [], coaches: [] },
+        summary: {
+          total: matchedTotal,
+          booked: 0,
+          completed: 0,
+          cancelled: 0,
+          waitlisted: 0,
+          today: 0,
+        },
+        pagination: { total: matchedTotal, take: 0, offset: 0 },
+      };
+    }
+
     const adminSessionStatuses: ClassSessionStatus[] = [
       ClassSessionStatus.DRAFT,
       ClassSessionStatus.ACTIVE,
@@ -478,12 +561,7 @@ export class BookingsService {
     const [bookingsRaw, waitlistsRaw, classTypes, coaches, sessionsRaw] =
       await Promise.all([
         this.prisma.booking.findMany({
-          where: {
-            ...(params.query.status ? { status: params.query.status } : {}),
-            ...(params.query.channel ? { channel: params.query.channel } : {}),
-            ...(sessionFilter ? { session: sessionFilter } : {}),
-            ...(userSearch ? { user: userSearch } : {}),
-          },
+          where: bookingWhere,
           include: {
             user: {
               select: {
@@ -513,6 +591,7 @@ export class BookingsService {
         this.prisma.waitlistEntry.findMany({
           where: {
             status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+            ...(params.query.userId ? { userId: params.query.userId } : {}),
             ...(sessionFilter ? { session: sessionFilter } : {}),
             ...(userSearch ? { user: userSearch } : {}),
           },
@@ -748,6 +827,26 @@ export class BookingsService {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    const summary = {
+      total: rows.length,
+      booked: rows.filter((row) => row.status === BookingStatus.BOOKED).length,
+      completed: rows.filter((row) => row.status === BookingStatus.COMPLETED)
+        .length,
+      cancelled: rows.filter((row) => row.status === BookingStatus.CANCELLED)
+        .length,
+      waitlisted: rows.filter((row) => row.status === 'WAITLISTED').length,
+      today: rows.filter((row) => {
+        const starts = new Date(row.session.startsAt);
+        return starts >= today && starts < tomorrow;
+      }).length,
+    };
+
+    const paginate =
+      params.query.take !== undefined || params.query.offset !== undefined;
+    const take = params.query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = params.query.offset ?? 0;
+    const pagedRows = paginate ? rows.slice(offset, offset + take) : rows;
+
     const sessionSlots = sessionsRaw.map((session) => {
       const bookedCount = session._count.bookings;
       const spotsLeft = Math.max(session.capacity - bookedCount, 0);
@@ -779,7 +878,7 @@ export class BookingsService {
     });
 
     return {
-      rows,
+      rows: pagedRows,
       sessionSlots,
       filterOptions: {
         classTypes,
@@ -788,20 +887,16 @@ export class BookingsService {
           name: coach.user.name ?? coach.user.id,
         })),
       },
-      summary: {
-        total: rows.length,
-        booked: rows.filter((row) => row.status === BookingStatus.BOOKED)
-          .length,
-        completed: rows.filter((row) => row.status === BookingStatus.COMPLETED)
-          .length,
-        cancelled: rows.filter((row) => row.status === BookingStatus.CANCELLED)
-          .length,
-        waitlisted: rows.filter((row) => row.status === 'WAITLISTED').length,
-        today: rows.filter((row) => {
-          const starts = new Date(row.session.startsAt);
-          return starts >= today && starts < tomorrow;
-        }).length,
-      },
+      summary,
+      ...(paginate
+        ? {
+            pagination: {
+              total: summary.total,
+              take,
+              offset,
+            },
+          }
+        : {}),
     };
   }
 

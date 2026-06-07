@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
+import { OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR } from "@/components/shell/use-admin-sticky-header-offset";
 
 export const OMMM_MARKETING_SITE_HEADER_OFFSET_VAR =
   "--ommm-marketing-site-header-offset";
 
-const ACCOUNT_SHELL_SELECTOR = "[data-marketing-account-shell]";
-const ACCOUNT_HEADER_SELECTOR = 'header[data-account-shell="true"]';
+const WORKSPACE_SHELL_SELECTOR = "[data-workspace-shell]";
+const WORKSPACE_HEADER_SELECTOR = 'header[data-workspace-shell="true"]';
 
 /**
- * Keeps `--ommm-marketing-site-header-offset` equal to the rendered marketing header
- * height so dashboard padding, fixed sidebar top, and header bottom stay aligned.
+ * Keeps header offset CSS variables equal to the rendered global site header height
+ * so dashboard padding, fixed sidebar top, and nested sticky regions stay aligned.
  */
 export function useMarketingHeaderOffsetSync(enabled: boolean): void {
   useEffect(() => {
@@ -18,8 +19,8 @@ export function useMarketingHeaderOffsetSync(enabled: boolean): void {
       return undefined;
     }
 
-    const shell = document.querySelector(ACCOUNT_SHELL_SELECTOR);
-    const header = document.querySelector(ACCOUNT_HEADER_SELECTOR);
+    const shell = document.querySelector(WORKSPACE_SHELL_SELECTOR);
+    const header = document.querySelector(WORKSPACE_HEADER_SELECTOR);
     if (shell === null || header === null) {
       return undefined;
     }
@@ -28,9 +29,11 @@ export function useMarketingHeaderOffsetSync(enabled: boolean): void {
 
     const sync = () => {
       const height = Math.ceil(header.getBoundingClientRect().height);
-      shellEl.style.setProperty(
-        OMMM_MARKETING_SITE_HEADER_OFFSET_VAR,
-        `${height}px`,
+      const heightPx = `${height}px`;
+      shellEl.style.setProperty(OMMM_MARKETING_SITE_HEADER_OFFSET_VAR, heightPx);
+      document.documentElement.style.setProperty(
+        OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR,
+        heightPx,
       );
     };
 
@@ -43,6 +46,7 @@ export function useMarketingHeaderOffsetSync(enabled: boolean): void {
       observer.disconnect();
       window.removeEventListener("resize", sync);
       shellEl.style.removeProperty(OMMM_MARKETING_SITE_HEADER_OFFSET_VAR);
+      document.documentElement.style.removeProperty(OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR);
     };
   }, [enabled]);
 }

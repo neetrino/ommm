@@ -12,6 +12,21 @@ export const LANGUAGE_SWITCHER_ORDER = ["hy", "en", "ru"] as const satisfies rea
 export type LanguageSwitcherLocaleCode =
   (typeof LANGUAGE_SWITCHER_ORDER)[number];
 
+/** Native language names — same in every UI locale (endonyms). */
+export const LANGUAGE_SWITCHER_ENDONYMS: Readonly<
+  Record<LanguageSwitcherLocaleCode, string>
+> = {
+  hy: "Հայերեն",
+  en: "English",
+  ru: "Русский",
+};
+
+export function languageSwitcherEndonym(
+  code: LanguageSwitcherLocaleCode,
+): string {
+  return LANGUAGE_SWITCHER_ENDONYMS[code];
+}
+
 export function isLanguageSwitcherLocale(
   code: string,
 ): code is LanguageSwitcherLocaleCode {

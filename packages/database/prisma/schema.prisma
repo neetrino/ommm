@@ -488,7 +488,29 @@ model ContentPost {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
+  translations ContentPostTranslation[]
+
   @@index([type, status])
+}
+
+model ContentPostTranslation {
+  id             String   @id @default(cuid())
+  postId         String
+  locale         String
+  slug           String
+  title          String   @default("")
+  excerpt        String?
+  body           String?
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  post ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+  @@unique([locale, slug])
+  @@index([postId])
 }
 
 model StudioSettings {

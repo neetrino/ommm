@@ -28,6 +28,7 @@ export const ADMIN_NAV_ICON_BY_HREF: Readonly<Record<string, AdminNavIconSlug>> 
   "/admin/finance": "finance",
   "/admin/analytics": "analytics",
   "/admin/notifications": "notifications",
+  "/admin/content": "feedback",
   "/admin/settings": "settings",
   "/admin/feedback": "feedback",
   "/admin/guest-users": "guestUsers",

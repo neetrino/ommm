@@ -25,6 +25,7 @@ type BookingRow = {
     startsAt: string;
     endsAt: string;
     classType: { name: string };
+    coach: { user: { name: string | null } };
   };
 };
 
@@ -33,7 +34,9 @@ type WaitRow = {
   status: string;
   session: {
     startsAt: string;
+    endsAt: string;
     classType: { name: string };
+    coach: { user: { name: string | null } };
   };
 };
 
@@ -87,6 +90,10 @@ export default async function UserDashboardPage({
         className: first.session.classType.name,
         startsAt: first.session.startsAt,
         endsAt: first.session.endsAt,
+        coachName: (() => {
+          const trimmed = first.session.coach.user.name?.trim();
+          return trimmed && trimmed.length > 0 ? trimmed : null;
+        })(),
       }
     : null;
 

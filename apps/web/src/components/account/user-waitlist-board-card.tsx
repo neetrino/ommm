@@ -15,7 +15,7 @@ type UserWaitlistBoardCardProps = {
 };
 
 export function UserWaitlistBoardCard({ locale, waitlist }: UserWaitlistBoardCardProps) {
-  const t = useTranslations("userPages.bookings");
+  const t = useTranslations("userPages.waitlists");
   const coachName = resolveSessionCoachName(waitlist.session.coach);
 
   return (
@@ -23,7 +23,7 @@ export function UserWaitlistBoardCard({ locale, waitlist }: UserWaitlistBoardCar
       <SessionClassTitle
         variant="board"
         name={waitlist.session.classType.name}
-        eyebrow={t("waitlists")}
+        eyebrow={t("title")}
       />
 
       <SessionDateTimeHighlight

@@ -1,13 +1,16 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { SessionClassTitle } from "@/components/account/session-class-title";
+import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import {
   normalizePaymentSource,
+  resolvePaymentMethodLabel,
   resolveRelatedItemName,
   statusBadgeClass,
+  toPaymentIso,
 } from "@/components/account/user-payment-display";
-import { formatDateTimeForUi } from "@/lib/date-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
 type UserPaymentBoardCardProps = {
@@ -19,58 +22,52 @@ export function UserPaymentBoardCard({ locale, payment }: UserPaymentBoardCardPr
   const t = useTranslations("userPages.payments");
   const source = normalizePaymentSource(payment.description);
   const relatedItem = resolveRelatedItemName(payment.description);
+  const itemLabel = relatedItem ?? t(`source.${source}`);
+  const methodLabel = resolvePaymentMethodLabel(payment.paymentMethod, t);
+  const paidAtIso = toPaymentIso(payment.createdAt);
 
   return (
     <article className="flex h-full flex-col rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-sand-600">
-            {t(`source.${source}`)}
-          </p>
-          <h3 className="font-serif text-xl font-normal text-sage-900 sm:text-2xl">
-            {formatAmdFromCents(payment.amountCents, locale)}
-          </h3>
-        </div>
-        <span
-          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusBadgeClass(payment.status)}`}
-        >
-          {t(`status.${payment.status}`)}
-        </span>
-      </div>
+      <SessionClassTitle
+        variant="board"
+        eyebrow={t(`source.${source}`)}
+        name={itemLabel}
+        trailing={
+          <span
+            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusBadgeClass(payment.status)}`}
+          >
+            {t(`status.${payment.status}`)}
+          </span>
+        }
+      />
 
-      <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-white/70 bg-white/60 p-4 text-xs text-sage-600">
+      <SessionDateTimeHighlight
+        locale={locale}
+        startsAt={paidAtIso}
+        endsAt={paidAtIso}
+        variant="boardDateYear"
+        className="mt-5"
+      />
+
+      <div className="mt-5 flex items-end justify-between gap-4 border-b border-white/70 pb-5">
         <div>
-          <p className="text-sage-500">{t("table.date")}</p>
-          <p className="mt-1 font-medium text-sage-900">
-            {formatDateTimeForUi(payment.createdAt, locale)}
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+            {t("table.amount")}
           </p>
-        </div>
-        <div>
-          <p className="text-sage-500">{t("table.currency")}</p>
-          <p className="mt-1 font-medium uppercase text-sage-900">
-            {(payment.currency || "amd").toUpperCase()}
-          </p>
-        </div>
-        <div className="col-span-2">
-          <p className="text-sage-500">{t("table.related")}</p>
-          <p className="mt-1 font-medium text-sage-900">
-            {relatedItem ?? t("common.notAvailable")}
-          </p>
+          <AmdMoneyText
+            cents={payment.amountCents}
+            locale={locale}
+            className="mt-1 block font-serif text-2xl leading-none tracking-tight text-sage-950 sm:text-[1.75rem]"
+          />
         </div>
       </div>
 
-      <dl className="mt-5 flex-1 space-y-2 text-xs text-sage-600">
-        <div className="flex items-center justify-between gap-4">
-          <dt>{t("table.reference")}</dt>
-          <dd className="font-mono text-sage-800">
-            {payment.paymentReference ?? t("common.notAvailable")}
-          </dd>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <dt>{t("table.updated")}</dt>
-          <dd className="text-sage-800">
-            {formatDateTimeForUi(payment.updatedAt ?? payment.createdAt, locale)}
-          </dd>
+      <dl className="mt-5 flex-1 space-y-3 text-sm">
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/70 bg-white/60 px-4 py-3">
+          <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-sage-500">
+            {t("table.paymentMethod")}
+          </dt>
+          <dd className="font-medium text-sage-900">{methodLabel}</dd>
         </div>
       </dl>
     </article>

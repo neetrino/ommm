@@ -14,6 +14,7 @@ export const PACKAGE_CATEGORY_QUERY_KEY = "categoryId";
 export const PACKAGE_EDIT_CATEGORY_QUERY_KEY = "editCategory";
 export const PACKAGE_DELETE_CATEGORY_QUERY_KEY = "deleteCategoryId";
 
+/** Filter keys cleared and rewritten when filters sync to the URL. */
 export const PACKAGE_FILTER_QUERY_KEYS = ["search", "status", "order"] as const;
 
 const SORT_ORDERS: readonly PackageSortOrder[] = [
@@ -61,7 +62,8 @@ export function parsePackageFiltersFromSearch(
   };
 }
 
-export function buildPackageFiltersQuery(values: PackageFilterValues): string {
+/** Builds the filter portion of the packages admin URL query string. */
+export function buildPackageUrlFiltersQuery(values: PackageFilterValues): string {
   const params = new URLSearchParams();
   if (values.search.trim().length > 0) {
     params.set("search", values.search.trim());

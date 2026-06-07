@@ -1,73 +1,44 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
-import { formatDateTimeForUi } from "@/lib/date-display";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { AdminWaitlistCompactRow } from "@/components/admin/admin-waitlist-compact-row";
+import {
+  ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER,
+  ADMIN_WAITLIST_LIST_HEADER_CLASS,
+  ADMIN_WAITLIST_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-waitlist-list-layout";
+import {
+  buildAdminWaitlistActiveEndpoint,
+  type AdminWaitlistActivePayload,
+  type AdminWaitlistRow,
+} from "@/components/admin/admin-waitlist-query";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { AdminUserDetailsDrawer } from "@/components/admin/admin-user-details-drawer";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { parseListPageParams, resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
+import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 
-type AdminWaitlistRow = {
-  id: string;
-  status: "ACTIVE" | "OFFERED" | "EXPIRED" | "CONVERTED" | "REMOVED";
-  waitlistDate: string;
-  sessionWaitlistCount: number;
-  user: {
-    id: string;
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    phone: string | null;
-  };
-  session: {
-    id: string;
-    classType: { id: string; name: string };
-  };
-};
+const WAITLIST_SEARCH_KEY = "search";
+const WAITLIST_CLASS_TYPE_KEY = "classTypeId";
 
 type ToastTone = "ok" | "err";
 
 type AdminWaitlistManagementProps = {
   locale: string;
-  initialRows: AdminWaitlistRow[];
+  initial: AdminWaitlistActivePayload;
   initialLoadError: string | null;
+  staffBanner?: string;
 };
-
-function UserGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M20 21a8 8 0 0 0-16 0" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
-function ArrowUpGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M12 19V5M6 11l6-6 6 6" />
-    </svg>
-  );
-}
-
-function BellGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5" />
-      <path d="M9 17a3 3 0 0 0 6 0" />
-    </svg>
-  );
-}
-
-function TrashGlyph() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
-      <path d="M10 11v6M14 11v6" />
-    </svg>
-  );
-}
 
 function toUserLabel(name: string | null, lastName: string | null, email: string): string {
   const full = [name, lastName].filter((part) => part && part.trim().length > 0).join(" ");
@@ -76,30 +47,181 @@ function toUserLabel(name: string | null, lastName: string | null, email: string
 
 export function AdminWaitlistManagement({
   locale,
-  initialRows,
+  initial,
   initialLoadError,
+  staffBanner,
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
-  const [rows, setRows] = useState<AdminWaitlistRow[]>(initialRows);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [payload, setPayload] = usePropSyncedState(initial);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(initialLoadError);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [toast, setToast] = useState<{ tone: ToastTone; message: string } | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [pendingRemove, setPendingRemove] = useState<AdminWaitlistRow | null>(null);
+  const [, startRefreshTransition] = useTransition();
+  const refreshRequestId = useRef(0);
+  const urlSearchDraft = searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "";
+  const [searchDraft, setSearchDraft] = useState(urlSearchDraft);
+  const [prevUrlSearchDraft, setPrevUrlSearchDraft] = useState(urlSearchDraft);
+  if (urlSearchDraft !== prevUrlSearchDraft) {
+    setPrevUrlSearchDraft(urlSearchDraft);
+    setSearchDraft(urlSearchDraft);
+  }
+  const classTypeFilter = searchParams.get(WAITLIST_CLASS_TYPE_KEY)?.trim() ?? "";
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize);
+      });
+    },
+    [replaceSearchParams],
+  );
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      const trimmed = searchDraft.trim();
+      const current = searchParams.get(WAITLIST_SEARCH_KEY)?.trim() ?? "";
+      if (trimmed === current) {
+        return;
+      }
+      replaceSearchParams((params) => {
+        resetListPageQuery(params);
+        if (trimmed.length > 0) {
+          params.set(WAITLIST_SEARCH_KEY, trimmed);
+        } else {
+          params.delete(WAITLIST_SEARCH_KEY);
+        }
+      });
+    }, 300);
+    return () => window.clearTimeout(handle);
+  }, [replaceSearchParams, searchDraft, searchParams]);
+
+  const classTypeOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const row of payload.items) {
+      map.set(row.session.classType.id, row.session.classType.name);
+    }
+    return Array.from(map.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [payload.items]);
+
+  const waitlistFilterFields = useMemo((): AdminIntegratedFilterField[] => {
+    return [
+      {
+        key: WAITLIST_CLASS_TYPE_KEY,
+        label: t("colClassType"),
+        render: ({ value, onChange }) => (
+          <OmmFilterDropdown
+            allValue=""
+            value={value}
+            ariaLabel={t("colClassType")}
+            allLabel={t("filterClassAll")}
+            onChange={onChange}
+            options={classTypeOptions}
+          />
+        ),
+      },
+    ];
+  }, [classTypeOptions, t]);
+
+  const waitlistFilterValues = useMemo(
+    () => ({ [WAITLIST_CLASS_TYPE_KEY]: classTypeFilter }),
+    [classTypeFilter],
+  );
+
+  function handleWaitlistFilterChange(key: string, value: string) {
+    if (key !== WAITLIST_CLASS_TYPE_KEY) {
+      return;
+    }
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+      if (value.trim().length > 0) {
+        params.set(WAITLIST_CLASS_TYPE_KEY, value);
+      } else {
+        params.delete(WAITLIST_CLASS_TYPE_KEY);
+      }
+    });
+  }
+
+  function resetWaitlistFilters() {
+    setSearchDraft("");
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+      params.delete(WAITLIST_SEARCH_KEY);
+      params.delete(WAITLIST_CLASS_TYPE_KEY);
+    });
+  }
+
+  const filteredRows = useMemo(() => {
+    const q = searchDraft.trim().toLowerCase();
+    return payload.items.filter((row) => {
+      if (classTypeFilter && row.session.classType.id !== classTypeFilter) {
+        return false;
+      }
+      if (q.length === 0) {
+        return true;
+      }
+      const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email).toLowerCase();
+      const haystack = [
+        userLabel,
+        row.user.email.toLowerCase(),
+        row.user.phone?.toLowerCase() ?? "",
+        row.session.classType.name.toLowerCase(),
+      ].join(" ");
+      return haystack.includes(q);
+    });
+  }, [classTypeFilter, payload.items, searchDraft]);
 
   const loadRows = useCallback(async () => {
+    const requestId = ++refreshRequestId.current;
     setLoading(true);
     setLoadError(null);
     try {
-      const payload = await apiFetch<AdminWaitlistRow[]>("/waitlist/admin/active?take=250");
-      setRows(payload);
+      const data = await apiFetch<AdminWaitlistActivePayload>(
+        buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset),
+      );
+      if (requestId !== refreshRequestId.current) {
+        return;
+      }
+      setPayload(data);
     } catch (error) {
+      if (requestId !== refreshRequestId.current) {
+        return;
+      }
       setLoadError(error instanceof ApiError ? error.message : t("loadFailed"));
     } finally {
-      setLoading(false);
+      if (requestId === refreshRequestId.current) {
+        setLoading(false);
+      }
     }
-  }, [t]);
+  }, [listPage.offset, listPage.take, setPayload, t]);
+
+  const refreshList = useCallback(() => {
+    startRefreshTransition(() => {
+      router.refresh();
+    });
+  }, [router, startRefreshTransition]);
 
   async function runAction(
     row: AdminWaitlistRow,
@@ -117,6 +239,7 @@ export function AdminWaitlistManagement({
       await run();
       setToast({ tone: "ok", message: successMessage });
       await loadRows();
+      refreshList();
     } catch (error) {
       setToast({
         tone: "err",
@@ -127,7 +250,9 @@ export function AdminWaitlistManagement({
     }
   }
 
+  const rows = filteredRows;
   const hasRows = rows.length > 0;
+  const hasLoadedRows = payload.items.length > 0;
 
   const closeRemoveConfirm = useCallback(() => {
     setPendingRemove(null);
@@ -148,131 +273,117 @@ export function AdminWaitlistManagement({
     );
   }, [pendingRemove]);
 
-  if (loading) {
-    return <div className={adminChrome.panel}>{t("loading")}</div>;
-  }
-
-  if (loadError) {
+  if (loadError && !hasLoadedRows) {
     return (
-      <div className={adminChrome.panel}>
-        <p className="text-sm text-red-800">{loadError}</p>
-        <button type="button" className="ommm-cta-secondary mt-3 h-9 px-4" onClick={() => void loadRows()}>
-          {t("retry")}
-        </button>
-      </div>
+      <StaffListPageLayout
+        title={t("title")}
+        banner={staffBanner}
+        status={
+          <div className={adminChrome.panel}>
+            <p className="text-sm text-red-800">{loadError}</p>
+            <button
+              type="button"
+              className="ommm-cta-secondary mt-3 h-9 px-4"
+              onClick={() => void loadRows()}
+            >
+              {t("retry")}
+            </button>
+          </div>
+        }
+      >
+        <span className="sr-only">{t("loadFailed")}</span>
+      </StaffListPageLayout>
     );
   }
 
+  const waitlistBody = !hasRows ? (
+    <div className={adminChrome.panel}>{t("empty")}</div>
+  ) : (
+    <div className={ADMIN_WAITLIST_LIST_TABLE_CLASS}>
+      <div className={ADMIN_WAITLIST_LIST_HEADER_CLASS}>
+        <span>{t("colUser")}</span>
+        <span className={ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
+        <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colWaitlistCount")}
+        </span>
+        <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
+          {t("colWaitlistDate")}
+        </span>
+        <span aria-hidden="true" />
+        <span className={ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+      </div>
+      {rows.map((row) => {
+        const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
+        const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
+        return (
+          <AdminWaitlistCompactRow
+            key={row.id}
+            locale={locale}
+            row={row}
+            rowBusy={rowBusy}
+            userLabel={userLabel}
+            onOpenUser={setSelectedUserId}
+            onPromote={() =>
+              void runAction(
+                row,
+                "promote",
+                () =>
+                  apiFetch(`/waitlist/entries/${row.id}/promote`, {
+                    method: "POST",
+                    body: JSON.stringify({ targetSessionId: row.session.id }),
+                  }),
+                t("successPromote"),
+              )
+            }
+            onNotify={() =>
+              void runAction(
+                row,
+                "notify",
+                () =>
+                  apiFetch(`/waitlist/entries/${row.id}/notify`, {
+                    method: "POST",
+                    body: JSON.stringify({}),
+                  }),
+                t("successNotify"),
+              )
+            }
+            onRemove={() => setPendingRemove(row)}
+          />
+        );
+      })}
+      <OmmListPagination
+        total={payload.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={payload.offset}
+        onPageChange={setListPage}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        disabled={loading || busyAction !== null}
+      />
+    </div>
+  );
+
   return (
     <>
-      {!hasRows ? (
-        <div className={adminChrome.panel}>{t("empty")}</div>
-      ) : (
-        <div className={adminChrome.tableWrap}>
-          <table className={adminChrome.table}>
-            <thead className={adminChrome.thead}>
-              <tr>
-                <th className={adminChrome.th}>{t("colUser")}</th>
-                <th className={adminChrome.th}>{t("colClassType")}</th>
-                <th className={adminChrome.th}>{t("colWaitlistCount")}</th>
-                <th className={adminChrome.th}>{t("colWaitlistDate")}</th>
-                <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
-                const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
-                return (
-                  <tr key={row.id} className={adminChrome.tr}>
-                    <td className={adminChrome.tdStrong}>
-                      <button
-                        type="button"
-                        className="text-left font-medium text-sage-900 underline-offset-2 hover:underline"
-                        onClick={() => setSelectedUserId(row.user.id)}
-                      >
-                        {userLabel}
-                      </button>
-                      <div className={adminChrome.metaText}>{row.user.phone ?? "—"}</div>
-                    </td>
-                    <td className={adminChrome.td}>{row.session.classType.name}</td>
-                    <td className={adminChrome.td}>{row.sessionWaitlistCount}</td>
-                    <td className={adminChrome.td}>
-                      {formatDateTimeForUi(row.waitlistDate, locale)}
-                    </td>
-                    <td className={`${adminChrome.td} text-center`}>
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-white/70 text-sage-700 transition hover:bg-white disabled:opacity-50"
-                          aria-label={t("actions.userDetails")}
-                          title={t("actions.userDetails")}
-                          onClick={() => setSelectedUserId(row.user.id)}
-                          disabled={rowBusy}
-                        >
-                          <UserGlyph />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
-                          aria-label={t("actions.promote")}
-                          title={t("actions.promote")}
-                          onClick={() =>
-                            void runAction(
-                              row,
-                              "promote",
-                              () =>
-                                apiFetch(`/waitlist/entries/${row.id}/promote`, {
-                                  method: "POST",
-                                  body: JSON.stringify({ targetSessionId: row.session.id }),
-                                }),
-                              t("successPromote"),
-                            )
-                          }
-                          disabled={rowBusy}
-                        >
-                          <ArrowUpGlyph />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-sky-700 transition hover:bg-sky-100 disabled:opacity-50"
-                          aria-label={t("actions.notify")}
-                          title={t("actions.notify")}
-                          onClick={() =>
-                            void runAction(
-                              row,
-                              "notify",
-                              () =>
-                                apiFetch(`/waitlist/entries/${row.id}/notify`, {
-                                  method: "POST",
-                                  body: JSON.stringify({}),
-                                }),
-                              t("successNotify"),
-                            )
-                          }
-                          disabled={rowBusy}
-                        >
-                          <BellGlyph />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-                          aria-label={t("actions.remove")}
-                          title={t("actions.remove")}
-                          onClick={() => setPendingRemove(row)}
-                          disabled={rowBusy}
-                        >
-                          <TrashGlyph />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <StaffListPageLayout
+        title={t("title")}
+        banner={staffBanner}
+        search={
+          <ListPageSearchFilters
+            search={searchDraft}
+            onSearchChange={setSearchDraft}
+            searchPlaceholder={t("filterSearch")}
+            fields={waitlistFilterFields}
+            filterValues={waitlistFilterValues}
+            onFilterChange={handleWaitlistFilterChange}
+            onClearAll={resetWaitlistFilters}
+            resetLabel={t("resetFilters")}
+          />
+        }
+        status={loadError ? <div className="app-alert-warn max-w-xl">{loadError}</div> : null}
+      >
+        {waitlistBody}
+      </StaffListPageLayout>
 
       {toast ? (
         <div

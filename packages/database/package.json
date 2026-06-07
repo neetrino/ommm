@@ -20,7 +20,7 @@
     "apply:package-rename": "node scripts/apply-package-rename-schema.mjs",
     "apply:package-session-usage": "node scripts/apply-package-session-usage-schema.mjs",
     "db:push": "dotenv -e ../../.env -- pnpm -w exec prisma db push --schema packages/database/prisma/schema.prisma",
-    "seed": "dotenv -e ../../.env -- pnpm -w exec prisma db seed --schema packages/database/prisma/schema.prisma"
+    "seed": "dotenv -e ../../.env -- pnpm exec tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0"

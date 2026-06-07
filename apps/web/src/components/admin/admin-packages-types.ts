@@ -3,6 +3,7 @@ export function normalizeAdminPackageRow(row: AdminPackageRow): AdminPackageRow 
   return {
     ...row,
     guestCount: typeof row.guestCount === "number" ? row.guestCount : 0,
+    features: Array.isArray(row.features) ? row.features : [],
   };
 }
 

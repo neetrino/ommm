@@ -1,41 +1,32 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import {
+  buildAdminWaitlistActiveEndpoint,
+  parseAdminWaitlistPageParams,
+  type AdminWaitlistActivePayload,
+} from "@/components/admin/admin-waitlist-query";
 import { AdminWaitlistManagement } from "@/components/admin/admin-waitlist-management";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { serverApiJson } from "@/lib/server-api";
-
-type AdminWaitlistRow = {
-  id: string;
-  status: "ACTIVE" | "OFFERED" | "EXPIRED" | "CONVERTED" | "REMOVED";
-  waitlistDate: string;
-  sessionWaitlistCount: number;
-  user: {
-    id: string;
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    phone: string | null;
-  };
-  session: {
-    id: string;
-    classType: { id: string; name: string };
-  };
-};
 
 export default async function AdminWaitlistsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.waitlists" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const response = await serverApiJson<AdminWaitlistRow[]>(
-    "/waitlist/admin/active?take=250",
-    cookie,
-  );
-  const initialRows = response.ok ? response.data : [];
+  const listPage = parseAdminWaitlistPageParams(search);
+  const endpoint = buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset);
+  const response = await serverApiJson<AdminWaitlistActivePayload>(endpoint, cookie);
+  const initialPayload = response.ok
+    ? response.data
+    : { items: [], total: 0, take: listPage.take, offset: listPage.offset };
   const initialLoadError = response.ok
     ? null
     : response.status === 401 || response.status === 403
@@ -44,13 +35,13 @@ export default async function AdminWaitlistsPage({
 
   return (
     <AdminContentFrame description={t("description")}>
-      <AdminSectionShell>
+      <Suspense fallback={null}>
         <AdminWaitlistManagement
           locale={locale}
-          initialRows={initialRows}
+          initial={initialPayload}
           initialLoadError={initialLoadError}
         />
-      </AdminSectionShell>
+      </Suspense>
     </AdminContentFrame>
   );
 }

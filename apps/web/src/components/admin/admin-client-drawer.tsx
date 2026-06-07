@@ -1,557 +1,312 @@
 "use client";
 
-
-
-import { createPortal } from "react-dom";
-
-import { useCallback, useEffect, useRef, useState } from "react";
-
-import Image from "next/image";
-
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-
-import { useSearchParams } from "next/navigation";
-
-import { usePathname, useRouter } from "@/i18n/navigation";
-
-import { CancelGlyph } from "@/components/ui/admin-action-glyphs";
-
+import { formatIsoDateToUi } from "@/lib/date-display";
+import { AdminClientStatusAction } from "@/components/admin/admin-client-status-action";
+import { AdminDetailSheetFormFooter } from "@/components/admin/admin-detail-sheet-form-footer";
+import { AdminDetailSheetTabBar } from "@/components/admin/admin-detail-sheet-tab-bar";
+import { useClientEditForm } from "@/components/admin/admin-client-edit-form.use";
+import type { ClientEditInitialValues } from "@/components/admin/admin-client-edit-form.types";
+import {
+  CLIENT_SHEET_TAB_ORDER,
+  CLIENT_SHEET_TAB_PROFILE,
+  type ClientSheetTabId,
+} from "@/components/admin/admin-client-sheet-tabs";
+import { ClientSheetTabPanels } from "@/components/admin/admin-client-sheet-tab-panels";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  ADMIN_WIDE_DRAWER_PANEL_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import type { ClientDetail, ClientRow } from "@/components/admin/admin-clients-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
-
-import { EditActionButton } from "@/components/ui/edit-action-button";
-
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
-
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { ApiError, apiFetch } from "@/lib/api";
 
-import { formatDateForUi } from "@/lib/date-display";
-
-import { formatAmdFromCents } from "@/lib/price-amd";
-
-import { EDIT_CLIENT_QUERY_KEY } from "@/components/admin/admin-clients-query";
-
-import type { ClientDetail, ClientRow } from "./admin-clients-types";
-
-import {
-
-  ActionSection,
-
-  HistorySections,
-
-  NotesSection,
-
-} from "./admin-client-drawer-sections";
-
-
-
-type Props = {
-
+type AdminClientDrawerProps = {
   client: ClientRow | null;
-
   locale: string;
-
   onClose: () => void;
-
   onChanged: () => void;
-
 };
 
-
-
-function fullName(client: { name: string | null; lastName: string | null; email: string }) {
-
-  const value = [client.name, client.lastName].filter(Boolean).join(" ").trim();
-
-  return value || client.email;
-
+function clientHeaderName(client: ClientRow): string {
+  const fullName = [client.name, client.lastName].filter(Boolean).join(" ").trim();
+  return fullName.length > 0 ? fullName : "—";
 }
 
-
-
-export function AdminClientDrawer({ client, locale, onClose, onChanged }: Props) {
-
-  const t = useTranslations("adminPages.clients");
-
-  const router = useRouter();
-
-  const pathname = usePathname();
-
-  const searchParams = useSearchParams();
-
-  const [detail, setDetail] = useState<ClientDetail | null>(null);
-
-  const [loading, setLoading] = useState(false);
-
-  const [busy, setBusy] = useState<string | null>(null);
-
-  const [message, setMessage] = useState<string | null>(null);
-
-  const [messageTone, setMessageTone] = useState<"ok" | "err">("ok");
-
-  const [note, setNote] = useState("");
-
-  const [giftAmount, setGiftAmount] = useState("10000");
-
-  const wasEditingRef = useRef(false);
-
-
-
-  const refreshDetail = useCallback(async () => {
-
-    if (!client) return;
-
-    const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
-
-    setDetail(fresh);
-
-  }, [client]);
-
-
-
-  function openEditModal() {
-
-    if (!client) return;
-
-    const params = new URLSearchParams(searchParams.toString());
-
-    params.set(EDIT_CLIENT_QUERY_KEY, client.id);
-
-    const query = params.toString();
-
-    router.replace(query ? `${pathname}?${query}` : pathname);
-
-  }
-
-
-
-  useEffect(() => {
-
-    if (!client) return;
-
-    const isEditingThisClient = searchParams.get(EDIT_CLIENT_QUERY_KEY) === client.id;
-
-    if (wasEditingRef.current && !isEditingThisClient) {
-
-      void refreshDetail();
-
-    }
-
-    wasEditingRef.current = isEditingThisClient;
-
-  }, [client, refreshDetail, searchParams]);
-
-
-
-  useEffect(() => {
-
-    if (!client) return;
-
-    let cancelled = false;
-
-    void Promise.resolve().then(() => {
-
-      if (cancelled) return;
-
-      setLoading(true);
-
-      setMessage(null);
-
-      setDetail(null);
-
-      setNote("");
-
-      void apiFetch<ClientDetail>(`/clients/${client.id}`)
-
-        .then((payload) => {
-
-          if (cancelled) return;
-
-          setDetail(payload);
-
-        })
-
-        .catch(() => {
-
-          if (!cancelled) setDetail(null);
-
-        })
-
-        .finally(() => {
-
-          if (!cancelled) setLoading(false);
-
-        });
-
-    });
-
-    return () => {
-
-      cancelled = true;
-
-    };
-
-  }, [client]);
-
-
-
-  useEffect(() => {
-
-    if (!client) return undefined;
-
-    const previous = document.body.style.overflow;
-
-    document.body.style.overflow = "hidden";
-
-    return () => {
-
-      document.body.style.overflow = previous;
-
-    };
-
-  }, [client]);
-
-
-
-  useCloseOnEscape(client !== null, onClose);
-
-
-
-  if (!client || typeof document === "undefined") return null;
-
-
-
-  async function run(key: string, action: () => Promise<void>, ok: string) {
-
-    if (busy || !client) return;
-
-    const clientId = client.id;
-
-    setBusy(key);
-
-    setMessage(null);
-
-    try {
-
-      await action();
-
-      setMessageTone("ok");
-
-      setMessage(ok);
-
-      onChanged();
-
-      const fresh = await apiFetch<ClientDetail>(`/clients/${clientId}`);
-
-      setDetail(fresh);
-
-    } catch (error) {
-
-      setMessageTone("err");
-
-      setMessage(error instanceof ApiError ? error.message : "Action failed");
-
-    } finally {
-
-      setBusy(null);
-
-    }
-
-  }
-
-
-
-  const data = detail;
-
-  const activity = data?.activity ?? client;
-
-
-
-  return createPortal(
-
-    <div className="ommm-drawer-overlay z-[90]">
-
-      <button
-
-        className="ommm-modal-backdrop"
-
-        type="button"
-
-        aria-label={t("modalBackdropClose")}
-
-        onClick={onClose}
-
-      />
-
-      <aside className="relative z-10 h-full w-full max-w-3xl overflow-y-auto border-l border-white/60 bg-white/95 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
-
-        <div className="mb-4 flex items-start justify-between gap-3">
-
-          <div>
-
-            <p className="text-xs uppercase tracking-wide text-sage-500">Client profile</p>
-
-            <h2 className="text-xl font-semibold text-sage-900">{fullName(client)}</h2>
-
-            <p className="text-sm text-sage-600">{client.phone ?? "—"} · {client.email}</p>
-
-          </div>
-
-          <div className="flex items-center gap-2">
-
-            <EditActionButton
-
-              ariaLabel={t("editClient")}
-
-              title={t("editClient")}
-
-              onClick={openEditModal}
-
-            />
-
-            <button
-
-              type="button"
-
-              className="shrink-0 rounded-full p-2 text-sage-500 transition-colors hover:bg-white/60 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-
-              aria-label={t("modalCloseAria")}
-
-              title={t("modalCloseAria")}
-
-              onClick={onClose}
-
-            >
-
-              <CancelGlyph className="h-5 w-5" />
-
-            </button>
-
-          </div>
-
-        </div>
-
-
-
-        {message ? (
-
-          <AdminCenterToast
-
-            message={message}
-
-            tone={messageTone}
-
-            onDismiss={() => setMessage(null)}
-
-          />
-
-        ) : null}
-
-
-
-        {loading || !data ? (
-
-          <p className="text-sm text-sage-600">{loading ? "Loading client data..." : "Client data unavailable."}</p>
-
-        ) : (
-
-          <div className="space-y-4">
-
-            <BasicInfo data={data} locale={locale} />
-
-            <SummaryGrid client={activity} locale={locale} />
-
-            <ActionSection
-
-              client={data}
-
-              giftAmount={giftAmount}
-
-              busy={busy}
-
-              onGiftAmountChange={setGiftAmount}
-
-              onRun={run}
-
-            />
-
-            <HistorySections data={data} locale={locale} />
-
-            <NotesSection
-
-              notes={data.notes}
-
-              note={note}
-
-              busy={busy !== null}
-
-              onNoteChange={setNote}
-
-              onAdd={() =>
-
-                void run(
-
-                  "note",
-
-                  () =>
-
-                    apiFetch(`/clients/${client.id}/notes`, {
-
-                      method: "POST",
-
-                      body: JSON.stringify({ body: note.trim() }),
-
-                    }).then(() => setNote("")),
-
-                  "Note added",
-
-                )
-
-              }
-
-            />
-
-          </div>
-
-        )}
-
-      </aside>
-
-    </div>,
-
-    document.body,
-
-  );
-
+function clientInitialValues(detail: ClientDetail): ClientEditInitialValues {
+  return {
+    email: detail.email,
+    name: detail.name ?? "",
+    lastName: detail.lastName ?? "",
+    phone: detail.phone ?? "",
+    dateOfBirth: detail.dateOfBirth ? formatIsoDateToUi(detail.dateOfBirth) : "",
+  };
 }
 
-
-
-function BasicInfo({ data, locale }: { data: ClientDetail; locale: string }) {
+export function AdminClientDrawer({ client, locale, onClose, onChanged }: AdminClientDrawerProps) {
+  if (client === null) {
+    return null;
+  }
 
   return (
+    <AdminClientDrawerInner
+      key={client.id}
+      client={client}
+      locale={locale}
+      onClose={onClose}
+      onChanged={onChanged}
+    />
+  );
+}
 
-    <section className="rounded-2xl border border-white/60 bg-white/75 p-4">
+function AdminClientDrawerInner({
+  client,
+  locale,
+  onClose,
+  onChanged,
+}: {
+  client: ClientRow;
+  locale: string;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const t = useTranslations("adminPages.clients");
+  const titleId = useId();
+  const [activeTab, setActiveTab] = useState<ClientSheetTabId>(CLIENT_SHEET_TAB_PROFILE);
+  const [detail, setDetail] = useState<ClientDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [actionBusy, setActionBusy] = useState<string | null>(null);
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [statusNotice, setStatusNotice] = useState<{ message: string; tone: "ok" | "err" } | null>(
+    null,
+  );
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [actionTone, setActionTone] = useState<"ok" | "err">("ok");
+  const [note, setNote] = useState("");
+  const [giftAmount, setGiftAmount] = useState("10000");
+  const [tabRefreshKey, setTabRefreshKey] = useState(0);
 
-      <div className="flex gap-3">
+  const refreshDetail = useCallback(async () => {
+    const fresh = await apiFetch<ClientDetail>(`/clients/${client.id}`);
+    setDetail(fresh);
+    setTabRefreshKey((current) => current + 1);
+    return fresh;
+  }, [client.id]);
 
-        <Avatar client={data} />
+  useEffect(() => {
+    let cancelled = false;
+    void apiFetch<ClientDetail>(`/clients/${client.id}`)
+      .then((payload) => {
+        if (!cancelled) {
+          setDetail(payload);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDetail(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client.id]);
 
-        <div className="grid flex-1 gap-2 text-sm sm:grid-cols-2">
-
-          <Field label="Email" value={data.email} />
-
-          <Field label="Phone" value={data.phone ?? "—"} />
-
-          <Field label="Client ID" value={data.id} mono />
-
-          <Field label="Date of birth" value={data.dateOfBirth ? formatDateForUi(data.dateOfBirth) : "—"} />
-
-          <Field label="Register date" value={formatDateForUi(data.createdAt)} />
-
-          <Field label="Status" value={data.activity.status} />
-
-          <Field label="Source" value={data.activity.source ?? "—"} />
-
-          <Field label="Preferred coach" value={data.activity.preferredCoach?.name ?? "—"} />
-
-          <Field label="Lifetime value" value={formatAmdFromCents(data.activity.lifetimeValueCents, locale)} />
-
-        </div>
-
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2">
-
-        {data.activity.tags.length === 0 ? <Badge label="No badges" /> : data.activity.tags.map((tag) => <Badge key={tag} label={tag} />)}
-
-      </div>
-
-    </section>
-
+  const initial = useMemo(
+    () => (detail ? clientInitialValues(detail) : null),
+    [detail],
   );
 
-}
+  const validationLabels = useMemo(
+    () => ({
+      emailRequired: t("emailRequired"),
+      emailInvalid: t("emailInvalid"),
+      birthdayInvalid: t("birthdayInvalid"),
+    }),
+    [t],
+  );
 
+  const fallbackInitial = useMemo<ClientEditInitialValues>(
+    () => ({
+      email: client.email,
+      name: client.name ?? "",
+      lastName: client.lastName ?? "",
+      phone: client.phone ?? "",
+      dateOfBirth: client.dateOfBirth ? formatIsoDateToUi(client.dateOfBirth) : "",
+    }),
+    [client.dateOfBirth, client.email, client.lastName, client.name, client.phone],
+  );
 
+  const editForm = useClientEditForm({
+    clientId: client.id,
+    resetKey: detail
+      ? `${client.id}:${detail.email}:${detail.phone}:${detail.dateOfBirth ?? ""}`
+      : client.id,
+    initial: initial ?? fallbackInitial,
+    labels: validationLabels,
+    onSaved: () => {
+      void refreshDetail();
+      onChanged();
+    },
+  });
 
-function SummaryGrid({ client, locale }: { client: ClientRow; locale: string }) {
+  const tabs = CLIENT_SHEET_TAB_ORDER.map((value) => ({
+    value,
+    label: t(`sheetTabs.${value}`),
+  }));
 
-  const values = [
+  const statusLabels = useMemo(
+    () => ({
+      activate: t("activateClient"),
+      deactivate: t("deactivateClient"),
+      saving: t("savingButton"),
+      confirmActivate: t("confirmActivate"),
+      confirmDeactivate: t("confirmDeactivate"),
+      activated: t("activateSuccess"),
+      deactivated: t("deactivateSuccess"),
+      failed: t("genericError"),
+    }),
+    [t],
+  );
 
-    ["Total visits", client.totalVisits],
+  const sheetBusy = editForm.busy || statusBusy || actionBusy !== null;
 
-    ["Total bookings", client.totalBookings],
-
-    ["Cancellations", client.totalCancellations],
-
-    ["No-shows", client.totalNoShows],
-
-    ["Last visit", client.lastVisitDate ? formatDateForUi(client.lastVisitDate) : "—"],
-
-    ["Lifetime value", formatAmdFromCents(client.lifetimeValueCents, locale)],
-
-  ];
-
-  return <div className="grid gap-2 sm:grid-cols-3">{values.map(([label, value]) => <Metric key={label} label={String(label)} value={String(value)} />)}</div>;
-
-}
-
-
-
-function Avatar({ client }: { client: { avatarUrl: string | null; name: string | null; lastName: string | null; email: string } }) {
-
-  const initials = fullName(client).split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("");
-
-  if (client.avatarUrl) {
-
-    return (
-
-      <Image
-
-        src={client.avatarUrl}
-
-        alt=""
-
-        width={64}
-
-        height={64}
-
-        className="h-16 w-16 rounded-full object-cover"
-
-        unoptimized
-
-      />
-
-    );
-
+  function handleClose(): void {
+    if (sheetBusy) {
+      return;
+    }
+    onClose();
   }
 
-  return <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-sand-100 text-lg font-semibold text-sage-800">{initials || "?"}</div>;
+  async function runAction(
+    key: string,
+    action: () => Promise<void>,
+    ok: string,
+  ): Promise<void> {
+    if (actionBusy !== null) {
+      return;
+    }
+    setActionBusy(key);
+    setActionMessage(null);
+    try {
+      await action();
+      setActionTone("ok");
+      setActionMessage(ok);
+      onChanged();
+      await refreshDetail();
+      if (key === "note") {
+        setNote("");
+      }
+    } catch (error) {
+      setActionTone("err");
+      setActionMessage(error instanceof ApiError ? error.message : t("genericError"));
+    } finally {
+      setActionBusy(null);
+    }
+  }
 
+  const toastMessage =
+    editForm.message ?? statusNotice?.message ?? actionMessage ?? null;
+  const toastTone = editForm.message
+    ? editForm.messageTone
+    : statusNotice?.tone ?? actionTone;
+
+  const isActive = !(detail?.activity.isBlocked ?? client.isBlocked);
+
+  return (
+    <OmmDrawerPortal
+      isOpen
+      onClose={handleClose}
+      closeDisabled={sheetBusy}
+      backdropAriaLabel={t("modalBackdropClose")}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_WIDE_DRAWER_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <h2 id={titleId} className={`min-w-0 ${ADMIN_DETAILS_SHEET_TITLE_CLASS}`}>
+            {clientHeaderName(client)}
+          </h2>
+          <AdminClientStatusAction
+            clientId={client.id}
+            isActive={isActive}
+            labels={statusLabels}
+            layout="inline"
+            disabled={editForm.busy || loading}
+            onBusyChange={setStatusBusy}
+            onStatusMessage={(message, tone) => setStatusNotice({ message, tone })}
+            onChanged={() => {
+              void refreshDetail();
+              onChanged();
+            }}
+          />
+        </div>
+      </header>
+
+      <AdminDetailSheetTabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(value) => setActiveTab(value as ClientSheetTabId)}
+      />
+
+      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
+        {toastMessage ? (
+          <AdminCenterToast
+            message={toastMessage}
+            tone={toastTone}
+            onDismiss={() => {
+              editForm.clearMessage();
+              setStatusNotice(null);
+              setActionMessage(null);
+            }}
+          />
+        ) : null}
+
+        {loading || !detail || !initial ? (
+          <p className="text-sm text-sage-600">
+            {loading ? t("drawer.loading") : t("drawer.unavailable")}
+          </p>
+        ) : (
+          <ClientSheetTabPanels
+            activeTab={activeTab}
+            locale={locale}
+            detail={detail}
+            form={editForm.form}
+            errors={editForm.errors}
+            busy={editForm.busy}
+            controller={editForm}
+            giftAmount={giftAmount}
+            note={note}
+            actionBusy={actionBusy}
+            onGiftAmountChange={setGiftAmount}
+            onNoteChange={setNote}
+            onRun={runAction}
+            tabRefreshKey={tabRefreshKey}
+          />
+        )}
+      </div>
+
+      <AdminDetailSheetFormFooter
+        saveLabel={t("saveButton")}
+        cancelLabel={t("cancelButton")}
+        savingLabel={t("savingButton")}
+        dirty={editForm.dirty}
+        busy={editForm.busy}
+        onCancel={editForm.cancelEdits}
+        onSave={() => {
+          void editForm.save(t("updateSuccess"), t("genericError"));
+        }}
+      />
+    </OmmDrawerPortal>
+  );
 }
-
-
-
-function Field({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
-
-  return <p><span className="block text-xs uppercase tracking-wide text-sage-500">{label}</span><span className={mono ? "font-mono text-xs text-sage-800" : "text-sage-800"}>{value}</span></p>;
-
-}
-
-
-
-function Metric({ label, value }: { label: string; value: string }) {
-
-  return <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3"><p className="text-xs uppercase tracking-wide text-sage-500">{label}</p><p className="mt-1 font-semibold text-sage-900">{value}</p></div>;
-
-}
-
-
-
-function Badge({ label }: { label: string }) {
-
-  return <span className="rounded-full border border-sand-200 bg-sand-50 px-2 py-0.5 text-xs font-medium text-sage-800">{label}</span>;
-
-}
-
-

@@ -4,10 +4,11 @@ import type {
   AnalyticsQuickFilterOption,
   AnalyticsRangeDays,
   AnalyticsSortKey,
-  AnalyticsViewMode,
 } from "@/components/admin/admin-analytics-types";
+import { MAX_LIST_PAGE_SIZE } from "@/lib/list-pagination";
 
-export const ANALYTICS_BOOKINGS_SAMPLE_LIMIT = 1000;
+/** Must match API `ListPaginationQueryDto` max (`MAX_LIST_PAGE_SIZE`). */
+export const ANALYTICS_BOOKINGS_SAMPLE_LIMIT = MAX_LIST_PAGE_SIZE;
 
 export const ANALYTICS_QUICK_FILTER_VALUES: readonly AnalyticsQuickFilterOption[] = [
   "today",
@@ -33,10 +34,6 @@ export function parseAnalyticsRangeDays(value?: string): AnalyticsRangeDays {
     return parsed;
   }
   return 30;
-}
-
-export function parseAnalyticsViewMode(value?: string): AnalyticsViewMode {
-  return value === "chart" ? "chart" : "table";
 }
 
 export function parseAnalyticsSortKey(value?: string): AnalyticsSortKey {

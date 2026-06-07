@@ -1,54 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
-import { OmmButton } from "@/components/ui/omm-button";
+import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-
 const ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
-
-/** Synthetic base only for parsing same-origin-style paths (`/media/...`). */
-const HOME_PREVIEW_PATH_BASE = new URL("https://preview-path.invalid");
-
-/**
- * Returns a canonical URL string safe for `<img src>` (relative path or
- * http/https/blob only). Must return a *derived* string so taint does not flow
- * unchanged from user/server input (CodeQL: js/xss-through-dom).
- */
-function sanitizeHomePreviewSrc(src: string): string | null {
-  const trimmed = src.trim();
-  if (trimmed === "") {
-    return null;
-  }
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
-    try {
-      const parsed = new URL(trimmed, HOME_PREVIEW_PATH_BASE);
-      if (parsed.origin !== HOME_PREVIEW_PATH_BASE.origin) {
-        return null;
-      }
-      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
-    } catch {
-      return null;
-    }
-  }
-  let url: URL;
-  try {
-    url = new URL(trimmed);
-  } catch {
-    return null;
-  }
-  if (
-    url.protocol === "https:" ||
-    url.protocol === "http:" ||
-    url.protocol === "blob:"
-  ) {
-    return url.href;
-  }
-  return null;
-}
 
 function readFileAsHomeImageJsonPayload(
   file: File,
@@ -79,44 +39,41 @@ function readFileAsHomeImageJsonPayload(
   });
 }
 
-type Props = {
+type AccountHomeImageFormProps = {
   initialPreviewUrl?: string | null;
+  initials: string;
 };
 
-export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
+/** Profile avatar — hover to choose photo, uploads immediately on select. */
+export function AccountHomeImageForm({
+  initialPreviewUrl,
+  initials,
+}: AccountHomeImageFormProps) {
   const router = useRouter();
   const t = useTranslations("forms.homeImage");
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [file, setFile] = useState<File | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   const rawPreview = objectUrl ?? initialPreviewUrl ?? null;
-  const previewSrc =
-    rawPreview !== null ? sanitizeHomePreviewSrc(rawPreview) : null;
+  const previewSrc = useMemo(
+    () =>
+      rawPreview !== null
+        ? sanitizeImageSrcUrl(rawPreview, { allowBlob: true })
+        : null,
+    [rawPreview],
+  );
+  const previewImgSrc = useMemo(
+    () => (previewSrc !== null ? encodeURI(previewSrc) : null),
+    [previewSrc],
+  );
 
-  function onFileChosen(next: File | null) {
-    if (objectUrl !== null) {
-      URL.revokeObjectURL(objectUrl);
-      setObjectUrl(null);
-    }
-    setFile(next);
-    if (next !== null) {
-      setObjectUrl(URL.createObjectURL(next));
-    }
-  }
-
-  async function upload() {
+  async function uploadFile(file: File) {
     setBusy(true);
     setMsg(null);
     try {
-      if (file === null) {
-        setTone("err");
-        setMsg(t("chooseFirst"));
-        return;
-      }
       if (file.size > MAX_BYTES) {
         setTone("err");
         setMsg(t("tooLarge"));
@@ -127,67 +84,74 @@ export function AccountHomeImageForm({ initialPreviewUrl }: Props) {
         method: "POST",
         body: JSON.stringify(payload),
       });
+      if (objectUrl !== null) {
+        URL.revokeObjectURL(objectUrl);
+      }
+      setObjectUrl(URL.createObjectURL(file));
       setTone("ok");
       setMsg(t("uploadSuccess"));
-      onFileChosen(null);
       router.refresh();
     } catch (e) {
       setTone("err");
       setMsg(e instanceof ApiError ? e.message : t("uploadFailed"));
     } finally {
       setBusy(false);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     }
   }
 
   return (
-    <div className="flex max-w-lg flex-col gap-4">
+    <div className="flex w-full flex-col gap-2">
       <input
         ref={inputRef}
         type="file"
         accept={ACCEPT}
         className="sr-only"
-        onChange={(ev) => {
-          const f = ev.target.files?.[0] ?? null;
-          onFileChosen(f);
+        disabled={busy}
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) {
+            void uploadFile(file);
+          }
         }}
       />
-
-      {previewSrc ? (
-        <div className="relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[24px] border border-white/70 bg-sage-900 shadow-md">
-          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic blob + API URLs */}
-          <img
-            src={previewSrc}
-            alt={t("previewAlt")}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      ) : (
-        <p className="text-sm italic text-sage-500">{t("emptyState")}</p>
-      )}
-
-      <div className="flex flex-wrap gap-3">
-        <OmmButton
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {t("chooseImage")}
-        </OmmButton>
-        <OmmButton
-          type="button"
-          variant="primary"
-          size="sm"
-          disabled={busy || file === null}
-          onClick={() => void upload()}
-        >
-          {busy ? t("uploading") : t("upload")}
-        </OmmButton>
-      </div>
-
+      <button
+        type="button"
+        className="group relative aspect-[4/5] w-full max-w-[280px] overflow-hidden rounded-[24px] border border-white/70 bg-[rgba(212,163,115,0.2)] shadow-[0_16px_40px_-24px_rgba(45,40,35,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-wait disabled:opacity-70 sm:max-w-[300px] lg:max-w-none"
+        aria-label={t("chooseImage")}
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {previewImgSrc ? (
+          previewImgSrc.startsWith("blob:") ? (
+            // eslint-disable-next-line @next/next/no-img-element -- local preview before refresh
+            <img src={previewImgSrc} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <Image
+              src={previewImgSrc}
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 320px, 280px"
+              className="object-cover"
+            />
+          )
+        ) : (
+          <span className="flex h-full w-full items-center justify-center font-serif text-5xl text-sage-700">
+            {initials}
+          </span>
+        )}
+        <span className="absolute inset-0 flex items-center justify-center bg-sage-900/0 px-4 text-center text-sm font-medium text-white opacity-0 transition group-hover:bg-sage-900/45 group-hover:opacity-100 group-focus-visible:bg-sage-900/45 group-focus-visible:opacity-100">
+          {busy ? t("uploading") : t("chooseImage")}
+        </span>
+      </button>
       {msg ? (
-        <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>{msg}</p>
+        <p
+          className={`max-w-[280px] text-sm lg:max-w-none ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}
+        >
+          {msg}
+        </p>
       ) : null}
     </div>
   );

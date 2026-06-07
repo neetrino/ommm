@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -10,7 +11,12 @@ import { StudioService } from './studio.service';
 export class StudioController {
   constructor(private readonly studio: StudioService) {}
 
+  /**
+   * Public studio profile — used by marketing contact page and admin settings RSC.
+   * Skip global throttle to avoid 429 under Next.js dev/prefetch bursts (same as GET /users/me).
+   */
   @Get()
+  @SkipThrottle()
   getPublic() {
     return this.studio.getPublic();
   }

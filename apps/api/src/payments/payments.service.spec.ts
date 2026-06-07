@@ -162,6 +162,42 @@ describe('PaymentsService', () => {
     expect(result.items[0]?.source).toBe('package');
   });
 
+  it('adminListPayments applies q search filter', async () => {
+    const { service, prisma } = createService();
+    await service.adminListPayments({
+      q: 'alice@studio.test',
+      take: 10,
+      offset: 0,
+    });
+
+    type FindManyArgs = {
+      where: {
+        OR: Array<{
+          user?: { email: { contains: string; mode: string } };
+        }>;
+      };
+    };
+
+    const findManyMock = prisma.payment.findMany as jest.Mock<
+      Promise<unknown>,
+      [FindManyArgs]
+    >;
+    expect(findManyMock).toHaveBeenCalledTimes(1);
+    const callArgs = findManyMock.mock.calls[0][0];
+    const emailClause = callArgs.where.OR.find(
+      (clause) => clause.user?.email !== undefined,
+    );
+
+    expect(emailClause).toEqual({
+      user: {
+        email: {
+          contains: 'alice@studio.test',
+          mode: 'insensitive',
+        },
+      },
+    });
+  });
+
   it('createDropInCheckout rejects when session is already booked', async () => {
     const { service, prisma } = createService();
     prisma.classSession.findUnique.mockResolvedValue({

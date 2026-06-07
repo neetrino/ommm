@@ -1,4 +1,5 @@
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
 type GiftCardThumbnailProps = {
   imageUrl: string | null;
@@ -13,13 +14,16 @@ export function GiftCardThumbnail({
   fallbackLabel,
   className,
 }: GiftCardThumbnailProps) {
-  const resolvedImage = resolveApiAssetUrl(imageUrl);
+  const apiImageUrl = resolveApiAssetUrl(imageUrl);
+  const resolvedImage =
+    apiImageUrl !== undefined ? sanitizeImageSrcUrl(apiImageUrl) : null;
+  const imageSrc = resolvedImage !== null ? encodeURI(resolvedImage) : null;
 
-  if (resolvedImage) {
+  if (imageSrc) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- supports API and blob/image URLs
       <img
-        src={resolvedImage}
+        src={imageSrc}
         alt={alt}
         className={className ?? "h-full w-full object-cover"}
       />
@@ -28,9 +32,11 @@ export function GiftCardThumbnail({
 
   return (
     <div
-      className={`flex items-center justify-center bg-gradient-to-br from-sand-100 via-paper to-mint-100 ${className ?? "h-full w-full"}`}
+      className={`flex items-center justify-center bg-gradient-to-br from-sand-50 via-paper to-mint-50 ${className ?? "h-full w-full"}`}
     >
-      <span className="text-xs font-medium text-sage-600">{fallbackLabel}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+        {fallbackLabel}
+      </span>
     </div>
   );
 }

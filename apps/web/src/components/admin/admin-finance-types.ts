@@ -1,6 +1,22 @@
-import type { ClientRow } from "./admin-clients-types";
+export type FinanceSectionId = "overview" | "payments" | "members" | "coaches";
 
-export type FinanceTab = "user" | "coach";
+export type FinanceDateRangeDays = 7 | 30 | 90;
+
+export type FinanceSourceFilter = "all" | "package" | "dropin" | "gift" | "other";
+
+export type FinanceStatusFilter =
+  | "all"
+  | "SUCCEEDED"
+  | "FAILED"
+  | "PENDING"
+  | "REFUNDED";
+
+export type FinanceFilterValues = {
+  q: string;
+  rangeDays: FinanceDateRangeDays;
+  source: FinanceSourceFilter;
+  status: FinanceStatusFilter;
+};
 
 export type FinancePaymentItem = {
   id: string;
@@ -60,6 +76,13 @@ export type CoachSessionRow = {
   _count?: { bookings: number };
 };
 
+export type CoachSessionsPayload = {
+  items: CoachSessionRow[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type UserFinanceFilters = {
   search: string;
   paymentStatus: string;
@@ -76,11 +99,9 @@ export type CoachFinanceFilters = {
   quick: string;
 };
 
-export type AdminFinanceManagementProps = {
-  locale: string;
-  initialTab: FinanceTab;
-  initialUserRows: ClientRow[];
-  initialCoachRows: CoachFinanceRow[];
-  initialPayments: FinancePaymentsPayload;
-  paymentsFrom: string;
+export type CoachFinancePayload = {
+  items: CoachFinanceRow[];
+  total: number;
+  take: number;
+  offset: number;
 };

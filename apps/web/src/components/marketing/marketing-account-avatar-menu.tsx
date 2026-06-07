@@ -1,16 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { LogoutButton } from "@/components/logout-button";
 import { MemberProfileAvatar } from "@/components/shell/member-profile-avatar";
-import { MARKETING_ACCOUNT_MENU_GAP_PX } from "@/components/marketing/marketing-account-menu-constants";
-import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { Link } from "@/i18n/navigation";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
-const MENU_MIN_HEIGHT_PX = 120;
-const FLOATING_MENU_Z_INDEX = 200;
+const HIDE_DELAY_MS = 300;
+const MENU_GAP_PX = 4;
+const MENU_Z_INDEX = 200;
 
 type MarketingAccountAvatarMenuProps = {
   initials: string;
@@ -21,26 +20,9 @@ type MarketingAccountAvatarMenuProps = {
   onAfterSelect?: () => void;
 };
 
-function ProfileMenuGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5 21v-1a7 7 0 0 1 14 0v1" />
-    </svg>
-  );
-}
+type MenuPosition = { top: number; left: number };
 
-/** Logged-in marketing header avatar — click opens profile and logout actions below. */
+/** Logged-in header avatar — click opens dashboard; hover reveals logout below. */
 export function MarketingAccountAvatarMenu({
   initials,
   imageSrc,
@@ -49,126 +31,66 @@ export function MarketingAccountAvatarMenu({
   triggerClassName,
   onAfterSelect,
 }: MarketingAccountAvatarMenuProps) {
-  const tCommon = useTranslations("common");
-  const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const isMounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false,
-  );
-  const profileLabel = tCommon("account");
-  const menuPosition = useFloatingMenuPosition(
-    triggerRef,
-    menuOpen,
-    false,
-    MENU_MIN_HEIGHT_PX,
-    0,
-    "start",
-    MARKETING_ACCOUNT_MENU_GAP_PX,
-  );
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<MenuPosition | null>(null);
 
-  function closeMenu() {
-    setMenuOpen(false);
-    onAfterSelect?.();
+  function openMenu() {
+    clearTimeout(hideTimerRef.current);
+    const rect = rootRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+    setPosition({
+      top: rect.bottom + MENU_GAP_PX,
+      left: rect.left + rect.width / 2,
+    });
+    setOpen(true);
   }
 
-  useEffect(() => {
-    if (!menuOpen) {
-      return undefined;
-    }
+  function closeMenuSoon() {
+    hideTimerRef.current = setTimeout(() => setOpen(false), HIDE_DELAY_MS);
+  }
 
-    const closeOnOutside = (event: MouseEvent) => {
-      if (!(event.target instanceof Node)) {
-        return;
-      }
-      const clickedTrigger = rootRef.current?.contains(event.target) ?? false;
-      const clickedMenu = menuRef.current?.contains(event.target) ?? false;
-      if (!clickedTrigger && !clickedMenu) {
-        setMenuOpen(false);
-      }
-    };
+  const hoverHandlers = {
+    onMouseEnter: openMenu,
+    onMouseLeave: closeMenuSoon,
+  };
 
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-      }
-    };
-
-    const listenerId = window.setTimeout(() => {
-      document.addEventListener("click", closeOnOutside);
-    }, 0);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      window.clearTimeout(listenerId);
-      document.removeEventListener("click", closeOnOutside);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [menuOpen]);
-
-  const floatingMenu =
-    menuOpen && menuPosition !== null && isMounted
-      ? createPortal(
-          <div
-            ref={menuRef}
-            id={menuId}
-            role="menu"
-            aria-label={displayName}
-            className="ommm-marketing-account-menu-panel ommm-marketing-account-menu-panel-floating"
-            style={{
-              position: "fixed",
-              top: menuPosition.top,
-              left: menuPosition.left,
-              width: menuPosition.width,
-              zIndex: FLOATING_MENU_Z_INDEX,
-              transform:
-                menuPosition.placement === "top" ? "translateY(-100%)" : undefined,
-            }}
-          >
-            <Link
-              href={profileHref}
-              role="menuitem"
-              className="ommm-marketing-account-menu-action ommm-marketing-account-menu-profile"
-              aria-label={profileLabel}
-              title={profileLabel}
-              onClick={closeMenu}
-            >
-              <ProfileMenuGlyph className="ommm-marketing-account-menu-action-icon" />
-              <span className="sr-only">{profileLabel}</span>
-            </Link>
-            <LogoutButton
-              className="ommm-marketing-account-menu-action ommm-marketing-account-menu-logout"
-              iconClassName="ommm-marketing-account-menu-action-icon"
-            />
-          </div>,
-          document.body,
-        )
-      : null;
+  useEffect(() => () => clearTimeout(hideTimerRef.current), []);
 
   return (
     <>
-      <div
-        ref={rootRef}
-        className="ommm-marketing-account-menu"
-        data-open={menuOpen ? "true" : "false"}
-      >
-        <button
-          ref={triggerRef}
-          type="button"
+      <div ref={rootRef} className="ommm-marketing-account-menu" {...hoverHandlers}>
+        <Link
+          href={profileHref}
+          prefetch={WORKSPACE_ROUTE_PREFETCH}
           className={triggerClassName}
-          aria-expanded={menuOpen}
-          aria-controls={menuId}
-          aria-haspopup="menu"
           aria-label={displayName}
-          onClick={() => setMenuOpen((open) => !open)}
+          onClick={() => onAfterSelect?.()}
         >
           <MemberProfileAvatar initials={initials} imageSrc={imageSrc} />
-        </button>
+        </Link>
       </div>
-      {floatingMenu}
+      {open && position
+        ? createPortal(
+            <div
+              className="ommm-marketing-account-logout-popover"
+              style={{
+                position: "fixed",
+                top: position.top,
+                left: position.left,
+                transform: "translateX(-50%)",
+                zIndex: MENU_Z_INDEX,
+              }}
+              {...hoverHandlers}
+            >
+              <LogoutButton showLabel className="ommm-marketing-account-logout-btn" />
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }

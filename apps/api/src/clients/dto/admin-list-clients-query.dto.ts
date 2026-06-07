@@ -165,6 +165,11 @@ export class AdminListClientsQueryDto {
   meta?: boolean;
 
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === '1')
+  @IsBoolean()
+  giftCardOnly?: boolean;
+
+  @IsOptional()
   @Transform(({ value }) => (value === undefined ? undefined : Number(value)))
   @IsInt()
   @Min(1)

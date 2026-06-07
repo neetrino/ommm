@@ -10,6 +10,7 @@ export default async function CoachProfilePage({
     <RoleProfilePage
       locale={locale}
       showRole
+      shellChrome="admin"
       workspaceNoteVariant="coach"
     />
   );

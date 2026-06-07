@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role, type User } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -18,6 +19,7 @@ import { BookingsService } from './bookings.service';
 import { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CreateBookingNoteDto } from './dto/create-booking-note.dto';
+import { ListMyBookingsQueryDto } from './dto/list-my-bookings-query.dto';
 import { MoveBookingDto } from './dto/move-booking.dto';
 import { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 
@@ -37,8 +39,11 @@ export class BookingsController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  mine(@CurrentUser() user: { id: string }) {
-    return this.bookings.listMine(user.id);
+  mine(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListMyBookingsQueryDto,
+  ) {
+    return this.bookings.listMine(user.id, query);
   }
 
   @Delete(':id')
@@ -66,7 +71,9 @@ export class BookingsController {
     });
   }
 
+  /** Admin bookings RSC + `router.refresh()` — same burst pattern as `GET /coaches/admin/list`. */
   @Get('admin/management')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)
   adminManagement(

@@ -1,7 +1,15 @@
+import { Transform } from 'class-transformer';
 import { BookingChannel, BookingStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
-export class AdminBookingsManagementQueryDto {
+export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   @IsOptional()
   @IsDateString()
   from?: string;
@@ -23,6 +31,10 @@ export class AdminBookingsManagementQueryDto {
   coachId?: string;
 
   @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsOptional()
   @IsEnum(BookingStatus)
   status?: BookingStatus;
 
@@ -37,4 +49,9 @@ export class AdminBookingsManagementQueryDto {
   @IsOptional()
   @IsString()
   attendanceStatus?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === '1')
+  @IsBoolean()
+  countOnly?: boolean;
 }

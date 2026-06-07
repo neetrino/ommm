@@ -1,3 +1,8 @@
+import type {
+  DeliveriesListFilters,
+  ScheduledListFilters,
+} from "@/components/admin/admin-notifications-url";
+
 export type BroadcastAudience = "users" | "coaches" | "staff" | "all";
 
 export type ScheduledBroadcastStatus = "PENDING" | "SENT" | "FAILED" | "CANCELLED";
@@ -54,10 +59,19 @@ export type NotificationAnalytics = {
   channelBreakdown: Array<{ channel: string; deliveries: number }>;
 };
 
+export type AdminNotificationsListPayload<T> = {
+  items: T[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type AdminNotificationsPayload = {
   stats: NotificationStats;
-  scheduled: ScheduledBroadcast[];
-  deliveries: DeliveryRow[];
+  scheduled: AdminNotificationsListPayload<ScheduledBroadcast>;
+  deliveries: AdminNotificationsListPayload<DeliveryRow>;
+  scheduledFilters: ScheduledListFilters;
+  deliveriesFilters: DeliveriesListFilters;
   analytics: NotificationAnalytics;
   loadErrors: {
     stats: boolean;
@@ -66,3 +80,4 @@ export type AdminNotificationsPayload = {
     analytics: boolean;
   };
 };
+

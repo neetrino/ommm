@@ -11,7 +11,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Express } from 'express';
-import { Prisma } from '@prisma/client';
+import { Prisma, BookingStatus } from '@prisma/client';
 import { sanitizeUser } from '../auth/auth.service';
 import { hashPassword, verifyPassword } from '../common/password-crypto';
 import { isAppUiLocale } from '../common/app-ui-locales';
@@ -102,7 +102,7 @@ export class UsersService {
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.lastName !== undefined) data.lastName = dto.lastName;
     if (dto.phone !== undefined) {
-      const normalizedPhone = dto.phone.trim();
+      const normalizedPhone = (dto.phone ?? '').trim();
       if (normalizedPhone === '') {
         data.phone = null;
       } else {
@@ -380,6 +380,31 @@ export class UsersService {
       `,
     );
     return { ok: true };
+  }
+
+  async deleteOwnAccount(userId: string): Promise<void> {
+    const activeBookings = await this.prisma.booking.count({
+      where: { userId, status: BookingStatus.BOOKED },
+    });
+    if (activeBookings > 0) {
+      throw new BadRequestException(
+        'Cannot delete an account with active bookings. Cancel them first.',
+      );
+    }
+
+    try {
+      await this.prisma.user.delete({ where: { id: userId } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new BadRequestException(
+          'This account has linked records and cannot be deleted. Contact support.',
+        );
+      }
+      throw error;
+    }
   }
 
   async requestAccountDeletion(userId: string, dto: RequestAccountDeletionDto) {

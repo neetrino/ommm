@@ -13,19 +13,10 @@ export const MAX_PACKAGE_SESSIONS = 999;
 export const BILLING_PERIOD_OPTIONS = ["monthly", "session"] as const;
 export type BillingPeriodOption = (typeof BILLING_PERIOD_OPTIONS)[number];
 
+import { parseAmdMoneyInput } from "@/lib/price-amd";
+
 export function parsePriceToCents(raw: string): number | null {
-  const normalized = raw.trim();
-  if (normalized.length === 0) {
-    return null;
-  }
-  if (!/^\d+$/.test(normalized)) {
-    return null;
-  }
-  const amount = Number.parseInt(normalized, 10);
-  if (!Number.isSafeInteger(amount)) {
-    return null;
-  }
-  return amount;
+  return parseAmdMoneyInput(raw);
 }
 
 /** Hides browser increment/decrement controls on number inputs. */

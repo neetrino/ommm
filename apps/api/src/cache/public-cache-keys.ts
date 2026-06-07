@@ -21,9 +21,14 @@ export const PUBLIC_CACHE_KEYS = {
   schedule: publicCacheKey('schedule'),
   coaches: publicCacheKey('coaches'),
   packages: publicCacheKey('packages'),
-  contentPosts: (type?: string) =>
-    publicCacheKey(type ? `content:posts:${type}` : 'content:posts'),
-  contentPost: (slug: string) => publicCacheKey(`content:post:${slug}`),
+  contentPosts: (type?: string, locale?: string) =>
+    publicCacheKey(
+      type
+        ? `content:posts:${type}:${locale ?? 'en'}`
+        : `content:posts:all:${locale ?? 'en'}`,
+    ),
+  contentPost: (slug: string, locale?: string) =>
+    publicCacheKey(`content:post:${slug}:${locale ?? 'en'}`),
   studio: publicCacheKey('studio'),
   contentPrefix: publicCacheKey('content'),
 } as const;

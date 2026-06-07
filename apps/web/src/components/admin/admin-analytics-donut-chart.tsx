@@ -1,0 +1,121 @@
+"use client";
+
+import type { AnalyticsBarItem } from "@/components/admin/admin-analytics-types";
+import { cn } from "@/lib/cn";
+
+const SEGMENT_COLORS = [
+  "#b8956f",
+  "#6b7c6a",
+  "#9bc4b5",
+  "#a8a29e",
+  "#d4c4b7",
+  "#8a9a88",
+] as const;
+
+type AdminAnalyticsDonutLayout = "inline" | "stacked";
+
+type AdminAnalyticsDonutChartProps = {
+  items: readonly AnalyticsBarItem[];
+  emptyLabel: string;
+  ariaLabel: string;
+  layout?: AdminAnalyticsDonutLayout;
+};
+
+function buildConicGradient(
+  items: readonly AnalyticsBarItem[],
+  total: number,
+): string {
+  let cursor = 0;
+  const stops = items.map((item, index) => {
+    const start = cursor;
+    const slice = total > 0 ? (item.value / total) * 100 : 0;
+    cursor += slice;
+    const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+    return `${color} ${start}% ${cursor}%`;
+  });
+  return `conic-gradient(${stops.join(", ")})`;
+}
+
+export function AdminAnalyticsDonutChart({
+  items,
+  emptyLabel,
+  ariaLabel,
+  layout = "inline",
+}: AdminAnalyticsDonutChartProps) {
+  const positiveItems = items.filter((item) => item.value > 0);
+  const total = positiveItems.reduce((sum, item) => sum + item.value, 0);
+  const isStacked = layout === "stacked";
+
+  if (positiveItems.length === 0 || total <= 0) {
+    return <p className="text-sm text-sage-500">{emptyLabel}</p>;
+  }
+
+  const gradient = buildConicGradient(positiveItems, total);
+
+  return (
+    <div
+      className={cn(
+        "flex w-full",
+        isStacked
+          ? "min-h-[228px] flex-col sm:min-h-[248px]"
+          : "flex-col items-center gap-4 sm:flex-row sm:items-center",
+      )}
+    >
+      <div
+        className={cn(
+          isStacked ? "flex flex-1 items-center justify-center py-1" : "contents",
+        )}
+      >
+        <div
+          className={cn(
+            "relative shrink-0 self-center rounded-full aspect-square shadow-inner sm:self-auto",
+            isStacked ? "size-52 sm:size-56 lg:size-60" : "size-40",
+          )}
+          style={{ background: gradient }}
+          role="img"
+          aria-label={ariaLabel}
+        >
+          <div className="absolute inset-[22%] flex aspect-square items-center justify-center rounded-full border border-white/70 bg-white/90 text-center shadow-sm">
+            <span
+              className={cn(
+                "px-2 font-semibold tabular-nums text-sage-800",
+                isStacked ? "text-2xl sm:text-3xl" : "text-xs",
+              )}
+            >
+              {total}
+            </span>
+          </div>
+        </div>
+      </div>
+      <ul
+        className={cn(
+          "w-full min-w-0",
+          isStacked
+            ? "mt-auto grid grid-cols-2 gap-x-4 gap-y-2 rounded-2xl border border-white/60 bg-white/45 px-3 py-2.5"
+            : "flex-1 space-y-2 sm:w-auto",
+        )}
+        aria-hidden
+      >
+        {positiveItems.map((item, index) => {
+          const pct = Math.round((item.value / total) * 100);
+          const display = item.displayValue ?? String(item.value);
+          const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+          return (
+            <li key={item.key} className="flex items-center gap-2 text-xs">
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+              <span className="min-w-0 flex-1 truncate font-medium text-sage-800">
+                {item.label}
+              </span>
+              <span className="shrink-0 tabular-nums text-sage-600">
+                {display} · {pct}%
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}

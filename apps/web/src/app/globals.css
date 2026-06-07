@@ -34,6 +34,14 @@ html {
   --ommm-admin-shadow-soft: 0 12px 32px -24px rgba(45, 40, 35, 0.22);
   --ommm-admin-shadow-nav-active: 0 10px 28px -18px rgba(45, 40, 35, 0.28);
 
+  /* Global header — warm charcoal ink on light surfaces (not pure black). */
+  --ommm-marketing-header-ink-light: var(--color-sage-700);
+  --ommm-marketing-header-ink-light-emphasis: var(--color-sand-700);
+  --ommm-marketing-nav-ink-light: var(--color-sage-700);
+  --ommm-marketing-nav-ink-light-active: var(--color-sand-700);
+  --ommm-marketing-nav-ink-light-hover: var(--color-sage-800);
+  --ommm-marketing-nav-active-bar-light: var(--ommm-admin-olive);
+
   --gradient-wellness:
     linear-gradient(
       169deg,
@@ -287,7 +295,14 @@ html {
   }
 
   .ommm-modal-backdrop {
-    @apply absolute inset-0 z-0 cursor-pointer bg-sage-900/45 backdrop-blur-[2px] transition-opacity hover:bg-sage-900/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+    @apply absolute inset-0 z-0 cursor-pointer bg-sage-900/45 backdrop-blur-[2px] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+  }
+
+  .ommm-drawer-backdrop {
+    @apply absolute inset-0 z-0 cursor-pointer appearance-none border-0 p-0 shadow-none;
+    @apply bg-sage-900/45 backdrop-blur-[2px];
+    @apply hover:bg-sage-900/45 focus:bg-sage-900/45 focus-visible:bg-sage-900/45 active:bg-sage-900/45;
+    @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
   }
 
   .ommm-modal-overlay {
@@ -295,7 +310,7 @@ html {
   }
 
   .ommm-drawer-overlay {
-    @apply fixed inset-0 z-40 flex justify-end;
+    @apply fixed inset-0 z-40 flex justify-end bg-transparent;
   }
 
   .ommm-card {
@@ -328,6 +343,17 @@ html {
   .ommm-input {
     @apply w-full rounded-xl border border-white/70 bg-white/90 px-3 py-2.5 text-sm text-sage-900 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow];
     @apply placeholder:text-sage-500/60 focus:border-sand-500/50 focus:outline-none focus:ring-4 focus:ring-sand-500/15;
+  }
+
+  /* Hide native clear control when a custom clear button is shown beside the field. */
+  .ommm-search-input-no-native-clear::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  .ommm-search-input-no-native-clear::-ms-clear {
+    display: none;
   }
 
   /* Account & marketing list rows */
@@ -412,6 +438,33 @@ html {
     color: var(--ommm-admin-olive);
   }
 
+  /** Compact action — same palette as back-office sidebar (gift card copy, etc.). */
+  .ommm-admin-sidebar-action-button {
+    @apply inline-flex cursor-pointer items-center rounded-xl px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em];
+    background-color: var(--ommm-admin-olive);
+    color: var(--ommm-admin-cream);
+    box-shadow: var(--ommm-admin-shadow-soft);
+    transition:
+      background-color 180ms ease-out,
+      color 180ms ease-out,
+      box-shadow 180ms ease-out;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2;
+    --tw-ring-offset-color: var(--ommm-admin-page);
+  }
+
+  .ommm-admin-sidebar-action-button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--ommm-admin-olive) 90%, #2d2823);
+    color: var(--ommm-admin-cream);
+  }
+
+  .ommm-admin-sidebar-action-button:active:not(:disabled) {
+    background-color: color-mix(in srgb, var(--ommm-admin-olive) 82%, #2d2823);
+  }
+
+  .ommm-admin-sidebar-action-button:disabled {
+    @apply cursor-not-allowed opacity-45;
+  }
+
   .ommm-admin-header-bar {
     @apply mb-0 flex min-h-[5rem] flex-wrap items-center gap-3 rounded-[30px] border border-white/60 bg-white/78 px-4 py-3 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.18)] backdrop-blur-md sm:px-6;
   }
@@ -489,6 +542,26 @@ html {
     transform: translateX(0.75rem);
   }
 
+  .ommm-toggle-switch-board .ommm-toggle-switch-track {
+    @apply h-5 w-9;
+  }
+
+  .ommm-toggle-switch-board .ommm-toggle-switch-knob {
+    @apply h-4 w-4 shadow-none;
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-on .ommm-toggle-switch-knob {
+    transform: translateX(1rem);
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-off .ommm-toggle-switch-track {
+    @apply bg-zinc-300;
+  }
+
+  .ommm-toggle-switch-board.ommm-toggle-switch-on .ommm-toggle-switch-track {
+    background-color: #7cb868;
+  }
+
   .ommm-admin-row-icon-button-danger {
     @apply border-red-200/70 bg-red-50/50 text-red-700 hover:border-red-200 hover:bg-red-50 hover:text-red-900 focus-visible:ring-red-400;
   }
@@ -546,69 +619,20 @@ html {
     @apply inline-flex shrink-0 overflow-visible;
   }
 
-  .ommm-marketing-account-menu[data-open="true"] > button {
-    @apply bg-white/14 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)];
+  .ommm-marketing-account-logout-popover {
+    @apply -mt-2 w-max pt-2;
   }
 
-  .ommm-marketing-account-menu-panel-floating {
-    /* Keep in sync with MARKETING_ACCOUNT_MENU_GAP_PX */
-    --marketing-account-menu-gap: 8px;
-
-    @apply flex flex-col items-center;
-    gap: var(--marketing-account-menu-gap);
-    pointer-events: auto;
+  .ommm-marketing-account-logout-btn {
+    @apply inline-flex cursor-pointer items-center gap-1 rounded-full bg-white/75 px-2 py-1 text-[0.5625rem] font-medium text-sage-700 shadow-sm backdrop-blur-sm;
+    @apply transition-[background-color,box-shadow,transform] duration-200 ease-out;
+    @apply hover:bg-white hover:shadow-[0_4px_14px_-10px_rgba(45,40,35,0.28)] active:scale-[0.98];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/30 focus-visible:ring-offset-1;
+    @apply disabled:pointer-events-none disabled:opacity-45;
   }
 
-  .ommm-marketing-account-menu-action {
-    @apply inline-flex h-[26px] w-[26px] min-h-[26px] min-w-[26px] shrink-0 cursor-pointer select-none items-center justify-center rounded-full border border-white/70 bg-white text-sage-800 backdrop-blur-md;
-    @apply tablet:h-8 tablet:w-8 tablet:min-h-8 tablet:min-w-8 lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-11 nav-desktop:w-11 nav-desktop:min-h-11 nav-desktop:min-w-11;
-    @apply shadow-[0_8px_22px_-10px_rgba(45,40,35,0.38),inset_0_1px_0_rgba(255,255,255,0.95)];
-    @apply transition-[background-color,border-color,box-shadow,color,transform] duration-300 ease-[cubic-bezier(0.34,1.35,0.64,1)];
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent;
-    @apply disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
-    touch-action: manipulation;
-  }
-
-  @media (hover: hover) {
-    .ommm-marketing-account-menu-profile:hover {
-      @apply border-white bg-white text-sage-900 shadow-[0_14px_30px_-12px_rgba(45,40,35,0.45),inset_0_1px_0_#fff];
-    }
-
-    .ommm-marketing-account-menu-logout:hover {
-      @apply border-red-100/90 bg-red-50 text-red-800 shadow-[0_14px_30px_-12px_rgba(127,29,29,0.28),inset_0_1px_0_#fff];
-    }
-  }
-
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .ommm-marketing-account-menu-profile:hover {
-      transform: translateY(-4px) scale(1.08) rotate(-5deg);
-    }
-
-    .ommm-marketing-account-menu-logout:hover {
-      transform: translateY(-4px) scale(1.08) rotate(5deg);
-    }
-
-    .ommm-marketing-account-menu-profile:hover .ommm-marketing-account-menu-action-icon {
-      transform: scale(1.12) rotate(6deg);
-    }
-
-    .ommm-marketing-account-menu-logout:hover svg {
-      transform: scale(1.12) translateX(1px);
-    }
-  }
-
-  .ommm-marketing-account-menu-action:active {
-    @apply shadow-[0_6px_16px_-10px_rgba(45,40,35,0.34),inset_0_1px_0_rgba(255,255,255,0.9)];
-    transform: translateY(0) scale(0.94);
-  }
-
-  .ommm-marketing-account-menu-logout:active {
-    @apply bg-red-100/90 text-red-900;
-  }
-
-  .ommm-marketing-account-menu-action-icon {
-    @apply h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.35,0.64,1)];
-    @apply tablet:h-5 tablet:w-5 lg:h-[1.375rem] lg:w-[1.375rem] nav-desktop:h-6 nav-desktop:w-6;
+  .ommm-marketing-account-logout-btn svg {
+    @apply h-2.5 w-2.5 shrink-0;
   }
 
   .ommm-admin-menu-button {
@@ -717,7 +741,7 @@ html {
 
   .ommm-admin-packages-toolbar-wrap {
     @apply sticky z-[15] -mx-4 bg-[#ede9dd] px-4 pb-3 pt-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8;
-    top: var(--ommm-admin-header-sticky-offset, 7.5rem);
+    top: var(--ommm-marketing-site-header-offset, var(--ommm-admin-header-sticky-offset, 7.5rem));
   }
 
   .ommm-admin-packages-toolbar {
@@ -956,6 +980,79 @@ html {
   .ommm-btn-compact-warm {
     @apply inline-flex cursor-pointer items-center justify-center rounded-full border border-sand-500/45 bg-sand-100/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-sand-700 transition-colors;
     @apply hover:bg-sand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .ommm-btn-lifecycle-action--warm:hover,
+  .ommm-btn-lifecycle-action--danger:hover,
+  .ommm-btn-lifecycle-action--success:hover {
+    @apply shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)]!;
+  }
+
+  .ommm-btn-lifecycle-action--warm:hover {
+    @apply border-sand-500/50! bg-sand-100! text-sand-700!;
+  }
+
+  .ommm-btn-lifecycle-action--warm:focus-visible {
+    @apply ring-sand-500!;
+  }
+
+  .ommm-btn-lifecycle-action--danger:hover {
+    @apply border-red-300! bg-red-100! text-red-800!;
+  }
+
+  .ommm-btn-lifecycle-action--danger:focus-visible {
+    @apply ring-red-500!;
+  }
+
+  .ommm-btn-lifecycle-action--success:hover {
+    @apply border-emerald-300! bg-emerald-100! text-emerald-800!;
+  }
+
+  .ommm-btn-lifecycle-action--success:focus-visible {
+    @apply ring-emerald-500!;
+  }
+
+  .ommm-confirm-dialog--warm {
+    @apply border-sand-500/35 bg-gradient-to-br from-sand-100/95 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(107,92,76,0.38)];
+  }
+
+  .ommm-confirm-dialog--danger {
+    @apply border-red-300/70 bg-gradient-to-br from-red-100/90 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(185,28,28,0.28)];
+  }
+
+  .ommm-confirm-dialog--warm .ommm-btn-lifecycle-action--warm {
+    @apply border-sand-500/50 bg-sand-100 text-sand-700 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-confirm-dialog--danger .ommm-btn-lifecycle-action--danger {
+    @apply border-red-300 bg-red-100 text-red-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-confirm-dialog--success {
+    @apply border-emerald-300/70 bg-gradient-to-br from-emerald-100/90 via-white/92 to-white/80 shadow-[0_30px_70px_-30px_rgba(5,150,105,0.22)];
+  }
+
+  .ommm-confirm-dialog--success .ommm-btn-lifecycle-action--success {
+    @apply border-emerald-300 bg-emerald-100 text-emerald-800 shadow-[0_10px_24px_-16px_rgba(45,40,35,0.35)];
+  }
+
+  .ommm-session-booked-button {
+    @apply inline-flex cursor-default items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] shadow-[0_6px_18px_-12px_rgba(61,107,82,0.14)];
+    background-color: #e2f2e8;
+    color: #3d6b52;
+  }
+
+  .ommm-session-booked-button--sm {
+    @apply px-3 py-1.5 text-[11px] font-semibold tracking-[0.1em];
+  }
+
+  .ommm-session-booked-card {
+    background-color: color-mix(in srgb, #e2f2e8 38%, var(--color-paper));
+    box-shadow: 0 22px 54px -34px rgba(61, 107, 82, 0.16);
+  }
+
+  .ommm-session-booked-row {
+    background-color: color-mix(in srgb, #e2f2e8 34%, white);
   }
 
   .ommm-marketing-card-hover {

@@ -1,10 +1,9 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
-import {
-  AccountPageFrame,
-  AccountSection,
-} from "@/components/layout/account-page-frame";
+import { AccountSection } from "@/components/layout/account-section";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -28,19 +27,21 @@ export default async function CoachNotificationsPage({
 
   if (!res.ok) {
     return (
-      <div className="ommm-container pt-6 sm:pt-8">
-        <div className="app-alert-warn">{t("signIn")}</div>
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">{t("signIn")}</div>
+      </AdminContentFrame>
     );
   }
 
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      <AccountSection title={t("preferences")}>
-        <div className="max-w-md">
-          <NotificationPrefsForm initial={res.data.notificationPrefs} />
-        </div>
-      </AccountSection>
-    </AccountPageFrame>
+    <AdminContentFrame>
+      <StaffListPageLayout title={t("title")} description={t("description")}>
+        <AccountSection title={t("preferences")}>
+          <div className="max-w-md">
+            <NotificationPrefsForm initial={res.data.notificationPrefs} />
+          </div>
+        </AccountSection>
+      </StaffListPageLayout>
+    </AdminContentFrame>
   );
 }

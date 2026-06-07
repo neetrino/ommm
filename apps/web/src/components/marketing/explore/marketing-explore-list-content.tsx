@@ -19,7 +19,9 @@ export async function MarketingExploreListContent({
   locale,
 }: MarketingExploreListContentProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.explore" });
-  const res = await fetchPublicJsonCached<ContentPost[]>("/content/posts");
+  const res = await fetchPublicJsonCached<ContentPost[]>(
+    `/content/posts?locale=${encodeURIComponent(locale)}`,
+  );
 
   if (!res.ok) {
     return (

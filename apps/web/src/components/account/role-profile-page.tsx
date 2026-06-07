@@ -3,13 +3,13 @@ import { getTranslations } from "next-intl/server";
 import { AccountProfileInfoForm } from "@/components/account/account-profile-info-form";
 import { AccountChangePasswordForm } from "@/components/account/account-change-password-form";
 import { AccountHomeImageForm } from "@/components/account/account-home-image-form";
-import {
-  AccountPageFrame,
-  AccountSection,
-} from "@/components/layout/account-page-frame";
+import { DeleteAccountButton } from "@/components/account/delete-account-button";
+import { AccountSection } from "@/components/layout/account-section";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { userDisplayInitials } from "@/lib/user-display-initials";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -26,13 +26,12 @@ type MeResponse = {
   };
 };
 
-type WorkspaceNoteVariant = "admin" | "coach" | "manager";
+type WorkspaceNoteVariant = "admin" | "coach" | "manager" | "contentAdmin";
 
 type RoleProfilePageProps = {
   locale: string;
   showRole?: boolean;
   workspaceNoteVariant?: WorkspaceNoteVariant;
-  /** When set, page title is shown in the dashboard shell header (no duplicate h1). */
   shellChrome?: "member" | "admin";
 };
 
@@ -56,7 +55,8 @@ export async function RoleProfilePage({
   }
 
   const { user } = res.data;
-  const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null);
+  const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null) ?? null;
+  const initials = userDisplayInitials(user.name, user.lastName, user.email);
   const workspaceHeading =
     workspaceNoteVariant !== undefined
       ? tStaff(`workspace.${workspaceNoteVariant}.heading`)
@@ -67,40 +67,52 @@ export async function RoleProfilePage({
       : null;
 
   const body = (
-      <div className="max-w-4xl space-y-10">
-        <AccountSection title={t("accountInfo")}>
-          <AccountProfileInfoForm initialUser={user} showRole={showRole} />
-        </AccountSection>
+    <div className="w-full space-y-8">
+      <AccountSection title={t("accountInfo")}>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+          <div className="mx-auto w-full max-w-[300px] lg:col-span-4 lg:mx-0 lg:max-w-none xl:col-span-3">
+            <AccountHomeImageForm
+              initialPreviewUrl={homePreviewUrl}
+              initials={initials}
+            />
+          </div>
+          <div className="min-w-0 lg:col-span-8 xl:col-span-9">
+            <AccountProfileInfoForm initialUser={user} showRole={showRole} />
+          </div>
+        </div>
+      </AccountSection>
 
-        <AccountSection title={t("security")}>
-          <AccountChangePasswordForm hasPassword={user.hasPassword} />
-        </AccountSection>
+      <AccountSection title={t("security")}>
+        <AccountChangePasswordForm hasPassword={user.hasPassword} embedded />
+      </AccountSection>
 
-        <AccountSection title={t("homeImage")}>
-          <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
+      {workspaceHeading !== null && workspaceBody !== null ? (
+        <AccountSection title={workspaceHeading}>
+          <p className="ommm-body-muted text-sm">{workspaceBody}</p>
         </AccountSection>
+      ) : null}
 
-        {workspaceHeading !== null && workspaceBody !== null ? (
-          <AccountSection title={workspaceHeading}>
-            <p className="ommm-body-muted">{workspaceBody}</p>
-          </AccountSection>
-        ) : null}
-      </div>
+      <DeleteAccountButton />
+    </div>
   );
 
   if (shellChrome === "admin" || workspaceNoteVariant === "admin") {
     return (
-      <AdminContentFrame description={t("description")}>{body}</AdminContentFrame>
+      <AdminContentFrame>
+        <div className="space-y-4">
+          <AdminPageHero title={t("title")} description={t("description")} />
+          {body}
+        </div>
+      </AdminContentFrame>
     );
   }
-  if (shellChrome === "member") {
-    return (
-      <MemberContentFrame description={t("description")}>{body}</MemberContentFrame>
-    );
-  }
+
   return (
-    <AccountPageFrame title={t("title")} description={t("description")}>
-      {body}
-    </AccountPageFrame>
+    <MemberContentFrame>
+      <div className="space-y-4">
+        <AdminPageHero title={t("title")} description={t("description")} />
+        {body}
+      </div>
+    </MemberContentFrame>
   );
 }

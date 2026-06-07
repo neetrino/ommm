@@ -1,0 +1,44 @@
+.viewport {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-auto-flow: column;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  container-type: inline-size;
+  touch-action: pan-x;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.viewport:active .card {
+  transition: none;
+}
+
+.dayNumber {
+  font-size: clamp(2rem, 44cqi, 3.5rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}

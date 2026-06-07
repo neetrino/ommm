@@ -41,12 +41,7 @@
   },
   "language": {
     "switcherAria": "Interface language",
-    "expandPicker": "Open language menu",
-    "optionNames": {
-      "hy": "Հայերեն",
-      "en": "English",
-      "ru": "Русский"
-    }
+    "expandPicker": "Open language menu"
   },
   "home": {
     "bookNow": "Book now",
@@ -454,6 +449,7 @@
         "classes": "Classes",
         "schedule": "Schedule",
         "bookings": "My bookings",
+        "waitlists": "Waitlists",
         "packages": "Packages",
         "payments": "Payments",
         "giftCards": "Gift cards",
@@ -472,6 +468,7 @@
       },
       "MANAGER": {
         "home": "Home",
+        "schedule": "Schedule",
         "classes": "Classes",
         "bookings": "Bookings",
         "waitlists": "Waitlists",
@@ -483,6 +480,7 @@
       "CONTENT_ADMIN": {
         "home": "Home",
         "content": "Content",
+        "notifications": "Notifications",
         "profile": "Profile"
       },
       "ADMIN": {
@@ -535,6 +533,7 @@
         "classes": "Browse and book sessions.",
         "schedule": "Browse the weekly schedule and book your next session.",
         "bookings": "Upcoming and past reservations.",
+        "waitlists": "Your queue positions for full classes.",
         "packages": "Active packages, plans, and payment history.",
         "payments": "Your payment history and transaction details.",
         "giftCards": "Balances and redemption.",
@@ -640,6 +639,18 @@
     "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
+    "pagination": {
+      "ariaLabel": "List pagination",
+      "empty": "No results",
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "prevAria": "Previous page",
+      "nextAria": "Next page",
+      "pagesAria": "Pages",
+      "pageSizeAria": "Results per page",
+      "pageSizeLabel": "{size} per page"
+    },
     "packages": {
       "title": "Packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
@@ -684,9 +695,7 @@
         "PENDING": "Pending payment"
       },
       "membershipViewDetailsHint": "Tap for full details",
-      "membershipDetailsLead": "Review your package details and manage your subscription.",
       "membershipDetailsCloseBackdrop": "Close package details",
-      "membershipDetailsClose": "Close",
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Category",
       "membershipDetailsPrice": "Price",
@@ -698,6 +707,7 @@
       "membershipDetailsSessionsRemaining": "Sessions remaining",
       "membershipDetailsUsage": "Usage",
       "membershipDetailsPeriodStart": "Period start",
+      "sheetTabGeneral": "General",
       "sessionsUsed": "{count} used",
       "viewSwitcherAria": "Packages display mode",
       "viewList": "List",
@@ -710,7 +720,16 @@
       "listHeaderPrice": "Price",
       "listHeaderSessions": "Sessions",
       "listHeaderPeriod": "Period",
-      "listHeaderStatus": "Status"
+      "listHeaderStatus": "Status",
+      "listHeaderActions": "Actions",
+      "filteredEmptyTitle": "No packages match your filters",
+      "filteredEmptyDescription": "Try adjusting the status or search term.",
+      "filters": {
+        "searchPlaceholder": "Search package or category…",
+        "status": "Status",
+        "statusAll": "All statuses",
+        "resetFilters": "Reset filters"
+      }
     },
     "progress": {
       "title": "Progress",
@@ -739,13 +758,15 @@
     },
     "bookings": {
       "title": "My bookings",
+      "description": "Upcoming and past reservations.",
       "upcoming": "Upcoming",
       "pastOther": "Past and other",
-      "waitlists": "Waitlists",
-      "waitlistsLoadError": "Could not load waitlists.",
-      "waitlistsEmpty": "No active waitlists.",
-      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Nothing here yet.",
+      "emptyTitle": "No bookings yet",
+      "emptyDescription": "When you book a class, it will appear here.",
+      "filteredEmptyTitle": "No bookings match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or status.",
+      "filteredEmptySection": "No matches in this section.",
       "signInRequired": "Sign in to see your bookings.",
       "loadError": "Could not load bookings ({status}).",
       "viewSwitcherAria": "Bookings display mode",
@@ -753,10 +774,56 @@
       "viewBoard": "Board",
       "bookingsCount": "{count, plural, one {# booking} other {# bookings}}",
       "listHeaderClass": "Class",
+      "listHeaderDate": "Date",
       "listHeaderTime": "Time",
       "listHeaderStatus": "Status",
       "listHeaderActions": "Actions",
-      "coachFallback": "Coach"
+      "coachFallback": "Coach",
+      "filters": {
+        "searchPlaceholder": "Search class, coach, or status…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "coachAll": "All coaches",
+        "status": "Status",
+        "statusAll": "All statuses",
+        "resetFilters": "Reset filters"
+      },
+      "status": {
+        "BOOKED": "Booked",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "MISSED": "Missed"
+      }
+    },
+    "waitlists": {
+      "title": "Waitlists",
+      "description": "Active queue positions for classes that are currently full.",
+      "emptyTitle": "No active waitlists",
+      "emptyDescription": "When you join a waitlist for a full class, it will appear here.",
+      "signInRequired": "Sign in to see your waitlists.",
+      "loadError": "Could not load waitlists.",
+      "waitlistsCount": "{count, plural, one {# waitlist} other {# waitlists}}",
+      "waitlistBadge": "#{pos} · {status}",
+      "viewSwitcherAria": "Waitlists display mode",
+      "viewList": "List",
+      "viewBoard": "Board",
+      "listHeaderClass": "Class",
+      "listHeaderDate": "Date",
+      "listHeaderTime": "Time",
+      "listHeaderStatus": "Status",
+      "listHeaderActions": "Actions",
+      "coachFallback": "Coach",
+      "filteredEmptyTitle": "No waitlists match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, or coach.",
+      "filters": {
+        "searchPlaceholder": "Search class or coach…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "coachAll": "All coaches",
+        "resetFilters": "Reset filters"
+      }
     },
     "classes": {
       "title": "Classes",
@@ -773,10 +840,26 @@
       "viewBoard": "Board",
       "sessionsCount": "{count, plural, one {# session} other {# sessions}}",
       "listHeaderClass": "Class",
+      "listHeaderDate": "Date",
       "listHeaderTime": "Time",
       "listHeaderCoach": "Coach",
       "listHeaderSpots": "Spots",
-      "listHeaderActions": "Actions"
+      "listHeaderActions": "Actions",
+      "bookedBadge": "Booked",
+      "filteredEmptyTitle": "No sessions match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or availability.",
+      "filters": {
+        "searchPlaceholder": "Search class or coach…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "coachAll": "All coaches",
+        "availability": "Availability",
+        "availabilityAll": "Any availability",
+        "availabilityAvailable": "Spots available",
+        "availabilityFull": "Full / waitlist",
+        "resetFilters": "Reset filters"
+      }
     },
     "notifications": {
       "title": "Notifications",
@@ -786,9 +869,22 @@
     },
     "giftCards": {
       "title": "Gift cards",
+      "giftBalanceLabel": "Gift balance",
       "giftBalance": "Gift balance (credits): {amount}",
       "redeem": "Redeem",
       "purchase": "Purchase",
+      "myCardsHeading": "My gift cards",
+      "emptyMyTitle": "No gift cards yet",
+      "emptyMyDescription": "Gift cards you buy or receive will appear here with a label showing how you got them.",
+      "sourceLabels": {
+        "purchased": "Purchased",
+        "received": "Gift"
+      },
+      "tabs": {
+        "aria": "Gift cards sections",
+        "my": "My cards",
+        "shop": "Buy"
+      },
       "purchasedHeading": "Purchased",
       "receivedHeading": "Received",
       "signInToView": "Sign in to view.",
@@ -813,12 +909,7 @@
       "cardMessage": "Message",
       "viewDetails": "View details",
       "openCardAria": "View gift card details for {amount}",
-      "detailsModalEyebrow": "Gift card",
-      "detailsModalLead": "Balance {balance} · tap below to copy your code or redeem credits.",
-      "detailsModalInfoHeading": "Card information",
-      "detailsModalActionsHeading": "Actions",
-      "modalCloseAria": "Close",
-      "modalBackdropClose": "Close dialog",
+      "sheetBackdropClose": "Close gift card details",
       "drawerExpired": "Expired",
       "drawerValid": "Valid",
       "copyCode": "Copy code",
@@ -899,7 +990,9 @@
         "allStatuses": "All statuses",
         "type": "Payment type",
         "allTypes": "All types",
-        "sort": "Sort"
+        "sort": "Sort",
+        "searchPlaceholder": "Search payments…",
+        "resetFilters": "Reset filters"
       },
       "sort": {
         "newest": "Newest first",
@@ -918,9 +1011,17 @@
         "gift": "Gift card",
         "other": "Other"
       },
+      "paymentMethods": {
+        "CASH": "Cash",
+        "CARD": "Card",
+        "BANK_TRANSFER": "Bank transfer",
+        "OTHER": "Other"
+      },
       "table": {
-        "date": "Payment date",
+        "date": "Date",
+        "time": "Time",
         "amount": "Amount",
+        "paymentMethod": "Payment method",
         "currency": "Currency",
         "status": "Status",
         "type": "Type",
@@ -935,11 +1036,26 @@
     },
     "profile": {
       "title": "Profile",
-      "description": "Your account details, security, home image, and notification preferences.",
+      "description": "Your personal details, password, and profile photo.",
+      "heroEyebrow": "Your account",
+      "accountInfoEyebrow": "Personal",
+      "securityEyebrow": "Protection",
+      "homeImageEyebrow": "Visual",
+      "homeImageLead": "This portrait appears in your member space and header avatar.",
+      "deleteAccountEyebrow": "Support",
+      "workspaceEyebrow": "Workspace",
       "signInPrompt": "Sign in to view your profile.",
       "accountInfo": "Account information",
       "security": "Security",
       "homeImage": "Home image",
+      "deleteAccount": "Delete account",
+      "deleteAccountConfirmTitle": "Delete your account?",
+      "deleteAccountConfirmDescription": "This permanently removes your account and signs you out. This cannot be undone.",
+      "deleteAccountConfirmYes": "Delete account",
+      "deleteAccountConfirmNo": "Cancel",
+      "deleteAccountBackdropClose": "Close delete account dialog",
+      "deleteAccountDeleting": "Deleting…",
+      "deleteAccountFailed": "Could not delete account.",
       "preferences": "Preferences",
       "labels": {
         "email": "Email",
@@ -1054,6 +1170,32 @@
       "pageDescription": "Fast operational overview of classes, bookings, members, revenue, and alerts.",
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load dashboard data ({status}).",
+      "kpi": {
+        "groupOperations": "Operations",
+        "groupFinance": "Revenue",
+        "sessions": "Classes today",
+        "bookings": "Bookings today",
+        "members": "Active members",
+        "revenue": "Revenue this month",
+        "waitlist": "Waitlist",
+        "alerts": "Alerts",
+        "newUsers": "New users today"
+      },
+      "charts": {
+        "revenueTitle": "Revenue trend",
+        "revenueHint": "Last 7 days",
+        "revenueSeries": "Revenue",
+        "revenueChartAria": "Daily revenue trend for the last seven days",
+        "bookingsTitle": "Bookings trend",
+        "bookingsHint": "Last 7 days",
+        "bookingsSeries": "Bookings",
+        "completedSeries": "Completed",
+        "bookingsChartAria": "Daily bookings trend for the last seven days",
+        "todayBookingsTitle": "Today's bookings",
+        "todayBookingsAria": "Breakdown of today's bookings by status",
+        "viewAnalytics": "Full analytics",
+        "empty": "No data for this period yet."
+      },
       "cards": {
         "todayClasses": {
           "title": "Today's Classes",
@@ -1099,6 +1241,12 @@
       },
       "todayBookings": {
         "title": "Today's bookings breakdown",
+        "statusLabels": {
+          "booked": "Confirmed",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "missed": "Missed"
+        },
         "breakdown": {
           "booked": "Confirmed: {count}",
           "completed": "Completed: {count}",
@@ -1111,7 +1259,12 @@
         "today": "Today",
         "thisMonth": "This month",
         "pending": "Pending payments",
+        "pendingWithCount": "Pending payments · {count}",
+        "pendingCount": "{count} payments",
         "pendingValue": "{count} ({amount})",
+        "trendLabel": "Vs previous month",
+        "trendValue": "{percent}%",
+        "trendUnavailable": "—",
         "trend": "{percent}% vs previous month",
         "empty": "No revenue data available yet."
       },
@@ -1145,6 +1298,25 @@
     }
   },
   "adminPages": {
+    "searchTools": {
+      "applyFilters": "Apply filters",
+      "clearSearchAndFilters": "Clear search and filters",
+      "filterPanelAria": "Search filters",
+      "loadingResults": "Loading matching results…",
+      "activeCount": "{count} active filters"
+    },
+    "pagination": {
+      "ariaLabel": "List pagination",
+      "empty": "No results",
+      "range": "Showing {from}–{to} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "prevAria": "Previous page",
+      "nextAria": "Next page",
+      "pagesAria": "Pages",
+      "pageSizeAria": "Results per page",
+      "pageSizeLabel": "{size} per page"
+    },
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."
     },
@@ -1160,9 +1332,10 @@
       "colActions": "Actions",
       "colUserPhone": "User / Phone",
       "colClassType": "Class type",
+      "colDateTime": "Date & time",
       "colSessionCount": "Session count",
-      "colPaymentStatus": "Payment status",
-      "colAttendanceStatus": "Attendance status",
+      "colPaymentStatus": "Payment",
+      "colAttendanceStatus": "Attendance",
       "colRegisterDate": "Register date",
       "colChannel": "Channel",
       "summaryTotal": "Total bookings",
@@ -1184,10 +1357,15 @@
       "viewMonthly": "Monthly view",
       "viewWeekly": "Weekly view",
       "viewDaily": "Daily view",
+      "views": {
+        "aria": "Bookings view"
+      },
       "statusBooked": "Booked",
       "statusCompleted": "Completed",
       "statusCancelled": "Cancelled",
       "statusWaitlisted": "Waitlisted",
+      "statusMissed": "Missed",
+      "changeStatusAria": "Change status — current: {status}",
       "paymentPaid": "Paid",
       "paymentCash": "Cash",
       "paymentUnpaid": "Unpaid",
@@ -1202,9 +1380,11 @@
       "actionCancel": "Cancel booking",
       "actionMove": "Move user to another class",
       "actionMarkAttended": "Mark as attended",
+      "actionConfirm": "Confirm",
       "actionAddNote": "Add internal note",
       "actionEdit": "Edit",
       "actionDelete": "Delete",
+      "rowActionsAria": "More booking actions",
       "actionFailed": "Action failed",
       "successMarkedAttended": "Attendance updated",
       "successCancelled": "Booking cancelled",
@@ -1212,8 +1392,17 @@
       "successMoved": "Booking moved",
       "successEdited": "Booking updated",
       "successDeleted": "Booking deleted",
+      "confirmAttendedTitle": "Mark attended?",
+      "confirmAttended": "Booking will be marked as completed.",
+      "confirmCancelTitle": "Cancel booking?",
       "confirmCancel": "Cancel this booking?",
+      "confirmDeleteTitle": "Delete booking?",
       "confirmDelete": "Delete this booking permanently? This cannot be undone.",
+      "confirmDialogYes": "Yes",
+      "confirmDialogCancel": "Cancel",
+      "confirmDialogDelete": "Delete",
+      "confirmDialogNo": "No",
+      "confirmDialogBackdrop": "Close confirmation dialog",
       "promptNote": "Internal note",
       "promptMove": "Target session ID",
       "promptEditStatus": "Booking status (BOOKED, COMPLETED, CANCELLED)",
@@ -1221,6 +1410,24 @@
       "sessionNotTracked": "Not tracked",
       "userDetailsTitle": "Client details",
       "bookingDetailsTitle": "Booking details",
+      "bookingDetailsLead": "Review booking details, notes, and manage this reservation.",
+      "bookingDetailsCloseBackdrop": "Close booking details",
+      "bookingDetailsClose": "Close",
+      "bookingDetailsLoading": "Loading booking details…",
+      "bookingDetailsClient": "Client",
+      "bookingDetailsEmail": "Email",
+      "bookingDetailsPhone": "Phone",
+      "bookingDetailsClass": "Class",
+      "bookingDetailsCoach": "Coach",
+      "bookingDetailsSessionTime": "Session time",
+      "bookingDetailsBookedOn": "Booked on",
+      "bookingDetailsNotes": "Internal notes",
+      "bookingDetailsNoNotes": "No internal notes yet.",
+      "noteComposeLabel": "Internal note",
+      "noteComposePlaceholder": "Write an internal note for this booking…",
+      "noteComposeHint": "Visible to staff only.",
+      "noteComposeSubmit": "Add note",
+      "viewDetailsFor": "View booking details for {name}",
       "emptyUserData": "No user data found.",
       "emptyBookingData": "No booking data found.",
       "packageInfo": "Package",
@@ -1235,6 +1442,11 @@
       "errorAuth": "Manager or admin sign-in required.",
       "errorLoad": "Could not load clients ({status}).",
       "colName": "Name",
+      "colTags": "Labels",
+      "tagVip": "VIP",
+      "tagNew": "New",
+      "tagAtRisk": "At Risk",
+      "tagBeginner": "Beginner",
       "colEmail": "Email",
       "colRole": "Role",
       "colJoined": "Joined",
@@ -1242,9 +1454,8 @@
       "colActions": "Actions",
       "packageActiveBadge": "Active",
       "packageInactiveBadge": "No active",
+      "statusInactive": "Inactive",
       "editClient": "Edit client",
-      "editModalTitle": "Edit client",
-      "editModalDescription": "Update the selected client details.",
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
       "fieldEmail": "Email",
@@ -1265,10 +1476,48 @@
       "deactivateClient": "Deactivate",
       "activateSuccess": "Client activated",
       "deactivateSuccess": "Client deactivated",
+      "confirmActivate": "Activate this client?",
+      "confirmDeactivate": "Deactivate this client? They will be blocked from booking.",
+      "sheetTabs": {
+        "profile": "Profile",
+        "bookings": "Bookings",
+        "payments": "Payments",
+        "gifts": "Gift cards",
+        "notes": "Notes"
+      },
+      "drawer": {
+        "loading": "Loading client data…",
+        "unavailable": "Client data unavailable.",
+        "registered": "Registered",
+        "source": "Source",
+        "preferredCoach": "Preferred coach",
+        "noTags": "No labels",
+        "personalInfo": "Personal info",
+        "totalVisits": "Total visits",
+        "totalBookings": "Total bookings",
+        "cancellations": "Cancellations",
+        "noShows": "No-shows",
+        "lastVisit": "Last visit",
+        "lifetimeValue": "Lifetime value",
+        "bookingHistory": "Booking history",
+        "noBookings": "No bookings.",
+        "paymentHistory": "Payment history",
+        "noPayments": "No payments.",
+        "giftCards": "Gift cards",
+        "noGiftCards": "No gift cards.",
+        "giveGift": "Give gift card",
+        "giveGiftButton": "Give gift",
+        "giftAmountAria": "Gift card amount in cents",
+        "giftCreated": "Gift card created",
+        "noNotes": "No notes yet.",
+        "cancelled": "Cancelled",
+        "attended": "Attended"
+      },
       "deleteClient": "Delete client",
       "deleteConfirm": "Delete this client permanently? This cannot be undone.",
       "deleteSuccess": "Client deleted",
       "noteLabel": "Internal note",
+      "emptyList": "No clients match the current search and filters.",
       "notePlaceholder": "Write a note for this client",
       "addNote": "Add note",
       "noteAddedSuccess": "Note added",
@@ -1296,6 +1545,9 @@
       "colEmail": "Email",
       "colPhone": "Phone",
       "colSpecialization": "Specialization",
+      "colTags": "Labels",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
       "colActions": "Actions",
       "viewSwitcherAria": "Coaches display mode",
       "viewList": "List",
@@ -1324,8 +1576,6 @@
       },
       "addCoachButton": "Add Coach",
       "editCoach": "Edit coach",
-      "editModalTitle": "Edit coach",
-      "editModalDescription": "Update the selected coach details.",
       "fieldEmail": "Email",
       "fieldName": "First name",
       "fieldLastName": "Surname",
@@ -1345,6 +1595,10 @@
       "fieldScheduleRemove": "Remove",
       "fieldPhoto": "Photo",
       "fieldPhotoChoose": "Choose photo",
+      "fieldPhotoUploading": "Uploading…",
+      "fieldPhotoUploadSuccess": "Photo updated.",
+      "fieldPhotoRemove": "Remove photo",
+      "fieldPhotoRemoveSuccess": "Photo removed.",
       "fieldPhotoPlaceholder": "Or paste photo URL",
       "fieldPhotoPreviewAlt": "Coach photo preview",
       "fieldPhotoHint": "Upload JPG/JPEG/PNG/WEBP (up to 10 MB).",
@@ -1405,6 +1659,13 @@
         "profile": "Profile",
         "actions": "Admin actions",
         "spots": "{count} spots"
+      },
+      "sheetTabs": {
+        "overview": "Overview",
+        "profile": "Profile",
+        "details": "Coach details",
+        "classes": "Classes",
+        "schedule": "Schedule"
       },
       "create": {
         "panelTitle": "Add Coach",
@@ -1478,6 +1739,11 @@
       "previousDay": "Previous day",
       "nextDay": "Next day",
       "today": "Today",
+      "weekView": {
+        "gridAria": "Weekly schedule by day",
+        "todayBadge": "Today",
+        "emptyDay": "—"
+      },
       "createTitle": "Add Schedule Item",
       "createDescription": "Create a public schedule card. It appears on Home and Schedule pages.",
       "editTitle": "Edit Schedule Item",
@@ -1572,17 +1838,9 @@
       "coachFallback": "Coach",
       "addClassButton": "Add Class",
       "classTypes": {
-        "manageButton": "Add Class Types",
-        "revealButtonAria": "Show Add Class Types",
-        "hideButtonAria": "Hide Add Class Types",
         "modalTitle": "Class types",
-        "modalDescription": "Create, edit, and manage the studio's class type catalog.",
-        "modalCloseAria": "Close",
         "modalBackdropClose": "Close dialog",
-        "listHeading": "Catalog",
         "addButton": "Add type",
-        "editButtonAria": "Edit {name}",
-        "deleteButtonAria": "Delete {name}",
         "emptyTitle": "No class types yet",
         "emptyBody": "Use Add type above to create your first one — for example Reformer, Yoga, or Mat Pilates.",
         "formCreateTitle": "New class type",
@@ -1594,7 +1852,6 @@
         "sessionCountNone": "no classes",
         "linkedSessionsHint": "{count} scheduled classes use this type. Reassign or remove them before deleting.",
         "deleteButton": "Delete",
-        "deleteConfirm": "Delete class type \"{name}\"?",
         "deleteDialog": {
           "title": "Delete class type",
           "description": "Delete \"{name}\" from the catalog? This cannot be undone.",
@@ -1617,6 +1874,12 @@
         "nameDuplicate": "A class type with this name already exists.",
         "slugInvalid": "Slug is invalid — use letters and numbers.",
         "descriptionTooLong": "Description is too long.",
+        "sheetTabs": {
+          "details": "Details",
+          "usage": "Usage"
+        },
+        "usageHeading": "Scheduled classes",
+        "usageEmpty": "No scheduled classes use this type yet.",
         "messages": {
           "createSuccess": "Class type created.",
           "updateSuccess": "Class type updated.",
@@ -1632,11 +1895,20 @@
       "duplicateDescription": "Create a new class from an existing one and adjust date/time before save.",
       "modalCloseAria": "Close",
       "modalBackdropClose": "Close dialog",
+      "sheetTabs": {
+        "details": "Details",
+        "bookings": "Bookings",
+        "actions": "Actions",
+        "bookingsHeading": "Capacity & attendance",
+        "bookingsEmpty": "No bookings for this class yet."
+      },
       "emptyCoaches": "No coaches available. Add coaches before creating classes.",
       "emptySessions": "No classes match your current filters.",
-      "confirmCancel": "Cancel this class?",
-      "confirmActivate": "Activate this class?",
       "deleteConfirm": "Delete this class session? This cannot be undone.",
+      "confirmDeleteTitle": "Delete class session",
+      "confirmDialogNo": "No",
+      "confirmDialogDelete": "Delete",
+      "confirmDialogBackdrop": "Close confirmation dialog",
       "confirm": {
         "cancelTitle": "Cancel class",
         "cancelDescription": "This class will be marked as cancelled. You can activate it again later.",
@@ -1689,6 +1961,7 @@
       },
       "fields": {
         "duration": "Duration",
+        "spotsBooked": "{booked}/{capacity} booked",
         "spotsLeft": "{count} spots left"
       },
       "actions": {
@@ -1714,10 +1987,12 @@
       },
       "colClass": "Class",
       "colDate": "Date",
+      "colDateTime": "Date & time",
       "colTime": "Time",
       "colCoach": "Coach",
       "colCapacity": "Capacity",
       "colLevel": "Level",
+      "colTags": "Labels",
       "colType": "Type",
       "colPriceOrSessions": "Price / Sessions",
       "colStatus": "Status",
@@ -1829,11 +2104,7 @@
       "colCreated": "Created",
       "colExpiration": "Expiration",
       "colActions": "Actions",
-      "openActions": "Open actions",
       "openCardAria": "View gift card details for {amount}",
-      "detailsModalTitle": "Gift card details",
-      "detailsModalEyebrow": "Gift card",
-      "detailsModalLead": "{available} available · review details and manage actions below.",
       "detailsModalInfoHeading": "Card information",
       "cardImageAlt": "Gift-card image",
       "cardImageFallback": "Gift card",
@@ -1842,9 +2113,16 @@
       "viewBoard": "Board",
       "activateGiftCard": "Activate",
       "deactivateGiftCard": "Deactivate",
+      "confirmActivate": "Activate this gift card?",
+      "sheetTabs": {
+        "overview": "Overview",
+        "actions": "Actions",
+        "history": "History"
+      },
       "createButton": "Create gift card",
       "createTitle": "Create gift card",
       "editTitle": "Edit gift card",
+      "boardEditButton": "Edit",
       "createDescription": "Issue a gift card manually. An email is sent when a recipient address is provided.",
       "createHeading": "Create gift card",
       "modalCloseAria": "Close",
@@ -1881,8 +2159,6 @@
       "savingButton": "Creating…",
       "cancelButton": "Cancel",
       "genericError": "Action failed.",
-      "drawerClose": "Close details",
-      "drawerExpirationState": "Expiration state",
       "drawerExpired": "Expired",
       "drawerValid": "Valid",
       "statusValues": {
@@ -1934,6 +2210,8 @@
         "assigned": "Gift card assigned.",
         "history": "Redemption history",
         "historyLoaded": "History loaded.",
+        "historyLoading": "Loading history…",
+        "historyEmpty": "No redemption events yet.",
         "historyTitle": "Redemption history",
         "historyClose": "Close history",
         "historySummary": "Amount: {amount} • Balance: {balance}",
@@ -1942,6 +2220,7 @@
         "deactivate": "Deactivate",
         "activated": "Gift card activated.",
         "delete": "Delete",
+        "deleting": "Deleting…",
         "deactivateConfirm": "Deactivate this gift card? It can no longer be redeemed.",
         "deleteConfirm": "Delete this gift card permanently?",
         "resent": "Gift card email resent.",
@@ -2225,6 +2504,9 @@
       "colWaitlistCount": "Class waitlist count",
       "colWaitlistDate": "Waitlist date",
       "colActions": "Actions",
+      "filterSearch": "Search by name, email, phone, or class",
+      "filterClassAll": "All class types",
+      "resetFilters": "Reset filters",
       "successPromote": "User moved from waitlist to booking.",
       "successRemove": "User removed from waitlist.",
       "successNotify": "Notification sent.",
@@ -2263,6 +2545,14 @@
     },
     "analytics": {
       "title": "Analytics",
+      "tabs": {
+        "aria": "Analytics sections",
+        "overview": "Overview",
+        "revenue": "Revenue",
+        "bookings": "Bookings",
+        "members": "Members",
+        "coaches": "Coaches"
+      },
       "description": "Studio performance metrics from live backend data — tables, charts, and CSV exports.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load analytics ({status}).",
@@ -2273,6 +2563,7 @@
       "viewChart": "Chart",
       "viewSwitcherAria": "Analytics view mode",
       "rangeHint": "Range: {from} → {to}",
+      "bookingsSampleBanner": "Charts and rankings use a sample of up to {limit} bookings. This range matches {total} records; metrics are computed from {shown} rows in the sample.",
       "kpiRangeRevenue": "Revenue (selected range)",
       "kpiBookingsInRange": "Bookings (selected range)",
       "kpiActiveMembers": "Active members",
@@ -2294,6 +2585,9 @@
       "filters": {
         "heading": "Filters",
         "reset": "Reset Filters",
+        "resetFilters": "Reset Filters",
+        "loading": "Updating results…",
+        "activeCount": "{count} active filters",
         "rangeLabel": "Range",
         "range7": "Last 7 days",
         "range30": "Last 30 days",
@@ -2327,6 +2621,17 @@
         "bookingStatusMissed": "Missed"
       },
       "sections": {
+        "trends": {
+          "revenueTitle": "Revenue trend",
+          "revenueHint": "Daily successful payments for the selected date range.",
+          "revenueSeries": "Revenue",
+          "revenueChartAria": "Daily revenue area chart",
+          "bookingsTitle": "Bookings trend",
+          "bookingsHint": "Daily session bookings from the sample (up to {limit} records).",
+          "bookingsSeries": "Bookings",
+          "completedSeries": "Completed",
+          "bookingsChartAria": "Daily bookings area chart"
+        },
         "revenue": {
           "title": "Revenue report",
           "hint": "Totals from `/reports/finance/summary` for the selected date range.",
@@ -2359,6 +2664,8 @@
         "users": {
           "title": "User activity report",
           "hint": "Client summary from `/clients?meta=true`. Retention trends are not available.",
+          "segmentsTitle": "Client segments",
+          "inactive": "Other clients",
           "total": "Total clients",
           "active": "Active clients",
           "vip": "VIP clients",
@@ -2376,6 +2683,7 @@
         "coachPerformance": {
           "title": "Coach performance",
           "hint": "Bookings and attendance per coach within the management query sample.",
+          "topBookings": "Top coach bookings",
           "chartAria": "Coach bookings chart",
           "bookingsTitle": "Bookings per coach",
           "attendanceTitle": "Attendance rate per coach",
@@ -2392,6 +2700,9 @@
         "coachSessions": {
           "title": "Coach session load",
           "hint": "Total scheduled sessions per coach from the coach directory API.",
+          "coachesCount": "Coaches",
+          "activeCoaches": "Active coaches",
+          "totalSessions": "Total sessions",
           "chartAria": "Coach session load chart"
         },
         "paymentStatus": {
@@ -2405,12 +2716,13 @@
         "excelUnsupported": "Excel export is not available — the project only provides CSV exports via the reports API.",
         "paymentsCsv": "Export payments CSV",
         "bookingsCsv": "Export bookings CSV",
-        "giftCreditsCsv": "Export gift credits CSV"
+        "giftCreditsCsv": "Export gift credits CSV",
+        "menuAria": "Download CSV reports"
       },
       "limitations": {
         "heading": "Unsupported or partial metrics",
         "noTimeSeries": "Revenue and booking time-series trends (daily/weekly/monthly charts) require a dedicated analytics endpoint that is not implemented yet.",
-        "bookingsSample": "Bookings and class popularity metrics are limited to the bookings management query cap (1,000 rows).",
+        "bookingsSample": "Bookings and class popularity metrics are limited to the bookings management query cap (100 rows).",
         "noCoachRevenue": "Revenue per coach is not available from existing APIs.",
         "noClassRevenue": "Revenue per class type is not available from existing APIs.",
         "noRetention": "User retention metrics are not available from existing APIs."
@@ -2425,18 +2737,23 @@
     },
     "finance": {
       "title": "Finance",
-      "description": "Revenue, payments, refunds, and transaction history in one place.",
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load finance data ({status}).",
-      "loadingTabs": "Loading finance tabs…",
-      "tabsAria": "Finance sections",
-      "tabUserFinance": "User finance",
-      "tabCoachFinance": "Coach finance",
+      "tabs": {
+        "aria": "Finance sections",
+        "overview": "Overview",
+        "payments": "Payments",
+        "members": "Members",
+        "coaches": "Coaches"
+      },
       "kpiTotalRevenue": "Total revenue",
       "kpiMonthlyRevenue": "Monthly revenue",
       "kpiPendingPayments": "Pending payments",
       "kpiCompletedPayments": "Completed payments",
       "kpiRefundedPayments": "Refunded payments",
+      "kpiPeriodAllTime": "All time",
+      "kpiPeriodThisMonth": "This calendar month",
+      "kpiPeriodRangeDays": "Last {days} days",
       "giftCreditsHeading": "Gift credits ledger",
       "kpiGiftIssued": "Gift credits issued",
       "kpiGiftRedeemed": "Gift cards redeemed",
@@ -2446,8 +2763,6 @@
       "transactionsCount": "{count} transactions",
       "recentTransactions": "Recent transactions",
       "shownCount": "Showing {shown} of {total} transactions",
-      "exportHeading": "CSV export",
-      "exportHint": "Export payments data for the selected range.",
       "exportPaymentsCsv": "Export payments CSV",
       "exportGiftCreditsCsv": "Export gift credits CSV",
       "sources": {
@@ -2474,7 +2789,10 @@
         "statusPending": "Pending",
         "statusRefunded": "Refunded",
         "searchLabel": "Search",
-        "searchPlaceholder": "Client, email, payment ID, reference"
+        "searchPlaceholder": "Client, email, payment ID, reference",
+        "resetFilters": "Reset Filters",
+        "loading": "Loading finance data…",
+        "activeCount": "{count} active filters"
       },
       "paymentMethods": {
         "CASH": "Cash",
@@ -2492,6 +2810,7 @@
       "table": {
         "empty": "No payments found for selected filters.",
         "colDate": "Date",
+        "colTime": "Time",
         "colUser": "User",
         "colAmount": "Amount",
         "colPlan": "Package",
@@ -2506,9 +2825,14 @@
         "edit": "Edit client",
         "pausePackage": "Pause package",
         "sendNotification": "Send notification",
+        "sendRefundRequest": "Refund request",
         "refundUnsupported": "Refund requests are not supported by the API yet.",
         "packageUpdated": "Package updated.",
         "actionFailed": "Action failed.",
+        "noActivePackage": "No active package to pause.",
+        "pauseConfirmTitle": "Pause membership?",
+        "pauseConfirmDescription": "Pause the active package for {name}. Billing and access follow studio policy.",
+        "pausing": "Pausing…",
         "notifyTitle": "Notify client",
         "notifyLead": "Send a one-off email to {email} using an existing broadcast template.",
         "templateLabel": "Template",
@@ -2517,6 +2841,11 @@
         "sendButton": "Send",
         "notifySuccess": "Notification sent to {name}.",
         "notifyFailed": "Could not send notification."
+      },
+      "paymentsTab": {
+        "loading": "Loading…",
+        "loadFailed": "Could not load payments.",
+        "rowCount": "{count} payments"
       },
       "userTab": {
         "searchPlaceholder": "Search name, phone, or email",
@@ -2742,12 +3071,52 @@
       "manager": {
         "heading": "Operational defaults",
         "body": "Operational defaults are managed centrally. Reach out to studio admins for billing, integrations, or policy changes."
+      },
+      "contentAdmin": {
+        "heading": "Editorial workflow",
+        "body": "Publish and review studio posts from the Content section. Contact admins for role or approval policy changes."
       }
+    }
+  },
+  "managerPages": {
+    "home": {
+      "signInRequired": "Sign in to open the manager workspace.",
+      "greeting": "Hi{name}",
+      "nextStepsTitle": "Next steps",
+      "nextStepsBody": "Manage classes, bookings, waitlists, clients, coaches, and gift cards. Billing and studio-level settings remain admin-only."
+    },
+    "clients": {
+      "readOnlyHint": "Member directory — same compact rows as admin. Open a client to view details; edits stay in admin CRM.",
+      "roleClient": "Client"
+    },
+    "bookings": {
+      "rollingWindowHint": "Bookings from the past 7 days through the next 30 days — same compact rows and actions as admin."
+    },
+    "waitlists": {
+      "operationalHint": "Active waitlists — same compact rows and actions as admin (promote, notify, remove).",
+      "colSession": "Session",
+      "colPos": "Pos",
+      "colStatus": "Status",
+      "colOfferExpires": "Offer expires"
+    },
+    "coaches": {
+      "readOnlyHint": "Directory view (read-only). Edit and lifecycle actions are in admin CRM.",
+      "colPhone": "Phone",
+      "colSpecialization": "Specialization"
+    },
+    "giftCards": {
+      "readOnlyHint": "View issued cards and balances. Creating or deactivating cards stays with studio administrators."
+    },
+    "classes": {
+      "scheduleWindowHint": "Same schedule window as admin ({days} days). Create and edit sessions remain in the admin tools when needed.",
+      "loadSessionsFailed": "Could not load sessions ({status}).",
+      "sessionsEmpty": "No sessions in this window."
     }
   },
   "coachPages": {
     "home": {
       "title": "Hi {name}",
+      "titleFallback": "Coach home",
       "description": "Quick overview of today and your upcoming teaching load.",
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
@@ -2764,10 +3133,20 @@
       "signInRequired": "Sign in to open the coach panel.",
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "sessions": "Sessions",
+      "sessionsCount": "{count, plural, one {# session} other {# sessions}}",
+      "filteredEmptyTitle": "No sessions match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, or status.",
+      "filters": {
+        "searchPlaceholder": "Search class or type…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "status": "Status",
+        "statusAll": "All statuses",
+        "resetFilters": "Reset filters"
+      },
       "upcomingSessions": {
-        "empty": "No sessions in range.",
-        "bookedCount": "{booked}/{capacity} booked",
-        "sessionId": "Session ID: {id}"
+        "empty": "No sessions in range."
       }
     },
     "groups": {
@@ -2777,6 +3156,16 @@
       "noProfile": "This area is for studio coaches. Your account does not have a coach profile.",
       "attendanceBooked": "Attendance (booked)",
       "helpText": "This view reflects your assigned sessions only and keeps waitlist + roster visibility scoped by coach.",
+      "rosterCount": "{count, plural, one {# participant} other {# participants}}",
+      "filteredEmptyTitle": "No participants match your filters",
+      "filteredEmptyDescription": "Try adjusting the date range, class type, or search term.",
+      "filters": {
+        "searchPlaceholder": "Search participant, email, or class…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "classAll": "All class types",
+        "resetFilters": "Reset filters"
+      },
       "attendanceRoster": {
         "empty": "No active bookings."
       }
@@ -2809,6 +3198,114 @@
       "formula": "Formula: base {base} per completed session + {perAttendee} per attended participant."
     }
   },
+  "contentAdminPages": {
+    "home": {
+      "openContent": "Open content",
+      "openProfile": "Profile"
+    },
+    "content": {
+      "title": "Content",
+      "errorAuth": "Admin or content role required.",
+      "errorLoad": "Could not load posts ({status}).",
+      "createButton": "New post",
+      "empty": "No posts match your filters.",
+      "colTitle": "Title",
+      "colCover": "Cover",
+      "colType": "Type",
+      "colStatus": "Status",
+      "colUpdated": "Updated",
+      "colActions": "Actions",
+      "editPost": "Edit post",
+      "openPostAria": "Open {title}",
+      "sheetCreateTitle": "New post",
+      "sheetEditTitle": "Edit post",
+      "saveButton": "Save changes",
+      "cancelButton": "Cancel",
+      "savingButton": "Saving…",
+      "modalBackdropClose": "Close panel",
+      "deleteConfirmTitle": "Delete post?",
+      "deleteConfirmBody": "Delete “{title}”? This cannot be undone.",
+      "activeFilterCount": "{count} active filters",
+      "resultsCount": "Showing {shown} of {total} posts",
+      "placeholders": {
+        "title": "Title",
+        "slug": "Slug",
+        "excerpt": "Excerpt",
+        "body": "Body",
+        "coverImageUrl": "Cover image URL",
+        "authorName": "Author name",
+        "tagsCsv": "Tags (comma separated)",
+        "seoTitle": "SEO title",
+        "seoDescription": "SEO description",
+        "editorialNotes": "Editorial notes",
+        "searchPosts": "Search posts"
+      },
+      "labels": {
+        "type": "Type",
+        "status": "Status",
+        "allTypes": "All types",
+        "allStatuses": "All statuses",
+        "create": "Create",
+        "toggleHide": "Toggle hide",
+        "submitReview": "Submit review",
+        "approve": "Approve",
+        "reject": "Reject",
+        "delete": "Delete",
+        "tags": "tags",
+        "review": "review",
+        "resetFilters": "Reset filters",
+        "previewOnSite": "Preview on site"
+      },
+      "fieldHints": {
+        "type": "How the post is categorized on the site (blog, news, event, update, or article).",
+        "status": "Publication state — draft, in review, published, hidden from visitors, or rejected."
+      },
+      "statusValues": {
+        "DRAFT": "Draft",
+        "IN_REVIEW": "In review",
+        "REJECTED": "Rejected",
+        "PUBLISHED": "Published",
+        "HIDDEN": "Hidden"
+      },
+      "typeValues": {
+        "EVENT": "Event",
+        "BLOG": "Blog",
+        "NEWS": "News",
+        "UPDATE": "Update",
+        "KNOWLEDGE_ARTICLE": "Article"
+      },
+      "localeTabs": {
+        "aria": "Content language",
+        "hy": "Armenian",
+        "ru": "Russian",
+        "en": "English",
+        "slugHint": "Leave empty to auto-generate from the English slug."
+      },
+      "coverImage": {
+        "label": "Cover image",
+        "choose": "Choose image",
+        "remove": "Remove",
+        "hint": "JPG, PNG or WEBP up to 5 MB.",
+        "previewAlt": "Cover preview",
+        "fallback": "Cover",
+        "uploading": "Uploading…",
+        "uploadFailed": "Upload failed",
+        "invalidType": "Only JPG, PNG or WEBP images are allowed.",
+        "tooLarge": "Image must be 5 MB or smaller."
+      },
+      "feedback": {
+        "actionFailed": "Action failed",
+        "postCreated": "Post created",
+        "postSaved": "Post saved",
+        "visibilityUpdated": "Visibility updated",
+        "submittedForReview": "Submitted for review",
+        "postApproved": "Post approved",
+        "postRejected": "Post rejected",
+        "postDeleted": "Post deleted",
+        "rejectionNotePrompt": "Rejection note"
+      }
+    }
+  },
   "verifyEmail": {
     "loading": "Loading…",
     "title": "Email verification",
@@ -2829,7 +3326,10 @@
       "saveFailed": "Could not save"
     },
     "cancelBooking": {
+      "confirmTitle": "Cancel booking?",
       "confirm": "Cancel this booking? Policy deadlines apply.",
+      "confirmNo": "Keep booking",
+      "modalBackdropClose": "Close dialog",
       "action": "Cancel",
       "failed": "Could not cancel"
     },
@@ -2878,6 +3378,13 @@
       "cancelAction": "Cancel",
       "renew": "Renew",
       "switchPlan": "Switch to this plan",
+      "pauseConfirmTitle": "Pause membership?",
+      "pauseConfirmDescription": "Your membership will be paused. You can renew it later.",
+      "cancelConfirmTitle": "Cancel membership?",
+      "cancelConfirmDescription": "This will cancel your membership. You can renew it later if needed.",
+      "confirmYes": "Yes",
+      "confirmNo": "No",
+      "modalBackdropClose": "Close dialog",
       "pausedSuccess": "Membership paused.",
       "cancelledSuccess": "Membership cancelled.",
       "renewedSuccess": "Membership renewed.",
@@ -3007,7 +3514,7 @@
   "adminActions": {
     "studio": {
       "title": "Studio Settings",
-      "description": "Studio-level policy and contact settings.",
+      "description": "Manage how your studio appears to members — contact details, location, and booking policies.",
       "loadFailed": "Could not load studio settings ({status}).",
       "studioName": "Studio name",
       "contactEmail": "Contact email",
@@ -3017,12 +3524,64 @@
       "mapEmbedUrl": "Map embed URL",
       "workingHours": "Working hours",
       "socialLinksJson": "Social links JSON",
-      "cancellationHoursNotice": "Cancellation hours notice",
-      "waitlistOfferMinutes": "Waitlist offer minutes",
+      "cancellationHoursNotice": "Cancellation notice (hours)",
+      "waitlistOfferMinutes": "Waitlist offer window (minutes)",
       "save": "Save settings",
       "saving": "Saving...",
       "saved": "Settings updated.",
-      "failed": "Could not update settings."
+      "failed": "Could not update settings.",
+      "tiles": {
+        "identity": {
+          "title": "Studio identity",
+          "empty": "Name not set",
+          "helper": "Shown across the site, emails, and member tools."
+        },
+        "contact": {
+          "title": "Primary contact",
+          "empty": "No contact details yet",
+          "helper": "Used on the contact page and in member notifications.",
+          "helperPhone": "Phone: {phone}"
+        },
+        "policies": {
+          "title": "Booking rules",
+          "value": "{hours}h cancel · {minutes}m waitlist",
+          "helper": "Controls cancellation windows and waitlist offers."
+        }
+      },
+      "sections": {
+        "identity": {
+          "heading": "Identity",
+          "description": "Public studio name"
+        },
+        "contact": {
+          "heading": "Contact",
+          "description": "How members reach your team"
+        },
+        "location": {
+          "heading": "Location",
+          "description": "Address, map, and hours on the site"
+        },
+        "social": {
+          "heading": "Social links",
+          "description": "Optional JSON for footer and contact page"
+        },
+        "policies": {
+          "heading": "Policies",
+          "description": "Cancellation and waitlist timing"
+        }
+      },
+      "hints": {
+        "studioName": "Keep it short — this is your public brand name.",
+        "contactEmail": "Studio inbox for contact form and admin alerts.",
+        "contactPhone": "Optional. Shown on the contact page.",
+        "whatsappUrl": "Full link to your WhatsApp chat or business profile.",
+        "address": "Street address shown on the contact page.",
+        "mapEmbedUrl": "Google Maps or similar embed URL for the contact page.",
+        "workingHours": "Free text — e.g. Mon–Fri 9:00–21:00, Sat 10:00–18:00.",
+        "socialLinksJson": "JSON object mapping platform names to URLs (instagram, facebook, etc.).",
+        "cancellationHoursNotice": "How many hours before class start members can cancel.",
+        "waitlistOfferMinutes": "How long a waitlist spot stays reserved after an offer."
+      }
     }
   }
 }
