@@ -34,12 +34,12 @@ import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-vie
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import { OmmModalPortal } from "@/components/ui/omm-modal";
 import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { ApiError, apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 import { mapAdminBookingSessionToWeekRow } from "@/lib/map-admin-booking-session-to-week-row";
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 
 type BookingRow = AdminBookingRow;
 
@@ -545,7 +545,6 @@ function Metric({ title, value }: { title: string; value: number }) {
 
 function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow; onClose: () => void; onSubmit: (targetSessionId: string) => void }) {
   const t = useTranslations("adminPages.bookings");
-  useCloseOnEscape(true, onClose);
   const [targetSessionId, setTargetSessionId] = useState("");
   const [options, setOptions] = useState<Array<{ id: string; startsAt: string; classType: { name: string }; coach: { user: { name: string | null } } }>>([]);
   useEffect(() => {
@@ -587,41 +586,44 @@ function MoveBookingDialog({ booking, onClose, onSubmit }: { booking: BookingRow
   }));
 
   return (
-    <div className="ommm-modal-overlay z-50 items-center p-4" role="presentation">
-      <button type="button" className="ommm-modal-backdrop" onClick={onClose} aria-label={t("close")} />
-      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4">
-        <h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3>
-        <p className="mt-1 text-sm text-sage-600">
-          {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
-        </p>
-        <div className="mt-3">
-          <OmmFilterDropdown
-            allValue=""
-            value={targetSessionId}
-            ariaLabel={t("selectClassSlot")}
-            allLabel={t("selectClassSlot")}
-            onChange={setTargetSessionId}
-            options={slotOptions}
-            disabled={slotOptions.length === 0}
-          />
-        </div>
-        {options.length === 0 ? (
-          <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
-        ) : null}
-        <div className="mt-4 flex justify-end gap-2">
-          <OmmButton size="sm" variant="ghost" onClick={onClose}>
-            {t("close")}
-          </OmmButton>
-          <OmmButton
-            size="sm"
-            variant="primary"
-            disabled={targetSessionId === ""}
-            onClick={() => onSubmit(targetSessionId)}
-          >
-            {t("actionMove")}
-          </OmmButton>
-        </div>
+    <OmmModalPortal
+      isOpen
+      onClose={onClose}
+      backdropAriaLabel={t("close")}
+      overlayClassName="ommm-modal-overlay z-[110] items-center p-4"
+      panelClassName="w-full max-w-lg rounded-2xl border border-white/60 bg-white p-4"
+    >
+      <h3 className="text-base font-semibold text-sage-900">{t("actionMove")}</h3>
+      <p className="mt-1 text-sm text-sage-600">
+        {booking.user.name ?? booking.user.email} · {booking.session.classType.name}
+      </p>
+      <div className="mt-3">
+        <OmmFilterDropdown
+          allValue=""
+          value={targetSessionId}
+          ariaLabel={t("selectClassSlot")}
+          allLabel={t("selectClassSlot")}
+          onChange={setTargetSessionId}
+          options={slotOptions}
+          disabled={slotOptions.length === 0}
+        />
       </div>
-    </div>
+      {options.length === 0 ? (
+        <p className="mt-2 text-xs text-sage-500">{t("emptyMoveOptions")}</p>
+      ) : null}
+      <div className="mt-4 flex justify-end gap-2">
+        <OmmButton size="sm" variant="ghost" onClick={onClose}>
+          {t("close")}
+        </OmmButton>
+        <OmmButton
+          size="sm"
+          variant="primary"
+          disabled={targetSessionId === ""}
+          onClick={() => onSubmit(targetSessionId)}
+        >
+          {t("actionMove")}
+        </OmmButton>
+      </div>
+    </OmmModalPortal>
   );
 }
