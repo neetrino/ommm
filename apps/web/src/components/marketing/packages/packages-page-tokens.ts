@@ -19,9 +19,13 @@ export const PACKAGES_PAGE_CARD_FIGMA = {
   priceFontSizePx: 20,
   detailsFontSizePx: 20,
   textColor: "#97907c",
+  /** Darker label/FAB on Details hover — same hue as `textColor`. */
+  textColorHover: "#6a6454",
   fabSizePx: 86,
   fabFill: "#282828",
   fabFillOpacity: 0.31,
+  fabFillHover: "#0a0a0a",
+  fabFillHoverOpacity: 0.62,
   fabArrowColor: "#ffffff",
   gradientAngleDeg: 173.82,
   gradientStartPercent: 2.0655,

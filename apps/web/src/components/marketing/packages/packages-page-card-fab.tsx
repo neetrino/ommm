@@ -1,6 +1,5 @@
-import Image from "next/image";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
-import { PACKAGES_PAGE_ASSETS } from "@/components/marketing/packages/packages-page-assets";
+import { PackagesPageCardFabGraphic } from "@/components/marketing/packages/packages-page-card-fab-graphic";
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import { PACKAGES_PAGE_CARD_FIGMA } from "@/components/marketing/packages/packages-page-tokens";
 
@@ -48,15 +47,9 @@ export function PackagesPageCardFabImage({
   sizePx,
   orientation = "horizontal",
 }: PackagesPageCardFabImageProps) {
-  const dimension = sizePx ?? PACKAGES_PAGE_CARD_FIGMA.fabSizePx;
-
   return (
-    <Image
-      src={PACKAGES_PAGE_ASSETS.cardFab}
-      alt=""
-      width={dimension}
-      height={dimension}
-      unoptimized
+    <PackagesPageCardFabGraphic
+      sizePx={sizePx}
       className={resolveFabImageClass(direction, orientation)}
     />
   );

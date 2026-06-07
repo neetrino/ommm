@@ -3348,6 +3348,7 @@
       "title": "Հաստատել բաժանորդագրությունը",
       "lead": "Ընտրեք վճարման եղանակը։ Այս էկրանին քարտի տվյալներ չեն հավաքվում։",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Փակել",
       "methodLegend": "Վճարման եղանակ",
       "methods": {

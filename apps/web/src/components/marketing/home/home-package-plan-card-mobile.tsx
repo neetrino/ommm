@@ -61,14 +61,11 @@ export function HomePackagePlanCardMobile({
   priceAmount,
   priceFromPrefix,
   ctaAria,
+  href = "/packages",
+  onActivate,
 }: HomePackagePlanCardProps) {
-  return (
-    <Link
-      href="/packages"
-      aria-label={ctaAria}
-      className={`${marketingMontserrat.variable} ${styles.card} group`}
-      style={mobilePlanCardStyleVars()}
-    >
+  const cardBody = (
+    <>
       <div className={styles.cardMedia}>
         <div className={styles.imageCrop}>
           <div className={styles.imageFrame}>
@@ -109,6 +106,31 @@ export function HomePackagePlanCardMobile({
           </span>
         </div>
       </div>
+    </>
+  );
+
+  if (onActivate !== undefined) {
+    return (
+      <button
+        type="button"
+        aria-label={ctaAria}
+        onClick={onActivate}
+        className={`${marketingMontserrat.variable} ${styles.card} group`}
+        style={mobilePlanCardStyleVars()}
+      >
+        {cardBody}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={ctaAria}
+      className={`${marketingMontserrat.variable} ${styles.card} group`}
+      style={mobilePlanCardStyleVars()}
+    >
+      {cardBody}
     </Link>
   );
 }

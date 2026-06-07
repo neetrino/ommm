@@ -3390,6 +3390,7 @@
       "title": "Confirm subscription",
       "lead": "Select how you will pay. No card details are collected on this screen.",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Close",
       "methodLegend": "Payment method",
       "methods": {

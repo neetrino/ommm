@@ -17,6 +17,7 @@ import {
   resolveCategoryStartingPriceCents,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
+import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -36,7 +37,9 @@ export function PublicPackageCategoryCard({
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const displayPlans = listCategoryDisplayPlans(category.plans);
-  const subscribePlans = toPackageSubscribePlanOptions(displayPlans);
+  const subscribePlans = toPackageSubscribePlanOptions(
+    listPublicPackageCategorySubscribablePlans(category),
+  );
   const startingPriceCents = resolveCategoryStartingPriceCents(category.plans);
   const amount = formatAmdFromCents(startingPriceCents, locale);
   const { symbol, value } = formatPublicPackagePriceParts(amount);

@@ -3336,6 +3336,7 @@
       "title": "Подтвердить подписку",
       "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Закрыть",
       "methodLegend": "Способ оплаты",
       "methods": {
