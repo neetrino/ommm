@@ -23,9 +23,9 @@ import {
   type UserPaymentStatusFilter,
 } from "@/components/account/user-payments-filter-fields";
 import {
+  USER_PAYMENTS_LIST_CENTER_HEADER_CELL,
   USER_PAYMENTS_LIST_HEADER_CLASS,
   USER_PAYMENTS_LIST_METHOD_HEADER_CELL,
-  USER_PAYMENTS_LIST_STATUS_HEADER_CELL,
   USER_PAYMENTS_LIST_TABLE_CLASS,
 } from "@/components/account/user-payments-list-layout";
 import {
@@ -280,10 +280,10 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
             <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
               <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
                 <span>{t("table.related")}</span>
-                <span>{t("table.amount")}</span>
-                <span>{t("table.date")}</span>
-                <span>{t("table.time")}</span>
-                <span className={USER_PAYMENTS_LIST_STATUS_HEADER_CELL}>{t("table.status")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
                 <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
               </div>
               {rows.map((row) => (

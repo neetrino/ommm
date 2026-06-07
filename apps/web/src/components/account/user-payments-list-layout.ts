@@ -3,14 +3,13 @@ import {
   USER_LIST_DATE_CELL,
   USER_LIST_HEADER_SURFACE,
   USER_LIST_ROW_CARD,
+  USER_LIST_STATUS_CELL,
   USER_LIST_TABLE_GRID_GAP,
   USER_LIST_TABLE_HEADER_PAD,
   USER_LIST_TABLE_HEADER_TEXT,
   USER_LIST_TABLE_ROW_PAD,
   USER_LIST_TABLE_SUBGRID_ROW,
   USER_LIST_TIME_CELL,
-  USER_LIST_TRAILING_CELL,
-  USER_LIST_TRAILING_HEADER_CELL,
   USER_PAYMENTS_LIST_GRID_COLS,
 } from "@/components/account/user-list-table-layout";
 
@@ -19,7 +18,7 @@ export { USER_PAYMENTS_LIST_GRID_COLS };
 export const USER_PAYMENTS_LIST_TABLE_CLASS = [
   "max-md:space-y-3",
   "md:grid",
-  "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]",
+  "md:grid-cols-6",
   USER_LIST_TABLE_GRID_GAP,
   "md:gap-y-3",
 ].join(" ");
@@ -41,16 +40,33 @@ export const USER_PAYMENTS_LIST_ROW_CLASS = [
   "md:col-span-full md:grid md:grid-cols-subgrid md:items-center md:gap-y-0",
 ].join(" ");
 
-export {
-  USER_LIST_CELL_CLASS as USER_PAYMENTS_LIST_CELL_CLASS,
-  USER_LIST_DATE_CELL as USER_PAYMENTS_LIST_DATE_CELL,
-  USER_LIST_TIME_CELL as USER_PAYMENTS_LIST_TIME_CELL,
-};
+export const USER_PAYMENTS_LIST_CENTER_HEADER_CELL = "md:text-center";
 
-export const USER_PAYMENTS_LIST_STATUS_CELL = USER_LIST_TRAILING_CELL;
+export const USER_PAYMENTS_LIST_CELL_CLASS = USER_LIST_CELL_CLASS;
 
-export const USER_PAYMENTS_LIST_METHOD_CELL = USER_LIST_TRAILING_CELL;
+export const USER_PAYMENTS_LIST_AMOUNT_CELL = [
+  USER_LIST_CELL_CLASS,
+  "whitespace-nowrap tabular-nums md:text-center",
+].join(" ");
 
-export const USER_PAYMENTS_LIST_STATUS_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
+export const USER_PAYMENTS_LIST_DATE_CELL = [
+  USER_LIST_DATE_CELL,
+  "md:flex md:flex-col md:items-center",
+].join(" ");
 
-export const USER_PAYMENTS_LIST_METHOD_HEADER_CELL = USER_LIST_TRAILING_HEADER_CELL;
+export const USER_PAYMENTS_LIST_TIME_CELL = [
+  USER_LIST_TIME_CELL,
+  "shrink-0 whitespace-nowrap md:text-center",
+].join(" ");
+
+export const USER_PAYMENTS_LIST_STATUS_CELL = [
+  USER_LIST_STATUS_CELL,
+  "md:flex md:justify-center",
+].join(" ");
+
+export const USER_PAYMENTS_LIST_METHOD_CELL = [
+  USER_LIST_CELL_CLASS,
+  "md:text-center",
+].join(" ");
+
+export const USER_PAYMENTS_LIST_METHOD_HEADER_CELL = USER_PAYMENTS_LIST_CENTER_HEADER_CELL;
