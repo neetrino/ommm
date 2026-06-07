@@ -333,67 +333,71 @@ export function AdminWaitlistManagement({
   const waitlistBody = !hasRows ? (
     <div className={adminChrome.panel}>{t("empty")}</div>
   ) : (
-    <div className={ADMIN_WAITLIST_LIST_TABLE_CLASS}>
-      <div className={ADMIN_WAITLIST_LIST_HEADER_CLASS}>
-        <span>{t("colUser")}</span>
-        <span className={ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
-        <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colWaitlistCount")}
-        </span>
-        <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
-          {t("colWaitlistDate")}
-        </span>
-        <span aria-hidden="true" />
-        <span className={ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+    <>
+      <div className={ADMIN_WAITLIST_LIST_TABLE_CLASS}>
+        <div className={ADMIN_WAITLIST_LIST_HEADER_CLASS}>
+          <span>{t("colUser")}</span>
+          <span className={ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER}>{t("colClassType")}</span>
+          <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
+            {t("colWaitlistCount")}
+          </span>
+          <span className={`${ADMIN_WAITLIST_LIST_EMPHASIZED_HEADER} md:text-center`}>
+            {t("colWaitlistDate")}
+          </span>
+          <span aria-hidden="true" />
+          <span className={ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        </div>
+        {rows.map((row) => {
+          const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
+          const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
+          return (
+            <AdminWaitlistCompactRow
+              key={row.id}
+              locale={locale}
+              row={row}
+              rowBusy={rowBusy}
+              userLabel={userLabel}
+              onOpenUser={setSelectedUserId}
+              onPromote={() =>
+                void runAction(
+                  row,
+                  "promote",
+                  () =>
+                    apiFetch(`/waitlist/entries/${row.id}/promote`, {
+                      method: "POST",
+                      body: JSON.stringify({ targetSessionId: row.session.id }),
+                    }),
+                  t("successPromote"),
+                )
+              }
+              onNotify={() =>
+                void runAction(
+                  row,
+                  "notify",
+                  () =>
+                    apiFetch(`/waitlist/entries/${row.id}/notify`, {
+                      method: "POST",
+                      body: JSON.stringify({}),
+                    }),
+                  t("successNotify"),
+                )
+              }
+              onRemove={() => setPendingRemove(row)}
+            />
+          );
+        })}
       </div>
-      {rows.map((row) => {
-        const rowBusy = busyAction?.startsWith(`${row.id}:`) ?? false;
-        const userLabel = toUserLabel(row.user.name, row.user.lastName, row.user.email);
-        return (
-          <AdminWaitlistCompactRow
-            key={row.id}
-            locale={locale}
-            row={row}
-            rowBusy={rowBusy}
-            userLabel={userLabel}
-            onOpenUser={setSelectedUserId}
-            onPromote={() =>
-              void runAction(
-                row,
-                "promote",
-                () =>
-                  apiFetch(`/waitlist/entries/${row.id}/promote`, {
-                    method: "POST",
-                    body: JSON.stringify({ targetSessionId: row.session.id }),
-                  }),
-                t("successPromote"),
-              )
-            }
-            onNotify={() =>
-              void runAction(
-                row,
-                "notify",
-                () =>
-                  apiFetch(`/waitlist/entries/${row.id}/notify`, {
-                    method: "POST",
-                    body: JSON.stringify({}),
-                  }),
-                t("successNotify"),
-              )
-            }
-            onRemove={() => setPendingRemove(row)}
-          />
-        );
-      })}
-      <OmmListPagination
-        total={payload.total}
-        page={listPage.page}
-        pageSize={listPage.pageSize}
-        offset={payload.offset}
-        onPageChange={(page) => setListPage(page)}
-        disabled={loading || busyAction !== null}
-      />
-    </div>
+      {payload.total > 0 ? (
+        <OmmListPagination
+          total={payload.total}
+          page={listPage.page}
+          pageSize={listPage.pageSize}
+          offset={payload.offset}
+          onPageChange={(page) => setListPage(page)}
+          disabled={loading || busyAction !== null}
+        />
+      ) : null}
+    </>
   );
 
   return (
