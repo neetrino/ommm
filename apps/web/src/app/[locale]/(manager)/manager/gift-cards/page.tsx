@@ -9,7 +9,6 @@ import {
 } from "@/components/admin/admin-gift-cards-query";
 import { parseGiftCardFiltersFromSearch } from "@/components/admin/admin-gift-cards-url";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
-import { parseAdminGiftCardsViewMode } from "@/lib/admin-gift-cards-view-preference";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function ManagerGiftCardsPage({
@@ -51,8 +50,6 @@ export default async function ManagerGiftCardsPage({
     );
   }
 
-  const initialViewMode = parseAdminGiftCardsViewMode(search.view);
-
   return (
     <AdminContentFrame>
       <Suspense fallback={null}>
@@ -61,7 +58,6 @@ export default async function ManagerGiftCardsPage({
           assignableUsers={[]}
           locale={locale}
           initialFilters={initialFilters}
-          initialViewMode={initialViewMode}
           variant="staff"
           staffBanner={tManager("readOnlyHint")}
           readOnly

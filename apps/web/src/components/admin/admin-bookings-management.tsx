@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AdminBookingCompactRow } from "@/components/admin/admin-booking-compact-row";
@@ -31,6 +31,8 @@ import {
   resolveBookingsView,
 } from "@/components/admin/admin-bookings-view";
 import { AdminBookingsViewSwitcher } from "@/components/admin/admin-bookings-view-switcher";
+import { useUrlViewState } from "@/hooks/use-url-view-state";
+import { LIST_BOARD_VIEW_QUERY_KEY } from "@/lib/list-board-view";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
@@ -51,8 +53,6 @@ type Props = {
   variant?: "full" | "staff";
   staffBanner?: string;
 };
-
-const VIEW_KEY = "admin.bookings.view";
 
 function bookingRowKey(row: Pick<BookingRow, "id" | "recordType">): string {
   return `${row.recordType}-${row.id}`;
@@ -76,7 +76,9 @@ export function AdminBookingsManagement({
   const t = useTranslations("adminPages.bookings");
   const tSchedule = useTranslations("adminPages.schedule");
   const router = useRouter();
-  const [view, setView] = useState<BookingsView>("list");
+  const [view, setViewAndPersist] = useUrlViewState(LIST_BOARD_VIEW_QUERY_KEY, (value) =>
+    resolveBookingsView(value ?? undefined),
+  );
   const {
     payload,
     calendarRows,
@@ -107,32 +109,6 @@ export function AdminBookingsManagement({
     const combined = [...payload.rows, ...calendarRows];
     return combined.find((row) => bookingRowKey(row) === selectedRowKey) ?? null;
   }, [calendarRows, payload.rows, selectedRowKey]);
-
-  useEffect(() => {
-    if (isStaff) {
-      return;
-    }
-    try {
-      const saved = window.localStorage.getItem(VIEW_KEY);
-      if (saved !== null) {
-        startTransition(() => {
-          setView(resolveBookingsView(saved));
-        });
-      }
-    } catch {
-      /* ignore */
-    }
-  }, [isStaff]);
-
-  const setViewAndPersist = useCallback((nextView: BookingsView) => {
-    const resolved = resolveBookingsView(nextView);
-    setView(resolved);
-    try {
-      window.localStorage.setItem(VIEW_KEY, resolved);
-    } catch {
-      /* ignore */
-    }
-  }, []);
 
   const uniqueClients = useMemo(() => {
     const map = new Map<string, string>();

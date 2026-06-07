@@ -26,6 +26,7 @@ import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedul
 import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
+import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import {
@@ -401,7 +402,7 @@ export function AdminScheduleManagement({
   const [prevSessions, setPrevSessions] = useState(sessions);
   const [classTypes, setClassTypes] = useState(initialClassTypes);
   const [prevInitialClassTypes, setPrevInitialClassTypes] = useState(initialClassTypes);
-  const [view, setView] = useState<ScheduleView>(resolveScheduleView(initialView));
+  const [view, setView] = useScheduleViewUrl(resolveScheduleView(initialView));
   const [filters, setFilters] = useState<Filters>(() => initialFilterState.filters);
   const [quickFilters, setQuickFilters] = useState<ScheduleQuickFilter[]>(
     () => initialFilterState.quickFilters,
@@ -806,13 +807,6 @@ export function AdminScheduleManagement({
     }
   }
 
-  function updateView(nextView: ScheduleView): void {
-    setView(nextView);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", nextView);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }
-
   async function runRowAction(row: AdminScheduleSession, action: () => Promise<AdminScheduleSession | void>, ok: string) {
     setBusyId(row.id);
     setToast(null);
@@ -850,7 +844,7 @@ export function AdminScheduleManagement({
               resetLabel={t("filters.reset")}
             />
           }
-          searchTrailing={<ScheduleViewSwitcher value={view} onChange={updateView} />}
+          searchTrailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
           metrics={<SummaryGrid summary={summary} />}
         >
           <StaffScheduleListWeekViews
@@ -907,7 +901,7 @@ export function AdminScheduleManagement({
               onClearAll={resetFilters}
               resetLabel={t("filters.reset")}
             />
-            <ScheduleViewSwitcher value={view} onChange={updateView} />
+            <ScheduleViewSwitcher value={view} onChange={setView} />
           </div>
         }
         trailing={
