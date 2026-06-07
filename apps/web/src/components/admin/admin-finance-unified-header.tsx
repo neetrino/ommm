@@ -5,8 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
-import { ADMIN_PAGE_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
-import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
+import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 import { AdminFinanceCoachesFilters } from "@/components/admin/admin-finance-coaches-filters";
 import { AdminFinanceMembersFilters } from "@/components/admin/admin-finance-members-filters";
 import { AdminFinanceOverviewFilters } from "@/components/admin/admin-finance-overview-filters";
@@ -82,11 +81,7 @@ function AdminFinanceUnifiedHeaderInner() {
   );
 
   return (
-    <header
-      ref={headerRef}
-      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
-      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
       <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
@@ -98,7 +93,7 @@ function AdminFinanceUnifiedHeaderInner() {
           </div>
         ) : null}
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
 
@@ -107,18 +102,14 @@ function AdminFinanceUnifiedHeaderFallback() {
   const headerRef = useAdminStickyHeaderOffset(true);
 
   return (
-    <header
-      ref={headerRef}
-      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
-      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminFinanceTabNav />
         </div>
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
 

@@ -16,8 +16,7 @@ import type { AnalyticsFilterOptions } from "@/components/admin/admin-analytics-
 import { AdminAnalyticsTabNav } from "@/components/admin/admin-analytics-tab-nav";
 import { parseAnalyticsFiltersFromSearch } from "@/components/admin/admin-analytics-url";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
-import { ADMIN_PAGE_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
-import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
+import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
 
 type AdminAnalyticsUnifiedHeaderProps = {
   filterOptions: AnalyticsFilterOptions;
@@ -44,11 +43,7 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
   }, [searchParams]);
 
   return (
-    <header
-      ref={headerRef}
-      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
-      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
       <div className="ommm-admin-header-bar overflow-visible flex-col items-stretch gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
@@ -66,7 +61,7 @@ function AdminAnalyticsUnifiedHeaderInner({ filterOptions }: AdminAnalyticsUnifi
           </div>
         ) : null}
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
 
@@ -75,18 +70,14 @@ function AdminAnalyticsUnifiedHeaderFallback() {
   const headerRef = useAdminStickyHeaderOffset(true);
 
   return (
-    <header
-      ref={headerRef}
-      className={ADMIN_PAGE_STICKY_SHELL_CLASS}
-      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="module">
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <h1 className="ommm-admin-header-title">{t("title")}</h1>
           <AdminAnalyticsTabNav />
         </div>
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
 

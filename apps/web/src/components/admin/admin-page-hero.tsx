@@ -2,8 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useAdminStickyHeaderOffset } from "@/components/shell/use-admin-sticky-header-offset";
-import { ADMIN_PAGE_HERO_STICKY_SHELL_CLASS } from "@/components/shell/dashboard-shell-classes";
-import { WORKSPACE_STICKY_TOPCSSValue } from "@/components/shell/workspace-sticky-top";
+import { WorkspaceStickyPageHeader } from "@/components/shell/workspace-sticky-page-header";
+
 type AdminPageHeroProps = {
   title: string;
   description?: ReactNode;
@@ -18,11 +18,7 @@ export function AdminPageHero({ title, description, search, trailing }: AdminPag
   const headerRef = useAdminStickyHeaderOffset(true);
 
   return (
-    <header
-      ref={headerRef}
-      className={ADMIN_PAGE_HERO_STICKY_SHELL_CLASS}
-      style={{ top: WORKSPACE_STICKY_TOPCSSValue }}
-    >
+    <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero">
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         <div className="min-w-0 shrink-0">
           <h1 className="ommm-admin-header-title">{title}</h1>
@@ -41,6 +37,6 @@ export function AdminPageHero({ title, description, search, trailing }: AdminPag
           </div>
         ) : null}
       </div>
-    </header>
+    </WorkspaceStickyPageHeader>
   );
 }
