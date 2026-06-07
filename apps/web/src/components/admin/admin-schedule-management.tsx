@@ -23,7 +23,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
-import { buildSessionLevelOptions, resolveSessionClassTypeId, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
+import { buildSessionLevelOptions, resolveSessionClassTypeId, sessionTitleFromClassTypeSelection, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
@@ -150,7 +150,6 @@ type Filters = {
 };
 
 type FormState = {
-  title: string;
   description: string;
   classTypeId: string;
   coachId: string;
@@ -193,6 +192,7 @@ const ADD_CLASS_MODAL_QUERY_VALUE = "add-class";
 const LEGACY_CLASS_TYPES_MODAL_QUERY_VALUE = "class-types";
 const LEGACY_EDIT_CLASS_TYPE_QUERY_KEY = "editClassType";
 const SESSION_LEVEL_SEPARATOR = ", ";
+const DEFAULT_SESSION_CAPACITY = "10";
 const PACKAGE_CLASS_TYPE_VALUE_PREFIX = "package:";
 
 function replaceScheduleModalInUrl(
@@ -303,22 +303,21 @@ function initialForm(
   const start = row ? new Date(row.startsAt) : new Date();
   const end = row ? new Date(row.endsAt) : new Date(start.getTime() + 60 * 60000);
   return {
-    title: row?.title ?? "",
     description: row?.description ?? "",
     classTypeId: row?.classType.id ?? classTypeOptions[0]?.value ?? "",
     coachId: row?.coach.id ?? coaches[0]?.id ?? "",
     date: isoDate(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
-    capacity: row ? String(row.capacity) : "",
+    capacity: row ? String(row.capacity) : DEFAULT_SESSION_CAPACITY,
     levels: splitSessionLevels(row?.level),
     status: row?.status ?? "ACTIVE",
   };
 }
 
-function formPayload(form: FormState, classTypeId: string) {
+function formPayload(form: FormState, classTypeId: string, title: string) {
   return {
-    title: form.title.trim(),
+    title: title.trim(),
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
@@ -333,12 +332,13 @@ function formPayload(form: FormState, classTypeId: string) {
 function batchFormPayload(
   form: FormState,
   classTypeId: string,
+  title: string,
   startDate: string,
   endDate: string,
   slots: readonly CalendarScheduleSlot[],
 ) {
   return {
-    title: form.title.trim(),
+    title: title.trim(),
     description: form.description.trim() || undefined,
     classTypeId,
     coachId: form.coachId,
@@ -1278,10 +1278,23 @@ function SessionFormSheet({
     setError(null);
     try {
       const resolvedClassType = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
+      const title = sessionTitleFromClassTypeSelection(
+        form.classTypeId,
+        classTypeOptions,
+        resolvedClassType,
+      );
+      if (title.length === 0) {
+        throw new Error(t("validation.classTypeRequired"));
+      }
+      const capacity = Number(form.capacity);
+      if (!Number.isInteger(capacity) || capacity < 1) {
+        throw new Error(t("validation.capacityInvalid"));
+      }
       if (isBatchCreate) {
         const payload = batchFormPayload(
           form,
           resolvedClassType.classTypeId,
+          title,
           calendarStartDate,
           calendarEndDate,
           calendarSlots,
@@ -1295,7 +1308,7 @@ function SessionFormSheet({
       }
       const saved = await apiFetch<AdminScheduleSession>(
         row?.id ? `/classes/sessions/${row.id}` : "/classes/sessions",
-        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId)) },
+        { method: "PATCH", body: JSON.stringify(formPayload(form, resolvedClassType.classTypeId, title)) },
       );
       onSaved(saved);
     } catch (requestError) {
@@ -1354,13 +1367,6 @@ function SessionFormSheet({
             void submit(event);
           }}
         >
-        <input
-          className="ommm-input sm:col-span-2"
-          value={form.title}
-          onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-          placeholder={t("form.className")}
-          required
-        />
         <OmmFormDropdown
           value={form.classTypeId}
           ariaLabel={t("form.classType")}
@@ -1398,7 +1404,7 @@ function SessionFormSheet({
             />
           </>
         ) : null}
-        <label className="flex flex-col gap-1">
+        <label className="flex min-w-0 flex-col gap-1">
           <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
             {t("form.capacityHint")}
           </span>
@@ -1415,16 +1421,20 @@ function SessionFormSheet({
             required
           />
         </label>
-        <OmmFilterMultiSelect
-          ariaLabel={t("form.level")}
-          allLabel={t("form.level")}
-          selectedValues={form.levels}
-          options={levelOptions}
-          onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
-          className="sm:col-span-2"
-          triggerClassName="text-center"
-          formatSelectedCount={(count) => t("filters.selectedCount", { count })}
-        />
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="px-1 text-xs font-semibold uppercase tracking-[0.12em] text-sage-500">
+            {t("form.level")}
+          </span>
+          <OmmFilterMultiSelect
+            ariaLabel={t("form.level")}
+            allLabel={t("filters.allLevels")}
+            selectedValues={form.levels}
+            options={levelOptions}
+            onChange={(value) => setForm((current) => ({ ...current, levels: value }))}
+            className="w-full"
+            formatSelectedCount={(count) => t("filters.selectedCount", { count })}
+          />
+        </div>
         {isBatchCreate ? (
           <section className="rounded-2xl border border-sand-500/20 bg-white/70 p-4 sm:col-span-2">
             <div className="space-y-1">
