@@ -256,15 +256,15 @@ export function AdminClientsManagement({
       );
       if (!areUrlSearchQueriesEqual(currentQuery, nextQuery)) {
         const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
-        routerRef.current.replace(nextUrl, { scroll: false });
+        router.replace(nextUrl, { scroll: false });
       }
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [apiQueryString, listPage.offset, listPage.page, pathname, urlQueryString]);
+  }, [apiQueryString, listPage.offset, listPage.page, pathname, router, urlQueryString]);
 
   const handleClientChanged = useCallback(() => {
-    routerRef.current.refresh();
-  }, []);
+    router.refresh();
+  }, [router]);
 
   function updateFilter(key: keyof typeof filters, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));

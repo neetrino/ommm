@@ -129,6 +129,12 @@ export function AdminBookingDetailsSheet({
   const notes =
     fetchKey !== null && result?.key === fetchKey ? result.notes : [];
 
+  function handleNotesChange(nextNotes: BookingNote[]): void {
+    setResult((prev) =>
+      prev === null || prev.key !== fetchKey ? prev : { ...prev, notes: nextNotes },
+    );
+  }
+
   useEffect(() => {
     if (fetchKey === null || row === null) {
       return undefined;
@@ -258,7 +264,7 @@ export function AdminBookingDetailsSheet({
               <AdminBookingNotesSection
                 bookingId={row.id}
                 notes={notes}
-                onNotesChange={setNotes}
+                onNotesChange={handleNotesChange}
                 onNoteAdded={onNoteAdded}
               />
             ) : null}
