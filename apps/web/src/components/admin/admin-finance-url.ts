@@ -21,6 +21,7 @@ export const FINANCE_PAYMENTS_QUERY_KEYS = [
   "planId",
   "packageClass",
   "sessions",
+  "order",
   "payPage",
   "payPageSize",
 ] as const;
@@ -240,6 +241,7 @@ export function parseFinanceOverviewFiltersFromSearch(
 export function parseFinancePaymentsFiltersFromSearch(
   search: Record<string, string | string[] | undefined>,
 ): FinanceFilterValues {
+  const order = firstParam(search.order);
   return {
     q: firstParam(search.q)?.trim() ?? "",
     rangeDays: parseFinanceDateRangeDays(search.rangeDays),
@@ -248,6 +250,7 @@ export function parseFinancePaymentsFiltersFromSearch(
     planId: parseFinancePackagePlanFilter(search.planId),
     packageClass: parseFinancePackageClassFilter(search.packageClass),
     sessions: parseFinancePackageSessionsFilter(search.sessions),
+    order: order === "oldest" ? "oldest" : "newest",
   };
 }
 
@@ -339,6 +342,7 @@ export function buildFinancePaymentsFiltersQuery(
     planId: values.planId !== "all" ? values.planId : undefined,
     packageClass: values.packageClass !== "all" ? values.packageClass : undefined,
     sessions: values.sessions !== "all" ? values.sessions : undefined,
+    order: values.order !== "newest" ? values.order : undefined,
   });
   return params.toString();
 }
@@ -371,6 +375,9 @@ export function buildFinancePaymentsAdminApiQuery(
   }
   if (filters.sessions !== "all") {
     params.set("sessions", filters.sessions);
+  }
+  if (filters.order !== "newest") {
+    params.set("order", filters.order);
   }
   return `/payments/admin?${params.toString()}`;
 }

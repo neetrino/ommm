@@ -44,6 +44,10 @@ import {
   resetListPageQuery,
   syncListPageQuery,
 } from "@/lib/list-pagination";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { UserPaymentsPayload } from "@/lib/user-package-types";
 
 type UserPaymentsHistoryProps = {
@@ -81,7 +85,14 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("payments");
   const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
-  const [filters, setFilters] = useState<UserPaymentFilterValues>(DEFAULT_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserPaymentFilterValues>(() => ({
+    ...DEFAULT_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "date",
+      "newest",
+    ),
+  }));
   const [loading, startTransition] = useTransition();
   const requestId = useRef(0);
   const hasMounted = useRef(false);
@@ -209,6 +220,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
         setFilters((current) => ({ ...current, order: value as UserPaymentSortOrder }));
         replaceSearchParams((params) => {
           resetListPageQuery(params);
+          syncUserListOrderQuery(params, value, "newest");
         });
         break;
       default:
@@ -220,6 +232,7 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
     setFilters(DEFAULT_FILTER_VALUES);
     replaceSearchParams((params) => {
       resetListPageQuery(params);
+      params.delete("order");
     });
   }
 

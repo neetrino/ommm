@@ -23,6 +23,7 @@ import {
 } from './dto/admin-list-payments-query.dto';
 import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 import { requiresManualAdminConfirmation } from './payment-confirmation.util';
@@ -398,6 +399,7 @@ export class PaymentsService {
     const sourceFilter = this.buildSourceFilter(query.source);
     const packageFilter = await this.buildPackagePaymentFilter(query);
     const search = query.q?.trim();
+    const order = resolveDateListPrismaOrder(query.order);
     const where: Prisma.PaymentWhereInput = {
       ...(query.userId ? { userId: query.userId } : {}),
       ...(query.status ? { status: query.status } : {}),
@@ -457,7 +459,7 @@ export class PaymentsService {
             },
           },
         },
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: [{ createdAt: order }, { id: order }],
         take,
         skip: offset,
       }),

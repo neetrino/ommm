@@ -14,8 +14,10 @@ import {
 } from "@/components/admin/admin-waitlist-list-layout";
 import {
   buildAdminWaitlistActiveEndpoint,
+  parseAdminWaitlistSortOrder,
   type AdminWaitlistActivePayload,
   type AdminWaitlistRow,
+  type AdminWaitlistSortOrder,
 } from "@/components/admin/admin-waitlist-query";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -30,6 +32,7 @@ import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
 
 const WAITLIST_SEARCH_KEY = "search";
 const WAITLIST_CLASS_TYPE_KEY = "classTypeId";
+const WAITLIST_ORDER_KEY = "order";
 
 type ToastTone = "ok" | "err";
 
@@ -52,6 +55,7 @@ export function AdminWaitlistManagement({
   staffBanner,
 }: AdminWaitlistManagementProps) {
   const t = useTranslations("adminPages.waitlists");
+  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -72,6 +76,9 @@ export function AdminWaitlistManagement({
     setSearchDraft(urlSearchDraft);
   }
   const classTypeFilter = searchParams.get(WAITLIST_CLASS_TYPE_KEY)?.trim() ?? "";
+  const orderFilter = parseAdminWaitlistSortOrder(
+    searchParams.get(WAITLIST_ORDER_KEY) ?? undefined,
+  );
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
@@ -142,26 +149,52 @@ export function AdminWaitlistManagement({
           />
         ),
       },
+      {
+        key: WAITLIST_ORDER_KEY,
+        label: tSort("sort"),
+        emptyValue: "newest",
+        options: [
+          { value: "newest", label: tSort("newest") },
+          { value: "oldest", label: tSort("oldest") },
+          { value: "upcoming", label: tSort("upcoming") },
+          { value: "date-asc", label: tSort("dateAsc") },
+          { value: "date-desc", label: tSort("dateDesc") },
+        ],
+      },
     ];
-  }, [classTypeOptions, t]);
+  }, [classTypeOptions, t, tSort]);
 
   const waitlistFilterValues = useMemo(
-    () => ({ [WAITLIST_CLASS_TYPE_KEY]: classTypeFilter }),
-    [classTypeFilter],
+    () => ({
+      [WAITLIST_CLASS_TYPE_KEY]: classTypeFilter,
+      [WAITLIST_ORDER_KEY]: orderFilter,
+    }),
+    [classTypeFilter, orderFilter],
   );
 
   function handleWaitlistFilterChange(key: string, value: string) {
-    if (key !== WAITLIST_CLASS_TYPE_KEY) {
+    if (key === WAITLIST_CLASS_TYPE_KEY) {
+      replaceSearchParams((params) => {
+        resetListPageQuery(params);
+        if (value.trim().length > 0) {
+          params.set(WAITLIST_CLASS_TYPE_KEY, value);
+        } else {
+          params.delete(WAITLIST_CLASS_TYPE_KEY);
+        }
+      });
       return;
     }
-    replaceSearchParams((params) => {
-      resetListPageQuery(params);
-      if (value.trim().length > 0) {
-        params.set(WAITLIST_CLASS_TYPE_KEY, value);
-      } else {
-        params.delete(WAITLIST_CLASS_TYPE_KEY);
-      }
-    });
+    if (key === WAITLIST_ORDER_KEY) {
+      replaceSearchParams((params) => {
+        resetListPageQuery(params);
+        const nextOrder = parseAdminWaitlistSortOrder(value) as AdminWaitlistSortOrder;
+        if (nextOrder === "newest") {
+          params.delete(WAITLIST_ORDER_KEY);
+        } else {
+          params.set(WAITLIST_ORDER_KEY, nextOrder);
+        }
+      });
+    }
   }
 
   function resetWaitlistFilters() {
@@ -170,6 +203,7 @@ export function AdminWaitlistManagement({
       resetListPageQuery(params);
       params.delete(WAITLIST_SEARCH_KEY);
       params.delete(WAITLIST_CLASS_TYPE_KEY);
+      params.delete(WAITLIST_ORDER_KEY);
     });
   }
 
@@ -199,7 +233,7 @@ export function AdminWaitlistManagement({
     setLoadError(null);
     try {
       const data = await apiFetch<AdminWaitlistActivePayload>(
-        buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset),
+        buildAdminWaitlistActiveEndpoint(listPage.take, listPage.offset, orderFilter),
       );
       if (requestId !== refreshRequestId.current) {
         return;
@@ -215,7 +249,7 @@ export function AdminWaitlistManagement({
         setLoading(false);
       }
     }
-  }, [listPage.offset, listPage.take, setPayload, t]);
+  }, [listPage.offset, listPage.take, orderFilter, setPayload, t]);
 
   const refreshList = useCallback(() => {
     startRefreshTransition(() => {

@@ -1,5 +1,6 @@
 import type { AdminIntegratedFilterField } from "@/components/admin/admin-integrated-search-filter-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { buildBookingManagementSortFilterField } from "@/lib/list-sort";
 
 type BookingFilterOptions = {
   classTypes: Array<{ id: string; name: string }>;
@@ -13,6 +14,14 @@ type BookingFilterOptions = {
     coachAll: string;
     clientAll: string;
     statusAll: string;
+    sort: string;
+    sortLabels: {
+      upcoming: string;
+      "date-asc": string;
+      "date-desc": string;
+      newest: string;
+      oldest: string;
+    };
   };
 };
 
@@ -70,6 +79,7 @@ export function buildAdminBookingsFilterFields(
         label,
       })),
     },
+    buildBookingManagementSortFilterField(options.labels.sort, options.labels.sortLabels),
   ];
 }
 
@@ -80,6 +90,7 @@ export function adminBookingsFilterValuesFromState(values: {
   coachId: string;
   clientId: string;
   status: string;
+  order: string;
 }): Record<string, string> {
   return {
     from: values.from,
@@ -88,5 +99,6 @@ export function adminBookingsFilterValuesFromState(values: {
     coachId: values.coachId,
     clientId: values.clientId,
     status: values.status,
+    order: values.order ?? "upcoming",
   };
 }

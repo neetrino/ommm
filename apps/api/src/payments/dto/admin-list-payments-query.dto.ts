@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -9,6 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { PaymentStatus } from '@prisma/client';
+import { DateListOrder } from '../../common/enums/list-order.enum';
 
 export enum PaymentSourceFilter {
   PACKAGE = 'package',
@@ -70,4 +72,8 @@ export class AdminListPaymentsQueryDto {
   @Min(1)
   @Max(100)
   take?: number;
+
+  @IsOptional()
+  @IsIn([DateListOrder.NEWEST, DateListOrder.OLDEST])
+  order?: DateListOrder;
 }

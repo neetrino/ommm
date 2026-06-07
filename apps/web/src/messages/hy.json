@@ -13,6 +13,15 @@
     "sessionDurationMinutes": "{minutes} ր",
     "sessionCoach": "Մարզիչ"
   },
+  "listSort": {
+    "sort": "Տեսակավորել",
+    "newest": "Նորից հին",
+    "oldest": "Հնից նոր",
+    "upcoming": "Նախատեսվածները սկզբում",
+    "dateAsc": "Ամսաթիվ՝ աճման կարգով",
+    "dateDesc": "Ամսաթիվ՝ նվազման կարգով",
+    "expirationSoon": "Շուտով ավարտվող"
+  },
   "nav": {
     "studioBrand": "Ommm.",
     "spaceBrand": "Ommm.",

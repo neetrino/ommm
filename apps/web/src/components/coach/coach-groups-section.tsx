@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { MarkAttendanceButtons } from "@/components/coach/mark-attendance-buttons";
 import {
   buildCoachRosterFilterFields,
@@ -15,6 +17,11 @@ import {
 import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { StaffRosterTable } from "@/components/shared/staff/staff-roster-table";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { parseSessionSortOrder, sortBySessionStartsAt } from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import type { CoachPanelBookingRow } from "@/lib/coach-panel-types";
 
 type CoachGroupsSectionProps = {
@@ -25,7 +32,28 @@ type CoachGroupsSectionProps = {
 
 export function CoachGroupsSection({ locale, roster, banner }: CoachGroupsSectionProps) {
   const t = useTranslations("coachPages.groups");
-  const [filters, setFilters] = useState<CoachRosterFilterValues>(DEFAULT_COACH_ROSTER_FILTER_VALUES);
+  const tSort = useTranslations("listSort");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [filters, setFilters] = useState<CoachRosterFilterValues>(() => ({
+    ...DEFAULT_COACH_ROSTER_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "session",
+      "upcoming",
+    ),
+  }));
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const classTypes = useMemo(() => extractCoachRosterClassTypes(roster), [roster]);
 
@@ -39,9 +67,13 @@ export function CoachGroupsSection({ locale, roster, banner }: CoachGroupsSectio
           classAll: t("filters.classAll"),
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
       }),
-    [classTypes, t],
+    [classTypes, t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -50,7 +82,12 @@ export function CoachGroupsSection({ locale, roster, banner }: CoachGroupsSectio
   );
 
   const filteredRoster = useMemo(
-    () => roster.filter((row) => matchesCoachRosterFilters(row, filters)),
+    () =>
+      sortBySessionStartsAt(
+        roster.filter((row) => matchesCoachRosterFilters(row, filters)),
+        (row) => row.session.startsAt,
+        filters.order,
+      ),
     [filters, roster],
   );
 
@@ -67,6 +104,15 @@ export function CoachGroupsSection({ locale, roster, banner }: CoachGroupsSectio
       case "classType":
         setFilters((current) => ({ ...current, classType: value }));
         break;
+      case "order":
+        setFilters((current) => ({
+          ...current,
+          order: parseSessionSortOrder(value),
+        }));
+        replaceSearchParams((params) => {
+          syncUserListOrderQuery(params, value, "upcoming");
+        });
+        break;
       default:
         break;
     }
@@ -74,6 +120,9 @@ export function CoachGroupsSection({ locale, roster, banner }: CoachGroupsSectio
 
   function resetFilters(): void {
     setFilters(DEFAULT_COACH_ROSTER_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      params.delete("order");
+    });
   }
 
   const tableItems = useMemo(

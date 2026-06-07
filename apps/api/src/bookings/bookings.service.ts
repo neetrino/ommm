@@ -28,6 +28,15 @@ import {
 } from './dto/list-my-bookings-query.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import {
+  BookingManagementOrder,
+  SessionListOrder,
+} from '../common/enums/list-order.enum';
+import {
+  resolveBookingSessionOrderBy,
+  sortBookingManagementRows,
+  sortRowsBySessionStartsAt,
+} from '../common/list-order.helpers';
 
 type ManagementBooking = {
   id: string;
@@ -287,7 +296,7 @@ export class BookingsService {
       return this.listMineAll(userId);
     }
     if (query.scope === MyBookingsScope.UPCOMING) {
-      return this.listMineUpcoming(userId);
+      return this.listMineUpcoming(userId, query.order);
     }
     return this.listMinePast(userId, query);
   }
@@ -300,7 +309,8 @@ export class BookingsService {
     });
   }
 
-  private listMineUpcoming(userId: string) {
+  private listMineUpcoming(userId: string, order?: SessionListOrder) {
+    const sessionOrder = resolveBookingSessionOrderBy(order);
     return this.prisma.booking.findMany({
       where: {
         userId,
@@ -308,7 +318,7 @@ export class BookingsService {
         session: { startsAt: { gt: new Date() } },
       },
       include: this.listMineInclude(),
-      orderBy: { createdAt: 'desc' },
+      orderBy: sessionOrder,
     });
   }
 
@@ -316,6 +326,7 @@ export class BookingsService {
     const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
     const offset = query.offset ?? 0;
     const now = new Date();
+    const sessionOrder = resolveBookingSessionOrderBy(query.order);
     const where: Prisma.BookingWhereInput = {
       userId,
       OR: [
@@ -327,7 +338,7 @@ export class BookingsService {
       this.prisma.booking.findMany({
         where,
         include: this.listMineInclude(),
-        orderBy: { createdAt: 'desc' },
+        orderBy: sessionOrder,
         take,
         skip: offset,
       }),
@@ -821,6 +832,11 @@ export class BookingsService {
           params.query.attendanceStatus?.toUpperCase(),
       );
     }
+
+    rows = sortBookingManagementRows(
+      rows,
+      params.query.order ?? BookingManagementOrder.UPCOMING,
+    );
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

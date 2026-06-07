@@ -13,6 +13,15 @@
     "sessionDurationMinutes": "{minutes} min",
     "sessionCoach": "Coach"
   },
+  "listSort": {
+    "sort": "Sort",
+    "newest": "Newest first",
+    "oldest": "Oldest first",
+    "upcoming": "Upcoming first",
+    "dateAsc": "Date: ascending",
+    "dateDesc": "Date: descending",
+    "expirationSoon": "Expiring soon"
+  },
   "nav": {
     "studioBrand": "Ommm.",
     "spaceBrand": "Ommm.",

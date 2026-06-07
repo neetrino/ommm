@@ -4,6 +4,7 @@ import type {
   ScheduleSessionListStatus,
 } from "@/components/shared/schedule/schedule-session-list-types";
 import { formatFilterDateChipLabel } from "@/lib/filter-date-display";
+import { buildSessionSortFilterField, type SessionSortOrder } from "@/lib/list-sort";
 
 export type CoachScheduleStatusFilter = "all" | ScheduleSessionListStatus;
 
@@ -13,6 +14,7 @@ export type CoachScheduleFilterValues = {
   to: string;
   classType: string;
   status: CoachScheduleStatusFilter;
+  order: SessionSortOrder;
 };
 
 export const DEFAULT_COACH_SCHEDULE_FILTER_VALUES: CoachScheduleFilterValues = {
@@ -21,6 +23,7 @@ export const DEFAULT_COACH_SCHEDULE_FILTER_VALUES: CoachScheduleFilterValues = {
   to: "",
   classType: "all",
   status: "all",
+  order: "upcoming",
 };
 
 const STATUS_OPTIONS: readonly Exclude<CoachScheduleStatusFilter, "all">[] = [
@@ -41,6 +44,10 @@ type BuildCoachScheduleFilterFieldsArgs = {
     statusValues: Record<Exclude<CoachScheduleStatusFilter, "all">, string>;
     searchPlaceholder: string;
     resetFilters: string;
+    sort: string;
+    sortUpcoming: string;
+    sortDateAsc: string;
+    sortDateDesc: string;
   };
 };
 
@@ -52,6 +59,7 @@ export function coachScheduleIntegratedFilterValues(
     to: values.to,
     classType: values.classType,
     status: values.status,
+    order: values.order,
   };
 }
 
@@ -91,6 +99,11 @@ export function buildCoachScheduleFilterFields({
         label: labels.statusValues[status],
       })),
     },
+    buildSessionSortFilterField(labels.sort, {
+      upcoming: labels.sortUpcoming,
+      "date-asc": labels.sortDateAsc,
+      "date-desc": labels.sortDateDesc,
+    }),
   ];
 }
 
@@ -138,6 +151,7 @@ export function hasActiveCoachScheduleFilters(filters: CoachScheduleFilterValues
     filters.from.length > 0 ||
     filters.to.length > 0 ||
     filters.classType !== "all" ||
-    filters.status !== "all"
+    filters.status !== "all" ||
+    filters.order !== "upcoming"
   );
 }

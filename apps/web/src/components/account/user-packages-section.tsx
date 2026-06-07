@@ -31,6 +31,14 @@ import {
   parseUserPackagesPackageId,
   USER_PACKAGES_PACKAGE_ID_QUERY_KEY,
 } from "@/lib/user-packages-query";
+import {
+  parseUserPackageSortOrder,
+  sortUserPackages,
+} from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 
 type UserPackagesSectionProps = {
   locale: string;
@@ -44,11 +52,29 @@ export function UserPackagesSection({
   apiOk,
 }: UserPackagesSectionProps) {
   const t = useTranslations("userPages.packages");
+  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("packages");
-  const [filters, setFilters] = useState<UserPackageFilterValues>(DEFAULT_USER_PACKAGE_FILTER_VALUES);
+  const [filters, setFilters] = useState<UserPackageFilterValues>(() => ({
+    ...DEFAULT_USER_PACKAGE_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "package",
+      "upcoming",
+    ),
+  }));
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const selectedId = useMemo(
     () => parseUserPackagesPackageId(Object.fromEntries(searchParams.entries())),
@@ -97,9 +123,13 @@ export function UserPackagesSection({
           },
           searchPlaceholder: t("filters.searchPlaceholder"),
           resetFilters: t("filters.resetFilters"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortNewest: tSort("newest"),
+          sortOldest: tSort("oldest"),
         },
       }),
-    [t],
+    [t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -108,7 +138,11 @@ export function UserPackagesSection({
   );
 
   const filteredMemberships = useMemo(
-    () => memberships.filter((row) => matchesUserPackageFilters(row, filters)),
+    () =>
+      sortUserPackages(
+        memberships.filter((row) => matchesUserPackageFilters(row, filters)),
+        filters.order,
+      ),
     [filters, memberships],
   );
 
@@ -117,11 +151,24 @@ export function UserPackagesSection({
   function handleIntegratedFilterChange(key: string, value: string): void {
     if (key === "status") {
       setFilters((current) => ({ ...current, status: value as UserPackageStatusFilter }));
+      return;
+    }
+    if (key === "order") {
+      setFilters((current) => ({
+        ...current,
+        order: parseUserPackageSortOrder(value),
+      }));
+      replaceSearchParams((params) => {
+        syncUserListOrderQuery(params, value, "upcoming");
+      });
     }
   }
 
   function resetFilters(): void {
     setFilters(DEFAULT_USER_PACKAGE_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      params.delete("order");
+    });
   }
 
   const heroSearch = (

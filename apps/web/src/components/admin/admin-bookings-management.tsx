@@ -255,6 +255,7 @@ export function AdminBookingsManagement({
     };
   }
 
+  const tSort = useTranslations("listSort");
   const bookingFilterFields = useMemo(
     () =>
       buildAdminBookingsFilterFields({
@@ -274,9 +275,17 @@ export function AdminBookingsManagement({
           coachAll: t("filterCoachAll"),
           clientAll: t("filterClientAll"),
           statusAll: t("filterStatusAll"),
+          sort: tSort("sort"),
+          sortLabels: {
+            upcoming: tSort("upcoming"),
+            "date-asc": tSort("dateAsc"),
+            "date-desc": tSort("dateDesc"),
+            newest: tSort("newest"),
+            oldest: tSort("oldest"),
+          },
         },
       }),
-    [payload.filterOptions.classTypes, payload.filterOptions.coaches, t, uniqueClients],
+    [payload.filterOptions.classTypes, payload.filterOptions.coaches, t, tSort, uniqueClients],
   );
 
   const integratedFilterValues = useMemo(
@@ -295,7 +304,8 @@ export function AdminBookingsManagement({
       key === "classTypeId" ||
       key === "coachId" ||
       key === "clientId" ||
-      key === "status"
+      key === "status" ||
+      key === "order"
     ) {
       updateFilter(key, value);
     }

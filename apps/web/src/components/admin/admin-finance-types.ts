@@ -25,6 +25,7 @@ export type FinanceFilterValues = {
   planId: FinancePackagePlanFilter;
   packageClass: FinancePackageClassFilter;
   sessions: FinancePackageSessionsFilter;
+  order: "newest" | "oldest";
 };
 
 export type FinancePaymentItem = {

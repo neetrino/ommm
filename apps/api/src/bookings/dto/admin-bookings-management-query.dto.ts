@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { BookingManagementOrder } from '../../common/enums/list-order.enum';
 import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
 export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
@@ -54,4 +55,8 @@ export class AdminBookingsManagementQueryDto extends ListPaginationQueryDto {
   @Transform(({ value }) => value === 'true' || value === '1')
   @IsBoolean()
   countOnly?: boolean;
+
+  @IsOptional()
+  @IsEnum(BookingManagementOrder)
+  order?: BookingManagementOrder;
 }

@@ -12,6 +12,11 @@ import {
   type ScheduleDayOfWeek,
 } from '@prisma/client';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import {
+  resolveSessionListOrderBy,
+  sortAdminSessionRows,
+  SessionListOrder,
+} from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   buildSessionsListWhere,
@@ -254,10 +259,13 @@ export class ClassesService {
       normalizedQuery.take !== undefined ||
       normalizedQuery.offset !== undefined;
     const where = buildSessionsListWhere(normalizedQuery);
+    const sessionOrder = resolveSessionListOrderBy(
+      normalizedQuery.order ?? SessionListOrder.UPCOMING,
+    );
     const findArgs = {
       where,
       include: ADMIN_SESSION_INCLUDE,
-      orderBy: { startsAt: 'asc' as const },
+      orderBy: sessionOrder,
     };
     const mapSessions = (
       sessions: Array<
@@ -292,7 +300,11 @@ export class ClassesService {
       });
       const mapped = mapSessions(sessions);
       const filtered = filterSessionRows(mapped, normalizedQuery);
-      return paginateSessionRows(filtered, take, offset);
+      const sorted = sortAdminSessionRows(
+        filtered,
+        normalizedQuery.order ?? SessionListOrder.UPCOMING,
+      );
+      return paginateSessionRows(sorted, take, offset);
     }
 
     const [sessions, total] = await Promise.all([

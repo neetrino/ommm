@@ -1,4 +1,12 @@
 import { parseListPageParams } from "@/lib/list-pagination";
+import {
+  parseDateSortOrder,
+  parseSessionSortOrder,
+  type DateSortOrder,
+  type SessionSortOrder,
+} from "@/lib/list-sort";
+
+export type AdminWaitlistSortOrder = DateSortOrder | SessionSortOrder;
 
 export type AdminWaitlistRow = {
   id: string;
@@ -25,11 +33,34 @@ export type AdminWaitlistActivePayload = {
   offset: number;
 };
 
-export function buildAdminWaitlistActiveEndpoint(take: number, offset: number): string {
+export function parseAdminWaitlistSortOrder(
+  value: string | undefined,
+): AdminWaitlistSortOrder {
+  if (!value) {
+    return "newest";
+  }
+  if (
+    value === "upcoming" ||
+    value === "date-asc" ||
+    value === "date-desc"
+  ) {
+    return value;
+  }
+  return parseDateSortOrder(value);
+}
+
+export function buildAdminWaitlistActiveEndpoint(
+  take: number,
+  offset: number,
+  order: AdminWaitlistSortOrder = "newest",
+): string {
   const params = new URLSearchParams({
     take: String(take),
     offset: String(offset),
   });
+  if (order !== "newest") {
+    params.set("order", order);
+  }
   return `/waitlist/admin/active?${params.toString()}`;
 }
 

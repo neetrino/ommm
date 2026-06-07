@@ -13,6 +13,15 @@
     "sessionDurationMinutes": "{minutes} мин",
     "sessionCoach": "Тренер"
   },
+  "listSort": {
+    "sort": "Сортировка",
+    "newest": "Сначала новые",
+    "oldest": "Сначала старые",
+    "upcoming": "Сначала предстоящие",
+    "dateAsc": "Дата: по возрастанию",
+    "dateDesc": "Дата: по убыванию",
+    "expirationSoon": "Скоро истекают"
+  },
   "nav": {
     "studioBrand": "Ommm.",
     "spaceBrand": "Ommm.",

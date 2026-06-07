@@ -78,6 +78,10 @@ export function useAdminBookingsListData({
       replaceSearchParams((params) => {
         resetListPageQuery(params);
         const normalized = String(value).trim();
+        if (key === "order" && normalized === "upcoming") {
+          params.delete(key);
+          return;
+        }
         if (normalized === "") {
           params.delete(key);
         } else {
@@ -99,6 +103,7 @@ export function useAdminBookingsListData({
         "coachId",
         "clientId",
         "status",
+        "order",
       ] as const) {
         params.delete(key);
       }

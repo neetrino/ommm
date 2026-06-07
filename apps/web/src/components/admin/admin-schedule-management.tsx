@@ -68,8 +68,8 @@ import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-lis
 import {
   AdminScheduleDateStrip,
   scheduleSessionLocalIsoDay,
-  sortScheduleRowsFromTodayForward,
 } from "@/components/admin/admin-schedule-date-strip";
+import { parseSessionSortOrder, sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -146,6 +146,7 @@ type Filters = {
   statuses: SessionStatus[];
   availability: AvailabilityOption[];
   timeOfDay: TimeOfDayOption[];
+  order: SessionSortOrder;
 };
 
 type FormState = {
@@ -393,6 +394,7 @@ export function AdminScheduleManagement({
   const isStaff = variant === "staff";
   const t = useTranslations("adminPages.classes");
   const tPage = useTranslations("adminPages.schedule");
+  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -649,6 +651,10 @@ export function AdminScheduleManagement({
           availability: t("filters.availabilityLabel"),
           timeOfDay: t("filters.timeOfDayLabel"),
           quick: t("filters.quickFilterLabel"),
+          sort: tSort("sort"),
+          sortUpcoming: tSort("upcoming"),
+          sortDateAsc: tSort("dateAsc"),
+          sortDateDesc: tSort("dateDesc"),
         },
         renderCoachIds: ({ value, onChange }) => (
           <OmmFilterMultiSelect
@@ -742,7 +748,7 @@ export function AdminScheduleManagement({
           />
         ),
       }),
-    [coaches, levels, packageOptions, quickOptions, scheduleMultiSelectFormat, t],
+    [coaches, levels, packageOptions, quickOptions, scheduleMultiSelectFormat, t, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -757,6 +763,7 @@ export function AdminScheduleManagement({
           statuses: filters.statuses,
           availability: filters.availability,
           timeOfDay: filters.timeOfDay,
+          order: filters.order,
         },
         quickFilters,
       ),
@@ -770,6 +777,11 @@ export function AdminScheduleManagement({
         break;
       case "to":
         patchFilterState({ filters: { to: value } });
+        break;
+      case "order":
+        patchFilterState({
+          filters: { order: parseSessionSortOrder(value) },
+        });
         break;
       case "coachIds":
         patchFilterState({ filters: { coachIds: parseAdminScheduleListFilter(value) } });
@@ -937,6 +949,7 @@ export function AdminScheduleManagement({
         locale={locale}
         view={view}
         rows={displayRows}
+        sortOrder={filters.order}
         selectedDay={selectedDay}
         onSelectDay={(day) => setSelectedDay((current) => (current === day ? null : day))}
         onDetails={setDetails}
@@ -1110,6 +1123,7 @@ function ScheduleViews(props: {
   locale: string;
   view: ScheduleView;
   rows: AdminScheduleSession[];
+  sortOrder: SessionSortOrder;
   selectedDay: string | null;
   busyId: string | null;
   onSelectDay: (day: string) => void;
@@ -1128,19 +1142,22 @@ function ScheduleViews(props: {
         selectedDay={props.selectedDay}
         onSelectDay={props.onSelectDay}
       />
-      <SessionTable {...props} rows={props.rows} />
+      <SessionTable {...props} rows={props.rows} sortOrder={props.sortOrder} />
     </div>
   );
 }
 
-function SessionTable(props: Omit<Parameters<typeof ScheduleViews>[0], "view">) {
+function SessionTable(
+  props: Omit<Parameters<typeof ScheduleViews>[0], "view"> & { sortOrder: SessionSortOrder },
+) {
   const t = useTranslations("adminPages.classes");
-  const rows = sortScheduleRowsFromTodayForward(
+  const rows = sortAdminSessionRows(
     props.selectedDay === null
       ? props.rows
       : props.rows.filter(
           (row) => scheduleSessionLocalIsoDay(row.startsAt) === props.selectedDay,
         ),
+    props.sortOrder,
   );
   if (rows.length === 0) {
     return (

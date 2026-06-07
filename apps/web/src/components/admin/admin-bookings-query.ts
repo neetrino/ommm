@@ -1,6 +1,10 @@
 import type { BookingsView } from "@/components/admin/admin-bookings-view";
 import { buildScheduleWeekDayKeys } from "@/components/shared/schedule/schedule-week-view-utils";
 import { normalizeFilterDateValue } from "@/lib/filter-date-display";
+import {
+  parseBookingManagementSortOrder,
+  type BookingManagementSortOrder,
+} from "@/lib/list-sort";
 import { parseListPageParams } from "@/lib/list-pagination";
 
 export const ADMIN_BOOKINGS_FILTER_KEYS = [
@@ -11,6 +15,7 @@ export const ADMIN_BOOKINGS_FILTER_KEYS = [
   "coachId",
   "clientId",
   "status",
+  "order",
 ] as const;
 
 export type AdminBookingsFilterState = {
@@ -21,6 +26,7 @@ export type AdminBookingsFilterState = {
   coachId: string;
   clientId: string;
   status: string;
+  order: BookingManagementSortOrder;
 };
 
 export type AdminBookingSessionSlot = {
@@ -99,6 +105,7 @@ export const defaultAdminBookingsFilters: AdminBookingsFilterState = {
   coachId: "",
   clientId: "",
   status: "",
+  order: "upcoming",
 };
 
 function isoDateLocal(date: Date): string {
@@ -166,6 +173,7 @@ export function pickAdminBookingsInitialFilters(
     coachId: search.coachId ?? "",
     clientId: search.clientId ?? "",
     status: search.status ?? "",
+    order: parseBookingManagementSortOrder(search.order),
   });
 }
 
@@ -197,6 +205,9 @@ function appendFilterParams(
   }
   if (filters.status) {
     params.set("status", filters.status);
+  }
+  if (filters.order !== "upcoming") {
+    params.set("order", filters.order);
   }
 }
 

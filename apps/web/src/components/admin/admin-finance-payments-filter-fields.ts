@@ -2,6 +2,7 @@ import type { AdminIntegratedFilterField } from "@/components/admin/admin-integr
 import { buildAdminFinanceFilterFields } from "@/components/admin/admin-finance-filter-fields";
 import type { FinanceFilterValues } from "@/components/admin/admin-finance-types";
 import type { FinancePaymentPackageFilterOptions } from "@/components/admin/admin-finance-payments-package-filter-options";
+import { buildDateSortFilterField } from "@/lib/list-sort";
 
 type BuildAdminFinancePaymentsFilterFieldsArgs = {
   labels: {
@@ -30,6 +31,9 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
     noPackages: string;
     noClasses: string;
     noSessions: string;
+    sort: string;
+    sortNewest: string;
+    sortOldest: string;
   };
   packageOptions: FinancePaymentPackageFilterOptions;
 };
@@ -37,7 +41,7 @@ type BuildAdminFinancePaymentsFilterFieldsArgs = {
 export function adminFinancePaymentsIntegratedFilterValues(
   values: Pick<
     FinanceFilterValues,
-    "rangeDays" | "source" | "status" | "planId" | "packageClass" | "sessions"
+    "rangeDays" | "source" | "status" | "planId" | "packageClass" | "sessions" | "order"
   >,
 ): Record<string, string> {
   return {
@@ -47,6 +51,7 @@ export function adminFinancePaymentsIntegratedFilterValues(
     planId: values.planId,
     packageClass: values.packageClass,
     sessions: values.sessions,
+    order: values.order,
   };
 }
 
@@ -121,5 +126,9 @@ export function buildAdminFinancePaymentsFilterFields({
       labels.noSessions,
       packageOptions.sessionOptions,
     ),
+    buildDateSortFilterField(labels.sort, {
+      newest: labels.sortNewest,
+      oldest: labels.sortOldest,
+    }),
   ];
 }

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { UserPaymentsHistory } from "@/components/account/user-payments-history";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { parseListPageParams } from "@/lib/list-pagination";
+import { readUserListOrderFromSearch } from "@/lib/user-list-order-url";
 import { serverApiJson } from "@/lib/server-api";
 import type { UserPaymentsPayload } from "@/lib/user-package-types";
 
@@ -18,8 +19,10 @@ export default async function UserPaymentsPage({
   const t = await getTranslations({ locale, namespace: "userPages.payments" });
   const cookie = (await headers()).get("cookie") ?? "";
   const listPage = parseListPageParams(search);
+  const order = readUserListOrderFromSearch(search, "date", "newest");
+  const orderParam = order !== "newest" ? `&order=${order}` : "";
   const paymentsRes = await serverApiJson<UserPaymentsPayload>(
-    `/payments/me?take=${listPage.take}&offset=${listPage.offset}`,
+    `/payments/me?take=${listPage.take}&offset=${listPage.offset}${orderParam}`,
     cookie,
   );
 

@@ -39,6 +39,7 @@ const DEFAULT_FINANCE_PAYMENTS_FILTERS: FinanceFilterValues = {
   planId: "all",
   packageClass: "all",
   sessions: "all",
+  order: "newest",
 };
 
 type AdminFinancePaymentsFiltersProps = {
@@ -48,6 +49,7 @@ type AdminFinancePaymentsFiltersProps = {
 export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePaymentsFiltersProps) {
   const t = useTranslations("adminPages.finance");
   const tFilters = useTranslations("adminPages.finance.filters");
+  const tSort = useTranslations("listSort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -115,10 +117,13 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
           noPackages: tFilters("noPackages"),
           noClasses: tFilters("noClasses"),
           noSessions: tFilters("noSessions"),
+          sort: tSort("sort"),
+          sortNewest: tSort("newest"),
+          sortOldest: tSort("oldest"),
         },
         packageOptions: packageFilterOptions,
       }),
-    [packageFilterOptions, tFilters],
+    [packageFilterOptions, tFilters, tSort],
   );
 
   const integratedFilterValues = useMemo(
@@ -179,6 +184,9 @@ export function AdminFinancePaymentsFilters({ initialValues }: AdminFinancePayme
         break;
       case "sessions":
         updateField("sessions", parseFinancePackageSessionsFilter(value));
+        break;
+      case "order":
+        updateField("order", value === "oldest" ? "oldest" : "newest");
         break;
       default:
         break;
