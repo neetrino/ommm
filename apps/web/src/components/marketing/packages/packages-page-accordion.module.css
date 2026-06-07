@@ -92,7 +92,12 @@
   flex-direction: column;
   overflow: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.expandedBody::-webkit-scrollbar {
+  display: none;
 }
 
 .expandedBodyInner {
