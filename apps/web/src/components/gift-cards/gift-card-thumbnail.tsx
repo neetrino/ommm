@@ -1,4 +1,5 @@
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
 type GiftCardThumbnailProps = {
   imageUrl: string | null;
@@ -13,7 +14,9 @@ export function GiftCardThumbnail({
   fallbackLabel,
   className,
 }: GiftCardThumbnailProps) {
-  const resolvedImage = resolveApiAssetUrl(imageUrl);
+  const apiImageUrl = resolveApiAssetUrl(imageUrl);
+  const resolvedImage =
+    apiImageUrl !== undefined ? sanitizeImageSrcUrl(apiImageUrl) : null;
 
   if (resolvedImage) {
     return (

@@ -5,42 +5,10 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
+import { sanitizeImageSrcUrl } from "@/lib/sanitize-image-src-url";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
-const HOME_PREVIEW_PATH_BASE = new URL("https://preview-path.invalid");
-
-function sanitizeHomePreviewSrc(src: string): string | null {
-  const trimmed = src.trim();
-  if (trimmed === "") {
-    return null;
-  }
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
-    try {
-      const parsed = new URL(trimmed, HOME_PREVIEW_PATH_BASE);
-      if (parsed.origin !== HOME_PREVIEW_PATH_BASE.origin) {
-        return null;
-      }
-      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
-    } catch {
-      return null;
-    }
-  }
-  let url: URL;
-  try {
-    url = new URL(trimmed);
-  } catch {
-    return null;
-  }
-  if (
-    url.protocol === "https:" ||
-    url.protocol === "http:" ||
-    url.protocol === "blob:"
-  ) {
-    return url.href;
-  }
-  return null;
-}
 
 function readFileAsHomeImageJsonPayload(
   file: File,
@@ -91,7 +59,9 @@ export function AccountHomeImageForm({
 
   const rawPreview = objectUrl ?? initialPreviewUrl ?? null;
   const previewSrc =
-    rawPreview !== null ? sanitizeHomePreviewSrc(rawPreview) : null;
+    rawPreview !== null
+      ? sanitizeImageSrcUrl(rawPreview, { allowBlob: true })
+      : null;
 
   async function uploadFile(file: File) {
     setBusy(true);
