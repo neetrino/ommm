@@ -14,6 +14,10 @@ export const PACKAGE_CATEGORY_QUERY_KEY = "categoryId";
 export const PACKAGE_EDIT_CATEGORY_QUERY_KEY = "editCategory";
 export const PACKAGE_DELETE_CATEGORY_QUERY_KEY = "deleteCategoryId";
 
+/** Query keys persisted in the URL (search stays in local state — avoids input reset loops). */
+export const PACKAGE_URL_FILTER_QUERY_KEYS = ["status", "order"] as const;
+
+/** Legacy keys cleared from the URL when filters sync. */
 export const PACKAGE_FILTER_QUERY_KEYS = ["search", "status", "order"] as const;
 
 const SORT_ORDERS: readonly PackageSortOrder[] = [
@@ -61,16 +65,22 @@ export function parsePackageFiltersFromSearch(
   };
 }
 
-export function buildPackageFiltersQuery(values: PackageFilterValues): string {
+/** Status and sort only — search is client-local on this page. */
+export function buildPackageUrlFiltersQuery(values: PackageFilterValues): string {
   const params = new URLSearchParams();
-  if (values.search.trim().length > 0) {
-    params.set("search", values.search.trim());
-  }
   if (values.status !== "all") {
     params.set("status", values.status);
   }
   if (values.order !== "displayOrder") {
     params.set("order", values.order);
+  }
+  return params.toString();
+}
+
+export function buildPackageFiltersQuery(values: PackageFilterValues): string {
+  const params = new URLSearchParams(buildPackageUrlFiltersQuery(values));
+  if (values.search.trim().length > 0) {
+    params.set("search", values.search.trim());
   }
   return params.toString();
 }

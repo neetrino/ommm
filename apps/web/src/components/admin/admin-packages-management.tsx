@@ -17,6 +17,7 @@ import { AdminPackageCategoryRenameModal } from "@/components/admin/admin-packag
 import { AdminPackagesCategoryDropdown } from "@/components/admin/admin-packages-category-dropdown";
 import {
   buildPackageCategoryOptions,
+  categoryHasConfiguredPackages,
   packagesInCategory,
 } from "@/components/admin/admin-packages-categories";
 import {
@@ -31,6 +32,7 @@ import {
 import { AdminPackagesFilters } from "@/components/admin/admin-packages-filters";
 import {
   filterPackages,
+  hasActivePackageFilters,
   sortPackages,
 } from "@/components/admin/admin-packages-filter-logic";
 import {
@@ -42,12 +44,14 @@ import {
 } from "@/components/admin/admin-packages-types";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
 import {
+  buildPackageUrlFiltersQuery,
   buildPackagesPathname,
   clearPackageModalQueryKeys,
   PACKAGE_CATEGORY_QUERY_KEY,
   PACKAGE_DELETE_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_CATEGORY_QUERY_KEY,
   PACKAGE_EDIT_QUERY_KEY,
+  PACKAGE_FILTER_QUERY_KEYS,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
@@ -59,6 +63,7 @@ import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
   locale: string;
+  initialFilters: PackageFilterValues;
 };
 
 const DEFAULT_PACKAGE_FILTER_VALUES: PackageFilterValues = {
@@ -78,16 +83,65 @@ function PackagesEmptyState({ children }: { children: ReactNode }) {
 export function AdminPackagesManagement({
   packages: packagesFromServer,
   locale,
+  initialFilters,
 }: AdminPackagesManagementProps) {
   const t = useTranslations("adminPages.packages");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const filtersRef = useRef(initialFilters);
+  const searchParamsRef = useRef(searchParams.toString());
   const [packageRows, setPackageRows] = useState<readonly AdminPackageRow[]>(() =>
     packagesFromServer.map(normalizeAdminPackageRow),
   );
   const [prevPackagesFromServer, setPrevPackagesFromServer] =
     useState(packagesFromServer);
+  const [filterValues, setFilterValues] = useState<PackageFilterValues>(initialFilters);
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams.toString();
+  }, [searchParams]);
+
+  useEffect(() => {
+    filtersRef.current = filterValues;
+  }, [filterValues]);
+
+  useEffect(() => {
+    setFilterValues((current) => {
+      if (
+        current.status === initialFilters.status &&
+        current.order === initialFilters.order
+      ) {
+        return current;
+      }
+      return {
+        ...current,
+        status: initialFilters.status,
+        order: initialFilters.order,
+      };
+    });
+  }, [initialFilters.order, initialFilters.status]);
+
+  const syncFiltersToUrl = useCallback(
+    (values: PackageFilterValues) => {
+      const params = new URLSearchParams(searchParamsRef.current);
+      for (const key of PACKAGE_FILTER_QUERY_KEYS) {
+        params.delete(key);
+      }
+      const filterQuery = buildPackageUrlFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, entryValue] of new URLSearchParams(filterQuery)) {
+          params.set(key, entryValue);
+        }
+      }
+      const qs = params.toString();
+      if (qs === searchParamsRef.current) {
+        return;
+      }
+      router.replace(buildPackagesPathname(pathname, params), { scroll: false });
+    },
+    [pathname, router],
+  );
 
   if (packagesFromServer !== prevPackagesFromServer) {
     setPrevPackagesFromServer(packagesFromServer);
@@ -98,8 +152,6 @@ export function AdminPackagesManagement({
       ),
     );
   }
-
-  const [filterValues, setFilterValues] = useState<PackageFilterValues>(DEFAULT_PACKAGE_FILTER_VALUES);
 
   const sortedPackages = useMemo(
     () => [...packageRows].sort((left, right) => left.displayOrder - right.displayOrder),
@@ -115,11 +167,18 @@ export function AdminPackagesManagement({
     key: K,
     value: PackageFilterValues[K],
   ): void {
-    setFilterValues((current) => ({ ...current, [key]: value }));
+    setFilterValues((current) => {
+      const next = { ...current, [key]: value };
+      if (key !== "search") {
+        syncFiltersToUrl(next);
+      }
+      return next;
+    });
   }
 
   function resetPackageFilters(): void {
     setFilterValues(DEFAULT_PACKAGE_FILTER_VALUES);
+    syncFiltersToUrl(DEFAULT_PACKAGE_FILTER_VALUES);
   }
 
   const categoryOptions = useMemo(
@@ -179,6 +238,17 @@ export function AdminPackagesManagement({
     () => categoryOptions.filter((option) => selectedCategoryIds.has(option.id)),
     [categoryOptions, selectedCategoryIds],
   );
+
+  const filtersActive = hasActivePackageFilters(filterValues);
+
+  const displayCategories = useMemo(() => {
+    if (!filtersActive) {
+      return visibleCategories;
+    }
+    return visibleCategories.filter((option) =>
+      categoryHasConfiguredPackages(filteredPackages, option.id),
+    );
+  }, [filteredPackages, filtersActive, visibleCategories]);
 
   const defaultCategoryId = useMemo(() => {
     const firstSelected = categoryOptions.find((option) => selectedCategoryIds.has(option.id));
@@ -391,9 +461,11 @@ export function AdminPackagesManagement({
           <PackagesEmptyState>{t("noPackageCategoriesYet")}</PackagesEmptyState>
         ) : visibleCategories.length === 0 ? (
           <p className="text-sm text-sage-500">{t("noCategoriesSelected")}</p>
+        ) : displayCategories.length === 0 ? (
+          <PackagesEmptyState>{t("empty")}</PackagesEmptyState>
         ) : (
           <div className="flex flex-col gap-5">
-            {visibleCategories.map((category) => (
+            {displayCategories.map((category) => (
               <CategoryAccordion
                 key={category.id}
                 category={category}
