@@ -126,6 +126,7 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/content", icon: "fileText", labelKey: "content" },
   { href: "/admin/settings", icon: "settings", labelKey: "settings" },
   { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers" },
+  { href: "/admin/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ];
 
 /** Sidebar item definitions for the authenticated dashboard role (Prisma `Role`). */

@@ -1179,7 +1179,6 @@
     "pageTitle": "Admin dashboard",
     "fetchError": "Fetch failed (is the API running?)",
     "overview": {
-      "pageDescription": "Fast operational overview of classes, bookings, members, revenue, and alerts.",
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load dashboard data ({status}).",
       "kpi": {
