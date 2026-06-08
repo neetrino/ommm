@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
+import { useObservedElementSize } from "@/hooks/use-observed-element-size";
 import { cn } from "@/lib/cn";
 
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -33,21 +34,23 @@ function ChartContainer({ id, className, children, config, ...props }: ChartCont
     () => true,
     () => false,
   );
+  const { ref, size, isReady } = useObservedElementSize<HTMLDivElement>();
 
   return (
     <ChartContext.Provider value={{ config }}>
       <div
+        ref={ref}
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "[&_.recharts-cartesian-axis-tick_text]:fill-sage-500 [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-sage-500/20 relative w-full min-h-0 min-w-0 text-xs [&_.recharts-layer]:outline-hidden [&_.recharts-responsive-container]:!h-full [&_.recharts-responsive-container]:!w-full [&_.recharts-surface]:outline-hidden",
+          "[&_.recharts-cartesian-axis-tick_text]:fill-sage-500 [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-sage-500/20 relative w-full min-h-0 min-w-0 text-xs [&_.recharts-layer]:outline-hidden [&_.recharts-surface]:outline-hidden",
           className,
         )}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        {isClient ? (
-          <RechartsPrimitive.ResponsiveContainer width="100%" height="100%" minWidth={0}>
+        {isClient && isReady ? (
+          <RechartsPrimitive.ResponsiveContainer width={size.width} height={size.height}>
             {children}
           </RechartsPrimitive.ResponsiveContainer>
         ) : null}
