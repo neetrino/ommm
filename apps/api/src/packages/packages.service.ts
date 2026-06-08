@@ -15,7 +15,7 @@ import {
   Prisma,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
-import { isCardAutoConfirmable } from '../payments/payment-confirmation.util';
+import { isCardAutoConfirmable, grantsImmediatePackageBookingAccess } from '../payments/payment-confirmation.util';
 import { PaymentsService } from '../payments/payments.service';
 import {
   PUBLIC_CACHE_KEYS,
@@ -379,6 +379,8 @@ export class PackagesService {
     const end = new Date(start);
     end.setDate(end.getDate() + plan.periodDays);
     const sessionAllocation = this.packageUsage.resolveInitialSessions(plan);
+    const grantsImmediateBookingAccess =
+      grantsImmediatePackageBookingAccess(paymentMethod);
     let paymentReference: string | null = null;
     const { userPackage, paymentId } = await this.prisma.$transaction(
       async (tx) => {
@@ -386,7 +388,9 @@ export class PackagesService {
           data: {
             userId,
             planId,
-            status: PackageStatus.PENDING,
+            status: grantsImmediateBookingAccess
+              ? PackageStatus.ACTIVE
+              : PackageStatus.PENDING,
             sessionsTotal: sessionAllocation.sessionsTotal,
             sessionsRemaining: sessionAllocation.sessionsRemaining,
             currentPeriodStart: start,

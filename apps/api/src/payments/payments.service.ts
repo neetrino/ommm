@@ -599,8 +599,11 @@ export class PaymentsService {
         'Package payment is not linked to a package',
       );
     }
-    await tx.userPackage.update({
-      where: { id: userPackageId },
+    await tx.userPackage.updateMany({
+      where: {
+        id: userPackageId,
+        status: { not: PackageStatus.CANCELLED },
+      },
       data: { status: PackageStatus.ACTIVE },
     });
   }
