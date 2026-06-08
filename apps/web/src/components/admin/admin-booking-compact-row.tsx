@@ -3,11 +3,6 @@
 import { useTranslations } from "next-intl";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
-import {
-  ADMIN_BOOKING_VALUE_BADGE_CLASS,
-  adminBookingPaymentLabel,
-  paymentValueBadgeTone,
-} from "@/components/admin/admin-booking-list-badges";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import {
@@ -18,7 +13,6 @@ import {
   ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
-  ADMIN_BOOKINGS_LIST_PAYMENT_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import {
@@ -148,14 +142,6 @@ export function AdminBookingCompactRow({
         </div>
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_PAYMENT_CELL}>
-        <AdminListMobileLabel label={t("colPaymentStatus")} />
-        <BookingValueBadge
-          label={adminBookingPaymentLabel(t, row.paymentStatus)}
-          className={paymentValueBadgeTone(row.paymentStatus)}
-        />
-      </div>
-
       <div
         className={ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL}
         onClick={(event) => event.stopPropagation()}
@@ -188,13 +174,5 @@ export function AdminBookingCompactRow({
         />
       </div>
     </article>
-  );
-}
-
-function BookingValueBadge({ label, className }: { label: string; className: string }) {
-  return (
-    <span className={`${ADMIN_BOOKING_VALUE_BADGE_CLASS} ${className}`}>
-      {label}
-    </span>
   );
 }
