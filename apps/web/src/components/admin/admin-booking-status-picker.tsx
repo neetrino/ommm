@@ -7,6 +7,7 @@ import {
   ADMIN_BOOKING_STATUS_PICKER_CLASS,
   ADMIN_BOOKING_STATUS_STATIC_CLASS,
   bookingStatusTone,
+  type AdminBookingStatusBadgePaymentMethod,
 } from "@/components/admin/admin-booking-list-badges";
 
 const MENU_GAP = 4;
@@ -34,6 +35,7 @@ type MenuPosition = {
 type AdminBookingStatusPickerProps = {
   recordType: "BOOKING" | "WAITLIST";
   status: AdminBookingStatus;
+  bookingPaymentMethod?: AdminBookingStatusBadgePaymentMethod | null;
   busy: boolean;
   onChangeStatus: (next: AdminBookingStatus) => void;
 };
@@ -41,6 +43,7 @@ type AdminBookingStatusPickerProps = {
 export function AdminBookingStatusPicker({
   recordType,
   status,
+  bookingPaymentMethod = null,
   busy,
   onChangeStatus,
 }: AdminBookingStatusPickerProps) {
@@ -108,11 +111,12 @@ export function AdminBookingStatusPicker({
   }, [open, updateMenuPosition]);
 
   const label = statusLabel(t, status);
+  const statusTone = bookingStatusTone(status, bookingPaymentMethod);
 
   if (!isInteractive) {
     return (
       <span
-        className={`${ADMIN_BOOKING_STATUS_STATIC_CLASS} ${bookingStatusTone(status)} pointer-events-none`}
+        className={`${ADMIN_BOOKING_STATUS_STATIC_CLASS} ${statusTone} pointer-events-none`}
       >
         {label}
       </span>
@@ -166,7 +170,7 @@ export function AdminBookingStatusPicker({
       <button
         ref={triggerRef}
         type="button"
-        className={`${ADMIN_BOOKING_STATUS_PICKER_CLASS} ${bookingStatusTone(status)} disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`${ADMIN_BOOKING_STATUS_PICKER_CLASS} ${statusTone} disabled:cursor-not-allowed disabled:opacity-50`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}

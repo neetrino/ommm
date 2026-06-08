@@ -20,6 +20,7 @@ import {
   ADMIN_LIST_TITLE_TEXT_CLASS,
 } from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
 
 type BookingRow = {
   id: string;
@@ -27,6 +28,7 @@ type BookingRow = {
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
   paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
+  bookingPaymentMethod: string | null;
   channel: "WEBSITE" | "APP";
   user: { id: string; name: string | null; email: string; phone: string | null };
   session: {
@@ -151,6 +153,9 @@ export function AdminBookingCompactRow({
         <AdminBookingStatusPicker
           recordType={row.recordType}
           status={row.status}
+          bookingPaymentMethod={normalizeBookingStatusBadgePaymentMethod(
+            row.bookingPaymentMethod,
+          )}
           busy={busy}
           onChangeStatus={onChangeStatus}
         />

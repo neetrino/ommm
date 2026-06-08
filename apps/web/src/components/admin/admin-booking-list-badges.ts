@@ -7,6 +7,9 @@ const ADMIN_BOOKING_STATUS_BADGE_BASE = [
   "px-2 text-[11px] font-medium uppercase tracking-wide",
 ].join(" ");
 
+const ADMIN_BOOKING_STATUS_BOOKED_DEFAULT_TONE = "bg-mint-100 text-sage-800";
+const ADMIN_BOOKING_STATUS_BOOKED_CASH_TONE = "bg-blue-100 text-sage-800";
+
 /** Read-only booking status (waitlist). */
 export const ADMIN_BOOKING_STATUS_STATIC_CLASS = [
   ADMIN_BOOKING_STATUS_BADGE_BASE,
@@ -45,6 +48,17 @@ export type AdminBookingListStatus =
   | "MISSED"
   | "WAITLISTED";
 
+export type AdminBookingStatusBadgePaymentMethod = "CARD" | "CASH";
+
+export function normalizeBookingStatusBadgePaymentMethod(
+  value: string | null | undefined,
+): AdminBookingStatusBadgePaymentMethod | null {
+  if (value === "CARD" || value === "CASH") {
+    return value;
+  }
+  return null;
+}
+
 export function paymentValueBadgeTone(value: AdminBookingPaymentStatus): string {
   if (value === "PAID") return "bg-mint-100 text-sage-800";
   if (value === "CASH") return "bg-sand-100 text-sand-700";
@@ -70,8 +84,16 @@ export function attendanceValueBadgeTone(value: AdminBookingAttendanceStatus): s
 }
 
 /** Light fill tones for booking status (picker + read-only). */
-export function bookingStatusTone(status: AdminBookingListStatus): string {
-  if (status === "BOOKED") return "bg-mint-100 text-sage-800";
+export function bookingStatusTone(
+  status: AdminBookingListStatus,
+  paymentMethod?: AdminBookingStatusBadgePaymentMethod | null,
+): string {
+  if (status === "BOOKED") {
+    if (paymentMethod === "CASH") {
+      return ADMIN_BOOKING_STATUS_BOOKED_CASH_TONE;
+    }
+    return ADMIN_BOOKING_STATUS_BOOKED_DEFAULT_TONE;
+  }
   if (status === "COMPLETED") return "bg-blue-100 text-sage-800";
   if (status === "CANCELLED") return "bg-sand-100 text-sage-600";
   if (status === "WAITLISTED") return "bg-white/70 text-sage-500";
