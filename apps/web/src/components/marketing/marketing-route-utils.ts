@@ -38,6 +38,11 @@ export function isMarketingSchedulePath(pathname: string): boolean {
   return pathname === "/schedule" || pathname.startsWith("/schedule/");
 }
 
+/** Public packages page — scroll-reveal cards + footer. */
+export function isMarketingPackagesPath(pathname: string): boolean {
+  return pathname === "/packages" || pathname.startsWith("/packages/");
+}
+
 /** Public explore list and post pages — scroll-reveal cards + footer. */
 export function isMarketingExplorePath(pathname: string): boolean {
   return pathname === "/explore" || pathname.startsWith("/explore/");
@@ -48,7 +53,8 @@ export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
   return (
     isMarketingCoachesPath(pathname) ||
     isMarketingExplorePath(pathname) ||
-    isMarketingSchedulePath(pathname)
+    isMarketingSchedulePath(pathname) ||
+    isMarketingPackagesPath(pathname)
   );
 }
 

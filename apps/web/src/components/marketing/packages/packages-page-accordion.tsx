@@ -9,6 +9,8 @@ import { formatPackagePriceLabel } from "@/components/admin/admin-packages-displ
 import cardStyles from "@/components/marketing/packages/packages-page-category-cards.module.css";
 import accordionStyles from "@/components/marketing/packages/packages-page-accordion.module.css";
 import type { PackagesPageAccordionCategory } from "@/components/marketing/packages/packages-page-category-data";
+import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
+import { PACKAGES_PAGE_SCROLL_REVEAL } from "@/components/marketing/packages/packages-page-scroll-reveal-tokens";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import { PackageSubscribePaymentModal } from "@/components/account/package-subscribe-payment-modal";
@@ -504,21 +506,19 @@ function DesktopAccordionSlot({
   const mode = resolveDesktopPanelMode(isAccordionMode, isExpanded);
 
   return (
-    <div className={resolveAccordionSlotClass(isAccordionMode, isExpanded)}>
-      <div className={accordionStyles.slotContent}>
-        <DesktopAccordionPanel
-          locale={locale}
-          category={category}
-          mode={mode}
-          detailsLabel={detailsLabel}
-          openLabel={openLabel}
-          closeLabel={closeLabel}
-          audience={audience}
-          onSubscribe={onSubscribe}
-          onOpen={onOpen}
-          onClose={onClose}
-        />
-      </div>
+    <div className={accordionStyles.slotContent}>
+      <DesktopAccordionPanel
+        locale={locale}
+        category={category}
+        mode={mode}
+        detailsLabel={detailsLabel}
+        openLabel={openLabel}
+        closeLabel={closeLabel}
+        audience={audience}
+        onSubscribe={onSubscribe}
+        onOpen={onOpen}
+        onClose={onClose}
+      />
     </div>
   );
 }
@@ -602,29 +602,45 @@ export function PackagesPageAccordion({
 
   if (categories.length === 0) {
     return (
-      <p className="text-center text-sm text-sage-500" role="status">
-        {t("packagesEmpty")}
-      </p>
+      <PackagesPageReveal index={0}>
+        <p className="text-center text-sm text-sage-500" role="status">
+          {t("packagesEmpty")}
+        </p>
+      </PackagesPageReveal>
     );
   }
+
+  const cardRowGridColumns = Math.min(
+    categories.length,
+    PACKAGES_PAGE_SCROLL_REVEAL.cardRowGridColumns,
+  );
 
   const desktopContent = (
     <div className={cardStyles.desktopOnly}>
       <div className={accordionStyles.accordionRow} style={layoutStyleVars()}>
-        {categories.map((category) => (
-          <DesktopAccordionSlot
+        {categories.map((category, index) => (
+          <PackagesPageReveal
             key={category.id}
-            locale={locale}
-            category={category}
-            expandedCategory={expandedCategory}
-            detailsLabel={t("packagesDetailsCta")}
-            openLabel={t("packagesOpenDetailsAria", { name: category.label })}
-            closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
-            audience={audience}
-            onSubscribe={handleSubscribe}
-            onOpen={updateExpandedCategory}
-            onClose={() => updateExpandedCategory(null)}
-          />
+            index={index}
+            gridColumns={cardRowGridColumns}
+            className={resolveAccordionSlotClass(
+              expandedCategory !== null,
+              expandedCategory?.id === category.id,
+            )}
+          >
+            <DesktopAccordionSlot
+              locale={locale}
+              category={category}
+              expandedCategory={expandedCategory}
+              detailsLabel={t("packagesDetailsCta")}
+              openLabel={t("packagesOpenDetailsAria", { name: category.label })}
+              closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+              audience={audience}
+              onSubscribe={handleSubscribe}
+              onOpen={updateExpandedCategory}
+              onClose={() => updateExpandedCategory(null)}
+            />
+          </PackagesPageReveal>
         ))}
       </div>
     </div>
@@ -633,20 +649,21 @@ export function PackagesPageAccordion({
   const mobileContent = (
     <div className={cardStyles.mobileOnly}>
       <div className={accordionStyles.mobileAccordionStack} style={layoutStyleVars()}>
-        {categories.map((category) => (
-          <MobileAccordionSlot
-            key={category.id}
-            locale={locale}
-            category={category}
-            isExpanded={expandedCategory?.id === category.id}
-            detailsLabel={t("packagesDetailsCta")}
-            openLabel={t("packagesOpenDetailsAria", { name: category.label })}
-            closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
-            audience={audience}
-            onSubscribe={handleSubscribe}
-            onOpen={updateExpandedCategory}
-            onClose={() => updateExpandedCategory(null)}
-          />
+        {categories.map((category, index) => (
+          <PackagesPageReveal key={category.id} index={index}>
+            <MobileAccordionSlot
+              locale={locale}
+              category={category}
+              isExpanded={expandedCategory?.id === category.id}
+              detailsLabel={t("packagesDetailsCta")}
+              openLabel={t("packagesOpenDetailsAria", { name: category.label })}
+              closeLabel={t("packagesAccordionCloseAria", { name: category.label })}
+              audience={audience}
+              onSubscribe={handleSubscribe}
+              onOpen={updateExpandedCategory}
+              onClose={() => updateExpandedCategory(null)}
+            />
+          </PackagesPageReveal>
         ))}
       </div>
     </div>
