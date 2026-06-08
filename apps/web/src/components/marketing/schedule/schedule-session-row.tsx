@@ -21,7 +21,11 @@ export type ScheduleSessionRowProps = {
   style?: CSSProperties;
 };
 
-export function ScheduleSessionRow({
+export function scheduleSessionRowClassName(className?: string): string {
+  return `flex flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_minmax(0,6rem)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER} ${className ?? ""}`;
+}
+
+export function ScheduleSessionRowContent({
   row,
   studioLabel,
   bookLabel,
@@ -29,14 +33,9 @@ export function ScheduleSessionRow({
   timeLabel,
   durationLabel,
   audience,
-  className,
-  style,
-}: ScheduleSessionRowProps) {
+}: Omit<ScheduleSessionRowProps, "className" | "style">) {
   return (
-    <li
-      className={`flex flex-col gap-4 py-5 sm:grid sm:grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_minmax(0,6rem)_auto] sm:items-center sm:gap-6 ${SCHEDULE_ROW_DIVIDER} ${className ?? ""}`}
-      style={style}
-    >
+    <>
       <div className="shrink-0">
         <p className={`text-base font-semibold ${SCHEDULE_INK}`}>{timeLabel}</p>
         <p className={`mt-0.5 text-xs ${SCHEDULE_MUTED}`}>{durationLabel}</p>
@@ -57,6 +56,32 @@ export function ScheduleSessionRow({
           className={SCHEDULE_BOOK_BTN}
         />
       </div>
+    </>
+  );
+}
+
+export function ScheduleSessionRow({
+  row,
+  studioLabel,
+  bookLabel,
+  subtitle,
+  timeLabel,
+  durationLabel,
+  audience,
+  className,
+  style,
+}: ScheduleSessionRowProps) {
+  return (
+    <li className={scheduleSessionRowClassName(className)} style={style}>
+      <ScheduleSessionRowContent
+        row={row}
+        studioLabel={studioLabel}
+        bookLabel={bookLabel}
+        subtitle={subtitle}
+        timeLabel={timeLabel}
+        durationLabel={durationLabel}
+        audience={audience}
+      />
     </li>
   );
 }

@@ -12,7 +12,14 @@ import {
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
-import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
+import {
+  SchedulePageListItemReveal,
+  SchedulePageReveal,
+} from "@/components/marketing/schedule/schedule-page-reveal";
+import {
+  ScheduleSessionRowContent,
+  scheduleSessionRowClassName,
+} from "@/components/marketing/schedule/schedule-session-row";
 import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-design";
 import {
   addDays,
@@ -198,27 +205,31 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
 
   return (
     <div className="ommm-card flex w-full min-w-0 flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-      <ScheduleFiltersHeader
-        filterClassType={classType}
-        filterInstructor={instructor}
-        classTypeOptions={classTypeOptions}
-        instructorOptions={instructorOptions}
-        onClassTypeChange={setClassType}
-        onInstructorChange={setInstructor}
-      />
-      <ScheduleDateControls
-        locale={locale}
-        selectedDate={nav.selectedDate}
-        windowStart={nav.windowStart}
-        maxDate={maxDate}
-        onSelectDay={(d) => {
-          if (isBeforeCalendarDay(d, today) || isAfterCalendarDay(d, maxDate)) return;
-          setNav((s) => ({ ...s, selectedDate: d }));
-        }}
-        onShiftWindow={(delta) =>
-          setNav((s) => shiftWeek(s, delta, today, maxDate))
-        }
-      />
+      <SchedulePageReveal index={0}>
+        <ScheduleFiltersHeader
+          filterClassType={classType}
+          filterInstructor={instructor}
+          classTypeOptions={classTypeOptions}
+          instructorOptions={instructorOptions}
+          onClassTypeChange={setClassType}
+          onInstructorChange={setInstructor}
+        />
+      </SchedulePageReveal>
+      <SchedulePageReveal index={1}>
+        <ScheduleDateControls
+          locale={locale}
+          selectedDate={nav.selectedDate}
+          windowStart={nav.windowStart}
+          maxDate={maxDate}
+          onSelectDay={(d) => {
+            if (isBeforeCalendarDay(d, today) || isAfterCalendarDay(d, maxDate)) return;
+            setNav((s) => ({ ...s, selectedDate: d }));
+          }}
+          onShiftWindow={(delta) =>
+            setNav((s) => shiftWeek(s, delta, today, maxDate))
+          }
+        />
+      </SchedulePageReveal>
       <div
         className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"
         style={containerStyle}
@@ -235,33 +246,40 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
         >
           <ul key={renderedDayKey} className="list-none overflow-hidden p-0">
             {renderedSessions.length === 0 ? (
-              <li
+              <SchedulePageListItemReveal
+                index={0}
                 className={`py-12 text-center text-sm ${SCHEDULE_MUTED} ${
                   animationPhase === "enter" ? styles.scheduleItemEnter : ""
                 }`}
               >
                 {t("empty")}
-              </li>
+              </SchedulePageListItemReveal>
             ) : (
               renderedSessions.map((row, index) => (
-                <ScheduleSessionRow
+                <SchedulePageListItemReveal
                   key={row.id}
-                  row={row}
-                  studioLabel={t("studioBrand")}
-                  bookLabel={t("bookCta")}
-                  audience={audience}
-                  subtitle={`${row.instructorName} • ${row.classType}`}
-                  timeLabel={toLocaleTime(locale, row.startTime)}
-                  durationLabel={
-                    row.durationMinutes !== null
-                      ? t("minutesShort", { count: row.durationMinutes })
-                      : row.endTime !== null
-                        ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
-                        : "-"
-                  }
-                  className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                  index={index}
+                  className={scheduleSessionRowClassName(
+                    animationPhase === "enter" ? styles.scheduleItemEnter : "",
+                  )}
                   style={getItemStyle(index)}
-                />
+                >
+                  <ScheduleSessionRowContent
+                    row={row}
+                    studioLabel={t("studioBrand")}
+                    bookLabel={t("bookCta")}
+                    audience={audience}
+                    subtitle={`${row.instructorName} • ${row.classType}`}
+                    timeLabel={toLocaleTime(locale, row.startTime)}
+                    durationLabel={
+                      row.durationMinutes !== null
+                        ? t("minutesShort", { count: row.durationMinutes })
+                        : row.endTime !== null
+                          ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
+                          : "-"
+                    }
+                  />
+                </SchedulePageListItemReveal>
               ))
             )}
           </ul>

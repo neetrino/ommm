@@ -33,7 +33,6 @@ export function ScheduleFiltersHeader({
         value={filterClassType}
         options={classTypeOptions}
         onChange={onClassTypeChange}
-        openOnHover
       />
       <ScheduleFilterDropdown
         label={t("filterInstructor")}
@@ -41,7 +40,6 @@ export function ScheduleFiltersHeader({
         value={filterInstructor}
         options={instructorOptions}
         onChange={onInstructorChange}
-        openOnHover
       />
     </div>
   );
