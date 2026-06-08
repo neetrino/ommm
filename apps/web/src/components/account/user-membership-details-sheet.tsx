@@ -171,10 +171,6 @@ function UserMembershipDetailsSheetInner({
             variant="board"
           />
         </div>
-
-        {status === "PENDING" ? (
-          <p className="mt-4 text-sm text-sage-600">{t("awaitingPaymentConfirmation")}</p>
-        ) : null}
       </div>
 
       {showLifecycleActions ? (

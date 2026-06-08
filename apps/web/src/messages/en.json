@@ -664,7 +664,6 @@
       "title": "Packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
       "statusPending": "Payment completed",
-      "awaitingPaymentConfirmation": "Your payment was completed successfully.",
       "paymentStatusSucceeded": "Completed",
       "paymentStatusFailed": "Failed",
       "paymentMethods": {

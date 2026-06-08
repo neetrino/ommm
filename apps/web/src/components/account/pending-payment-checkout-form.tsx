@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { OmmButton } from "@/components/ui/omm-button";
-import { isApiError, startArcaCardCheckout } from "@/lib/arca-checkout";
+import { isApiError, confirmSimulatedCardCheckout, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { ManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { PaymentCheckoutSource } from "@/lib/payment-checkout-source";
@@ -48,9 +48,17 @@ export function PendingPaymentCheckoutForm({
     setBusy(true);
     setError(null);
     try {
-      await startArcaCardCheckout(paymentReference, locale);
+      if (isArcaCheckoutEnabled()) {
+        await startArcaCardCheckout(paymentReference, locale);
+        return;
+      }
+      await confirmSimulatedCardCheckout(paymentReference, source);
+      const params = new URLSearchParams({ source, reference: paymentReference });
+      router.push(`/user/payments/success?${params.toString()}`);
+      router.refresh();
     } catch (err) {
       setError(isApiError(err) ? err.message : t("payFailed"));
+    } finally {
       setBusy(false);
     }
   }

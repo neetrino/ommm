@@ -664,7 +664,6 @@
       "title": "Пакеты",
       "description": "Выберите план и оплатите удобным способом. Пакет появится здесь после оплаты.",
       "statusPending": "Оплата завершена",
-      "awaitingPaymentConfirmation": "Ваш платёж успешно завершён.",
       "paymentStatusSucceeded": "Завершён",
       "paymentStatusFailed": "Ошибка",
       "paymentMethods": {

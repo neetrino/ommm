@@ -286,6 +286,39 @@ export class PaymentsService {
     return isArcaCheckoutEnabled(this.config);
   }
 
+  async confirmDropInPayment(
+    userId: string,
+    paymentReference: string,
+    paymentMethod: ManualPaymentMethod,
+  ) {
+    if (paymentMethod === ManualPaymentMethod.CASH) {
+      return this.confirmDropInCashPayment(userId, paymentReference);
+    }
+
+    if (this.isArcaCheckoutEnabled()) {
+      throw new BadRequestException(
+        'Card payments must be completed through Arca checkout',
+      );
+    }
+
+    const existing = await this.prisma.payment.findFirst({
+      where: this.withInternalPaymentWhereFields({ paymentReference }),
+    });
+    if (!existing || existing.userId !== userId) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (existing.status !== PaymentStatus.PENDING) {
+      throw new ConflictException('Only pending payments can be confirmed');
+    }
+    if (existing.source !== INTERNAL_PAYMENT_SOURCE.DROPIN) {
+      throw new BadRequestException('Payment is not a drop-in checkout');
+    }
+
+    return this.confirmPayment(existing.id, null, {
+      paymentMethod: ManualPaymentMethod.CARD,
+    });
+  }
+
   async confirmDropInCashPayment(userId: string, paymentReference: string) {
     return this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findFirst({

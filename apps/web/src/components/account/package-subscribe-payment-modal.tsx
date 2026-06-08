@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
-import { isApiError, startArcaCardCheckout } from "@/lib/arca-checkout";
+import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { apiFetch } from "@/lib/api";
 import {
   MANUAL_PAYMENT_METHODS,
@@ -111,6 +111,7 @@ function PackageSubscribePaymentModalSession({
       });
       if (
         paymentMethod === "CARD" &&
+        isArcaCheckoutEnabled() &&
         result.requiresArcaCheckout === true &&
         result.paymentReference
       ) {

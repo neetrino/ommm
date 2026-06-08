@@ -676,7 +676,6 @@
       "title": "Փաթեթներ",
       "description": "Ընտրեք պլան և կատարեք վճարումը ձեր նախընտրած եղանակով։ Փաթեթը կհայտնվի այստեղ վճարումից հետո։",
       "statusPending": "Վճարումը կատարված է",
-      "awaitingPaymentConfirmation": "Ձեր վճարումը հաջողությամբ ավարտվել է։",
       "paymentStatusSucceeded": "Ավարտված",
       "paymentStatusFailed": "Ձախողված",
       "paymentMethods": {
