@@ -38,7 +38,7 @@ import {
   marketingHeaderShellClass,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
-import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing-header-elevated";
+import { useMarketingHeaderElevated } from "@/hooks/use-marketing-header-elevated";
 import {
   isAuthPath,
   isMarketingHeroHeaderPath,
@@ -75,8 +75,8 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Hide workspace drawer trigger in the mobile header row only (e.g. `/user` account hub page). */
-  hideMobileWorkspaceDrawerTrigger?: boolean;
+  /** Member workspace — hide language switcher and avatar in the header action cluster. */
+  memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
   notificationsActive?: boolean;
@@ -130,7 +130,7 @@ export function MarketingSiteHeader({
   account = null,
   workspaceDrawer,
   workspaceHeaderChrome = false,
-  hideMobileWorkspaceDrawerTrigger = false,
+  memberWorkspaceHeader = false,
   notificationHref = null,
   notificationsLabel = null,
   notificationsActive = false,
@@ -244,7 +244,7 @@ export function MarketingSiteHeader({
             </Link>
 
             <div className={marketingHeaderMobileActionsClass()}>
-              {workspaceDrawer && !hideMobileWorkspaceDrawerTrigger ? (
+              {workspaceDrawer ? (
                 <button
                   type="button"
                   className={`${marketingHeaderIconButtonClass()} ${navPillStyles.mobileHeaderAccountButton} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
@@ -268,19 +268,21 @@ export function MarketingSiteHeader({
                   onNavigate={closeAllMenus}
                 />
               ) : null}
-              <LanguageSwitcher
-                context="marketing"
-                appearance="icon"
-                className="min-w-0 shrink-0"
-                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-                onAfterSelect={closeAllMenus}
-                renderIconTrigger={() => (
-                  <MarketingHeaderGlobeIcon
-                    className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-                  />
-                )}
-              />
-              {account ? (
+              {!memberWorkspaceHeader ? (
+                <LanguageSwitcher
+                  context="marketing"
+                  appearance="icon"
+                  className="min-w-0 shrink-0"
+                  triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                  onAfterSelect={closeAllMenus}
+                  renderIconTrigger={() => (
+                    <MarketingHeaderGlobeIcon
+                      className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                    />
+                  )}
+                />
+              ) : null}
+              {!memberWorkspaceHeader && account ? (
                 <MarketingAccountAvatarMenu
                   initials={account.initials}
                   imageSrc={account.imageSrc}
@@ -290,7 +292,7 @@ export function MarketingSiteHeader({
                   avatarClassName={navPillStyles.mobileHeaderAvatar}
                   onAfterSelect={closeAllMenus}
                 />
-              ) : (
+              ) : !memberWorkspaceHeader ? (
                 <Link
                   href="/login"
                   className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
@@ -301,7 +303,7 @@ export function MarketingSiteHeader({
                     className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   />
                 </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -358,17 +360,19 @@ export function MarketingSiteHeader({
                   onNavigate={closeAllMenus}
                 />
               ) : null}
-              <LanguageSwitcher
-                context="marketing"
-                appearance="icon"
-                className="min-w-0 shrink-0"
-                triggerClassName={marketingHeaderLanguageTriggerClass()}
-                onAfterSelect={closeAllMenus}
-                renderIconTrigger={() => (
-                  <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
-                )}
-              />
-              {account ? (
+              {!memberWorkspaceHeader ? (
+                <LanguageSwitcher
+                  context="marketing"
+                  appearance="icon"
+                  className="min-w-0 shrink-0"
+                  triggerClassName={marketingHeaderLanguageTriggerClass()}
+                  onAfterSelect={closeAllMenus}
+                  renderIconTrigger={() => (
+                    <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
+                  )}
+                />
+              ) : null}
+              {!memberWorkspaceHeader && account ? (
                 <MarketingAccountAvatarMenu
                   initials={account.initials}
                   imageSrc={account.imageSrc}
@@ -378,7 +382,7 @@ export function MarketingSiteHeader({
                   avatarClassName={navPillStyles.desktopHeaderAvatar}
                   onAfterSelect={closeAllMenus}
                 />
-              ) : (
+              ) : !memberWorkspaceHeader ? (
                 <Link
                   href="/login"
                   className={marketingHeaderIconAccountClass()}
@@ -387,7 +391,7 @@ export function MarketingSiteHeader({
                 >
                   <MarketingHeaderUserIcon className="h-5 w-5 shrink-0 lg:h-6 lg:w-6 nav-desktop:h-7 nav-desktop:w-7" />
                 </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

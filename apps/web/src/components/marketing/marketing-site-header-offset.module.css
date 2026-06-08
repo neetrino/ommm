@@ -52,6 +52,39 @@
   overscroll-behavior-y: contain;
 }
 
+/**
+ * Mobile workspace — fixed glass-pill nav overlays the scroll pane (no cream band behind the header).
+ * Content scrolls under the transparent header shell; stickies align below the site header offset.
+ */
+@media (max-width: 743px) {
+  .dashboardWithMarketingHeaderOverlay {
+    padding-top: 0;
+    background-color: transparent;
+  }
+
+  .dashboardWithMarketingHeaderScrollOverlay {
+    --ommm-workspace-sticky-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+    background-color: var(--ommm-admin-page, #ede9dd);
+    scroll-padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+  }
+
+  .workspaceScrollMain {
+    padding-top: calc(var(--ommm-marketing-site-header-offset, 4.25rem) + 1rem);
+  }
+}
+
+@media (min-width: 744px) {
+  .workspaceScrollMain {
+    padding-top: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspaceScrollMain {
+    padding-top: 2rem;
+  }
+}
+
 .stickyBelowMarketingHeader {
   top: var(--ommm-marketing-site-header-offset);
 }

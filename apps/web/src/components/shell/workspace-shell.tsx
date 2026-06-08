@@ -16,7 +16,6 @@ import {
   type DashboardAppShellProps,
 } from "@/components/shell/dashboard-app-shell";
 import { dashboardNavPathActive } from "@/lib/dashboard-nav";
-import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
@@ -54,8 +53,7 @@ export function WorkspaceShell({
     notificationRoute !== null &&
     dashboardNavPathActive(pathname, notificationRoute.href);
 
-  const isMemberAccountHubPage =
-    shellProps.variant === "member" && pathname === USER_ACCOUNT_PATH;
+  const isMemberShell = shellProps.variant === "member";
 
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
@@ -72,11 +70,15 @@ export function WorkspaceShell({
         navLinks={MARKETING_NAV_LINKS}
         account={account}
         workspaceHeaderChrome
-        hideMobileWorkspaceDrawerTrigger={isMemberAccountHubPage}
-        workspaceDrawer={{
-          open: drawerOpen,
-          onToggle: () => setDrawerOpen((open) => !open),
-        }}
+        memberWorkspaceHeader={isMemberShell}
+        workspaceDrawer={
+          isMemberShell
+            ? undefined
+            : {
+                open: drawerOpen,
+                onToggle: () => setDrawerOpen((open) => !open),
+              }
+        }
         notificationHref={notificationRoute?.href ?? null}
         notificationsLabel={notificationsLabel}
         notificationsActive={notificationsActive}
@@ -87,8 +89,8 @@ export function WorkspaceShell({
         notificationRoute={notificationRoute}
         memberAccountMenu={memberAccountMenu}
         withSiteHeader
-        drawerOpen={drawerOpen}
-        onDrawerOpenChange={setDrawerOpen}
+        drawerOpen={isMemberShell ? false : drawerOpen}
+        onDrawerOpenChange={isMemberShell ? undefined : setDrawerOpen}
       >
         {children}
       </DashboardAppShell>

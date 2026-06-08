@@ -34,7 +34,6 @@ import {
   sidebarAsideBgClass,
   sidebarBrandStripClass,
   sidebarShellBorderClass,
-  WORKSPACE_MAIN_SAFE_TOP_CLASS,
 } from "@/components/shell/dashboard-shell-classes";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 
@@ -140,7 +139,7 @@ export function DashboardAppShell({
       : "lg:w-64";
   const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
   const rootClassName = withSiteHeader
-    ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader}`
+    ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader} ${offsetStyles.dashboardWithMarketingHeaderOverlay}`
     : pageBackgroundClass(variant);
   const sidebarStickyClass = withSiteHeader
     ? offsetStyles.sidebarFixedBelowMarketingHeader
@@ -149,7 +148,7 @@ export function DashboardAppShell({
     isOliveShell
       ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
       : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10",
-    withSiteHeader ? WORKSPACE_MAIN_SAFE_TOP_CLASS : "",
+    withSiteHeader ? offsetStyles.workspaceScrollMain : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -285,7 +284,9 @@ export function DashboardAppShell({
   return (
     <div className={rootClassName}>
       {withSiteHeader ? (
-        <div className={offsetStyles.dashboardWithMarketingHeaderScroll}>
+        <div
+          className={`${offsetStyles.dashboardWithMarketingHeaderScroll} ${offsetStyles.dashboardWithMarketingHeaderScrollOverlay}`}
+        >
           {workspaceBody}
         </div>
       ) : (

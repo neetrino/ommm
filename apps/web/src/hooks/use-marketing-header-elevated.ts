@@ -22,7 +22,7 @@ export function useMarketingHeaderElevated(usesScrollElevation: boolean): boolea
 
     updateElevated();
     window.addEventListener("scroll", updateElevated, { passive: true });
-    window.addEventListener("resize", updateElevated, { passive: true });
+    window.addEventListener("resize", updateElevated);
 
     return () => {
       window.removeEventListener("scroll", updateElevated);
