@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { MarketingSiteHeaderFromAuth } from "@/components/marketing/marketing-site-header-from-auth";
+import { MarketingSiteHeaderSuspense } from "@/components/marketing/marketing-site-header-suspense";
 import { MARKETING_MOBILE_HEADER } from "@/components/marketing/marketing-site-header-layout";
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
 import { SignupBannerParticles } from "@/components/auth/signup-banner-particles";
@@ -17,7 +17,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       style={AUTH_SHELL_STYLE}
     >
       <SignupBannerParticles />
-      <MarketingSiteHeaderFromAuth />
+      <MarketingSiteHeaderSuspense />
       <div
         className={`${styles.foreground} ${offsetStyles.dashboardWithMarketingHeader}`}
       >

@@ -6,7 +6,7 @@ import { MarketingFooterLoading } from "@/components/marketing/marketing-footer-
 import { MarketingFooterGate } from "@/components/marketing/marketing-footer-gate";
 import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-shell";
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
-import { MarketingSiteHeaderFromAuth } from "@/components/marketing/marketing-site-header-from-auth";
+import { MarketingSiteHeaderSuspense } from "@/components/marketing/marketing-site-header-suspense";
 import { routing } from "@/i18n/routing";
 import { localeFreePathFromRequestPathname } from "@/lib/marketing-path-from-request";
 import { OMMM_PATHNAME_HEADER } from "@/lib/ui-locale-constants";
@@ -30,7 +30,7 @@ export default async function MarketingLayout({
 
   return (
     <MarketingLayoutShell>
-      <MarketingSiteHeaderFromAuth />
+      <MarketingSiteHeaderSuspense />
       <MarketingLayoutMain>{children}</MarketingLayoutMain>
       <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
         <Suspense fallback={<MarketingFooterLoading />}>
