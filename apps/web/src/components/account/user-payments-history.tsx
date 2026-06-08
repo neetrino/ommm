@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
 import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
 import {
@@ -248,30 +249,36 @@ export function UserPaymentsHistory({
   const isEmpty = paymentsPayload.total === 0 && hasDefaultFilters;
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <UserListBoardViewSwitcher
-        pageId="payments"
-        namespace="userPages.payments"
-        value={viewMode}
-        onChange={setView}
-      />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={
+        <UserListBoardViewSwitcher
+          pageId="payments"
+          namespace="userPages.payments"
+          value={viewMode}
+          onChange={setView}
+        />
+      }
+    />
   );
 
   return (
     <div className="space-y-4">
       {embeddedInSheet ? (
-        <div className="space-y-3">{heroSearch}</div>
+        heroSearch
       ) : (
         <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
       )}

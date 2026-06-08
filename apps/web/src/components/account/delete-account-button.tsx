@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 const DELETE_ACCOUNT_TRIGGER_CLASS =
@@ -19,6 +20,8 @@ type DeleteAccountButtonProps = {
   busyTriggerContent?: ReactNode;
   /** When true, omit outer wrapper — for account hub menu rows. */
   bare?: boolean;
+  /** Profile page: red pill button; hub/menu keeps link or custom row. */
+  appearance?: "link" | "dangerButton";
 };
 
 export function DeleteAccountButton({
@@ -26,6 +29,7 @@ export function DeleteAccountButton({
   triggerContent,
   busyTriggerContent,
   bare = false,
+  appearance = "link",
 }: DeleteAccountButtonProps = {}) {
   const t = useTranslations("userPages.profile");
   const locale = useLocale();
@@ -70,19 +74,28 @@ export function DeleteAccountButton({
     }
   }
 
-  const trigger = (
+  const triggerLabel = busy
+    ? (busyTriggerContent ??
+      (triggerContent !== undefined ? triggerContent : t("deleteAccountDeleting")))
+    : (triggerContent ?? t("deleteAccount"));
+
+  const useDangerButton =
+    appearance === "dangerButton" &&
+    triggerClassName === undefined &&
+    triggerContent === undefined;
+
+  const trigger = useDangerButton ? (
+    <OmmButton variant="danger" onClick={openConfirm} disabled={busy}>
+      {busy ? t("deleteAccountDeleting") : t("deleteAccount")}
+    </OmmButton>
+  ) : (
     <button
       type="button"
       className={triggerClassName ?? DELETE_ACCOUNT_TRIGGER_CLASS}
       onClick={openConfirm}
       disabled={busy}
     >
-      {busy
-        ? (busyTriggerContent ??
-          (triggerContent !== undefined
-            ? triggerContent
-            : t("deleteAccountDeleting")))
-        : (triggerContent ?? t("deleteAccount"))}
+      {triggerLabel}
     </button>
   );
 

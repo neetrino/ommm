@@ -94,7 +94,9 @@ export async function RoleProfilePage({
         </AccountSection>
       ) : null}
 
-      {user.role !== "COACH" ? <DeleteAccountButton /> : null}
+      {user.role !== "COACH" ? (
+        <DeleteAccountButton appearance="dangerButton" />
+      ) : null}
     </div>
   );
 

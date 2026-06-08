@@ -17,6 +17,7 @@ import {
   type UserPackageStatusFilter,
 } from "@/components/account/user-packages-filter-fields";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import {
   USER_PACKAGES_LIST_ACTIONS_HEADER_CELL,
   USER_PACKAGES_LIST_HEADER_CLASS,
@@ -174,28 +175,28 @@ export function UserPackagesSection({
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <UserPackagesViewSwitcher value={viewMode} onChange={setView} />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={<UserPackagesViewSwitcher value={viewMode} onChange={setView} />}
+    />
   );
 
   return (
     <div id="your-packages" className="space-y-4">
-      {embeddedInSheet ? (
-        <div className="space-y-3">{heroSearch}</div>
-      ) : (
-        <AdminPageHero title={t("title")} search={heroSearch} />
-      )}
+      {embeddedInSheet ? heroSearch : <AdminPageHero title={t("title")} search={heroSearch} />}
 
       {!apiOk ? (
         <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">

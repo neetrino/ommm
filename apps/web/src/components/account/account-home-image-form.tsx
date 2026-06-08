@@ -103,7 +103,7 @@ export function AccountHomeImageForm({
   }
 
   return (
-    <div className="flex w-full flex-col gap-2">
+    <div className="flex w-full flex-col items-center gap-2 lg:items-start">
       <input
         ref={inputRef}
         type="file"
@@ -119,7 +119,7 @@ export function AccountHomeImageForm({
       />
       <button
         type="button"
-        className="group relative aspect-[4/5] w-full max-w-[280px] overflow-hidden rounded-[24px] border border-white/70 bg-[rgba(212,163,115,0.2)] shadow-[0_16px_40px_-24px_rgba(45,40,35,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-wait disabled:opacity-70 sm:max-w-[300px] lg:max-w-none"
+        className="group relative mx-auto aspect-square w-full max-w-[240px] overflow-hidden rounded-full border border-white/70 bg-[rgba(212,163,115,0.2)] shadow-[0_16px_40px_-24px_rgba(45,40,35,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-wait disabled:opacity-70 sm:max-w-[260px] lg:mx-0 lg:max-w-[280px]"
         aria-label={t("chooseImage")}
         disabled={busy}
         onClick={() => inputRef.current?.click()}
@@ -138,7 +138,7 @@ export function AccountHomeImageForm({
             />
           )
         ) : (
-          <span className="flex h-full w-full items-center justify-center font-serif text-5xl text-sage-700">
+          <span className="flex h-full w-full items-center justify-center font-serif text-4xl text-sage-700 sm:text-5xl">
             {initials}
           </span>
         )}
@@ -148,7 +148,7 @@ export function AccountHomeImageForm({
       </button>
       {msg ? (
         <p
-          className={`max-w-[280px] text-sm lg:max-w-none ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}
+          className={`max-w-[240px] text-center text-sm sm:max-w-[260px] lg:max-w-[280px] lg:text-left ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}
         >
           {msg}
         </p>

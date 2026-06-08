@@ -258,6 +258,12 @@ export function DropdownSelect<T extends string>({
       if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
         return;
       }
+      if (
+        event.target instanceof Element &&
+        event.target.closest("#integrated-search-filter-panel")
+      ) {
+        return;
+      }
       scrollDismissRef.current = true;
       dismissMenu();
     };

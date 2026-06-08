@@ -17,6 +17,7 @@ import {
   type UserSessionFilterValues,
 } from "@/components/account/user-session-filters";
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
@@ -165,28 +166,28 @@ export function UserClassesSection({
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <ScheduleViewSwitcher value={view} onChange={setView} />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
+    />
   );
 
   return (
     <div className="space-y-4">
-      {embeddedInSheet ? (
-        <div className="space-y-3">{heroSearch}</div>
-      ) : (
-        <AdminPageHero title={t("title")} search={heroSearch} />
-      )}
+      {embeddedInSheet ? heroSearch : <AdminPageHero title={t("title")} search={heroSearch} />}
 
       {sessions.length === 0 ? (
         <p className="ommm-body-muted text-sm">{t("noSessions")}</p>

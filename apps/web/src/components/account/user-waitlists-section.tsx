@@ -11,6 +11,7 @@ import {
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import {
   buildUserSessionFilterFields,
   DEFAULT_USER_SESSION_FILTER_VALUES,
@@ -160,30 +161,36 @@ export function UserWaitlistsSection({
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <UserListBoardViewSwitcher
-        pageId="waitlists"
-        namespace="userPages.waitlists"
-        value={viewMode}
-        onChange={setView}
-      />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={
+        <UserListBoardViewSwitcher
+          pageId="waitlists"
+          namespace="userPages.waitlists"
+          value={viewMode}
+          onChange={setView}
+        />
+      }
+    />
   );
 
   return (
     <div className="space-y-4">
       {embeddedInSheet ? (
-        <div className="space-y-3">{heroSearch}</div>
+        heroSearch
       ) : (
         <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
       )}

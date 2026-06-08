@@ -1368,11 +1368,11 @@ html {
   }
 }
 
-/* Portaled overlays — above fixed marketing header (z-50) and mobile nav sheet (z-40). */
+/* Portaled overlays — above member hub sheet (z-105) and filter panel (z-120). Sync OMMM_OVERLAY_PORTAL_Z_INDEX. */
 #ommm-overlay-portal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 130;
   pointer-events: none;
   isolation: isolate;
 }

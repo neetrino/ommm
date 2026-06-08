@@ -24,15 +24,20 @@ const PANEL_SURFACE_CLASS =
 const PANEL_GAP_PX = 8;
 const PANEL_MIN_WIDTH_PX = 384;
 const PANEL_MAX_WIDTH_PX = 640;
+const PANEL_VIEWPORT_EDGE_PX = 16;
+const PANEL_MIN_HEIGHT_PX = 140;
 
 function usePortaledFilterPanelPosition(
   containerRef: RefObject<HTMLDivElement | null>,
   panelOpen: boolean,
   enabled: boolean,
-): { top: number; left: number; width: number } | null {
-  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(
-    null,
-  );
+): { top: number; left: number; width: number; maxHeight: number } | null {
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    maxHeight: number;
+  } | null>(null);
   const panelEnabled = enabled && panelOpen;
 
   useEffect(() => {
@@ -46,9 +51,20 @@ function usePortaledFilterPanelPosition(
         return;
       }
       const rect = element.getBoundingClientRect();
-      const width = Math.min(PANEL_MAX_WIDTH_PX, Math.max(rect.width, PANEL_MIN_WIDTH_PX));
-      const left = Math.min(rect.left, window.innerWidth - width - PANEL_GAP_PX);
-      setPosition({ top: rect.bottom + PANEL_GAP_PX, left, width });
+      const width = Math.min(
+        PANEL_MAX_WIDTH_PX,
+        window.innerWidth - PANEL_VIEWPORT_EDGE_PX * 2,
+        Math.max(rect.width, PANEL_MIN_WIDTH_PX),
+      );
+      const left = Math.max(
+        PANEL_VIEWPORT_EDGE_PX,
+        Math.min(rect.left, window.innerWidth - width - PANEL_VIEWPORT_EDGE_PX),
+      );
+      const maxHeight = Math.max(
+        PANEL_MIN_HEIGHT_PX,
+        window.innerHeight - rect.bottom - PANEL_GAP_PX - PANEL_VIEWPORT_EDGE_PX,
+      );
+      setPosition({ top: rect.bottom + PANEL_GAP_PX, left, width, maxHeight });
     };
 
     update();
@@ -173,6 +189,9 @@ export function IntegratedSearchFilters({
         return;
       }
       if (target.closest(`#${PANEL_ID}`)) {
+        return;
+      }
+      if (target.closest("#ommm-overlay-portal")) {
         return;
       }
       if (target.closest(".ommm-dropdown-menu")) {
@@ -343,6 +362,10 @@ export function IntegratedSearchFilters({
                 top: portaledPanelPosition.top,
                 left: portaledPanelPosition.left,
                 width: portaledPanelPosition.width,
+                maxHeight: portaledPanelPosition.maxHeight,
+                overflowY: "auto",
+                overscrollBehavior: "contain",
+                WebkitOverflowScrolling: "touch",
               }
             : undefined
         }
