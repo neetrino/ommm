@@ -18,7 +18,7 @@ import {
 } from "@/lib/language-switcher-locales";
 
 /** Icon-only marketing trigger; menu needs room for language labels. */
-const MARKETING_ICON_MENU_MIN_WIDTH_PX = 148;
+const MARKETING_ICON_MENU_MIN_WIDTH_PX = 184;
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
@@ -129,7 +129,7 @@ export function LanguageSwitcher({
           <>
             <span className="ommm-language-switcher-option-row">
               <LocaleFlagIcon code={option.value} />
-              <span className="truncate leading-none">{option.label}</span>
+              <span className="whitespace-nowrap leading-none">{option.label}</span>
             </span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
