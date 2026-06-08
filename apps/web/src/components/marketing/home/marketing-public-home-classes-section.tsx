@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { HomeClassPracticeCard } from "@/components/marketing/home/home-class-practice-card";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
+import { HOME_PAGE_SCROLL_REVEAL } from "@/components/marketing/home/home-page-scroll-reveal-tokens";
 import {
   HOME_CLASS_CARD_GRID_CLASS,
   HOME_CLASS_CARD_GRID_OFFSETS,
@@ -98,20 +100,22 @@ export async function MarketingPublicHomeClassesSection({
       }}
     >
       <div className={styles.shell}>
-        <header className={styles.header}>
-          <h2
-            id="home-classes-heading"
-            className={`${styles.title} font-serif font-semibold tracking-tight text-balance`}
-          >
-            {t("classesTitle")}
-          </h2>
-          <p
-            id="home-classes-subtitle"
-            className={`${styles.subtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
-          >
-            {t("classesSubtitle")}
-          </p>
-        </header>
+        <HomePageReveal index={0}>
+          <header className={styles.header}>
+            <h2
+              id="home-classes-heading"
+              className={`${styles.title} font-serif font-semibold tracking-tight text-balance`}
+            >
+              {t("classesTitle")}
+            </h2>
+            <p
+              id="home-classes-subtitle"
+              className={`${styles.subtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+            >
+              {t("classesSubtitle")}
+            </p>
+          </header>
+        </HomePageReveal>
 
         <div
           className={styles.carouselViewport}
@@ -152,13 +156,19 @@ export async function MarketingPublicHomeClassesSection({
                   className={styles.carouselSlide}
                   style={carouselSlideStyle}
                 >
-                  <HomeClassPracticeCard
-                    visual={visual}
-                    titleLines={copy.titleLines}
-                    body={copy.body}
-                    gridClassName=""
-                    imageIndex={index}
-                  />
+                  <HomePageReveal
+                    index={index}
+                    gridColumns={HOME_PAGE_SCROLL_REVEAL.sectionGridColumns}
+                    className="h-full"
+                  >
+                    <HomeClassPracticeCard
+                      visual={visual}
+                      titleLines={copy.titleLines}
+                      body={copy.body}
+                      gridClassName=""
+                      imageIndex={index}
+                    />
+                  </HomePageReveal>
                 </div>
               );
             })}
@@ -173,28 +183,36 @@ export async function MarketingPublicHomeClassesSection({
             }
 
             return (
-              <HomeClassPracticeCard
+              <HomePageReveal
                 key={visual.id}
-                visual={visual}
-                titleLines={copy.titleLines}
-                body={copy.body}
-                gridClassName={`${styles.gridCard} ${HOME_CLASS_CARD_GRID_CLASS} ${HOME_CLASS_CARD_GRID_OFFSETS[index] ?? ""}`}
-                imageIndex={index}
-                style={{
-                  ["--home-class-card-radius" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardRadiusPx}px`,
-                }}
-              />
+                index={index}
+                gridColumns={HOME_PAGE_SCROLL_REVEAL.classCardsGridColumns}
+                className={`${styles.gridCard} ${HOME_CLASS_CARD_GRID_CLASS} ${HOME_CLASS_CARD_GRID_OFFSETS[index] ?? ""}`}
+              >
+                <HomeClassPracticeCard
+                  visual={visual}
+                  titleLines={copy.titleLines}
+                  body={copy.body}
+                  gridClassName=""
+                  imageIndex={index}
+                  style={{
+                    ["--home-class-card-radius" as string]: `${HOME_CLASSES_SECTION_FIGMA.cardRadiusPx}px`,
+                  }}
+                />
+              </HomePageReveal>
             );
           })}
         </div>
 
-        <div className={styles.cta}>
-          <HomeHeroCtaButton
-            href="/packages"
-            label={t("viewMembership")}
-            variant="membership"
-          />
-        </div>
+        <HomePageReveal index={HOME_CLASS_CARD_VISUALS.length}>
+          <div className={styles.cta}>
+            <HomeHeroCtaButton
+              href="/packages"
+              label={t("viewMembership")}
+              variant="membership"
+            />
+          </div>
+        </HomePageReveal>
       </div>
     </section>
   );

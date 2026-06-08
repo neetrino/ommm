@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { HomeHeroJunctionNavDeferred } from "@/components/marketing/home/home-deferred-sections";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import styles from "@/components/marketing/home/home-hero-photo-banner.module.css";
 import {
   HOME_HERO_ASSETS,
@@ -135,7 +136,8 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
           />
         </div>
 
-        <div
+        <HomePageReveal
+          index={0}
           className={`${styles.homeHeroContent} z-10 mx-auto min-w-0 max-w-[90rem]`}
         >
           <div className={`${styles.homeHeroLogoMark} tablet:mb-1 tablet:shrink-0`}>
@@ -188,7 +190,7 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
               sizeContext="hero"
             />
           </div>
-        </div>
+        </HomePageReveal>
       </div>
       <HomeHeroJunctionNavDeferred />
     </section>

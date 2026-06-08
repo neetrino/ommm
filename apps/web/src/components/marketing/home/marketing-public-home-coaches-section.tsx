@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingGlassCircleButton } from "@/components/marketing/home/marketing-glass-circle-button";
 import {
   HOME_COACHES_SECTION_BACKGROUND,
@@ -154,27 +155,32 @@ export function MarketingPublicHomeCoachesSection({
         style={mobileStyle}
       >
         <div className={styles.mobileShell}>
-          <header className={styles.mobileHeader}>
-            <h2
-              id="home-coaches-heading-mobile"
-              className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
-            >
-              {t("coachesTitle")}
-            </h2>
-            <p
-              id="home-coaches-subtitle-mobile"
-              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
-            >
-              {t("classesSubtitle")}
-            </p>
-          </header>
+          <HomePageReveal index={0}>
+            <header className={styles.mobileHeader}>
+              <h2
+                id="home-coaches-heading-mobile"
+                className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
+              >
+                {t("coachesTitle")}
+              </h2>
+              <p
+                id="home-coaches-subtitle-mobile"
+                className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+              >
+                {t("classesSubtitle")}
+              </p>
+            </header>
+          </HomePageReveal>
 
-          <div className={styles.mobileCarouselWrap}>
-            <FeaturedCoachesMobileCarouselStrip {...carouselProps} />
-          </div>
+          <HomePageReveal index={1}>
+            <div className={styles.mobileCarouselWrap}>
+              <FeaturedCoachesMobileCarouselStrip {...carouselProps} />
+            </div>
+          </HomePageReveal>
 
           {slideCount > 1 ? (
-            <div className={styles.mobileNav} aria-label={t("coachesTitle")}>
+            <HomePageReveal index={2}>
+              <div className={styles.mobileNav} aria-label={t("coachesTitle")}>
               <MarketingGlassCircleButton
                 arrow="prev"
                 label={t("coachesPrevAria")}
@@ -204,17 +210,20 @@ export function MarketingPublicHomeCoachesSection({
                 onPress={goNext}
                 size="coachCardInline"
               />
-            </div>
+              </div>
+            </HomePageReveal>
           ) : null}
 
-          <div className={styles.mobileCta}>
-            <HomeHeroCtaButton
-              href="/coaches"
-              label={t("coachesMoreDetails")}
-              variant="booking"
-              labelOffsetPx={HOME_COACHES_SECTION_MOBILE_LAYOUT.ctaLabelOffsetPx}
-            />
-          </div>
+          <HomePageReveal index={slideCount > 1 ? 3 : 2}>
+            <div className={styles.mobileCta}>
+              <HomeHeroCtaButton
+                href="/coaches"
+                label={t("coachesMoreDetails")}
+                variant="booking"
+                labelOffsetPx={HOME_COACHES_SECTION_MOBILE_LAYOUT.ctaLabelOffsetPx}
+              />
+            </div>
+          </HomePageReveal>
         </div>
       </section>
 
@@ -226,31 +235,37 @@ export function MarketingPublicHomeCoachesSection({
           paddingTop: FEATURED_COACHES_SECTION_PADDING_TOP,
         }}
       >
-        <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 tablet:px-20">
-          <h2
-            id="home-coaches-heading"
-            className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05] text-[#fbf5d5]"
-          >
-            {t("coachesTitle")}
-          </h2>
-        </div>
+        <HomePageReveal index={0}>
+          <div className="mx-auto max-w-[min(80rem,calc(100%-2rem))] px-4 sm:px-6 md:px-10 tablet:px-20">
+            <h2
+              id="home-coaches-heading"
+              className="text-center font-serif text-[clamp(2.25rem,5vw,4.375rem)] font-semibold leading-[1.05] text-[#fbf5d5]"
+            >
+              {t("coachesTitle")}
+            </h2>
+          </div>
+        </HomePageReveal>
 
-        <div className="w-full overflow-x-clip">
-          <FeaturedCoachesCarouselStrip
-            slides={slides}
-            active={active}
-            onSelectSlide={setActive}
-            goPrev={goPrev}
-            goNext={goNext}
-            prevLabel={t("coachesPrevAria")}
-            nextLabel={t("coachesNextAria")}
-            getGoToSlideAria={(name) => t("coachesGoToSlideAria", { name })}
-          />
-        </div>
+        <HomePageReveal index={1}>
+          <div className="w-full overflow-x-clip">
+            <FeaturedCoachesCarouselStrip
+              slides={slides}
+              active={active}
+              onSelectSlide={setActive}
+              goPrev={goPrev}
+              goNext={goNext}
+              prevLabel={t("coachesPrevAria")}
+              nextLabel={t("coachesNextAria")}
+              getGoToSlideAria={(name) => t("coachesGoToSlideAria", { name })}
+            />
+          </div>
+        </HomePageReveal>
 
-        <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 tablet:px-20">
-          <HomeHeroCtaButton href="/coaches" label={t("coachesMoreDetails")} variant="coachesDetails" />
-        </div>
+        <HomePageReveal index={2}>
+          <div className="mx-auto mt-10 flex max-w-[min(80rem,calc(100%-2rem))] justify-center px-4 sm:px-6 md:px-10 tablet:px-20">
+            <HomeHeroCtaButton href="/coaches" label={t("coachesMoreDetails")} variant="coachesDetails" />
+          </div>
+        </HomePageReveal>
       </section>
     </>
   );
