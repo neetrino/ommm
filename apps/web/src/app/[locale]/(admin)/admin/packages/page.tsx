@@ -34,7 +34,7 @@ export default async function AdminPackagesPage({
   }
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminPackagesManagement
           packages={packagesRes.data}
