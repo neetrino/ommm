@@ -263,11 +263,17 @@ describe('PackagesService', () => {
       sessionsPerMonth: 8,
     });
     prisma.userPackage.findFirst.mockResolvedValue(null);
-    prisma.$transaction.mockImplementation(async (callback) =>
-      callback({
-        userPackage: { create: txUserPackageCreate },
-        payment: { create: txPaymentCreate },
-      }),
+    prisma.$transaction.mockImplementation(
+      (
+        callback: (tx: {
+          userPackage: { create: typeof txUserPackageCreate };
+          payment: { create: typeof txPaymentCreate };
+        }) => unknown,
+      ) =>
+        callback({
+          userPackage: { create: txUserPackageCreate },
+          payment: { create: txPaymentCreate },
+        }),
     );
 
     const result = await service.subscribeWithManualPayment(
@@ -276,18 +282,24 @@ describe('PackagesService', () => {
       ManualPaymentMethod.CASH,
     );
 
-    expect(txUserPackageCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ status: PackageStatus.ACTIVE }),
-      }),
-    );
-    expect(txPaymentCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          status: PaymentStatus.PENDING,
-          paymentMethod: ManualPaymentMethod.CASH,
-        }),
-      }),
+    expect(txUserPackageCreate).toHaveBeenCalled();
+    const userPackageCreateCall = txUserPackageCreate.mock.calls[0] as [
+      { data: { status: PackageStatus } },
+    ];
+    expect(userPackageCreateCall[0].data.status).toBe(PackageStatus.ACTIVE);
+
+    expect(txPaymentCreate).toHaveBeenCalled();
+    const paymentCreateCall = txPaymentCreate.mock.calls[0] as [
+      {
+        data: {
+          status: PaymentStatus;
+          paymentMethod: ManualPaymentMethod;
+        };
+      },
+    ];
+    expect(paymentCreateCall[0].data.status).toBe(PaymentStatus.PENDING);
+    expect(paymentCreateCall[0].data.paymentMethod).toBe(
+      ManualPaymentMethod.CASH,
     );
     expect(payments.confirmPendingCardPayment).not.toHaveBeenCalled();
     expect(result.paymentReference).toBe('PKG-REF-1');
@@ -316,11 +328,17 @@ describe('PackagesService', () => {
       sessionsPerMonth: 8,
     });
     prisma.userPackage.findFirst.mockResolvedValue(null);
-    prisma.$transaction.mockImplementation(async (callback) =>
-      callback({
-        userPackage: { create: txUserPackageCreate },
-        payment: { create: txPaymentCreate },
-      }),
+    prisma.$transaction.mockImplementation(
+      (
+        callback: (tx: {
+          userPackage: { create: typeof txUserPackageCreate };
+          payment: { create: typeof txPaymentCreate };
+        }) => unknown,
+      ) =>
+        callback({
+          userPackage: { create: txUserPackageCreate },
+          payment: { create: txPaymentCreate },
+        }),
     );
 
     await service.subscribeWithManualPayment(
@@ -329,11 +347,11 @@ describe('PackagesService', () => {
       ManualPaymentMethod.CARD,
     );
 
-    expect(txUserPackageCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ status: PackageStatus.PENDING }),
-      }),
-    );
+    expect(txUserPackageCreate).toHaveBeenCalled();
+    const userPackageCreateCall = txUserPackageCreate.mock.calls[0] as [
+      { data: { status: PackageStatus } },
+    ];
+    expect(userPackageCreateCall[0].data.status).toBe(PackageStatus.PENDING);
     expect(payments.confirmPendingCardPayment).toHaveBeenCalledWith('pay-card');
   });
 });

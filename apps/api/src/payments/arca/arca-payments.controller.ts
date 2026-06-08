@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -11,10 +19,7 @@ export class ArcaPaymentsController {
 
   @Post('init')
   @UseGuards(JwtAuthGuard)
-  init(
-    @CurrentUser() user: { id: string },
-    @Body() body: InitArcaPaymentDto,
-  ) {
+  init(@CurrentUser() user: { id: string }, @Body() body: InitArcaPaymentDto) {
     return this.arca.initPayment({
       userId: user.id,
       paymentReference: body.paymentReference,

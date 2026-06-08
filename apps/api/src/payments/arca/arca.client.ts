@@ -39,7 +39,9 @@ export class ArcaClient {
     });
   }
 
-  async getOrderStatusExtended(orderId: string): Promise<ArcaOrderStatusResponse> {
+  async getOrderStatusExtended(
+    orderId: string,
+  ): Promise<ArcaOrderStatusResponse> {
     const { userName, password } = this.arcaConfig.getCredentials();
     return this.post<ArcaOrderStatusResponse>('getOrderStatusExtended.do', {
       userName,
@@ -48,7 +50,10 @@ export class ArcaClient {
     });
   }
 
-  private async post<T>(endpoint: string, params: Record<string, string>): Promise<T> {
+  private async post<T>(
+    endpoint: string,
+    params: Record<string, string>,
+  ): Promise<T> {
     const baseUrl = this.arcaConfig.getBaseUrl();
     const url = `${baseUrl}/${endpoint}`;
     const body = new URLSearchParams(params);
@@ -73,7 +78,9 @@ export class ArcaClient {
 
     const text = await response.text();
     if (!response.ok) {
-      this.logger.error(`Arca HTTP ${response.status} for ${endpoint}: ${text}`);
+      this.logger.error(
+        `Arca HTTP ${response.status} for ${endpoint}: ${text}`,
+      );
       throw new Error(`Arca HTTP error ${response.status}`);
     }
 

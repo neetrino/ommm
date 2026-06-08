@@ -15,7 +15,10 @@ import {
   Prisma,
 } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
-import { isCardAutoConfirmable, grantsImmediatePackageBookingAccess } from '../payments/payment-confirmation.util';
+import {
+  isCardAutoConfirmable,
+  grantsImmediatePackageBookingAccess,
+} from '../payments/payment-confirmation.util';
 import { PaymentsService } from '../payments/payments.service';
 import {
   PUBLIC_CACHE_KEYS,
@@ -418,7 +421,8 @@ export class PackagesService {
       },
     );
     const requiresArcaCheckout =
-      isCardAutoConfirmable(paymentMethod) && this.payments.isArcaCheckoutEnabled();
+      isCardAutoConfirmable(paymentMethod) &&
+      this.payments.isArcaCheckoutEnabled();
     if (isCardAutoConfirmable(paymentMethod) && !requiresArcaCheckout) {
       await this.payments.confirmPendingCardPayment(paymentId);
     }
