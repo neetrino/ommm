@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api";
 import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
@@ -126,7 +127,10 @@ export function LanguageSwitcher({
         }
         renderOption={(option, selected) => (
           <>
-            <span className="w-full text-center">{option.label}</span>
+            <span className="inline-flex w-full items-center justify-center gap-1.5">
+              <LocaleFlagIcon code={option.value} />
+              <span>{option.label}</span>
+            </span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
         )}
