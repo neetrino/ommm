@@ -1,7 +1,7 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
+import { MemberHubSheetPage } from "@/components/account/member-hub-sheet-page";
 import { MemberUserPaymentsRouteContent } from "@/components/account/member-user-payments-route-content";
 
-export default async function UserPaymentsPage({
+export default async function UserPaymentsSheetPage({
   params,
   searchParams,
 }: {
@@ -12,8 +12,8 @@ export default async function UserPaymentsPage({
   const search = await searchParams;
 
   return (
-    <MemberContentFrame>
-      <MemberUserPaymentsRouteContent locale={locale} search={search} />
-    </MemberContentFrame>
+    <MemberHubSheetPage locale={locale} titleNamespace="userPages.payments">
+      <MemberUserPaymentsRouteContent locale={locale} search={search} embeddedInSheet />
+    </MemberHubSheetPage>
   );
 }

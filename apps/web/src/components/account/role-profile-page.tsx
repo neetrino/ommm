@@ -33,6 +33,7 @@ type RoleProfilePageProps = {
   showRole?: boolean;
   workspaceNoteVariant?: WorkspaceNoteVariant;
   shellChrome?: "member" | "admin";
+  embeddedInSheet?: boolean;
 };
 
 export async function RoleProfilePage({
@@ -40,6 +41,7 @@ export async function RoleProfilePage({
   showRole = false,
   workspaceNoteVariant,
   shellChrome,
+  embeddedInSheet = false,
 }: RoleProfilePageProps) {
   const t = await getTranslations({ locale, namespace: "userPages.profile" });
   const tStaff = await getTranslations({ locale, namespace: "staffProfile" });
@@ -105,6 +107,10 @@ export async function RoleProfilePage({
         </div>
       </AdminContentFrame>
     );
+  }
+
+  if (embeddedInSheet) {
+    return body;
   }
 
   return (

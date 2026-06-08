@@ -37,6 +37,7 @@ type UserClassesSectionProps = {
   sessions: readonly UserSessionRow[];
   sessionBookings: UserSessionBookingMap;
   initialView: ScheduleView;
+  embeddedInSheet?: boolean;
 };
 
 export function UserClassesSection({
@@ -44,6 +45,7 @@ export function UserClassesSection({
   sessions,
   sessionBookings,
   initialView,
+  embeddedInSheet = false,
 }: UserClassesSectionProps) {
   const t = useTranslations("userPages.classes");
   const tSchedule = useTranslations("adminPages.schedule");
@@ -180,7 +182,11 @@ export function UserClassesSection({
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} search={heroSearch} />
+      {embeddedInSheet ? (
+        <div className="space-y-3">{heroSearch}</div>
+      ) : (
+        <AdminPageHero title={t("title")} search={heroSearch} />
+      )}
 
       {sessions.length === 0 ? (
         <p className="ommm-body-muted text-sm">{t("noSessions")}</p>

@@ -1,7 +1,7 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
+import { MemberHubSheetPage } from "@/components/account/member-hub-sheet-page";
 import { MemberUserGiftCardsRouteContent } from "@/components/account/member-user-gift-cards-route-content";
 
-export default async function UserGiftCardsPage({
+export default async function UserGiftCardsSheetPage({
   params,
   searchParams,
 }: {
@@ -12,8 +12,8 @@ export default async function UserGiftCardsPage({
   const search = await searchParams;
 
   return (
-    <MemberContentFrame>
-      <MemberUserGiftCardsRouteContent locale={locale} search={search} />
-    </MemberContentFrame>
+    <MemberHubSheetPage locale={locale} titleNamespace="userPages.giftCards">
+      <MemberUserGiftCardsRouteContent locale={locale} search={search} embeddedInSheet />
+    </MemberHubSheetPage>
   );
 }

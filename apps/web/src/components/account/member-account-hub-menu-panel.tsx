@@ -16,6 +16,8 @@ import {
 } from "@/lib/member-account-hub-nav";
 
 export type MemberAccountHubMenuPanelProps = MemberAccountHubProfile & {
+  /** `sheet` — inside the mobile bottom sheet popup. */
+  presentation?: "page" | "sheet";
   onNavigate?: () => void;
 };
 
@@ -24,13 +26,20 @@ export function MemberAccountHubMenuPanel({
   email,
   initials,
   imageSrc,
+  presentation = "page",
   onNavigate,
 }: MemberAccountHubMenuPanelProps) {
   const tNav = useTranslations("dashboard.nav");
   const tHub = useTranslations("userPages.accountHub");
 
   return (
-    <div className={memberAccountHubLayout.shell}>
+    <div
+      className={
+        presentation === "sheet"
+          ? `${memberAccountHubLayout.shell} ${memberAccountHubLayout.shellSheet}`
+          : memberAccountHubLayout.shell
+      }
+    >
       <header className={memberAccountHubLayout.header}>
         <div className={memberAccountHubLayout.avatarWrap}>
           <div className={memberAccountHubLayout.avatar} aria-hidden>

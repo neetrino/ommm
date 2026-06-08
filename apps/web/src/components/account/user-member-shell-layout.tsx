@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-
-export const dynamic = "force-dynamic";
-
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {

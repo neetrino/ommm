@@ -1,6 +1,6 @@
 import { MemberAccountHubMenuPanel } from "@/components/account/member-account-hub-menu-panel";
+import { memberAccountHubLayout } from "@/components/account/member-account-hub-layout";
 import type { MemberAccountHubProfile } from "@/components/account/member-account-hub-profile";
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
 
 export type MemberAccountHubProps = MemberAccountHubProfile & {
   locale: string;
@@ -10,8 +10,8 @@ export function MemberAccountHub(props: MemberAccountHubProps) {
   const { locale: _locale, ...profile } = props;
 
   return (
-    <MemberContentFrame>
+    <div className={memberAccountHubLayout.page}>
       <MemberAccountHubMenuPanel {...profile} />
-    </MemberContentFrame>
+    </div>
   );
 }

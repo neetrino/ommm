@@ -1,6 +1,10 @@
 /** Class names for the member account hub — styles live in `globals.css`. */
+export const MEMBER_ACCOUNT_HUB_PAGE_BOTTOM_GAP_PX = 20;
+
 export const memberAccountHubLayout = {
+  page: "ommm-member-account-hub-page",
   shell: "ommm-member-account-hub-shell",
+  shellSheet: "ommm-member-account-hub-shell--sheet",
   header: "ommm-member-account-hub-header",
   avatarWrap: "ommm-member-account-hub-avatar-wrap",
   avatar: "ommm-member-account-hub-avatar",

@@ -53,6 +53,7 @@ import type { UserPaymentsPayload } from "@/lib/user-package-types";
 type UserPaymentsHistoryProps = {
   locale: string;
   initialPayments: UserPaymentsPayload;
+  embeddedInSheet?: boolean;
 };
 
 const DEFAULT_FILTER_VALUES: UserPaymentFilterValues = {
@@ -78,7 +79,11 @@ function buildPaymentsEndpoint(
   return `/payments/me?${params.toString()}`;
 }
 
-export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHistoryProps) {
+export function UserPaymentsHistory({
+  locale,
+  initialPayments,
+  embeddedInSheet = false,
+}: UserPaymentsHistoryProps) {
   const t = useTranslations("userPages.payments");
   const router = useRouter();
   const pathname = usePathname();
@@ -265,7 +270,11 @@ export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHis
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+      {embeddedInSheet ? (
+        <div className="space-y-3">{heroSearch}</div>
+      ) : (
+        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+      )}
 
       {isEmpty ? (
         <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">

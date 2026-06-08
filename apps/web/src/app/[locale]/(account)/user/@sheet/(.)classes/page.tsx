@@ -1,7 +1,7 @@
-import { MemberContentFrame } from "@/components/layout/member-content-frame";
+import { MemberHubSheetPage } from "@/components/account/member-hub-sheet-page";
 import { MemberUserClassesRouteContent } from "@/components/account/member-user-classes-route-content";
 
-export default async function UserClassesPage({
+export default async function UserClassesSheetPage({
   params,
   searchParams,
 }: {
@@ -12,8 +12,8 @@ export default async function UserClassesPage({
   const search = await searchParams;
 
   return (
-    <MemberContentFrame>
-      <MemberUserClassesRouteContent locale={locale} search={search} />
-    </MemberContentFrame>
+    <MemberHubSheetPage locale={locale} titleNamespace="userPages.classes">
+      <MemberUserClassesRouteContent locale={locale} search={search} embeddedInSheet />
+    </MemberHubSheetPage>
   );
 }

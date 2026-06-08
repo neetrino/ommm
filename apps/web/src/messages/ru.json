@@ -651,6 +651,7 @@
   "userPages": {
     "accountHub": {
       "menuAria": "Меню аккаунта участника",
+      "sheetTitle": "Меню",
       "changePassword": "Сменить пароль",
       "signIn": {
         "title": "Войдите, чтобы продолжить",

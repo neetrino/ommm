@@ -44,12 +44,14 @@ type UserPackagesSectionProps = {
   locale: string;
   memberships: readonly UserMembershipRow[];
   apiOk: boolean;
+  embeddedInSheet?: boolean;
 };
 
 export function UserPackagesSection({
   locale,
   memberships,
   apiOk,
+  embeddedInSheet = false,
 }: UserPackagesSectionProps) {
   const t = useTranslations("userPages.packages");
   const tSort = useTranslations("listSort");
@@ -189,7 +191,11 @@ export function UserPackagesSection({
 
   return (
     <div id="your-packages" className="space-y-4">
-      <AdminPageHero title={t("title")} search={heroSearch} />
+      {embeddedInSheet ? (
+        <div className="space-y-3">{heroSearch}</div>
+      ) : (
+        <AdminPageHero title={t("title")} search={heroSearch} />
+      )}
 
       {!apiOk ? (
         <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">

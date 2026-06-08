@@ -47,9 +47,15 @@ type UserWaitlistsSectionProps = {
   locale: string;
   rows: readonly UserWaitlistRow[];
   loadError: boolean;
+  embeddedInSheet?: boolean;
 };
 
-export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsSectionProps) {
+export function UserWaitlistsSection({
+  locale,
+  rows,
+  loadError,
+  embeddedInSheet = false,
+}: UserWaitlistsSectionProps) {
   const t = useTranslations("userPages.waitlists");
   const tSort = useTranslations("listSort");
   const router = useRouter();
@@ -176,7 +182,11 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+      {embeddedInSheet ? (
+        <div className="space-y-3">{heroSearch}</div>
+      ) : (
+        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+      )}
 
       {loadError ? (
         <section className="rounded-[20px] border border-rose-100 bg-rose-50/70 p-5 text-sm text-rose-800">

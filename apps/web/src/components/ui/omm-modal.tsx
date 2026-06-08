@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, type CSSProperties, type ReactNode } from "react";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 
@@ -83,6 +83,9 @@ type OmmModalPortalProps = {
   closeDisabled?: boolean;
   overlayClassName?: string;
   panelClassName?: string;
+  panelStyle?: CSSProperties;
+  /** Keep panel anchored to the bottom on all breakpoints (mobile bottom sheets). */
+  bottomAnchored?: boolean;
   children: ReactNode;
 };
 
@@ -96,12 +99,18 @@ export function OmmModalPortal({
   closeDisabled = false,
   overlayClassName = OMM_MODAL_OVERLAY_CLASS,
   panelClassName,
+  panelStyle,
+  bottomAnchored = false,
   children,
 }: OmmModalPortalProps) {
   const portalReady = useIsClientMounted();
 
   useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
   useLockBodyScroll(isOpen);
+
+  const panelPositionClass = bottomAnchored
+    ? "relative z-10 mt-auto w-full"
+    : "relative z-10 mt-auto w-full sm:mt-0";
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
@@ -119,7 +128,8 @@ export function OmmModalPortal({
         aria-modal="true"
         aria-labelledby={ariaLabelledBy}
         aria-describedby={ariaDescribedBy}
-        className={`relative z-10 mt-auto w-full sm:mt-0 ${panelClassName ?? ""}`}
+        className={`${panelPositionClass} ${panelClassName ?? ""}`}
+        style={panelStyle}
       >
         {children}
       </div>

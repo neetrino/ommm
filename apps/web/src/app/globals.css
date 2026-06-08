@@ -309,6 +309,24 @@ html {
     @apply fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4;
   }
 
+  /** Member hub bottom sheet — anchored to bottom on phones (half screen, hub visible above). */
+  .ommm-member-hub-sheet-overlay {
+    @apply fixed inset-0 z-[105] flex items-end justify-center p-0 tablet:hidden;
+  }
+
+  /* Height fallback chain + inline style override in MemberAccountHubSectionSheet */
+  .ommm-member-hub-sheet-panel {
+    @apply relative z-10 mt-auto flex w-full shrink-0 flex-col overflow-hidden;
+    @apply rounded-t-[28px] border border-white/70 border-b-0;
+    @apply bg-white/95 shadow-[0_-16px_48px_-20px_rgba(45,40,35,0.38)] backdrop-blur-md;
+    height: 70vh;
+    max-height: 70vh;
+    min-height: 70vh;
+    height: 70dvh;
+    max-height: 70dvh;
+    min-height: 70dvh;
+  }
+
   .ommm-drawer-overlay {
     @apply fixed inset-0 z-40 flex justify-end bg-transparent;
   }
@@ -366,9 +384,19 @@ html {
   }
 
   /* Member account hub — /user glass menu (mobile-first) */
+  .ommm-member-account-hub-page {
+    @apply mx-auto w-full max-w-[1280px];
+    /* Synced with MEMBER_ACCOUNT_HUB_PAGE_BOTTOM_GAP_PX */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
   .ommm-member-account-hub-shell {
-    @apply mx-auto w-full max-w-lg pb-6 pt-2 sm:max-w-xl sm:pt-4;
-    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+    @apply mx-auto w-full max-w-lg pt-2 sm:max-w-xl sm:pt-4;
+  }
+
+  .ommm-member-account-hub-shell--sheet {
+    @apply max-w-none px-0 pb-0 pt-0;
+    padding-bottom: 0;
   }
 
   .ommm-member-account-hub-header {

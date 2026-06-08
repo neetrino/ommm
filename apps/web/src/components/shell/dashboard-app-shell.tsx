@@ -9,8 +9,6 @@ import {
   type DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
-import { MemberAccountHubDrawer } from "@/components/account/member-account-hub-drawer";
-import type { MemberAccountHubProfile } from "@/components/account/member-account-hub-profile";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -55,8 +53,6 @@ export type DashboardAppShellProps = {
   withSiteHeader?: boolean;
   drawerOpen?: boolean;
   onDrawerOpenChange?: (open: boolean) => void;
-  /** Member mobile drawer — account hub popup profile. */
-  memberAccountMenu?: MemberAccountHubProfile | null;
   trailing?: ReactNode;
   children: ReactNode;
 };
@@ -72,7 +68,6 @@ export function DashboardAppShell({
   withSiteHeader = false,
   drawerOpen: drawerOpenProp,
   onDrawerOpenChange,
-  memberAccountMenu = null,
   trailing,
   children,
 }: DashboardAppShellProps) {
@@ -153,9 +148,6 @@ export function DashboardAppShell({
     .filter(Boolean)
     .join(" ");
   const layoutMinHeightClass = withSiteHeader ? "min-h-full" : "min-h-screen";
-
-  const isMemberHubDrawer =
-    variant === "member" && memberAccountMenu !== null;
 
   const workspaceBody = (
     <div
@@ -268,6 +260,7 @@ export function DashboardAppShell({
               pathname={pathname}
               collapsed={isOliveShell ? false : sidebarCollapsed}
               onNavigate={() => undefined}
+              hardNavigate={variant === "member"}
             />
           </div>
           {isOliveShell && trailing ? (
@@ -293,13 +286,7 @@ export function DashboardAppShell({
         workspaceBody
       )}
 
-      {drawerOpen && isMemberHubDrawer ? (
-        <MemberAccountHubDrawer
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          profile={memberAccountMenu}
-        />
-      ) : drawerOpen ? (
+      {drawerOpen ? (
         <div
           className={`fixed inset-0 ${workspaceMobileDrawerLayout.overlayMobileOnly} ${withSiteHeader ? "z-[60]" : "z-40"}`}
           id="dashboard-mobile-drawer"
@@ -342,6 +329,7 @@ export function DashboardAppShell({
                 pathname={pathname}
                 collapsed={false}
                 onNavigate={() => setDrawerOpen(false)}
+                hardNavigate={variant === "member"}
               />
             </div>
             {trailing ? (

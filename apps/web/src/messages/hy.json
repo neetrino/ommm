@@ -663,6 +663,7 @@
   "userPages": {
     "accountHub": {
       "menuAria": "Անդամի հաշվի մենյու",
+      "sheetTitle": "Մենյու",
       "changePassword": "Փոխել գաղտնաբառը",
       "signIn": {
         "title": "Մուտք գործեք՝ շարունակելու համար",
