@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -10,7 +10,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 
 const PASSWORD_MIN_LENGTH = 8;
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const t = useTranslations("auth.resetPassword");
   const search = useSearchParams();
   const token = search.get("token");
@@ -111,5 +111,14 @@ export default function ResetPasswordPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  const t = useTranslations("common");
+  return (
+    <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

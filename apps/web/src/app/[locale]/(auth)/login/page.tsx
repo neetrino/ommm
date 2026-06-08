@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useState, useRef } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -21,7 +21,7 @@ function buildGoogleAuthStartUrl(): string {
   return `${apiBase}/auth/google`;
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlLocale = useLocale();
@@ -132,5 +132,14 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  const t = useTranslations("common");
+  return (
+    <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }

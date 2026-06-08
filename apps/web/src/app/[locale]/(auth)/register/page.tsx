@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -48,7 +48,7 @@ function isValidPhone(trimmed: string): boolean {
   return digits >= MIN_PHONE_DIGITS && digits <= MAX_PHONE_DIGITS;
 }
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlLocale = useLocale();
@@ -279,5 +279,14 @@ export default function RegisterPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  const t = useTranslations("common");
+  return (
+    <Suspense fallback={<p className="text-sm text-sage-500">{t("loading")}</p>}>
+      <RegisterForm />
+    </Suspense>
   );
 }
