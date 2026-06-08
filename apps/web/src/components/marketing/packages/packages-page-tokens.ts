@@ -1,7 +1,23 @@
 /**
- * Figma **Packages page cards** — component row `395:1652` (1061×495).
+ * Figma **Packages page cards** — component row `395:1652` (1061×495 base artboard).
+ * Row height is derived from {@link PACKAGES_PAGE_VISIBLE_TIER_COUNT} visible tiers.
  * Per-card gradients from instances `395:1299` … `395:1331`.
  */
+
+/** Session rows shown without scroll in desktop accordion (expanded + collapsed row height). */
+export const PACKAGES_PAGE_VISIBLE_TIER_COUNT = 5;
+
+/**
+ * Expanded accordion layout slices (px) — keep in sync with `packages-page-accordion.module.css`.
+ */
+export const PACKAGES_PAGE_ACCORDION_LAYOUT = {
+  expandedPanelPaddingTopPx: 43,
+  expandedHeaderBlockPx: 52,
+  tierTableSectionGapPx: 18,
+  columnHeaderHeightPx: 23,
+  /** Extra row height so ≤5 tiers never clip or scroll from subpixel layout. */
+  rowHeightBufferPx: 8,
+} as const;
 
 /** Shared card chrome from Figma `395:1652`. */
 export const PACKAGES_PAGE_CARD_FIGMA = {
@@ -19,9 +35,13 @@ export const PACKAGES_PAGE_CARD_FIGMA = {
   priceFontSizePx: 20,
   detailsFontSizePx: 20,
   textColor: "#97907c",
+  /** Darker label/FAB on Details hover — same hue as `textColor`. */
+  textColorHover: "#6a6454",
   fabSizePx: 86,
   fabFill: "#282828",
   fabFillOpacity: 0.31,
+  fabFillHover: "#0a0a0a",
+  fabFillHoverOpacity: 0.62,
   fabArrowColor: "#ffffff",
   gradientAngleDeg: 173.82,
   gradientStartPercent: 2.0655,
@@ -62,6 +82,17 @@ export const PACKAGES_PAGE_CATEGORY_GRADIENT_START: Readonly<Record<string, stri
   dances: "#d9d9d9",
 };
 
+export const PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS = [
+  "reformer group",
+  "reformer individual",
+  "mat pilates",
+  "yoga",
+  "dances",
+] as const;
+
+export type PackagesPageCategoryColorVariantKey =
+  (typeof PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS)[number];
+
 /** Figma Packages mobile accordion — collapsed card + inline expanded panel. */
 export const PACKAGES_PAGE_MOBILE_FIGMA = {
   accordionGapPx: 18,
@@ -80,6 +111,43 @@ export const PACKAGES_PAGE_MOBILE_FIGMA = {
   subscribeFontSizePx: 18,
 } as const;
 
+/** Desktop accordion row height — fits {@link PACKAGES_PAGE_VISIBLE_TIER_COUNT} tier rows before scroll. */
+export function resolvePackagesPageAccordionRowHeightPx(): number {
+  const layout = PACKAGES_PAGE_ACCORDION_LAYOUT;
+  const accordion = PACKAGES_PAGE_ACCORDION_FIGMA;
+  const card = PACKAGES_PAGE_CARD_FIGMA;
+  const visibleTierBlockHeight =
+    PACKAGES_PAGE_VISIBLE_TIER_COUNT * accordion.subscribeButtonHeightPx +
+    (PACKAGES_PAGE_VISIBLE_TIER_COUNT - 1) * accordion.tierRowGapPx;
+
+  return (
+    layout.expandedPanelPaddingTopPx +
+    layout.expandedHeaderBlockPx +
+    layout.tierTableSectionGapPx +
+    layout.columnHeaderHeightPx +
+    visibleTierBlockHeight +
+    card.fabSizePx +
+    accordion.fabFooterInsetPx +
+    layout.rowHeightBufferPx
+  );
+}
+
+/** Scroll viewport inside expanded panel — header + table chrome + visible tier rows. */
+export function resolvePackagesPageExpandedScrollHeightPx(): number {
+  const layout = PACKAGES_PAGE_ACCORDION_LAYOUT;
+  const accordion = PACKAGES_PAGE_ACCORDION_FIGMA;
+  const visibleTierBlockHeight =
+    PACKAGES_PAGE_VISIBLE_TIER_COUNT * accordion.subscribeButtonHeightPx +
+    (PACKAGES_PAGE_VISIBLE_TIER_COUNT - 1) * accordion.tierRowGapPx;
+
+  return (
+    layout.expandedHeaderBlockPx +
+    layout.tierTableSectionGapPx +
+    layout.columnHeaderHeightPx +
+    visibleTierBlockHeight
+  );
+}
+
 export const PACKAGES_PAGE_LAYOUT = {
   gridMaxWidthPx: PACKAGES_PAGE_CARD_FIGMA.artboardWidthPx,
   cardsGap: "clamp(0.75rem, 1.79vw, 1.1875rem)",
@@ -88,7 +156,9 @@ export const PACKAGES_PAGE_LAYOUT = {
   mobileFabSize: `${PACKAGES_PAGE_MOBILE_FIGMA.mobileFabSizePx}px`,
   accordionGap: `${PACKAGES_PAGE_ACCORDION_FIGMA.accordionGapPx}px`,
   collapsedPanelWidth: `${PACKAGES_PAGE_ACCORDION_FIGMA.collapsedWidthPx}px`,
-  rowHeight: `${PACKAGES_PAGE_CARD_FIGMA.cardHeightPx}px`,
+  rowHeight: `${resolvePackagesPageAccordionRowHeightPx()}px`,
+  expandedScrollHeight: `${resolvePackagesPageExpandedScrollHeightPx()}px`,
+  tierRowHeight: `${PACKAGES_PAGE_ACCORDION_FIGMA.subscribeButtonHeightPx}px`,
   expandedTableMinWidth: `${PACKAGES_PAGE_ACCORDION_FIGMA.expandedMinTableWidthPx}px`,
 } as const;
 

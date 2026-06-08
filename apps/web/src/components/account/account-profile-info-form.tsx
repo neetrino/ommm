@@ -1,5 +1,6 @@
 "use client";
 
+import type { InputHTMLAttributes, ReactNode } from "react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -12,6 +13,13 @@ import {
 } from "@/lib/date-display";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
+
+const PROFILE_FIELD_CELL_CLASS = "ommm-inset-row flex flex-col gap-0.5";
+const PROFILE_FIELD_LABEL_CLASS = "text-xs text-sage-500";
+const PROFILE_FIELD_VALUE_CLASS = "text-sm font-medium text-sage-800";
+const PROFILE_FIELD_VALUE_EMPTY_CLASS = "text-sm italic text-sage-500";
+const PROFILE_FIELD_INPUT_CLASS =
+  "w-full border-0 bg-transparent p-0 text-sm font-medium text-sage-800 shadow-none outline-none focus:ring-0 placeholder:font-normal placeholder:text-sage-400 disabled:cursor-not-allowed disabled:opacity-60";
 
 type ProfileFormUser = {
   email: string;
@@ -35,6 +43,64 @@ type FormState = {
   phone: string;
   dateOfBirth: string;
 };
+
+type ProfileFieldProps = {
+  id: string;
+  label: string;
+  displayValue: string;
+  editing: boolean;
+  inputValue: string;
+  onChange?: (value: string) => void;
+  span?: 1 | 2;
+  readOnly?: boolean;
+  disabled?: boolean;
+  emptyLabel: string;
+} & Pick<InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "inputMode" | "placeholder">;
+
+function ProfileField({
+  id,
+  label,
+  displayValue,
+  editing,
+  inputValue,
+  onChange,
+  span = 1,
+  readOnly = false,
+  disabled = false,
+  emptyLabel,
+  type = "text",
+  autoComplete,
+  inputMode,
+  placeholder,
+}: ProfileFieldProps) {
+  const isEmpty = displayValue.trim() === "";
+  const spanClass = span === 2 ? "sm:col-span-2" : "";
+
+  return (
+    <div className={`${PROFILE_FIELD_CELL_CLASS} ${spanClass}`.trim()}>
+      <label className={PROFILE_FIELD_LABEL_CLASS} htmlFor={id}>
+        {label}
+      </label>
+      {editing && !readOnly ? (
+        <input
+          id={id}
+          type={type}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          placeholder={placeholder}
+          className={PROFILE_FIELD_INPUT_CLASS}
+          value={inputValue}
+          onChange={(event) => onChange?.(event.target.value)}
+          disabled={disabled}
+        />
+      ) : (
+        <p className={isEmpty ? PROFILE_FIELD_VALUE_EMPTY_CLASS : PROFILE_FIELD_VALUE_CLASS}>
+          {isEmpty ? emptyLabel : displayValue}
+        </p>
+      )}
+    </div>
+  );
+}
 
 function initialFormState(user: ProfileFormUser): FormState {
   return {
@@ -124,140 +190,14 @@ export function AccountProfileInfoForm({
     }
   }
 
-  if (!isEditing) {
-    return (
-      <div className="relative space-y-4">
-        <div className="absolute right-0 top-0">
-          <EditActionButton
-            ariaLabel={tForm("edit")}
-            title={tForm("edit")}
-            onClick={startEdit}
-          />
-        </div>
-        <dl className="space-y-3 pr-14 text-sm">
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.email")}</dt>
-            <dd className="font-medium text-sage-800">{initialUser.email}</dd>
-          </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.name")}</dt>
-            <dd className="text-sage-700">{initialUser.name ?? empty}</dd>
-          </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.lastName")}</dt>
-            <dd className="text-sage-700">{initialUser.lastName ?? empty}</dd>
-          </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.phone")}</dt>
-            <dd className="text-sage-700">{initialUser.phone ?? empty}</dd>
-          </div>
-          <div>
-            <dt className="text-sage-500">{tProfile("labels.dateOfBirth")}</dt>
-            <dd className="text-sage-700">
-              {initialUser.dateOfBirth
-                ? formatDateForUi(initialUser.dateOfBirth)
-                : empty}
-            </dd>
-          </div>
-          {showRole ? (
-            <div>
-              <dt className="text-sage-500">{tStaff("role")}</dt>
-              <dd className="text-sage-700">{initialUser.role ?? empty}</dd>
-            </div>
-          ) : null}
-        </dl>
-        {message ? (
-          <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>
-            {message}
-          </p>
-        ) : null}
-      </div>
-    );
-  }
+  const displayDob = initialUser.dateOfBirth
+    ? formatDateForUi(initialUser.dateOfBirth)
+    : empty;
 
-  return (
-    <form
-      className="flex max-w-xl flex-col gap-4"
-      onSubmit={(event) => {
-        event.preventDefault();
-        void save();
-      }}
-    >
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-email">
-          {tProfile("labels.email")}
-        </label>
-        <input
-          id="profile-email"
-          type="email"
-          autoComplete="email"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={form.email}
-          onChange={(event) => updateField("email", event.target.value)}
-          disabled={isSaving}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-name">
-          {tProfile("labels.name")}
-        </label>
-        <input
-          id="profile-name"
-          type="text"
-          autoComplete="given-name"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={form.name}
-          onChange={(event) => updateField("name", event.target.value)}
-          disabled={isSaving}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-last-name">
-          {tProfile("labels.lastName")}
-        </label>
-        <input
-          id="profile-last-name"
-          type="text"
-          autoComplete="family-name"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={form.lastName}
-          onChange={(event) => updateField("lastName", event.target.value)}
-          disabled={isSaving}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-phone">
-          {tProfile("labels.phone")}
-        </label>
-        <input
-          id="profile-phone"
-          type="tel"
-          autoComplete="tel"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={form.phone}
-          onChange={(event) => updateField("phone", event.target.value)}
-          disabled={isSaving}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-sage-700" htmlFor="profile-dob">
-          {tProfile("labels.dateOfBirth")}
-        </label>
-        <input
-          id="profile-dob"
-          name="dateOfBirth"
-          type="text"
-          inputMode="numeric"
-          autoComplete="bday"
-          placeholder="DD/MM/YYYY"
-          className="app-input border-sand-500/25 bg-white/90 text-sage-900 placeholder:text-sage-400"
-          value={form.dateOfBirth}
-          onChange={(event) => updateField("dateOfBirth", formatBirthdayInput(event.target.value))}
-          disabled={isSaving}
-        />
-      </div>
-
-      <div className="flex flex-wrap gap-3">
+  let actions: ReactNode = null;
+  if (isEditing) {
+    actions = (
+      <div className="flex flex-wrap gap-3 sm:col-span-2">
         <OmmButton type="submit" variant="primary" size="sm" disabled={isSaving}>
           {isSaving ? tForm("saving") : tForm("save")}
         </OmmButton>
@@ -271,12 +211,110 @@ export function AccountProfileInfoForm({
           {tForm("cancel")}
         </OmmButton>
       </div>
+    );
+  }
+
+  return (
+    <div className="relative space-y-4">
+      {!isEditing ? (
+        <div className="absolute right-0 top-0">
+          <EditActionButton
+            ariaLabel={tForm("edit")}
+            title={tForm("edit")}
+            onClick={startEdit}
+          />
+        </div>
+      ) : null}
+
+      <form
+        className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${isEditing ? "" : "pr-12"}`.trim()}
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (isEditing) {
+            void save();
+          }
+        }}
+      >
+        <ProfileField
+          id="profile-name"
+          label={tProfile("labels.name")}
+          displayValue={initialUser.name ?? ""}
+          editing={isEditing}
+          inputValue={form.name}
+          onChange={(value) => updateField("name", value)}
+          autoComplete="given-name"
+          disabled={isSaving}
+          emptyLabel={empty}
+        />
+        <ProfileField
+          id="profile-last-name"
+          label={tProfile("labels.lastName")}
+          displayValue={initialUser.lastName ?? ""}
+          editing={isEditing}
+          inputValue={form.lastName}
+          onChange={(value) => updateField("lastName", value)}
+          autoComplete="family-name"
+          disabled={isSaving}
+          emptyLabel={empty}
+        />
+        <ProfileField
+          id="profile-email"
+          label={tProfile("labels.email")}
+          displayValue={initialUser.email}
+          editing={isEditing}
+          inputValue={form.email}
+          onChange={(value) => updateField("email", value)}
+          span={2}
+          type="email"
+          autoComplete="email"
+          disabled={isSaving}
+          emptyLabel={empty}
+        />
+        <ProfileField
+          id="profile-phone"
+          label={tProfile("labels.phone")}
+          displayValue={initialUser.phone ?? ""}
+          editing={isEditing}
+          inputValue={form.phone}
+          onChange={(value) => updateField("phone", value)}
+          type="tel"
+          autoComplete="tel"
+          disabled={isSaving}
+          emptyLabel={empty}
+        />
+        <ProfileField
+          id="profile-dob"
+          label={tProfile("labels.dateOfBirth")}
+          displayValue={displayDob === empty ? "" : displayDob}
+          editing={isEditing}
+          inputValue={form.dateOfBirth}
+          onChange={(value) => updateField("dateOfBirth", formatBirthdayInput(value))}
+          inputMode="numeric"
+          autoComplete="bday"
+          placeholder="DD/MM/YYYY"
+          disabled={isSaving}
+          emptyLabel={empty}
+        />
+        {showRole ? (
+          <ProfileField
+            id="profile-role"
+            label={tStaff("role")}
+            displayValue={initialUser.role ?? ""}
+            editing={isEditing}
+            inputValue={initialUser.role ?? ""}
+            span={2}
+            readOnly
+            emptyLabel={empty}
+          />
+        ) : null}
+        {actions}
+      </form>
 
       {message ? (
         <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>
           {message}
         </p>
       ) : null}
-    </form>
+    </div>
   );
 }

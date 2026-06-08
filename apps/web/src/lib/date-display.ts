@@ -24,6 +24,34 @@ export function formatDateForUi(value: Date | string): string {
   return `${day}/${month}/${year}`;
 }
 
+/** Compact list date: `06/06/26`. */
+export function formatDateCompactForUi(value: Date | string): string {
+  let date: Date | null = null;
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+      if (match !== null) {
+        date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      }
+    }
+  }
+
+  if (date === null) {
+    date = asDate(value);
+  }
+
+  if (date === null) {
+    return "";
+  }
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+}
+
 export function formatDateTimeForUi(value: Date | string, locale?: string): string {
   const date = asDate(value);
   if (date === null) {
@@ -82,6 +110,50 @@ export function formatBirthdayInput(rawValue: string): string {
   }
 
   return `${day}/${month}/${yearRaw}`;
+}
+
+/** Splits an `HH:MM` (or partial) value into hour and minute digit groups. */
+export function splitTimeInputValue(value: string): { hours: string; minutes: string } {
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    return { hours: "", minutes: "" };
+  }
+
+  const colonIndex = trimmed.indexOf(":");
+  if (colonIndex === -1) {
+    return { hours: trimmed.replace(/\D/g, "").slice(0, 2), minutes: "" };
+  }
+
+  return {
+    hours: trimmed.slice(0, colonIndex).replace(/\D/g, "").slice(0, 2),
+    minutes: trimmed.slice(colonIndex + 1).replace(/\D/g, "").slice(0, 2),
+  };
+}
+
+/** Combines hour and minute digit groups into an `HH:MM` (or partial) value. */
+export function combineTimeInputValue(hours: string, minutes: string): string {
+  const hourDigits = hours.replace(/\D/g, "").slice(0, 2);
+  const minuteDigits = minutes.replace(/\D/g, "").slice(0, 2);
+
+  if (hourDigits === "" && minuteDigits === "") {
+    return "";
+  }
+  if (minuteDigits === "") {
+    return hourDigits.length === 2
+      ? String(Math.min(23, Number(hourDigits))).padStart(2, "0")
+      : hourDigits;
+  }
+
+  const hour =
+    hourDigits.length === 2
+      ? String(Math.min(23, Number(hourDigits))).padStart(2, "0")
+      : hourDigits;
+  const minute =
+    minuteDigits.length === 2
+      ? String(Math.min(59, Number(minuteDigits))).padStart(2, "0")
+      : minuteDigits;
+
+  return `${hour}:${minute}`;
 }
 
 /** Parses a `DD/MM/YYYY` display value into an ISO date (`YYYY-MM-DD`). */

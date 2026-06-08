@@ -21,7 +21,9 @@ export default async function MarketingPackageCategoryPage({
 }) {
   const { locale, categoryKey } = await params;
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const plansRes = await serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans");
+  const plansRes = await serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans", {
+    cacheMode: "no-store",
+  });
 
   if (!plansRes.ok) {
     return (

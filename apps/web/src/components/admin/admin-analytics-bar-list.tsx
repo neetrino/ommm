@@ -7,6 +7,7 @@ type AdminAnalyticsBarListProps = {
   emptyLabel: string;
   valueSuffix?: string;
   ariaLabel: string;
+  emphasis?: boolean;
 };
 
 export function AdminAnalyticsBarList({
@@ -14,12 +15,18 @@ export function AdminAnalyticsBarList({
   emptyLabel,
   valueSuffix = "",
   ariaLabel,
+  emphasis = false,
 }: AdminAnalyticsBarListProps) {
   const max = items.reduce((peak, item) => Math.max(peak, item.value), 0);
 
   if (items.length === 0) {
     return <p className="text-sm text-sage-500">{emptyLabel}</p>;
   }
+
+  const trackClass = emphasis ? "h-3 bg-sage-100/90" : "h-2 bg-sage-100";
+  const barClass = emphasis
+    ? "h-full rounded-full bg-gradient-to-r from-sand-400 to-sand-500"
+    : "h-full rounded-full bg-sand-500";
 
   return (
     <ul className="space-y-3" aria-label={ariaLabel}>
@@ -32,14 +39,8 @@ export function AdminAnalyticsBarList({
               <span className="font-medium text-sage-800">{item.label}</span>
               <span className="tabular-nums text-sage-600">{display}</span>
             </div>
-            <div
-              className="h-2 overflow-hidden rounded-full bg-sage-100"
-              role="presentation"
-            >
-              <div
-                className="h-full rounded-full bg-sand-500 transition-[width]"
-                style={{ width: `${widthPct}%` }}
-              />
+            <div className={`overflow-hidden rounded-full ${trackClass}`} role="presentation">
+              <div className={`${barClass} transition-[width]`} style={{ width: `${widthPct}%` }} />
             </div>
           </li>
         );

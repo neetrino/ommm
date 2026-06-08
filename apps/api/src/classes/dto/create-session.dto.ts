@@ -16,10 +16,11 @@ import {
 } from 'class-validator';
 
 export class CreateSessionDto {
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  title!: string;
+  title?: string;
 
   @IsOptional()
   @IsString()

@@ -11,6 +11,31 @@ export const OMM_MODAL_OVERLAY_CLASS = "ommm-modal-overlay";
 
 export const OMM_DRAWER_OVERLAY_CLASS = "ommm-drawer-overlay";
 
+export const OMM_DRAWER_BACKDROP_CLASS = "ommm-drawer-backdrop";
+
+/** Keeps layout width stable when the classic scrollbar disappears on lock. */
+function useLockBodyScroll(active: boolean): void {
+  useEffect(() => {
+    if (!active) {
+      return undefined;
+    }
+
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+    };
+  }, [active]);
+}
+
 type OmmModalBackdropProps = {
   onClose: () => void;
   ariaLabel: string;
@@ -22,6 +47,25 @@ export function OmmModalBackdrop({ onClose, ariaLabel, disabled = false }: OmmMo
     <button
       type="button"
       className={OMM_MODAL_BACKDROP_CLASS}
+      onClick={onClose}
+      disabled={disabled}
+      aria-label={ariaLabel}
+    />
+  );
+}
+
+type OmmDrawerBackdropProps = {
+  onClose: () => void;
+  ariaLabel: string;
+  disabled?: boolean;
+};
+
+/** Click target behind side sheets — static dim, no extra darkening on hover. */
+export function OmmDrawerBackdrop({ onClose, ariaLabel, disabled = false }: OmmDrawerBackdropProps) {
+  return (
+    <button
+      type="button"
+      className={OMM_DRAWER_BACKDROP_CLASS}
       onClick={onClose}
       disabled={disabled}
       aria-label={ariaLabel}
@@ -57,17 +101,7 @@ export function OmmModalPortal({
   const portalReady = useIsClientMounted();
 
   useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
+  useLockBodyScroll(isOpen);
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
@@ -98,7 +132,9 @@ type OmmDrawerPortalProps = {
   isOpen: boolean;
   onClose: () => void;
   backdropAriaLabel: string;
+  ariaLabelledBy?: string;
   closeDisabled?: boolean;
+  overlayClassName?: string;
   panelClassName?: string;
   children: ReactNode;
 };
@@ -107,37 +143,36 @@ export function OmmDrawerPortal({
   isOpen,
   onClose,
   backdropAriaLabel,
+  ariaLabelledBy,
   closeDisabled = false,
+  overlayClassName = OMM_DRAWER_OVERLAY_CLASS,
   panelClassName = "relative z-10 h-full w-full max-w-md overflow-auto bg-white p-5 shadow-xl",
   children,
 }: OmmDrawerPortalProps) {
   const portalReady = useIsClientMounted();
 
   useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
+  useLockBodyScroll(isOpen);
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
   }
 
   return createPortal(
-    <div className={OMM_DRAWER_OVERLAY_CLASS} role="presentation">
-      <OmmModalBackdrop
+    <div className={overlayClassName} role="presentation">
+      <OmmDrawerBackdrop
         onClose={onClose}
         ariaLabel={backdropAriaLabel}
         disabled={closeDisabled}
       />
-      <aside className={panelClassName}>{children}</aside>
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={ariaLabelledBy}
+        className={panelClassName}
+      >
+        {children}
+      </aside>
     </div>,
     document.body,
   );

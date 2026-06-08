@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import type { AdminCoachesViewMode } from "@/lib/admin-coaches-view-preference";
+import { LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS } from "@/lib/viewport-breakpoints";
 
 type AdminCoachesViewSwitcherProps = {
   value: AdminCoachesViewMode;
@@ -10,7 +11,7 @@ type AdminCoachesViewSwitcherProps = {
 };
 
 const SEGMENT_BASE =
-  "inline-flex cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+  "inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-[background-color,box-shadow,color,transform] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 
 function segmentClassName(active: boolean): string {
   return active
@@ -28,25 +29,27 @@ export function AdminCoachesViewSwitcher({
     <div
       role="group"
       aria-label={t("viewSwitcherAria")}
-      className="inline-flex rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md"
+      className={`${LIST_BOARD_VIEW_SWITCHER_VISIBILITY_CLASS} shrink-0 rounded-full border border-white/60 bg-white/55 p-1 shadow-sm backdrop-blur-md`}
     >
       <button
         type="button"
+        aria-label={t("viewList")}
+        title={t("viewList")}
         aria-pressed={value === "list"}
         className={segmentClassName(value === "list")}
         onClick={() => onChange("list")}
       >
         <DashboardNavIcon name="listOrdered" className="h-4 w-4 shrink-0" />
-        {t("viewList")}
       </button>
       <button
         type="button"
+        aria-label={t("viewBoard")}
+        title={t("viewBoard")}
         aria-pressed={value === "board"}
         className={segmentClassName(value === "board")}
         onClick={() => onChange("board")}
       >
         <DashboardNavIcon name="layoutGrid" className="h-4 w-4 shrink-0" />
-        {t("viewBoard")}
       </button>
     </div>
   );

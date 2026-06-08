@@ -9,6 +9,7 @@ import {
   BookingStatus,
   ClassSessionStatus,
   GiftCardStatus,
+  ManualPaymentMethod,
   PackageStatus,
   Prisma,
   PaymentStatus,
@@ -20,6 +21,9 @@ import {
   AdminListPaymentsQueryDto,
   PaymentSourceFilter,
 } from './dto/admin-list-payments-query.dto';
+import type { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
 
@@ -194,26 +198,85 @@ export class PaymentsService {
     status: AdminUpdatablePaymentStatus,
     adminId: string,
   ) {
-    if (status === PaymentStatus.SUCCEEDED) {
-      return this.confirmPayment(paymentId, adminId);
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (payment.paymentMethod === ManualPaymentMethod.CARD) {
+      if (payment.status === PaymentStatus.PENDING) {
+        return this.confirmPayment(paymentId, adminId, {
+          paymentMethod: ManualPaymentMethod.CARD,
+        });
+      }
+      throw new BadRequestException(
+        'Card payment status is confirmed automatically',
+      );
+    }
+    if (payment.status === status) {
+      return payment;
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.findUnique({ where: { id: paymentId } });
-      if (!payment) {
-        throw new NotFoundException('Payment not found');
-      }
-      if (payment.status !== PaymentStatus.PENDING) {
-        throw new ConflictException('Only pending payments can be updated');
-      }
-      return tx.payment.update({
-        where: { id: paymentId },
-        data: this.withInternalPaymentUpdateFields({
-          status,
-          confirmedAt: new Date(),
-          confirmedByAdminId: adminId,
-        }),
+    if (
+      status === PaymentStatus.SUCCEEDED &&
+      payment.status === PaymentStatus.PENDING
+    ) {
+      return this.confirmPayment(paymentId, adminId, {
+        paymentMethod: payment.paymentMethod ?? ManualPaymentMethod.CASH,
       });
+    }
+
+    return this.prisma.payment.update({
+      where: { id: paymentId },
+      data: this.withInternalPaymentUpdateFields({
+        status,
+        confirmedAt: this.resolveAdminStatusConfirmedAt(
+          status,
+          payment.confirmedAt,
+        ),
+        confirmedByAdminId: adminId,
+        ...(this.shouldSetDefaultManualPaymentMethod(
+          status,
+          payment.paymentMethod,
+        )
+          ? { paymentMethod: ManualPaymentMethod.CASH }
+          : {}),
+      }),
+    });
+  }
+
+  private resolveAdminStatusConfirmedAt(
+    status: PaymentStatus,
+    existingConfirmedAt: Date | null,
+  ): Date | null {
+    if (status === PaymentStatus.PENDING) {
+      return null;
+    }
+    if (
+      status === PaymentStatus.SUCCEEDED ||
+      status === PaymentStatus.FAILED ||
+      status === PaymentStatus.REFUNDED
+    ) {
+      return existingConfirmedAt ?? new Date();
+    }
+    return existingConfirmedAt;
+  }
+
+  private shouldSetDefaultManualPaymentMethod(
+    status: PaymentStatus,
+    paymentMethod: ManualPaymentMethod | null,
+  ): boolean {
+    return (
+      paymentMethod === null &&
+      (status === PaymentStatus.SUCCEEDED || status === PaymentStatus.FAILED)
+    );
+  }
+
+  /** Confirms a pending card payment after the user checkout flow completes. */
+  async confirmPendingCardPayment(paymentId: string): Promise<void> {
+    await this.confirmPayment(paymentId, null, {
+      paymentMethod: ManualPaymentMethod.CARD,
     });
   }
 
@@ -222,6 +285,29 @@ export class PaymentsService {
     paymentReference: string,
     paymentMethod: GiftPaymentMethod,
   ) {
+    if (paymentMethod === ManualPaymentMethod.CASH) {
+      return this.prisma.$transaction(async (tx) => {
+        const existing = (await tx.payment.findFirst({
+          where: this.withInternalPaymentWhereFields({ paymentReference }),
+        })) as InternalPaymentRecord | null;
+        if (!existing || existing.userId !== userId) {
+          throw new NotFoundException('Payment not found');
+        }
+        if (existing.status !== PaymentStatus.PENDING) {
+          throw new ConflictException('Only pending payments can be confirmed');
+        }
+        if (existing.source !== INTERNAL_PAYMENT_SOURCE.GIFT) {
+          throw new BadRequestException('Payment is not a gift purchase');
+        }
+        return tx.payment.update({
+          where: { id: existing.id },
+          data: this.withInternalPaymentUpdateFields({
+            paymentMethod: ManualPaymentMethod.CASH,
+          }),
+        });
+      });
+    }
+
     const giftEmails: GiftEmailPayload[] = [];
     const payment = await this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findFirst({
@@ -260,7 +346,11 @@ export class PaymentsService {
     return payment;
   }
 
-  private async confirmPayment(paymentId: string, adminId: string) {
+  private async confirmPayment(
+    paymentId: string,
+    adminId: string | null,
+    options?: { paymentMethod?: ManualPaymentMethod },
+  ) {
     const giftEmails: GiftEmailPayload[] = [];
     const payment = await this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findUnique({
@@ -298,7 +388,10 @@ export class PaymentsService {
         data: this.withInternalPaymentUpdateFields({
           status: PaymentStatus.SUCCEEDED,
           confirmedAt: new Date(),
-          confirmedByAdminId: adminId,
+          ...(adminId ? { confirmedByAdminId: adminId } : {}),
+          ...(options?.paymentMethod
+            ? { paymentMethod: options.paymentMethod }
+            : {}),
         }),
       });
     });
@@ -309,12 +402,34 @@ export class PaymentsService {
     return payment;
   }
 
-  listPayments(userId: string) {
-    return this.prisma.payment.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    });
+  async listPayments(userId: string, query: ListMyPaymentsQueryDto = {}) {
+    const hasPagination =
+      query.take !== undefined || query.offset !== undefined;
+    if (!hasPagination) {
+      return this.prisma.payment.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+    }
+
+    const take = query.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = query.offset ?? 0;
+    const order = query.order === 'oldest' ? 'asc' : 'desc';
+    const where: Prisma.PaymentWhereInput = {
+      userId,
+      ...(query.status ? { status: query.status } : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        orderBy: { createdAt: order },
+        take,
+        skip: offset,
+      }),
+      this.prisma.payment.count({ where }),
+    ]);
+    return { items, total, take, offset };
   }
 
   async adminListPayments(query: AdminListPaymentsQueryDto) {
@@ -324,16 +439,49 @@ export class PaymentsService {
       throw new BadRequestException('Invalid date range');
     }
     const sourceFilter = this.buildSourceFilter(query.source);
+    const packageFilter = await this.buildPackagePaymentFilter(query);
+    const search = query.q?.trim();
+    const order = resolveDateListPrismaOrder(query.order);
     const where: Prisma.PaymentWhereInput = {
       ...(query.userId ? { userId: query.userId } : {}),
       ...(query.status ? { status: query.status } : {}),
       ...(sourceFilter ?? {}),
+      ...(packageFilter ?? {}),
       ...(query.from || query.to
         ? {
             createdAt: {
               ...(query.from ? { gte: new Date(query.from) } : {}),
               ...(query.to ? { lte: new Date(query.to) } : {}),
             },
+          }
+        : {}),
+      ...(search
+        ? {
+            OR: [
+              { id: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+              { paymentReference: { contains: search, mode: 'insensitive' } },
+              {
+                user: {
+                  email: { contains: search, mode: 'insensitive' },
+                },
+              },
+              {
+                user: {
+                  name: { contains: search, mode: 'insensitive' },
+                },
+              },
+              {
+                user: {
+                  lastName: { contains: search, mode: 'insensitive' },
+                },
+              },
+              {
+                user: {
+                  phone: { contains: search, mode: 'insensitive' },
+                },
+              },
+            ],
           }
         : {}),
     };
@@ -353,7 +501,7 @@ export class PaymentsService {
             },
           },
         },
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: [{ createdAt: order }, { id: order }],
         take,
         skip: offset,
       }),
@@ -501,6 +649,72 @@ export class PaymentsService {
       },
     });
     return recipientEmail ? { to: recipientEmail, code } : null;
+  }
+
+  private async buildPackagePaymentFilter(
+    query: AdminListPaymentsQueryDto,
+  ): Promise<Prisma.PaymentWhereInput | undefined> {
+    const filters: Prisma.PaymentWhereInput[] = [];
+    const planWhere: Prisma.PackagePlanWhereInput = {};
+
+    if (query.planId?.trim()) {
+      filters.push({ planId: query.planId.trim() });
+    }
+
+    if (query.packageClass?.trim()) {
+      const matchingPlans = await this.prisma.packagePlan.findMany({
+        where: {
+          categoryName: {
+            equals: query.packageClass.trim(),
+            mode: 'insensitive',
+          },
+        },
+        select: { id: true },
+      });
+      if (matchingPlans.length === 0) {
+        return { planId: { in: [] } };
+      }
+      planWhere.id = { in: matchingPlans.map((plan) => plan.id) };
+    }
+
+    const sessionsFilter = this.buildPackageSessionsPlanFilter(query.sessions);
+    if (sessionsFilter) {
+      Object.assign(planWhere, sessionsFilter);
+    }
+
+    if (Object.keys(planWhere).length > 0) {
+      filters.push({ plan: planWhere });
+    }
+
+    if (filters.length === 0) {
+      return undefined;
+    }
+    if (filters.length === 1) {
+      return filters[0];
+    }
+    return { AND: filters };
+  }
+
+  private buildPackageSessionsPlanFilter(
+    sessions: string | undefined,
+  ):
+    | Pick<Prisma.PackagePlanWhereInput, 'isUnlimited' | 'sessionsPerMonth'>
+    | undefined {
+    const raw = sessions?.trim();
+    if (!raw) {
+      return undefined;
+    }
+    if (raw === 'unlimited') {
+      return { isUnlimited: true };
+    }
+    const count = Number.parseInt(raw, 10);
+    if (!Number.isInteger(count) || count <= 0) {
+      return undefined;
+    }
+    return {
+      sessionsPerMonth: count,
+      isUnlimited: false,
+    };
   }
 
   private buildSourceFilter(

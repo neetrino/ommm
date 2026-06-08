@@ -14,4 +14,4 @@ export type UserGiftCardRow = {
   createdAt: string;
 };
 
-export type UserGiftCardSectionKind = "purchased" | "received";
+export type UserGiftCardSource = "purchased" | "received";

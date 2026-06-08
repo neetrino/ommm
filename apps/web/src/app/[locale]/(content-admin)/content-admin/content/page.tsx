@@ -1,5 +1,10 @@
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { ContentPostsPanel } from "@/components/admin/content-posts-panel";
 
 export default async function ContentAdminContentPage() {
-  return <ContentPostsPanel />;
+  return (
+    <AdminContentFrame>
+      <ContentPostsPanel />
+    </AdminContentFrame>
+  );
 }

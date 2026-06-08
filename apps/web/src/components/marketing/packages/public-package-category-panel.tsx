@@ -7,9 +7,9 @@ import { PackageCategoryCardFooter } from "@/components/marketing/packages/packa
 import styles from "@/components/marketing/packages/public-package-category-panel.module.css";
 import { PublicPackageTierRow } from "@/components/marketing/packages/public-package-tier-row";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import {
   listDancesCategoryDisplayPlans,
-  listDancesSubscribablePlans,
 } from "@/components/marketing/packages/public-package-dances-display-tiers";
 import type { PublicPackageCategoryGroup } from "@/lib/public-package-categories";
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
@@ -35,8 +35,8 @@ export function PublicPackageCategoryPanel({
 
   const displayPlans = listDancesCategoryDisplayPlans(category.plans);
   const subscribePlans = useMemo(
-    () => toPackageSubscribePlanOptions(listDancesSubscribablePlans(category.plans)),
-    [category.plans],
+    () => toPackageSubscribePlanOptions(listPublicPackageCategorySubscribablePlans(category)),
+    [category],
   );
   const categoryHref = buildPackageCategoryHref(category.id, audience);
   const isPopular = category.plans.some((plan) => plan.isPopular);

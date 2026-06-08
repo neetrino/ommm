@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Patch,
   Post,
@@ -110,6 +111,21 @@ export class UsersController {
     @Body() dto: RegisterPushTokenDto,
   ) {
     return this.users.registerPushToken(user.id, dto.token, dto.platform);
+  }
+
+  @Delete('me')
+  async deleteMe(
+    @CurrentUser() user: { id: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.users.deleteOwnAccount(user.id);
+    res.clearCookie(ACCESS_TOKEN_COOKIE, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+    return { ok: true };
   }
 
   @Post('me/delete-request')

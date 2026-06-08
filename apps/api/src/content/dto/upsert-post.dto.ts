@@ -1,13 +1,17 @@
 import { ContentStatus, ContentType } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsDateString,
   IsEnum,
   IsOptional,
   IsString,
   MaxLength,
-  MinLength,
+  ValidateIf,
+  ValidateNested,
 } from 'class-validator';
+import { ContentPostTranslationDto } from './content-post-translation.dto';
 
 export class UpsertPostDto {
   @IsEnum(ContentType)
@@ -16,25 +20,11 @@ export class UpsertPostDto {
   @IsEnum(ContentStatus)
   status!: ContentStatus;
 
-  @IsString()
-  @MinLength(1)
-  @MaxLength(200)
-  slug!: string;
-
-  @IsString()
-  @MinLength(1)
-  @MaxLength(200)
-  title!: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  excerpt?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100_000)
-  body?: string;
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => ContentPostTranslationDto)
+  translations!: ContentPostTranslationDto[];
 
   @IsOptional()
   @IsString()
@@ -46,16 +36,6 @@ export class UpsertPostDto {
   @IsString({ each: true })
   @MaxLength(40, { each: true })
   tags?: string[];
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  seoTitle?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(320)
-  seoDescription?: string;
 
   @IsOptional()
   @IsString()
@@ -81,9 +61,10 @@ export class UpsertPostDto {
   submittedForReviewAt?: string;
 
   @IsOptional()
+  @ValidateIf((_object, value: string | null | undefined) => value !== null)
   @IsString()
   @MaxLength(2000)
-  coverImageUrl?: string;
+  coverImageUrl?: string | null;
 
   @IsOptional()
   @IsDateString()

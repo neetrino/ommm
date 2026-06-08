@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -18,6 +19,7 @@ import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
+import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -69,11 +71,16 @@ export class PaymentsController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  myPayments(@CurrentUser() user: { id: string }) {
-    return this.payments.listPayments(user.id);
+  myPayments(
+    @CurrentUser() user: { id: string },
+    @Query() query: ListMyPaymentsQueryDto,
+  ) {
+    return this.payments.listPayments(user.id, query);
   }
 
+  /** Admin finance table — RSC/prefetch bursts in Next.js dev must not 429. */
   @Get('admin')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
   adminList(@Query() query: AdminListPaymentsQueryDto) {

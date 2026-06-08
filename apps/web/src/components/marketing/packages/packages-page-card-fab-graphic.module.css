@@ -1,0 +1,22 @@
+.fabGraphic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.fabCircle {
+  fill: var(--packages-page-fab-current-fill, var(--packages-page-fab-fill, #282828));
+  fill-opacity: var(--packages-page-fab-current-opacity, var(--packages-page-fab-fill-opacity, 0.31));
+  transition: fill 0.22s ease, fill-opacity 0.22s ease;
+}
+
+.fabArrow {
+  fill: var(--packages-page-fab-arrow, #ffffff);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fabCircle {
+    transition: none;
+  }
+}

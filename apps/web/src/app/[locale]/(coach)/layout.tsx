@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
+import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
+
+export const dynamic = "force-dynamic";
+
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
-import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
-import { LogoutButton } from "@/components/logout-button";
-import { Link } from "@/i18n/navigation";
+import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
-import { USER_DASHBOARD_PATH } from "@/lib/role-home";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -17,9 +18,6 @@ import {
 
 const COACH_ROLES = new Set<string>(["COACH"]);
 
-const trailingClass =
-  "block w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-sage-700 hover:bg-white/45 hover:text-sage-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:w-auto lg:text-left";
-
 export default async function CoachSectionLayout({
   children,
   params,
@@ -27,6 +25,7 @@ export default async function CoachSectionLayout({
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }) {
+  await connection();
   const { locale } = await params;
   const authOutcome = await requireAuthForLayout(locale);
   if (authOutcome.kind === "api_unavailable") {
@@ -40,25 +39,18 @@ export default async function CoachSectionLayout({
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
-    <DashboardAppShell
+    <WorkspaceShellFromAuth
+      authUser={authOutcome.auth.authUser}
       brandHref="/coach/home"
       brandLabel={tDash("brand.coach.title")}
       brandSubline={tDash("brand.coach.subline")}
-      variant="wellness"
+      variant="admin"
       contentMaxClass="w-full"
       navRole="COACH"
       navDefinitions={navDefinitions}
       notificationRoute={notificationRoute}
-      trailing={
-        <>
-          <LogoutButton className={`${trailingClass} text-left`} />
-          <Link href={USER_DASHBOARD_PATH} className={trailingClass}>
-            {tDash("links.memberZone")}
-          </Link>
-        </>
-      }
     >
       {children}
-    </DashboardAppShell>
+    </WorkspaceShellFromAuth>
   );
 }

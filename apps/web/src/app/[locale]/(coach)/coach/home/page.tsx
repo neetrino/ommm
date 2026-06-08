@@ -1,7 +1,9 @@
 import { Link } from "@/i18n/navigation";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 import { getTranslations } from "next-intl/server";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AccountPageFrame } from "@/components/layout/account-page-frame";
+import { AdminContentFrame } from "@/components/admin/admin-content-frame";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
 import { loadCoachPanelPageData } from "@/server/coach-panel-page-data";
 
@@ -21,23 +23,23 @@ export default async function CoachHomePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "coachPages.home" });
-  const panel = await loadCoachPanelPageData();
+  const panel = await loadCoachPanelPageData("full");
 
   if (!panel.ok) {
     if (panel.reason === "not_signed_in") {
       return (
-        <div className="app-alert-warn max-w-xl">
-          {t("signInRequired")}
-        </div>
+        <AdminContentFrame>
+          <div className="app-alert-warn max-w-xl">{t("signInRequired")}</div>
+        </AdminContentFrame>
       );
     }
     if (panel.reason === "not_coach_role" && panel.role) {
       redirectToRoleHome(locale, panel.role);
     }
     return (
-      <div className="app-alert-warn max-w-xl">
-        {t("noProfile")}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">{t("noProfile")}</div>
+      </AdminContentFrame>
     );
   }
 
@@ -50,14 +52,15 @@ export default async function CoachHomePage({
     isSameLocalCalendarDay(b.session.startsAt, today),
   );
 
-  const linkClass =
-    "ommm-cta-primary inline-flex text-sm";
+  const greetingName = userName?.trim();
+  const pageTitle =
+    greetingName !== undefined && greetingName.length > 0
+      ? t("title", { name: greetingName })
+      : t("titleFallback");
 
   return (
-    <AccountPageFrame
-      title={t("title", { name: userName ?? "" })}
-      description={t("description")}
-    >
+    <AdminContentFrame>
+      <StaffListPageLayout title={pageTitle} description={t("description")}>
       <section>
         <h2 className={adminChrome.sectionTitle}>{t("todayAtGlance")}</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -79,13 +82,22 @@ export default async function CoachHomePage({
       </section>
 
       <section className="mt-8 flex flex-wrap gap-3">
-        <Link href="/coach/schedule" className={linkClass}>
+        <Link
+          href="/coach/schedule"
+          prefetch={WORKSPACE_ROUTE_PREFETCH}
+          className="ommm-cta-primary inline-flex text-sm"
+        >
           {t("openSchedule")}
         </Link>
-        <Link href="/coach/groups" className={linkClass}>
+        <Link
+          href="/coach/groups"
+          prefetch={WORKSPACE_ROUTE_PREFETCH}
+          className="ommm-cta-ghost inline-flex text-sm"
+        >
           {t("viewParticipantsAttendance")}
         </Link>
       </section>
-    </AccountPageFrame>
+      </StaffListPageLayout>
+    </AdminContentFrame>
   );
 }

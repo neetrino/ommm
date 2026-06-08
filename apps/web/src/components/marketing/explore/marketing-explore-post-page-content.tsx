@@ -15,7 +15,7 @@ export async function MarketingExplorePostPageContent({
   slug,
 }: MarketingExplorePostPageContentProps) {
   const [res, tNav] = await Promise.all([
-    fetchExplorePost(slug),
+    fetchExplorePost(slug, locale),
     getTranslations({ locale, namespace: "nav" }),
   ]);
 

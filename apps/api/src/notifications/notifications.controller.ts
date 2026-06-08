@@ -14,6 +14,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminListDeliveriesQueryDto } from './dto/admin-list-deliveries-query.dto';
+import { AdminListScheduledQueryDto } from './dto/admin-list-scheduled-query.dto';
 import { BroadcastAudience, BroadcastDto } from './dto/broadcast.dto';
 import { NotificationsService } from './notifications.service';
 import { UpdateScheduledBroadcastDto } from './dto/update-scheduled-broadcast.dto';
@@ -52,8 +54,8 @@ export class NotificationsController {
   @Get('admin/deliveries')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  adminDeliveries() {
-    return this.notifications.getRecentDeliveries();
+  adminDeliveries(@Query() query: AdminListDeliveriesQueryDto) {
+    return this.notifications.getRecentDeliveries(query);
   }
 
   @Get('admin/analytics')
@@ -68,8 +70,8 @@ export class NotificationsController {
   @Get('admin/scheduled')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  adminScheduled() {
-    return this.notifications.listScheduledBroadcasts();
+  adminScheduled(@Query() query: AdminListScheduledQueryDto) {
+    return this.notifications.listScheduledBroadcasts(query);
   }
 
   @Patch('admin/scheduled/:id')

@@ -1,285 +1,322 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { useTranslations } from "next-intl";
-import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
-import { formatDateTimeForUi } from "@/lib/date-display";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
+import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
+import {
+  buildUserPaymentsFilterFields,
+  userPaymentsIntegratedFilterValues,
+  type UserPaymentFilterValues,
+  type UserPaymentSortOrder,
+  type UserPaymentSourceFilter,
+  type UserPaymentStatusFilter,
+} from "@/components/account/user-payments-filter-fields";
+import {
+  USER_PAYMENTS_LIST_CENTER_HEADER_CELL,
+  USER_PAYMENTS_LIST_HEADER_CLASS,
+  USER_PAYMENTS_LIST_METHOD_HEADER_CELL,
+  USER_PAYMENTS_LIST_TABLE_CLASS,
+} from "@/components/account/user-payments-list-layout";
+import {
+  comparePayments,
+  normalizePaymentSource,
+} from "@/components/account/user-payment-display";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { apiFetch } from "@/lib/api";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import type { UserPaymentRow } from "@/lib/user-package-types";
-
-type UserPaymentSource = "package" | "dropin" | "gift" | "membership" | "other";
-type UserPaymentSortOrder = "newest" | "oldest";
-type UserPaymentStatusFilter = "all" | "SUCCEEDED" | "PENDING" | "FAILED" | "REFUNDED";
-type UserPaymentSourceFilter = "all" | UserPaymentSource;
+import {
+  parseListPageParams,
+  resetListPageQuery,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
+import type { UserPaymentsPayload } from "@/lib/user-package-types";
 
 type UserPaymentsHistoryProps = {
   locale: string;
-  payments: UserPaymentRow[];
+  initialPayments: UserPaymentsPayload;
 };
 
-const PAYMENT_STATUS_OPTIONS: readonly Exclude<UserPaymentStatusFilter, "all">[] = [
-  "SUCCEEDED",
-  "PENDING",
-  "FAILED",
-  "REFUNDED",
-];
+const DEFAULT_FILTER_VALUES: UserPaymentFilterValues = {
+  search: "",
+  status: "all",
+  source: "all",
+  order: "newest",
+};
 
-const PAYMENT_SOURCE_OPTIONS: readonly UserPaymentSource[] = [
-  "package",
-  "membership",
-  "dropin",
-  "gift",
-  "other",
-];
-
-function statusBadgeClass(status: string): string {
-  if (status === "SUCCEEDED") return "bg-mint-100 text-mint-900";
-  if (status === "PENDING") return "bg-amber-100 text-amber-900";
-  if (status === "REFUNDED") return "bg-sky-100 text-sky-900";
-  if (status === "FAILED") return "bg-rose-100 text-rose-900";
-  return "bg-sage-100 text-sage-700";
-}
-
-function normalizePaymentSource(description: string | null): UserPaymentSource {
-  const normalized = (description ?? "").toLowerCase();
-  if (normalized.startsWith("membership")) return "membership";
-  if (normalized.startsWith("package")) return "package";
-  if (normalized.startsWith("drop-in")) return "dropin";
-  if (normalized.startsWith("gift")) return "gift";
-  return "other";
-}
-
-function resolveRelatedItemName(description: string | null): string | null {
-  if (!description) {
-    return null;
+function buildPaymentsEndpoint(
+  listPage: ReturnType<typeof parseListPageParams>,
+  status: UserPaymentStatusFilter,
+  order: UserPaymentSortOrder,
+): string {
+  const params = new URLSearchParams({
+    take: String(listPage.take),
+    offset: String(listPage.offset),
+    order,
+  });
+  if (status !== "all") {
+    params.set("status", status);
   }
-  const [head, ...tail] = description.split(":");
-  if (tail.length === 0) {
-    return null;
-  }
-  const candidate = tail.join(":").trim();
-  return candidate.length > 0 ? candidate : head.trim() || null;
+  return `/payments/me?${params.toString()}`;
 }
 
-function statusSortRank(status: string): number {
-  if (status === "PENDING") return 0;
-  if (status === "FAILED") return 1;
-  if (status === "REFUNDED") return 2;
-  if (status === "SUCCEEDED") return 3;
-  return 4;
-}
-
-function comparePayments(
-  left: UserPaymentRow,
-  right: UserPaymentRow,
-  sortOrder: UserPaymentSortOrder,
-): number {
-  const leftTime = new Date(left.createdAt).getTime();
-  const rightTime = new Date(right.createdAt).getTime();
-  const dateDiff = leftTime - rightTime;
-  if (dateDiff !== 0) {
-    return sortOrder === "newest" ? -dateDiff : dateDiff;
-  }
-  const statusDiff = statusSortRank(left.status) - statusSortRank(right.status);
-  if (statusDiff !== 0) {
-    return statusDiff;
-  }
-  return left.id.localeCompare(right.id);
-}
-
-export function UserPaymentsHistory({ locale, payments }: UserPaymentsHistoryProps) {
+export function UserPaymentsHistory({ locale, initialPayments }: UserPaymentsHistoryProps) {
   const t = useTranslations("userPages.payments");
-  const [statusFilter, setStatusFilter] = useState<UserPaymentStatusFilter>("all");
-  const [sourceFilter, setSourceFilter] = useState<UserPaymentSourceFilter>("all");
-  const [sortOrder, setSortOrder] = useState<UserPaymentSortOrder>("newest");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [viewMode, setView] = useUserListBoardView("payments");
+  const [paymentsPayload, setPaymentsPayload] = usePropSyncedState(initialPayments);
+  const [filters, setFilters] = useState<UserPaymentFilterValues>(() => ({
+    ...DEFAULT_FILTER_VALUES,
+    order: readUserListOrderFromSearch(
+      Object.fromEntries(searchParams.entries()),
+      "date",
+      "newest",
+    ),
+  }));
+  const [loading, startTransition] = useTransition();
+  const requestId = useRef(0);
+  const hasMounted = useRef(false);
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  const replaceSearchParams = useCallback(
+    (mutator: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutator(params);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize);
+      });
+    },
+    [replaceSearchParams],
+  );
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+
+    const nextRequestId = requestId.current + 1;
+    requestId.current = nextRequestId;
+    startTransition(() => {
+      void apiFetch<UserPaymentsPayload>(
+        buildPaymentsEndpoint(listPage, filters.status, filters.order),
+      )
+        .then((payload) => {
+          if (requestId.current !== nextRequestId) return;
+          setPaymentsPayload(payload);
+        })
+        .catch(() => {
+          if (requestId.current === nextRequestId) {
+            setPaymentsPayload({
+              items: [],
+              total: 0,
+              take: listPage.take,
+              offset: listPage.offset,
+            });
+          }
+        });
+    });
+  }, [filters.order, filters.status, listPage, setPaymentsPayload]);
+
+  const filterFields = useMemo(
+    () =>
+      buildUserPaymentsFilterFields({
+        labels: {
+          status: t("filters.status"),
+          allStatuses: t("filters.allStatuses"),
+          statusValues: {
+            SUCCEEDED: t("status.SUCCEEDED"),
+            PENDING: t("status.PENDING"),
+            FAILED: t("status.FAILED"),
+            REFUNDED: t("status.REFUNDED"),
+          },
+          type: t("filters.type"),
+          allTypes: t("filters.allTypes"),
+          sourceValues: {
+            package: t("source.package"),
+            membership: t("source.membership"),
+            dropin: t("source.dropin"),
+            gift: t("source.gift"),
+            other: t("source.other"),
+          },
+          sort: t("filters.sort"),
+          sortLabels: {
+            newest: t("sort.newest"),
+            oldest: t("sort.oldest"),
+          },
+        },
+      }),
+    [t],
+  );
+
+  const integratedFilterValues = useMemo(
+    () => userPaymentsIntegratedFilterValues(filters),
+    [filters],
+  );
 
   const rows = useMemo(() => {
-    return payments
-      .filter((payment) => statusFilter === "all" || payment.status === statusFilter)
+    const search = filters.search.trim().toLowerCase();
+    return paymentsPayload.items
       .filter((payment) => {
-        if (sourceFilter === "all") return true;
-        return normalizePaymentSource(payment.description) === sourceFilter;
+        if (filters.source !== "all") {
+          if (normalizePaymentSource(payment.description) !== filters.source) {
+            return false;
+          }
+        }
+        if (search.length === 0) {
+          return true;
+        }
+        const haystack = `${payment.description ?? ""} ${payment.amountCents} ${formatAmdFromCents(payment.amountCents, locale)}`.toLowerCase();
+        return haystack.includes(search);
       })
       .slice()
-      .sort((left, right) => comparePayments(left, right, sortOrder));
-  }, [payments, sortOrder, sourceFilter, statusFilter]);
+      .sort((left, right) => comparePayments(left, right, filters.order));
+  }, [filters.order, filters.search, filters.source, locale, paymentsPayload.items]);
 
-  if (payments.length === 0) {
-    return (
-      <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-        <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-        <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
-      </section>
-    );
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    switch (key) {
+      case "status":
+        setFilters((current) => ({ ...current, status: value as UserPaymentStatusFilter }));
+        replaceSearchParams((params) => {
+          resetListPageQuery(params);
+        });
+        break;
+      case "source":
+        setFilters((current) => ({ ...current, source: value as UserPaymentSourceFilter }));
+        break;
+      case "order":
+        setFilters((current) => ({ ...current, order: value as UserPaymentSortOrder }));
+        replaceSearchParams((params) => {
+          resetListPageQuery(params);
+          syncUserListOrderQuery(params, value, "newest");
+        });
+        break;
+      default:
+        break;
+    }
   }
 
-  return (
-    <section className="rounded-[20px] border border-white/60 bg-white/75 p-4 sm:p-6">
-      <div className="mb-4 grid gap-3 md:grid-cols-3">
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.status")}</span>
-          <OmmFilterDropdown
-            allValue="all"
-            value={statusFilter}
-            ariaLabel={t("filters.status")}
-            allLabel={t("filters.allStatuses")}
-            onChange={(value) => setStatusFilter(value as UserPaymentStatusFilter)}
-            options={PAYMENT_STATUS_OPTIONS.map((status) => ({
-              value: status,
-              label: t(`status.${status}`),
-            }))}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.type")}</span>
-          <OmmFilterDropdown
-            allValue="all"
-            value={sourceFilter}
-            ariaLabel={t("filters.type")}
-            allLabel={t("filters.allTypes")}
-            onChange={(value) => setSourceFilter(value as UserPaymentSourceFilter)}
-            options={PAYMENT_SOURCE_OPTIONS.map((source) => ({
-              value: source,
-              label: t(`source.${source}`),
-            }))}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.sort")}</span>
-          <OmmSelectDropdown
-            ariaLabel={t("filters.sort")}
-            label={t(`sort.${sortOrder}`)}
-            value={sortOrder}
-            onChange={(value) => setSortOrder(value as UserPaymentSortOrder)}
-            options={[
-              { value: "newest", label: t("sort.newest") },
-              { value: "oldest", label: t("sort.oldest") },
-            ]}
-          />
-        </div>
-      </div>
+  function resetFilters(): void {
+    setFilters(DEFAULT_FILTER_VALUES);
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+      params.delete("order");
+    });
+  }
 
-      {rows.length === 0 ? (
-        <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-          <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-          <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-        </div>
+  const hasDefaultFilters =
+    filters.status === "all" &&
+    filters.source === "all" &&
+    filters.search.trim().length === 0;
+  const isEmpty = paymentsPayload.total === 0 && hasDefaultFilters;
+
+  const heroSearch = (
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <ListPageSearchFilters
+        search={filters.search}
+        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+        searchPlaceholder={t("filters.searchPlaceholder")}
+        fields={filterFields}
+        filterValues={integratedFilterValues}
+        onFilterChange={handleIntegratedFilterChange}
+        onClearAll={resetFilters}
+        resetLabel={t("filters.resetFilters")}
+      />
+      <UserListBoardViewSwitcher
+        pageId="payments"
+        namespace="userPages.payments"
+        value={viewMode}
+        onChange={setView}
+      />
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+
+      {isEmpty ? (
+        <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+          <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
+          <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+        </section>
       ) : (
         <>
-          <div className="grid gap-3 md:hidden">
-            {rows.map((row) => {
-              const source = normalizePaymentSource(row.description);
-              const relatedItem = resolveRelatedItemName(row.description);
-              return (
-                <article key={row.id} className="rounded-2xl border border-sage-100 bg-white p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs text-sage-500">
-                      {formatDateTimeForUi(row.createdAt, locale)}
-                    </p>
-                    <span
-                      className={`rounded-full px-2 py-1 text-[11px] font-medium ${statusBadgeClass(row.status)}`}
-                    >
-                      {t(`status.${row.status}`)}
-                    </span>
-                  </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-sage-600">
-                    <div>
-                      <p className="text-sage-500">{t("table.amount")}</p>
-                      <p className="font-medium text-sage-900">
-                        {formatAmdFromCents(row.amountCents, locale)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sage-500">{t("table.currency")}</p>
-                      <p className="font-medium uppercase text-sage-900">
-                        {(row.currency || "amd").toUpperCase()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sage-500">{t("table.type")}</p>
-                      <p className="font-medium text-sage-900">{t(`source.${source}`)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sage-500">{t("table.updated")}</p>
-                      <p className="font-medium text-sage-900">
-                        {formatDateTimeForUi(row.updatedAt ?? row.createdAt, locale)}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="mt-2 text-xs text-sage-500">
-                    {t("table.related")}: {relatedItem ?? t("common.notAvailable")}
-                  </p>
-                  <p className="mt-1 text-xs text-sage-500">
-                    {t("table.reference")}:{" "}
-                    {row.paymentReference ? (
-                      <span className="font-mono">{row.paymentReference}</span>
-                    ) : (
-                      t("common.notAvailable")
-                    )}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
+          <p className="text-sm text-sage-600">{t("paymentsCount", { count: paymentsPayload.total })}</p>
 
-          <div className="hidden overflow-x-auto md:block">
-            <table className="min-w-full border-collapse text-sm text-sage-700">
-              <thead>
-                <tr className="border-b border-sage-200 bg-sage-50/80 text-left text-xs uppercase tracking-wide text-sage-500">
-                  <th className="px-3 py-3">{t("table.date")}</th>
-                  <th className="px-3 py-3">{t("table.amount")}</th>
-                  <th className="px-3 py-3">{t("table.currency")}</th>
-                  <th className="px-3 py-3">{t("table.status")}</th>
-                  <th className="px-3 py-3">{t("table.type")}</th>
-                  <th className="px-3 py-3">{t("table.related")}</th>
-                  <th className="px-3 py-3">{t("table.reference")}</th>
-                  <th className="px-3 py-3">{t("table.updated")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => {
-                  const source = normalizePaymentSource(row.description);
-                  const relatedItem = resolveRelatedItemName(row.description);
-                  return (
-                    <tr key={row.id} className="border-b border-sage-100/80 last:border-b-0">
-                      <td className="px-3 py-3 align-top">
-                        {formatDateTimeForUi(row.createdAt, locale)}
-                      </td>
-                      <td className="px-3 py-3 align-top font-medium text-sage-800">
-                        {formatAmdFromCents(row.amountCents, locale)}
-                      </td>
-                      <td className="px-3 py-3 align-top uppercase">
-                        {(row.currency || "amd").toUpperCase()}
-                      </td>
-                      <td className="px-3 py-3 align-top">
-                        <span
-                          className={`rounded-full px-2 py-1 text-[11px] font-medium ${statusBadgeClass(row.status)}`}
-                        >
-                          {t(`status.${row.status}`)}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 align-top">{t(`source.${source}`)}</td>
-                      <td className="px-3 py-3 align-top text-xs text-sage-600">
-                        {relatedItem ?? t("common.notAvailable")}
-                      </td>
-                      <td className="px-3 py-3 align-top text-xs text-sage-600">
-                        {row.paymentReference ? (
-                          <span className="font-mono">{row.paymentReference}</span>
-                        ) : (
-                          t("common.notAvailable")
-                        )}
-                      </td>
-                      <td className="px-3 py-3 align-top text-xs text-sage-600">
-                        {formatDateTimeForUi(row.updatedAt ?? row.createdAt, locale)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          {rows.length === 0 ? (
+            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+            </div>
+          ) : viewMode === "board" ? (
+            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {rows.map((row) => (
+                <li key={row.id} className="min-w-0 list-none">
+                  <UserPaymentBoardCard locale={locale} payment={row} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
+              <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
+                <span>{t("table.related")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
+                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
+                <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
+              </div>
+              {rows.map((row) => (
+                <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />
+              ))}
+            </div>
+          )}
+
+          <OmmListPagination
+            namespace="userPages.pagination"
+            total={paymentsPayload.total}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={paymentsPayload.offset}
+            onPageChange={(page) => setListPage(page)}
+            onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+            disabled={loading}
+          />
         </>
       )}
-    </section>
+    </div>
   );
 }

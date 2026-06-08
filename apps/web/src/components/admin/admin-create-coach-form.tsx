@@ -36,6 +36,7 @@ import {
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
@@ -645,11 +646,11 @@ export function AdminCreateCoachForm({
                 disabled={pending}
                 required
               />
-              <input
-                type="time"
-                className="ommm-input"
+              <TimePickerInput
+                name={`schedule-time-${index}`}
+                ariaLabel={t("scheduleLabel")}
                 value={row.time}
-                onChange={(event) => updateScheduleRow(row.id, "time", event.target.value)}
+                onChange={(nextValue) => updateScheduleRow(row.id, "time", nextValue)}
                 disabled={pending}
                 required
               />

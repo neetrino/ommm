@@ -41,4 +41,10 @@
   overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tableSection::-webkit-scrollbar {
+  display: none;
 }

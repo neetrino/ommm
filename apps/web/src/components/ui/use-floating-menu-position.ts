@@ -30,6 +30,7 @@ export function useFloatingMenuPosition(
   minMenuHeight = DEFAULT_MIN_MENU_HEIGHT,
   minWidth = 0,
   menuAlign: FloatingMenuAlign = "start",
+  menuSpacing = MENU_SPACING,
 ): FloatingMenuPosition | null {
   const [menuPosition, setMenuPosition] = useState<FloatingMenuPosition | null>(null);
 
@@ -47,13 +48,13 @@ export function useFloatingMenuPosition(
         Math.max(rect.width, minWidth),
         window.innerWidth - MENU_VIEWPORT_PADDING * 2,
       );
-      const availableBelow = window.innerHeight - rect.bottom - MENU_SPACING;
-      const availableAbove = rect.top - MENU_SPACING;
+      const availableBelow = window.innerHeight - rect.bottom - menuSpacing;
+      const availableAbove = rect.top - menuSpacing;
       const openAbove = availableBelow < minMenuHeight && availableAbove > availableBelow;
       const preferredLeft =
         menuAlign === "end" ? rect.right - width : rect.left;
       setMenuPosition({
-        top: openAbove ? rect.top - MENU_SPACING : rect.bottom + MENU_SPACING,
+        top: openAbove ? rect.top - menuSpacing : rect.bottom + menuSpacing,
         left: clampMenuLeft(preferredLeft, width),
         width,
         maxHeight: Math.max(120, openAbove ? availableAbove : availableBelow),
@@ -67,7 +68,7 @@ export function useFloatingMenuPosition(
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [disabled, menuAlign, minMenuHeight, minWidth, open, triggerRef]);
+  }, [disabled, menuAlign, menuSpacing, minMenuHeight, minWidth, open, triggerRef]);
 
   return menuPosition;
 }

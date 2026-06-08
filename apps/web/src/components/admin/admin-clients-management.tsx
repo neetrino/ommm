@@ -7,60 +7,80 @@ import {
   useRef,
   useState,
   useTransition,
-  type ReactNode,
 } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { AdminClientDrawer } from "@/components/admin/admin-client-drawer";
-import { AdminClientRowActions } from "@/components/admin/admin-client-row-actions";
+import { AdminClientCompactRow } from "@/components/admin/admin-client-compact-row";
+import {
+  ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER,
+  ADMIN_CLIENTS_LIST_HEADER_CLASS,
+  ADMIN_CLIENTS_LIST_TABLE_CLASS,
+  ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS,
+} from "@/components/admin/admin-clients-list-layout";
+import {
+  adminClientsFilterValuesFromState,
+  buildAdminClientsFilterFields,
+  segmentFilterOptions,
+  serializeAdminClientSegmentFilters,
+} from "@/components/admin/admin-clients-filter-fields";
 import {
   parseAdminClientSegmentFilters,
-  serializeAdminClientSegmentFilters,
   type AdminClientSegmentFilter,
 } from "@/components/admin/admin-clients-segment-filters";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 import { adminChrome } from "@/components/admin/admin-chrome";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmFilterMultiSelect } from "@/components/ui/omm-filter-multi-select";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import {
-  OmmFilterDropdown,
   OmmSelectDropdown,
   ommOptionsFromTuples,
 } from "@/components/ui/omm-select-dropdown";
 import { apiFetch } from "@/lib/api";
-import { formatDateForUi } from "@/lib/date-display";
-import { formatAmdFromCents } from "@/lib/price-amd";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import {
+  parseListPageParams,
+  resetListPageQuery,
+  syncListPageQuery,
+} from "@/lib/list-pagination";
 import {
   ADMIN_CLIENTS_FILTER_KEYS,
+  areUrlSearchQueriesEqual,
   mergeAdminClientsUrlQuery,
   VIEW_CLIENT_QUERY_KEY,
 } from "@/components/admin/admin-clients-query";
-import type { AdminClientsPayload, ClientDetail, ClientRow } from "./admin-clients-types";
+import type { AdminClientsPayload, ClientRow } from "./admin-clients-types";
 
 type Props = {
   initial: AdminClientsPayload;
   locale: string;
   initialFilters: Record<string, string>;
+  /** Staff surfaces (manager): list canon without hero/filters/summary. */
+  variant?: "full" | "staff";
+  staffBanner?: string;
+  readOnly?: boolean;
 };
 
 const filterKeys = ADMIN_CLIENTS_FILTER_KEYS;
 
-const segmentFilterOptions: ReadonlyArray<readonly [AdminClientSegmentFilter, string]> = [
-  ["new", "New Clients"],
-  ["vip", "VIP Clients"],
-  ["at-risk", "At Risk Clients"],
-  ["unpaid", "Unpaid Clients"],
-  ["birthday-this-month", "Birthday This Month"],
-  ["inactive-30-days", "Inactive 30+ Days"],
-  ["no-show", "No-show Clients"],
-];
-
-export function AdminClientsManagement({ initial, locale, initialFilters }: Props) {
+export function AdminClientsManagement({
+  initial,
+  locale,
+  initialFilters,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
+}: Props) {
+  const isStaff = variant === "staff";
+  const t = useTranslations("adminPages.clients");
+  const tFilters = useTranslations("adminPages.clients.filters");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const searchParamsStringRef = useRef(searchParams.toString());
   const hasMounted = useRef(false);
   const requestId = useRef(0);
   const [payload, setPayload] = useState(initial);
@@ -81,33 +101,48 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const [loading, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const viewClientId = searchParams.get(VIEW_CLIENT_QUERY_KEY);
+  const [visibleClientId, setVisibleClientId] = useState<string | null>(viewClientId);
+  const [prevViewClientId, setPrevViewClientId] = useState(viewClientId);
+  if (viewClientId !== prevViewClientId) {
+    setPrevViewClientId(viewClientId);
+    setVisibleClientId(viewClientId);
+  }
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  useEffect(() => {
+    searchParamsStringRef.current = searchParams.toString();
+  }, [searchParams]);
 
   const selected = useMemo(() => {
-    if (!viewClientId) {
+    if (visibleClientId === null) {
       return null;
     }
-    const fromRows = payload.rows.find((row) => row.id === viewClientId);
+    const fromRows = payload.rows.find((row) => row.id === visibleClientId);
     if (fromRows) {
       return fromRows;
     }
-    if (fetchedClient?.id === viewClientId) {
+    if (fetchedClient?.id === visibleClientId) {
       return fetchedClient;
     }
     return null;
-  }, [fetchedClient, payload.rows, viewClientId]);
+  }, [fetchedClient, payload.rows, visibleClientId]);
 
   const replaceSearchParams = useCallback(
     (mutator: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParamsStringRef.current);
       mutator(params);
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const selectClient = useCallback(
     (row: ClientRow) => {
+      setVisibleClientId(row.id);
       replaceSearchParams((params) => {
         params.set(VIEW_CLIENT_QUERY_KEY, row.id);
       });
@@ -116,6 +151,7 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   );
 
   const closeClientView = useCallback(() => {
+    setVisibleClientId(null);
     replaceSearchParams((params) => {
       params.delete(VIEW_CLIENT_QUERY_KEY);
     });
@@ -142,7 +178,7 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
     restoredViewClientIdRef.current = viewClientId;
     let cancelled = false;
 
-    void apiFetch<ClientDetail>(`/clients/${viewClientId}`)
+    void apiFetch<{ activity: ClientRow }>(`/clients/${viewClientId}`)
       .then((detail) => {
         if (!cancelled) {
           setFetchedClient(detail.activity);
@@ -176,8 +212,19 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
   const apiQueryString = useMemo(() => {
     const params = new URLSearchParams(urlQueryString);
     params.set("meta", "true");
+    params.set("take", String(listPage.take));
+    params.set("offset", String(listPage.offset));
     return params.toString();
-  }, [urlQueryString]);
+  }, [listPage.offset, listPage.take, urlQueryString]);
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      replaceSearchParams((params) => {
+        syncListPageQuery(params, page, pageSize);
+      });
+    },
+    [replaceSearchParams],
+  );
 
   useEffect(() => {
     if (!hasMounted.current) {
@@ -201,21 +248,28 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
             }
           });
       });
-      const currentQuery = window.location.search.replace(/^\?/, "");
+      const currentQuery = searchParamsStringRef.current;
       const nextQuery = mergeAdminClientsUrlQuery(
         urlQueryString,
-        Object.fromEntries(new URLSearchParams(window.location.search)),
+        Object.fromEntries(new URLSearchParams(currentQuery)),
       );
-      if (currentQuery !== nextQuery) {
+      if (!areUrlSearchQueriesEqual(currentQuery, nextQuery)) {
         const nextUrl = nextQuery ? `${pathname}?${nextQuery}` : pathname;
         router.replace(nextUrl, { scroll: false });
       }
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [apiQueryString, pathname, router, urlQueryString]);
+  }, [apiQueryString, listPage.offset, listPage.page, pathname, router, urlQueryString]);
+
+  const handleClientChanged = useCallback(() => {
+    router.refresh();
+  }, [router]);
 
   function updateFilter(key: keyof typeof filters, value: string) {
     setFilters((current) => ({ ...current, [key]: value }));
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+    });
   }
 
   function refetchClients(): void {
@@ -245,111 +299,11 @@ export function AdminClientsManagement({ initial, locale, initialFilters }: Prop
       order: "newest",
       quick: "",
     });
+    replaceSearchParams((params) => {
+      resetListPageQuery(params);
+    });
   }
 
-  const activeFilterCount = useMemo(() => countActiveClientFilters(filters), [filters]);
-
-  return (
-    <div className="flex flex-col gap-6">
-      <Summary payload={payload} locale={locale} />
-      <FiltersPanel
-        filters={filters}
-        payload={payload}
-        loading={loading}
-        activeFilterCount={activeFilterCount}
-        onChange={updateFilter}
-        onReset={resetFilters}
-      />
-      {error ? <div className="app-alert-warn">{error}</div> : null}
-      <ClientsTable
-        rows={payload.rows}
-        onSelect={selectClient}
-        onChanged={refetchClients}
-      />
-      {payload.rows.length === 0 ? (
-        <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
-          No clients match the current search and filters.
-        </div>
-      ) : null}
-      <AdminClientDrawer
-        client={selected}
-        locale={locale}
-        onClose={closeClientView}
-        onChanged={() => router.refresh()}
-      />
-    </div>
-  );
-}
-
-function Summary({ payload, locale }: { payload: AdminClientsPayload; locale: string }) {
-  const cards = [
-    ["Total", payload.summary.total],
-    ["Active", payload.summary.active],
-    ["VIP", payload.summary.vip],
-    ["At risk", payload.summary.atRisk],
-    ["Visits", payload.summary.totalVisits],
-    ["Lifetime value", formatAmdFromCents(payload.summary.lifetimeValueCents, locale)],
-  ];
-  return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-      {cards.map(([label, value]) => (
-        <article key={label} className={adminChrome.metricCard}>
-          <p className={adminChrome.metricLabel}>{label}</p>
-          <p className={adminChrome.metricValue}>{value}</p>
-        </article>
-      ))}
-    </section>
-  );
-}
-
-function countActiveClientFilters(
-  filters: Record<(typeof filterKeys)[number], string>,
-): number {
-  return [
-    filters.search.trim(),
-    filters.tag,
-    filters.status,
-    filters.classLevel,
-    filters.paymentStatus,
-    filters.source,
-    filters.preferredCoachId,
-    filters.attendance,
-    filters.birthdayMonth,
-    filters.order !== "newest" ? filters.order : "",
-    filters.quick.trim() ? "quick" : "",
-  ].filter(Boolean).length;
-}
-
-function FilterField({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`flex flex-col gap-1 text-xs text-sage-700 ${className}`}>
-      <span>{label}</span>
-      {children}
-    </div>
-  );
-}
-
-function FiltersPanel(props: {
-  filters: Record<(typeof filterKeys)[number], string>;
-  payload: AdminClientsPayload;
-  loading: boolean;
-  activeFilterCount: number;
-  onChange: (key: (typeof filterKeys)[number], value: string) => void;
-  onReset: () => void;
-}) {
-  const t = useTranslations("adminPages.clients.filters");
-  const selectedSegments = useMemo(
-    () => parseAdminClientSegmentFilters(props.filters.quick),
-    [props.filters.quick],
-  );
   const segmentOptions = useMemo(
     () =>
       segmentFilterOptions.map(([value, label]) => ({
@@ -359,131 +313,34 @@ function FiltersPanel(props: {
     [],
   );
 
-  return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/60 bg-white/70 p-3">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
-        <FilterField label={t("searchLabel")} className="sm:col-span-2 xl:col-span-2">
-          <input
-            className="ommm-input h-10"
-            placeholder="Search name, phone, email, client ID"
-            value={props.filters.search}
-            onChange={(event) => props.onChange("search", event.target.value)}
-            aria-label={t("searchLabel")}
+  const filterFields = useMemo(
+    () =>
+      buildAdminClientsFilterFields({
+        payload,
+        resolveOrderChipLabel: orderLabel,
+        renderSegments: ({ value, onChange }) => (
+          <OmmFilterMultiSelect
+            variant="accent"
+            wrapLabel
+            ariaLabel="Client segment filters"
+            allLabel="All clients"
+            selectedValues={parseAdminClientSegmentFilters(value)}
+            onChange={(values) =>
+              onChange(
+                serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]),
+              )
+            }
+            formatSelectedCount={(count) =>
+              count === 1 ? "1 segment selected" : `${count} segments selected`
+            }
+            options={segmentOptions}
           />
-        </FilterField>
-        <FilterField label="Badge">
-          <FilterSelect
-            value={props.filters.tag}
-            onChange={(value) => props.onChange("tag", value)}
-            options={[
-              ["", "All badges"],
-              ["vip", "VIP"],
-              ["new", "New"],
-              ["at-risk", "At Risk"],
-              ["beginner", "Beginner"],
-            ]}
-            ariaLabel="Badge"
-          />
-        </FilterField>
-        <FilterField label="Status">
-          <FilterSelect
-            value={props.filters.status}
-            onChange={(value) => props.onChange("status", value)}
-            options={[
-              ["", "All statuses"],
-              ["active", "Active"],
-              ["inactive", "Inactive"],
-              ["frozen", "Frozen"],
-              ["blocked", "Blocked"],
-            ]}
-            ariaLabel="Status"
-          />
-        </FilterField>
-        <FilterField label="Payment">
-          <FilterSelect
-            value={props.filters.paymentStatus}
-            onChange={(value) => props.onChange("paymentStatus", value)}
-            options={[
-              ["", "All payments"],
-              ["paid", "Paid"],
-              ["unpaid", "Unpaid"],
-              ["overdue", "Overdue"],
-              ["partial", "Partial"],
-            ]}
-            ariaLabel="Payment"
-          />
-        </FilterField>
-        <FilterField label="Source">
-          <FilterSelect
-            value={props.filters.source}
-            onChange={(value) => props.onChange("source", value)}
-            options={[
-              ["", "All sources"],
-              ["website", "Website"],
-              ["mobile-app", "Mobile App"],
-              ["admin", "Admin"],
-              ["instagram", "Instagram"],
-              ["referral", "Referral"],
-            ]}
-            ariaLabel="Source"
-          />
-        </FilterField>
-        <FilterField label="Attendance">
-          <FilterSelect
-            value={props.filters.attendance}
-            onChange={(value) => props.onChange("attendance", value)}
-            options={[
-              ["", "All attendance"],
-              ["regular", "Regular"],
-              ["no-show", "No-show"],
-              ["often-cancels", "Often cancels"],
-              ["low-attendance", "Low attendance"],
-            ]}
-            ariaLabel="Attendance"
-          />
-        </FilterField>
-        <FilterField label="Birthday month">
-          <FilterSelect
-            value={props.filters.birthdayMonth}
-            onChange={(value) => props.onChange("birthdayMonth", value)}
-            options={monthOptions()}
-            ariaLabel="Birthday month"
-          />
-        </FilterField>
-        <FilterField label="Class level">
-          <FilterSelect
-            value={props.filters.classLevel}
-            onChange={(value) => props.onChange("classLevel", value)}
-            options={[
-              ["", "All levels"],
-              ["beginner", "Beginner"],
-              ["intermediate", "Intermediate"],
-              ["advanced", "Advanced"],
-              ...props.payload.filterOptions.classLevels.map(
-                (level) => [level, level] as const,
-              ),
-            ]}
-            ariaLabel="Class level"
-          />
-        </FilterField>
-        <FilterField label="Preferred coach">
-          <FilterSelect
-            value={props.filters.preferredCoachId}
-            onChange={(value) => props.onChange("preferredCoachId", value)}
-            options={[
-              ["", "All coaches"],
-              ...props.payload.filterOptions.preferredCoaches.map(
-                (coach) => [coach.id, coach.name] as const,
-              ),
-            ]}
-            ariaLabel="Preferred coach"
-          />
-        </FilterField>
-        <FilterField label={t("orderLabel")}>
+        ),
+        renderOrder: ({ value, onChange }) => (
           <OmmSelectDropdown
-            ariaLabel={t("orderLabel")}
-            label={orderLabel(props.filters.order)}
-            value={props.filters.order}
+            ariaLabel={tFilters("orderLabel")}
+            label={orderLabel(value)}
+            value={value}
             options={ommOptionsFromTuples([
               ["newest", "Newest clients first"],
               ["oldest", "Oldest clients first"],
@@ -494,43 +351,118 @@ function FiltersPanel(props: {
               ["most-bookings", "Most bookings"],
               ["most-cancellations", "Most cancellations"],
             ])}
-            onChange={(value) => props.onChange("order", value)}
+            onChange={onChange}
           />
-        </FilterField>
-      </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <FilterField label="Client segments" className="w-full min-w-[14rem] max-w-sm shrink-0">
-          <OmmFilterMultiSelect
-            variant="accent"
-            wrapLabel
-            ariaLabel="Client segment filters"
-            allLabel="All clients"
-            selectedValues={selectedSegments}
-            onChange={(values) =>
-              props.onChange(
-                "quick",
-                serializeAdminClientSegmentFilters(values as AdminClientSegmentFilter[]),
-              )
-            }
-            formatSelectedCount={(count) =>
-              count === 1 ? "1 segment selected" : `${count} segments selected`
-            }
-            options={segmentOptions}
-          />
-        </FilterField>
-        <AdminFilterResetBar
-          onReset={props.onReset}
-          label={t("resetFilters")}
-          meta={
-            <p className="whitespace-nowrap text-xs text-sage-500" role="status">
-              {props.loading
-                ? "Loading matching clients..."
-                : `${props.activeFilterCount} active filters`}
-            </p>
+        ),
+      }),
+    [payload, segmentOptions, tFilters],
+  );
+
+  const integratedFilterValues = useMemo(
+    () => adminClientsFilterValuesFromState(filters),
+    [filters],
+  );
+
+  function handleIntegratedFilterChange(key: string, value: string) {
+    updateFilter(key as keyof typeof filters, value);
+  }
+
+  const clientsList = (
+    <>
+      <ClientsTable
+        rows={payload.rows}
+        onSelect={selectClient}
+        onChanged={refetchClients}
+        readOnly={readOnly || isStaff}
+      />
+      <OmmListPagination
+        total={payload.pagination.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={payload.pagination.offset}
+        onPageChange={(nextPage) => setListPage(nextPage)}
+        onPageSizeChange={(nextSize) => setListPage(1, nextSize)}
+        disabled={loading}
+      />
+      {payload.rows.length === 0 ? (
+        <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
+          {t("emptyList")}
+        </div>
+      ) : null}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      {isStaff ? (
+        <StaffListPageLayout
+          title={t("title")}
+          banner={staffBanner}
+          search={
+            <ListPageSearchFilters
+              search={filters.search}
+              onSearchChange={(value) => updateFilter("search", value)}
+              searchPlaceholder={tFilters("searchPlaceholder")}
+              fields={filterFields}
+              filterValues={integratedFilterValues}
+              onFilterChange={handleIntegratedFilterChange}
+              onClearAll={resetFilters}
+              resetLabel={tFilters("resetFilters")}
+            />
           }
-        />
-      </div>
+          metrics={<Summary payload={payload} />}
+          status={error ? <div className="app-alert-warn">{error}</div> : null}
+        >
+          {clientsList}
+        </StaffListPageLayout>
+      ) : (
+        <>
+          <AdminPageHero
+            title={t("title")}
+            search={
+              <ListPageSearchFilters
+                search={filters.search}
+                onSearchChange={(value) => updateFilter("search", value)}
+                searchPlaceholder={tFilters("searchPlaceholder")}
+                fields={filterFields}
+                filterValues={integratedFilterValues}
+                onFilterChange={handleIntegratedFilterChange}
+                onClearAll={resetFilters}
+                resetLabel={tFilters("resetFilters")}
+              />
+            }
+          />
+          <Summary payload={payload} />
+          {error ? <div className="app-alert-warn">{error}</div> : null}
+          {clientsList}
+        </>
+      )}
+      <AdminClientDrawer
+        client={selected}
+        locale={locale}
+        onClose={closeClientView}
+        onChanged={handleClientChanged}
+      />
     </div>
+  );
+}
+
+function Summary({ payload }: { payload: AdminClientsPayload }) {
+  const cards = [
+    ["Total", payload.summary.total],
+    ["Active", payload.summary.active],
+    ["VIP", payload.summary.vip],
+    ["Visits", payload.summary.totalVisits],
+  ];
+  return (
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {cards.map(([label, value]) => (
+        <article key={label} className={adminChrome.metricCard}>
+          <p className={adminChrome.metricLabel}>{label}</p>
+          <p className={adminChrome.metricValue}>{value}</p>
+        </article>
+      ))}
+    </section>
   );
 }
 
@@ -548,176 +480,42 @@ function orderLabel(order: string): string {
   return labels[order] ?? "Newest clients first";
 }
 
-function FilterSelect({
-  value,
-  onChange,
-  options,
-  ariaLabel,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: ReadonlyArray<readonly [string, string]>;
-  ariaLabel: string;
-}) {
-  const allLabel = options.find(([optionValue]) => optionValue === "")?.[1] ?? "All";
-  const dropdownOptions = options
-    .filter(([optionValue]) => optionValue !== "")
-    .map(([optionValue, label]) => ({ value: optionValue, label }));
-
-  return (
-    <OmmFilterDropdown
-      allValue=""
-      value={value}
-      ariaLabel={ariaLabel}
-      allLabel={allLabel}
-      onChange={onChange}
-      options={dropdownOptions}
-    />
-  );
-}
-
 function ClientsTable({
   rows,
   onSelect,
   onChanged,
+  readOnly = false,
 }: {
   rows: ClientRow[];
   onSelect: (row: ClientRow) => void;
   onChanged: () => void;
+  readOnly?: boolean;
 }) {
   const t = useTranslations("adminPages.clients");
+  const tableClass = readOnly
+    ? ADMIN_CLIENTS_LIST_TABLE_READONLY_CLASS
+    : ADMIN_CLIENTS_LIST_TABLE_CLASS;
 
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[60rem]`}>
-        <colgroup>
-          <col className="w-[36%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
-        </colgroup>
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={adminChrome.th}>{t("title")}</th>
-            <th className={`${adminChrome.th} text-center`}>Date of birth</th>
-            <th className={`${adminChrome.th} text-center`}>Register date</th>
-            <th className={`${adminChrome.th} text-center`}>Notes</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <ClientTableRow
-              key={row.id}
-              row={row}
-              rowDivider={index < rows.length - 1 ? adminChrome.tableRowDivider : ""}
-              onSelect={onSelect}
-              onChanged={onChanged}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className={tableClass}>
+      <div className={ADMIN_CLIENTS_LIST_HEADER_CLASS}>
+        <span>{t("colName")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("fieldBirthday")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
+        <span className={ADMIN_CLIENTS_LIST_EMPHASIZED_HEADER}>{t("colJoined")}</span>
+        {readOnly ? null : (
+          <span className={ADMIN_CLIENTS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        )}
+      </div>
+      {rows.map((row) => (
+        <AdminClientCompactRow
+          key={row.id}
+          row={row}
+          onSelect={onSelect}
+          onChanged={onChanged}
+          readOnly={readOnly}
+        />
+      ))}
     </div>
   );
-}
-
-function ClientTableRow({
-  row,
-  rowDivider,
-  onSelect,
-  onChanged,
-}: {
-  row: ClientRow;
-  rowDivider: string;
-  onSelect: (row: ClientRow) => void;
-  onChanged: () => void;
-}) {
-  return (
-    <tr>
-      <td className={`${adminChrome.tdStrong} ${rowDivider}`}>
-        <div className="flex items-center gap-3">
-          <ClientAvatar row={row} />
-          <div className="min-w-0">
-            <button
-              type="button"
-              className="break-words text-left underline decoration-sage-300 underline-offset-4"
-              onClick={() => onSelect(row)}
-            >
-              {fullName(row)}
-            </button>
-            <div className="break-words text-xs font-normal text-sage-500">
-              {row.phone ?? "—"}
-            </div>
-            {row.tags.length > 0 ? (
-              <div className="mt-1 flex flex-wrap gap-1">
-                {row.tags.map((tag) => (
-                  <ClientBadge key={tag} label={tag} />
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        {row.dateOfBirth ? formatDateForUi(row.dateOfBirth) : "—"}
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        {formatDateForUi(row.createdAt)}
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        {row.noteCount}
-        {row.latestNote ? (
-          <div className="truncate text-xs text-sage-500">{row.latestNote.body}</div>
-        ) : null}
-      </td>
-      <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-        <div className="flex justify-center">
-          <AdminClientRowActions client={row} onChanged={onChanged} />
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function ClientAvatar({ row }: { row: ClientRow }) {
-  const src = resolveApiAssetUrl(row.avatarUrl);
-  if (src) {
-    return (
-      <Image
-        src={src}
-        alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
-        unoptimized
-      />
-    );
-  }
-  const initials = fullName(row)
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
-      {initials || "?"}
-    </div>
-  );
-}
-
-function ClientBadge({ label }: { label: string }) {
-  return (
-    <span className="inline-flex rounded-full border border-mint-200 bg-mint-50 px-2 py-0.5 text-xs text-sage-900">
-      {label}
-    </span>
-  );
-}
-
-function fullName(row: { name: string | null; lastName: string | null; email: string }) {
-  return [row.name, row.lastName].filter(Boolean).join(" ").trim() || row.email;
-}
-
-function monthOptions(): ReadonlyArray<readonly [string, string]> {
-  return [["", "Any birthday month"], ...Array.from({ length: 12 }, (_, index) => [`${index + 1}`, new Intl.DateTimeFormat("en", { month: "long" }).format(new Date(2026, index, 1))] as const)];
 }

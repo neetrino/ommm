@@ -22,3 +22,18 @@ export function packagesInCategory(
     (pkg) => normalizePackageCategoryKey(pkg.categoryName) === categoryKey,
   );
 }
+
+/** Priced tiers shown in the admin category table. */
+export function configuredPackagesInCategory(
+  packages: readonly AdminPackageRow[],
+  categoryId: string,
+): AdminPackageRow[] {
+  return packagesInCategory(packages, categoryId).filter((pkg) => pkg.priceCents > 0);
+}
+
+export function categoryHasConfiguredPackages(
+  packages: readonly AdminPackageRow[],
+  categoryId: string,
+): boolean {
+  return configuredPackagesInCategory(packages, categoryId).length > 0;
+}

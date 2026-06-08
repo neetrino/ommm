@@ -3,16 +3,15 @@
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
-import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
   MANUAL_PAYMENT_METHODS,
   type ManualPaymentMethod,
 } from "@/lib/manual-payment-method";
 import type { PackageSubscribePlanOption } from "@/lib/package-subscribe-plan-option";
-import { formatAmdFromCents } from "@/lib/price-amd";
 
 type PackageSubscribePaymentModalProps = {
   isOpen: boolean;
@@ -20,6 +19,7 @@ type PackageSubscribePaymentModalProps = {
   plans: readonly PackageSubscribePlanOption[];
   initialPlanId?: string;
   onClose: () => void;
+  onSelectedPlanIdChange?: (planId: string) => void;
 };
 
 type ModalStep = "form" | "success";
@@ -40,6 +40,7 @@ export function PackageSubscribePaymentModal({
   plans,
   initialPlanId,
   onClose,
+  onSelectedPlanIdChange,
 }: PackageSubscribePaymentModalProps) {
   if (!isOpen || plans.length === 0) {
     return null;
@@ -55,6 +56,7 @@ export function PackageSubscribePaymentModal({
       plans={plans}
       initialPlanId={initialPlanId}
       onClose={onClose}
+      onSelectedPlanIdChange={onSelectedPlanIdChange}
     />
   );
 }
@@ -65,6 +67,7 @@ function PackageSubscribePaymentModalSession({
   plans,
   initialPlanId,
   onClose,
+  onSelectedPlanIdChange,
 }: PackageSubscribePaymentModalProps) {
   const t = useTranslations("forms.manualPackagePayment");
   const router = useRouter();
@@ -78,7 +81,11 @@ function PackageSubscribePaymentModalSession({
   const [error, setError] = useState<string | null>(null);
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
-  const showPlanPicker = plans.length > 1;
+
+  function handlePlanSelect(planId: string) {
+    setSelectedPlanId(planId);
+    onSelectedPlanIdChange?.(planId);
+  }
 
   async function onConfirm(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -122,7 +129,7 @@ function PackageSubscribePaymentModalSession({
       backdropAriaLabel={t("closeModal")}
       closeDisabled={busy}
       overlayClassName="ommm-modal-overlay z-[110]"
-      panelClassName="w-full max-w-md rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md"
+      panelClassName="w-full max-w-lg rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md"
     >
       {step === "success" ? (
         <SuccessPanel
@@ -136,16 +143,12 @@ function PackageSubscribePaymentModalSession({
             {t("title")}
           </h2>
           <p className="text-sm text-sage-600">{t("lead")}</p>
-          {showPlanPicker ? (
-            <PlanPicker
-              plans={plans}
-              selectedPlanId={selectedPlan.id}
-              locale={locale}
-              onSelect={setSelectedPlanId}
-            />
-          ) : (
-            <PlanSummary plan={selectedPlan} locale={locale} />
-          )}
+          <PackageSubscribePlanPicker
+            plans={plans}
+            selectedPlanId={selectedPlan.id}
+            locale={locale}
+            onSelect={handlePlanSelect}
+          />
           <PaymentMethodPicker
             value={paymentMethod}
             onChange={setPaymentMethod}
@@ -173,85 +176,6 @@ function PackageSubscribePaymentModalSession({
         </form>
       )}
     </OmmModalPortal>
-  );
-}
-
-type PlanPickerProps = {
-  plans: readonly PackageSubscribePlanOption[];
-  selectedPlanId: string;
-  locale: string;
-  onSelect: (planId: string) => void;
-};
-
-function PlanPicker({ plans, selectedPlanId, locale, onSelect }: PlanPickerProps) {
-  const t = useTranslations("forms.manualPackagePayment");
-
-  return (
-    <fieldset className="space-y-2">
-      <legend className="ommm-label text-xs uppercase tracking-wide">{t("selectPlanLegend")}</legend>
-      {plans.map((plan) => {
-        const sessionName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
-        return (
-          <label
-            key={plan.id}
-            className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/60 bg-white/50 p-3 transition-[background-color,border-color,box-shadow] hover:border-white/80 hover:bg-white/70 hover:shadow-sm focus-within:border-sand-500/40 focus-within:bg-sand-50/40 focus-within:ring-2 focus-within:ring-sand-500/20"
-          >
-            <input
-              type="radio"
-              name="subscribe-plan"
-              value={plan.id}
-              checked={selectedPlanId === plan.id}
-              onChange={() => onSelect(plan.id)}
-              className="mt-1"
-            />
-            <span className="flex-1">
-              <span className="block text-sm font-medium text-sage-800">{sessionName}</span>
-              <PlanSummaryDetails plan={plan} locale={locale} />
-            </span>
-          </label>
-        );
-      })}
-    </fieldset>
-  );
-}
-
-type PlanSummaryProps = {
-  plan: PackageSubscribePlanOption;
-  locale: string;
-};
-
-function PlanSummary({ plan, locale }: PlanSummaryProps) {
-  const sessionName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
-
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/50 p-4">
-      <p className="text-sm font-medium text-sage-800">{sessionName}</p>
-      <PlanSummaryDetails plan={plan} locale={locale} />
-    </div>
-  );
-}
-
-function PlanSummaryDetails({
-  plan,
-  locale,
-}: {
-  plan: PackageSubscribePlanOption;
-  locale: string;
-}) {
-  const t = useTranslations("forms.manualPackagePayment");
-  const sessionsLabel = plan.isUnlimited
-    ? t("unlimitedClasses")
-    : t("sessionsPerPeriod", { count: plan.sessionsPerMonth ?? 0 });
-
-  return (
-    <>
-      <p className="mt-1 text-sm font-semibold text-sage-700">
-        {formatAmdFromCents(plan.priceCents, locale)}
-      </p>
-      <p className="mt-1 text-sm text-sage-500">
-        {t("periodDays", { days: plan.periodDays })} · {sessionsLabel}
-      </p>
-    </>
   );
 }
 

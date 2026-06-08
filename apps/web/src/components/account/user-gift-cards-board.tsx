@@ -1,32 +1,46 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { UserGiftCardDetailsModal } from "@/components/account/user-gift-card-details-modal";
-import type {
-  UserGiftCardRow,
-  UserGiftCardSectionKind,
-} from "@/components/account/user-gift-cards-types";
+import { useSearchParams } from "next/navigation";
+import { UserGiftCardCopyCodeButton } from "@/components/account/user-gift-card-copy-code-button";
+import { UserGiftCardDetailsSheet } from "@/components/account/user-gift-card-details-sheet";
 import {
-  displayGiftCardDate,
-} from "@/components/gift-cards/gift-card-display-helpers";
-import { GiftCardThumbnail } from "@/components/gift-cards/gift-card-thumbnail";
+  GIFT_CARD_BOARD_GRID_CLASS,
+  UserGiftCardsSection,
+} from "@/components/account/user-gift-card-tile-layout";
+import type { UserGiftCardSource } from "@/components/account/user-gift-cards-types";
+import { GiftCardBoardTile, type GiftCardBoardDetail } from "@/components/gift-cards/gift-card-board-tile";
+import { displayGiftCardDate } from "@/components/gift-cards/gift-card-display-helpers";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { OmmFilterDropdown } from "@/components/ui/omm-select-dropdown";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import type { UserGiftCardWithSource } from "@/lib/merge-user-gift-cards";
+import {
+  parseUserGiftCardSortOrder,
+  sortUserGiftCards,
+  USER_GIFT_CARD_SORT_ORDERS,
+} from "@/lib/list-sort";
+import {
+  readUserListOrderFromSearch,
+  syncUserListOrderQuery,
+} from "@/lib/user-list-order-url";
 import { formatAmdFromCents } from "@/lib/price-amd";
-
+import {
+  parseUserGiftCardsMyPageParams,
+  USER_GIFT_CARDS_MY_PAGE_KEYS,
+} from "@/lib/user-gift-cards-query";
+import { syncListPageQuery } from "@/lib/list-pagination";
 type UserGiftCardsBoardProps = {
   locale: string;
-  purchased: readonly UserGiftCardRow[];
-  received: readonly UserGiftCardRow[];
-  purchasedError: number | null;
-  receivedError: number | null;
+  cards: readonly UserGiftCardWithSource[];
+  loadError: number | null;
 };
 
 export function UserGiftCardsBoard({
   locale,
-  purchased,
-  received,
-  purchasedError,
-  receivedError,
+  cards,
+  loadError,
 }: UserGiftCardsBoardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -34,28 +48,18 @@ export function UserGiftCardsBoard({
     if (selectedId === null) {
       return null;
     }
-    return (
-      [...purchased, ...received].find((card) => card.id === selectedId) ?? null
-    );
-  }, [purchased, received, selectedId]);
+    return cards.find((card) => card.id === selectedId) ?? null;
+  }, [cards, selectedId]);
 
   return (
     <>
-      <UserGiftCardSection
-        kind="purchased"
+      <MyGiftCardsSection
         locale={locale}
-        cards={purchased}
-        errorStatus={purchasedError}
+        cards={cards}
+        loadError={loadError}
         onSelect={setSelectedId}
       />
-      <UserGiftCardSection
-        kind="received"
-        locale={locale}
-        cards={received}
-        errorStatus={receivedError}
-        onSelect={setSelectedId}
-      />
-      <UserGiftCardDetailsModal
+      <UserGiftCardDetailsSheet
         card={selectedCard}
         locale={locale}
         onClose={() => setSelectedId(null)}
@@ -64,81 +68,137 @@ export function UserGiftCardsBoard({
   );
 }
 
-type UserGiftCardSectionProps = {
-  kind: UserGiftCardSectionKind;
+type MyGiftCardsSectionProps = {
   locale: string;
-  cards: readonly UserGiftCardRow[];
-  errorStatus: number | null;
+  cards: readonly UserGiftCardWithSource[];
+  loadError: number | null;
   onSelect: (id: string) => void;
 };
 
-function UserGiftCardSection({
-  kind,
+function MyGiftCardsSection({
   locale,
   cards,
-  errorStatus,
+  loadError,
   onSelect,
-}: UserGiftCardSectionProps) {
+}: MyGiftCardsSectionProps) {
   const t = useTranslations("userPages.giftCards");
-  const heading = kind === "purchased" ? t("purchasedHeading") : t("receivedHeading");
-  const emptyTitle =
-    kind === "purchased" ? t("emptyPurchasedTitle") : t("emptyReceivedTitle");
-  const emptyDescription =
-    kind === "purchased" ? t("emptyPurchasedDescription") : t("emptyReceivedDescription");
+  const tSort = useTranslations("listSort");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [order, setOrder] = useState(() =>
+    readUserListOrderFromSearch(Object.fromEntries(searchParams.entries()), "giftCard", "newest"),
+  );
+
+  const sortOptions = useMemo(
+    () =>
+      USER_GIFT_CARD_SORT_ORDERS.map((value) => ({
+        value,
+        label:
+          value === "expirationSoon"
+            ? tSort("expirationSoon")
+            : value === "oldest"
+              ? tSort("oldest")
+              : tSort("newest"),
+      })),
+    [tSort],
+  );
+
+  const listPage = useMemo(
+    () =>
+      parseUserGiftCardsMyPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
+  const setPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize, USER_GIFT_CARDS_MY_PAGE_KEYS);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const sortedCards = useMemo(
+    () => sortUserGiftCards(cards, order),
+    [cards, order],
+  );
+
+  const visibleCards = useMemo(() => {
+    const start = listPage.offset;
+    return sortedCards.slice(start, start + listPage.take);
+  }, [listPage.offset, listPage.take, sortedCards]);
+
+  function handleSortChange(value: string): void {
+    const nextOrder = parseUserGiftCardSortOrder(value);
+    setOrder(nextOrder);
+    const params = new URLSearchParams(searchParams.toString());
+    syncListPageQuery(params, 1, undefined, USER_GIFT_CARDS_MY_PAGE_KEYS);
+    syncUserListOrderQuery(params, value, "newest");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
 
   return (
-    <section className="mt-10 first:mt-0">
-      <h2 className="ommm-h3 text-sage-800">{heading}</h2>
-      {errorStatus !== null ? (
-        <div className="app-alert-warn mt-4 text-sm">
-          {errorStatus === 401 || errorStatus === 403
+    <UserGiftCardsSection title={t("myCardsHeading")}>
+      {cards.length > 0 ? (
+        <div className="mb-4 flex justify-end">
+          <OmmFilterDropdown
+            allValue="newest"
+            value={order}
+            ariaLabel={tSort("sort")}
+            allLabel={tSort("newest")}
+            onChange={handleSortChange}
+            options={sortOptions.filter((option) => option.value !== "newest")}
+          />
+        </div>
+      ) : null}
+      {loadError !== null ? (
+        <div className="app-alert-warn text-sm">
+          {loadError === 401 || loadError === 403
             ? t("signInRequired")
-            : t("loadError", { status: errorStatus })}
+            : t("loadError", { status: loadError })}
         </div>
       ) : cards.length === 0 ? (
-        <div className="mt-4 rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <p className="font-medium text-sage-900">{emptyTitle}</p>
-          <p className="ommm-body-muted mt-2 text-sm">{emptyDescription}</p>
+        <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+          <p className="font-medium text-sage-900">{t("emptyMyTitle")}</p>
+          <p className="ommm-body-muted mt-2 text-sm">{t("emptyMyDescription")}</p>
         </div>
       ) : (
-        <UserGiftCardGrid locale={locale} cards={cards} kind={kind} onSelect={onSelect} />
+        <>
+          <div className={GIFT_CARD_BOARD_GRID_CLASS}>
+            {visibleCards.map((card) => (
+              <UserGiftCardTile
+                key={card.id}
+                card={card}
+                locale={locale}
+                onSelect={onSelect}
+              />
+            ))}
+          </div>
+          <OmmListPagination
+            total={sortedCards.length}
+            page={listPage.page}
+            pageSize={listPage.pageSize}
+            offset={listPage.offset}
+            onPageChange={setPage}
+            onPageSizeChange={(pageSize) => setPage(1, pageSize)}
+            namespace="userPages.pagination"
+          />
+        </>
       )}
-    </section>
-  );
-}
-
-type UserGiftCardGridProps = {
-  locale: string;
-  cards: readonly UserGiftCardRow[];
-  kind: UserGiftCardSectionKind;
-  onSelect: (id: string) => void;
-};
-
-function UserGiftCardGrid({ locale, cards, kind, onSelect }: UserGiftCardGridProps) {
-  return (
-    <div className="mt-5 grid gap-6 lg:grid-cols-2">
-      {cards.map((card) => (
-        <UserGiftCardTile
-          key={card.id}
-          card={card}
-          locale={locale}
-          kind={kind}
-          onSelect={onSelect}
-        />
-      ))}
-    </div>
+    </UserGiftCardsSection>
   );
 }
 
 function UserGiftCardTile({
   card,
   locale,
-  kind,
   onSelect,
 }: {
-  card: UserGiftCardRow;
+  card: UserGiftCardWithSource;
   locale: string;
-  kind: UserGiftCardSectionKind;
   onSelect: (id: string) => void;
 }) {
   const t = useTranslations("userPages.giftCards");
@@ -147,69 +207,53 @@ function UserGiftCardTile({
   const recipient =
     card.recipientName?.trim() || card.recipientEmail?.trim() || "";
 
-  function openDetails() {
-    onSelect(card.id);
+  const details: GiftCardBoardDetail[] = [
+    { label: t("cardCreated"), value: displayGiftCardDate(card.createdAt) },
+    {
+      label: t("cardExpiration"),
+      value:
+        card.expiresAt !== null ? displayGiftCardDate(card.expiresAt) : t("cardNoExpiration"),
+    },
+    { label: t("cardBalance"), value: balanceLabel },
+  ];
+
+  if (card.source === "purchased" && recipient.length > 0) {
+    details.push({ label: t("cardRecipient"), value: recipient });
+  }
+
+  if (card.source === "received" && card.message) {
+    details.push({
+      label: t("cardMessage"),
+      value: card.message,
+      valueClassName: "line-clamp-2 whitespace-normal",
+    });
   }
 
   return (
-    <article
-      role="button"
-      tabIndex={0}
-      aria-label={t("openCardAria", { amount: amountLabel })}
-      onClick={openDetails}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          openDetails();
-        }
+    <GiftCardBoardTile
+      amountLabel={amountLabel}
+      status={card.status}
+      statusLabel={t(`statusValues.${card.status}`)}
+      imageUrl={card.imageUrl}
+      imageAlt={t("cardImageAlt")}
+      imageFallbackLabel={t("cardImageFallback")}
+      imageBadge={{
+        label: t(`sourceLabels.${card.source}`),
+        className: sourceBadgeClass(card.source),
       }}
-      className="cursor-pointer rounded-[32px] border border-white/80 bg-white/95 p-6 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] transition-all hover:-translate-y-0.5 hover:border-white hover:shadow-[0_28px_64px_-34px_rgba(45,40,35,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:p-7"
-    >
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] border border-white/70 bg-sage-100 shadow-[0_14px_26px_-18px_rgba(45,40,35,0.45)]">
-        <GiftCardThumbnail
-          imageUrl={card.imageUrl}
-          alt={t("cardImageAlt")}
-          fallbackLabel={t("cardImageFallback")}
-        />
-      </div>
-      <div className="mt-6 space-y-5">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-2xl font-semibold tracking-tight text-sage-950">{amountLabel}</p>
-          <span className="inline-flex rounded-full border border-sage-900/70 bg-white px-3 py-1 text-sm leading-none text-sage-900">
-            {t(`statusValues.${card.status}`)}
-          </span>
-        </div>
-        <dl className="grid gap-2.5 text-lg text-sage-700">
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("cardCreated")}</dt>
-            <dd className="text-right text-sage-800">{displayGiftCardDate(card.createdAt)}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("cardExpiration")}</dt>
-            <dd className="text-right text-sage-800">
-              {card.expiresAt !== null
-                ? displayGiftCardDate(card.expiresAt)
-                : t("cardNoExpiration")}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-sage-600">{t("cardBalance")}</dt>
-            <dd className="text-right text-sage-800">{balanceLabel}</dd>
-          </div>
-          {kind === "purchased" && recipient.length > 0 ? (
-            <div className="flex items-center justify-between gap-4">
-              <dt className="text-sage-600">{t("cardRecipient")}</dt>
-              <dd className="truncate text-right text-sage-800">{recipient}</dd>
-            </div>
-          ) : null}
-          {kind === "received" && card.message ? (
-            <div className="flex items-start justify-between gap-4">
-              <dt className="shrink-0 text-sage-600">{t("cardMessage")}</dt>
-              <dd className="line-clamp-2 text-right text-sage-800">{card.message}</dd>
-            </div>
-          ) : null}
-        </dl>
-      </div>
-    </article>
+      openAriaLabel={t("openCardAria", { amount: amountLabel })}
+      onOpen={() => onSelect(card.id)}
+      details={details}
+      imageOverlayActions={
+        <UserGiftCardCopyCodeButton code={card.code} feedbackOnDark />
+      }
+    />
   );
+}
+
+function sourceBadgeClass(source: UserGiftCardSource): string {
+  if (source === "purchased") {
+    return "bg-sand-100/95 text-sage-800";
+  }
+  return "bg-mint-100/95 text-sage-900";
 }

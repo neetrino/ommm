@@ -10,6 +10,8 @@ export type ExploreContentPost = {
   publishedAt: string | null;
 };
 
-export const fetchExplorePost = cache(async (slug: string) => {
-  return fetchPublicJsonCached<ExploreContentPost>(`/content/posts/${slug}`);
+export const fetchExplorePost = cache(async (slug: string, locale: string) => {
+  return fetchPublicJsonCached<ExploreContentPost>(
+    `/content/posts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`,
+  );
 });

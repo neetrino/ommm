@@ -7,7 +7,6 @@ import { Link } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
-import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 
 const PASSWORD_MIN_LENGTH = 8;
 
@@ -58,7 +57,6 @@ export default function ResetPasswordPage() {
 
   return (
     <div>
-      <AuthBackToHomeLink />
       <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
         {t("title")}
       </h1>

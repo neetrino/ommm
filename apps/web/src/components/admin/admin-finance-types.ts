@@ -1,6 +1,32 @@
-import type { ClientRow } from "./admin-clients-types";
+export type FinanceSectionId = "overview" | "payments" | "members" | "coaches";
 
-export type FinanceTab = "user" | "coach";
+export type FinanceDateRangeDays = 7 | 30 | 90;
+
+export type FinanceSourceFilter = "all" | "package" | "dropin" | "gift" | "other";
+
+export type FinanceStatusFilter =
+  | "all"
+  | "SUCCEEDED"
+  | "FAILED"
+  | "PENDING"
+  | "REFUNDED";
+
+export type FinancePackagePlanFilter = "all" | (string & {});
+
+export type FinancePackageClassFilter = "all" | (string & {});
+
+export type FinancePackageSessionsFilter = "all" | "unlimited" | (string & {});
+
+export type FinanceFilterValues = {
+  q: string;
+  rangeDays: FinanceDateRangeDays;
+  source: FinanceSourceFilter;
+  status: FinanceStatusFilter;
+  planId: FinancePackagePlanFilter;
+  packageClass: FinancePackageClassFilter;
+  sessions: FinancePackageSessionsFilter;
+  order: "newest" | "oldest";
+};
 
 export type FinancePaymentItem = {
   id: string;
@@ -9,8 +35,11 @@ export type FinancePaymentItem = {
   status: string;
   description: string | null;
   paymentMethod: string | null;
+  paymentReference: string | null;
+  sourceId: string | null;
   source: "package" | "dropin" | "gift" | "other";
   createdAt: string;
+  confirmedAt: string | null;
   user: {
     email: string;
     name: string | null;
@@ -60,6 +89,13 @@ export type CoachSessionRow = {
   _count?: { bookings: number };
 };
 
+export type CoachSessionsPayload = {
+  items: CoachSessionRow[];
+  total: number;
+  take: number;
+  offset: number;
+};
+
 export type UserFinanceFilters = {
   search: string;
   paymentStatus: string;
@@ -76,11 +112,9 @@ export type CoachFinanceFilters = {
   quick: string;
 };
 
-export type AdminFinanceManagementProps = {
-  locale: string;
-  initialTab: FinanceTab;
-  initialUserRows: ClientRow[];
-  initialCoachRows: CoachFinanceRow[];
-  initialPayments: FinancePaymentsPayload;
-  paymentsFrom: string;
+export type CoachFinancePayload = {
+  items: CoachFinanceRow[];
+  total: number;
+  take: number;
+  offset: number;
 };

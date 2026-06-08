@@ -1,7 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import {
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_HEADER_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_ACTIONS_HOVER_REVEAL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_CLASS,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_SPACER_CELL,
+  ADMIN_NOTIFICATIONS_SCHEDULED_LIST_TABLE_CLASS,
+} from "@/components/admin/admin-finance-notifications-list-layout";
+import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
 import { OmmSelectDropdown, ommOptionsFromTuples } from "@/components/ui/omm-select-dropdown";
@@ -12,15 +23,34 @@ import {
   type ScheduledEditDraft,
 } from "@/components/admin/admin-scheduled-broadcast-edit-modal";
 import type {
+  AdminNotificationsListPayload,
   BroadcastAudience,
   ScheduledBroadcast,
   ScheduledBroadcastStatus,
 } from "./admin-notifications-types";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import {
+  ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS,
+  parseAdminNotificationsScheduledPageParams,
+} from "@/components/admin/admin-notifications-query";
+import {
+  ADMIN_NOTIFICATIONS_SCHEDULED_FILTER_KEYS,
+  buildScheduledFiltersQuery,
+  defaultScheduledListFilters,
+  type ScheduledListFilters,
+} from "@/components/admin/admin-notifications-url";
+import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 type Props = {
   locale: string;
-  items: ScheduledBroadcast[];
+  payload: AdminNotificationsListPayload<ScheduledBroadcast>;
   loadFailed: boolean;
+  initialFilters: ScheduledListFilters;
   onRefresh: () => void;
 };
 
@@ -44,16 +74,25 @@ const audienceOptions: Array<[BroadcastAudience | "", string]> = [
 
 export function AdminNotificationsScheduledSection({
   locale,
-  items,
+  payload,
   loadFailed,
+  initialFilters,
   onRefresh,
 }: Props) {
   const t = useTranslations("adminPages.notifications");
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<ScheduledBroadcastStatus | "">("");
-  const [audience, setAudience] = useState<BroadcastAudience | "">("");
-  const [order, setOrder] = useState<"newest" | "oldest" | "schedule">("newest");
-  const [quick, setQuick] = useState<ScheduledQuickFilter>("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const items = payload.items;
+  const listPage = parseAdminNotificationsScheduledPageParams(
+    Object.fromEntries(searchParams.entries()),
+  );
+  const hasMounted = useRef(false);
+  const syncFiltersToUrlRef = useRef<(values: ScheduledListFilters, resetPage?: boolean) => void>(
+    () => undefined,
+  );
+  const filtersRef = useRef(initialFilters);
+  const [filters, setFilters] = usePropSyncedState(initialFilters);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState<ScheduledBroadcast | null>(null);
@@ -66,46 +105,67 @@ export function AdminNotificationsScheduledSection({
     scheduleTime: "",
   });
 
-  const filtered = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    let rows = items.filter((row) => {
-      if (needle !== "" && !`${row.subject} ${row.html}`.toLowerCase().includes(needle)) {
-        return false;
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  const syncFiltersToUrl = useCallback(
+    (values: ScheduledListFilters, resetPage = false) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const key of ADMIN_NOTIFICATIONS_SCHEDULED_FILTER_KEYS) {
+        params.delete(key);
       }
-      if (status !== "" && row.status !== status) {
-        return false;
+      if (resetPage) {
+        resetListPageQuery(params, ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS);
       }
-      if (audience !== "" && row.audience !== audience) {
-        return false;
+      const filterQuery = buildScheduledFiltersQuery(values);
+      if (filterQuery.length > 0) {
+        for (const [key, value] of new URLSearchParams(filterQuery)) {
+          params.set(key, value);
+        }
       }
-      if (quick === "pending" && row.status !== "PENDING") {
-        return false;
+      const qs = params.toString();
+      if (qs === searchParams.toString()) {
+        return;
       }
-      if (quick === "failed" && row.status !== "FAILED") {
-        return false;
-      }
-      if (quick === "sent" && row.status !== "SENT") {
-        return false;
-      }
-      return true;
-    });
-    rows = [...rows].sort((a, b) => {
-      if (order === "schedule") {
-        return new Date(a.scheduleAt).getTime() - new Date(b.scheduleAt).getTime();
-      }
-      const aTime = new Date(a.createdAt).getTime();
-      const bTime = new Date(b.createdAt).getTime();
-      return order === "newest" ? bTime - aTime : aTime - bTime;
-    });
-    return rows;
-  }, [audience, items, order, quick, search, status]);
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    syncFiltersToUrlRef.current = syncFiltersToUrl;
+  }, [syncFiltersToUrl]);
+
+  function patchFilters(patch: Partial<ScheduledListFilters>, resetPage = true): void {
+    const next = { ...filtersRef.current, ...patch };
+    setFilters(next);
+    syncFiltersToUrl(next, resetPage);
+  }
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return undefined;
+    }
+    const handle = window.setTimeout(() => {
+      syncFiltersToUrlRef.current(filtersRef.current, true);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [filters.search]);
+
+  const filtered = items;
 
   function resetFilters() {
-    setSearch("");
-    setStatus("");
-    setAudience("");
-    setOrder("newest");
-    setQuick("");
+    setFilters(defaultScheduledListFilters);
+    syncFiltersToUrl(defaultScheduledListFilters, true);
+  }
+
+  function setListPage(page: number, pageSize?: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    syncListPageQuery(params, page, pageSize, ADMIN_NOTIFICATIONS_SCHEDULED_PAGE_KEYS);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   function openEdit(row: ScheduledBroadcast) {
@@ -188,11 +248,11 @@ export function AdminNotificationsScheduledSection({
             key={value || "all"}
             type="button"
             className={
-              quick === value
+              filters.quick === value
                 ? "rounded-full bg-sage-800 px-3 py-1 text-xs font-medium text-white"
                 : "rounded-full border border-white/60 bg-white/55 px-3 py-1 text-xs font-medium text-sage-700"
             }
-            onClick={() => setQuick(value)}
+            onClick={() => patchFilters({ quick: filters.quick === value ? "" : value })}
           >
             {t(labelKey)}
           </button>
@@ -203,8 +263,8 @@ export function AdminNotificationsScheduledSection({
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.search")}</span>
           <input
             className="ommm-input"
-            value={search}
-            onChange={(ev) => setSearch(ev.target.value)}
+            value={filters.search}
+            onChange={(ev) => setFilters((current) => ({ ...current, search: ev.target.value }))}
             placeholder={t("filters.searchPlaceholder")}
             autoComplete="off"
           />
@@ -213,24 +273,28 @@ export function AdminNotificationsScheduledSection({
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.status")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.status")}
-            label={t(statusOptions.find(([value]) => value === status)?.[1] ?? "statusAll")}
-            value={status}
+            label={t(statusOptions.find(([value]) => value === filters.status)?.[1] ?? "statusAll")}
+            value={filters.status}
             options={ommOptionsFromTuples(
               statusOptions.map(([value, labelKey]) => [value, t(labelKey)]),
             )}
-            onChange={(value) => setStatus(value as ScheduledBroadcastStatus | "")}
+            onChange={(value) =>
+              patchFilters({ status: value as ScheduledBroadcastStatus | "" })
+            }
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="ommm-label text-xs uppercase tracking-wide">{t("filters.audience")}</span>
           <OmmSelectDropdown
             ariaLabel={t("filters.audience")}
-            label={t(audienceOptions.find(([value]) => value === audience)?.[1] ?? "audienceAll")}
-            value={audience}
+            label={t(audienceOptions.find(([value]) => value === filters.audience)?.[1] ?? "audienceAll")}
+            value={filters.audience}
             options={ommOptionsFromTuples(
               audienceOptions.map(([value, labelKey]) => [value, t(labelKey)]),
             )}
-            onChange={(value) => setAudience(value as BroadcastAudience | "")}
+            onChange={(value) =>
+              patchFilters({ audience: value as BroadcastAudience | "" })
+            }
           />
         </label>
         <label className="flex flex-col gap-1">
@@ -238,19 +302,21 @@ export function AdminNotificationsScheduledSection({
           <OmmSelectDropdown
             ariaLabel={t("filters.sort")}
             label={
-              order === "schedule"
+              filters.order === "schedule"
                 ? t("sortSchedule")
-                : order === "oldest"
+                : filters.order === "oldest"
                   ? t("sortOldest")
                   : t("sortNewest")
             }
-            value={order}
+            value={filters.order}
             options={[
               { value: "newest", label: t("sortNewest") },
               { value: "oldest", label: t("sortOldest") },
               { value: "schedule", label: t("sortSchedule") },
             ]}
-            onChange={(value) => setOrder(value as "newest" | "oldest" | "schedule")}
+            onChange={(value) =>
+              patchFilters({ order: value as ScheduledListFilters["order"] })
+            }
           />
         </label>
       </div>
@@ -259,73 +325,98 @@ export function AdminNotificationsScheduledSection({
         label={t("filters.reset")}
         meta={
           <span className={adminChrome.metaText}>
-            {t("filters.resultCount", { count: filtered.length })}
+            {t("filters.resultCount", { count: payload.total })}
           </span>
         }
       />
-      <div className={adminChrome.tableWrap}>
-        <table className={adminChrome.table}>
-          <thead className={adminChrome.thead}>
-            <tr>
-              <th className={adminChrome.th}>{t("table.subject")}</th>
-              <th className={adminChrome.th}>{t("table.audience")}</th>
-              <th className={adminChrome.th}>{t("table.scheduledFor")}</th>
-              <th className={adminChrome.th}>{t("table.status")}</th>
-              <th className={adminChrome.th}>{t("table.createdAt")}</th>
-              <th className={adminChrome.th}>{t("table.actions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td className={adminChrome.tdMuted} colSpan={6}>
-                  {items.length === 0 ? t("scheduledEmpty") : t("filters.noMatches")}
-                </td>
-              </tr>
-            ) : (
-              filtered.map((row) => (
-                <tr key={row.id} className={adminChrome.tr}>
-                  <td className={adminChrome.tdStrong}>{row.subject}</td>
-                  <td className={adminChrome.td}>{row.audience}</td>
-                  <td className={adminChrome.tdMuted}>
-                    {formatDateTimeForUi(row.scheduleAt, locale)}
-                  </td>
-                  <td className={adminChrome.td}>{row.status}</td>
-                  <td className={adminChrome.tdMuted}>
-                    {formatDateTimeForUi(row.createdAt, locale)}
-                  </td>
-                  <td className={adminChrome.td}>
-                    <div className="flex flex-wrap gap-2">
-                      {row.status === "PENDING" ? (
-                        <>
-                          <button
-                            type="button"
-                            className="ommm-cta-ghost text-xs"
-                            disabled={busyId !== null}
-                            onClick={() => openEdit(row)}
-                          >
-                            {t("actions.edit")}
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
-                            disabled={busyId !== null}
-                            onClick={() => void cancel(row.id)}
-                          >
-                            {t("actions.cancel")}
-                          </button>
-                        </>
-                      ) : (
-                        <span className={adminChrome.metaText}>—</span>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_TABLE_CLASS}>
+        <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_HEADER_CLASS}>
+          <span>{t("table.subject")}</span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.audience")}
+          </span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.scheduledFor")}
+          </span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.status")}
+          </span>
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.createdAt")}
+          </span>
+          <span aria-hidden="true" />
+          <span className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_EMPHASIZED_HEADER}>
+            {t("table.actions")}
+          </span>
+        </div>
+        {filtered.length === 0 ? (
+          <p className="rounded-[24px] border border-white/80 bg-white/95 px-5 py-8 text-center text-sm text-sage-600">
+            {items.length === 0 ? t("scheduledEmpty") : t("filters.noMatches")}
+          </p>
+        ) : (
+          filtered.map((row) => (
+            <article key={row.id} className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_CLASS}>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.subject")} />
+                <p className="text-sm font-medium text-sage-900">{row.subject}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.audience")} />
+                <p className="text-sm text-sage-800">{row.audience}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.scheduledFor")} />
+                <p className="text-sm text-sage-600">{formatDateTimeForUi(row.scheduleAt, locale)}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.status")} />
+                <p className="text-sm text-sage-800">{row.status}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_CELL}>
+                <AdminListMobileLabel label={t("table.createdAt")} />
+                <p className="text-sm text-sage-600">{formatDateTimeForUi(row.createdAt, locale)}</p>
+              </div>
+              <div className={ADMIN_NOTIFICATIONS_SCHEDULED_LIST_SPACER_CELL} aria-hidden="true" />
+              <div
+                className={`${ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ACTIONS_CELL} ${ADMIN_NOTIFICATIONS_SCHEDULED_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
+              >
+                <AdminListMobileLabel label={t("table.actions")} />
+                {row.status === "PENDING" ? (
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      className="ommm-cta-ghost text-xs"
+                      disabled={busyId !== null}
+                      onClick={() => openEdit(row)}
+                    >
+                      {t("actions.edit")}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
+                      disabled={busyId !== null}
+                      onClick={() => void cancel(row.id)}
+                    >
+                      {t("actions.cancel")}
+                    </button>
+                  </div>
+                ) : (
+                  <span className={adminChrome.metaText}>—</span>
+                )}
+              </div>
+            </article>
+          ))
+        )}
       </div>
+      <OmmListPagination
+        total={payload.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={payload.offset}
+        onPageChange={setListPage}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        disabled={busyId !== null}
+      />
       {message ? (
         <p className="text-sm text-sage-700" role="status">
           {message}

@@ -1,46 +1,95 @@
-import { ClassSessionStatus } from '@prisma/client';
-import { Type } from 'class-transformer';
-import {
-  IsDateString,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { SessionListOrder } from '../../common/enums/list-order.enum';
+import { ListPaginationQueryDto } from '../../common/dto/list-pagination-query.dto';
 
-export class AdminListSessionsQueryDto {
+export class AdminListSessionsQueryDto extends ListPaginationQueryDto {
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @MaxLength(120)
   from?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @MaxLength(120)
   to?: string;
 
   @IsOptional()
-  @IsEnum(ClassSessionStatus)
-  status?: ClassSessionStatus;
+  @IsString()
+  @MaxLength(80)
+  q?: string;
 
+  /** Comma-separated coach profile ids. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  coachIds?: string;
+
+  /** Comma-separated class type ids (resolved from package filters on web). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  classTypeIds?: string;
+
+  /** Comma-separated session statuses (FULL applied after load). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  statuses?: string;
+
+  /** Comma-separated level labels. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  levels?: string;
+
+  /** Comma-separated: available, full */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  availability?: string;
+
+  /** Comma-separated: morning, afternoon, evening */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  timeOfDay?: string;
+
+  /** Comma-separated schedule quick filter keys. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  quick?: string;
+
+  /** @deprecated Use classTypeIds */
   @IsOptional()
   @IsString()
   coachId?: string;
 
+  /** @deprecated Use classTypeIds */
   @IsOptional()
   @IsString()
   typeId?: string;
 
+  /** @deprecated Use levels */
   @IsOptional()
-  @Type(() => String)
   @IsString()
-  @MinLength(1)
-  @MaxLength(80)
   level?: string;
 
+  /** @deprecated Use statuses */
   @IsOptional()
-  @Type(() => String)
   @IsString()
-  @MinLength(1)
-  @MaxLength(80)
+  status?: string;
+
+  /** @deprecated */
+  @IsOptional()
+  @IsString()
   classFormat?: string;
+
+  @IsOptional()
+  @IsIn([
+    SessionListOrder.UPCOMING,
+    SessionListOrder.DATE_ASC,
+    SessionListOrder.DATE_DESC,
+  ])
+  order?: SessionListOrder;
 }

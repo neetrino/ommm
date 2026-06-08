@@ -6,7 +6,21 @@
     "logout": "Ելք",
     "account": "Իմ հաշիվը",
     "admin": "Ադմին",
-    "loading": "Բեռնում…"
+    "loading": "Բեռնում…",
+    "sessionToday": "Այսօր",
+    "sessionTomorrow": "Վաղը",
+    "sessionUntil": "մինչև",
+    "sessionDurationMinutes": "{minutes} ր",
+    "sessionCoach": "Մարզիչ"
+  },
+  "listSort": {
+    "sort": "Տեսակավորել",
+    "newest": "Նորից հին",
+    "oldest": "Հնից նոր",
+    "upcoming": "Նախատեսվածները սկզբում",
+    "dateAsc": "Ամսաթիվ՝ աճման կարգով",
+    "dateDesc": "Ամսաթիվ՝ նվազման կարգով",
+    "expirationSoon": "Շուտով ավարտվող"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -36,12 +50,7 @@
   },
   "language": {
     "switcherAria": "Ինտերֆեյսի լեզու",
-    "expandPicker": "Բացել լեզվի ընտրացանկը",
-    "optionNames": {
-      "hy": "Հայերեն",
-      "en": "Անգլերեն",
-      "ru": "Русский"
-    }
+    "expandPicker": "Բացել լեզվի ընտրացանկը"
   },
   "home": {
     "bookNow": "Գրանցվել",
@@ -461,6 +470,7 @@
         "classes": "Դասեր",
         "schedule": "Ժամանակացույց",
         "bookings": "Իմ ամրագրումները",
+        "waitlists": "Սպասման ցուցակներ",
         "packages": "Փաթեթներ",
         "payments": "Վճարումներ",
         "giftCards": "Նվեր քարտեր",
@@ -471,7 +481,7 @@
       "COACH": {
         "dashboard": "Վահանակ",
         "schedule": "Իմ ժամանակացույցը",
-        "groups": "Իմ խմբերը",
+        "groups": "Ամրագրումներ",
         "salary": "Աշխատավարձ",
         "analytics": "Վերլուծություն",
         "notifications": "Ծանուցումներ",
@@ -479,6 +489,7 @@
       },
       "MANAGER": {
         "home": "Գլխավոր",
+        "schedule": "Ժամանակացույց",
         "classes": "Դասեր",
         "bookings": "Ամրագրումներ",
         "waitlists": "Սպասման ցուցակներ",
@@ -490,6 +501,7 @@
       "CONTENT_ADMIN": {
         "home": "Գլխավոր",
         "content": "Բովանդակություն",
+        "notifications": "Ծանուցումներ",
         "profile": "Պրոֆիլ"
       },
       "ADMIN": {
@@ -542,6 +554,7 @@
         "classes": "Դիտել և գրանցվել սեսիաների։",
         "schedule": "Դիտեք շաբաթվա ժամանակացույցը և ամրագրեք հաջորդ սեսիան։",
         "bookings": "Առաջիկա և անցյալ ամրագրումներ։",
+        "waitlists": "Ձեր հերթի դիրքերը լիքը դասերի համար։",
         "packages": "Ակտիվ փաթեթներ, պլաններ և վճարումների պատմություն։",
         "payments": "Ձեր վճարումների պատմությունն ու գործարքի մանրամասները։",
         "giftCards": "Մնացորդներ և փոխարժում։",
@@ -647,6 +660,18 @@
     "lead": "Դուք մուտք եք գործել Google-ով։ Սահմանեք գաղտնաբառ՝ նաև email-ով մուտք գործելու համար։"
   },
   "userPages": {
+    "pagination": {
+      "ariaLabel": "Ցանկի էջավորում",
+      "empty": "Արդյունքներ չկան",
+      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "prev": "Նախորդ",
+      "next": "Հաջորդ",
+      "prevAria": "Նախորդ էջ",
+      "nextAria": "Հաջորդ էջ",
+      "pagesAria": "Էջեր",
+      "pageSizeAria": "Գրառումներ էջում",
+      "pageSizeLabel": "{size} էջում"
+    },
     "packages": {
       "title": "Փաթեթներ",
       "description": "Ընտրեք պլան և կատարեք վճարումը ձեր նախընտրած եղանակով։ Փաթեթը կհայտնվի այստեղ վճարումից հետո։",
@@ -663,7 +688,12 @@
       "yourPackages": "Ձեր փաթեթները",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",
       "noActivePackage": "Դեռ ակտիվ փաթեթ չկա։",
+      "noPackagesYet": "Դուք դեռ չեք գնել որևէ փաթեթ։",
+      "browsePackagesCta": "Դիտել փաթեթները",
       "sessionsLeft": "Մնացել է {count} դաս",
+      "sessionsRemaining": "Մնացել է {count} դաս",
+      "sessionsUsedOfTotal": "Օգտագործված է {used}/{total}",
+      "listSessionsCompact": "{used}/{total} օգտ. · {remaining} մնաց",
       "renewsEnds": "Թարմանում է / ավարտվում է {date}",
       "paymentHistory": "Վճարումների պատմություն",
       "signInPayments": "Մուտք գործեք՝ վճարումները տեսնելու համար։",
@@ -686,16 +716,42 @@
         "PENDING": "Սպասում է վճարման"
       },
       "membershipViewDetailsHint": "Սեղմեք ամբողջական տվյալների համար",
-      "membershipDetailsLead": "Դիտեք փաթեթի մանրամասները և կառավարեք բաժանորդագրությունը։",
       "membershipDetailsCloseBackdrop": "Փակել փաթեթի մանրամասները",
-      "membershipDetailsClose": "Փակել",
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Կատեգորիա",
       "membershipDetailsPrice": "Գին",
-      "membershipDetailsDuration": "Տևողություն",
+      "membershipDetailsValidity": "Վավերականություն",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
-      "membershipDetailsStatus": "Կարգավիճակ"
+      "membershipDetailsStatus": "Կարգավիճակ",
+      "membershipDetailsSessionsUsed": "Օգտագործված դասեր",
+      "membershipDetailsSessionsRemaining": "Մնացած դասեր",
+      "membershipDetailsUsage": "Օգտագործում",
+      "membershipDetailsPeriodStart": "ժամանակաշրջանի սկիզբ",
+      "sheetTabGeneral": "Ընդհանուր",
+      "sessionsUsed": "{count} օգտագործված",
+      "viewSwitcherAria": "Փաթեթների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "viewDetails": "Մանրամասներ",
+      "viewDetailsFor": "Մանրամասներ {name}-ի մասին",
+      "packagesCount": "{count, plural, one {# փաթեթ} other {# փաթեթ}}",
+      "emptyPackagesHint": "Դիտեք հասանելի պլանները և բաժանորդագրվեք, երբ պատրաստ լինեք։",
+      "listHeaderPackage": "Փաթեթ",
+      "listHeaderValidity": "Վավերականություն",
+      "listHeaderPrice": "Գին",
+      "listHeaderSessions": "Դասեր",
+      "listHeaderPeriod": "ժամանակաշրջան",
+      "listHeaderStatus": "Կարգավիճակ",
+      "listHeaderActions": "Գործողություններ",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան փաթեթներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել կարգավիճակը կամ որոնման տեքստը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել փաթեթ կամ կատեգորիա…",
+        "status": "Կարգավիճակ",
+        "statusAll": "Բոլոր կարգավիճակները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      }
     },
     "progress": {
       "title": "Առաջընթաց",
@@ -724,11 +780,72 @@
     },
     "bookings": {
       "title": "Իմ ամրագրումները",
+      "description": "Առաջիկա և անցյալ ամրագրումներ։",
       "upcoming": "Առաջիկա",
       "pastOther": "Անցյալ և այլ",
       "emptySection": "Այստեղ դեռ ոչինչ չկա։",
+      "emptyTitle": "Դեռ ամրագրումներ չկան",
+      "emptyDescription": "Երբ դաս եք ամրագրում, այն կհայտնվի այստեղ։",
+      "filteredEmptyTitle": "Ձեր ֆիլտրերին համապատասխան ամրագրումներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը, մարզիչը կամ կարգավիճակը։",
+      "filteredEmptySection": "Այս բաժնում համընկնումներ չկան։",
       "signInRequired": "Մուտք գործեք՝ ամրագրումները տեսնելու համար։",
-      "loadError": "Չհաջողվեց բեռնել ամրագրումները ({status})։"
+      "loadError": "Չհաջողվեց բեռնել ամրագրումները ({status})։",
+      "viewSwitcherAria": "Ամրագրումների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "bookingsCount": "{count, plural, one {# ամրագրում} other {# ամրագրում}}",
+      "listHeaderClass": "Դաս",
+      "listHeaderDate": "Ամսաթիվ",
+      "listHeaderTime": "Ժամ",
+      "listHeaderStatus": "Կարգավիճակ",
+      "listHeaderActions": "Գործողություններ",
+      "coachFallback": "Մարզիչ",
+      "filters": {
+        "searchPlaceholder": "Որոնել դաս, մարզիչ կամ կարգավիճակ…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "coachAll": "Բոլոր մարզիչները",
+        "status": "Կարգավիճակ",
+        "statusAll": "Բոլոր կարգավիճակները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      },
+      "status": {
+        "BOOKED": "Ամրագրված",
+        "COMPLETED": "Ավարտված",
+        "CANCELLED": "Չեղարկված",
+        "MISSED": "Բաց թողնված"
+      }
+    },
+    "waitlists": {
+      "title": "Սպասման ցուցակներ",
+      "description": "Ակտիվ հերթի դիրքեր լիքը դասերի համար։",
+      "emptyTitle": "Ակտիվ սպասման ցուցակներ չկան",
+      "emptyDescription": "Երբ լիքը դասի սպասման ցուցակին միանաք, այն կհայտնվի այստեղ։",
+      "signInRequired": "Մուտք գործեք՝ սպասման ցուցակները տեսնելու համար։",
+      "loadError": "Չհաջողվեց բեռնել սպասման ցուցակները։",
+      "waitlistsCount": "{count, plural, one {# սպասման ցուցակ} other {# սպասման ցուցակ}}",
+      "waitlistBadge": "#{pos} · {status}",
+      "viewSwitcherAria": "Սպասման ցուցակների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "listHeaderClass": "Դաս",
+      "listHeaderDate": "Ամսաթիվ",
+      "listHeaderTime": "Ժամ",
+      "listHeaderStatus": "Կարգավիճակ",
+      "listHeaderActions": "Գործողություններ",
+      "coachFallback": "Մարզիչ",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան սպասման ցուցակներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը կամ մարզիչը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել դաս կամ մարզիչ…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "coachAll": "Բոլոր մարզիչները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      }
     },
     "classes": {
       "title": "Դասեր",
@@ -739,7 +856,32 @@
       "spotsBooked": "{booked}/{capacity} ամրագրված",
       "paidShort": "Վճարովի ({amount})",
       "includedShort": "Ներառված / աբոնեմենտ",
-      "myBookingsLink": "Իմ ամրագրումները"
+      "myBookingsLink": "Իմ ամրագրումները",
+      "viewSwitcherAria": "Ժամանակացույցի ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "sessionsCount": "{count, plural, one {# սեսիա} other {# սեսիա}}",
+      "listHeaderClass": "Դաս",
+      "listHeaderDate": "Ամսաթիվ",
+      "listHeaderTime": "Ժամ",
+      "listHeaderCoach": "Մարզիչ",
+      "listHeaderSpots": "Տեղեր",
+      "listHeaderActions": "Գործողություններ",
+      "bookedBadge": "Ամրագրված",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան սեսիաներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը, մարզիչը կամ հասանելիությունը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել դաս կամ մարզիչ…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "coachAll": "Բոլոր մարզիչները",
+        "availability": "Հասանելիություն",
+        "availabilityAll": "Ցանկացած հասանելիություն",
+        "availabilityAvailable": "Ազատ տեղեր կան",
+        "availabilityFull": "Լիքը / սպասման ցուցակ",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      }
     },
     "notifications": {
       "title": "Ծանուցումներ",
@@ -749,9 +891,22 @@
     },
     "giftCards": {
       "title": "Նվեր քարտեր",
+      "giftBalanceLabel": "Նվերի մնացորդ",
       "giftBalance": "Նվերի մնացորդ (կրեդիտներ)՝ {amount}",
       "redeem": "Փոխարժել",
       "purchase": "Գնել",
+      "myCardsHeading": "Իմ նվեր քարտերը",
+      "emptyMyTitle": "Նվեր քարտեր դեռ չկան",
+      "emptyMyDescription": "Գնված և ստացված քարտերը կցուցադրվեն այստեղ՝ նշումով, թե ինչպես եք ստացել։",
+      "sourceLabels": {
+        "purchased": "Գնված",
+        "received": "Նվեր"
+      },
+      "tabs": {
+        "aria": "Նվեր քարտերի բաժիններ",
+        "my": "Իմ քարտերը",
+        "shop": "Գնել"
+      },
       "purchasedHeading": "Գնվածներ",
       "receivedHeading": "Ստացածներ",
       "signInToView": "Մուտք գործեք՝ տեսնելու համար։",
@@ -776,12 +931,7 @@
       "cardMessage": "Հաղորդագրություն",
       "viewDetails": "Դիտել մանրամասները",
       "openCardAria": "Դիտել {amount} նվեր քարտի մանրամասները",
-      "detailsModalEyebrow": "Նվեր քարտ",
-      "detailsModalLead": "Մնացորդ {balance} · պատճենեք կոդը կամ փոխարժեք կրեդիտները։",
-      "detailsModalInfoHeading": "Քարտի տեղեկություն",
-      "detailsModalActionsHeading": "Գործողություններ",
-      "modalCloseAria": "Փակել",
-      "modalBackdropClose": "Փակել պատուհանը",
+      "sheetBackdropClose": "Փակել նվեր քարտի մանրամասները",
       "drawerExpired": "Ժամկետը լրացել է",
       "drawerValid": "Գործող",
       "copyCode": "Պատճենել կոդը",
@@ -836,6 +986,8 @@
         "payFailed": "Չհաջողվեց ավարտել fake վճարումը։",
         "successTitle": "Վճարումն ավարտված է",
         "successLead": "Ձեր նվեր քարտի վճարումը հաստատվեց, և քարտն արդեն հասանելի է ձեր հաշվում։",
+        "cashPendingTitle": "Կանխիկ վճարումը սպասման մեջ է",
+        "cashPendingLead": "Կանխիկ վճարման հայտը ուղարկվել է։ Ստուդիայի ադմինը կհաստատի այն վճարումը ստանալուց հետո։",
         "methods": {
           "CARD": "Քարտ",
           "CASH": "Կանխիկ"
@@ -862,7 +1014,9 @@
         "allStatuses": "Բոլոր կարգավիճակները",
         "type": "Վճարման տեսակ",
         "allTypes": "Բոլոր տեսակները",
-        "sort": "Տեսակավորում"
+        "sort": "Տեսակավորում",
+        "searchPlaceholder": "Որոնել վճարումներ…",
+        "resetFilters": "Մաքրել ֆիլտրերը"
       },
       "sort": {
         "newest": "Սկզբում նորերը",
@@ -881,24 +1035,51 @@
         "gift": "Նվեր քարտ",
         "other": "Այլ"
       },
+      "paymentMethods": {
+        "CASH": "Կանխիկ",
+        "CARD": "Քարտ",
+        "BANK_TRANSFER": "Բանկային փոխանցում",
+        "OTHER": "Այլ"
+      },
       "table": {
-        "date": "Վճարման ամսաթիվ",
+        "date": "Ամսաթիվ",
+        "time": "Ժամ",
         "amount": "Գումար",
+        "paymentMethod": "Վճարման եղանակ",
         "currency": "Արտարժույթ",
         "status": "Կարգավիճակ",
         "type": "Տեսակ",
         "related": "Կապված տարր",
         "reference": "Հղում",
         "updated": "Թարմացվել է"
-      }
+      },
+      "viewSwitcherAria": "Վճարումների ցուցադրման ռեժիմ",
+      "viewList": "Ցանկ",
+      "viewBoard": "Քարտեր",
+      "paymentsCount": "{count, plural, one {# վճարում} other {# վճարում}}"
     },
     "profile": {
       "title": "Պրոֆիլ",
-      "description": "Ձեր հաշվի տվյալները, անվտանգությունը, տան պատկերը և ծանուցման կարգավորումները։",
+      "description": "Անձնական տվյալներ, գաղտնաբառ և պրոֆիլի լուսանկար։",
+      "heroEyebrow": "Ձեր հաշիվը",
+      "accountInfoEyebrow": "Անձնական",
+      "securityEyebrow": "Պաշտպանություն",
+      "homeImageEyebrow": "Պատկեր",
+      "homeImageLead": "Այս դիմանկարը երևում է անդամի տարածքում և վերնագրի ավատարում։",
+      "deleteAccountEyebrow": "Աջակցություն",
+      "workspaceEyebrow": "Աշխատատարածք",
       "signInPrompt": "Մուտք գործեք՝ տեսնելու ձեր պրոֆիլը։",
       "accountInfo": "Հաշվի տեղեկություններ",
       "security": "Անվտանգություն",
       "homeImage": "Տան պատկեր",
+      "deleteAccount": "Ջնջել հաշիվը",
+      "deleteAccountConfirmTitle": "Ջնջե՞լ հաշիվը",
+      "deleteAccountConfirmDescription": "Հաշիվը մշտապես կջնջվի, և դուք կդուրս գաք համակարգից։ Գործողությունը հետարկելի չէ։",
+      "deleteAccountConfirmYes": "Ջնջել հաշիվը",
+      "deleteAccountConfirmNo": "Չեղարկել",
+      "deleteAccountBackdropClose": "Փակել հաշիվի ջնջման պատուհանը",
+      "deleteAccountDeleting": "Ջնջվում է…",
+      "deleteAccountFailed": "Չհաջողվեց ջնջել հաշիվը։",
       "preferences": "Նախընտրություններ",
       "labels": {
         "email": "Էլ. փոստ",
@@ -1004,6 +1185,32 @@
       "pageDescription": "Արագ օպերացիոն ակնարկ՝ դասերի, ամրագրումների, անդամների, եկամտի և ազդանշանների մասին։",
       "errorAuth": "Պահանջվում է ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել dashboard-ի տվյալները ({status})։",
+      "kpi": {
+        "groupOperations": "Գործառույթներ",
+        "groupFinance": "Եկամուտ",
+        "sessions": "Այսօրվա դասեր",
+        "bookings": "Այսօրվա ամրագրումներ",
+        "members": "Ակտիվ անդամներ",
+        "revenue": "Այս ամսվա եկամուտ",
+        "waitlist": "Սպասման ցուցակ",
+        "alerts": "Ազդանշաններ",
+        "newUsers": "Նոր օգտատերեր"
+      },
+      "charts": {
+        "revenueTitle": "Եկամտի դինամիկա",
+        "revenueHint": "Վերջին 7 օր",
+        "revenueSeries": "Եկամուտ",
+        "revenueChartAria": "Եկամտի օրական դինամիկա վերջին յոթ օրվա համար",
+        "bookingsTitle": "Ամրագրումների դինամիկա",
+        "bookingsHint": "Վերջին 7 օր",
+        "bookingsSeries": "Ամրագրումներ",
+        "completedSeries": "Ավարտված",
+        "bookingsChartAria": "Ամրագրումների օրական դինամիկա վերջին յոթ օրվա համար",
+        "todayBookingsTitle": "Այսօրվա ամրագրումներ",
+        "todayBookingsAria": "Այսօրվա ամրագրումների բաշխում ըստ կարգավիճակի",
+        "viewAnalytics": "Ամբողջ վերլուծությունը",
+        "empty": "Այս ժամանակահատվածի համար տվյալներ դեռ չկան։"
+      },
       "cards": {
         "todayClasses": {
           "title": "Այսօրվա դասեր",
@@ -1049,6 +1256,12 @@
       },
       "todayBookings": {
         "title": "Այսօրվա ամրագրումների բաժանում",
+        "statusLabels": {
+          "booked": "Հաստատված",
+          "completed": "Ավարտված",
+          "cancelled": "Չեղարկված",
+          "missed": "Բաց թողնված"
+        },
         "breakdown": {
           "booked": "Հաստատված՝ {count}",
           "completed": "Ավարտված՝ {count}",
@@ -1061,7 +1274,12 @@
         "today": "Այսօր",
         "thisMonth": "Այս ամիս",
         "pending": "Սպասող վճարումներ",
+        "pendingWithCount": "Սպասող վճարումներ · {count}",
+        "pendingCount": "{count} վճարում",
         "pendingValue": "{count} ({amount})",
+        "trendLabel": "Նախորդ ամսվա համեմատ",
+        "trendValue": "{percent}%",
+        "trendUnavailable": "—",
         "trend": "{percent}% նախորդ ամսվա համեմատ",
         "empty": "Եկամտի տվյալներ դեռ հասանելի չեն։"
       },
@@ -1095,6 +1313,26 @@
     }
   },
   "adminPages": {
+    "searchTools": {
+      "applyFilters": "Կիրառել ֆիլտրերը",
+      "clearSearchAndFilters": "Մաքրել որոնումն ու ֆիլտրերը",
+      "filterPanelAria": "Որոնման ֆիլտրեր",
+      "filterToggleAria": "Ցույց տալ կամ թաքցնել ֆիլտրերը",
+      "loadingResults": "Բեռնվում են համապատասխան արդյունքները…",
+      "activeCount": "{count} ակտիվ ֆիլտր"
+    },
+    "pagination": {
+      "ariaLabel": "Ցանկի էջավորում",
+      "empty": "Արդյունքներ չկան",
+      "range": "Ցուցադրվում է {from}–{to}՝ {total}-ից",
+      "prev": "Նախորդ",
+      "next": "Հաջորդ",
+      "prevAria": "Նախորդ էջ",
+      "nextAria": "Հաջորդ էջ",
+      "pagesAria": "Էջեր",
+      "pageSizeAria": "Գրառումներ էջում",
+      "pageSizeLabel": "{size} էջում"
+    },
     "home": {
       "signInPrompt": "Մուտք գործեք՝ ադմինի վահանակը բացելու համար։"
     },
@@ -1109,10 +1347,13 @@
       "colStatus": "Կարգավիճակ",
       "colActions": "Գործողություններ",
       "colUserPhone": "Հաճախորդ / Հեռախոս",
+      "colCoach": "Մարզիչ",
+      "coachNotAssigned": "Նշանակված չէ",
       "colClassType": "Դասի տեսակ",
+      "colDateTime": "Ամսաթիվ և ժամ",
       "colSessionCount": "Սեսիաների քանակ",
-      "colPaymentStatus": "Վճարման կարգավիճակ",
-      "colAttendanceStatus": "Ներկայության կարգավիճակ",
+      "colPaymentStatus": "Վճարում",
+      "colAttendanceStatus": "Ներկայություն",
       "colRegisterDate": "Գրանցման ամսաթիվ",
       "colChannel": "Աղբյուր",
       "summaryTotal": "Ընդհանուր ամրագրումներ",
@@ -1127,6 +1368,8 @@
       "filterClassAll": "Բոլոր դասերի տեսակները",
       "filterCoachAll": "Բոլոր մարզիչները",
       "filterClientAll": "Բոլոր հաճախորդները",
+      "filterPayment": "Վճարում",
+      "filterPaymentAll": "Բոլոր վճարումները",
       "filterStatusAll": "Բոլոր կարգավիճակները",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} ակտիվ ֆիլտր",
@@ -1134,14 +1377,19 @@
       "viewMonthly": "Ամսական տեսք",
       "viewWeekly": "Շաբաթական տեսք",
       "viewDaily": "Օրական տեսք",
+      "views": {
+        "aria": "Ամրագրումների տեսք"
+      },
       "statusBooked": "Ամրագրված",
       "statusCompleted": "Ավարտված",
       "statusCancelled": "Չեղարկված",
       "statusWaitlisted": "Սպասման ցուցակ",
+      "statusMissed": "Բաց թողնված",
+      "changeStatusAria": "Փոխել կարգավիճակը — ներկայումս՝ {status}",
       "paymentPaid": "Վճարված",
       "paymentCash": "Կանխիկ",
       "paymentUnpaid": "Չվճարված",
-      "paymentRefunded": "Վերադարձված",
+      "paymentCancelled": "Չեղարկված",
       "attendanceAttended": "Մասնակցել է",
       "attendanceNotAttended": "Չի մասնակցել",
       "attendanceNoShow": "Չեկավ",
@@ -1152,18 +1400,36 @@
       "actionCancel": "Չեղարկել ամրագրումը",
       "actionMove": "Տեղափոխել այլ դաս",
       "actionMarkAttended": "Նշել որպես մասնակցած",
+      "actionConfirm": "Հաստատել",
       "actionAddNote": "Ավելացնել ներքին նշում",
       "actionEdit": "Խմբագրել",
+      "actionEditBooking": "Խմբագրել ամրագրումը",
+      "actionMoveBooking": "Տեղափոխել ամրագրումը",
+      "actionDeactivateBooking": "Ապաակտիվացնել ամրագրումը",
+      "actionActivateBooking": "Ակտիվացնել ամրագրումը",
       "actionDelete": "Ջնջել",
+      "rowActionsAria": "Լրացուցիչ գործողություններ ամրագրման համար",
       "actionFailed": "Գործողությունը ձախողվեց",
       "successMarkedAttended": "Ներկայությունը թարմացվեց",
       "successCancelled": "Ամրագրումը չեղարկվեց",
+      "successActivated": "Ամրագրումը ակտիվացվեց",
       "successNote": "Ներքին նշումը ավելացվեց",
       "successMoved": "Ամրագրումը տեղափոխվեց",
       "successEdited": "Ամրագրումը թարմացվեց",
       "successDeleted": "Ամրագրումը ջնջվեց",
+      "confirmAttendedTitle": "Նշե՞լ որպես մասնակցած",
+      "confirmAttended": "Ամրագրումը կնշվի որպես ավարտված։",
+      "confirmCancelTitle": "Չեղարկե՞լ ամրագրումը",
       "confirmCancel": "Չեղարկե՞լ այս ամրագրումը։",
-      "confirmDelete": "Ջնջե՞լ ամրագրումը վերջնականապես։",
+      "confirmActivateTitle": "Ակտիվացնե՞լ ամրագրումը",
+      "confirmActivate": "Կրկին ակտիվացնե՞լ այս ամրագրումը։ Կնշվի որպես ամրագրված։",
+      "confirmDeleteTitle": "Ջնջե՞լ ամրագրումը",
+      "confirmDelete": "Ջնջե՞լ ամրագրումը վերջնականապես։ Գործողությունը հնարավոր չէ հետարկել։",
+      "confirmDialogYes": "Այո",
+      "confirmDialogCancel": "Չեղարկել",
+      "confirmDialogDelete": "Ջնջել",
+      "confirmDialogNo": "Ոչ",
+      "confirmDialogBackdrop": "Փակել հաստատման պատուհանը",
       "promptNote": "Ներքին նշում",
       "promptMove": "Թիրախ սեսիայի ID",
       "promptEditStatus": "Ամրագրման կարգավիճակ (BOOKED, COMPLETED, CANCELLED)",
@@ -1171,6 +1437,24 @@
       "sessionNotTracked": "Չի հետևվում",
       "userDetailsTitle": "Հաճախորդի տվյալներ",
       "bookingDetailsTitle": "Ամրագրման տվյալներ",
+      "bookingDetailsLead": "Դիտեք ամրագրման մանրամասները, նշումները և կառավարեք գրանցումը։",
+      "bookingDetailsCloseBackdrop": "Փակել ամրագրման մանրամասները",
+      "bookingDetailsClose": "Փակել",
+      "bookingDetailsLoading": "Ամրագրման մանրամասները բեռնվում են…",
+      "bookingDetailsClient": "Հաճախորդ",
+      "bookingDetailsEmail": "Էլ. փոստ",
+      "bookingDetailsPhone": "Հեռախոս",
+      "bookingDetailsClass": "Դաս",
+      "bookingDetailsCoach": "Մարզիչ",
+      "bookingDetailsSessionTime": "Դասի ժամ",
+      "bookingDetailsBookedOn": "Ամրագրման ամսաթիվ",
+      "bookingDetailsNotes": "Ներքին նշումներ",
+      "bookingDetailsNoNotes": "Ներքին նշումներ դեռ չկան։",
+      "noteComposeLabel": "Ներքին նշում",
+      "noteComposePlaceholder": "Գրեք այս ամրագրման ներքին նշում…",
+      "noteComposeHint": "Տեսանելի է միայն աշխատակիցներին։",
+      "noteComposeSubmit": "Ավելացնել նշում",
+      "viewDetailsFor": "Դիտել {name} ամրագրումը",
       "emptyUserData": "Հաճախորդի տվյալներ չեն գտնվել։",
       "emptyBookingData": "Ամրագրման տվյալներ չեն գտնվել։",
       "packageInfo": "Փաթեթ",
@@ -1185,6 +1469,11 @@
       "errorAuth": "Պահանջվում է մենեջերի կամ ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել հաճախորդներին ({status})։",
       "colName": "Անուն",
+      "colTags": "Պիտակներ",
+      "tagVip": "VIP",
+      "tagNew": "Նոր",
+      "tagAtRisk": "Ռիսկի տակ",
+      "tagBeginner": "Սկսնակ",
       "colEmail": "Էլ. փոստ",
       "colRole": "Դեր",
       "colJoined": "Գրանցում",
@@ -1192,9 +1481,9 @@
       "colActions": "Գործողություններ",
       "packageActiveBadge": "Ակտիվ",
       "packageInactiveBadge": "Ակտիվ չէ",
+      "statusInactive": "Ակտիվ չէ",
       "editClient": "Խմբագրել հաճախորդին",
-      "editModalTitle": "Խմբագրել հաճախորդին",
-      "editModalDescription": "Թարմացրեք ընտրված հաճախորդի տվյալները։",
+      "edit": "Խմբագրել",
       "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պատուհանը",
       "fieldEmail": "Էլ. փոստ",
@@ -1215,10 +1504,48 @@
       "deactivateClient": "Ապաակտիվացնել",
       "activateSuccess": "Հաճախորդը ակտիվացվեց",
       "deactivateSuccess": "Հաճախորդը ապաակտիվացվեց",
+      "confirmActivate": "Ակտիվացնե՞լ այս հաճախորդին։",
+      "confirmDeactivate": "Ապաակտիվացնե՞լ այս հաճախորդին։ Ամրագրումը կլինի անհասանելի։",
+      "sheetTabs": {
+        "profile": "Պրոֆիլ",
+        "bookings": "Ամրագրումներ",
+        "payments": "Վճարումներ",
+        "gifts": "Նվեր քարտեր",
+        "notes": "Նշումներ"
+      },
+      "drawer": {
+        "loading": "Բեռնվում են հաճախորդի տվյալները…",
+        "unavailable": "Հաճախորդի տվյալները անհասանելի են։",
+        "registered": "Գրանցում",
+        "source": "Աղբյուր",
+        "preferredCoach": "Նախընտրելի մարզիչ",
+        "noTags": "Պիտակներ չկան",
+        "personalInfo": "Անձնական տվյալներ",
+        "totalVisits": "Ընդամենը այցեր",
+        "totalBookings": "Ընդամենը ամրագրումներ",
+        "cancellations": "Չեղարկումներ",
+        "noShows": "Բացակայություններ",
+        "lastVisit": "Վերջին այց",
+        "lifetimeValue": "Lifetime value",
+        "bookingHistory": "Ամրագրումների պատմություն",
+        "noBookings": "Ամրագրումներ չկան։",
+        "paymentHistory": "Վճարումների պատմություն",
+        "noPayments": "Վճարումներ չկան։",
+        "giftCards": "Նվեր քարտեր",
+        "noGiftCards": "Նվեր քարտեր չկան։",
+        "giveGift": "Տալ նվեր քարտ",
+        "giveGiftButton": "Տալ",
+        "giftAmountAria": "Նվեր քարտի գումար (ցент)",
+        "giftCreated": "Նվեր քարտը ստեղծվեց",
+        "noNotes": "Նշումներ դեռ չկան։",
+        "cancelled": "Չեղարկված",
+        "attended": "Մասնակցել է"
+      },
       "deleteClient": "Ջնջել հաճախորդին",
       "deleteConfirm": "Ջնջե՞լ այս հաճախորդին մշտապես։ Գործողությունը հետարկելի չէ։",
       "deleteSuccess": "Հաճախորդը ջնջվեց",
       "noteLabel": "Ներքին նշում",
+      "emptyList": "Ընթացիկ ֆիլտրերով հաճախորդներ չկան։",
       "notePlaceholder": "Գրեք նշում այս հաճախորդի համար",
       "addNote": "Ավելացնել նշում",
       "noteAddedSuccess": "Նշումը ավելացվեց",
@@ -1246,6 +1573,9 @@
       "colEmail": "Էլ. փոստ",
       "colPhone": "Հեռախոս",
       "colSpecialization": "Մասնագիտացում",
+      "colTags": "Պիտակներ",
+      "statusActive": "Ակտիվ",
+      "statusInactive": "Ակտիվ չէ",
       "colActions": "Գործողություններ",
       "viewSwitcherAria": "Մարզիչների ցուցադրման ռեժիմ",
       "viewList": "Ցանկ",
@@ -1274,8 +1604,6 @@
       },
       "addCoachButton": "Ավելացնել մարզիչ",
       "editCoach": "Խմբագրել մարզիչին",
-      "editModalTitle": "Խմբագրել մարզիչին",
-      "editModalDescription": "Թարմացրեք ընտրված մարզիչի տվյալները։",
       "fieldEmail": "Էլ. փոստ",
       "fieldName": "Անուն",
       "fieldLastName": "Ազգանուն",
@@ -1295,6 +1623,10 @@
       "fieldScheduleRemove": "Հեռացնել",
       "fieldPhoto": "Լուսանկար",
       "fieldPhotoChoose": "Ընտրել լուսանկար",
+      "fieldPhotoUploading": "Բեռնվում է…",
+      "fieldPhotoUploadSuccess": "Լուսանկարը թարմացվել է։",
+      "fieldPhotoRemove": "Հեռացնել լուսանկարը",
+      "fieldPhotoRemoveSuccess": "Լուսանկարը հեռացվել է։",
       "fieldPhotoPlaceholder": "Կամ տեղադրեք լուսանկարի հղում",
       "fieldPhotoPreviewAlt": "Մարզիչի լուսանկարի նախադիտում",
       "fieldPhotoHint": "Բեռնեք JPG/JPEG/PNG/WEBP (մինչև 10 ՄԲ) կամ նշեք հղում։",
@@ -1355,6 +1687,13 @@
         "profile": "Պրոֆիլ",
         "actions": "Ադմինի գործողություններ",
         "spots": "{count} տեղ"
+      },
+      "sheetTabs": {
+        "overview": "Ամփոփ",
+        "profile": "Պրոֆիլ",
+        "details": "Մարզիչի տվյալներ",
+        "classes": "Դասեր",
+        "schedule": "Գրաֆիկ"
       },
       "create": {
         "panelTitle": "Ավելացնել մարզիչ",
@@ -1428,6 +1767,11 @@
       "previousDay": "Նախորդ օրը",
       "nextDay": "Հաջորդ օրը",
       "today": "Այսօր",
+      "weekView": {
+        "gridAria": "Շաբաթական դասացուցակ ըստ օրերի",
+        "todayBadge": "Այսօր",
+        "emptyDay": "—"
+      },
       "createTitle": "Ավելացնել ժամանակացույցի տարր",
       "createDescription": "Ստեղծեք հանրային քարտ, որը կերևա Home և Schedule էջերում։",
       "editTitle": "Խմբագրել ժամանակացույցի տարրը",
@@ -1522,17 +1866,9 @@
       "coachFallback": "Մարզիչ",
       "addClassButton": "Ավելացնել դաս",
       "classTypes": {
-        "manageButton": "Ավելացնել դասի տեսակներ",
-        "revealButtonAria": "Ցույց տալ «Ավելացնել դասի տեսակներ»",
-        "hideButtonAria": "Թաքցնել «Ավելացնել դասի տեսակներ»",
         "modalTitle": "Դասերի տեսակներ",
-        "modalDescription": "Ստեղծեք, խմբագրեք և կառավարեք studio-ի դասերի տեսակները։",
-        "modalCloseAria": "Փակել",
         "modalBackdropClose": "Փակել պատուհանը",
-        "listHeading": "Ցուցակ",
         "addButton": "Ավելացնել տեսակ",
-        "editButtonAria": "Խմբագրել «{name}»",
-        "deleteButtonAria": "Ջնջել «{name}»",
         "emptyTitle": "Տեսակներ դեռ չկան",
         "emptyBody": "Վերևի «Ավելացնել տեսակ» կոճակով ստեղծեք առաջին տեսակը՝ Reformer, Yoga և այլն։",
         "formCreateTitle": "Նոր տեսակ",
@@ -1544,7 +1880,6 @@
         "sessionCountNone": "դասեր չկան",
         "linkedSessionsHint": "Այս տեսակին կապված է {count} դաս — ջնջելուց առաջ հեռացրեք կամ փոխեք դրանք։",
         "deleteButton": "Ջնջել",
-        "deleteConfirm": "Ջնջե՞լ «{name}» տեսակը։",
         "deleteDialog": {
           "title": "Ջնջել տեսակը",
           "description": "Ջնջե՞լ «{name}»-ը ցուցակից։ Գործողությունը հնարավոր չէ հետարկել։",
@@ -1567,6 +1902,12 @@
         "nameDuplicate": "Նույն անունով տեսակ արդեն կա։",
         "slugInvalid": "Slug-ը վավեր չէ — օգտագործեք լatin տառեր և թվեր։",
         "descriptionTooLong": "Նկարագրությունը չափազանց երկար է։",
+        "sheetTabs": {
+          "details": "Մանրամասներ",
+          "usage": "Օգտագործում"
+        },
+        "usageHeading": "Պլանավորված դասեր",
+        "usageEmpty": "Այս տեսակով պլանավորված դասեր դեռ չկան։",
         "messages": {
           "createSuccess": "Դասի տեսակը ստեղծվեց։",
           "updateSuccess": "Դասի տեսակը թարմացվեց։",
@@ -1582,11 +1923,20 @@
       "duplicateDescription": "Ստեղծեք նոր դաս առկա սեսիայի հիման վրա և փոխեք օր/ժամը։",
       "modalCloseAria": "Փակել",
       "modalBackdropClose": "Փակել պատուհանը",
+      "sheetTabs": {
+        "details": "Մանրամասներ",
+        "bookings": "Գրանցումներ",
+        "actions": "Գործողություններ",
+        "bookingsHeading": "Տեղեր և գրանցումներ",
+        "bookingsEmpty": "Այս դասի համար դեռ գրանցումներ չկան։"
+      },
       "emptyCoaches": "Մարզիչներ չկան։ Նախ ավելացրեք մարզիչներ։",
       "emptySessions": "Ընտրված ֆիլտրերով դասեր չկան։",
-      "confirmCancel": "Չեղարկե՞լ այս դասը։",
-      "confirmActivate": "Ակտիվացնե՞լ այս դասը։",
       "deleteConfirm": "Ջնջե՞լ այս դասի սեսիան։ Գործողությունը հնարավոր չէ հետարկել։",
+      "confirmDeleteTitle": "Ջնջել դասի սեսիան",
+      "confirmDialogNo": "Ոչ",
+      "confirmDialogDelete": "Ջնջել",
+      "confirmDialogBackdrop": "Փակել հաստատման պատուհանը",
       "confirm": {
         "cancelTitle": "Չեղարկել դասը",
         "cancelDescription": "Դասը կնշվի որպես չեղարկված։ Կարող եք հետո կրկին ակտիվացնել։",
@@ -1639,6 +1989,7 @@
       },
       "fields": {
         "duration": "Տևողություն",
+        "spotsBooked": "{booked}/{capacity} ամրագրված",
         "spotsLeft": "{count} ազատ տեղ"
       },
       "actions": {
@@ -1664,10 +2015,12 @@
       },
       "colClass": "Դաս",
       "colDate": "Ամսաթիվ",
+      "colDateTime": "Ամսաթիվ և ժամ",
       "colTime": "Ժամ",
       "colCoach": "Մարզիչ",
       "colCapacity": "Տարողություն",
       "colLevel": "Մակարդակ",
+      "colTags": "Պիտակներ",
       "colType": "Տեսակ",
       "colPriceOrSessions": "Գին / Սեսիաներ",
       "colStatus": "Կարգավիճակ",
@@ -1779,9 +2132,8 @@
       "colCreated": "Ստեղծված",
       "colExpiration": "Ժամկետ",
       "colActions": "Գործողություններ",
-      "openActions": "Բացել գործողությունները",
       "openCardAria": "Դիտել {amount} նվեր քարտի մանրամասները",
-      "detailsModalTitle": "Նվեր քարտի մանրամասներ",
+      "detailsModalInfoHeading": "Քարտի տեղեկություն",
       "cardImageAlt": "Նվեր քարտի պատկեր",
       "cardImageFallback": "Նվեր քարտ",
       "viewSwitcherAria": "Նվեր քարտերի ցուցադրման ռեժիմ",
@@ -1790,6 +2142,7 @@
       "createButton": "Ստեղծել նվեր քարտ",
       "createTitle": "Ստեղծել նվեր քարտ",
       "editTitle": "Խմբագրել նվեր քարտը",
+      "boardEditButton": "Խմբագրել",
       "createDescription": "Ձեռքով թողարկեք նվեր քարտ։ Էլ. նամակ է ուղարկվում, եթե նշված է ստացողի հասցեն։",
       "createHeading": "Ստեղծել նվեր քարտ",
       "modalCloseAria": "Փակել",
@@ -1826,8 +2179,6 @@
       "savingButton": "Ստեղծվում է…",
       "cancelButton": "Չեղարկել",
       "genericError": "Գործողությունը ձախողվեց։",
-      "drawerClose": "Փակել մանրամասները",
-      "drawerExpirationState": "Ժամկետի կարգավիճակ",
       "drawerExpired": "Ժամկետանց",
       "drawerValid": "Վավեր",
       "statusValues": {
@@ -1877,6 +2228,8 @@
         "assigned": "Նվեր քարտը կցվեց։",
         "history": "Փոխարժման պատմություն",
         "historyLoaded": "Պատմությունը բեռնվեց։",
+        "historyLoading": "Պատմությունը բեռնվում է…",
+        "historyEmpty": "Փոխարժման իրադարձություններ դեռ չկան։",
         "historyTitle": "Փոխարժման պատմություն",
         "historyClose": "Փակել պատմությունը",
         "historySummary": "Գումար՝ {amount} • Մնացորդ՝ {balance}",
@@ -1884,6 +2237,7 @@
         "resend": "Կրկին ուղարկել",
         "deactivate": "Ապաակտիվացնել",
         "delete": "Ջնջել",
+        "deleting": "Ջնջվում է…",
         "deactivateConfirm": "Ապաակտիվացնե՞լ այս նվեր քարտը։ Այլևս հնարավոր չի լինի փոխարժել։",
         "deleteConfirm": "Ջնջե՞լ այս նվեր քարտը ընդմիշտ։",
         "resent": "Նվեր քարտի նամակը կրկին ուղարկվեց։",
@@ -1898,11 +2252,15 @@
         "createSuccess": "Նվեր քարտը ստեղծվեց։",
         "createSuccessMany": "Ստեղծվեց {count} նվեր քարտ։"
       },
-      "detailsModalEyebrow": "Նվեր քարտ",
-      "detailsModalLead": "{available} հասանելի · ստուգեք մանրամասները և կարավարեք գործություները ներցևֈմ։",
       "detailsModalInfoHeading": "Քարտի տեղեկություն",
       "activateGiftCard": "Ակտիվացնել",
-      "deactivateGiftCard": "Անջատել"
+      "deactivateGiftCard": "Անջատել",
+      "confirmActivate": "Ակտիվացնե՞լ այս նվեր քարտը։",
+      "sheetTabs": {
+        "overview": "Ակնարկ",
+        "actions": "Գործողություններ",
+        "history": "Պատմություն"
+      }
     },
     "packages": {
       "title": "Փաթեթներ",
@@ -2175,6 +2533,9 @@
       "colWaitlistCount": "Սպասողների քանակը սեսիայում",
       "colWaitlistDate": "Սպասման ամսաթիվ",
       "colActions": "Գործողություններ",
+      "filterSearch": "Որոնել անունով, email-ով, հեռախոսով կամ դասով",
+      "filterClassAll": "Բոլոր դասերի տեսակները",
+      "resetFilters": "Վերականգնել ֆիլտրերը",
       "successPromote": "Օգտատերը փոխանցվեց սպասումից ամրագրման։",
       "successRemove": "Օգտատերը հեռացվեց սպասման ցուցակից։",
       "successNotify": "Ծանուցումն ուղարկվեց։",
@@ -2213,14 +2574,23 @@
     },
     "finance": {
       "title": "Ֆինանսներ",
-      "description": "Եկամուտ, վճարումներ, վերադարձներ և գործարքների պատմություն մեկ վայրում։",
       "errorAuth": "Պահանջվում է ադմինի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել ֆինանսական տվյալները ({status})։",
+      "tabs": {
+        "aria": "Ֆինանսի բաժիններ",
+        "overview": "Ամփոփ",
+        "payments": "Վճարումներ",
+        "members": "Հաճախորդներ",
+        "coaches": "Coach-եր"
+      },
       "kpiTotalRevenue": "Ընդհանուր եկամուտ",
       "kpiMonthlyRevenue": "Ամսական եկամուտ",
       "kpiPendingPayments": "Սպասող վճարումներ",
       "kpiCompletedPayments": "Ավարտված վճարումներ",
       "kpiRefundedPayments": "Վերադարձված վճարումներ",
+      "kpiPeriodAllTime": "Բոլոր ժամանակների",
+      "kpiPeriodThisMonth": "Ընթացիկ օրացույցային ամիս",
+      "kpiPeriodRangeDays": "Վերջին {days} օր",
       "giftCreditsHeading": "Նվեր կրեդիտների մատյան",
       "kpiGiftIssued": "Թողարկված նվեր կրեդիտներ",
       "kpiGiftRedeemed": "Մարած նվեր քարտեր",
@@ -2230,8 +2600,6 @@
       "transactionsCount": "{count} գործարք",
       "recentTransactions": "Վերջին գործարքներ",
       "shownCount": "Ցուցադրված է {shown}-ը {total}-ից",
-      "exportHeading": "CSV արտահանում",
-      "exportHint": "Արտահանեք payments տվյալները ընտրված միջակայքով։",
       "exportPaymentsCsv": "Արտահանել payments CSV",
       "exportGiftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV",
       "sources": {
@@ -2258,7 +2626,21 @@
         "statusPending": "Սպասման",
         "statusRefunded": "Վերադարձված",
         "searchLabel": "Որոնում",
-        "searchPlaceholder": "Հաճախորդ, email, վճարման ID, հղում"
+        "searchPlaceholder": "Հաճախորդ, email, վճարման ID, հղում",
+        "packageLabel": "Փաթեթ",
+        "packageAll": "Բոլոր փաթեթները",
+        "packageClassLabel": "Փաթեթի դաս",
+        "packageClassAll": "Բոլոր դասերը",
+        "sessionsLabel": "Նիստեր",
+        "sessionsAll": "Բոլոր նիստերի քանակները",
+        "sessionsCount": "{count} նիստ",
+        "sessionsUnlimited": "Անսահմանա",
+        "noPackages": "Փաթեթներ չկան",
+        "noClasses": "Դասեր չկան",
+        "noSessions": "Նիստերի քանակներ չկան",
+        "resetFilters": "Վերակայել ֆիլտրերը",
+        "loading": "Ֆինանսական տվյալները բեռնվում են…",
+        "activeCount": "{count} ակտիվ ֆիլտր"
       },
       "paymentMethods": {
         "CASH": "Կանխիկ",
@@ -2269,13 +2651,40 @@
       "paymentActions": {
         "markPaid": "Նշել որպես վճարված",
         "reject": "Մերժել",
+        "confirming": "Հաստատում…",
+        "rejecting": "Մերժում…",
         "markedPaid": "Նշված է որպես վճարված։",
         "markedRejected": "Հայտը մերժված է։",
+        "statusUpdated": "Վճարման կարգավիճակը թարմացվել է։",
+        "cardStatusAuto": "Քարտով վճարումները հաստատվում են ավտոմատ։",
         "actionFailed": "Չհաջողվեց թարմացնել վճարումը։"
+      },
+      "changeStatusAria": "Փոխել վճարման կարգավիճակը — ներկայումս՝ {status}",
+      "paymentDetails": {
+        "title": "Վճարման մանրամասներ",
+        "lead": "Դիտեք վճարման տվյալները և անհրաժեշտության դեպքում հաստատեք կանխիկի ստացումը։",
+        "customer": "Հաճախորդ",
+        "email": "Էլ. փոստ",
+        "relatedLabel": "Կապված տարր",
+        "reference": "Հղում",
+        "createdAt": "Ստեղծվել է",
+        "confirmedAt": "Հաստատվել է",
+        "confirmedDate": "Հաստատման ամսաթիվ",
+        "methodUnknown": "Դեռ չի ընտրվել",
+        "close": "Փակել վճարման մանրամասները",
+        "closeBackdrop": "Փակել վճարման մանրամասները",
+        "viewFor": "Բացել {name} վճարման մանրամասները",
+        "related": {
+          "package": "Փաթեթի բաժանորդագրություն ({id})",
+          "dropin": "Միանգամյա ամրագրում ({id})",
+          "gift": "Նվեր քարտ ({id})",
+          "other": "Այլ ({id})"
+        }
       },
       "table": {
         "empty": "Ընտրված ֆիլտրերով վճարումներ չեն գտնվել։",
         "colDate": "Ամսաթիվ",
+        "colTime": "Ժամ",
         "colUser": "Օգտատեր",
         "colAmount": "Գումար",
         "colPlan": "Փաթեթ",
@@ -2283,11 +2692,82 @@
         "colSource": "Աղբյուր",
         "colStatus": "Կարգավիճակ",
         "colActions": "Գործողություններ",
+        "actionEditPayment": "Խմբագրել վճարումը",
         "colDescription": "Նկարագրություն"
+      },
+      "paymentsTab": {
+        "loading": "Բեռնում…",
+        "loadFailed": "Չհաջողվեց բեռնել վճարումները։",
+        "rowCount": "{count} վճարում"
+      },
+      "actions": {
+        "openMenu": "Բացել գործողությունների մենյուն",
+        "edit": "Խմբագրել հաճախորդին",
+        "pausePackage": "Դադարեցնել փաթեթը",
+        "sendNotification": "Ուղարկել ծանուցում",
+        "sendRefundRequest": "Վերադարձի հարցում",
+        "refundUnsupported": "Վերադարձի հարցումները դեռ չեն աջակցվում API-ով։",
+        "packageUpdated": "Փաթեթը թարմացվել է։",
+        "actionFailed": "Գործողությունը ձախողվեց։",
+        "noActivePackage": "Դադարեցնելու ակտիվ փաթեթ չկա։",
+        "pauseConfirmTitle": "Դադարեցնե՞լ անդամությունը",
+        "pauseConfirmDescription": "Դադարեցնել {name}-ի ակտիվ փաթեթը։ Մուտքը և վճարումը՝ ըստ ստուդիայի կանոնների։",
+        "pausing": "Դադարեցվում է…",
+        "notifyTitle": "Ծանուցել հաճախորդին",
+        "notifyLead": "Ուղարկել մեկանգամյա նամակ {email} հասցեին՝ broadcast ձևանմուշից։",
+        "templateLabel": "Ձևանմուշ",
+        "closeModal": "Փակել",
+        "sending": "Ուղարկվում է…",
+        "sendButton": "Ուղարկել",
+        "notifySuccess": "Ծանուցումն ուղարկվել է {name}-ին։",
+        "notifyFailed": "Չհաջողվեց ուղարկել ծանուցումը։"
+      },
+      "userTab": {
+        "searchPlaceholder": "Որոնել անուն, հեռախոս կամ email",
+        "filterPaymentStatus": "Վճարման կարգավիճակ",
+        "filterAll": "Բոլորը",
+        "statusPaid": "Վճարված",
+        "statusUnpaid": "Չվճարված",
+        "statusOverdue": "Ժամկետանց",
+        "statusPartial": "Մասնակի",
+        "sortLabel": "Դասավորել",
+        "sortNewest": "Նորերից",
+        "sortOldest": "Հիներից",
+        "sortHighestCost": "Ամենաթանկ",
+        "sortLowestCost": "Ամենաէժան",
+        "giftCardOnly": "Միայն նվեր քարտով",
+        "clearFilters": "Reset Filters",
+        "loading": "Բեռնում…",
+        "loadFailed": "Չհաջողվեց բեռնել հաճախորդների տվյալները։",
+        "rowCount": "{count} գրառում",
+        "empty": "Ընտրված ֆիլտրերով հաճախորդներ չկան։",
+        "colUser": "Հաճախորդ",
+        "colPlan": "Պլան",
+        "colCost": "Արժեք",
+        "colExpiration": "Ավարտ",
+        "colPaymentStatus": "Վճարման կարգավիճակ",
+        "colGiftCard": "Նվեր քարտ",
+        "colActions": "Գործողություններ",
+        "noActivePackage": "Ակտիվ փաթեթ չկա",
+        "giftCardYes": "Այո",
+        "giftCardNo": "Ոչ",
+        "quickPaid": "Վճարված",
+        "quickPending": "Սպասող",
+        "quickOverdue": "Ժամկետանց",
+        "quickGiftCard": "Նվեր քարտ",
+        "quickActive": "Ակտիվ փաթեթներ"
       }
     },
     "analytics": {
       "title": "Անալիտիկա",
+      "tabs": {
+        "aria": "Անալիտիկայի բաժիններ",
+        "overview": "Ակնարկ",
+        "revenue": "Եկամուտ",
+        "bookings": "Ամրագրումներ",
+        "members": "Անդամներ",
+        "coaches": "Մարզիչներ"
+      },
       "description": "Ստուդիայի ցուցանիշներ՝ կենդանի backend տվյալներից. աղյուսակներ, գրաֆիկներ և CSV արտահանում։",
       "errorAuth": "Պահանջվում է ադմինի կամ մենեջերի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել անալիտիկան ({status})։",
@@ -2298,6 +2778,7 @@
       "viewChart": "Գрафիկ",
       "viewSwitcherAria": "Անալիտիկայի տեսակ",
       "rangeHint": "Միջակայք՝ {from} → {to}",
+      "bookingsSampleBanner": "Գրաֆիկներն ու rankings-ը հիմնված են մինչև {limit} ամրագրումների նմուշի վրա։ Միջակայքում կա {total} գրառում, ցուցանիշները հաշվարկված են {shown} տողից։",
       "kpiRangeRevenue": "Եկամուտ (ընտրված միջակայք)",
       "kpiBookingsInRange": "Ամրագրումներ (ընտրված միջակայք)",
       "kpiActiveMembers": "Ակտիվ անդամներ",
@@ -2319,6 +2800,9 @@
       "filters": {
         "heading": "Ֆիլտրեր",
         "reset": "Reset Filters",
+        "resetFilters": "Reset Filters",
+        "loading": "Տվյալների թարմացում…",
+        "activeCount": "{count} ակտիվ ֆիլտր",
         "rangeLabel": "Միջակայք",
         "range7": "Վերջին 7 օրը",
         "range30": "Վերջին 30 օրը",
@@ -2352,6 +2836,17 @@
         "bookingStatusMissed": "Բաց թողնված"
       },
       "sections": {
+        "trends": {
+          "revenueTitle": "Եկամտի դինամիկա",
+          "revenueHint": "Օրական հաջողված վճարումներ ընտրված միջակայքում։",
+          "revenueSeries": "Եկամուտ",
+          "revenueChartAria": "Օրական եկամտի գրաֆիկ",
+          "bookingsTitle": "Ամրագրումների դինամիկա",
+          "bookingsHint": "Օրական ամրագրումներ նմուշից (մինչև {limit} գրառում)։",
+          "bookingsSeries": "Ամրագրումներ",
+          "completedSeries": "Ավարտված",
+          "bookingsChartAria": "Օրական ամրագրումների գրաֆիկ"
+        },
         "revenue": {
           "title": "Եկամտի հաշվետվություն",
           "hint": "Ընդհանուր ցուցանիշներ `/reports/finance/summary`-ից ընտրված միջակայքի համար։",
@@ -2384,6 +2879,8 @@
         "users": {
           "title": "Օգտատերերի ակտիվության հաշվետվություն",
           "hint": "Հաճախորդների ամփոփ `/clients?meta=true`-ից։ Retention միտումներ հասանելի չեն։",
+          "segmentsTitle": "Հաճախորդների սեգմենտներ",
+          "inactive": "Այլ հաճախորդներ",
           "total": "Ընդամենը հաճախորդներ",
           "active": "Ակտիվ հաճախորդներ",
           "vip": "VIP հաճախորդներ",
@@ -2401,6 +2898,7 @@
         "coachPerformance": {
           "title": "Մարզիչների արդյունավետություն",
           "hint": "Ամրագրումներ և ներկայություն մարզիչի համար (management query նմուշ)։",
+          "topBookings": "Լավագույն ամրագրումներ",
           "chartAria": "Ամրագրումներ մարզիչի համար",
           "bookingsTitle": "Ամրագրումներ մարզիչի համար",
           "attendanceTitle": "Ներկայության տոկոս մարզիչի համար",
@@ -2417,6 +2915,9 @@
         "coachSessions": {
           "title": "Մարզիչի սեսիաների բեռ",
           "hint": "Ընդհանուր սեսիաներ մարզիչի համար coach directory API-ից։",
+          "coachesCount": "Մարզիչներ",
+          "activeCoaches": "Ակտիվ մարզիչներ",
+          "totalSessions": "Ընդամենը սեսիաներ",
           "chartAria": "Մարզիչի սեսիաների բեռի գրաֆիկ"
         },
         "paymentStatus": {
@@ -2430,12 +2931,13 @@
         "excelUnsupported": "Excel արտահանում հասանելի չէ — նախագիծը աջակցում է միայն CSV reports API-ով։",
         "paymentsCsv": "Արտահանել payments CSV",
         "bookingsCsv": "Արտահանել bookings CSV",
-        "giftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV"
+        "giftCreditsCsv": "Արտահանել նվեր կրեդիտների CSV",
+        "menuAria": "Ներբեռնել CSV հաշվետվություններ"
       },
       "limitations": {
         "heading": "Չաջակցվող կամ մասնակի ցուցանիշներ",
         "noTimeSeries": "Եկամտի և ամրագրումների ժամանակային միտումները պահանջում են առանձին analytics endpoint, որը դեռ չի իրականացվել։",
-        "bookingsSample": "Ամրագրումների և դասերի հայտնիության ցուցանիշները սահմանափակված են bookings management cap-ով (1,000 տող)։",
+        "bookingsSample": "Ամրագրումների և դասերի հայտնիության ցուցանիշները սահմանափակված են bookings management cap-ով (100 տող)։",
         "noCoachRevenue": "Եկամուտը մարզիչի համար հասանելի չէ API-ից։",
         "noClassRevenue": "Եկամուտը դասի տեսակի համար հասանելի չէ API-ից։",
         "noRetention": "Օգտատերերի retention ցուցանիշներ հասանելի չեն API-ից։"
@@ -2590,12 +3092,52 @@
       "manager": {
         "heading": "Գործառնական լռելյայններ",
         "body": "Լռելյայնները կենտրոնացված են կառավարվում։ Վճարումների, ինտեգրացիաների կամ քաղաքականության փոփոխությունների համար դիմեք ստուդիայի ադմիններին։"
+      },
+      "contentAdmin": {
+        "heading": "Խմբագրական workflow",
+        "body": "Հրապարակեք և վերանայեք ստուդիայի գրառումները «Բովանդակություն» բաժնում։ Դերի և հաստատման քաղաքականության փոփոխությունների համար դիմեք ադմիններին։"
       }
+    }
+  },
+  "managerPages": {
+    "home": {
+      "signInRequired": "Մուտք գործեք՝ մենեջերի աշխատատարածքը բացելու համար։",
+      "greeting": "Բարև{name}",
+      "nextStepsTitle": "Հաջորդ քայլեր",
+      "nextStepsBody": "Կառավարեք դասերը, ամրագրումները, սպասման ցուցակները, հաճախորդներին, մարզիչներին և նվեր քարտերը։ Վճարումները և ստուդիայի գլոբալ կարգավորումները մնում են միայն ադմինի տիրույթում։"
+    },
+    "clients": {
+      "readOnlyHint": "Անդամների կատալոգ — admin-ի նույն կոմպակտ տողերը։ Բացեք հաճախորդին դիտման համար; խմբագրումը մնում է admin CRM-ում։",
+      "roleClient": "Հաճախորդ"
+    },
+    "bookings": {
+      "rollingWindowHint": "Ամրագրումներ վերջին 7 օրվա և հաջորդ 30 օրվա համար — admin-ի նույն կոմպակտ տողերն ու գործողությունները։"
+    },
+    "waitlists": {
+      "operationalHint": "Ակտիվ waitlist — admin-ի նույն կոմպակտ տողերն ու գործողությունները (promote, notify, remove)։",
+      "colSession": "Սեսիա",
+      "colPos": "Դիրք",
+      "colStatus": "Կարգավիճակ",
+      "colOfferExpires": "Առաջարկի ավարտ"
+    },
+    "coaches": {
+      "readOnlyHint": "Գործառնական ցուցակ (դիտում)։ Պրոֆիլի խմբագրումն ու lifecycle գործողությունները՝ ադմին CRM-ում։",
+      "colPhone": "Հեռախոս",
+      "colSpecialization": "Մասնագիտացում"
+    },
+    "giftCards": {
+      "readOnlyHint": "Դիտեք թողարկված քարտերը և մնացորդները։ Քարտերի ստեղծումն ու ապաակտիվացումը մնում է ստուդիայի ադմիններին։"
+    },
+    "classes": {
+      "scheduleWindowHint": "Նույն schedule window-ը, ինչ ադմինի մոտ ({days} օր)։ Սեսիաների ստեղծումն ու խմբագրումը անհրաժեշտության դեպքում մնում է ադմինի գործիքներում։",
+      "loadSessionsFailed": "Չհաջողվեց բեռնել սեսիաները ({status})։",
+      "sessionsEmpty": "Միջակայքում սեսիաներ չկան։"
     }
   },
   "coachPages": {
     "home": {
       "title": "Բարև {name}",
+      "titleFallback": "Մարզիչի գլխավոր",
       "description": "Այսօրվա արագ ակնարկը և ձեր առաջիկա դասավանդման ծանրաբեռնվածությունը։",
       "signInRequired": "Մուտք գործեք՝ մարզիչի վահանակը բացելու համար։",
       "noProfile": "Այս բաժինը նախատեսված է ստուդիայի մարզիչների համար։ Ձեր հաշիվը չունի մարզիչի պրոֆիլ։",
@@ -2612,10 +3154,20 @@
       "signInRequired": "Մուտք գործեք՝ մարզիչի վահանակը բացելու համար։",
       "noProfile": "Այս բաժինը նախատեսված է ստուդիայի մարզիչների համար։ Ձեր հաշիվը չունի մարզիչի պրոֆիլ։",
       "sessions": "Սեսիաներ",
+      "sessionsCount": "{count, plural, one {# սեսիա} other {# սեսիա}}",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան սեսիաներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը կամ կարգավիճակը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել դաս կամ տեսակ…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "status": "Կարգավիճակ",
+        "statusAll": "Բոլոր կարգավիճակները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      },
       "upcomingSessions": {
-        "empty": "Միջակայքում սեսիաներ չկան։",
-        "bookedCount": "{booked}/{capacity} ամրագրված",
-        "sessionId": "Սեսիայի ID՝ {id}"
+        "empty": "Միջակայքում սեսիաներ չկան։"
       }
     },
     "groups": {
@@ -2624,26 +3176,71 @@
       "signInRequired": "Մուտք գործեք՝ մարզիչի վահանակը բացելու համար։",
       "noProfile": "Այս բաժինը նախատեսված է ստուդիայի մարզիչների համար։ Ձեր հաշիվը չունի մարզիչի պրոֆիլ։",
       "attendanceBooked": "Ներկայություն (ամրագրված)",
-      "helpText": "Այս տեսքը ներառում է միայն ձեզ նշանակված սեսիաները և պահպանում է սպասման ցուցակի ու roster-ի տեսանելիությունը մարզիչի շրջանակում։",
+      "rosterCount": "{count, plural, one {# մասնակից} other {# մասնակից}}",
+      "filteredEmptyTitle": "Ֆիլտրերին համապատասխան մասնակիցներ չկան",
+      "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը կամ որոնման տեքստը։",
+      "filters": {
+        "searchPlaceholder": "Որոնել մասնակից, էլ. փոստ կամ դաս…",
+        "dateFrom": "Ամսաթիվից",
+        "dateTo": "Ամսաթիվը մինչև",
+        "classAll": "Բոլոր դասի տեսակները",
+        "resetFilters": "Վերակայել ֆիլտրերը"
+      },
       "attendanceRoster": {
         "empty": "Ակտիվ ամրագրումներ չկան։"
       }
     },
     "analytics": {
       "title": "Անալիտիկա",
-      "lead": "Ամփոփ պատկեր՝ մարզիչի panel API-ից, միջակայքային միտումներով։",
       "signInRequired": "Պահանջվում է մարզիչի մուտք։",
       "loadFailed": "Չհաջողվեց բեռնել մարզիչի անալիտիկան։",
       "noProfile": "Այս հաշվին կցված մարզիչի պրոֆիլ չկա։",
-      "activeWaitlists": "Ակտիվ սպասման ցուցակներ",
-      "utilizationTitle": "Բեռնվածություն",
-      "utilizationDescription": "{booked} ամրագրում՝ {sessions} սեսիաներում։",
-      "waitlistPressureTitle": "Սպասման ճնշում",
-      "waitlistPressureDescription": "Ակտիվ սպասման ցուցակները՝ սեսիաների քանակի համեմատ։",
-      "sessionsInRange": "Սեսիաներ միջակայքում",
-      "bookingsInRange": "Ամրագրումներ միջակայքում",
-      "trendTitle": "Վերջին օրերի միտում",
-      "trendRow": "{sessions} սեսիա · {bookings} ամրագրում · {waitlists} սպասման ցուցակ"
+      "notAvailable": "—",
+      "empty": "Այս ժամանակահատվածի համար տվյալներ դեռ չկան։",
+      "emptyPeakHours": "Այս ժամանակահատվածում ներկայություն գրանցված չէ։",
+      "periodAria": "Անալիտիկայի ժամանակահատված",
+      "periodMonth": "Ամիս",
+      "periodYear": "Տարի",
+      "kpiGroupActivity": "Ակտիվություն",
+      "kpiGroupPerformance": "Արդյունավետություն",
+      "totalClassesTaught": "Դասավանդված դասերի քանակ",
+      "totalClientsTrained": "Մարզված հաճախորդներ",
+      "averageAttendanceRate": "Միջին ներկայության տոկոս",
+      "classFillRate": "Դասերի լցման տոկոս",
+      "mostPopularClassType": "Ամենահայտնի դասի տեսակ",
+      "peakTime": "Գագաթնային ժամ",
+      "strengthLabel": "Ուժեղ կողմ",
+      "improvementLabel": "Բարելավման ուղղություն",
+      "attendanceTrendTitle": "Ներկայության միտում",
+      "attendanceTrendHint": "Օրական ներկա հաճախորդներ ձեր սեսիաներում։",
+      "attendanceTrendAria": "Ներկայության միտման գծային գրաֆիկ",
+      "attendanceColumnTitle": "Ներկայություն ըստ օրերի",
+      "attendanceColumnHint": "Օրական ներկայությունը՝ ուղղահայաց սյուներով։",
+      "attendanceColumnAria": "Ներկայության սյունային գրաֆիկ",
+      "attendanceSeries": "Ներկայություն",
+      "fillRateTrendTitle": "Լցման միտում",
+      "fillRateTrendHint": "Յուրաքանչyուր օրվա լցված տեղերի տոկոսը։",
+      "fillRateTrendAria": "Լցման միտման գծային գրաֆիկ",
+      "fillRateColumnTitle": "Լցում ըստ օրերի",
+      "fillRateColumnHint": "Օրական լցման տոկոսը՝ ուղղահայաց սյուներով։",
+      "fillRateColumnAria": "Լցման սյունային գրաֆիկ",
+      "fillRateSeries": "Լցում",
+      "classTypeBreakdownTitle": "Դասի տեսակների արդյունք",
+      "classTypeBreakdownHint": "Ներկայությունը՝ ըստ դասի տեսակի, ընտրված ժամանակահատվածում։",
+      "classTypeBreakdownAria": "Դասի տեսակների ներկայության գрафիկ",
+      "peakHoursTitle": "Գագաթնային ժամեր",
+      "peakHoursHint": "Ժամեր, երբ հաճախորդները ամենաշատ են հաճախում ձեր դասերին։",
+      "peakHoursAria": "Գագաթնային ներկայության ժամերի գրաֆիկ",
+      "insights": {
+        "strongFillRate": "Դասերը լցվում են {fillRate}%-ով — ձեր ժամանակացույցի լավ պահանջարկ։",
+        "weakFillRate": "Լցման տոկոսը {fillRate}% է — փորձեք առաջխաղացնել ազատ ժամերը կամ փոխել ժամանակը։",
+        "strongAttendance": "Ներկայության տոկոսը {attendanceRate}% է — հաճախորդները կայուն են գալիս։",
+        "weakAttendance": "Ներկայության տոկոսը {attendanceRate}% է — հետևեք no-show-ներին և հիշեցումներին։",
+        "highDemand": "Սպասման ցուցակի ճնշումը {waitlistPressure}% է — ձեր դասերին մեծ պահանջարկ կա։",
+        "popularClassType": "{classType}-ը ձեր ամենահայտնի ձևաչափն է — շարունակեք այնից, ինչ աշխատում է։",
+        "peakTimeInsight": "Գագաթնային ներկայությունը՝ մոտ {peakTime} — պաշտպանեք այս պատուհանը ձեր ժամանակացույցում։",
+        "steadyBaseline": "Արդյունքները կայուն են — շարունակեք հետևել միտումներին, երբ ավելի շատ սեսիաներ ավարտվեն։"
+      }
     },
     "salary": {
       "title": "Աշխատավարձ",
@@ -2655,6 +3252,114 @@
       "paid": "Վճարված",
       "sessions": "Ավարտված սեսիաներ",
       "formula": "Բանաձև՝ {base} բազա յուրաքանչյուր ավարտված սեսիայի համար + {perAttendee} յուրաքանչյուր ներկա մասնակցի համար։"
+    }
+  },
+  "contentAdminPages": {
+    "home": {
+      "openContent": "Բացել բովանդակությունը",
+      "openProfile": "Պրոֆիլ"
+    },
+    "content": {
+      "title": "Բովանդակություն",
+      "errorAuth": "Պահանջվում է ադմինի կամ բովանդակության դեր։",
+      "errorLoad": "Չհաջողվեց բեռնել գրառումները ({status})։",
+      "createButton": "Նոր գրառում",
+      "empty": "Ֆիլտրերով գրառումներ չկան։",
+      "colTitle": "Վերնագիր",
+      "colCover": "Շապիկ",
+      "colType": "Տեսակ",
+      "colStatus": "Կարգավիճակ",
+      "colUpdated": "Թարմացվել է",
+      "colActions": "Գործողություններ",
+      "editPost": "Խմբագրել",
+      "openPostAria": "Բացել {title}",
+      "sheetCreateTitle": "Նոր գրառում",
+      "sheetEditTitle": "Խմբագրում",
+      "saveButton": "Պահպանել",
+      "cancelButton": "Չեղարկել",
+      "savingButton": "Պահպանում…",
+      "modalBackdropClose": "Փակել պանելը",
+      "deleteConfirmTitle": "Ջնջե՞լ գրառումը",
+      "deleteConfirmBody": "Ջնջե՞լ «{title}»-ը։ Գործողությունը հետversible չէ։",
+      "activeFilterCount": "Ակտիվ ֆիլտրեր՝ {count}",
+      "resultsCount": "Ցուցադրվում է {shown}/{total}",
+      "placeholders": {
+        "title": "Վերնագիր",
+        "slug": "Slug",
+        "excerpt": "Հակիրճ նկարագրություն",
+        "body": "Բովանդակություն",
+        "coverImageUrl": "Շապիկի URL",
+        "authorName": "Հեղինակի անուն",
+        "tagsCsv": "Թեգեր (ստորակետով)",
+        "seoTitle": "SEO վերնագիր",
+        "seoDescription": "SEO նկարագրություն",
+        "editorialNotes": "Խմբագրական նշումներ",
+        "searchPosts": "Որոնել գրառումներ"
+      },
+      "labels": {
+        "type": "Տեսակ",
+        "status": "Կարգավիճակ",
+        "allTypes": "Բոլոր տեսակները",
+        "allStatuses": "Բոլոր կարգավիճակները",
+        "create": "Ստեղծել",
+        "toggleHide": "Փոխել տեսանելիությունը",
+        "submitReview": "Ուղարկել վերանայման",
+        "approve": "Հաստատել",
+        "reject": "Մերժել",
+        "delete": "Ջնջել",
+        "tags": "թեգեր",
+        "review": "վերանայում",
+        "resetFilters": "Մաքրել ֆիլտրերը",
+        "previewOnSite": "Դիտել կայքում"
+      },
+      "fieldHints": {
+        "type": "Գրառման տեսակը կայքում՝ բլոգ, նորություն, միջոցառում, թարմացում կամ հոդված։",
+        "status": "Հրապարակման կարգավիճակ՝ սևագիր, ստուգման մեջ, հրապարակված, թաքնված այցելուներից կամ մերժված։"
+      },
+      "statusValues": {
+        "DRAFT": "Սևագիր",
+        "IN_REVIEW": "Ստուգման մեջ",
+        "REJECTED": "Մերժված",
+        "PUBLISHED": "Հրապարակված",
+        "HIDDEN": "Թաքնված"
+      },
+      "typeValues": {
+        "EVENT": "Միջոցառում",
+        "BLOG": "Բլոգ",
+        "NEWS": "Նորություն",
+        "UPDATE": "Թարմացում",
+        "KNOWLEDGE_ARTICLE": "Հոդված"
+      },
+      "localeTabs": {
+        "aria": "Բովանդակության լեզու",
+        "hy": "Հայերեն",
+        "ru": "Русский",
+        "en": "English",
+        "slugHint": "Դատարկ թողեք — slug-ը կստեղծվի անգլերեն slug-ից։"
+      },
+      "coverImage": {
+        "label": "Շապիկ",
+        "choose": "Ընտրել նկար",
+        "remove": "Հեռացնել",
+        "hint": "JPG, PNG կամ WEBP մինչև 5 ՄԲ։",
+        "previewAlt": "Շապիկի նախադիտում",
+        "fallback": "Շապիկ",
+        "uploading": "Բեռնվում է…",
+        "uploadFailed": "Բեռնումը ձախողվեց",
+        "invalidType": "Թույլատրվում են միայն JPG, PNG կամ WEBP։",
+        "tooLarge": "Ֆայլը չպետք է գերազանցի 5 ՄԲ-ը։"
+      },
+      "feedback": {
+        "actionFailed": "Գործողությունը չհաջողվեց",
+        "postCreated": "Գրառումը ստեղծված է",
+        "postSaved": "Գրառումը պահպանված է",
+        "visibilityUpdated": "Տեսանելիությունը թարմացվել է",
+        "submittedForReview": "Ուղարկվեց վերանայման",
+        "postApproved": "Գրառումը հաստատվեց",
+        "postRejected": "Գրառումը մերժվեց",
+        "postDeleted": "Գրառումը ջնջվեց",
+        "rejectionNotePrompt": "Մերժման նշում"
+      }
     }
   },
   "verifyEmail": {
@@ -2677,7 +3382,10 @@
       "saveFailed": "Չհաջողվեց պահպանել"
     },
     "cancelBooking": {
+      "confirmTitle": "Չեղարկե՞լ ամրագրումը",
       "confirm": "Չեղարկե՞լ այս ամրագրումը։ Կիրառվում են քաղաքականության ժամկետները։",
+      "confirmNo": "Պահել ամրագրումը",
+      "modalBackdropClose": "Փակել պատուհանը",
       "action": "Չեղարկել",
       "failed": "Չհաջողվեց չեղարկել"
     },
@@ -2701,6 +3409,7 @@
       "title": "Հաստատել բաժանորդագրությունը",
       "lead": "Ընտրեք վճարման եղանակը։ Այս էկրանին քարտի տվյալներ չեն հավաքվում։",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Փակել",
       "methodLegend": "Վճարման եղանակ",
       "methods": {
@@ -2722,10 +3431,18 @@
       "done": "Պատրաստ է"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Փաթեթի գործողություններ",
       "pause": "Դադարեցնել",
       "cancelAction": "Չեղարկել",
       "renew": "Թարմացնել",
       "switchPlan": "Անցնել այս պլանին",
+      "pauseConfirmTitle": "Դադարեցնե՞լ աբոնեմենտը",
+      "pauseConfirmDescription": "Աբոնեմենտը կդադարեցվի։ Ավելի ուշ կարող եք այն թարմացնել։",
+      "cancelConfirmTitle": "Չեղարկե՞լ աբոնեմենտը",
+      "cancelConfirmDescription": "Աբոնեմենտը կչեղարկվի։ Անհրաժեշտության դեպքում կարող եք այն թարմացնել ավելի ուշ։",
+      "confirmYes": "Այո",
+      "confirmNo": "Ոչ",
+      "modalBackdropClose": "Փակել պատուհանը",
       "pausedSuccess": "Աբոնեմենտը դադարեցված է։",
       "cancelledSuccess": "Աբոնեմենտը չեղարկված է։",
       "renewedSuccess": "Աբոնեմենտը թարմացվեց։",
@@ -2833,8 +3550,7 @@
     },
     "markAttendance": {
       "failed": "Չհաջողվեց թարմացնել",
-      "attended": "Ներկա",
-      "noShow": "Չհայտնվել"
+      "attended": "Ներկա"
     },
     "rebook": {
       "action": "Կրկին գրանցվել",
@@ -2855,7 +3571,7 @@
   "adminActions": {
     "studio": {
       "title": "Ստուդիայի կարգավորումներ",
-      "description": "Ստուդիայի մակարդակի քաղաքականություն և կապի տվյալներ։",
+      "description": "Ինչպես է ստուդիան երևում մասնակիցներին — կապ, հասցե և ամրագրման կանոններ։",
       "loadFailed": "Չհաջողվեց բեռնել կարգավորումները ({status})։",
       "studioName": "Ստուդիայի անուն",
       "contactEmail": "Կապի էլ. հասցե",
@@ -2867,10 +3583,62 @@
       "socialLinksJson": "Սոցիալական հղումների JSON",
       "cancellationHoursNotice": "Չեղարկման ժամային շեմ",
       "waitlistOfferMinutes": "Սպասման առաջարկի րոպեներ",
-      "save": "Պահպանել",
+      "save": "Պահպանել կարգավորումները",
       "saving": "Պահպանվում է...",
       "saved": "Կարգավորումները թարմացվեցին։",
-      "failed": "Չհաջողվեց թարմացնել կարգավորումները։"
+      "failed": "Չհաջողվեց թարմացնել կարգավորումները։",
+      "tiles": {
+        "identity": {
+          "title": "Ստուդիայի ինքնություն",
+          "empty": "Անունը նշված չէ",
+          "helper": "Ցուցադրվում է կայքում, նամակներում և մասնակցի գործիքներում։"
+        },
+        "contact": {
+          "title": "Հիմնական կապ",
+          "empty": "Կապի տվյալներ դեռ չկան",
+          "helper": "Օգտագործվում է կապի էջում և ծանուցումներում։",
+          "helperPhone": "Հեռախոս՝ {phone}"
+        },
+        "policies": {
+          "title": "Ամրագրման կանոններ",
+          "value": "{hours}ժ չեղարկում · {minutes}ր սպասում",
+          "helper": "Չեղարկման պատուհան և սպասման ցուցակի առաջարկի ժամկետ։"
+        }
+      },
+      "sections": {
+        "identity": {
+          "heading": "Ինքնություն",
+          "description": "Հանրային ստուդիայի անուն"
+        },
+        "contact": {
+          "heading": "Կապ",
+          "description": "Ինչպես են մասնակիցները կապվում թիմի հետ"
+        },
+        "location": {
+          "heading": "Տեղադրություն",
+          "description": "Հասցե, քարտեզ և ժամեր կայքում"
+        },
+        "social": {
+          "heading": "Սոցիալական ցանցեր",
+          "description": "Ընտրովի JSON ֆուտերի և կապի էջի համար"
+        },
+        "policies": {
+          "heading": "Քաղաքականություն",
+          "description": "Չեղարկման և սպասման ցուցակի ժամկետներ"
+        }
+      },
+      "hints": {
+        "studioName": "Կարճ հանրային բրենդի անուն։",
+        "contactEmail": "Ստուդիայի փոստարան կապի ձևի և ադմին ծանուցումների համար։",
+        "contactPhone": "Ընտրովի։ Ցուցադրվում է կապի էջում։",
+        "whatsappUrl": "WhatsApp չաթի կամ բիզնես պրոֆիլի ամբողջական հղում։",
+        "address": "Փողոցային հասցե կապի էջում։",
+        "mapEmbedUrl": "Google Maps կամ նմանատիպ embed հղում։",
+        "workingHours": "Ազատ տեքստ — օր. Երկ–Ուրբ 9:00–21:00, Շբթ 10:00–18:00։",
+        "socialLinksJson": "JSON օբյեկտ՝ հարթակի անուն → URL (instagram, facebook և այլն)։",
+        "cancellationHoursNotice": "Քանի ժամ առաջ մինչև դասը կարելի է չեղարկել ամրագրումը։",
+        "waitlistOfferMinutes": "Քանի րոպե սպասման ցուցակի տեղը մնում է ամրագրված առաջարկից հետո։"
+      }
     }
   }
 }

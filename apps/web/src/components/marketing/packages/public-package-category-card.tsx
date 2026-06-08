@@ -17,6 +17,7 @@ import {
   resolveCategoryStartingPriceCents,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
+import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { buildPackageCategoryHref } from "@/lib/package-category-href";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { formatAmdFromCents } from "@/lib/price-amd";
@@ -36,7 +37,9 @@ export function PublicPackageCategoryCard({
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const displayPlans = listCategoryDisplayPlans(category.plans);
-  const subscribePlans = toPackageSubscribePlanOptions(displayPlans);
+  const subscribePlans = toPackageSubscribePlanOptions(
+    listPublicPackageCategorySubscribablePlans(category),
+  );
   const startingPriceCents = resolveCategoryStartingPriceCents(category.plans);
   const amount = formatAmdFromCents(startingPriceCents, locale);
   const { symbol, value } = formatPublicPackagePriceParts(amount);
@@ -60,12 +63,12 @@ export function PublicPackageCategoryCard({
             <p className="mt-3 text-sm leading-relaxed text-sage-500">{description}</p>
           ) : null}
           <p className="mt-6 font-serif text-3xl font-semibold tracking-tight text-sage-700">
-            {symbol.length > 0 ? (
-              <span className="mr-1.5 text-black">{symbol}</span>
-            ) : null}
             {showFromPrice
               ? t("packagesPriceFromLine", { amount: value })
               : t("packagesPriceLine", { amount: value })}
+            {symbol.length > 0 ? (
+              <span className="ml-1.5 text-black">{symbol}</span>
+            ) : null}
           </p>
           <p className="mt-2 text-sm text-sage-500">
             {t("packagesCategoryTierCount", { count: displayPlans.length })}

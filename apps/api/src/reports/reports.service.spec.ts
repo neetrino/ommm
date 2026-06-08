@@ -161,32 +161,29 @@ describe('ReportsService', () => {
             amountCents: 5_000,
             description: 'Membership subscription',
             status: PaymentStatus.SUCCEEDED,
+            createdAt: new Date('2026-06-01T10:00:00.000Z'),
           },
           {
             id: '2',
             amountCents: 7_000,
             description: 'Drop-in session s1',
             status: PaymentStatus.SUCCEEDED,
+            createdAt: new Date('2026-06-02T10:00:00.000Z'),
           },
           {
             id: '3',
             amountCents: 3_000,
             description: 'Gift card',
             status: PaymentStatus.SUCCEEDED,
+            createdAt: new Date('2026-06-02T15:00:00.000Z'),
           },
         ]),
       },
       giftCard: {
-        aggregate: jest
+        findMany: jest
           .fn()
-          .mockResolvedValueOnce({
-            _sum: { amountCents: 4_000 },
-            _count: { id: 1 },
-          })
-          .mockResolvedValueOnce({
-            _sum: { amountCents: 2_000 },
-            _count: { id: 1 },
-          }),
+          .mockResolvedValueOnce([{ amountCents: 4_000 }])
+          .mockResolvedValueOnce([{ amountCents: 2_000 }]),
       },
       user: {
         aggregate: jest.fn().mockResolvedValue({
@@ -204,8 +201,14 @@ describe('ReportsService', () => {
     expect(result.bySource.dropin.amountCents).toBe(7_000);
     expect(result.bySource.gift.amountCents).toBe(3_000);
     expect(result.giftCredits.issuedCents).toBe(4_000);
+    expect(result.giftCredits.issuedCount).toBe(1);
+    expect(result.giftCredits.redeemedCount).toBe(1);
     expect(result.giftCredits.redeemedCents).toBe(2_000);
     expect(result.giftCredits.outstandingCreditsCents).toBe(1_500);
+    expect(result.dailyRevenue).toEqual([
+      { date: '2026-06-01', amountCents: 5_000 },
+      { date: '2026-06-02', amountCents: 10_000 },
+    ]);
   });
 
   it('coachAnalytics computes totals and trend safely', async () => {
@@ -221,16 +224,20 @@ describe('ReportsService', () => {
             id: 's1',
             capacity: 10,
             startsAt,
+            classTypeId: 'ct1',
+            classType: { name: 'Vinyasa' },
             status: ClassSessionStatus.ACTIVE,
           },
         ]),
       },
       booking: {
-        findMany: jest
-          .fn()
-          .mockResolvedValue([
-            { sessionId: 's1', status: BookingStatus.BOOKED },
-          ]),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            sessionId: 's1',
+            userId: 'u1',
+            status: BookingStatus.COMPLETED,
+          },
+        ]),
       },
       waitlistEntry: {
         findMany: jest.fn().mockResolvedValue([]),
@@ -241,8 +248,10 @@ describe('ReportsService', () => {
 
     expect(result?.totals.sessions).toBe(1);
     expect(result?.totals.bookings).toBe(1);
+    expect(result?.totals.totalClientsTrained).toBe(1);
     expect(result?.totals.utilizationPercent).toBe(10);
     expect(result?.trend.length).toBe(1);
+    expect(result?.classTypeBreakdown[0]?.name).toBe('Vinyasa');
   });
 
   it('giftCreditsCsv includes issued, redeemed and spent rows', async () => {

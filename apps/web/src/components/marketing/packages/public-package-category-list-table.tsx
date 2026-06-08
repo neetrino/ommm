@@ -15,6 +15,7 @@ import {
 } from "@/components/marketing/packages/public-package-tier-display";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { shouldShowPublicPackageTierName } from "@/components/marketing/packages/public-package-card-format";
+import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import { PublicPackageCategoryMobileTierList } from "@/components/marketing/packages/public-package-category-mobile-tier-list";
 import styles from "@/components/marketing/packages/public-package-category-list-table.module.css";
@@ -50,7 +51,16 @@ export function PublicPackageCategoryListTable({
   const [paymentPlanId, setPaymentPlanId] = useState<string | undefined>(undefined);
 
   const selectedPlanId = searchParams.get("plan");
-  const subscribePlans = useMemo(() => toPackageSubscribePlanOptions(plans), [plans]);
+  const subscribePlans = useMemo(() => {
+    const categoryPlans = [...plans];
+    return toPackageSubscribePlanOptions(
+      listPublicPackageCategorySubscribablePlans({
+        id: "",
+        label: categoryLabel,
+        plans: categoryPlans,
+      }),
+    );
+  }, [categoryLabel, plans]);
 
   function openPayment(planId: string) {
     setPaymentPlanId(planId);

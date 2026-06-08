@@ -1,31 +1,26 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { AdminFilterResetBar } from "@/components/ui/admin-filter-reset-bar";
-import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
+import {
+  adminPackagesIntegratedFilterValues,
+  buildAdminPackagesFilterFields,
+} from "@/components/admin/admin-packages-filter-fields";
 import type {
   PackageFilterValues,
   PackageSortOrder,
   PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
+import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 
 type AdminPackagesFiltersProps = {
   values: PackageFilterValues;
-  activeFilterCount: number;
   onChange: <K extends keyof PackageFilterValues>(
     key: K,
     value: PackageFilterValues[K],
   ) => void;
   onReset: () => void;
 };
-
-const SORT_OPTIONS: readonly PackageSortOrder[] = [
-  "displayOrder",
-  "newest",
-  "oldest",
-  "priceHigh",
-  "priceLow",
-];
 
 const SORT_LABEL_KEYS: Record<PackageSortOrder, string> = {
   displayOrder: "sortDisplayOrder",
@@ -35,67 +30,58 @@ const SORT_LABEL_KEYS: Record<PackageSortOrder, string> = {
   priceLow: "sortPriceLow",
 };
 
-export function AdminPackagesFilters({
-  values,
-  activeFilterCount,
-  onChange,
-  onReset,
-}: AdminPackagesFiltersProps) {
+export function AdminPackagesFilters({ values, onChange, onReset }: AdminPackagesFiltersProps) {
   const t = useTranslations("adminPages.packages.filters");
 
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="flex flex-col gap-1 sm:col-span-2">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("search")}</span>
-          <input
-            className="ommm-input"
-            value={values.search}
-            onChange={(event) => onChange("search", event.target.value)}
-            placeholder={t("searchPlaceholder")}
-            aria-label={t("search")}
-          />
-        </label>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("status")}</span>
-          <OmmFilterDropdown
-            allValue="all"
-            value={values.status}
-            ariaLabel={t("status")}
-            allLabel={t("statusAll")}
-            onChange={(value) => onChange("status", value as PackageStatusFilter)}
-            options={[
-              { value: "active", label: t("statusActive") },
-              { value: "inactive", label: t("statusInactive") },
-            ]}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="ommm-label text-xs uppercase tracking-wide">{t("sort")}</span>
-          <OmmSelectDropdown
-            ariaLabel={t("sort")}
-            label={t(SORT_LABEL_KEYS[values.order])}
-            value={values.order}
-            options={SORT_OPTIONS.map((option) => ({
-              value: option,
-              label: t(SORT_LABEL_KEYS[option]),
-            }))}
-            onChange={(value) => onChange("order", value as PackageSortOrder)}
-          />
-        </div>
-      </div>
+  const filterFields = useMemo(
+    () =>
+      buildAdminPackagesFilterFields({
+        labels: {
+          status: t("status"),
+          statusAll: t("statusAll"),
+          statusActive: t("statusActive"),
+          statusInactive: t("statusInactive"),
+          sort: t("sort"),
+          sortLabels: {
+            displayOrder: t(SORT_LABEL_KEYS.displayOrder),
+            newest: t(SORT_LABEL_KEYS.newest),
+            oldest: t(SORT_LABEL_KEYS.oldest),
+            priceHigh: t(SORT_LABEL_KEYS.priceHigh),
+            priceLow: t(SORT_LABEL_KEYS.priceLow),
+          },
+        },
+      }),
+    [t],
+  );
 
-      <AdminFilterResetBar
-        onReset={onReset}
-        label={t("reset")}
-        meta={
-          activeFilterCount > 0 ? (
-            <span className="text-xs text-sage-600">
-              {t("activeCount", { count: activeFilterCount })}
-            </span>
-          ) : null
-        }
-      />
-    </div>
+  const integratedFilterValues = useMemo(
+    () => adminPackagesIntegratedFilterValues(values),
+    [values],
+  );
+
+  function handleIntegratedFilterChange(key: string, value: string): void {
+    switch (key) {
+      case "status":
+        onChange("status", value as PackageStatusFilter);
+        break;
+      case "order":
+        onChange("order", value as PackageSortOrder);
+        break;
+      default:
+        break;
+    }
+  }
+
+  return (
+    <ListPageSearchFilters
+      search={values.search}
+      onSearchChange={(value) => onChange("search", value)}
+      searchPlaceholder={t("searchPlaceholder")}
+      fields={filterFields}
+      filterValues={integratedFilterValues}
+      onFilterChange={handleIntegratedFilterChange}
+      onClearAll={onReset}
+      resetLabel={t("reset")}
+    />
   );
 }

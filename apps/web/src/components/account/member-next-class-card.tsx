@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { memberChrome } from "@/components/account/member-chrome";
+import { SessionCoachLine } from "@/components/account/session-coach-line";
+import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
 const DEFAULT_IMAGE = "/marketing/home/next-class.jpg";
@@ -17,15 +19,16 @@ type MemberNextClassEmpty = {
 type MemberNextClassFilled = {
   variant: "filled";
   href: string;
+  locale: string;
   eyebrow: string;
   openLabel: string;
   imageSrc?: string;
   imageAlt: string;
   title: string;
-  whenLine: string;
-  coachLine?: string | null;
+  startsAt: string;
+  endsAt: string;
+  coachName?: string | null;
   statusLabel?: string;
-  durationLabel?: string | null;
   spotsLabel?: string | null;
   priorityImage?: boolean;
 };
@@ -36,17 +39,17 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
   if (props.variant === "empty") {
     const { href, eyebrow, emptyTitle, emptyBody, emptyCta } = props;
     return (
-      <article className={`${memberChrome.panel} flex min-h-[280px] flex-col justify-between gap-6`}>
-        <div>
-          <p className={memberChrome.cardMeta}>{eyebrow}</p>
-          <h3 className={`${memberChrome.sectionTitle} mt-4 max-w-[20ch]`}>
-            {emptyTitle}
-          </h3>
-          <p className={`${memberChrome.ledeTight} mt-3`}>{emptyBody}</p>
+      <article className={memberChrome.nextClassShell}>
+        <div className={memberChrome.nextClassEmptyMedia}>
+          <span className={memberChrome.statusPill}>{eyebrow}</span>
+          <h3 className="ommm-h2 max-w-[16ch] text-sage-800">{emptyTitle}</h3>
         </div>
-        <Link href={href} className="ommm-admin-add-button w-full text-center sm:w-auto">
-          {emptyCta}
-        </Link>
+        <div className={memberChrome.nextClassBody}>
+          <p className={memberChrome.ledeTight}>{emptyBody}</p>
+          <Link href={href} className="ommm-admin-add-button w-full text-center sm:w-auto">
+            {emptyCta}
+          </Link>
+        </div>
       </article>
     );
   }
@@ -57,11 +60,12 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
     openLabel,
     imageSrc = DEFAULT_IMAGE,
     imageAlt,
+    locale,
     title,
-    whenLine,
-    coachLine,
+    startsAt,
+    endsAt,
+    coachName,
     statusLabel,
-    durationLabel,
     spotsLabel,
     priorityImage = false,
   } = props;
@@ -111,10 +115,23 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
 
       <div className={memberChrome.nextClassBody}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-sage-800">{whenLine}</p>
-            {coachLine ? (
-              <p className="text-sm text-sage-500">{coachLine}</p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <SessionDateTimeHighlight
+                locale={locale}
+                startsAt={startsAt}
+                endsAt={endsAt}
+                variant="listDate"
+              />
+              <SessionDateTimeHighlight
+                locale={locale}
+                startsAt={startsAt}
+                endsAt={endsAt}
+                variant="listTime"
+              />
+            </div>
+            {coachName ? (
+              <SessionCoachLine coachName={coachName} variant="list" className="mt-2" />
             ) : null}
           </div>
           {statusLabel ? (
@@ -122,20 +139,20 @@ export function MemberNextClassCard(props: MemberNextClassCardProps) {
           ) : null}
         </div>
 
-        <div className="h-px w-full bg-white/50" />
-
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-sage-500">
-          {durationLabel ? <span>{durationLabel}</span> : <span aria-hidden />}
-          {spotsLabel ? (
-            <span className="inline-flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block h-1.5 w-1.5 rounded-full bg-sage-600"
-              />
-              {spotsLabel}
-            </span>
-          ) : null}
-        </div>
+        {spotsLabel ? (
+          <>
+            <div className="h-px w-full bg-sand-200/70" />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className={`inline-flex items-center gap-2 ${memberChrome.cardSub}`}>
+                <span
+                  aria-hidden
+                  className="inline-block h-1.5 w-1.5 rounded-full bg-mint-500"
+                />
+                {spotsLabel}
+              </span>
+            </div>
+          </>
+        ) : null}
       </div>
     </article>
   );

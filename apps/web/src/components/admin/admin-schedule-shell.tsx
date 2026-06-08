@@ -6,6 +6,7 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminScheduleForm } from "@/components/admin/admin-schedule-form";
+import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import { OmmButton } from "@/components/ui/omm-button";
 
 const SCHEDULE_MODAL_QUERY_KEY = "modal";
@@ -124,32 +125,26 @@ export function AdminScheduleShell({
   }, [isModalOpen]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-        {banner !== null ? (
-          <p
-            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
-            role="status"
-          >
-            {banner}
-          </p>
-        ) : null}
-
-        <div className="flex justify-end">
-          <OmmButton
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={openModal}
-            className="inline-flex items-center gap-2"
-          >
-            <AddScheduleGlyph className="h-5 w-5 shrink-0" />
-            {t("addScheduleButton")}
-          </OmmButton>
-        </div>
-
+    <>
+      <AdminSectionShell
+        banner={banner}
+        toolbar={
+          <div className="flex justify-end">
+            <OmmButton
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={openModal}
+              className="inline-flex items-center gap-2"
+            >
+              <AddScheduleGlyph className="h-5 w-5 shrink-0" />
+              {t("addScheduleButton")}
+            </OmmButton>
+          </div>
+        }
+      >
         {children}
-      </div>
+      </AdminSectionShell>
 
       {isModalOpen ? (
         <div
@@ -210,6 +205,6 @@ export function AdminScheduleShell({
           </div>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }

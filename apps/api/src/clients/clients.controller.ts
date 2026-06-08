@@ -9,26 +9,64 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import type { User } from '@prisma/client';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { ListPaginationQueryDto } from '../common/dto/list-pagination-query.dto';
 import { AddClientNoteDto } from './dto/add-client-note.dto';
 import { AdminListClientsQueryDto } from './dto/admin-list-clients-query.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientsService } from './clients.service';
+import { ClientsTabListsService } from './clients-tab-lists.service';
 
 @Controller('clients')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN, Role.MANAGER)
 export class ClientsController {
-  constructor(private readonly clients: ClientsService) {}
+  constructor(
+    private readonly clients: ClientsService,
+    private readonly tabLists: ClientsTabListsService,
+  ) {}
 
+  /** Admin lists (clients, finance members) — same RSC burst pattern as coaches admin list. */
   @Get()
+  @SkipThrottle()
   list(@Query() query: AdminListClientsQueryDto) {
     return this.clients.list(query);
+  }
+
+  @Get(':id/bookings')
+  listBookings(
+    @Param('id') id: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    return this.tabLists.listBookings(id, take, offset);
+  }
+
+  @Get(':id/payments')
+  listPayments(
+    @Param('id') id: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    return this.tabLists.listPayments(id, take, offset);
+  }
+
+  @Get(':id/gift-cards')
+  listGiftCards(
+    @Param('id') id: string,
+    @Query() query: ListPaginationQueryDto,
+  ) {
+    const take = query.take ?? 25;
+    const offset = query.offset ?? 0;
+    return this.tabLists.listGiftCards(id, take, offset);
   }
 
   @Get(':id')
@@ -49,11 +87,6 @@ export class ClientsController {
   @Roles(Role.ADMIN)
   remove(@CurrentUser() user: User, @Param('id') id: string) {
     return this.clients.remove(user, id);
-  }
-
-  @Get(':id/notes')
-  notes(@Param('id') id: string) {
-    return this.clients.listNotes(id);
   }
 
   @Post(':id/notes')

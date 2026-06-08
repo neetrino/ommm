@@ -19,6 +19,10 @@ export type UserMembershipRow = {
   id: string;
   status: UserPackageStatus;
   sessionsRemaining: number | null;
+  totalSessions: number | null;
+  usedSessions: number | null;
+  remainingSessions: number | null;
+  isUnlimited: boolean;
   currentPeriodStart: string;
   currentPeriodEnd: string;
   plan: UserPackagePlanSummary;
@@ -34,4 +38,11 @@ export type UserPaymentRow = {
   paymentReference?: string | null;
   createdAt: string;
   updatedAt?: string;
+};
+
+export type UserPaymentsPayload = {
+  items: UserPaymentRow[];
+  total: number;
+  take: number;
+  offset: number;
 };

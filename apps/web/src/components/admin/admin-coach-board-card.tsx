@@ -46,14 +46,15 @@ function cardInsetPercent(valuePx: number, basePx: number): string {
 
 function buildCardStyle(): CSSProperties {
   const card = COACHES_PAGE_CARD;
+  const nameFontSize = `clamp(${card.nameFontSizeMinRem}rem, ${card.nameFontSizePreferredVw}vw, ${card.nameFontSizeMaxRem}rem)`;
   return {
     "--coaches-page-card-surface": card.surface,
+    "--coaches-page-card-photo-expand-scale": String(card.photoExpandScale),
     "--coaches-page-card-radius": `${card.radiusPx}px`,
     "--coaches-page-card-name-color": card.nameColor,
     "--coaches-page-card-role-color": card.roleColor,
     "--coaches-page-card-bottom-bar-radius": `${card.bottomBarRadiusPx}px`,
     "--coaches-page-card-bottom-bar-height": `${card.bottomBarHeightPx}px`,
-    "--coaches-page-card-design-height": `${card.designHeightPx}px`,
     "--coaches-page-card-expand-panel-height": `${card.expandPanelMinHeightPx}px`,
     "--coaches-page-card-expand-panel-padding": `${card.expandPanelPaddingPx}px`,
     "--coaches-page-card-expand-trigger-inset": `${card.expandTriggerInsetPx}px`,
@@ -68,6 +69,8 @@ function buildCardStyle(): CSSProperties {
     "--coaches-page-card-name-left": cardInsetPercent(card.nameInsetLeftPx, card.designWidthPx),
     "--coaches-page-card-photo-top": cardInsetPercent(card.photoInsetTopPx, card.designHeightPx),
     "--coaches-page-card-photo-left": cardInsetPercent(card.photoInsetLeftPx, card.designWidthPx),
+    "--coaches-page-card-name-font-size": nameFontSize,
+    "--coaches-page-card-name-max-lines": String(card.nameMaxLines),
   } as CSSProperties;
 }
 
@@ -207,30 +210,34 @@ export function AdminCoachBoardCard({
       className={`${marketingMontserrat.variable} ${coachCardStyles.card} ${coachCardStyles.cardExpanded} shadow-[0_22px_48px_-30px_rgba(45,55,60,0.35)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_28px_60px_-32px_rgba(45,55,60,0.42)]`}
       style={buildCardStyle()}
     >
-      <div className={coachCardStyles.cardSurface} aria-hidden />
-      <AdminCoachPortrait coach={coach} imageIndex={imageIndex} />
-      <div className={coachCardStyles.header}>
-        <p className={coachCardStyles.name}>{displayName}</p>
-        <p className={coachCardStyles.role}>{roleLine}</p>
-      </div>
+      <div className={coachCardStyles.cardAspect}>
+        <div className={coachCardStyles.cardStage}>
+          <div className={coachCardStyles.cardSurface} aria-hidden />
+          <AdminCoachPortrait coach={coach} imageIndex={imageIndex} />
+          <div className={coachCardStyles.header}>
+            <p className={coachCardStyles.name}>{displayName}</p>
+            <p className={coachCardStyles.role}>{roleLine}</p>
+          </div>
 
-      <div className={`${coachCardStyles.expandPanel} ${coachCardStyles.expandPanelExpanded}`}>
-        <span aria-hidden className={coachCardStyles.expandPanelBackdrop} />
-        <span aria-hidden className={coachCardStyles.expandPanelGlassRadial} />
-        <span aria-hidden className={coachCardStyles.expandPanelGlassLinear} />
-        <span aria-hidden className={coachCardStyles.expandPanelGlassBorder} />
-        <div className={`${coachCardStyles.expandPanelBody} min-h-0`}>
-          <AdminCoachCardSummary coach={coach} />
-          <p className={`${coachCardStyles.bio} line-clamp-2`}>{bioText}</p>
-          <AdminCoachCardMetrics coach={coach} />
-          <AdminCoachCardFooter
-            coach={coach}
-            imageIndex={imageIndex}
-            classTypeOptions={classTypeOptions}
-            classOptions={classOptions}
-            locale={locale}
-            onSelect={onSelect}
-          />
+          <div className={`${coachCardStyles.expandPanel} ${coachCardStyles.expandPanelExpanded}`}>
+            <span aria-hidden className={coachCardStyles.expandPanelBackdrop} />
+            <span aria-hidden className={coachCardStyles.expandPanelGlassRadial} />
+            <span aria-hidden className={coachCardStyles.expandPanelGlassLinear} />
+            <span aria-hidden className={coachCardStyles.expandPanelGlassBorder} />
+            <div className={`${coachCardStyles.expandPanelBody} min-h-0`}>
+              <AdminCoachCardSummary coach={coach} />
+              <p className={`${coachCardStyles.bio} line-clamp-2`}>{bioText}</p>
+              <AdminCoachCardMetrics coach={coach} />
+              <AdminCoachCardFooter
+                coach={coach}
+                imageIndex={imageIndex}
+                classTypeOptions={classTypeOptions}
+                classOptions={classOptions}
+                locale={locale}
+                onSelect={onSelect}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </article>

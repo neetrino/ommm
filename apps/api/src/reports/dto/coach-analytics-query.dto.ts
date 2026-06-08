@@ -6,6 +6,6 @@ export class CoachAnalyticsQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(7)
-  @Max(90)
+  @Max(365)
   days?: number;
 }

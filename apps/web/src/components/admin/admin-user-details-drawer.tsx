@@ -1,9 +1,20 @@
 "use client";
 
-import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
+import {
+  ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
+  ADMIN_DETAILS_SHEET_HEADER_CLASS,
+  ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS,
+  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
+  ADMIN_DETAILS_SHEET_TITLE_CLASS,
+} from "@/components/admin/admin-details-sheet-layout";
+import type {
+  ClientSheetBookingItem,
+  ClientSheetPaginatedResponse,
+} from "@/components/admin/admin-clients-types";
+import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { apiFetch } from "@/lib/api";
 import { formatDateTimeForUi } from "@/lib/date-display";
 
@@ -12,11 +23,6 @@ type UserDetailsPayload = {
   lastName: string | null;
   email: string;
   phone: string | null;
-  bookings?: Array<{
-    id: string;
-    status: string;
-    session: { startsAt: string; classType: { name: string } };
-  }>;
 };
 
 type AdminUserDetailsDrawerProps = {
@@ -36,92 +42,115 @@ export function AdminUserDetailsDrawer({
   onClose,
 }: AdminUserDetailsDrawerProps) {
   const t = useTranslations("adminPages.waitlists");
+  const titleId = useId();
+
+  return (
+    <OmmDrawerPortal
+      isOpen={userId !== null}
+      onClose={onClose}
+      backdropAriaLabel={t("drawer.close")}
+      ariaLabelledBy={titleId}
+      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+      panelClassName={ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS}
+    >
+      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
+        <div className="flex items-start justify-between gap-3">
+          <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
+            {t("drawer.title")}
+          </h2>
+          <button
+            type="button"
+            className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+            aria-label={t("drawer.close")}
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+      </header>
+      <div className={ADMIN_DETAILS_SHEET_BODY_CLASS}>
+        {userId !== null ? (
+          <AdminUserDetailsContent key={userId} locale={locale} userId={userId} />
+        ) : null}
+      </div>
+    </OmmDrawerPortal>
+  );
+}
+
+function AdminUserDetailsContent({ locale, userId }: { locale: string; userId: string }) {
+  const t = useTranslations("adminPages.waitlists");
   const [data, setData] = useState<UserDetailsPayload | null>(null);
+  const [bookings, setBookings] = useState<ClientSheetBookingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    if (userId === null) {
-      return;
-    }
-    void apiFetch<UserDetailsPayload>(`/clients/${userId}`)
-      .then((payload) => setData(payload))
-      .catch(() => {
-        setLoadFailed(true);
+    let cancelled = false;
+    void Promise.all([
+      apiFetch<UserDetailsPayload>(`/clients/${userId}`),
+      apiFetch<ClientSheetPaginatedResponse<ClientSheetBookingItem>>(
+        `/clients/${userId}/bookings?take=8&offset=0`,
+      ),
+    ])
+      .then(([profile, bookingsPayload]) => {
+        if (cancelled) {
+          return;
+        }
+        setData(profile);
+        setBookings(bookingsPayload.items);
       })
-      .finally(() => setLoading(false));
-  }, [userId]);
+      .catch(() => {
+        if (!cancelled) {
+          setLoadFailed(true);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
 
-  useEffect(() => {
-    if (userId === null) {
-      return;
-    }
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = previousOverflow;
+      cancelled = true;
     };
   }, [userId]);
 
-  useCloseOnEscape(userId !== null, onClose);
-
-  if (userId === null || typeof document === "undefined") {
-    return null;
+  if (loading) {
+    return <p className="text-sm text-sage-600">{t("drawer.loading")}</p>;
   }
 
-  return createPortal(
-    <div className="ommm-drawer-overlay z-[90]">
-      <button
-        type="button"
-        className="ommm-modal-backdrop"
-        aria-label={t("drawer.close")}
-        onClick={onClose}
-      />
-      <aside className="relative z-10 h-full w-full max-w-md overflow-auto border-l border-white/60 bg-white/90 p-5 shadow-[-12px_0_32px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-semibold text-sage-900">{t("drawer.title")}</h3>
-          <button
-            type="button"
-            className="rounded-full border border-white/60 bg-white/80 px-2 py-1 text-sm text-sage-700 hover:bg-white"
-            onClick={onClose}
-          >
-            {t("drawer.close")}
-          </button>
-        </div>
-        {loading ? (
-          <p className="text-sm text-sage-600">{t("drawer.loading")}</p>
-        ) : loadFailed ? (
-          <p className="text-sm text-red-800">{t("drawer.error")}</p>
-        ) : data === null ? (
-          <p className="text-sm text-sage-600">{t("drawer.empty")}</p>
-        ) : (
-          <div className="space-y-4 text-sm">
-            <section className="rounded-xl border border-white/60 bg-white/80 p-3">
-              <p className="font-medium text-sage-900">{fullName(data.name, data.lastName)}</p>
-              <p className="text-sage-700">{data.phone ?? "—"}</p>
-              <p className="text-sage-600">{data.email}</p>
-            </section>
-            <section>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">
-                {t("drawer.bookings")}
+  if (loadFailed) {
+    return <p className="text-sm text-red-800">{t("drawer.error")}</p>;
+  }
+
+  if (data === null) {
+    return <p className="text-sm text-sage-600">{t("drawer.empty")}</p>;
+  }
+
+  return (
+    <div className="space-y-4 text-sm">
+      <section className="rounded-xl border border-white/60 bg-white/80 p-3">
+        <p className="font-medium text-sage-900">{fullName(data.name, data.lastName)}</p>
+        <p className="text-sage-700">{data.phone ?? "—"}</p>
+        <p className="text-sage-600">{data.email}</p>
+      </section>
+      <section>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sage-500">
+          {t("drawer.bookings")}
+        </p>
+        <div className="space-y-1">
+          {bookings.length === 0 ? (
+            <p className="text-sage-500">—</p>
+          ) : (
+            bookings.map((booking) => (
+              <p key={booking.id} className="rounded-lg bg-white px-2 py-1 text-xs text-sage-800">
+                {formatDateTimeForUi(booking.session.startsAt, locale)} ·{" "}
+                {booking.session.classType.name} · {booking.status}
               </p>
-              <div className="space-y-1">
-                {(data.bookings ?? []).length === 0 ? (
-                  <p className="text-sage-500">—</p>
-                ) : (
-                  (data.bookings ?? []).slice(0, 8).map((booking) => (
-                    <p key={booking.id} className="rounded-lg bg-white px-2 py-1 text-xs text-sage-800">
-                      {formatDateTimeForUi(booking.session.startsAt, locale)} ·{" "}
-                      {booking.session.classType.name} · {booking.status}
-                    </p>
-                  ))
-                )}
-              </div>
-            </section>
-          </div>
-        )}
-      </aside>
-    </div>,
-    document.body,
+            ))
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

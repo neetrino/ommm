@@ -1,148 +1,83 @@
 "use client";
 
-import Image from "next/image";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { adminChrome } from "@/components/admin/admin-chrome";
+import { AdminCoachCompactRow } from "@/components/admin/admin-coach-compact-row";
+import {
+  ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL,
+  ADMIN_COACHES_LIST_EMPHASIZED_HEADER,
+  ADMIN_COACHES_LIST_HEADER_CLASS,
+  ADMIN_COACHES_LIST_TABLE_CLASS,
+  ADMIN_COACHES_LIST_TABLE_READONLY_CLASS,
+} from "@/components/admin/admin-coaches-list-layout";
 import { AdminCoachBoardCard } from "@/components/admin/admin-coach-board-card";
 import { AdminCoachDetailsDrawer } from "@/components/admin/admin-coach-details-drawer";
-import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions";
 import { useAdminCoachesView } from "@/components/admin/admin-coaches-view-context";
+import { useEffectiveListBoardViewMode } from "@/hooks/use-effective-list-board-view-mode";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
-import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
+import type { AdminCoachesListPayload } from "@/components/admin/admin-coaches-query";
+import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 export type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 
 type AdminCoachesDirectoryProps = {
+  initial: AdminCoachesListPayload;
+  classTypeOptions: readonly string[];
+  classOptions: readonly CoachClassOption[];
+  locale?: string;
+  readOnly?: boolean;
+};
+
+type AdminCoachesViewProps = {
   coaches: readonly AdminCoachDirectoryRow[];
   classTypeOptions: readonly string[];
   classOptions: readonly CoachClassOption[];
   locale?: string;
+  readOnly?: boolean;
 };
-
-function CoachAvatar({ coach }: { coach: AdminCoachDirectoryRow }) {
-  const src =
-    coach.user.avatarUrl !== null
-      ? resolveApiAssetUrl(coach.user.avatarUrl) ?? coach.user.avatarUrl
-      : null;
-  if (src !== null) {
-    return (
-      <Image
-        src={src}
-        alt=""
-        width={40}
-        height={40}
-        className="h-10 w-10 shrink-0 rounded-full object-cover"
-        unoptimized
-      />
-    );
-  }
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-sm font-semibold text-sage-800">
-      {coachCardDisplayName(coach.user).slice(0, 2).toUpperCase()}
-    </div>
-  );
-}
-
-function StatusBadge({ isActive }: { isActive: boolean }) {
-  const t = useTranslations("adminPages.coaches");
-  const className = isActive
-    ? "border-mint-200 bg-mint-50 text-sage-900"
-    : "border-zinc-200 bg-zinc-50 text-zinc-700";
-
-  return (
-    <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${className}`}>
-      {isActive ? t("filters.statusActive") : t("filters.statusInactive")}
-    </span>
-  );
-}
 
 function AdminCoachesListView({
   coaches,
   classTypeOptions,
   classOptions,
   locale = "en",
+  readOnly = false,
   onSelect,
-}: AdminCoachesDirectoryProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
+}: AdminCoachesViewProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   const t = useTranslations("adminPages.coaches");
+  const tableClass = readOnly
+    ? ADMIN_COACHES_LIST_TABLE_READONLY_CLASS
+    : ADMIN_COACHES_LIST_TABLE_CLASS;
 
   return (
-    <div className={adminChrome.tableWrap}>
-      <table className={`${adminChrome.table} table-fixed min-w-[52rem]`}>
-        <colgroup>
-          <col className="w-[32%]" />
-          <col className="w-[18%]" />
-          <col className="w-[16%]" />
-          <col className="w-[12%]" />
-          <col className="w-[22%]" />
-        </colgroup>
-        <thead className={adminChrome.thead}>
-          <tr>
-            <th className={adminChrome.th}>{t("colCoaches")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colSpecialization")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colWorkload")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colStatus")}</th>
-            <th className={`${adminChrome.th} text-center`}>{t("colActions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coaches.map((coach, index) => {
-            const rowDivider =
-              index < coaches.length - 1 ? adminChrome.tableRowDivider : "";
-
-            return (
-              <tr key={coach.id}>
-                <td className={`${adminChrome.tdStrong} ${rowDivider}`}>
-                  <div className="flex items-center gap-3">
-                    <CoachAvatar coach={coach} />
-                    <div className="min-w-0">
-                      <button
-                        type="button"
-                        className="break-words text-left underline decoration-sage-300 underline-offset-4"
-                        onClick={() => onSelect(coach)}
-                      >
-                        {coachCardDisplayName(coach.user)}
-                      </button>
-                      <div className="break-words text-xs font-normal text-sage-500">
-                        {coach.user.phone ?? "—"}
-                      </div>
-                      <div className="break-words text-xs font-normal text-sage-500">
-                        {coach.user.email}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {coach.specialization ?? "—"}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  {t("workloadSummary", {
-                    classes: coach.totalClasses,
-                    slots: coach.schedule.length,
-                  })}
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  <StatusBadge isActive={coach.isActive} />
-                </td>
-                <td className={`${adminChrome.td} text-center ${rowDivider}`}>
-                  <div className="flex justify-center">
-                    <AdminCoachRowActions
-                      coach={coach}
-                      classTypeOptions={classTypeOptions}
-                      classOptions={classOptions}
-                      locale={locale}
-                    />
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className={tableClass}>
+      <div className={ADMIN_COACHES_LIST_HEADER_CLASS}>
+        <span>{t("colCoaches")}</span>
+        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colSpecialization")}</span>
+        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
+        <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colWorkload")}</span>
+        {readOnly ? null : (
+          <>
+            <span aria-hidden="true" />
+            <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+          </>
+        )}
+      </div>
+      {coaches.map((coach) => (
+        <AdminCoachCompactRow
+          key={coach.id}
+          coach={coach}
+          classTypeOptions={classTypeOptions}
+          classOptions={classOptions}
+          locale={locale}
+          readOnly={readOnly}
+          onSelect={onSelect}
+        />
+      ))}
     </div>
   );
 }
@@ -153,7 +88,7 @@ function AdminCoachesBoardView({
   classOptions,
   locale = "en",
   onSelect,
-}: AdminCoachesDirectoryProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
+}: AdminCoachesViewProps & { onSelect: (coach: AdminCoachDirectoryRow) => void }) {
   return (
     <ul className="grid grid-cols-1 items-start gap-6 overflow-x-clip sm:grid-cols-2 2xl:grid-cols-3">
       {coaches.map((coach, index) => (
@@ -172,19 +107,49 @@ function AdminCoachesBoardView({
   );
 }
 
-export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
+export function AdminCoachesDirectory({
+  initial,
+  classTypeOptions,
+  classOptions,
+  locale = "en",
+  readOnly = false,
+}: AdminCoachesDirectoryProps) {
   const t = useTranslations("adminPages.coaches");
-  const { viewMode } = useAdminCoachesView();
+  const { viewMode: preferredViewMode } = useAdminCoachesView();
+  const viewMode = useEffectiveListBoardViewMode(preferredViewMode);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selectedCoachId = searchParams.get("coachProfile");
+  const urlCoachId = searchParams.get("coachProfile");
+  const [visibleCoachId, setVisibleCoachId] = useState<string | null>(urlCoachId);
+  const [prevUrlCoachId, setPrevUrlCoachId] = useState(urlCoachId);
+  if (urlCoachId !== prevUrlCoachId) {
+    setPrevUrlCoachId(urlCoachId);
+    setVisibleCoachId(urlCoachId);
+  }
+  const coaches = initial.items;
+
+  const listPage = useMemo(
+    () => parseListPageParams(Object.fromEntries(searchParams.entries())),
+    [searchParams],
+  );
+
   const selectedCoach = useMemo(() => {
-    if (selectedCoachId === null) {
+    if (visibleCoachId === null) {
       return null;
     }
-    return props.coaches.find((coach) => coach.id === selectedCoachId) ?? null;
-  }, [props.coaches, selectedCoachId]);
+    return coaches.find((coach) => coach.id === visibleCoachId) ?? null;
+  }, [coaches, visibleCoachId]);
+
+  const setListPage = useCallback(
+    (page: number, pageSize?: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      syncListPageQuery(params, page, pageSize);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const updateQuery = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
@@ -198,6 +163,7 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
 
   const openProfileDrawer = useCallback(
     (coach: AdminCoachDirectoryRow) => {
+      setVisibleCoachId(coach.id);
       updateQuery((params) => {
         params.set("coachProfile", coach.id);
       });
@@ -206,41 +172,50 @@ export function AdminCoachesDirectory(props: AdminCoachesDirectoryProps) {
   );
 
   const closeProfileDrawer = useCallback(() => {
+    setVisibleCoachId(null);
     updateQuery((params) => {
       params.delete("coachProfile");
     });
   }, [updateQuery]);
 
-  const openEditModal = useCallback(
-    (coachId: string) => {
-      updateQuery((params) => {
-        params.delete("coachProfile");
-        params.set("editCoach", coachId);
-      });
-    },
-    [updateQuery],
-  );
+  const viewProps: AdminCoachesViewProps = {
+    coaches,
+    classTypeOptions,
+    classOptions,
+    locale,
+    readOnly,
+  };
 
   const content =
     viewMode === "board" ? (
-      <AdminCoachesBoardView {...props} onSelect={openProfileDrawer} />
+      <AdminCoachesBoardView {...viewProps} onSelect={openProfileDrawer} />
     ) : (
-      <AdminCoachesListView {...props} onSelect={openProfileDrawer} />
+      <AdminCoachesListView {...viewProps} onSelect={openProfileDrawer} />
     );
 
   return (
     <>
       {content}
-      {props.coaches.length === 0 ? (
+      {coaches.length === 0 ? (
         <div className="rounded-2xl border border-white/60 bg-white/70 p-6 text-sm text-sage-600">
           {t("emptyState")}
         </div>
       ) : null}
+      {initial.total > 0 ? (
+        <OmmListPagination
+          total={initial.total}
+          page={listPage.page}
+          pageSize={listPage.pageSize}
+          offset={initial.offset}
+          onPageChange={setListPage}
+          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        />
+      ) : null}
       <AdminCoachDetailsDrawer
         coach={selectedCoach}
-        classOptions={props.classOptions}
+        locale={locale}
+        classOptions={classOptions}
         onClose={closeProfileDrawer}
-        onEdit={openEditModal}
       />
     </>
   );

@@ -4,16 +4,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { AuthBackToHomeLink } from "@/components/auth/auth-back-to-home-link";
 import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
-import {
-  REGISTER_REDIRECT_PARAM,
-  resolvePostAuthPath,
-} from "@/lib/auth-redirect";
+import { resolveAuthDestination } from "@/lib/auth-redirect";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
@@ -55,7 +51,6 @@ function isValidPhone(trimmed: string): boolean {
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectAfterAuth = searchParams.get(REGISTER_REDIRECT_PARAM);
   const urlLocale = useLocale();
   const t = useTranslations("common");
   const tAuth = useTranslations("auth.register");
@@ -143,7 +138,7 @@ export default function RegisterPage() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
-      router.push(resolvePostAuthPath(user.role, redirectAfterAuth), {
+      router.push(resolveAuthDestination(user.role, searchParams), {
         locale: nextLocale,
       });
     } catch (err) {
@@ -157,7 +152,6 @@ export default function RegisterPage() {
   return (
     <div className="relative">
       <div className="relative z-10">
-        <AuthBackToHomeLink />
         <h1 className="font-serif text-2xl font-semibold tracking-tight text-sage-800">
           {t("register")}
         </h1>

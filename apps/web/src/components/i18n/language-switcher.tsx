@@ -13,6 +13,7 @@ import {
   LANGUAGE_SWITCHER_ORDER,
   type LanguageSwitcherLocaleCode,
   isLanguageSwitcherLocale,
+  languageSwitcherEndonym,
 } from "@/lib/language-switcher-locales";
 
 /** Icon-only marketing trigger; menu needs room for language labels. */
@@ -54,7 +55,7 @@ export function LanguageSwitcher({
     current ??
     (isLanguageSwitcherLocale(routing.defaultLocale)
       ? routing.defaultLocale
-      : "hy");
+      : "en");
 
   const isIconMarketing =
     context === "marketing" && appearance === "icon";
@@ -80,11 +81,11 @@ export function LanguageSwitcher({
     });
   }
 
-  const triggerLabel = `${t("switcherAria")}: ${t(`optionNames.${effectiveLocale}`)}`;
+  const triggerLabel = `${t("switcherAria")}: ${languageSwitcherEndonym(effectiveLocale)}`;
   const options: readonly DropdownOption<LanguageSwitcherLocaleCode>[] = LANGUAGE_SWITCHER_ORDER.map(
     (code) => ({
       value: code,
-      label: t(`optionNames.${code}`),
+      label: languageSwitcherEndonym(code),
     }),
   );
 
@@ -119,7 +120,7 @@ export function LanguageSwitcher({
             </span>
           ) : (
             <span className="min-w-0 flex-1 truncate text-sm font-semibold leading-none text-[#464646]">
-              {t(`optionNames.${effectiveLocale}`)}
+              {languageSwitcherEndonym(effectiveLocale)}
             </span>
           )
         }

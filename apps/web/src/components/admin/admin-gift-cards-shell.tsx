@@ -7,60 +7,66 @@ import { useRouter } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminCreateGiftCardForm } from "@/components/admin/admin-create-gift-card-form";
+import { AdminGiftCardsFilters } from "@/components/admin/admin-gift-cards-filters";
 import {
   AdminGiftCardsViewProvider,
   useAdminGiftCardsView,
 } from "@/components/admin/admin-gift-cards-view-context";
-import { AdminGiftCardsViewSwitcher } from "@/components/admin/admin-gift-cards-view-switcher";
-import { OmmButton } from "@/components/ui/omm-button";
 import type {
   AdminAssignableUser,
   AdminGiftCardBatchRow,
+  GiftCardFilterValues,
 } from "@/components/admin/admin-gift-cards-types";
 import {
-  ADMIN_GIFT_CARDS_VIEW_QUERY_KEY,
-  type AdminGiftCardsViewMode,
-} from "@/lib/admin-gift-cards-view-preference";
+  GIFT_CARD_BATCH_ID_QUERY_KEY,
+  GIFT_CARD_CREATE_MODAL_VALUE,
+  GIFT_CARD_EDIT_MODAL_VALUE,
+  GIFT_CARD_MODAL_QUERY_KEY,
+} from "@/components/admin/admin-gift-cards-url";
+import { StaffListPageLayout } from "@/components/shared/staff/staff-list-page-layout";
 
 const BANNER_MS = 8000;
-const MODAL_QUERY_KEY = "modal";
-const MODAL_QUERY_VALUE = "create-gift-card";
-const EDIT_MODAL_QUERY_VALUE = "edit-gift-card";
 
-function AddGiftCardGlyph({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.65}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 2v20M2 12h20" />
-    </svg>
-  );
-}
+type AdminGiftCardsShellFilterProps = {
+  values: GiftCardFilterValues;
+  activeFilterCount: number;
+  isUpdating: boolean;
+  onChange: <K extends keyof GiftCardFilterValues>(
+    key: K,
+    value: GiftCardFilterValues[K],
+  ) => void;
+  onReset: () => void;
+};
 
 type AdminGiftCardsShellProps = {
   assignableUsers: readonly AdminAssignableUser[];
   giftCards: readonly AdminGiftCardBatchRow[];
-  initialViewMode: AdminGiftCardsViewMode;
+  filterProps: AdminGiftCardsShellFilterProps;
   children: ReactNode;
+  variant?: "full" | "staff";
+  staffBanner?: string;
+  readOnly?: boolean;
 };
 
 export function AdminGiftCardsShell({
   assignableUsers,
   giftCards,
-  initialViewMode,
+  filterProps,
   children,
+  variant = "full",
+  staffBanner,
+  readOnly = false,
 }: AdminGiftCardsShellProps) {
   return (
-    <AdminGiftCardsViewProvider key={initialViewMode} initialViewMode={initialViewMode}>
-      <AdminGiftCardsShellInner assignableUsers={assignableUsers} giftCards={giftCards}>
+    <AdminGiftCardsViewProvider>
+      <AdminGiftCardsShellInner
+        assignableUsers={assignableUsers}
+        giftCards={giftCards}
+        filterProps={filterProps}
+        variant={variant}
+        staffBanner={staffBanner}
+        readOnly={readOnly}
+      >
         {children}
       </AdminGiftCardsShellInner>
     </AdminGiftCardsViewProvider>
@@ -70,8 +76,13 @@ export function AdminGiftCardsShell({
 function AdminGiftCardsShellInner({
   assignableUsers,
   giftCards,
+  filterProps,
   children,
-}: Omit<AdminGiftCardsShellProps, "initialViewMode">) {
+  variant = "full",
+  staffBanner,
+  readOnly = false,
+}: AdminGiftCardsShellProps) {
+  const isStaff = variant === "staff";
   const t = useTranslations("adminPages.giftCards");
   const { viewMode, setViewMode } = useAdminGiftCardsView();
   const router = useRouter();
@@ -81,37 +92,27 @@ function AdminGiftCardsShellInner({
   const panelRef = useRef<HTMLDivElement>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const modalMode = searchParams.get(MODAL_QUERY_KEY);
-  const editBatchId = searchParams.get("batchId");
-  const isCreateMode = modalMode === MODAL_QUERY_VALUE;
-  const isEditMode = modalMode === EDIT_MODAL_QUERY_VALUE && editBatchId !== null;
+  const modalMode = searchParams.get(GIFT_CARD_MODAL_QUERY_KEY);
+  const editBatchId = searchParams.get(GIFT_CARD_BATCH_ID_QUERY_KEY);
+  const isCreateMode = modalMode === GIFT_CARD_CREATE_MODAL_VALUE;
+  const isEditMode = modalMode === GIFT_CARD_EDIT_MODAL_VALUE && editBatchId !== null;
   const isModalOpen = isCreateMode || isEditMode;
   const editingBatch =
     isEditMode && editBatchId !== null
       ? giftCards.find((batch) => batch.id === editBatchId) ?? null
       : null;
 
-  const setView = useCallback(
-    (mode: AdminGiftCardsViewMode) => {
-      setViewMode(mode);
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(ADMIN_GIFT_CARDS_VIEW_QUERY_KEY, mode);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [pathname, router, searchParams, setViewMode],
-  );
-
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete(MODAL_QUERY_KEY);
-    params.delete("batchId");
+    params.delete(GIFT_CARD_MODAL_QUERY_KEY);
+    params.delete(GIFT_CARD_BATCH_ID_QUERY_KEY);
     const query = params.toString();
     router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router, searchParams]);
 
   const openModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(MODAL_QUERY_KEY, MODAL_QUERY_VALUE);
+    params.set(GIFT_CARD_MODAL_QUERY_KEY, GIFT_CARD_CREATE_MODAL_VALUE);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
@@ -174,40 +175,51 @@ function AdminGiftCardsShellInner({
     focusable?.focus();
   }, [isModalOpen]);
 
+  const filters = (
+    <AdminGiftCardsFilters
+      values={filterProps.values}
+      activeFilterCount={filterProps.activeFilterCount}
+      isUpdating={filterProps.isUpdating}
+      onChange={filterProps.onChange}
+      onReset={filterProps.onReset}
+      viewMode={viewMode}
+      onViewChange={setViewMode}
+      onCreate={openModal}
+      variant={isStaff ? "embedded" : "full"}
+      hideCreate={readOnly || isStaff}
+    />
+  );
+
+  const operationalBanner = banner ?? staffBanner ?? null;
+
+  if (isStaff) {
+    return (
+      <StaffListPageLayout
+        title={t("title")}
+        banner={operationalBanner}
+        search={filters}
+      >
+        {children}
+      </StaffListPageLayout>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="ommm-card flex flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-        {banner !== null ? (
-          <p
-            className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
-            role="status"
-          >
-            {banner}
-          </p>
-        ) : null}
+      {banner !== null ? (
+        <p
+          className="rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
+          role="status"
+        >
+          {banner}
+        </p>
+      ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex justify-start">
-            <AdminGiftCardsViewSwitcher value={viewMode} onChange={setView} />
-          </div>
-          <div className="flex justify-start sm:justify-end">
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={openModal}
-              className="inline-flex cursor-pointer items-center gap-2 shadow-sm transition-transform hover:-translate-y-px"
-            >
-              <AddGiftCardGlyph className="h-5 w-5 shrink-0" />
-              {t("createButton")}
-            </OmmButton>
-          </div>
-        </div>
+      {filters}
 
-        {children}
-      </div>
+      {children}
 
-      {isModalOpen ? (
+      {isModalOpen && !readOnly ? (
         <div
           className="ommm-modal-overlay z-50"
           role="presentation"

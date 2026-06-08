@@ -4,17 +4,22 @@ import { getTranslations } from "next-intl/server";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPackagesManagement } from "@/components/admin/admin-packages-management";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
+import { parsePackageFiltersFromSearch } from "@/components/admin/admin-packages-url";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function AdminPackagesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
+  const search = await searchParams;
   const t = await getTranslations({ locale, namespace: "adminPages.packages" });
   const cookie = (await headers()).get("cookie") ?? "";
   const packagesRes = await serverApiJson<AdminPackageRow[]>("/packages/admin/plans", cookie);
+  const initialFilters = parsePackageFiltersFromSearch(search);
 
   if (!packagesRes.ok) {
     return (
@@ -31,7 +36,11 @@ export default async function AdminPackagesPage({
   return (
     <AdminContentFrame description={t("description")}>
       <Suspense fallback={null}>
-        <AdminPackagesManagement packages={packagesRes.data} locale={locale} />
+        <AdminPackagesManagement
+          packages={packagesRes.data}
+          locale={locale}
+          initialFilters={initialFilters}
+        />
       </Suspense>
     </AdminContentFrame>
   );

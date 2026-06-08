@@ -3,6 +3,8 @@
 import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ApiError, apiFetch, apiFetchFormData } from "@/lib/api";
+import { parseAmdMoneyInput } from "@/lib/price-amd";
+import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
@@ -165,9 +167,9 @@ export function AdminCreateGiftCardForm({
     if (busy || submitLockRef.current) {
       return;
     }
-    const parsedAmountAmd = Number.parseInt(amountAmd, 10);
+    const parsedAmountAmd = parseAmdMoneyInput(amountAmd);
     const parsedQuantity = Number.parseInt(quantity, 10);
-    if (!Number.isFinite(parsedAmountAmd) || parsedAmountAmd < 1) {
+    if (parsedAmountAmd === null || parsedAmountAmd < 1) {
       setTone("err");
       setResult(t("amountInvalid"));
       return;
@@ -255,14 +257,11 @@ export function AdminCreateGiftCardForm({
     <form onSubmit={submit} className="grid gap-4">
       <label className="flex flex-col gap-1">
         <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldAmount")}</span>
-        <input
+        <AmdMoneyInput
           name="amountAmd"
-          type="number"
-          min={1}
-          className="ommm-input [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           placeholder={t("fieldAmountPlaceholder")}
           value={amountAmd}
-          onChange={(event) => setAmountAmd(event.target.value)}
+          onValueChange={setAmountAmd}
           disabled={busy}
           required
         />

@@ -7,7 +7,8 @@ import { AdminNotificationsDeliveriesSection } from "@/components/admin/admin-no
 import { AdminNotificationsScheduledSection } from "@/components/admin/admin-notifications-scheduled-section";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import type { AdminNotificationsPayload } from "@/components/admin/admin-notifications-types";
-import { apiFetch } from "@/lib/api";
+import { useRouter } from "@/i18n/navigation";
+import { useSyncStateOnPropChange } from "@/hooks/sync-state-on-prop-change";
 
 type Props = {
   locale: string;
@@ -16,66 +17,28 @@ type Props = {
 
 export function AdminNotificationsManagement({ locale, initial }: Props) {
   const t = useTranslations("adminPages.notifications");
+  const router = useRouter();
   const [stats, setStats] = useState(initial.stats);
   const [scheduled, setScheduled] = useState(initial.scheduled);
   const [deliveries, setDeliveries] = useState(initial.deliveries);
   const [analytics, setAnalytics] = useState(initial.analytics);
   const [loadErrors, setLoadErrors] = useState(initial.loadErrors);
-  const [refreshing, setRefreshing] = useState(false);
 
-  const refreshData = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      const [statsRes, scheduledRes, deliveriesRes, analyticsRes] = await Promise.all([
-        apiFetch<AdminNotificationsPayload["stats"]>("/notifications/admin/stats").catch(() => null),
-        apiFetch<AdminNotificationsPayload["scheduled"]>("/notifications/admin/scheduled").catch(
-          () => null,
-        ),
-        apiFetch<AdminNotificationsPayload["deliveries"]>("/notifications/admin/deliveries").catch(
-          () => null,
-        ),
-        apiFetch<{
-          summary: AdminNotificationsPayload["analytics"]["summary"];
-          funnel: {
-            deliveryRatePct: number;
-            scheduledCampaigns: number;
-            immediateCampaigns: number;
-          };
-          channelBreakdown: AdminNotificationsPayload["analytics"]["channelBreakdown"];
-        }>("/notifications/admin/analytics?days=30").catch(() => null),
-      ]);
-      if (statsRes) {
-        setStats(statsRes);
-        setLoadErrors((prev) => ({ ...prev, stats: false }));
-      }
-      if (scheduledRes) {
-        setScheduled(scheduledRes);
-        setLoadErrors((prev) => ({ ...prev, scheduled: false }));
-      }
-      if (deliveriesRes) {
-        setDeliveries(deliveriesRes);
-        setLoadErrors((prev) => ({ ...prev, deliveries: false }));
-      }
-      if (analyticsRes) {
-        setAnalytics({
-          summary: analyticsRes.summary,
-          funnel: {
-            deliveryRatePct: analyticsRes.funnel.deliveryRatePct,
-            scheduledCampaigns: analyticsRes.funnel.scheduledCampaigns,
-            immediateCampaigns: analyticsRes.funnel.immediateCampaigns,
-          },
-          channelBreakdown: analyticsRes.channelBreakdown,
-        });
-        setLoadErrors((prev) => ({ ...prev, analytics: false }));
-      }
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
+  useSyncStateOnPropChange(initial, (next) => {
+    setStats(next.stats);
+    setScheduled(next.scheduled);
+    setDeliveries(next.deliveries);
+    setAnalytics(next.analytics);
+    setLoadErrors(next.loadErrors);
+  });
+
+  const refreshAll = useCallback(() => {
+    router.refresh();
+  }, [router]);
 
   const handleBroadcastSuccess = useCallback(() => {
-    void refreshData();
-  }, [refreshData]);
+    refreshAll();
+  }, [refreshAll]);
 
   return (
     <div className="space-y-8">
@@ -112,18 +75,14 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
         <div className="mt-4 max-w-xl">
           <AdminNotificationBroadcastForm onSuccess={handleBroadcastSuccess} />
         </div>
-        {refreshing ? (
-          <p className={`${adminChrome.metaText} mt-2`}>{t("refreshing")}</p>
-        ) : null}
       </section>
 
       <AdminNotificationsScheduledSection
         locale={locale}
-        items={scheduled}
+        payload={scheduled}
         loadFailed={loadErrors.scheduled}
-        onRefresh={() => {
-          void refreshData();
-        }}
+        initialFilters={initial.scheduledFilters}
+        onRefresh={refreshAll}
       />
 
       <section className={adminChrome.panel}>
@@ -163,8 +122,9 @@ export function AdminNotificationsManagement({ locale, initial }: Props) {
 
       <AdminNotificationsDeliveriesSection
         locale={locale}
-        items={deliveries}
+        payload={deliveries}
         loadFailed={loadErrors.deliveries}
+        initialFilters={initial.deliveriesFilters}
       />
 
       <p className={adminChrome.metaText}>{t("unsupportedNote")}</p>

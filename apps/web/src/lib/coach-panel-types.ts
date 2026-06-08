@@ -1,14 +1,13 @@
 /** Coach dashboard API row shapes (web panel). */
 
-export type CoachPanelSessionRow = {
-  id: string;
-  startsAt: string;
-  endsAt: string;
-  capacity: number;
-  classType: { name: string };
-  coachId: string;
-  _count: { bookings: number };
-};
+import type {
+  ScheduleSessionListRow,
+  ScheduleSessionListStatus,
+} from "@/components/shared/schedule/schedule-session-list-types";
+
+export type CoachPanelSessionStatus = ScheduleSessionListStatus;
+
+export type CoachPanelSessionRow = ScheduleSessionListRow;
 
 export type CoachPanelBookingRow = {
   id: string;

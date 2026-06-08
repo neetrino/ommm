@@ -7,6 +7,12 @@
   min-width: 0;
   overflow: visible;
   padding-bottom: var(--home-plan-glass-overhang);
+  border: none;
+  background: none;
+  text-align: inherit;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
 }
 
 .cardMedia {

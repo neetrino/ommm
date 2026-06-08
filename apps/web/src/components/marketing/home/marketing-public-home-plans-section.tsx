@@ -1,7 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
-import { HomePackagePlanCardMobile } from "@/components/marketing/home/home-package-plan-card-mobile";
-import { HomePackagePlanCardsRow } from "@/components/marketing/home/home-package-plan-card";
+import {
+  HomePlansDesktopCards,
+  HomePlansMobileCarousel,
+  HomePlansSubscribeModalHost,
+} from "@/components/marketing/home/home-plans-interactive-cards";
 import { HOME_HERO_MOBILE_MORE_DETAILS_CTA } from "@/components/marketing/home/home-hero-banner-tokens";
 import {
   HOME_PLANS_SECTION_FIGMA,
@@ -12,11 +15,14 @@ import styles from "@/components/marketing/home/marketing-public-home-plans-sect
 import { buildHomeCategoryCardsFromPlans } from "@/components/marketing/home/home-public-plan-card-copy";
 import { HOME_PAGE_SURFACE } from "@/components/marketing/home/home-page-tokens";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
+import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
+import { resolveMarketingAudience } from "@/lib/marketing-audience";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
 } from "@/lib/public-package-plan";
 import { serverApiJsonPublic } from "@/lib/server-api";
+import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 type MarketingPublicHomePlansSectionProps = {
   locale: string;
@@ -29,13 +35,18 @@ export async function MarketingPublicHomePlansSection({
   locale,
 }: MarketingPublicHomePlansSectionProps) {
   const t = await getTranslations({ locale, namespace: "marketingPublic.home" });
-  const plansRes = await serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans");
+  const [plansRes, authUser] = await Promise.all([
+    serverApiJsonPublic<PublicPackagePlan[]>("/packages/plans"),
+    getOptionalLayoutAuthUser(),
+  ]);
+  const audience = resolveMarketingAudience(authUser);
   const activePlans = plansRes.ok
     ? plansRes.data
         .filter((plan) => plan.isActive)
         .map(normalizePublicPackagePlan)
         .sort((left, right) => left.displayOrder - right.displayOrder)
     : [];
+  const categories = groupVisiblePublicPackageCategories(activePlans);
   const cards = buildHomeCategoryCardsFromPlans(activePlans, locale, {
     sessionsUnlimited: t("planCardSessionsUnlimited"),
     sessionsCount: (count) => t("planCardSessionsCount", { count }),
@@ -44,6 +55,12 @@ export async function MarketingPublicHomePlansSection({
     categoryPackages: (count) => t("planCardCategoryPackages", { count }),
     priceFromPrefix: t("planCardPriceFromPrefix"),
   });
+
+  const interactiveCardsProps = {
+    audience,
+    categories,
+    cards,
+  };
 
   const mobileStyle = {
     ["--home-plans-section-bg" as string]: HOME_PLANS_SECTION_MOBILE_LAYOUT.sectionBackground,
@@ -105,15 +122,10 @@ export async function MarketingPublicHomePlansSection({
               {plansStatusMessage}
             </p>
           ) : (
-            <div className={styles.carouselViewport} aria-label={t("plansSectionTitle")} tabIndex={0}>
-              <div className={styles.carouselTrack}>
-                {cards.map((card, index) => (
-                  <div key={`plan-mobile-${index}`} className={styles.carouselSlide}>
-                    <HomePackagePlanCardMobile {...card} />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <HomePlansMobileCarousel
+              {...interactiveCardsProps}
+              carouselAriaLabel={t("plansSectionTitle")}
+            />
           )}
 
           <div className={styles.mobileCta}>
@@ -188,7 +200,7 @@ export async function MarketingPublicHomePlansSection({
                 {plansStatusMessage}
               </p>
             ) : (
-              <HomePackagePlanCardsRow cards={cards} />
+              <HomePlansDesktopCards {...interactiveCardsProps} />
             )}
 
             <HomeHeroCtaButton
@@ -199,6 +211,10 @@ export async function MarketingPublicHomePlansSection({
           </div>
         </div>
       </section>
+
+      {plansStatusMessage === null ? (
+        <HomePlansSubscribeModalHost locale={locale} audience={audience} categories={categories} />
+      ) : null}
     </>
   );
 }

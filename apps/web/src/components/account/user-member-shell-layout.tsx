@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+
+export const dynamic = "force-dynamic";
+
 import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
-import { DashboardAppShell } from "@/components/shell/dashboard-app-shell";
+import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
   dashboardNavDefinitionsForRole,
   dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
-import { USER_DASHBOARD_PATH } from "@/lib/role-home";
-import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { userDisplayInitials } from "@/lib/user-display-initials";
-import { userDisplayName } from "@/lib/user-display-name";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import {
   redirectIfPreferredAccountLocale,
   redirectIfRoleNotIn,
@@ -31,7 +31,7 @@ export async function UserMemberShellLayout({
   if (authOutcome.kind === "api_unavailable") {
     return <ApiUnavailablePanel />;
   }
-  const { role, userLocale, authUser } = authOutcome.auth;
+  const { role, userLocale } = authOutcome.auth;
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, USER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
@@ -39,8 +39,9 @@ export async function UserMemberShellLayout({
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
-    <DashboardAppShell
-      brandHref={USER_DASHBOARD_PATH}
+    <WorkspaceShellFromAuth
+      authUser={authOutcome.auth.authUser}
+      brandHref={USER_ACCOUNT_PATH}
       brandLabel={tDash("brand.member.title")}
       brandSubline={tDash("brand.member.subline")}
       variant="member"
@@ -48,22 +49,8 @@ export async function UserMemberShellLayout({
       navRole="USER"
       navDefinitions={navDefinitions}
       notificationRoute={notificationRoute}
-      memberProfile={{
-        initials: userDisplayInitials(
-          authUser.name,
-          authUser.lastName,
-          authUser.email,
-        ),
-        imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
-        displayName: userDisplayName(
-          authUser.name,
-          authUser.lastName,
-          authUser.email,
-        ),
-        roleKey: authUser.role,
-      }}
     >
       {children}
-    </DashboardAppShell>
+    </WorkspaceShellFromAuth>
   );
 }

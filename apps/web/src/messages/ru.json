@@ -6,7 +6,21 @@
     "logout": "Выход",
     "account": "Мой аккаунт",
     "admin": "Админ",
-    "loading": "Загрузка…"
+    "loading": "Загрузка…",
+    "sessionToday": "Сегодня",
+    "sessionTomorrow": "Завтра",
+    "sessionUntil": "до",
+    "sessionDurationMinutes": "{minutes} мин",
+    "sessionCoach": "Тренер"
+  },
+  "listSort": {
+    "sort": "Сортировка",
+    "newest": "Сначала новые",
+    "oldest": "Сначала старые",
+    "upcoming": "Сначала предстоящие",
+    "dateAsc": "Дата: по возрастанию",
+    "dateDesc": "Дата: по убыванию",
+    "expirationSoon": "Скоро истекают"
   },
   "nav": {
     "studioBrand": "Ommm.",
@@ -36,12 +50,7 @@
   },
   "language": {
     "switcherAria": "Язык интерфейса",
-    "expandPicker": "Открыть меню языка",
-    "optionNames": {
-      "hy": "Հայերեն",
-      "en": "Английский",
-      "ru": "Русский"
-    }
+    "expandPicker": "Открыть меню языка"
   },
   "home": {
     "bookNow": "Записаться",
@@ -449,6 +458,7 @@
         "classes": "Классы",
         "schedule": "Расписание",
         "bookings": "Мои бронирования",
+        "waitlists": "Листы ожидания",
         "packages": "Пакеты",
         "payments": "Платежи",
         "giftCards": "Подарочные карты",
@@ -459,7 +469,7 @@
       "COACH": {
         "dashboard": "Панель",
         "schedule": "Моё расписание",
-        "groups": "Мои группы",
+        "groups": "Бронирования",
         "salary": "Выплаты",
         "analytics": "Аналитика",
         "notifications": "Уведомления",
@@ -467,6 +477,7 @@
       },
       "MANAGER": {
         "home": "Главная",
+        "schedule": "Расписание",
         "classes": "Классы",
         "bookings": "Бронирования",
         "waitlists": "Листы ожидания",
@@ -478,6 +489,7 @@
       "CONTENT_ADMIN": {
         "home": "Главная",
         "content": "Контент",
+        "notifications": "Уведомления",
         "profile": "Профиль"
       },
       "ADMIN": {
@@ -530,6 +542,7 @@
         "classes": "Просмотр и запись на сессии.",
         "schedule": "Недельное расписание и запись на следующую сессию.",
         "bookings": "Предстоящие и прошлые бронирования.",
+        "waitlists": "Ваши позиции в очереди на полные занятия.",
         "packages": "Активные пакеты, тарифы и история платежей.",
         "payments": "История ваших платежей и детали транзакций.",
         "giftCards": "Балансы и погашение.",
@@ -635,6 +648,18 @@
     "lead": "Вы вошли через Google. Установите пароль, чтобы входить также по email."
   },
   "userPages": {
+    "pagination": {
+      "ariaLabel": "Пагинация списка",
+      "empty": "Нет результатов",
+      "range": "Показано {from}–{to} из {total}",
+      "prev": "Назад",
+      "next": "Вперёд",
+      "prevAria": "Предыдущая страница",
+      "nextAria": "Следующая страница",
+      "pagesAria": "Страницы",
+      "pageSizeAria": "Записей на странице",
+      "pageSizeLabel": "{size} на странице"
+    },
     "packages": {
       "title": "Пакеты",
       "description": "Выберите план и оплатите удобным способом. Пакет появится здесь после оплаты.",
@@ -651,7 +676,12 @@
       "yourPackages": "Ваши пакеты",
       "signInToView": "Войдите, чтобы просмотреть.",
       "noActivePackage": "Пока нет активного пакета.",
+      "noPackagesYet": "Вы ещё не приобрели ни одного пакета.",
+      "browsePackagesCta": "Посмотреть пакеты",
       "sessionsLeft": "Осталось занятий: {count}",
+      "sessionsRemaining": "Осталось занятий: {count}",
+      "sessionsUsedOfTotal": "Использовано {used} из {total}",
+      "listSessionsCompact": "{used}/{total} исп. · {remaining} ост.",
       "renewsEnds": "Продление / окончание {date}",
       "paymentHistory": "История платежей",
       "signInPayments": "Войдите, чтобы видеть платежи.",
@@ -674,16 +704,42 @@
         "PENDING": "Ожидает оплаты"
       },
       "membershipViewDetailsHint": "Нажмите для подробностей",
-      "membershipDetailsLead": "Просмотрите детали пакета и управляйте подпиской.",
       "membershipDetailsCloseBackdrop": "Закрыть детали пакета",
-      "membershipDetailsClose": "Закрыть",
       "membershipDetailsSessionName": "Session Name",
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
-      "membershipDetailsDuration": "Длительность",
+      "membershipDetailsValidity": "Срок действия",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
-      "membershipDetailsStatus": "Статус"
+      "membershipDetailsStatus": "Статус",
+      "membershipDetailsSessionsUsed": "Использовано занятий",
+      "membershipDetailsSessionsRemaining": "Осталось занятий",
+      "membershipDetailsUsage": "Использование",
+      "membershipDetailsPeriodStart": "Начало периода",
+      "sheetTabGeneral": "Общее",
+      "sessionsUsed": "Использовано: {count}",
+      "viewSwitcherAria": "Режим отображения пакетов",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "viewDetails": "Подробнее",
+      "viewDetailsFor": "Подробнее о {name}",
+      "packagesCount": "{count, plural, one {# пакет} few {# пакета} many {# пакетов} other {# пакета}}",
+      "emptyPackagesHint": "Просмотрите доступные планы и оформите подписку, когда будете готовы.",
+      "listHeaderPackage": "Пакет",
+      "listHeaderValidity": "Срок действия",
+      "listHeaderPrice": "Цена",
+      "listHeaderSessions": "Занятия",
+      "listHeaderPeriod": "Период",
+      "listHeaderStatus": "Статус",
+      "listHeaderActions": "Действия",
+      "filteredEmptyTitle": "Нет пакетов по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить статус или поисковый запрос.",
+      "filters": {
+        "searchPlaceholder": "Поиск по пакету или категории…",
+        "status": "Статус",
+        "statusAll": "Все статусы",
+        "resetFilters": "Сбросить фильтры"
+      }
     },
     "progress": {
       "title": "Прогресс",
@@ -712,15 +768,72 @@
     },
     "bookings": {
       "title": "Мои бронирования",
+      "description": "Предстоящие и прошлые бронирования.",
       "upcoming": "Предстоящие",
       "pastOther": "Прошлые и прочие",
-      "waitlists": "Листы ожидания",
-      "waitlistsLoadError": "Не удалось загрузить листы ожидания.",
-      "waitlistsEmpty": "Нет активных листов ожидания.",
-      "waitlistBadge": "#{pos} · {status}",
       "emptySection": "Пока пусто.",
+      "emptyTitle": "Пока нет бронирований",
+      "emptyDescription": "Когда вы запишетесь на занятие, оно появится здесь.",
+      "filteredEmptyTitle": "Нет бронирований по выбранным фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия, тренера или статус.",
+      "filteredEmptySection": "В этом разделе нет совпадений.",
       "signInRequired": "Войдите, чтобы увидеть бронирования.",
-      "loadError": "Не удалось загрузить бронирования ({status})."
+      "loadError": "Не удалось загрузить бронирования ({status}).",
+      "viewSwitcherAria": "Режим отображения бронирований",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "bookingsCount": "{count, plural, one {# бронирование} few {# бронирования} many {# бронирований} other {# бронирования}}",
+      "listHeaderClass": "Занятие",
+      "listHeaderDate": "Дата",
+      "listHeaderTime": "Время",
+      "listHeaderStatus": "Статус",
+      "listHeaderActions": "Действия",
+      "coachFallback": "Тренер",
+      "filters": {
+        "searchPlaceholder": "Поиск по занятию, тренеру или статусу…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "coachAll": "Все тренеры",
+        "status": "Статус",
+        "statusAll": "Все статусы",
+        "resetFilters": "Сбросить фильтры"
+      },
+      "status": {
+        "BOOKED": "Забронировано",
+        "COMPLETED": "Завершено",
+        "CANCELLED": "Отменено",
+        "MISSED": "Пропущено"
+      }
+    },
+    "waitlists": {
+      "title": "Листы ожидания",
+      "description": "Активные позиции в очереди на полные занятия.",
+      "emptyTitle": "Нет активных листов ожидания",
+      "emptyDescription": "Когда вы встанете в очередь на полное занятие, оно появится здесь.",
+      "signInRequired": "Войдите, чтобы увидеть листы ожидания.",
+      "loadError": "Не удалось загрузить листы ожидания.",
+      "waitlistsCount": "{count, plural, one {# лист ожидания} few {# листа ожидания} many {# листов ожидания} other {# листа ожидания}}",
+      "waitlistBadge": "#{pos} · {status}",
+      "viewSwitcherAria": "Режим отображения листов ожидания",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "listHeaderClass": "Занятие",
+      "listHeaderDate": "Дата",
+      "listHeaderTime": "Время",
+      "listHeaderStatus": "Статус",
+      "listHeaderActions": "Действия",
+      "coachFallback": "Тренер",
+      "filteredEmptyTitle": "Нет листов ожидания по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия или тренера.",
+      "filters": {
+        "searchPlaceholder": "Поиск по занятию или тренеру…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "coachAll": "Все тренеры",
+        "resetFilters": "Сбросить фильтры"
+      }
     },
     "classes": {
       "title": "Классы",
@@ -731,7 +844,32 @@
       "spotsBooked": "{booked}/{capacity} занято",
       "paidShort": "Платно ({amount})",
       "includedShort": "Включено / абонемент",
-      "myBookingsLink": "Мои бронирования"
+      "myBookingsLink": "Мои бронирования",
+      "viewSwitcherAria": "Режим отображения расписания",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "sessionsCount": "{count, plural, one {# сессия} few {# сессии} many {# сессий} other {# сессии}}",
+      "listHeaderClass": "Занятие",
+      "listHeaderDate": "Дата",
+      "listHeaderTime": "Время",
+      "listHeaderCoach": "Тренер",
+      "listHeaderSpots": "Места",
+      "listHeaderActions": "Действия",
+      "bookedBadge": "Забронировано",
+      "filteredEmptyTitle": "Нет сессий по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия, тренера или доступность.",
+      "filters": {
+        "searchPlaceholder": "Поиск по занятию или тренеру…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "coachAll": "Все тренеры",
+        "availability": "Доступность",
+        "availabilityAll": "Любая доступность",
+        "availabilityAvailable": "Есть свободные места",
+        "availabilityFull": "Полно / лист ожидания",
+        "resetFilters": "Сбросить фильтры"
+      }
     },
     "notifications": {
       "title": "Уведомления",
@@ -741,9 +879,22 @@
     },
     "giftCards": {
       "title": "Подарочные карты",
+      "giftBalanceLabel": "Баланс подарков",
       "giftBalance": "Баланс подарков (кредиты): {amount}",
       "redeem": "Погасить",
       "purchase": "Купить",
+      "myCardsHeading": "Мои подарочные карты",
+      "emptyMyTitle": "Подарочных карт пока нет",
+      "emptyMyDescription": "Купленные и полученные карты появятся здесь с меткой, как вы их получили.",
+      "sourceLabels": {
+        "purchased": "Куплена",
+        "received": "Подарок"
+      },
+      "tabs": {
+        "aria": "Разделы подарочных карт",
+        "my": "Мои",
+        "shop": "Купить"
+      },
       "purchasedHeading": "Купленные",
       "receivedHeading": "Полученные",
       "signInToView": "Войдите, чтобы просмотреть.",
@@ -768,12 +919,7 @@
       "cardMessage": "Сообщение",
       "viewDetails": "Подробнее",
       "openCardAria": "Просмотреть детали подарочной карты на {amount}",
-      "detailsModalEyebrow": "Подарочная карта",
-      "detailsModalLead": "Баланс {balance} · скопируйте код ниже или погасите кредиты.",
-      "detailsModalInfoHeading": "Информация о карте",
-      "detailsModalActionsHeading": "Действия",
-      "modalCloseAria": "Закрыть",
-      "modalBackdropClose": "Закрыть окно",
+      "sheetBackdropClose": "Закрыть детали подарочной карты",
       "drawerExpired": "Истёк срок",
       "drawerValid": "Действительна",
       "copyCode": "Скопировать код",
@@ -828,6 +974,8 @@
         "payFailed": "Не удалось завершить fake-оплату.",
         "successTitle": "Оплата завершена",
         "successLead": "Оплата подарочной карты подтверждена, карта уже доступна в вашем аккаунте.",
+        "cashPendingTitle": "Ожидается оплата наличными",
+        "cashPendingLead": "Запрос на оплату наличными отправлен. Администратор подтвердит его после получения платежа.",
         "methods": {
           "CARD": "Карта",
           "CASH": "Наличные"
@@ -854,7 +1002,9 @@
         "allStatuses": "Все статусы",
         "type": "Тип платежа",
         "allTypes": "Все типы",
-        "sort": "Сортировка"
+        "sort": "Сортировка",
+        "searchPlaceholder": "Поиск платежей…",
+        "resetFilters": "Сбросить фильтры"
       },
       "sort": {
         "newest": "Сначала новые",
@@ -873,24 +1023,51 @@
         "gift": "Подарочная карта",
         "other": "Другое"
       },
+      "paymentMethods": {
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "BANK_TRANSFER": "Банковский перевод",
+        "OTHER": "Другое"
+      },
       "table": {
-        "date": "Дата платежа",
+        "date": "Дата",
+        "time": "Время",
         "amount": "Сумма",
+        "paymentMethod": "Способ оплаты",
         "currency": "Валюта",
         "status": "Статус",
         "type": "Тип",
         "related": "Связанный объект",
         "reference": "Референс",
         "updated": "Обновлено"
-      }
+      },
+      "viewSwitcherAria": "Режим отображения платежей",
+      "viewList": "Список",
+      "viewBoard": "Карточки",
+      "paymentsCount": "{count, plural, one {# платёж} few {# платежа} many {# платежей} other {# платежа}}"
     },
     "profile": {
       "title": "Профиль",
-      "description": "Данные аккаунта, безопасность, домашнее изображение и настройки уведомлений.",
+      "description": "Личные данные, пароль и фото профиля.",
+      "heroEyebrow": "Ваш аккаунт",
+      "accountInfoEyebrow": "Личное",
+      "securityEyebrow": "Защита",
+      "homeImageEyebrow": "Образ",
+      "homeImageLead": "Этот портрет отображается в личном кабинете и в аватаре в шапке.",
+      "deleteAccountEyebrow": "Поддержка",
+      "workspaceEyebrow": "Рабочая зона",
       "signInPrompt": "Войдите, чтобы открыть профиль.",
       "accountInfo": "Данные аккаунта",
       "security": "Безопасность",
       "homeImage": "Домашнее изображение",
+      "deleteAccount": "Удалить аккаунт",
+      "deleteAccountConfirmTitle": "Удалить аккаунт?",
+      "deleteAccountConfirmDescription": "Аккаунт будет удалён без возможности восстановления, и вы выйдете из системы.",
+      "deleteAccountConfirmYes": "Удалить аккаунт",
+      "deleteAccountConfirmNo": "Отмена",
+      "deleteAccountBackdropClose": "Закрыть окно удаления аккаунта",
+      "deleteAccountDeleting": "Удаление…",
+      "deleteAccountFailed": "Не удалось удалить аккаунт.",
       "preferences": "Настройки",
       "labels": {
         "email": "Email",
@@ -996,6 +1173,32 @@
       "pageDescription": "Быстрый операционный обзор занятий, бронирований, участников, выручки и алертов.",
       "errorAuth": "Требуется вход администратора.",
       "errorLoad": "Не удалось загрузить данные дашборда ({status}).",
+      "kpi": {
+        "groupOperations": "Операции",
+        "groupFinance": "Выручка",
+        "sessions": "Занятия сегодня",
+        "bookings": "Бронирования сегодня",
+        "members": "Активные участники",
+        "revenue": "Выручка за месяц",
+        "waitlist": "Лист ожидания",
+        "alerts": "Алерты",
+        "newUsers": "Новые пользователи"
+      },
+      "charts": {
+        "revenueTitle": "Динамика выручки",
+        "revenueHint": "Последние 7 дней",
+        "revenueSeries": "Выручка",
+        "revenueChartAria": "Динамика выручки за последние семь дней",
+        "bookingsTitle": "Динамика бронирований",
+        "bookingsHint": "Последние 7 дней",
+        "bookingsSeries": "Бронирования",
+        "completedSeries": "Завершено",
+        "bookingsChartAria": "Динамика бронирований за последние семь дней",
+        "todayBookingsTitle": "Бронирования сегодня",
+        "todayBookingsAria": "Распределение сегодняшних бронирований по статусам",
+        "viewAnalytics": "Вся аналитика",
+        "empty": "За этот период данных пока нет."
+      },
       "cards": {
         "todayClasses": {
           "title": "Занятия сегодня",
@@ -1041,6 +1244,12 @@
       },
       "todayBookings": {
         "title": "Статусы бронирований за сегодня",
+        "statusLabels": {
+          "booked": "Подтверждено",
+          "completed": "Завершено",
+          "cancelled": "Отменено",
+          "missed": "Пропущено"
+        },
         "breakdown": {
           "booked": "Подтверждено: {count}",
           "completed": "Завершено: {count}",
@@ -1053,7 +1262,12 @@
         "today": "Сегодня",
         "thisMonth": "В этом месяце",
         "pending": "Ожидающие платежи",
+        "pendingWithCount": "Ожидающие платежи · {count}",
+        "pendingCount": "{count} платежей",
         "pendingValue": "{count} ({amount})",
+        "trendLabel": "К прошлому месяцу",
+        "trendValue": "{percent}%",
+        "trendUnavailable": "—",
         "trend": "{percent}% к прошлому месяцу",
         "empty": "Данные по выручке пока недоступны."
       },
@@ -1087,6 +1301,26 @@
     }
   },
   "adminPages": {
+    "searchTools": {
+      "applyFilters": "Применить фильтры",
+      "clearSearchAndFilters": "Очистить поиск и фильтры",
+      "filterPanelAria": "Фильтры поиска",
+      "filterToggleAria": "Показать или скрыть фильтры",
+      "loadingResults": "Загрузка результатов…",
+      "activeCount": "{count} активных фильтров"
+    },
+    "pagination": {
+      "ariaLabel": "Пагинация списка",
+      "empty": "Нет результатов",
+      "range": "Показано {from}–{to} из {total}",
+      "prev": "Назад",
+      "next": "Вперёд",
+      "prevAria": "Предыдущая страница",
+      "nextAria": "Следующая страница",
+      "pagesAria": "Страницы",
+      "pageSizeAria": "Записей на странице",
+      "pageSizeLabel": "{size} на странице"
+    },
     "home": {
       "signInPrompt": "Войдите, чтобы открыть админ-панель."
     },
@@ -1101,10 +1335,13 @@
       "colStatus": "Статус",
       "colActions": "Действия",
       "colUserPhone": "Клиент / Телефон",
+      "colCoach": "Тренер",
+      "coachNotAssigned": "Не назначен",
       "colClassType": "Тип занятия",
+      "colDateTime": "Дата и время",
       "colSessionCount": "Сессии",
-      "colPaymentStatus": "Статус оплаты",
-      "colAttendanceStatus": "Статус посещения",
+      "colPaymentStatus": "Оплата",
+      "colAttendanceStatus": "Посещение",
       "colRegisterDate": "Дата регистрации",
       "colChannel": "Канал",
       "summaryTotal": "Всего бронирований",
@@ -1119,6 +1356,8 @@
       "filterClassAll": "Все типы занятий",
       "filterCoachAll": "Все тренеры",
       "filterClientAll": "Все клиенты",
+      "filterPayment": "Оплата",
+      "filterPaymentAll": "Все оплаты",
       "filterStatusAll": "Все статусы",
       "resetFilters": "Reset Filters",
       "activeCount": "{count} активных фильтров",
@@ -1126,14 +1365,19 @@
       "viewMonthly": "Месячный вид",
       "viewWeekly": "Недельный вид",
       "viewDaily": "Дневной вид",
+      "views": {
+        "aria": "Вид бронирований"
+      },
       "statusBooked": "Забронировано",
       "statusCompleted": "Завершено",
       "statusCancelled": "Отменено",
       "statusWaitlisted": "Лист ожидания",
+      "statusMissed": "Пропущено",
+      "changeStatusAria": "Изменить статус — сейчас: {status}",
       "paymentPaid": "Оплачено",
       "paymentCash": "Наличные",
       "paymentUnpaid": "Не оплачено",
-      "paymentRefunded": "Возврат",
+      "paymentCancelled": "Отменено",
       "attendanceAttended": "Посетил",
       "attendanceNotAttended": "Не посетил",
       "attendanceNoShow": "Неявка",
@@ -1144,18 +1388,36 @@
       "actionCancel": "Отменить бронирование",
       "actionMove": "Перенести в другой класс",
       "actionMarkAttended": "Отметить посещение",
+      "actionConfirm": "Подтвердить",
       "actionAddNote": "Добавить внутреннюю заметку",
       "actionEdit": "Редактировать",
+      "actionEditBooking": "Редактировать бронирование",
+      "actionMoveBooking": "Перенести бронирование",
+      "actionDeactivateBooking": "Деактивировать бронирование",
+      "actionActivateBooking": "Активировать бронирование",
       "actionDelete": "Удалить",
+      "rowActionsAria": "Дополнительные действия с бронированием",
       "actionFailed": "Действие не выполнено",
       "successMarkedAttended": "Посещаемость обновлена",
       "successCancelled": "Бронирование отменено",
+      "successActivated": "Бронирование активировано",
       "successNote": "Внутренняя заметка добавлена",
       "successMoved": "Бронирование перенесено",
       "successEdited": "Бронирование обновлено",
       "successDeleted": "Бронирование удалено",
+      "confirmAttendedTitle": "Отметить посещение?",
+      "confirmAttended": "Бронирование будет отмечено как завершённое.",
+      "confirmCancelTitle": "Отменить бронирование?",
       "confirmCancel": "Отменить это бронирование?",
-      "confirmDelete": "Удалить бронирование навсегда?",
+      "confirmActivateTitle": "Активировать бронирование?",
+      "confirmActivate": "Снова активировать это бронирование? Статус будет «Забронировано».",
+      "confirmDeleteTitle": "Удалить бронирование?",
+      "confirmDelete": "Удалить бронирование навсегда? Это действие нельзя отменить.",
+      "confirmDialogYes": "Да",
+      "confirmDialogCancel": "Отменить",
+      "confirmDialogDelete": "Удалить",
+      "confirmDialogNo": "Нет",
+      "confirmDialogBackdrop": "Закрыть окно подтверждения",
       "promptNote": "Внутренняя заметка",
       "promptMove": "ID целевой сессии",
       "promptEditStatus": "Статус бронирования (BOOKED, COMPLETED, CANCELLED)",
@@ -1163,6 +1425,24 @@
       "sessionNotTracked": "Не отслеживается",
       "userDetailsTitle": "Данные клиента",
       "bookingDetailsTitle": "Детали бронирования",
+      "bookingDetailsLead": "Просмотрите детали бронирования, заметки и управляйте записью.",
+      "bookingDetailsCloseBackdrop": "Закрыть детали бронирования",
+      "bookingDetailsClose": "Закрыть",
+      "bookingDetailsLoading": "Загрузка деталей бронирования…",
+      "bookingDetailsClient": "Клиент",
+      "bookingDetailsEmail": "Email",
+      "bookingDetailsPhone": "Телефон",
+      "bookingDetailsClass": "Класс",
+      "bookingDetailsCoach": "Тренер",
+      "bookingDetailsSessionTime": "Время занятия",
+      "bookingDetailsBookedOn": "Дата бронирования",
+      "bookingDetailsNotes": "Внутренние заметки",
+      "bookingDetailsNoNotes": "Внутренних заметок пока нет.",
+      "noteComposeLabel": "Внутренняя заметка",
+      "noteComposePlaceholder": "Напишите внутреннюю заметку к этому бронированию…",
+      "noteComposeHint": "Видна только сотрудникам.",
+      "noteComposeSubmit": "Добавить заметку",
+      "viewDetailsFor": "Просмотр бронирования для {name}",
       "emptyUserData": "Данные клиента не найдены.",
       "emptyBookingData": "Данные бронирования не найдены.",
       "packageInfo": "Пакет",
@@ -1177,6 +1457,11 @@
       "errorAuth": "Нужен вход менеджера или админа.",
       "errorLoad": "Не удалось загрузить клиентов ({status}).",
       "colName": "Имя",
+      "colTags": "Метки",
+      "tagVip": "VIP",
+      "tagNew": "Новый",
+      "tagAtRisk": "В зоне риска",
+      "tagBeginner": "Новичок",
       "colEmail": "Email",
       "colRole": "Роль",
       "colJoined": "Регистрация",
@@ -1184,9 +1469,9 @@
       "colActions": "Действия",
       "packageActiveBadge": "Активен",
       "packageInactiveBadge": "Неактивен",
+      "statusInactive": "Неактивен",
       "editClient": "Редактировать клиента",
-      "editModalTitle": "Редактировать клиента",
-      "editModalDescription": "Обновите данные выбранного клиента.",
+      "edit": "Редактировать",
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть окно",
       "fieldEmail": "Email",
@@ -1207,10 +1492,48 @@
       "deactivateClient": "Деактивировать",
       "activateSuccess": "Клиент активирован",
       "deactivateSuccess": "Клиент деактивирован",
+      "confirmActivate": "Активировать этого клиента?",
+      "confirmDeactivate": "Деактивировать этого клиента? Бронирование будет недоступно.",
+      "sheetTabs": {
+        "profile": "Профиль",
+        "bookings": "Бронирования",
+        "payments": "Платежи",
+        "gifts": "Подарочные карты",
+        "notes": "Заметки"
+      },
+      "drawer": {
+        "loading": "Загрузка данных клиента…",
+        "unavailable": "Данные клиента недоступны.",
+        "registered": "Регистрация",
+        "source": "Источник",
+        "preferredCoach": "Предпочитаемый тренер",
+        "noTags": "Без меток",
+        "personalInfo": "Личные данные",
+        "totalVisits": "Всего визитов",
+        "totalBookings": "Всего бронирований",
+        "cancellations": "Отмены",
+        "noShows": "Неявки",
+        "lastVisit": "Последний визит",
+        "lifetimeValue": "Lifetime value",
+        "bookingHistory": "История бронирований",
+        "noBookings": "Бронирований нет.",
+        "paymentHistory": "История платежей",
+        "noPayments": "Платежей нет.",
+        "giftCards": "Подарочные карты",
+        "noGiftCards": "Подарочных карт нет.",
+        "giveGift": "Выдать подарочную карту",
+        "giveGiftButton": "Выдать",
+        "giftAmountAria": "Сумма подарочной карты в драмах (копейки)",
+        "giftCreated": "Подарочная карта создана",
+        "noNotes": "Заметок пока нет.",
+        "cancelled": "Отменено",
+        "attended": "Посещено"
+      },
       "deleteClient": "Удалить клиента",
       "deleteConfirm": "Удалить этого клиента навсегда? Это действие нельзя отменить.",
       "deleteSuccess": "Клиент удалён",
       "noteLabel": "Внутренняя заметка",
+      "emptyList": "Нет клиентов по текущим фильтрам.",
       "notePlaceholder": "Введите заметку для этого клиента",
       "addNote": "Добавить заметку",
       "noteAddedSuccess": "Заметка добавлена",
@@ -1238,6 +1561,9 @@
       "colEmail": "Email",
       "colPhone": "Телефон",
       "colSpecialization": "Специализация",
+      "colTags": "Метки",
+      "statusActive": "Активен",
+      "statusInactive": "Неактивен",
       "colActions": "Действия",
       "viewSwitcherAria": "Режим отображения тренеров",
       "viewList": "Список",
@@ -1266,8 +1592,6 @@
       },
       "addCoachButton": "Добавить тренера",
       "editCoach": "Редактировать тренера",
-      "editModalTitle": "Редактировать тренера",
-      "editModalDescription": "Обновите данные выбранного тренера.",
       "fieldEmail": "Email",
       "fieldName": "Имя",
       "fieldLastName": "Фамилия",
@@ -1287,6 +1611,10 @@
       "fieldScheduleRemove": "Удалить",
       "fieldPhoto": "Фото",
       "fieldPhotoChoose": "Выбрать фото",
+      "fieldPhotoUploading": "Загрузка…",
+      "fieldPhotoUploadSuccess": "Фото обновлено.",
+      "fieldPhotoRemove": "Удалить фото",
+      "fieldPhotoRemoveSuccess": "Фото удалено.",
       "fieldPhotoPlaceholder": "Или вставьте URL фото",
       "fieldPhotoPreviewAlt": "Предпросмотр фото тренера",
       "fieldPhotoHint": "Загрузите JPG/JPEG/PNG/WEBP (до 10 МБ) или укажите URL.",
@@ -1347,6 +1675,13 @@
         "profile": "Профиль",
         "actions": "Действия админа",
         "spots": "{count} мест"
+      },
+      "sheetTabs": {
+        "overview": "Обзор",
+        "profile": "Профиль",
+        "details": "Данные тренера",
+        "classes": "Классы",
+        "schedule": "Расписание"
       },
       "create": {
         "panelTitle": "Добавить тренера",
@@ -1420,6 +1755,11 @@
       "previousDay": "Предыдущий день",
       "nextDay": "Следующий день",
       "today": "Сегодня",
+      "weekView": {
+        "gridAria": "Недельное расписание по дням",
+        "todayBadge": "Сегодня",
+        "emptyDay": "—"
+      },
       "createTitle": "Добавить элемент расписания",
       "createDescription": "Создайте публичную карточку. Она появится на Home и Schedule.",
       "editTitle": "Редактировать элемент расписания",
@@ -1514,17 +1854,9 @@
       "coachFallback": "Тренер",
       "addClassButton": "Добавить занятие",
       "classTypes": {
-        "manageButton": "Добавить типы занятий",
-        "revealButtonAria": "Показать «Добавить типы занятий»",
-        "hideButtonAria": "Скрыть «Добавить типы занятий»",
         "modalTitle": "Типы занятий",
-        "modalDescription": "Создавайте, редактируйте и управляйте каталогом типов занятий студии.",
-        "modalCloseAria": "Закрыть",
         "modalBackdropClose": "Закрыть окно",
-        "listHeading": "Каталог",
         "addButton": "Добавить тип",
-        "editButtonAria": "Редактировать «{name}»",
-        "deleteButtonAria": "Удалить «{name}»",
         "emptyTitle": "Типов занятий пока нет",
         "emptyBody": "Нажмите «Добавить тип» выше, чтобы создать первый — например Reformer, Yoga или Mat Pilates.",
         "formCreateTitle": "Новый тип",
@@ -1536,7 +1868,6 @@
         "sessionCountNone": "нет занятий",
         "linkedSessionsHint": "С этим типом связано {count} занятий. Переназначьте или удалите их перед удалением типа.",
         "deleteButton": "Удалить",
-        "deleteConfirm": "Удалить тип «{name}»?",
         "deleteDialog": {
           "title": "Удалить тип",
           "description": "Удалить «{name}» из каталога? Это действие нельзя отменить.",
@@ -1559,6 +1890,12 @@
         "nameDuplicate": "Тип с таким названием уже существует.",
         "slugInvalid": "Некорректный slug — используйте буквы и цифры.",
         "descriptionTooLong": "Описание слишком длинное.",
+        "sheetTabs": {
+          "details": "Детали",
+          "usage": "Использование"
+        },
+        "usageHeading": "Запланированные занятия",
+        "usageEmpty": "Нет занятий с этим типом.",
         "messages": {
           "createSuccess": "Тип занятия создан.",
           "updateSuccess": "Тип занятия обновлён.",
@@ -1574,11 +1911,20 @@
       "duplicateDescription": "Создайте новую сессию из существующей и измените дату/время.",
       "modalCloseAria": "Закрыть",
       "modalBackdropClose": "Закрыть диалог",
+      "sheetTabs": {
+        "details": "Детали",
+        "bookings": "Записи",
+        "actions": "Действия",
+        "bookingsHeading": "Места и записи",
+        "bookingsEmpty": "На это занятие пока никто не записан."
+      },
       "emptyCoaches": "Список тренеров пуст. Сначала добавьте тренеров.",
       "emptySessions": "По выбранным фильтрам занятий нет.",
-      "confirmCancel": "Отменить это занятие?",
-      "confirmActivate": "Активировать это занятие?",
       "deleteConfirm": "Удалить эту сессию занятия? Это действие нельзя отменить.",
+      "confirmDeleteTitle": "Удалить сессию занятия",
+      "confirmDialogNo": "Нет",
+      "confirmDialogDelete": "Удалить",
+      "confirmDialogBackdrop": "Закрыть диалог подтверждения",
       "confirm": {
         "cancelTitle": "Отменить занятие",
         "cancelDescription": "Занятие будет отмечено как отменённое. Позже вы сможете снова активировать его.",
@@ -1631,6 +1977,7 @@
       },
       "fields": {
         "duration": "Длительность",
+        "spotsBooked": "{booked}/{capacity} занято",
         "spotsLeft": "Осталось мест: {count}"
       },
       "actions": {
@@ -1656,10 +2003,12 @@
       },
       "colClass": "Занятие",
       "colDate": "Дата",
+      "colDateTime": "Дата и время",
       "colTime": "Время",
       "colCoach": "Тренер",
       "colCapacity": "Вместимость",
       "colLevel": "Уровень",
+      "colTags": "Метки",
       "colType": "Тип",
       "colPriceOrSessions": "Цена / Сессии",
       "colStatus": "Статус",
@@ -1771,9 +2120,8 @@
       "colCreated": "Создана",
       "colExpiration": "Срок",
       "colActions": "Действия",
-      "openActions": "Открыть действия",
       "openCardAria": "Просмотреть детали подарочной карты на {amount}",
-      "detailsModalTitle": "Детали подарочной карты",
+      "detailsModalInfoHeading": "Информация о карте",
       "cardImageAlt": "Изображение подарочной карты",
       "cardImageFallback": "Подарочная карта",
       "viewSwitcherAria": "Режим отображения подарочных карт",
@@ -1782,6 +2130,7 @@
       "createButton": "Создать карту",
       "createTitle": "Создать подарочную карту",
       "editTitle": "Редактировать подарочную карту",
+      "boardEditButton": "Редактировать",
       "createDescription": "Выпустите карту вручную. Письмо отправляется, если указан email получателя.",
       "createHeading": "Создать подарочную карту",
       "modalCloseAria": "Закрыть",
@@ -1818,8 +2167,6 @@
       "savingButton": "Создание…",
       "cancelButton": "Отмена",
       "genericError": "Действие не выполнено.",
-      "drawerClose": "Закрыть детали",
-      "drawerExpirationState": "Состояние срока",
       "drawerExpired": "Истекла",
       "drawerValid": "Действует",
       "statusValues": {
@@ -1869,6 +2216,8 @@
         "assigned": "Подарочная карта назначена.",
         "history": "История погашения",
         "historyLoaded": "История загружена.",
+        "historyLoading": "Загрузка истории…",
+        "historyEmpty": "Событий погашения пока нет.",
         "historyTitle": "История погашения",
         "historyClose": "Закрыть историю",
         "historySummary": "Сумма: {amount} • Баланс: {balance}",
@@ -1876,6 +2225,7 @@
         "resend": "Отправить повторно",
         "deactivate": "Деактивировать",
         "delete": "Удалить",
+        "deleting": "Удаление…",
         "deactivateConfirm": "Деактивировать эту карту? Её больше нельзя будет погасить.",
         "deleteConfirm": "Удалить эту подарочную карту навсегда?",
         "resent": "Письмо с картой отправлено повторно.",
@@ -1890,11 +2240,15 @@
         "createSuccess": "Подарочная карта создана.",
         "createSuccessMany": "Создано подарочных карт: {count}."
       },
-      "detailsModalEyebrow": "Подарочная карта",
-      "detailsModalLead": "{available} доступно · просмотрите детали и управляйте действиями ниже.",
       "detailsModalInfoHeading": "Информация о карте",
       "activateGiftCard": "Активировать",
-      "deactivateGiftCard": "Деактивировать"
+      "deactivateGiftCard": "Деактивировать",
+      "confirmActivate": "Активировать эту подарочную карту?",
+      "sheetTabs": {
+        "overview": "Обзор",
+        "actions": "Действия",
+        "history": "История"
+      }
     },
     "packages": {
       "title": "Пакеты",
@@ -2167,6 +2521,9 @@
       "colWaitlistCount": "Ожидающих на эту сессию",
       "colWaitlistDate": "Дата добавления",
       "colActions": "Действия",
+      "filterSearch": "Поиск по имени, email, телефону или классу",
+      "filterClassAll": "Все типы классов",
+      "resetFilters": "Сбросить фильтры",
       "successPromote": "Пользователь переведен из листа ожидания в бронирование.",
       "successRemove": "Пользователь удален из листа ожидания.",
       "successNotify": "Уведомление отправлено.",
@@ -2205,14 +2562,23 @@
     },
     "finance": {
       "title": "Финансы",
-      "description": "Выручка, платежи, возвраты и история транзакций в одном месте.",
       "errorAuth": "Требуется вход администратора.",
       "errorLoad": "Не удалось загрузить финансовые данные ({status}).",
+      "tabs": {
+        "aria": "Разделы финансов",
+        "overview": "Обзор",
+        "payments": "Платежи",
+        "members": "Клиенты",
+        "coaches": "Тренеры"
+      },
       "kpiTotalRevenue": "Общая выручка",
       "kpiMonthlyRevenue": "Выручка за месяц",
       "kpiPendingPayments": "Ожидающие платежи",
       "kpiCompletedPayments": "Завершённые платежи",
       "kpiRefundedPayments": "Возвращённые платежи",
+      "kpiPeriodAllTime": "За всё время",
+      "kpiPeriodThisMonth": "Текущий календарный месяц",
+      "kpiPeriodRangeDays": "Последние {days} дн.",
       "giftCreditsHeading": "Леджер подарочных кредитов",
       "kpiGiftIssued": "Начислено подарочных кредитов",
       "kpiGiftRedeemed": "Погашено подарочных карт",
@@ -2222,8 +2588,6 @@
       "transactionsCount": "{count} транзакций",
       "recentTransactions": "Последние транзакции",
       "shownCount": "Показано {shown} из {total} транзакций",
-      "exportHeading": "Экспорт CSV",
-      "exportHint": "Экспортируйте данные платежей за выбранный период.",
       "exportPaymentsCsv": "Экспорт CSV платежей",
       "exportGiftCreditsCsv": "Экспорт CSV подарочных кредитов",
       "sources": {
@@ -2250,7 +2614,21 @@
         "statusPending": "Ожидание",
         "statusRefunded": "Возврат",
         "searchLabel": "Поиск",
-        "searchPlaceholder": "Клиент, email, ID платежа, референс"
+        "searchPlaceholder": "Клиент, email, ID платежа, референс",
+        "packageLabel": "Пакет",
+        "packageAll": "Все пакеты",
+        "packageClassLabel": "Класс пакета",
+        "packageClassAll": "Все классы",
+        "sessionsLabel": "Сеансы",
+        "sessionsAll": "Все количества сеансов",
+        "sessionsCount": "{count} сеансов",
+        "sessionsUnlimited": "Безлимит",
+        "noPackages": "Нет доступных пакетов",
+        "noClasses": "Нет доступных классов",
+        "noSessions": "Нет доступных количеств сеансов",
+        "resetFilters": "Сбросить фильтры",
+        "loading": "Загрузка финансовых данных…",
+        "activeCount": "{count} активных фильтров"
       },
       "paymentMethods": {
         "CASH": "Наличные",
@@ -2261,13 +2639,40 @@
       "paymentActions": {
         "markPaid": "Отметить оплаченным",
         "reject": "Отклонить",
+        "confirming": "Подтверждение…",
+        "rejecting": "Отклонение…",
         "markedPaid": "Отмечено как оплаченное.",
         "markedRejected": "Заявка отклонена.",
+        "statusUpdated": "Статус платежа обновлён.",
+        "cardStatusAuto": "Платежи картой подтверждаются автоматически.",
         "actionFailed": "Не удалось обновить платёж."
+      },
+      "changeStatusAria": "Изменить статус платежа — сейчас: {status}",
+      "paymentDetails": {
+        "title": "Детали платежа",
+        "lead": "Просмотрите информацию о платеже и подтверждайте получение наличных при необходимости.",
+        "customer": "Клиент",
+        "email": "Email",
+        "relatedLabel": "Связанный элемент",
+        "reference": "Референс",
+        "createdAt": "Создан",
+        "confirmedAt": "Подтверждён",
+        "confirmedDate": "Дата подтверждения",
+        "methodUnknown": "Ещё не выбран",
+        "close": "Закрыть детали платежа",
+        "closeBackdrop": "Закрыть детали платежа",
+        "viewFor": "Открыть детали платежа для {name}",
+        "related": {
+          "package": "Подписка на пакет ({id})",
+          "dropin": "Разовое бронирование ({id})",
+          "gift": "Подарочная карта ({id})",
+          "other": "Другое ({id})"
+        }
       },
       "table": {
         "empty": "Для выбранных фильтров платежи не найдены.",
         "colDate": "Дата",
+        "colTime": "Время",
         "colUser": "Пользователь",
         "colAmount": "Сумма",
         "colPlan": "Пакет",
@@ -2275,11 +2680,82 @@
         "colSource": "Источник",
         "colStatus": "Статус",
         "colActions": "Действия",
+        "actionEditPayment": "Редактировать платёж",
         "colDescription": "Описание"
+      },
+      "paymentsTab": {
+        "loading": "Загрузка…",
+        "loadFailed": "Не удалось загрузить платежи.",
+        "rowCount": "{count} платежей"
+      },
+      "actions": {
+        "openMenu": "Открыть меню действий",
+        "edit": "Редактировать клиента",
+        "pausePackage": "Приостановить пакет",
+        "sendNotification": "Отправить уведомление",
+        "sendRefundRequest": "Запрос на возврат",
+        "refundUnsupported": "Запросы на возврат пока не поддерживаются API.",
+        "packageUpdated": "Пакет обновлён.",
+        "actionFailed": "Не удалось выполнить действие.",
+        "noActivePackage": "Нет активного пакета для приостановки.",
+        "pauseConfirmTitle": "Приостановить абонемент?",
+        "pauseConfirmDescription": "Приостановить активный пакет для {name}. Доступ и оплата — по правилам студии.",
+        "pausing": "Приостановка…",
+        "notifyTitle": "Уведомить клиента",
+        "notifyLead": "Отправить разовое письмо на {email} по шаблону рассылки.",
+        "templateLabel": "Шаблон",
+        "closeModal": "Закрыть",
+        "sending": "Отправка…",
+        "sendButton": "Отправить",
+        "notifySuccess": "Уведомление отправлено: {name}.",
+        "notifyFailed": "Не удалось отправить уведомление."
+      },
+      "userTab": {
+        "searchPlaceholder": "Поиск по имени, телефону или email",
+        "filterPaymentStatus": "Статус оплаты",
+        "filterAll": "Все",
+        "statusPaid": "Оплачено",
+        "statusUnpaid": "Не оплачено",
+        "statusOverdue": "Просрочено",
+        "statusPartial": "Частично",
+        "sortLabel": "Сортировка",
+        "sortNewest": "Сначала новые",
+        "sortOldest": "Сначала старые",
+        "sortHighestCost": "Дороже",
+        "sortLowestCost": "Дешевле",
+        "giftCardOnly": "Только с подарочной картой",
+        "clearFilters": "Сбросить фильтры",
+        "loading": "Загрузка…",
+        "loadFailed": "Не удалось загрузить данные клиентов.",
+        "rowCount": "{count} записей",
+        "empty": "Нет клиентов по текущим фильтрам.",
+        "colUser": "Клиент",
+        "colPlan": "План",
+        "colCost": "Стоимость",
+        "colExpiration": "Окончание",
+        "colPaymentStatus": "Статус оплаты",
+        "colGiftCard": "Подарочная карта",
+        "colActions": "Действия",
+        "noActivePackage": "Нет активного пакета",
+        "giftCardYes": "Да",
+        "giftCardNo": "Нет",
+        "quickPaid": "Оплаченные",
+        "quickPending": "Ожидающие",
+        "quickOverdue": "Просроченные",
+        "quickGiftCard": "С подарочной картой",
+        "quickActive": "Активные пакеты"
       }
     },
     "analytics": {
       "title": "Аналитика",
+      "tabs": {
+        "aria": "Разделы аналитики",
+        "overview": "Обзор",
+        "revenue": "Выручка",
+        "bookings": "Бронирования",
+        "members": "Участники",
+        "coaches": "Тренеры"
+      },
       "description": "Метрики студии из реальных данных бэкенда — таблицы, графики и экспорт CSV.",
       "errorAuth": "Нужен вход админа или менеджера.",
       "errorLoad": "Не удалось загрузить аналитику ({status}).",
@@ -2290,6 +2766,7 @@
       "viewChart": "График",
       "viewSwitcherAria": "Режим отображения аналитики",
       "rangeHint": "Период: {from} → {to}",
+      "bookingsSampleBanner": "Графики и рейтинги строятся по выборке до {limit} бронирований. В периоде найдено {total} записей; метрики считаются по {shown} строкам выборки.",
       "kpiRangeRevenue": "Выручка (выбранный период)",
       "kpiBookingsInRange": "Бронирования (выбранный период)",
       "kpiActiveMembers": "Активные абонементы",
@@ -2311,6 +2788,9 @@
       "filters": {
         "heading": "Фильтры",
         "reset": "Сбросить фильтры",
+        "resetFilters": "Сбросить фильтры",
+        "loading": "Обновление результатов…",
+        "activeCount": "{count} активных фильтров",
         "rangeLabel": "Период",
         "range7": "Последние 7 дней",
         "range30": "Последние 30 дней",
@@ -2344,6 +2824,17 @@
         "bookingStatusMissed": "Пропущено"
       },
       "sections": {
+        "trends": {
+          "revenueTitle": "Динамика выручки",
+          "revenueHint": "Ежедневные успешные платежи за выбранный период.",
+          "revenueSeries": "Выручка",
+          "revenueChartAria": "График выручки по дням",
+          "bookingsTitle": "Динамика бронирований",
+          "bookingsHint": "Ежедневные бронирования из выборки (до {limit} записей).",
+          "bookingsSeries": "Бронирования",
+          "completedSeries": "Завершённые",
+          "bookingsChartAria": "График бронирований по дням"
+        },
         "revenue": {
           "title": "Отчёт по выручке",
           "hint": "Итоги из `/reports/finance/summary` за выбранный период.",
@@ -2376,6 +2867,8 @@
         "users": {
           "title": "Активность пользователей",
           "hint": "Сводка клиентов из `/clients?meta=true`. Тренды удержания недоступны.",
+          "segmentsTitle": "Сегменты клиентов",
+          "inactive": "Прочие клиенты",
           "total": "Всего клиентов",
           "active": "Активные клиенты",
           "vip": "VIP клиенты",
@@ -2393,6 +2886,7 @@
         "coachPerformance": {
           "title": "Эффективность тренеров",
           "hint": "Бронирования и посещаемость по тренерам (выборка management query).",
+          "topBookings": "Лидер по бронированиям",
           "chartAria": "График бронирований по тренерам",
           "bookingsTitle": "Бронирования по тренерам",
           "attendanceTitle": "Посещаемость по тренерам",
@@ -2409,6 +2903,9 @@
         "coachSessions": {
           "title": "Нагрузка тренеров по сессиям",
           "hint": "Всего сессий на тренера из coach directory API.",
+          "coachesCount": "Тренеры",
+          "activeCoaches": "Активные тренеры",
+          "totalSessions": "Всего сессий",
           "chartAria": "График нагрузки тренеров"
         },
         "paymentStatus": {
@@ -2422,12 +2919,13 @@
         "excelUnsupported": "Экспорт Excel недоступен — проект поддерживает только CSV через reports API.",
         "paymentsCsv": "Экспорт CSV платежей",
         "bookingsCsv": "Экспорт CSV бронирований",
-        "giftCreditsCsv": "Экспорт CSV подарочных кредитов"
+        "giftCreditsCsv": "Экспорт CSV подарочных кредитов",
+        "menuAria": "Скачать CSV-отчёты"
       },
       "limitations": {
         "heading": "Неподдерживаемые или частичные метрики",
         "noTimeSeries": "Временные тренды выручки и бронирований требуют отдельного analytics endpoint, который ещё не реализован.",
-        "bookingsSample": "Метрики бронирований и популярности классов ограничены cap bookings management (1 000 строк).",
+        "bookingsSample": "Метрики бронирований и популярности классов ограничены cap bookings management (100 строк).",
         "noCoachRevenue": "Выручка на тренера недоступна из API.",
         "noClassRevenue": "Выручка на тип класса недоступна из API.",
         "noRetention": "Метрики удержания пользователей недоступны из API."
@@ -2582,12 +3080,52 @@
       "manager": {
         "heading": "Операционные настройки по умолчанию",
         "body": "Настройки по умолчанию централизованы. По биллингу, интеграциям и политикам обращайтесь к админам студии."
+      },
+      "contentAdmin": {
+        "heading": "Редакционный процесс",
+        "body": "Публикуйте и рецензируйте посты студии в разделе «Контент». По ролям и политике одобрения обращайтесь к админам."
       }
+    }
+  },
+  "managerPages": {
+    "home": {
+      "signInRequired": "Войдите, чтобы открыть рабочее пространство менеджера.",
+      "greeting": "Привет{name}",
+      "nextStepsTitle": "Следующие шаги",
+      "nextStepsBody": "Управляйте классами, бронированиями, листами ожидания, клиентами, тренерами и подарочными картами. Биллинг и глобальные настройки студии остаются только для админа."
+    },
+    "clients": {
+      "readOnlyHint": "Каталог участников — те же компактные строки, что в админке. Откройте клиента для просмотра; правки — в admin CRM.",
+      "roleClient": "Клиент"
+    },
+    "bookings": {
+      "rollingWindowHint": "Бронирования за последние 7 дней и следующие 30 — те же компактные строки и действия, что в админке."
+    },
+    "waitlists": {
+      "operationalHint": "Активные waitlist — те же компактные строки и действия, что в админке (promote, notify, remove).",
+      "colSession": "Сессия",
+      "colPos": "Поз.",
+      "colStatus": "Статус",
+      "colOfferExpires": "Истекает оффер"
+    },
+    "coaches": {
+      "readOnlyHint": "Операционный каталог (просмотр). Редактирование и deactivate/delete — в admin CRM.",
+      "colPhone": "Телефон",
+      "colSpecialization": "Специализация"
+    },
+    "giftCards": {
+      "readOnlyHint": "Просмотр выпущенных карт и балансов. Создание и деактивация карт остаются за админами студии."
+    },
+    "classes": {
+      "scheduleWindowHint": "То же окно расписания, что и у админа ({days} дней). Создание и редактирование сессий при необходимости остаются в админ-инструментах.",
+      "loadSessionsFailed": "Не удалось загрузить сессии ({status}).",
+      "sessionsEmpty": "В выбранном окне сессий нет."
     }
   },
   "coachPages": {
     "home": {
       "title": "Привет, {name}",
+      "titleFallback": "Главная тренера",
       "description": "Краткий обзор на сегодня и вашей ближайшей преподавательской нагрузки.",
       "signInRequired": "Войдите, чтобы открыть панель тренера.",
       "noProfile": "Этот раздел предназначен для тренеров студии. К вашему аккаунту не привязан профиль тренера.",
@@ -2604,10 +3142,20 @@
       "signInRequired": "Войдите, чтобы открыть панель тренера.",
       "noProfile": "Этот раздел предназначен для тренеров студии. К вашему аккаунту не привязан профиль тренера.",
       "sessions": "Сессии",
+      "sessionsCount": "{count, plural, one {# сессия} few {# сессии} many {# сессий} other {# сессии}}",
+      "filteredEmptyTitle": "Нет сессий по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия или статус.",
+      "filters": {
+        "searchPlaceholder": "Поиск по занятию или типу…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "status": "Статус",
+        "statusAll": "Все статусы",
+        "resetFilters": "Сбросить фильтры"
+      },
       "upcomingSessions": {
-        "empty": "В выбранном диапазоне сессий нет.",
-        "bookedCount": "{booked}/{capacity} записано",
-        "sessionId": "ID сессии: {id}"
+        "empty": "В выбранном диапазоне сессий нет."
       }
     },
     "groups": {
@@ -2616,26 +3164,71 @@
       "signInRequired": "Войдите, чтобы открыть панель тренера.",
       "noProfile": "Этот раздел предназначен для тренеров студии. К вашему аккаунту не привязан профиль тренера.",
       "attendanceBooked": "Посещаемость (записанные)",
-      "helpText": "Этот экран показывает только назначенные вам сессии и ограничивает видимость листа ожидания и состава групп вашим профилем тренера.",
+      "rosterCount": "{count, plural, one {# участник} few {# участника} many {# участников} other {# участника}}",
+      "filteredEmptyTitle": "Нет участников по вашим фильтрам",
+      "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия или поисковый запрос.",
+      "filters": {
+        "searchPlaceholder": "Поиск по участнику, email или занятию…",
+        "dateFrom": "Дата с",
+        "dateTo": "Дата по",
+        "classAll": "Все типы занятий",
+        "resetFilters": "Сбросить фильтры"
+      },
       "attendanceRoster": {
         "empty": "Нет активных бронирований."
       }
     },
     "analytics": {
       "title": "Аналитика",
-      "lead": "Срез панели тренера с динамикой по диапазону.",
       "signInRequired": "Требуется вход тренера.",
       "loadFailed": "Не удалось загрузить аналитику тренера.",
       "noProfile": "К этому аккаунту не привязан профиль тренера.",
-      "activeWaitlists": "Активные листы ожидания",
-      "utilizationTitle": "Заполняемость",
-      "utilizationDescription": "{booked} бронирований за {sessions} сессий.",
-      "waitlistPressureTitle": "Давление листа ожидания",
-      "waitlistPressureDescription": "Активные листы ожидания относительно количества сессий.",
-      "sessionsInRange": "Сессии за период",
-      "bookingsInRange": "Бронирования за период",
-      "trendTitle": "Последняя дневная динамика",
-      "trendRow": "{sessions} сессий · {bookings} бронирований · {waitlists} листов ожидания"
+      "notAvailable": "—",
+      "empty": "За этот период данных пока нет.",
+      "emptyPeakHours": "За этот период посещений не зафиксировано.",
+      "periodAria": "Период аналитики",
+      "periodMonth": "Месяц",
+      "periodYear": "Год",
+      "kpiGroupActivity": "Активность",
+      "kpiGroupPerformance": "Эффективность",
+      "totalClassesTaught": "Проведено занятий",
+      "totalClientsTrained": "Клиентов обучено",
+      "averageAttendanceRate": "Средняя посещаемость",
+      "classFillRate": "Заполняемость занятий",
+      "mostPopularClassType": "Самый популярный тип",
+      "peakTime": "Пиковое время",
+      "strengthLabel": "Сильная сторона",
+      "improvementLabel": "Зона роста",
+      "attendanceTrendTitle": "Динамика посещаемости",
+      "attendanceTrendHint": "Посещения клиентов по дням.",
+      "attendanceTrendAria": "Линейный график посещаемости",
+      "attendanceColumnTitle": "Посещаемость по дням",
+      "attendanceColumnHint": "Ежедневные посещения в виде столбцов.",
+      "attendanceColumnAria": "Столбчатый график посещаемости",
+      "attendanceSeries": "Посещения",
+      "fillRateTrendTitle": "Динамика заполняемости",
+      "fillRateTrendHint": "Доля заполненных мест по дням.",
+      "fillRateTrendAria": "Линейный график заполняемости",
+      "fillRateColumnTitle": "Заполняемость по дням",
+      "fillRateColumnHint": "Ежедневная заполняемость в виде столбцов.",
+      "fillRateColumnAria": "Столбчатый график заполняемости",
+      "fillRateSeries": "Заполняемость",
+      "classTypeBreakdownTitle": "Эффективность по типам",
+      "classTypeBreakdownHint": "Посещаемость по типам занятий за выбранный период.",
+      "classTypeBreakdownAria": "График посещаемости по типам",
+      "peakHoursTitle": "Пиковые часы",
+      "peakHoursHint": "Часы, когда клиенты чаще всего посещают ваши занятия.",
+      "peakHoursAria": "График пиковых часов",
+      "insights": {
+        "strongFillRate": "Заполняемость {fillRate}% — высокий спрос на ваше расписание.",
+        "weakFillRate": "Заполняемость {fillRate}% — продвигайте свободные слоты или меняйте время.",
+        "strongAttendance": "Посещаемость {attendanceRate}% — клиенты стабильно приходят.",
+        "weakAttendance": "Посещаемость {attendanceRate}% — работайте с no-show и напоминаниями.",
+        "highDemand": "Давление листа ожидания {waitlistPressure}% — высокий интерес к вашим занятиям.",
+        "popularClassType": "{classType} — ваш самый популярный формат, развивайте его.",
+        "peakTimeInsight": "Пик посещаемости около {peakTime} — защитите это окно в расписании.",
+        "steadyBaseline": "Показатели стабильны — продолжайте отслеживать динамику по мере новых занятий."
+      }
     },
     "salary": {
       "title": "Выплаты",
@@ -2647,6 +3240,114 @@
       "paid": "Уже выплачено",
       "sessions": "Завершённых сессий",
       "formula": "Формула: базово {base} за завершённую сессию + {perAttendee} за каждого посетившего участника."
+    }
+  },
+  "contentAdminPages": {
+    "home": {
+      "openContent": "Открыть контент",
+      "openProfile": "Профиль"
+    },
+    "content": {
+      "title": "Контент",
+      "errorAuth": "Нужна роль админа или контента.",
+      "errorLoad": "Не удалось загрузить посты ({status}).",
+      "createButton": "Новый пост",
+      "empty": "Нет постов по вашим фильтрам.",
+      "colTitle": "Заголовок",
+      "colCover": "Обложка",
+      "colType": "Тип",
+      "colStatus": "Статус",
+      "colUpdated": "Обновлено",
+      "colActions": "Действия",
+      "editPost": "Редактировать",
+      "openPostAria": "Открыть {title}",
+      "sheetCreateTitle": "Новый пост",
+      "sheetEditTitle": "Редактирование",
+      "saveButton": "Сохранить",
+      "cancelButton": "Отмена",
+      "savingButton": "Сохранение…",
+      "modalBackdropClose": "Закрыть панель",
+      "deleteConfirmTitle": "Удалить пост?",
+      "deleteConfirmBody": "Удалить «{title}»? Это необратимо.",
+      "activeFilterCount": "Активных фильтров: {count}",
+      "resultsCount": "Показано {shown} из {total}",
+      "placeholders": {
+        "title": "Заголовок",
+        "slug": "Slug",
+        "excerpt": "Краткое описание",
+        "body": "Контент",
+        "coverImageUrl": "URL обложки",
+        "authorName": "Имя автора",
+        "tagsCsv": "Теги (через запятую)",
+        "seoTitle": "SEO заголовок",
+        "seoDescription": "SEO описание",
+        "editorialNotes": "Редакционные заметки",
+        "searchPosts": "Поиск постов"
+      },
+      "labels": {
+        "type": "Тип",
+        "status": "Статус",
+        "allTypes": "Все типы",
+        "allStatuses": "Все статусы",
+        "create": "Создать",
+        "toggleHide": "Переключить видимость",
+        "submitReview": "Отправить на ревью",
+        "approve": "Одобрить",
+        "reject": "Отклонить",
+        "delete": "Удалить",
+        "tags": "теги",
+        "review": "ревью",
+        "resetFilters": "Сбросить фильтры",
+        "previewOnSite": "Открыть на сайте"
+      },
+      "fieldHints": {
+        "type": "Категория материала на сайте: блог, новость, событие, обновление или статья.",
+        "status": "Статус публикации — черновик, на проверке, опубликован, скрыт от посетителей или отклонён."
+      },
+      "statusValues": {
+        "DRAFT": "Черновик",
+        "IN_REVIEW": "На проверке",
+        "REJECTED": "Отклонён",
+        "PUBLISHED": "Опубликован",
+        "HIDDEN": "Скрыт"
+      },
+      "typeValues": {
+        "EVENT": "Событие",
+        "BLOG": "Блог",
+        "NEWS": "Новость",
+        "UPDATE": "Обновление",
+        "KNOWLEDGE_ARTICLE": "Статья"
+      },
+      "localeTabs": {
+        "aria": "Язык контента",
+        "hy": "Армянский",
+        "ru": "Русский",
+        "en": "Английский",
+        "slugHint": "Оставьте пустым — slug сгенерируется из английского."
+      },
+      "coverImage": {
+        "label": "Обложка",
+        "choose": "Выбрать изображение",
+        "remove": "Удалить",
+        "hint": "JPG, PNG или WEBP до 5 МБ.",
+        "previewAlt": "Превью обложки",
+        "fallback": "Обложка",
+        "uploading": "Загрузка…",
+        "uploadFailed": "Не удалось загрузить",
+        "invalidType": "Допустимы только JPG, PNG или WEBP.",
+        "tooLarge": "Размер файла не более 5 МБ."
+      },
+      "feedback": {
+        "actionFailed": "Действие не выполнено",
+        "postCreated": "Пост создан",
+        "postSaved": "Пост сохранён",
+        "visibilityUpdated": "Видимость обновлена",
+        "submittedForReview": "Отправлено на ревью",
+        "postApproved": "Пост одобрен",
+        "postRejected": "Пост отклонён",
+        "postDeleted": "Пост удалён",
+        "rejectionNotePrompt": "Комментарий к отклонению"
+      }
     }
   },
   "verifyEmail": {
@@ -2669,7 +3370,10 @@
       "saveFailed": "Не удалось сохранить"
     },
     "cancelBooking": {
+      "confirmTitle": "Отменить бронирование?",
       "confirm": "Отменить это бронирование? Учитывайте сроки политики.",
+      "confirmNo": "Оставить бронирование",
+      "modalBackdropClose": "Закрыть окно",
       "action": "Отменить",
       "failed": "Не удалось отменить"
     },
@@ -2693,6 +3397,7 @@
       "title": "Подтвердить подписку",
       "lead": "Выберите способ оплаты. Данные карты на этом экране не запрашиваются.",
       "selectPlanLegend": "Session Name",
+      "selectedPlanBadge": "Selected",
       "closeModal": "Закрыть",
       "methodLegend": "Способ оплаты",
       "methods": {
@@ -2714,10 +3419,18 @@
       "done": "Готово"
     },
     "packageLifecycle": {
+      "actionsGroupAria": "Действия с пакетом",
       "pause": "Пауза",
       "cancelAction": "Отменить",
       "renew": "Продлить",
       "switchPlan": "Переключить на этот план",
+      "pauseConfirmTitle": "Приостановить абонемент?",
+      "pauseConfirmDescription": "Абонемент будет приостановлен. Позже вы сможете его продлить.",
+      "cancelConfirmTitle": "Отменить абонемент?",
+      "cancelConfirmDescription": "Абонемент будет отменён. При необходимости вы сможете продлить его позже.",
+      "confirmYes": "Да",
+      "confirmNo": "Нет",
+      "modalBackdropClose": "Закрыть окно",
       "pausedSuccess": "Абонемент приостановлен.",
       "cancelledSuccess": "Абонемент отменён.",
       "renewedSuccess": "Абонемент продлён.",
@@ -2825,8 +3538,7 @@
     },
     "markAttendance": {
       "failed": "Не удалось обновить",
-      "attended": "Присутствовал",
-      "noShow": "Неявка"
+      "attended": "Присутствовал"
     },
     "rebook": {
       "action": "Записаться снова",
@@ -2847,7 +3559,7 @@
   "adminActions": {
     "studio": {
       "title": "Настройки студии",
-      "description": "Политики и контактные настройки уровня студии.",
+      "description": "Как студия выглядит для участников — контакты, адрес и правила бронирования.",
       "loadFailed": "Не удалось загрузить настройки студии ({status}).",
       "studioName": "Название студии",
       "contactEmail": "Контактный email",
@@ -2859,10 +3571,62 @@
       "socialLinksJson": "JSON соцссылок",
       "cancellationHoursNotice": "Окно отмены (часы)",
       "waitlistOfferMinutes": "Срок оффера листа ожидания (минуты)",
-      "save": "Сохранить",
+      "save": "Сохранить настройки",
       "saving": "Сохранение...",
       "saved": "Настройки обновлены.",
-      "failed": "Не удалось обновить настройки."
+      "failed": "Не удалось обновить настройки.",
+      "tiles": {
+        "identity": {
+          "title": "Идентичность студии",
+          "empty": "Название не задано",
+          "helper": "Отображается на сайте, в письмах и в кабинете участника."
+        },
+        "contact": {
+          "title": "Основной контакт",
+          "empty": "Контакты ещё не указаны",
+          "helper": "Используется на странице контактов и в уведомлениях.",
+          "helperPhone": "Телефон: {phone}"
+        },
+        "policies": {
+          "title": "Правила бронирования",
+          "value": "{hours}ч отмена · {minutes}м лист ожидания",
+          "helper": "Окно отмены и срок оффера из листа ожидания."
+        }
+      },
+      "sections": {
+        "identity": {
+          "heading": "Идентичность",
+          "description": "Публичное название студии"
+        },
+        "contact": {
+          "heading": "Контакты",
+          "description": "Как участники связываются с командой"
+        },
+        "location": {
+          "heading": "Локация",
+          "description": "Адрес, карта и часы работы на сайте"
+        },
+        "social": {
+          "heading": "Соцсети",
+          "description": "Необязательный JSON для футера и контактов"
+        },
+        "policies": {
+          "heading": "Политики",
+          "description": "Сроки отмены и листа ожидания"
+        }
+      },
+      "hints": {
+        "studioName": "Короткое публичное название бренда.",
+        "contactEmail": "Почта студии для формы контактов и админ-уведомлений.",
+        "contactPhone": "Необязательно. Показывается на странице контактов.",
+        "whatsappUrl": "Полная ссылка на чат или бизнес-профиль WhatsApp.",
+        "address": "Адрес на странице контактов.",
+        "mapEmbedUrl": "Embed-ссылка Google Maps или аналога.",
+        "workingHours": "Свободный текст — напр. Пн–Пт 9:00–21:00, Сб 10:00–18:00.",
+        "socialLinksJson": "JSON-объект: название платформы → URL (instagram, facebook и т.д.).",
+        "cancellationHoursNotice": "За сколько часов до начала занятия можно отменить бронь.",
+        "waitlistOfferMinutes": "Сколько минут место из листа ожидания остаётся зарезервированным."
+      }
     }
   }
 }

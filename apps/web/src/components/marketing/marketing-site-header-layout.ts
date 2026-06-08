@@ -39,6 +39,14 @@ export const MARKETING_MOBILE_HEADER_GLASS_PILL = {
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
+/**
+ * Mobile shell height for USER account pages — header always uses the elevated glass pill
+ * (`marketingHeaderContainerClass` pt + pb-3 + pill padding + pill row min-height).
+ */
+export const MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT = `calc(
+  max(1rem, env(safe-area-inset-top, 0px)) + 0.75rem + calc(${MARKETING_MOBILE_HEADER_GLASS_PILL.paddingY} * 2) + ${MARKETING_MOBILE_HEADER_GLASS_PILL.rowMinHeight}
+)`;
+
 /** Animated CSS vars for the mobile header row wrap (hero ↔ glass pill). */
 export function marketingHeaderMobileRowWrapStyle(glassActive: boolean): CSSProperties {
   const pill = MARKETING_MOBILE_HEADER_GLASS_PILL;
@@ -81,6 +89,18 @@ const MARKETING_NAV_LINK_GAP_COMPACT_CLASS =
 /** Locales whose nav labels are longer than English — use tighter header spacing. */
 const COMPACT_HEADER_LOCALES = new Set(["hy", "ru"]);
 
+/** Header ink — driven by `--ommm-marketing-header-ink*` on `.headerShell`. */
+const MARKETING_HEADER_INK = "text-[var(--ommm-marketing-header-ink)]";
+const MARKETING_HEADER_INK_HOVER_SURFACE =
+  "hover:bg-[var(--ommm-marketing-header-ink-hover-surface)]";
+const MARKETING_HEADER_FOCUS_RING =
+  "focus-visible:ring-[var(--ommm-marketing-header-focus-ring)]";
+const MARKETING_HEADER_INK_TRANSITION = "transition-[color,background-color] duration-220";
+
+const MARKETING_NAV_INK = "text-[var(--ommm-marketing-nav-ink)]";
+const MARKETING_NAV_INK_ACTIVE = "text-[var(--ommm-marketing-nav-ink-active)]";
+const MARKETING_NAV_INK_HOVER = "hover:text-[var(--ommm-marketing-nav-ink-hover)]";
+
 export function isCompactMarketingHeaderLocale(locale: string): boolean {
   return COMPACT_HEADER_LOCALES.has(locale);
 }
@@ -120,23 +140,26 @@ export function marketingHeaderMobileRowInnerClass(): string {
 export function marketingHeaderMobileBrandTextClass(): string {
   return [
     "font-serif font-bold tracking-[-0.05em]",
-    "whitespace-nowrap text-[#fbf5d5]",
+    "whitespace-nowrap",
+    MARKETING_HEADER_INK,
+    MARKETING_HEADER_INK_TRANSITION,
   ].join(" ");
 }
 
 export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string {
-  const iconColor = menuOpen ? "text-sage-900" : "text-[#fbf5d5]";
+  const iconColor = menuOpen ? "text-sage-900" : MARKETING_HEADER_INK;
   const focusRing = menuOpen
     ? "focus-visible:ring-sage-700/30"
-    : "focus-visible:ring-white/80";
+    : MARKETING_HEADER_FOCUS_RING;
 
   return [
     "inline-flex shrink-0 cursor-pointer items-center justify-center",
     iconColor,
-    "rounded-full transition-[background-color,color,transform]",
+    MARKETING_HEADER_INK_TRANSITION,
+    "rounded-full transition-[transform]",
     menuOpen
       ? "hover:bg-sage-900/10 active:scale-[0.96]"
-      : "hover:bg-white/12 active:scale-[0.96]",
+      : `${MARKETING_HEADER_INK_HOVER_SURFACE} active:scale-[0.96]`,
     "focus-visible:outline-none focus-visible:ring-2",
     focusRing,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
@@ -144,7 +167,7 @@ export function marketingHeaderMobileMenuButtonClass(menuOpen: boolean): string 
 }
 
 export function marketingHeaderMobileActionsClass(): string {
-  return "flex shrink-0 items-center gap-[6px]";
+  return "flex shrink-0 items-center gap-[6px] overflow-visible";
 }
 
 export function marketingHeaderMobileBrandLinkClass(): string {
@@ -160,7 +183,9 @@ export function marketingHeaderBrandLinkClass(): string {
 
 export function marketingHeaderBrandTextClass(): string {
   return [
-    "font-serif text-lg font-bold leading-6 tracking-[-0.05em] text-[#fbf5d5]",
+    "font-serif text-lg font-bold leading-6 tracking-[-0.05em]",
+    MARKETING_HEADER_INK,
+    MARKETING_HEADER_INK_TRANSITION,
     "lg:text-xl lg:leading-7",
     "nav-desktop:text-2xl nav-desktop:leading-8",
     "whitespace-nowrap",
@@ -191,12 +216,12 @@ export function marketingHeaderNavLinksClass(compact: boolean): string {
 }
 
 export function marketingHeaderActionsClass(): string {
-  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4";
+  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 overflow-visible lg:gap-2 nav-desktop:gap-3 sm:gap-4";
 }
 
 /** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
 export function marketingHeaderAuthClusterClass(): string {
-  return "flex shrink-0 items-center gap-1";
+  return "flex shrink-0 items-center gap-1 overflow-visible";
 }
 
 /** Burger menu nav links — solid white panel; always en-sized type (panel has room). */
@@ -218,14 +243,14 @@ export function marketingHeaderNavLinkClass(
     : "whitespace-nowrap text-xs font-bold leading-5 tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
 
   const state = active
-    ? "text-[#fbf5d5]"
-    : "text-white hover:bg-white/8 hover:text-white";
+    ? MARKETING_NAV_INK_ACTIVE
+    : `${MARKETING_NAV_INK} hover:bg-[var(--ommm-marketing-header-ink-hover-surface)] ${MARKETING_NAV_INK_HOVER}`;
 
   return [
     typography,
     "rounded-xl px-3 py-2.5",
     state,
-    "transition-[color,background-color] duration-250",
+    MARKETING_HEADER_INK_TRANSITION,
   ].join(" ");
 }
 
@@ -238,22 +263,25 @@ export function marketingHeaderNavPillLinkClass(
     ? "whitespace-nowrap text-[11px] font-bold leading-none tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-base"
     : "whitespace-nowrap text-xs font-bold leading-none tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
 
-  const state = active
-    ? "text-[#fbf5d5]"
-    : "text-white hover:text-white/90";
+  const state = active ? MARKETING_NAV_INK_ACTIVE : `${MARKETING_NAV_INK} ${MARKETING_NAV_INK_HOVER}`;
 
   return [
     typography,
     state,
-    "transition-[color] duration-300 ease-out motion-reduce:transition-none",
+    MARKETING_HEADER_INK_TRANSITION,
+    "duration-300 ease-out motion-reduce:transition-none",
   ].join(" ");
 }
 
 export function marketingHeaderIconButtonClass(): string {
   return [
-    "inline-flex cursor-pointer items-center justify-center rounded-full text-[#fbf5d5]",
-    "transition-[color,background-color,box-shadow] duration-250 hover:bg-white/12 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+    "inline-flex cursor-pointer items-center justify-center rounded-full",
+    MARKETING_HEADER_INK,
+    MARKETING_HEADER_INK_TRANSITION,
+    `duration-250 ${MARKETING_HEADER_INK_HOVER_SURFACE} hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]`,
+    "transition-[box-shadow]",
+    "focus-visible:outline-none focus-visible:ring-2",
+    MARKETING_HEADER_FOCUS_RING,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   ].join(" ");
 }
@@ -273,10 +301,13 @@ export function marketingHeaderMenuButtonClass(): string {
 export function marketingHeaderMobileLanguageTriggerClass(): string {
   return [
     "ommm-dropdown-trigger !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
-    "text-[#fbf5d5] cursor-pointer",
+    `${MARKETING_HEADER_INK} cursor-pointer`,
+    MARKETING_HEADER_INK_TRANSITION,
     "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+    "focus-visible:outline-none focus-visible:ring-2",
+    MARKETING_HEADER_FOCUS_RING,
+    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   ].join(" ");
 }
 
@@ -290,9 +321,12 @@ export function marketingHeaderMobileIconAccountClass(): string {
 export function marketingHeaderLanguageTriggerClass(): string {
   return [
     "ommm-dropdown-trigger !h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-11 nav-desktop:!min-h-11 nav-desktop:!w-11 nav-desktop:!min-w-11 !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
-    "text-[#fbf5d5] cursor-pointer",
+    `${MARKETING_HEADER_INK} cursor-pointer`,
+    MARKETING_HEADER_INK_TRANSITION,
     "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+    "focus-visible:outline-none focus-visible:ring-2",
+    MARKETING_HEADER_FOCUS_RING,
+    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   ].join(" ");
 }

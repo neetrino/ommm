@@ -11,7 +11,20 @@ import {
   type Prisma,
   type ScheduleDayOfWeek,
 } from '@prisma/client';
+import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
+import {
+  resolveSessionListOrderBy,
+  sortAdminSessionRows,
+  SessionListOrder,
+} from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildSessionsListWhere,
+  filterSessionRows,
+  paginateSessionRows,
+  requiresSessionsPostProcessing,
+  SESSIONS_FILTER_SCAN_LIMIT,
+} from './classes-sessions-list-filters';
 import { ScheduleService } from '../schedule/schedule.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
@@ -232,44 +245,149 @@ export class ClassesService {
     });
   }
 
-  async listSessionsAdmin(
-    query: AdminListSessionsQueryDto,
-  ): Promise<AdminSessionRow[]> {
-    const where: Prisma.ClassSessionWhereInput = {
-      ...(query.from || query.to
-        ? {
-            startsAt: {
-              ...(query.from ? { gte: new Date(query.from) } : {}),
-              ...(query.to ? { lte: new Date(query.to) } : {}),
-            },
-          }
-        : {}),
-      ...(query.status ? { status: query.status } : {}),
-      ...(query.coachId ? { coachId: query.coachId } : {}),
-      ...(query.typeId ? { classTypeId: query.typeId } : {}),
-      ...(query.level ? { level: query.level } : {}),
-      ...(query.classFormat ? { classFormat: query.classFormat } : {}),
-    };
-
-    const sessions = await this.prisma.classSession.findMany({
+  async listSessionsAdmin(query: AdminListSessionsQueryDto): Promise<
+    | AdminSessionRow[]
+    | {
+        items: AdminSessionRow[];
+        total: number;
+        take: number;
+        offset: number;
+      }
+  > {
+    const normalizedQuery = this.normalizeSessionsListQuery(query);
+    const hasPagination =
+      normalizedQuery.take !== undefined ||
+      normalizedQuery.offset !== undefined;
+    const where = buildSessionsListWhere(normalizedQuery);
+    const sessionOrder = resolveSessionListOrderBy(
+      normalizedQuery.order ?? SessionListOrder.UPCOMING,
+    );
+    const findArgs = {
       where,
       include: ADMIN_SESSION_INCLUDE,
-      orderBy: { startsAt: 'asc' },
-    });
+      orderBy: sessionOrder,
+    };
+    const mapSessions = (
+      sessions: Array<
+        AdminSessionRow & {
+          status: ClassSessionStatus;
+          _count: { bookings: number };
+          capacity: number;
+        }
+      >,
+    ): AdminSessionRow[] =>
+      sessions.map((session) => ({
+        ...session,
+        status:
+          session.status === ClassSessionStatus.ACTIVE &&
+          session._count.bookings >= session.capacity
+            ? ClassSessionStatus.FULL
+            : session.status,
+      }));
 
-    return sessions.map((session) => ({
-      ...session,
-      status:
-        session.status === ClassSessionStatus.ACTIVE &&
-        session._count.bookings >= session.capacity
-          ? ClassSessionStatus.FULL
-          : session.status,
-    }));
+    if (!hasPagination) {
+      const sessions = await this.prisma.classSession.findMany(findArgs);
+      return mapSessions(sessions);
+    }
+
+    const take = normalizedQuery.take ?? DEFAULT_LIST_PAGE_SIZE;
+    const offset = normalizedQuery.offset ?? 0;
+
+    if (requiresSessionsPostProcessing(normalizedQuery)) {
+      const sessions = await this.prisma.classSession.findMany({
+        ...findArgs,
+        take: SESSIONS_FILTER_SCAN_LIMIT,
+      });
+      const mapped = mapSessions(sessions);
+      const filtered = filterSessionRows(mapped, normalizedQuery);
+      const sorted = sortAdminSessionRows(
+        filtered,
+        normalizedQuery.order ?? SessionListOrder.UPCOMING,
+      );
+      return paginateSessionRows(sorted, take, offset);
+    }
+
+    const [sessions, total] = await Promise.all([
+      this.prisma.classSession.findMany({ ...findArgs, take, skip: offset }),
+      this.prisma.classSession.count({ where }),
+    ]);
+    return {
+      items: mapSessions(sessions),
+      total,
+      take,
+      offset,
+    };
+  }
+
+  private normalizeSessionsListQuery(
+    query: AdminListSessionsQueryDto,
+  ): AdminListSessionsQueryDto {
+    const coachIds = [
+      ...(query.coachIds
+        ?.split(',')
+        .map((item) => item.trim())
+        .filter(Boolean) ?? []),
+      ...(query.coachId ? [query.coachId] : []),
+    ];
+    const classTypeIds = [
+      ...(query.classTypeIds
+        ?.split(',')
+        .map((item) => item.trim())
+        .filter(Boolean) ?? []),
+      ...(query.typeId ? [query.typeId] : []),
+    ];
+    const statuses = [
+      ...(query.statuses
+        ?.split(',')
+        .map((item) => item.trim())
+        .filter(Boolean) ?? []),
+      ...(query.status ? [query.status] : []),
+    ];
+    const levels = [
+      ...(query.levels
+        ?.split(',')
+        .map((item) => item.trim())
+        .filter(Boolean) ?? []),
+      ...(query.level ? [query.level] : []),
+    ];
+
+    return {
+      ...query,
+      coachIds:
+        coachIds.length > 0 ? [...new Set(coachIds)].join(',') : query.coachIds,
+      classTypeIds:
+        classTypeIds.length > 0
+          ? [...new Set(classTypeIds)].join(',')
+          : query.classTypeIds,
+      statuses:
+        statuses.length > 0 ? [...new Set(statuses)].join(',') : query.statuses,
+      levels: levels.length > 0 ? [...new Set(levels)].join(',') : query.levels,
+    };
   }
 
   private normalizeOptional(value: string | null | undefined): string | null {
     const trimmed = value?.trim();
     return trimmed && trimmed.length > 0 ? trimmed : null;
+  }
+
+  private async resolveSessionTitle(
+    title: string | undefined,
+    classTypeId: string,
+  ): Promise<string> {
+    const trimmedTitle = title?.trim() ?? '';
+    if (trimmedTitle.length > 0) {
+      return trimmedTitle;
+    }
+
+    const classType = await this.prisma.classType.findUnique({
+      where: { id: classTypeId },
+      select: { name: true },
+    });
+    const classTypeName = classType?.name?.trim() ?? '';
+    if (classTypeName.length === 0) {
+      throw new BadRequestException('Class type is required.');
+    }
+    return classTypeName;
   }
 
   private assertTimeRange(startsAt: Date, endsAt: Date): void {
@@ -335,6 +453,7 @@ export class ClassesService {
 
   private buildBatchSessionData(
     dto: CreateSessionBatchDto,
+    title: string,
   ): Prisma.ClassSessionUncheckedCreateInput[] {
     const startDate = this.parseLocalDate(dto.startDate);
     const endDate = this.parseLocalDate(dto.endDate);
@@ -354,7 +473,7 @@ export class ClassesService {
         if (cursor.getUTCDay() !== SCHEDULE_DAY_INDEX[slot.weekday]) {
           continue;
         }
-        rows.push(this.buildBatchSessionSlotData(dto, slot, cursor));
+        rows.push(this.buildBatchSessionSlotData(dto, slot, cursor, title));
       }
     }
 
@@ -375,6 +494,7 @@ export class ClassesService {
     dto: CreateSessionBatchDto,
     slot: CreateSessionBatchSlotDto,
     date: Date,
+    title: string,
   ): Prisma.ClassSessionUncheckedCreateInput {
     const startsAt = this.localDateTimeToUtc(
       date,
@@ -388,7 +508,7 @@ export class ClassesService {
     );
     this.assertTimeRange(startsAt, endsAt);
     return {
-      title: dto.title.trim(),
+      title,
       description: this.normalizeOptional(dto.description),
       classTypeId: dto.classTypeId,
       coachId: dto.coachId,
@@ -481,9 +601,10 @@ export class ClassesService {
     const endsAt = new Date(dto.endsAt);
     this.assertTimeRange(startsAt, endsAt);
     const recurrence = this.buildRecurrencePayloadForCreate(dto);
+    const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
 
     const createData = {
-      title: dto.title.trim(),
+      title,
       description: this.normalizeOptional(dto.description),
       classTypeId: dto.classTypeId,
       coachId: dto.coachId,
@@ -512,7 +633,8 @@ export class ClassesService {
   async createSessionBatch(
     dto: CreateSessionBatchDto,
   ): Promise<AdminSessionRow[]> {
-    const createRows = this.buildBatchSessionData(dto);
+    const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
+    const createRows = this.buildBatchSessionData(dto, title);
     const created = await this.prisma.$transaction(
       createRows.map((data) => this.prisma.classSession.create({ data })),
     );

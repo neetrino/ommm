@@ -2,7 +2,66 @@ import type {
   AdminPackageRow,
   PackageFilterValues,
   PackageSortOrder,
+  PackageStatusFilter,
 } from "@/components/admin/admin-packages-types";
+import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
+
+/** Searchable text for a package row (name, category, description, features). */
+export function buildPackageSearchHaystack(pkg: AdminPackageRow): string {
+  const features = Array.isArray(pkg.features) ? pkg.features : [];
+  return [
+    pkg.name,
+    pkg.categoryName,
+    pkg.description ?? "",
+    ...features,
+    pkg.billingPeriod,
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+function buildCategoryShellHaystacks(
+  packages: readonly AdminPackageRow[],
+): Map<string, string> {
+  const haystacks = new Map<string, string>();
+  for (const pkg of packages) {
+    if (pkg.priceCents > 0) {
+      continue;
+    }
+    const key = normalizePackageCategoryKey(pkg.categoryName);
+    const current = haystacks.get(key) ?? "";
+    haystacks.set(key, `${current} ${buildPackageSearchHaystack(pkg)}`.trim());
+  }
+  return haystacks;
+}
+
+function matchesPackageStatus(
+  pkg: AdminPackageRow,
+  status: PackageStatusFilter,
+): boolean {
+  if (status === "active" && !pkg.isActive) {
+    return false;
+  }
+  if (status === "inactive" && pkg.isActive) {
+    return false;
+  }
+  return true;
+}
+
+function packageMatchesSearch(
+  pkg: AdminPackageRow,
+  search: string,
+  categoryShellHaystacks: ReadonlyMap<string, string>,
+): boolean {
+  const categoryKey = normalizePackageCategoryKey(pkg.categoryName);
+  const combined = [
+    buildPackageSearchHaystack(pkg),
+    categoryShellHaystacks.get(categoryKey) ?? "",
+  ]
+    .join(" ")
+    .trim();
+  return combined.includes(search);
+}
 
 export function countActivePackageFilters(values: PackageFilterValues): number {
   return [
@@ -12,33 +71,44 @@ export function countActivePackageFilters(values: PackageFilterValues): number {
   ].filter(Boolean).length;
 }
 
+export function hasActivePackageFilters(values: PackageFilterValues): boolean {
+  return countActivePackageFilters(values) > 0;
+}
+
 export function filterPackages(
   packages: readonly AdminPackageRow[],
   values: PackageFilterValues,
 ): AdminPackageRow[] {
   const search = values.search.trim().toLowerCase();
+  const categoryShellHaystacks =
+    search.length > 0 ? buildCategoryShellHaystacks(packages) : new Map<string, string>();
 
-  return packages.filter((pkg) => {
-    if (values.status === "active" && !pkg.isActive) {
-      return false;
-    }
-    if (values.status === "inactive" && pkg.isActive) {
-      return false;
-    }
-    if (search.length > 0) {
-      const haystack = [
-        pkg.name,
-        pkg.description ?? "",
-        pkg.billingPeriod,
-        ...pkg.features,
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(search)) {
-        return false;
+  const categoryKeysMatchingShell = new Set<string>();
+  if (search.length > 0) {
+    for (const [categoryKey, haystack] of categoryShellHaystacks) {
+      if (haystack.includes(search)) {
+        categoryKeysMatchingShell.add(categoryKey);
       }
     }
-    return true;
+  }
+
+  return packages.filter((pkg) => {
+    if (!matchesPackageStatus(pkg, values.status)) {
+      return false;
+    }
+    if (search.length === 0) {
+      return true;
+    }
+    if (packageMatchesSearch(pkg, search, categoryShellHaystacks)) {
+      return true;
+    }
+    if (
+      categoryKeysMatchingShell.has(normalizePackageCategoryKey(pkg.categoryName)) &&
+      pkg.priceCents > 0
+    ) {
+      return true;
+    }
+    return false;
   });
 }
 

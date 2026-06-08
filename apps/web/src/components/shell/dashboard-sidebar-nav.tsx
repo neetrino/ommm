@@ -5,20 +5,19 @@ import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
 import { adminNavIconSlugForHref } from "@/components/shell/admin-nav-icon-map";
-import { memberNavIconSlugForHref } from "@/components/shell/member-nav-icon-map";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
-import type { DashboardNavItem } from "@/lib/dashboard-nav";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import {
+  dashboardNavPathActive,
+  memberOliveIconSlugForNavItem,
+  type DashboardNavItem,
+} from "@/lib/dashboard-nav";
+import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
-const ADMIN_MUTED_NAV_HREFS = new Set([
-  "/admin/feedback",
-  "/admin/guest-users",
-]);
+const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
 
 function navActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  if (pathname === href) return true;
-  return pathname.startsWith(`${href}/`);
+  return dashboardNavPathActive(pathname, href);
 }
 
 function isAdminMutedNavItem(variant: DashboardShellVariant, href: string) {
@@ -33,10 +32,17 @@ function accentBorder(variant: DashboardShellVariant) {
 
 function oliveNavIconSlug(
   variant: DashboardShellVariant,
-  href: string,
+  item: DashboardNavItem,
 ): ReturnType<typeof adminNavIconSlugForHref> {
-  if (variant === "admin") return adminNavIconSlugForHref(href);
-  if (variant === "member") return memberNavIconSlugForHref(href);
+  if (variant === "member") {
+    return memberOliveIconSlugForNavItem(item);
+  }
+  if (item.oliveIconSlug) {
+    return item.oliveIconSlug;
+  }
+  if (variant === "admin") {
+    return adminNavIconSlugForHref(item.href);
+  }
   return null;
 }
 
@@ -115,7 +121,7 @@ export function DashboardSidebarNav({
         const active = navActive(pathname, item.href);
         const muted = isAdminMutedNavItem(variant, item.href);
         const oliveIconSlug = isOliveShell
-          ? oliveNavIconSlug(variant, item.href)
+          ? oliveNavIconSlug(variant, item)
           : null;
         const showMutedDivider = isAdmin && index === firstMutedIndex;
 
@@ -124,6 +130,7 @@ export function DashboardSidebarNav({
             {showMutedDivider ? <div className="ommm-admin-nav-divider" aria-hidden /> : null}
             <Link
               href={item.href}
+              prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
               title={collapsed ? item.label : undefined}
               aria-current={active ? "page" : undefined}
               className={

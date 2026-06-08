@@ -4,11 +4,20 @@ import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-t
 export const DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS = "min-h-[5.5rem]";
 
 /** Main column heading bar: stays visible at the top of the viewport while the page scrolls. */
-export const DASHBOARD_MAIN_HEADER_STICKY_CLASS = "sticky top-0 z-10";
+export const DASHBOARD_MAIN_HEADER_STICKY_CLASS = "sticky z-10";
+
+/** Breathing room between the fixed global site header and page content (workspace shells). */
+export const WORKSPACE_MAIN_SAFE_TOP_CLASS = "pt-4 sm:pt-6 lg:pt-8";
 
 /** Admin shell header — opaque sticky surface so page content does not show through on scroll. */
 export const DASHBOARD_ADMIN_MAIN_HEADER_STICKY_CLASS =
-  "ommm-admin-sticky-header sticky top-0 z-20 px-4 pt-4 sm:px-6 lg:px-8";
+  "ommm-admin-sticky-header sticky z-20 px-4 pt-4 sm:px-6 lg:px-8";
+
+/** Sticky page banner (AdminPageHero) — full-bleed opaque backdrop on workspace scroll. */
+export const ADMIN_PAGE_STICKY_SHELL_CLASS =
+  "ommm-admin-sticky-header sticky z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8";
+
+export const ADMIN_PAGE_HERO_STICKY_SHELL_CLASS = `${ADMIN_PAGE_STICKY_SHELL_CLASS} mb-4`;
 
 export function brandInitial(label: string) {
   const t = label.trim();

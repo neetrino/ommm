@@ -13,6 +13,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { AdminWaitlistActiveQueryDto } from './dto/admin-waitlist-active-query.dto';
 import { ManualNotifyWaitlistEntryDto } from './dto/manual-notify-waitlist-entry.dto';
 import { PromoteWaitlistEntryDto } from './dto/promote-waitlist-entry.dto';
 import { WaitlistService } from './waitlist.service';
@@ -56,9 +57,8 @@ export class WaitlistController {
   @Get('admin/active')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER)
-  adminActive(@Query('take') take?: string) {
-    const n = take ? Number.parseInt(take, 10) : 200;
-    return this.waitlist.listAdminActive(Number.isFinite(n) ? n : 200);
+  adminActive(@Query() query: AdminWaitlistActiveQueryDto) {
+    return this.waitlist.listAdminActive(query);
   }
 
   @Get('sessions/:sessionId')
