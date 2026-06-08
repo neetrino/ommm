@@ -1,7 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { isMarketingHomePath } from "@/components/marketing/marketing-route-utils";
+import { CoachesPageReveal } from "@/components/marketing/coaches/coaches-page-reveal";
+import {
+  isMarketingCoachesPath,
+  isMarketingHomePath,
+} from "@/components/marketing/marketing-route-utils";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { usePathname } from "@/i18n/navigation";
 
@@ -25,6 +29,10 @@ export function MarketingFooterGate({
 
   if (isMarketingHomePath(marketingPath)) {
     return null;
+  }
+
+  if (isMarketingCoachesPath(marketingPath)) {
+    return <CoachesPageReveal index={0}>{children}</CoachesPageReveal>;
   }
 
   return children;
