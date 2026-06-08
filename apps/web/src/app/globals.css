@@ -852,7 +852,7 @@ html {
   }
 
   .ommm-dropdown-menu {
-    @apply fixed z-[2000] overflow-hidden rounded-[24px] border border-white/70 bg-white/95 shadow-[0_24px_50px_-28px_rgba(45,40,35,0.32)] backdrop-blur-xl;
+    @apply fixed overflow-hidden rounded-[24px] border border-white/70 bg-white/95 shadow-[0_24px_50px_-28px_rgba(45,40,35,0.32)] backdrop-blur-xl;
   }
 
   .ommm-dropdown-menu--hover-animated {
@@ -881,6 +881,28 @@ html {
 
   .ommm-dropdown-menu--hover-animated[data-placement="top"].ommm-dropdown-menu--visible {
     transform: translateY(-100%);
+  }
+
+  .ommm-dropdown-menu--mobile-dismiss.ommm-dropdown-menu--hover-animated {
+    transition:
+      opacity 480ms cubic-bezier(0.33, 1, 0.68, 1),
+      transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-dropdown-menu--mobile-dismiss.ommm-dropdown-menu--hover-animated[data-placement="bottom"] {
+    transform: translateY(0.75rem) scale(0.97);
+  }
+
+  .ommm-dropdown-menu--mobile-dismiss.ommm-dropdown-menu--hover-animated[data-placement="top"] {
+    transform: translateY(calc(-100% - 0.75rem)) scale(0.97);
+  }
+
+  .ommm-dropdown-menu--mobile-dismiss.ommm-dropdown-menu--hover-animated[data-placement="bottom"].ommm-dropdown-menu--visible {
+    transform: translateY(0) scale(1);
+  }
+
+  .ommm-dropdown-menu--mobile-dismiss.ommm-dropdown-menu--hover-animated[data-placement="top"].ommm-dropdown-menu--visible {
+    transform: translateY(-100%) scale(1);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1233,6 +1255,27 @@ html {
       animation: none;
     }
   }
+}
+
+/* Portaled overlays — above fixed marketing header (z-50) and mobile nav sheet (z-40). */
+#ommm-overlay-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+#ommm-overlay-portal > * {
+  pointer-events: auto;
+}
+
+body[data-ommm-dropdown-open] header {
+  z-index: 30 !important;
+}
+
+.ommm-dropdown-menu {
+  isolation: isolate;
 }
 
 body {

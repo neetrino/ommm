@@ -8,6 +8,11 @@ import { useFloatingMenuPosition, type FloatingMenuAlign } from "@/components/ui
 import { DropdownSelectSearchHeader } from "@/components/ui/dropdown-select-search-header";
 import { filterDropdownOptions } from "@/components/ui/filter-dropdown-options";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import {
+  getOmmmOverlayPortalRoot,
+  OMMM_FLOATING_MENU_Z_INDEX,
+} from "@/lib/ommm-overlay-portal";
+import { CANVAS_TABLET_MIN_WIDTH_PX } from "@/lib/viewport-breakpoints";
 
 export type DropdownOption<T extends string> = {
   value: T;
@@ -47,6 +52,15 @@ export type DropdownSelectProps<T extends string> = {
 
 const HOVER_MENU_CLOSE_DELAY_MS = 180;
 const HOVER_MENU_ANIMATION_MS = 220;
+/** Mobile dismiss — keep in sync with `.ommm-dropdown-menu--mobile-dismiss` transform duration in CSS. */
+const MOBILE_MENU_DISMISS_ANIMATION_MS = 560;
+const HOVER_OPEN_MEDIA_QUERY = "(hover: hover) and (pointer: fine)";
+const MOBILE_VIEWPORT_MEDIA_QUERY = `(max-width: ${CANVAS_TABLET_MIN_WIDTH_PX - 1}px)`;
+const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia(REDUCED_MOTION_MEDIA_QUERY).matches;
+}
 
 function mergeClasses(...parts: Array<string | undefined>): string {
   return parts.filter(Boolean).join(" ");
@@ -119,10 +133,15 @@ export function DropdownSelect<T extends string>({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const hoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingFocusRef = useRef(false);
+  const scrollDismissRef = useRef(false);
   const [menuExitHold, setMenuExitHold] = useState(false);
   const [menuAnimatedIn, setMenuAnimatedIn] = useState(false);
+  const [hoverOpenCapable, setHoverOpenCapable] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const listboxId = useId();
-  const menuAnimationActive = openOnHover;
+  const menuAnimationActive = openOnHover && hoverOpenCapable;
+  const menuMotionActive = menuAnimationActive || isMobileViewport;
 
   const visibleOptions = useMemo(
     () => (searchable ? filterDropdownOptions(options, searchQuery) : [...options]),
@@ -147,6 +166,9 @@ export function DropdownSelect<T extends string>({
     undefined,
     menuMinWidth ?? 0,
     menuAlign ?? "start",
+    undefined,
+    isMobileViewport && menuExitHold && !isMenuOpen,
+    isMobileViewport,
   );
   const searchHeaderHeight = searchable ? 56 : 0;
   const listMaxHeight =
@@ -170,6 +192,27 @@ export function DropdownSelect<T extends string>({
   }, [isMenuOpen, searchable]);
 
   useEffect(() => {
+    const hoverMediaQuery = window.matchMedia(HOVER_OPEN_MEDIA_QUERY);
+    const mobileMediaQuery = window.matchMedia(MOBILE_VIEWPORT_MEDIA_QUERY);
+    const syncPointerCapability = () => {
+      setHoverOpenCapable(hoverMediaQuery.matches);
+    };
+    const syncMobileViewport = () => {
+      setIsMobileViewport(mobileMediaQuery.matches);
+    };
+
+    syncPointerCapability();
+    syncMobileViewport();
+    hoverMediaQuery.addEventListener("change", syncPointerCapability);
+    mobileMediaQuery.addEventListener("change", syncMobileViewport);
+
+    return () => {
+      hoverMediaQuery.removeEventListener("change", syncPointerCapability);
+      mobileMediaQuery.removeEventListener("change", syncMobileViewport);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!open || disabled) {
       return undefined;
     }
@@ -180,8 +223,7 @@ export function DropdownSelect<T extends string>({
       const clickedTrigger = rootRef.current?.contains(event.target) ?? false;
       const clickedMenu = menuRef.current?.contains(event.target) ?? false;
       if (!clickedTrigger && !clickedMenu) {
-        setSearchQuery("");
-        setOpen(false);
+        dismissMenu();
       }
     };
     const listenerId = window.setTimeout(() => {
@@ -192,6 +234,39 @@ export function DropdownSelect<T extends string>({
       document.removeEventListener("click", closeOnOutside);
     };
   }, [disabled, open]);
+
+  useEffect(() => {
+    if (!isMobileViewport || (!isMenuOpen && !menuExitHold)) {
+      return undefined;
+    }
+
+    document.body.dataset.ommmDropdownOpen = "true";
+    return () => {
+      delete document.body.dataset.ommmDropdownOpen;
+    };
+  }, [isMenuOpen, isMobileViewport, menuExitHold]);
+
+  useEffect(() => {
+    if (!open || disabled || !isMobileViewport) {
+      return undefined;
+    }
+
+    const closeOnPageScroll = (event: Event) => {
+      if (scrollDismissRef.current) {
+        return;
+      }
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
+        return;
+      }
+      scrollDismissRef.current = true;
+      dismissMenu();
+    };
+
+    window.addEventListener("scroll", closeOnPageScroll, true);
+    return () => {
+      window.removeEventListener("scroll", closeOnPageScroll, true);
+    };
+  }, [disabled, isMobileViewport, open]);
 
   useEffect(() => {
     if (!isMenuOpen || openOnHover) {
@@ -209,7 +284,7 @@ export function DropdownSelect<T extends string>({
   }, []);
 
   useEffect(() => {
-    if (!menuAnimationActive) {
+    if (!menuMotionActive) {
       return undefined;
     }
 
@@ -220,7 +295,7 @@ export function DropdownSelect<T extends string>({
       return () => window.cancelAnimationFrame(exitId);
     }
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       const enterId = window.requestAnimationFrame(() => {
         setMenuAnimatedIn(true);
       });
@@ -231,15 +306,36 @@ export function DropdownSelect<T extends string>({
       window.requestAnimationFrame(() => setMenuAnimatedIn(true));
     });
     return () => window.cancelAnimationFrame(enterId);
-  }, [isMenuOpen, menuAnimationActive]);
+  }, [isMenuOpen, menuMotionActive]);
+
+  function dismissMenu(options?: { focusTrigger?: boolean }) {
+    const focusTrigger = options?.focusTrigger ?? false;
+    clearHoverCloseTimer();
+    setSearchQuery("");
+
+    const animatedExit = menuMotionActive && open && !prefersReducedMotion();
+    if (animatedExit) {
+      setMenuExitHold(true);
+      setOpen(false);
+      if (focusTrigger) {
+        pendingFocusRef.current = true;
+      }
+      return;
+    }
+
+    scrollDismissRef.current = false;
+    setOpen(false);
+    setMenuExitHold(false);
+    setMenuAnimatedIn(false);
+    if (focusTrigger) {
+      window.requestAnimationFrame(() => {
+        triggerRef.current?.focus();
+      });
+    }
+  }
 
   function closeAndFocusTrigger() {
-    clearHoverCloseTimer();
-    setOpen(false);
-    setSearchQuery("");
-    window.requestAnimationFrame(() => {
-      triggerRef.current?.focus();
-    });
+    dismissMenu({ focusTrigger: true });
   }
 
   function selectValue(next: T) {
@@ -251,7 +347,7 @@ export function DropdownSelect<T extends string>({
     if (disabled || options.length === 0) {
       return;
     }
-    if (menuAnimationActive) {
+    if (menuMotionActive) {
       setMenuExitHold(true);
     }
     setSearchQuery("");
@@ -260,14 +356,20 @@ export function DropdownSelect<T extends string>({
   }
 
   function handleMenuTransitionEnd(event: React.TransitionEvent<HTMLDivElement>) {
-    if (!menuAnimationActive || event.target !== event.currentTarget) {
+    if (!menuMotionActive || event.target !== event.currentTarget) {
       return;
     }
-    if (event.propertyName !== "opacity") {
+    const exitProperty = isMobileViewport ? "transform" : "opacity";
+    if (event.propertyName !== exitProperty) {
       return;
     }
     if (!isMenuOpen && !menuAnimatedIn) {
       setMenuExitHold(false);
+      scrollDismissRef.current = false;
+      if (pendingFocusRef.current) {
+        pendingFocusRef.current = false;
+        triggerRef.current?.focus();
+      }
     }
   }
 
@@ -282,7 +384,7 @@ export function DropdownSelect<T extends string>({
     if (!openOnHover || disabled || options.length === 0) {
       return false;
     }
-    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    return hoverOpenCapable;
   }
 
   function handleHoverZoneEnter() {
@@ -301,8 +403,7 @@ export function DropdownSelect<T extends string>({
     }
     clearHoverCloseTimer();
     hoverCloseTimerRef.current = setTimeout(() => {
-      setSearchQuery("");
-      setOpen(false);
+      dismissMenu();
     }, HOVER_MENU_CLOSE_DELAY_MS);
   }
 
@@ -429,7 +530,7 @@ export function DropdownSelect<T extends string>({
         ) : null}
       </button>
 
-      {(menuAnimationActive ? menuExitHold : isMenuOpen) &&
+      {(menuMotionActive ? menuExitHold : isMenuOpen) &&
       menuPosition !== null &&
       portalReady
         ? createPortal(
@@ -437,8 +538,9 @@ export function DropdownSelect<T extends string>({
               ref={menuRef}
               className={mergeClasses(
                 "ommm-dropdown-menu",
-                menuAnimationActive ? "ommm-dropdown-menu--hover-animated" : undefined,
-                menuAnimationActive && menuAnimatedIn
+                menuMotionActive ? "ommm-dropdown-menu--hover-animated" : undefined,
+                isMobileViewport ? "ommm-dropdown-menu--mobile-dismiss" : undefined,
+                menuMotionActive && menuAnimatedIn
                   ? "ommm-dropdown-menu--visible"
                   : undefined,
                 menuClassName,
@@ -446,20 +548,23 @@ export function DropdownSelect<T extends string>({
               data-placement={menuPosition.placement}
               onMouseEnter={openOnHover ? handleHoverZoneEnter : undefined}
               onMouseLeave={openOnHover ? handleHoverZoneLeave : undefined}
-              onTransitionEnd={menuAnimationActive ? handleMenuTransitionEnd : undefined}
+              onTransitionEnd={menuMotionActive ? handleMenuTransitionEnd : undefined}
               style={{
+                position: "fixed",
+                zIndex: isMobileViewport ? OMMM_FLOATING_MENU_Z_INDEX : undefined,
                 top: menuPosition.top,
                 left: menuPosition.left,
                 width: menuPosition.width,
                 maxHeight: disableMenuScroll ? undefined : menuPosition.maxHeight,
-                transform: menuAnimationActive
+                transform: menuMotionActive
                   ? undefined
                   : menuPosition.placement === "top"
-                    ? "translateY(-100%)"
+                    ? "translate3d(0, -100%, 0)"
+                    : "translate3d(0, 0, 0)",
+                transitionDuration:
+                  menuMotionActive && !isMobileViewport
+                    ? `${HOVER_MENU_ANIMATION_MS}ms`
                     : undefined,
-                transitionDuration: menuAnimationActive
-                  ? `${HOVER_MENU_ANIMATION_MS}ms`
-                  : undefined,
               }}
             >
               {searchable ? (
@@ -521,7 +626,7 @@ export function DropdownSelect<T extends string>({
                 })}
               </ul>
             </div>,
-            document.body,
+            isMobileViewport ? getOmmmOverlayPortalRoot() : document.body,
           )
         : null}
 
