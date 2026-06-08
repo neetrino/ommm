@@ -905,11 +905,19 @@ html {
   }
 
   .ommm-language-switcher-menu {
-    min-width: 7.25rem;
+    min-width: 9rem;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-menu-list {
     @apply m-1 space-y-0.5 p-1;
+  }
+
+  .ommm-language-switcher-option-row {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.5rem;
   }
 
   .ommm-dropdown-menu-action {
@@ -938,11 +946,11 @@ html {
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option {
-    @apply justify-center gap-1.5 border-2 border-transparent px-2 py-1.5 text-center;
+    @apply justify-start border-2 border-transparent px-2.5 py-1.5 text-left font-medium;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option[data-selected="true"] {
-    @apply border-[#97907c]/85 bg-white/60 font-semibold;
+    @apply border-[#97907c]/85 bg-white/60;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
   }
 

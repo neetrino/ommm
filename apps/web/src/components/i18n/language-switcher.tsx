@@ -127,9 +127,9 @@ export function LanguageSwitcher({
         }
         renderOption={(option, selected) => (
           <>
-            <span className="inline-flex w-full items-center justify-center gap-1.5">
+            <span className="ommm-language-switcher-option-row">
               <LocaleFlagIcon code={option.value} />
-              <span>{option.label}</span>
+              <span className="truncate leading-none">{option.label}</span>
             </span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
