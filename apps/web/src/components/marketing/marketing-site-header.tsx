@@ -13,11 +13,13 @@ import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobil
 import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
 import {
   isCompactMarketingHeaderLocale,
-  marketingHeaderActionsClass,
   marketingHeaderAuthClusterClass,
-  marketingHeaderBrandLinkClass,
-  marketingHeaderBrandTextClass,
   marketingHeaderContainerClass,
+  marketingHeaderDesktopActionsClass,
+  marketingHeaderDesktopBrandLinkClass,
+  marketingHeaderDesktopBrandTextClass,
+  marketingHeaderDesktopNavClass,
+  marketingHeaderDesktopRowClass,
   marketingHeaderIconAccountClass,
   marketingHeaderIconButtonClass,
   marketingHeaderLanguageTriggerClass,
@@ -31,7 +33,6 @@ import {
   marketingHeaderMobileRowWrapClass,
   marketingHeaderMobileRowWrapStyle,
   MARKETING_MOBILE_HEADER,
-  marketingHeaderNavClass,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
@@ -147,7 +148,6 @@ export function MarketingSiteHeader({
       isMarketingHeroHeaderPath(marketingPath),
   );
   const elevated = isWorkspaceChrome ? true : scrollElevated;
-  const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const workspaceDrawerOpen = workspaceDrawer?.open ?? false;
   const anyOverlayOpen = publicMenuOpen || workspaceDrawerOpen;
   const showMobileGlassPill = elevated && !anyOverlayOpen;
@@ -158,6 +158,10 @@ export function MarketingSiteHeader({
   };
   const showNotifications =
     notificationHref !== null && notificationsLabel !== null;
+  const desktopGlassStyle = {
+    ["--marketing-glass-pill-bg" as string]:
+      MARKETING_MOBILE_HEADER.scrolledPillBackground,
+  };
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setPublicMenuOpen(false);
@@ -294,77 +298,88 @@ export function MarketingSiteHeader({
           </div>
         </div>
 
-        <Link href="/" className={marketingHeaderBrandLinkClass()} onClick={handleBrandClick}>
-          <span className={marketingHeaderBrandTextClass()}>{tNav("studioBrand")}</span>
-        </Link>
-
-        <nav
-          className={`${marketingHeaderNavClass(compact)} ${navPillStyles.pill} ${pillSurfaceClass}`}
-          aria-label={tUi("primaryNavAria")}
-          data-elevated={elevated ? "true" : "false"}
+        <div
+          className={`${marketingHeaderDesktopRowClass()} ${navPillStyles.desktopUnifiedBar} ${navPillStyles.marketingGlassPill}`}
+          data-glass-active="true"
+          style={desktopGlassStyle}
         >
-          <div aria-hidden className={navPillStyles.gloss} />
-          <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
-            {navLinks.map(({ href, key }) => {
-              const linkActive = isActive(marketingPath, href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`${marketingHeaderNavPillLinkClass(linkActive, compact)} ${navPillStyles.desktopNavLink}`}
-                  aria-current={linkActive ? "page" : undefined}
-                >
-                  <span
-                    className={`${navPillStyles.desktopNavLinkText} ${linkActive ? navPillStyles.desktopNavLinkTextActive : ""}`}
-                  >
-                    {tNav(key)}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+          <div aria-hidden className={navPillStyles.marketingGlassPillGloss} />
+          <Link
+            href="/"
+            className={marketingHeaderDesktopBrandLinkClass()}
+            onClick={handleBrandClick}
+          >
+            <span className={marketingHeaderDesktopBrandTextClass()}>
+              {tNav("studioBrand")}
+            </span>
+          </Link>
 
-        <div className={marketingHeaderActionsClass()}>
-          <div className={marketingHeaderAuthClusterClass()}>
-            {showNotifications ? (
-              <HeaderNotificationAction
-                href={notificationHref}
-                label={notificationsLabel}
-                active={notificationsActive}
-                className="hidden h-8 w-8 min-h-8 min-w-8 lg:inline-flex lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-11 nav-desktop:w-11 nav-desktop:min-h-11 nav-desktop:min-w-11"
-                onNavigate={closeAllMenus}
-              />
-            ) : null}
-            <LanguageSwitcher
-              context="marketing"
-              appearance="icon"
-              className="min-w-0 shrink-0"
-              triggerClassName={marketingHeaderLanguageTriggerClass()}
-              onAfterSelect={closeAllMenus}
-              renderIconTrigger={() => (
-                <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
-              )}
-            />
-            {account ? (
-              <MarketingAccountAvatarMenu
-                initials={account.initials}
-                imageSrc={account.imageSrc}
-                displayName={account.displayName}
-                profileHref={account.href}
-                triggerClassName={marketingHeaderIconAccountClass()}
+          <nav
+            className={marketingHeaderDesktopNavClass()}
+            aria-label={tUi("primaryNavAria")}
+          >
+            <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
+              {navLinks.map(({ href, key }) => {
+                const linkActive = isActive(marketingPath, href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`${marketingHeaderNavPillLinkClass(linkActive, compact)} ${navPillStyles.desktopNavLink} ${linkActive ? navPillStyles.desktopNavLinkActive : ""}`}
+                    aria-current={linkActive ? "page" : undefined}
+                  >
+                    <span
+                      className={`${navPillStyles.desktopNavLinkText} ${linkActive ? navPillStyles.desktopNavLinkTextActive : ""}`}
+                    >
+                      {tNav(key)}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+
+          <div className={marketingHeaderDesktopActionsClass()}>
+            <div className={marketingHeaderAuthClusterClass()}>
+              {showNotifications ? (
+                <HeaderNotificationAction
+                  href={notificationHref}
+                  label={notificationsLabel}
+                  active={notificationsActive}
+                  className="hidden h-8 w-8 min-h-8 min-w-8 lg:inline-flex lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-8 nav-desktop:w-8 nav-desktop:min-h-8 nav-desktop:min-w-8"
+                  onNavigate={closeAllMenus}
+                />
+              ) : null}
+              <LanguageSwitcher
+                context="marketing"
+                appearance="icon"
+                className="min-w-0 shrink-0"
+                triggerClassName={marketingHeaderLanguageTriggerClass()}
                 onAfterSelect={closeAllMenus}
+                renderIconTrigger={() => (
+                  <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
+                )}
               />
-            ) : (
-              <Link
-                href="/login"
-                className={marketingHeaderIconAccountClass()}
-                aria-label={tCommon("login")}
-                onClick={closeAllMenus}
-              >
-                <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
-              </Link>
-            )}
+              {account ? (
+                <MarketingAccountAvatarMenu
+                  initials={account.initials}
+                  imageSrc={account.imageSrc}
+                  displayName={account.displayName}
+                  profileHref={account.href}
+                  triggerClassName={marketingHeaderIconAccountClass()}
+                  onAfterSelect={closeAllMenus}
+                />
+              ) : (
+                <Link
+                  href="/login"
+                  className={marketingHeaderIconAccountClass()}
+                  aria-label={tCommon("login")}
+                  onClick={closeAllMenus}
+                >
+                  <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[30px] nav-desktop:w-[26px]" />
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
