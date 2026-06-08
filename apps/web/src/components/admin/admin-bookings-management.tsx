@@ -517,7 +517,6 @@ export function AdminBookingsManagement({
           pageSize={listPage.pageSize}
           offset={pagination.offset}
           onPageChange={(page) => setListPage(page)}
-          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
           disabled={loading}
         />
       ) : null}
