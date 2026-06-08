@@ -97,6 +97,7 @@ type CoachUpdateResult = {
     email: string;
     lastName: string | null;
     phone: string | null;
+    dateOfBirth: Date | null;
     avatarUrl: string | null;
   };
 };
@@ -380,7 +381,9 @@ export class CoachesService {
       throw new ForbiddenException('Managers cannot deactivate coaches');
     }
     const normalizedPhone =
-      dto.phone === undefined ? undefined : this.normalizePhone(dto.phone);
+      dto.phone === undefined
+        ? undefined
+        : this.normalizeOptionalPhone(dto.phone ?? null);
     const normalizedSpecialization =
       dto.specialization === undefined
         ? undefined
@@ -417,8 +420,13 @@ export class CoachesService {
     );
     const userData = {
       ...(dto.email !== undefined && { email: dto.email.toLowerCase().trim() }),
-      ...(dto.name !== undefined && { name: dto.name.trim() }),
-      ...(dto.lastName !== undefined && { lastName: dto.lastName.trim() }),
+      ...(dto.name !== undefined && {
+        name: dto.name === null ? null : this.normalizeOptionalText(dto.name),
+      }),
+      ...(dto.lastName !== undefined && {
+        lastName:
+          dto.lastName === null ? null : this.normalizeOptionalText(dto.lastName),
+      }),
       ...(normalizedPhone !== undefined && { phone: normalizedPhone }),
       ...(nextDateOfBirth !== undefined && { dateOfBirth: nextDateOfBirth }),
       ...(normalizedPhotoUrl !== undefined && {
@@ -476,6 +484,7 @@ export class CoachesService {
               lastName: true,
               email: true,
               phone: true,
+              dateOfBirth: true,
               avatarUrl: true,
             },
           },
@@ -887,8 +896,11 @@ export class CoachesService {
     }
   }
 
-  private normalizePhone(phone: string): string {
-    const normalizedPhone = phone.trim();
+  private normalizeOptionalPhone(phone: string | null): string | null {
+    const normalizedPhone = (phone ?? '').trim();
+    if (normalizedPhone.length === 0) {
+      return null;
+    }
     const phoneDigits = normalizedPhone.replace(/\D/g, '');
     if (phoneDigits.length < 8 || phoneDigits.length > 15) {
       throw new BadRequestException('Invalid phone number');
