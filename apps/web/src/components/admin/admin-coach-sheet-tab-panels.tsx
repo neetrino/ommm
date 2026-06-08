@@ -31,6 +31,7 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { formatBirthdayInput, formatDateForUi, parseBirthdayDisplayToIso } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
+import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { coachCardInitials, type CoachCardUser } from "@/components/coaches/coach-card-display";
 
 type CoachFormController = ReturnType<typeof useCoachEditForm>;
@@ -287,28 +288,16 @@ export function CoachSheetTabPanels({
           title={labels.assignedClassesHeading}
           description={labels.assignedClassesDescription}
         />
-        <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
-          {classOptions.map((option) => (
-            <label
-              key={option.id}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-sage-700"
-            >
-              <input
-                type="checkbox"
-                checked={form.assignedClassTypeIds.includes(option.id)}
-                onChange={() => controller.toggleClassSelection(option.id)}
-                disabled={busy}
-              />
-              <span>{option.name}</span>
-            </label>
-          ))}
-          {classOptions.length === 0 ? (
-            <p className="text-sm text-sage-500">{t("fieldAssignedClassesEmpty")}</p>
-          ) : null}
-        </div>
-        {errors.assignedClassTypeIds ? (
-          <p className="mt-2 text-xs text-red-800">{errors.assignedClassTypeIds}</p>
-        ) : null}
+        <AdminCoachAssignedClassesPicker
+          classOptions={classOptions}
+          selectedIds={form.assignedClassTypeIds}
+          onToggle={(classTypeId) => controller.toggleClassSelection(classTypeId)}
+          disabled={busy}
+          emptyLabel={t("fieldAssignedClassesEmpty")}
+          noneSelectedLabel={t("assignedClassesNoneSelected")}
+          selectedCountLabel={(count) => t("assignedClassesSelectedCount", { count })}
+          error={errors.assignedClassTypeIds}
+        />
       </section>
     );
   }

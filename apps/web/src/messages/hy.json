@@ -1736,6 +1736,8 @@
       "classTypeInvalid": "Ընտրեք վավեր դասի տեսակ ժամանակացույցից։",
       "assignedClassesRequired": "Ընտրեք առնվազն մեկ կցված դաս։",
       "assignedClassesInvalid": "Կցված դասերը պարունակում են անվավեր արժեքներ։",
+      "assignedClassesNoneSelected": "Սեղմեք ներքևի դասի տեսակներից՝ մարզչին կցելու համար։",
+      "assignedClassesSelectedCount": "{count} դասի տեսակ կցված",
       "scheduleInvalid": "Լրացրեք յուրաքանչյուր սլոթի օրը, ժամը և տեղերը։",
       "photoRequired": "Մարզիչի լուսանկարը պարտադիր է։",
       "photoTooLarge": "Լուսանկարը չափազանց մեծ է (մաքս. 10 ՄԲ)։",

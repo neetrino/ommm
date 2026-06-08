@@ -1724,6 +1724,8 @@
       "classTypeInvalid": "Выберите корректный тип занятия из расписания.",
       "assignedClassesRequired": "Выберите хотя бы один назначенный класс.",
       "assignedClassesInvalid": "Назначенные классы содержат некорректные значения.",
+      "assignedClassesNoneSelected": "Нажмите на тип занятия ниже, чтобы назначить его тренеру.",
+      "assignedClassesSelectedCount": "Назначено типов занятий: {count}",
       "scheduleInvalid": "Заполните каждый слот даты, времени и мест корректно.",
       "photoRequired": "Фото тренера обязательно.",
       "photoTooLarge": "Фото слишком большое (макс. 10 МБ).",

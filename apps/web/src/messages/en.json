@@ -1733,6 +1733,8 @@
       "classTypeInvalid": "Select a valid class type from Schedule.",
       "assignedClassesRequired": "Select at least one assigned class.",
       "assignedClassesInvalid": "Assigned classes contain invalid values.",
+      "assignedClassesNoneSelected": "Tap a class type below to assign it to this coach.",
+      "assignedClassesSelectedCount": "{count} class types assigned",
       "scheduleInvalid": "Complete each schedule slot with valid date, time, and spots.",
       "photoRequired": "Coach photo is required.",
       "photoTooLarge": "Photo is too large (max 10 MB).",
