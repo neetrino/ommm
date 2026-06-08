@@ -240,6 +240,57 @@
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
+/* Header avatar — slightly smaller than globe; overrides profile avatar defaults. */
+.mobileHeaderAvatar,
+.desktopHeaderAvatar {
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.mobileHeaderAvatar {
+  height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  min-height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  min-width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  transition:
+    height var(--marketing-mobile-glass-pill-transition-duration, 420ms)
+      var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    width var(--marketing-mobile-glass-pill-transition-duration, 420ms)
+      var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    min-height var(--marketing-mobile-glass-pill-transition-duration, 420ms)
+      var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
+    min-width var(--marketing-mobile-glass-pill-transition-duration, 420ms)
+      var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+/* Tablet+ unified bar — matches MARKETING_HEADER_AVATAR_DESKTOP in layout.ts */
+.desktopHeaderAvatar {
+  height: 21px !important;
+  width: 21px !important;
+  min-height: 21px !important;
+  min-width: 21px !important;
+}
+
+@media (min-width: 1024px) {
+  .desktopHeaderAvatar {
+    height: 25px !important;
+    width: 25px !important;
+    min-height: 25px !important;
+    min-width: 25px !important;
+  }
+}
+
+@media (min-width: 85.4375rem) {
+  .desktopHeaderAvatar {
+    height: 29px !important;
+    width: 29px !important;
+    min-height: 29px !important;
+    min-width: 29px !important;
+  }
+}
+
 .mobileHeaderAccountButton {
   height: var(--marketing-mobile-glass-pill-action-icon-size, 26px);
   width: var(--marketing-mobile-glass-pill-action-icon-size, 26px);

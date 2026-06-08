@@ -17,6 +17,7 @@ type MarketingAccountAvatarMenuProps = {
   displayName: string;
   profileHref: string;
   triggerClassName: string;
+  avatarClassName: string;
   onAfterSelect?: () => void;
 };
 
@@ -29,6 +30,7 @@ export function MarketingAccountAvatarMenu({
   displayName,
   profileHref,
   triggerClassName,
+  avatarClassName,
   onAfterSelect,
 }: MarketingAccountAvatarMenuProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,12 @@ export function MarketingAccountAvatarMenu({
           aria-label={displayName}
           onClick={() => onAfterSelect?.()}
         >
-          <MemberProfileAvatar initials={initials} imageSrc={imageSrc} />
+          <MemberProfileAvatar
+            initials={initials}
+            imageSrc={imageSrc}
+            variant={imageSrc ? "admin" : "marketing"}
+            className={avatarClassName}
+          />
         </Link>
       </div>
       {open && position

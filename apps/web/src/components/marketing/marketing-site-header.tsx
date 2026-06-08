@@ -280,6 +280,7 @@ export function MarketingSiteHeader({
                   displayName={account.displayName}
                   profileHref={account.href}
                   triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  avatarClassName={navPillStyles.mobileHeaderAvatar}
                   onAfterSelect={closeAllMenus}
                 />
               ) : (
@@ -367,6 +368,7 @@ export function MarketingSiteHeader({
                   displayName={account.displayName}
                   profileHref={account.href}
                   triggerClassName={marketingHeaderIconAccountClass()}
+                  avatarClassName={navPillStyles.desktopHeaderAvatar}
                   onAfterSelect={closeAllMenus}
                 />
               ) : (
@@ -376,7 +378,7 @@ export function MarketingSiteHeader({
                   aria-label={tCommon("login")}
                   onClick={closeAllMenus}
                 >
-                  <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[30px] nav-desktop:w-[26px]" />
+                  <MarketingHeaderUserIcon className="h-5 w-5 shrink-0 lg:h-6 lg:w-6 nav-desktop:h-7 nav-desktop:w-7" />
                 </Link>
               )}
             </div>

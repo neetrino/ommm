@@ -3,15 +3,26 @@ import Image from "next/image";
 type MemberProfileAvatarProps = {
   initials: string;
   imageSrc: string | null;
+  className?: string;
+  variant?: "admin" | "marketing";
 };
 
 export function MemberProfileAvatar({
   initials,
   imageSrc,
+  className,
+  variant = "admin",
 }: MemberProfileAvatarProps) {
   if (imageSrc) {
+    const photoClass = [
+      "ommm-admin-profile-avatar shrink-0 overflow-hidden p-0",
+      className,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
     return (
-      <span className="ommm-admin-profile-avatar overflow-hidden p-0">
+      <span className={photoClass}>
         <Image
           src={imageSrc}
           alt=""
@@ -23,8 +34,16 @@ export function MemberProfileAvatar({
     );
   }
 
+  const initialsClass = [
+    variant === "marketing" ? "ommm-marketing-profile-avatar" : "ommm-admin-profile-avatar",
+    "shrink-0",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <span className="ommm-admin-profile-avatar" aria-hidden>
+    <span className={initialsClass} aria-hidden>
       {initials}
     </span>
   );
