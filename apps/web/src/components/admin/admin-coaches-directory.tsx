@@ -148,9 +148,9 @@ export function AdminCoachesDirectory({
   }, [coaches, visibleCoachId]);
 
   const setListPage = useCallback(
-    (page: number, pageSize?: number) => {
+    (page: number) => {
       const params = new URLSearchParams(searchParams.toString());
-      syncListPageQuery(params, page, pageSize);
+      syncListPageQuery(params, page);
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
@@ -214,7 +214,6 @@ export function AdminCoachesDirectory({
           pageSize={listPage.pageSize}
           offset={initial.offset}
           onPageChange={setListPage}
-          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
         />
       ) : null}
       <AdminCoachDetailsDrawer
