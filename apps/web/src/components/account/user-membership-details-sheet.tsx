@@ -17,6 +17,7 @@ import {
 } from "@/components/account/user-membership-display";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
+  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
@@ -110,9 +111,19 @@ function UserMembershipDetailsSheetInner({
               />
             ) : null}
           </div>
-          <span className={`shrink-0 ${memberStatusClassName(status)}`}>
-            {formatMembershipStatusLabel(status, t)}
-          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className={memberStatusClassName(status)}>
+              {formatMembershipStatusLabel(status, t)}
+            </span>
+            <button
+              type="button"
+              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+              aria-label={t("membershipDetailsCloseBackdrop")}
+              onClick={onClose}
+            >
+              <CloseGlyph />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -194,5 +205,22 @@ function DetailRow({ label, value, valueClassName = MEMBERSHIP_DETAIL_VALUE_CLAS
       <dt className={MEMBERSHIP_DETAIL_LABEL_CLASS}>{label}</dt>
       <dd className={valueClassName}>{value}</dd>
     </div>
+  );
+}
+
+function CloseGlyph() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      className="h-5 w-5"
+      aria-hidden
+    >
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
   );
 }
