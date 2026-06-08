@@ -45,6 +45,8 @@ export async function HomeHeroPhotoBanner({ locale }: HomeHeroPhotoBannerProps) 
         ["--home-hero-bg-left" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageLeftPercent}%`,
         ["--home-hero-bg-top" as string]: `${HOME_HERO_MOBILE_LAYOUT.backgroundImageTopPercent}%`,
         ["--home-hero-bg-position-lg" as string]: HOME_HERO_LAYOUT.backgroundObjectPosition,
+        ["--home-hero-bg-position-mobile" as string]:
+          HOME_HERO_MOBILE_LAYOUT.backgroundObjectPosition,
         ["--home-hero-content-px" as string]: HOME_HERO_MOBILE_LAYOUT.contentPaddingX,
         ["--home-hero-title-size" as string]: HOME_HERO_MOBILE_LAYOUT.titleFontSize,
         ["--home-hero-title-size-lg" as string]: HOME_HERO_LAYOUT.titleFontSizeDesktop,

@@ -328,10 +328,6 @@
 }
 
 @media (max-width: 743px) {
-  .card {
-    touch-action: pan-x;
-  }
-
   .imageCrop,
   .imageFrame {
     transform: none;

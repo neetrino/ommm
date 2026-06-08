@@ -23,7 +23,6 @@
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
   scrollbar-width: none;
 }
 

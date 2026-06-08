@@ -6,6 +6,10 @@ import Image from "next/image";
 import styles from "@/components/marketing/home/featured-coach-slide-card-mobile.module.css";
 import type { CoachSlideCopy, CoachSlideLane } from "@/components/marketing/home/featured-coach-slide-card";
 import { resolveCoachSlidePortraitSrc } from "@/components/marketing/home/home-featured-coach-slides";
+import {
+  splitCoachCardNameWords,
+  useCoachCardNameWrap,
+} from "@/hooks/use-coach-card-name-wrap";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { aboveFoldImageProps } from "@/lib/image-loading-props";
 
@@ -55,6 +59,10 @@ export function FeaturedCoachSlideCardMobile({
 }: FeaturedCoachSlideCardMobileProps) {
   const reduceMotion = usePrefersReducedMotion();
   const portraitSrc = resolveCoachSlidePortraitSrc(slide);
+  const { wrapWords, nameRef } = useCoachCardNameWrap(slide.name, {
+    layoutReady: peekLayout,
+  });
+  const nameWords = splitCoachCardNameWords(slide.name);
 
   const y = "0rem";
 
@@ -89,7 +97,7 @@ export function FeaturedCoachSlideCardMobile({
             : CARD_MOTION
       }
     >
-      <div className={styles.cardInner}>
+      <div className={`${styles.cardInner} ${wrapWords ? styles.cardInnerNameWrapped : ""}`}>
         <div className={`${styles.textColumn} ${marketingMontserrat.className}`}>
           <p className={`${styles.role} font-bold`}>{slide.role}</p>
           <p className={`${styles.bio} font-normal`}>{slide.bio}</p>
@@ -115,7 +123,18 @@ export function FeaturedCoachSlideCardMobile({
         </div>
 
         <div className={`${styles.nameHeader} ${marketingMontserrat.className}`}>
-          <p className={`${styles.name} font-extrabold tracking-[0.045em]`}>{slide.name}</p>
+          <p
+            ref={nameRef}
+            className={`${styles.name} ${wrapWords ? styles.nameWrapped : ""} font-extrabold tracking-[0.045em]`}
+          >
+            {wrapWords
+              ? nameWords.map((word, index) => (
+                  <span key={`${word}-${index}`} className={styles.nameWord}>
+                    {word}
+                  </span>
+                ))
+              : slide.name}
+          </p>
         </div>
       </div>
 
