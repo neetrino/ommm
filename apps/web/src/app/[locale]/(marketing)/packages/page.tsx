@@ -13,7 +13,7 @@ export default async function PackagesMarketingPage({
   const m = await getTranslations({ locale, namespace: "marketing" });
 
   return (
-    <MarketingPageFrame title={m("packagesPageTitle")} lede={m("packagesPageLead")}>
+    <MarketingPageFrame title={m("packagesPageTitle")} lede={m("packagesPageLead")} scrollReveal>
       <Suspense fallback={<MarketingPageContentSkeleton cards={5} />}>
         <MarketingPackagesPageContent locale={locale} />
       </Suspense>

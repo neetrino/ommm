@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
+import { HOME_PAGE_SCROLL_REVEAL } from "@/components/marketing/home/home-page-scroll-reveal-tokens";
 import styles from "@/components/marketing/home/home-package-plan-card.module.css";
 import {
   HOME_PLANS_SECTION_FIGMA,
@@ -155,7 +157,14 @@ export function HomePackagePlanCardsRow({ cards }: HomePackagePlanCardsRowProps)
   return (
     <div className={styles.cardsRow} style={planCardStyleVars()}>
       {cards.map((card, index) => (
-        <HomePackagePlanCard key={card.id ?? `plan-card-${index}`} {...card} />
+        <HomePageReveal
+          key={card.id ?? `plan-card-${index}`}
+          index={index}
+          gridColumns={HOME_PAGE_SCROLL_REVEAL.planCardsGridColumns}
+          className="min-w-0 flex-1"
+        >
+          <HomePackagePlanCard {...card} />
+        </HomePageReveal>
       ))}
     </div>
   );

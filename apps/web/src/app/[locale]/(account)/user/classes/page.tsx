@@ -4,9 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { UserClassesSection } from "@/components/account/user-classes-section";
 import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
-import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import type { UserBookingRow, UserSessionRow } from "@/lib/user-booking-types";
 import { buildUserSessionBookingMap } from "@/lib/user-session-bookings-map";
+import { buildMemberSessionsRangeQuery } from "@/lib/schedule-session-range";
 import { serverApiJson } from "@/lib/server-api";
 
 export default async function UserClassesPage({
@@ -22,10 +22,7 @@ export default async function UserClassesPage({
   const t = await getTranslations({ locale, namespace: "userPages.classes" });
   const cookie = (await headers()).get("cookie") ?? "";
 
-  const from = new Date();
-  const to = new Date();
-  to.setDate(to.getDate() + ACCOUNT_SESSION_RANGE_DAYS);
-  const q = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
+  const q = buildMemberSessionsRangeQuery();
 
   const [sessionsRes, bookingsRes] = await Promise.all([
     serverApiJson<UserSessionRow[]>(`/classes/sessions?${q}`, cookie),

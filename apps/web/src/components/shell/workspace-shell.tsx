@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useLayoutEffect, useState, type CSSProperties } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -13,6 +13,8 @@ import {
   DashboardAppShell,
   type DashboardAppShellProps,
 } from "@/components/shell/dashboard-app-shell";
+import { markClientSessionHint } from "@/lib/client-session-hint";
+import { writeCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
 
 export type WorkspaceShellProps = Omit<
   DashboardAppShellProps,
@@ -29,6 +31,11 @@ export function WorkspaceShell({
 }: WorkspaceShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   useMarketingHeaderOffsetSync(true);
+
+  useLayoutEffect(() => {
+    writeCachedMarketingHeaderAccount(account);
+    markClientSessionHint();
+  }, [account]);
 
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,

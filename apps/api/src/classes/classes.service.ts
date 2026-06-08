@@ -197,14 +197,17 @@ export class ClassesService {
 
   listSessionsPublic(params: {
     from: Date;
-    to: Date;
+    to?: Date;
     coachId?: string;
     typeId?: string;
   }) {
     return this.prisma.classSession.findMany({
       where: {
         status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
-        startsAt: { gte: params.from, lte: params.to },
+        startsAt: {
+          gte: params.from,
+          ...(params.to !== undefined ? { lte: params.to } : {}),
+        },
         ...(params.coachId && { coachId: params.coachId }),
         ...(params.typeId && { classTypeId: params.typeId }),
       },

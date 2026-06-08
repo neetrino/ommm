@@ -53,9 +53,9 @@ export type CoachEditInitialValues = {
 
 export type CoachUpdatePayload = {
   email: string;
-  name: string;
-  lastName: string;
-  phone: string;
+  name: string | null;
+  lastName: string | null;
+  phone: string | null;
   age?: number;
   birthday?: string | null;
   bio: string | null;
@@ -102,6 +102,16 @@ export function nonEmptyCoachScheduleRows(
 ): CoachScheduleInput[] {
   return rows.filter(
     (row) => row.date.trim() !== "" || row.time.trim() !== "" || row.spots.trim() !== "",
+  );
+}
+
+/** Rows with every field filled; partial rows are ignored on save. */
+export function completeCoachScheduleRows(
+  rows: readonly CoachScheduleInput[],
+): CoachScheduleInput[] {
+  return nonEmptyCoachScheduleRows(rows).filter(
+    (row) =>
+      row.date.trim() !== "" && row.time.trim() !== "" && row.spots.trim() !== "",
   );
 }
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import {
   ADMIN_COACH_STATUS_BADGE_CLASS,
   coachStatusBadgeTone,
@@ -70,6 +71,7 @@ export function AdminCoachRowActions({
       setTone("ok");
       setMessage(nextIsActive ? t("activateSuccess") : t("deactivateSuccess"));
       setPendingConfirm(null);
+      await revalidatePublicCoaches();
       router.refresh();
     } catch (error) {
       setTone("err");

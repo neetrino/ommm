@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {
   MARKETING_INNER_PAGE_CONTAINER_CLASS,
 } from "@/components/marketing/marketing-content-layout";
+import { MarketingPageSectionReveal } from "@/components/marketing/marketing-page-section-reveal";
 import { MARKETING_INNER_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
 import alignStyles from "@/components/marketing/marketing-inner-page-align.module.css";
 import { MARKETING_PUBLIC_PAGE_SECTION_STYLE } from "@/components/marketing/marketing-public-page-section";
@@ -27,13 +28,13 @@ export function MarketingContactPageSection({
       style={MARKETING_PUBLIC_PAGE_SECTION_STYLE}
     >
       <div className={MARKETING_INNER_PAGE_CONTAINER_CLASS}>
-        <header className={styles.hero}>
-          <h1 className={styles.title}>{title}</h1>
-          <p className={styles.lead}>{lead}</p>
-        </header>
-        <div className={`${styles.content} ${alignStyles.innerPageContent}`}>
-          {children}
-        </div>
+        <MarketingPageSectionReveal index={0}>
+          <header className={styles.hero}>
+            <h1 className={styles.title}>{title}</h1>
+            <p className={styles.lead}>{lead}</p>
+          </header>
+        </MarketingPageSectionReveal>
+        <div className={`${styles.content} ${alignStyles.innerPageContent}`}>{children}</div>
       </div>
     </section>
   );

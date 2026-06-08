@@ -20,6 +20,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import type { AdminCoachesListPayload } from "@/components/admin/admin-coaches-query";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
+import { AdminCenterToast } from "@/components/ui/admin-center-toast";
 import { parseListPageParams, syncListPageQuery } from "@/lib/list-pagination";
 
 export type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
@@ -125,6 +126,7 @@ export function AdminCoachesDirectory({
   const [prevUrlCoachId, setPrevUrlCoachId] = useState(urlCoachId);
   const [coachRows, setCoachRows] = useState(initial.items);
   const [prevInitial, setPrevInitial] = useState(initial);
+  const [saveToastMessage, setSaveToastMessage] = useState<string | null>(null);
   if (urlCoachId !== prevUrlCoachId) {
     setPrevUrlCoachId(urlCoachId);
     setVisibleCoachId(urlCoachId);
@@ -226,7 +228,15 @@ export function AdminCoachesDirectory({
             current.map((item) => (item.id === coachId ? { ...item, ...patch } : item)),
           );
         }}
+        onSaveSuccess={setSaveToastMessage}
       />
+      {saveToastMessage ? (
+        <AdminCenterToast
+          message={saveToastMessage}
+          tone="ok"
+          onDismiss={() => setSaveToastMessage(null)}
+        />
+      ) : null}
     </>
   );
 }

@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api";
 import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
@@ -17,7 +18,7 @@ import {
 } from "@/lib/language-switcher-locales";
 
 /** Icon-only marketing trigger; menu needs room for language labels. */
-const MARKETING_ICON_MENU_MIN_WIDTH_PX = 148;
+const MARKETING_ICON_MENU_MIN_WIDTH_PX = 184;
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
@@ -126,7 +127,10 @@ export function LanguageSwitcher({
         }
         renderOption={(option, selected) => (
           <>
-            <span className="w-full text-center">{option.label}</span>
+            <span className="ommm-language-switcher-option-row">
+              <LocaleFlagIcon code={option.value} />
+              <span className="whitespace-nowrap leading-none">{option.label}</span>
+            </span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>
         )}

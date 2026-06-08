@@ -10,7 +10,7 @@ import {
   COACH_MIN_AGE,
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
-import { useCoachEditForm } from "@/components/admin/admin-coach-edit-form.use";
+import { useCoachEditForm, type CoachSavedSnapshot } from "@/components/admin/admin-coach-edit-form.use";
 import type { CoachEditInitialValues } from "@/components/admin/admin-coach-edit-form.types";
 import {
   COACH_SHEET_TAB_ORDER,
@@ -35,7 +35,8 @@ type AdminCoachDetailsDrawerProps = {
   locale: string;
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
-  onCoachUpdated?: (coachId: string, patch: Pick<AdminCoachDirectoryRow, "assignedClassTypeIds" | "updatedAt">) => void;
+  onCoachUpdated?: (coachId: string, patch: CoachSavedSnapshot) => void;
+  onSaveSuccess?: (message: string) => void;
 };
 
 export function AdminCoachDetailsDrawer({
@@ -44,6 +45,7 @@ export function AdminCoachDetailsDrawer({
   classOptions,
   onClose,
   onCoachUpdated,
+  onSaveSuccess,
 }: AdminCoachDetailsDrawerProps) {
   if (coach === null) {
     return null;
@@ -56,6 +58,7 @@ export function AdminCoachDetailsDrawer({
       classOptions={classOptions}
       onClose={onClose}
       onCoachUpdated={onCoachUpdated}
+      onSaveSuccess={onSaveSuccess}
     />
   );
 }
@@ -83,12 +86,14 @@ function AdminCoachDetailsDrawerInner({
   classOptions,
   onClose,
   onCoachUpdated,
+  onSaveSuccess,
 }: {
   coach: AdminCoachDirectoryRow;
   locale: string;
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
-  onCoachUpdated?: (coachId: string, patch: Pick<AdminCoachDirectoryRow, "assignedClassTypeIds" | "updatedAt">) => void;
+  onCoachUpdated?: (coachId: string, patch: CoachSavedSnapshot) => void;
+  onSaveSuccess?: (message: string) => void;
 }) {
   const t = useTranslations("adminPages.coaches");
   const titleId = useId();
@@ -103,9 +108,6 @@ function AdminCoachDetailsDrawerInner({
     () => ({
       emailRequired: t("emailRequired"),
       emailInvalid: t("emailInvalid"),
-      nameRequired: t("nameRequired"),
-      lastNameRequired: t("lastNameRequired"),
-      phoneRequired: t("phoneRequired"),
       phoneInvalid: t("phoneInvalid"),
       ageInvalid: t("ageInvalid", { min: COACH_MIN_AGE, max: COACH_MAX_AGE }),
       birthdayInvalid: t("birthdayInvalid"),
@@ -113,7 +115,6 @@ function AdminCoachDetailsDrawerInner({
       bioTooLong: t("bioTooLong"),
       experienceInvalid: t("experienceInvalid"),
       specializationTooLong: t("specializationTooLong"),
-      assignedClassesInvalid: t("assignedClassesInvalid"),
       photoTooLarge: t("photoTooLarge"),
       scheduleInvalid: t("scheduleInvalid"),
     }),
@@ -243,7 +244,17 @@ function AdminCoachDetailsDrawerInner({
         busy={editForm.busy}
         onCancel={editForm.cancelEdits}
         onSave={() => {
-          void editForm.save(t("updateSuccess"), t("genericError"));
+          void (async () => {
+            const successMessage = t("updateSuccess");
+            const saved = await editForm.save(successMessage, t("genericError"), {
+              silentSuccess: true,
+            });
+            if (!saved) {
+              return;
+            }
+            onSaveSuccess?.(successMessage);
+            onClose();
+          })();
         }}
       />
     </OmmDrawerPortal>

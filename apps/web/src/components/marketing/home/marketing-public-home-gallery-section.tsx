@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { HomeGalleryMosaicCarousel } from "@/components/marketing/home/home-gallery-mosaic-carousel";
 import { HomeGalleryMosaicMobile } from "@/components/marketing/home/home-gallery-mosaic-mobile";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import {
   HOME_GALLERY_FIGMA,
   HOME_GALLERY_IPAD_AIR_LAYOUT,
@@ -80,77 +81,89 @@ export function MarketingPublicHomeGallerySection() {
         aria-describedby="home-gallery-subtitle-mobile"
       >
         <div className={styles.mobileShell}>
-          <header className={styles.mobileHeader}>
-            <h2
-              id="home-gallery-heading-mobile"
-              className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
-            >
-              {galleryTitleLines}
-            </h2>
-            <p
-              id="home-gallery-subtitle-mobile"
-              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
-            >
-              {t("gallerySubtitle")}
-            </p>
-          </header>
+          <HomePageReveal index={0}>
+            <header className={styles.mobileHeader}>
+              <h2
+                id="home-gallery-heading-mobile"
+                className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
+              >
+                {galleryTitleLines}
+              </h2>
+              <p
+                id="home-gallery-subtitle-mobile"
+                className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+              >
+                {t("gallerySubtitle")}
+              </p>
+            </header>
+          </HomePageReveal>
 
-          <div className={styles.mobileMosaic}>
-            <HomeGalleryMosaicMobile
-              carouselAriaLabel={t("galleryTitle")}
-              getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
-            />
-          </div>
+          <HomePageReveal index={1}>
+            <div className={styles.mobileMosaic}>
+              <HomeGalleryMosaicMobile
+                carouselAriaLabel={t("galleryTitle")}
+                getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
+              />
+            </div>
+          </HomePageReveal>
 
-          <div className={styles.mobileCta}>
-            <HomeHeroCtaButton
-              href="/explore"
-              label={t("galleryMoreDetails")}
-              variant="booking"
-              labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
-            />
-          </div>
+          <HomePageReveal index={2}>
+            <div className={styles.mobileCta}>
+              <HomeHeroCtaButton
+                href="/explore"
+                label={t("galleryMoreDetails")}
+                variant="booking"
+                labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
+              />
+            </div>
+          </HomePageReveal>
         </div>
       </div>
 
       <div className={styles.desktopLayer}>
         <div className="mx-auto flex w-full max-w-[min(82.375rem,calc(100%-2rem))] flex-col items-center">
-          <header
-            className="flex w-full max-w-[834px] flex-col items-center text-center"
-            style={{ gap: HOME_GALLERY_LAYOUT.headerGapPx }}
-          >
-            <h2
-              className={`${styles.desktopTitle} font-serif font-semibold tracking-tight text-balance`}
-              style={{ color: HOME_GALLERY_FIGMA.headingColor }}
+          <HomePageReveal index={0}>
+            <header
+              className="flex w-full max-w-[834px] flex-col items-center text-center"
+              style={{ gap: HOME_GALLERY_LAYOUT.headerGapPx }}
             >
-              {galleryTitleLines}
-            </h2>
-            <p
-              className={`${styles.desktopSubtitle} ${marketingMontserrat.className} font-normal tracking-[0.01em]`}
-              style={{
-                color: HOME_GALLERY_FIGMA.subtitleColor,
-                maxWidth: HOME_GALLERY_LAYOUT.subtitleMaxWidth,
-              }}
-            >
-              {t("gallerySubtitle")}
-            </p>
-          </header>
+              <h2
+                className={`${styles.desktopTitle} font-serif font-semibold tracking-tight text-balance`}
+                style={{ color: HOME_GALLERY_FIGMA.headingColor }}
+              >
+                {galleryTitleLines}
+              </h2>
+              <p
+                className={`${styles.desktopSubtitle} ${marketingMontserrat.className} font-normal tracking-[0.01em]`}
+                style={{
+                  color: HOME_GALLERY_FIGMA.subtitleColor,
+                  maxWidth: HOME_GALLERY_LAYOUT.subtitleMaxWidth,
+                }}
+              >
+                {t("gallerySubtitle")}
+              </p>
+            </header>
+          </HomePageReveal>
 
-          <div style={{ marginTop: HOME_GALLERY_LAYOUT.headerToMosaicGapPx, width: "100%" }}>
-            <HomeGalleryMosaicCarousel
-              prevLabel={t("galleryPrevAria")}
-              nextLabel={t("galleryNextAria")}
-              getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
-            />
-          </div>
+          <HomePageReveal index={1}>
+            <div style={{ marginTop: HOME_GALLERY_LAYOUT.headerToMosaicGapPx, width: "100%" }}>
+              <HomeGalleryMosaicCarousel
+                prevLabel={t("galleryPrevAria")}
+                nextLabel={t("galleryNextAria")}
+                getGoToSlideAria={(index) => t("galleryGoToSlideAria", { slide: index + 1 })}
+              />
+            </div>
+          </HomePageReveal>
 
-          <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
-            <HomeHeroCtaButton
-              href="/explore"
-              label={t("galleryMoreDetails")}
-              variant="membership"
-            />
-          </div>
+          <HomePageReveal index={2}>
+            <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
+              <HomeHeroCtaButton
+                href="/explore"
+                label={t("galleryMoreDetails")}
+                variant="membership"
+              />
+            </div>
+          </HomePageReveal>
         </div>
       </div>
     </section>

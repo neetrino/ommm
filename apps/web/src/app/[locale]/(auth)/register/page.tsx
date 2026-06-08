@@ -8,6 +8,7 @@ import { GoogleLogoIcon } from "@/components/ui/google-logo-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError, apiFetch } from "@/lib/api";
+import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
 
@@ -138,6 +139,7 @@ function RegisterForm() {
       );
       const nextLocale = pickUiLocaleForUser(user.locale, urlLocale);
       setUiLocaleCookie(nextLocale);
+      await prefetchMarketingHeaderAccount();
       router.push(resolveAuthDestination(user.role, searchParams), {
         locale: nextLocale,
       });

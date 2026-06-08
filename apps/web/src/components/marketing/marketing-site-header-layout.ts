@@ -97,6 +97,14 @@ const MARKETING_HEADER_FOCUS_RING =
   "focus-visible:ring-[var(--ommm-marketing-header-focus-ring)]";
 const MARKETING_HEADER_INK_TRANSITION = "transition-[color,background-color] duration-220";
 
+/** Icon language trigger — transparent at rest, circular ink surface on hover/open (matches profile). */
+const MARKETING_HEADER_LANGUAGE_TRIGGER_HOVER =
+  "hover:!border-0 hover:!bg-[var(--ommm-marketing-header-ink-hover-surface)] hover:!shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]";
+const MARKETING_HEADER_LANGUAGE_TRIGGER_OPEN =
+  "data-[open=true]:!border-0 data-[open=true]:!bg-[var(--ommm-marketing-header-ink-hover-surface)] data-[open=true]:!shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] data-[open=true]:!ring-0";
+const MARKETING_HEADER_LANGUAGE_TRIGGER_BASE =
+  "!justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none";
+
 const MARKETING_NAV_INK = "text-[var(--ommm-marketing-nav-ink)]";
 const MARKETING_NAV_INK_ACTIVE = "text-[var(--ommm-marketing-nav-ink-active)]";
 const MARKETING_NAV_INK_HOVER = "hover:text-[var(--ommm-marketing-nav-ink-hover)]";
@@ -300,11 +308,12 @@ export function marketingHeaderMenuButtonClass(): string {
 
 export function marketingHeaderMobileLanguageTriggerClass(): string {
   return [
-    "ommm-dropdown-trigger !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
-    `${MARKETING_HEADER_INK} cursor-pointer`,
+    "ommm-dropdown-trigger",
+    marketingHeaderMobileIconAccountClass(),
+    MARKETING_HEADER_LANGUAGE_TRIGGER_BASE,
     MARKETING_HEADER_INK_TRANSITION,
-    "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
-    "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
+    MARKETING_HEADER_LANGUAGE_TRIGGER_HOVER,
+    MARKETING_HEADER_LANGUAGE_TRIGGER_OPEN,
     "focus-visible:outline-none focus-visible:ring-2",
     MARKETING_HEADER_FOCUS_RING,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
@@ -320,11 +329,13 @@ export function marketingHeaderMobileIconAccountClass(): string {
 
 export function marketingHeaderLanguageTriggerClass(): string {
   return [
-    "ommm-dropdown-trigger !h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-11 nav-desktop:!min-h-11 nav-desktop:!w-11 nav-desktop:!min-w-11 !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
-    `${MARKETING_HEADER_INK} cursor-pointer`,
+    "ommm-dropdown-trigger",
+    marketingHeaderIconAccountClass(),
+    "!h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-11 nav-desktop:!min-h-11 nav-desktop:!w-11 nav-desktop:!min-w-11",
+    MARKETING_HEADER_LANGUAGE_TRIGGER_BASE,
     MARKETING_HEADER_INK_TRANSITION,
-    "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
-    "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
+    MARKETING_HEADER_LANGUAGE_TRIGGER_HOVER,
+    MARKETING_HEADER_LANGUAGE_TRIGGER_OPEN,
     "focus-visible:outline-none focus-visible:ring-2",
     MARKETING_HEADER_FOCUS_RING,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",

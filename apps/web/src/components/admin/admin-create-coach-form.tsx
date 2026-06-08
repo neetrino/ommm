@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import { formatBirthdayInput, parseBirthdayDisplayToIso } from "@/lib/date-display";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { PlusIcon } from "@/components/ui/plus-icon";
@@ -332,6 +333,7 @@ export function AdminCreateCoachForm({
       setScheduleRows([createScheduleRow()]);
       onPhotoSelected(null);
       setError(null);
+      await revalidatePublicCoaches();
       if (onCreated !== undefined) {
         onCreated();
       } else {

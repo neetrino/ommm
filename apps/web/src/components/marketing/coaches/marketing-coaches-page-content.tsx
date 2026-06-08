@@ -7,10 +7,7 @@ import { MarketingPublicCoachesGrid } from "@/components/marketing/coaches/marke
 import {
   marketingPublicCoachesPageSectionStyles,
 } from "@/components/marketing/coaches/marketing-public-coaches-page-section";
-import type { CoachCardData } from "@/components/coaches/coach-card-display";
-import { fetchPublicJsonCached } from "@/lib/cached-public-api";
-
-type PublicCoach = CoachCardData;
+import { fetchPublicCoachesListCached } from "@/lib/fetch-public-coaches";
 
 type MarketingCoachesPageContentProps = {
   locale: string;
@@ -22,7 +19,7 @@ export async function MarketingCoachesPageContent({
   const [m, tHome, res] = await Promise.all([
     getTranslations({ locale, namespace: "marketing" }),
     getTranslations({ locale, namespace: "marketingPublic.home" }),
-    fetchPublicJsonCached<PublicCoach[]>("/coaches"),
+    fetchPublicCoachesListCached(),
   ]);
 
   const fallbackCoaches = buildCoachesPageFallbackCoaches(

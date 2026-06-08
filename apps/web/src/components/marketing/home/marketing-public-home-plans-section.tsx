@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import {
   HomePlansDesktopCards,
   HomePlansMobileCarousel,
@@ -99,28 +100,32 @@ export async function MarketingPublicHomePlansSection({
         style={mobileStyle}
       >
         <div className={styles.mobileShell}>
-          <header className={styles.mobileHeader}>
-            <h2
-              id="home-plans-heading-mobile"
-              className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
-            >
-              {t("plansSectionTitle")}
-            </h2>
-            <p
-              id="home-plans-subtitle-mobile"
-              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
-            >
-              {t("plansSectionSubtitle")}
-            </p>
-          </header>
+          <HomePageReveal index={0}>
+            <header className={styles.mobileHeader}>
+              <h2
+                id="home-plans-heading-mobile"
+                className={`${styles.mobileTitle} font-serif font-semibold tracking-tight text-balance`}
+              >
+                {t("plansSectionTitle")}
+              </h2>
+              <p
+                id="home-plans-subtitle-mobile"
+                className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
+              >
+                {t("plansSectionSubtitle")}
+              </p>
+            </header>
+          </HomePageReveal>
 
           {plansStatusMessage !== null ? (
-            <p
-              className={`${marketingMontserrat.className} text-center text-base text-[#4a4738]`}
-              role="status"
-            >
-              {plansStatusMessage}
-            </p>
+            <HomePageReveal index={1}>
+              <p
+                className={`${marketingMontserrat.className} text-center text-base text-[#4a4738]`}
+                role="status"
+              >
+                {plansStatusMessage}
+              </p>
+            </HomePageReveal>
           ) : (
             <HomePlansMobileCarousel
               {...interactiveCardsProps}
@@ -128,14 +133,16 @@ export async function MarketingPublicHomePlansSection({
             />
           )}
 
-          <div className={styles.mobileCta}>
-            <HomeHeroCtaButton
-              href="/packages"
-              label={t("plansMoreDetails")}
-              variant="booking"
-              labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
-            />
-          </div>
+          <HomePageReveal index={2}>
+            <div className={styles.mobileCta}>
+              <HomeHeroCtaButton
+                href="/packages"
+                label={t("plansMoreDetails")}
+                variant="booking"
+                labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
+              />
+            </div>
+          </HomePageReveal>
         </div>
       </section>
 
@@ -166,48 +173,54 @@ export async function MarketingPublicHomePlansSection({
               gap: HOME_PLANS_SECTION_LAYOUT.sectionGapPx,
             }}
           >
-            <header
-              className="flex w-full max-w-[834px] flex-col items-center text-center"
-              style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
-            >
-              <h2
-                id="home-plans-heading"
-                className="font-serif font-semibold tracking-tight text-balance"
-                style={{
-                  color: HOME_PLANS_SECTION_FIGMA.headingColor,
-                  fontSize: HOME_PLANS_SECTION_LAYOUT.titleFontSize,
-                  lineHeight: HOME_PLANS_SECTION_LAYOUT.titleLineHeight,
-                }}
+            <HomePageReveal index={0}>
+              <header
+                className="flex w-full max-w-[834px] flex-col items-center text-center"
+                style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
               >
-                {t("plansSectionTitle")}
-              </h2>
-              <p
-                className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
-                style={{
-                  color: HOME_PLANS_SECTION_FIGMA.subtitleColor,
-                  maxWidth: HOME_PLANS_SECTION_LAYOUT.subtitleMaxWidth,
-                }}
-              >
-                {t("plansSectionSubtitle")}
-              </p>
-            </header>
+                <h2
+                  id="home-plans-heading"
+                  className="font-serif font-semibold tracking-tight text-balance"
+                  style={{
+                    color: HOME_PLANS_SECTION_FIGMA.headingColor,
+                    fontSize: HOME_PLANS_SECTION_LAYOUT.titleFontSize,
+                    lineHeight: HOME_PLANS_SECTION_LAYOUT.titleLineHeight,
+                  }}
+                >
+                  {t("plansSectionTitle")}
+                </h2>
+                <p
+                  className={`${marketingMontserrat.className} text-base font-normal leading-[25.6px] tracking-[0.01em]`}
+                  style={{
+                    color: HOME_PLANS_SECTION_FIGMA.subtitleColor,
+                    maxWidth: HOME_PLANS_SECTION_LAYOUT.subtitleMaxWidth,
+                  }}
+                >
+                  {t("plansSectionSubtitle")}
+                </p>
+              </header>
+            </HomePageReveal>
 
             {plansStatusMessage !== null ? (
-              <p
-                className={`${marketingMontserrat.className} max-w-xl text-center text-base text-[#4a4738]`}
-                role="status"
-              >
-                {plansStatusMessage}
-              </p>
+              <HomePageReveal index={1}>
+                <p
+                  className={`${marketingMontserrat.className} max-w-xl text-center text-base text-[#4a4738]`}
+                  role="status"
+                >
+                  {plansStatusMessage}
+                </p>
+              </HomePageReveal>
             ) : (
               <HomePlansDesktopCards {...interactiveCardsProps} />
             )}
 
-            <HomeHeroCtaButton
-              href="/packages"
-              label={t("plansMoreDetails")}
-              variant="membership"
-            />
+            <HomePageReveal index={3}>
+              <HomeHeroCtaButton
+                href="/packages"
+                label={t("plansMoreDetails")}
+                variant="membership"
+              />
+            </HomePageReveal>
           </div>
         </div>
       </section>

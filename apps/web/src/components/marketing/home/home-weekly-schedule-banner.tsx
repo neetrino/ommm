@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { HomeWeeklyScheduleLiveGrid } from "@/components/marketing/home/home-weekly-schedule-live-grid";
 import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import styles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
@@ -89,7 +90,7 @@ export async function HomeWeeklyScheduleBanner({
       }}
     >
       <div className={styles.shell}>
-        <div className={styles.panel}>
+        <HomePageReveal index={0} className={styles.panel}>
           <div className={styles.inner}>
             <header className={styles.header}>
               <h2 id="home-weekly-schedule-heading" className={`${styles.title} font-serif font-semibold tracking-tight text-balance`}>
@@ -109,7 +110,7 @@ export async function HomeWeeklyScheduleBanner({
 
             <div className={styles.cta}>{scheduleCta}</div>
           </div>
-        </div>
+        </HomePageReveal>
       </div>
     </section>
   );

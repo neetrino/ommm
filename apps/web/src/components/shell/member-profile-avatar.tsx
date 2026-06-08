@@ -3,15 +3,19 @@ import Image from "next/image";
 type MemberProfileAvatarProps = {
   initials: string;
   imageSrc: string | null;
+  className?: string;
 };
 
 export function MemberProfileAvatar({
   initials,
   imageSrc,
+  className = "",
 }: MemberProfileAvatarProps) {
+  const surface = `ommm-admin-profile-avatar ${className}`.trim();
+
   if (imageSrc) {
     return (
-      <span className="ommm-admin-profile-avatar overflow-hidden p-0">
+      <span className={`${surface} overflow-hidden p-0`}>
         <Image
           src={imageSrc}
           alt=""
@@ -24,7 +28,7 @@ export function MemberProfileAvatar({
   }
 
   return (
-    <span className="ommm-admin-profile-avatar" aria-hidden>
+    <span className={surface} aria-hidden>
       {initials}
     </span>
   );

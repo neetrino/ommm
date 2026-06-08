@@ -2,21 +2,17 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cookieHeaderHasAccessToken } from "@/lib/auth-cookie";
+import {
+  layoutAuthUserFromMe,
+  type LayoutAuthUser,
+} from "@/lib/layout-auth-user";
 import { homePathForRole } from "@/lib/role-home";
 import { serverApiJson } from "@/lib/server-api";
 import type { MeApiResponse, MeApiUser } from "@/lib/me-api-types";
 
 type MePayload = MeApiResponse;
 
-export type LayoutAuthUser = {
-  role: string;
-  locale: string | null;
-  name: string | null;
-  lastName: string | null;
-  email: string;
-  phone: string | null;
-  homeImageUrl: string | null;
-};
+export type { LayoutAuthUser };
 
 export type LayoutAuthResult = {
   cookie: string;
@@ -70,15 +66,7 @@ function layoutAuthFromUser(cookie: string, user: MeApiUser): LayoutAuthResult {
     cookie,
     role: user.role,
     userLocale: user.locale ?? null,
-    authUser: {
-      role: user.role,
-      locale: user.locale ?? null,
-      name: user.name ?? null,
-      lastName: user.lastName ?? null,
-      email: user.email ?? "",
-      phone: user.phone ?? null,
-      homeImageUrl: user.homeImageUrl ?? null,
-    },
+    authUser: layoutAuthUserFromMe(user),
   };
 }
 
@@ -110,16 +98,7 @@ export async function getOptionalLayoutAuthUser(): Promise<LayoutAuthUser | null
   if (!session.ok) {
     return null;
   }
-  const { user } = session;
-  return {
-    role: user.role,
-    locale: user.locale ?? null,
-    name: user.name ?? null,
-    lastName: user.lastName ?? null,
-    email: user.email ?? "",
-    phone: user.phone ?? null,
-    homeImageUrl: user.homeImageUrl ?? null,
-  };
+  return layoutAuthUserFromMe(session.user);
 }
 
 /**

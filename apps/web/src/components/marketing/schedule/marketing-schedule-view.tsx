@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { useLocalCalendarToday } from "@/hooks/use-local-calendar-today";
 import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import {
   SCHEDULE_DATE_STRIP_VISIBLE_DAYS,
@@ -11,16 +12,25 @@ import {
   type ScheduleFilterOption,
 } from "@/components/marketing/schedule/schedule-filter-dropdown";
 import { ScheduleFiltersHeader } from "@/components/marketing/schedule/schedule-filters-header";
-import { ScheduleSessionRow } from "@/components/marketing/schedule/schedule-session-row";
+import {
+  SchedulePageListItemReveal,
+  SchedulePageReveal,
+} from "@/components/marketing/schedule/schedule-page-reveal";
+import {
+  ScheduleSessionRowContent,
+  scheduleSessionRowClassName,
+} from "@/components/marketing/schedule/schedule-session-row";
 import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-design";
 import {
   addDays,
   compareCalendarDays,
+  isAfterCalendarDay,
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
   startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
+import { resolvePublicScheduleBounds } from "@/lib/schedule-session-range";
 import {
   type MarketingScheduleItem,
   type MarketingScheduleDayOfWeek,
@@ -41,10 +51,28 @@ function buildInitialNav(baseline: Date): ScheduleNavState {
   return { windowStart, selectedDate: baseline };
 }
 
+function clampNavState(
+  prev: ScheduleNavState,
+  today: Date,
+  maxDate: Date,
+): ScheduleNavState {
+  if (isBeforeCalendarDay(prev.selectedDate, today)) {
+    return { windowStart: startOfWeekSunday(today), selectedDate: today };
+  }
+  if (isAfterCalendarDay(prev.selectedDate, maxDate)) {
+    return { ...prev, selectedDate: maxDate };
+  }
+  if (isBeforeCalendarDay(prev.windowStart, today)) {
+    return { ...prev, windowStart: startOfWeekSunday(today) };
+  }
+  return prev;
+}
+
 function shiftWeek(
   prev: ScheduleNavState,
   deltaDays: number,
   today: Date,
+  maxDate: Date,
 ): ScheduleNavState {
   if (
     deltaDays < 0 &&
@@ -56,13 +84,23 @@ function shiftWeek(
     return prev;
   }
 
+  if (
+    deltaDays > 0 &&
+    isAfterCalendarDay(addDays(prev.windowStart, deltaDays), maxDate)
+  ) {
+    return prev;
+  }
+
   const nextWs = addDays(prev.windowStart, deltaDays);
   const first = startOfLocalDay(nextWs);
   const last = addDays(first, 6);
   const sel = startOfLocalDay(prev.selectedDate);
   const outOfRange = sel.getTime() < first.getTime() || sel.getTime() > last.getTime();
   const nextSelected = outOfRange ? first : prev.selectedDate;
-  const clampedSelected = isBeforeCalendarDay(nextSelected, today) ? today : nextSelected;
+  let clampedSelected = isBeforeCalendarDay(nextSelected, today) ? today : nextSelected;
+  if (isAfterCalendarDay(clampedSelected, maxDate)) {
+    clampedSelected = maxDate;
+  }
 
   return {
     windowStart: nextWs,
@@ -107,8 +145,13 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const [items] = useState<MarketingScheduleItem[]>(initialItems);
-  const [baseline] = useState(() => startOfLocalDay(new Date()));
-  const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));
+  const today = useLocalCalendarToday();
+  const { maxDate } = useMemo(() => resolvePublicScheduleBounds(undefined, today), [today]);
+  const [userNav, setUserNav] = useState<ScheduleNavState>(() => buildInitialNav(today));
+  const nav = useMemo(
+    () => clampNavState(userNav, today, maxDate),
+    [userNav, today, maxDate],
+  );
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
 
@@ -144,18 +187,20 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   );
 
   const visibleSessions = useMemo(() => {
-    const baselineWeekStart = startOfWeekSunday(baseline);
+    const baselineWeekStart = startOfWeekSunday(today);
     return items
       .filter((item) => item.isActive)
       .filter((item) => {
         const rowDay = scheduleItemDate(item, baselineWeekStart, dayToOffset);
+        if (isBeforeCalendarDay(rowDay, today)) return false;
+        if (isAfterCalendarDay(rowDay, maxDate)) return false;
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
         if (classType !== "all" && item.classType !== classType) return false;
         if (instructor !== "all" && item.instructorName !== instructor) return false;
         return true;
       })
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset]);
+  }, [today, maxDate, nav.selectedDate, classType, instructor, items, dayToOffset]);
 
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
   const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =
@@ -166,26 +211,31 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
 
   return (
     <div className="ommm-card flex w-full min-w-0 flex-col gap-6 p-5 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] sm:p-8">
-      <ScheduleFiltersHeader
-        filterClassType={classType}
-        filterInstructor={instructor}
-        classTypeOptions={classTypeOptions}
-        instructorOptions={instructorOptions}
-        onClassTypeChange={setClassType}
-        onInstructorChange={setInstructor}
-      />
-      <ScheduleDateControls
-        locale={locale}
-        selectedDate={nav.selectedDate}
-        windowStart={nav.windowStart}
-        onSelectDay={(d) => {
-          if (isBeforeCalendarDay(d, baseline)) return;
-          setNav((s) => ({ ...s, selectedDate: d }));
-        }}
-        onShiftWindow={(delta) =>
-          setNav((s) => shiftWeek(s, delta, baseline))
-        }
-      />
+      <SchedulePageReveal index={0}>
+        <ScheduleFiltersHeader
+          filterClassType={classType}
+          filterInstructor={instructor}
+          classTypeOptions={classTypeOptions}
+          instructorOptions={instructorOptions}
+          onClassTypeChange={setClassType}
+          onInstructorChange={setInstructor}
+        />
+      </SchedulePageReveal>
+      <SchedulePageReveal index={1}>
+        <ScheduleDateControls
+          locale={locale}
+          selectedDate={nav.selectedDate}
+          windowStart={nav.windowStart}
+          maxDate={maxDate}
+          onSelectDay={(d) => {
+            if (isBeforeCalendarDay(d, today) || isAfterCalendarDay(d, maxDate)) return;
+            setUserNav((s) => ({ ...s, selectedDate: d }));
+          }}
+          onShiftWindow={(delta) =>
+            setUserNav((s) => shiftWeek(s, delta, today, maxDate))
+          }
+        />
+      </SchedulePageReveal>
       <div
         className="mt-0 overflow-hidden transition-[height] duration-300 ease-out motion-reduce:transition-none"
         style={containerStyle}
@@ -202,33 +252,40 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
         >
           <ul key={renderedDayKey} className="list-none overflow-hidden p-0">
             {renderedSessions.length === 0 ? (
-              <li
+              <SchedulePageListItemReveal
+                index={0}
                 className={`py-12 text-center text-sm ${SCHEDULE_MUTED} ${
                   animationPhase === "enter" ? styles.scheduleItemEnter : ""
                 }`}
               >
                 {t("empty")}
-              </li>
+              </SchedulePageListItemReveal>
             ) : (
               renderedSessions.map((row, index) => (
-                <ScheduleSessionRow
+                <SchedulePageListItemReveal
                   key={row.id}
-                  row={row}
-                  studioLabel={t("studioBrand")}
-                  bookLabel={t("bookCta")}
-                  audience={audience}
-                  subtitle={`${row.instructorName} • ${row.classType}`}
-                  timeLabel={toLocaleTime(locale, row.startTime)}
-                  durationLabel={
-                    row.durationMinutes !== null
-                      ? t("minutesShort", { count: row.durationMinutes })
-                      : row.endTime !== null
-                        ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
-                        : "-"
-                  }
-                  className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                  index={index}
+                  className={scheduleSessionRowClassName(
+                    animationPhase === "enter" ? styles.scheduleItemEnter : "",
+                  )}
                   style={getItemStyle(index)}
-                />
+                >
+                  <ScheduleSessionRowContent
+                    row={row}
+                    studioLabel={t("studioBrand")}
+                    bookLabel={t("bookCta")}
+                    audience={audience}
+                    subtitle={`${row.instructorName} • ${row.classType}`}
+                    timeLabel={toLocaleTime(locale, row.startTime)}
+                    durationLabel={
+                      row.durationMinutes !== null
+                        ? t("minutesShort", { count: row.durationMinutes })
+                        : row.endTime !== null
+                          ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
+                          : "-"
+                    }
+                  />
+                </SchedulePageListItemReveal>
               ))
             )}
           </ul>
