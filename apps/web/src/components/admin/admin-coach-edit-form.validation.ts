@@ -10,6 +10,7 @@ import {
   MAX_SPECIALIZATION_LENGTH,
   MIN_SCHEDULE_SPOTS,
   normalizeScheduleForApi,
+  filterKnownAssignedClassTypeIds,
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
 import { parseBirthdayDisplayToIso } from "@/lib/date-display";
@@ -66,7 +67,10 @@ export function validateCoachEditForm({
   const experienceRaw = form.experienceYears.trim();
   const experienceYears = experienceRaw.length > 0 ? Number(experienceRaw) : null;
   const specialization = form.specialization.trim();
-  const assignedClassTypeIds = form.assignedClassTypeIds;
+  const assignedClassTypeIds = filterKnownAssignedClassTypeIds(
+    form.assignedClassTypeIds,
+    classOptions,
+  );
   const scheduleRows = nonEmptyCoachScheduleRows(form.schedule);
   const errors: CoachEditFormErrors = {};
 
@@ -111,12 +115,6 @@ export function validateCoachEditForm({
   }
   if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
     errors.specialization = labels.specializationTooLong;
-  }
-  if (classOptions.length > 0) {
-    const allowedClassIds = new Set(classOptions.map((option) => option.id));
-    if (assignedClassTypeIds.some((id) => !allowedClassIds.has(id))) {
-      errors.assignedClassTypeIds = labels.assignedClassesInvalid;
-    }
   }
   if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
     errors.photo = labels.photoTooLarge;

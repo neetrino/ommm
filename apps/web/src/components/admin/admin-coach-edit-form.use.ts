@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   createScheduleRow,
+  filterKnownAssignedClassTypeIds,
   MAX_PHOTO_BYTES,
   readFileAsBase64Payload,
   type CoachClassOption,
@@ -58,8 +59,8 @@ export function useCoachEditForm({
 }: UseCoachEditFormArgs) {
   const router = useRouter();
   const submitLockRef = useRef(false);
-  const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
-  const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
+  const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial, classOptions));
+  const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial, classOptions));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
@@ -71,7 +72,7 @@ export function useCoachEditForm({
 
   if (resetKey !== prevResetKey) {
     setPrevResetKey(resetKey);
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initial, classOptions);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -203,9 +204,12 @@ export function useCoachEditForm({
   function toggleClassSelection(classTypeId: string): void {
     setForm((prev) => ({
       ...prev,
-      assignedClassTypeIds: prev.assignedClassTypeIds.includes(classTypeId)
-        ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
-        : [...prev.assignedClassTypeIds, classTypeId],
+      assignedClassTypeIds: filterKnownAssignedClassTypeIds(
+        prev.assignedClassTypeIds.includes(classTypeId)
+          ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
+          : [...prev.assignedClassTypeIds, classTypeId],
+        classOptions,
+      ),
     }));
     setErrors((prev) => ({ ...prev, assignedClassTypeIds: undefined }));
   }
@@ -235,7 +239,7 @@ export function useCoachEditForm({
   }
 
   function cancelEdits(): void {
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initial, classOptions);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
