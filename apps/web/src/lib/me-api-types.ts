@@ -7,6 +7,7 @@ export type MeApiUser = {
   email?: string;
   phone?: string | null;
   homeImageUrl?: string | null;
+  avatarUrl?: string | null;
 };
 
 export type MeApiResponse = {

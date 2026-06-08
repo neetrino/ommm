@@ -3,7 +3,7 @@ import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 import { homePathForRole } from "@/lib/role-home";
 import { userDisplayInitials } from "@/lib/user-display-initials";
 import { userDisplayName } from "@/lib/user-display-name";
-import type { LayoutAuthUser } from "@/server/require-role-layout";
+import type { LayoutAuthUser } from "@/lib/layout-auth-user";
 
 /** Maps layout auth user to marketing header account menu props. */
 export function resolveMarketingHeaderAccount(
@@ -22,7 +22,10 @@ export function resolveMarketingHeaderAccount(
       authUser.lastName,
       authUser.email,
     ),
-    imageSrc: resolveApiAssetUrl(authUser.homeImageUrl) ?? null,
+    imageSrc:
+      resolveApiAssetUrl(authUser.homeImageUrl) ??
+      resolveApiAssetUrl(authUser.avatarUrl) ??
+      null,
     displayName: userDisplayName(
       authUser.name,
       authUser.lastName,
