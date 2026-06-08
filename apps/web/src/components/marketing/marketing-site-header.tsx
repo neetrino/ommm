@@ -46,6 +46,7 @@ import {
   isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
 import { WorkspaceShellNotificationLink } from "@/components/shell/workspace-shell-notification-link";
+import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function isActive(pathname: string, href: string): boolean {
@@ -72,6 +73,10 @@ export type MarketingSiteHeaderProps = {
   account?: MarketingHeaderAccount | null;
   /** Mobile/tablet sidebar drawer for authenticated dashboards. */
   workspaceDrawer?: WorkspaceDrawerControl;
+  /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
+  workspaceHeaderChrome?: boolean;
+  /** Hide workspace drawer trigger in the mobile header row only (e.g. `/user` account hub page). */
+  hideMobileWorkspaceDrawerTrigger?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
   notificationsActive?: boolean;
@@ -124,6 +129,8 @@ export function MarketingSiteHeader({
   navLinks,
   account = null,
   workspaceDrawer,
+  workspaceHeaderChrome = false,
+  hideMobileWorkspaceDrawerTrigger = false,
   notificationHref = null,
   notificationsLabel = null,
   notificationsActive = false,
@@ -138,7 +145,7 @@ export function MarketingSiteHeader({
   const [publicMenuOpen, setPublicMenuOpen] = useState(false);
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
-  const isWorkspaceChrome = workspaceDrawer !== undefined;
+  const isWorkspaceChrome = workspaceHeaderChrome || workspaceDrawer !== undefined;
   const isAuthShell = isAuthPath(marketingPath);
   const isAccountShell =
     isWorkspaceChrome || isUserAccountPath(marketingPath) || isAuthShell;
@@ -237,10 +244,10 @@ export function MarketingSiteHeader({
             </Link>
 
             <div className={marketingHeaderMobileActionsClass()}>
-              {workspaceDrawer ? (
+              {workspaceDrawer && !hideMobileWorkspaceDrawerTrigger ? (
                 <button
                   type="button"
-                  className={`${marketingHeaderIconButtonClass()} ${navPillStyles.mobileHeaderAccountButton} lg:hidden`}
+                  className={`${marketingHeaderIconButtonClass()} ${navPillStyles.mobileHeaderAccountButton} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
                   aria-expanded={workspaceDrawerOpen}
                   aria-controls="dashboard-mobile-drawer"
                   aria-label={
@@ -257,7 +264,7 @@ export function MarketingSiteHeader({
                   href={notificationHref}
                   label={notificationsLabel}
                   active={notificationsActive}
-                  className={`${navPillStyles.mobileHeaderAccountButton} lg:hidden`}
+                  className={`${navPillStyles.mobileHeaderAccountButton} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
                   onNavigate={closeAllMenus}
                 />
               ) : null}

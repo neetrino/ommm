@@ -33,6 +33,12 @@ export const CONTENT_DESKTOP_MIN_WIDTH_PX = 1440;
 /** App shells: sidebar dock vs drawer (unchanged from Tailwind default). */
 export const APP_SIDEBAR_MIN_WIDTH_PX = 1024;
 
+/**
+ * Mobile workspace drawer — width below lg OR coarse / no-hover pointer (real phones).
+ * DevTools width-only emulation can miss touch; this keeps drawer UX on actual devices.
+ */
+export const WORKSPACE_MOBILE_DRAWER_MEDIA_QUERY = `(max-width: ${APP_SIDEBAR_MIN_WIDTH_PX - 1}px), ((hover: none) and (pointer: coarse))`;
+
 /** iPad Pro / tablet tier — compact nav between lg and nav-desktop. */
 export const NAV_TABLET_COMPACT_MIN_WIDTH_PX = APP_SIDEBAR_MIN_WIDTH_PX;
 

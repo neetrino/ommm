@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { memberAccountHubProfileFromAuthUser } from "@/components/account/member-account-hub-profile";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
+import { isUserDashboardRole } from "@/lib/role-home";
 import type { LayoutAuthUser } from "@/server/require-role-layout";
 import {
   WorkspaceShell,
@@ -24,8 +26,16 @@ export function WorkspaceShellFromAuth({
     return null;
   }
 
+  const memberAccountMenu = isUserDashboardRole(authUser.role)
+    ? memberAccountHubProfileFromAuthUser(authUser)
+    : null;
+
   return (
-    <WorkspaceShell account={account} {...shellProps}>
+    <WorkspaceShell
+      account={account}
+      memberAccountMenu={memberAccountMenu}
+      {...shellProps}
+    >
       {children}
     </WorkspaceShell>
   );

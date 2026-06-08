@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
@@ -15,6 +16,10 @@ type LogoutButtonProps = {
   spinnerClassName?: string;
   showLabel?: boolean;
   labelClassName?: string;
+  /** Hidden icon column for account hub rows — keeps label aligned with icon rows. */
+  leadingSpacerClassName?: string;
+  trailing?: ReactNode;
+  hideIcon?: boolean;
 };
 
 const DEFAULT_LOGOUT_SPINNER_CLASS = "h-5 w-5";
@@ -69,6 +74,9 @@ export function LogoutButton({
   spinnerClassName,
   showLabel = false,
   labelClassName,
+  leadingSpacerClassName,
+  trailing = null,
+  hideIcon = false,
 }: LogoutButtonProps) {
   const t = useTranslations("common");
   const locale = useLocale();
@@ -107,13 +115,29 @@ export function LogoutButton({
       title={label}
     >
       {pending ? (
-        <CircularSpinner className={resolvedSpinnerClassName} />
+        leadingSpacerClassName !== undefined ? (
+          <>
+            <span className={leadingSpacerClassName}>
+              <CircularSpinner className={resolvedSpinnerClassName} />
+            </span>
+            {showLabel ? (
+              <span className={labelClassName ?? "whitespace-nowrap"}>{label}</span>
+            ) : null}
+            {trailing}
+          </>
+        ) : (
+          <CircularSpinner className={resolvedSpinnerClassName} />
+        )
       ) : (
         <>
-          <LogoutGlyph className={resolvedIconClassName} />
+          {leadingSpacerClassName !== undefined ? (
+            <span className={leadingSpacerClassName} aria-hidden />
+          ) : null}
+          {!hideIcon ? <LogoutGlyph className={resolvedIconClassName} /> : null}
           {showLabel ? (
             <span className={labelClassName ?? "whitespace-nowrap"}>{label}</span>
           ) : null}
+          {trailing}
         </>
       )}
     </button>

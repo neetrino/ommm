@@ -10,11 +10,13 @@ import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links"
 import offsetStyles from "@/components/marketing/marketing-site-header-offset.module.css";
 import { MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT } from "@/components/marketing/marketing-site-header-layout";
 import { useMarketingHeaderOffsetSync } from "@/components/marketing/use-marketing-header-offset-sync";
+import type { MemberAccountHubProfile } from "@/components/account/member-account-hub-profile";
 import {
   DashboardAppShell,
   type DashboardAppShellProps,
 } from "@/components/shell/dashboard-app-shell";
 import { dashboardNavPathActive } from "@/lib/dashboard-nav";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
@@ -22,11 +24,13 @@ export type WorkspaceShellProps = Omit<
   "withSiteHeader" | "drawerOpen" | "onDrawerOpenChange"
 > & {
   account: MarketingHeaderAccount;
+  memberAccountMenu?: MemberAccountHubProfile | null;
 };
 
 /** Authenticated workspace chrome — global site header + dashboard shell. */
 export function WorkspaceShell({
   account,
+  memberAccountMenu = null,
   notificationRoute,
   navRole,
   children,
@@ -50,6 +54,9 @@ export function WorkspaceShell({
     notificationRoute !== null &&
     dashboardNavPathActive(pathname, notificationRoute.href);
 
+  const isMemberAccountHubPage =
+    shellProps.variant === "member" && pathname === USER_ACCOUNT_PATH;
+
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
   } as CSSProperties;
@@ -64,6 +71,8 @@ export function WorkspaceShell({
       <MarketingSiteHeader
         navLinks={MARKETING_NAV_LINKS}
         account={account}
+        workspaceHeaderChrome
+        hideMobileWorkspaceDrawerTrigger={isMemberAccountHubPage}
         workspaceDrawer={{
           open: drawerOpen,
           onToggle: () => setDrawerOpen((open) => !open),
@@ -76,6 +85,7 @@ export function WorkspaceShell({
         {...shellProps}
         navRole={navRole}
         notificationRoute={notificationRoute}
+        memberAccountMenu={memberAccountMenu}
         withSiteHeader
         drawerOpen={drawerOpen}
         onDrawerOpenChange={setDrawerOpen}

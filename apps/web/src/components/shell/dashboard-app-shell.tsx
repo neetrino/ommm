@@ -9,6 +9,8 @@ import {
   type DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
+import { MemberAccountHubDrawer } from "@/components/account/member-account-hub-drawer";
+import type { MemberAccountHubProfile } from "@/components/account/member-account-hub-profile";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
 import { isOliveDashboardShell } from "@/components/shell/dashboard-shell-variant-utils";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
@@ -34,6 +36,7 @@ import {
   sidebarShellBorderClass,
   WORKSPACE_MAIN_SAFE_TOP_CLASS,
 } from "@/components/shell/dashboard-shell-classes";
+import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 
 export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 
@@ -53,6 +56,8 @@ export type DashboardAppShellProps = {
   withSiteHeader?: boolean;
   drawerOpen?: boolean;
   onDrawerOpenChange?: (open: boolean) => void;
+  /** Member mobile drawer — account hub popup profile. */
+  memberAccountMenu?: MemberAccountHubProfile | null;
   trailing?: ReactNode;
   children: ReactNode;
 };
@@ -68,6 +73,7 @@ export function DashboardAppShell({
   withSiteHeader = false,
   drawerOpen: drawerOpenProp,
   onDrawerOpenChange,
+  memberAccountMenu = null,
   trailing,
   children,
 }: DashboardAppShellProps) {
@@ -149,15 +155,21 @@ export function DashboardAppShell({
     .join(" ");
   const layoutMinHeightClass = withSiteHeader ? "min-h-full" : "min-h-screen";
 
+  const isMemberHubDrawer =
+    variant === "member" && memberAccountMenu !== null;
+
   const workspaceBody = (
     <div
       className={`mx-auto flex ${layoutMinHeightClass} w-full flex-col lg:flex-row ${contentMaxClass}`}
     >
       {withSiteHeader ? (
-        <div className={`hidden shrink-0 lg:block ${asideWidth}`} aria-hidden />
+        <div
+          className={`${workspaceMobileDrawerLayout.desktopSidebarSpacer} ${asideWidth}`}
+          aria-hidden
+        />
       ) : null}
       <aside
-        className={`hidden shrink-0 flex-col shadow-sm lg:flex ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
+        className={`${workspaceMobileDrawerLayout.desktopSidebar} shadow-sm ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
           isOliveShell
             ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
             : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
@@ -280,9 +292,15 @@ export function DashboardAppShell({
         workspaceBody
       )}
 
-      {drawerOpen ? (
+      {drawerOpen && isMemberHubDrawer ? (
+        <MemberAccountHubDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          profile={memberAccountMenu}
+        />
+      ) : drawerOpen ? (
         <div
-          className={`fixed inset-0 flex lg:hidden ${withSiteHeader ? "z-[60]" : "z-40"}`}
+          className={`fixed inset-0 ${workspaceMobileDrawerLayout.overlayMobileOnly} ${withSiteHeader ? "z-[60]" : "z-40"}`}
           id="dashboard-mobile-drawer"
           role="dialog"
           aria-modal="true"

@@ -537,6 +537,7 @@
         "profile": "Your backoffice identity, sign-in email, and workspace integration notes."
       },
       "user": {
+        "account": "Your account menu and member shortcuts.",
         "home": "Your upcoming classes, bookings, and member tools.",
         "progress": "Achievements and milestones.",
         "classes": "Browse and book sessions.",
@@ -648,6 +649,14 @@
     "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
+    "accountHub": {
+      "menuAria": "Member account menu",
+      "changePassword": "Change password",
+      "signIn": {
+        "title": "Sign in to continue",
+        "body": "Your account menu is available after you sign in."
+      }
+    },
     "pagination": {
       "ariaLabel": "List pagination",
       "empty": "No results",

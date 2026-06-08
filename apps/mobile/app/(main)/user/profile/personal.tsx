@@ -1,10 +1,10 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { useSession } from "../../../src/auth/SessionProvider";
-import { ProfileScreen } from "../../../src/features/profile/ProfileScreen";
-import { colors } from "../../../src/theme/tokens";
+import { useSession } from "../../../../src/auth/SessionProvider";
+import { ProfilePersonalScreen } from "../../../../src/features/profile/ProfilePersonalScreen";
+import { colors } from "../../../../src/theme/tokens";
 
-export default function UserProfileRoute() {
+export default function UserProfilePersonalRoute() {
   const { isReady, isSignedIn } = useSession();
 
   if (!isReady) {
@@ -19,7 +19,7 @@ export default function UserProfileRoute() {
     return <Redirect href="/home" />;
   }
 
-  return <ProfileScreen />;
+  return <ProfilePersonalScreen />;
 }
 
 const styles = StyleSheet.create({

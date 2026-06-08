@@ -365,6 +365,84 @@ html {
     @apply flex flex-col gap-3 rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md;
   }
 
+  /* Member account hub — /user glass menu (mobile-first) */
+  .ommm-member-account-hub-shell {
+    @apply mx-auto w-full max-w-lg pb-6 pt-2 sm:max-w-xl sm:pt-4;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .ommm-member-account-hub-header {
+    @apply flex items-center gap-4 sm:gap-5;
+  }
+
+  .ommm-member-account-hub-avatar-wrap {
+    @apply shrink-0 rounded-full border-2 border-white/90 p-[3px] shadow-[0_10px_28px_-18px_rgba(45,40,35,0.32)];
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(244, 223, 203, 0.45) 100%
+    );
+  }
+
+  .ommm-member-account-hub-avatar {
+    @apply flex h-[4.25rem] w-[4.25rem] items-center justify-center overflow-hidden rounded-full bg-[rgba(212,163,115,0.22)] text-lg font-semibold text-sage-800 sm:h-[4.75rem] sm:w-[4.75rem] sm:text-xl;
+  }
+
+  .ommm-member-account-hub-name {
+    font-family: var(--font-serif);
+    @apply text-xl font-semibold leading-tight text-sage-900 sm:text-2xl;
+  }
+
+  .ommm-member-account-hub-email {
+    @apply mt-1 text-sm leading-relaxed text-sage-500/80;
+  }
+
+  .ommm-member-account-hub-menu {
+    @apply mt-8 overflow-hidden rounded-[28px] border border-white/80 bg-white/95 shadow-[0_22px_54px_-34px_rgba(45,40,35,0.34)] backdrop-blur-md;
+  }
+
+  .ommm-member-account-hub-row {
+    @apply flex w-full cursor-pointer items-center gap-3.5 px-5 py-4 text-left transition-[background-color,transform] duration-200 ease-out;
+    @apply hover:bg-white/75 active:scale-[0.995];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 focus-visible:ring-inset;
+  }
+
+  .ommm-member-account-hub-row + .ommm-member-account-hub-row {
+    @apply border-t border-white/70;
+  }
+
+  .ommm-member-account-hub-row-icon {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center text-[var(--ommm-admin-olive)];
+  }
+
+  .ommm-member-account-hub-row-label {
+    @apply min-w-0 flex-1 text-[15px] font-medium leading-snug text-sage-800;
+  }
+
+  .ommm-member-account-hub-row-chevron {
+    @apply h-4 w-4 shrink-0 text-sand-500/90;
+  }
+
+  .ommm-member-account-hub-section-divider {
+    @apply border-t border-sand-100/80;
+  }
+
+  .ommm-member-account-hub-row--danger {
+    @apply text-red-900 hover:bg-red-50/70;
+  }
+
+  .ommm-member-account-hub-row--danger .ommm-member-account-hub-row-label {
+    @apply text-red-900;
+  }
+
+  .ommm-member-account-hub-row--danger .ommm-member-account-hub-row-chevron {
+    @apply text-red-700/75;
+  }
+
+  button.ommm-member-account-hub-row {
+    @apply border-0 bg-transparent font-[inherit] text-inherit;
+  }
+
   /* Admin dashboard — Figma OMMM management portal */
   .ommm-bg-admin {
     background-color: var(--ommm-admin-page);

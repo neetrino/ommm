@@ -1,4 +1,5 @@
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
+import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 
 /** Pairs sidebar brand strip + main column header so their bars share the same height. */
 export const DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS = "min-h-[5.5rem]";
@@ -61,11 +62,12 @@ export function pageBackgroundClass(variant: DashboardShellVariant) {
 }
 
 export function menuButtonClass(variant: DashboardShellVariant) {
+  const mobileOnly = workspaceMobileDrawerLayout.mobileDrawerTrigger;
   if (variant === "indigo")
-    return "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm transition-[background-color,border-color,box-shadow,color,transform] hover:bg-indigo-50 hover:text-indigo-950 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 lg:hidden";
+    return `inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-indigo-200 bg-white text-indigo-950 shadow-sm transition-[background-color,border-color,box-shadow,color,transform] hover:bg-indigo-50 hover:text-indigo-950 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 ${mobileOnly}`;
   if (variant === "wellness")
-    return "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm transition-[background-color,border-color,box-shadow,color,transform] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 lg:hidden";
-  return "inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm transition-[background-color,border-color,box-shadow,color,transform] hover:bg-zinc-50 hover:text-zinc-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 lg:hidden";
+    return `inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/70 bg-white/80 text-sage-800 shadow-sm backdrop-blur-sm transition-[background-color,border-color,box-shadow,color,transform] hover:border-white hover:bg-white hover:text-sage-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 ${mobileOnly}`;
+  return `inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-800 shadow-sm transition-[background-color,border-color,box-shadow,color,transform] hover:bg-zinc-50 hover:text-zinc-900 hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 ${mobileOnly}`;
 }
 
 export function titleClass(variant: DashboardShellVariant) {

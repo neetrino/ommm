@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
@@ -11,7 +12,21 @@ const DELETE_ACCOUNT_TRIGGER_CLASS =
 
 const DELETE_ACCOUNT_CONFIRM_CLASS = "ommm-btn-lifecycle-action--danger";
 
-export function DeleteAccountButton() {
+type DeleteAccountButtonProps = {
+  triggerClassName?: string;
+  triggerContent?: ReactNode;
+  /** Shown while pending when `triggerContent` is a menu row layout. */
+  busyTriggerContent?: ReactNode;
+  /** When true, omit outer wrapper — for account hub menu rows. */
+  bare?: boolean;
+};
+
+export function DeleteAccountButton({
+  triggerClassName,
+  triggerContent,
+  busyTriggerContent,
+  bare = false,
+}: DeleteAccountButtonProps = {}) {
   const t = useTranslations("userPages.profile");
   const locale = useLocale();
   const router = useRouter();
@@ -55,19 +70,32 @@ export function DeleteAccountButton() {
     }
   }
 
+  const trigger = (
+    <button
+      type="button"
+      className={triggerClassName ?? DELETE_ACCOUNT_TRIGGER_CLASS}
+      onClick={openConfirm}
+      disabled={busy}
+    >
+      {busy
+        ? (busyTriggerContent ??
+          (triggerContent !== undefined
+            ? triggerContent
+            : t("deleteAccountDeleting")))
+        : (triggerContent ?? t("deleteAccount"))}
+    </button>
+  );
+
   return (
     <>
-      <div className="flex flex-col items-start gap-1">
-        <button
-          type="button"
-          className={DELETE_ACCOUNT_TRIGGER_CLASS}
-          onClick={openConfirm}
-          disabled={busy}
-        >
-          {busy ? t("deleteAccountDeleting") : t("deleteAccount")}
-        </button>
-        {message ? <p className="text-xs text-red-800">{message}</p> : null}
-      </div>
+      {bare ? (
+        trigger
+      ) : (
+        <div className="flex flex-col items-start gap-1">
+          {trigger}
+          {message ? <p className="text-xs text-red-800">{message}</p> : null}
+        </div>
+      )}
       <OmmConfirmDialog
         isOpen={confirmOpen}
         title={t("deleteAccountConfirmTitle")}
