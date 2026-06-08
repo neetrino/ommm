@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -40,19 +40,14 @@ export function MarketingSiteHeaderWithClientAccount({
   navLinks,
   serverAccount,
 }: MarketingSiteHeaderWithClientAccountProps) {
-  const [account, setAccount] = useState<MarketingHeaderAccount | null>(
-    serverAccount,
+  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(
+    readCachedMarketingHeaderAccount,
   );
+  const account = serverAccount ?? cachedAccount;
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (serverAccount !== null) {
-      setAccount(serverAccount);
       persistAccount(serverAccount);
-      return;
-    }
-    const cached = readCachedMarketingHeaderAccount();
-    if (cached !== null) {
-      setAccount(cached);
     }
   }, [serverAccount]);
 
@@ -75,16 +70,16 @@ export function MarketingSiteHeaderWithClientAccount({
           layoutAuthUserFromMe(payload.user),
         );
         if (resolved !== null) {
-          setAccount(resolved);
+          setCachedAccount(resolved);
           persistAccount(resolved);
           return;
         }
-        setAccount(null);
+        setCachedAccount(null);
         clearPersistedAccount();
       })
       .catch(() => {
         if (!cancelled) {
-          setAccount(null);
+          setCachedAccount(null);
           clearPersistedAccount();
         }
       });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocalCalendarToday } from "@/hooks/use-local-calendar-today";
 import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import {
@@ -49,6 +49,23 @@ type ScheduleNavState = {
 function buildInitialNav(baseline: Date): ScheduleNavState {
   const windowStart = startOfWeekSunday(baseline);
   return { windowStart, selectedDate: baseline };
+}
+
+function clampNavState(
+  prev: ScheduleNavState,
+  today: Date,
+  maxDate: Date,
+): ScheduleNavState {
+  if (isBeforeCalendarDay(prev.selectedDate, today)) {
+    return { windowStart: startOfWeekSunday(today), selectedDate: today };
+  }
+  if (isAfterCalendarDay(prev.selectedDate, maxDate)) {
+    return { ...prev, selectedDate: maxDate };
+  }
+  if (isBeforeCalendarDay(prev.windowStart, today)) {
+    return { ...prev, windowStart: startOfWeekSunday(today) };
+  }
+  return prev;
 }
 
 function shiftWeek(
@@ -130,22 +147,11 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const [items] = useState<MarketingScheduleItem[]>(initialItems);
   const today = useLocalCalendarToday();
   const { maxDate } = useMemo(() => resolvePublicScheduleBounds(undefined, today), [today]);
-  const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(today));
-
-  useEffect(() => {
-    setNav((prev) => {
-      if (isBeforeCalendarDay(prev.selectedDate, today)) {
-        return { windowStart: startOfWeekSunday(today), selectedDate: today };
-      }
-      if (isAfterCalendarDay(prev.selectedDate, maxDate)) {
-        return { ...prev, selectedDate: maxDate };
-      }
-      if (isBeforeCalendarDay(prev.windowStart, today)) {
-        return { ...prev, windowStart: startOfWeekSunday(today) };
-      }
-      return prev;
-    });
-  }, [today, maxDate]);
+  const [userNav, setUserNav] = useState<ScheduleNavState>(() => buildInitialNav(today));
+  const nav = useMemo(
+    () => clampNavState(userNav, today, maxDate),
+    [userNav, today, maxDate],
+  );
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
 
@@ -223,10 +229,10 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
           maxDate={maxDate}
           onSelectDay={(d) => {
             if (isBeforeCalendarDay(d, today) || isAfterCalendarDay(d, maxDate)) return;
-            setNav((s) => ({ ...s, selectedDate: d }));
+            setUserNav((s) => ({ ...s, selectedDate: d }));
           }}
           onShiftWindow={(delta) =>
-            setNav((s) => shiftWeek(s, delta, today, maxDate))
+            setUserNav((s) => shiftWeek(s, delta, today, maxDate))
           }
         />
       </SchedulePageReveal>

@@ -24,14 +24,20 @@ export class UpdateCoachDto {
   email?: string;
 
   @IsOptional()
-  @ValidateIf((_object, value: string | null | undefined) => value !== null && value !== '')
+  @ValidateIf(
+    (_object, value: string | null | undefined) =>
+      value !== null && value !== '',
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)
   name?: string | null;
 
   @IsOptional()
-  @ValidateIf((_object, value: string | null | undefined) => value !== null && value !== '')
+  @ValidateIf(
+    (_object, value: string | null | undefined) =>
+      value !== null && value !== '',
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)

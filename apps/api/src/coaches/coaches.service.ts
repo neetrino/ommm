@@ -425,7 +425,9 @@ export class CoachesService {
       }),
       ...(dto.lastName !== undefined && {
         lastName:
-          dto.lastName === null ? null : this.normalizeOptionalText(dto.lastName),
+          dto.lastName === null
+            ? null
+            : this.normalizeOptionalText(dto.lastName),
       }),
       ...(normalizedPhone !== undefined && { phone: normalizedPhone }),
       ...(nextDateOfBirth !== undefined && { dateOfBirth: nextDateOfBirth }),
