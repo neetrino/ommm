@@ -48,13 +48,25 @@ export function isMarketingExplorePath(pathname: string): boolean {
   return pathname === "/explore" || pathname.startsWith("/explore/");
 }
 
+/** Public contact page — scroll-reveal sections + footer. */
+export function isMarketingContactPath(pathname: string): boolean {
+  return pathname === "/contact" || pathname.startsWith("/contact/");
+}
+
+/** Public story page — scroll-reveal content + footer. */
+export function isMarketingStoryPath(pathname: string): boolean {
+  return pathname === "/story" || pathname.startsWith("/story/");
+}
+
 /** Marketing pages whose layout footer uses the shared scroll-reveal entrance. */
 export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
   return (
     isMarketingCoachesPath(pathname) ||
     isMarketingExplorePath(pathname) ||
     isMarketingSchedulePath(pathname) ||
-    isMarketingPackagesPath(pathname)
+    isMarketingPackagesPath(pathname) ||
+    isMarketingContactPath(pathname) ||
+    isMarketingStoryPath(pathname)
   );
 }
 

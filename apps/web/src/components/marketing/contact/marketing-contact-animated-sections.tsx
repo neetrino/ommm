@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MarketingReveal } from "@/components/marketing/marketing-reveal";
+import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import styles from "@/components/marketing/contact/marketing-contact-page-content.module.css";
 
 type MarketingContactAnimatedSectionsProps = {
@@ -18,10 +18,18 @@ export function MarketingContactAnimatedSections({
   return (
     <>
       <div className={styles.layout}>
-        <MarketingReveal index={0}>{studioCard}</MarketingReveal>
-        <MarketingReveal index={1}>{messageForm}</MarketingReveal>
+        <MarketingScrollReveal index={0} gridColumns={1}>
+          {studioCard}
+        </MarketingScrollReveal>
+        <MarketingScrollReveal index={1} gridColumns={1}>
+          {messageForm}
+        </MarketingScrollReveal>
       </div>
-      {mapEmbed ? <MarketingReveal index={2}>{mapEmbed}</MarketingReveal> : null}
+      {mapEmbed ? (
+        <MarketingScrollReveal index={2} gridColumns={1}>
+          {mapEmbed}
+        </MarketingScrollReveal>
+      ) : null}
     </>
   );
 }

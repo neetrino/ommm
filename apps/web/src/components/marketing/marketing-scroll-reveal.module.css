@@ -1,12 +1,4 @@
 .revealSlot {
   width: 100%;
   min-width: 0;
-  transform-origin: center bottom;
-  will-change: transform, opacity;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .revealSlot {
-    will-change: auto;
-  }
 }
