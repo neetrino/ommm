@@ -19,7 +19,6 @@ type CoachesPageCoachCardProps = {
   specialization: string | null;
   bio: string | null;
   experienceYears: number | null;
-  imageIndex?: number;
   expanded: boolean;
   onToggleExpand: () => void;
 };
