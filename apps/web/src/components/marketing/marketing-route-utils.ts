@@ -33,6 +33,16 @@ export function isMarketingCoachesPath(pathname: string): boolean {
   return pathname === "/coaches" || pathname.startsWith("/coaches/");
 }
 
+/** Public explore list and post pages — scroll-reveal cards + footer. */
+export function isMarketingExplorePath(pathname: string): boolean {
+  return pathname === "/explore" || pathname.startsWith("/explore/");
+}
+
+/** Marketing pages whose layout footer uses the shared scroll-reveal entrance. */
+export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
+  return isMarketingCoachesPath(pathname) || isMarketingExplorePath(pathname);
+}
+
 /** All marketing routes except home — coaches-style gradient shell + footer blend. */
 export function isMarketingInnerPath(pathname: string): boolean {
   return !isMarketingHomePath(pathname);
