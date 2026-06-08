@@ -379,6 +379,7 @@ export class PackagesService {
     const end = new Date(start);
     end.setDate(end.getDate() + plan.periodDays);
     const sessionAllocation = this.packageUsage.resolveInitialSessions(plan);
+    let paymentReference: string | null = null;
     const { userPackage, paymentId } = await this.prisma.$transaction(
       async (tx) => {
         const created = await tx.userPackage.create({
@@ -397,7 +398,7 @@ export class PackagesService {
           data: this.withInternalPaymentCreateFields({
             userId,
             amountCents: plan.priceCents,
-            currency: plan.currency.toLowerCase(),
+            currency: 'amd',
             status: PaymentStatus.PENDING,
             paymentReference: this.createPaymentReference('PACKAGE'),
             source: PACKAGE_PAYMENT_SOURCE,
@@ -408,10 +409,13 @@ export class PackagesService {
             description: `Package subscription: ${plan.name}`,
           }),
         });
+        paymentReference = payment.paymentReference;
         return { userPackage: created, paymentId: payment.id };
       },
     );
-    if (isCardAutoConfirmable(paymentMethod)) {
+    const requiresArcaCheckout =
+      isCardAutoConfirmable(paymentMethod) && this.payments.isArcaCheckoutEnabled();
+    if (isCardAutoConfirmable(paymentMethod) && !requiresArcaCheckout) {
       await this.payments.confirmPendingCardPayment(paymentId);
     }
     await this.audit.log({
@@ -422,7 +426,11 @@ export class PackagesService {
       entityId: userPackage.id,
       payload: { planId, paymentMethod, amountCents: plan.priceCents },
     });
-    return userPackage;
+    return {
+      ...userPackage,
+      paymentReference,
+      requiresArcaCheckout,
+    };
   }
 
   async listMine(userId: string) {

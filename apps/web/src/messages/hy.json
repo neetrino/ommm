@@ -969,29 +969,40 @@
         "paymentPendingWithReference": "Վճարման հայտը՝ {reference}, ստեղծվել է։ Ստուդիայի թիմը շուտով կհաստատի այն։"
       },
       "fakePayment": {
-        "description": "Ավարտեք նվեր քարտի գնումը այս demo վճարման էջում։",
-        "eyebrow": "Fake checkout",
+        "description": "Ավարտեք նվեր քարտի գնումը Arca-ի միջոցով։",
+        "eyebrow": "Վճարում",
         "title": "Նվեր քարտի վճարում",
-        "lead": "Սա թեստային վճարման էջ է։ Իրական գումար չի գանձվելու։",
+        "lead": "Ընտրեք վճարման եղանակը։ Քարտով վճարումը կատարվում է Arca-ի պաշտպանված էջում։",
         "amountLabel": "Գումար",
         "referenceLabel": "Վճարման համարը",
         "missingAmount": "Հասանելի չէ",
         "missingReference": "Սպասման մեջ",
-        "payButton": "Fake վճարել",
-        "payingButton": "Վճարվում է...",
+        "payButton": "Վճարել",
+        "payingButton": "Ուղղորդում...",
         "backButton": "Վերադառնալ նվեր քարտերին",
         "doneButton": "Պատրաստ է",
         "methodLabel": "Ընտրեք վճարման եղանակը",
         "missingReferenceError": "Վճարման համարը բացակայում է։",
-        "payFailed": "Չհաջողվեց ավարտել fake վճարումը։",
+        "payFailed": "Չհաջողվեց սկսել քարտով վճարումը։",
         "successTitle": "Վճարումն ավարտված է",
         "successLead": "Ձեր նվեր քարտի վճարումը հաստատվեց, և քարտն արդեն հասանելի է ձեր հաշվում։",
         "cashPendingTitle": "Կանխիկ վճարումը սպասման մեջ է",
         "cashPendingLead": "Կանխիկ վճարման հայտը ուղարկվել է։ Ստուդիայի ադմինը կհաստատի այն վճարումը ստանալուց հետո։",
         "methods": {
-          "CARD": "Քարտ",
+          "CARD": "Քարտ (Arca)",
           "CASH": "Կանխիկ"
         }
+      },
+      "paymentResult": {
+        "description": "Նվեր քարտի վճարման արդյունք",
+        "eyebrow": "Վճարման արդյունք",
+        "successTitle": "Վճարումը հաջող էր",
+        "successLead": "Նվեր քարտի վճարումը հաստատվել է։ Քարտն արդեն հասանելի է ձեր հաշվում։",
+        "failedTitle": "Վճարումը ձախողվեց",
+        "failedLead": "Քարտով վճարումը ավարտված չէ։ Կարող եք կրկին փորձել նվեր քարտերի էջից։",
+        "referenceLabel": "Համար",
+        "doneButton": "Վերադառնալ նվեր քարտերին",
+        "retryButton": "Կրկին փորձել"
       }
     },
     "payments": {
@@ -1040,6 +1051,84 @@
         "CARD": "Քարտ",
         "BANK_TRANSFER": "Բանկային փոխանցում",
         "OTHER": "Այլ"
+      },
+      "checkout": {
+        "lead": "Ընտրեք ոռարման եղանակըք ՝արտով ոռարման կատարվում է Arca-ի պաշտպանված եջումք։",
+        "amountLabel": "Գումար",
+        "referenceLabel": "Ոռարման համարը",
+        "missingAmount": "Հասանելի չէ",
+        "missingReference": "Սպասման մեջ",
+        "payButton": "Ոռարել",
+        "payingButton": "Օղղորդում…",
+        "backButton": "Հետ",
+        "doneButton": "Փատրաստ է",
+        "methodLabel": "Ընտրեք ոռարման եղանակը",
+        "missingReferenceError": "Ոռարման համարը բացակայում է։",
+        "payFailed": "Չհաջոբվել սկսել օարտով ոռարմանը։",
+        "cashPendingTitle": "Կանխիկ ոռարմանը սպասման մեջ է",
+        "cashPendingLead": "Կանխիկ ոռարման հայը ուբարկվել է։ Ստուդիան ադմինը կհասատի այն ոռարման ունելութք հետո։",
+        "methods": {
+          "CARD": "՝արտ (Arca)",
+          "CASH": "Կանխիկ"
+        },
+        "sources": {
+          "gift": {
+            "description": "Աոնտրեք նովեր օարտի գնումը Arca-ի միջոցովք։",
+            "eyebrow": "Նովեր օարտ",
+            "title": "Նովեր օարտի ոռարման"
+          },
+          "dropin": {
+            "description": "Ոռարեք drop-in դասի համար։",
+            "eyebrow": "Drop-in",
+            "title": "Drop-in ոռարման"
+          },
+          "package": {
+            "description": "Աոնտրեք membership-ի ոռարմանը։",
+            "eyebrow": "Membership",
+            "title": "Membership ոռարման"
+          },
+          "other": {
+            "description": "Աոնտրեք ոռարմանը։",
+            "eyebrow": "Ոռարման",
+            "title": "Ոռարման"
+          }
+        }
+      },
+      "result": {
+        "eyebrow": "Վճարման արդյունք",
+        "successDescription": "Քարտով վճարումը հաջող ավարտվել է։",
+        "failDescription": "Քարտով վճարումը ավարտված չէ։",
+        "statusSuccess": "Վճարումը հաստատվել է",
+        "statusFailed": "Վճարումը մերժվել է",
+        "referenceLabel": "Համար",
+        "doneButton": "Շարունակել",
+        "retryButton": "Կրկին փորդել",
+        "sources": {
+          "gift": {
+            "successTitle": "Նովեր օարտի ոռարմանը հաջոբ է։",
+            "successLead": "Նովեր օարտի ոռարմանը հաստատվել է։ ՝արտը հասանելի է ձեր հաշվում։",
+            "failedTitle": "Նովեր օարտի ոռարմանը չեգոբվել է։",
+            "failedLead": "՝արտով ոռարմանը ավարտված չէ։ Կարոբ եք կրկին փորդել նովեր օարտերի եջից։"
+          },
+          "dropin": {
+            "successTitle": "Drop-in ոռարմանը հաջոբ է։",
+            "successLead": "Սա դասը ամրագված է։ Կտեսնվենք դասում։",
+            "failedTitle": "Drop-in ոռարմանը չեգոբվել է։",
+            "failedLead": "՝արտով ոռարմանը ավարտութք չէ։ Կարոբ եք կրկին փորդել ձեր ժամանակացույցից։"
+          },
+          "package": {
+            "successTitle": "Membership ոռարմանը հաջոբ է։",
+            "successLead": "Սա membership-ը աքիվ է։",
+            "failedTitle": "Membership ոռարմանը չեգոբվել է։",
+            "failedLead": "՝արտով ոռարմանը ավարտութք չէ։ Կարոբ եք կրգին բազանորդագրվել packages եջից։"
+          },
+          "other": {
+            "successTitle": "Ոռարմանը հաջոբ է։",
+            "successLead": "Սա ոռարմանը հաստատվել է։",
+            "failedTitle": "Ոռարմանը չեգոբվել է։",
+            "failedLead": "՝արտով ոռարմանը ավարտութք չէ։ Խնդրում ենք կրկին փորդել։"
+          }
+        }
       },
       "table": {
         "date": "Ամսաթիվ",
@@ -2251,7 +2340,6 @@
         "createSuccess": "Նվեր քարտը ստեղծվեց։",
         "createSuccessMany": "Ստեղծվեց {count} նվեր քարտ։"
       },
-      "detailsModalInfoHeading": "Քարտի տեղեկություն",
       "activateGiftCard": "Ակտիվացնել",
       "deactivateGiftCard": "Անջատել",
       "confirmActivate": "Ակտիվացնե՞լ այս նվեր քարտը։",

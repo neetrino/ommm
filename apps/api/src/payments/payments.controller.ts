@@ -69,6 +69,15 @@ export class PaymentsController {
     return this.payments.createDropInCheckout(user.id, sessionId);
   }
 
+  @Post('checkout/dropin/:reference/confirm')
+  @UseGuards(JwtAuthGuard)
+  confirmDropInPayment(
+    @CurrentUser() user: { id: string },
+    @Param('reference') reference: string,
+  ) {
+    return this.payments.confirmDropInCashPayment(user.id, reference);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   myPayments(

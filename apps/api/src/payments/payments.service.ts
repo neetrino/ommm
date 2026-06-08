@@ -26,6 +26,7 @@ import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto'
 import { resolveDateListPrismaOrder } from '../common/list-order.helpers';
 import type { AdminUpdatablePaymentStatus } from './dto/admin-update-payment-status.dto';
 import type { GiftPaymentMethod } from './dto/confirm-gift-payment.dto';
+import { isArcaCheckoutEnabled } from './payment-arca.util';
 
 type PaymentListSource = 'package' | 'dropin' | 'gift' | 'other';
 
@@ -184,6 +185,7 @@ export class PaymentsService {
       data: this.withInternalPaymentCreateFields({
         userId,
         amountCents: classSession.priceCents,
+        currency: 'amd',
         status: PaymentStatus.PENDING,
         paymentReference: this.createPaymentReference('DROPIN'),
         source: INTERNAL_PAYMENT_SOURCE.DROPIN,
@@ -280,6 +282,33 @@ export class PaymentsService {
     });
   }
 
+  isArcaCheckoutEnabled(): boolean {
+    return isArcaCheckoutEnabled(this.config);
+  }
+
+  async confirmDropInCashPayment(userId: string, paymentReference: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const existing = (await tx.payment.findFirst({
+        where: this.withInternalPaymentWhereFields({ paymentReference }),
+      })) as InternalPaymentRecord | null;
+      if (!existing || existing.userId !== userId) {
+        throw new NotFoundException('Payment not found');
+      }
+      if (existing.status !== PaymentStatus.PENDING) {
+        throw new ConflictException('Only pending payments can be confirmed');
+      }
+      if (existing.source !== INTERNAL_PAYMENT_SOURCE.DROPIN) {
+        throw new BadRequestException('Payment is not a drop-in checkout');
+      }
+      return tx.payment.update({
+        where: { id: existing.id },
+        data: this.withInternalPaymentUpdateFields({
+          paymentMethod: ManualPaymentMethod.CASH,
+        }),
+      });
+    });
+  }
+
   async confirmGiftPayment(
     userId: string,
     paymentReference: string,
@@ -306,6 +335,12 @@ export class PaymentsService {
           }),
         });
       });
+    }
+
+    if (this.isArcaCheckoutEnabled()) {
+      throw new BadRequestException(
+        'Card payments must be completed through Arca checkout',
+      );
     }
 
     const giftEmails: GiftEmailPayload[] = [];
