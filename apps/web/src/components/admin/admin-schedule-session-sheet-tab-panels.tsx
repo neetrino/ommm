@@ -6,6 +6,10 @@ import type {
   AdminScheduleCoach,
   AdminScheduleSession,
 } from "@/components/admin/admin-schedule-management";
+import {
+  buildCoachDropdownState,
+  coachDropdownPlaceholderKey,
+} from "@/components/admin/admin-schedule-coach-filter";
 import type { SessionEditFormController } from "@/components/admin/admin-schedule-session-edit-form.use";
 import {
   buildSessionLevelOptions,
@@ -67,6 +71,17 @@ export function SessionSheetTabPanels({
     () => buildSessionLevelOptions((key) => t(key), [...form.levels]),
     [form.levels, t],
   );
+  const coachDropdown = useMemo(
+    () =>
+      buildCoachDropdownState(
+        coaches,
+        form.classTypeId,
+        classTypeOptions,
+        form.coachId,
+        coachName,
+      ),
+    [classTypeOptions, coaches, form.classTypeId, form.coachId],
+  );
 
   if (activeTab === SESSION_SHEET_TAB_DETAILS) {
     return (
@@ -83,14 +98,29 @@ export function SessionSheetTabPanels({
           ariaLabel={t("form.classType")}
           placeholderLabel={t("form.classType")}
           options={classTypeOptions.map((type) => ({ value: type.value, label: type.label }))}
-          onChange={(value) => updateForm({ ...form, classTypeId: value })}
+          onChange={(value) => {
+            const nextCoachDropdown = buildCoachDropdownState(
+              coaches,
+              value,
+              classTypeOptions,
+              form.coachId,
+              coachName,
+            );
+            updateForm({
+              ...form,
+              classTypeId: value,
+              coachId: nextCoachDropdown.coachId,
+            });
+          }}
         />
         <OmmFormDropdown
-          value={form.coachId}
+          value={coachDropdown.coachId}
           ariaLabel={t("form.coach")}
-          placeholderLabel={t("form.coach")}
-          options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
+          placeholderLabel={t(coachDropdownPlaceholderKey(coachDropdown.placeholder))}
+          options={coachDropdown.options}
           onChange={(value) => updateForm({ ...form, coachId: value })}
+          disabled={coachDropdown.disabled}
+          required
         />
         <DatePickerInput
           name="date"

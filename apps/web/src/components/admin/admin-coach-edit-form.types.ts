@@ -1,5 +1,7 @@
 import {
   createScheduleRow,
+  filterKnownAssignedClassTypeIds,
+  type CoachClassOption,
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 import { formatIsoDateToUi } from "@/lib/date-display";
@@ -64,7 +66,10 @@ export type CoachUpdatePayload = {
   photoUrl?: string;
 };
 
-export function coachFormFromInitial(initial: CoachEditInitialValues): CoachEditFormState {
+export function coachFormFromInitial(
+  initial: CoachEditInitialValues,
+  classOptions: readonly CoachClassOption[] = [],
+): CoachEditFormState {
   return {
     email: initial.email,
     name: initial.name,
@@ -75,7 +80,10 @@ export function coachFormFromInitial(initial: CoachEditInitialValues): CoachEdit
     photoUrl: initial.photoUrl ?? "",
     bio: initial.bio,
     experienceYears: initial.experienceYears === null ? "" : String(initial.experienceYears),
-    assignedClassTypeIds: [...initial.assignedClassTypeIds],
+    assignedClassTypeIds: filterKnownAssignedClassTypeIds(
+      initial.assignedClassTypeIds,
+      classOptions,
+    ),
     schedule:
       initial.schedule.length > 0
         ? initial.schedule.map((slot) => ({

@@ -34,7 +34,7 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
   return (
     <CoachesPageCardHeightProvider heightPx={cardHeightPx}>
       <ul ref={gridRef} className={gridStyles.grid} style={GRID_STYLE}>
-        {coaches.map((coach, index) => (
+        {coaches.map((coach) => (
           <li key={coach.id} className={gridStyles.gridItem}>
             <div className={gridStyles.cardSlot}>
               <CoachesPageCoachCard
@@ -42,7 +42,6 @@ export function MarketingPublicCoachesGrid({ coaches }: MarketingPublicCoachesGr
                 specialization={coach.specialization}
                 bio={coach.bio}
                 experienceYears={coach.experienceYears}
-                imageIndex={index}
                 expanded={expandedCoachId === coach.id}
                 onToggleExpand={() => {
                   toggleExpand(coach.id);

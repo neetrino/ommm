@@ -7,7 +7,6 @@ import { ApiUnavailablePanel } from "@/components/server/api-unavailable-panel";
 import { WorkspaceShellFromAuth } from "@/components/shell/workspace-shell-from-auth";
 import {
   dashboardNavDefinitionsForRole,
-  dashboardNotificationRouteForRole,
 } from "@/lib/dashboard-nav";
 import {
   redirectIfPreferredAccountLocale,
@@ -33,7 +32,6 @@ export default async function ManagerSectionLayout({
   await redirectIfPreferredAccountLocale(locale, userLocale);
   redirectIfRoleNotIn(locale, role, MANAGER_ROLES);
   const navDefinitions = dashboardNavDefinitionsForRole(role);
-  const notificationRoute = dashboardNotificationRouteForRole(role);
   const tDash = await getTranslations({ locale, namespace: "dashboard" });
 
   return (
@@ -46,7 +44,6 @@ export default async function ManagerSectionLayout({
       contentMaxClass="w-full"
       navRole="MANAGER"
       navDefinitions={navDefinitions}
-      notificationRoute={notificationRoute}
     >
       {children}
     </WorkspaceShellFromAuth>

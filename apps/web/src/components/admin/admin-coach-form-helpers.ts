@@ -35,6 +35,15 @@ export type CoachClassOption = {
   name: string;
 };
 
+/** Keeps only class type ids that exist in the current options list. */
+export function filterKnownAssignedClassTypeIds(
+  classTypeIds: readonly string[],
+  classOptions: readonly CoachClassOption[],
+): string[] {
+  const allowedClassIds = new Set(classOptions.map((option) => option.id));
+  return classTypeIds.filter((id) => allowedClassIds.has(id));
+}
+
 const FALLBACK_UUID_TEMPLATE = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
 
 function generateScheduleRowId(): string {

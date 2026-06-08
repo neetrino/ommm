@@ -102,10 +102,6 @@ export function UserMembershipBoardCard({
         />
       </div>
 
-      {status === "PENDING" ? (
-        <p className="mt-4 text-sm text-sage-600">{t("awaitingPaymentConfirmation")}</p>
-      ) : null}
-
       {hasPackageLifecycleActions(status) ? (
         <div
           className="mt-auto border-t border-white/70 pt-4"

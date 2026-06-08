@@ -664,7 +664,6 @@
       "title": "Packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
       "statusPending": "Payment completed",
-      "awaitingPaymentConfirmation": "Your payment was completed successfully.",
       "paymentStatusSucceeded": "Completed",
       "paymentStatusFailed": "Failed",
       "paymentMethods": {
@@ -957,29 +956,40 @@
         "paymentPendingWithReference": "Payment request {reference} created. The studio team will confirm it soon."
       },
       "fakePayment": {
-        "description": "Complete your gift card purchase in this demo payment screen.",
-        "eyebrow": "Fake checkout",
+        "description": "Complete your gift card purchase securely via Arca.",
+        "eyebrow": "Checkout",
         "title": "Gift card payment",
-        "lead": "This is a test payment destination. No real charge will be made.",
+        "lead": "Choose a payment method. Card payments are processed on the secure Arca page.",
         "amountLabel": "Amount",
         "referenceLabel": "Payment reference",
         "missingAmount": "Unavailable",
         "missingReference": "Pending",
-        "payButton": "Fake pay",
-        "payingButton": "Paying...",
+        "payButton": "Pay",
+        "payingButton": "Redirecting...",
         "backButton": "Back to gift cards",
         "doneButton": "Done",
         "methodLabel": "Choose payment method",
         "missingReferenceError": "Payment reference is missing.",
-        "payFailed": "Could not complete fake payment.",
+        "payFailed": "Could not start card payment.",
         "successTitle": "Payment completed",
         "successLead": "Your gift card payment was confirmed and the card is now available in your account.",
         "cashPendingTitle": "Cash payment pending",
         "cashPendingLead": "Your cash payment request was submitted. A studio admin will confirm it after receiving payment.",
         "methods": {
-          "CARD": "Card",
+          "CARD": "Card (Arca)",
           "CASH": "Cash"
         }
+      },
+      "paymentResult": {
+        "description": "Gift card payment result",
+        "eyebrow": "Payment result",
+        "successTitle": "Payment successful",
+        "successLead": "Your gift card payment was confirmed. The card is now available in your account.",
+        "failedTitle": "Payment failed",
+        "failedLead": "The card payment was not completed. You can try again from the gift cards page.",
+        "referenceLabel": "Reference",
+        "doneButton": "Back to gift cards",
+        "retryButton": "Try again"
       }
     },
     "payments": {
@@ -1028,6 +1038,84 @@
         "CARD": "Card",
         "BANK_TRANSFER": "Bank transfer",
         "OTHER": "Other"
+      },
+      "checkout": {
+        "lead": "Choose a payment method. Card payments are processed on the secure Arca page.",
+        "amountLabel": "Amount",
+        "referenceLabel": "Payment reference",
+        "missingAmount": "Unavailable",
+        "missingReference": "Pending",
+        "payButton": "Pay",
+        "payingButton": "Redirecting…",
+        "backButton": "Back",
+        "doneButton": "Done",
+        "methodLabel": "Choose payment method",
+        "missingReferenceError": "Payment reference is missing.",
+        "payFailed": "Could not start card payment.",
+        "cashPendingTitle": "Cash payment pending",
+        "cashPendingLead": "Your cash payment request was submitted. A studio admin will confirm it after receiving payment.",
+        "methods": {
+          "CARD": "Card (Arca)",
+          "CASH": "Cash"
+        },
+        "sources": {
+          "gift": {
+            "description": "Complete your gift card purchase securely via Arca.",
+            "eyebrow": "Gift card checkout",
+            "title": "Gift card payment"
+          },
+          "dropin": {
+            "description": "Pay for your drop-in session.",
+            "eyebrow": "Drop-in checkout",
+            "title": "Drop-in payment"
+          },
+          "package": {
+            "description": "Complete your membership payment.",
+            "eyebrow": "Membership checkout",
+            "title": "Membership payment"
+          },
+          "other": {
+            "description": "Complete your payment.",
+            "eyebrow": "Checkout",
+            "title": "Payment"
+          }
+        }
+      },
+      "result": {
+        "eyebrow": "Payment result",
+        "successDescription": "Your card payment was completed successfully.",
+        "failDescription": "Your card payment could not be completed.",
+        "statusSuccess": "Payment confirmed",
+        "statusFailed": "Payment declined",
+        "referenceLabel": "Reference",
+        "doneButton": "Continue",
+        "retryButton": "Try again",
+        "sources": {
+          "gift": {
+            "successTitle": "Gift card payment successful",
+            "successLead": "Your gift card payment was confirmed. The card is now available in your account.",
+            "failedTitle": "Gift card payment failed",
+            "failedLead": "The card payment was not completed. You can try again from the gift cards page."
+          },
+          "dropin": {
+            "successTitle": "Drop-in payment successful",
+            "successLead": "Your session is booked. See you in class!",
+            "failedTitle": "Drop-in payment failed",
+            "failedLead": "The card payment was not completed. You can try again from your schedule."
+          },
+          "package": {
+            "successTitle": "Membership payment successful",
+            "successLead": "Your membership is now active.",
+            "failedTitle": "Membership payment failed",
+            "failedLead": "The card payment was not completed. You can subscribe again from the packages page."
+          },
+          "other": {
+            "successTitle": "Payment successful",
+            "successLead": "Your payment was confirmed.",
+            "failedTitle": "Payment failed",
+            "failedLead": "The card payment was not completed. Please try again."
+          }
+        }
       },
       "table": {
         "date": "Date",
@@ -1179,7 +1267,6 @@
     "pageTitle": "Admin dashboard",
     "fetchError": "Fetch failed (is the API running?)",
     "overview": {
-      "pageDescription": "Fast operational overview of classes, bookings, members, revenue, and alerts.",
       "errorAuth": "Admin sign-in required.",
       "errorLoad": "Could not load dashboard data ({status}).",
       "kpi": {
@@ -1646,6 +1733,8 @@
       "classTypeInvalid": "Select a valid class type from Schedule.",
       "assignedClassesRequired": "Select at least one assigned class.",
       "assignedClassesInvalid": "Assigned classes contain invalid values.",
+      "assignedClassesNoneSelected": "Tap a class type below to assign it to this coach.",
+      "assignedClassesSelectedCount": "{count} class types assigned",
       "scheduleInvalid": "Complete each schedule slot with valid date, time, and spots.",
       "photoRequired": "Coach photo is required.",
       "photoTooLarge": "Photo is too large (max 10 MB).",
@@ -2068,6 +2157,8 @@
         "startTime": "Start time",
         "endTime": "End time",
         "coach": "Coach",
+        "selectClassFirst": "Select a class first",
+        "noCoachesForClass": "No coaches assigned to this class",
         "classType": "Class type",
         "capacity": "Capacity",
         "capacityHint": "Available spots per class",
@@ -2090,6 +2181,7 @@
         "titleRequired": "Class name is required.",
         "classTypeRequired": "Class type is required.",
         "coachRequired": "Coach is required.",
+        "coachNotAssigned": "Selected coach is not assigned to this class type.",
         "dateRequired": "Date is required.",
         "timeRequired": "Start and end time are required.",
         "capacityInvalid": "Capacity must be at least 1.",

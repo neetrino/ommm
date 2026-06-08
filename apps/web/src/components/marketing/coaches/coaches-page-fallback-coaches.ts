@@ -14,7 +14,7 @@ const PLACEHOLDER_CARD_COUNT =
 /** Figma 3×2 grid slot count (`62:2206`). */
 export const COACHES_PAGE_GRID_SLOT_COUNT = PLACEHOLDER_CARD_COUNT;
 
-/** Keeps at most six cards for the Figma 3×2 grid (`62:2206`). */
+/** Caps coach count for the home Featured Coaches carousel. */
 export function limitCoachesPageGridCards(
   coaches: readonly CoachCardData[],
 ): CoachCardData[] {
@@ -44,7 +44,7 @@ function parseExperienceYears(experience: string | undefined): number | null {
   return Number.isFinite(years) ? years : null;
 }
 
-/** Marketing placeholders — Figma grid `62:2206` (6 cards) when API has no active coaches. */
+/** Marketing placeholders when the public coaches API has no active coaches. */
 export function buildCoachesPageFallbackCoaches(
   slides: CoachesPageSlideCopy[],
 ): CoachCardData[] {
@@ -52,12 +52,7 @@ export function buildCoachesPageFallbackCoaches(
     return [];
   }
 
-  const source: CoachesPageSlideCopy[] = [...slides];
-  while (source.length < PLACEHOLDER_CARD_COUNT) {
-    source.push(slides[source.length % slides.length]);
-  }
-
-  return source.slice(0, PLACEHOLDER_CARD_COUNT).map((slide, index) => {
+  return slides.map((slide, index) => {
     const { name, lastName } = splitCoachName(slide.name);
     return {
       id: `coaches-page-placeholder-${index}`,

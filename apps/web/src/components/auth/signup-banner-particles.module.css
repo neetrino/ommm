@@ -8,10 +8,7 @@
 }
 
 .particle {
-  --particle-size: 1.45rem;
-  --particle-x: 0.75rem;
-  --particle-y: 0.35rem;
-  --particle-opacity: 0.38;
+  --particle-drift-sign: 1;
   --repel-x: 0px;
   --repel-y: 0px;
   position: absolute;
@@ -28,162 +25,82 @@
   box-shadow:
     0 0.35rem 0.85rem rgba(161, 150, 133, 0.14),
     0 0 0.8rem rgba(250, 255, 160, 0.12);
-  transform: translate3d(var(--repel-x), var(--repel-y), 0);
   transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
   animation:
-    signup-particle-float var(--particle-duration, 13s) ease-in-out infinite,
-    signup-particle-glow var(--particle-pulse-duration, 8s) ease-in-out infinite;
-  animation-delay: var(--particle-delay, 0s), calc(var(--particle-delay, 0s) * 0.55);
+    signup-particle-float var(--particle-duration) ease-in-out infinite,
+    signup-particle-glow var(--particle-pulse-duration) ease-in-out infinite;
+  animation-delay: var(--particle-delay), calc(var(--particle-delay) * 0.55);
   will-change: transform;
 }
 
-.particle:nth-child(3n + 1) {
-  --particle-opacity: 0.34;
-}
-
-.particle:nth-child(3n + 2) {
-  --particle-opacity: 0.44;
-}
-
-.particle:nth-child(5n) {
-  --particle-size: 1.95rem;
-  --particle-x: 1.1rem;
-  --particle-y: 0.55rem;
-  --particle-opacity: 0.48;
-}
-
-.particle:nth-child(7n) {
-  --particle-size: 1rem;
-  --particle-opacity: 0.36;
-}
-
-.particle:nth-child(11n) {
-  --particle-size: 2.55rem;
-  --particle-x: 1.45rem;
-  --particle-y: 0.7rem;
-  --particle-opacity: 0.42;
-}
-
-.particle:nth-child(4n) {
-  --particle-duration: 12s;
+.sizeSm {
+  --particle-size: 0.875rem;
+  --particle-x: 0.65rem;
+  --particle-y: 0.42rem;
+  --particle-opacity: 0.3;
+  --particle-duration: 11s;
   --particle-pulse-duration: 7s;
 }
 
-.particle:nth-child(4n + 1) {
-  --particle-duration: 15s;
-  --particle-pulse-duration: 9s;
+.sizeMd {
+  --particle-size: 1.4rem;
+  --particle-x: 1rem;
+  --particle-y: 0.55rem;
+  --particle-opacity: 0.36;
+  --particle-duration: 13s;
+  --particle-pulse-duration: 8s;
 }
 
-.particle:nth-child(4n + 2) {
-  --particle-duration: 18s;
-  --particle-pulse-duration: 11s;
-}
-
-.particle:nth-child(4n + 3) {
+.sizeLg {
+  --particle-size: 2.35rem;
+  --particle-x: 1.15rem;
+  --particle-y: 0.58rem;
+  --particle-opacity: 0.3;
   --particle-duration: 21s;
-  --particle-pulse-duration: 13s;
+  --particle-pulse-duration: 12s;
+  filter: blur(0.35px);
+  box-shadow:
+    0 0.5rem 1.1rem rgba(161, 150, 133, 0.12),
+    0 0 1.2rem rgba(250, 255, 160, 0.1);
 }
 
-.particle:nth-child(1) { --particle-left: 4; --particle-top: 8; --particle-delay: -1s; }
-.particle:nth-child(2) { --particle-left: 12; --particle-top: 22; --particle-delay: -9s; }
-.particle:nth-child(3) { --particle-left: 21; --particle-top: 12; --particle-delay: -4s; }
-.particle:nth-child(4) { --particle-left: 31; --particle-top: 28; --particle-delay: -14s; }
-.particle:nth-child(5) { --particle-left: 43; --particle-top: 10; --particle-delay: -6s; }
-.particle:nth-child(6) { --particle-left: 55; --particle-top: 24; --particle-delay: -17s; }
-.particle:nth-child(7) { --particle-left: 68; --particle-top: 9; --particle-delay: -2s; }
-.particle:nth-child(8) { --particle-left: 82; --particle-top: 26; --particle-delay: -12s; }
-.particle:nth-child(9) { --particle-left: 93; --particle-top: 12; --particle-delay: -7s; }
-.particle:nth-child(10) { --particle-left: 8; --particle-top: 39; --particle-delay: -16s; }
-.particle:nth-child(11) { --particle-left: 18; --particle-top: 51; --particle-delay: -3s; }
-.particle:nth-child(12) { --particle-left: 28; --particle-top: 44; --particle-delay: -11s; }
-.particle:nth-child(13) { --particle-left: 38; --particle-top: 59; --particle-delay: -5s; }
-.particle:nth-child(14) { --particle-left: 48; --particle-top: 42; --particle-delay: -19s; }
-.particle:nth-child(15) { --particle-left: 61; --particle-top: 55; --particle-delay: -8s; }
-.particle:nth-child(16) { --particle-left: 73; --particle-top: 43; --particle-delay: -15s; }
-.particle:nth-child(17) { --particle-left: 88; --particle-top: 57; --particle-delay: -10s; }
-.particle:nth-child(18) { --particle-left: 96; --particle-top: 45; --particle-delay: -20s; }
-.particle:nth-child(19) { --particle-left: 5; --particle-top: 68; --particle-delay: -13s; }
-.particle:nth-child(20) { --particle-left: 15; --particle-top: 78; --particle-delay: -6s; }
-.particle:nth-child(21) { --particle-left: 25; --particle-top: 71; --particle-delay: -18s; }
-.particle:nth-child(22) { --particle-left: 35; --particle-top: 84; --particle-delay: -2s; }
-.particle:nth-child(23) { --particle-left: 45; --particle-top: 69; --particle-delay: -12s; }
-.particle:nth-child(24) { --particle-left: 57; --particle-top: 81; --particle-delay: -7s; }
-.particle:nth-child(25) { --particle-left: 69; --particle-top: 70; --particle-delay: -16s; }
-.particle:nth-child(26) { --particle-left: 80; --particle-top: 83; --particle-delay: -4s; }
-.particle:nth-child(27) { --particle-left: 92; --particle-top: 73; --particle-delay: -11s; }
-.particle:nth-child(28) { --particle-left: 2; --particle-top: 91; --particle-delay: -17s; }
-.particle:nth-child(29) { --particle-left: 10; --particle-top: 14; --particle-delay: -5s; }
-.particle:nth-child(30) { --particle-left: 24; --particle-top: 33; --particle-delay: -21s; }
-.particle:nth-child(31) { --particle-left: 34; --particle-top: 18; --particle-delay: -8s; }
-.particle:nth-child(32) { --particle-left: 46; --particle-top: 31; --particle-delay: -13s; }
-.particle:nth-child(33) { --particle-left: 58; --particle-top: 15; --particle-delay: -1s; }
-.particle:nth-child(34) { --particle-left: 70; --particle-top: 33; --particle-delay: -10s; }
-.particle:nth-child(35) { --particle-left: 84; --particle-top: 17; --particle-delay: -6s; }
-.particle:nth-child(36) { --particle-left: 97; --particle-top: 32; --particle-delay: -15s; }
-.particle:nth-child(37) { --particle-left: 11; --particle-top: 61; --particle-delay: -3s; }
-.particle:nth-child(38) { --particle-left: 22; --particle-top: 92; --particle-delay: -12s; }
-.particle:nth-child(39) { --particle-left: 32; --particle-top: 65; --particle-delay: -18s; }
-.particle:nth-child(40) { --particle-left: 42; --particle-top: 91; --particle-delay: -7s; }
-.particle:nth-child(41) { --particle-left: 52; --particle-top: 63; --particle-delay: -20s; }
-.particle:nth-child(42) { --particle-left: 64; --particle-top: 90; --particle-delay: -9s; }
-.particle:nth-child(43) { --particle-left: 76; --particle-top: 64; --particle-delay: -14s; }
-.particle:nth-child(44) { --particle-left: 86; --particle-top: 92; --particle-delay: -2s; }
-.particle:nth-child(45) { --particle-left: 95; --particle-top: 63; --particle-delay: -11s; }
-.particle:nth-child(46) { --particle-left: 6; --particle-top: 28; --particle-delay: -19s; }
-.particle:nth-child(47) { --particle-left: 17; --particle-top: 6; --particle-delay: -8s; }
-.particle:nth-child(48) { --particle-left: 27; --particle-top: 23; --particle-delay: -16s; }
-.particle:nth-child(49) { --particle-left: 39; --particle-top: 5; --particle-delay: -4s; }
-.particle:nth-child(50) { --particle-left: 51; --particle-top: 36; --particle-delay: -13s; }
-.particle:nth-child(51) { --particle-left: 63; --particle-top: 4; --particle-delay: -6s; }
-.particle:nth-child(52) { --particle-left: 75; --particle-top: 22; --particle-delay: -17s; }
-.particle:nth-child(53) { --particle-left: 89; --particle-top: 7; --particle-delay: -9s; }
-.particle:nth-child(54) { --particle-left: 98; --particle-top: 84; --particle-delay: -22s; }
-.particle:nth-child(55) { --particle-left: 30; --particle-top: 53; --particle-delay: -10s; }
-.particle:nth-child(56) { --particle-left: 66; --particle-top: 49; --particle-delay: -15s; }
-.particle:nth-child(57) { --particle-left: 14; --particle-top: 35; --particle-delay: -23s; }
-.particle:nth-child(58) { --particle-left: 36; --particle-top: 7; --particle-delay: -18s; }
-.particle:nth-child(59) { --particle-left: 48; --particle-top: 19; --particle-delay: -25s; }
-.particle:nth-child(60) { --particle-left: 62; --particle-top: 38; --particle-delay: -14s; }
-.particle:nth-child(61) { --particle-left: 77; --particle-top: 52; --particle-delay: -21s; }
-.particle:nth-child(62) { --particle-left: 91; --particle-top: 35; --particle-delay: -16s; }
-.particle:nth-child(63) { --particle-left: 3; --particle-top: 48; --particle-delay: -24s; }
-.particle:nth-child(64) { --particle-left: 19; --particle-top: 86; --particle-delay: -19s; }
-.particle:nth-child(65) { --particle-left: 41; --particle-top: 76; --particle-delay: -22s; }
-.particle:nth-child(66) { --particle-left: 53; --particle-top: 48; --particle-delay: -17s; }
-.particle:nth-child(67) { --particle-left: 67; --particle-top: 88; --particle-delay: -26s; }
-.particle:nth-child(68) { --particle-left: 79; --particle-top: 19; --particle-delay: -20s; }
-.particle:nth-child(69) { --particle-left: 99; --particle-top: 52; --particle-delay: -15s; }
-.particle:nth-child(70) { --particle-left: 7; --particle-top: 16; --particle-delay: -27s; }
-.particle:nth-child(71) { --particle-left: 23; --particle-top: 40; --particle-delay: -12s; }
-.particle:nth-child(72) { --particle-left: 37; --particle-top: 62; --particle-delay: -23s; }
-.particle:nth-child(73) { --particle-left: 49; --particle-top: 26; --particle-delay: -18s; }
-.particle:nth-child(74) { --particle-left: 59; --particle-top: 72; --particle-delay: -25s; }
-.particle:nth-child(75) { --particle-left: 71; --particle-top: 58; --particle-delay: -14s; }
-.particle:nth-child(76) { --particle-left: 85; --particle-top: 41; --particle-delay: -21s; }
-.particle:nth-child(77) { --particle-left: 94; --particle-top: 78; --particle-delay: -16s; }
-.particle:nth-child(78) { --particle-left: 16; --particle-top: 30; --particle-delay: -24s; }
-.particle:nth-child(79) { --particle-left: 29; --particle-top: 56; --particle-delay: -19s; }
-.particle:nth-child(80) { --particle-left: 44; --particle-top: 16; --particle-delay: -22s; }
-.particle:nth-child(81) { --particle-left: 56; --particle-top: 66; --particle-delay: -17s; }
-.particle:nth-child(82) { --particle-left: 72; --particle-top: 28; --particle-delay: -26s; }
-.particle:nth-child(83) { --particle-left: 87; --particle-top: 54; --particle-delay: -20s; }
-.particle:nth-child(84) { --particle-left: 1; --particle-top: 74; --particle-delay: -15s; }
-.particle:nth-child(85) { --particle-left: 13; --particle-top: 94; --particle-delay: -27s; }
-.particle:nth-child(86) { --particle-left: 33; --particle-top: 46; --particle-delay: -12s; }
-.particle:nth-child(87) { --particle-left: 47; --particle-top: 88; --particle-delay: -23s; }
-.particle:nth-child(88) { --particle-left: 60; --particle-top: 32; --particle-delay: -18s; }
-.particle:nth-child(89) { --particle-left: 74; --particle-top: 76; --particle-delay: -25s; }
-.particle:nth-child(90) { --particle-left: 90; --particle-top: 14; --particle-delay: -14s; }
+.sizeXl {
+  --particle-size: 3.75rem;
+  --particle-x: 1.5rem;
+  --particle-y: 0.75rem;
+  --particle-opacity: 0.22;
+  --particle-duration: 26s;
+  --particle-pulse-duration: 14s;
+  filter: blur(0.65px);
+  box-shadow:
+    0 0.65rem 1.4rem rgba(161, 150, 133, 0.1),
+    0 0 1.6rem rgba(250, 255, 160, 0.08);
+}
 
-.particle:nth-child(even) {
-  --particle-x: -0.85rem;
+.sizeLg::after,
+.sizeXl::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle,
+    rgba(250, 255, 160, 0.14) 0%,
+    rgba(238, 240, 205, 0.06) 45%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.alternateDrift {
+  --particle-drift-sign: -1;
 }
 
 @keyframes signup-particle-float {
   0%,
   100% {
     transform: translate3d(
-      calc(var(--repel-x) - var(--particle-x)),
+      calc(var(--repel-x) - var(--particle-x) * var(--particle-drift-sign)),
       var(--repel-y),
       0
     );
@@ -191,7 +108,7 @@
 
   50% {
     transform: translate3d(
-      calc(var(--repel-x) + var(--particle-x)),
+      calc(var(--repel-x) + var(--particle-x) * var(--particle-drift-sign)),
       calc(var(--repel-y) - var(--particle-y)),
       0
     );
@@ -210,21 +127,43 @@
 }
 
 @media (max-width: 639px) {
-  .particle:nth-child(3n) {
+  .sizeXl {
     display: none;
   }
 
-  .particle {
-    --particle-size: 1.05rem;
-    --particle-opacity: 0.36;
+  .sizeLg:nth-child(5n) {
+    display: none;
   }
 
-  .particle:nth-child(5n) {
-    --particle-size: 1.45rem;
+  .sizeSm:nth-child(4n) {
+    display: none;
   }
 
-  .particle:nth-child(11n) {
-    --particle-size: 1.8rem;
+  .sizeSm {
+    --particle-size: 0.7rem;
+    --particle-opacity: 0.28;
+  }
+
+  .sizeMd {
+    --particle-size: 1.1rem;
+    --particle-opacity: 0.32;
+  }
+
+  .sizeLg {
+    --particle-size: 1.75rem;
+    --particle-opacity: 0.28;
+    filter: blur(0.25px);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .sizeXl {
+    --particle-size: 3rem;
+    --particle-opacity: 0.2;
+  }
+
+  .sizeLg {
+    --particle-size: 2rem;
   }
 }
 

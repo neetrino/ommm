@@ -9,6 +9,7 @@ import {
   BookingChannel,
   type ClassSession,
   ClassSessionStatus,
+  ManualPaymentMethod,
   PackageStatus,
   PaymentStatus,
   Prisma,
@@ -41,6 +42,7 @@ type ManagementBooking = {
   id: string;
   userId: string;
   sessionId: string;
+  userPackageId: string | null;
   status: BookingStatus;
   channel: BookingChannel;
   createdAt: Date;
@@ -674,6 +676,8 @@ export class BookingsService {
               userId: true,
               status: true,
               description: true,
+              paymentMethod: true,
+              userPackageId: true,
               createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
@@ -720,9 +724,14 @@ export class BookingsService {
     }
 
     const bookingRows = bookings.map((booking) => {
+      const userPayments = paymentByUser.get(booking.userId) ?? [];
       const paymentStatus = this.resolvePaymentStatus({
         booking,
-        payments: paymentByUser.get(booking.userId) ?? [],
+        payments: userPayments,
+      });
+      const bookingPaymentMethod = this.resolveBookingPaymentMethod({
+        booking,
+        payments: userPayments,
       });
       const membership = membershipByUser.get(booking.userId);
       return {
@@ -731,6 +740,7 @@ export class BookingsService {
         status: booking.status,
         attendanceStatus: this.resolveAttendanceStatus(booking.status),
         paymentStatus,
+        bookingPaymentMethod,
         channel: booking.channel,
         registerDate: booking.createdAt.toISOString(),
         user: {
@@ -781,6 +791,7 @@ export class BookingsService {
         status: 'WAITLISTED',
         attendanceStatus: null,
         paymentStatus: 'UNPAID',
+        bookingPaymentMethod: null,
         channel: 'WEBSITE',
         registerDate: row.createdAt.toISOString(),
         user: {
@@ -957,12 +968,22 @@ export class BookingsService {
     }
     const payments = await this.prisma.payment.findMany({
       where: { userId: booking.userId },
+      select: {
+        status: true,
+        description: true,
+        paymentMethod: true,
+        userPackageId: true,
+      },
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
     return {
       ...booking,
       paymentStatus: this.resolvePaymentStatus({ booking, payments }),
+      bookingPaymentMethod: this.resolveBookingPaymentMethod({
+        booking,
+        payments,
+      }),
       attendanceStatus: this.resolveAttendanceStatus(booking.status),
     };
   }
@@ -1090,5 +1111,36 @@ export class BookingsService {
       return 'PAID';
     }
     return 'UNPAID';
+  }
+
+  private resolveBookingPaymentMethod(params: {
+    booking: {
+      sessionId: string;
+      userPackageId: string | null;
+    };
+    payments: Array<{
+      paymentMethod: ManualPaymentMethod | null;
+      description: string | null;
+      userPackageId: string | null;
+    }>;
+  }): ManualPaymentMethod | null {
+    const dropInDescription = `Drop-in session ${params.booking.sessionId}`;
+    const sessionPayment = params.payments.find(
+      (payment) => (payment.description ?? '') === dropInDescription,
+    );
+    if (sessionPayment?.paymentMethod) {
+      return sessionPayment.paymentMethod;
+    }
+
+    if (params.booking.userPackageId) {
+      const packagePayment = params.payments.find(
+        (payment) => payment.userPackageId === params.booking.userPackageId,
+      );
+      if (packagePayment?.paymentMethod) {
+        return packagePayment.paymentMethod;
+      }
+    }
+
+    return null;
   }
 }

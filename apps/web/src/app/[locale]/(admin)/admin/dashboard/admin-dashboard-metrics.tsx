@@ -101,7 +101,7 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
         ? tm("errorAuth")
         : tm("errorLoad", { status: overviewRes.status });
     return (
-      <AdminContentFrame description={tm("pageDescription")}>
+      <AdminContentFrame>
         <div className="app-alert-warn max-w-xl">{message}</div>
       </AdminContentFrame>
     );
@@ -157,7 +157,7 @@ export async function AdminDashboardMetrics({ locale }: { locale: string }) {
     : [{ label: tm("revenue.thisMonth"), value: tm("cards.revenueSummary.noData") }];
 
   return (
-    <AdminContentFrame description={tm("pageDescription")}>
+    <AdminContentFrame>
       <AdminDashboardKpiHero
         operationsTitle={tm("kpi.groupOperations")}
         financeTitle={tm("kpi.groupFinance")}

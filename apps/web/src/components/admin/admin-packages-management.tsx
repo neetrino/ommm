@@ -26,10 +26,8 @@ import {
   categoryHasConfiguredPackages,
   packagesInCategory,
 } from "@/components/admin/admin-packages-categories";
-import {
-  AdminPackagesShell,
-  PackagesAddButton,
-} from "@/components/admin/admin-packages-shell";
+import { AdminPageHero } from "@/components/admin/admin-page-hero";
+import { AdminPackagesShell } from "@/components/admin/admin-packages-shell";
 import { AdminPackagesCategoryTable } from "@/components/admin/admin-packages-category-table";
 import {
   syncPackageCategorySelection,
@@ -66,6 +64,8 @@ import {
   parsePackageFiltersFromSearch,
 } from "@/components/admin/admin-packages-url";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
+import { OmmButton } from "@/components/ui/omm-button";
+import { PlusIcon } from "@/components/ui/plus-icon";
 
 type AdminPackagesManagementProps = {
   packages: readonly AdminPackageRow[];
@@ -482,36 +482,40 @@ export function AdminPackagesManagement({
     router.replace(buildPackagesPathname(pathname, params), { scroll: false });
   }, [pathname, router, searchParams]);
 
-  const toolbar = (
-    <div className="space-y-3">
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <AdminPackagesFilters
-          values={{ ...filterValues, search: searchDraft }}
-          onChange={updatePackageFilter}
-          onReset={resetPackageFilters}
-        />
-      </div>
-      <div className="ommm-admin-packages-toolbar">
+  return (
+    <div className="space-y-5">
+      <AdminPageHero
+        title={t("title")}
+        search={
+          <AdminPackagesFilters
+            values={{ ...filterValues, search: searchDraft }}
+            onChange={updatePackageFilter}
+            onReset={resetPackageFilters}
+          />
+        }
+        trailing={
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={openAddModal}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full"
+          >
+            <PlusIcon className="h-5 w-5 shrink-0" />
+            {t("addPackageButton")}
+          </OmmButton>
+        }
+      />
+
       {categoryOptions.length > 0 ? (
         <AdminPackagesCategoryDropdown
           options={categoryOptions}
           selectedIds={selectedCategoryIds}
           onChange={setSelectedCategoryIds}
         />
-      ) : (
-        <div className="min-w-0 flex-1" />
-      )}
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
-        <PackagesAddButton label={t("addPackageButton")} onClick={openAddModal} />
-      </div>
-      </div>
-    </div>
-  );
+      ) : null}
 
-  return (
-    <>
       <AdminPackagesShell
-        toolbar={toolbar}
         packages={filteredPackages}
         categoryOptions={categoryOptions}
         defaultCategoryName={defaultCategoryId}
@@ -597,7 +601,7 @@ export function AdminPackagesManagement({
         tone="ok"
         onDismiss={() => setToastMessage(null)}
       />
-    </>
+    </div>
   );
 }
 

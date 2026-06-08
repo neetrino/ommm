@@ -123,11 +123,17 @@ export function AdminCoachesDirectory({
   const urlCoachId = searchParams.get("coachProfile");
   const [visibleCoachId, setVisibleCoachId] = useState<string | null>(urlCoachId);
   const [prevUrlCoachId, setPrevUrlCoachId] = useState(urlCoachId);
+  const [coachRows, setCoachRows] = useState(initial.items);
+  const [prevInitial, setPrevInitial] = useState(initial);
   if (urlCoachId !== prevUrlCoachId) {
     setPrevUrlCoachId(urlCoachId);
     setVisibleCoachId(urlCoachId);
   }
-  const coaches = initial.items;
+  if (initial !== prevInitial) {
+    setPrevInitial(initial);
+    setCoachRows(initial.items);
+  }
+  const coaches = coachRows;
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
@@ -142,9 +148,9 @@ export function AdminCoachesDirectory({
   }, [coaches, visibleCoachId]);
 
   const setListPage = useCallback(
-    (page: number, pageSize?: number) => {
+    (page: number) => {
       const params = new URLSearchParams(searchParams.toString());
-      syncListPageQuery(params, page, pageSize);
+      syncListPageQuery(params, page);
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
@@ -208,7 +214,6 @@ export function AdminCoachesDirectory({
           pageSize={listPage.pageSize}
           offset={initial.offset}
           onPageChange={setListPage}
-          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
         />
       ) : null}
       <AdminCoachDetailsDrawer
@@ -216,6 +221,11 @@ export function AdminCoachesDirectory({
         locale={locale}
         classOptions={classOptions}
         onClose={closeProfileDrawer}
+        onCoachUpdated={(coachId, patch) => {
+          setCoachRows((current) =>
+            current.map((item) => (item.id === coachId ? { ...item, ...patch } : item)),
+          );
+        }}
       />
     </>
   );

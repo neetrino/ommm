@@ -21,3 +21,10 @@ export function isCardAutoConfirmable(
 ): boolean {
   return paymentMethod === ManualPaymentMethod.CARD;
 }
+
+/** Cash package purchases grant booking access before admin confirms payment. */
+export function grantsImmediatePackageBookingAccess(
+  paymentMethod: ManualPaymentMethod,
+): boolean {
+  return paymentMethod === ManualPaymentMethod.CASH;
+}

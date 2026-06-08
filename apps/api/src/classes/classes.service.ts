@@ -399,6 +399,22 @@ export class ClassesService {
     }
   }
 
+  private async assertCoachAssignedToClassType(
+    coachId: string,
+    classTypeId: string,
+  ): Promise<void> {
+    const coach = await this.prisma.coachProfile.findUnique({
+      where: { id: coachId },
+      select: { assignedClassTypeIds: true, isActive: true },
+    });
+    if (!coach?.isActive) {
+      throw new BadRequestException('Coach is not available');
+    }
+    if (!coach.assignedClassTypeIds.includes(classTypeId)) {
+      throw new BadRequestException('Coach is not assigned to this class type');
+    }
+  }
+
   private assertTimeValue(value: string): void {
     const [hourRaw, minuteRaw] = value.split(':');
     const hour = Number(hourRaw);
@@ -597,6 +613,13 @@ export class ClassesService {
   }
 
   async createSession(dto: CreateSessionDto): Promise<AdminSessionRow> {
+    await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
+    if (dto.substituteCoachId) {
+      await this.assertCoachAssignedToClassType(
+        dto.substituteCoachId,
+        dto.classTypeId,
+      );
+    }
     const startsAt = new Date(dto.startsAt);
     const endsAt = new Date(dto.endsAt);
     this.assertTimeRange(startsAt, endsAt);
@@ -633,6 +656,7 @@ export class ClassesService {
   async createSessionBatch(
     dto: CreateSessionBatchDto,
   ): Promise<AdminSessionRow[]> {
+    await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
     const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
     const createRows = this.buildBatchSessionData(dto, title);
     const created = await this.prisma.$transaction(
@@ -655,6 +679,16 @@ export class ClassesService {
       throw new NotFoundException('Session not found');
     }
     const existing = existingRaw as ClassSessionWithRecurrence;
+
+    const nextClassTypeId = dto.classTypeId ?? existing.classTypeId;
+    const nextCoachId = dto.coachId ?? existing.coachId;
+    await this.assertCoachAssignedToClassType(nextCoachId, nextClassTypeId);
+    if (dto.substituteCoachId) {
+      await this.assertCoachAssignedToClassType(
+        dto.substituteCoachId,
+        nextClassTypeId,
+      );
+    }
 
     const startsAt = dto.startsAt ? new Date(dto.startsAt) : existing.startsAt;
     const endsAt = dto.endsAt ? new Date(dto.endsAt) : existing.endsAt;

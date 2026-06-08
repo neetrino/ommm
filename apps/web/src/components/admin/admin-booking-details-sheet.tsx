@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { AdminBookingNotesSection } from "@/components/admin/admin-booking-notes-section";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
-import { adminBookingPaymentLabel } from "@/components/admin/admin-booking-list-badges";
+import { adminBookingPaymentLabel, normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -30,6 +30,7 @@ type ListRow = {
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
   paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
+  bookingPaymentMethod: string | null;
   channel: "WEBSITE" | "APP";
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };
@@ -59,6 +60,7 @@ type BookingNote = {
 type BookingDetails = {
   status: string;
   paymentStatus?: string;
+  bookingPaymentMethod?: string | null;
   attendanceStatus?: string;
   channel: "WEBSITE" | "APP";
   createdAt: string;
@@ -169,6 +171,10 @@ export function AdminBookingDetailsSheet({
     return null;
   }
 
+  const bookingPaymentMethod = normalizeBookingStatusBadgePaymentMethod(
+    details?.bookingPaymentMethod ?? row.bookingPaymentMethod,
+  );
+
   return (
     <OmmDrawerPortal
       isOpen={isOpen}
@@ -205,6 +211,7 @@ export function AdminBookingDetailsSheet({
             <AdminBookingStatusPicker
               recordType={row.recordType}
               status={row.status}
+              bookingPaymentMethod={bookingPaymentMethod}
               busy={busy}
               onChangeStatus={onChangeStatus}
             />

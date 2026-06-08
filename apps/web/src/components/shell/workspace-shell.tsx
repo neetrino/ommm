@@ -1,7 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -14,8 +13,6 @@ import {
   DashboardAppShell,
   type DashboardAppShellProps,
 } from "@/components/shell/dashboard-app-shell";
-import { dashboardNavPathActive } from "@/lib/dashboard-nav";
-import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
   DashboardAppShellProps,
@@ -27,28 +24,11 @@ export type WorkspaceShellProps = Omit<
 /** Authenticated workspace chrome — global site header + dashboard shell. */
 export function WorkspaceShell({
   account,
-  notificationRoute,
-  navRole,
   children,
   ...shellProps
 }: WorkspaceShellProps) {
-  const pathname = usePathname();
-  const tNav = useTranslations("dashboard.nav");
   const [drawerOpen, setDrawerOpen] = useState(false);
   useMarketingHeaderOffsetSync(true);
-
-  const notificationsLabel = useMemo(() => {
-    if (!notificationRoute) {
-      return null;
-    }
-    return (tNav as (key: string) => string)(
-      `${navRole}.${notificationRoute.labelKey}`,
-    );
-  }, [notificationRoute, navRole, tNav]);
-
-  const notificationsActive =
-    notificationRoute !== null &&
-    dashboardNavPathActive(pathname, notificationRoute.href);
 
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
@@ -68,14 +48,9 @@ export function WorkspaceShell({
           open: drawerOpen,
           onToggle: () => setDrawerOpen((open) => !open),
         }}
-        notificationHref={notificationRoute?.href ?? null}
-        notificationsLabel={notificationsLabel}
-        notificationsActive={notificationsActive}
       />
       <DashboardAppShell
         {...shellProps}
-        navRole={navRole}
-        notificationRoute={notificationRoute}
         withSiteHeader
         drawerOpen={drawerOpen}
         onDrawerOpenChange={setDrawerOpen}

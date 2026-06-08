@@ -664,7 +664,6 @@
       "title": "Пакеты",
       "description": "Выберите план и оплатите удобным способом. Пакет появится здесь после оплаты.",
       "statusPending": "Оплата завершена",
-      "awaitingPaymentConfirmation": "Ваш платёж успешно завершён.",
       "paymentStatusSucceeded": "Завершён",
       "paymentStatusFailed": "Ошибка",
       "paymentMethods": {
@@ -957,29 +956,40 @@
         "paymentPendingWithReference": "Заявка на оплату {reference} создана. Команда студии скоро подтвердит её."
       },
       "fakePayment": {
-        "description": "Завершите покупку подарочной карты на этом demo-экране оплаты.",
-        "eyebrow": "Fake checkout",
+        "description": "Завершите покупку подарочной карты через Arca.",
+        "eyebrow": "Оплата",
         "title": "Оплата подарочной карты",
-        "lead": "Это тестовая страница оплаты. Реальное списание не выполняется.",
+        "lead": "Выберите способ оплаты. Оплата картой проходит на защищённой странице Arca.",
         "amountLabel": "Сумма",
         "referenceLabel": "Номер платежа",
         "missingAmount": "Недоступно",
         "missingReference": "В ожидании",
-        "payButton": "Fake оплатить",
-        "payingButton": "Оплата...",
+        "payButton": "Оплатить",
+        "payingButton": "Перенаправление...",
         "backButton": "Назад к подарочным картам",
         "doneButton": "Готово",
         "methodLabel": "Выберите способ оплаты",
         "missingReferenceError": "Номер платежа отсутствует.",
-        "payFailed": "Не удалось завершить fake-оплату.",
+        "payFailed": "Не удалось начать оплату картой.",
         "successTitle": "Оплата завершена",
         "successLead": "Оплата подарочной карты подтверждена, карта уже доступна в вашем аккаунте.",
         "cashPendingTitle": "Ожидается оплата наличными",
         "cashPendingLead": "Запрос на оплату наличными отправлен. Администратор подтвердит его после получения платежа.",
         "methods": {
-          "CARD": "Карта",
+          "CARD": "Карта (Arca)",
           "CASH": "Наличные"
         }
+      },
+      "paymentResult": {
+        "description": "Результат оплаты подарочной карты",
+        "eyebrow": "Результат оплаты",
+        "successTitle": "Оплата прошла успешно",
+        "successLead": "Оплата подарочной карты подтверждена. Карта уже доступна в вашем аккаунте.",
+        "failedTitle": "Оплата не прошла",
+        "failedLead": "Оплата картой не была завершена. Попробуйте снова со страницы подарочных карт.",
+        "referenceLabel": "Номер",
+        "doneButton": "Назад к подарочным картам",
+        "retryButton": "Попробовать снова"
       }
     },
     "payments": {
@@ -1028,6 +1038,84 @@
         "CARD": "Карта",
         "BANK_TRANSFER": "Банковский перевод",
         "OTHER": "Другое"
+      },
+      "checkout": {
+        "lead": "Выберите способ оплаты. Оплата картой проходит на защищённой странице Arca.",
+        "amountLabel": "Сумма",
+        "referenceLabel": "Номер платежа",
+        "missingAmount": "Недоступно",
+        "missingReference": "В ожидании",
+        "payButton": "Оплатить",
+        "payingButton": "Перенаправление…",
+        "backButton": "Назад",
+        "doneButton": "Готово",
+        "methodLabel": "Выберите способ оплаты",
+        "missingReferenceError": "Номер платежа отсутствует.",
+        "payFailed": "Не удалось начать оплату картой.",
+        "cashPendingTitle": "Ожидается оплата наличными",
+        "cashPendingLead": "Запрос на оплату наличными отправлен. Администратор подтвердит его после получения платежа.",
+        "methods": {
+          "CARD": "Карта (Arca)",
+          "CASH": "Наличные"
+        },
+        "sources": {
+          "gift": {
+            "description": "Завершите покупку подарочной карты через Arca.",
+            "eyebrow": "Подарочная карта",
+            "title": "Оплата подарочной карты"
+          },
+          "dropin": {
+            "description": "Оплатите drop-in занятие.",
+            "eyebrow": "Drop-in",
+            "title": "Оплата drop-in"
+          },
+          "package": {
+            "description": "Завершите оплату membership.",
+            "eyebrow": "Membership",
+            "title": "Оплата membership"
+          },
+          "other": {
+            "description": "Завершите оплату.",
+            "eyebrow": "Оплата",
+            "title": "Оплата"
+          }
+        }
+      },
+      "result": {
+        "eyebrow": "Результат оплаты",
+        "successDescription": "Оплата картой успешно завершена.",
+        "failDescription": "Оплата картой не была завершена.",
+        "statusSuccess": "Оплата подтверждена",
+        "statusFailed": "Оплата отклонена",
+        "referenceLabel": "Номер",
+        "doneButton": "Продолжить",
+        "retryButton": "Попробовать снова",
+        "sources": {
+          "gift": {
+            "successTitle": "Оплата подарочной карты прошла успешно",
+            "successLead": "Оплата подтверждена. Карта доступна в вашем аккаунте.",
+            "failedTitle": "Оплата подарочной карты не прошла",
+            "failedLead": "Оплата картой не была завершена. Попробуйте снова на странице подарочных карт."
+          },
+          "dropin": {
+            "successTitle": "Drop-in оплата прошла успешно",
+            "successLead": "Занятие забронировано. Ждём вас на классе!",
+            "failedTitle": "Drop-in оплата не прошла",
+            "failedLead": "Оплата картой не была завершена. Попробуйте снова в расписании."
+          },
+          "package": {
+            "successTitle": "Membership оплата прошла успешно",
+            "successLead": "Ваш membership активен.",
+            "failedTitle": "Membership оплата не прошла",
+            "failedLead": "Оплата картой не была завершена. Попробуйте снова на странице packages."
+          },
+          "other": {
+            "successTitle": "Оплата прошла успешно",
+            "successLead": "Ваш платёж подтверждён.",
+            "failedTitle": "Оплата не прошла",
+            "failedLead": "Оплата картой не была завершена. Попробуйте снова."
+          }
+        }
       },
       "table": {
         "date": "Дата",
@@ -1170,7 +1258,6 @@
     "pageTitle": "Админ-панель",
     "fetchError": "Не удалось загрузить (API запущен?)",
     "overview": {
-      "pageDescription": "Быстрый операционный обзор занятий, бронирований, участников, выручки и алертов.",
       "errorAuth": "Требуется вход администратора.",
       "errorLoad": "Не удалось загрузить данные дашборда ({status}).",
       "kpi": {
@@ -1637,6 +1724,8 @@
       "classTypeInvalid": "Выберите корректный тип занятия из расписания.",
       "assignedClassesRequired": "Выберите хотя бы один назначенный класс.",
       "assignedClassesInvalid": "Назначенные классы содержат некорректные значения.",
+      "assignedClassesNoneSelected": "Нажмите на тип занятия ниже, чтобы назначить его тренеру.",
+      "assignedClassesSelectedCount": "Назначено типов занятий: {count}",
       "scheduleInvalid": "Заполните каждый слот даты, времени и мест корректно.",
       "photoRequired": "Фото тренера обязательно.",
       "photoTooLarge": "Фото слишком большое (макс. 10 МБ).",
@@ -2059,6 +2148,8 @@
         "startTime": "Время начала",
         "endTime": "Время окончания",
         "coach": "Тренер",
+        "selectClassFirst": "Сначала выберите класс",
+        "noCoachesForClass": "К этому классу не назначены тренеры",
         "classType": "Тип занятия",
         "capacity": "Вместимость",
         "capacityHint": "Количество мест для каждого занятия",
@@ -2081,6 +2172,7 @@
         "titleRequired": "Название занятия обязательно.",
         "classTypeRequired": "Тип занятия обязателен.",
         "coachRequired": "Тренер обязателен.",
+        "coachNotAssigned": "Выбранный тренер не назначен на этот тип занятия.",
         "dateRequired": "Дата обязательна.",
         "timeRequired": "Нужно указать время начала и окончания.",
         "capacityInvalid": "Вместимость должна быть не меньше 1.",

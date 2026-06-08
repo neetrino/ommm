@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   createScheduleRow,
+  filterKnownAssignedClassTypeIds,
   MAX_PHOTO_BYTES,
   readFileAsBase64Payload,
   type CoachClassOption,
@@ -18,13 +19,34 @@ import {
 import { validateCoachEditForm } from "@/components/admin/admin-coach-edit-form.validation";
 import { ApiError, apiFetch } from "@/lib/api";
 
+type CoachUpdateResponse = {
+  assignedClassTypeIds: string[];
+  updatedAt: string;
+  bio: string | null;
+  specialization: string | null;
+  experienceYears: number | null;
+  user: {
+    email: string;
+    name: string | null;
+    lastName: string | null;
+    phone: string | null;
+    avatarUrl: string | null;
+    dateOfBirth?: string | null;
+  };
+};
+
+export type CoachSavedSnapshot = {
+  assignedClassTypeIds: string[];
+  updatedAt: string;
+};
+
 type UseCoachEditFormArgs = {
   coachId: string;
   resetKey: string;
   initial: CoachEditInitialValues;
   classOptions: readonly CoachClassOption[];
   labels: Parameters<typeof validateCoachEditForm>[0]["labels"];
-  onSaved?: () => void;
+  onSaved?: (snapshot: CoachSavedSnapshot) => void;
 };
 
 export function useCoachEditForm({
@@ -37,8 +59,8 @@ export function useCoachEditForm({
 }: UseCoachEditFormArgs) {
   const router = useRouter();
   const submitLockRef = useRef(false);
-  const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
-  const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
+  const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial, classOptions));
+  const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial, classOptions));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
@@ -50,7 +72,7 @@ export function useCoachEditForm({
 
   if (resetKey !== prevResetKey) {
     setPrevResetKey(resetKey);
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initial, classOptions);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -182,9 +204,12 @@ export function useCoachEditForm({
   function toggleClassSelection(classTypeId: string): void {
     setForm((prev) => ({
       ...prev,
-      assignedClassTypeIds: prev.assignedClassTypeIds.includes(classTypeId)
-        ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
-        : [...prev.assignedClassTypeIds, classTypeId],
+      assignedClassTypeIds: filterKnownAssignedClassTypeIds(
+        prev.assignedClassTypeIds.includes(classTypeId)
+          ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
+          : [...prev.assignedClassTypeIds, classTypeId],
+        classOptions,
+      ),
     }));
     setErrors((prev) => ({ ...prev, assignedClassTypeIds: undefined }));
   }
@@ -214,7 +239,7 @@ export function useCoachEditForm({
   }
 
   function cancelEdits(): void {
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initial, classOptions);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -252,7 +277,7 @@ export function useCoachEditForm({
     setMessage(null);
 
     try {
-      await apiFetch(`/coaches/${coachId}`, {
+      const updated = await apiFetch<CoachUpdateResponse>(`/coaches/${coachId}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
@@ -275,10 +300,18 @@ export function useCoachEditForm({
         setPhotoFile(null);
         setPhotoRemoved(false);
       } else {
-        setSnapshot(form);
+        const nextForm = {
+          ...form,
+          assignedClassTypeIds: [...updated.assignedClassTypeIds],
+        };
+        setForm(nextForm);
+        setSnapshot(nextForm);
       }
       setToneOk(okMessage);
-      onSaved?.();
+      onSaved?.({
+        assignedClassTypeIds: updated.assignedClassTypeIds,
+        updatedAt: updated.updatedAt,
+      });
       router.refresh();
       return true;
     } catch (error) {
