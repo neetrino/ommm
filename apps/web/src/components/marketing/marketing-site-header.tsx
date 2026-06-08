@@ -44,7 +44,6 @@ import {
   isMarketingHomePath,
   isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
-import { WorkspaceShellNotificationLink } from "@/components/shell/workspace-shell-notification-link";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function isActive(pathname: string, href: string): boolean {
@@ -71,9 +70,6 @@ export type MarketingSiteHeaderProps = {
   account?: MarketingHeaderAccount | null;
   /** Mobile/tablet sidebar drawer for authenticated dashboards. */
   workspaceDrawer?: WorkspaceDrawerControl;
-  notificationHref?: string | null;
-  notificationsLabel?: string | null;
-  notificationsActive?: boolean;
 };
 
 function WorkspaceDrawerGlyph() {
@@ -94,38 +90,11 @@ function WorkspaceDrawerGlyph() {
   );
 }
 
-function HeaderNotificationAction({
-  href,
-  label,
-  active,
-  className,
-  onNavigate,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-  className?: string;
-  onNavigate?: () => void;
-}) {
-  return (
-    <WorkspaceShellNotificationLink
-      href={href}
-      label={label}
-      active={active}
-      className={className}
-      onNavigate={onNavigate}
-    />
-  );
-}
-
 /** Global site header — same chrome on marketing pages and authenticated workspaces. */
 export function MarketingSiteHeader({
   navLinks,
   account = null,
   workspaceDrawer,
-  notificationHref = null,
-  notificationsLabel = null,
-  notificationsActive = false,
 }: MarketingSiteHeaderProps) {
   const locale = useLocale();
   const compact = isCompactMarketingHeaderLocale(locale);
@@ -156,8 +125,6 @@ export function MarketingSiteHeader({
     ["--marketing-mobile-scrolled-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
   };
-  const showNotifications =
-    notificationHref !== null && notificationsLabel !== null;
 
   function handleBrandClick(event: MouseEvent<HTMLAnchorElement>) {
     setPublicMenuOpen(false);
@@ -248,15 +215,6 @@ export function MarketingSiteHeader({
                   <span className="sr-only">{tShell("workspaceAria")}</span>
                 </button>
               ) : null}
-              {showNotifications ? (
-                <HeaderNotificationAction
-                  href={notificationHref}
-                  label={notificationsLabel}
-                  active={notificationsActive}
-                  className={`${navPillStyles.mobileHeaderAccountButton} lg:hidden`}
-                  onNavigate={closeAllMenus}
-                />
-              ) : null}
               <LanguageSwitcher
                 context="marketing"
                 appearance="icon"
@@ -327,15 +285,6 @@ export function MarketingSiteHeader({
 
         <div className={marketingHeaderActionsClass()}>
           <div className={marketingHeaderAuthClusterClass()}>
-            {showNotifications ? (
-              <HeaderNotificationAction
-                href={notificationHref}
-                label={notificationsLabel}
-                active={notificationsActive}
-                className="hidden h-8 w-8 min-h-8 min-w-8 lg:inline-flex lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-11 nav-desktop:w-11 nav-desktop:min-h-11 nav-desktop:min-w-11"
-                onNavigate={closeAllMenus}
-              />
-            ) : null}
             <LanguageSwitcher
               context="marketing"
               appearance="icon"

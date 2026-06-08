@@ -6,7 +6,6 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   type DashboardNavDefinition,
   type DashboardNavItem,
-  type DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
@@ -46,7 +45,6 @@ export type DashboardAppShellProps = {
   brandSubline?: string;
   navRole: DashboardNavRole;
   navDefinitions: DashboardNavDefinition[];
-  notificationRoute: DashboardRoleNotificationRoute | null;
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
   /** Reserve space and adjust sticky regions for the fixed global site header. */
