@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cookieHeaderHasAccessToken } from "@/lib/auth-cookie";
 import { homePathForRole } from "@/lib/role-home";
 import { serverApiJson } from "@/lib/server-api";
 import type { MeApiResponse, MeApiUser } from "@/lib/me-api-types";
@@ -49,6 +50,9 @@ type SessionAuthResult =
  */
 export const getSessionAuth = cache(async (): Promise<SessionAuthResult> => {
   const cookie = (await headers()).get("cookie") ?? "";
+  if (!cookieHeaderHasAccessToken(cookie)) {
+    return { ok: false, status: 401, cookie };
+  }
   const res = await serverApiJson<MePayload>("/users/me", cookie);
   if (!res.ok) {
     return { ok: false, status: res.status, cookie };

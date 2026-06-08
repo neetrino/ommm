@@ -4,10 +4,10 @@ import { ensureMonorepoEnvLoaded } from "@/lib/load-monorepo-env";
  * Server-side fetch to Nest (`/v1/*`). Public marketing reads use ISR-style
  * revalidation; authenticated routes forward cookies and bypass cache.
  */
-const SERVER_FETCH_TIMEOUT_MS = 10_000;
+const SERVER_FETCH_TIMEOUT_MS = 8_000;
 const PUBLIC_REVALIDATE_SEC = 60;
-const DEV_API_RETRY_ATTEMPTS = 12;
-const DEV_API_RETRY_DELAY_MS = 1_000;
+const DEV_API_RETRY_ATTEMPTS = 2;
+const DEV_API_RETRY_DELAY_MS = 400;
 
 const UPSTREAM_UNAVAILABLE_STATUSES = new Set([503, 504]);
 
@@ -105,7 +105,7 @@ async function fetchServerApi(
     }
     lastResponse = response;
     if (attempt < maxAttempts) {
-      await sleep(DEV_API_RETRY_DELAY_MS * attempt);
+      await sleep(DEV_API_RETRY_DELAY_MS);
     }
   }
 

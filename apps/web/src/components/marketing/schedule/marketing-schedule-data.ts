@@ -37,7 +37,6 @@ function toSorted(items: MarketingScheduleItem[]): MarketingScheduleItem[] {
 export async function fetchPublicScheduleItems(): Promise<MarketingScheduleDataResult> {
   const res = await fetchPublicJsonCached<MarketingScheduleItem[]>(
     "/schedule/public",
-    { cacheMode: "no-store" },
   );
   if (!res.ok) {
     return {

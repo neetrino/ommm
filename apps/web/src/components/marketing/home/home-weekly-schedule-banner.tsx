@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { HomeHeroCtaButton } from "@/components/marketing/home/home-hero-cta-button";
 import { HomeWeeklyScheduleLiveGrid } from "@/components/marketing/home/home-weekly-schedule-live-grid";
-import type { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
+import { fetchPublicScheduleItems } from "@/components/marketing/schedule/marketing-schedule-data";
 import styles from "@/components/marketing/home/home-weekly-schedule-banner.module.css";
 import {
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -13,7 +13,6 @@ import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type HomeWeeklyScheduleBannerProps = {
   locale: string;
-  scheduleDataPromise: ReturnType<typeof fetchPublicScheduleItems>;
 };
 
 /**
@@ -21,12 +20,11 @@ type HomeWeeklyScheduleBannerProps = {
  */
 export async function HomeWeeklyScheduleBanner({
   locale,
-  scheduleDataPromise,
 }: HomeWeeklyScheduleBannerProps) {
   const [t, heroT, { items }] = await Promise.all([
     getTranslations({ locale, namespace: "marketingPublic.home" }),
     getTranslations({ locale, namespace: "marketingPublic.hero" }),
-    scheduleDataPromise,
+    fetchPublicScheduleItems(),
   ]);
   const scheduleCta = (
     <HomeHeroCtaButton href="/schedule" label={heroT("primaryCta")} variant="booking" />
