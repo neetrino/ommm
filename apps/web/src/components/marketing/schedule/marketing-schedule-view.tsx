@@ -16,11 +16,13 @@ import { SCHEDULE_MUTED } from "@/components/marketing/schedule/schedule-public-
 import {
   addDays,
   compareCalendarDays,
+  isAfterCalendarDay,
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
   startOfWeekSunday,
 } from "@/components/marketing/schedule/schedule-date-utils";
+import { PUBLIC_SCHEDULE_RANGE_DAYS } from "@/lib/public-schedule-constants";
 import {
   type MarketingScheduleItem,
   type MarketingScheduleDayOfWeek,
@@ -45,6 +47,7 @@ function shiftWeek(
   prev: ScheduleNavState,
   deltaDays: number,
   today: Date,
+  maxDate: Date,
 ): ScheduleNavState {
   if (
     deltaDays < 0 &&
@@ -56,13 +59,23 @@ function shiftWeek(
     return prev;
   }
 
+  if (
+    deltaDays > 0 &&
+    isAfterCalendarDay(addDays(prev.windowStart, deltaDays), maxDate)
+  ) {
+    return prev;
+  }
+
   const nextWs = addDays(prev.windowStart, deltaDays);
   const first = startOfLocalDay(nextWs);
   const last = addDays(first, 6);
   const sel = startOfLocalDay(prev.selectedDate);
   const outOfRange = sel.getTime() < first.getTime() || sel.getTime() > last.getTime();
   const nextSelected = outOfRange ? first : prev.selectedDate;
-  const clampedSelected = isBeforeCalendarDay(nextSelected, today) ? today : nextSelected;
+  let clampedSelected = isBeforeCalendarDay(nextSelected, today) ? today : nextSelected;
+  if (isAfterCalendarDay(clampedSelected, maxDate)) {
+    clampedSelected = maxDate;
+  }
 
   return {
     windowStart: nextWs,
@@ -108,6 +121,10 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const locale = useLocale();
   const [items] = useState<MarketingScheduleItem[]>(initialItems);
   const [baseline] = useState(() => startOfLocalDay(new Date()));
+  const maxDate = useMemo(
+    () => addDays(baseline, PUBLIC_SCHEDULE_RANGE_DAYS),
+    [baseline],
+  );
   const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
@@ -149,13 +166,14 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
       .filter((item) => item.isActive)
       .filter((item) => {
         const rowDay = scheduleItemDate(item, baselineWeekStart, dayToOffset);
+        if (isAfterCalendarDay(rowDay, maxDate)) return false;
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
         if (classType !== "all" && item.classType !== classType) return false;
         if (instructor !== "all" && item.instructorName !== instructor) return false;
         return true;
       })
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset]);
+  }, [baseline, maxDate, nav.selectedDate, classType, instructor, items, dayToOffset]);
 
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
   const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =
@@ -178,12 +196,13 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
         locale={locale}
         selectedDate={nav.selectedDate}
         windowStart={nav.windowStart}
+        maxDate={maxDate}
         onSelectDay={(d) => {
-          if (isBeforeCalendarDay(d, baseline)) return;
+          if (isBeforeCalendarDay(d, baseline) || isAfterCalendarDay(d, maxDate)) return;
           setNav((s) => ({ ...s, selectedDate: d }));
         }}
         onShiftWindow={(delta) =>
-          setNav((s) => shiftWeek(s, delta, baseline))
+          setNav((s) => shiftWeek(s, delta, baseline, maxDate))
         }
       />
       <div

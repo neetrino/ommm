@@ -4,6 +4,7 @@ import type {
 } from "@/components/marketing/schedule/marketing-schedule-types";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
+import { buildPublicScheduleRangeQuery } from "@/lib/schedule-session-range";
 
 type MarketingScheduleDataResult = {
   items: MarketingScheduleItem[];
@@ -36,7 +37,7 @@ function toSorted(items: MarketingScheduleItem[]): MarketingScheduleItem[] {
 
 export async function fetchPublicScheduleItems(): Promise<MarketingScheduleDataResult> {
   const res = await fetchPublicJsonCached<MarketingScheduleItem[]>(
-    "/schedule/public",
+    `/schedule/public?${buildPublicScheduleRangeQuery()}`,
   );
   if (!res.ok) {
     return {

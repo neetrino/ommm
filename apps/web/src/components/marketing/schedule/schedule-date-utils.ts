@@ -27,6 +27,10 @@ export function isBeforeCalendarDay(a: Date, b: Date): boolean {
   return compareCalendarDays(a, b) < 0;
 }
 
+export function isAfterCalendarDay(a: Date, b: Date): boolean {
+  return compareCalendarDays(a, b) > 0;
+}
+
 export function compareTimeOfDay(
   aHour: number,
   aMinute: number,

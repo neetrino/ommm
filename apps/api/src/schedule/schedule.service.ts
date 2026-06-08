@@ -21,6 +21,7 @@ import {
   PUBLIC_SCHEDULE_SESSION_INCLUDE,
   type PublicScheduleItem,
 } from './map-sessions-to-public-schedule-items';
+import { resolvePublicScheduleRange } from './public-schedule-range';
 
 const DAY_ORDER: Record<ScheduleDayOfWeek, number> = {
   SUNDAY: 0,
@@ -91,11 +92,12 @@ export class ScheduleService {
     return this.sortByDayAndTime(items);
   }
 
-  async listPublicActive() {
+  async listPublicActive(params?: { from?: string; to?: string }) {
+    const range = resolvePublicScheduleRange(params?.from, params?.to);
     return this.cache.getOrSet(
       PUBLIC_CACHE_KEYS.schedule,
       PUBLIC_CACHE_TTL_SEC.schedule,
-      () => this.loadPublicActiveFromDb(),
+      () => this.loadPublicActiveFromDb(range),
     );
   }
 
@@ -104,10 +106,11 @@ export class ScheduleService {
     await this.cache.invalidate(PUBLIC_CACHE_KEYS.schedule);
   }
 
-  private async loadPublicActiveFromDb() {
+  private async loadPublicActiveFromDb(range: { from: Date; to: Date }) {
     const sessions = await this.prisma.classSession.findMany({
       where: {
         status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
+        startsAt: { gte: range.from, lte: range.to },
       },
       include: PUBLIC_SCHEDULE_SESSION_INCLUDE,
       orderBy: [{ startsAt: 'asc' }, { createdAt: 'desc' }],

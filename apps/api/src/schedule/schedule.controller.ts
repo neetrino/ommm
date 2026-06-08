@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -21,8 +22,8 @@ export class ScheduleController {
   constructor(private readonly schedule: ScheduleService) {}
 
   @Get('public')
-  listPublic() {
-    return this.schedule.listPublicActive();
+  listPublic(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.schedule.listPublicActive({ from, to });
   }
 
   @Get('admin')
