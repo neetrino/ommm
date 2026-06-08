@@ -478,7 +478,7 @@
 }
 
 @media (min-width: 46.5rem) {
-  .sectionWrapInner .inner {
+  .inner {
     padding-inline-start: var(--marketing-header-optical-inset-start, 0px);
     padding-inline-end: var(--marketing-header-optical-inset-end, 0px);
     box-sizing: border-box;

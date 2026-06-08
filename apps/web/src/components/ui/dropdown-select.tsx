@@ -551,7 +551,7 @@ export function DropdownSelect<T extends string>({
               onTransitionEnd={menuMotionActive ? handleMenuTransitionEnd : undefined}
               style={{
                 position: "fixed",
-                zIndex: isMobileViewport ? OMMM_FLOATING_MENU_Z_INDEX : undefined,
+                zIndex: OMMM_FLOATING_MENU_Z_INDEX,
                 top: menuPosition.top,
                 left: menuPosition.left,
                 width: menuPosition.width,
@@ -626,7 +626,7 @@ export function DropdownSelect<T extends string>({
                 })}
               </ul>
             </div>,
-            isMobileViewport ? getOmmmOverlayPortalRoot() : document.body,
+            getOmmmOverlayPortalRoot(),
           )
         : null}
 
