@@ -10,6 +10,8 @@ import type {
 } from "@/components/admin/admin-schedule-management";
 import { sessionEditFormFromRow } from "@/components/admin/admin-schedule-session-edit-form.types";
 import { useSessionEditForm } from "@/components/admin/admin-schedule-session-edit-form.use";
+import { buildCoachDropdownState } from "@/components/admin/admin-schedule-coach-filter";
+import { coachName } from "@/components/admin/admin-schedule-session-display";
 import { SessionSheetTabPanels } from "@/components/admin/admin-schedule-session-sheet-tab-panels";
 import {
   SESSION_SHEET_TAB_DETAILS,
@@ -107,16 +109,24 @@ function AdminScheduleSessionDetailsSheetInner({
   const fallbackClassTypeId = classTypeOptions[0]?.value ?? "";
   const fallbackCoachId = coaches[0]?.id ?? "";
 
-  const editInitial = useMemo(
-    () => sessionEditFormFromRow(row, fallbackClassTypeId, fallbackCoachId),
-    [row, fallbackClassTypeId, fallbackCoachId],
-  );
+  const editInitial = useMemo(() => {
+    const base = sessionEditFormFromRow(row, fallbackClassTypeId, fallbackCoachId);
+    const coachDropdown = buildCoachDropdownState(
+      coaches,
+      base.classTypeId,
+      classTypeOptions,
+      base.coachId,
+      coachName,
+    );
+    return { ...base, coachId: coachDropdown.coachId };
+  }, [classTypeOptions, coaches, fallbackClassTypeId, fallbackCoachId, row]);
 
   const editForm = useSessionEditForm({
     sessionId: row.id,
     resetKey: `${row.id}:${row.startsAt}:${row.endsAt}:${row.status}:${row.capacity}`,
     initial: editInitial,
     classTypeOptions,
+    coaches,
     onSaved: (saved) => {
       onSaved(saved);
     },
@@ -215,7 +225,11 @@ function AdminScheduleSessionDetailsSheetInner({
         busy={editForm.busy}
         onCancel={editForm.cancelEdits}
         onSave={() => {
-          void editForm.save(t("messages.updateSuccess"), t("messages.genericError"));
+          void editForm.save(
+            t("messages.updateSuccess"),
+            t("messages.genericError"),
+            t("validation.coachNotAssigned"),
+          );
         }}
       />
     </OmmDrawerPortal>

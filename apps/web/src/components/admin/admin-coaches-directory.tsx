@@ -123,11 +123,17 @@ export function AdminCoachesDirectory({
   const urlCoachId = searchParams.get("coachProfile");
   const [visibleCoachId, setVisibleCoachId] = useState<string | null>(urlCoachId);
   const [prevUrlCoachId, setPrevUrlCoachId] = useState(urlCoachId);
+  const [coachRows, setCoachRows] = useState(initial.items);
+  const [prevInitial, setPrevInitial] = useState(initial);
   if (urlCoachId !== prevUrlCoachId) {
     setPrevUrlCoachId(urlCoachId);
     setVisibleCoachId(urlCoachId);
   }
-  const coaches = initial.items;
+  if (initial !== prevInitial) {
+    setPrevInitial(initial);
+    setCoachRows(initial.items);
+  }
+  const coaches = coachRows;
 
   const listPage = useMemo(
     () => parseListPageParams(Object.fromEntries(searchParams.entries())),
@@ -216,6 +222,11 @@ export function AdminCoachesDirectory({
         locale={locale}
         classOptions={classOptions}
         onClose={closeProfileDrawer}
+        onCoachUpdated={(coachId, patch) => {
+          setCoachRows((current) =>
+            current.map((item) => (item.id === coachId ? { ...item, ...patch } : item)),
+          );
+        }}
       />
     </>
   );

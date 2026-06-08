@@ -35,6 +35,7 @@ type AdminCoachDetailsDrawerProps = {
   locale: string;
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
+  onCoachUpdated?: (coachId: string, patch: Pick<AdminCoachDirectoryRow, "assignedClassTypeIds" | "updatedAt">) => void;
 };
 
 export function AdminCoachDetailsDrawer({
@@ -42,6 +43,7 @@ export function AdminCoachDetailsDrawer({
   locale,
   classOptions,
   onClose,
+  onCoachUpdated,
 }: AdminCoachDetailsDrawerProps) {
   if (coach === null) {
     return null;
@@ -53,6 +55,7 @@ export function AdminCoachDetailsDrawer({
       locale={locale}
       classOptions={classOptions}
       onClose={onClose}
+      onCoachUpdated={onCoachUpdated}
     />
   );
 }
@@ -79,11 +82,13 @@ function AdminCoachDetailsDrawerInner({
   locale,
   classOptions,
   onClose,
+  onCoachUpdated,
 }: {
   coach: AdminCoachDirectoryRow;
   locale: string;
   classOptions: readonly CoachClassOption[];
   onClose: () => void;
+  onCoachUpdated?: (coachId: string, patch: Pick<AdminCoachDirectoryRow, "assignedClassTypeIds" | "updatedAt">) => void;
 }) {
   const t = useTranslations("adminPages.coaches");
   const titleId = useId();
@@ -121,6 +126,9 @@ function AdminCoachDetailsDrawerInner({
     initial,
     classOptions,
     labels: validationLabels,
+    onSaved: (snapshot) => {
+      onCoachUpdated?.(coach.id, snapshot);
+    },
   });
 
   const headerName = useMemo(() => {

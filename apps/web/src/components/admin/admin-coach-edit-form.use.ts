@@ -18,13 +18,34 @@ import {
 import { validateCoachEditForm } from "@/components/admin/admin-coach-edit-form.validation";
 import { ApiError, apiFetch } from "@/lib/api";
 
+type CoachUpdateResponse = {
+  assignedClassTypeIds: string[];
+  updatedAt: string;
+  bio: string | null;
+  specialization: string | null;
+  experienceYears: number | null;
+  user: {
+    email: string;
+    name: string | null;
+    lastName: string | null;
+    phone: string | null;
+    avatarUrl: string | null;
+    dateOfBirth?: string | null;
+  };
+};
+
+export type CoachSavedSnapshot = {
+  assignedClassTypeIds: string[];
+  updatedAt: string;
+};
+
 type UseCoachEditFormArgs = {
   coachId: string;
   resetKey: string;
   initial: CoachEditInitialValues;
   classOptions: readonly CoachClassOption[];
   labels: Parameters<typeof validateCoachEditForm>[0]["labels"];
-  onSaved?: () => void;
+  onSaved?: (snapshot: CoachSavedSnapshot) => void;
 };
 
 export function useCoachEditForm({
@@ -252,7 +273,7 @@ export function useCoachEditForm({
     setMessage(null);
 
     try {
-      await apiFetch(`/coaches/${coachId}`, {
+      const updated = await apiFetch<CoachUpdateResponse>(`/coaches/${coachId}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
@@ -275,10 +296,18 @@ export function useCoachEditForm({
         setPhotoFile(null);
         setPhotoRemoved(false);
       } else {
-        setSnapshot(form);
+        const nextForm = {
+          ...form,
+          assignedClassTypeIds: [...updated.assignedClassTypeIds],
+        };
+        setForm(nextForm);
+        setSnapshot(nextForm);
       }
       setToneOk(okMessage);
-      onSaved?.();
+      onSaved?.({
+        assignedClassTypeIds: updated.assignedClassTypeIds,
+        updatedAt: updated.updatedAt,
+      });
       router.refresh();
       return true;
     } catch (error) {

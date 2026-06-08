@@ -23,6 +23,11 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
+import {
+  buildCoachDropdownState,
+  coachDropdownPlaceholderKey,
+  filterCoachesByClassType,
+} from "@/components/admin/admin-schedule-coach-filter";
 import { buildSessionLevelOptions, resolveSessionClassTypeId, sessionTitleFromClassTypeSelection, type SessionClassTypeOption } from "@/components/admin/admin-schedule-session-class-type-resolve";
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
@@ -119,6 +124,7 @@ export type AdminScheduleClassType = {
 export type AdminScheduleCoach = {
   id: string;
   isActive: boolean;
+  assignedClassTypeIds: string[];
   user: { name: string | null; lastName: string | null; email: string };
 };
 
@@ -302,10 +308,18 @@ function initialForm(
 ): FormState {
   const start = row ? new Date(row.startsAt) : new Date();
   const end = row ? new Date(row.endsAt) : new Date(start.getTime() + 60 * 60000);
+  const classTypeId = row?.classType.id ?? "";
+  const coachDropdown = buildCoachDropdownState(
+    coaches,
+    classTypeId,
+    classTypeOptions,
+    row?.coach.id ?? "",
+    coachName,
+  );
   return {
     description: row?.description ?? "",
-    classTypeId: row?.classType.id ?? classTypeOptions[0]?.value ?? "",
-    coachId: row?.coach.id ?? coaches[0]?.id ?? "",
+    classTypeId,
+    coachId: coachDropdown.coachId,
     date: isoDate(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
@@ -1245,6 +1259,34 @@ function SessionFormSheet({
     () => buildSessionLevelOptions((key) => t(key), [...splitSessionLevels(row?.level), ...form.levels]),
     [form.levels, row?.level, t],
   );
+  const coachDropdown = useMemo(
+    () =>
+      buildCoachDropdownState(
+        coaches,
+        form.classTypeId,
+        classTypeOptions,
+        form.coachId,
+        coachName,
+      ),
+    [classTypeOptions, coaches, form.classTypeId, form.coachId],
+  );
+
+  function onClassTypeChange(value: string): void {
+    setForm((current) => {
+      const nextCoachDropdown = buildCoachDropdownState(
+        coaches,
+        value,
+        classTypeOptions,
+        current.coachId,
+        coachName,
+      );
+      return {
+        ...current,
+        classTypeId: value,
+        coachId: nextCoachDropdown.coachId,
+      };
+    });
+  }
 
   function addCalendarSlot(): void {
     setCalendarSlots((current) => [
@@ -1289,6 +1331,16 @@ function SessionFormSheet({
       const capacity = Number(form.capacity);
       if (!Number.isInteger(capacity) || capacity < 1) {
         throw new Error(t("validation.capacityInvalid"));
+      }
+      const eligibleCoaches = filterCoachesByClassType(
+        coaches,
+        resolvedClassType.classTypeId,
+      );
+      if (
+        eligibleCoaches.length === 0 ||
+        !eligibleCoaches.some((coach) => coach.id === form.coachId)
+      ) {
+        throw new Error(t("validation.coachNotAssigned"));
       }
       if (isBatchCreate) {
         const payload = batchFormPayload(
@@ -1372,14 +1424,17 @@ function SessionFormSheet({
           ariaLabel={t("form.classType")}
           placeholderLabel={t("form.classType")}
           options={classTypeOptions.map((type) => ({ value: type.value, label: type.label }))}
-          onChange={(value) => setForm((current) => ({ ...current, classTypeId: value }))}
+          onChange={onClassTypeChange}
+          disabled={pending}
         />
         <OmmFormDropdown
-          value={form.coachId}
+          value={coachDropdown.coachId}
           ariaLabel={t("form.coach")}
-          placeholderLabel={t("form.coach")}
-          options={coaches.map((coach) => ({ value: coach.id, label: coachName(coach) }))}
+          placeholderLabel={t(coachDropdownPlaceholderKey(coachDropdown.placeholder))}
+          options={coachDropdown.options}
           onChange={(value) => setForm((current) => ({ ...current, coachId: value }))}
+          disabled={pending || coachDropdown.disabled}
+          required
         />
         {!isBatchCreate ? (
           <>
