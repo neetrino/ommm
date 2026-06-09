@@ -232,6 +232,10 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     void refetchWaitlist({ silent: true });
   }, [refetchWaitlist]);
 
+  const handleWaitlistLeft = useCallback(() => {
+    void refetchWaitlist({ silent: true });
+  }, [refetchWaitlist]);
+
   const classTypeOptions = useMemo<readonly ScheduleFilterOption<string>[]>(() => {
     const distinct = getScheduleClassTypeValues(items);
     return [
@@ -372,6 +376,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                     onBooked={handleBooked}
                     onCancelled={handleCancelled}
                     onWaitlisted={handleWaitlisted}
+                    onWaitlistLeft={handleWaitlistLeft}
                     className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
                     style={getItemStyle(index)}
                   />

@@ -62,7 +62,10 @@ export class WaitlistService {
     const existing = await this.prisma.waitlistEntry.findUnique({
       where: { userId_sessionId: { userId, sessionId } },
     });
-    if (existing && existing.status === WaitlistStatus.ACTIVE) {
+    if (
+      existing?.status === WaitlistStatus.ACTIVE ||
+      existing?.status === WaitlistStatus.OFFERED
+    ) {
       throw new BadRequestException('Already on waitlist');
     }
     const last = await this.prisma.waitlistEntry.findFirst({
@@ -70,16 +73,46 @@ export class WaitlistService {
       orderBy: { position: 'desc' },
     });
     const position = (last?.position ?? 0) + 1;
+    if (existing) {
+      return this.prisma.waitlistEntry.update({
+        where: { id: existing.id },
+        data: {
+          status: WaitlistStatus.ACTIVE,
+          position,
+          offeredAt: null,
+          offerExpiresAt: null,
+        },
+      });
+    }
     return this.prisma.waitlistEntry.create({
       data: { userId, sessionId, position, status: WaitlistStatus.ACTIVE },
     });
   }
 
   async leave(userId: string, sessionId: string) {
+    const entry = await this.prisma.waitlistEntry.findUnique({
+      where: { userId_sessionId: { userId, sessionId } },
+      select: { status: true },
+    });
+    if (
+      !entry ||
+      (entry.status !== WaitlistStatus.ACTIVE &&
+        entry.status !== WaitlistStatus.OFFERED)
+    ) {
+      throw new NotFoundException('Waitlist entry not found');
+    }
+    const wasOffered = entry.status === WaitlistStatus.OFFERED;
     await this.prisma.waitlistEntry.updateMany({
-      where: { userId, sessionId, status: WaitlistStatus.ACTIVE },
+      where: {
+        userId,
+        sessionId,
+        status: { in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED] },
+      },
       data: { status: WaitlistStatus.REMOVED },
     });
+    if (wasOffered) {
+      await this.offerNextIfSlot(sessionId);
+    }
     return { ok: true };
   }
 

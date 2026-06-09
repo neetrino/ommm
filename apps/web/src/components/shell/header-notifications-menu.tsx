@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
+import { useHeaderNotificationsSeen } from "@/hooks/use-header-notifications-seen";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -128,7 +129,10 @@ export function HeaderNotificationsMenu({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
-  const { offeredRows, unreadCount, loading, error, refetch } = useMemberWaitlistData(enabled);
+  const { offeredRows, loading, error, refetch } = useMemberWaitlistData(enabled);
+  const { markAllSeen, countUnread } = useHeaderNotificationsSeen();
+  const offerIds = offeredRows.map((row) => row.id);
+  const unreadCount = countUnread(offerIds);
   const menuPosition = useFloatingMenuPosition(
     triggerRef,
     open,
@@ -207,12 +211,23 @@ export function HeaderNotificationsMenu({
               zIndex: OMMM_FLOATING_MENU_Z_INDEX,
             }}
           >
-            <div className="border-b border-white/60 px-4 py-3">
-              <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
+            <div className="flex items-start justify-between gap-3 border-b border-white/60 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-sage-900">{t("title")}</p>
+                {unreadCount > 0 ? (
+                  <p className="mt-0.5 text-xs text-sage-600">
+                    {t("unreadCount", { count: unreadCount })}
+                  </p>
+                ) : null}
+              </div>
               {unreadCount > 0 ? (
-                <p className="mt-0.5 text-xs text-sage-600">
-                  {t("unreadCount", { count: unreadCount })}
-                </p>
+                <button
+                  type="button"
+                  className="shrink-0 text-xs font-medium text-sage-700 underline-offset-2 hover:text-sage-900 hover:underline"
+                  onClick={() => markAllSeen(offerIds)}
+                >
+                  {t("markAllRead")}
+                </button>
               ) : null}
             </div>
             <ul className="max-h-72 list-none overflow-y-auto p-0">
@@ -229,6 +244,7 @@ export function HeaderNotificationsMenu({
                     row={row}
                     locale={locale}
                     onBooked={() => {
+                      markAllSeen([row.id]);
                       void refetch();
                       closeMenu();
                       onNavigate?.();

@@ -25,6 +25,7 @@
     "spotOpenedBody": "A spot opened for a class on your waitlist.",
     "bookNow": "Book now",
     "bookFailed": "Could not book this session",
+    "markAllRead": "Mark all as read",
     "preferencesLink": "Notification preferences"
   },
   "listSort": {
@@ -3573,6 +3574,11 @@
       "failed": "Could not join waitlist",
       "success": "Added to waitlist",
       "alreadyOnWaitlist": "You are already on the waitlist"
+    },
+    "leaveWaitlist": {
+      "action": "Leave waitlist",
+      "failed": "Could not leave waitlist",
+      "success": "Removed from waitlist"
     },
     "packageCheckout": {
       "subscribe": "Subscribe"

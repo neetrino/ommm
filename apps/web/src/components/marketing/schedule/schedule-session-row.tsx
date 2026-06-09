@@ -27,6 +27,7 @@ export type ScheduleSessionRowProps = {
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
   onWaitlisted?: (sessionId: string) => void;
+  onWaitlistLeft?: (sessionId: string) => void;
   className?: string;
   style?: CSSProperties;
 };
@@ -48,6 +49,7 @@ export function ScheduleSessionRow({
   onBooked,
   onCancelled,
   onWaitlisted,
+  onWaitlistLeft,
   className,
   style,
 }: ScheduleSessionRowProps) {
@@ -86,6 +88,7 @@ export function ScheduleSessionRow({
           onBooked={(bookingId) => onBooked?.(row.id, bookingId)}
           onCancelled={() => onCancelled?.(row.id)}
           onWaitlisted={() => onWaitlisted?.(row.id)}
+          onWaitlistLeft={() => onWaitlistLeft?.(row.id)}
         />
       </div>
     </li>

@@ -32,6 +32,7 @@ type AuthAwareScheduleBookingActionProps = {
   bookingStateReady?: boolean;
   initialOnWaitlist?: boolean;
   onWaitlisted?: () => void;
+  onWaitlistLeft?: () => void;
   onBooked?: (bookingId: string) => void;
   onCancelled?: () => void;
 };
@@ -47,12 +48,14 @@ export function AuthAwareScheduleBookingAction({
   bookingStateReady = true,
   initialOnWaitlist = false,
   onWaitlisted,
+  onWaitlistLeft,
   onBooked,
   onCancelled,
 }: AuthAwareScheduleBookingActionProps) {
   const router = useRouter();
   const tBook = useTranslations("forms.bookSession");
   const tWaitlist = useTranslations("forms.joinWaitlist");
+  const tLeaveWaitlist = useTranslations("forms.leaveWaitlist");
   const tSchedule = useTranslations("marketingPages.schedule");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -124,8 +127,13 @@ export function AuthAwareScheduleBookingAction({
 
     if (showOnWaitlist) {
       return (
-        <button type="button" className={className} disabled aria-disabled="true">
-          {tSchedule("onWaitlistBadge")}
+        <button
+          type="button"
+          className={SCHEDULE_CANCEL_BTN}
+          disabled={busy}
+          onClick={() => void leaveWaitlist()}
+        >
+          {tLeaveWaitlist("action")}
         </button>
       );
     }
@@ -160,6 +168,22 @@ export function AuthAwareScheduleBookingAction({
     }
   }
 
+  async function leaveWaitlist() {
+    setBusy(true);
+    setErrorMsg(null);
+    try {
+      await apiFetch(`/waitlist/sessions/${sessionId}`, { method: "DELETE" });
+      setOnWaitlist(false);
+      setSuccessToast(tLeaveWaitlist("success"));
+      onWaitlistLeft?.();
+      dispatchNotificationsRefresh();
+    } catch (error) {
+      setErrorMsg(error instanceof ApiError ? error.message : tLeaveWaitlist("failed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function joinWaitlist() {
     setBusy(true);
     setErrorMsg(null);
@@ -182,7 +206,7 @@ export function AuthAwareScheduleBookingAction({
     }
   }
 
-  const showErrorBelowAction = audience !== "guest" && !isBooked && bookingStateReady && !showOnWaitlist;
+  const showErrorBelowAction = audience !== "guest" && !isBooked && bookingStateReady;
 
   return (
     <>
