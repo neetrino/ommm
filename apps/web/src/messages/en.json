@@ -2647,7 +2647,6 @@
     },
     "waitlists": {
       "title": "Waitlists",
-      "description": "Manage active waitlist entries and promote members when spots open.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load waitlists ({status}).",
       "loadFailed": "Could not load active waitlist entries.",

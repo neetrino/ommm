@@ -36,7 +36,7 @@ export default async function AdminWaitlistsPage({
       : t("errorLoad", { status: response.status });
 
   return (
-    <AdminContentFrame description={t("description")}>
+    <AdminContentFrame>
       <Suspense fallback={null}>
         <AdminWaitlistManagement
           locale={locale}
