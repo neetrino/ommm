@@ -24,6 +24,7 @@ import {
   PACKAGE_EDIT_QUERY_KEY,
   PACKAGE_MODAL_CREATE_VALUE,
   PACKAGE_MODAL_PRICING_VALUE,
+  PACKAGE_MODAL_EDIT_TIER_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
@@ -67,6 +68,10 @@ export function AdminPackagesShell({
   const isAddTierModalOpen =
     searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_ADD_TIER_VALUE &&
     addTierCategoryName.length > 0;
+  const isEditTierModalOpen =
+    searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_EDIT_TIER_VALUE &&
+    pricingPackageId !== null &&
+    packages.some((pkg) => pkg.id === pricingPackageId && pkg.priceCents > 0);
   const isPricingModalOpen =
     searchParams.get(PACKAGE_MODAL_QUERY_KEY) === PACKAGE_MODAL_PRICING_VALUE &&
     pricingPackageId !== null &&
@@ -74,20 +79,26 @@ export function AdminPackagesShell({
   const isEditModalOpen =
     editingPackageId !== null && packages.some((pkg) => pkg.id === editingPackageId);
   const isModalOpen =
-    isCreateModalOpen || isEditModalOpen || isPricingModalOpen || isAddTierModalOpen;
+    isCreateModalOpen ||
+    isEditModalOpen ||
+    isPricingModalOpen ||
+    isEditTierModalOpen ||
+    isAddTierModalOpen;
   const modalMode = isEditModalOpen
     ? "edit"
     : isPricingModalOpen
       ? "pricing"
-      : isAddTierModalOpen
-        ? "add-tier"
-        : "create";
+      : isEditTierModalOpen
+        ? "edit-tier"
+        : isAddTierModalOpen
+          ? "add-tier"
+          : "create";
   const editingPackage =
     isEditModalOpen && editingPackageId !== null
       ? packages.find((pkg) => pkg.id === editingPackageId)
       : undefined;
   const pricingPackage =
-    isPricingModalOpen && pricingPackageId !== null
+    (isPricingModalOpen || isEditTierModalOpen) && pricingPackageId !== null
       ? packages.find((pkg) => pkg.id === pricingPackageId)
       : undefined;
   const addTierShellPlan =
@@ -176,7 +187,11 @@ export function AdminPackagesShell({
     (saved: AdminPackageRow) => {
       onPackageUpdated?.(saved);
       showSuccessBanner(
-        modalMode === "add-tier" ? t("messages.tierAddedSuccess") : t("messages.updateSuccess"),
+        modalMode === "add-tier"
+          ? t("messages.tierAddedSuccess")
+          : modalMode === "edit-tier"
+            ? t("messages.tierUpdatedSuccess")
+            : t("messages.updateSuccess"),
       );
       const params = new URLSearchParams(searchParams.toString());
       clearPackageModalQueryKeys(params);
@@ -200,7 +215,9 @@ export function AdminPackagesShell({
     if (!isModalOpen || panelRef.current === null) {
       return;
     }
-    const focusable = panelRef.current.querySelector<HTMLElement>('input[name="name"]');
+    const focusable = panelRef.current.querySelector<HTMLElement>(
+      'input[name="name"], input[name="sessionsCount"]',
+    );
     focusable?.focus();
   }, [isModalOpen, modalMode, editingPackageId]);
 
@@ -209,17 +226,21 @@ export function AdminPackagesShell({
       ? t("editTitle")
       : modalMode === "pricing"
         ? t("pricingTitle")
-        : modalMode === "add-tier"
-          ? t("addTierTitle")
-          : t("createTitle");
+        : modalMode === "edit-tier"
+          ? t("editTierTitle")
+          : modalMode === "add-tier"
+            ? t("addTierTitle")
+            : t("createTitle");
   const modalDescription =
     modalMode === "edit"
       ? t("editDescription")
       : modalMode === "pricing"
         ? t("pricingDescription")
-        : modalMode === "add-tier"
-          ? t("addTierDescription")
-          : t("createDescription");
+        : modalMode === "edit-tier"
+          ? t("editTierDescription")
+          : modalMode === "add-tier"
+            ? t("addTierDescription")
+            : t("createDescription");
   const packageModalPanelClass =
     "mt-auto flex max-h-[min(92vh,760px)] w-full max-w-[min(720px,95vw)] flex-col overflow-hidden rounded-t-[28px] border border-white/60 bg-white/85 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md sm:mt-0 sm:rounded-[28px]";
 
@@ -283,7 +304,7 @@ export function AdminPackagesShell({
             <AdminPackageForm
               mode={modalMode}
               packageId={
-                modalMode === "pricing"
+                modalMode === "pricing" || modalMode === "edit-tier"
                   ? pricingPackage?.id
                   : modalMode === "add-tier"
                     ? addTierShellPlan?.id
@@ -292,7 +313,7 @@ export function AdminPackagesShell({
               initialCategoryName={initialCategoryName}
               categoryOptions={categoryOptions}
               initialPackage={
-                modalMode === "pricing"
+                modalMode === "pricing" || modalMode === "edit-tier"
                   ? pricingPackage
                   : modalMode === "add-tier"
                     ? addTierShellPlan ?? addTierCategoryAnchor
@@ -300,7 +321,12 @@ export function AdminPackagesShell({
               }
               configuredTierCount={configuredTierCount}
               onSaved={(saved) => {
-                if (modalMode === "edit" || modalMode === "pricing" || modalMode === "add-tier") {
+                if (
+                  modalMode === "edit" ||
+                  modalMode === "pricing" ||
+                  modalMode === "add-tier" ||
+                  modalMode === "edit-tier"
+                ) {
                   onUpdated(saved);
                 } else {
                   onCreated(saved);

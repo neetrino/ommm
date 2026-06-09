@@ -38,7 +38,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
 
-export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier";
+export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier" | "edit-tier";
 
 type CategoryOption = {
   id: string;
@@ -80,7 +80,10 @@ function buildInitialValues(
   initialCategoryName: string,
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
-  if ((mode === "edit" || mode === "pricing") && initialPackage !== undefined) {
+  if (
+    (mode === "edit" || mode === "pricing" || mode === "edit-tier") &&
+    initialPackage !== undefined
+  ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
@@ -107,7 +110,9 @@ export function AdminPackageForm({
       ? "create"
       : mode === "add-tier"
         ? `add-tier-${initialCategoryName}-${packageId ?? "new"}`
-        : packageId !== undefined
+        : mode === "edit-tier"
+          ? `edit-tier-${packageId ?? "unknown"}`
+          : packageId !== undefined
           ? `${mode}-${packageId}`
           : mode;
   const [values, setValues] = useState<AdminPackageFormValues>(() =>
@@ -172,6 +177,7 @@ export function AdminPackageForm({
     const isCreateMode = mode === "create";
     const isPricingMode = mode === "pricing";
     const isAddTierMode = mode === "add-tier";
+    const isEditTierMode = mode === "edit-tier";
     const isEditMode = mode === "edit";
     const detailsName = values.name.trim();
     const description = values.description.trim();
@@ -198,7 +204,7 @@ export function AdminPackageForm({
     const isTierPackage =
       initialPackage !== undefined && initialPackage.priceCents > 0;
     const usesGeneratedSessionName =
-      isPricingMode || isAddTierMode || (isEditMode && isTierPackage);
+      isPricingMode || isAddTierMode || isEditTierMode || (isEditMode && isTierPackage);
     const slugSource = usesGeneratedSessionName
       ? generatedSessionName
       : detailsName.length > 0
@@ -235,7 +241,7 @@ export function AdminPackageForm({
       return;
     }
 
-    if (isPricingMode || isEditMode || isAddTierMode) {
+    if (isPricingMode || isEditMode || isAddTierMode || isEditTierMode) {
       if (priceCents === null) {
         setError(t("priceInvalid"));
         return;
@@ -335,7 +341,14 @@ export function AdminPackageForm({
               isPopular: values.isPopular,
               isActive: values.isActive,
             }
-          : {
+          : isEditTierMode
+            ? {
+                name: generatedSessionName,
+                ...pricingFields,
+                isPopular: initialPackage?.isPopular ?? false,
+                isActive: initialPackage?.isActive ?? true,
+              }
+            : {
               name: payloadName,
               categoryName,
               ...(shouldIncludeSlugInPayload ? { slug } : {}),
@@ -347,7 +360,8 @@ export function AdminPackageForm({
             };
 
     const shouldPatch =
-      (isEditMode || isPricingMode || shellTierTarget) && packageId !== undefined;
+      (isEditMode || isPricingMode || isEditTierMode || shellTierTarget) &&
+      packageId !== undefined;
 
     submitLockRef.current = true;
     setPending(true);
@@ -430,10 +444,14 @@ export function AdminPackageForm({
         </AdminPackageFormSection>
       ) : null}
 
-      {mode === "add-tier" ? (
+      {mode === "add-tier" || mode === "edit-tier" ? (
         <AdminPackageFormSection
-          heading={t("addTierFormHeading")}
-          description={t("addTierFormDescription")}
+          heading={
+            mode === "edit-tier" ? t("editTierFormHeading") : t("addTierFormHeading")
+          }
+          description={
+            mode === "edit-tier" ? t("editTierFormDescription") : t("addTierFormDescription")
+          }
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5">
@@ -654,7 +672,9 @@ export function AdminPackageForm({
               ? t("savePricingButton")
               : mode === "add-tier"
                 ? t("saveTierButton")
-                : t("saveButton")}
+                : mode === "edit-tier"
+                  ? t("saveTierChangesButton")
+                  : t("saveButton")}
         </OmmButton>
       </div>
     </form>

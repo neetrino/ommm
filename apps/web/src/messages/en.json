@@ -2504,7 +2504,8 @@
         "disabledSuccess": "Package disabled.",
         "deleteSuccess": "Package deleted.",
         "categoryDeleteSuccess": "Category deleted.",
-        "tierAddedSuccess": "Pricing option added."
+        "tierAddedSuccess": "Pricing option added.",
+        "tierUpdatedSuccess": "Pricing option updated."
       },
       "pricingTitle": "Pricing & Billing",
       "pricingDescription": "Manage billing settings for this package.",
@@ -2552,7 +2553,12 @@
       "fieldSessionsCountPlaceholder": "e.g. 10",
       "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
       "fieldValidityHint": "Shown in the Validity column.",
-      "saveTierButton": "Add option"
+      "saveTierButton": "Add option",
+      "editTierTitle": "Edit pricing option",
+      "editTierDescription": "Update sessions, price, validity, and guest limit for this option.",
+      "editTierFormHeading": "Pricing option",
+      "editTierFormDescription": "Session count, price, validity, and guest limit appear in the package list.",
+      "saveTierChangesButton": "Save changes"
     },
     "packagePlans": {
       "title": "Membership plans",

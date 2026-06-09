@@ -2495,7 +2495,8 @@
         "disabledSuccess": "Փաթեթը անջատվեց։",
         "deleteSuccess": "Փաթեթը ջնջվեց։",
         "categoryDeleteSuccess": "Կատեգորիան ջնջվեց։",
-        "tierAddedSuccess": "Գնային տարբերակը ավելացվեց։"
+        "tierAddedSuccess": "Գնային տարբերակը ավելացվեց։",
+        "tierUpdatedSuccess": "Գնային տարբերակը թարմացվեց։"
       },
       "pricingTitle": "Գին և վճարում",
       "pricingDescription": "Կառավարեք այս փաթեթի վճարման կարգավորումները։",
@@ -2543,7 +2544,12 @@
       "fieldSessionsCountPlaceholder": "օր. 10",
       "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
       "fieldValidityHint": "Ցուցադրվում է Validity սյունակում։",
-      "saveTierButton": "Ավելացնել"
+      "saveTierButton": "Ավելացնել",
+      "editTierTitle": "Խմբագրել գնային տարբերակ",
+      "editTierDescription": "Թարմացրեք seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը այս տարբերակի համար։",
+      "editTierFormHeading": "Գնային տարբերակ",
+      "editTierFormDescription": "Seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը ցուցադրվում են ցանկում։",
+      "saveTierChangesButton": "Պահպանել փոփոխությունները"
     },
     "packagePlans": {
       "title": "Աբոնեմենտային պլաններ",

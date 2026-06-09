@@ -2496,7 +2496,8 @@
         "disabledSuccess": "Пакет отключён.",
         "deleteSuccess": "Пакет удалён.",
         "categoryDeleteSuccess": "Категория удалена.",
-        "tierAddedSuccess": "Ценовой вариант добавлен."
+        "tierAddedSuccess": "Ценовой вариант добавлен.",
+        "tierUpdatedSuccess": "Ценовой вариант обновлён."
       },
       "pricingTitle": "Цена и оплата",
       "pricingDescription": "Настройте параметры оплаты для этого пакета.",
@@ -2544,7 +2545,12 @@
       "fieldSessionsCountPlaceholder": "напр. 10",
       "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
       "fieldValidityHint": "Отображается в колонке «Срок».",
-      "saveTierButton": "Добавить"
+      "saveTierButton": "Добавить",
+      "editTierTitle": "Редактировать ценовой вариант",
+      "editTierDescription": "Измените сеансы, цену, срок и лимит гостей для этого варианта.",
+      "editTierFormHeading": "Ценовой вариант",
+      "editTierFormDescription": "Количество сеансов, цена, срок и лимит гостей отображаются в списке.",
+      "saveTierChangesButton": "Сохранить изменения"
     },
     "packagePlans": {
       "title": "Тарифы абонементов",

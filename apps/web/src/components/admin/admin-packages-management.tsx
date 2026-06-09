@@ -57,7 +57,7 @@ import {
   PACKAGE_EDIT_QUERY_KEY,
   PACKAGE_FILTER_QUERY_KEYS,
   PACKAGE_MODAL_CREATE_VALUE,
-  PACKAGE_MODAL_PRICING_VALUE,
+  PACKAGE_MODAL_EDIT_TIER_VALUE,
   PACKAGE_MODAL_ADD_TIER_VALUE,
   PACKAGE_MODAL_QUERY_KEY,
   PACKAGE_PRICING_QUERY_KEY,
@@ -331,13 +331,13 @@ export function AdminPackagesManagement({
     });
   }, []);
 
-  const openConfigurePricing = useCallback(
+  const openEditTier = useCallback(
     (packageId: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete(PACKAGE_EDIT_CATEGORY_QUERY_KEY);
       params.delete(PACKAGE_DELETE_CATEGORY_QUERY_KEY);
       clearPackageModalQueryKeys(params);
-      params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_PRICING_VALUE);
+      params.set(PACKAGE_MODAL_QUERY_KEY, PACKAGE_MODAL_EDIT_TIER_VALUE);
       params.set(PACKAGE_PRICING_QUERY_KEY, packageId);
       router.replace(buildPackagesPathname(pathname, params), { scroll: false });
     },
@@ -568,7 +568,7 @@ export function AdminPackagesManagement({
                         }}
                         onEditCategory={() => openEditCategory(category.id)}
                         onDeleteCategory={() => openDeleteCategory(category.id)}
-                        onEditPackage={openConfigurePricing}
+                        onEditPackage={openEditTier}
                         onAddTier={() => openAddTier(category.id)}
                       />
                     </motion.div>
