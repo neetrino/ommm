@@ -87,6 +87,14 @@ export function parseSessionsCount(raw: string): number | null {
   return count;
 }
 
+/** Builds the stored plan name from session count (e.g. "1 Session", "4 Sessions"). */
+export function buildPackageSessionNameFromCount(count: number): string {
+  if (!Number.isInteger(count) || count <= 0) {
+    return buildPackageSessionNameFromCount(MIN_PACKAGE_SESSIONS);
+  }
+  return count === 1 ? "1 Session" : `${count} Sessions`;
+}
+
 export function parseDurationDays(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {
@@ -101,7 +109,6 @@ export function parseDurationDays(raw: string): number | null {
 
 export type AdminPackageFormValues = {
   name: string;
-  sessionName: string;
   categoryName: string;
   description: string;
   price: string;
@@ -115,7 +122,6 @@ export type AdminPackageFormValues = {
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
   return {
     name: "",
-    sessionName: "",
     categoryName: initialCategoryName,
     description: "",
     price: "",
@@ -148,7 +154,6 @@ export function packageRowToFormValues(
       : MIN_PACKAGE_SESSIONS;
   return {
     name: pkg.name,
-    sessionName: pkg.name,
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),

@@ -23,6 +23,7 @@ import {
   parseSessionsCount,
   parsePriceToCents,
   preventNumberArrowStep,
+  buildPackageSessionNameFromCount,
   type AdminPackageFormValues,
 } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
@@ -85,7 +86,6 @@ function buildInitialValues(
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
     return {
       ...packageRowToFormValues(initialPackage, initialCategoryName),
-      sessionName: "",
       guestCount: "",
     };
   }
@@ -173,8 +173,7 @@ export function AdminPackageForm({
     const isPricingMode = mode === "pricing";
     const isAddTierMode = mode === "add-tier";
     const isEditMode = mode === "edit";
-    const name = values.name.trim();
-    const sessionName = values.sessionName.trim();
+    const detailsName = values.name.trim();
     const description = values.description.trim();
     const tierCategoryName = resolvePackageCategoryName(
       initialCategoryName.trim(),
@@ -185,25 +184,35 @@ export function AdminPackageForm({
       categoryNameCandidates,
     );
     const categoryName = isCreateMode
-      ? resolvePackageCategoryName(name, categoryNameCandidates)
+      ? resolvePackageCategoryName(detailsName, categoryNameCandidates)
       : isAddTierMode
         ? tierCategoryName
         : editableCategoryName;
-    const slugSource =
-      name.length > 0 ? name : initialPackage?.name ?? FALLBACK_PACKAGE_SLUG_PREFIX;
-    const slug = buildPackageSlug(slugSource);
 
     const priceCents = parsePriceToCents(values.price);
     const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
     const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
+    const resolvedSessions = sessionsPerMonth ?? MIN_PACKAGE_SESSIONS;
+    const generatedSessionName = buildPackageSessionNameFromCount(resolvedSessions);
+    const isTierPackage =
+      initialPackage !== undefined && initialPackage.priceCents > 0;
+    const usesGeneratedSessionName =
+      isPricingMode || isAddTierMode || (isEditMode && isTierPackage);
+    const slugSource = usesGeneratedSessionName
+      ? generatedSessionName
+      : detailsName.length > 0
+        ? detailsName
+        : initialPackage?.name ?? FALLBACK_PACKAGE_SLUG_PREFIX;
+    const slug = buildPackageSlug(slugSource);
+    const payloadName = usesGeneratedSessionName ? generatedSessionName : detailsName;
 
     if (isCreateMode || isEditMode) {
-      if (name.length === 0) {
+      if (detailsName.length === 0) {
         setError(t("nameRequired"));
         return;
       }
-      if (name.length > MAX_NAME_LENGTH) {
+      if (detailsName.length > MAX_NAME_LENGTH) {
         setError(t("nameTooLong"));
         return;
       }
@@ -224,17 +233,6 @@ export function AdminPackageForm({
     if (isAddTierMode && categoryName.length === 0) {
       setError(t("categoryRequired"));
       return;
-    }
-
-    if (isPricingMode || isAddTierMode) {
-      if (sessionName.length === 0) {
-        setError(t("sessionNameRequired"));
-        return;
-      }
-      if (sessionName.length > MAX_NAME_LENGTH) {
-        setError(t("sessionNameTooLong"));
-        return;
-      }
     }
 
     if (isPricingMode || isEditMode || isAddTierMode) {
@@ -297,7 +295,7 @@ export function AdminPackageForm({
 
     const payload = isCreateMode
       ? {
-          name,
+          name: payloadName,
           categoryName,
           slug,
           description: description.length > 0 ? description : null,
@@ -314,11 +312,11 @@ export function AdminPackageForm({
       : isAddTierMode
         ? shellTierTarget
           ? {
-              name: sessionName,
+              name: generatedSessionName,
               ...pricingFields,
             }
           : {
-              name: sessionName,
+              name: generatedSessionName,
               categoryName,
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
@@ -328,13 +326,13 @@ export function AdminPackageForm({
             }
         : isPricingMode
           ? {
-              name: sessionName,
+              name: generatedSessionName,
               ...pricingFields,
               isPopular: values.isPopular,
               isActive: values.isActive,
             }
           : {
-              name,
+              name: payloadName,
               categoryName,
               slug,
               description: description.length > 0 ? description : null,
@@ -434,19 +432,6 @@ export function AdminPackageForm({
           description={t("addTierFormDescription")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5 sm:col-span-2">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionName")}</span>
-              <input
-                name="sessionName"
-                className="ommm-input"
-                maxLength={MAX_NAME_LENGTH}
-                value={values.sessionName}
-                onChange={(event) => updateValues({ sessionName: event.target.value })}
-                placeholder={t("fieldSessionNamePlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
               <input
@@ -523,23 +508,6 @@ export function AdminPackageForm({
             description={t("formSections.pricing.description")}
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              {mode === "pricing" ? (
-                <label className="flex flex-col gap-1.5 sm:col-span-2">
-                  <span className="ommm-label text-xs uppercase tracking-wide">
-                    {t("fieldSessionName")}
-                  </span>
-                  <input
-                    name="sessionName"
-                    className="ommm-input"
-                    maxLength={MAX_NAME_LENGTH}
-                    value={values.sessionName}
-                    onChange={(event) => updateValues({ sessionName: event.target.value })}
-                    placeholder={t("fieldSessionNamePlaceholder")}
-                    required
-                    disabled={pending}
-                  />
-                </label>
-              ) : null}
               <label className="flex flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
                 <AmdMoneyInput
