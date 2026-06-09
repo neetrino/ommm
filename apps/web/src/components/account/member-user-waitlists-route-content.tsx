@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { UserWaitlistsSection } from "@/components/account/user-waitlists-section";
+import { UserWaitlistsSectionDeferred } from "@/components/account/account-deferred-sections";
 import { serverApiJson } from "@/lib/server-api";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 
@@ -26,7 +26,7 @@ export async function MemberUserWaitlistsRouteContent({
   }
 
   return (
-    <UserWaitlistsSection
+    <UserWaitlistsSectionDeferred
       locale={locale}
       rows={waitlistRes.data}
       loadError={false}

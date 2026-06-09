@@ -1,19 +1,7 @@
-import { headers } from "next/headers";
+import { serverApiJson } from "@/lib/server-api";
 import { isUserDashboardRole } from "@/lib/role-home";
 import { redirectToRoleHome } from "@/server/redirect-to-role-home";
-import { serverApiJson } from "@/lib/server-api";
-
-type MeResponse = {
-  user: {
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    role: string;
-    homeImageUrl?: string | null;
-  };
-  coachProfileId: string | null;
-  achievements: { title: string; unlockedAt: string }[];
-};
+import { getCachedUsersMe } from "@/server/cached-users-me";
 
 type BookingRow = {
   id: string;
@@ -46,9 +34,15 @@ export type MemberUserHomeNextBooking = {
 };
 
 export type MemberUserHomePageData = {
-  user: MeResponse["user"];
+  user: {
+    name: string | null;
+    lastName: string | null;
+    email: string;
+    role: string;
+    homeImageUrl?: string | null;
+  };
   coachProfileId: string | null;
-  achievements: MeResponse["achievements"];
+  achievements: { title: string; unlockedAt: string }[];
   nextBooking: MemberUserHomeNextBooking | null;
   waitlistOk: boolean;
   waitlistRows: WaitRow[];
@@ -58,24 +52,23 @@ export type MemberUserHomePageOutcome =
   | { kind: "ok"; data: MemberUserHomePageData }
   | { kind: "unauthorized" };
 
-/** Shared `/users/me` + bookings/waitlist payload for member home (`/user`). */
+/** Shared bookings/waitlist payload for member home (`/user`). */
 export async function loadMemberUserHomePageData(
   locale: string,
 ): Promise<MemberUserHomePageOutcome> {
-  const cookie = (await headers()).get("cookie") ?? "";
-  const meRes = await serverApiJson<MeResponse>("/users/me", cookie);
+  const me = await getCachedUsersMe();
 
-  if (!meRes.ok) {
+  if (!me.ok) {
     return { kind: "unauthorized" };
   }
 
-  if (!isUserDashboardRole(meRes.data.user.role)) {
-    redirectToRoleHome(locale, meRes.data.user.role);
+  if (!isUserDashboardRole(me.data.user.role)) {
+    redirectToRoleHome(locale, me.data.user.role);
   }
 
   const [bookingsRes, waitRes] = await Promise.all([
-    serverApiJson<BookingRow[]>("/bookings/me", cookie),
-    serverApiJson<WaitRow[]>("/waitlist/me", cookie),
+    serverApiJson<BookingRow[]>("/bookings/me", me.cookie),
+    serverApiJson<WaitRow[]>("/waitlist/me", me.cookie),
   ]);
 
   const asOf = new Date();
@@ -97,12 +90,20 @@ export async function loadMemberUserHomePageData(
       }
     : null;
 
+  const achievements = me.data.achievements ?? [];
+
   return {
     kind: "ok",
     data: {
-      user: meRes.data.user,
-      coachProfileId: meRes.data.coachProfileId,
-      achievements: meRes.data.achievements.slice(0, 6),
+      user: {
+        name: me.data.user.name ?? null,
+        lastName: me.data.user.lastName ?? null,
+        email: me.data.user.email ?? "",
+        role: me.data.user.role,
+        homeImageUrl: me.data.user.homeImageUrl ?? null,
+      },
+      coachProfileId: me.data.coachProfileId,
+      achievements: achievements.slice(0, 6),
       nextBooking,
       waitlistOk: waitRes.ok,
       waitlistRows: waitRes.ok ? waitRes.data : [],

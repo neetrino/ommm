@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { MarketingContactPageContent } from "@/components/marketing/contact/marketing-contact-page-content";
+import { MarketingContactPageLayout } from "@/components/marketing/contact/marketing-contact-page-content";
 import { MarketingContactPageSection } from "@/components/marketing/contact/marketing-contact-page-section";
-import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
 
 export default async function ContactPage({
   params,
@@ -14,9 +12,7 @@ export default async function ContactPage({
 
   return (
     <MarketingContactPageSection title={t("title")} lead={t("lede")}>
-      <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
-        <MarketingContactPageContent locale={locale} />
-      </Suspense>
+      <MarketingContactPageLayout locale={locale} />
     </MarketingContactPageSection>
   );
 }

@@ -1242,19 +1242,21 @@ html {
   }
 
   .ommm-language-switcher-menu {
-    min-width: 11.5rem;
+    min-width: 10rem;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-menu-list {
-    @apply m-1.5 space-y-1 p-1.5;
+    @apply m-1 space-y-0.5 p-1;
   }
 
   .ommm-language-switcher-option-row {
-    display: grid;
+    display: block;
     width: 100%;
-    grid-template-columns: 1.25rem minmax(0, 1fr);
-    align-items: center;
-    column-gap: 0.625rem;
+    text-align: center;
+  }
+
+  .ommm-language-switcher-root .ommm-dropdown-trigger {
+    @apply justify-center text-center;
   }
 
   .ommm-dropdown-menu-action {
@@ -1283,7 +1285,7 @@ html {
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option {
-    @apply justify-start border-2 border-transparent px-3 py-2 text-left text-sm font-medium;
+    @apply justify-center border-2 border-transparent px-2 py-1.5 text-center text-sm font-medium;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option[data-selected="true"] {

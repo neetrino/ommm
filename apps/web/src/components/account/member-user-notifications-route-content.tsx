@@ -1,18 +1,8 @@
-import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { NotificationPrefsForm } from "@/components/account/notification-prefs-form";
+import { NotificationPrefsFormDeferred } from "@/components/account/account-deferred-sections";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { AccountSection } from "@/components/layout/account-section";
-import { serverApiJson } from "@/lib/server-api";
-
-type MeResponse = {
-  notificationPrefs: {
-    bookingReminders: boolean;
-    waitlistAlerts: boolean;
-    promotions: boolean;
-    communityUpdates: boolean;
-  };
-};
+import { getCachedUsersMe } from "@/server/cached-users-me";
 
 type MemberUserNotificationsRouteContentProps = {
   locale: string;
@@ -24,17 +14,21 @@ export async function MemberUserNotificationsRouteContent({
   embeddedInSheet = false,
 }: MemberUserNotificationsRouteContentProps) {
   const t = await getTranslations({ locale, namespace: "userPages.notifications" });
-  const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<MeResponse>("/users/me", cookie);
+  const me = await getCachedUsersMe();
 
-  if (!res.ok) {
+  if (!me.ok) {
+    return <div className="app-alert-warn">{t("signIn")}</div>;
+  }
+
+  const prefs = me.data.notificationPrefs;
+  if (prefs === undefined) {
     return <div className="app-alert-warn">{t("signIn")}</div>;
   }
 
   const preferences = (
     <AccountSection title={t("preferences")}>
       <div className="max-w-md">
-        <NotificationPrefsForm initial={res.data.notificationPrefs} />
+        <NotificationPrefsFormDeferred initial={prefs} />
       </div>
     </AccountSection>
   );

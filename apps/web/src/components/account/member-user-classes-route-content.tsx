@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { UserClassesSection } from "@/components/account/user-classes-section";
+import { UserClassesSectionDeferred } from "@/components/account/account-deferred-sections";
 import { resolveScheduleView } from "@/components/admin/admin-schedule-view";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
 import type { UserBookingRow, UserSessionRow } from "@/lib/user-booking-types";
@@ -50,7 +50,7 @@ export async function MemberUserClassesRouteContent({
 
   return (
     <Suspense fallback={null}>
-      <UserClassesSection
+      <UserClassesSectionDeferred
         locale={locale}
         sessions={sessions}
         sessionBookings={sessionBookings}

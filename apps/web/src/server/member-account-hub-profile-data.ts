@@ -1,27 +1,21 @@
-import { headers } from "next/headers";
 import {
   memberAccountHubProfileFromAuthUser,
   type MemberAccountHubProfile,
 } from "@/components/account/member-account-hub-profile";
-import { serverApiJson } from "@/lib/server-api";
-
-type MeResponse = {
-  user: {
-    name: string | null;
-    lastName: string | null;
-    email: string;
-    homeImageUrl?: string | null;
-  };
-};
+import { getCachedUsersMe } from "@/server/cached-users-me";
 
 /** Lightweight `/users/me` read for the mobile hub backdrop behind section sheets. */
 export async function loadMemberAccountHubProfile(): Promise<MemberAccountHubProfile | null> {
-  const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<MeResponse>("/users/me", cookie);
+  const me = await getCachedUsersMe();
 
-  if (!res.ok) {
+  if (!me.ok) {
     return null;
   }
 
-  return memberAccountHubProfileFromAuthUser(res.data.user);
+  return memberAccountHubProfileFromAuthUser({
+    name: me.data.user.name ?? null,
+    lastName: me.data.user.lastName ?? null,
+    email: me.data.user.email ?? "",
+    homeImageUrl: me.data.user.homeImageUrl ?? null,
+  });
 }

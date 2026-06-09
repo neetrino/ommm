@@ -175,7 +175,7 @@ export async function MarketingPublicHomePlansSection({
           >
             <HomePageReveal index={0}>
               <header
-                className="flex w-full max-w-[834px] flex-col items-center text-center"
+                className="mx-auto flex w-full max-w-[834px] flex-col items-center text-center"
                 style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
               >
                 <h2
@@ -214,7 +214,7 @@ export async function MarketingPublicHomePlansSection({
               <HomePlansDesktopCards {...interactiveCardsProps} />
             )}
 
-            <HomePageReveal index={3}>
+            <HomePageReveal index={3} className="flex w-full justify-center">
               <HomeHeroCtaButton
                 href="/packages"
                 label={t("plansMoreDetails")}

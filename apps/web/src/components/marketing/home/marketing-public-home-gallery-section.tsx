@@ -124,7 +124,7 @@ export function MarketingPublicHomeGallerySection() {
         <div className="mx-auto flex w-full max-w-[min(82.375rem,calc(100%-2rem))] flex-col items-center">
           <HomePageReveal index={0}>
             <header
-              className="flex w-full max-w-[834px] flex-col items-center text-center"
+              className="mx-auto flex w-full max-w-[834px] flex-col items-center text-center"
               style={{ gap: HOME_GALLERY_LAYOUT.headerGapPx }}
             >
               <h2
@@ -155,7 +155,7 @@ export function MarketingPublicHomeGallerySection() {
             </div>
           </HomePageReveal>
 
-          <HomePageReveal index={2}>
+          <HomePageReveal index={2} className="flex w-full justify-center">
             <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
               <HomeHeroCtaButton
                 href="/explore"

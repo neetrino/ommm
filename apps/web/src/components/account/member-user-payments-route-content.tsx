@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { UserPaymentsHistory } from "@/components/account/user-payments-history";
+import { UserPaymentsHistoryDeferred } from "@/components/account/account-deferred-sections";
 import { parseListPageParams } from "@/lib/list-pagination";
 import { readUserListOrderFromSearch } from "@/lib/user-list-order-url";
 import { serverApiJson } from "@/lib/server-api";
@@ -38,7 +38,7 @@ export async function MemberUserPaymentsRouteContent({
   }
 
   return (
-    <UserPaymentsHistory
+    <UserPaymentsHistoryDeferred
       locale={locale}
       initialPayments={paymentsRes.data}
       embeddedInSheet={embeddedInSheet}

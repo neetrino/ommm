@@ -1,16 +1,11 @@
-import { cache } from "react";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { cookieHeaderHasAccessToken } from "@/lib/auth-cookie";
 import {
   layoutAuthUserFromMe,
   type LayoutAuthUser,
 } from "@/lib/layout-auth-user";
 import { homePathForRole } from "@/lib/role-home";
-import { serverApiJson } from "@/lib/server-api";
-import type { MeApiResponse, MeApiUser } from "@/lib/me-api-types";
-
-type MePayload = MeApiResponse;
+import type { MeApiUser } from "@/lib/me-api-types";
+import { getCachedUsersMe } from "@/server/cached-users-me";
 
 export type { LayoutAuthUser };
 
@@ -41,25 +36,19 @@ type SessionAuthResult =
   | { ok: true; cookie: string; user: MeApiUser; coachProfileId: string | null }
   | { ok: false; status: number; cookie: string };
 
-/**
- * One `/users/me` per RSC request — layout + pages share this cache.
- */
-export const getSessionAuth = cache(async (): Promise<SessionAuthResult> => {
-  const cookie = (await headers()).get("cookie") ?? "";
-  if (!cookieHeaderHasAccessToken(cookie)) {
-    return { ok: false, status: 401, cookie };
-  }
-  const res = await serverApiJson<MePayload>("/users/me", cookie);
-  if (!res.ok) {
-    return { ok: false, status: res.status, cookie };
+/** One `/users/me` per RSC request — layout + pages share this cache. */
+export async function getSessionAuth(): Promise<SessionAuthResult> {
+  const me = await getCachedUsersMe();
+  if (!me.ok) {
+    return { ok: false, status: me.status, cookie: me.cookie };
   }
   return {
     ok: true,
-    cookie,
-    user: res.data.user,
-    coachProfileId: res.data.coachProfileId ?? null,
+    cookie: me.cookie,
+    user: me.data.user as MeApiUser,
+    coachProfileId: me.data.coachProfileId ?? null,
   };
-});
+}
 
 function layoutAuthFromUser(cookie: string, user: MeApiUser): LayoutAuthResult {
   return {
