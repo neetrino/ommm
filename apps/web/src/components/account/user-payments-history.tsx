@@ -11,7 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import { UserPaymentsViewSwitcher } from "@/components/account/user-payments-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { UserPaymentBoardCard } from "@/components/account/user-payment-board-card";
 import { UserPaymentCompactRow } from "@/components/account/user-payment-compact-row";
@@ -264,14 +264,7 @@ export function UserPaymentsHistory({
           resetLabel={t("filters.resetFilters")}
         />
       }
-      trailing={
-        <UserListBoardViewSwitcher
-          pageId="payments"
-          namespace="userPages.payments"
-          value={viewMode}
-          onChange={setView}
-        />
-      }
+      trailing={<UserPaymentsViewSwitcher value={viewMode} onChange={setView} />}
     />
   );
 
@@ -320,19 +313,23 @@ export function UserPaymentsHistory({
         pageSize={listPage.pageSize}
         offset={paymentsPayload.offset}
         onPageChange={(page) => setListPage(page)}
-        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
         disabled={loading}
       />
     </>
   );
 
+  if (embeddedInSheet) {
+    return (
+      <div className="space-y-4">
+        {heroSearch}
+        {listBody}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {embeddedInSheet ? (
-        heroSearch
-      ) : (
-        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
-      )}
+    <div id="your-payments" className="space-y-4">
+      <AdminPageHero title={t("title")} search={heroSearch} />
       {listBody}
     </div>
   );

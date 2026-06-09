@@ -64,9 +64,8 @@ export const USER_BOOKINGS_LIST_GRID_COLS =
 /** Item · Amount · Date · Time · Status · Method — six equal tracks for even column spacing. */
 export const USER_PAYMENTS_LIST_GRID_COLS = "repeat(6,minmax(0,1fr))";
 
-/** Package · Validity · Price · Sessions · Period · Status · ⟨flex⟩ · Actions */
-export const USER_PACKAGES_LIST_GRID_COLS =
-  "minmax(0,1fr)_minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto_1fr_auto";
+/** Package · Validity · Price · Sessions · Period · Status · Actions — seven equal tracks. */
+export const USER_PACKAGES_LIST_GRID_COLS = "repeat(7,minmax(0,1fr))";
 
 export const USER_LIST_TABLE_GRID_GAP = "md:gap-x-4";
 

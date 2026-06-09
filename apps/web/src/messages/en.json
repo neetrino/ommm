@@ -459,7 +459,7 @@
         "schedule": "Schedule",
         "bookings": "My bookings",
         "waitlists": "Waitlists",
-        "packages": "Packages",
+        "packages": "My packages",
         "payments": "Payments",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
@@ -671,7 +671,7 @@
       "pageSizeLabel": "{size} per page"
     },
     "packages": {
-      "title": "Packages",
+      "title": "My packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
       "statusPending": "Payment completed",
       "awaitingPaymentConfirmation": "Your payment was completed successfully.",
@@ -994,7 +994,6 @@
     },
     "payments": {
       "title": "Payments",
-      "description": "Your complete payment history across packages, drop-ins, and gift purchases.",
       "loading": "Loading your payments...",
       "signInRequired": "Sign in to see your payments.",
       "loadError": "Could not load payments ({status}).",

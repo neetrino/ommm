@@ -20,6 +20,7 @@ import { UserPackagesViewSwitcher } from "@/components/account/user-packages-vie
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import {
   USER_PACKAGES_LIST_ACTIONS_HEADER_CELL,
+  USER_PACKAGES_LIST_CENTER_HEADER_CELL,
   USER_PACKAGES_LIST_HEADER_CLASS,
   USER_PACKAGES_LIST_TABLE_CLASS,
 } from "@/components/account/user-packages-list-layout";
@@ -239,12 +240,11 @@ export function UserPackagesSection({
         <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
           <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
             <span>{t("listHeaderPackage")}</span>
-            <span>{t("listHeaderValidity")}</span>
-            <span>{t("listHeaderPrice")}</span>
-            <span>{t("listHeaderSessions")}</span>
-            <span>{t("listHeaderPeriod")}</span>
-            <span>{t("listHeaderStatus")}</span>
-            <span aria-hidden="true" />
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderValidity")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPrice")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderSessions")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPeriod")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderStatus")}</span>
             <span className={USER_PACKAGES_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
           {filteredMemberships.map((membership) => {
