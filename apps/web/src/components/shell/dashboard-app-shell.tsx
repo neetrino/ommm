@@ -6,6 +6,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   type DashboardNavDefinition,
   type DashboardNavItem,
+  type DashboardRoleNotificationRoute,
 } from "@/lib/dashboard-nav";
 import type { DashboardNavRole } from "@/lib/dashboard-types";
 import { DashboardSidebarNav } from "@/components/shell/dashboard-sidebar-nav";
@@ -21,6 +22,8 @@ import {
   brandTitleClass,
   collapseToggleClass,
   DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS,
+  MEMBER_DESKTOP_SIDEBAR_WIDTH_COLLAPSED,
+  MEMBER_DESKTOP_SIDEBAR_WIDTH_EXPANDED,
   mobileDrawerBrandSublineClass,
   mobileDrawerBrandTitleClass,
   mobileDrawerFooterClass,
@@ -31,8 +34,9 @@ import {
   sidebarAsideBgClass,
   sidebarBrandStripClass,
   sidebarShellBorderClass,
-  WORKSPACE_MAIN_SAFE_TOP_CLASS,
+  OMMM_MEMBER_SIDEBAR_WIDTH_VAR,
 } from "@/components/shell/dashboard-shell-classes";
+import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 
 export type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
 
@@ -45,6 +49,7 @@ export type DashboardAppShellProps = {
   brandSubline?: string;
   navRole: DashboardNavRole;
   navDefinitions: DashboardNavDefinition[];
+  notificationRoute: DashboardRoleNotificationRoute | null;
   variant?: DashboardShellVariant;
   contentMaxClass?: string;
   /** Reserve space and adjust sticky regions for the fixed global site header. */
@@ -111,6 +116,22 @@ export function DashboardAppShell({
     };
   }, [drawerOpen]);
 
+  useEffect(() => {
+    if (variant !== "member") {
+      return undefined;
+    }
+
+    const sidebarWidth = sidebarCollapsed
+      ? MEMBER_DESKTOP_SIDEBAR_WIDTH_COLLAPSED
+      : MEMBER_DESKTOP_SIDEBAR_WIDTH_EXPANDED;
+
+    document.documentElement.style.setProperty(OMMM_MEMBER_SIDEBAR_WIDTH_VAR, sidebarWidth);
+
+    return () => {
+      document.documentElement.style.removeProperty(OMMM_MEMBER_SIDEBAR_WIDTH_VAR);
+    };
+  }, [variant, sidebarCollapsed]);
+
   useCloseOnEscape(drawerOpen, () => setDrawerOpen(false));
 
   function persistCollapsed(next: boolean) {
@@ -132,30 +153,47 @@ export function DashboardAppShell({
       : "lg:w-64";
   const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
   const rootClassName = withSiteHeader
-    ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader}`
+    ? [
+        pageBackgroundClass(variant),
+        offsetStyles.dashboardWithMarketingHeader,
+        offsetStyles.dashboardWithMarketingHeaderOverlay,
+        variant === "member"
+          ? offsetStyles.dashboardWithMarketingHeaderMemberMobile
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ")
     : pageBackgroundClass(variant);
   const sidebarStickyClass = withSiteHeader
     ? offsetStyles.sidebarFixedBelowMarketingHeader
     : "lg:sticky lg:top-0 lg:h-screen lg:max-h-screen lg:self-start";
+  const mainPaddingClass = isOliveShell
+    ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
+    : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10";
   const mainClassName = [
-    isOliveShell
-      ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
-      : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10",
-    withSiteHeader ? WORKSPACE_MAIN_SAFE_TOP_CLASS : "",
+    mainPaddingClass,
+    withSiteHeader ? offsetStyles.workspaceScrollMain : "",
   ]
     .filter(Boolean)
     .join(" ");
   const layoutMinHeightClass = withSiteHeader ? "min-h-full" : "min-h-screen";
+  const workspaceBodyClassName = [
+    `mx-auto flex ${layoutMinHeightClass} w-full flex-col lg:flex-row`,
+    contentMaxClass,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const workspaceBody = (
-    <div
-      className={`mx-auto flex ${layoutMinHeightClass} w-full flex-col lg:flex-row ${contentMaxClass}`}
-    >
+    <div className={workspaceBodyClassName}>
       {withSiteHeader ? (
-        <div className={`hidden shrink-0 lg:block ${asideWidth}`} aria-hidden />
+        <div
+          className={`${workspaceMobileDrawerLayout.desktopSidebarSpacer} ${asideWidth}`}
+          aria-hidden
+        />
       ) : null}
       <aside
-        className={`hidden shrink-0 flex-col shadow-sm lg:flex ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
+        className={`${workspaceMobileDrawerLayout.desktopSidebar} shadow-sm ${withSiteHeader ? "" : "lg:sticky lg:self-start"} ${sidebarStickyClass} ${asideWidth} ${
           isOliveShell
             ? "ommm-admin-sidebar rounded-br-[40px] rounded-tr-[40px] border-r-0 py-8"
             : `border-r ${sidebarShellBorderClass(variant)} ${sidebarAsideBgClass(variant)}`
@@ -255,6 +293,7 @@ export function DashboardAppShell({
               pathname={pathname}
               collapsed={isOliveShell ? false : sidebarCollapsed}
               onNavigate={() => undefined}
+              hardNavigate={variant === "member"}
             />
           </div>
           {isOliveShell && trailing ? (
@@ -271,7 +310,18 @@ export function DashboardAppShell({
   return (
     <div className={rootClassName}>
       {withSiteHeader ? (
-        <div className={offsetStyles.dashboardWithMarketingHeaderScroll}>
+        <div
+          data-workspace-scroll-pane
+          className={[
+            offsetStyles.dashboardWithMarketingHeaderScroll,
+            offsetStyles.dashboardWithMarketingHeaderScrollOverlay,
+            variant === "member"
+              ? offsetStyles.dashboardWithMarketingHeaderScrollMemberMobile
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {workspaceBody}
         </div>
       ) : (
@@ -280,7 +330,7 @@ export function DashboardAppShell({
 
       {drawerOpen ? (
         <div
-          className={`fixed inset-0 flex lg:hidden ${withSiteHeader ? "z-[60]" : "z-40"}`}
+          className={`fixed inset-0 ${workspaceMobileDrawerLayout.overlayMobileOnly} ${withSiteHeader ? "z-[60]" : "z-40"}`}
           id="dashboard-mobile-drawer"
           role="dialog"
           aria-modal="true"
@@ -321,6 +371,7 @@ export function DashboardAppShell({
                 pathname={pathname}
                 collapsed={false}
                 onNavigate={() => setDrawerOpen(false)}
+                hardNavigate={variant === "member"}
               />
             </div>
             {trailing ? (

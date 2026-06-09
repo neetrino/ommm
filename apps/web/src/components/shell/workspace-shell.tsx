@@ -1,6 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useState, type CSSProperties } from "react";
+import { useTranslations } from "next-intl";
+import { useLayoutEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -13,8 +14,11 @@ import {
   DashboardAppShell,
   type DashboardAppShellProps,
 } from "@/components/shell/dashboard-app-shell";
+import { dashboardNavPathActive } from "@/lib/dashboard-nav";
+import { useMemberUserHomeScrollTop } from "@/hooks/use-member-user-home-scroll-top";
 import { markClientSessionHint } from "@/lib/client-session-hint";
 import { writeCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
+import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
   DashboardAppShellProps,
@@ -26,9 +30,13 @@ export type WorkspaceShellProps = Omit<
 /** Authenticated workspace chrome — global site header + dashboard shell. */
 export function WorkspaceShell({
   account,
+  notificationRoute,
+  navRole,
   children,
   ...shellProps
 }: WorkspaceShellProps) {
+  const pathname = usePathname();
+  const tNav = useTranslations("dashboard.nav");
   const [drawerOpen, setDrawerOpen] = useState(false);
   useMarketingHeaderOffsetSync(true);
 
@@ -36,6 +44,22 @@ export function WorkspaceShell({
     writeCachedMarketingHeaderAccount(account);
     markClientSessionHint();
   }, [account]);
+
+  const notificationsLabel = useMemo(() => {
+    if (!notificationRoute) {
+      return null;
+    }
+    return (tNav as (key: string) => string)(
+      `${navRole}.${notificationRoute.labelKey}`,
+    );
+  }, [notificationRoute, navRole, tNav]);
+
+  const notificationsActive =
+    notificationRoute !== null &&
+    dashboardNavPathActive(pathname, notificationRoute.href);
+
+  const isMemberShell = shellProps.variant === "member";
+  useMemberUserHomeScrollTop(isMemberShell);
 
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
@@ -51,16 +75,27 @@ export function WorkspaceShell({
       <MarketingSiteHeader
         navLinks={MARKETING_NAV_LINKS}
         account={account}
-        workspaceDrawer={{
-          open: drawerOpen,
-          onToggle: () => setDrawerOpen((open) => !open),
-        }}
+        workspaceHeaderChrome
+        memberWorkspaceHeader={isMemberShell}
+        workspaceDrawer={
+          isMemberShell
+            ? undefined
+            : {
+                open: drawerOpen,
+                onToggle: () => setDrawerOpen((open) => !open),
+              }
+        }
+        notificationHref={notificationRoute?.href ?? null}
+        notificationsLabel={notificationsLabel}
+        notificationsActive={notificationsActive}
       />
       <DashboardAppShell
         {...shellProps}
+        navRole={navRole}
+        notificationRoute={notificationRoute}
         withSiteHeader
-        drawerOpen={drawerOpen}
-        onDrawerOpenChange={setDrawerOpen}
+        drawerOpen={isMemberShell ? false : drawerOpen}
+        onDrawerOpenChange={isMemberShell ? undefined : setDrawerOpen}
       >
         {children}
       </DashboardAppShell>

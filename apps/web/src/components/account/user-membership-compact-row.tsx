@@ -11,12 +11,14 @@ import {
   USER_PACKAGES_LIST_ACTIONS_CELL,
   USER_PACKAGES_LIST_CELL_CLASS,
   USER_PACKAGES_LIST_PERIOD_CELL,
+  USER_PACKAGES_LIST_PRICE_CELL,
   USER_PACKAGES_LIST_ROW_CLASS,
-  USER_PACKAGES_LIST_SPACER_CELL,
+  USER_PACKAGES_LIST_SESSIONS_CELL,
   USER_PACKAGES_LIST_STATUS_CELL,
+  USER_PACKAGES_LIST_VALIDITY_CELL,
 } from "@/components/account/user-packages-list-layout";
 import { USER_LIST_TITLE_SERIF_CLASS } from "@/components/account/user-list-table-layout";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { AmdMoneyText } from "@/components/ui/amd-money-text";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
 type UserMembershipCompactRowProps = {
@@ -35,7 +37,6 @@ export function UserMembershipCompactRow({
   const t = useTranslations("userPages.packages");
   const m = useTranslations("marketing");
   const display = buildMembershipDisplayModel(membership, status, t, m);
-  const priceLabel = formatAmdFromCents(membership.plan.priceCents, locale);
   const durationLabel = m("packagesPeriodDaysShort", { days: membership.plan.periodDays });
 
   return (
@@ -53,27 +54,13 @@ export function UserMembershipCompactRow({
       className={USER_PACKAGES_LIST_ROW_CLASS}
     >
       <div className={USER_PACKAGES_LIST_CELL_CLASS}>
+        <MobileLabel label={t("listHeaderPackage")} />
         <p className={USER_LIST_TITLE_SERIF_CLASS} title={display.sessionName}>
           {display.sessionName}
         </p>
         <p className="mt-1 truncate text-xs font-medium text-sage-500">
           {membership.plan.categoryName}
         </p>
-      </div>
-
-      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
-        <MobileLabel label={t("listHeaderValidity")} />
-        <p className="whitespace-nowrap text-sm font-medium text-sage-800">{durationLabel}</p>
-      </div>
-
-      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
-        <MobileLabel label={t("listHeaderPrice")} />
-        <p className="whitespace-nowrap font-medium tabular-nums text-sage-800">{priceLabel}</p>
-      </div>
-
-      <div className={USER_PACKAGES_LIST_CELL_CLASS}>
-        <MobileLabel label={t("listHeaderSessions")} />
-        <p className="truncate text-sm font-medium text-sage-800">{display.sessionsSummary}</p>
       </div>
 
       <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
@@ -86,12 +73,31 @@ export function UserMembershipCompactRow({
         />
       </div>
 
-      <div className={USER_PACKAGES_LIST_STATUS_CELL}>
-        <MobileLabel label={t("listHeaderStatus")} />
-        <span className={memberStatusClassName(status)}>{display.statusLabel}</span>
+      <div className={USER_PACKAGES_LIST_PRICE_CELL}>
+        <MobileLabel label={t("listHeaderPrice")} />
+        <AmdMoneyText
+          cents={membership.plan.priceCents}
+          locale={locale}
+          className="font-serif text-xl leading-none text-sage-950"
+        />
       </div>
 
-      <div className={USER_PACKAGES_LIST_SPACER_CELL} aria-hidden="true" />
+      <div className={USER_PACKAGES_LIST_SESSIONS_CELL}>
+        <MobileLabel label={t("listHeaderSessions")} />
+        <p className="truncate text-sm font-medium text-sage-800">{display.sessionsSummary}</p>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_VALIDITY_CELL}>
+        <MobileLabel label={t("listHeaderValidity")} />
+        <p className="text-sm font-medium text-sage-800">{durationLabel}</p>
+      </div>
+
+      <div className={USER_PACKAGES_LIST_STATUS_CELL}>
+        <MobileLabel label={t("listHeaderStatus")} />
+        <span className={`inline-flex whitespace-nowrap ${memberStatusClassName(status)}`}>
+          {display.statusLabel}
+        </span>
+      </div>
 
       <div
         className={USER_PACKAGES_LIST_ACTIONS_CELL}
@@ -99,11 +105,13 @@ export function UserMembershipCompactRow({
         onKeyDown={(event) => event.stopPropagation()}
       >
         <MobileLabel label={t("listHeaderActions")} />
-        <UserPackageLifecycleActions
-          userPackageId={membership.id}
-          status={status}
-          layout="list"
-        />
+        <div className="md:flex md:w-full md:flex-col md:items-center">
+          <UserPackageLifecycleActions
+            userPackageId={membership.id}
+            status={status}
+            layout="list"
+          />
+        </div>
       </div>
     </article>
   );

@@ -33,6 +33,9 @@ export function memberStatusClassName(status: UserPackageStatus): string {
   if (status === "PAUSED") {
     return `${base} border-sand-300 bg-sand-50 text-sage-700`;
   }
+  if (status === "EXPIRED") {
+    return `${base} border-red-200 bg-red-50 text-red-800`;
+  }
   return `${base} border-white/70 bg-white/70 text-sage-600`;
 }
 

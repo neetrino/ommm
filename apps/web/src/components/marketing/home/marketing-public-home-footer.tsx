@@ -79,9 +79,7 @@ function footerStyleVars(surfaceVariant: HomeFooterSurfaceVariant): CSSPropertie
     ["--home-footer-text" as string]: HOME_FOOTER_FIGMA.text,
     ["--home-footer-wordmark-color" as string]: HOME_PAGE_SURFACE.footerWordmark,
     ["--home-footer-radius" as string]: `${HOME_FOOTER_FIGMA.topRadiusPx}px`,
-    ["--home-footer-max-width" as string]: isInner
-      ? `${MARKETING_CONTENT_MAX_WIDTH_PX}px`
-      : `${HOME_FOOTER_LAYOUT.maxWidthPx}px`,
+    ["--home-footer-max-width" as string]: `${MARKETING_CONTENT_MAX_WIDTH_PX}px`,
     ["--home-footer-min-height" as string]: `clamp(36rem, ${pct(HOME_FOOTER_FIGMA.artboardHeightPx / HOME_FOOTER_FIGMA.artboardWidthPx)}, ${HOME_FOOTER_LAYOUT.minHeightPx}px)`,
     ["--home-footer-wordmark-left" as string]: pct(pos.wordmark.left),
     ["--home-footer-wordmark-top" as string]: pct(pos.wordmark.top),

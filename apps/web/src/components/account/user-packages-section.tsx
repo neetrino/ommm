@@ -17,8 +17,10 @@ import {
   type UserPackageStatusFilter,
 } from "@/components/account/user-packages-filter-fields";
 import { UserPackagesViewSwitcher } from "@/components/account/user-packages-view-switcher";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import {
   USER_PACKAGES_LIST_ACTIONS_HEADER_CELL,
+  USER_PACKAGES_LIST_CENTER_HEADER_CELL,
   USER_PACKAGES_LIST_HEADER_CLASS,
   USER_PACKAGES_LIST_TABLE_CLASS,
 } from "@/components/account/user-packages-list-layout";
@@ -44,12 +46,14 @@ type UserPackagesSectionProps = {
   locale: string;
   memberships: readonly UserMembershipRow[];
   apiOk: boolean;
+  embeddedInSheet?: boolean;
 };
 
 export function UserPackagesSection({
   locale,
   memberships,
   apiOk,
+  embeddedInSheet = false,
 }: UserPackagesSectionProps) {
   const t = useTranslations("userPages.packages");
   const tSort = useTranslations("listSort");
@@ -172,95 +176,116 @@ export function UserPackagesSection({
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <UserPackagesViewSwitcher value={viewMode} onChange={setView} />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={<UserPackagesViewSwitcher value={viewMode} onChange={setView} />}
+    />
   );
+
+  const listBody = !apiOk ? (
+    <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+      <p className="ommm-body-muted text-sm">{t("signInToView")}</p>
+    </div>
+  ) : memberships.length === 0 ? (
+    <div className="max-w-xl rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+      <p className="font-medium text-sage-900">{t("noPackagesYet")}</p>
+      <p className="ommm-body-muted mt-2 text-sm">{t("emptyPackagesHint")}</p>
+      <Link href="/packages" className="ommm-cta-primary mt-5 inline-flex">
+        {t("browsePackagesCta")}
+      </Link>
+    </div>
+  ) : (
+    <>
+      <p className="text-sm text-sage-600">
+        {t("packagesCount", {
+          count: filtersActive ? filteredMemberships.length : memberships.length,
+        })}
+      </p>
+
+      {filteredMemberships.length === 0 ? (
+        <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+          <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+          <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+        </div>
+      ) : viewMode === "board" ? (
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {filteredMemberships.map((membership) => {
+            const status = normalizeUserPackageStatus(membership.status);
+            return (
+              <li key={membership.id} className="min-w-0 list-none">
+                <UserMembershipBoardCard
+                  membership={membership}
+                  locale={locale}
+                  status={status}
+                  onOpenDetails={() => openPackageDetails(membership.id)}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
+          <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
+            <span>{t("listHeaderPackage")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPeriod")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPrice")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderSessions")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderValidity")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderStatus")}</span>
+            <span className={USER_PACKAGES_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
+          </div>
+          {filteredMemberships.map((membership) => {
+            const status = normalizeUserPackageStatus(membership.status);
+            return (
+              <UserMembershipCompactRow
+                key={membership.id}
+                membership={membership}
+                locale={locale}
+                status={status}
+                onOpenDetails={() => openPackageDetails(membership.id)}
+              />
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+
+  if (embeddedInSheet) {
+    return (
+      <>
+        <div className="space-y-4">
+          {heroSearch}
+          {listBody}
+        </div>
+        <UserMembershipDetailsSheet
+          membership={selectedMembership}
+          locale={locale}
+          status={selectedStatus}
+          isOpen={selectedMembership !== null}
+          onClose={closePackageDetails}
+        />
+      </>
+    );
+  }
 
   return (
     <div id="your-packages" className="space-y-4">
       <AdminPageHero title={t("title")} search={heroSearch} />
-
-      {!apiOk ? (
-        <div className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <p className="ommm-body-muted text-sm">{t("signInToView")}</p>
-        </div>
-      ) : memberships.length === 0 ? (
-        <div className="max-w-xl rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <p className="font-medium text-sage-900">{t("noPackagesYet")}</p>
-          <p className="ommm-body-muted mt-2 text-sm">{t("emptyPackagesHint")}</p>
-          <Link href="/packages" className="ommm-cta-primary mt-5 inline-flex">
-            {t("browsePackagesCta")}
-          </Link>
-        </div>
-      ) : (
-        <>
-          <p className="text-sm text-sage-600">
-            {t("packagesCount", {
-              count: filtersActive ? filteredMemberships.length : memberships.length,
-            })}
-          </p>
-
-          {filteredMemberships.length === 0 ? (
-            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-            </div>
-          ) : viewMode === "board" ? (
-            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredMemberships.map((membership) => {
-                const status = normalizeUserPackageStatus(membership.status);
-                return (
-                  <li key={membership.id} className="min-w-0 list-none">
-                    <UserMembershipBoardCard
-                      membership={membership}
-                      locale={locale}
-                      status={status}
-                      onOpenDetails={() => openPackageDetails(membership.id)}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
-              <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
-                <span>{t("listHeaderPackage")}</span>
-                <span>{t("listHeaderValidity")}</span>
-                <span>{t("listHeaderPrice")}</span>
-                <span>{t("listHeaderSessions")}</span>
-                <span>{t("listHeaderPeriod")}</span>
-                <span>{t("listHeaderStatus")}</span>
-                <span aria-hidden="true" />
-                <span className={USER_PACKAGES_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
-              </div>
-              {filteredMemberships.map((membership) => {
-                const status = normalizeUserPackageStatus(membership.status);
-                return (
-                  <UserMembershipCompactRow
-                    key={membership.id}
-                    membership={membership}
-                    locale={locale}
-                    status={status}
-                    onOpenDetails={() => openPackageDetails(membership.id)}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
-
+      {listBody}
       <UserMembershipDetailsSheet
         membership={selectedMembership}
         locale={locale}

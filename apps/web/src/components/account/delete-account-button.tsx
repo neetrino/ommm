@@ -1,9 +1,11 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
+import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
 
 const DELETE_ACCOUNT_TRIGGER_CLASS =
@@ -11,7 +13,27 @@ const DELETE_ACCOUNT_TRIGGER_CLASS =
 
 const DELETE_ACCOUNT_CONFIRM_CLASS = "ommm-btn-lifecycle-action--danger";
 
-export function DeleteAccountButton() {
+type DeleteAccountButtonProps = {
+  triggerClassName?: string;
+  triggerContent?: ReactNode;
+  /** Shown while pending when `triggerContent` is a menu row layout. */
+  busyTriggerContent?: ReactNode;
+  /** When true, omit outer wrapper — for account hub menu rows. */
+  bare?: boolean;
+  /** Profile page: red pill button; hub/menu keeps link or custom row. */
+  appearance?: "link" | "dangerButton";
+  /** Optional wrapper classes (e.g. mobile alignment on profile page). */
+  wrapperClassName?: string;
+};
+
+export function DeleteAccountButton({
+  triggerClassName,
+  triggerContent,
+  busyTriggerContent,
+  bare = false,
+  appearance = "link",
+  wrapperClassName = "",
+}: DeleteAccountButtonProps = {}) {
   const t = useTranslations("userPages.profile");
   const locale = useLocale();
   const router = useRouter();
@@ -55,19 +77,41 @@ export function DeleteAccountButton() {
     }
   }
 
+  const triggerLabel = busy
+    ? (busyTriggerContent ??
+      (triggerContent !== undefined ? triggerContent : t("deleteAccountDeleting")))
+    : (triggerContent ?? t("deleteAccount"));
+
+  const useDangerButton =
+    appearance === "dangerButton" &&
+    triggerClassName === undefined &&
+    triggerContent === undefined;
+
+  const trigger = useDangerButton ? (
+    <OmmButton variant="danger" onClick={openConfirm} disabled={busy}>
+      {busy ? t("deleteAccountDeleting") : t("deleteAccount")}
+    </OmmButton>
+  ) : (
+    <button
+      type="button"
+      className={triggerClassName ?? DELETE_ACCOUNT_TRIGGER_CLASS}
+      onClick={openConfirm}
+      disabled={busy}
+    >
+      {triggerLabel}
+    </button>
+  );
+
   return (
     <>
-      <div className="flex flex-col items-start gap-1">
-        <button
-          type="button"
-          className={DELETE_ACCOUNT_TRIGGER_CLASS}
-          onClick={openConfirm}
-          disabled={busy}
-        >
-          {busy ? t("deleteAccountDeleting") : t("deleteAccount")}
-        </button>
-        {message ? <p className="text-xs text-red-800">{message}</p> : null}
-      </div>
+      {bare ? (
+        trigger
+      ) : (
+        <div className={`flex flex-col items-start gap-1 ${wrapperClassName}`.trim()}>
+          {trigger}
+          {message ? <p className="text-xs text-red-800">{message}</p> : null}
+        </div>
+      )}
       <OmmConfirmDialog
         isOpen={confirmOpen}
         title={t("deleteAccountConfirmTitle")}

@@ -52,6 +52,60 @@
   overscroll-behavior-y: contain;
 }
 
+/**
+ * Mobile workspace — fixed glass-pill nav overlays the scroll pane (no cream band behind the header).
+ * Content scrolls under the transparent header shell; stickies align below the site header offset.
+ */
+@media (max-width: 743px) {
+  .dashboardWithMarketingHeaderOverlay {
+    padding-top: 0;
+    background-color: transparent;
+  }
+
+  .dashboardWithMarketingHeaderScrollOverlay {
+    --ommm-workspace-sticky-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+    background-color: var(--ommm-admin-page, #ede9dd);
+    scroll-padding-top: var(--ommm-marketing-site-header-offset, 4.25rem);
+  }
+
+  .workspaceScrollMain {
+    padding-top: calc(var(--ommm-marketing-site-header-offset, 4.25rem) + 1rem);
+  }
+}
+
+/**
+ * Member hub (`lg:hidden`) — window scroll below desktop, same as DevTools mobile emulation.
+ * Nested 100dvh + overflow clips the menu footer on iOS Safari.
+ */
+@media (max-width: 1023px) {
+  .dashboardWithMarketingHeaderMemberMobile {
+    height: auto;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    overflow: visible;
+  }
+
+  .dashboardWithMarketingHeaderScrollMemberMobile {
+    flex: none;
+    overflow: visible;
+    /* Short pages (e.g. /user/notifications) — cream bg must fill the viewport, not only content height. */
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 744px) {
+  .workspaceScrollMain {
+    padding-top: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspaceScrollMain {
+    padding-top: 2rem;
+  }
+}
+
 .stickyBelowMarketingHeader {
   top: var(--ommm-marketing-site-header-offset);
 }

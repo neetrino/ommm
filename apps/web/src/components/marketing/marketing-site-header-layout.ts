@@ -17,6 +17,8 @@ export const MARKETING_MOBILE_HEADER = {
   actionsEdgeNudgePx: 4,
   menuEdgeNudgePx: 4,
   globeIconSizePx: 26,
+  /** Header profile avatar — slightly smaller than globe/action icons. */
+  avatarInsetPx: 3,
   userIconWidthPx: 24,
   userIconHeightPx: 24,
   /** Matches `marketingHeaderContainerClass` mobile shell (pt + pb + row). */
@@ -75,13 +77,29 @@ export function marketingHeaderMobileRowWrapStyle(glassActive: boolean): CSSProp
   };
 }
 
-/** Figma TopNavBar `196:1410` sizing tokens. */
-const MARKETING_NAV_PILL_HEIGHT_CLASS =
+/** Figma TopNavBar `442:1877` — unified desktop bar sizing tokens. */
+export const MARKETING_DESKTOP_NAV = {
+  barHeightPx: 53,
+  barRadiusPx: 80,
+  brandPaddingLeftPx: 41,
+  actionsPaddingRightPx: 30,
+  brandFontSizePx: 24,
+  brandLineHeightPx: 32,
+  linkFontSizePx: 18,
+  linkLineHeightPx: 20,
+  linkGapPx: 48,
+  linkActiveBorderWidthPx: 2,
+  linkActivePaddingBottomPx: 6,
+  iconGapPx: 9,
+  globeSizePx: 32,
+  userWidthPx: 26,
+  userHeightPx: 30,
+} as const;
+
+const MARKETING_DESKTOP_BAR_HEIGHT_CLASS =
   "h-[40px] min-h-[40px] lg:h-[44px] lg:min-h-[44px] nav-desktop:h-[53px] nav-desktop:min-h-[53px]";
-const MARKETING_NAV_PILL_RADIUS_CLASS = "rounded-[80px]";
-/** Figma TopNavBar `88:3724` — px 30; slightly wider than previous px-5. */
-const MARKETING_NAV_PILL_PADDING_X_CLASS = "px-2 lg:px-3 nav-desktop:px-[30px] nav-desktop:xl:px-9";
-/** Figma link spacing `88:3730` — 48px between items. */
+const MARKETING_DESKTOP_BAR_RADIUS_CLASS = "rounded-[80px]";
+/** Figma link spacing `442:1883` — 48px between items. */
 const MARKETING_NAV_LINK_GAP_CLASS = "gap-3 lg:gap-4 nav-desktop:gap-12";
 const MARKETING_NAV_LINK_GAP_COMPACT_CLASS =
   "gap-1 sm:gap-2 md:gap-2.5 lg:gap-3 nav-desktop:gap-4 xl:gap-5";
@@ -96,14 +114,6 @@ const MARKETING_HEADER_INK_HOVER_SURFACE =
 const MARKETING_HEADER_FOCUS_RING =
   "focus-visible:ring-[var(--ommm-marketing-header-focus-ring)]";
 const MARKETING_HEADER_INK_TRANSITION = "transition-[color,background-color] duration-220";
-
-/** Icon language trigger — transparent at rest, circular ink surface on hover/open (matches profile). */
-const MARKETING_HEADER_LANGUAGE_TRIGGER_HOVER =
-  "hover:!border-0 hover:!bg-[var(--ommm-marketing-header-ink-hover-surface)] hover:!shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]";
-const MARKETING_HEADER_LANGUAGE_TRIGGER_OPEN =
-  "data-[open=true]:!border-0 data-[open=true]:!bg-[var(--ommm-marketing-header-ink-hover-surface)] data-[open=true]:!shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] data-[open=true]:!ring-0";
-const MARKETING_HEADER_LANGUAGE_TRIGGER_BASE =
-  "!justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none";
 
 const MARKETING_NAV_INK = "text-[var(--ommm-marketing-nav-ink)]";
 const MARKETING_NAV_INK_ACTIVE = "text-[var(--ommm-marketing-nav-ink-active)]";
@@ -130,10 +140,8 @@ export function marketingHeaderContainerClass(): string {
   return [
     `${MARKETING_PAGE_CONTAINER_CLASS} relative min-w-0`,
     "pb-3 pt-[max(1rem,env(safe-area-inset-top,0px))]",
-    "tablet:grid tablet:min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] tablet:items-center",
     "tablet:pb-2 lg:pb-3",
     "tablet:pt-[max(0.5rem,env(safe-area-inset-top,0px))] nav-desktop:pt-[max(0.75rem,env(safe-area-inset-top,0px))]",
-    "tablet:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] tablet:gap-1.5 lg:gap-2 nav-desktop:gap-3 sm:gap-4",
   ].join(" ");
 }
 
@@ -185,51 +193,48 @@ export function marketingHeaderMobileBrandLinkClass(): string {
   ].join(" ");
 }
 
-export function marketingHeaderBrandLinkClass(): string {
-  return "hidden tablet:flex justify-self-start min-w-0 shrink-0 items-center";
+/** Desktop header — always full-width glass pill (brand + nav + actions). */
+export function marketingHeaderDesktopRowClass(): string {
+  return [
+    "relative isolate hidden min-w-0 overflow-hidden tablet:grid",
+    MARKETING_DESKTOP_BAR_HEIGHT_CLASS,
+    MARKETING_DESKTOP_BAR_RADIUS_CLASS,
+    "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center",
+    "pl-4 pr-3 lg:pl-6 lg:pr-4 nav-desktop:pl-[41px] nav-desktop:pr-[30px]",
+    "tablet:gap-1.5 lg:gap-2 nav-desktop:gap-3",
+  ].join(" ");
 }
 
-export function marketingHeaderBrandTextClass(): string {
+export function marketingHeaderDesktopBrandLinkClass(): string {
+  return "relative z-10 flex h-full min-w-0 shrink-0 items-center justify-center justify-self-start self-center";
+}
+
+export function marketingHeaderDesktopBrandTextClass(): string {
   return [
-    "font-serif text-lg font-bold leading-6 tracking-[-0.05em]",
+    "font-serif font-bold tracking-[-0.05em] whitespace-nowrap leading-none",
     MARKETING_HEADER_INK,
     MARKETING_HEADER_INK_TRANSITION,
-    "lg:text-xl lg:leading-7",
-    "nav-desktop:text-2xl nav-desktop:leading-8",
-    "whitespace-nowrap",
+    "text-lg lg:text-xl nav-desktop:text-2xl",
   ].join(" ");
 }
 
-export function marketingHeaderNavClass(compact: boolean): string {
-  const pillPadding = compact
-    ? "px-2 sm:px-3 nav-desktop:px-6 nav-desktop:xl:px-8"
-    : MARKETING_NAV_PILL_PADDING_X_CLASS;
-
-  return [
-    "relative isolate hidden min-w-0 max-w-full justify-self-center overflow-hidden tablet:flex tablet:items-center tablet:justify-center",
-    MARKETING_NAV_PILL_HEIGHT_CLASS,
-    MARKETING_NAV_PILL_RADIUS_CLASS,
-    marketingMontserrat.className,
-    pillPadding,
-  ].join(" ");
+export function marketingHeaderDesktopNavClass(): string {
+  return "relative z-10 flex h-full min-w-0 items-center justify-center justify-self-center";
 }
 
 export function marketingHeaderNavLinksClass(compact: boolean): string {
   const linkGap = compact ? MARKETING_NAV_LINK_GAP_COMPACT_CLASS : MARKETING_NAV_LINK_GAP_CLASS;
 
-  return [
-    "relative z-10 flex h-full min-h-[40px] lg:min-h-[44px] nav-desktop:min-h-[53px] items-center justify-center",
-    linkGap,
-  ].join(" ");
+  return ["flex h-full items-center justify-center", linkGap].join(" ");
 }
 
-export function marketingHeaderActionsClass(): string {
-  return "hidden tablet:flex justify-self-end shrink-0 items-center gap-1.5 overflow-visible lg:gap-2 nav-desktop:gap-3 sm:gap-4";
+export function marketingHeaderDesktopActionsClass(): string {
+  return "relative z-10 flex h-full shrink-0 items-center justify-center justify-self-end self-center gap-1.5 overflow-visible lg:gap-2 nav-desktop:gap-[9px]";
 }
 
-/** Figma `196:1453` globe + `196:1451` user — grouped at header trailing edge. */
+/** Figma `442:1897` — globe + user grouped at bar trailing edge. */
 export function marketingHeaderAuthClusterClass(): string {
-  return "flex shrink-0 items-center gap-1 overflow-visible";
+  return "flex shrink-0 items-center gap-1 overflow-visible nav-desktop:gap-[9px]";
 }
 
 /** Burger menu nav links — solid white panel; always en-sized type (panel has room). */
@@ -262,23 +267,18 @@ export function marketingHeaderNavLinkClass(
   ].join(" ");
 }
 
-/** Nav links inside TopNavBar pill — Figma `88:3728` active / `88:3730` default. */
+/** Nav links inside TopNavBar — Figma `442:1881` active / `442:1883` default. */
 export function marketingHeaderNavPillLinkClass(
   active: boolean,
   compact: boolean,
 ): string {
   const typography = compact
-    ? "whitespace-nowrap text-[11px] font-bold leading-none tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-base"
-    : "whitespace-nowrap text-xs font-bold leading-none tracking-[-0.35px] lg:text-sm nav-desktop:text-base";
+    ? "whitespace-nowrap font-serif text-[11px] font-bold leading-none tracking-[-0.35px] sm:text-xs md:text-sm nav-desktop:text-lg"
+    : "whitespace-nowrap font-serif text-xs font-bold leading-none tracking-[-0.35px] lg:text-sm nav-desktop:text-lg";
 
   const state = active ? MARKETING_NAV_INK_ACTIVE : `${MARKETING_NAV_INK} ${MARKETING_NAV_INK_HOVER}`;
 
-  return [
-    typography,
-    state,
-    MARKETING_HEADER_INK_TRANSITION,
-    "duration-300 ease-out motion-reduce:transition-none",
-  ].join(" ");
+  return [typography, state, "motion-reduce:transition-none"].join(" ");
 }
 
 export function marketingHeaderIconButtonClass(): string {
@@ -299,8 +299,20 @@ export function marketingHeaderIconLanguageClass(): string {
 }
 
 export function marketingHeaderIconAccountClass(): string {
-  return `${marketingHeaderIconButtonClass()} h-8 w-8 lg:h-9 lg:w-9 nav-desktop:h-11 nav-desktop:w-11`;
+  return [
+    marketingHeaderIconButtonClass(),
+    "inline-flex items-center justify-center !p-0",
+    "h-8 w-8 min-h-8 min-w-8 lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-8 nav-desktop:w-8 nav-desktop:min-h-8 nav-desktop:min-w-8",
+  ].join(" ");
 }
+
+/** Desktop header action icons — globe, login. */
+export const MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS =
+  "h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8";
+
+/** Desktop header avatar — globe minus `MARKETING_MOBILE_HEADER.avatarInsetPx` at each tier. */
+export const MARKETING_HEADER_DESKTOP_AVATAR_CLASS =
+  "h-[21px] w-[21px] shrink-0 lg:h-[25px] lg:w-[25px] nav-desktop:h-[29px] nav-desktop:w-[29px]";
 
 export function marketingHeaderMenuButtonClass(): string {
   return marketingHeaderMobileMenuButtonClass(false);
@@ -308,12 +320,11 @@ export function marketingHeaderMenuButtonClass(): string {
 
 export function marketingHeaderMobileLanguageTriggerClass(): string {
   return [
-    "ommm-dropdown-trigger",
-    marketingHeaderMobileIconAccountClass(),
-    MARKETING_HEADER_LANGUAGE_TRIGGER_BASE,
+    "ommm-dropdown-trigger !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+    `${MARKETING_HEADER_INK} cursor-pointer`,
     MARKETING_HEADER_INK_TRANSITION,
-    MARKETING_HEADER_LANGUAGE_TRIGGER_HOVER,
-    MARKETING_HEADER_LANGUAGE_TRIGGER_OPEN,
+    "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
+    "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
     "focus-visible:outline-none focus-visible:ring-2",
     MARKETING_HEADER_FOCUS_RING,
     "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
@@ -327,17 +338,26 @@ export function marketingHeaderMobileIconAccountClass(): string {
   ].join(" ");
 }
 
+const MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS = [
+  "!h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-8 nav-desktop:!min-h-8 nav-desktop:!w-8 nav-desktop:!min-w-8",
+  "!justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+  `${MARKETING_HEADER_INK} cursor-pointer`,
+  MARKETING_HEADER_INK_TRANSITION,
+  "hover:!border-0 hover:!bg-transparent hover:!shadow-none active:!bg-transparent active:!ring-0",
+  "focus-visible:outline-none focus-visible:ring-2",
+  MARKETING_HEADER_FOCUS_RING,
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+].join(" ");
+
 export function marketingHeaderLanguageTriggerClass(): string {
   return [
     "ommm-dropdown-trigger",
-    marketingHeaderIconAccountClass(),
-    "!h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-11 nav-desktop:!min-h-11 nav-desktop:!w-11 nav-desktop:!min-w-11",
-    MARKETING_HEADER_LANGUAGE_TRIGGER_BASE,
-    MARKETING_HEADER_INK_TRANSITION,
-    MARKETING_HEADER_LANGUAGE_TRIGGER_HOVER,
-    MARKETING_HEADER_LANGUAGE_TRIGGER_OPEN,
-    "focus-visible:outline-none focus-visible:ring-2",
-    MARKETING_HEADER_FOCUS_RING,
-    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+    MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS,
+    "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
   ].join(" ");
+}
+
+/** Notification bell — flat trigger, same footprint as globe. */
+export function marketingHeaderNotificationTriggerClass(): string {
+  return ["inline-flex items-center", MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS].join(" ");
 }

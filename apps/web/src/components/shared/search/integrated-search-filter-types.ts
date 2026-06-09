@@ -87,3 +87,11 @@ export function clearIntegratedFilterValues(
   });
   return cleared;
 }
+
+/** Omit select fields with no options — only "All" would remain. */
+export function shouldRenderIntegratedFilterField(field: IntegratedFilterField): boolean {
+  if (field.fieldType === "date" || field.fieldType === "custom" || field.render) {
+    return true;
+  }
+  return (field.options?.length ?? 0) > 0;
+}

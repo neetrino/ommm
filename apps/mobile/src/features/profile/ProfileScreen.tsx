@@ -1,29 +1,44 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSession } from "../../auth/SessionProvider";
 import { useLogoutAction } from "../../auth/useLogoutAction";
 import { GradientBackdrop } from "../../components/layout/GradientBackdrop";
-import { ProfileChangePasswordSection } from "./components/ProfileChangePasswordSection";
-import { ProfileHomeImageSection } from "./components/ProfileHomeImageSection";
-import { fontFamilies } from "../../theme/fontFamilies";
-import { colors, layout, radii, space, typography } from "../../theme/tokens";
+import { accountHubLayout } from "./accountHubLayout";
+import { ACCOUNT_HUB_MENU_ITEMS } from "./accountHubMenu";
+import { AccountHubHeader } from "./components/AccountHubHeader";
+import { AccountHubMenuRow } from "./components/AccountHubMenuRow";
+import { colors, layout, space } from "../../theme/tokens";
 
-const LOGOUT_ICON_SIZE = 20;
+function buildInitials(displayName: string, email: string): string {
+  const parts = displayName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
+  }
+  const one = parts[0]?.[0] ?? email[0] ?? "M";
+  return one.toUpperCase();
+}
 
 export function ProfileScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const logout = useLogoutAction();
+  const { userGreetingName, userEmail, homeImageUri } = useSession();
   const [logoutBusy, setLogoutBusy] = useState(false);
+
   const bottomPad =
     layout.tabBarHeight + Math.max(insets.bottom, space.sm) + space.lg;
+
+  const initials = useMemo(
+    () => buildInitials(userGreetingName, userEmail),
+    [userEmail, userGreetingName],
+  );
 
   const onLogoutPress = useCallback(() => {
     if (logoutBusy) {
@@ -42,37 +57,39 @@ export function ProfileScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>Profile</Text>
+        <AccountHubHeader
+          displayName={userGreetingName}
+          email={userEmail}
+          avatarImageUri={homeImageUri}
+          initials={initials}
+        />
 
-        <ProfileChangePasswordSection />
+        <View style={accountHubLayout.menuCard}>
+          {ACCOUNT_HUB_MENU_ITEMS.map((item) => (
+            <AccountHubMenuRow
+              key={item.key}
+              label={item.label}
+              icon={item.icon}
+              onPress={() => router.push(item.href)}
+              isLast={false}
+            />
+          ))}
 
-        <ProfileHomeImageSection />
-
-        <View style={styles.logoutSpacer} />
-
-        <Pressable
-          onPress={onLogoutPress}
-          disabled={logoutBusy}
-          style={({ pressed }) => [
-            styles.logoutButton,
-            pressed && !logoutBusy && styles.logoutButtonPressed,
-            logoutBusy && styles.logoutButtonDisabled,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Logout"
-          accessibilityHint="Signs out of your account"
-          accessibilityState={{ disabled: logoutBusy }}
-        >
           {logoutBusy ? (
-            <ActivityIndicator color={colors.danger} />
+            <View style={accountHubLayout.logoutRow}>
+              <ActivityIndicator color={colors.danger} />
+            </View>
           ) : (
-            <MaterialCommunityIcons
-              name="logout"
-              size={LOGOUT_ICON_SIZE}
-              color={colors.danger}
+            <AccountHubMenuRow
+              label="Log out"
+              icon="logout"
+              onPress={onLogoutPress}
+              danger
+              showIcon={false}
+              isLast
             />
           )}
-        </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -88,35 +105,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.screenHorizontal,
     paddingTop: space.xxl,
     gap: space.xl,
-  },
-  title: {
-    fontFamily: fontFamilies.newsreader.semiBoldItalic,
-    fontSize: typography.sectionTitle + 6,
-    lineHeight: 32,
-    color: colors.primaryGreen,
-  },
-  logoutSpacer: {
-    flexGrow: 1,
-    minHeight: space.md,
-  },
-  logoutButton: {
-    alignSelf: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: 52,
-    minHeight: 52,
-    paddingVertical: space.md,
-    paddingHorizontal: space.lg,
-    backgroundColor: colors.overlayWhite38,
-    borderRadius: radii.labelCard,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassBorder,
-  },
-  logoutButtonPressed: {
-    opacity: 0.92,
-  },
-  logoutButtonDisabled: {
-    opacity: 0.65,
   },
 });

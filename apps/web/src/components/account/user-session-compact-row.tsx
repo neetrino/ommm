@@ -12,6 +12,7 @@ import { SessionBookingActions } from "@/components/account/session-booking-acti
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { SessionSpotsIndicator } from "@/components/account/session-spots-indicator";
+import { UserSessionMobileCard } from "@/components/account/user-session-mobile-card";
 import {
   USER_SCHEDULE_LIST_ACTIONS_CLASS,
   USER_SCHEDULE_LIST_CLASS_CELL,
@@ -54,71 +55,81 @@ export function UserSessionCompactRow({
       ? t("paidShort", { amount: formatAmdFromCents(session.priceCents, locale) })
       : t("includedShort");
 
-  const rowClass = [USER_SCHEDULE_LIST_ROW_CLASS, isUserBooked ? SESSION_BOOKED_ROW_CLASS : ""]
+  const desktopRowClass = [
+    USER_SCHEDULE_LIST_ROW_CLASS,
+    "hidden md:grid",
+    isUserBooked ? SESSION_BOOKED_ROW_CLASS : "",
+  ]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <div className={rowClass}>
-      <div className={USER_SCHEDULE_LIST_DATE_CELL}>
-        <SessionDateTimeHighlight
-          locale={locale}
-          startsAt={session.startsAt}
-          endsAt={session.endsAt}
-          variant="listDate"
-        />
+    <>
+      <UserSessionMobileCard
+        className="md:hidden"
+        locale={locale}
+        session={session}
+        coachName={coachName}
+        spotsLabel={spotsLabel}
+        pricingLabel={pricing}
+        full={full}
+        isUserBooked={isUserBooked}
+        activeBookingId={activeBookingId}
+        onBookingChange={setActiveBookingId}
+      />
+
+      <div className={desktopRowClass}>
+        <div className={USER_SCHEDULE_LIST_DATE_CELL}>
+          <SessionDateTimeHighlight
+            locale={locale}
+            startsAt={session.startsAt}
+            endsAt={session.endsAt}
+            variant="listDate"
+          />
+        </div>
+
+        <div className={USER_SCHEDULE_LIST_CLASS_CELL}>
+          <SessionClassTitle variant="list" name={session.classType.name} />
+        </div>
+
+        <div className={USER_SCHEDULE_LIST_TIME_CELL}>
+          <SessionDateTimeHighlight
+            locale={locale}
+            startsAt={session.startsAt}
+            endsAt={session.endsAt}
+            variant="listTime"
+          />
+        </div>
+
+        <div className={USER_SCHEDULE_LIST_COACH_CELL}>
+          <p className={`truncate text-xs font-semibold ${coachName ? "text-sage-800" : "text-sage-400"}`}>
+            {coachName ?? "—"}
+          </p>
+        </div>
+
+        <div className={USER_SCHEDULE_LIST_SPOTS_CELL}>
+          <SessionSpotsIndicator
+            booked={booked}
+            capacity={session.capacity}
+            pricingLabel={pricing}
+            spotsLabel={spotsLabel}
+          />
+        </div>
+
+        <div className={USER_SCHEDULE_LIST_SPACER_CELL} aria-hidden="true" />
+
+        <div className={USER_SCHEDULE_LIST_ACTIONS_CLASS}>
+          <SessionBookingActions
+            sessionId={session.id}
+            priceCents={session.priceCents}
+            full={full}
+            userBookingId={activeBookingId}
+            onBookingChange={setActiveBookingId}
+            layout="list"
+            size="md"
+          />
+        </div>
       </div>
-
-      <div className={USER_SCHEDULE_LIST_CLASS_CELL}>
-        <SessionClassTitle variant="list" name={session.classType.name} />
-      </div>
-
-      <div className={USER_SCHEDULE_LIST_TIME_CELL}>
-        <SessionDateTimeHighlight
-          locale={locale}
-          startsAt={session.startsAt}
-          endsAt={session.endsAt}
-          variant="listTime"
-        />
-      </div>
-
-      <div className={USER_SCHEDULE_LIST_COACH_CELL}>
-        <MobileLabel label={t("listHeaderCoach")} />
-        <p className={`truncate text-xs font-semibold ${coachName ? "text-sage-800" : "text-sage-400"}`}>
-          {coachName ?? "—"}
-        </p>
-      </div>
-
-      <div className={USER_SCHEDULE_LIST_SPOTS_CELL}>
-        <SessionSpotsIndicator
-          booked={booked}
-          capacity={session.capacity}
-          pricingLabel={pricing}
-          spotsLabel={spotsLabel}
-        />
-      </div>
-
-      <div className={USER_SCHEDULE_LIST_SPACER_CELL} aria-hidden="true" />
-
-      <div className={USER_SCHEDULE_LIST_ACTIONS_CLASS}>
-        <SessionBookingActions
-          sessionId={session.id}
-          priceCents={session.priceCents}
-          full={full}
-          userBookingId={activeBookingId}
-          onBookingChange={setActiveBookingId}
-          layout="list"
-          size="md"
-        />
-      </div>
-    </div>
-  );
-}
-
-function MobileLabel({ label }: { label: string }) {
-  return (
-    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sage-500 md:hidden">
-      {label}
-    </p>
+    </>
   );
 }

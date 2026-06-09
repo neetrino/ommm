@@ -131,6 +131,9 @@ function ChevronRight() {
   );
 }
 
+const CALENDAR_FOOTER_ACTION_CLASS =
+  "text-base font-medium text-sand-700 transition-colors hover:text-sand-700/80";
+
 function CalendarGlyph() {
   return (
     <svg
@@ -442,7 +445,7 @@ export function DatePickerInput({
           <div className="mt-2.5 flex items-center justify-between border-t border-sand-500/20 px-1 pt-2.5">
             <button
               type="button"
-              className="text-base font-medium text-[#2f39a6] transition-opacity hover:opacity-80"
+              className={CALENDAR_FOOTER_ACTION_CLASS}
               onClick={() => {
                 onChange("");
                 closePicker();
@@ -452,7 +455,7 @@ export function DatePickerInput({
             </button>
             <button
               type="button"
-              className="text-base font-medium text-[#2f39a6] transition-opacity hover:opacity-80"
+              className={CALENDAR_FOOTER_ACTION_CLASS}
               onClick={() => {
                 onChange(formatIsoDate(today));
                 setVisibleMonth(startOfMonth(today));

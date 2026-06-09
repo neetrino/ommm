@@ -110,6 +110,13 @@
   }
 
   .sessionPanel {
+    box-sizing: border-box;
+    width: min(
+      100%,
+      var(--ommm-content-max-width, 1280px),
+      calc(100vw - var(--ommm-content-inline-margin, 2rem))
+    );
+    margin-inline: auto;
     margin-top: 1.5rem;
     gap: var(--home-schedule-session-list-gap-lg, 1rem);
   }

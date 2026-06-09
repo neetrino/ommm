@@ -1,0 +1,86 @@
+/**
+ * Workspace mobile drawer visibility — matches {@link WORKSPACE_MOBILE_DRAWER_MEDIA_QUERY}.
+ * Real phones keep drawer UX even with a wide viewport or "desktop site" mode.
+ */
+
+.overlayMobileOnly {
+  display: flex;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .overlayMobileOnly {
+    display: none;
+  }
+}
+
+.mobileDrawerTrigger {
+  display: inline-flex;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .mobileDrawerTrigger {
+    display: none;
+  }
+}
+
+.desktopSidebar {
+  display: none;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .desktopSidebar {
+    display: flex;
+  }
+}
+
+.desktopSidebarSpacer {
+  display: none;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .desktopSidebarSpacer {
+    display: block;
+  }
+}
+
+.memberHubDrawerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .memberHubDrawerOverlay {
+    display: none;
+  }
+}
+
+.memberHubDrawerPanel {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  min-height: 0;
+  width: 100%;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  background-color: var(--ommm-admin-page);
+  padding-top: max(1.25rem, env(safe-area-inset-top, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 0px));
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+}
+
+@media (min-width: 640px) {
+  .memberHubDrawerPanel {
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+    padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+  }
+}

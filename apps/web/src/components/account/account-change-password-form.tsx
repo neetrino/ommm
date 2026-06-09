@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { OmmButton } from "@/components/ui/omm-button";
 import { PasswordInput } from "@/components/ui/password-input";
+import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 128;
@@ -14,11 +15,14 @@ type AccountChangePasswordFormProps = {
   hasPassword: boolean;
   /** When true, section title is provided by the parent card. */
   embedded?: boolean;
+  /** Mobile: right-align the submit button only. */
+  mobileSubmitAlignEnd?: boolean;
 };
 
 export function AccountChangePasswordForm({
   hasPassword,
   embedded = false,
+  mobileSubmitAlignEnd = false,
 }: AccountChangePasswordFormProps) {
   const router = useRouter();
   const t = useTranslations("forms.changePassword");
@@ -73,6 +77,7 @@ export function AccountChangePasswordForm({
       });
       setTone("ok");
       setMsg(res.message);
+      dismissMobileKeyboard();
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -143,16 +148,31 @@ export function AccountChangePasswordForm({
           hidePasswordLabel={t("hidePassword")}
         />
       </div>
-      <OmmButton
-        type="button"
-        variant="primary"
-        size="sm"
-        className="w-fit"
-        disabled={busy}
-        onClick={() => void submit()}
-      >
-        {hasPassword ? t("changeButton") : t("setButton")}
-      </OmmButton>
+      {mobileSubmitAlignEnd ? (
+        <div className="max-md:flex max-md:w-full max-md:justify-end">
+          <OmmButton
+            type="button"
+            variant="primary"
+            size="sm"
+            className="w-fit"
+            disabled={busy}
+            onClick={() => void submit()}
+          >
+            {hasPassword ? t("changeButton") : t("setButton")}
+          </OmmButton>
+        </div>
+      ) : (
+        <OmmButton
+          type="button"
+          variant="primary"
+          size="sm"
+          className="w-fit"
+          disabled={busy}
+          onClick={() => void submit()}
+        >
+          {hasPassword ? t("changeButton") : t("setButton")}
+        </OmmButton>
+      )}
       {msg ? (
         <p className={`text-sm ${tone === "ok" ? "text-sage-600" : "text-red-800"}`}>{msg}</p>
       ) : null}

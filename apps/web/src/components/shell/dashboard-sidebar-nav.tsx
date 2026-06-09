@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { AdminNavIcon } from "@/components/shell/admin-nav-icon";
@@ -12,7 +12,10 @@ import {
   memberOliveIconSlugForNavItem,
   type DashboardNavItem,
 } from "@/lib/dashboard-nav";
-import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
+import {
+  localizedWorkspaceHref,
+  WORKSPACE_ROUTE_PREFETCH,
+} from "@/lib/workspace-nav-link";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
 
@@ -94,6 +97,8 @@ export type DashboardSidebarNavProps = {
   pathname: string;
   collapsed: boolean;
   onNavigate: () => void;
+  /** Full document navigation — bypasses Next.js intercept routes (member desktop sidebar). */
+  hardNavigate?: boolean;
 };
 
 export function DashboardSidebarNav({
@@ -102,7 +107,9 @@ export function DashboardSidebarNav({
   pathname,
   collapsed,
   onNavigate,
+  hardNavigate = false,
 }: DashboardSidebarNavProps) {
+  const locale = useLocale();
   const tShell = useTranslations("dashboard.shell");
   const isOliveShell = isOliveDashboardShell(variant);
   const isAdmin = variant === "admin";
@@ -125,38 +132,55 @@ export function DashboardSidebarNav({
           : null;
         const showMutedDivider = isAdmin && index === firstMutedIndex;
 
+        const rowClassName = active
+          ? rowActive(variant, collapsed, muted)
+          : rowBase(variant, collapsed, muted);
+        const rowContent = (
+          <>
+            {oliveIconSlug ? (
+              <span className="ommm-admin-nav-icon">
+                <AdminNavIcon slug={oliveIconSlug} />
+              </span>
+            ) : (
+              <DashboardNavIcon name={item.icon} />
+            )}
+            <span
+              className={
+                collapsed
+                  ? "sr-only"
+                  : "min-w-0 truncate text-left leading-tight"
+              }
+            >
+              {item.label}
+            </span>
+          </>
+        );
+
         return (
           <div key={item.href}>
             {showMutedDivider ? <div className="ommm-admin-nav-divider" aria-hidden /> : null}
-            <Link
-              href={item.href}
-              prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
-              title={collapsed ? item.label : undefined}
-              aria-current={active ? "page" : undefined}
-              className={
-                active
-                  ? rowActive(variant, collapsed, muted)
-                  : rowBase(variant, collapsed, muted)
-              }
-              onClick={onNavigate}
-            >
-              {oliveIconSlug ? (
-                <span className="ommm-admin-nav-icon">
-                  <AdminNavIcon slug={oliveIconSlug} />
-                </span>
-              ) : (
-                <DashboardNavIcon name={item.icon} />
-              )}
-              <span
-                className={
-                  collapsed
-                    ? "sr-only"
-                    : "min-w-0 truncate text-left leading-tight"
-                }
+            {hardNavigate ? (
+              <a
+                href={localizedWorkspaceHref(locale, item.href)}
+                title={collapsed ? item.label : undefined}
+                aria-current={active ? "page" : undefined}
+                className={rowClassName}
+                onClick={onNavigate}
               >
-                {item.label}
-              </span>
-            </Link>
+                {rowContent}
+              </a>
+            ) : (
+              <Link
+                href={item.href}
+                prefetch={isOliveShell ? WORKSPACE_ROUTE_PREFETCH : undefined}
+                title={collapsed ? item.label : undefined}
+                aria-current={active ? "page" : undefined}
+                className={rowClassName}
+                onClick={onNavigate}
+              >
+                {rowContent}
+              </Link>
+            )}
           </div>
         );
       })}

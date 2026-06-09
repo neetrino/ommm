@@ -13,14 +13,17 @@ import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobil
 import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
 import {
   isCompactMarketingHeaderLocale,
-  marketingHeaderActionsClass,
   marketingHeaderAuthClusterClass,
-  marketingHeaderBrandLinkClass,
-  marketingHeaderBrandTextClass,
   marketingHeaderContainerClass,
+  marketingHeaderDesktopActionsClass,
+  marketingHeaderDesktopBrandLinkClass,
+  marketingHeaderDesktopBrandTextClass,
+  marketingHeaderDesktopNavClass,
+  marketingHeaderDesktopRowClass,
   marketingHeaderIconAccountClass,
   marketingHeaderIconButtonClass,
   marketingHeaderLanguageTriggerClass,
+  marketingHeaderNotificationTriggerClass,
   marketingHeaderMobileActionsClass,
   marketingHeaderMobileBrandLinkClass,
   marketingHeaderMobileBrandTextClass,
@@ -31,19 +34,22 @@ import {
   marketingHeaderMobileRowWrapClass,
   marketingHeaderMobileRowWrapStyle,
   MARKETING_MOBILE_HEADER,
-  marketingHeaderNavClass,
+  MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS,
+  MARKETING_HEADER_DESKTOP_AVATAR_CLASS,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
 } from "@/components/marketing/marketing-site-header-layout";
 import navPillStyles from "@/components/marketing/marketing-site-header-nav-pill.module.css";
-import { useMarketingHeaderElevated } from "@/components/marketing/use-marketing-header-elevated";
+import { useMarketingHeaderElevated } from "@/hooks/use-marketing-header-elevated";
 import {
   isAuthPath,
   isMarketingHeroHeaderPath,
   isMarketingHomePath,
   isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
+import { WorkspaceShellNotificationLink } from "@/components/shell/workspace-shell-notification-link";
+import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link, usePathname } from "@/i18n/navigation";
 
 function isActive(pathname: string, href: string): boolean {
@@ -70,6 +76,13 @@ export type MarketingSiteHeaderProps = {
   account?: MarketingHeaderAccount | null;
   /** Mobile/tablet sidebar drawer for authenticated dashboards. */
   workspaceDrawer?: WorkspaceDrawerControl;
+  /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
+  workspaceHeaderChrome?: boolean;
+  /** Member workspace — hide language switcher (mobile) and avatar in the header action cluster. */
+  memberWorkspaceHeader?: boolean;
+  notificationHref?: string | null;
+  notificationsLabel?: string | null;
+  notificationsActive?: boolean;
 };
 
 function WorkspaceDrawerGlyph() {
@@ -90,11 +103,43 @@ function WorkspaceDrawerGlyph() {
   );
 }
 
+function HeaderNotificationAction({
+  href,
+  label,
+  active,
+  className,
+  iconClassName,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  className?: string;
+  iconClassName?: string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <WorkspaceShellNotificationLink
+      href={href}
+      label={label}
+      active={active}
+      className={className}
+      iconClassName={iconClassName}
+      onNavigate={onNavigate}
+    />
+  );
+}
+
 /** Global site header — same chrome on marketing pages and authenticated workspaces. */
 export function MarketingSiteHeader({
   navLinks,
   account = null,
   workspaceDrawer,
+  workspaceHeaderChrome = false,
+  memberWorkspaceHeader = false,
+  notificationHref = null,
+  notificationsLabel = null,
+  notificationsActive = false,
 }: MarketingSiteHeaderProps) {
   const locale = useLocale();
   const compact = isCompactMarketingHeaderLocale(locale);
@@ -106,7 +151,7 @@ export function MarketingSiteHeader({
   const [publicMenuOpen, setPublicMenuOpen] = useState(false);
   const marketingPath = pathname ?? "";
   const isMarketingHome = isMarketingHomePath(marketingPath);
-  const isWorkspaceChrome = workspaceDrawer !== undefined;
+  const isWorkspaceChrome = workspaceHeaderChrome || workspaceDrawer !== undefined;
   const isAuthShell = isAuthPath(marketingPath);
   const isAccountShell =
     isWorkspaceChrome || isUserAccountPath(marketingPath) || isAuthShell;
@@ -116,13 +161,18 @@ export function MarketingSiteHeader({
       isMarketingHeroHeaderPath(marketingPath),
   );
   const elevated = isWorkspaceChrome ? true : scrollElevated;
-  const pillSurfaceClass = elevated ? navPillStyles.pillElevated : navPillStyles.pillHero;
   const workspaceDrawerOpen = workspaceDrawer?.open ?? false;
   const anyOverlayOpen = publicMenuOpen || workspaceDrawerOpen;
   const showMobileGlassPill = elevated && !anyOverlayOpen;
   const mobileGlassRowStyle = {
     ...marketingHeaderMobileRowWrapStyle(showMobileGlassPill),
     ["--marketing-mobile-scrolled-pill-bg" as string]:
+      MARKETING_MOBILE_HEADER.scrolledPillBackground,
+  };
+  const showNotifications =
+    notificationHref !== null && notificationsLabel !== null;
+  const desktopGlassStyle = {
+    ["--marketing-glass-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
   };
 
@@ -203,7 +253,7 @@ export function MarketingSiteHeader({
               {workspaceDrawer ? (
                 <button
                   type="button"
-                  className={`${marketingHeaderIconButtonClass()} ${navPillStyles.mobileHeaderAccountButton} lg:hidden`}
+                  className={`${marketingHeaderIconButtonClass()} ${navPillStyles.mobileHeaderAccountButton} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
                   aria-expanded={workspaceDrawerOpen}
                   aria-controls="dashboard-mobile-drawer"
                   aria-label={
@@ -215,28 +265,42 @@ export function MarketingSiteHeader({
                   <span className="sr-only">{tShell("workspaceAria")}</span>
                 </button>
               ) : null}
-              <LanguageSwitcher
-                context="marketing"
-                appearance="icon"
-                className="min-w-0 shrink-0"
-                triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
-                onAfterSelect={closeAllMenus}
-                renderIconTrigger={() => (
-                  <MarketingHeaderGlobeIcon
-                    className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
-                  />
-                )}
-              />
-              {account ? (
+              {showNotifications ? (
+                <HeaderNotificationAction
+                  href={notificationHref}
+                  label={notificationsLabel}
+                  active={notificationsActive}
+                  className={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                  iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                  onNavigate={closeAllMenus}
+                />
+              ) : null}
+              {!memberWorkspaceHeader ? (
+                <LanguageSwitcher
+                  context="marketing"
+                  appearance="icon"
+                  className="min-w-0 shrink-0"
+                  triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                  onAfterSelect={closeAllMenus}
+                  renderIconTrigger={() => (
+                    <MarketingHeaderGlobeIcon
+                      className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                    />
+                  )}
+                />
+              ) : null}
+              {!memberWorkspaceHeader && account ? (
                 <MarketingAccountAvatarMenu
                   initials={account.initials}
                   imageSrc={account.imageSrc}
                   displayName={account.displayName}
                   profileHref={account.href}
                   triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
+                  avatarClassName={navPillStyles.mobileHeaderAvatar}
+                  guestIconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   onAfterSelect={closeAllMenus}
                 />
-              ) : (
+              ) : !memberWorkspaceHeader ? (
                 <Link
                   href="/login"
                   className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
@@ -247,73 +311,96 @@ export function MarketingSiteHeader({
                     className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   />
                 </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
 
-        <Link href="/" className={marketingHeaderBrandLinkClass()} onClick={handleBrandClick}>
-          <span className={marketingHeaderBrandTextClass()}>{tNav("studioBrand")}</span>
-        </Link>
-
-        <nav
-          className={`${marketingHeaderNavClass(compact)} ${navPillStyles.pill} ${pillSurfaceClass}`}
-          aria-label={tUi("primaryNavAria")}
-          data-elevated={elevated ? "true" : "false"}
+        <div
+          className={`${marketingHeaderDesktopRowClass()} ${navPillStyles.desktopUnifiedBar} ${navPillStyles.marketingGlassPill}`}
+          data-glass-active="true"
+          style={desktopGlassStyle}
         >
-          <div aria-hidden className={navPillStyles.gloss} />
-          <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
-            {navLinks.map(({ href, key }) => {
-              const linkActive = isActive(marketingPath, href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`${marketingHeaderNavPillLinkClass(linkActive, compact)} ${navPillStyles.desktopNavLink}`}
-                  aria-current={linkActive ? "page" : undefined}
-                >
-                  <span
-                    className={`${navPillStyles.desktopNavLinkText} ${linkActive ? navPillStyles.desktopNavLinkTextActive : ""}`}
-                  >
-                    {tNav(key)}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+          <div aria-hidden className={navPillStyles.marketingGlassPillGloss} />
+          <Link
+            href="/"
+            className={marketingHeaderDesktopBrandLinkClass()}
+            onClick={handleBrandClick}
+          >
+            <span className={marketingHeaderDesktopBrandTextClass()}>
+              {tNav("studioBrand")}
+            </span>
+          </Link>
 
-        <div className={marketingHeaderActionsClass()}>
-          <div className={marketingHeaderAuthClusterClass()}>
-            <LanguageSwitcher
-              context="marketing"
-              appearance="icon"
-              className="min-w-0 shrink-0"
-              triggerClassName={marketingHeaderLanguageTriggerClass()}
-              onAfterSelect={closeAllMenus}
-              renderIconTrigger={() => (
-                <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
-              )}
-            />
-            {account ? (
-              <MarketingAccountAvatarMenu
-                initials={account.initials}
-                imageSrc={account.imageSrc}
-                displayName={account.displayName}
-                profileHref={account.href}
-                triggerClassName={marketingHeaderIconAccountClass()}
+          <nav
+            className={marketingHeaderDesktopNavClass()}
+            aria-label={tUi("primaryNavAria")}
+          >
+            <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
+              {navLinks.map(({ href, key }) => {
+                const linkActive = isActive(marketingPath, href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`${marketingHeaderNavPillLinkClass(linkActive, compact)} ${navPillStyles.desktopNavLink} ${linkActive ? navPillStyles.desktopNavLinkActive : ""}`}
+                    aria-current={linkActive ? "page" : undefined}
+                  >
+                    <span
+                      className={`${navPillStyles.desktopNavLinkText} ${linkActive ? navPillStyles.desktopNavLinkTextActive : ""}`}
+                    >
+                      {tNav(key)}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+
+          <div className={marketingHeaderDesktopActionsClass()}>
+            <div className={marketingHeaderAuthClusterClass()}>
+              <LanguageSwitcher
+                context="marketing"
+                appearance="icon"
+                className="min-w-0 shrink-0"
+                triggerClassName={marketingHeaderLanguageTriggerClass()}
                 onAfterSelect={closeAllMenus}
+                renderIconTrigger={() => (
+                  <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
+                )}
               />
-            ) : (
-              <Link
-                href="/login"
-                className={marketingHeaderIconAccountClass()}
-                aria-label={tCommon("login")}
-                onClick={closeAllMenus}
-              >
-                <MarketingHeaderUserIcon className="h-[22px] w-[20px] shrink-0 lg:h-[26px] lg:w-[23px] nav-desktop:h-[29px] nav-desktop:w-[26px]" />
-              </Link>
-            )}
+              {showNotifications ? (
+                <HeaderNotificationAction
+                  href={notificationHref}
+                  label={notificationsLabel}
+                  active={notificationsActive}
+                  className={`hidden lg:inline-flex ${marketingHeaderNotificationTriggerClass()}`}
+                  iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+                  onNavigate={closeAllMenus}
+                />
+              ) : null}
+              {!memberWorkspaceHeader && account ? (
+                <MarketingAccountAvatarMenu
+                  initials={account.initials}
+                  imageSrc={account.imageSrc}
+                  displayName={account.displayName}
+                  profileHref={account.href}
+                  triggerClassName={marketingHeaderIconAccountClass()}
+                  avatarClassName={`${MARKETING_HEADER_DESKTOP_AVATAR_CLASS} rounded-full`}
+                  guestIconClassName={MARKETING_HEADER_DESKTOP_AVATAR_CLASS}
+                  onAfterSelect={closeAllMenus}
+                />
+              ) : !memberWorkspaceHeader ? (
+                <Link
+                  href="/login"
+                  className={marketingHeaderIconAccountClass()}
+                  aria-label={tCommon("login")}
+                  onClick={closeAllMenus}
+                >
+                  <MarketingHeaderUserIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
+                </Link>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

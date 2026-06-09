@@ -1,21 +1,30 @@
 import Image from "next/image";
+import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
 
 type MemberProfileAvatarProps = {
   initials: string;
   imageSrc: string | null;
+  /** Photo circle sizing — used only when `imageSrc` is set. */
   className?: string;
+  /** Matches logged-out header user icon sizing when there is no photo. */
+  guestIconClassName?: string;
 };
 
 export function MemberProfileAvatar({
-  initials,
   imageSrc,
-  className = "",
+  className,
+  guestIconClassName = "h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8",
 }: MemberProfileAvatarProps) {
-  const surface = `ommm-admin-profile-avatar ${className}`.trim();
-
   if (imageSrc) {
+    const photoClass = className
+      ? [
+          "flex shrink-0 items-center justify-center overflow-hidden rounded-full p-0",
+          className,
+        ]
+      : ["ommm-admin-profile-avatar overflow-hidden p-0"];
+
     return (
-      <span className={`${surface} overflow-hidden p-0`}>
+      <span className={photoClass.filter(Boolean).join(" ")}>
         <Image
           src={imageSrc}
           alt=""
@@ -27,9 +36,5 @@ export function MemberProfileAvatar({
     );
   }
 
-  return (
-    <span className={surface} aria-hidden>
-      {initials}
-    </span>
-  );
+  return <MarketingHeaderUserIcon className={guestIconClassName} />;
 }

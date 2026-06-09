@@ -11,6 +11,7 @@ import {
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import {
   buildUserSessionFilterFields,
   DEFAULT_USER_SESSION_FILTER_VALUES,
@@ -47,9 +48,15 @@ type UserWaitlistsSectionProps = {
   locale: string;
   rows: readonly UserWaitlistRow[];
   loadError: boolean;
+  embeddedInSheet?: boolean;
 };
 
-export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsSectionProps) {
+export function UserWaitlistsSection({
+  locale,
+  rows,
+  loadError,
+  embeddedInSheet = false,
+}: UserWaitlistsSectionProps) {
   const t = useTranslations("userPages.waitlists");
   const tSort = useTranslations("listSort");
   const router = useRouter();
@@ -154,109 +161,120 @@ export function UserWaitlistsSection({ locale, rows, loadError }: UserWaitlistsS
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <UserListBoardViewSwitcher
-        pageId="waitlists"
-        namespace="userPages.waitlists"
-        value={viewMode}
-        onChange={setView}
-      />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={
+        <UserListBoardViewSwitcher
+          pageId="waitlists"
+          namespace="userPages.waitlists"
+          value={viewMode}
+          onChange={setView}
+        />
+      }
+    />
+  );
+
+  const listBody = loadError ? (
+    <section className="rounded-[20px] border border-rose-100 bg-rose-50/70 p-5 text-sm text-rose-800">
+      {t("loadError")}
+    </section>
+  ) : rows.length === 0 ? (
+    <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+      <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
+      <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+    </section>
+  ) : (
+    <>
+      <p className="text-sm text-sage-600">
+        {t("waitlistsCount", { count: filtersActive ? filteredRows.length : rows.length })}
+      </p>
+
+      {filteredRows.length === 0 ? (
+        <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+          <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+          <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+        </div>
+      ) : viewMode === "board" ? (
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {filteredRows.map((item) => (
+            <li key={item.id} className="min-w-0 list-none">
+              <UserWaitlistBoardCard locale={locale} waitlist={item} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className={USER_LIST_STACK_CLASS}>
+          <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
+            <span>{t("listHeaderDate")}</span>
+            <span>{t("listHeaderClass")}</span>
+            <span>{t("listHeaderTime")}</span>
+            <span>{t("listHeaderStatus")}</span>
+            <span aria-hidden="true" />
+            <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
+          </div>
+          <ul className={USER_LIST_STACK_CLASS}>
+            {filteredRows.map((item) => (
+              <li key={item.id} className={`list-none ${USER_BOOKINGS_LIST_ROW_CLASS}`}>
+                <div className={USER_BOOKINGS_LIST_DATE_CELL}>
+                  <SessionDateTimeHighlight
+                    locale={locale}
+                    startsAt={item.session.startsAt}
+                    endsAt={item.session.endsAt}
+                    variant="listDate"
+                  />
+                </div>
+                <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
+                  <SessionClassTitle variant="list" name={item.session.classType.name} />
+                  <SessionCoachLine
+                    coachName={resolveSessionCoachName(item.session.coach)}
+                    variant="list"
+                    className="mt-1"
+                  />
+                </div>
+                <div className={USER_BOOKINGS_LIST_TIME_CELL}>
+                  <SessionDateTimeHighlight
+                    locale={locale}
+                    startsAt={item.session.startsAt}
+                    endsAt={item.session.endsAt}
+                    variant="listTime"
+                  />
+                </div>
+                <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
+                    {t("waitlistBadge", { pos: item.position, status: item.status })}
+                  </p>
+                </div>
+                <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
+                <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </>
   );
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
-
-      {loadError ? (
-        <section className="rounded-[20px] border border-rose-100 bg-rose-50/70 p-5 text-sm text-rose-800">
-          {t("loadError")}
-        </section>
-      ) : rows.length === 0 ? (
-        <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-          <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
-        </section>
+      {embeddedInSheet ? (
+        heroSearch
       ) : (
-        <>
-          <p className="text-sm text-sage-600">
-            {t("waitlistsCount", { count: filtersActive ? filteredRows.length : rows.length })}
-          </p>
-
-          {filteredRows.length === 0 ? (
-            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-            </div>
-          ) : viewMode === "board" ? (
-            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredRows.map((item) => (
-                <li key={item.id} className="min-w-0 list-none">
-                  <UserWaitlistBoardCard locale={locale} waitlist={item} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={USER_LIST_STACK_CLASS}>
-              <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
-                <span>{t("listHeaderDate")}</span>
-                <span>{t("listHeaderClass")}</span>
-                <span>{t("listHeaderTime")}</span>
-                <span>{t("listHeaderStatus")}</span>
-                <span aria-hidden="true" />
-                <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
-              </div>
-              <ul className={USER_LIST_STACK_CLASS}>
-                {filteredRows.map((item) => (
-                  <li key={item.id} className={`list-none ${USER_BOOKINGS_LIST_ROW_CLASS}`}>
-                    <div className={USER_BOOKINGS_LIST_DATE_CELL}>
-                      <SessionDateTimeHighlight
-                        locale={locale}
-                        startsAt={item.session.startsAt}
-                        endsAt={item.session.endsAt}
-                        variant="listDate"
-                      />
-                    </div>
-                    <div className={USER_BOOKINGS_LIST_CLASS_CELL}>
-                      <SessionClassTitle variant="list" name={item.session.classType.name} />
-                      <SessionCoachLine
-                        coachName={resolveSessionCoachName(item.session.coach)}
-                        variant="list"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div className={USER_BOOKINGS_LIST_TIME_CELL}>
-                      <SessionDateTimeHighlight
-                        locale={locale}
-                        startsAt={item.session.startsAt}
-                        endsAt={item.session.endsAt}
-                        variant="listTime"
-                      />
-                    </div>
-                    <div className={USER_BOOKINGS_LIST_STATUS_CELL}>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-sage-500">
-                        {t("waitlistBadge", { pos: item.position, status: item.status })}
-                      </p>
-                    </div>
-                    <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
-                    <div className={USER_BOOKINGS_LIST_ACTIONS_CELL} aria-hidden="true" />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
+        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
       )}
+      {listBody}
     </div>
   );
 }

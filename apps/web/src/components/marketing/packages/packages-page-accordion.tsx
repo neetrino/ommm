@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useCallback, useMemo } from "react";
+import { Suspense, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
@@ -538,30 +538,18 @@ function resolveExpandedCategoryId(
   return match?.id ?? null;
 }
 
-/** Figma Packages accordion — collapsed row `395:1652`, expanded panel `395:1341`. */
-export function PackagesPageAccordion({
+type PackagesSubscribeModalHostProps = {
+  locale: string;
+  categories: readonly PackagesPageAccordionCategory[];
+  audience: PublicPackageCategoryCardsAudience;
+};
+
+function PackagesSubscribeModalHostInner({
   locale,
   categories,
-  audience = "guest",
-}: PackagesPageAccordionProps) {
-  const t = useTranslations("marketing");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get("category");
-  const { subscribePlanId, openSubscribe, closeSubscribe, setSubscribePlanId } =
-    usePackageSubscribeUrlState();
-  const expandedId = useMemo(
-    () => resolveExpandedCategoryId(categories, categoryParam),
-    [categories, categoryParam],
-  );
-
-  const handleSubscribe = useCallback(
-    (plan: PublicPackagePlan) => {
-      openSubscribe(plan.id);
-    },
-    [openSubscribe],
-  );
+  audience,
+}: PackagesSubscribeModalHostProps) {
+  const { subscribePlanId, closeSubscribe } = usePackageSubscribeUrlState();
 
   const subscribeContext = useMemo(() => {
     if (audience !== "member" || subscribePlanId === null || subscribePlanId.length === 0) {
@@ -579,6 +567,53 @@ export function PackagesPageAccordion({
         ? toPackageSubscribePlanOptions(subscribeContext.subscribablePlans)
         : [],
     [subscribeContext],
+  );
+
+  if (audience !== "member" || subscribeContext === null || subscribeModalPlans.length === 0) {
+    return null;
+  }
+
+  return (
+    <PackageSubscribePaymentModal
+      isOpen
+      locale={locale}
+      plans={subscribeModalPlans}
+      initialPlanId={subscribeContext.plan.id}
+      onClose={closeSubscribe}
+    />
+  );
+}
+
+function PackagesSubscribeModalHost(props: PackagesSubscribeModalHostProps) {
+  return (
+    <Suspense fallback={null}>
+      <PackagesSubscribeModalHostInner {...props} />
+    </Suspense>
+  );
+}
+
+/** Figma Packages accordion — collapsed row `395:1652`, expanded panel `395:1341`. */
+export function PackagesPageAccordion({
+  locale,
+  categories,
+  audience = "guest",
+}: PackagesPageAccordionProps) {
+  const t = useTranslations("marketing");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+  const { openSubscribe } = usePackageSubscribeUrlState();
+  const expandedId = useMemo(
+    () => resolveExpandedCategoryId(categories, categoryParam),
+    [categories, categoryParam],
+  );
+
+  const handleSubscribe = useCallback(
+    (plan: PublicPackagePlan) => {
+      openSubscribe(plan.id);
+    },
+    [openSubscribe],
   );
 
   const updateExpandedCategory = useCallback(
@@ -673,16 +708,7 @@ export function PackagesPageAccordion({
     <>
       {desktopContent}
       {mobileContent}
-      {audience === "member" && subscribeContext !== null && subscribeModalPlans.length > 0 ? (
-        <PackageSubscribePaymentModal
-          isOpen
-          locale={locale}
-          plans={subscribeModalPlans}
-          initialPlanId={subscribeContext.plan.id}
-          onClose={closeSubscribe}
-          onSelectedPlanIdChange={setSubscribePlanId}
-        />
-      ) : null}
+      <PackagesSubscribeModalHost locale={locale} categories={categories} audience={audience} />
     </>
   );
 }

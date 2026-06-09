@@ -23,7 +23,6 @@ import { formatDateForUi } from "@/lib/date-display";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
-  CalendarIcon,
 } from "@/components/marketing/schedule/schedule-view-icons";
 
 export const SCHEDULE_DATE_STRIP_VISIBLE_DAYS = 7;
@@ -73,17 +72,8 @@ export function ScheduleDateControls({
 
   return (
     <>
-      <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-10">
         <p className={`text-lg font-semibold capitalize ${SCHEDULE_INK}`}>{monthLabel}</p>
-        <button
-          type="button"
-          disabled
-          aria-disabled="true"
-          className={`inline-flex cursor-default items-center gap-2 text-sm font-medium ${SCHEDULE_INK} opacity-70`}
-        >
-          <CalendarIcon />
-          {t("fullCalendar")}
-        </button>
       </div>
 
       <div className={`mt-4 ${SCHEDULE_DATE_STRIP_PANEL}`}>

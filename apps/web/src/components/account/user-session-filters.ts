@@ -96,21 +96,27 @@ export function buildUserSessionFilterFields({
       emptyValue: "",
       resolveChipLabel: (value) => formatFilterDateChipLabel(labels.dateTo, value),
     },
-    {
+  ];
+
+  if (classTypes.length > 0) {
+    fields.push({
       key: "classType",
       label: "Class type",
       emptyValue: "all",
       allLabel: labels.classAll,
       options: classTypes.map((name) => ({ value: name, label: name })),
-    },
-    {
+    });
+  }
+
+  if (coaches.length > 0) {
+    fields.push({
       key: "coach",
       label: "Coach",
       emptyValue: "all",
       allLabel: labels.coachAll,
       options: coaches.map((name) => ({ value: name, label: name })),
-    },
-  ];
+    });
+  }
 
   if (includeAvailability && labels.availability) {
     fields.push({

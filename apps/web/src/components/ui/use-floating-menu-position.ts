@@ -17,6 +17,17 @@ const DEFAULT_MIN_MENU_HEIGHT = 140;
 
 const MENU_VIEWPORT_PADDING = 8;
 
+function readFixedSiteHeaderInset(): number {
+  const header = document.querySelector("header");
+  if (header === null) {
+    return MENU_VIEWPORT_PADDING;
+  }
+  if (window.getComputedStyle(header).position !== "fixed") {
+    return MENU_VIEWPORT_PADDING;
+  }
+  return Math.max(MENU_VIEWPORT_PADDING, header.getBoundingClientRect().bottom + MENU_SPACING);
+}
+
 function clampMenuLeft(preferredLeft: number, width: number): number {
   const minLeft = MENU_VIEWPORT_PADDING;
   const maxLeft = Math.max(minLeft, window.innerWidth - width - MENU_VIEWPORT_PADDING);
@@ -31,6 +42,8 @@ export function useFloatingMenuPosition(
   minWidth = 0,
   menuAlign: FloatingMenuAlign = "start",
   menuSpacing = MENU_SPACING,
+  freezePosition = false,
+  respectHeaderInset = false,
 ): FloatingMenuPosition | null {
   const [menuPosition, setMenuPosition] = useState<FloatingMenuPosition | null>(null);
 
@@ -39,25 +52,33 @@ export function useFloatingMenuPosition(
       return undefined;
     }
     const updatePosition = () => {
+      if (freezePosition) {
+        return;
+      }
       const trigger = triggerRef.current;
       if (trigger === null) {
         return;
       }
       const rect = trigger.getBoundingClientRect();
+      const headerInset = respectHeaderInset ? readFixedSiteHeaderInset() : MENU_VIEWPORT_PADDING;
       const width = Math.min(
         Math.max(rect.width, minWidth),
         window.innerWidth - MENU_VIEWPORT_PADDING * 2,
       );
       const availableBelow = window.innerHeight - rect.bottom - menuSpacing;
-      const availableAbove = rect.top - menuSpacing;
+      const availableAbove = rect.top - menuSpacing - headerInset;
       const openAbove = availableBelow < minMenuHeight && availableAbove > availableBelow;
       const preferredLeft =
         menuAlign === "end" ? rect.right - width : rect.left;
+      const menuTop = openAbove ? rect.top - menuSpacing : rect.bottom + menuSpacing;
+      const maxHeight = openAbove
+        ? Math.max(120, menuTop - headerInset)
+        : Math.max(120, window.innerHeight - menuTop - MENU_VIEWPORT_PADDING);
       setMenuPosition({
-        top: openAbove ? rect.top - menuSpacing : rect.bottom + menuSpacing,
+        top: menuTop,
         left: clampMenuLeft(preferredLeft, width),
         width,
-        maxHeight: Math.max(120, openAbove ? availableAbove : availableBelow),
+        maxHeight,
         placement: openAbove ? "top" : "bottom",
       });
     };
@@ -68,7 +89,17 @@ export function useFloatingMenuPosition(
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [disabled, menuAlign, menuSpacing, minMenuHeight, minWidth, open, triggerRef]);
+  }, [
+    disabled,
+    freezePosition,
+    menuAlign,
+    menuSpacing,
+    minMenuHeight,
+    minWidth,
+    open,
+    respectHeaderInset,
+    triggerRef,
+  ]);
 
   return menuPosition;
 }

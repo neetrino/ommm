@@ -9,7 +9,6 @@ import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { MemberContentFrame } from "@/components/layout/member-content-frame";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
-import { userDisplayInitials } from "@/lib/user-display-initials";
 import { serverApiJson } from "@/lib/server-api";
 
 type MeResponse = {
@@ -33,6 +32,7 @@ type RoleProfilePageProps = {
   showRole?: boolean;
   workspaceNoteVariant?: WorkspaceNoteVariant;
   shellChrome?: "member" | "admin";
+  embeddedInSheet?: boolean;
 };
 
 export async function RoleProfilePage({
@@ -40,6 +40,7 @@ export async function RoleProfilePage({
   showRole = false,
   workspaceNoteVariant,
   shellChrome,
+  embeddedInSheet = false,
 }: RoleProfilePageProps) {
   const t = await getTranslations({ locale, namespace: "userPages.profile" });
   const tStaff = await getTranslations({ locale, namespace: "staffProfile" });
@@ -56,7 +57,6 @@ export async function RoleProfilePage({
 
   const { user } = res.data;
   const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null) ?? null;
-  const initials = userDisplayInitials(user.name, user.lastName, user.email);
   const workspaceHeading =
     workspaceNoteVariant !== undefined
       ? tStaff(`workspace.${workspaceNoteVariant}.heading`)
@@ -66,15 +66,14 @@ export async function RoleProfilePage({
       ? tStaff(`workspace.${workspaceNoteVariant}.body`)
       : null;
 
+  const isMemberProfile = shellChrome === "member";
+
   const body = (
     <div className="w-full space-y-8">
       <AccountSection title={t("accountInfo")}>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
           <div className="mx-auto w-full max-w-[300px] lg:col-span-4 lg:mx-0 lg:max-w-none xl:col-span-3">
-            <AccountHomeImageForm
-              initialPreviewUrl={homePreviewUrl}
-              initials={initials}
-            />
+            <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
           </div>
           <div className="min-w-0 lg:col-span-8 xl:col-span-9">
             <AccountProfileInfoForm initialUser={user} showRole={showRole} />
@@ -83,7 +82,11 @@ export async function RoleProfilePage({
       </AccountSection>
 
       <AccountSection title={t("security")}>
-        <AccountChangePasswordForm hasPassword={user.hasPassword} embedded />
+        <AccountChangePasswordForm
+          hasPassword={user.hasPassword}
+          embedded
+          mobileSubmitAlignEnd={isMemberProfile}
+        />
       </AccountSection>
 
       {workspaceHeading !== null && workspaceBody !== null ? (
@@ -92,7 +95,12 @@ export async function RoleProfilePage({
         </AccountSection>
       ) : null}
 
-      {user.role !== "COACH" ? <DeleteAccountButton /> : null}
+      {user.role !== "COACH" ? (
+        <DeleteAccountButton
+          appearance="dangerButton"
+          wrapperClassName={isMemberProfile ? "max-md:w-full max-md:items-end" : ""}
+        />
+      ) : null}
     </div>
   );
 
@@ -105,6 +113,10 @@ export async function RoleProfilePage({
         </div>
       </AdminContentFrame>
     );
+  }
+
+  if (embeddedInSheet) {
+    return body;
   }
 
   return (

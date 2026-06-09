@@ -15,22 +15,43 @@ type UserGiftCardsPageHeroProps = {
   title: string;
   locale: string;
   giftBalanceCents: number | null;
+  /** Compact tabs + balance for the mobile hub bottom sheet (title lives in sheet chrome). */
+  embeddedInSheet?: boolean;
 };
 
 function UserGiftCardsPageHeroInner({
   title,
   locale,
   giftBalanceCents,
+  embeddedInSheet = false,
 }: UserGiftCardsPageHeroProps) {
   const t = useTranslations("userPages.giftCards");
-  const headerRef = useAdminStickyHeaderOffset(true);
+  const headerRef = useAdminStickyHeaderOffset(!embeddedInSheet);
+
+  const tabNav = <UserGiftCardsTabNav />;
+
+  if (embeddedInSheet) {
+    return (
+      <div className="flex flex-col items-stretch gap-3 pb-1">
+        <UserGiftCardsTabNav embeddedInSheet />
+        {giftBalanceCents !== null ? (
+          <UserGiftCardsBalanceDisplay
+            embeddedInSheet
+            label={t("giftBalanceLabel")}
+            amountCents={giftBalanceCents}
+            locale={locale}
+          />
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero">
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-4">
           <h1 className="ommm-admin-header-title">{title}</h1>
-          <UserGiftCardsTabNav />
+          {tabNav}
         </div>
         {giftBalanceCents !== null ? (
           <UserGiftCardsBalanceDisplay
@@ -44,23 +65,41 @@ function UserGiftCardsPageHeroInner({
   );
 }
 
-function UserGiftCardsPageHeroFallback({ title }: { title: string }) {
+function UserGiftCardsPageHeroFallback({
+  title,
+  embeddedInSheet = false,
+}: {
+  title: string;
+  embeddedInSheet?: boolean;
+}) {
   const t = useTranslations("userPages.giftCards.tabs");
-  const headerRef = useAdminStickyHeaderOffset(true);
+  const headerRef = useAdminStickyHeaderOffset(!embeddedInSheet);
+
+  const tabFallback = (
+    <nav
+      role="tablist"
+      aria-label={t("aria")}
+      className="flex min-w-0 shrink-0 items-center gap-3 overflow-x-auto pb-1"
+    >
+      <span className={USER_GIFT_CARDS_TAB_ACTIVE_CLASS}>{t("my")}</span>
+      <span className={USER_GIFT_CARDS_TAB_CLASS}>{t("shop")}</span>
+    </nav>
+  );
+
+  if (embeddedInSheet) {
+    return (
+      <div className="pb-1">
+        <UserGiftCardsTabNav embeddedInSheet />
+      </div>
+    );
+  }
 
   return (
     <WorkspaceStickyPageHeader headerRef={headerRef} spacing="hero">
       <div className="ommm-admin-header-bar flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-4">
           <h1 className="ommm-admin-header-title">{title}</h1>
-          <nav
-            role="tablist"
-            aria-label={t("aria")}
-            className="flex min-w-0 shrink-0 items-center gap-3 overflow-x-auto pb-1"
-          >
-            <span className={USER_GIFT_CARDS_TAB_ACTIVE_CLASS}>{t("my")}</span>
-            <span className={USER_GIFT_CARDS_TAB_CLASS}>{t("shop")}</span>
-          </nav>
+          {tabFallback}
         </div>
       </div>
     </WorkspaceStickyPageHeader>
@@ -70,7 +109,14 @@ function UserGiftCardsPageHeroFallback({ title }: { title: string }) {
 /** Member gift cards page header with My / Shop pill tabs. */
 export function UserGiftCardsPageHero(props: UserGiftCardsPageHeroProps) {
   return (
-    <Suspense fallback={<UserGiftCardsPageHeroFallback title={props.title} />}>
+    <Suspense
+      fallback={
+        <UserGiftCardsPageHeroFallback
+          title={props.title}
+          embeddedInSheet={props.embeddedInSheet}
+        />
+      }
+    >
       <UserGiftCardsPageHeroInner {...props} />
     </Suspense>
   );

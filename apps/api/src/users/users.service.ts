@@ -255,6 +255,38 @@ export class UsersService {
     return this.persistHomeImage(userId, buf, mime);
   }
 
+  async removeHomeImage(userId: string) {
+    const prev = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { homeImageUrl: true },
+    });
+
+    if (!prev.homeImageUrl) {
+      const fresh = await this.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      });
+      return {
+        user: sanitizeUser(fresh),
+        message: 'Home image removed successfully',
+      };
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { homeImageUrl: null },
+    });
+
+    await this.removeStoredHomeImage(prev.homeImageUrl);
+
+    const fresh = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+    return {
+      user: sanitizeUser(fresh),
+      message: 'Home image removed successfully',
+    };
+  }
+
   private async persistHomeImage(
     userId: string,
     buf: Buffer,

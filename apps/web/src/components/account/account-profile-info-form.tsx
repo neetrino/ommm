@@ -13,6 +13,7 @@ import {
 } from "@/lib/date-display";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
+import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 const PROFILE_FIELD_CELL_CLASS = "ommm-inset-row flex flex-col gap-0.5";
 const PROFILE_FIELD_LABEL_CLASS = "text-xs text-sage-500";
@@ -139,6 +140,7 @@ export function AccountProfileInfoForm({
   }
 
   function cancelEdit() {
+    dismissMobileKeyboard();
     setForm(initialFormState(initialUser));
     setMessage(null);
     setIsEditing(false);
@@ -180,6 +182,7 @@ export function AccountProfileInfoForm({
       });
       setTone("ok");
       setMessage(tForm("saveSuccess"));
+      dismissMobileKeyboard();
       setIsEditing(false);
       router.refresh();
     } catch (error) {

@@ -22,6 +22,7 @@ import {
 } from "@/components/account/user-bookings-list-layout";
 import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
@@ -49,12 +50,14 @@ type UserBookingsSectionProps = {
   locale: string;
   initialUpcoming: readonly UserBookingRow[];
   initialPast: UserBookingsPastPayload;
+  embeddedInSheet?: boolean;
 };
 
 export function UserBookingsSection({
   locale,
   initialUpcoming,
   initialPast,
+  embeddedInSheet = false,
 }: UserBookingsSectionProps) {
   const t = useTranslations("userPages.bookings");
   const tSort = useTranslations("listSort");
@@ -235,77 +238,88 @@ export function UserBookingsSection({
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+        />
+      }
+      trailing={
+        <UserListBoardViewSwitcher
+          pageId="bookings"
+          namespace="userPages.bookings"
+          value={viewMode}
+          onChange={setView}
+        />
+      }
+    />
+  );
+
+  const listBody = !hasAnyBookings ? (
+    <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+      <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
+      <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+    </section>
+  ) : (
+    <>
+      {totalCount > 0 ? (
+        <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
+      ) : (
+        <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+          <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+          <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+        </div>
+      )}
+
+      <BookingGroup
+        title={t("upcoming")}
+        locale={locale}
+        rows={filteredUpcoming}
+        viewMode={viewMode}
+        showCancel
+        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
       />
-      <UserListBoardViewSwitcher
-        pageId="bookings"
-        namespace="userPages.bookings"
-        value={viewMode}
-        onChange={setView}
+
+      <BookingGroup
+        title={t("pastOther")}
+        locale={locale}
+        rows={filteredPast}
+        viewMode={viewMode}
+        showRebook
+        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
+        pagination={
+          <OmmListPagination
+            namespace="userPages.pagination"
+            total={pastPayload.total}
+            page={pastListPage.page}
+            pageSize={pastListPage.pageSize}
+            offset={pastPayload.offset}
+            onPageChange={(page) => setPastListPage(page)}
+            onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
+            disabled={loadingPast}
+          />
+        }
       />
-    </div>
+    </>
   );
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
-
-      {!hasAnyBookings ? (
-        <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-          <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
-        </section>
+      {embeddedInSheet ? (
+        heroSearch
       ) : (
-        <>
-          {totalCount > 0 ? (
-            <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
-          ) : (
-            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-            </div>
-          )}
-
-          <BookingGroup
-            title={t("upcoming")}
-            locale={locale}
-            rows={filteredUpcoming}
-            viewMode={viewMode}
-            showCancel
-            emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
-          />
-
-          <BookingGroup
-            title={t("pastOther")}
-            locale={locale}
-            rows={filteredPast}
-            viewMode={viewMode}
-            showRebook
-            emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
-            pagination={
-              <OmmListPagination
-                namespace="userPages.pagination"
-                total={pastPayload.total}
-                page={pastListPage.page}
-                pageSize={pastListPage.pageSize}
-                offset={pastPayload.offset}
-                onPageChange={(page) => setPastListPage(page)}
-                onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
-                disabled={loadingPast}
-              />
-            }
-          />
-        </>
+        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
       )}
+      {listBody}
     </div>
   );
 }

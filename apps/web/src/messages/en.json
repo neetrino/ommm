@@ -132,25 +132,25 @@
         "SUNDAY": "Sunday"
       },
       "classesTitle": "Our Core Practices",
-      "classesSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "classesSubtitle": "From strength to stillness - find the practice that meets you where you are.",
       "viewMembership": "View Membership",
       "viewSchedule": "View schedule",
       "classCards": [
         {
-          "titleLines": ["Reformer", "Group"],
-          "body": "Techniques to anchor your presence and expand your lung capacity through guided breath."
-        },
-        {
-          "titleLines": ["Reformer", "Individual"],
-          "body": "Focus on core stability and spatial awareness to find steadiness in the center of movement."
-        },
-        {
-          "titleLines": ["Yoga"],
-          "body": "Deep relaxation for the nervous system, using props to hold the body in gentle stillness."
+          "titleLines": ["Reformer Pilates"],
+          "body": "Low-impact, full-body movement on the reformer, where spring resistance can support you or challenge you - meeting you exactly where you are. It builds core strength, tones the whole body, and improves posture and flexibility, while staying gentle on the joints."
         },
         {
           "titleLines": ["Mat Pilates"],
-          "body": "Fluid sequences that build heat and strength while maintaining a rhythmic, moving flow."
+          "body": "Pilates in its purest form, using only your own body on the mat. Controlled, deliberate movements that build a strong foundation - deep core strength, better posture, and a clearer sense of how your body moves."
+        },
+        {
+          "titleLines": ["Power Pilates"],
+          "body": "For the days you want to build heat. A faster tempo and flowing transitions turn the Pilates method into something more dynamic - stronger, more intense, and deeply engaging, while never losing precision or control."
+        },
+        {
+          "titleLines": ["Yoga"],
+          "body": "Breath and movement, woven together. Sessions to stretch, ground, and soften - space to release the day and return to yourself."
         },
         {
           "titleLines": ["Dances"],
@@ -459,7 +459,7 @@
         "schedule": "Schedule",
         "bookings": "My bookings",
         "waitlists": "Waitlists",
-        "packages": "Packages",
+        "packages": "My packages",
         "payments": "Payments",
         "giftCards": "Gift cards",
         "notifications": "Notifications",
@@ -537,6 +537,7 @@
         "profile": "Your backoffice identity, sign-in email, and workspace integration notes."
       },
       "user": {
+        "account": "Your account menu and member shortcuts.",
         "home": "Your upcoming classes, bookings, and member tools.",
         "progress": "Achievements and milestones.",
         "classes": "Browse and book sessions.",
@@ -648,6 +649,15 @@
     "lead": "You signed in with Google. Set a password to also use email login."
   },
   "userPages": {
+    "accountHub": {
+      "menuAria": "Member account menu",
+      "sheetTitle": "Menu",
+      "changePassword": "Change password",
+      "signIn": {
+        "title": "Sign in to continue",
+        "body": "Your account menu is available after you sign in."
+      }
+    },
     "pagination": {
       "ariaLabel": "List pagination",
       "empty": "No results",
@@ -661,7 +671,7 @@
       "pageSizeLabel": "{size} per page"
     },
     "packages": {
-      "title": "Packages",
+      "title": "My packages",
       "description": "Choose a plan and complete payment with your preferred method. Your package will appear here after payment.",
       "statusPending": "Payment completed",
       "paymentStatusSucceeded": "Completed",
@@ -994,7 +1004,6 @@
     },
     "payments": {
       "title": "Payments",
-      "description": "Your complete payment history across packages, drop-ins, and gift purchases.",
       "loading": "Loading your payments...",
       "signInRequired": "Sign in to see your payments.",
       "loadError": "Could not load payments ({status}).",
@@ -3547,8 +3556,8 @@
       "methods": {
         "CASH": "Cash",
         "CARD": "Card",
-        "BANK_TRANSFER": "Bank transfer",
-        "OTHER": "Other"
+        "BANK_TRANSFER": "Apple Pay",
+        "OTHER": "Google Pay"
       },
       "unlimitedClasses": "Unlimited classes",
       "sessionsPerPeriod": "{count} classes per period",
@@ -3557,9 +3566,9 @@
       "submitting": "Processing…",
       "cancel": "Cancel",
       "submitFailed": "Could not complete payment.",
-      "successTitle": "Payment request sent",
-      "successLead": "Your package is pending until the studio team confirms the payment.",
-      "successMethod": "Payment method: {method}",
+      "successTitle": "Thank you for your subscription!",
+      "successLead": "Your order has been received successfully.",
+      "successFollowUp": "We'll contact you shortly with the next steps.",
       "done": "Done"
     },
     "packageLifecycle": {
@@ -3608,6 +3617,10 @@
       "tooLarge": "Image is too large. Maximum size is 5 MB.",
       "uploadSuccess": "Home image updated successfully.",
       "chooseImage": "Choose image",
+      "deletePhoto": "Remove photo",
+      "deletePhotoSuccess": "Photo removed.",
+      "deletePhotoFailed": "Could not remove photo.",
+      "removingPhoto": "Removing…",
       "upload": "Upload",
       "uploading": "Uploading…",
       "previewAlt": "Home image preview",

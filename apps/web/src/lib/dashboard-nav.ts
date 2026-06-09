@@ -65,7 +65,12 @@ export function memberOliveIconSlugForNavItem(
   return MEMBER_ICON_TO_OLIVE_SLUG[item.icon] ?? null;
 }
 
-/** Member (USER): dashboard, bookings, schedule, gift cards — no admin routes. */
+export type DashboardRoleNotificationRoute = {
+  href: string;
+  labelKey: string;
+};
+
+/** Member (USER): dashboard, bookings, schedule, packages — account hub on mobile `/user`. */
 const USER_NAV: readonly DashboardNavDefinition[] = [
   { href: USER_ACCOUNT_PATH, icon: "layoutDashboard", labelKey: "dashboard", oliveIconSlug: "dashboard" },
   { href: "/user/bookings", icon: "calendar", labelKey: "bookings", oliveIconSlug: "bookings" },
@@ -121,7 +126,6 @@ const ADMIN_NAV: readonly DashboardNavDefinition[] = [
   { href: "/admin/content", icon: "fileText", labelKey: "content" },
   { href: "/admin/settings", icon: "settings", labelKey: "settings" },
   { href: "/admin/guest-users", icon: "users", labelKey: "guestUsers" },
-  { href: "/admin/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ];
 
 /** Sidebar item definitions for the authenticated dashboard role (Prisma `Role`). */
@@ -141,6 +145,24 @@ export function dashboardNavDefinitionsForRole(
       return [...ADMIN_NAV];
     default:
       return [];
+  }
+}
+
+/** Notifications entrypoint route in header for the authenticated dashboard role. */
+export function dashboardNotificationRouteForRole(
+  role: string,
+): DashboardRoleNotificationRoute | null {
+  switch (role) {
+    case "USER":
+      return { href: "/user/notifications", labelKey: "notifications" };
+    case "COACH":
+      return { href: "/coach/notifications", labelKey: "notifications" };
+    case "CONTENT_ADMIN":
+      return { href: "/content-admin/notifications", labelKey: "notifications" };
+    case "ADMIN":
+      return { href: "/admin/notifications", labelKey: "notifications" };
+    default:
+      return null;
   }
 }
 

@@ -5,6 +5,8 @@ type UserGiftCardsBalanceDisplayProps = {
   label: string;
   amountCents: number;
   locale: string;
+  /** Full-width row below sheet tab buttons. */
+  embeddedInSheet?: boolean;
 };
 
 /** Compact inline gift credit balance for the page hero. */
@@ -12,12 +14,17 @@ export function UserGiftCardsBalanceDisplay({
   label,
   amountCents,
   locale,
+  embeddedInSheet = false,
 }: UserGiftCardsBalanceDisplayProps) {
   const amountLabel = formatAmdFromCents(amountCents, locale);
 
   return (
     <div
-      className="ml-auto flex shrink-0 items-center gap-2.5 rounded-full border border-white/75 bg-white/88 px-3 py-2 shadow-[0_12px_28px_-16px_rgba(45,40,35,0.24)] backdrop-blur-sm sm:px-4"
+      className={
+        embeddedInSheet
+          ? "flex w-full shrink-0 items-center gap-2.5 rounded-[20px] border border-white/75 bg-white/88 px-3 py-2.5 shadow-[0_12px_28px_-16px_rgba(45,40,35,0.24)] backdrop-blur-sm"
+          : "ml-auto flex shrink-0 items-center gap-2.5 rounded-full border border-white/75 bg-white/88 px-3 py-2 shadow-[0_12px_28px_-16px_rgba(45,40,35,0.24)] backdrop-blur-sm sm:px-4"
+      }
       aria-label={`${label}: ${amountLabel}`}
     >
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sand-100/95 text-sage-700">

@@ -113,6 +113,7 @@ export function LanguageSwitcher({
         menuMinWidth={isIconMarketing ? MARKETING_ICON_MENU_MIN_WIDTH_PX : undefined}
         menuAlign={isIconMarketing ? "end" : "start"}
         menuClassName="ommm-language-switcher-menu"
+        animateMenuDismiss={isIconMarketing}
         disableMenuScroll
         renderValue={() =>
           isIconMarketing ? (

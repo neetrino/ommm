@@ -1,0 +1,68 @@
+/**
+ * Mobile member sheet backdrop — matches `ommm-member-hub-sheet-overlay` (`tablet:hidden`).
+ * When a hub section sheet is open, hide the full-page route chrome and keep the hub visible.
+ */
+
+.root {
+  position: relative;
+}
+
+.hubBackdrop {
+  display: none;
+}
+
+.routeContent {
+  min-width: 0;
+}
+
+@media (max-width: 743px) {
+  .root[data-mobile-sheet="open"] {
+    overscroll-behavior: none;
+  }
+
+  .root[data-mobile-sheet="open"] .hubBackdrop {
+    display: block;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .root[data-mobile-sheet="open"] .routeContentWhenSheet {
+    visibility: hidden;
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    pointer-events: none;
+  }
+}
+
+@media (min-width: 744px) {
+  .root[data-desktop-notifications-sheet="open"] {
+    overscroll-behavior: none;
+  }
+
+  .root[data-desktop-notifications-sheet="open"] .hubBackdrop {
+    display: block;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .root[data-desktop-notifications-sheet="open"] .routeContentWhenSheet {
+    visibility: hidden;
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    pointer-events: none;
+  }
+}

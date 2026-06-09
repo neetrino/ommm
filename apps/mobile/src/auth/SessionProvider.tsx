@@ -35,6 +35,8 @@ type SessionContextValue = {
   homeHref: string;
   /** Greeting line (name or email local-part); empty when signed out. */
   userGreetingName: string;
+  /** Account email when signed in. */
+  userEmail: string;
   /** Resolved absolute URI for custom Home image, or null. */
   homeImageUri: string | null;
   refreshProfile: () => Promise<void>;
@@ -190,6 +192,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return resolveApiAssetUrl(getApiBaseUrl(), sessionProfile.homeImageUrl);
   }, [sessionProfile]);
 
+  const userEmail = useMemo(
+    () => (sessionProfile === null ? "" : sessionProfile.email),
+    [sessionProfile],
+  );
+
   const role = useMemo(
     () => (sessionProfile === null ? null : sessionProfile.role),
     [sessionProfile],
@@ -202,6 +209,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       role,
       homeHref,
       userGreetingName,
+      userEmail,
       homeImageUri,
       refreshProfile,
       establishSession,
@@ -220,6 +228,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       role,
       signInWithPassword,
       signOut,
+      userEmail,
       userGreetingName,
     ],
   );

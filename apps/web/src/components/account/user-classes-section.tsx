@@ -17,6 +17,7 @@ import {
   type UserSessionFilterValues,
 } from "@/components/account/user-session-filters";
 import { UserSessionCompactRow } from "@/components/account/user-session-compact-row";
+import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
 import { ListPageSearchFilters } from "@/components/shared/search/list-page-search-filters";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
@@ -37,6 +38,7 @@ type UserClassesSectionProps = {
   sessions: readonly UserSessionRow[];
   sessionBookings: UserSessionBookingMap;
   initialView: ScheduleView;
+  embeddedInSheet?: boolean;
 };
 
 export function UserClassesSection({
@@ -44,6 +46,7 @@ export function UserClassesSection({
   sessions,
   sessionBookings,
   initialView,
+  embeddedInSheet = false,
 }: UserClassesSectionProps) {
   const t = useTranslations("userPages.classes");
   const tSchedule = useTranslations("adminPages.schedule");
@@ -163,76 +166,87 @@ export function UserClassesSection({
   }
 
   const heroSearch = (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
-      <ListPageSearchFilters
-        search={filters.search}
-        onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
-        searchPlaceholder={t("filters.searchPlaceholder")}
-        fields={filterFields}
-        filterValues={integratedFilterValues}
-        onFilterChange={handleIntegratedFilterChange}
-        onClearAll={resetFilters}
-        resetLabel={t("filters.resetFilters")}
-      />
-      <ScheduleViewSwitcher value={view} onChange={setView} />
-    </div>
+    <UserSheetPageFiltersBar
+      embeddedInSheet={embeddedInSheet}
+      search={
+        <ListPageSearchFilters
+          className="w-full min-w-0"
+          search={filters.search}
+          onSearchChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          searchPlaceholder={t("filters.searchPlaceholder")}
+          fields={filterFields}
+          filterValues={integratedFilterValues}
+          onFilterChange={handleIntegratedFilterChange}
+          onClearAll={resetFilters}
+          resetLabel={t("filters.resetFilters")}
+          showActiveFilterChips={filteredSessions.length === 0}
+        />
+      }
+      trailing={
+        <div className="hidden md:flex">
+          <ScheduleViewSwitcher value={view} onChange={setView} />
+        </div>
+      }
+    />
   );
+
+  const listBody =
+    sessions.length === 0 ? (
+      <p className="ommm-body-muted text-sm">{t("noSessions")}</p>
+    ) : (
+      <>
+        <p className="text-sm text-sage-600">
+          {t("sessionsCount", { count: filtersActive ? filteredSessions.length : sessions.length })}
+        </p>
+
+        {filteredSessions.length === 0 ? (
+          <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+            <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+            <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+          </div>
+        ) : view === "weekly" ? (
+          <ScheduleWeekColumnsView
+            locale={locale}
+            rows={weekRows}
+            showCoach
+            cardVariant="member"
+            labels={{
+              gridAria: tSchedule("weekView.gridAria"),
+              todayBadge: tSchedule("weekView.todayBadge"),
+              emptyDay: tSchedule("weekView.emptyDay"),
+            }}
+          />
+        ) : (
+          <div className={USER_LIST_STACK_CLASS}>
+            <div className={USER_SCHEDULE_LIST_HEADER_CLASS}>
+              <span>{t("listHeaderDate")}</span>
+              <span>{t("listHeaderClass")}</span>
+              <span>{t("listHeaderTime")}</span>
+              <span>{t("listHeaderCoach")}</span>
+              <span>{t("listHeaderSpots")}</span>
+              <span aria-hidden="true" />
+              <span className={USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
+            </div>
+            <ul className={USER_LIST_STACK_CLASS}>
+              {filteredSessions.map((session) => (
+                <li key={session.id} className="list-none">
+                  <UserSessionCompactRow
+                    locale={locale}
+                    session={session}
+                    userBookingId={sessionBookings[session.id]}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </>
+    );
 
   return (
     <div className="space-y-4">
-      <AdminPageHero title={t("title")} search={heroSearch} />
-
-      {sessions.length === 0 ? (
-        <p className="ommm-body-muted text-sm">{t("noSessions")}</p>
-      ) : (
-        <>
-          <p className="text-sm text-sage-600">
-            {t("sessionsCount", { count: filtersActive ? filteredSessions.length : sessions.length })}
-          </p>
-
-          {filteredSessions.length === 0 ? (
-            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-            </div>
-          ) : view === "weekly" ? (
-            <ScheduleWeekColumnsView
-              locale={locale}
-              rows={weekRows}
-              showCoach
-              cardVariant="member"
-              labels={{
-                gridAria: tSchedule("weekView.gridAria"),
-                todayBadge: tSchedule("weekView.todayBadge"),
-                emptyDay: tSchedule("weekView.emptyDay"),
-              }}
-            />
-          ) : (
-            <div className={USER_LIST_STACK_CLASS}>
-              <div className={USER_SCHEDULE_LIST_HEADER_CLASS}>
-                <span>{t("listHeaderDate")}</span>
-                <span>{t("listHeaderClass")}</span>
-                <span>{t("listHeaderTime")}</span>
-                <span>{t("listHeaderCoach")}</span>
-                <span>{t("listHeaderSpots")}</span>
-                <span aria-hidden="true" />
-                <span className={USER_SCHEDULE_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
-              </div>
-              <ul className={USER_LIST_STACK_CLASS}>
-                {filteredSessions.map((session) => (
-                  <li key={session.id} className="list-none">
-                    <UserSessionCompactRow
-                      locale={locale}
-                      session={session}
-                      userBookingId={sessionBookings[session.id]}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
-      )}
+      {embeddedInSheet ? heroSearch : <AdminPageHero title={t("title")} search={heroSearch} />}
+      {listBody}
     </div>
   );
 }

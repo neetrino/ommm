@@ -134,7 +134,7 @@ function HomePlansSubscribeModalHostInner({
   audience,
   categories,
 }: HomePlansSubscribeModalHostProps) {
-  const { subscribePlanId, closeSubscribe, setSubscribePlanId } = usePackageSubscribeUrlState();
+  const { subscribePlanId, closeSubscribe } = usePackageSubscribeUrlState();
 
   const subscribeContext = useMemo(() => {
     if (audience !== "member" || subscribePlanId === null || subscribePlanId.length === 0) {
@@ -162,7 +162,6 @@ function HomePlansSubscribeModalHostInner({
       plans={subscribeModalPlans}
       initialPlanId={subscribeContext.plan.id}
       onClose={closeSubscribe}
-      onSelectedPlanIdChange={setSubscribePlanId}
     />
   );
 }

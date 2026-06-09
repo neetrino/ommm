@@ -1,13 +1,41 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
+import {
+  MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
+  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
+  MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS,
+  MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS,
+  memberAccountHubSheetPanelStyle,
+} from "@/components/account/member-account-hub-sheet-layout";
+import {
+  PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS,
+  PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS,
+  PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS,
+  PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
+  PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
+  PACKAGE_SUBSCRIBE_FORM_CLASS,
+  PACKAGE_SUBSCRIBE_FORM_GRID_CLASS,
+  PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS,
+  PACKAGE_SUBSCRIBE_PLANS_COLUMN_CLASS,
+  PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
+  PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
+} from "@/components/account/package-subscribe-payment-sheet-layout";
+import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
+import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
+import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { OmmDrawerPortal, OmmModalPortal } from "@/components/ui/omm-modal";
+import {
+  readMemberHubSheetPhoneViewport,
+  useMemberHubSheetPhone,
+} from "@/hooks/use-member-hub-sheet-phone";
 import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { apiFetch } from "@/lib/api";
+import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import {
   MANUAL_PAYMENT_METHODS,
   type ManualPaymentMethod,
@@ -20,7 +48,6 @@ type PackageSubscribePaymentModalProps = {
   plans: readonly PackageSubscribePlanOption[];
   initialPlanId?: string;
   onClose: () => void;
-  onSelectedPlanIdChange?: (planId: string) => void;
 };
 
 type ModalStep = "form" | "success";
@@ -41,19 +68,33 @@ function resolveDefaultPlanId(
   return plans[0]?.id ?? "";
 }
 
+function SheetCloseIcon() {
+  return (
+    <svg
+      className="h-5 w-5 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
+      <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function PackageSubscribePaymentModal({
   isOpen,
   locale,
   plans,
   initialPlanId,
   onClose,
-  onSelectedPlanIdChange,
 }: PackageSubscribePaymentModalProps) {
   if (!isOpen || plans.length === 0) {
     return null;
   }
 
-  const sessionKey = `${initialPlanId ?? ""}:${plans.map((plan) => plan.id).join(",")}`;
+  const sessionKey = plans.map((plan) => plan.id).join(",");
 
   return (
     <PackageSubscribePaymentModalSession
@@ -63,7 +104,6 @@ export function PackageSubscribePaymentModal({
       plans={plans}
       initialPlanId={initialPlanId}
       onClose={onClose}
-      onSelectedPlanIdChange={onSelectedPlanIdChange}
     />
   );
 }
@@ -74,11 +114,13 @@ function PackageSubscribePaymentModalSession({
   plans,
   initialPlanId,
   onClose,
-  onSelectedPlanIdChange,
 }: PackageSubscribePaymentModalProps) {
   const t = useTranslations("forms.manualPackagePayment");
   const router = useRouter();
   const titleId = useId();
+  const closingRef = useRef(false);
+  const refreshAfterCloseRef = useRef(false);
+  const [motionState, setMotionState] = useState<"open" | "closed">("closed");
   const [step, setStep] = useState<ModalStep>("form");
   const [selectedPlanId, setSelectedPlanId] = useState(() =>
     resolveDefaultPlanId(plans, initialPlanId),
@@ -87,11 +129,26 @@ function PackageSubscribePaymentModalSession({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isPhone = useMemberHubSheetPhone();
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
+  const sheetTitle = step === "success" ? t("successTitle") : t("title");
+
+  useLayoutEffect(() => {
+    if (isPhone) {
+      return undefined;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setMotionState("open");
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [isPhone]);
 
   function handlePlanSelect(planId: string) {
     setSelectedPlanId(planId);
-    onSelectedPlanIdChange?.(planId);
   }
 
   async function onConfirm(event: React.FormEvent<HTMLFormElement>) {
@@ -119,7 +176,7 @@ function PackageSubscribePaymentModalSession({
         return;
       }
       setStep("success");
-      router.refresh();
+      refreshAfterCloseRef.current = true;
     } catch (err) {
       setError(isApiError(err) ? err.message : t("submitFailed"));
     } finally {
@@ -127,71 +184,136 @@ function PackageSubscribePaymentModalSession({
     }
   }
 
+  function finishClose() {
+    const shouldRefresh = refreshAfterCloseRef.current;
+    refreshAfterCloseRef.current = false;
+    onClose();
+    if (shouldRefresh) {
+      router.refresh();
+    }
+  }
+
   function handleClose() {
-    if (busy) {
+    if (busy || closingRef.current) {
       return;
     }
-    onClose();
+
+    dismissMobileKeyboard();
+
+    if (readMemberHubSheetPhoneViewport()) {
+      finishClose();
+      return;
+    }
+
+    closingRef.current = true;
+    setMotionState("closed");
+    window.setTimeout(finishClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
   function handleDone() {
-    onClose();
+    handleClose();
+  }
+
+  const sheetBody =
+    step === "success" ? (
+      <SuccessPanel onDone={handleDone} />
+    ) : (
+      <form onSubmit={(event) => void onConfirm(event)} className={PACKAGE_SUBSCRIBE_FORM_CLASS}>
+        <p className="shrink-0 text-sm text-sage-600">{t("lead")}</p>
+        <div className={PACKAGE_SUBSCRIBE_FORM_GRID_CLASS}>
+          <div className={PACKAGE_SUBSCRIBE_PLANS_COLUMN_CLASS}>
+            <PackageSubscribePlanPicker
+              plans={plans}
+              selectedPlanId={selectedPlan.id}
+              locale={locale}
+              onSelect={handlePlanSelect}
+            />
+          </div>
+          <div className={PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS}>
+            <PaymentMethodPicker
+              value={paymentMethod}
+              onChange={setPaymentMethod}
+              disabled={busy}
+            />
+          </div>
+        </div>
+        {error !== null ? (
+          <p className="shrink-0 text-sm text-red-800" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <div className="flex shrink-0 flex-wrap justify-end gap-3 pt-1">
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={handleClose}
+            disabled={busy}
+          >
+            {t("cancel")}
+          </OmmButton>
+          <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
+            {busy ? t("submitting") : t("confirm")}
+          </OmmButton>
+        </div>
+      </form>
+    );
+
+  const sheetHeader = (
+    <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
+      <h2
+        id={titleId}
+        className={`${sheetStyles.sheetTitle} ${PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}`}
+      >
+        {sheetTitle}
+      </h2>
+      <button
+        type="button"
+        className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
+        aria-label={t("closeModal")}
+        onClick={handleClose}
+        disabled={busy}
+      >
+        <SheetCloseIcon />
+      </button>
+    </header>
+  );
+
+  if (isPhone) {
+    return (
+      <OmmModalPortal
+        isOpen={isOpen}
+        onClose={handleClose}
+        bottomAnchored
+        backdropAriaLabel={t("closeModal")}
+        ariaLabelledBy={titleId}
+        closeDisabled={busy}
+        overlayClassName={MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS}
+        panelClassName={MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS}
+        panelStyle={memberAccountHubSheetPanelStyle()}
+      >
+        <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
+        {sheetHeader}
+        <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{sheetBody}</div>
+      </OmmModalPortal>
+    );
   }
 
   return (
-    <OmmModalPortal
+    <OmmDrawerPortal
       isOpen={isOpen}
       onClose={handleClose}
       backdropAriaLabel={t("closeModal")}
+      ariaLabelledBy={titleId}
       closeDisabled={busy}
-      overlayClassName="ommm-modal-overlay z-[110]"
-      panelClassName="w-full max-w-lg rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md"
+      overlayClassName={PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS}
+      backdropClassName={PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS}
+      panelClassName={PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS}
+      motionState={motionState}
     >
-      {step === "success" ? (
-        <SuccessPanel
-          titleId={titleId}
-          paymentMethod={paymentMethod}
-          onDone={handleDone}
-        />
-      ) : (
-        <form onSubmit={(event) => void onConfirm(event)} className="flex flex-col gap-4">
-          <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
-            {t("title")}
-          </h2>
-          <p className="text-sm text-sage-600">{t("lead")}</p>
-          <PackageSubscribePlanPicker
-            plans={plans}
-            selectedPlanId={selectedPlan.id}
-            locale={locale}
-            onSelect={handlePlanSelect}
-          />
-          <PaymentMethodPicker
-            value={paymentMethod}
-            onChange={setPaymentMethod}
-            disabled={busy}
-          />
-          {error !== null ? (
-            <p className="text-sm text-red-800" role="alert">
-              {error}
-            </p>
-          ) : null}
-          <div className="flex flex-wrap justify-end gap-3">
-            <OmmButton
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={handleClose}
-              disabled={busy}
-            >
-              {t("cancel")}
-            </OmmButton>
-            <OmmButton type="submit" variant="primary" size="md" disabled={busy}>
-              {busy ? t("submitting") : t("confirm")}
-            </OmmButton>
-          </div>
-        </form>
-      )}
-    </OmmModalPortal>
+      {sheetHeader}
+      <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>{sheetBody}</div>
+    </OmmDrawerPortal>
   );
 }
 
@@ -205,13 +327,15 @@ function PaymentMethodPicker({ value, onChange, disabled }: PaymentMethodPickerP
   const t = useTranslations("forms.manualPackagePayment");
 
   return (
-    <fieldset className="space-y-2">
-      <legend className="ommm-label text-xs uppercase tracking-wide">{t("methodLegend")}</legend>
+    <fieldset className={formStyles.sectionFieldset}>
+      <legend
+        className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${formStyles.sectionHeading}`}
+      >
+        {t("methodLegend")}
+      </legend>
+      <div className={formStyles.sectionCards}>
       {MANUAL_PAYMENT_METHODS.map((method) => (
-        <label
-          key={method}
-          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/60 bg-white/50 px-3 py-2.5 transition-[background-color,border-color,box-shadow] hover:border-white/80 hover:bg-white/70 hover:shadow-sm focus-within:border-sand-500/40 focus-within:bg-sand-50/40 focus-within:ring-2 focus-within:ring-sand-500/20 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50"
-        >
+        <label key={method} className={formStyles.paymentMethodOption}>
           <input
             type="radio"
             name="payment-method"
@@ -219,32 +343,27 @@ function PaymentMethodPicker({ value, onChange, disabled }: PaymentMethodPickerP
             checked={value === method}
             onChange={() => onChange(method)}
             disabled={disabled}
+            className={formStyles.paymentMethodRadio}
           />
           <span className="text-sm text-sage-700">{t(`methods.${method}`)}</span>
         </label>
       ))}
+      </div>
     </fieldset>
   );
 }
 
 type SuccessPanelProps = {
-  titleId: string;
-  paymentMethod: ManualPaymentMethod;
   onDone: () => void;
 };
 
-function SuccessPanel({ titleId, paymentMethod, onDone }: SuccessPanelProps) {
+function SuccessPanel({ onDone }: SuccessPanelProps) {
   const t = useTranslations("forms.manualPackagePayment");
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 id={titleId} className="font-serif text-2xl font-normal text-sage-900">
-        {t("successTitle")}
-      </h2>
       <p className="text-sm text-sage-600">{t("successLead")}</p>
-      <p className="text-sm text-sage-600">
-        {t("successMethod", { method: t(`methods.${paymentMethod}`) })}
-      </p>
+      <p className="text-sm text-sage-600">{t("successFollowUp")}</p>
       <div className="flex justify-end">
         <OmmButton type="button" variant="primary" size="md" onClick={onDone}>
           {t("done")}
