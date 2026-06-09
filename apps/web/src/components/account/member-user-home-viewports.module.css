@@ -1,0 +1,22 @@
+/**
+ * `/user` home — hub on touch / narrow viewports, legacy dashboard on fine-pointer desktop.
+ * Uses pointer media (not width-only `lg:`) so real phones never flash the desktop dashboard.
+ */
+
+.mobileViewport {
+  display: block;
+}
+
+.desktopViewport {
+  display: none;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .mobileViewport {
+    display: none;
+  }
+
+  .desktopViewport {
+    display: block;
+  }
+}

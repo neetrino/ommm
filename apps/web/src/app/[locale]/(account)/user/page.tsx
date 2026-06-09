@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { MemberAccountHub } from "@/components/account/member-account-hub";
 import { memberAccountHubProfileFromAuthUser } from "@/components/account/member-account-hub-profile";
+import homeViewportStyles from "@/components/account/member-user-home-viewports.module.css";
 import { MemberDashboard } from "@/components/account/member-dashboard";
 import { MemberUserHomeSignInPanel } from "@/components/account/member-user-home-sign-in-panel";
 import { loadMemberUserHomePageData } from "@/server/member-user-home-page-data";
@@ -31,7 +32,7 @@ export default async function UserAccountPage({
 
   return (
     <>
-      <div className="hidden lg:block">
+      <div className={homeViewportStyles.desktopViewport}>
         <MemberDashboard
           locale={locale}
           name={user.name}
@@ -44,7 +45,7 @@ export default async function UserAccountPage({
           coachProfileId={coachProfileId}
         />
       </div>
-      <div className="lg:hidden">
+      <div className={homeViewportStyles.mobileViewport}>
         <MemberAccountHub
           locale={locale}
           {...memberAccountHubProfileFromAuthUser(user)}
