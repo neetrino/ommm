@@ -1,3 +1,5 @@
+import { formatTimeForUiFromIso } from "@/lib/format-time-display";
+
 type ScheduleCoachUser = {
   name: string | null;
   lastName?: string | null;
@@ -41,10 +43,9 @@ export function formatSessionTimes(
   startsAt: string,
   endsAt: string,
 ): { start: string; end: string } {
-  const formatter = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
   return {
-    start: formatter.format(new Date(startsAt)),
-    end: formatter.format(new Date(endsAt)),
+    start: formatTimeForUiFromIso(startsAt, locale),
+    end: formatTimeForUiFromIso(endsAt, locale),
   };
 }
 

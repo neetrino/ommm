@@ -41,6 +41,7 @@ import {
 } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
 import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
+import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 
@@ -104,16 +105,6 @@ function scheduleItemDate(
   return item.sessionDate !== null
     ? startOfLocalDay(new Date(item.sessionDate))
     : mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
-}
-
-function toLocaleTime(locale: string, value: string): string {
-  const [hour, minute] = value.split(":").map((part) => Number(part));
-  const d = new Date();
-  d.setHours(hour, minute, 0, 0);
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(d);
 }
 
 export function MarketingScheduleView({ initialItems, audience }: MarketingScheduleViewProps) {
@@ -367,12 +358,12 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                     spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
                     spotsLoadingLabel={t("actionLoading")}
                     spotsStateReady={spotsStateReady}
-                    timeLabel={toLocaleTime(locale, row.startTime)}
+                    timeLabel={formatScheduleTimeHHmm(locale, row.startTime)}
                     durationLabel={
                       row.durationMinutes !== null
                         ? t("minutesShort", { count: row.durationMinutes })
                         : row.endTime !== null
-                          ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
+                          ? `${formatScheduleTimeHHmm(locale, row.startTime)} - ${formatScheduleTimeHHmm(locale, row.endTime)}`
                           : "-"
                     }
                     userBookingId={bookedBySessionId[row.id]}

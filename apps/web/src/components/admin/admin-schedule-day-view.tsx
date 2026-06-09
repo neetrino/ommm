@@ -10,6 +10,7 @@ import type {
   AdminScheduleItem,
   ScheduleDayOfWeek,
 } from "@/components/admin/admin-schedule-types";
+import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import {
   SCHEDULE_ARROW_BTN,
   SCHEDULE_DATE_CHIP_ACTIVE,
@@ -35,23 +36,10 @@ type AdminScheduleDayViewProps = {
   classTypeOptions: readonly string[];
 };
 
-function toLocaleTimeLabel(locale: string, hhmm: string): string {
-  const [hour, minute] = hhmm.split(":").map((part) => Number(part));
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
-    return hhmm;
-  }
-  const d = new Date();
-  d.setHours(hour, minute, 0, 0);
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(d);
-}
-
 function formatTimeRange(locale: string, row: AdminScheduleItem): string {
-  const start = toLocaleTimeLabel(locale, row.startTime);
+  const start = formatScheduleTimeHHmm(locale, row.startTime);
   if (row.endTime !== null) {
-    return `${start} - ${toLocaleTimeLabel(locale, row.endTime)}`;
+    return `${start} - ${formatScheduleTimeHHmm(locale, row.endTime)}`;
   }
   if (row.durationMinutes !== null) {
     return `${start} · ${row.durationMinutes}m`;

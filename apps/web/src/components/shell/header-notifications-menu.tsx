@@ -10,6 +10,7 @@ import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { formatTimeForUi } from "@/lib/format-time-display";
 import { getOmmmOverlayPortalRoot, OMMM_FLOATING_MENU_Z_INDEX } from "@/lib/ommm-overlay-portal";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 
@@ -49,14 +50,8 @@ function formatSessionWhen(locale: string, startsAt: string, endsAt: string): st
     month: "short",
     day: "numeric",
   }).format(start);
-  const time = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(start);
-  const endTime = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(end);
+  const time = formatTimeForUi(start, locale);
+  const endTime = formatTimeForUi(end, locale);
   return `${date} · ${time} – ${endTime}`;
 }
 

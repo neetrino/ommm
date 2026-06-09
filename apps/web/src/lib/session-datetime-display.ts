@@ -1,4 +1,5 @@
 import { isSameCalendarDay, startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
+import { formatTimeForUi } from "@/lib/format-time-display";
 
 export type SessionRelativeDay = "today" | "tomorrow" | null;
 
@@ -59,12 +60,8 @@ export function buildSessionDateTimeDisplay(
     day: "numeric",
     month: "short",
   }).format(start);
-  const timeFormatter = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-  const startTime = timeFormatter.format(start);
-  const endTime = timeFormatter.format(end);
+  const startTime = formatTimeForUi(start, locale);
+  const endTime = formatTimeForUi(end, locale);
   const durationMinutes = Math.max(
     0,
     Math.round((end.getTime() - start.getTime()) / 60_000),

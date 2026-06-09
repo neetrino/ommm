@@ -1,3 +1,5 @@
+import { formatTimeForUi } from "@/lib/format-time-display";
+
 function asDate(value: Date | string): Date | null {
   if (value instanceof Date) {
     return Number.isNaN(value.getTime()) ? null : value;
@@ -57,11 +59,7 @@ export function formatDateTimeForUi(value: Date | string, locale?: string): stri
   if (date === null) {
     return "";
   }
-  const time = new Intl.DateTimeFormat(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-  return `${formatDateForUi(date)} ${time}`;
+  return `${formatDateForUi(date)} ${formatTimeForUi(date, locale)}`;
 }
 
 /** Converts an ISO date (`YYYY-MM-DD` or ISO datetime) to `DD/MM/YYYY`. */
