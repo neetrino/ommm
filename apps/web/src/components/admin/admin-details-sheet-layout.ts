@@ -16,6 +16,10 @@ export const ADMIN_DETAILS_SHEET_WIDTH_CLASS =
 export const ADMIN_BOOKINGS_DETAILS_SHEET_WIDTH_CLASS =
   "w-full sm:w-1/3 sm:max-w-[32rem] sm:min-w-[22rem]";
 
+/** Member packages detail sheet — slightly wider than default narrow admin sheets. */
+export const USER_MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS =
+  "w-full sm:w-[36vw] sm:max-w-[36rem] sm:min-w-[22rem]";
+
 /** Medium sheets (user lookup, finance session list). */
 export const ADMIN_DETAILS_SHEET_MEDIUM_WIDTH_CLASS =
   "w-full sm:max-w-md sm:min-w-[20rem]";
@@ -32,6 +36,11 @@ export const ADMIN_DETAILS_SHEET_PANEL_CLASS = [
 export const ADMIN_BOOKINGS_DETAILS_SHEET_PANEL_CLASS = [
   ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
   ADMIN_BOOKINGS_DETAILS_SHEET_WIDTH_CLASS,
+].join(" ");
+
+export const USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS = [
+  ADMIN_DETAILS_SHEET_PANEL_SHELL_CLASS,
+  USER_MEMBERSHIP_DETAILS_SHEET_WIDTH_CLASS,
 ].join(" ");
 
 export const ADMIN_DETAILS_SHEET_MEDIUM_PANEL_CLASS = [

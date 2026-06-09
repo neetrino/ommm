@@ -21,7 +21,7 @@ import {
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  ADMIN_DETAILS_SHEET_PANEL_CLASS,
+  USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
@@ -93,7 +93,7 @@ function UserMembershipDetailsSheetInner({
       backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
       ariaLabelledBy={titleId}
       overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={ADMIN_DETAILS_SHEET_PANEL_CLASS}
+      panelClassName={USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS}
     >
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">

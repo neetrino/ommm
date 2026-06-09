@@ -9,7 +9,6 @@ type UsePackageSubscribeUrlStateResult = {
   subscribePlanId: string | null;
   openSubscribe: (planId: string) => void;
   closeSubscribe: () => void;
-  setSubscribePlanId: (planId: string) => void;
 };
 
 /** Syncs confirm-subscription modal state with `?subscribe=planId` in the URL. */
@@ -48,20 +47,9 @@ export function usePackageSubscribeUrlState(): UsePackageSubscribeUrlStateResult
     replaceSubscribeParam(null);
   }, [replaceSubscribeParam, subscribePlanId]);
 
-  const setSubscribePlanId = useCallback(
-    (planId: string) => {
-      if (planId.length === 0) {
-        return;
-      }
-      replaceSubscribeParam(planId);
-    },
-    [replaceSubscribeParam],
-  );
-
   return {
     subscribePlanId,
     openSubscribe,
     closeSubscribe,
-    setSubscribePlanId,
   };
 }

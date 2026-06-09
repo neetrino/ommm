@@ -31,16 +31,28 @@ export function PackageSubscribePlanPicker({
     if (plan === undefined) {
       return null;
     }
-    return <PackageSubscribePlanSummary plan={plan} locale={locale} />;
+    return (
+      <div className={styles.packageSubscribePlanPicker}>
+        <p
+          className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${styles.packageSubscribePlanPickerLegend}`}
+        >
+          {t("selectPlanLegend")}
+        </p>
+        <div className={styles.packageSubscribePlanPickerCards}>
+          <PackageSubscribePlanSummary plan={plan} locale={locale} />
+        </div>
+      </div>
+    );
   }
 
   return (
     <fieldset className={styles.packageSubscribePlanPicker}>
       <legend
-        className={`ommm-label text-xs uppercase tracking-wide ${styles.packageSubscribePlanPickerLegend}`}
+        className={`ommm-label text-xs uppercase tracking-wide text-sage-700 ${styles.packageSubscribePlanPickerLegend}`}
       >
         {t("selectPlanLegend")}
       </legend>
+      <div className={styles.packageSubscribePlanPickerCards}>
       {plans.map((plan) => {
         const isSelected = plan.id === selectedPlanId;
         const sessionName = formatPackagePlanName(plan.name, plan.sessionsPerMonth);
@@ -80,6 +92,7 @@ export function PackageSubscribePlanPicker({
           </button>
         );
       })}
+      </div>
     </fieldset>
   );
 }

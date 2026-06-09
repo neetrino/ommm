@@ -549,8 +549,7 @@ export function PackagesPageAccordion({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
-  const { subscribePlanId, openSubscribe, closeSubscribe, setSubscribePlanId } =
-    usePackageSubscribeUrlState();
+  const { subscribePlanId, openSubscribe, closeSubscribe } = usePackageSubscribeUrlState();
   const expandedId = useMemo(
     () => resolveExpandedCategoryId(categories, categoryParam),
     [categories, categoryParam],
@@ -663,7 +662,6 @@ export function PackagesPageAccordion({
           plans={subscribeModalPlans}
           initialPlanId={subscribeContext.plan.id}
           onClose={closeSubscribe}
-          onSelectedPlanIdChange={setSubscribePlanId}
         />
       ) : null}
     </>

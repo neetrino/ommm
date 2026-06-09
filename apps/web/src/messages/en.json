@@ -3475,9 +3475,9 @@
       "submitting": "Processing…",
       "cancel": "Cancel",
       "submitFailed": "Could not complete payment.",
-      "successTitle": "Payment request sent",
-      "successLead": "Your package is pending until the studio team confirms the payment.",
-      "successMethod": "Payment method: {method}",
+      "successTitle": "Thank you for your subscription!",
+      "successLead": "Your order has been received successfully.",
+      "successFollowUp": "We'll contact you shortly with the next steps.",
       "done": "Done"
     },
     "packageLifecycle": {
