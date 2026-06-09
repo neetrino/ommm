@@ -36,7 +36,6 @@ const HREF_TO_SUBTITLE_PATH: Record<string, string> = {
   "/user/waitlists": "user.waitlists",
   "/user/gift-cards": "user.giftCards",
   "/user/profile": "user.profile",
-  "/user/notifications": "user.notifications",
   "/coach/home": "coach.home",
   "/coach/schedule": "coach.schedule",
   "/coach/groups": "coach.groups",
