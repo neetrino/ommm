@@ -70,6 +70,8 @@ type OmmModalPortalProps = {
   panelStyle?: CSSProperties;
   /** Keep panel anchored to the bottom on all breakpoints (mobile bottom sheets). */
   bottomAnchored?: boolean;
+  /** Drives `data-state` on the overlay for enter/exit CSS transitions. */
+  motionState?: "open" | "closed";
   children: ReactNode;
 };
 
@@ -85,6 +87,7 @@ export function OmmModalPortal({
   panelClassName,
   panelStyle,
   bottomAnchored = false,
+  motionState,
   children,
 }: OmmModalPortalProps) {
   const portalReady = useIsClientMounted();
@@ -101,7 +104,7 @@ export function OmmModalPortal({
   }
 
   return createPortal(
-    <div className={overlayClassName} role="presentation">
+    <div className={overlayClassName} role="presentation" data-state={motionState}>
       <OmmModalBackdrop
         onClose={onClose}
         ariaLabel={backdropAriaLabel}

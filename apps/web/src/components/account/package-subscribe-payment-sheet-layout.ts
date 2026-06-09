@@ -35,3 +35,6 @@ export const PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS =
 
 /** Keep in sync with CSS transitions on the desktop panel. */
 export const PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS = 440;
+
+/** Keep in sync with CSS transitions on the mobile bottom sheet. */
+export const PACKAGE_SUBSCRIBE_MOBILE_MOTION_MS = 440;
