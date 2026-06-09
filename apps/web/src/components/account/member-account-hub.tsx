@@ -6,8 +6,14 @@ export type MemberAccountHubProps = MemberAccountHubProfile & {
   locale: string;
 };
 
+function withoutLocale(props: MemberAccountHubProps): MemberAccountHubProfile {
+  const profile = { ...props };
+  delete (profile as Partial<MemberAccountHubProps>).locale;
+  return profile;
+}
+
 export function MemberAccountHub(props: MemberAccountHubProps) {
-  const { locale: _locale, ...profile } = props;
+  const profile = withoutLocale(props);
 
   return (
     <div className={memberAccountHubLayout.page}>

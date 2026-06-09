@@ -86,12 +86,6 @@ export function MarketingAccountAvatarMenu({
       }
     : {};
 
-  useEffect(() => {
-    if (!hoverLogoutEnabled) {
-      setOpen(false);
-    }
-  }, [hoverLogoutEnabled]);
-
   useEffect(() => () => clearTimeout(hideTimerRef.current), []);
 
   return (
