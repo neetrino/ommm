@@ -63,9 +63,14 @@ export function UserMembershipCompactRow({
         </p>
       </div>
 
-      <div className={USER_PACKAGES_LIST_VALIDITY_CELL}>
-        <MobileLabel label={t("listHeaderValidity")} />
-        <p className="text-sm font-medium text-sage-800">{durationLabel}</p>
+      <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
+        <MobileLabel label={t("listHeaderPeriod")} />
+        <MembershipPeriodHighlight
+          locale={locale}
+          periodStart={membership.currentPeriodStart}
+          periodEnd={membership.currentPeriodEnd}
+          variant="list"
+        />
       </div>
 
       <div className={USER_PACKAGES_LIST_PRICE_CELL}>
@@ -82,14 +87,9 @@ export function UserMembershipCompactRow({
         <p className="truncate text-sm font-medium text-sage-800">{display.sessionsSummary}</p>
       </div>
 
-      <div className={USER_PACKAGES_LIST_PERIOD_CELL}>
-        <MobileLabel label={t("listHeaderPeriod")} />
-        <MembershipPeriodHighlight
-          locale={locale}
-          periodStart={membership.currentPeriodStart}
-          periodEnd={membership.currentPeriodEnd}
-          variant="list"
-        />
+      <div className={USER_PACKAGES_LIST_VALIDITY_CELL}>
+        <MobileLabel label={t("listHeaderValidity")} />
+        <p className="text-sm font-medium text-sage-800">{durationLabel}</p>
       </div>
 
       <div className={USER_PACKAGES_LIST_STATUS_CELL}>

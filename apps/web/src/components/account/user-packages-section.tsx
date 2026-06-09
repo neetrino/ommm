@@ -240,10 +240,10 @@ export function UserPackagesSection({
         <div className={USER_PACKAGES_LIST_TABLE_CLASS}>
           <div className={USER_PACKAGES_LIST_HEADER_CLASS}>
             <span>{t("listHeaderPackage")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderValidity")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPeriod")}</span>
             <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPrice")}</span>
             <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderSessions")}</span>
-            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderPeriod")}</span>
+            <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderValidity")}</span>
             <span className={USER_PACKAGES_LIST_CENTER_HEADER_CELL}>{t("listHeaderStatus")}</span>
             <span className={USER_PACKAGES_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
