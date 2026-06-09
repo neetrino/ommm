@@ -12,7 +12,10 @@ import {
   memberOliveIconSlugForNavItem,
   type DashboardNavItem,
 } from "@/lib/dashboard-nav";
-import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
+import {
+  localizedWorkspaceHref,
+  WORKSPACE_ROUTE_PREFETCH,
+} from "@/lib/workspace-nav-link";
 
 const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
 
@@ -97,13 +100,6 @@ export type DashboardSidebarNavProps = {
   /** Full document navigation — bypasses Next.js intercept routes (member desktop sidebar). */
   hardNavigate?: boolean;
 };
-
-function localizedWorkspaceHref(locale: string, href: string): string {
-  if (href === "/") {
-    return `/${locale}`;
-  }
-  return `/${locale}${href}`;
-}
 
 export function DashboardSidebarNav({
   items,

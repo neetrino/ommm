@@ -13,6 +13,7 @@ import {
 } from "@/components/account/member-account-hub-sheet-layout";
 import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 type MemberAccountHubSectionSheetProps = {
@@ -30,6 +31,7 @@ export function MemberAccountHubSectionSheet({
   children,
 }: MemberAccountHubSectionSheetProps) {
   const router = useRouter();
+  const isPhone = useMemberHubSheetPhone();
 
   function closeSheet() {
     dismissMobileKeyboard();
@@ -38,7 +40,7 @@ export function MemberAccountHubSectionSheet({
 
   return (
     <OmmModalPortal
-      isOpen
+      isOpen={isPhone}
       onClose={closeSheet}
       bottomAnchored
       backdropAriaLabel={backdropCloseLabel}

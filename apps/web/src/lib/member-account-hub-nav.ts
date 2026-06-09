@@ -10,7 +10,6 @@ export const MEMBER_ACCOUNT_HUB_NAV: readonly DashboardNavDefinition[] = [
   { href: "/user/packages", icon: "tag", labelKey: "packages", oliveIconSlug: "packages" },
   { href: "/user/payments", icon: "wallet", labelKey: "payments", oliveIconSlug: "finance" },
   { href: "/user/gift-cards", icon: "gift", labelKey: "giftCards", oliveIconSlug: "giftCards" },
-  { href: "/user/notifications", icon: "bell", labelKey: "notifications", oliveIconSlug: "notifications" },
   { href: "/user/profile", icon: "user", labelKey: "profile", oliveIconSlug: "clients" },
 ] as const;
 

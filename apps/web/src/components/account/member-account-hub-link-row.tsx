@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { memberAccountHubLayout } from "@/components/account/member-account-hub-layout";
 import { MemberAccountHubChevron } from "@/components/account/member-account-hub-chevron";
+import { markMemberHubSheetNavigation } from "@/lib/member-hub-sheet-navigation";
 import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
 type MemberAccountHubLinkRowProps = {
@@ -31,7 +32,10 @@ export function MemberAccountHubLinkRow({
       ]
         .filter(Boolean)
         .join(" ")}
-      onClick={() => onNavigate?.()}
+      onClick={() => {
+        markMemberHubSheetNavigation();
+        onNavigate?.();
+      }}
     >
       <span className={memberAccountHubLayout.menuRowIcon}>{icon}</span>
       <span className={memberAccountHubLayout.menuRowLabel}>{label}</span>
