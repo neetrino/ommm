@@ -779,11 +779,15 @@
     },
     "bookings": {
       "title": "My bookings",
-      "upcoming": "Upcoming",
-      "pastOther": "Past and other",
-      "emptySection": "Nothing here yet.",
-      "emptyTitle": "No bookings yet",
-      "emptyDescription": "When you book a class, it will appear here.",
+      "tabs": {
+        "aria": "Booking time range",
+        "past": "Past",
+        "perfect": "Perfect"
+      },
+      "emptyPerfectTitle": "No bookings yet",
+      "emptyPerfectDescription": "When you book a class, it will appear here.",
+      "emptyPastTitle": "No past bookings",
+      "emptyPastDescription": "Nothing here yet.",
       "filteredEmptyTitle": "No bookings match your filters",
       "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or status.",
       "filteredEmptySection": "No matches in this section.",

@@ -779,11 +779,15 @@
     },
     "bookings": {
       "title": "Իմ ամրագրումները",
-      "upcoming": "Առաջիկա",
-      "pastOther": "Անցյալ և այլ",
-      "emptySection": "Այստեղ դեռ ոչինչ չկա։",
-      "emptyTitle": "Դեռ ամրագրումներ չկան",
-      "emptyDescription": "Երբ դաս եք ամրագրում, այն կհայտնվի այստեղ։",
+      "tabs": {
+        "aria": "Ամրագրումների ժամանակաշրջան",
+        "past": "Անցյալ",
+        "perfect": "Առաջիկա"
+      },
+      "emptyPerfectTitle": "Դեռ ամրագրումներ չկան",
+      "emptyPerfectDescription": "Երբ դաս եք ամրագրում, այն կհայտնվի այստեղ։",
+      "emptyPastTitle": "Անցյալ ամրագրումներ չկան",
+      "emptyPastDescription": "Այստեղ դեռ ոչինչ չկա։",
       "filteredEmptyTitle": "Ձեր ֆիլտրերին համապատասխան ամրագրումներ չկան",
       "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը, մարզիչը կամ կարգավիճակը։",
       "filteredEmptySection": "Այս բաժնում համընկնումներ չկան։",

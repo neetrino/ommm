@@ -21,6 +21,7 @@ import {
   USER_BOOKINGS_LIST_HEADER_CLASS,
   USER_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/account/user-bookings-list-layout";
+import { UserBookingsTabNav } from "@/components/account/user-bookings-tab-nav";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -45,6 +46,7 @@ import {
   USER_BOOKINGS_PAST_PAGE_KEYS,
   type UserBookingsPastPayload,
 } from "@/lib/user-bookings-query";
+import { parseUserBookingsTab } from "@/lib/user-bookings-tab";
 
 type UserBookingsSectionProps = {
   locale: string;
@@ -191,11 +193,18 @@ export function UserBookingsSection({
     [filters, pastPayload.rows],
   );
 
+  const activeTab = parseUserBookingsTab(Object.fromEntries(searchParams.entries()));
+  const isPastTab = activeTab === "past";
+  const tabRows = isPastTab ? filteredPast : filteredUpcoming;
   const filtersActive = hasActiveUserBookingFilters(filters);
-  const totalCount = filtersActive
-    ? filteredUpcoming.length + filteredPast.length
-    : initialUpcoming.length + pastPayload.total;
-  const hasAnyBookings = initialUpcoming.length > 0 || pastPayload.total > 0;
+  const tabTotalCount = isPastTab
+    ? filtersActive
+      ? filteredPast.length
+      : pastPayload.total
+    : filtersActive
+      ? filteredUpcoming.length
+      : initialUpcoming.length;
+  const tabHasBookings = isPastTab ? pastPayload.total > 0 : initialUpcoming.length > 0;
 
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
@@ -264,15 +273,18 @@ export function UserBookingsSection({
     />
   );
 
-  const listBody = !hasAnyBookings ? (
+  const tabEmptyTitle = isPastTab ? t("emptyPastTitle") : t("emptyPerfectTitle");
+  const tabEmptyDescription = isPastTab ? t("emptyPastDescription") : t("emptyPerfectDescription");
+
+  const listBody = !tabHasBookings && !filtersActive ? (
     <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-      <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-      <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+      <h2 className="ommm-h3 text-sage-800">{tabEmptyTitle}</h2>
+      <p className="ommm-body-muted mt-2 text-sm">{tabEmptyDescription}</p>
     </section>
   ) : (
     <>
-      {totalCount > 0 ? (
-        <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
+      {tabTotalCount > 0 ? (
+        <p className="text-sm text-sage-600">{t("bookingsCount", { count: tabTotalCount })}</p>
       ) : (
         <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
           <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
@@ -281,32 +293,25 @@ export function UserBookingsSection({
       )}
 
       <BookingGroup
-        title={t("upcoming")}
         locale={locale}
-        rows={filteredUpcoming}
+        rows={tabRows}
         viewMode={viewMode}
-        showCancel
-        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
-      />
-
-      <BookingGroup
-        title={t("pastOther")}
-        locale={locale}
-        rows={filteredPast}
-        viewMode={viewMode}
-        showRebook
-        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
+        showCancel={!isPastTab}
+        showRebook={isPastTab}
+        emptyLabel={filtersActive ? t("filteredEmptySection") : tabEmptyDescription}
         pagination={
-          <OmmListPagination
-            namespace="userPages.pagination"
-            total={pastPayload.total}
-            page={pastListPage.page}
-            pageSize={pastListPage.pageSize}
-            offset={pastPayload.offset}
-            onPageChange={(page) => setPastListPage(page)}
-            onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
-            disabled={loadingPast}
-          />
+          isPastTab ? (
+            <OmmListPagination
+              namespace="userPages.pagination"
+              total={pastPayload.total}
+              page={pastListPage.page}
+              pageSize={pastListPage.pageSize}
+              offset={pastPayload.offset}
+              onPageChange={(page) => setPastListPage(page)}
+              onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
+              disabled={loadingPast}
+            />
+          ) : undefined
         }
       />
     </>
@@ -319,13 +324,13 @@ export function UserBookingsSection({
       ) : (
         <AdminPageHero title={t("title")} search={heroSearch} />
       )}
+      <UserBookingsTabNav />
       {listBody}
     </div>
   );
 }
 
 type BookingGroupProps = {
-  title: string;
   locale: string;
   rows: readonly UserBookingRow[];
   viewMode: "list" | "board";
@@ -336,7 +341,6 @@ type BookingGroupProps = {
 };
 
 function BookingGroup({
-  title,
   locale,
   rows,
   viewMode,
@@ -349,11 +353,10 @@ function BookingGroup({
 
   return (
     <section>
-      <h2 className="ommm-h3 text-sage-800">{title}</h2>
       {rows.length === 0 ? (
-        <p className="ommm-body-muted mt-2 text-sm">{emptyLabel}</p>
+        <p className="ommm-body-muted text-sm">{emptyLabel}</p>
       ) : viewMode === "board" ? (
-        <ul className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {rows.map((booking) => (
             <li key={booking.id} className="min-w-0 list-none">
               <UserBookingBoardCard
@@ -366,7 +369,7 @@ function BookingGroup({
           ))}
         </ul>
       ) : (
-        <div className={`mt-4 ${USER_BOOKINGS_LIST_TABLE_CLASS}`}>
+        <div className={USER_BOOKINGS_LIST_TABLE_CLASS}>
           <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>

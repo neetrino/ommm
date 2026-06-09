@@ -779,11 +779,15 @@
     },
     "bookings": {
       "title": "Мои бронирования",
-      "upcoming": "Предстоящие",
-      "pastOther": "Прошлые и прочие",
-      "emptySection": "Пока пусто.",
-      "emptyTitle": "Пока нет бронирований",
-      "emptyDescription": "Когда вы запишетесь на занятие, оно появится здесь.",
+      "tabs": {
+        "aria": "Период бронирований",
+        "past": "Прошлые",
+        "perfect": "Предстоящие"
+      },
+      "emptyPerfectTitle": "Пока нет бронирований",
+      "emptyPerfectDescription": "Когда вы запишетесь на занятие, оно появится здесь.",
+      "emptyPastTitle": "Нет прошлых бронирований",
+      "emptyPastDescription": "Пока пусто.",
       "filteredEmptyTitle": "Нет бронирований по выбранным фильтрам",
       "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия, тренера или статус.",
       "filteredEmptySection": "В этом разделе нет совпадений.",
