@@ -6,6 +6,9 @@ type UserSheetPageFiltersBarProps = {
   trailing?: ReactNode;
 };
 
+/** Nudge search below sheet header / title on mobile. */
+const USER_SHEET_PAGE_FILTERS_SEARCH_OFFSET_CLASS = "max-md:mt-[2px]";
+
 /** Search + filters row — stacks vertically inside the member hub bottom sheet. */
 export function UserSheetPageFiltersBar({
   embeddedInSheet = false,
@@ -14,7 +17,9 @@ export function UserSheetPageFiltersBar({
 }: UserSheetPageFiltersBarProps) {
   if (embeddedInSheet) {
     return (
-      <div className="flex w-full min-w-0 flex-col gap-3">
+      <div
+        className={`flex w-full min-w-0 flex-col gap-3 ${USER_SHEET_PAGE_FILTERS_SEARCH_OFFSET_CLASS}`}
+      >
         {search}
         {trailing ? (
           <div className="flex w-full min-w-0 justify-start">{trailing}</div>
@@ -24,7 +29,9 @@ export function UserSheetPageFiltersBar({
   }
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
+    <div
+      className={`flex min-w-0 flex-1 items-center gap-2 ${USER_SHEET_PAGE_FILTERS_SEARCH_OFFSET_CLASS}`}
+    >
       {search}
       {trailing}
     </div>

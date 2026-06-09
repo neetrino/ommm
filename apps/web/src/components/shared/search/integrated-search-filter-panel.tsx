@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmFilterDropdown, OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
-import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
+import {
+  shouldRenderIntegratedFilterField,
+  type IntegratedFilterField,
+} from "@/components/shared/search/integrated-search-filter-types";
 
 const PANEL_GRID_CLASS = "grid grid-cols-1 gap-3 sm:grid-cols-2";
 
@@ -27,18 +30,22 @@ export function IntegratedSearchFilterPanel({
   applyLabel,
   resetLabel,
 }: IntegratedSearchFilterPanelProps) {
+  const visibleFields = fields.filter(shouldRenderIntegratedFilterField);
+
   return (
     <div className="flex flex-col gap-4">
-      <div className={PANEL_GRID_CLASS}>
-        {fields.map((field) => (
-          <FilterField
-            key={field.key}
-            field={field}
-            value={filterValues[field.key] ?? ""}
-            onChange={(value) => onFilterChange(field.key, value)}
-          />
-        ))}
-      </div>
+      {visibleFields.length > 0 ? (
+        <div className={PANEL_GRID_CLASS}>
+          {visibleFields.map((field) => (
+            <FilterField
+              key={field.key}
+              field={field}
+              value={filterValues[field.key] ?? ""}
+              onChange={(value) => onFilterChange(field.key, value)}
+            />
+          ))}
+        </div>
+      ) : null}
       <div className="flex items-center justify-end gap-2 border-t border-sage-700/10 pt-3">
         <OmmButton type="button" size="sm" variant="ghost" onClick={onReset}>
           {resetLabel}

@@ -181,7 +181,11 @@ export function UserClassesSection({
           resetLabel={t("filters.resetFilters")}
         />
       }
-      trailing={<ScheduleViewSwitcher value={view} onChange={setView} />}
+      trailing={
+        <div className="hidden md:flex">
+          <ScheduleViewSwitcher value={view} onChange={setView} />
+        </div>
+      }
     />
   );
 
