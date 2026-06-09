@@ -1,6 +1,6 @@
 export const OMMM_OVERLAY_PORTAL_ID = "ommm-overlay-portal";
 
-/** Above fixed marketing header (`z-50`), member hub sheet (`z-105`), filter panel (`z-120`). */
+/** Above fixed marketing header (`z-50`), member hub sheet (`z-105`), filter panel (`z-125`). */
 export const OMMM_OVERLAY_PORTAL_Z_INDEX = 130;
 
 /** Inline z-index for portaled floating menus within {@link OMMM_OVERLAY_PORTAL_Z_INDEX}. */

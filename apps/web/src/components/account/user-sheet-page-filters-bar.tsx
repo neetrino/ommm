@@ -16,7 +16,9 @@ export function UserSheetPageFiltersBar({
     return (
       <div className="flex w-full min-w-0 flex-col gap-3">
         {search}
-        {trailing ? <div className="flex w-full min-w-0 justify-start">{trailing}</div> : null}
+        {trailing ? (
+          <div className="flex w-full min-w-0 justify-start">{trailing}</div>
+        ) : null}
       </div>
     );
   }

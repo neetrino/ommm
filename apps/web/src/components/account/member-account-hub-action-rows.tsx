@@ -63,8 +63,8 @@ export function MemberAccountHubActionRows() {
 
       <LogoutButton
         showLabel
-        hideIcon
         leadingSpacerClassName={memberAccountHubLayout.menuRowIcon}
+        iconClassName="h-5 w-5 shrink-0"
         className={LOGOUT_ROW_CLASS}
         labelClassName={memberAccountHubLayout.menuRowLabel}
         spinnerClassName="h-5 w-5"

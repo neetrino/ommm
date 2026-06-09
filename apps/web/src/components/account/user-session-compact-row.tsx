@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   resolveSessionCoachName,
+  SessionCoachLine,
 } from "@/components/account/session-coach-line";
 import {
   SESSION_BOOKED_ROW_CLASS,
@@ -74,22 +75,33 @@ export function UserSessionCompactRow({
       </div>
 
       <div className={USER_SCHEDULE_LIST_TIME_CELL}>
+        <div className="md:hidden">
+          <SessionDateTimeHighlight
+            locale={locale}
+            startsAt={session.startsAt}
+            endsAt={session.endsAt}
+            variant="listTimeCard"
+          />
+          <SessionCoachLine coachName={coachName} variant="board" className="-ml-[2px] mt-2.5" />
+          <p className="mt-2 text-xs font-medium text-sage-700">{spotsLabel}</p>
+          <p className="mt-0.5 text-[10px] font-medium leading-tight text-sage-500">{pricing}</p>
+        </div>
         <SessionDateTimeHighlight
           locale={locale}
           startsAt={session.startsAt}
           endsAt={session.endsAt}
           variant="listTime"
+          className="hidden md:block"
         />
       </div>
 
-      <div className={USER_SCHEDULE_LIST_COACH_CELL}>
-        <MobileLabel label={t("listHeaderCoach")} />
+      <div className={`${USER_SCHEDULE_LIST_COACH_CELL} hidden md:block`}>
         <p className={`truncate text-xs font-semibold ${coachName ? "text-sage-800" : "text-sage-400"}`}>
           {coachName ?? "—"}
         </p>
       </div>
 
-      <div className={USER_SCHEDULE_LIST_SPOTS_CELL}>
+      <div className={`${USER_SCHEDULE_LIST_SPOTS_CELL} hidden md:block`}>
         <SessionSpotsIndicator
           booked={booked}
           capacity={session.capacity}
@@ -112,13 +124,5 @@ export function UserSessionCompactRow({
         />
       </div>
     </div>
-  );
-}
-
-function MobileLabel({ label }: { label: string }) {
-  return (
-    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sage-500 md:hidden">
-      {label}
-    </p>
   );
 }

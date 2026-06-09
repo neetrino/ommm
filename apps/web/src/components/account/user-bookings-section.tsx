@@ -264,6 +264,54 @@ export function UserBookingsSection({
     />
   );
 
+  const listBody = !hasAnyBookings ? (
+    <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+      <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
+      <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+    </section>
+  ) : (
+    <>
+      {totalCount > 0 ? (
+        <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
+      ) : (
+        <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+          <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+          <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+        </div>
+      )}
+
+      <BookingGroup
+        title={t("upcoming")}
+        locale={locale}
+        rows={filteredUpcoming}
+        viewMode={viewMode}
+        showCancel
+        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
+      />
+
+      <BookingGroup
+        title={t("pastOther")}
+        locale={locale}
+        rows={filteredPast}
+        viewMode={viewMode}
+        showRebook
+        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
+        pagination={
+          <OmmListPagination
+            namespace="userPages.pagination"
+            total={pastPayload.total}
+            page={pastListPage.page}
+            pageSize={pastListPage.pageSize}
+            offset={pastPayload.offset}
+            onPageChange={(page) => setPastListPage(page)}
+            onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
+            disabled={loadingPast}
+          />
+        }
+      />
+    </>
+  );
+
   return (
     <div className="space-y-4">
       {embeddedInSheet ? (
@@ -271,54 +319,7 @@ export function UserBookingsSection({
       ) : (
         <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
       )}
-
-      {!hasAnyBookings ? (
-        <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-          <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
-        </section>
-      ) : (
-        <>
-          {totalCount > 0 ? (
-            <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
-          ) : (
-            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-            </div>
-          )}
-
-          <BookingGroup
-            title={t("upcoming")}
-            locale={locale}
-            rows={filteredUpcoming}
-            viewMode={viewMode}
-            showCancel
-            emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
-          />
-
-          <BookingGroup
-            title={t("pastOther")}
-            locale={locale}
-            rows={filteredPast}
-            viewMode={viewMode}
-            showRebook
-            emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
-            pagination={
-              <OmmListPagination
-                namespace="userPages.pagination"
-                total={pastPayload.total}
-                page={pastListPage.page}
-                pageSize={pastListPage.pageSize}
-                offset={pastPayload.offset}
-                onPageChange={(page) => setPastListPage(page)}
-                onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
-                disabled={loadingPast}
-              />
-            }
-          />
-        </>
-      )}
+      {listBody}
     </div>
   );
 }

@@ -32,10 +32,11 @@ function UserGiftCardsPageHeroInner({
 
   if (embeddedInSheet) {
     return (
-      <div className="flex flex-col gap-3 pb-1">
-        {tabNav}
+      <div className="flex flex-col items-stretch gap-3 pb-1">
+        <UserGiftCardsTabNav embeddedInSheet />
         {giftBalanceCents !== null ? (
           <UserGiftCardsBalanceDisplay
+            embeddedInSheet
             label={t("giftBalanceLabel")}
             amountCents={giftBalanceCents}
             locale={locale}
@@ -86,7 +87,11 @@ function UserGiftCardsPageHeroFallback({
   );
 
   if (embeddedInSheet) {
-    return <div className="pb-1">{tabFallback}</div>;
+    return (
+      <div className="pb-1">
+        <UserGiftCardsTabNav embeddedInSheet />
+      </div>
+    );
   }
 
   return (

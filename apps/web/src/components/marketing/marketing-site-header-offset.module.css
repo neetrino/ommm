@@ -73,6 +73,25 @@
   }
 }
 
+/**
+ * Member hub (`lg:hidden`) — window scroll below desktop, same as DevTools mobile emulation.
+ * Nested 100dvh + overflow clips the menu footer on iOS Safari.
+ */
+@media (max-width: 1023px) {
+  .dashboardWithMarketingHeaderMemberMobile {
+    height: auto;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    overflow: visible;
+  }
+
+  .dashboardWithMarketingHeaderScrollMemberMobile {
+    flex: none;
+    overflow: visible;
+    min-height: auto;
+  }
+}
+
 @media (min-width: 744px) {
   .workspaceScrollMain {
     padding-top: 1rem;

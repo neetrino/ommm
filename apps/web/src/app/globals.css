@@ -386,8 +386,13 @@ html {
   /* Member account hub — /user glass menu (mobile-first) */
   .ommm-member-account-hub-page {
     @apply mx-auto w-full max-w-[1280px];
-    /* Synced with MEMBER_ACCOUNT_HUB_PAGE_BOTTOM_GAP_PX */
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (max-width: 1023px) {
+    .ommm-member-account-hub-page {
+      /* Synced with MEMBER_ACCOUNT_HUB_PAGE_BOTTOM_GAP_PX */
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   .ommm-member-account-hub-shell {
@@ -1368,7 +1373,7 @@ html {
   }
 }
 
-/* Portaled overlays — above member hub sheet (z-105) and filter panel (z-120). Sync OMMM_OVERLAY_PORTAL_Z_INDEX. */
+/* Portaled overlays — above member hub sheet (z-105) and filter panel (z-125). Sync OMMM_OVERLAY_PORTAL_Z_INDEX. */
 #ommm-overlay-portal {
   position: fixed;
   inset: 0;

@@ -131,9 +131,12 @@ export function LogoutButton({
       ) : (
         <>
           {leadingSpacerClassName !== undefined ? (
-            <span className={leadingSpacerClassName} aria-hidden />
+            <span className={leadingSpacerClassName}>
+              {!hideIcon ? <LogoutGlyph className={resolvedIconClassName} /> : null}
+            </span>
+          ) : !hideIcon ? (
+            <LogoutGlyph className={resolvedIconClassName} />
           ) : null}
-          {!hideIcon ? <LogoutGlyph className={resolvedIconClassName} /> : null}
           {showLabel ? (
             <span className={labelClassName ?? "whitespace-nowrap"}>{label}</span>
           ) : null}

@@ -275,6 +275,57 @@ export function UserPaymentsHistory({
     />
   );
 
+  const listBody = isEmpty ? (
+    <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
+      <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
+      <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+    </section>
+  ) : (
+    <>
+      <p className="text-sm text-sage-600">{t("paymentsCount", { count: paymentsPayload.total })}</p>
+
+      {rows.length === 0 ? (
+        <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
+          <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
+          <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
+        </div>
+      ) : viewMode === "board" ? (
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {rows.map((row) => (
+            <li key={row.id} className="min-w-0 list-none">
+              <UserPaymentBoardCard locale={locale} payment={row} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
+          <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
+            <span>{t("table.related")}</span>
+            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
+            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
+            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
+            <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
+            <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
+          </div>
+          {rows.map((row) => (
+            <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />
+          ))}
+        </div>
+      )}
+
+      <OmmListPagination
+        namespace="userPages.pagination"
+        total={paymentsPayload.total}
+        page={listPage.page}
+        pageSize={listPage.pageSize}
+        offset={paymentsPayload.offset}
+        onPageChange={(page) => setListPage(page)}
+        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
+        disabled={loading}
+      />
+    </>
+  );
+
   return (
     <div className="space-y-4">
       {embeddedInSheet ? (
@@ -282,57 +333,7 @@ export function UserPaymentsHistory({
       ) : (
         <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
       )}
-
-      {isEmpty ? (
-        <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-          <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-          <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
-        </section>
-      ) : (
-        <>
-          <p className="text-sm text-sage-600">{t("paymentsCount", { count: paymentsPayload.total })}</p>
-
-          {rows.length === 0 ? (
-            <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
-              <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
-              <p className="mt-1 text-sage-600">{t("filteredEmptyDescription")}</p>
-            </div>
-          ) : viewMode === "board" ? (
-            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {rows.map((row) => (
-                <li key={row.id} className="min-w-0 list-none">
-                  <UserPaymentBoardCard locale={locale} payment={row} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={USER_PAYMENTS_LIST_TABLE_CLASS}>
-              <div className={USER_PAYMENTS_LIST_HEADER_CLASS}>
-                <span>{t("table.related")}</span>
-                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.amount")}</span>
-                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.date")}</span>
-                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.time")}</span>
-                <span className={USER_PAYMENTS_LIST_CENTER_HEADER_CELL}>{t("table.status")}</span>
-                <span className={USER_PAYMENTS_LIST_METHOD_HEADER_CELL}>{t("table.paymentMethod")}</span>
-              </div>
-              {rows.map((row) => (
-                <UserPaymentCompactRow key={row.id} locale={locale} payment={row} />
-              ))}
-            </div>
-          )}
-
-          <OmmListPagination
-            namespace="userPages.pagination"
-            total={paymentsPayload.total}
-            page={listPage.page}
-            pageSize={listPage.pageSize}
-            offset={paymentsPayload.offset}
-            onPageChange={(page) => setListPage(page)}
-            onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
-            disabled={loading}
-          />
-        </>
-      )}
+      {listBody}
     </div>
   );
 }

@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { IntegratedSearchFilterChips } from "@/components/shared/search/integrated-search-filter-chips";
+import {
+  getOmmmOverlayPortalRoot,
+  OMMM_FLOATING_MENU_Z_INDEX,
+} from "@/lib/ommm-overlay-portal";
 import { IntegratedSearchFilterPanel } from "@/components/shared/search/integrated-search-filter-panel";
 import {
   buildIntegratedFilterChips,
@@ -16,7 +20,7 @@ const EMPTY_FILTER_VALUES: Record<string, string> = {};
 const PANEL_ID = "integrated-search-filter-panel";
 
 const PANEL_POSITION_CLASS =
-  "absolute top-[calc(100%+0.5rem)] left-0 z-50 w-[40rem] min-w-[24rem] max-w-[min(40rem,calc(100vw-2rem))]";
+  "absolute top-[calc(100%+0.5rem)] left-0 z-20 w-full min-w-[16rem] max-w-full max-h-[min(52dvh,22rem)] overflow-y-auto overscroll-y-contain";
 
 const PANEL_SURFACE_CLASS =
   "rounded-2xl border border-white/60 bg-white/95 p-4 shadow-[0_24px_50px_-30px_rgba(45,40,35,0.28)] backdrop-blur-md ring-1 ring-sage-700/10";
@@ -40,7 +44,7 @@ function usePortaledFilterPanelPosition(
   } | null>(null);
   const panelEnabled = enabled && panelOpen;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!panelEnabled) {
       return undefined;
     }
@@ -209,9 +213,14 @@ export function IntegratedSearchFilters({
       }
     };
 
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
+    // Defer so the pointer event that opened the panel does not immediately close it.
+    const openTimer = window.setTimeout(() => {
+      document.addEventListener("pointerdown", onPointerDown);
+      document.addEventListener("keydown", onKeyDown);
+    }, 0);
+
     return () => {
+      window.clearTimeout(openTimer);
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
@@ -353,7 +362,7 @@ export function IntegratedSearchFilters({
         aria-label={filterPanelAriaLabel}
         className={
           portalFilterPanel
-            ? `fixed z-[120] ${PANEL_SURFACE_CLASS}`
+            ? `fixed ${PANEL_SURFACE_CLASS}`
             : `${PANEL_POSITION_CLASS} ${PANEL_SURFACE_CLASS}`
         }
         style={
@@ -363,6 +372,7 @@ export function IntegratedSearchFilters({
                 left: portaledPanelPosition.left,
                 width: portaledPanelPosition.width,
                 maxHeight: portaledPanelPosition.maxHeight,
+                zIndex: OMMM_FLOATING_MENU_Z_INDEX,
                 overflowY: "auto",
                 overscrollBehavior: "contain",
                 WebkitOverflowScrolling: "touch",
@@ -388,7 +398,10 @@ export function IntegratedSearchFilters({
   const barIsPrimaryButton = barClickable && chips.length === 0;
 
   return (
-    <div ref={containerRef} className={`relative w-full min-w-0 ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative w-full min-w-0 ${panelOpen && hasFilters ? "z-[126]" : ""} ${className}`}
+    >
       <div
         role={barIsPrimaryButton ? "button" : undefined}
         tabIndex={barIsPrimaryButton ? 0 : undefined}
@@ -398,8 +411,10 @@ export function IntegratedSearchFilters({
         onKeyDown={barIsPrimaryButton ? handleFilterBarKeyDown : undefined}
         onPointerDown={hideSearch ? undefined : handleBarPointerDown}
         className={`flex min-h-11 w-full min-w-0 items-center gap-2 rounded-full border border-white/60 bg-[rgba(192,187,176,0.32)] px-2 shadow-none transition-shadow ${
-          showQueryRing || showPanelRing ? "ring-2 ring-sand-500/35" : ""
-        } ${searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""} ${
+          panelOpen && hasFilters ? "relative z-[127] bg-[rgba(192,187,176,0.42)]" : ""
+        } ${showQueryRing || showPanelRing ? "ring-2 ring-sand-500/35" : ""} ${
+          !panelOpen && searchFocused ? "bg-[rgba(192,187,176,0.42)]" : ""
+        } ${
           barClickable ? "cursor-pointer" : ""
         }`}
       >
@@ -476,7 +491,7 @@ export function IntegratedSearchFilters({
       </div>
 
       {portalFilterPanel && filterPanel && typeof document !== "undefined"
-        ? createPortal(filterPanel, document.body)
+        ? createPortal(filterPanel, getOmmmOverlayPortalRoot())
         : filterPanel}
     </div>
   );

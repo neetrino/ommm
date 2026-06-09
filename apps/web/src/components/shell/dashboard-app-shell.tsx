@@ -134,25 +134,39 @@ export function DashboardAppShell({
       : "lg:w-64";
   const borderB = isOliveShell ? "" : `border-b ${sidebarShellBorderClass(variant)}`;
   const rootClassName = withSiteHeader
-    ? `${pageBackgroundClass(variant)} ${offsetStyles.dashboardWithMarketingHeader} ${offsetStyles.dashboardWithMarketingHeaderOverlay}`
+    ? [
+        pageBackgroundClass(variant),
+        offsetStyles.dashboardWithMarketingHeader,
+        offsetStyles.dashboardWithMarketingHeaderOverlay,
+        variant === "member"
+          ? offsetStyles.dashboardWithMarketingHeaderMemberMobile
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ")
     : pageBackgroundClass(variant);
   const sidebarStickyClass = withSiteHeader
     ? offsetStyles.sidebarFixedBelowMarketingHeader
     : "lg:sticky lg:top-0 lg:h-screen lg:max-h-screen lg:self-start";
+  const mainPaddingClass = isOliveShell
+    ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
+    : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10";
   const mainClassName = [
-    isOliveShell
-      ? "flex-1 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10"
-      : "flex-1 px-4 pt-0 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10",
+    mainPaddingClass,
     withSiteHeader ? offsetStyles.workspaceScrollMain : "",
   ]
     .filter(Boolean)
     .join(" ");
   const layoutMinHeightClass = withSiteHeader ? "min-h-full" : "min-h-screen";
+  const workspaceBodyClassName = [
+    `mx-auto flex ${layoutMinHeightClass} w-full flex-col lg:flex-row`,
+    contentMaxClass,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const workspaceBody = (
-    <div
-      className={`mx-auto flex ${layoutMinHeightClass} w-full flex-col lg:flex-row ${contentMaxClass}`}
-    >
+    <div className={workspaceBodyClassName}>
       {withSiteHeader ? (
         <div
           className={`${workspaceMobileDrawerLayout.desktopSidebarSpacer} ${asideWidth}`}
@@ -278,7 +292,15 @@ export function DashboardAppShell({
     <div className={rootClassName}>
       {withSiteHeader ? (
         <div
-          className={`${offsetStyles.dashboardWithMarketingHeaderScroll} ${offsetStyles.dashboardWithMarketingHeaderScrollOverlay}`}
+          className={[
+            offsetStyles.dashboardWithMarketingHeaderScroll,
+            offsetStyles.dashboardWithMarketingHeaderScrollOverlay,
+            variant === "member"
+              ? offsetStyles.dashboardWithMarketingHeaderScrollMemberMobile
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           {workspaceBody}
         </div>

@@ -22,7 +22,13 @@ export const USER_GIFT_CARDS_TAB_CLASS =
 
 export const USER_GIFT_CARDS_TAB_ACTIVE_CLASS = `${USER_GIFT_CARDS_TAB_CLASS} ommm-admin-pill-tab-active`;
 
-export function UserGiftCardsTabNav({ className = "" }: { className?: string }) {
+export function UserGiftCardsTabNav({
+  className = "",
+  embeddedInSheet = false,
+}: {
+  className?: string;
+  embeddedInSheet?: boolean;
+}) {
   const t = useTranslations("userPages.giftCards.tabs");
   const router = useRouter();
   const pathname = usePathname();
@@ -43,11 +49,17 @@ export function UserGiftCardsTabNav({ className = "" }: { className?: string }) 
     [pathname, router, searchParams],
   );
 
+  const navLayoutClass = embeddedInSheet
+    ? "grid w-full grid-cols-2 gap-3 overflow-visible pb-0"
+    : "flex min-w-0 shrink-0 items-center gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+
+  const tabButtonClass = embeddedInSheet ? " w-full justify-center" : "";
+
   return (
     <nav
       role="tablist"
       aria-label={t("aria")}
-      className={`flex min-w-0 shrink-0 items-center gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      className={`${navLayoutClass} ${className}`.trim()}
     >
       {USER_GIFT_CARDS_TABS.map((tab) => {
         const active = activeTab === tab;
@@ -58,7 +70,7 @@ export function UserGiftCardsTabNav({ className = "" }: { className?: string }) 
             role="tab"
             aria-selected={active}
             onClick={() => setTab(tab)}
-            className={active ? USER_GIFT_CARDS_TAB_ACTIVE_CLASS : USER_GIFT_CARDS_TAB_CLASS}
+            className={`${active ? USER_GIFT_CARDS_TAB_ACTIVE_CLASS : USER_GIFT_CARDS_TAB_CLASS}${tabButtonClass}`}
           >
             {t(TAB_LABEL_KEY[tab])}
           </button>

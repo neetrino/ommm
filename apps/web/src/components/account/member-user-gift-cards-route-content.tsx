@@ -38,36 +38,38 @@ export async function MemberUserGiftCardsRouteContent({
   const mergedCards = mergeUserGiftCards(purchased, received);
   const loadError = !purchasedRes.ok && !receivedRes.ok ? purchasedRes.status : null;
 
+  const pageHero = (
+    <UserGiftCardsPageHero
+      title={t("title")}
+      locale={locale}
+      giftBalanceCents={credits}
+      embeddedInSheet={embeddedInSheet}
+    />
+  );
+
+  const tabBody =
+    tab === "my" ? (
+      <div className="space-y-0">
+        <UserGiftCardsSection title={t("redeem")}>
+          <div className="max-w-sm">
+            <GiftRedeemForm />
+          </div>
+        </UserGiftCardsSection>
+
+        <Suspense fallback={null}>
+          <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
+        </Suspense>
+      </div>
+    ) : (
+      <UserGiftCardsSection title={t("purchase")}>
+        <GiftPurchaseForm locale={locale} />
+      </UserGiftCardsSection>
+    );
+
   return (
     <div className="space-y-4">
-      <UserGiftCardsPageHero
-        title={t("title")}
-        locale={locale}
-        giftBalanceCents={credits}
-        embeddedInSheet={embeddedInSheet}
-      />
-
-      {tab === "my" ? (
-        <div className="space-y-0">
-          <UserGiftCardsSection title={t("redeem")}>
-            <div className="max-w-sm">
-              <GiftRedeemForm />
-            </div>
-          </UserGiftCardsSection>
-
-          <Suspense fallback={null}>
-            <UserGiftCardsBoard
-              locale={locale}
-              cards={mergedCards}
-              loadError={loadError}
-            />
-          </Suspense>
-        </div>
-      ) : (
-        <UserGiftCardsSection title={t("purchase")}>
-          <GiftPurchaseForm locale={locale} />
-        </UserGiftCardsSection>
-      )}
+      {pageHero}
+      {tabBody}
     </div>
   );
 }

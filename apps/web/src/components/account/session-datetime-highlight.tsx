@@ -5,13 +5,14 @@ import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import {
   SessionDateTimeListDateChip,
   SessionDateTimeListTimeBlock,
+  SessionDateTimeListTimeCard,
 } from "@/components/shared/schedule/session-datetime-list-display";
 
 type SessionDateTimeHighlightProps = {
   locale: string;
   startsAt: string;
   endsAt: string;
-  variant: "board" | "boardDateYear" | "listDate" | "listDateYear" | "listTime";
+  variant: "board" | "boardDateYear" | "listDate" | "listDateYear" | "listTime" | "listTimeCard";
   className?: string;
 };
 
@@ -150,6 +151,17 @@ export function SessionDateTimeHighlight({
     display.durationMinutes > 0
       ? t("sessionDurationMinutes", { minutes: display.durationMinutes })
       : null;
+
+  if (variant === "listTimeCard") {
+    return (
+      <SessionDateTimeListTimeCard
+        display={display}
+        untilLabel={t("sessionUntil")}
+        durationMinutesLabel={durationMinutesLabel}
+        className={className}
+      />
+    );
+  }
 
   return (
     <SessionDateTimeListTimeBlock

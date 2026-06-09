@@ -25,5 +25,4 @@ export const MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS =
 export const MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS =
   "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]";
 
-export const MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS =
-  "font-serif text-xl font-normal text-sage-900 sm:text-2xl";
+export const MEMBER_ACCOUNT_HUB_SHEET_TITLE_CLASS = "ommm-admin-header-title min-w-0";
