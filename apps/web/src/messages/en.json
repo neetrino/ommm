@@ -3465,8 +3465,8 @@
       "methods": {
         "CASH": "Cash",
         "CARD": "Card",
-        "BANK_TRANSFER": "Bank transfer",
-        "OTHER": "Other"
+        "BANK_TRANSFER": "Apple Pay",
+        "OTHER": "Google Pay"
       },
       "unlimitedClasses": "Unlimited classes",
       "sessionsPerPeriod": "{count} classes per period",

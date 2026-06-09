@@ -214,7 +214,6 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                 <ScheduleSessionRow
                   key={row.id}
                   row={row}
-                  studioLabel={t("studioBrand")}
                   bookLabel={t("bookCta")}
                   audience={audience}
                   subtitle={`${row.instructorName} • ${row.classType}`}

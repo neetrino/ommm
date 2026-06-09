@@ -3413,8 +3413,8 @@
       "methods": {
         "CASH": "Наличные",
         "CARD": "Карта",
-        "BANK_TRANSFER": "Банковский перевод",
-        "OTHER": "Другое"
+        "BANK_TRANSFER": "Apple Pay",
+        "OTHER": "Google Pay"
       },
       "unlimitedClasses": "Безлимитные занятия",
       "sessionsPerPeriod": "{count} занятий за период",

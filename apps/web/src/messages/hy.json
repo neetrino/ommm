@@ -3425,8 +3425,8 @@
       "methods": {
         "CASH": "Կանխիկ",
         "CARD": "Քարտ",
-        "BANK_TRANSFER": "Բանկային փոխանցում",
-        "OTHER": "Այլ"
+        "BANK_TRANSFER": "Apple Pay",
+        "OTHER": "Google Pay"
       },
       "unlimitedClasses": "Անսահմանափակ դասեր",
       "sessionsPerPeriod": "{count} դաս ժամանակաշրջանում",
