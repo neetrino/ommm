@@ -57,9 +57,9 @@ export const USER_LIST_ACTIONS_CELL =
 export const USER_SCHEDULE_LIST_GRID_COLS =
   "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_minmax(8rem,auto)_auto_1fr_auto]";
 
-/** Date · Class · Time · Status · ⟨flex⟩ · Actions */
+/** Date · Class · Time · Status · Actions — four equal tracks plus compact actions. */
 export const USER_BOOKINGS_LIST_GRID_COLS =
-  "md:grid-cols-[3.25rem_minmax(0,11rem)_minmax(10rem,auto)_auto_1fr_auto]";
+  "md:grid-cols-[repeat(4,minmax(0,1fr))_minmax(0,auto)]";
 
 /** Item · Amount · Date · Time · Status · Method — six equal tracks for even column spacing. */
 export const USER_PAYMENTS_LIST_GRID_COLS = "repeat(6,minmax(0,1fr))";

@@ -19,8 +19,8 @@ import {
 import {
   USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   USER_BOOKINGS_LIST_HEADER_CLASS,
+  USER_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/account/user-bookings-list-layout";
-import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -366,27 +366,23 @@ function BookingGroup({
           ))}
         </ul>
       ) : (
-        <div className={`mt-4 ${USER_LIST_STACK_CLASS}`}>
+        <div className={`mt-4 ${USER_BOOKINGS_LIST_TABLE_CLASS}`}>
           <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderStatus")}</span>
-            <span aria-hidden="true" />
             <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
-          <ul className={USER_LIST_STACK_CLASS}>
-            {rows.map((booking) => (
-              <li key={booking.id} className="list-none">
-                <UserBookingCompactRow
-                  locale={locale}
-                  booking={booking}
-                  showCancel={showCancel}
-                  showRebook={showRebook}
-                />
-              </li>
-            ))}
-          </ul>
+          {rows.map((booking) => (
+            <UserBookingCompactRow
+              key={booking.id}
+              locale={locale}
+              booking={booking}
+              showCancel={showCancel}
+              showRebook={showRebook}
+            />
+          ))}
         </div>
       )}
       {pagination ? <div className="mt-4">{pagination}</div> : null}
