@@ -3,11 +3,6 @@
 import { useTranslations } from "next-intl";
 import { SessionClassTitle } from "@/components/account/session-class-title";
 import { SessionDateTimeHighlight } from "@/components/account/session-datetime-highlight";
-import {
-  ADMIN_BOOKING_VALUE_BADGE_CLASS,
-  adminBookingPaymentLabel,
-  paymentValueBadgeTone,
-} from "@/components/admin/admin-booking-list-badges";
 import { AdminBookingRowActions } from "@/components/admin/admin-booking-row-actions";
 import { AdminBookingStatusPicker } from "@/components/admin/admin-booking-status-picker";
 import {
@@ -18,7 +13,6 @@ import {
   ADMIN_BOOKINGS_LIST_DATE_TIME_CELL,
   ADMIN_BOOKINGS_LIST_ROW_CLASS,
   ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL,
-  ADMIN_BOOKINGS_LIST_PAYMENT_CELL,
 } from "@/components/admin/admin-bookings-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
 import {
@@ -26,6 +20,7 @@ import {
   ADMIN_LIST_TITLE_TEXT_CLASS,
 } from "@/components/admin/admin-list-table-layout";
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
+import { normalizeBookingStatusBadgePaymentMethod } from "@/components/admin/admin-booking-list-badges";
 
 type BookingRow = {
   id: string;
@@ -33,6 +28,7 @@ type BookingRow = {
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
   paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
+  bookingPaymentMethod: string | null;
   channel: "WEBSITE" | "APP";
   user: { id: string; name: string | null; email: string; phone: string | null };
   session: {
@@ -148,14 +144,6 @@ export function AdminBookingCompactRow({
         </div>
       </div>
 
-      <div className={ADMIN_BOOKINGS_LIST_PAYMENT_CELL}>
-        <AdminListMobileLabel label={t("colPaymentStatus")} />
-        <BookingValueBadge
-          label={adminBookingPaymentLabel(t, row.paymentStatus)}
-          className={paymentValueBadgeTone(row.paymentStatus)}
-        />
-      </div>
-
       <div
         className={ADMIN_BOOKINGS_LIST_BOOKING_STATUS_CELL}
         onClick={(event) => event.stopPropagation()}
@@ -165,6 +153,9 @@ export function AdminBookingCompactRow({
         <AdminBookingStatusPicker
           recordType={row.recordType}
           status={row.status}
+          bookingPaymentMethod={normalizeBookingStatusBadgePaymentMethod(
+            row.bookingPaymentMethod,
+          )}
           busy={busy}
           onChangeStatus={onChangeStatus}
         />
@@ -188,13 +179,5 @@ export function AdminBookingCompactRow({
         />
       </div>
     </article>
-  );
-}
-
-function BookingValueBadge({ label, className }: { label: string; className: string }) {
-  return (
-    <span className={`${ADMIN_BOOKING_VALUE_BADGE_CLASS} ${className}`}>
-      {label}
-    </span>
   );
 }

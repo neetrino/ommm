@@ -66,6 +66,7 @@ export type AdminBookingRow = {
   status: "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
   attendanceStatus: "ATTENDED" | "NOT_ATTENDED" | "NO_SHOW" | "LATE_CANCEL" | null;
   paymentStatus: "PAID" | "CASH" | "UNPAID" | "CANCELLED";
+  bookingPaymentMethod: string | null;
   channel: "WEBSITE" | "APP";
   registerDate: string;
   user: { id: string; name: string | null; email: string; phone: string | null };
@@ -265,6 +266,7 @@ export type AdminBookingDetailPayload = {
   channel: AdminBookingRow["channel"];
   createdAt: string;
   paymentStatus: AdminBookingRow["paymentStatus"];
+  bookingPaymentMethod: AdminBookingRow["bookingPaymentMethod"];
   attendanceStatus: AdminBookingRow["attendanceStatus"];
   user: AdminBookingRow["user"];
   session: {
@@ -290,6 +292,7 @@ export function mapAdminBookingDetailToRow(payload: AdminBookingDetailPayload): 
     status: payload.status,
     attendanceStatus: payload.attendanceStatus,
     paymentStatus: payload.paymentStatus,
+    bookingPaymentMethod: payload.bookingPaymentMethod ?? null,
     channel: payload.channel,
     registerDate: payload.createdAt,
     user: payload.user,
@@ -330,6 +333,7 @@ export function buildLoadingBookingRow(key: string): AdminBookingRow | null {
     status: "BOOKED",
     attendanceStatus: null,
     paymentStatus: "UNPAID",
+    bookingPaymentMethod: null,
     channel: "WEBSITE",
     registerDate: now,
     user: { id: "", name: null, email: "…", phone: null },

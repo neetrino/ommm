@@ -33,7 +33,6 @@ import { normalizePackageCategoryKey } from "@/components/admin/package-category
 const BANNER_MS = 8000;
 
 type AdminPackagesShellProps = {
-  toolbar?: ReactNode;
   children: ReactNode;
   packages: readonly AdminPackageRow[];
   categoryOptions: readonly AdminPackagesCategoryOption[];
@@ -43,7 +42,6 @@ type AdminPackagesShellProps = {
 };
 
 export function AdminPackagesShell({
-  toolbar,
   children,
   packages,
   categoryOptions,
@@ -227,7 +225,7 @@ export function AdminPackagesShell({
 
   return (
     <>
-      <div className="ommm-admin-packages">
+      <div>
         {banner !== null && banner.length > 0 ? (
           <p
             className="mb-6 rounded-2xl border border-mint-200/80 bg-mint-50/90 px-4 py-3 text-sm text-sage-800 shadow-[0_12px_28px_-18px_rgba(45,40,35,0.18)]"
@@ -236,7 +234,6 @@ export function AdminPackagesShell({
             {banner}
           </p>
         ) : null}
-        {toolbar ? <div className="ommm-admin-packages-toolbar-wrap">{toolbar}</div> : null}
         {children}
       </div>
 

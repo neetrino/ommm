@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { AdminListPaymentsQueryDto } from './dto/admin-list-payments-query.dto';
 import { AdminUpdatePaymentStatusDto } from './dto/admin-update-payment-status.dto';
+import { ConfirmDropInPaymentDto } from './dto/confirm-dropin-payment.dto';
 import { ConfirmGiftPaymentDto } from './dto/confirm-gift-payment.dto';
 import { CreateGiftCheckoutDto } from './dto/create-gift-checkout.dto';
 import { ListMyPaymentsQueryDto } from './dto/list-my-payments-query.dto';
@@ -67,6 +68,20 @@ export class PaymentsController {
     @Param('sessionId') sessionId: string,
   ) {
     return this.payments.createDropInCheckout(user.id, sessionId);
+  }
+
+  @Post('checkout/dropin/:reference/confirm')
+  @UseGuards(JwtAuthGuard)
+  confirmDropInPayment(
+    @CurrentUser() user: { id: string },
+    @Param('reference') reference: string,
+    @Body() body: ConfirmDropInPaymentDto,
+  ) {
+    return this.payments.confirmDropInPayment(
+      user.id,
+      reference,
+      body.paymentMethod,
+    );
   }
 
   @Get('me')

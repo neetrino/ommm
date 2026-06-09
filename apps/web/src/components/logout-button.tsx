@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { clearCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
+import { clearClientSessionHint } from "@/lib/client-session-hint";
 import { cn } from "@/lib/cn";
 
 /** Marketing home path; locale is preserved from the active session. */
@@ -93,6 +95,8 @@ export function LogoutButton({
     } catch {
       // Cookie clear is best-effort; still leave protected areas.
     } finally {
+      clearCachedMarketingHeaderAccount();
+      clearClientSessionHint();
       router.replace(POST_LOGOUT_PATH, { locale });
       router.refresh();
     }

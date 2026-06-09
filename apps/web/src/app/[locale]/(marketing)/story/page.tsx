@@ -12,10 +12,7 @@ export default async function StoryPage({
   const m = await getTranslations({ locale, namespace: "marketing" });
 
   return (
-    <MarketingPageFrame
-      title={m("storyTitle")}
-      lede={m("storyLead")}
-    >
+    <MarketingPageFrame title={m("storyTitle")} lede={m("storyLead")} scrollReveal>
       <div className="w-full min-w-0 space-y-6">
         <p className="ommm-body">{m("storyP1")}</p>
         <p className="ommm-body">{m("storyP2")}</p>

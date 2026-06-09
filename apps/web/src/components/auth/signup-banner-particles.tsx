@@ -1,19 +1,47 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useRef } from "react";
+import {
+  AUTH_PARTICLE_LAYOUT,
+  type AuthParticleConfig,
+  type AuthParticleSize,
+} from "@/components/auth/signup-banner-particle-layout";
 import styles from "@/components/auth/signup-banner-particles.module.css";
 
-const SIGNUP_BANNER_PARTICLE_COUNT = 90;
 const REPEL_RADIUS_PX = 120;
-const REPEL_STRENGTH_PX = 30;
+const REPEL_STRENGTH_BY_SIZE: Record<AuthParticleSize, number> = {
+  sm: 16,
+  md: 22,
+  lg: 28,
+  xl: 34,
+};
 const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";
-const FINE_POINTER_MEDIA_QUERY = "(pointer: fine)";
+
+const SIZE_CLASS: Record<AuthParticleSize, string> = {
+  sm: styles.sizeSm,
+  md: styles.sizeMd,
+  lg: styles.sizeLg,
+  xl: styles.sizeXl,
+};
+
+function particleStyle(
+  config: AuthParticleConfig,
+): CSSProperties & Record<`--${string}`, string | number> {
+  return {
+    "--particle-left": config.left,
+    "--particle-top": config.top,
+    "--particle-delay": `${config.delay}s`,
+  };
+}
 
 function setParticleOffset(
   particle: HTMLSpanElement,
   pointerX: number,
   pointerY: number,
 ): void {
+  const size = particle.dataset.size as AuthParticleSize | undefined;
+  const repelStrength = size ? REPEL_STRENGTH_BY_SIZE[size] : REPEL_STRENGTH_BY_SIZE.md;
   const rect = particle.getBoundingClientRect();
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
@@ -27,7 +55,7 @@ function setParticleOffset(
     return;
   }
 
-  const force = (1 - distance / REPEL_RADIUS_PX) * REPEL_STRENGTH_PX;
+  const force = (1 - distance / REPEL_RADIUS_PX) * repelStrength;
   particle.style.setProperty("--repel-x", `${(deltaX / distance) * force}px`);
   particle.style.setProperty("--repel-y", `${(deltaY / distance) * force}px`);
 }
@@ -43,8 +71,7 @@ export function SignupBannerParticles() {
 
   useEffect(() => {
     const reduceMotion = window.matchMedia(REDUCED_MOTION_MEDIA_QUERY);
-    const finePointer = window.matchMedia(FINE_POINTER_MEDIA_QUERY);
-    if (reduceMotion.matches || !finePointer.matches) {
+    if (reduceMotion.matches) {
       return;
     }
 
@@ -105,13 +132,21 @@ export function SignupBannerParticles() {
 
   return (
     <div ref={layerRef} className={styles.layer} aria-hidden="true">
-      {Array.from({ length: SIGNUP_BANNER_PARTICLE_COUNT }, (_, index) => (
+      {AUTH_PARTICLE_LAYOUT.map((config, index) => (
         <span
-          key={index}
+          key={`particle-${index}`}
           ref={(node) => {
             particleRefs.current[index] = node;
           }}
-          className={styles.particle}
+          data-size={config.size}
+          className={[
+            styles.particle,
+            SIZE_CLASS[config.size],
+            config.alternateDrift ? styles.alternateDrift : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          style={particleStyle(config)}
         />
       ))}
     </div>

@@ -27,7 +27,7 @@ export default async function ScheduleMarketingPage({
   const t = await getTranslations({ locale, namespace: "marketingPages.schedule" });
 
   return (
-    <MarketingPublicPageSection title={t("pageTitle")}>
+    <MarketingPublicPageSection title={t("pageTitle")} scrollReveal>
       <Suspense fallback={<MarketingPageContentSkeleton cards={1} />}>
         <MarketingScheduleSection locale={locale} />
       </Suspense>

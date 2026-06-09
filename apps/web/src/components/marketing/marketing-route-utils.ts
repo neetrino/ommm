@@ -33,6 +33,43 @@ export function isMarketingCoachesPath(pathname: string): boolean {
   return pathname === "/coaches" || pathname.startsWith("/coaches/");
 }
 
+/** Public schedule page — scroll-reveal card + footer. */
+export function isMarketingSchedulePath(pathname: string): boolean {
+  return pathname === "/schedule" || pathname.startsWith("/schedule/");
+}
+
+/** Public packages page — scroll-reveal cards + footer. */
+export function isMarketingPackagesPath(pathname: string): boolean {
+  return pathname === "/packages" || pathname.startsWith("/packages/");
+}
+
+/** Public explore list and post pages — scroll-reveal cards + footer. */
+export function isMarketingExplorePath(pathname: string): boolean {
+  return pathname === "/explore" || pathname.startsWith("/explore/");
+}
+
+/** Public contact page — scroll-reveal sections + footer. */
+export function isMarketingContactPath(pathname: string): boolean {
+  return pathname === "/contact" || pathname.startsWith("/contact/");
+}
+
+/** Public story page — scroll-reveal content + footer. */
+export function isMarketingStoryPath(pathname: string): boolean {
+  return pathname === "/story" || pathname.startsWith("/story/");
+}
+
+/** Marketing pages whose layout footer uses the shared scroll-reveal entrance. */
+export function isMarketingScrollRevealFooterPath(pathname: string): boolean {
+  return (
+    isMarketingCoachesPath(pathname) ||
+    isMarketingExplorePath(pathname) ||
+    isMarketingSchedulePath(pathname) ||
+    isMarketingPackagesPath(pathname) ||
+    isMarketingContactPath(pathname) ||
+    isMarketingStoryPath(pathname)
+  );
+}
+
 /** All marketing routes except home — coaches-style gradient shell + footer blend. */
 export function isMarketingInnerPath(pathname: string): boolean {
   return !isMarketingHomePath(pathname);

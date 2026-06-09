@@ -197,14 +197,17 @@ export class ClassesService {
 
   listSessionsPublic(params: {
     from: Date;
-    to: Date;
+    to?: Date;
     coachId?: string;
     typeId?: string;
   }) {
     return this.prisma.classSession.findMany({
       where: {
         status: { in: [ClassSessionStatus.ACTIVE, ClassSessionStatus.FULL] },
-        startsAt: { gte: params.from, lte: params.to },
+        startsAt: {
+          gte: params.from,
+          ...(params.to !== undefined ? { lte: params.to } : {}),
+        },
         ...(params.coachId && { coachId: params.coachId }),
         ...(params.typeId && { classTypeId: params.typeId }),
       },
@@ -396,6 +399,22 @@ export class ClassesService {
     }
     if (endsAt <= startsAt) {
       throw new BadRequestException('Class end time must be after start time');
+    }
+  }
+
+  private async assertCoachAssignedToClassType(
+    coachId: string,
+    classTypeId: string,
+  ): Promise<void> {
+    const coach = await this.prisma.coachProfile.findUnique({
+      where: { id: coachId },
+      select: { assignedClassTypeIds: true, isActive: true },
+    });
+    if (!coach?.isActive) {
+      throw new BadRequestException('Coach is not available');
+    }
+    if (!coach.assignedClassTypeIds.includes(classTypeId)) {
+      throw new BadRequestException('Coach is not assigned to this class type');
     }
   }
 
@@ -597,6 +616,13 @@ export class ClassesService {
   }
 
   async createSession(dto: CreateSessionDto): Promise<AdminSessionRow> {
+    await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
+    if (dto.substituteCoachId) {
+      await this.assertCoachAssignedToClassType(
+        dto.substituteCoachId,
+        dto.classTypeId,
+      );
+    }
     const startsAt = new Date(dto.startsAt);
     const endsAt = new Date(dto.endsAt);
     this.assertTimeRange(startsAt, endsAt);
@@ -633,6 +659,7 @@ export class ClassesService {
   async createSessionBatch(
     dto: CreateSessionBatchDto,
   ): Promise<AdminSessionRow[]> {
+    await this.assertCoachAssignedToClassType(dto.coachId, dto.classTypeId);
     const title = await this.resolveSessionTitle(dto.title, dto.classTypeId);
     const createRows = this.buildBatchSessionData(dto, title);
     const created = await this.prisma.$transaction(
@@ -655,6 +682,16 @@ export class ClassesService {
       throw new NotFoundException('Session not found');
     }
     const existing = existingRaw as ClassSessionWithRecurrence;
+
+    const nextClassTypeId = dto.classTypeId ?? existing.classTypeId;
+    const nextCoachId = dto.coachId ?? existing.coachId;
+    await this.assertCoachAssignedToClassType(nextCoachId, nextClassTypeId);
+    if (dto.substituteCoachId) {
+      await this.assertCoachAssignedToClassType(
+        dto.substituteCoachId,
+        nextClassTypeId,
+      );
+    }
 
     const startsAt = dto.startsAt ? new Date(dto.startsAt) : existing.startsAt;
     const endsAt = dto.endsAt ? new Date(dto.endsAt) : existing.endsAt;

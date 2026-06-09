@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import { OmmButton } from "@/components/ui/omm-button";
 
 type PendingConfirm = "activate" | "deactivate";
@@ -85,6 +86,7 @@ export function AdminCoachStatusAction({
         setMessage(successMessage);
       }
       onChanged?.();
+      await revalidatePublicCoaches();
       router.refresh();
       setPendingConfirm(null);
     } catch (error) {

@@ -17,7 +17,7 @@ import {
   WORKSPACE_ROUTE_PREFETCH,
 } from "@/lib/workspace-nav-link";
 
-const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users"]);
+const ADMIN_MUTED_NAV_HREFS = new Set(["/admin/guest-users", "/admin/profile"]);
 
 function navActive(pathname: string, href: string) {
   return dashboardNavPathActive(pathname, href);

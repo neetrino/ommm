@@ -80,13 +80,13 @@ export function GiftPurchaseForm({ locale }: GiftPurchaseFormProps) {
         },
       );
       const params = new URLSearchParams({
-        batchId: item.id,
+        source: "gift",
         amountCents: item.amountCents.toString(),
       });
       if (payment.paymentReference !== null) {
         params.set("reference", payment.paymentReference);
       }
-      router.push(`/user/gift-cards/fake-payment?${params.toString()}`);
+      router.push(`/user/payments/checkout?${params.toString()}`);
     } catch (err) {
       setStatus(err instanceof ApiError ? err.message : t("checkoutFailed"));
     } finally {

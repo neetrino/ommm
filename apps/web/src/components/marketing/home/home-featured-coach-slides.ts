@@ -6,7 +6,7 @@ import type { CoachSlideCopy } from "@/components/marketing/home/featured-coach-
 import { HOME_SECTION_ASSETS } from "@/components/marketing/home/home-section-assets";
 import { limitCoachesPageGridCards } from "@/components/marketing/coaches/coaches-page-fallback-coaches";
 
-/** Featured Coaches carousel — same cap as `/coaches` grid. */
+/** Featured Coaches carousel — max slides on the home page. */
 export const HOME_FEATURED_COACHES_MAX_SLIDES = 6;
 
 function resolveCoachPortraitSrc(avatarUrl: string | null | undefined): string {

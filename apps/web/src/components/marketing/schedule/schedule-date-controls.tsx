@@ -14,6 +14,7 @@ import {
 import {
   addDays,
   compareCalendarDays,
+  isAfterCalendarDay,
   isBeforeCalendarDay,
   isSameCalendarDay,
   startOfLocalDay,
@@ -46,6 +47,7 @@ type ScheduleDateControlsProps = {
   locale: string;
   selectedDate: Date;
   windowStart: Date;
+  maxDate?: Date;
   onSelectDay: (d: Date) => void;
   onShiftWindow: (delta: number) => void;
 };
@@ -54,6 +56,7 @@ export function ScheduleDateControls({
   locale,
   selectedDate,
   windowStart,
+  maxDate,
   onSelectDay,
   onShiftWindow,
 }: ScheduleDateControlsProps) {
@@ -61,6 +64,9 @@ export function ScheduleDateControls({
   const stripDays = Array.from({ length: VISIBLE_DAYS }, (_, idx) => addDays(windowStart, idx));
   const today = startOfLocalDay(new Date());
   const canShiftPrev = compareCalendarDays(addDays(windowStart, -1), today) >= 0;
+  const canShiftNext =
+    maxDate === undefined ||
+    !isAfterCalendarDay(addDays(windowStart, WINDOW_SHIFT), maxDate);
   const monthLabel = formatMonthTitle(locale, selectedDate);
   const selectedLong = formatSelectedLong(locale, selectedDate);
 
@@ -86,7 +92,9 @@ export function ScheduleDateControls({
             {stripDays.map((day) => {
               const active = isSameCalendarDay(day, selectedDate);
               const isToday = isSameCalendarDay(day, today);
-              const isPast = isBeforeCalendarDay(day, today);
+              const isPast =
+                isBeforeCalendarDay(day, today) ||
+                (maxDate !== undefined && isAfterCalendarDay(day, maxDate));
               const dayNum = String(day.getDate());
               const wk = formatWeekdayShort(locale, day).toUpperCase();
               const weekdayClass = `w-full truncate text-center text-[9px] font-medium uppercase tracking-wide sm:text-[10px] ${SCHEDULE_MUTED}`;
@@ -132,8 +140,10 @@ export function ScheduleDateControls({
           </div>
           <button
             type="button"
-            className={SCHEDULE_ARROW_BTN}
+            className={`${SCHEDULE_ARROW_BTN} disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/85`}
             aria-label={t("nextDatesAria")}
+            disabled={!canShiftNext}
+            aria-disabled={!canShiftNext}
             onClick={() => onShiftWindow(WINDOW_SHIFT)}
           >
             <ArrowRightIcon />

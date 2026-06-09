@@ -10,11 +10,12 @@ import {
   MAX_SPECIALIZATION_LENGTH,
   MIN_SCHEDULE_SPOTS,
   normalizeScheduleForApi,
+  filterKnownAssignedClassTypeIds,
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
 import { parseBirthdayDisplayToIso } from "@/lib/date-display";
 import {
-  nonEmptyCoachScheduleRows,
+  completeCoachScheduleRows,
   type CoachEditFormErrors,
   type CoachEditFormState,
   type CoachUpdatePayload,
@@ -31,9 +32,6 @@ type ValidateCoachFormArgs = {
   labels: {
     emailRequired: string;
     emailInvalid: string;
-    nameRequired: string;
-    lastNameRequired: string;
-    phoneRequired: string;
     phoneInvalid: string;
     ageInvalid: string;
     birthdayInvalid: string;
@@ -41,7 +39,6 @@ type ValidateCoachFormArgs = {
     bioTooLong: string;
     experienceInvalid: string;
     specializationTooLong: string;
-    assignedClassesInvalid: string;
     photoTooLarge: string;
     scheduleInvalid: string;
   };
@@ -66,8 +63,11 @@ export function validateCoachEditForm({
   const experienceRaw = form.experienceYears.trim();
   const experienceYears = experienceRaw.length > 0 ? Number(experienceRaw) : null;
   const specialization = form.specialization.trim();
-  const assignedClassTypeIds = form.assignedClassTypeIds;
-  const scheduleRows = nonEmptyCoachScheduleRows(form.schedule);
+  const assignedClassTypeIds = filterKnownAssignedClassTypeIds(
+    form.assignedClassTypeIds,
+    classOptions,
+  );
+  const scheduleRows = completeCoachScheduleRows(form.schedule);
   const errors: CoachEditFormErrors = {};
 
   if (email === "") {
@@ -75,16 +75,8 @@ export function validateCoachEditForm({
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = labels.emailInvalid;
   }
-  if (name.length === 0) {
-    errors.name = labels.nameRequired;
-  }
-  if (lastName.length === 0) {
-    errors.lastName = labels.lastNameRequired;
-  }
   const phoneDigits = phone.replace(/\D/g, "").length;
-  if (phone.length === 0) {
-    errors.phone = labels.phoneRequired;
-  } else if (phoneDigits < MIN_PHONE_DIGITS || phoneDigits > MAX_PHONE_DIGITS) {
+  if (phone.length > 0 && (phoneDigits < MIN_PHONE_DIGITS || phoneDigits > MAX_PHONE_DIGITS)) {
     errors.phone = labels.phoneInvalid;
   }
   if (age !== null && (!Number.isInteger(age) || age < COACH_MIN_AGE || age > COACH_MAX_AGE)) {
@@ -112,19 +104,10 @@ export function validateCoachEditForm({
   if (specialization.length > MAX_SPECIALIZATION_LENGTH) {
     errors.specialization = labels.specializationTooLong;
   }
-  if (classOptions.length > 0) {
-    const allowedClassIds = new Set(classOptions.map((option) => option.id));
-    if (assignedClassTypeIds.some((id) => !allowedClassIds.has(id))) {
-      errors.assignedClassTypeIds = labels.assignedClassesInvalid;
-    }
-  }
   if (photoFile !== null && photoFile.size > MAX_PHOTO_BYTES) {
     errors.photo = labels.photoTooLarge;
   }
   const scheduleInvalid = scheduleRows.some((row) => {
-    if (row.date.trim() === "" || row.time.trim() === "" || row.spots.trim() === "") {
-      return true;
-    }
     const spots = Number(row.spots);
     return !isValidTime(row.time.trim()) || !Number.isInteger(spots) || spots < MIN_SCHEDULE_SPOTS;
   });
@@ -138,9 +121,9 @@ export function validateCoachEditForm({
 
   const payload: CoachUpdatePayload = {
     email,
-    name,
-    lastName,
-    phone,
+    name: name.length > 0 ? name : null,
+    lastName: lastName.length > 0 ? lastName : null,
+    phone: phone.length > 0 ? phone : null,
     ...(age !== null ? { age } : {}),
     birthday: birthdayDisplay === "" ? null : birthday,
     bio: bio.length > 0 ? bio : null,

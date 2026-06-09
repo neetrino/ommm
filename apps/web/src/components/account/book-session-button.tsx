@@ -22,6 +22,7 @@ type Props = {
 
 type PendingPaymentResponse = {
   paymentReference: string | null;
+  amountCents?: number;
 };
 
 export function BookSessionButton({
@@ -61,16 +62,18 @@ export function BookSessionButton({
     setBusy(true);
     setMsg(null);
     try {
-      const payment = await apiFetch<PendingPaymentResponse>(
+      const payment = await apiFetch<PendingPaymentResponse & { amountCents: number }>(
         `/payments/checkout/dropin/${sessionId}`,
         { method: "POST" },
       );
-      setMsg(
-        payment.paymentReference
-          ? t("paymentPendingWithReference", { reference: payment.paymentReference })
-          : t("paymentPending"),
-      );
-      router.refresh();
+      const params = new URLSearchParams({
+        source: "dropin",
+        amountCents: String(payment.amountCents ?? priceCents),
+      });
+      if (payment.paymentReference !== null) {
+        params.set("reference", payment.paymentReference);
+      }
+      router.push(`/user/payments/checkout?${params.toString()}`);
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("checkoutFailed"));
     } finally {

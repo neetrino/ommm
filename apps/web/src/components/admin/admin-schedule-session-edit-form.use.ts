@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import type { AdminScheduleSession } from "@/components/admin/admin-schedule-management";
+import type { AdminScheduleCoach, AdminScheduleSession } from "@/components/admin/admin-schedule-management";
+import { filterCoachesByClassType } from "@/components/admin/admin-schedule-coach-filter";
 import {
   resolveSessionClassTypeId,
   type SessionClassTypeOption,
@@ -19,6 +20,7 @@ type UseSessionEditFormArgs = {
   resetKey: string;
   initial: SessionEditFormState;
   classTypeOptions: readonly SessionClassTypeOption[];
+  coaches: readonly AdminScheduleCoach[];
   onSaved: (saved: AdminScheduleSession) => void;
   onClassTypeCreated?: (type: { id: string; name: string; slug: string }) => void;
 };
@@ -28,6 +30,7 @@ export function useSessionEditForm({
   resetKey,
   initial,
   classTypeOptions,
+  coaches,
   onSaved,
   onClassTypeCreated,
 }: UseSessionEditFormArgs) {
@@ -63,7 +66,11 @@ export function useSessionEditForm({
     setMessage(null);
   }
 
-  async function save(successMessage: string, errorMessage: string): Promise<void> {
+  async function save(
+    successMessage: string,
+    genericError: string,
+    coachNotAssigned: string,
+  ): Promise<void> {
     if (submitLockRef.current || busy || !dirty) {
       return;
     }
@@ -74,6 +81,15 @@ export function useSessionEditForm({
       const resolved = await resolveSessionClassTypeId(form.classTypeId, classTypeOptions);
       if (resolved.created) {
         onClassTypeCreated?.(resolved.created);
+      }
+      const eligibleCoaches = filterCoachesByClassType(coaches, resolved.classTypeId);
+      if (
+        eligibleCoaches.length === 0 ||
+        !eligibleCoaches.some((coach) => coach.id === form.coachId)
+      ) {
+        setMessage(coachNotAssigned);
+        setMessageTone("err");
+        return;
       }
       const saved = await apiFetch<AdminScheduleSession>(`/classes/sessions/${sessionId}`, {
         method: "PATCH",
@@ -90,7 +106,7 @@ export function useSessionEditForm({
       setMessageTone("ok");
       onSaved(saved);
     } catch (requestError) {
-      setMessage(requestError instanceof ApiError ? requestError.message : errorMessage);
+      setMessage(requestError instanceof ApiError ? requestError.message : genericError);
       setMessageTone("err");
     } finally {
       setBusy(false);

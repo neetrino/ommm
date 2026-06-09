@@ -1,5 +1,7 @@
 import {
   createScheduleRow,
+  filterKnownAssignedClassTypeIds,
+  type CoachClassOption,
   type CoachScheduleInput,
 } from "@/components/admin/admin-coach-form-helpers";
 import { formatIsoDateToUi } from "@/lib/date-display";
@@ -51,9 +53,9 @@ export type CoachEditInitialValues = {
 
 export type CoachUpdatePayload = {
   email: string;
-  name: string;
-  lastName: string;
-  phone: string;
+  name: string | null;
+  lastName: string | null;
+  phone: string | null;
   age?: number;
   birthday?: string | null;
   bio: string | null;
@@ -64,7 +66,10 @@ export type CoachUpdatePayload = {
   photoUrl?: string;
 };
 
-export function coachFormFromInitial(initial: CoachEditInitialValues): CoachEditFormState {
+export function coachFormFromInitial(
+  initial: CoachEditInitialValues,
+  classOptions: readonly CoachClassOption[] = [],
+): CoachEditFormState {
   return {
     email: initial.email,
     name: initial.name,
@@ -75,7 +80,10 @@ export function coachFormFromInitial(initial: CoachEditInitialValues): CoachEdit
     photoUrl: initial.photoUrl ?? "",
     bio: initial.bio,
     experienceYears: initial.experienceYears === null ? "" : String(initial.experienceYears),
-    assignedClassTypeIds: [...initial.assignedClassTypeIds],
+    assignedClassTypeIds: filterKnownAssignedClassTypeIds(
+      initial.assignedClassTypeIds,
+      classOptions,
+    ),
     schedule:
       initial.schedule.length > 0
         ? initial.schedule.map((slot) => ({
@@ -94,6 +102,16 @@ export function nonEmptyCoachScheduleRows(
 ): CoachScheduleInput[] {
   return rows.filter(
     (row) => row.date.trim() !== "" || row.time.trim() !== "" || row.spots.trim() !== "",
+  );
+}
+
+/** Rows with every field filled; partial rows are ignored on save. */
+export function completeCoachScheduleRows(
+  rows: readonly CoachScheduleInput[],
+): CoachScheduleInput[] {
+  return nonEmptyCoachScheduleRows(rows).filter(
+    (row) =>
+      row.date.trim() !== "" && row.time.trim() !== "" && row.spots.trim() !== "",
   );
 }
 

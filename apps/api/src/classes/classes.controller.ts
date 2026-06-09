@@ -57,12 +57,12 @@ export class ClassesController {
   @Get('sessions')
   listSessions(
     @Query('from') from: string,
-    @Query('to') to: string,
+    @Query('to') to?: string,
     @Query('coachId') coachId?: string,
     @Query('typeId') typeId?: string,
   ) {
     const fromD = new Date(from);
-    const toD = new Date(to);
+    const toD = to !== undefined && to.length > 0 ? new Date(to) : undefined;
     return this.classes.listSessionsPublic({
       from: fromD,
       to: toD,

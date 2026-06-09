@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import styles from "@/components/marketing/home/marketing-public-home-footer.module.css";
+import { HomePageReveal } from "@/components/marketing/home/home-page-reveal";
 import { MarketingPublicHomeFooterMobile } from "@/components/marketing/home/marketing-public-home-footer-mobile";
 import {
   HOME_FOOTER_ASSETS,
@@ -263,7 +264,7 @@ export async function MarketingPublicHomeFooter({
       style={footerStyleVars(surfaceVariant)}
     >
       <footer className={`${marketingMontserrat.variable} ${styles.shell}`}>
-        <div className={styles.inner}>
+        <HomePageReveal index={0} className={styles.inner}>
         <FooterDesktopLayer
           topNavAria={t("footerTopNavAria")}
           wordmark={wordmark}
@@ -302,7 +303,7 @@ export async function MarketingPublicHomeFooter({
           copyrightCompany={t("footerCopyrightCompany")}
           copyrightSuffix={t("footerCopyrightSuffix")}
         />
-        </div>
+        </HomePageReveal>
       </footer>
     </section>
   );

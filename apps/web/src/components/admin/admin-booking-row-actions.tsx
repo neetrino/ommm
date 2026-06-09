@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import {
-  ADMIN_ACTION_ICON_CLASS,
   ArrowRightGlyph,
   CheckCircleGlyph,
   PencilGlyph,
@@ -13,6 +12,9 @@ import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
 
 type BookingRecordType = "BOOKING" | "WAITLIST";
 type BookingStatus = "BOOKED" | "COMPLETED" | "CANCELLED" | "MISSED" | "WAITLISTED";
+
+const BOOKING_ACTION_BUTTON_CLASS = "h-8 w-8";
+const BOOKING_ACTION_ICON_CLASS = "h-4 w-4 shrink-0";
 
 export type AdminBookingRowActionsProps = {
   variant?: "list" | "sheet";
@@ -62,25 +64,27 @@ export function AdminBookingRowActions({
           ariaLabel={t("actionEditBooking")}
           title={t("actionEditBooking")}
           variant="subtle"
+          className={BOOKING_ACTION_BUTTON_CLASS}
           disabled={busy}
           onClick={(event) => {
             event.stopPropagation();
             onEdit?.();
           }}
         >
-          <PencilGlyph className={ADMIN_ACTION_ICON_CLASS} />
+          <PencilGlyph className={BOOKING_ACTION_ICON_CLASS} />
         </AdminRowIconButton>
         {canMove ? (
           <AdminRowIconButton
             ariaLabel={t("actionMoveBooking")}
             title={t("actionMoveBooking")}
+            className={BOOKING_ACTION_BUTTON_CLASS}
             disabled={busy}
             onClick={(event) => {
               event.stopPropagation();
               onMove?.();
             }}
           >
-            <ArrowRightGlyph className={ADMIN_ACTION_ICON_CLASS} />
+            <ArrowRightGlyph className={BOOKING_ACTION_ICON_CLASS} />
           </AdminRowIconButton>
         ) : null}
         {canDeactivate ? (
@@ -88,26 +92,28 @@ export function AdminBookingRowActions({
             ariaLabel={t("actionDeactivateBooking")}
             title={t("actionDeactivateBooking")}
             variant="danger"
+            className={BOOKING_ACTION_BUTTON_CLASS}
             disabled={busy}
             onClick={(event) => {
               event.stopPropagation();
               onDeactivate?.();
             }}
           >
-            <ToggleOffGlyph className={ADMIN_ACTION_ICON_CLASS} />
+            <ToggleOffGlyph className={BOOKING_ACTION_ICON_CLASS} />
           </AdminRowIconButton>
         ) : null}
         {canActivate ? (
           <AdminRowIconButton
             ariaLabel={t("actionActivateBooking")}
             title={t("actionActivateBooking")}
+            className={BOOKING_ACTION_BUTTON_CLASS}
             disabled={busy}
             onClick={(event) => {
               event.stopPropagation();
               onActivate?.();
             }}
           >
-            <CheckCircleGlyph className={ADMIN_ACTION_ICON_CLASS} />
+            <CheckCircleGlyph className={BOOKING_ACTION_ICON_CLASS} />
           </AdminRowIconButton>
         ) : null}
       </div>

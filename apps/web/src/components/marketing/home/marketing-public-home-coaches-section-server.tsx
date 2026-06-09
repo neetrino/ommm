@@ -1,9 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import type { CoachCardData } from "@/components/coaches/coach-card-display";
 import type { CoachSlideCopy } from "@/components/marketing/home/featured-coach-slide-card";
 import { buildFeaturedCoachSlides } from "@/components/marketing/home/home-featured-coach-slides";
 import { MarketingPublicHomeCoachesSection } from "@/components/marketing/home/marketing-public-home-coaches-section";
-import { fetchPublicJsonCached } from "@/lib/cached-public-api";
+import { fetchPublicCoachesListCached } from "@/lib/fetch-public-coaches";
 
 type MarketingPublicHomeCoachesSectionServerProps = {
   locale: string;
@@ -15,7 +14,7 @@ export async function MarketingPublicHomeCoachesSectionServer({
   const [tHome, tMarketing, coachesRes] = await Promise.all([
     getTranslations({ locale, namespace: "marketingPublic.home" }),
     getTranslations({ locale, namespace: "marketing" }),
-    fetchPublicJsonCached<CoachCardData[]>("/coaches"),
+    fetchPublicCoachesListCached(),
   ]);
 
   const fallbackSlides = tHome.raw("coachSlides") as CoachSlideCopy[];

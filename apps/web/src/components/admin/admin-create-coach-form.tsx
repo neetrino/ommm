@@ -4,7 +4,9 @@ import { useTranslations } from "next-intl";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import { formatBirthdayInput, parseBirthdayDisplayToIso } from "@/lib/date-display";
+import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import {
   ScheduleFilterDropdown,
@@ -331,6 +333,7 @@ export function AdminCreateCoachForm({
       setScheduleRows([createScheduleRow()]);
       onPhotoSelected(null);
       setError(null);
+      await revalidatePublicCoaches();
       if (onCreated !== undefined) {
         onCreated();
       } else {
@@ -593,25 +596,15 @@ export function AdminCreateCoachForm({
           </h3>
           <p className="text-xs text-sage-500">Select class types coached by this person</p>
         </div>
-        <div className="grid gap-2 rounded-2xl border border-sand-500/20 bg-white/80 p-3 sm:grid-cols-2 xl:grid-cols-3">
-          {classOptions.map((option) => (
-            <label
-              key={option.id}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-3 py-2 text-sm text-sage-700"
-            >
-              <input
-                type="checkbox"
-                checked={selectedClassIds.includes(option.id)}
-                onChange={() => toggleClassSelection(option.id)}
-                disabled={pending}
-              />
-              <span>{option.name}</span>
-            </label>
-          ))}
-          {classOptions.length === 0 ? (
-            <p className="text-sm text-sage-500">{t("assignedClassesEmpty")}</p>
-          ) : null}
-        </div>
+        <AdminCoachAssignedClassesPicker
+          classOptions={classOptions}
+          selectedIds={selectedClassIds}
+          onToggle={toggleClassSelection}
+          disabled={pending}
+          emptyLabel={t("assignedClassesEmpty")}
+          noneSelectedLabel={tPage("assignedClassesNoneSelected")}
+          selectedCountLabel={(count) => tPage("assignedClassesSelectedCount", { count })}
+        />
       </section>
 
       <section className="rounded-[24px] border border-white/60 bg-white/60 p-4 shadow-[0_12px_32px_-24px_rgba(45,40,35,0.22)] backdrop-blur-md sm:p-5">

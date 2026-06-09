@@ -11,6 +11,7 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -23,22 +24,30 @@ export class UpdateCoachDto {
   email?: string;
 
   @IsOptional()
+  @ValidateIf(
+    (_object, value: string | null | undefined) =>
+      value !== null && value !== '',
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  name?: string;
+  name?: string | null;
 
   @IsOptional()
+  @ValidateIf(
+    (_object, value: string | null | undefined) =>
+      value !== null && value !== '',
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  lastName?: string;
+  lastName?: string | null;
 
   @IsOptional()
+  @ValidateIf((_object, value: string | null | undefined) => value !== null)
   @IsString()
-  @MinLength(1)
   @MaxLength(32)
-  phone?: string;
+  phone?: string | null;
 
   @IsOptional()
   @Type(() => Number)
@@ -48,6 +57,7 @@ export class UpdateCoachDto {
   age?: number;
 
   @IsOptional()
+  @ValidateIf((_object, value: string | null | undefined) => value !== null)
   @IsDateString()
   birthday?: string | null;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useLayoutEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -16,6 +16,8 @@ import {
 } from "@/components/shell/dashboard-app-shell";
 import { dashboardNavPathActive } from "@/lib/dashboard-nav";
 import { useMemberUserHomeScrollTop } from "@/hooks/use-member-user-home-scroll-top";
+import { markClientSessionHint } from "@/lib/client-session-hint";
+import { writeCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
 import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
@@ -37,6 +39,11 @@ export function WorkspaceShell({
   const tNav = useTranslations("dashboard.nav");
   const [drawerOpen, setDrawerOpen] = useState(false);
   useMarketingHeaderOffsetSync(true);
+
+  useLayoutEffect(() => {
+    writeCachedMarketingHeaderAccount(account);
+    markClientSessionHint();
+  }, [account]);
 
   const notificationsLabel = useMemo(() => {
     if (!notificationRoute) {

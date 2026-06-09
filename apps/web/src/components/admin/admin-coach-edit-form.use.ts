@@ -4,10 +4,13 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import {
   createScheduleRow,
+  calculateAgeFromBirthday,
+  filterKnownAssignedClassTypeIds,
   MAX_PHOTO_BYTES,
   readFileAsBase64Payload,
   type CoachClassOption,
 } from "@/components/admin/admin-coach-form-helpers";
+import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import {
   coachFormFromInitial,
   isCoachFormDirty,
@@ -17,6 +20,71 @@ import {
 } from "@/components/admin/admin-coach-edit-form.types";
 import { validateCoachEditForm } from "@/components/admin/admin-coach-edit-form.validation";
 import { ApiError, apiFetch } from "@/lib/api";
+import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
+
+type CoachUpdateResponse = {
+  assignedClassTypeIds: string[];
+  updatedAt: string;
+  bio: string | null;
+  specialization: string | null;
+  experienceYears: number | null;
+  availabilitySlots: {
+    id: string;
+    slotDate: string;
+    slotTime: string;
+    availableSpots: number;
+  }[];
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    lastName: string | null;
+    phone: string | null;
+    avatarUrl: string | null;
+    dateOfBirth: string | null;
+  };
+};
+
+export type CoachSavedSnapshot = Pick<
+  AdminCoachDirectoryRow,
+  | "bio"
+  | "specialization"
+  | "experienceYears"
+  | "assignedClassTypeIds"
+  | "schedule"
+  | "updatedAt"
+  | "age"
+  | "user"
+>;
+
+function coachSavedSnapshotFromUpdate(updated: CoachUpdateResponse): CoachSavedSnapshot {
+  const dateOfBirth = updated.user.dateOfBirth;
+  const birthdayIso = dateOfBirth === null ? null : dateOfBirth.slice(0, 10);
+
+  return {
+    bio: updated.bio,
+    specialization: updated.specialization,
+    experienceYears: updated.experienceYears,
+    assignedClassTypeIds: updated.assignedClassTypeIds,
+    updatedAt: updated.updatedAt,
+    schedule: updated.availabilitySlots.map((slot) => ({
+      id: slot.id,
+      date: slot.slotDate,
+      time: slot.slotTime,
+      spots: slot.availableSpots,
+    })),
+    age: birthdayIso === null ? null : calculateAgeFromBirthday(birthdayIso),
+    user: {
+      id: updated.user.id,
+      name: updated.user.name,
+      lastName: updated.user.lastName,
+      email: updated.user.email,
+      phone: updated.user.phone,
+      dateOfBirth,
+      avatarUrl: updated.user.avatarUrl,
+    },
+  };
+}
 
 type UseCoachEditFormArgs = {
   coachId: string;
@@ -24,7 +92,7 @@ type UseCoachEditFormArgs = {
   initial: CoachEditInitialValues;
   classOptions: readonly CoachClassOption[];
   labels: Parameters<typeof validateCoachEditForm>[0]["labels"];
-  onSaved?: () => void;
+  onSaved?: (snapshot: CoachSavedSnapshot) => void;
 };
 
 export function useCoachEditForm({
@@ -37,8 +105,8 @@ export function useCoachEditForm({
 }: UseCoachEditFormArgs) {
   const router = useRouter();
   const submitLockRef = useRef(false);
-  const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
-  const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial));
+  const [form, setForm] = useState<CoachEditFormState>(() => coachFormFromInitial(initial, classOptions));
+  const [snapshot, setSnapshot] = useState<CoachEditFormState>(() => coachFormFromInitial(initial, classOptions));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
@@ -50,7 +118,7 @@ export function useCoachEditForm({
 
   if (resetKey !== prevResetKey) {
     setPrevResetKey(resetKey);
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initial, classOptions);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -71,6 +139,11 @@ export function useCoachEditForm({
     photoFile,
     photoRemoved,
   ]);
+
+  async function refreshCoachViews(): Promise<void> {
+    await revalidatePublicCoaches();
+    router.refresh();
+  }
 
   function updateField<K extends keyof CoachEditFormState>(key: K, value: CoachEditFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -135,7 +208,7 @@ export function useCoachEditForm({
       setPhotoFile(null);
       setPhotoRemoved(false);
       setToneOk(successMessage);
-      router.refresh();
+      await refreshCoachViews();
     } catch (error) {
       setToneErr(error instanceof ApiError ? error.message : genericError);
     } finally {
@@ -170,7 +243,7 @@ export function useCoachEditForm({
       setPhotoFile(null);
       setPhotoRemoved(false);
       setToneOk(successMessage);
-      router.refresh();
+      await refreshCoachViews();
     } catch (error) {
       setToneErr(error instanceof ApiError ? error.message : genericError);
     } finally {
@@ -182,9 +255,12 @@ export function useCoachEditForm({
   function toggleClassSelection(classTypeId: string): void {
     setForm((prev) => ({
       ...prev,
-      assignedClassTypeIds: prev.assignedClassTypeIds.includes(classTypeId)
-        ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
-        : [...prev.assignedClassTypeIds, classTypeId],
+      assignedClassTypeIds: filterKnownAssignedClassTypeIds(
+        prev.assignedClassTypeIds.includes(classTypeId)
+          ? prev.assignedClassTypeIds.filter((value) => value !== classTypeId)
+          : [...prev.assignedClassTypeIds, classTypeId],
+        classOptions,
+      ),
     }));
     setErrors((prev) => ({ ...prev, assignedClassTypeIds: undefined }));
   }
@@ -214,7 +290,7 @@ export function useCoachEditForm({
   }
 
   function cancelEdits(): void {
-    const nextForm = coachFormFromInitial(initial);
+    const nextForm = coachFormFromInitial(initial, classOptions);
     setForm(nextForm);
     setSnapshot(nextForm);
     setPhotoPreviewUrl((prev) => {
@@ -229,7 +305,11 @@ export function useCoachEditForm({
     setMessage(null);
   }
 
-  async function save(okMessage: string, genericError: string): Promise<boolean> {
+  async function save(
+    okMessage: string,
+    genericError: string,
+    options?: { silentSuccess?: boolean },
+  ): Promise<boolean> {
     if (busy || submitLockRef.current) {
       return false;
     }
@@ -252,7 +332,7 @@ export function useCoachEditForm({
     setMessage(null);
 
     try {
-      await apiFetch(`/coaches/${coachId}`, {
+      const updated = await apiFetch<CoachUpdateResponse>(`/coaches/${coachId}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
@@ -275,11 +355,18 @@ export function useCoachEditForm({
         setPhotoFile(null);
         setPhotoRemoved(false);
       } else {
-        setSnapshot(form);
+        const nextForm = {
+          ...form,
+          assignedClassTypeIds: [...updated.assignedClassTypeIds],
+        };
+        setForm(nextForm);
+        setSnapshot(nextForm);
       }
-      setToneOk(okMessage);
-      onSaved?.();
-      router.refresh();
+      if (!options?.silentSuccess) {
+        setToneOk(okMessage);
+      }
+      onSaved?.(coachSavedSnapshotFromUpdate(updated));
+      await refreshCoachViews();
       return true;
     } catch (error) {
       setToneErr(error instanceof ApiError ? error.message : genericError);

@@ -6,6 +6,7 @@ import {
 import {
   MARKETING_INNER_PAGE_CONTAINER_CLASS,
 } from "@/components/marketing/marketing-content-layout";
+import { MarketingPageSectionReveal } from "@/components/marketing/marketing-page-section-reveal";
 import { MARKETING_INNER_PAGE_MARKER } from "@/components/marketing/marketing-route-utils";
 import alignStyles from "@/components/marketing/marketing-inner-page-align.module.css";
 import styles from "@/components/marketing/marketing-public-page-section.module.css";
@@ -19,6 +20,8 @@ export type MarketingPublicPageSectionProps = {
   headerAside?: ReactNode;
   /** Extra `data-*` markers on the section root (e.g. coaches hero ink override). */
   sectionMarkers?: Record<string, string>;
+  /** Scroll-triggered entrance on hero + content (schedule and similar inner routes). */
+  scrollReveal?: boolean;
   children: ReactNode;
 };
 
@@ -41,9 +44,29 @@ export function MarketingPublicPageSection({
   eyebrow,
   headerAside,
   sectionMarkers,
+  scrollReveal = false,
   children,
 }: MarketingPublicPageSectionProps) {
   const hasHeaderAside = headerAside !== undefined && headerAside !== null;
+
+  const hero = (
+    <header className={styles.hero}>
+      {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
+      {hasHeaderAside ? (
+        <div className={styles.heroRow}>
+          <h1 className={styles.title}>{title}</h1>
+          <div className={styles.heroAside}>{headerAside}</div>
+        </div>
+      ) : (
+        <h1 className={styles.title}>{title}</h1>
+      )}
+      {lead ? <p className={styles.lead}>{lead}</p> : null}
+    </header>
+  );
+
+  const content = (
+    <div className={`${styles.content} ${alignStyles.innerPageContent}`}>{children}</div>
+  );
 
   return (
     <section
@@ -53,21 +76,17 @@ export function MarketingPublicPageSection({
       style={MARKETING_PUBLIC_PAGE_SECTION_STYLE}
     >
       <div className={MARKETING_INNER_PAGE_CONTAINER_CLASS}>
-        <header className={styles.hero}>
-          {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
-          {hasHeaderAside ? (
-            <div className={styles.heroRow}>
-              <h1 className={styles.title}>{title}</h1>
-              <div className={styles.heroAside}>{headerAside}</div>
-            </div>
-          ) : (
-            <h1 className={styles.title}>{title}</h1>
-          )}
-          {lead ? <p className={styles.lead}>{lead}</p> : null}
-        </header>
-        <div className={`${styles.content} ${alignStyles.innerPageContent}`}>
-          {children}
-        </div>
+        {scrollReveal ? (
+          <>
+            <MarketingPageSectionReveal index={0}>{hero}</MarketingPageSectionReveal>
+            <MarketingPageSectionReveal index={1}>{content}</MarketingPageSectionReveal>
+          </>
+        ) : (
+          <>
+            {hero}
+            {content}
+          </>
+        )}
       </div>
     </section>
   );

@@ -33,7 +33,8 @@ import {
   readMemberHubSheetPhoneViewport,
   useMemberHubSheetPhone,
 } from "@/hooks/use-member-hub-sheet-phone";
-import { ApiError, apiFetch } from "@/lib/api";
+import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
+import { apiFetch } from "@/lib/api";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import {
   MANUAL_PAYMENT_METHODS,
@@ -50,6 +51,12 @@ type PackageSubscribePaymentModalProps = {
 };
 
 type ModalStep = "form" | "success";
+
+type SubscribePackageResponse = {
+  id: string;
+  paymentReference?: string | null;
+  requiresArcaCheckout?: boolean;
+};
 
 function resolveDefaultPlanId(
   plans: readonly PackageSubscribePlanOption[],
@@ -152,17 +159,26 @@ function PackageSubscribePaymentModalSession({
     setBusy(true);
     setError(null);
     try {
-      await apiFetch("/packages/me/subscribe", {
+      const result = await apiFetch<SubscribePackageResponse>("/packages/me/subscribe", {
         method: "POST",
         body: JSON.stringify({
           planId: selectedPlan.id,
           paymentMethod,
         }),
       });
+      if (
+        paymentMethod === "CARD" &&
+        isArcaCheckoutEnabled() &&
+        result.requiresArcaCheckout === true &&
+        result.paymentReference
+      ) {
+        await startArcaCardCheckout(result.paymentReference, locale);
+        return;
+      }
       setStep("success");
       refreshAfterCloseRef.current = true;
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : t("submitFailed"));
+      setError(isApiError(err) ? err.message : t("submitFailed"));
     } finally {
       setBusy(false);
     }

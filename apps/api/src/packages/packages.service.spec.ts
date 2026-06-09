@@ -1,4 +1,8 @@
-import { PackageStatus } from '@prisma/client';
+import {
+  ManualPaymentMethod,
+  PackageStatus,
+  PaymentStatus,
+} from '@prisma/client';
 import { PackageUsageService } from './package-usage.service';
 import { PackagesService } from './packages.service';
 
@@ -15,15 +19,21 @@ describe('PackagesService', () => {
         findMany: jest.fn(),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        create: jest.fn(),
       },
       packagePlan: {
         findUnique: jest.fn(),
       },
+      $transaction: jest.fn(),
     };
     const audit = { log: jest.fn().mockResolvedValue(undefined) };
     const cache = {
       getOrSet: jest.fn(),
       invalidateByPrefix: jest.fn().mockResolvedValue(undefined),
+    };
+    const payments = {
+      confirmPendingCardPayment: jest.fn().mockResolvedValue(undefined),
+      isArcaCheckoutEnabled: jest.fn().mockReturnValue(false),
     };
     const packageUsage = new PackageUsageService(prisma as never);
     return {
@@ -32,11 +42,13 @@ describe('PackagesService', () => {
         audit as never,
         cache as never,
         packageUsage,
+        payments as never,
       ),
       prisma,
       audit,
       cache,
       packageUsage,
+      payments,
     };
   }
 
@@ -226,5 +238,120 @@ describe('PackagesService', () => {
     expect(creditPaymentCall[0].data.userId).toBe('u1');
     expect(creditPaymentCall[0].data.amountCents).toBe(-7500);
     expect(creditPaymentCall[0].data.description).toContain('proration credit');
+  });
+
+  it('activates cash package subscriptions immediately while payment stays pending', async () => {
+    const { service, prisma, payments } = createService();
+    const txUserPackageCreate = jest.fn().mockResolvedValue({
+      id: 'pkg-cash',
+      userId: 'u1',
+      planId: 'plan-1',
+      status: PackageStatus.ACTIVE,
+      plan: { name: 'Monthly' },
+    });
+    const txPaymentCreate = jest.fn().mockResolvedValue({
+      id: 'pay-cash',
+      paymentReference: 'PKG-REF-1',
+    });
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-1',
+      name: 'Monthly',
+      isActive: true,
+      priceCents: 20_000,
+      periodDays: 30,
+      isUnlimited: false,
+      sessionsPerMonth: 8,
+    });
+    prisma.userPackage.findFirst.mockResolvedValue(null);
+    prisma.$transaction.mockImplementation(
+      (
+        callback: (tx: {
+          userPackage: { create: typeof txUserPackageCreate };
+          payment: { create: typeof txPaymentCreate };
+        }) => unknown,
+      ) =>
+        callback({
+          userPackage: { create: txUserPackageCreate },
+          payment: { create: txPaymentCreate },
+        }),
+    );
+
+    const result = await service.subscribeWithManualPayment(
+      'u1',
+      'plan-1',
+      ManualPaymentMethod.CASH,
+    );
+
+    expect(txUserPackageCreate).toHaveBeenCalled();
+    const userPackageCreateCall = txUserPackageCreate.mock.calls[0] as [
+      { data: { status: PackageStatus } },
+    ];
+    expect(userPackageCreateCall[0].data.status).toBe(PackageStatus.ACTIVE);
+
+    expect(txPaymentCreate).toHaveBeenCalled();
+    const paymentCreateCall = txPaymentCreate.mock.calls[0] as [
+      {
+        data: {
+          status: PaymentStatus;
+          paymentMethod: ManualPaymentMethod;
+        };
+      },
+    ];
+    expect(paymentCreateCall[0].data.status).toBe(PaymentStatus.PENDING);
+    expect(paymentCreateCall[0].data.paymentMethod).toBe(
+      ManualPaymentMethod.CASH,
+    );
+    expect(payments.confirmPendingCardPayment).not.toHaveBeenCalled();
+    expect(result.paymentReference).toBe('PKG-REF-1');
+  });
+
+  it('keeps card package subscriptions pending until checkout confirmation', async () => {
+    const { service, prisma, payments } = createService();
+    const txUserPackageCreate = jest.fn().mockResolvedValue({
+      id: 'pkg-card',
+      userId: 'u1',
+      planId: 'plan-1',
+      status: PackageStatus.PENDING,
+      plan: { name: 'Monthly' },
+    });
+    const txPaymentCreate = jest.fn().mockResolvedValue({
+      id: 'pay-card',
+      paymentReference: 'PKG-REF-2',
+    });
+    prisma.packagePlan.findUnique.mockResolvedValue({
+      id: 'plan-1',
+      name: 'Monthly',
+      isActive: true,
+      priceCents: 20_000,
+      periodDays: 30,
+      isUnlimited: false,
+      sessionsPerMonth: 8,
+    });
+    prisma.userPackage.findFirst.mockResolvedValue(null);
+    prisma.$transaction.mockImplementation(
+      (
+        callback: (tx: {
+          userPackage: { create: typeof txUserPackageCreate };
+          payment: { create: typeof txPaymentCreate };
+        }) => unknown,
+      ) =>
+        callback({
+          userPackage: { create: txUserPackageCreate },
+          payment: { create: txPaymentCreate },
+        }),
+    );
+
+    await service.subscribeWithManualPayment(
+      'u1',
+      'plan-1',
+      ManualPaymentMethod.CARD,
+    );
+
+    expect(txUserPackageCreate).toHaveBeenCalled();
+    const userPackageCreateCall = txUserPackageCreate.mock.calls[0] as [
+      { data: { status: PackageStatus } },
+    ];
+    expect(userPackageCreateCall[0].data.status).toBe(PackageStatus.PENDING);
+    expect(payments.confirmPendingCardPayment).toHaveBeenCalledWith('pay-card');
   });
 });
