@@ -169,6 +169,13 @@ export class PackagesService {
   }
 
   async updatePlan(planId: string, dto: UpdatePlanDto) {
+    const existing = await this.prisma.packagePlan.findUnique({
+      where: { id: planId },
+      select: { id: true, slug: true },
+    });
+    if (existing === null) {
+      throw new NotFoundException('Plan not found');
+    }
     if (dto.name === undefined && dto.slug !== undefined) {
       this.assertValidSlug(dto.slug);
     }
@@ -176,12 +183,22 @@ export class PackagesService {
       dto.categoryName !== undefined
         ? await this.resolveCategoryName(dto.categoryName)
         : undefined;
+    const resolvedSlug =
+      dto.slug !== undefined
+        ? this.resolveSlug(dto.slug, dto.slug)
+        : undefined;
+    if (
+      resolvedSlug !== undefined &&
+      resolvedSlug !== existing.slug
+    ) {
+      await this.assertSlugAvailable(resolvedSlug, planId);
+    }
     const data = {
       ...(dto.name !== undefined && { name: dto.name }),
       ...(resolvedCategoryName !== undefined && {
         categoryName: resolvedCategoryName,
       }),
-      ...(dto.slug !== undefined && { slug: dto.slug.toLowerCase() }),
+      ...(resolvedSlug !== undefined && { slug: resolvedSlug }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.priceCents !== undefined && { priceCents: dto.priceCents }),
       ...(dto.currency !== undefined && {
@@ -205,9 +222,6 @@ export class PackagesService {
         guestCount: this.normalizeGuestCount(dto.guestCount),
       }),
     };
-    if (dto.name !== undefined && dto.slug === undefined) {
-      Object.assign(data, { slug: this.resolveSlug(dto.name) });
-    }
     if (dto.isUnlimited === true) {
       Object.assign(data, { sessionsPerMonth: null });
     } else if (dto.sessionsPerMonth !== undefined) {
@@ -223,6 +237,11 @@ export class PackagesService {
         data,
       });
     } catch (error) {
+      if (this.isUniquePlanConflict(error)) {
+        throw new ConflictException(
+          'Membership plan with this slug already exists.',
+        );
+      }
       if (
         this.getMissingPackagePlanColumn(error) === 'guestCount' &&
         'guestCount' in data
@@ -668,6 +687,21 @@ export class PackagesService {
     const normalized = this.resolveSlug(rawSlug, rawSlug);
     if (normalized !== rawSlug.toLowerCase().trim()) {
       throw new BadRequestException('Invalid slug format');
+    }
+  }
+
+  private async assertSlugAvailable(
+    slug: string,
+    excludePlanId: string,
+  ): Promise<void> {
+    const conflict = await this.prisma.packagePlan.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (conflict !== null && conflict.id !== excludePlanId) {
+      throw new ConflictException(
+        'Membership plan with this slug already exists.',
+      );
     }
   }
 

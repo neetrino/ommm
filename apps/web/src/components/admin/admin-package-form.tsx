@@ -292,6 +292,10 @@ export function AdminPackageForm({
       packageId !== undefined &&
       initialPackage !== undefined &&
       initialPackage.priceCents <= 0;
+    const shouldIncludeSlugInPayload =
+      isCreateMode ||
+      (isAddTierMode && !shellTierTarget) ||
+      (isEditMode && !isTierPackage);
 
     const payload = isCreateMode
       ? {
@@ -334,7 +338,7 @@ export function AdminPackageForm({
           : {
               name: payloadName,
               categoryName,
-              slug,
+              ...(shouldIncludeSlugInPayload ? { slug } : {}),
               description: description.length > 0 ? description : null,
               ...pricingFields,
               ...preservedDisplayFields,
