@@ -16,6 +16,7 @@ import {
   writeCachedMarketingHeaderAccount,
 } from "@/lib/marketing-header-account-cache";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 
 type MarketingSiteHeaderWithClientAccountProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
@@ -89,5 +90,13 @@ export function MarketingSiteHeaderWithClientAccount({
     };
   }, [serverAccount]);
 
-  return <MarketingSiteHeader navLinks={navLinks} account={account} />;
+  const showMemberNotifications = account?.href === USER_ACCOUNT_PATH;
+
+  return (
+    <MarketingSiteHeader
+      navLinks={navLinks}
+      account={account}
+      showMemberNotifications={showMemberNotifications}
+    />
+  );
 };

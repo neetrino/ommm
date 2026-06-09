@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 
 type BookSessionResponse = {
   id: string;
@@ -50,6 +51,7 @@ export function BookSessionButton({
         { method: "POST" },
       );
       onBooked?.(booking.id);
+      dispatchNotificationsRefresh();
       router.refresh();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("bookFailed"));

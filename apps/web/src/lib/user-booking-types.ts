@@ -14,7 +14,9 @@ export type UserWaitlistRow = {
   id: string;
   position: number;
   status: string;
+  offerExpiresAt?: string | null;
   session: {
+    id: string;
     startsAt: string;
     endsAt: string;
     classType: { name: string };

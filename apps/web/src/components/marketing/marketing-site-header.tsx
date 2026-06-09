@@ -48,7 +48,7 @@ import {
   isMarketingHomePath,
   isUserAccountPath,
 } from "@/components/marketing/marketing-route-utils";
-import { WorkspaceShellNotificationLink } from "@/components/shell/workspace-shell-notification-link";
+import { HeaderNotificationsMenu } from "@/components/shell/header-notifications-menu";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 import { Link, usePathname } from "@/i18n/navigation";
 
@@ -83,6 +83,8 @@ export type MarketingSiteHeaderProps = {
   notificationHref?: string | null;
   notificationsLabel?: string | null;
   notificationsActive?: boolean;
+  /** Member users on public pages — show waitlist notification bell. */
+  showMemberNotifications?: boolean;
 };
 
 function WorkspaceDrawerGlyph() {
@@ -103,33 +105,6 @@ function WorkspaceDrawerGlyph() {
   );
 }
 
-function HeaderNotificationAction({
-  href,
-  label,
-  active,
-  className,
-  iconClassName,
-  onNavigate,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-  className?: string;
-  iconClassName?: string;
-  onNavigate?: () => void;
-}) {
-  return (
-    <WorkspaceShellNotificationLink
-      href={href}
-      label={label}
-      active={active}
-      className={className}
-      iconClassName={iconClassName}
-      onNavigate={onNavigate}
-    />
-  );
-}
-
 /** Global site header — same chrome on marketing pages and authenticated workspaces. */
 export function MarketingSiteHeader({
   navLinks,
@@ -139,7 +114,8 @@ export function MarketingSiteHeader({
   memberWorkspaceHeader = false,
   notificationHref = null,
   notificationsLabel = null,
-  notificationsActive = false,
+  notificationsActive: _notificationsActive = false,
+  showMemberNotifications = false,
 }: MarketingSiteHeaderProps) {
   const locale = useLocale();
   const compact = isCompactMarketingHeaderLocale(locale);
@@ -169,8 +145,10 @@ export function MarketingSiteHeader({
     ["--marketing-mobile-scrolled-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
   };
-  const showNotifications =
+  const showWorkspaceNotifications =
     notificationHref !== null && notificationsLabel !== null;
+  const showNotifications = showWorkspaceNotifications || showMemberNotifications;
+  const notificationPreferencesHref = showWorkspaceNotifications ? notificationHref : "/user/notifications";
   const desktopGlassStyle = {
     ["--marketing-glass-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
@@ -266,11 +244,10 @@ export function MarketingSiteHeader({
                 </button>
               ) : null}
               {showNotifications ? (
-                <HeaderNotificationAction
-                  href={notificationHref}
-                  label={notificationsLabel}
-                  active={notificationsActive}
-                  className={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                <HeaderNotificationsMenu
+                  enabled
+                  preferencesHref={notificationPreferencesHref}
+                  triggerClassName={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
                   iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   onNavigate={closeAllMenus}
                 />
@@ -370,11 +347,10 @@ export function MarketingSiteHeader({
                 )}
               />
               {showNotifications ? (
-                <HeaderNotificationAction
-                  href={notificationHref}
-                  label={notificationsLabel}
-                  active={notificationsActive}
-                  className={`hidden lg:inline-flex ${marketingHeaderNotificationTriggerClass()}`}
+                <HeaderNotificationsMenu
+                  enabled
+                  preferencesHref={notificationPreferencesHref}
+                  triggerClassName={`hidden lg:inline-flex ${marketingHeaderNotificationTriggerClass()}`}
                   iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
                   onNavigate={closeAllMenus}
                 />

@@ -13,6 +13,20 @@
     "sessionDurationMinutes": "{minutes} ր",
     "sessionCoach": "Մարզիչ"
   },
+  "headerNotifications": {
+    "title": "Ծանուցումներ",
+    "triggerAria": "Ծանուցումներ{count, plural, =0 {} other {, {count} չկարդացված}}",
+    "panelAria": "Վերջին ծանուցումներ",
+    "unreadCount": "{count, plural, =1 {1 չկարդացված ծանուցում} other {# չկարդացված ծանուցում}}",
+    "empty": "Նոր ծանուցումներ չկան",
+    "loading": "Ծանուցումները բեռնվում են…",
+    "loadError": "Չհաջողվեց բեռնել ծանուցումները",
+    "spotOpenedBadge": "Տեղ բացվել է",
+    "spotOpenedBody": "Ձեր սպասման ցուցակի դասի համար բացվել է տեղ։",
+    "bookNow": "Ամրագրել հիմա",
+    "bookFailed": "Չհաջողվեց ամրագրել այս դասը",
+    "preferencesLink": "Ծանուցումների կարգավորումներ"
+  },
   "listSort": {
     "sort": "Տեսակավորել",
     "newest": "Նորից հին",
@@ -1225,6 +1239,11 @@
       "timezoneNote": "Բոլոր ամսաթվերն ու ժամերը ցուցադրվում են տեղի ժամային գոտում։",
       "studioBrand": "Ommm",
       "bookCta": "Ամրագրել",
+      "spotsLeft": "{count, plural, =1 {1 ազատ տեղ} other {# ազատ տեղ}}",
+      "spotsFull": "Լիքը",
+      "bookedBadge": "Ամրագրված",
+      "onWaitlistBadge": "Սպասման ցուցակում",
+      "actionLoading": "…",
       "prevDatesAria": "Նախորդ ամսաթվերը",
       "nextDatesAria": "Հաջորդ ամսաթվերը",
       "empty": "Ժամանակացույցը դեռ դատարկ է։",
@@ -3499,7 +3518,9 @@
     },
     "joinWaitlist": {
       "action": "Միանալ սպասման ցուցակին",
-      "failed": "Չհաջողվեց միանալ սպասման ցուցակին"
+      "failed": "Չհաջողվեց միանալ սպասման ցուցակին",
+      "success": "Ավելացվել է սպասման ցուցակին",
+      "alreadyOnWaitlist": "Դուք արդեն սպասման ցուցակում եք"
     },
     "packageCheckout": {
       "subscribe": "Բաժանորդագրվել"

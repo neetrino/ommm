@@ -6,11 +6,14 @@ import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
+import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 
 type Props = {
   bookingId: string;
   appearance?: "link" | "button";
   size?: "sm" | "md";
+  buttonClassName?: string;
+  wrapperClassName?: string;
   onCancelled?: () => void;
 };
 
@@ -20,6 +23,8 @@ export function CancelBookingButton({
   bookingId,
   appearance = "link",
   size = "md",
+  buttonClassName,
+  wrapperClassName,
   onCancelled,
 }: Props) {
   const router = useRouter();
@@ -50,6 +55,7 @@ export function CancelBookingButton({
       await apiFetch(`/bookings/${bookingId}`, { method: "DELETE" });
       setConfirmOpen(false);
       onCancelled?.();
+      dispatchNotificationsRefresh();
       router.refresh();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("failed"));
@@ -59,19 +65,33 @@ export function CancelBookingButton({
     }
   }
 
+  const resolvedButtonClass = buttonClassName ?? CANCEL_BOOKING_BUTTON_CLASS;
+  const useNativeButton = buttonClassName !== undefined;
+
   return (
     <>
-      <div className="flex flex-col items-start gap-1">
-        <OmmButton
-          type="button"
-          variant="secondary"
-          size={buttonSize}
-          disabled={busy}
-          className={CANCEL_BOOKING_BUTTON_CLASS}
-          onClick={openConfirm}
-        >
-          {t("action")}
-        </OmmButton>
+      <div className={wrapperClassName ?? "flex flex-col items-start gap-1"}>
+        {useNativeButton ? (
+          <button
+            type="button"
+            disabled={busy}
+            className={resolvedButtonClass}
+            onClick={openConfirm}
+          >
+            {t("action")}
+          </button>
+        ) : (
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size={buttonSize}
+            disabled={busy}
+            className={resolvedButtonClass}
+            onClick={openConfirm}
+          >
+            {t("action")}
+          </OmmButton>
+        )}
         {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
       </div>
       <OmmConfirmDialog

@@ -1,0 +1,29 @@
+import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
+import { apiFetch } from "@/lib/api";
+import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
+import {
+  buildPublicScheduleRangeQuery,
+  isWithinPublicScheduleWindow,
+} from "@/lib/schedule-session-range";
+
+type PublicScheduleClientResult = {
+  items: MarketingScheduleItem[];
+  classTypes: string[];
+};
+
+/** Client-side refresh of the public schedule window (today + 30 days). */
+export async function fetchPublicScheduleClient(): Promise<PublicScheduleClientResult> {
+  const rows = await apiFetch<MarketingScheduleItem[]>(
+    `/schedule/public?${buildPublicScheduleRangeQuery()}`,
+  );
+  const activeItems = rows.filter(
+    (item) =>
+      item.isActive &&
+      item.sessionDate !== null &&
+      isWithinPublicScheduleWindow(item.sessionDate),
+  );
+  return {
+    items: activeItems,
+    classTypes: getScheduleClassTypeValues(activeItems),
+  };
+}

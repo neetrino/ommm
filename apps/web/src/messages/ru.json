@@ -13,6 +13,20 @@
     "sessionDurationMinutes": "{minutes} мин",
     "sessionCoach": "Тренер"
   },
+  "headerNotifications": {
+    "title": "Уведомления",
+    "triggerAria": "Уведомления{count, plural, =0 {} other {, {count} непрочитанных}}",
+    "panelAria": "Недавние уведомления",
+    "unreadCount": "{count, plural, =1 {1 непрочитанное уведомление} other {# непрочитанных уведомлений}}",
+    "empty": "Новых уведомлений нет",
+    "loading": "Загрузка уведомлений…",
+    "loadError": "Не удалось загрузить уведомления",
+    "spotOpenedBadge": "Освободилось место",
+    "spotOpenedBody": "Освободилось место на занятие из вашего листа ожидания.",
+    "bookNow": "Записаться сейчас",
+    "bookFailed": "Не удалось записаться на это занятие",
+    "preferencesLink": "Настройки уведомлений"
+  },
   "listSort": {
     "sort": "Сортировка",
     "newest": "Сначала новые",
@@ -1225,6 +1239,11 @@
       "timezoneNote": "Все даты и время показаны в часовом поясе студии.",
       "studioBrand": "Ommm",
       "bookCta": "Записаться",
+      "spotsLeft": "{count, plural, =1 {Осталось 1 место} other {Осталось # мест}}",
+      "spotsFull": "Мест нет",
+      "bookedBadge": "Забронировано",
+      "onWaitlistBadge": "В листе ожидания",
+      "actionLoading": "…",
       "prevDatesAria": "Предыдущие даты",
       "nextDatesAria": "Следующие даты",
       "empty": "Пока нет элементов расписания.",
@@ -3500,7 +3519,9 @@
     },
     "joinWaitlist": {
       "action": "В лист ожидания",
-      "failed": "Не удалось встать в лист ожидания"
+      "failed": "Не удалось встать в лист ожидания",
+      "success": "Добавлено в лист ожидания",
+      "alreadyOnWaitlist": "Вы уже в листе ожидания"
     },
     "packageCheckout": {
       "subscribe": "Оформить"
