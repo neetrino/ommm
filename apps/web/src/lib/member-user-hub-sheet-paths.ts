@@ -6,6 +6,7 @@ export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/packages",
   "/user/payments",
   "/user/gift-cards",
+  "/user/notifications",
   "/user/profile",
 ] as const;
 

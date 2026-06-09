@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import styles from "@/components/account/member-user-mobile-viewport.module.css";
+import { MemberUserScrollRestoration } from "@/components/account/member-user-scroll-restoration";
 
 type MemberUserMobileViewportProps = {
   /** Parallel `@sheet` slot is rendering an intercepted hub section. */
@@ -22,16 +23,19 @@ export function MemberUserMobileViewport({
   children,
 }: MemberUserMobileViewportProps) {
   return (
-    <div
-      className={styles.root}
-      data-mobile-sheet={hasMobileSheet ? "open" : "closed"}
-    >
-      {hasMobileSheet && hubBackdrop ? (
-        <div className={styles.hubBackdrop}>{hubBackdrop}</div>
-      ) : null}
-      <div className={hasMobileSheet ? styles.routeContentWhenSheet : styles.routeContent}>
-        {children}
+    <>
+      <MemberUserScrollRestoration />
+      <div
+        className={styles.root}
+        data-mobile-sheet={hasMobileSheet ? "open" : "closed"}
+      >
+        {hasMobileSheet && hubBackdrop ? (
+          <div className={styles.hubBackdrop}>{hubBackdrop}</div>
+        ) : null}
+        <div className={hasMobileSheet ? styles.routeContentWhenSheet : styles.routeContent}>
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

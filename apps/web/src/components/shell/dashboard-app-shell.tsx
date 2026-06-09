@@ -292,6 +292,7 @@ export function DashboardAppShell({
     <div className={rootClassName}>
       {withSiteHeader ? (
         <div
+          data-workspace-scroll-pane
           className={[
             offsetStyles.dashboardWithMarketingHeaderScroll,
             offsetStyles.dashboardWithMarketingHeaderScrollOverlay,

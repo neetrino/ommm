@@ -100,6 +100,7 @@ export function MarketingAccountAvatarMenu({
         <Link
           href={profileHref}
           prefetch={WORKSPACE_ROUTE_PREFETCH}
+          scroll
           className={triggerClassName}
           aria-label={displayName}
           onClick={() => onAfterSelect?.()}

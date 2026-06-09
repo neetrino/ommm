@@ -15,6 +15,7 @@ import {
   type DashboardAppShellProps,
 } from "@/components/shell/dashboard-app-shell";
 import { dashboardNavPathActive } from "@/lib/dashboard-nav";
+import { useMemberUserHomeScrollTop } from "@/hooks/use-member-user-home-scroll-top";
 import { usePathname } from "@/i18n/navigation";
 
 export type WorkspaceShellProps = Omit<
@@ -51,6 +52,7 @@ export function WorkspaceShell({
     dashboardNavPathActive(pathname, notificationRoute.href);
 
   const isMemberShell = shellProps.variant === "member";
+  useMemberUserHomeScrollTop(isMemberShell);
 
   const shellStyle = {
     "--marketing-mobile-header-height": MARKETING_MOBILE_ACCOUNT_SHELL_HEIGHT,
