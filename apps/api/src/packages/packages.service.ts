@@ -49,14 +49,14 @@ export class PackagesService {
     return this.cache.getOrSet(
       PUBLIC_CACHE_KEYS.packages,
       PUBLIC_CACHE_TTL_SEC.packages,
-      () => this.loadActivePlansFromDb(),
+      () => this.loadPublicPlansFromDb(),
     );
   }
 
-  private async loadActivePlansFromDb() {
+  /** Full Admin catalog for the public `/packages` page — UI filters inactive tiers for subscribe. */
+  private async loadPublicPlansFromDb() {
     try {
       return await this.prisma.packagePlan.findMany({
-        where: { isActive: true },
         orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
       });
     } catch (error) {
@@ -69,7 +69,7 @@ export class PackagesService {
       if (!this.isMissingColumn(error)) {
         throw error;
       }
-      const legacyPlans = await this.fetchLegacyPlans({ onlyActive: true });
+      const legacyPlans = await this.fetchLegacyPlans({ onlyActive: false });
       return legacyPlans.map((plan) => this.withMarketingDefaults(plan));
     }
   }

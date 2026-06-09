@@ -4,7 +4,7 @@ import { buildPackagesPageAccordionCategories } from "@/components/marketing/pac
 import { PackagesPageAccordion } from "@/components/marketing/packages/packages-page-accordion";
 import { PackagesPageReveal } from "@/components/marketing/packages/packages-page-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
-import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
+import { groupAllPublicPackageCategories } from "@/lib/public-package-categories";
 import { resolveMarketingAudience } from "@/lib/marketing-audience";
 import {
   normalizePublicPackagePlan,
@@ -20,17 +20,15 @@ export async function MarketingPackagesPageContent({
   locale,
 }: MarketingPackagesPageContentProps) {
   const m = await getTranslations({ locale, namespace: "marketing" });
-  const [res, authUser] = await Promise.all([
+  const [plansRes, authUser] = await Promise.all([
     fetchPublicJsonCached<PublicPackagePlan[]>("/packages/plans", {
       cacheMode: "no-store",
     }),
     getOptionalLayoutAuthUser(),
   ]);
   const audience = resolveMarketingAudience(authUser);
-  const apiCategories = res.ok
-    ? groupVisiblePublicPackageCategories(
-        res.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
-      )
+  const apiCategories = plansRes.ok
+    ? groupAllPublicPackageCategories(plansRes.data.map(normalizePublicPackagePlan))
     : [];
 
   const categories = buildPackagesPageAccordionCategories(apiCategories, locale, {
@@ -39,7 +37,7 @@ export async function MarketingPackagesPageContent({
 
   return (
     <div className={`w-full min-w-0 ${cardStyles.packagesPageRoot}`} data-packages-accordion="">
-      {!res.ok ? (
+      {!plansRes.ok ? (
         <PackagesPageReveal index={0}>
           <p className="app-alert-warn mb-6" role="status">
             {m("packagesError")}

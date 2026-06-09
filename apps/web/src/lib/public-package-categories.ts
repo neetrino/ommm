@@ -62,6 +62,19 @@ export function groupVisiblePublicPackageCategories(
     .filter((category) => category.plans.length > 0);
 }
 
+/**
+ * All Admin package categories for the public `/packages` page.
+ * Priced tiers match the Admin table; subscribe flow filters to `isActive` plans.
+ */
+export function groupAllPublicPackageCategories(
+  plans: readonly PublicPackagePlan[],
+): PublicPackageCategoryGroup[] {
+  return groupPublicPlansByCategory(plans).map((category) => ({
+    ...category,
+    plans: listConfiguredPublicPackagePlans(category.plans),
+  }));
+}
+
 export function resolveCategoryStartingPriceCents(
   plans: readonly PublicPackagePlan[],
 ): number {

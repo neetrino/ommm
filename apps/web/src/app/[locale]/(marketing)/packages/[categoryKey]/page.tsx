@@ -7,7 +7,7 @@ import {
 import {
   resolveCategoryByKey,
 } from "@/components/marketing/packages/public-package-category-detail-section";
-import { groupVisiblePublicPackageCategories } from "@/lib/public-package-categories";
+import { groupAllPublicPackageCategories } from "@/lib/public-package-categories";
 import {
   normalizePublicPackagePlan,
   type PublicPackagePlan,
@@ -35,8 +35,8 @@ export default async function MarketingPackageCategoryPage({
     );
   }
 
-  const apiCategories = groupVisiblePublicPackageCategories(
-    plansRes.data.filter((plan) => plan.isActive).map(normalizePublicPackagePlan),
+  const apiCategories = groupAllPublicPackageCategories(
+    plansRes.data.map(normalizePublicPackagePlan),
   );
   const category =
     resolveMarketingPackageCategoryByKey(apiCategories, categoryKey) ??

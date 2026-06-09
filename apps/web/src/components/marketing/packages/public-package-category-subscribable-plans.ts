@@ -25,6 +25,7 @@ export function listPublicPackageCategorySubscribablePlans(
   category: PublicPackageCategoryGroup,
 ): PublicPackagePlan[] {
   return listConfiguredPublicPackagePlans(category.plans)
+    .filter((plan) => plan.isActive)
     .filter((plan) => !isMarketingPackageFallbackPlan(plan))
     .sort((left, right) => {
       if (left.displayOrder !== right.displayOrder) {

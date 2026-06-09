@@ -73,26 +73,6 @@ export const PACKAGES_PAGE_ACCORDION_FIGMA = {
   transitionEasing: "cubic-bezier(0.4, 0, 0.2, 1)",
 } as const;
 
-/** Category-specific gradient start colors — Figma card fills left → right. */
-export const PACKAGES_PAGE_CATEGORY_GRADIENT_START: Readonly<Record<string, string>> = {
-  "reformer group": "#fbf5d5",
-  "reformer individual": "#e5f4f9",
-  "mat pilates": "#f6d0bd",
-  yoga: "#ede9dd",
-  dances: "#d9d9d9",
-};
-
-export const PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS = [
-  "reformer group",
-  "reformer individual",
-  "mat pilates",
-  "yoga",
-  "dances",
-] as const;
-
-export type PackagesPageCategoryColorVariantKey =
-  (typeof PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS)[number];
-
 /** Figma Packages mobile accordion — collapsed card + inline expanded panel. */
 export const PACKAGES_PAGE_MOBILE_FIGMA = {
   accordionGapPx: 18,
@@ -162,21 +142,10 @@ export const PACKAGES_PAGE_LAYOUT = {
   expandedTableMinWidth: `${PACKAGES_PAGE_ACCORDION_FIGMA.expandedMinTableWidthPx}px`,
 } as const;
 
-export function resolvePackagesPageCategoryAccentColor(categoryKey: string): string {
-  const normalizedKey = categoryKey.trim().toLocaleLowerCase();
-  return (
-    PACKAGES_PAGE_CATEGORY_GRADIENT_START[normalizedKey] ??
-    PACKAGES_PAGE_CATEGORY_GRADIENT_START.dances
-  );
-}
-
-export function buildPackagesPageCategoryGradient(categoryKey: string): string {
-  const normalizedKey = categoryKey.trim().toLocaleLowerCase();
-  const startColor =
-    PACKAGES_PAGE_CATEGORY_GRADIENT_START[normalizedKey] ??
-    PACKAGES_PAGE_CATEGORY_GRADIENT_START.dances;
+/** Card background gradient — Figma angle with a palette-assigned start color. */
+export function buildPackagesPageCardGradient(gradientStartColor: string): string {
   const { gradientAngleDeg, gradientStartPercent, gradientEndPercent, gradientEndColor } =
     PACKAGES_PAGE_CARD_FIGMA;
 
-  return `linear-gradient(${gradientAngleDeg}deg, ${startColor} ${gradientStartPercent}%, ${gradientEndColor} ${gradientEndPercent}%)`;
+  return `linear-gradient(${gradientAngleDeg}deg, ${gradientStartColor} ${gradientStartPercent}%, ${gradientEndColor} ${gradientEndPercent}%)`;
 }
