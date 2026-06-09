@@ -103,6 +103,8 @@ export type IntegratedSearchFiltersProps = {
   hideSearch?: boolean;
   /** Renders the filter panel in a body portal (sticky headers + tab layouts). */
   portalFilterPanel?: boolean;
+  /** When false, active filter chips are hidden (e.g. once list results are found). */
+  showActiveFilterChips?: boolean;
 };
 
 function SearchGlyph({ className }: { className?: string }) {
@@ -140,7 +142,7 @@ function FilterGlyph({ className }: { className?: string }) {
   );
 }
 
-/** Compact search bar — filter panel opens on focus when search is empty (NBOS pattern). */
+/** Search focuses the keyboard; filter button opens the filter panel. */
 export function IntegratedSearchFilters({
   search,
   onSearchChange,
@@ -157,6 +159,7 @@ export function IntegratedSearchFilters({
   className = "",
   hideSearch = false,
   portalFilterPanel = true,
+  showActiveFilterChips = true,
 }: IntegratedSearchFiltersProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -174,7 +177,8 @@ export function IntegratedSearchFilters({
     () => buildIntegratedFilterChips(fields, filterValues),
     [fields, filterValues],
   );
-  const hasQuery = search.trim().length > 0 || chips.length > 0;
+  const visibleChips = showActiveFilterChips ? chips : [];
+  const hasQuery = search.trim().length > 0 || visibleChips.length > 0;
   const panelFilterValues = panelOpen ? draftFilters : filterValues;
   const showPanelRing = panelOpen && hasFilters;
   const showQueryRing = hasQuery;
@@ -263,7 +267,42 @@ export function IntegratedSearchFilters({
     if (hideSearch) {
       return;
     }
+    setPanelOpen(false);
     searchInputRef.current?.focus();
+  }
+
+  function handleSearchFocus() {
+    setSearchFocused(true);
+    setPanelOpen(false);
+  }
+
+  function openFilterPanel() {
+    if (!hasFilters) {
+      return;
+    }
+    searchInputRef.current?.blur();
+    setDraftFilters(filterValues);
+    setPanelOpen(true);
+  }
+
+  function openPanel() {
+    openFilterPanel();
+  }
+
+  function toggleFilterPanel() {
+    if (!hasFilters) {
+      return;
+    }
+    if (panelOpen) {
+      setPanelOpen(false);
+      return;
+    }
+    openFilterPanel();
+  }
+
+  function handleFilterToggleClick(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    toggleFilterPanel();
   }
 
   function handleBarPointerDown(event: React.PointerEvent<HTMLDivElement>) {
@@ -283,36 +322,6 @@ export function IntegratedSearchFilters({
     focusSearchField();
   }
 
-  function openPanel() {
-    setSearchFocused(true);
-    if (!hasFilters) {
-      return;
-    }
-    if (!hideSearch && search.trim().length > 0) {
-      return;
-    }
-    setDraftFilters(filterValues);
-    setPanelOpen(true);
-  }
-
-  function toggleFilterPanel() {
-    if (!hasFilters) {
-      return;
-    }
-    if (panelOpen) {
-      setPanelOpen(false);
-      return;
-    }
-    setDraftFilters(filterValues);
-    setPanelOpen(true);
-    setSearchFocused(true);
-  }
-
-  function handleFilterToggleClick(event: React.MouseEvent<HTMLButtonElement>) {
-    event.stopPropagation();
-    toggleFilterPanel();
-  }
-
   function handleFilterBarClick() {
     if (hideSearch && hasFilters) {
       openPanel();
@@ -329,7 +338,7 @@ export function IntegratedSearchFilters({
     }
   }
 
-  const showClearButton = hideSearch ? chips.length > 0 : hasQuery;
+  const showClearButton = hideSearch ? visibleChips.length > 0 : hasQuery;
 
   function handleSearchBlur() {
     window.setTimeout(() => {
@@ -352,6 +361,15 @@ export function IntegratedSearchFilters({
     if (value.length > 0) {
       setPanelOpen(false);
     }
+  }
+
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter") {
+      return;
+    }
+    event.preventDefault();
+    searchInputRef.current?.blur();
+    setSearchFocused(false);
   }
 
   const filterPanel =
@@ -395,12 +413,12 @@ export function IntegratedSearchFilters({
     ) : null;
 
   const barClickable = hideSearch && hasFilters;
-  const barIsPrimaryButton = barClickable && chips.length === 0;
+  const barIsPrimaryButton = barClickable && visibleChips.length === 0;
 
   return (
     <div
       ref={containerRef}
-      className={`relative w-full min-w-0 ${panelOpen && hasFilters ? "z-[126]" : ""} ${className}`}
+      className={`relative flex w-full min-w-0 flex-col gap-2 ${panelOpen && hasFilters ? "z-[126]" : ""} ${className}`}
     >
       <div
         role={barIsPrimaryButton ? "button" : undefined}
@@ -418,15 +436,17 @@ export function IntegratedSearchFilters({
           barClickable ? "cursor-pointer" : ""
         }`}
       >
-        <IntegratedSearchFilterChips
-          chips={chips}
-          onActivate={hasFilters ? openPanel : undefined}
-          onRemove={onFilterChange ? handleRemoveChip : undefined}
-        />
-        {hideSearch && hasFilters && chips.length === 0 ? (
+        {hideSearch && hasFilters && visibleChips.length === 0 ? (
           <span className="flex h-9 min-w-0 flex-1 items-center px-1 text-sm text-sage-600">
             {searchPlaceholder}
           </span>
+        ) : null}
+        {hideSearch && visibleChips.length > 0 ? (
+          <IntegratedSearchFilterChips
+            chips={visibleChips}
+            onActivate={hasFilters ? openFilterPanel : undefined}
+            onRemove={onFilterChange ? handleRemoveChip : undefined}
+          />
         ) : null}
         {!hideSearch ? (
           <div className="relative min-w-0 flex-1">
@@ -437,7 +457,7 @@ export function IntegratedSearchFilters({
                 className={`absolute top-1/2 right-1.5 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-white/50 ${
                   panelOpen
                     ? "bg-white/50 text-sage-900"
-                    : chips.length > 0
+                    : visibleChips.length > 0
                       ? "text-sage-700"
                       : "text-sage-500"
                 }`}
@@ -454,8 +474,9 @@ export function IntegratedSearchFilters({
               type="search"
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
-              onFocus={openPanel}
-              onClick={openPanel}
+              onFocus={handleSearchFocus}
+              onClick={handleSearchFocus}
+              onKeyDown={handleSearchKeyDown}
               onBlur={handleSearchBlur}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
@@ -489,6 +510,15 @@ export function IntegratedSearchFilters({
           </button>
         ) : null}
       </div>
+
+      {!hideSearch && visibleChips.length > 0 ? (
+        <IntegratedSearchFilterChips
+          chips={visibleChips}
+          layout="stacked"
+          onActivate={hasFilters ? openFilterPanel : undefined}
+          onRemove={onFilterChange ? handleRemoveChip : undefined}
+        />
+      ) : null}
 
       {portalFilterPanel && filterPanel && typeof document !== "undefined"
         ? createPortal(filterPanel, getOmmmOverlayPortalRoot())

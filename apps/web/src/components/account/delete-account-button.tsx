@@ -22,6 +22,8 @@ type DeleteAccountButtonProps = {
   bare?: boolean;
   /** Profile page: red pill button; hub/menu keeps link or custom row. */
   appearance?: "link" | "dangerButton";
+  /** Optional wrapper classes (e.g. mobile alignment on profile page). */
+  wrapperClassName?: string;
 };
 
 export function DeleteAccountButton({
@@ -30,6 +32,7 @@ export function DeleteAccountButton({
   busyTriggerContent,
   bare = false,
   appearance = "link",
+  wrapperClassName = "",
 }: DeleteAccountButtonProps = {}) {
   const t = useTranslations("userPages.profile");
   const locale = useLocale();
@@ -104,7 +107,7 @@ export function DeleteAccountButton({
       {bare ? (
         trigger
       ) : (
-        <div className="flex flex-col items-start gap-1">
+        <div className={`flex flex-col items-start gap-1 ${wrapperClassName}`.trim()}>
           {trigger}
           {message ? <p className="text-xs text-red-800">{message}</p> : null}
         </div>

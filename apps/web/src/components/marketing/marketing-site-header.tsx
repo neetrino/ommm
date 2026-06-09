@@ -33,6 +33,7 @@ import {
   marketingHeaderMobileRowWrapClass,
   marketingHeaderMobileRowWrapStyle,
   MARKETING_MOBILE_HEADER,
+  MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
@@ -75,7 +76,7 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Member workspace — hide language switcher and avatar in the header action cluster. */
+  /** Member workspace — hide language switcher and navbar avatar on `/user/*`. */
   memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
@@ -290,6 +291,7 @@ export function MarketingSiteHeader({
                   profileHref={account.href}
                   triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
                   avatarClassName={navPillStyles.mobileHeaderAvatar}
+                  guestIconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (
@@ -368,7 +370,7 @@ export function MarketingSiteHeader({
                   triggerClassName={marketingHeaderLanguageTriggerClass()}
                   onAfterSelect={closeAllMenus}
                   renderIconTrigger={() => (
-                    <MarketingHeaderGlobeIcon className="h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8" />
+                    <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
                   )}
                 />
               ) : null}
@@ -380,6 +382,7 @@ export function MarketingSiteHeader({
                   profileHref={account.href}
                   triggerClassName={marketingHeaderIconAccountClass()}
                   avatarClassName={navPillStyles.desktopHeaderAvatar}
+                  guestIconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (
@@ -389,7 +392,7 @@ export function MarketingSiteHeader({
                   aria-label={tCommon("login")}
                   onClick={closeAllMenus}
                 >
-                  <MarketingHeaderUserIcon className="h-5 w-5 shrink-0 lg:h-6 lg:w-6 nav-desktop:h-7 nav-desktop:w-7" />
+                  <MarketingHeaderUserIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
                 </Link>
               ) : null}
             </div>

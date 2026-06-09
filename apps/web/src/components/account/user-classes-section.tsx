@@ -179,6 +179,7 @@ export function UserClassesSection({
           onFilterChange={handleIntegratedFilterChange}
           onClearAll={resetFilters}
           resetLabel={t("filters.resetFilters")}
+          showActiveFilterChips={filteredSessions.length === 0}
         />
       }
       trailing={

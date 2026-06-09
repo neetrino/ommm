@@ -81,6 +81,11 @@ export class UsersController {
     return this.users.saveHomeImageJson(user.id, dto);
   }
 
+  @Delete('me/home-image')
+  deleteHomeImage(@CurrentUser() user: { id: string }) {
+    return this.users.removeHomeImage(user.id);
+  }
+
   @Post('me/home-image')
   @UseInterceptors(
     FileInterceptor('file', {

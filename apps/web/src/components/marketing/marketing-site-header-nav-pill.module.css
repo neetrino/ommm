@@ -240,7 +240,7 @@
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
-/* Header avatar — slightly smaller than globe; overrides profile avatar defaults. */
+/* Header avatar — same size as globe/action icons. */
 .mobileHeaderAvatar,
 .desktopHeaderAvatar {
   flex-shrink: 0;
@@ -250,10 +250,10 @@
 }
 
 .mobileHeaderAvatar {
-  height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
-  width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
-  min-height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
-  min-width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  height: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
+  width: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
+  min-height: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
+  min-width: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
   transition:
     height var(--marketing-mobile-glass-pill-transition-duration, 420ms)
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
@@ -267,27 +267,27 @@
 
 /* Tablet+ unified bar — matches MARKETING_HEADER_AVATAR_DESKTOP in layout.ts */
 .desktopHeaderAvatar {
-  height: 21px !important;
-  width: 21px !important;
-  min-height: 21px !important;
-  min-width: 21px !important;
+  height: 1.5rem !important;
+  width: 1.5rem !important;
+  min-height: 1.5rem !important;
+  min-width: 1.5rem !important;
 }
 
 @media (min-width: 1024px) {
   .desktopHeaderAvatar {
-    height: 25px !important;
-    width: 25px !important;
-    min-height: 25px !important;
-    min-width: 25px !important;
+    height: 1.75rem !important;
+    width: 1.75rem !important;
+    min-height: 1.75rem !important;
+    min-width: 1.75rem !important;
   }
 }
 
 @media (min-width: 85.4375rem) {
   .desktopHeaderAvatar {
-    height: 29px !important;
-    width: 29px !important;
-    min-height: 29px !important;
-    min-width: 29px !important;
+    height: 2rem !important;
+    width: 2rem !important;
+    min-height: 2rem !important;
+    min-width: 2rem !important;
   }
 }
 

@@ -13,6 +13,7 @@ import {
 } from "@/components/account/member-account-hub-sheet-layout";
 import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmModalPortal } from "@/components/ui/omm-modal";
+import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 
 type MemberAccountHubSectionSheetProps = {
   title: string;
@@ -31,6 +32,7 @@ export function MemberAccountHubSectionSheet({
   const router = useRouter();
 
   function closeSheet() {
+    dismissMobileKeyboard();
     router.back();
   }
 
