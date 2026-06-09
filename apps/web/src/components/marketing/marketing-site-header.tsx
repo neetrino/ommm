@@ -35,6 +35,7 @@ import {
   marketingHeaderMobileRowWrapStyle,
   MARKETING_MOBILE_HEADER,
   MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS,
+  MARKETING_HEADER_DESKTOP_AVATAR_CLASS,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
@@ -385,8 +386,8 @@ export function MarketingSiteHeader({
                   displayName={account.displayName}
                   profileHref={account.href}
                   triggerClassName={marketingHeaderIconAccountClass()}
-                  avatarClassName={navPillStyles.desktopHeaderAvatar}
-                  guestIconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
+                  avatarClassName={`${MARKETING_HEADER_DESKTOP_AVATAR_CLASS} rounded-full`}
+                  guestIconClassName={MARKETING_HEADER_DESKTOP_AVATAR_CLASS}
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (

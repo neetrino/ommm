@@ -240,9 +240,8 @@
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
-/* Header avatar — same size as globe/action icons. */
-.mobileHeaderAvatar,
-.desktopHeaderAvatar {
+/* Header avatar — slightly smaller than globe/action icons. */
+.mobileHeaderAvatar {
   flex-shrink: 0;
   aspect-ratio: 1;
   border-radius: 9999px;
@@ -250,10 +249,10 @@
 }
 
 .mobileHeaderAvatar {
-  height: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
-  width: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
-  min-height: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
-  min-width: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
+  height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  min-height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
+  min-width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
   transition:
     height var(--marketing-mobile-glass-pill-transition-duration, 420ms)
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
@@ -263,32 +262,6 @@
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),
     min-width var(--marketing-mobile-glass-pill-transition-duration, 420ms)
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1));
-}
-
-/* Tablet+ unified bar — matches MARKETING_HEADER_AVATAR_DESKTOP in layout.ts */
-.desktopHeaderAvatar {
-  height: 1.5rem !important;
-  width: 1.5rem !important;
-  min-height: 1.5rem !important;
-  min-width: 1.5rem !important;
-}
-
-@media (min-width: 1024px) {
-  .desktopHeaderAvatar {
-    height: 1.75rem !important;
-    width: 1.75rem !important;
-    min-height: 1.75rem !important;
-    min-width: 1.75rem !important;
-  }
-}
-
-@media (min-width: 85.4375rem) {
-  .desktopHeaderAvatar {
-    height: 2rem !important;
-    width: 2rem !important;
-    min-height: 2rem !important;
-    min-width: 2rem !important;
-  }
 }
 
 .mobileHeaderAccountButton {

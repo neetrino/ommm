@@ -17,8 +17,8 @@ export const MARKETING_MOBILE_HEADER = {
   actionsEdgeNudgePx: 4,
   menuEdgeNudgePx: 4,
   globeIconSizePx: 26,
-  /** Header profile avatar — same size as globe/action icons. */
-  avatarInsetPx: 0,
+  /** Header profile avatar — slightly smaller than globe/action icons. */
+  avatarInsetPx: 3,
   userIconWidthPx: 24,
   userIconHeightPx: 24,
   /** Matches `marketingHeaderContainerClass` mobile shell (pt + pb + row). */
@@ -299,19 +299,20 @@ export function marketingHeaderIconLanguageClass(): string {
 }
 
 export function marketingHeaderIconAccountClass(): string {
-  return `${marketingHeaderIconButtonClass()} h-8 w-8 min-h-8 min-w-8 lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-8 nav-desktop:w-8 nav-desktop:min-h-8 nav-desktop:min-w-8`;
+  return [
+    marketingHeaderIconButtonClass(),
+    "inline-flex items-center justify-center !p-0",
+    "h-8 w-8 min-h-8 min-w-8 lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-8 nav-desktop:w-8 nav-desktop:min-h-8 nav-desktop:min-w-8",
+  ].join(" ");
 }
 
-/** Desktop header action icons — globe, profile, login. */
+/** Desktop header action icons — globe, login. */
 export const MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS =
   "h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8";
 
-/** Desktop header photo avatar — matches action icon sizes. */
-export const MARKETING_HEADER_AVATAR_DESKTOP = {
-  sizePx: 24,
-  lgSizePx: 28,
-  navDesktopSizePx: 32,
-} as const;
+/** Desktop header avatar — globe minus `MARKETING_MOBILE_HEADER.avatarInsetPx` at each tier. */
+export const MARKETING_HEADER_DESKTOP_AVATAR_CLASS =
+  "h-[21px] w-[21px] shrink-0 lg:h-[25px] lg:w-[25px] nav-desktop:h-[29px] nav-desktop:w-[29px]";
 
 export function marketingHeaderMenuButtonClass(): string {
   return marketingHeaderMobileMenuButtonClass(false);

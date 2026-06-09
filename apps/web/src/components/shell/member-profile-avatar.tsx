@@ -16,15 +16,15 @@ export function MemberProfileAvatar({
   guestIconClassName = "h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8",
 }: MemberProfileAvatarProps) {
   if (imageSrc) {
-    const photoClass = [
-      "ommm-admin-profile-avatar shrink-0 overflow-hidden p-0",
-      className,
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const photoClass = className
+      ? [
+          "flex shrink-0 items-center justify-center overflow-hidden rounded-full p-0",
+          className,
+        ]
+      : ["ommm-admin-profile-avatar overflow-hidden p-0"];
 
     return (
-      <span className={photoClass}>
+      <span className={photoClass.filter(Boolean).join(" ")}>
         <Image
           src={imageSrc}
           alt=""
