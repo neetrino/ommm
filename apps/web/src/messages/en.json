@@ -779,7 +779,6 @@
     },
     "bookings": {
       "title": "My bookings",
-      "description": "Upcoming and past reservations.",
       "upcoming": "Upcoming",
       "pastOther": "Past and other",
       "emptySection": "Nothing here yet.",

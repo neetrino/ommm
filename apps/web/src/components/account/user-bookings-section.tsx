@@ -317,7 +317,7 @@ export function UserBookingsSection({
       {embeddedInSheet ? (
         heroSearch
       ) : (
-        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+        <AdminPageHero title={t("title")} search={heroSearch} />
       )}
       {listBody}
     </div>
