@@ -36,14 +36,20 @@ type OmmDrawerBackdropProps = {
   onClose: () => void;
   ariaLabel: string;
   disabled?: boolean;
+  className?: string;
 };
 
 /** Click target behind side sheets — static dim, no extra darkening on hover. */
-export function OmmDrawerBackdrop({ onClose, ariaLabel, disabled = false }: OmmDrawerBackdropProps) {
+export function OmmDrawerBackdrop({
+  onClose,
+  ariaLabel,
+  disabled = false,
+  className = OMM_DRAWER_BACKDROP_CLASS,
+}: OmmDrawerBackdropProps) {
   return (
     <button
       type="button"
-      className={OMM_DRAWER_BACKDROP_CLASS}
+      className={className}
       onClick={onClose}
       disabled={disabled}
       aria-label={ariaLabel}
@@ -116,6 +122,57 @@ export function OmmModalPortal({
   );
 }
 
+type OmmWorkspaceDrawerProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  backdropAriaLabel: string;
+  ariaLabelledBy?: string;
+  closeDisabled?: boolean;
+  overlayClassName?: string;
+  backdropClassName?: string;
+  panelClassName?: string;
+  children: ReactNode;
+};
+
+/** Right-side drawer scoped to the dashboard main pane (not full viewport). */
+export function OmmWorkspaceDrawer({
+  isOpen,
+  onClose,
+  backdropAriaLabel,
+  ariaLabelledBy,
+  closeDisabled = false,
+  overlayClassName,
+  backdropClassName,
+  panelClassName,
+  children,
+}: OmmWorkspaceDrawerProps) {
+  useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
+  useLockBodyScroll(isOpen);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className={overlayClassName} role="presentation">
+      <OmmDrawerBackdrop
+        onClose={onClose}
+        ariaLabel={backdropAriaLabel}
+        disabled={closeDisabled}
+        className={backdropClassName}
+      />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={ariaLabelledBy}
+        className={panelClassName}
+      >
+        {children}
+      </aside>
+    </div>
+  );
+}
+
 type OmmDrawerPortalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -123,7 +180,10 @@ type OmmDrawerPortalProps = {
   ariaLabelledBy?: string;
   closeDisabled?: boolean;
   overlayClassName?: string;
+  backdropClassName?: string;
   panelClassName?: string;
+  /** Drives `data-state` on the overlay for enter/exit CSS transitions. */
+  motionState?: "open" | "closed";
   children: ReactNode;
 };
 
@@ -134,7 +194,9 @@ export function OmmDrawerPortal({
   ariaLabelledBy,
   closeDisabled = false,
   overlayClassName = OMM_DRAWER_OVERLAY_CLASS,
+  backdropClassName = OMM_DRAWER_BACKDROP_CLASS,
   panelClassName = "relative z-10 h-full w-full max-w-md overflow-auto bg-white p-5 shadow-xl",
+  motionState,
   children,
 }: OmmDrawerPortalProps) {
   const portalReady = useIsClientMounted();
@@ -147,11 +209,16 @@ export function OmmDrawerPortal({
   }
 
   return createPortal(
-    <div className={overlayClassName} role="presentation">
+    <div
+      className={overlayClassName}
+      role="presentation"
+      data-state={motionState}
+    >
       <OmmDrawerBackdrop
         onClose={onClose}
         ariaLabel={backdropAriaLabel}
         disabled={closeDisabled}
+        className={backdropClassName}
       />
       <aside
         role="dialog"

@@ -22,6 +22,8 @@ import {
   brandTitleClass,
   collapseToggleClass,
   DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS,
+  MEMBER_DESKTOP_SIDEBAR_WIDTH_COLLAPSED,
+  MEMBER_DESKTOP_SIDEBAR_WIDTH_EXPANDED,
   mobileDrawerBrandSublineClass,
   mobileDrawerBrandTitleClass,
   mobileDrawerFooterClass,
@@ -32,6 +34,7 @@ import {
   sidebarAsideBgClass,
   sidebarBrandStripClass,
   sidebarShellBorderClass,
+  OMMM_MEMBER_SIDEBAR_WIDTH_VAR,
 } from "@/components/shell/dashboard-shell-classes";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
 
@@ -112,6 +115,22 @@ export function DashboardAppShell({
       document.body.style.overflow = prev;
     };
   }, [drawerOpen]);
+
+  useEffect(() => {
+    if (variant !== "member") {
+      return undefined;
+    }
+
+    const sidebarWidth = sidebarCollapsed
+      ? MEMBER_DESKTOP_SIDEBAR_WIDTH_COLLAPSED
+      : MEMBER_DESKTOP_SIDEBAR_WIDTH_EXPANDED;
+
+    document.documentElement.style.setProperty(OMMM_MEMBER_SIDEBAR_WIDTH_VAR, sidebarWidth);
+
+    return () => {
+      document.documentElement.style.removeProperty(OMMM_MEMBER_SIDEBAR_WIDTH_VAR);
+    };
+  }, [variant, sidebarCollapsed]);
 
   useCloseOnEscape(drawerOpen, () => setDrawerOpen(false));
 

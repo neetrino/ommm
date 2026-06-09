@@ -330,6 +330,74 @@ html {
     -webkit-overflow-scrolling: touch;
   }
 
+  /**
+   * Member notifications — full-screen subtle blur; panel aligned below site header.
+   */
+  .ommm-member-notifications-desktop-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 105;
+    display: none;
+    background: transparent;
+    overscroll-behavior: none;
+    pointer-events: none;
+  }
+
+  @media (min-width: 744px) {
+    .ommm-member-notifications-desktop-overlay {
+      display: block;
+    }
+  }
+
+  /** Very light blur — full viewport, click to close. */
+  .ommm-member-notifications-desktop-backdrop {
+    @apply absolute inset-0 z-0 cursor-pointer appearance-none border-0 bg-transparent p-0 shadow-none;
+    @apply backdrop-blur-[1px];
+    @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-member-notifications-desktop-overlay[data-state="open"]
+    .ommm-member-notifications-desktop-backdrop {
+    opacity: 1;
+  }
+
+  .ommm-member-notifications-desktop-panel {
+    @apply fixed z-10 flex w-full max-w-[22rem] flex-col overflow-hidden sm:max-w-sm;
+    @apply rounded-tl-[40px] rounded-bl-[40px];
+    @apply border border-white/55 border-r-0;
+    background: color-mix(in srgb, white 22%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(165%);
+    backdrop-filter: blur(20px) saturate(165%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.55),
+      inset 1px 0 0 0 rgb(255 255 255 / 0.28);
+    top: var(--ommm-marketing-site-header-offset, 4.25rem);
+    right: 0;
+    bottom: 0;
+    pointer-events: auto;
+    transform: translate3d(100%, 0, 0);
+    opacity: 0.96;
+    transition:
+      transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-member-notifications-desktop-overlay[data-state="open"]
+    .ommm-member-notifications-desktop-panel {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ommm-member-notifications-desktop-backdrop,
+    .ommm-member-notifications-desktop-panel {
+      transition: none;
+    }
+  }
+
   .ommm-drawer-overlay {
     @apply fixed inset-0 z-40 flex justify-end bg-transparent;
   }

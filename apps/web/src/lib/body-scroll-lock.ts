@@ -2,7 +2,7 @@ const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
 /** Scroll containers that must keep touch scrolling while the backdrop is locked. */
 const ALLOWED_TOUCH_SCROLL_SELECTOR =
-  ".ommm-member-hub-sheet-panel, .ommm-modal-overlay, .ommm-drawer-overlay";
+  ".ommm-member-hub-sheet-panel, .ommm-member-notifications-desktop-panel, .ommm-modal-overlay, .ommm-drawer-overlay";
 
 let lockCount = 0;
 let savedScrollY = 0;

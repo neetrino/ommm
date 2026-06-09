@@ -9,7 +9,11 @@ export default async function UserNotificationsSheetPage({
   const { locale } = await params;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.notifications">
+    <MemberHubSheetPage
+      locale={locale}
+      titleNamespace="userPages.notifications"
+      desktopSidePanel
+    >
       <MemberUserNotificationsRouteContent locale={locale} embeddedInSheet />
     </MemberHubSheetPage>
   );

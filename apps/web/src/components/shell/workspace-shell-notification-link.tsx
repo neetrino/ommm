@@ -8,6 +8,7 @@ import {
   markMemberHubSheetNavigation,
   shouldUseMemberHubSheetNavigation,
 } from "@/lib/member-hub-sheet-navigation";
+import { isMemberUserNotificationsPath } from "@/lib/member-user-hub-sheet-paths";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import {
   localizedWorkspaceHref,
@@ -64,16 +65,17 @@ export function WorkspaceShellNotificationLink({
   const pathname = usePathname();
   const isPhone = useMemberHubSheetPhone();
   const memberSheetHref = isMemberUserHubSheetHref(href);
-  const useHardNav = !isPhone && memberSheetHref;
-  const useMobileSheetNav =
-    isPhone &&
+  const memberNotificationsHref = isMemberUserNotificationsPath(href);
+  const useHardNav = !isPhone && memberSheetHref && !memberNotificationsHref;
+  const useOverlayNav =
     memberSheetHref &&
-    shouldUseMemberHubSheetNavigation(href, pathname ?? "");
+    shouldUseMemberHubSheetNavigation(href, pathname ?? "") &&
+    (isPhone || memberNotificationsHref);
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     onNavigate?.();
 
-    if (!useMobileSheetNav) {
+    if (!useOverlayNav) {
       return;
     }
 

@@ -1,3 +1,6 @@
+/** Member notifications — mobile bottom sheet and desktop right-side panel. */
+export const MEMBER_USER_NOTIFICATIONS_PATH = "/user/notifications";
+
 /** Member hub sections opened as mobile bottom sheets (see `user/@sheet/(.)*` routes). */
 export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/bookings",
@@ -6,7 +9,7 @@ export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/packages",
   "/user/payments",
   "/user/gift-cards",
-  "/user/notifications",
+  MEMBER_USER_NOTIFICATIONS_PATH,
   "/user/profile",
 ] as const;
 
@@ -29,4 +32,9 @@ export function isMemberUserHubSheetPath(pathname: string): boolean {
   return MEMBER_USER_HUB_SHEET_PATHS.some(
     (sheetPath) => path === sheetPath || path.startsWith(`${sheetPath}/`),
   );
+}
+
+export function isMemberUserNotificationsPath(pathname: string): boolean {
+  const path = memberUserPathWithoutLocale(pathname);
+  return path === MEMBER_USER_NOTIFICATIONS_PATH;
 }

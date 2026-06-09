@@ -5,6 +5,8 @@ import { MemberAccountHubSectionSheet } from "@/components/account/member-accoun
 type MemberHubSheetPageProps = {
   locale: string;
   titleNamespace: string;
+  /** Tablet+ right-side panel overlay (notifications bell / hub link). */
+  desktopSidePanel?: boolean;
   children: ReactNode;
 };
 
@@ -12,6 +14,7 @@ type MemberHubSheetPageProps = {
 export async function MemberHubSheetPage({
   locale,
   titleNamespace,
+  desktopSidePanel = false,
   children,
 }: MemberHubSheetPageProps) {
   const t = await getTranslations({ locale, namespace: titleNamespace });
@@ -22,6 +25,7 @@ export async function MemberHubSheetPage({
       title={t("title")}
       closeLabel={tShell("closeMenu")}
       backdropCloseLabel={tShell("closeMenuOverlay")}
+      desktopSidePanel={desktopSidePanel}
     >
       {children}
     </MemberAccountHubSectionSheet>

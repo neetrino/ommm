@@ -32,6 +32,10 @@ export function useMarketingHeaderOffsetSync(enabled: boolean): void {
       const heightPx = `${height}px`;
       shellEl.style.setProperty(OMMM_MARKETING_SITE_HEADER_OFFSET_VAR, heightPx);
       document.documentElement.style.setProperty(
+        OMMM_MARKETING_SITE_HEADER_OFFSET_VAR,
+        heightPx,
+      );
+      document.documentElement.style.setProperty(
         OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR,
         heightPx,
       );
@@ -46,6 +50,7 @@ export function useMarketingHeaderOffsetSync(enabled: boolean): void {
       observer.disconnect();
       window.removeEventListener("resize", sync);
       shellEl.style.removeProperty(OMMM_MARKETING_SITE_HEADER_OFFSET_VAR);
+      document.documentElement.style.removeProperty(OMMM_MARKETING_SITE_HEADER_OFFSET_VAR);
       document.documentElement.style.removeProperty(OMMM_ADMIN_HEADER_STICKY_OFFSET_VAR);
     };
   }, [enabled]);

@@ -4,6 +4,13 @@ import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile
 /** Pairs sidebar brand strip + main column header so their bars share the same height. */
 export const DASHBOARD_HEADER_STRIP_MIN_HEIGHT_CLASS = "min-h-[5.5rem]";
 
+/** Matches `lg:w-64` / `lg:w-[4.5rem]` in {@link DashboardAppShell}. */
+export const MEMBER_DESKTOP_SIDEBAR_WIDTH_EXPANDED = "16rem";
+
+export const MEMBER_DESKTOP_SIDEBAR_WIDTH_COLLAPSED = "4.5rem";
+
+export const OMMM_MEMBER_SIDEBAR_WIDTH_VAR = "--ommm-member-sidebar-width";
+
 /** Main column heading bar: stays visible at the top of the viewport while the page scrolls. */
 export const DASHBOARD_MAIN_HEADER_STICKY_CLASS = "sticky z-10";
 

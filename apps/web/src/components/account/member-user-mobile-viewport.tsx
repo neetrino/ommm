@@ -8,6 +8,8 @@ import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
 type MemberUserMobileViewportProps = {
   /** Parallel `@sheet` slot is rendering an intercepted hub section. */
   hasMobileSheet: boolean;
+  /** Notifications intercept route — desktop right-side panel. */
+  hasDesktopNotificationsSheet: boolean;
   /** Account hub rendered behind the bottom sheet on phones. */
   hubBackdrop: ReactNode | null;
   children: ReactNode;
@@ -20,24 +22,34 @@ type MemberUserMobileViewportProps = {
  */
 export function MemberUserMobileViewport({
   hasMobileSheet,
+  hasDesktopNotificationsSheet,
   hubBackdrop,
   children,
 }: MemberUserMobileViewportProps) {
   const isPhone = useMemberHubSheetPhone();
-  const effectiveSheetOpen = isPhone && hasMobileSheet;
+  const effectiveMobileSheetOpen = isPhone && hasMobileSheet;
+  const effectiveDesktopNotificationsOpen = !isPhone && hasDesktopNotificationsSheet;
+  const showHubBackdrop = effectiveMobileSheetOpen && hubBackdrop;
 
   return (
     <>
       <MemberUserScrollRestoration />
       <div
         className={styles.root}
-        data-mobile-sheet={effectiveSheetOpen ? "open" : "closed"}
+        data-mobile-sheet={effectiveMobileSheetOpen ? "open" : "closed"}
+        data-desktop-notifications-sheet={
+          effectiveDesktopNotificationsOpen ? "open" : "closed"
+        }
       >
-        {effectiveSheetOpen && hubBackdrop ? (
+        {showHubBackdrop ? (
           <div className={styles.hubBackdrop}>{hubBackdrop}</div>
         ) : null}
         <div
-          className={effectiveSheetOpen ? styles.routeContentWhenSheet : styles.routeContent}
+          className={
+            effectiveMobileSheetOpen || effectiveDesktopNotificationsOpen
+              ? styles.routeContentWhenSheet
+              : styles.routeContent
+          }
         >
           {children}
         </div>
