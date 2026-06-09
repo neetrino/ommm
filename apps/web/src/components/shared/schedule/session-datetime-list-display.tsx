@@ -70,7 +70,7 @@ function SessionDateTimeClockIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.75}
+      strokeWidth={1}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
@@ -134,8 +134,8 @@ export function SessionDateTimeListTimeCard({
   }
 
   return (
-    <div className={`flex items-start gap-3 ${timeCardShell} ${className}`.trim()}>
-      <SessionDateTimeClockIcon className="size-6 shrink-0 text-sage-700" />
+    <div className={`flex items-center gap-3 ${timeCardShell} ${className}`.trim()}>
+      <SessionDateTimeClockIcon className="size-11 shrink-0 text-sage-700" />
       {timeTexts}
     </div>
   );
