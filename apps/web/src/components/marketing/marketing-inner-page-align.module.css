@@ -1,13 +1,20 @@
 /**
- * Inner marketing pages — horizontal box matches visible header glyphs
- * (menu strokes, account silhouette), not full touch-target boxes.
+ * Marketing page horizontal alignment with the fixed header.
+ * Home — optical inset to visible menu/account glyphs (Figma).
+ * Inner routes (mobile) — same width box as the navbar pill (`ommm-container`).
  */
 
-:global(.marketing-layout-shell:has([data-marketing-inner])),
 :global(.marketing-layout-shell:has([data-marketing-home])) {
   /* Mobile menu artboard `35×35` — strokes start at x=7.5 (Figma `108:6841`). */
   --marketing-header-optical-inset-start: 7.5px;
   --marketing-header-optical-inset-end: 0px;
+}
+
+@media (max-width: 743px) {
+  :global(.marketing-layout-shell:has([data-marketing-inner])) {
+    --marketing-header-optical-inset-start: 0px;
+    --marketing-header-optical-inset-end: 0px;
+  }
 }
 
 @media (min-width: 46.5rem) {
