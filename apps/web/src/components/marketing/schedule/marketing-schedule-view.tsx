@@ -4,7 +4,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { fetchPublicScheduleClient } from "@/lib/fetch-public-schedule-client";
-import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { useDebouncedCallback } from "@/lib/debounced-callback";
+import {
+  dispatchNotificationsRefresh,
+  NOTIFICATIONS_REFRESH_EVENT,
+} from "@/lib/notifications-refresh-event";
 import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
 import {
   applyScheduleSpotDelta,
@@ -176,13 +180,26 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const syncLiveSchedule = useCallback(() => {
     setScheduleNow(new Date());
     void refreshSchedule();
-    if (isMember) {
-      void refetchMemberBookings(false);
-      void refetchWaitlist({ silent: true });
-    }
-  }, [isMember, refetchMemberBookings, refetchWaitlist, refreshSchedule]);
+  }, [refreshSchedule]);
 
   useScheduleLiveSync({ onSync: syncLiveSchedule });
+
+  const debouncedRefetchBookings = useDebouncedCallback(() => {
+    void refetchMemberBookings(false);
+  }, 400);
+
+  useEffect(() => {
+    if (!isMember) {
+      return undefined;
+    }
+    const handleRefresh = (): void => {
+      debouncedRefetchBookings();
+    };
+    window.addEventListener(NOTIFICATIONS_REFRESH_EVENT, handleRefresh);
+    return () => {
+      window.removeEventListener(NOTIFICATIONS_REFRESH_EVENT, handleRefresh);
+    };
+  }, [debouncedRefetchBookings, isMember]);
 
   useEffect(() => {
     const tick = (): void => {

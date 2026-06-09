@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDebouncedCallback } from "@/lib/debounced-callback";
 import { NOTIFICATIONS_REFRESH_EVENT } from "@/lib/notifications-refresh-event";
-import { apiFetch } from "@/lib/api";
+import { fetchMemberWaitlistDeduped } from "@/lib/member-waitlist-fetch";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 
 export type MemberWaitlistRefetchOptions = {
@@ -64,7 +64,7 @@ export function useMemberWaitlistData(enabled: boolean): MemberWaitlistData {
     }
     setError(false);
     try {
-      const data = await apiFetch<UserWaitlistRow[]>("/waitlist/me");
+      const data = await fetchMemberWaitlistDeduped();
       setRows(data);
     } catch {
       setRows([]);
