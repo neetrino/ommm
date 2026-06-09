@@ -8,7 +8,7 @@
 .copy {
   position: relative;
   z-index: 20;
-  max-width: 13.5rem;
+  max-width: 16.5rem;
   padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 3vw, 2.125rem) 1.5rem;
 }
 
@@ -18,9 +18,9 @@
 }
 
 .body {
-  margin-top: 0.75rem;
-  font-size: var(--home-class-card-body-size, 1rem);
-  line-height: var(--home-class-card-body-line-height, 1.5);
+  margin-top: 0.625rem;
+  font-size: var(--home-class-card-body-size, 0.8125rem);
+  line-height: var(--home-class-card-body-line-height, 1.45);
 }
 
 .imageZone {
@@ -74,8 +74,8 @@
 
   .body {
     margin-top: 0;
-    font-size: var(--home-class-card-body-size, 0.875rem);
-    line-height: var(--home-class-card-body-line-height, 1.25rem);
+    font-size: var(--home-class-card-body-size, 0.75rem);
+    line-height: var(--home-class-card-body-line-height, 1.0625rem);
   }
 
   .imageZone {
@@ -163,7 +163,7 @@
 
 @media (min-width: 744px) and (max-width: 1366px) {
   .copy {
-    max-width: 15.5rem;
+    max-width: 17rem;
     padding: clamp(1.75rem, 2.5vw, 2.125rem) clamp(1.5rem, 2.5vw, 2rem) 1.125rem;
   }
 

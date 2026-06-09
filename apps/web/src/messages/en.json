@@ -132,25 +132,25 @@
         "SUNDAY": "Sunday"
       },
       "classesTitle": "Our Core Practices",
-      "classesSubtitle": "Carefully curated sessions designed to nurture your physical and mental well-being.",
+      "classesSubtitle": "From strength to stillness - find the practice that meets you where you are.",
       "viewMembership": "View Membership",
       "viewSchedule": "View schedule",
       "classCards": [
         {
-          "titleLines": ["Reformer", "Group"],
-          "body": "Techniques to anchor your presence and expand your lung capacity through guided breath."
-        },
-        {
-          "titleLines": ["Reformer", "Individual"],
-          "body": "Focus on core stability and spatial awareness to find steadiness in the center of movement."
-        },
-        {
-          "titleLines": ["Yoga"],
-          "body": "Deep relaxation for the nervous system, using props to hold the body in gentle stillness."
+          "titleLines": ["Reformer Pilates"],
+          "body": "Low-impact, full-body movement on the reformer, where spring resistance can support you or challenge you - meeting you exactly where you are. It builds core strength, tones the whole body, and improves posture and flexibility, while staying gentle on the joints."
         },
         {
           "titleLines": ["Mat Pilates"],
-          "body": "Fluid sequences that build heat and strength while maintaining a rhythmic, moving flow."
+          "body": "Pilates in its purest form, using only your own body on the mat. Controlled, deliberate movements that build a strong foundation - deep core strength, better posture, and a clearer sense of how your body moves."
+        },
+        {
+          "titleLines": ["Power Pilates"],
+          "body": "For the days you want to build heat. A faster tempo and flowing transitions turn the Pilates method into something more dynamic - stronger, more intense, and deeply engaging, while never losing precision or control."
+        },
+        {
+          "titleLines": ["Yoga"],
+          "body": "Breath and movement, woven together. Sessions to stretch, ground, and soften - space to release the day and return to yourself."
         },
         {
           "titleLines": ["Dances"],

@@ -149,7 +149,6 @@ export function MarketingPublicHomeCoachesSection({
     <>
       <section
         aria-labelledby="home-coaches-heading-mobile"
-        aria-describedby="home-coaches-subtitle-mobile"
         className={`${marketingMontserrat.variable} ${styles.mobileSection}`}
         style={mobileStyle}
       >
@@ -161,12 +160,6 @@ export function MarketingPublicHomeCoachesSection({
             >
               {t("coachesTitle")}
             </h2>
-            <p
-              id="home-coaches-subtitle-mobile"
-              className={`${styles.mobileSubtitle} ${marketingMontserrat.className} text-pretty font-normal tracking-[0.01em]`}
-            >
-              {t("classesSubtitle")}
-            </p>
           </header>
 
           <div className={styles.mobileCarouselWrap}>
