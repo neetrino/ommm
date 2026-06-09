@@ -13,7 +13,8 @@ export function readMemberHubSheetPhoneViewport(): boolean {
 
 /** Phone viewport where member hub sections use bottom sheets (<744px). */
 export function useMemberHubSheetPhone(): boolean {
-  const [isPhone, setIsPhone] = useState(readMemberHubSheetPhoneViewport);
+  // SSR and the hydration pass must agree (false). Sync real viewport in layout effect before paint.
+  const [isPhone, setIsPhone] = useState(false);
 
   useLayoutEffect(() => {
     const mediaQuery = window.matchMedia(MEMBER_HUB_SHEET_PHONE_MEDIA_QUERY);
