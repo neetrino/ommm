@@ -110,7 +110,7 @@ function PackageSubscribePlanSummary({ plan, locale }: PackageSubscribePlanSumma
     : t("sessionsPerPeriod", { count: plan.sessionsPerMonth ?? 0 });
 
   return (
-    <div className="rounded-2xl border border-white/60 bg-white/50 p-4">
+    <div className={styles.packageSubscribePlanSummary}>
       <p className="text-sm font-medium text-sage-800">{sessionName}</p>
       <p className="mt-1 text-sm font-semibold text-sage-700">
         {formatAmdFromCents(plan.priceCents, locale)}
