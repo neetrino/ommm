@@ -2529,10 +2529,10 @@
       "deletingButton": "Deleting…",
       "deleteCategoryConfirm": "Delete category \"{name}\" and all {count} packages in it? This cannot be undone.",
       "deleteCategoryConfirmEmpty": "Remove empty category \"{name}\"?",
-      "durationMonthsInvalid": "Enter a whole number of months from 1 to 120.",
-      "fieldDurationMonths": "Package duration (months)",
-      "fieldDurationMonthsPlaceholder": "e.g. 6",
-      "fieldDurationMonthsHint": "Shown in the packages table in the Session column (1 month = 30 days).",
+      "durationDaysInvalid": "Enter a whole number of days from 1 to 3600.",
+      "fieldDurationDays": "Package duration (days)",
+      "fieldDurationDaysPlaceholder": "e.g. 40",
+      "fieldDurationDaysHint": "Shown in the packages table Validity column.",
       "fieldGuestCount": "Guests (optional)",
       "fieldGuestCountPlaceholder": "e.g. 2",
       "fieldGuestCountHint": "Maximum guests allowed on this package (shown in the Guests column).",
@@ -2551,7 +2551,7 @@
       "fieldSessionsCount": "Sessions",
       "fieldSessionsCountPlaceholder": "e.g. 10",
       "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
-      "fieldValidityHint": "Shown in the Validity column (1 month = 30 days).",
+      "fieldValidityHint": "Shown in the Validity column.",
       "saveTierButton": "Add option"
     },
     "packagePlans": {

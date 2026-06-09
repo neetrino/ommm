@@ -15,14 +15,13 @@ type ValidityLabels = {
   months: (count: number) => string;
 };
 
-/** Formats plan validity for the packages table (Figma "40 Days" / "6 Months"). */
+/** Formats plan validity for the packages table (e.g. "40 Days"). */
 export function formatPackageValidityLabel(
   pkg: PackageTableDisplayRow,
   labels: ValidityLabels,
 ): string {
-  const months = resolvePackageDurationMonths(pkg.periodDays);
-  if (months > 0) {
-    return labels.months(months);
+  if (pkg.periodDays <= 0) {
+    return labels.days(0);
   }
   return labels.days(pkg.periodDays);
 }

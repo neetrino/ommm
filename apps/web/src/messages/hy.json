@@ -2520,10 +2520,10 @@
       "deletingButton": "Ջնջվում է…",
       "deleteCategoryConfirm": "Ջնջե՞լ «{name}» կատեգորիան և դրա {count} փաթեթը։ Գործողությունը հետարկելի չէ։",
       "deleteCategoryConfirmEmpty": "Հեռացնե՞լ դատարկ «{name}» կատեգորիան։",
-      "durationMonthsInvalid": "Մուտքագրեք ամիսների ամբողջ թիվ 1-ից 120-ի սահմաններում։",
-      "fieldDurationMonths": "Փաթեթի տևողություն (ամիս)",
-      "fieldDurationMonthsPlaceholder": "օր. 6",
-      "fieldDurationMonthsHint": "Ցուցադրվում է աղյուսակի «Session» սյունակում (1 ամիս = 30 օր)։",
+      "durationDaysInvalid": "Մուտքագրեք ամբողջ թիվ օր 1-ից 3600-ի սահմաններում։",
+      "fieldDurationDays": "Փաթեթի տևողություն (օր)",
+      "fieldDurationDaysPlaceholder": "օր. 40",
+      "fieldDurationDaysHint": "Ցուցադրվում է աղյուսակի Validity սյունակում։",
       "fieldGuestCount": "Հյուրեր (ոչ պարտադիր)",
       "fieldGuestCountPlaceholder": "օր. 2",
       "fieldGuestCountHint": "Այս փաթեթով թույլատրված հյուրերի առավելագույն քանակ (աղյուսակի Guests սյունակ)։",
@@ -2542,7 +2542,7 @@
       "fieldSessionsCount": "Seans-ներ",
       "fieldSessionsCountPlaceholder": "օր. 10",
       "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
-      "fieldValidityHint": "Ցուցադրվում է Validity սյունակում (1 ամիս = 30 օր)։",
+      "fieldValidityHint": "Ցուցադրվում է Validity սյունակում։",
       "saveTierButton": "Ավելացնել"
     },
     "packagePlans": {
