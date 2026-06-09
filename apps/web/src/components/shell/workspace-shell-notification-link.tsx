@@ -1,7 +1,6 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { marketingHeaderIconButtonClass } from "@/components/marketing/marketing-site-header-layout";
 import { WORKSPACE_ROUTE_PREFETCH } from "@/lib/workspace-nav-link";
 
 type WorkspaceShellNotificationLinkProps = {
@@ -9,6 +8,7 @@ type WorkspaceShellNotificationLinkProps = {
   label: string;
   active: boolean;
   className?: string;
+  iconClassName?: string;
   onNavigate?: () => void;
 };
 
@@ -18,23 +18,21 @@ export function WorkspaceShellNotificationLink({
   label,
   active,
   className = "",
+  iconClassName = "h-5 w-5 shrink-0",
   onNavigate,
 }: WorkspaceShellNotificationLinkProps) {
-  const stateClass = active
-    ? "ring-2 ring-[var(--ommm-marketing-header-focus-ring)]"
-    : "";
-
   return (
     <Link
       href={href}
       prefetch={WORKSPACE_ROUTE_PREFETCH}
-      className={`${marketingHeaderIconButtonClass()} ${stateClass} ${className}`.trim()}
+      className={className}
       aria-label={label}
+      aria-current={active ? "page" : undefined}
       title={label}
       onClick={onNavigate}
     >
       <svg
-        className="h-5 w-5 shrink-0"
+        className={iconClassName}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

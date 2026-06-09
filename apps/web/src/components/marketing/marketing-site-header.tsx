@@ -23,6 +23,7 @@ import {
   marketingHeaderIconAccountClass,
   marketingHeaderIconButtonClass,
   marketingHeaderLanguageTriggerClass,
+  marketingHeaderNotificationTriggerClass,
   marketingHeaderMobileActionsClass,
   marketingHeaderMobileBrandLinkClass,
   marketingHeaderMobileBrandTextClass,
@@ -76,7 +77,7 @@ export type MarketingSiteHeaderProps = {
   workspaceDrawer?: WorkspaceDrawerControl;
   /** Header above workspace shell — offset sync and elevated chrome even without a drawer control. */
   workspaceHeaderChrome?: boolean;
-  /** Member workspace — hide language switcher and navbar avatar on `/user/*`. */
+  /** Member workspace — hide language switcher (mobile) and avatar in the header action cluster. */
   memberWorkspaceHeader?: boolean;
   notificationHref?: string | null;
   notificationsLabel?: string | null;
@@ -106,12 +107,14 @@ function HeaderNotificationAction({
   label,
   active,
   className,
+  iconClassName,
   onNavigate,
 }: {
   href: string;
   label: string;
   active: boolean;
   className?: string;
+  iconClassName?: string;
   onNavigate?: () => void;
 }) {
   return (
@@ -120,6 +123,7 @@ function HeaderNotificationAction({
       label={label}
       active={active}
       className={className}
+      iconClassName={iconClassName}
       onNavigate={onNavigate}
     />
   );
@@ -265,7 +269,8 @@ export function MarketingSiteHeader({
                   href={notificationHref}
                   label={notificationsLabel}
                   active={notificationsActive}
-                  className={`${navPillStyles.mobileHeaderAccountButton} ${workspaceMobileDrawerLayout.mobileDrawerTrigger}`}
+                  className={`${marketingHeaderMobileLanguageTriggerClass()} ${navPillStyles.mobileHeaderLanguageTrigger}`}
+                  iconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   onNavigate={closeAllMenus}
                 />
               ) : null}
@@ -353,25 +358,24 @@ export function MarketingSiteHeader({
 
           <div className={marketingHeaderDesktopActionsClass()}>
             <div className={marketingHeaderAuthClusterClass()}>
+              <LanguageSwitcher
+                context="marketing"
+                appearance="icon"
+                className="min-w-0 shrink-0"
+                triggerClassName={marketingHeaderLanguageTriggerClass()}
+                onAfterSelect={closeAllMenus}
+                renderIconTrigger={() => (
+                  <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
+                )}
+              />
               {showNotifications ? (
                 <HeaderNotificationAction
                   href={notificationHref}
                   label={notificationsLabel}
                   active={notificationsActive}
-                  className="hidden h-8 w-8 min-h-8 min-w-8 lg:inline-flex lg:h-9 lg:w-9 lg:min-h-9 lg:min-w-9 nav-desktop:h-8 nav-desktop:w-8 nav-desktop:min-h-8 nav-desktop:min-w-8"
+                  className={`hidden lg:inline-flex ${marketingHeaderNotificationTriggerClass()}`}
+                  iconClassName={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS}
                   onNavigate={closeAllMenus}
-                />
-              ) : null}
-              {!memberWorkspaceHeader ? (
-                <LanguageSwitcher
-                  context="marketing"
-                  appearance="icon"
-                  className="min-w-0 shrink-0"
-                  triggerClassName={marketingHeaderLanguageTriggerClass()}
-                  onAfterSelect={closeAllMenus}
-                  renderIconTrigger={() => (
-                    <MarketingHeaderGlobeIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
-                  )}
                 />
               ) : null}
               {!memberWorkspaceHeader && account ? (

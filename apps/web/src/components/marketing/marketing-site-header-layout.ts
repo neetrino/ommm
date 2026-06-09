@@ -337,15 +337,26 @@ export function marketingHeaderMobileIconAccountClass(): string {
   ].join(" ");
 }
 
+const MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS = [
+  "!h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-8 nav-desktop:!min-h-8 nav-desktop:!w-8 nav-desktop:!min-w-8",
+  "!justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
+  `${MARKETING_HEADER_INK} cursor-pointer`,
+  MARKETING_HEADER_INK_TRANSITION,
+  "hover:!border-0 hover:!bg-transparent hover:!shadow-none active:!bg-transparent active:!ring-0",
+  "focus-visible:outline-none focus-visible:ring-2",
+  MARKETING_HEADER_FOCUS_RING,
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+].join(" ");
+
 export function marketingHeaderLanguageTriggerClass(): string {
   return [
-    "ommm-dropdown-trigger !h-8 !min-h-8 !w-8 !min-w-8 lg:!h-9 lg:!min-h-9 lg:!w-9 lg:!min-w-9 nav-desktop:!h-8 nav-desktop:!min-h-8 nav-desktop:!w-8 nav-desktop:!min-w-8 !justify-center !gap-0 !border-0 !bg-transparent !p-0 !shadow-none !backdrop-blur-none",
-    `${MARKETING_HEADER_INK} cursor-pointer`,
-    MARKETING_HEADER_INK_TRANSITION,
-    "hover:!border-0 hover:!bg-transparent hover:!shadow-none",
+    "ommm-dropdown-trigger",
+    MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS,
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
-    "focus-visible:outline-none focus-visible:ring-2",
-    MARKETING_HEADER_FOCUS_RING,
-    "focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   ].join(" ");
+}
+
+/** Notification bell — flat trigger, same footprint as globe. */
+export function marketingHeaderNotificationTriggerClass(): string {
+  return ["inline-flex items-center", MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS].join(" ");
 }

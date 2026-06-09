@@ -48,6 +48,8 @@ export type DropdownSelectProps<T extends string> = {
   menuAlign?: FloatingMenuAlign;
   /** Open on pointer hover (fine pointers only); keeps menu open while cursor is over trigger or menu. */
   openOnHover?: boolean;
+  /** Slide/fade dismiss animation (marketing language switcher on desktop). */
+  animateMenuDismiss?: boolean;
 };
 
 const HOVER_MENU_CLOSE_DELAY_MS = 180;
@@ -122,6 +124,7 @@ export function DropdownSelect<T extends string>({
   menuMinWidth,
   menuAlign,
   openOnHover = false,
+  animateMenuDismiss = false,
 }: DropdownSelectProps<T>) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,7 +144,8 @@ export function DropdownSelect<T extends string>({
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const listboxId = useId();
   const menuAnimationActive = openOnHover && hoverOpenCapable;
-  const menuMotionActive = menuAnimationActive || isMobileViewport;
+  const menuDismissMotion = isMobileViewport || animateMenuDismiss;
+  const menuMotionActive = menuAnimationActive || menuDismissMotion;
 
   const visibleOptions = useMemo(
     () => (searchable ? filterDropdownOptions(options, searchQuery) : [...options]),
@@ -167,8 +171,8 @@ export function DropdownSelect<T extends string>({
     menuMinWidth ?? 0,
     menuAlign ?? "start",
     undefined,
-    isMobileViewport && menuExitHold && !isMenuOpen,
-    isMobileViewport,
+    menuDismissMotion && menuExitHold && !isMenuOpen,
+    menuDismissMotion,
   );
   const searchHeaderHeight = searchable ? 56 : 0;
   const listMaxHeight =
@@ -365,7 +369,7 @@ export function DropdownSelect<T extends string>({
     if (!menuMotionActive || event.target !== event.currentTarget) {
       return;
     }
-    const exitProperty = isMobileViewport ? "transform" : "opacity";
+    const exitProperty = menuDismissMotion ? "transform" : "opacity";
     if (event.propertyName !== exitProperty) {
       return;
     }
@@ -545,7 +549,7 @@ export function DropdownSelect<T extends string>({
               className={mergeClasses(
                 "ommm-dropdown-menu",
                 menuMotionActive ? "ommm-dropdown-menu--hover-animated" : undefined,
-                isMobileViewport ? "ommm-dropdown-menu--mobile-dismiss" : undefined,
+                menuDismissMotion ? "ommm-dropdown-menu--mobile-dismiss" : undefined,
                 menuMotionActive && menuAnimatedIn
                   ? "ommm-dropdown-menu--visible"
                   : undefined,
@@ -568,7 +572,7 @@ export function DropdownSelect<T extends string>({
                     ? "translate3d(0, -100%, 0)"
                     : "translate3d(0, 0, 0)",
                 transitionDuration:
-                  menuMotionActive && !isMobileViewport
+                  menuMotionActive && !menuDismissMotion
                     ? `${HOVER_MENU_ANIMATION_MS}ms`
                     : undefined,
               }}
