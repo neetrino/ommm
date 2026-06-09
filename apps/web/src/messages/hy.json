@@ -718,6 +718,8 @@
       "membershipDetailsCategory": "Կատեգորիա",
       "membershipDetailsPrice": "Գին",
       "membershipDetailsValidity": "Վավերականություն",
+      "validityExpired": "Սպառված",
+      "validityDaysRemaining": "{count, plural, one {Մնաց # օր} other {Մնաց # օր}}",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
       "membershipDetailsStatus": "Կարգավիճակ",

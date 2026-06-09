@@ -1,5 +1,6 @@
 import { formatPackagePlanName } from "@/components/admin/admin-packages-display";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
+import { formatMembershipValidityLabel } from "@/lib/user-package-validity";
 
 export function normalizeUserPackageStatus(status: string): UserPackageStatus {
   if (
@@ -49,6 +50,7 @@ export type MembershipDisplayModel = {
   usedSessions: number | null;
   remainingSessions: number | null;
   statusLabel: string;
+  validityLabel: string;
 };
 
 export function buildMembershipDisplayModel(
@@ -62,6 +64,8 @@ export function buildMembershipDisplayModel(
     membership.plan.sessionsPerMonth,
   );
 
+  const validityLabel = formatMembershipValidityLabel(membership, t);
+
   if (membership.isUnlimited) {
     return {
       sessionName,
@@ -73,6 +77,7 @@ export function buildMembershipDisplayModel(
       usedSessions: null,
       remainingSessions: null,
       statusLabel: formatMembershipStatusLabel(status, t),
+      validityLabel,
     };
   }
 
@@ -96,5 +101,6 @@ export function buildMembershipDisplayModel(
     usedSessions: used,
     remainingSessions: remaining,
     statusLabel: formatMembershipStatusLabel(status, t),
+    validityLabel,
   };
 }

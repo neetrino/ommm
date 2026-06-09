@@ -718,6 +718,8 @@
       "membershipDetailsCategory": "Category",
       "membershipDetailsPrice": "Price",
       "membershipDetailsValidity": "Validity",
+      "validityExpired": "Expired",
+      "validityDaysRemaining": "{count, plural, one {# day remaining} other {# days remaining}}",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
       "membershipDetailsStatus": "Status",

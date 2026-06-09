@@ -718,6 +718,8 @@
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
       "membershipDetailsValidity": "Срок действия",
+      "validityExpired": "Истёк",
+      "validityDaysRemaining": "{count, plural, one {Остался # день} few {Осталось # дня} many {Осталось # дней} other {Осталось # дня}}",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
       "membershipDetailsStatus": "Статус",

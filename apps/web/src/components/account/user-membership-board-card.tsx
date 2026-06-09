@@ -40,7 +40,6 @@ export function UserMembershipBoardCard({
   const m = useTranslations("marketing");
   const display = buildMembershipDisplayModel(membership, status, t, m);
   const priceLabel = formatAmdFromCents(membership.plan.priceCents, locale);
-  const durationLabel = m("packagesPeriodDaysShort", { days: membership.plan.periodDays });
 
   return (
     <article
@@ -90,7 +89,7 @@ export function UserMembershipBoardCard({
           </p>
           <p className="mt-1 text-2xl font-semibold tracking-tight text-sage-950">{priceLabel}</p>
         </div>
-        <p className="text-sm text-sage-600">{durationLabel}</p>
+        <p className="text-sm text-sage-600">{display.validityLabel}</p>
       </div>
 
       <div className="mt-5 flex-1">
