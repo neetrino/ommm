@@ -16,11 +16,17 @@
 }
 
 @media (max-width: 743px) {
-  [data-mobile-sheet="open"] .hubBackdrop {
-    display: block;
+  .root[data-mobile-sheet="open"] {
+    overscroll-behavior: none;
   }
 
-  [data-mobile-sheet="open"] .routeContentWhenSheet {
+  .root[data-mobile-sheet="open"] .hubBackdrop {
+    display: block;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .root[data-mobile-sheet="open"] .routeContentWhenSheet {
     visibility: hidden;
     position: absolute;
     overflow: hidden;
