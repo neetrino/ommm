@@ -23,3 +23,54 @@ export function applyScheduleSpotDelta(
 
   return { ...item, availableSpots: nextSpots, status: nextStatus };
 }
+
+/** Forces a public schedule row to render as full (used while capacity is still loading). */
+export function pinScheduleRowFull(item: MarketingScheduleItem): MarketingScheduleItem {
+  return { ...item, availableSpots: 0, status: "FULL" };
+}
+
+type MemberOnWaitlistBadgeParams = {
+  userBookingId?: string;
+  onWaitlist: boolean;
+  availableSpots: number;
+  sessionStatus: string;
+  capacityReady: boolean;
+};
+
+/**
+ * Whether the member should see the disabled "On waitlist" action.
+ * Keeps the badge during capacity hydration to avoid a brief Book flash on refresh.
+ */
+export function resolveMemberOnWaitlistBadge({
+  userBookingId,
+  onWaitlist,
+  availableSpots,
+  sessionStatus,
+  capacityReady,
+}: MemberOnWaitlistBadgeParams): boolean {
+  if (userBookingId !== undefined || !onWaitlist) {
+    return false;
+  }
+  if (!capacityReady) {
+    return true;
+  }
+  return isScheduleSessionFull(availableSpots, sessionStatus);
+}
+
+type MemberScheduleRowDisplayParams = {
+  row: MarketingScheduleItem;
+  onWaitlist: boolean;
+  capacityReady: boolean;
+};
+
+/** Stabilizes spot labels for waitlisted members until live capacity is ready. */
+export function resolveMemberScheduleRowDisplay({
+  row,
+  onWaitlist,
+  capacityReady,
+}: MemberScheduleRowDisplayParams): MarketingScheduleItem {
+  if (!capacityReady && onWaitlist) {
+    return pinScheduleRowFull(row);
+  }
+  return row;
+}

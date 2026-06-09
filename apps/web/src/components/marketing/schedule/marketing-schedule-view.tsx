@@ -1,12 +1,16 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { fetchPublicScheduleClient } from "@/lib/fetch-public-schedule-client";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
-import { applyScheduleSpotDelta, isScheduleSessionFull } from "@/lib/schedule-session-spots";
+import {
+  applyScheduleSpotDelta,
+  resolveMemberOnWaitlistBadge,
+  resolveMemberScheduleRowDisplay,
+} from "@/lib/schedule-session-spots";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
 import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
@@ -124,14 +128,13 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
   const [scheduleNow, setScheduleNow] = useState(() => new Date());
+  const [scheduleCapacityReady, setScheduleCapacityReady] = useState(false);
+  const initialScheduleHydratedRef = useRef(false);
   const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
     useMemberWaitlistData(isMember);
   const memberActionStateReady =
-    !isMember || (memberBookingsLoaded && memberWaitlistLoaded);
-
-  useEffect(() => {
-    setItems(initialItems);
-  }, [initialItems]);
+    !isMember || (memberBookingsLoaded && memberWaitlistLoaded && scheduleCapacityReady);
+  const spotsStateReady = !isMember || scheduleCapacityReady;
 
   const refetchMemberBookings = useCallback(async (markLoaded: boolean) => {
     if (!isMember) {
@@ -167,8 +170,17 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
       setItems(nextItems);
     } catch {
       // Keep current list when refresh fails.
+    } finally {
+      if (!initialScheduleHydratedRef.current) {
+        initialScheduleHydratedRef.current = true;
+        setScheduleCapacityReady(true);
+      }
     }
   }, []);
+
+  useEffect(() => {
+    void refreshSchedule();
+  }, [refreshSchedule]);
 
   const syncLiveSchedule = useCallback(() => {
     setScheduleNow(new Date());
@@ -328,37 +340,52 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                 {t("empty")}
               </li>
             ) : (
-              renderedSessions.map((row, index) => (
-                <ScheduleSessionRow
-                  key={row.id}
-                  row={row}
-                  bookLabel={t("bookCta")}
-                  audience={audience}
-                  subtitle={`${row.instructorName} • ${row.classType}`}
-                  spotsFullLabel={t("spotsFull")}
-                  spotsLeftLabel={t("spotsLeft", { count: row.availableSpots })}
-                  timeLabel={toLocaleTime(locale, row.startTime)}
-                  durationLabel={
-                    row.durationMinutes !== null
-                      ? t("minutesShort", { count: row.durationMinutes })
-                      : row.endTime !== null
-                        ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
-                        : "-"
-                  }
-                  userBookingId={bookedBySessionId[row.id]}
-                  bookingStateReady={memberActionStateReady}
-                  isOnWaitlist={
-                    bookedBySessionId[row.id] === undefined &&
-                    waitlistedSessionIds.has(row.id) &&
-                    isScheduleSessionFull(row.availableSpots, row.status)
-                  }
-                  onBooked={handleBooked}
-                  onCancelled={handleCancelled}
-                  onWaitlisted={handleWaitlisted}
-                  className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
-                  style={getItemStyle(index)}
-                />
-              ))
+              renderedSessions.map((row, index) => {
+                const userOnWaitlist =
+                  bookedBySessionId[row.id] === undefined && waitlistedSessionIds.has(row.id);
+                const displayRow = resolveMemberScheduleRowDisplay({
+                  row,
+                  onWaitlist: userOnWaitlist,
+                  capacityReady: scheduleCapacityReady,
+                });
+                const showOnWaitlist = resolveMemberOnWaitlistBadge({
+                  userBookingId: bookedBySessionId[row.id],
+                  onWaitlist: userOnWaitlist,
+                  availableSpots: displayRow.availableSpots,
+                  sessionStatus: displayRow.status,
+                  capacityReady: scheduleCapacityReady,
+                });
+
+                return (
+                  <ScheduleSessionRow
+                    key={row.id}
+                    row={displayRow}
+                    bookLabel={t("bookCta")}
+                    audience={audience}
+                    subtitle={`${row.instructorName} • ${row.classType}`}
+                    spotsFullLabel={t("spotsFull")}
+                    spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
+                    spotsLoadingLabel={t("actionLoading")}
+                    spotsStateReady={spotsStateReady}
+                    timeLabel={toLocaleTime(locale, row.startTime)}
+                    durationLabel={
+                      row.durationMinutes !== null
+                        ? t("minutesShort", { count: row.durationMinutes })
+                        : row.endTime !== null
+                          ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
+                          : "-"
+                    }
+                    userBookingId={bookedBySessionId[row.id]}
+                    bookingStateReady={memberActionStateReady}
+                    isOnWaitlist={showOnWaitlist}
+                    onBooked={handleBooked}
+                    onCancelled={handleCancelled}
+                    onWaitlisted={handleWaitlisted}
+                    className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                    style={getItemStyle(index)}
+                  />
+                );
+              })
             )}
           </ul>
         </div>

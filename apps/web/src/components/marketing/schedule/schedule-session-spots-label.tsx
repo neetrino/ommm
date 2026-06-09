@@ -6,6 +6,8 @@ type ScheduleSessionSpotsLabelProps = {
   status: string;
   fullLabel: string;
   spotsLeftLabel: string;
+  spotsReady?: boolean;
+  spotsLoadingLabel?: string;
   className?: string;
 };
 
@@ -14,8 +16,22 @@ export function ScheduleSessionSpotsLabel({
   status,
   fullLabel,
   spotsLeftLabel,
+  spotsReady = true,
+  spotsLoadingLabel = "…",
   className,
 }: ScheduleSessionSpotsLabelProps) {
+  if (!spotsReady) {
+    return (
+      <p
+        className={`mt-1 text-sm tabular-nums ${SCHEDULE_MUTED} ${className ?? ""}`}
+        aria-busy="true"
+        aria-label={spotsLoadingLabel}
+      >
+        {spotsLoadingLabel}
+      </p>
+    );
+  }
+
   const full = isScheduleSessionFull(availableSpots, status);
   const urgent = !full && availableSpots <= 2;
   const label = full ? fullLabel : spotsLeftLabel;

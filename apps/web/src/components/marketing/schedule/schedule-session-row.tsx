@@ -21,6 +21,8 @@ export type ScheduleSessionRowProps = {
   audience: PublicPackageCategoryCardsAudience;
   userBookingId?: string;
   bookingStateReady?: boolean;
+  spotsStateReady?: boolean;
+  spotsLoadingLabel?: string;
   isOnWaitlist?: boolean;
   onBooked?: (sessionId: string, bookingId: string) => void;
   onCancelled?: (sessionId: string) => void;
@@ -40,6 +42,8 @@ export function ScheduleSessionRow({
   audience,
   userBookingId,
   bookingStateReady = true,
+  spotsStateReady = true,
+  spotsLoadingLabel,
   isOnWaitlist = false,
   onBooked,
   onCancelled,
@@ -64,6 +68,8 @@ export function ScheduleSessionRow({
           status={row.status}
           fullLabel={spotsFullLabel}
           spotsLeftLabel={spotsLeftLabel}
+          spotsReady={spotsStateReady}
+          spotsLoadingLabel={spotsLoadingLabel}
         />
       </div>
       <div className="flex items-center justify-end">
