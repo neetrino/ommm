@@ -2,11 +2,16 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
+import {
+  clearBookingCancelIntent,
+  registerBookingCancelIntent,
+} from "@/lib/booking-cancel-intent";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { BOOKING_CANCEL_CONFIRM_DELAY_MS } from "@/lib/public-schedule-constants";
 
 type Props = {
   bookingId: string;
@@ -30,25 +35,55 @@ export function CancelBookingButton({
   const router = useRouter();
   const t = useTranslations("forms.cancelBooking");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmReady, setConfirmReady] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const buttonSize = appearance === "link" ? "sm" : size;
 
-  function openConfirm() {
+  useEffect(() => {
+    if (!confirmOpen) {
+      setConfirmReady(false);
+      return undefined;
+    }
+    const timeoutId = window.setTimeout(() => {
+      setConfirmReady(true);
+    }, BOOKING_CANCEL_CONFIRM_DELAY_MS);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [confirmOpen]);
+
+  async function openConfirm() {
     if (busy) {
       return;
     }
-    setConfirmOpen(true);
+    setMsg(null);
+    try {
+      await registerBookingCancelIntent(bookingId);
+      dispatchNotificationsRefresh();
+      setConfirmOpen(true);
+    } catch (error) {
+      setMsg(error instanceof ApiError ? error.message : t("failed"));
+    }
   }
 
-  function closeConfirm() {
+  async function closeConfirm() {
     if (busy) {
       return;
     }
     setConfirmOpen(false);
+    try {
+      await clearBookingCancelIntent(bookingId);
+      dispatchNotificationsRefresh();
+    } catch {
+      // Spot hold expires server-side; schedule poll will reconcile.
+    }
   }
 
   async function confirmCancel() {
+    if (!confirmReady) {
+      return;
+    }
     setBusy(true);
     setMsg(null);
     try {
@@ -60,6 +95,12 @@ export function CancelBookingButton({
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("failed"));
       setConfirmOpen(false);
+      try {
+        await clearBookingCancelIntent(bookingId);
+        dispatchNotificationsRefresh();
+      } catch {
+        // Hold will expire automatically.
+      }
     } finally {
       setBusy(false);
     }
@@ -76,7 +117,7 @@ export function CancelBookingButton({
             type="button"
             disabled={busy}
             className={resolvedButtonClass}
-            onClick={openConfirm}
+            onClick={() => void openConfirm()}
           >
             {t("action")}
           </button>
@@ -87,7 +128,7 @@ export function CancelBookingButton({
             size={buttonSize}
             disabled={busy}
             className={resolvedButtonClass}
-            onClick={openConfirm}
+            onClick={() => void openConfirm()}
           >
             {t("action")}
           </OmmButton>
@@ -103,9 +144,9 @@ export function CancelBookingButton({
         backdropAriaLabel={t("modalBackdropClose")}
         tone="danger"
         confirmClassName={CANCEL_BOOKING_BUTTON_CLASS}
-        pending={busy}
+        pending={busy || !confirmReady}
         onConfirm={() => void confirmCancel()}
-        onCancel={closeConfirm}
+        onCancel={() => void closeConfirm()}
       />
     </>
   );

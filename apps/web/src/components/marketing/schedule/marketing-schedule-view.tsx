@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { fetchPublicScheduleClient } from "@/lib/fetch-public-schedule-client";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
-import { useDebouncedCallback } from "@/lib/debounced-callback";
+import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
 import { applyScheduleSpotDelta, isScheduleSessionFull } from "@/lib/schedule-session-spots";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
@@ -35,6 +35,8 @@ import {
 import {
   useScheduleDayTransition,
 } from "@/components/marketing/schedule/use-schedule-day-transition";
+import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
+import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 
@@ -121,6 +123,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
+  const [scheduleNow, setScheduleNow] = useState(() => new Date());
   const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
     useMemberWaitlistData(isMember);
   const memberActionStateReady =
@@ -130,38 +133,33 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     setItems(initialItems);
   }, [initialItems]);
 
-  useEffect(() => {
+  const refetchMemberBookings = useCallback(async (markLoaded: boolean) => {
     if (!isMember) {
       setMemberBookingsLoaded(true);
       setBookedBySessionId({});
       return;
     }
-    let cancelled = false;
-    void apiFetch<UserBookingRow[]>("/bookings/me")
-      .then((rows) => {
-        if (cancelled) {
-          return;
+    try {
+      const rows = await apiFetch<UserBookingRow[]>("/bookings/me");
+      const next: Record<string, string> = {};
+      for (const row of rows) {
+        if (row.status === "BOOKED") {
+          next[row.session.id] = row.id;
         }
-        const next: Record<string, string> = {};
-        for (const row of rows) {
-          if (row.status === "BOOKED") {
-            next[row.session.id] = row.id;
-          }
-        }
-        setBookedBySessionId(next);
-      })
-      .catch(() => {
-        // Keep the previous map on transient load errors.
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setMemberBookingsLoaded(true);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isMember, initialItems]);
+      }
+      setBookedBySessionId(next);
+    } catch {
+      // Keep the previous map on transient load errors.
+    } finally {
+      if (markLoaded) {
+        setMemberBookingsLoaded(true);
+      }
+    }
+  }, [isMember]);
+
+  useEffect(() => {
+    void refetchMemberBookings(true);
+  }, [initialItems, refetchMemberBookings]);
 
   const refreshSchedule = useCallback(async () => {
     try {
@@ -172,16 +170,33 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     }
   }, []);
 
-  const debouncedRefreshSchedule = useDebouncedCallback(() => {
+  const syncLiveSchedule = useCallback(() => {
+    setScheduleNow(new Date());
     void refreshSchedule();
-  }, 400);
+    if (isMember) {
+      void refetchMemberBookings(false);
+      void refetchWaitlist({ silent: true });
+    }
+  }, [isMember, refetchMemberBookings, refetchWaitlist, refreshSchedule]);
+
+  useScheduleLiveSync({ onSync: syncLiveSchedule });
 
   useEffect(() => {
-    window.addEventListener("focus", debouncedRefreshSchedule);
-    return () => {
-      window.removeEventListener("focus", debouncedRefreshSchedule);
+    const tick = (): void => {
+      setScheduleNow(new Date());
     };
-  }, [debouncedRefreshSchedule]);
+    const intervalId = window.setInterval(tick, SCHEDULE_CLOCK_TICK_MS);
+    const onVisibility = (): void => {
+      if (document.visibilityState === "visible") {
+        tick();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
 
   const handleBooked = useCallback(
     (sessionId: string, bookingId: string) => {
@@ -198,18 +213,13 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   );
 
   const handleCancelled = useCallback(
-    (sessionId: string) => {
+    async (sessionId: string) => {
       setBookedBySessionId((current) => {
         const next = { ...current };
         delete next[sessionId];
         return next;
       });
-      setItems((current) =>
-        current.map((item) =>
-          item.id === sessionId ? applyScheduleSpotDelta(item, 1) : item,
-        ),
-      );
-      void refreshSchedule();
+      await refreshSchedule();
       dispatchNotificationsRefresh();
     },
     [refreshSchedule],
@@ -254,6 +264,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
       .filter((item) => item.isActive)
+      .filter((item) => isUpcomingPublicScheduleSession(item, scheduleNow))
       .filter((item) => {
         const rowDay = scheduleItemDate(item, baselineWeekStart, dayToOffset);
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
@@ -262,7 +273,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
         return true;
       })
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset]);
+  }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset, scheduleNow]);
 
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
   const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =

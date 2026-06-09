@@ -62,14 +62,8 @@ export function useScheduleDayTransition<TSession>({
     if (prefersReducedMotion) return;
 
     if (renderedDayKey === selectedDayKey) {
-      startTimerRef.current = window.setTimeout(() => {
-        setRenderedSessions(visibleSessions);
-        setAnimationPhase("enter");
-        enterResetTimerRef.current = window.setTimeout(
-          () => setAnimationPhase("idle"),
-          SCHEDULE_SWITCH_TRANSITION_MS,
-        );
-      }, 0);
+      setRenderedSessions(visibleSessions);
+      setAnimationPhase("idle");
       return;
     }
 

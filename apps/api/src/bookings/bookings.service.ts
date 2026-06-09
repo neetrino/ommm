@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   BookingChannel,
@@ -17,7 +18,9 @@ import {
   WaitlistStatus,
   type User,
 } from '@prisma/client';
+import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
@@ -28,6 +31,10 @@ import {
   MyBookingsScope,
 } from './dto/list-my-bookings-query.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
+import {
+  isCancellationNoticeEnforced,
+  resolveCancellationHoursNotice,
+} from './cancellation-notice-hours';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import {
   BookingManagementOrder,
@@ -92,6 +99,9 @@ export class BookingsService {
     private readonly prisma: PrismaService,
     private readonly waitlist: WaitlistService,
     private readonly packageUsage: PackageUsageService,
+    private readonly config: ConfigService,
+    private readonly cancelIntent: BookingCancelIntentService,
+    private readonly schedule: ScheduleService,
   ) {}
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
@@ -213,7 +223,41 @@ export class BookingsService {
         data: { status: ClassSessionStatus.FULL },
       });
     }
+    await this.schedule.invalidatePublicCache();
     return booking;
+  }
+
+  async registerCancelIntent(userId: string, bookingId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { userId: true, status: true, sessionId: true },
+    });
+    if (!booking) {
+      throw new NotFoundException();
+    }
+    if (booking.userId !== userId) {
+      throw new ForbiddenException();
+    }
+    if (booking.status !== BookingStatus.BOOKED) {
+      throw new BadRequestException('Cannot hold cancel for this booking');
+    }
+    this.cancelIntent.register(booking.sessionId);
+    return { ok: true };
+  }
+
+  async clearCancelIntent(userId: string, bookingId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { userId: true, sessionId: true },
+    });
+    if (!booking) {
+      throw new NotFoundException();
+    }
+    if (booking.userId !== userId) {
+      throw new ForbiddenException();
+    }
+    this.cancelIntent.clear(booking.sessionId);
+    return { ok: true };
   }
 
   async cancel(userId: string, bookingId: string) {
@@ -231,15 +275,22 @@ export class BookingsService {
       throw new BadRequestException('Cannot cancel this booking');
     }
     const studio = await this.prisma.studioSettings.findFirst();
-    const noticeHours = studio?.cancellationHoursNotice ?? 24;
-    const deadline = new Date(booking.session.startsAt);
-    deadline.setHours(deadline.getHours() - noticeHours);
-    if (new Date() > deadline) {
-      throw new BadRequestException(
-        `Cancellation must be at least ${noticeHours}h before class`,
-      );
+    const noticeHours = resolveCancellationHoursNotice(
+      studio?.cancellationHoursNotice,
+      this.config.get<string>('CANCELLATION_HOURS_NOTICE'),
+    );
+    if (isCancellationNoticeEnforced(noticeHours)) {
+      const deadline = new Date(booking.session.startsAt);
+      deadline.setHours(deadline.getHours() - noticeHours);
+      if (new Date() > deadline) {
+        throw new BadRequestException(
+          `Cancellation must be at least ${noticeHours}h before class`,
+        );
+      }
     }
     await this.releaseSlot(booking);
+    this.cancelIntent.clear(booking.sessionId);
+    await this.schedule.invalidatePublicCache();
     return { ok: true };
   }
 
