@@ -77,6 +77,7 @@ export function WorkspaceShell({
         account={account}
         workspaceHeaderChrome
         memberWorkspaceHeader={isMemberShell}
+        showMemberNotifications={isMemberShell}
         workspaceDrawer={
           isMemberShell
             ? undefined
