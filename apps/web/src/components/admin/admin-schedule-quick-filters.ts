@@ -25,15 +25,12 @@ type ScheduleQuickFilterRow = {
   _count: { bookings: number };
 };
 
-function isoDate(value: Date | string): string {
-  return new Date(value).toISOString().slice(0, 10);
-}
-
-function addDays(value: Date, days: number): Date {
-  const next = new Date(value);
-  next.setDate(next.getDate() + days);
-  return next;
-}
+import {
+  localIsoDateFromValue,
+  scheduleSessionLocalIsoDay,
+  scheduleTodayIsoDate,
+} from "@/lib/local-iso-date";
+import { addDays } from "@/components/marketing/schedule/schedule-date-utils";
 
 function spotsLeft(row: ScheduleQuickFilterRow): number {
   return Math.max(row.capacity - row._count.bookings, 0);
@@ -58,9 +55,9 @@ export function matchesScheduleQuickFilters(
     return true;
   }
 
-  const today = isoDate(new Date());
-  const weekEnd = isoDate(addDays(new Date(), 7));
-  const rowDate = row.startsAt.slice(0, 10);
+  const today = scheduleTodayIsoDate();
+  const weekEnd = localIsoDateFromValue(addDays(new Date(), 7));
+  const rowDate = scheduleSessionLocalIsoDay(row.startsAt);
 
   const dateQuick = quickFilters.filter(
     (filter): filter is "today" | "thisWeek" => filter === "today" || filter === "thisWeek",

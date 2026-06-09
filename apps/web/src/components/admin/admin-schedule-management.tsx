@@ -72,8 +72,11 @@ import { resetListPageQuery, syncListPageQuery } from "@/lib/list-pagination";
 import { mapAdminScheduleSessionToListRow } from "@/lib/map-admin-session-to-list-row";
 import {
   AdminScheduleDateStrip,
-  scheduleSessionLocalIsoDay,
 } from "@/components/admin/admin-schedule-date-strip";
+import {
+  localIsoDateFromValue,
+  scheduleSessionLocalIsoDay,
+} from "@/lib/local-iso-date";
 import { parseSessionSortOrder, sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
@@ -219,10 +222,6 @@ function replaceScheduleModalInUrl(
   router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
 }
 
-function isoDate(value: Date | string): string {
-  return new Date(value).toISOString().slice(0, 10);
-}
-
 function timeValue(value: Date | string): string {
   return new Date(value).toTimeString().slice(0, 5);
 }
@@ -242,12 +241,31 @@ function weekdayFromDate(value: Date | string): ScheduleDayOfWeek {
   return (["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const)[day];
 }
 
-function initialCalendarSlot(form: FormState): CalendarScheduleSlot {
+function initialCalendarSlot(form: FormState, anchorDay?: string | null): CalendarScheduleSlot {
+  const day = anchorDay ?? form.date;
   return {
     id: createScheduleSlotId(),
-    weekday: weekdayFromDate(`${form.date}T00:00:00`),
+    weekday: weekdayFromDate(`${day}T00:00:00`),
     startTime: form.startTime,
     endTime: form.endTime,
+  };
+}
+
+function initialCalendarSchedule(
+  form: FormState,
+  anchorDay?: string | null,
+): {
+  calendarStartDate: string;
+  calendarEndDate: string;
+  calendarSlots: CalendarScheduleSlot[];
+} {
+  const startDay = anchorDay ?? form.date;
+  const endDay =
+    anchorDay ?? localIsoDateFromValue(addDays(`${form.date}T00:00:00`, 29));
+  return {
+    calendarStartDate: startDay,
+    calendarEndDate: endDay,
+    calendarSlots: [initialCalendarSlot(form, anchorDay)],
   };
 }
 
@@ -320,7 +338,7 @@ function initialForm(
     description: row?.description ?? "",
     classTypeId,
     coachId: coachDropdown.coachId,
-    date: isoDate(start),
+    date: localIsoDateFromValue(start),
     startTime: timeValue(start),
     endTime: timeValue(end),
     capacity: row ? String(row.capacity) : DEFAULT_SESSION_CAPACITY,
@@ -461,7 +479,17 @@ export function AdminScheduleManagement({
 
   if (sessions !== prevSessions) {
     setPrevSessions(sessions);
-    setRows(sessions);
+    setRows((current) => {
+      const byId = new Map(sessions.map((row) => [row.id, row]));
+      for (const row of current) {
+        if (!byId.has(row.id)) {
+          byId.set(row.id, row);
+        }
+      }
+      return Array.from(byId.values()).sort((first, second) =>
+        first.startsAt.localeCompare(second.startsAt),
+      );
+    });
   }
 
   if (initialFilterState !== prevInitialFilterState) {
@@ -586,8 +614,8 @@ export function AdminScheduleManagement({
     const q = filters.q.trim().toLowerCase();
     return rows.filter((row) => {
       if (q && !`${row.title} ${row.classType.name} ${coachName(row.coach)}`.toLowerCase().includes(q)) return false;
-      if (filters.from && row.startsAt.slice(0, 10) < filters.from) return false;
-      if (filters.to && row.startsAt.slice(0, 10) > filters.to) return false;
+      if (filters.from && scheduleSessionLocalIsoDay(row.startsAt) < filters.from) return false;
+      if (filters.to && scheduleSessionLocalIsoDay(row.startsAt) > filters.to) return false;
       if (filters.coachIds.length > 0 && !filters.coachIds.includes(row.coach.id)) return false;
       if (validSelectedPackageIds.length > 0 && !selectedClassTypeIds.includes(row.classType.id)) return false;
       if (
@@ -1015,9 +1043,21 @@ export function AdminScheduleManagement({
       ) : null}
       {sessionModalConfig ? (
         <SessionFormSheet
+          key={
+            addClassOpen
+              ? `create-${selectedDay ?? "default"}`
+              : `${sessionModalConfig.mode}-${sessionModalConfig.row?.id ?? "new"}`
+          }
           isOpen
           mode={sessionModalConfig.mode}
           row={sessionModalConfig.row}
+          anchorDay={
+            addClassOpen
+              ? selectedDay
+              : sessionModalConfig.mode === "duplicate" && sessionModalConfig.row
+                ? scheduleSessionLocalIsoDay(sessionModalConfig.row.startsAt)
+                : null
+          }
           classTypeOptions={sessionClassTypeOptions}
           coaches={coaches}
           onClose={() => {
@@ -1056,6 +1096,15 @@ export function AdminScheduleManagement({
                 first.startsAt.localeCompare(second.startsAt),
               );
             });
+            const createdDays = savedRows.map((row) => scheduleSessionLocalIsoDay(row.startsAt));
+            if (createdDays.length > 0) {
+              setSelectedDay((current) => {
+                if (current !== null && createdDays.includes(current)) {
+                  return current;
+                }
+                return createdDays[0] ?? null;
+              });
+            }
             setToast({
               tone: "ok",
               message:
@@ -1230,6 +1279,7 @@ function SessionFormSheet({
   isOpen,
   mode,
   row,
+  anchorDay,
   classTypeOptions,
   coaches,
   onClose,
@@ -1238,6 +1288,7 @@ function SessionFormSheet({
   isOpen: boolean;
   mode: "create" | "edit" | "duplicate";
   row?: AdminScheduleSession;
+  anchorDay?: string | null;
   classTypeOptions: readonly SessionClassTypeOption[];
   coaches: readonly AdminScheduleCoach[];
   onClose: () => void;
@@ -1247,11 +1298,12 @@ function SessionFormSheet({
   const titleId = useId();
   const formId = useId();
   const [form, setForm] = useState(() => initialForm(classTypeOptions, coaches, row));
-  const [calendarStartDate, setCalendarStartDate] = useState(form.date);
-  const [calendarEndDate, setCalendarEndDate] = useState(isoDate(addDays(`${form.date}T00:00:00`, 29)));
-  const [calendarSlots, setCalendarSlots] = useState<CalendarScheduleSlot[]>(() => [
-    initialCalendarSlot(form),
-  ]);
+  const initialCalendar = initialCalendarSchedule(form, anchorDay);
+  const [calendarStartDate, setCalendarStartDate] = useState(initialCalendar.calendarStartDate);
+  const [calendarEndDate, setCalendarEndDate] = useState(initialCalendar.calendarEndDate);
+  const [calendarSlots, setCalendarSlots] = useState<CalendarScheduleSlot[]>(
+    initialCalendar.calendarSlots,
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isBatchCreate = mode !== "edit";
@@ -1293,7 +1345,8 @@ function SessionFormSheet({
       ...current,
       {
         id: createScheduleSlotId(),
-        weekday: current.at(-1)?.weekday ?? weekdayFromDate(`${form.date}T00:00:00`),
+        weekday:
+          current.at(-1)?.weekday ?? weekdayFromDate(`${calendarStartDate}T00:00:00`),
         startTime: form.startTime,
         endTime: form.endTime,
       },

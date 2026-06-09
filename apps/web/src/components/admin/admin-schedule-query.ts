@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/admin-schedule-url";
 import { parseListPageParams } from "@/lib/list-pagination";
 import { ACCOUNT_SESSION_RANGE_DAYS } from "@/lib/account-constants";
+import { localIsoDateFromValue } from "@/lib/local-iso-date";
 
 export const ADMIN_SCHEDULE_LIST_PAGE_KEYS = {
   pageKey: "schedulePage",
@@ -70,13 +71,6 @@ export function isScheduleListView(view: string | undefined): boolean {
 
 export { parseScheduleListFilterStateFromSearch, type ScheduleListFilterState };
 
-function isoDateLocal(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 /** Default list window for manager staff schedule when URL has no date range. */
 export function resolveManagerScheduleInitialFilterState(
   search: Record<string, string | undefined>,
@@ -94,8 +88,8 @@ export function resolveManagerScheduleInitialFilterState(
     filters: {
       ...defaultScheduleListFilters,
       ...parsed.filters,
-      from: parsed.filters.from || isoDateLocal(from),
-      to: parsed.filters.to || isoDateLocal(to),
+      from: parsed.filters.from || localIsoDateFromValue(from),
+      to: parsed.filters.to || localIsoDateFromValue(to),
     },
   };
 }
