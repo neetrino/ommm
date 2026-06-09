@@ -1,0 +1,11 @@
+/** Subscribe sheet title — matches desktop drawer typography on all viewports. */
+.sheetTitle {
+  min-width: 0;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: -0.025em;
+  color: color-mix(in srgb, var(--ommm-admin-olive) 65%, #524c42);
+}

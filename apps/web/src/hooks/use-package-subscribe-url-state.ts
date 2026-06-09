@@ -11,6 +11,14 @@ type UsePackageSubscribeUrlStateResult = {
   closeSubscribe: () => void;
 };
 
+/** Live query string — avoids stale `useSearchParams` snapshots after `router.refresh()`. */
+function readLocationSearchParams(): URLSearchParams {
+  if (typeof window === "undefined") {
+    return new URLSearchParams();
+  }
+  return new URLSearchParams(window.location.search);
+}
+
 /** Syncs confirm-subscription modal state with `?subscribe=planId` in the URL. */
 export function usePackageSubscribeUrlState(): UsePackageSubscribeUrlStateResult {
   const router = useRouter();
@@ -21,7 +29,7 @@ export function usePackageSubscribeUrlState(): UsePackageSubscribeUrlStateResult
 
   const replaceSubscribeParam = useCallback(
     (planId: string | null) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = readLocationSearchParams();
       if (planId !== null && planId.length > 0) {
         params.set(PACKAGES_SUBSCRIBE_PARAM, planId);
       } else {
@@ -30,7 +38,7 @@ export function usePackageSubscribeUrlState(): UsePackageSubscribeUrlStateResult
       const query = params.toString();
       router.replace(query.length > 0 ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const openSubscribe = useCallback(
@@ -41,11 +49,8 @@ export function usePackageSubscribeUrlState(): UsePackageSubscribeUrlStateResult
   );
 
   const closeSubscribe = useCallback(() => {
-    if (subscribePlanId === null) {
-      return;
-    }
     replaceSubscribeParam(null);
-  }, [replaceSubscribeParam, subscribePlanId]);
+  }, [replaceSubscribeParam]);
 
   return {
     subscribePlanId,

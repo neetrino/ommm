@@ -412,39 +412,12 @@ html {
     }
   }
 
-  .ommm-package-subscribe-mobile-overlay .ommm-modal-backdrop {
-    opacity: 0;
-    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .ommm-package-subscribe-mobile-overlay[data-state="open"] .ommm-modal-backdrop {
-    opacity: 1;
-  }
-
   .ommm-package-subscribe-mobile-panel {
     @apply relative z-10 mt-auto flex w-full shrink-0 flex-col overflow-hidden;
     @apply rounded-t-[28px] border border-white/70 border-b-0;
     @apply bg-white/95 shadow-[0_-16px_48px_-20px_rgba(45,40,35,0.38)] backdrop-blur-md;
     touch-action: pan-y;
     -webkit-overflow-scrolling: touch;
-    transform: translate3d(0, 100%, 0);
-    opacity: 0.98;
-    transition:
-      transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .ommm-package-subscribe-mobile-overlay[data-state="open"]
-    .ommm-package-subscribe-mobile-panel {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ommm-package-subscribe-mobile-overlay .ommm-modal-backdrop,
-    .ommm-package-subscribe-mobile-panel {
-      transition: none;
-    }
   }
 
   /**
@@ -458,11 +431,24 @@ html {
     background: transparent;
     overscroll-behavior: none;
     pointer-events: none;
+    visibility: hidden;
   }
 
   @media (min-width: 744px) {
     .ommm-package-subscribe-desktop-overlay {
       display: block;
+      visibility: visible;
+      pointer-events: auto;
+    }
+  }
+
+  @media (max-width: 743px) {
+    .ommm-package-subscribe-desktop-overlay,
+    .ommm-package-subscribe-desktop-backdrop,
+    .ommm-package-subscribe-desktop-panel {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
     }
   }
 
@@ -515,10 +501,27 @@ html {
     }
   }
 
-  /** Subscribe sheet title — admin olive, slightly deepened. */
-  .ommm-package-subscribe-sheet-title {
+  /** Subscribe sheet title — see package-subscribe-payment-sheet.module.css (modal uses module for reliable mobile Safari). */
+  .ommm-package-subscribe-mobile-panel .ommm-package-subscribe-sheet-title,
+  .ommm-package-subscribe-desktop-panel .ommm-package-subscribe-sheet-title {
+    min-width: 0;
     font-family: var(--font-serif);
-    @apply min-w-0 text-2xl font-semibold italic tracking-tight sm:text-[2rem];
+    font-size: 32px;
+    line-height: 1.25;
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: -0.025em;
+    color: color-mix(in srgb, var(--ommm-admin-olive) 65%, #524c42);
+  }
+
+  .ommm-package-subscribe-sheet-title {
+    min-width: 0;
+    font-family: var(--font-serif);
+    font-size: 32px;
+    line-height: 1.25;
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: -0.025em;
     color: color-mix(in srgb, var(--ommm-admin-olive) 65%, #524c42);
   }
 

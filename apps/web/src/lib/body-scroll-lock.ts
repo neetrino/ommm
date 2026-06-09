@@ -2,7 +2,7 @@ const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
 /** Scroll containers that must keep touch scrolling while the backdrop is locked. */
 const ALLOWED_TOUCH_SCROLL_SELECTOR =
-  ".ommm-member-hub-sheet-panel, .ommm-member-notifications-desktop-panel, .ommm-package-subscribe-mobile-panel, .ommm-package-subscribe-desktop-panel, .ommm-modal-overlay, .ommm-drawer-overlay";
+  ".ommm-member-hub-sheet-overlay, .ommm-member-hub-sheet-panel, .ommm-member-notifications-desktop-panel, .ommm-package-subscribe-mobile-overlay, .ommm-package-subscribe-mobile-panel, .ommm-package-subscribe-desktop-panel, .ommm-modal-overlay, .ommm-drawer-overlay";
 
 let lockCount = 0;
 let savedScrollY = 0;
@@ -11,6 +11,11 @@ type ScrollLockSnapshot = {
   htmlOverflow: string;
   bodyOverflow: string;
   bodyPaddingRight: string;
+  bodyPosition: string;
+  bodyTop: string;
+  bodyLeft: string;
+  bodyRight: string;
+  bodyWidth: string;
   paneOverflow: string | null;
 };
 
@@ -50,8 +55,8 @@ function onLockedTouchMove(event: TouchEvent): void {
 }
 
 /**
- * Locks background scroll while modals/sheets stay scrollable (iOS-safe for member hub).
- * Ref-counted — safe when multiple overlays lock at once.
+ * Locks background scroll while modals/sheets stay scrollable.
+ * Uses `position: fixed` on body so iOS Safari keeps viewport-fixed overlays visible.
  */
 export function lockBodyScroll(): () => void {
   lockCount += 1;
@@ -65,11 +70,21 @@ export function lockBodyScroll(): () => void {
       htmlOverflow: document.documentElement.style.overflow,
       bodyOverflow: document.body.style.overflow,
       bodyPaddingRight: document.body.style.paddingRight,
+      bodyPosition: document.body.style.position,
+      bodyTop: document.body.style.top,
+      bodyLeft: document.body.style.left,
+      bodyRight: document.body.style.right,
+      bodyWidth: document.body.style.width,
       paneOverflow: pane?.style.overflow ?? null,
     };
 
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${savedScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
 
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
@@ -100,6 +115,11 @@ export function lockBodyScroll(): () => void {
     document.documentElement.style.overflow = snapshot.htmlOverflow;
     document.body.style.overflow = snapshot.bodyOverflow;
     document.body.style.paddingRight = snapshot.bodyPaddingRight;
+    document.body.style.position = snapshot.bodyPosition;
+    document.body.style.top = snapshot.bodyTop;
+    document.body.style.left = snapshot.bodyLeft;
+    document.body.style.right = snapshot.bodyRight;
+    document.body.style.width = snapshot.bodyWidth;
 
     if (pane) {
       pane.style.overflow = snapshot.paneOverflow ?? "";

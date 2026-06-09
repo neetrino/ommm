@@ -5,27 +5,26 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
 import {
+  MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS,
   MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
-  MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS,
+  MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS,
+  MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS,
   memberAccountHubSheetPanelStyle,
 } from "@/components/account/member-account-hub-sheet-layout";
 import {
   PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS,
-  PACKAGE_SUBSCRIBE_DESKTOP_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS,
   PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS,
   PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS,
   PACKAGE_SUBSCRIBE_FORM_CLASS,
   PACKAGE_SUBSCRIBE_FORM_GRID_CLASS,
-  PACKAGE_SUBSCRIBE_MOBILE_MOTION_MS,
-  PACKAGE_SUBSCRIBE_MOBILE_OVERLAY_CLASS,
-  PACKAGE_SUBSCRIBE_MOBILE_PANEL_CLASS,
-  PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS,
   PACKAGE_SUBSCRIBE_PAYMENT_COLUMN_CLASS,
   PACKAGE_SUBSCRIBE_PLANS_COLUMN_CLASS,
+  PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS,
   PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS,
 } from "@/components/account/package-subscribe-payment-sheet-layout";
+import sheetStyles from "@/components/account/package-subscribe-payment-sheet.module.css";
 import formStyles from "@/components/account/package-subscribe-payment-form.module.css";
 import { ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS } from "@/components/admin/admin-details-sheet-layout";
 import { OmmButton } from "@/components/ui/omm-button";
@@ -113,6 +112,7 @@ function PackageSubscribePaymentModalSession({
   const router = useRouter();
   const titleId = useId();
   const closingRef = useRef(false);
+  const refreshAfterCloseRef = useRef(false);
   const [motionState, setMotionState] = useState<"open" | "closed">("closed");
   const [step, setStep] = useState<ModalStep>("form");
   const [selectedPlanId, setSelectedPlanId] = useState(() =>
@@ -127,6 +127,10 @@ function PackageSubscribePaymentModalSession({
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
 
   useLayoutEffect(() => {
+    if (isPhone) {
+      return undefined;
+    }
+
     const frame = requestAnimationFrame(() => {
       setMotionState("open");
     });
@@ -134,7 +138,7 @@ function PackageSubscribePaymentModalSession({
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [isPhone]);
 
   function handlePlanSelect(planId: string) {
     setSelectedPlanId(planId);
@@ -156,7 +160,7 @@ function PackageSubscribePaymentModalSession({
         }),
       });
       setStep("success");
-      router.refresh();
+      refreshAfterCloseRef.current = true;
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("submitFailed"));
     } finally {
@@ -165,7 +169,12 @@ function PackageSubscribePaymentModalSession({
   }
 
   function finishClose() {
+    const shouldRefresh = refreshAfterCloseRef.current;
+    refreshAfterCloseRef.current = false;
     onClose();
+    if (shouldRefresh) {
+      router.refresh();
+    }
   }
 
   function handleClose() {
@@ -174,14 +183,15 @@ function PackageSubscribePaymentModalSession({
     }
 
     dismissMobileKeyboard();
+
+    if (readMemberHubSheetPhoneViewport()) {
+      finishClose();
+      return;
+    }
+
     closingRef.current = true;
     setMotionState("closed");
-
-    const motionMs = readMemberHubSheetPhoneViewport()
-      ? PACKAGE_SUBSCRIBE_MOBILE_MOTION_MS
-      : PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS;
-
-    window.setTimeout(finishClose, motionMs);
+    window.setTimeout(finishClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
   function handleDone() {
@@ -233,9 +243,12 @@ function PackageSubscribePaymentModalSession({
       </form>
     );
 
-  const sheetHeader = (headerClassName: string) => (
-    <header className={headerClassName}>
-      <h2 id={titleId} className={PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}>
+  const sheetHeader = (
+    <header className={PACKAGE_SUBSCRIBE_SHEET_HEADER_CLASS}>
+      <h2
+        id={titleId}
+        className={`${sheetStyles.sheetTitle} ${PACKAGE_SUBSCRIBE_SHEET_TITLE_CLASS}`}
+      >
         {sheetTitle}
       </h2>
       <button
@@ -250,8 +263,8 @@ function PackageSubscribePaymentModalSession({
     </header>
   );
 
-  return (
-    <>
+  if (isPhone) {
+    return (
       <OmmModalPortal
         isOpen={isOpen}
         onClose={handleClose}
@@ -259,31 +272,32 @@ function PackageSubscribePaymentModalSession({
         backdropAriaLabel={t("closeModal")}
         ariaLabelledBy={titleId}
         closeDisabled={busy}
-        overlayClassName={PACKAGE_SUBSCRIBE_MOBILE_OVERLAY_CLASS}
-        panelClassName={PACKAGE_SUBSCRIBE_MOBILE_PANEL_CLASS}
+        overlayClassName={MEMBER_ACCOUNT_HUB_SHEET_OVERLAY_CLASS}
+        panelClassName={MEMBER_ACCOUNT_HUB_SHEET_PANEL_CLASS}
         panelStyle={memberAccountHubSheetPanelStyle()}
-        motionState={motionState}
       >
         <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
-        {sheetHeader(MEMBER_ACCOUNT_HUB_SHEET_HEADER_CLASS)}
-        <div className={PACKAGE_SUBSCRIBE_MOBILE_BODY_CLASS}>{sheetBody}</div>
+        {sheetHeader}
+        <div className={MEMBER_ACCOUNT_HUB_SHEET_BODY_CLASS}>{sheetBody}</div>
       </OmmModalPortal>
+    );
+  }
 
-      <OmmDrawerPortal
-        isOpen={isOpen && !isPhone}
-        onClose={handleClose}
-        backdropAriaLabel={t("closeModal")}
-        ariaLabelledBy={titleId}
-        closeDisabled={busy}
-        overlayClassName={PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS}
-        backdropClassName={PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS}
-        panelClassName={PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS}
-        motionState={motionState}
-      >
-        {sheetHeader(PACKAGE_SUBSCRIBE_DESKTOP_HEADER_CLASS)}
-        <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>{sheetBody}</div>
-      </OmmDrawerPortal>
-    </>
+  return (
+    <OmmDrawerPortal
+      isOpen={isOpen}
+      onClose={handleClose}
+      backdropAriaLabel={t("closeModal")}
+      ariaLabelledBy={titleId}
+      closeDisabled={busy}
+      overlayClassName={PACKAGE_SUBSCRIBE_DESKTOP_OVERLAY_CLASS}
+      backdropClassName={PACKAGE_SUBSCRIBE_DESKTOP_BACKDROP_CLASS}
+      panelClassName={PACKAGE_SUBSCRIBE_DESKTOP_PANEL_CLASS}
+      motionState={motionState}
+    >
+      {sheetHeader}
+      <div className={PACKAGE_SUBSCRIBE_DESKTOP_BODY_CLASS}>{sheetBody}</div>
+    </OmmDrawerPortal>
   );
 }
 

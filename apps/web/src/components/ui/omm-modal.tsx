@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
+import { getOmmmOverlayPortalRoot } from "@/lib/ommm-overlay-portal";
 
 export const OMM_MODAL_BACKDROP_CLASS = "ommm-modal-backdrop";
 
@@ -72,6 +73,12 @@ type OmmModalPortalProps = {
   bottomAnchored?: boolean;
   /** Drives `data-state` on the overlay for enter/exit CSS transitions. */
   motionState?: "open" | "closed";
+  /** When false, caller owns scroll lock (e.g. dual mobile/desktop portals). */
+  lockBodyScroll?: boolean;
+  /** Portals into `#ommm-overlay-portal` (z-130) instead of `document.body`. */
+  useOverlayPortalRoot?: boolean;
+  /** When false, Escape does not close (e.g. hidden CSS sibling portal). */
+  closeOnEscape?: boolean;
   children: ReactNode;
 };
 
@@ -88,12 +95,15 @@ export function OmmModalPortal({
   panelStyle,
   bottomAnchored = false,
   motionState,
+  lockBodyScroll = true,
+  useOverlayPortalRoot = false,
+  closeOnEscape = true,
   children,
 }: OmmModalPortalProps) {
   const portalReady = useIsClientMounted();
 
-  useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
-  useLockBodyScroll(isOpen);
+  useCloseOnEscape(isOpen && closeOnEscape, onClose, { disabled: closeDisabled });
+  useLockBodyScroll(lockBodyScroll && isOpen);
 
   const panelPositionClass = bottomAnchored
     ? "relative z-10 mt-auto w-full"
@@ -102,6 +112,8 @@ export function OmmModalPortal({
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
   }
+
+  const portalRoot = useOverlayPortalRoot ? getOmmmOverlayPortalRoot() : document.body;
 
   return createPortal(
     <div className={overlayClassName} role="presentation" data-state={motionState}>
@@ -121,7 +133,7 @@ export function OmmModalPortal({
         {children}
       </div>
     </div>,
-    document.body,
+    portalRoot,
   );
 }
 
@@ -187,6 +199,12 @@ type OmmDrawerPortalProps = {
   panelClassName?: string;
   /** Drives `data-state` on the overlay for enter/exit CSS transitions. */
   motionState?: "open" | "closed";
+  /** When false, caller owns scroll lock (e.g. dual mobile/desktop portals). */
+  lockBodyScroll?: boolean;
+  /** Portals into `#ommm-overlay-portal` (z-130) instead of `document.body`. */
+  useOverlayPortalRoot?: boolean;
+  /** When false, Escape does not close (e.g. hidden CSS sibling portal). */
+  closeOnEscape?: boolean;
   children: ReactNode;
 };
 
@@ -200,16 +218,21 @@ export function OmmDrawerPortal({
   backdropClassName = OMM_DRAWER_BACKDROP_CLASS,
   panelClassName = "relative z-10 h-full w-full max-w-md overflow-auto bg-white p-5 shadow-xl",
   motionState,
+  lockBodyScroll = true,
+  useOverlayPortalRoot = false,
+  closeOnEscape = true,
   children,
 }: OmmDrawerPortalProps) {
   const portalReady = useIsClientMounted();
 
-  useCloseOnEscape(isOpen, onClose, { disabled: closeDisabled });
-  useLockBodyScroll(isOpen);
+  useCloseOnEscape(isOpen && closeOnEscape, onClose, { disabled: closeDisabled });
+  useLockBodyScroll(lockBodyScroll && isOpen);
 
   if (!isOpen || !portalReady || typeof document === "undefined") {
     return null;
   }
+
+  const portalRoot = useOverlayPortalRoot ? getOmmmOverlayPortalRoot() : document.body;
 
   return createPortal(
     <div
@@ -232,6 +255,6 @@ export function OmmDrawerPortal({
         {children}
       </aside>
     </div>,
-    document.body,
+    portalRoot,
   );
 }
