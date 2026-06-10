@@ -25,9 +25,8 @@ import {
   PACKAGES_PAGE_LAYOUT,
   PACKAGES_PAGE_MOBILE_FIGMA,
   PACKAGES_PAGE_VISIBLE_TIER_COUNT,
-  buildPackagesPageCategoryGradient,
+  buildPackagesPageCardGradient,
   resolvePackagesPageAccordionRowHeightPx,
-  resolvePackagesPageCategoryAccentColor,
 } from "@/components/marketing/packages/packages-page-tokens";
 import { PackagesPageCardFabImage } from "@/components/marketing/packages/packages-page-card-fab";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
@@ -54,12 +53,12 @@ function toAccordionCategoryGroups(
   }));
 }
 
-function panelStyleVars(categoryId: string, accentColor: string): CSSProperties {
+function panelStyleVars(gradientStartColor: string): CSSProperties {
   const figma = PACKAGES_PAGE_CARD_FIGMA;
   const accordion = PACKAGES_PAGE_ACCORDION_FIGMA;
 
   return {
-    ["--packages-page-panel-gradient" as string]: buildPackagesPageCategoryGradient(categoryId),
+    ["--packages-page-panel-gradient" as string]: buildPackagesPageCardGradient(gradientStartColor),
     ["--packages-page-card-radius" as string]: `${figma.cardRadiusPx}px`,
     ["--packages-page-text-color" as string]: figma.textColor,
     ["--packages-page-text-color-hover" as string]: figma.textColorHover,
@@ -69,8 +68,7 @@ function panelStyleVars(categoryId: string, accentColor: string): CSSProperties 
     ["--packages-page-fab-fill-hover-opacity" as string]: String(figma.fabFillHoverOpacity),
     ["--packages-page-fab-arrow" as string]: figma.fabArrowColor,
     ["--packages-page-fab-size" as string]: `${figma.fabSizePx}px`,
-    ["--packages-page-fab-fill" as string]: figma.fabFill,
-    ["--packages-page-subscribe-text" as string]: accentColor,
+    ["--packages-page-subscribe-text" as string]: gradientStartColor,
     ["--packages-page-collapsed-title-size" as string]: `${accordion.collapsedTitleSizePx}px`,
     ["--packages-page-collapsed-price-size" as string]: `${accordion.collapsedPriceSizePx}px`,
     ["--packages-page-expanded-title-size" as string]: `${accordion.expandedTitleSizePx}px`,
@@ -115,11 +113,11 @@ function layoutStyleVars(): CSSProperties {
   };
 }
 
-function mobilePanelStyleVars(categoryId: string): CSSProperties {
+function mobilePanelStyleVars(gradientStartColor: string): CSSProperties {
   const mobile = PACKAGES_PAGE_MOBILE_FIGMA;
 
   return {
-    ...panelStyleVars(categoryId, resolvePackagesPageCategoryAccentColor(categoryId)),
+    ...panelStyleVars(gradientStartColor),
     ["--packages-page-mobile-collapsed-title-size" as string]: `${mobile.collapsedTitleSizePx}px`,
     ["--packages-page-mobile-collapsed-details-size" as string]: `${mobile.collapsedDetailsSizePx}px`,
     ["--packages-page-mobile-expanded-padding" as string]: `${mobile.expandedPanelPaddingPx}px`,
@@ -127,11 +125,11 @@ function mobilePanelStyleVars(categoryId: string): CSSProperties {
   };
 }
 
-function defaultCardStyleVars(categoryId: string): CSSProperties {
+function defaultCardStyleVars(gradientStartColor: string): CSSProperties {
   const figma = PACKAGES_PAGE_CARD_FIGMA;
 
   return {
-    ...panelStyleVars(categoryId, resolvePackagesPageCategoryAccentColor(categoryId)),
+    ...panelStyleVars(gradientStartColor),
     ["--packages-page-card-aspect-ratio" as string]:
       `${figma.cardWidthPx} / ${resolvePackagesPageAccordionRowHeightPx()}`,
     ["--packages-page-title-size" as string]: `${figma.titleFontSizePx}px`,
@@ -141,7 +139,7 @@ function defaultCardStyleVars(categoryId: string): CSSProperties {
     ["--packages-page-details-size" as string]: `${figma.detailsFontSizePx}px`,
     ["--packages-page-content-padding-left" as string]: `${figma.contentPaddingLeftPx}px`,
     ["--packages-page-details-offset-left" as string]: `${figma.detailsPaddingLeftPx}px`,
-    backgroundImage: buildPackagesPageCategoryGradient(categoryId),
+    backgroundImage: buildPackagesPageCardGradient(gradientStartColor),
   };
 }
 
@@ -172,7 +170,11 @@ function ExpandedTierTable({
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTablePricePerSession")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableValidity")}</span>
         <span className={accordionStyles.columnHeaderPill}>{t("packagesTableGuests")}</span>
-        <span className={accordionStyles.columnHeaderAction} aria-hidden />
+        <span
+          className={`${accordionStyles.columnHeaderPill} ${accordionStyles.columnHeaderSubscribe}`}
+        >
+          {t("packagesSubscribeCta")}
+        </span>
       </div>
 
       <div className={accordionStyles.tierTable}>
@@ -287,7 +289,6 @@ function DesktopAccordionPanel({
   const isExpanded = mode === "expanded";
   const isIdle = mode === "idle";
   const tierScrollEnabled = category.plans.length > PACKAGES_PAGE_VISIBLE_TIER_COUNT;
-  const accentColor = resolvePackagesPageCategoryAccentColor(category.id);
 
   const panelClassName = isIdle
     ? `${cardStyles.card} ${accordionStyles.desktopAccordionPanel}`
@@ -296,8 +297,8 @@ function DesktopAccordionPanel({
       }`;
 
   const panelStyle = isIdle
-    ? defaultCardStyleVars(category.id)
-    : panelStyleVars(category.id, accentColor);
+    ? defaultCardStyleVars(category.gradientStartColor)
+    : panelStyleVars(category.gradientStartColor);
 
   const fabFooterClassName = isIdle
     ? cardStyles.cardFooter
@@ -417,7 +418,7 @@ function MobileAccordionSlot({
   return (
     <section
       className={accordionStyles.mobileAccordionItem}
-      style={mobilePanelStyleVars(category.id)}
+      style={mobilePanelStyleVars(category.gradientStartColor)}
       data-expanded={isExpanded ? "true" : "false"}
       aria-label={category.label}
     >

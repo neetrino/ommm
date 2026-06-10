@@ -138,7 +138,7 @@ function UserMembershipDetailsSheetInner({
           />
           <DetailRow
             label={t("membershipDetailsValidity")}
-            value={m("packagesPeriodDaysShort", { days: membership.plan.periodDays })}
+            value={display.validityLabel}
           />
           <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
           {display.sessionsRemainingSummary !== null ? (

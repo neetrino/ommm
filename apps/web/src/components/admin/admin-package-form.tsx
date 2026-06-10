@@ -4,29 +4,27 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AdminPackageFormSection } from "@/components/admin/admin-package-form-section";
 import {
-  BILLING_PERIOD_OPTIONS,
   createEmptyPackageFormValues,
-  isBillingPeriodOption,
-  MAX_BILLING_PERIOD_LENGTH,
   MAX_CATEGORY_NAME_LENGTH,
   MAX_DESCRIPTION_LENGTH,
   MAX_NAME_LENGTH,
-  MAX_PACKAGE_DURATION_MONTHS,
+  MAX_PACKAGE_DURATION_DAYS,
   MAX_PACKAGE_GUEST_COUNT,
-  MIN_PACKAGE_DURATION_MONTHS,
+  MIN_PACKAGE_DURATION_DAYS,
   MIN_PACKAGE_GUEST_COUNT,
   MIN_PACKAGE_SESSIONS,
   MAX_PACKAGE_SESSIONS,
-  durationMonthsToPeriodDays,
+  PACKAGE_DAYS_PER_MONTH,
   packageRowToFormValues,
-  parseDurationMonths,
+  parseDurationDays,
+  resolvePackageBillingPeriod,
   OMMM_INPUT_NUMBER_CLASS,
   parseGuestCount,
   parseSessionsCount,
   parsePriceToCents,
   preventNumberArrowStep,
+  buildPackageSessionNameFromCount,
   type AdminPackageFormValues,
-  type BillingPeriodOption,
 } from "@/components/admin/admin-package-form-utils";
 import { AdminPackageCategorySelect } from "@/components/admin/admin-package-category-select";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
@@ -39,9 +37,8 @@ import { buildPackageTierSlug } from "@/components/admin/admin-package-tier-util
 import { ApiError, apiFetch } from "@/lib/api";
 import { AmdMoneyInput } from "@/components/ui/amd-money-input";
 import { OmmButton } from "@/components/ui/omm-button";
-import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 
-export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier";
+export type AdminPackageFormMode = "create" | "edit" | "pricing" | "add-tier" | "edit-tier";
 
 type CategoryOption = {
   id: string;
@@ -83,13 +80,15 @@ function buildInitialValues(
   initialCategoryName: string,
   initialPackage?: AdminPackageRow,
 ): AdminPackageFormValues {
-  if ((mode === "edit" || mode === "pricing") && initialPackage !== undefined) {
+  if (
+    (mode === "edit" || mode === "pricing" || mode === "edit-tier") &&
+    initialPackage !== undefined
+  ) {
     return packageRowToFormValues(initialPackage, initialCategoryName);
   }
   if (mode === "add-tier" && initialPackage !== undefined && initialPackage.priceCents > 0) {
     return {
       ...packageRowToFormValues(initialPackage, initialCategoryName),
-      sessionName: "",
       guestCount: "",
     };
   }
@@ -111,7 +110,9 @@ export function AdminPackageForm({
       ? "create"
       : mode === "add-tier"
         ? `add-tier-${initialCategoryName}-${packageId ?? "new"}`
-        : packageId !== undefined
+        : mode === "edit-tier"
+          ? `edit-tier-${packageId ?? "unknown"}`
+          : packageId !== undefined
           ? `${mode}-${packageId}`
           : mode;
   const [values, setValues] = useState<AdminPackageFormValues>(() =>
@@ -161,12 +162,6 @@ export function AdminPackageForm({
     [mergedCategoryOptions],
   );
 
-  const billingPeriodOptions: readonly DropdownOption<BillingPeriodOption>[] = BILLING_PERIOD_OPTIONS.map(
-    (option) => ({
-      value: option,
-      label: t(`billingPeriodOptions.${option}`),
-    }),
-  );
   function updateValues(patch: Partial<AdminPackageFormValues>) {
     setValues((current) => ({ ...current, ...patch }));
   }
@@ -182,9 +177,9 @@ export function AdminPackageForm({
     const isCreateMode = mode === "create";
     const isPricingMode = mode === "pricing";
     const isAddTierMode = mode === "add-tier";
+    const isEditTierMode = mode === "edit-tier";
     const isEditMode = mode === "edit";
-    const name = values.name.trim();
-    const sessionName = values.sessionName.trim();
+    const detailsName = values.name.trim();
     const description = values.description.trim();
     const tierCategoryName = resolvePackageCategoryName(
       initialCategoryName.trim(),
@@ -195,27 +190,35 @@ export function AdminPackageForm({
       categoryNameCandidates,
     );
     const categoryName = isCreateMode
-      ? resolvePackageCategoryName(name, categoryNameCandidates)
+      ? resolvePackageCategoryName(detailsName, categoryNameCandidates)
       : isAddTierMode
         ? tierCategoryName
         : editableCategoryName;
-    const slugSource =
-      name.length > 0 ? name : initialPackage?.name ?? FALLBACK_PACKAGE_SLUG_PREFIX;
-    const slug = buildPackageSlug(slugSource);
 
     const priceCents = parsePriceToCents(values.price);
-    const billingPeriod = values.billingPeriod.trim().toLowerCase();
-    const durationMonths = parseDurationMonths(values.durationMonths);
-    const periodDays = durationMonths !== null ? durationMonthsToPeriodDays(durationMonths) : null;
+    const periodDays = parseDurationDays(values.durationDays);
     const guestCount = parseGuestCount(values.guestCount);
     const sessionsPerMonth = parseSessionsCount(values.sessionsCount);
+    const resolvedSessions = sessionsPerMonth ?? MIN_PACKAGE_SESSIONS;
+    const generatedSessionName = buildPackageSessionNameFromCount(resolvedSessions);
+    const isTierPackage =
+      initialPackage !== undefined && initialPackage.priceCents > 0;
+    const usesGeneratedSessionName =
+      isPricingMode || isAddTierMode || isEditTierMode || (isEditMode && isTierPackage);
+    const slugSource = usesGeneratedSessionName
+      ? generatedSessionName
+      : detailsName.length > 0
+        ? detailsName
+        : initialPackage?.name ?? FALLBACK_PACKAGE_SLUG_PREFIX;
+    const slug = buildPackageSlug(slugSource);
+    const payloadName = usesGeneratedSessionName ? generatedSessionName : detailsName;
 
     if (isCreateMode || isEditMode) {
-      if (name.length === 0) {
+      if (detailsName.length === 0) {
         setError(t("nameRequired"));
         return;
       }
-      if (name.length > MAX_NAME_LENGTH) {
+      if (detailsName.length > MAX_NAME_LENGTH) {
         setError(t("nameTooLong"));
         return;
       }
@@ -238,37 +241,17 @@ export function AdminPackageForm({
       return;
     }
 
-    if (isPricingMode || isAddTierMode) {
-      if (sessionName.length === 0) {
-        setError(t("sessionNameRequired"));
-        return;
-      }
-      if (sessionName.length > MAX_NAME_LENGTH) {
-        setError(t("sessionNameTooLong"));
-        return;
-      }
-    }
-
-    if (isPricingMode || isEditMode || isAddTierMode) {
+    if (isPricingMode || isEditMode || isAddTierMode || isEditTierMode) {
       if (priceCents === null) {
         setError(t("priceInvalid"));
         return;
       }
       if (
-        !isAddTierMode &&
-        (billingPeriod.length === 0 ||
-          billingPeriod.length > MAX_BILLING_PERIOD_LENGTH ||
-          !isBillingPeriodOption(billingPeriod))
+        periodDays === null ||
+        periodDays < MIN_PACKAGE_DURATION_DAYS ||
+        periodDays > MAX_PACKAGE_DURATION_DAYS
       ) {
-        setError(t("billingPeriodInvalid"));
-        return;
-      }
-      if (
-        durationMonths === null ||
-        durationMonths < MIN_PACKAGE_DURATION_MONTHS ||
-        durationMonths > MAX_PACKAGE_DURATION_MONTHS
-      ) {
-        setError(t("durationMonthsInvalid"));
+        setError(t("durationDaysInvalid"));
         return;
       }
       if (
@@ -299,14 +282,14 @@ export function AdminPackageForm({
           }
         : {};
 
-    const tierBillingPeriod = isBillingPeriodOption(billingPeriod) ? billingPeriod : "monthly";
+    const tierBillingPeriod = resolvePackageBillingPeriod(initialPackage);
     const pricingFields = {
       priceCents: priceCents ?? 0,
       currency: "AMD" as const,
       isUnlimited: false,
       sessionsPerMonth: sessionsPerMonth ?? MIN_PACKAGE_SESSIONS,
       guestCount: guestCount ?? 0,
-      periodDays: periodDays ?? durationMonthsToPeriodDays(1),
+      periodDays: periodDays ?? PACKAGE_DAYS_PER_MONTH,
       billingPeriod: tierBillingPeriod,
     };
 
@@ -315,10 +298,14 @@ export function AdminPackageForm({
       packageId !== undefined &&
       initialPackage !== undefined &&
       initialPackage.priceCents <= 0;
+    const shouldIncludeSlugInPayload =
+      isCreateMode ||
+      (isAddTierMode && !shellTierTarget) ||
+      (isEditMode && !isTierPackage);
 
     const payload = isCreateMode
       ? {
-          name,
+          name: payloadName,
           categoryName,
           slug,
           description: description.length > 0 ? description : null,
@@ -327,7 +314,7 @@ export function AdminPackageForm({
           isUnlimited: false,
           sessionsPerMonth: 0,
           guestCount: 0,
-          periodDays: durationMonthsToPeriodDays(1),
+          periodDays: PACKAGE_DAYS_PER_MONTH,
           billingPeriod: "monthly",
           isPopular: false,
           isActive: true,
@@ -335,11 +322,11 @@ export function AdminPackageForm({
       : isAddTierMode
         ? shellTierTarget
           ? {
-              name: sessionName,
+              name: generatedSessionName,
               ...pricingFields,
             }
           : {
-              name: sessionName,
+              name: generatedSessionName,
               categoryName,
               slug: buildPackageTierSlug(categoryName, sessionsPerMonth ?? MIN_PACKAGE_SESSIONS),
               description: initialPackage?.description ?? null,
@@ -349,15 +336,22 @@ export function AdminPackageForm({
             }
         : isPricingMode
           ? {
-              name: sessionName,
+              name: generatedSessionName,
               ...pricingFields,
               isPopular: values.isPopular,
               isActive: values.isActive,
             }
-          : {
-              name,
+          : isEditTierMode
+            ? {
+                name: generatedSessionName,
+                ...pricingFields,
+                isPopular: initialPackage?.isPopular ?? false,
+                isActive: initialPackage?.isActive ?? true,
+              }
+            : {
+              name: payloadName,
               categoryName,
-              slug,
+              ...(shouldIncludeSlugInPayload ? { slug } : {}),
               description: description.length > 0 ? description : null,
               ...pricingFields,
               ...preservedDisplayFields,
@@ -366,7 +360,8 @@ export function AdminPackageForm({
             };
 
     const shouldPatch =
-      (isEditMode || isPricingMode || shellTierTarget) && packageId !== undefined;
+      (isEditMode || isPricingMode || isEditTierMode || shellTierTarget) &&
+      packageId !== undefined;
 
     submitLockRef.current = true;
     setPending(true);
@@ -449,25 +444,16 @@ export function AdminPackageForm({
         </AdminPackageFormSection>
       ) : null}
 
-      {mode === "add-tier" ? (
+      {mode === "add-tier" || mode === "edit-tier" ? (
         <AdminPackageFormSection
-          heading={t("addTierFormHeading")}
-          description={t("addTierFormDescription")}
+          heading={
+            mode === "edit-tier" ? t("editTierFormHeading") : t("addTierFormHeading")
+          }
+          description={
+            mode === "edit-tier" ? t("editTierFormDescription") : t("addTierFormDescription")
+          }
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5 sm:col-span-2">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionName")}</span>
-              <input
-                name="sessionName"
-                className="ommm-input"
-                maxLength={MAX_NAME_LENGTH}
-                value={values.sessionName}
-                onChange={(event) => updateValues({ sessionName: event.target.value })}
-                placeholder={t("fieldSessionNamePlaceholder")}
-                required
-                disabled={pending}
-              />
-            </label>
             <label className="flex flex-col gap-1.5">
               <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldSessionsCount")}</span>
               <input
@@ -494,22 +480,23 @@ export function AdminPackageForm({
                 onValueChange={(nextValue) => updateValues({ price: nextValue })}
                 disabled={pending}
                 required
+                align="start"
               />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationMonths")}</span>
+              <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldDurationDays")}</span>
               <input
-                name="durationMonths"
+                name="durationDays"
                 type="number"
                 className={OMMM_INPUT_NUMBER_CLASS}
-                min={MIN_PACKAGE_DURATION_MONTHS}
-                max={MAX_PACKAGE_DURATION_MONTHS}
+                min={MIN_PACKAGE_DURATION_DAYS}
+                max={MAX_PACKAGE_DURATION_DAYS}
                 step={1}
                 inputMode="numeric"
-                value={values.durationMonths}
-                onChange={(event) => updateValues({ durationMonths: event.target.value })}
+                value={values.durationDays}
+                onChange={(event) => updateValues({ durationDays: event.target.value })}
                 onKeyDown={preventNumberArrowStep}
-                placeholder={t("fieldDurationMonthsPlaceholder")}
+                placeholder={t("fieldDurationDaysPlaceholder")}
                 required
                 disabled={pending}
               />
@@ -543,23 +530,6 @@ export function AdminPackageForm({
             description={t("formSections.pricing.description")}
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              {mode === "pricing" ? (
-                <label className="flex flex-col gap-1.5 sm:col-span-2">
-                  <span className="ommm-label text-xs uppercase tracking-wide">
-                    {t("fieldSessionName")}
-                  </span>
-                  <input
-                    name="sessionName"
-                    className="ommm-input"
-                    maxLength={MAX_NAME_LENGTH}
-                    value={values.sessionName}
-                    onChange={(event) => updateValues({ sessionName: event.target.value })}
-                    placeholder={t("fieldSessionNamePlaceholder")}
-                    required
-                    disabled={pending}
-                  />
-                </label>
-              ) : null}
               <label className="flex flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">{t("fieldPrice")}</span>
                 <AmdMoneyInput
@@ -568,20 +538,7 @@ export function AdminPackageForm({
                   onValueChange={(nextValue) => updateValues({ price: nextValue })}
                   required
                   disabled={pending}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 sm:col-span-2">
-                <span className="ommm-label text-xs uppercase tracking-wide">
-                  {t("fieldBillingPeriod")}
-                </span>
-                <DropdownSelect
-                  label={t("fieldBillingPeriod")}
-                  ariaLabel={t("fieldBillingPeriod")}
-                  value={values.billingPeriod}
-                  options={billingPeriodOptions}
-                  onChange={(next) => updateValues({ billingPeriod: next })}
-                  required
-                  disabled={pending}
+                  align="start"
                 />
               </label>
             </div>
@@ -614,20 +571,20 @@ export function AdminPackageForm({
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="ommm-label text-xs uppercase tracking-wide">
-                  {t("fieldDurationMonths")}
+                  {t("fieldDurationDays")}
                 </span>
                 <input
-                  name="durationMonths"
+                  name="durationDays"
                   type="number"
                   className={OMMM_INPUT_NUMBER_CLASS}
-                  min={MIN_PACKAGE_DURATION_MONTHS}
-                  max={MAX_PACKAGE_DURATION_MONTHS}
+                  min={MIN_PACKAGE_DURATION_DAYS}
+                  max={MAX_PACKAGE_DURATION_DAYS}
                   step={1}
                   inputMode="numeric"
-                  value={values.durationMonths}
-                  onChange={(event) => updateValues({ durationMonths: event.target.value })}
+                  value={values.durationDays}
+                  onChange={(event) => updateValues({ durationDays: event.target.value })}
                   onKeyDown={preventNumberArrowStep}
-                  placeholder={t("fieldDurationMonthsPlaceholder")}
+                  placeholder={t("fieldDurationDaysPlaceholder")}
                   required
                   disabled={pending}
                 />
@@ -715,7 +672,9 @@ export function AdminPackageForm({
               ? t("savePricingButton")
               : mode === "add-tier"
                 ? t("saveTierButton")
-                : t("saveButton")}
+                : mode === "edit-tier"
+                  ? t("saveTierChangesButton")
+                  : t("saveButton")}
         </OmmButton>
       </div>
     </form>

@@ -4,10 +4,8 @@ import type {
 } from "@/components/marketing/schedule/marketing-schedule-types";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
-import {
-  buildPublicScheduleRangeQuery,
-  isWithinPublicScheduleWindow,
-} from "@/lib/schedule-session-range";
+import { filterBookablePublicScheduleItems } from "@/lib/filter-public-schedule-items";
+import { buildPublicScheduleRangeQuery } from "@/lib/schedule-session-range";
 
 type MarketingScheduleDataResult = {
   items: MarketingScheduleItem[];
@@ -49,12 +47,7 @@ export async function fetchPublicScheduleItems(): Promise<MarketingScheduleDataR
       loadErrorStatus: res.status,
     };
   }
-  const activeItems = res.data.filter(
-    (item) =>
-      item.isActive &&
-      item.sessionDate !== null &&
-      isWithinPublicScheduleWindow(item.sessionDate),
-  );
+  const activeItems = filterBookablePublicScheduleItems(res.data);
   return {
     items: toSorted(activeItems),
     classTypes: getScheduleClassTypeValues(activeItems),

@@ -6,6 +6,10 @@ import { ChevronDownIcon } from "@/components/marketing/schedule/schedule-view-i
 import { DropdownCheckGlyph } from "@/components/ui/dropdown-check-glyph";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import {
+  getOmmmOverlayPortalRoot,
+  OMMM_FLOATING_MENU_Z_INDEX,
+} from "@/lib/ommm-overlay-portal";
 
 export type OmmFilterMultiSelectOption = {
   value: string;
@@ -267,6 +271,7 @@ export function OmmFilterMultiSelect({
               ref={menuRef}
               className="ommm-dropdown-menu"
               style={{
+                zIndex: OMMM_FLOATING_MENU_Z_INDEX,
                 top: menuPosition.top,
                 left: menuPosition.left,
                 width: menuPosition.width,
@@ -327,7 +332,7 @@ export function OmmFilterMultiSelect({
                 })}
               </ul>
             </div>,
-            document.body,
+            getOmmmOverlayPortalRoot(),
           )
         : null}
     </div>

@@ -4,6 +4,13 @@ import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { addDays, startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import styles from "@/components/admin/admin-schedule-date-strip.module.css";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
+import {
+  scheduleSessionLocalIsoDay,
+  scheduleTodayIsoDate,
+  toLocalIsoDate,
+} from "@/lib/local-iso-date";
+
+export { scheduleSessionLocalIsoDay, scheduleTodayIsoDate };
 
 const SCHEDULE_DATE_STRIP_HORIZON_DAYS = 90;
 const SCHEDULE_DATE_STRIP_VISIBLE_CARD_COUNT = 10;
@@ -27,21 +34,6 @@ type AdminScheduleDateStripProps = {
   selectedDay: string | null;
   onSelectDay: (day: string) => void;
 };
-
-function toLocalIsoDate(date: Date): string {
-  const year = String(date.getFullYear());
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-export function scheduleTodayIsoDate(): string {
-  return toLocalIsoDate(startOfLocalDay(new Date()));
-}
-
-export function scheduleSessionLocalIsoDay(startsAt: string): string {
-  return toLocalIsoDate(new Date(startsAt));
-}
 
 /** Default list order: today and future first (asc), past sessions last (asc). */
 export function sortScheduleRowsFromTodayForward<T extends ScheduleDateStripRow>(

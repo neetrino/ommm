@@ -13,6 +13,21 @@
     "sessionDurationMinutes": "{minutes} мин",
     "sessionCoach": "Тренер"
   },
+  "headerNotifications": {
+    "title": "Уведомления",
+    "triggerAria": "Уведомления{count, plural, =0 {} other {, {count} непрочитанных}}",
+    "panelAria": "Недавние уведомления",
+    "unreadCount": "{count, plural, =1 {1 непрочитанное уведомление} other {# непрочитанных уведомлений}}",
+    "empty": "Новых уведомлений нет",
+    "loading": "Загрузка уведомлений…",
+    "loadError": "Не удалось загрузить уведомления",
+    "spotOpenedBadge": "Освободилось место",
+    "spotOpenedBody": "Освободилось место на занятие из вашего листа ожидания.",
+    "bookNow": "Записаться сейчас",
+    "bookFailed": "Не удалось записаться на это занятие",
+    "markAllRead": "Отметить все как прочитанные",
+    "preferencesLink": "Настройки уведомлений"
+  },
   "listSort": {
     "sort": "Сортировка",
     "newest": "Сначала новые",
@@ -718,6 +733,8 @@
       "membershipDetailsCategory": "Категория",
       "membershipDetailsPrice": "Цена",
       "membershipDetailsValidity": "Срок действия",
+      "validityExpired": "Истёк",
+      "validityDaysRemaining": "{count, plural, one {Остался # день} few {Осталось # дня} many {Осталось # дней} other {Осталось # дня}}",
       "membershipDetailsSessions": "Занятия",
       "membershipDetailsPeriodEnd": "Продление / окончание",
       "membershipDetailsStatus": "Статус",
@@ -777,12 +794,15 @@
     },
     "bookings": {
       "title": "Мои бронирования",
-      "description": "Предстоящие и прошлые бронирования.",
-      "upcoming": "Предстоящие",
-      "pastOther": "Прошлые и прочие",
-      "emptySection": "Пока пусто.",
-      "emptyTitle": "Пока нет бронирований",
-      "emptyDescription": "Когда вы запишетесь на занятие, оно появится здесь.",
+      "tabs": {
+        "aria": "Период бронирований",
+        "past": "Прошлые",
+        "perfect": "Предстоящие"
+      },
+      "emptyPerfectTitle": "Пока нет бронирований",
+      "emptyPerfectDescription": "Когда вы запишетесь на занятие, оно появится здесь.",
+      "emptyPastTitle": "Нет прошлых бронирований",
+      "emptyPastDescription": "Пока пусто.",
       "filteredEmptyTitle": "Нет бронирований по выбранным фильтрам",
       "filteredEmptyDescription": "Попробуйте изменить диапазон дат, тип занятия, тренера или статус.",
       "filteredEmptySection": "В этом разделе нет совпадений.",
@@ -884,6 +904,8 @@
       "title": "Уведомления",
       "description": "Выберите, как Ommm связывается с вами. Изменения сохраняются сразу.",
       "preferences": "Настройки",
+      "offersHeading": "Освободилось место",
+      "offersDescription": "Когда в классе из листа ожидания появляется место, вы можете записаться здесь.",
       "signIn": "Войдите, чтобы управлять уведомлениями."
     },
     "giftCards": {
@@ -1220,6 +1242,11 @@
       "timezoneNote": "Все даты и время показаны в часовом поясе студии.",
       "studioBrand": "Ommm",
       "bookCta": "Записаться",
+      "spotsLeft": "{count, plural, =1 {Осталось 1 место} other {Осталось # мест}}",
+      "spotsFull": "Мест нет",
+      "bookedBadge": "Забронировано",
+      "onWaitlistBadge": "В листе ожидания",
+      "actionLoading": "…",
       "prevDatesAria": "Предыдущие даты",
       "nextDatesAria": "Следующие даты",
       "empty": "Пока нет элементов расписания.",
@@ -2494,7 +2521,8 @@
         "disabledSuccess": "Пакет отключён.",
         "deleteSuccess": "Пакет удалён.",
         "categoryDeleteSuccess": "Категория удалена.",
-        "tierAddedSuccess": "Ценовой вариант добавлен."
+        "tierAddedSuccess": "Ценовой вариант добавлен.",
+        "tierUpdatedSuccess": "Ценовой вариант обновлён."
       },
       "pricingTitle": "Цена и оплата",
       "pricingDescription": "Настройте параметры оплаты для этого пакета.",
@@ -2519,10 +2547,10 @@
       "deletingButton": "Удаление…",
       "deleteCategoryConfirm": "Удалить категорию «{name}» и все {count} пакетов в ней? Это нельзя отменить.",
       "deleteCategoryConfirmEmpty": "Удалить пустую категорию «{name}»?",
-      "durationMonthsInvalid": "Введите целое число месяцев от 1 до 120.",
-      "fieldDurationMonths": "Длительность пакета (месяцев)",
-      "fieldDurationMonthsPlaceholder": "напр. 6",
-      "fieldDurationMonthsHint": "Отображается в таблице в колонке «Session» (1 месяц = 30 дней).",
+      "durationDaysInvalid": "Введите целое число дней от 1 до 3600.",
+      "fieldDurationDays": "Длительность пакета (дней)",
+      "fieldDurationDaysPlaceholder": "напр. 40",
+      "fieldDurationDaysHint": "Отображается в таблице в колонке «Срок».",
       "fieldGuestCount": "Гости (необязательно)",
       "fieldGuestCountPlaceholder": "напр. 2",
       "fieldGuestCountHint": "Максимум гостей по этому пакету (колонка Guests в таблице).",
@@ -2541,8 +2569,13 @@
       "fieldSessionsCount": "Сеансы",
       "fieldSessionsCountPlaceholder": "напр. 10",
       "sessionsCountInvalid": "Введите целое число сеансов от 1 до 999.",
-      "fieldValidityHint": "Отображается в колонке «Срок» (1 месяц = 30 дней).",
-      "saveTierButton": "Добавить"
+      "fieldValidityHint": "Отображается в колонке «Срок».",
+      "saveTierButton": "Добавить",
+      "editTierTitle": "Редактировать ценовой вариант",
+      "editTierDescription": "Измените сеансы, цену, срок и лимит гостей для этого варианта.",
+      "editTierFormHeading": "Ценовой вариант",
+      "editTierFormDescription": "Количество сеансов, цена, срок и лимит гостей отображаются в списке.",
+      "saveTierChangesButton": "Сохранить изменения"
     },
     "packagePlans": {
       "title": "Тарифы абонементов",
@@ -2609,7 +2642,6 @@
     },
     "waitlists": {
       "title": "Листы ожидания",
-      "description": "Управление активными листами ожидания и переводом в бронирование при освобождении места.",
       "errorAuth": "Нужен вход админа или менеджера.",
       "errorLoad": "Не удалось загрузить листы ожидания ({status}).",
       "loadFailed": "Не удалось загрузить активные записи листа ожидания.",
@@ -3489,7 +3521,14 @@
     },
     "joinWaitlist": {
       "action": "В лист ожидания",
-      "failed": "Не удалось встать в лист ожидания"
+      "failed": "Не удалось встать в лист ожидания",
+      "success": "Добавлено в лист ожидания",
+      "alreadyOnWaitlist": "Вы уже в листе ожидания"
+    },
+    "leaveWaitlist": {
+      "action": "Покинуть лист ожидания",
+      "failed": "Не удалось покинуть лист ожидания",
+      "success": "Удалено из листа ожидания"
     },
     "packageCheckout": {
       "subscribe": "Оформить"

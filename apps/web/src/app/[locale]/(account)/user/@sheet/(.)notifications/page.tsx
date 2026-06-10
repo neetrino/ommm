@@ -14,7 +14,7 @@ export default async function UserNotificationsSheetPage({
       titleNamespace="userPages.notifications"
       desktopSidePanel
     >
-      <MemberUserNotificationsRouteContent locale={locale} embeddedInSheet />
+      <MemberUserNotificationsRouteContent locale={locale} />
     </MemberHubSheetPage>
   );
 }

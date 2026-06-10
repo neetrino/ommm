@@ -13,6 +13,21 @@
     "sessionDurationMinutes": "{minutes} ր",
     "sessionCoach": "Մարզիչ"
   },
+  "headerNotifications": {
+    "title": "Ծանուցումներ",
+    "triggerAria": "Ծանուցումներ{count, plural, =0 {} other {, {count} չկարդացված}}",
+    "panelAria": "Վերջին ծանուցումներ",
+    "unreadCount": "{count, plural, =1 {1 չկարդացված ծանուցում} other {# չկարդացված ծանուցում}}",
+    "empty": "Նոր ծանուցումներ չկան",
+    "loading": "Ծանուցումները բեռնվում են…",
+    "loadError": "Չհաջողվեց բեռնել ծանուցումները",
+    "spotOpenedBadge": "Տեղ բացվել է",
+    "spotOpenedBody": "Ձեր սպասման ցուցակի դասի համար բացվել է տեղ։",
+    "bookNow": "Ամրագրել հիմա",
+    "bookFailed": "Չհաջողվեց ամրագրել այս դասը",
+    "markAllRead": "Նշել բոլորը կարդացված",
+    "preferencesLink": "Ծանուցումների կարգավորումներ"
+  },
   "listSort": {
     "sort": "Տեսակավորել",
     "newest": "Նորից հին",
@@ -718,6 +733,8 @@
       "membershipDetailsCategory": "Կատեգորիա",
       "membershipDetailsPrice": "Գին",
       "membershipDetailsValidity": "Վավերականություն",
+      "validityExpired": "Սպառված",
+      "validityDaysRemaining": "{count, plural, one {Մնաց # օր} other {Մնաց # օր}}",
       "membershipDetailsSessions": "Դասեր",
       "membershipDetailsPeriodEnd": "Երկարացում / ավարտ",
       "membershipDetailsStatus": "Կարգավիճակ",
@@ -777,12 +794,15 @@
     },
     "bookings": {
       "title": "Իմ ամրագրումները",
-      "description": "Առաջիկա և անցյալ ամրագրումներ։",
-      "upcoming": "Առաջիկա",
-      "pastOther": "Անցյալ և այլ",
-      "emptySection": "Այստեղ դեռ ոչինչ չկա։",
-      "emptyTitle": "Դեռ ամրագրումներ չկան",
-      "emptyDescription": "Երբ դաս եք ամրագրում, այն կհայտնվի այստեղ։",
+      "tabs": {
+        "aria": "Ամրագրումների ժամանակաշրջան",
+        "past": "Անցյալ",
+        "perfect": "Առաջիկա"
+      },
+      "emptyPerfectTitle": "Դեռ ամրագրումներ չկան",
+      "emptyPerfectDescription": "Երբ դաս եք ամրագրում, այն կհայտնվի այստեղ։",
+      "emptyPastTitle": "Անցյալ ամրագրումներ չկան",
+      "emptyPastDescription": "Այստեղ դեռ ոչինչ չկա։",
       "filteredEmptyTitle": "Ձեր ֆիլտրերին համապատասխան ամրագրումներ չկան",
       "filteredEmptyDescription": "Փորձեք փոխել ամսաթվերի միջակայքը, դասի տեսակը, մարզիչը կամ կարգավիճակը։",
       "filteredEmptySection": "Այս բաժնում համընկնումներ չկան։",
@@ -884,6 +904,8 @@
       "title": "Ծանուցումներ",
       "description": "Ընտրեք, թե ինչպես Ommm-ը կապ է հաստատում ձեզ հետ։ Փոփոխությունները պահպանվում են անմիջապես։",
       "preferences": "Նախընտրություններ",
+      "offersHeading": "Տեղ է բացվել",
+      "offersDescription": "Երբ սպասացուցակի դասում տեղ է բացվում, կարող եք ամրագրել այստեղ։",
       "signIn": "Մուտք գործեք՝ ծանուցումները կառավարելու համար։"
     },
     "giftCards": {
@@ -1220,6 +1242,11 @@
       "timezoneNote": "Բոլոր ամսաթվերն ու ժամերը ցուցադրվում են տեղի ժամային գոտում։",
       "studioBrand": "Ommm",
       "bookCta": "Ամրագրել",
+      "spotsLeft": "{count, plural, =1 {1 ազատ տեղ} other {# ազատ տեղ}}",
+      "spotsFull": "Լիքը",
+      "bookedBadge": "Ամրագրված",
+      "onWaitlistBadge": "Սպասման ցուցակում",
+      "actionLoading": "…",
       "prevDatesAria": "Նախորդ ամսաթվերը",
       "nextDatesAria": "Հաջորդ ամսաթվերը",
       "empty": "Ժամանակացույցը դեռ դատարկ է։",
@@ -2493,7 +2520,8 @@
         "disabledSuccess": "Փաթեթը անջատվեց։",
         "deleteSuccess": "Փաթեթը ջնջվեց։",
         "categoryDeleteSuccess": "Կատեգորիան ջնջվեց։",
-        "tierAddedSuccess": "Գնային տարբերակը ավելացվեց։"
+        "tierAddedSuccess": "Գնային տարբերակը ավելացվեց։",
+        "tierUpdatedSuccess": "Գնային տարբերակը թարմացվեց։"
       },
       "pricingTitle": "Գին և վճարում",
       "pricingDescription": "Կառավարեք այս փաթեթի վճարման կարգավորումները։",
@@ -2518,10 +2546,10 @@
       "deletingButton": "Ջնջվում է…",
       "deleteCategoryConfirm": "Ջնջե՞լ «{name}» կատեգորիան և դրա {count} փաթեթը։ Գործողությունը հետարկելի չէ։",
       "deleteCategoryConfirmEmpty": "Հեռացնե՞լ դատարկ «{name}» կատեգորիան։",
-      "durationMonthsInvalid": "Մուտքագրեք ամիսների ամբողջ թիվ 1-ից 120-ի սահմաններում։",
-      "fieldDurationMonths": "Փաթեթի տևողություն (ամիս)",
-      "fieldDurationMonthsPlaceholder": "օր. 6",
-      "fieldDurationMonthsHint": "Ցուցադրվում է աղյուսակի «Session» սյունակում (1 ամիս = 30 օր)։",
+      "durationDaysInvalid": "Մուտքագրեք ամբողջ թիվ օր 1-ից 3600-ի սահմաններում։",
+      "fieldDurationDays": "Փաթեթի տևողություն (օր)",
+      "fieldDurationDaysPlaceholder": "օր. 40",
+      "fieldDurationDaysHint": "Ցուցադրվում է աղյուսակի Validity սյունակում։",
       "fieldGuestCount": "Հյուրեր (ոչ պարտադիր)",
       "fieldGuestCountPlaceholder": "օր. 2",
       "fieldGuestCountHint": "Այս փաթեթով թույլատրված հյուրերի առավելագույն քանակ (աղյուսակի Guests սյունակ)։",
@@ -2540,8 +2568,13 @@
       "fieldSessionsCount": "Seans-ներ",
       "fieldSessionsCountPlaceholder": "օր. 10",
       "sessionsCountInvalid": "Մուտքագրեք seans-ների քանակ 1-ից 999։",
-      "fieldValidityHint": "Ցուցադրվում է Validity սյունակում (1 ամիս = 30 օր)։",
-      "saveTierButton": "Ավելացնել"
+      "fieldValidityHint": "Ցուցադրվում է Validity սյունակում։",
+      "saveTierButton": "Ավելացնել",
+      "editTierTitle": "Խմբագրել գնային տարբերակ",
+      "editTierDescription": "Թարմացրեք seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը այս տարբերակի համար։",
+      "editTierFormHeading": "Գնային տարբերակ",
+      "editTierFormDescription": "Seans-ների քանակը, գինը, վավերականությունը և հյուրերի թիվը ցուցադրվում են ցանկում։",
+      "saveTierChangesButton": "Պահպանել փոփոխությունները"
     },
     "packagePlans": {
       "title": "Աբոնեմենտային պլաններ",
@@ -2608,7 +2641,6 @@
     },
     "waitlists": {
       "title": "Սպասման ցուցակներ",
-      "description": "Կառավարեք ակտիվ սպասման ցուցակը և առաջխաղացրեք օգտատերերին, երբ տեղ է բացվում։",
       "errorAuth": "Պահանջվում է ադմինի կամ մենեջերի մուտք։",
       "errorLoad": "Չհաջողվեց բեռնել սպասման ցուցակները ({status})։",
       "loadFailed": "Չհաջողվեց բեռնել ակտիվ սպասման գրառումները։",
@@ -3488,7 +3520,14 @@
     },
     "joinWaitlist": {
       "action": "Միանալ սպասման ցուցակին",
-      "failed": "Չհաջողվեց միանալ սպասման ցուցակին"
+      "failed": "Չհաջողվեց միանալ սպասման ցուցակին",
+      "success": "Ավելացվել է սպասման ցուցակին",
+      "alreadyOnWaitlist": "Դուք արդեն սպասման ցուցակում եք"
+    },
+    "leaveWaitlist": {
+      "action": "Դուրս գալ սպասման ցուցակից",
+      "failed": "Չհաջողվեց դուրս գալ սպասման ցուցակից",
+      "success": "Հեռացվել է սպասման ցուցակից"
     },
     "packageCheckout": {
       "subscribe": "Բաժանորդագրվել"

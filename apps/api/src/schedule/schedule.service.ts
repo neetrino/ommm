@@ -12,6 +12,7 @@ import {
   PUBLIC_CACHE_KEYS,
   PUBLIC_CACHE_TTL_SEC,
 } from '../cache/public-cache-keys';
+import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateScheduleItemDto } from './dto/create-schedule-item.dto';
@@ -52,6 +53,7 @@ export class ScheduleService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: RedisCacheService,
+    private readonly cancelIntent: BookingCancelIntentService,
   ) {}
 
   private sortByDayAndTime(items: ScheduleItem[]): ScheduleItem[] {
@@ -95,11 +97,12 @@ export class ScheduleService {
   async listPublicActive(params?: { from?: string; to?: string }) {
     const range = resolvePublicScheduleRange(params?.from, params?.to);
     const dayKey = range.from.toISOString().slice(0, 10);
-    return this.cache.getOrSet(
+    const items = await this.cache.getOrSet(
       `${PUBLIC_CACHE_KEYS.schedule}:${dayKey}`,
       PUBLIC_CACHE_TTL_SEC.schedule,
       () => this.loadPublicActiveFromDb(range),
     );
+    return this.cancelIntent.applyToPublicItems(items);
   }
 
   /** Clears cached public schedule after class session mutations. */

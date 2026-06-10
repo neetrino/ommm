@@ -1544,6 +1544,14 @@ html {
     animation: ommm-admin-center-toast-out 320ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
+  .ommm-center-toast-in {
+    animation: ommm-admin-center-toast-in 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .ommm-center-toast-out {
+    animation: ommm-admin-center-toast-out 320ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ommm-package-card-hover,
     .ommm-package-card-hover::after {
@@ -1574,7 +1582,9 @@ html {
     }
 
     .ommm-admin-center-toast-in,
-    .ommm-admin-center-toast-out {
+    .ommm-admin-center-toast-out,
+    .ommm-center-toast-in,
+    .ommm-center-toast-out {
       animation: none;
     }
   }

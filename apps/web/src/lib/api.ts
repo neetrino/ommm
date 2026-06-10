@@ -41,6 +41,7 @@ export async function apiFetchFormData<T>(
     method,
     body: formData,
     credentials: "include",
+    cache: "no-store",
     headers: {
       Accept: "application/json",
     },
@@ -60,6 +61,7 @@ export async function apiFetch<T>(
   init?: RequestInit,
 ): Promise<T> {
   const res = await fetch(`${API_PREFIX}${path}`, {
+    cache: "no-store",
     ...init,
     credentials: "include",
     headers: {
@@ -68,6 +70,9 @@ export async function apiFetch<T>(
     },
   });
   const text = await res.text();
+  if (res.status === 304) {
+    throw new ApiError("Not modified", 304);
+  }
   if (!res.ok) {
     throw new ApiError(
       extractErrorMessage(text, res.statusText),

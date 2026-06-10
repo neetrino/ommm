@@ -90,12 +90,14 @@
   min-width: 0;
   min-height: 0;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .expandedBody[data-tier-scroll="enabled"] {
   flex: 1 1 var(--packages-page-expanded-scroll-height);
   max-height: var(--packages-page-expanded-scroll-height);
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   -ms-overflow-style: none;
@@ -107,7 +109,8 @@
 }
 
 .expandedBodyInner {
-  min-width: var(--packages-page-expanded-table-min-width);
+  width: 100%;
+  min-width: 0;
 }
 
 .collapsedTop {
@@ -171,14 +174,15 @@
 
 .tierTableLayout {
   --packages-page-tier-columns:
-    minmax(5rem, 0.9fr)
-    minmax(5.75rem, 1fr)
-    minmax(6.25rem, 1.05fr)
-    minmax(4.75rem, 0.85fr)
-    minmax(2.5rem, 0.45fr)
-    minmax(5.75rem, 0.95fr);
+    minmax(0, 1fr)
+    minmax(0, 1.05fr)
+    minmax(0, 1.1fr)
+    minmax(0, 0.95fr)
+    minmax(0, 0.55fr)
+    minmax(0, 1.05fr);
 
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 1.125rem;
   min-width: 0;
@@ -187,8 +191,9 @@
 .columnHeaders,
 .tierRow {
   display: grid;
+  width: 100%;
   grid-template-columns: var(--packages-page-tier-columns);
-  column-gap: 0.75rem;
+  column-gap: clamp(0.375rem, 1vw, 0.75rem);
   align-items: center;
   min-width: 0;
 }
@@ -199,28 +204,25 @@
 
 .columnHeaderPill {
   display: inline-flex;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   align-items: center;
   justify-content: center;
   justify-self: center;
   min-height: 1.4375rem;
-  padding: 0.21875rem 0.75rem;
+  padding: 0.21875rem clamp(0.35rem, 0.9vw, 0.75rem);
   border: 1px solid var(--packages-page-text-color);
   border-radius: 9999px;
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-column-header-size);
+  font-size: clamp(0.5625rem, 0.95vw, var(--packages-page-column-header-size));
   font-weight: 700;
   line-height: 1rem;
   color: var(--packages-page-text-color);
   white-space: nowrap;
 }
 
-.columnHeaderAction {
-  justify-self: end;
-  padding-inline-end: var(--packages-page-subscribe-offset);
-  visibility: hidden;
-  min-height: 1.4375rem;
+.columnHeaderSubscribe {
+  justify-self: center;
 }
 
 .tierTable {
@@ -244,14 +246,13 @@
 .tierActionCell {
   display: flex;
   width: 100%;
-  justify-content: flex-end;
-  justify-self: end;
-  padding-inline-end: var(--packages-page-subscribe-offset);
+  justify-content: center;
+  justify-self: center;
 }
 
 .tierSessions {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-tier-sessions-size);
+  font-size: clamp(0.8125rem, 1.35vw, var(--packages-page-tier-sessions-size));
   font-weight: 700;
   font-style: italic;
   line-height: 1.2;
@@ -260,16 +261,16 @@
 
 .tierPrice {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-tier-meta-size);
+  font-size: clamp(0.75rem, 1.2vw, var(--packages-page-tier-meta-size));
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--packages-page-text-color);
 }
 
 .tierPricePerSession {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-tier-meta-size);
+  font-size: clamp(0.75rem, 1.2vw, var(--packages-page-tier-meta-size));
   font-style: italic;
   line-height: 1.2;
   color: var(--packages-page-text-color);
@@ -277,7 +278,7 @@
 
 .tierValidity {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-tier-meta-size);
+  font-size: clamp(0.75rem, 1.2vw, var(--packages-page-tier-meta-size));
   font-weight: 600;
   line-height: 1.2;
   color: var(--packages-page-validity-color);
@@ -285,7 +286,7 @@
 
 .tierGuests {
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-tier-meta-size);
+  font-size: clamp(0.75rem, 1.2vw, var(--packages-page-tier-meta-size));
   font-weight: 600;
   line-height: 1.2;
   color: var(--packages-page-text-color);
@@ -297,14 +298,16 @@
 
 .subscribeButton {
   display: inline-flex;
+  width: 100%;
+  max-width: 100%;
   min-height: var(--packages-page-subscribe-height);
   align-items: center;
   justify-content: center;
-  padding: 0.21875rem 0.75rem;
+  padding: 0.21875rem clamp(0.35rem, 0.9vw, 0.75rem);
   border-radius: 9999px;
   background-color: var(--packages-page-text-color);
   font-family: var(--font-serif, ui-serif, Georgia, serif);
-  font-size: var(--packages-page-subscribe-size);
+  font-size: clamp(0.6875rem, 1.1vw, var(--packages-page-subscribe-size));
   font-weight: 600;
   line-height: 1rem;
   color: var(--packages-page-subscribe-text);

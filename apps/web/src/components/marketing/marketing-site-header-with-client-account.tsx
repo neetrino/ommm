@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -16,6 +16,8 @@ import {
   writeCachedMarketingHeaderAccount,
 } from "@/lib/marketing-header-account-cache";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
+import { USER_ACCOUNT_PATH } from "@/lib/role-home";
+import { useSyncMarketingRealtimeAuth } from "@/components/realtime/marketing-realtime-root";
 
 type MarketingSiteHeaderWithClientAccountProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
@@ -40,10 +42,21 @@ export function MarketingSiteHeaderWithClientAccount({
   navLinks,
   serverAccount,
 }: MarketingSiteHeaderWithClientAccountProps) {
-  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(
-    readCachedMarketingHeaderAccount,
-  );
+  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(null);
+  const [cachedAccountValidated, setCachedAccountValidated] = useState(false);
   const account = serverAccount ?? cachedAccount;
+
+  useLayoutEffect(() => {
+    if (serverAccount !== null) {
+      return;
+    }
+    const cached = readCachedMarketingHeaderAccount();
+    if (cached !== null) {
+      queueMicrotask(() => {
+        setCachedAccount(cached);
+      });
+    }
+  }, [serverAccount]);
 
   useEffect(() => {
     if (serverAccount !== null) {
@@ -71,15 +84,18 @@ export function MarketingSiteHeaderWithClientAccount({
         );
         if (resolved !== null) {
           setCachedAccount(resolved);
+          setCachedAccountValidated(true);
           persistAccount(resolved);
           return;
         }
         setCachedAccount(null);
+        setCachedAccountValidated(false);
         clearPersistedAccount();
       })
       .catch(() => {
         if (!cancelled) {
           setCachedAccount(null);
+          setCachedAccountValidated(false);
           clearPersistedAccount();
         }
       });
@@ -89,5 +105,15 @@ export function MarketingSiteHeaderWithClientAccount({
     };
   }, [serverAccount]);
 
-  return <MarketingSiteHeader navLinks={navLinks} account={account} />;
+  const showMemberNotifications = account?.href === USER_ACCOUNT_PATH;
+
+  useSyncMarketingRealtimeAuth(serverAccount !== null || cachedAccountValidated);
+
+  return (
+    <MarketingSiteHeader
+      navLinks={navLinks}
+      account={account}
+      showMemberNotifications={showMemberNotifications}
+    />
+  );
 };

@@ -37,7 +37,6 @@ export function UserMembershipCompactRow({
   const t = useTranslations("userPages.packages");
   const m = useTranslations("marketing");
   const display = buildMembershipDisplayModel(membership, status, t, m);
-  const durationLabel = m("packagesPeriodDaysShort", { days: membership.plan.periodDays });
 
   return (
     <article
@@ -89,7 +88,7 @@ export function UserMembershipCompactRow({
 
       <div className={USER_PACKAGES_LIST_VALIDITY_CELL}>
         <MobileLabel label={t("listHeaderValidity")} />
-        <p className="text-sm font-medium text-sage-800">{durationLabel}</p>
+        <p className="text-sm font-medium text-sage-800">{display.validityLabel}</p>
       </div>
 
       <div className={USER_PACKAGES_LIST_STATUS_CELL}>

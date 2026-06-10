@@ -19,8 +19,9 @@ import {
 import {
   USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL,
   USER_BOOKINGS_LIST_HEADER_CLASS,
+  USER_BOOKINGS_LIST_TABLE_CLASS,
 } from "@/components/account/user-bookings-list-layout";
-import { USER_LIST_STACK_CLASS } from "@/components/account/user-list-table-layout";
+import { UserBookingsTabNav } from "@/components/account/user-bookings-tab-nav";
 import { UserListBoardViewSwitcher } from "@/components/account/user-list-board-view-switcher";
 import { UserSheetPageFiltersBar } from "@/components/account/user-sheet-page-filters-bar";
 import { AdminPageHero } from "@/components/admin/admin-page-hero";
@@ -28,7 +29,9 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { apiFetch } from "@/lib/api";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import {
   parseListPageParams,
   resetListPageQuery,
@@ -42,9 +45,11 @@ import {
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import {
   buildUserBookingsPastEndpoint,
+  buildUserBookingsUpcomingEndpoint,
   USER_BOOKINGS_PAST_PAGE_KEYS,
   type UserBookingsPastPayload,
 } from "@/lib/user-bookings-query";
+import { parseUserBookingsTab } from "@/lib/user-bookings-tab";
 
 type UserBookingsSectionProps = {
   locale: string;
@@ -65,6 +70,7 @@ export function UserBookingsSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("bookings");
+  const [upcomingRows, setUpcomingRows] = usePropSyncedState(initialUpcoming);
   const [pastPayload, setPastPayload] = usePropSyncedState(initialPast);
   const [filters, setFilters] = useState<UserBookingFilterValues>(() => ({
     ...DEFAULT_USER_BOOKING_FILTER_VALUES,
@@ -122,6 +128,21 @@ export function UserBookingsSection({
     });
   }, [filters.order, pastListPage, setPastPayload]);
 
+  const refetchUpcoming = useCallback(async () => {
+    try {
+      const rows = await apiFetch<UserBookingRow[]>(
+        buildUserBookingsUpcomingEndpoint(filters.order),
+      );
+      setUpcomingRows(rows);
+    } catch {
+      // Keep current rows on transient errors.
+    }
+  }, [filters.order, setUpcomingRows]);
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.BOOKINGS_ME, () => {
+    void refetchUpcoming();
+  });
+
   const setPastListPage = useCallback(
     (page: number, pageSize?: number) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -133,8 +154,8 @@ export function UserBookingsSection({
   );
 
   const filterOptions = useMemo(
-    () => extractUserBookingFilterOptions([...initialUpcoming, ...pastPayload.rows]),
-    [initialUpcoming, pastPayload.rows],
+    () => extractUserBookingFilterOptions([...upcomingRows, ...pastPayload.rows]),
+    [upcomingRows, pastPayload.rows],
   );
 
   const filterFields = useMemo(
@@ -174,11 +195,11 @@ export function UserBookingsSection({
   const filteredUpcoming = useMemo(
     () =>
       sortBySessionStartsAt(
-        initialUpcoming.filter((row) => matchesUserBookingFilters(row, filters)),
+        upcomingRows.filter((row) => matchesUserBookingFilters(row, filters)),
         (row) => row.session.startsAt,
         filters.order,
       ),
-    [filters, initialUpcoming],
+    [filters, upcomingRows],
   );
 
   const filteredPast = useMemo(
@@ -191,11 +212,18 @@ export function UserBookingsSection({
     [filters, pastPayload.rows],
   );
 
+  const activeTab = parseUserBookingsTab(Object.fromEntries(searchParams.entries()));
+  const isPastTab = activeTab === "past";
+  const tabRows = isPastTab ? filteredPast : filteredUpcoming;
   const filtersActive = hasActiveUserBookingFilters(filters);
-  const totalCount = filtersActive
-    ? filteredUpcoming.length + filteredPast.length
-    : initialUpcoming.length + pastPayload.total;
-  const hasAnyBookings = initialUpcoming.length > 0 || pastPayload.total > 0;
+  const tabTotalCount = isPastTab
+    ? filtersActive
+      ? filteredPast.length
+      : pastPayload.total
+    : filtersActive
+      ? filteredUpcoming.length
+      : upcomingRows.length;
+  const tabHasBookings = isPastTab ? pastPayload.total > 0 : upcomingRows.length > 0;
 
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {
@@ -264,15 +292,18 @@ export function UserBookingsSection({
     />
   );
 
-  const listBody = !hasAnyBookings ? (
+  const tabEmptyTitle = isPastTab ? t("emptyPastTitle") : t("emptyPerfectTitle");
+  const tabEmptyDescription = isPastTab ? t("emptyPastDescription") : t("emptyPerfectDescription");
+
+  const listBody = !tabHasBookings && !filtersActive ? (
     <section className="rounded-[20px] border border-white/60 bg-white/75 p-5 sm:p-6">
-      <h2 className="ommm-h3 text-sage-800">{t("emptyTitle")}</h2>
-      <p className="ommm-body-muted mt-2 text-sm">{t("emptyDescription")}</p>
+      <h2 className="ommm-h3 text-sage-800">{tabEmptyTitle}</h2>
+      <p className="ommm-body-muted mt-2 text-sm">{tabEmptyDescription}</p>
     </section>
   ) : (
     <>
-      {totalCount > 0 ? (
-        <p className="text-sm text-sage-600">{t("bookingsCount", { count: totalCount })}</p>
+      {tabTotalCount > 0 ? (
+        <p className="text-sm text-sage-600">{t("bookingsCount", { count: tabTotalCount })}</p>
       ) : (
         <div className="rounded-2xl border border-sage-100 bg-white/80 p-5 text-sm">
           <p className="font-medium text-sage-900">{t("filteredEmptyTitle")}</p>
@@ -281,32 +312,25 @@ export function UserBookingsSection({
       )}
 
       <BookingGroup
-        title={t("upcoming")}
         locale={locale}
-        rows={filteredUpcoming}
+        rows={tabRows}
         viewMode={viewMode}
-        showCancel
-        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
-      />
-
-      <BookingGroup
-        title={t("pastOther")}
-        locale={locale}
-        rows={filteredPast}
-        viewMode={viewMode}
-        showRebook
-        emptyLabel={filtersActive ? t("filteredEmptySection") : t("emptySection")}
+        showCancel={!isPastTab}
+        showRebook={isPastTab}
+        emptyLabel={filtersActive ? t("filteredEmptySection") : tabEmptyDescription}
         pagination={
-          <OmmListPagination
-            namespace="userPages.pagination"
-            total={pastPayload.total}
-            page={pastListPage.page}
-            pageSize={pastListPage.pageSize}
-            offset={pastPayload.offset}
-            onPageChange={(page) => setPastListPage(page)}
-            onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
-            disabled={loadingPast}
-          />
+          isPastTab ? (
+            <OmmListPagination
+              namespace="userPages.pagination"
+              total={pastPayload.total}
+              page={pastListPage.page}
+              pageSize={pastListPage.pageSize}
+              offset={pastPayload.offset}
+              onPageChange={(page) => setPastListPage(page)}
+              onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
+              disabled={loadingPast}
+            />
+          ) : undefined
         }
       />
     </>
@@ -317,15 +341,15 @@ export function UserBookingsSection({
       {embeddedInSheet ? (
         heroSearch
       ) : (
-        <AdminPageHero title={t("title")} description={t("description")} search={heroSearch} />
+        <AdminPageHero title={t("title")} search={heroSearch} />
       )}
+      <UserBookingsTabNav />
       {listBody}
     </div>
   );
 }
 
 type BookingGroupProps = {
-  title: string;
   locale: string;
   rows: readonly UserBookingRow[];
   viewMode: "list" | "board";
@@ -336,7 +360,6 @@ type BookingGroupProps = {
 };
 
 function BookingGroup({
-  title,
   locale,
   rows,
   viewMode,
@@ -349,11 +372,10 @@ function BookingGroup({
 
   return (
     <section>
-      <h2 className="ommm-h3 text-sage-800">{title}</h2>
       {rows.length === 0 ? (
-        <p className="ommm-body-muted mt-2 text-sm">{emptyLabel}</p>
+        <p className="ommm-body-muted text-sm">{emptyLabel}</p>
       ) : viewMode === "board" ? (
-        <ul className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {rows.map((booking) => (
             <li key={booking.id} className="min-w-0 list-none">
               <UserBookingBoardCard
@@ -366,27 +388,23 @@ function BookingGroup({
           ))}
         </ul>
       ) : (
-        <div className={`mt-4 ${USER_LIST_STACK_CLASS}`}>
+        <div className={USER_BOOKINGS_LIST_TABLE_CLASS}>
           <div className={USER_BOOKINGS_LIST_HEADER_CLASS}>
             <span>{t("listHeaderDate")}</span>
             <span>{t("listHeaderClass")}</span>
             <span>{t("listHeaderTime")}</span>
             <span>{t("listHeaderStatus")}</span>
-            <span aria-hidden="true" />
             <span className={USER_BOOKINGS_LIST_ACTIONS_HEADER_CELL}>{t("listHeaderActions")}</span>
           </div>
-          <ul className={USER_LIST_STACK_CLASS}>
-            {rows.map((booking) => (
-              <li key={booking.id} className="list-none">
-                <UserBookingCompactRow
-                  locale={locale}
-                  booking={booking}
-                  showCancel={showCancel}
-                  showRebook={showRebook}
-                />
-              </li>
-            ))}
-          </ul>
+          {rows.map((booking) => (
+            <UserBookingCompactRow
+              key={booking.id}
+              locale={locale}
+              booking={booking}
+              showCancel={showCancel}
+              showRebook={showRebook}
+            />
+          ))}
         </div>
       )}
       {pagination ? <div className="mt-4">{pagination}</div> : null}

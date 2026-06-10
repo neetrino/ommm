@@ -154,7 +154,7 @@ export function dashboardNotificationRouteForRole(
 ): DashboardRoleNotificationRoute | null {
   switch (role) {
     case "USER":
-      return { href: "/user/notifications", labelKey: "notifications" };
+      return null;
     case "COACH":
       return { href: "/coach/notifications", labelKey: "notifications" };
     case "CONTENT_ADMIN":

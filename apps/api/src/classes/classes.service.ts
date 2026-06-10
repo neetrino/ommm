@@ -18,6 +18,8 @@ import {
   SessionListOrder,
 } from '../common/list-order.helpers';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import {
   buildSessionsListWhere,
   filterSessionRows,
@@ -25,7 +27,6 @@ import {
   requiresSessionsPostProcessing,
   SESSIONS_FILTER_SCAN_LIMIT,
 } from './classes-sessions-list-filters';
-import { ScheduleService } from '../schedule/schedule.service';
 import type { AdminListSessionsQueryDto } from './dto/admin-list-sessions-query.dto';
 import type { CreateClassTypeDto } from './dto/create-class-type.dto';
 import type {
@@ -95,7 +96,15 @@ export class ClassesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly schedule: ScheduleService,
+    private readonly realtime: RealtimePublisherService,
   ) {}
+
+  private async invalidatePublicScheduleAndEmit(
+    sessionId: string,
+  ): Promise<void> {
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitPublicScheduleSession(sessionId);
+  }
 
   listTypes() {
     return this.prisma.classType.findMany({ orderBy: { name: 'asc' } });
@@ -652,7 +661,7 @@ export class ClassesService {
     const created = await this.prisma.classSession.create({
       data: createData,
     });
-    await this.schedule.invalidatePublicCache();
+    await this.invalidatePublicScheduleAndEmit(created.id);
     return this.findSessionAdminOrThrow(created.id);
   }
 
@@ -665,7 +674,11 @@ export class ClassesService {
     const created = await this.prisma.$transaction(
       createRows.map((data) => this.prisma.classSession.create({ data })),
     );
-    await this.schedule.invalidatePublicCache();
+    await Promise.all(
+      created.map((session) =>
+        this.invalidatePublicScheduleAndEmit(session.id),
+      ),
+    );
     return Promise.all(
       created.map((session) => this.findSessionAdminOrThrow(session.id)),
     );
@@ -732,7 +745,7 @@ export class ClassesService {
       where: { id },
       data: updateData,
     });
-    await this.schedule.invalidatePublicCache();
+    await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);
   }
 
@@ -743,7 +756,7 @@ export class ClassesService {
       where: { id },
       data: { status },
     });
-    await this.schedule.invalidatePublicCache();
+    await this.invalidatePublicScheduleAndEmit(id);
     return this.findSessionAdminOrThrow(id);
   }
 
@@ -753,7 +766,7 @@ export class ClassesService {
 
   async deleteSession(id: string): Promise<void> {
     await this.prisma.classSession.delete({ where: { id } });
-    await this.schedule.invalidatePublicCache();
+    await this.invalidatePublicScheduleAndEmit(id);
   }
 
   private async findSessionAdminOrThrow(id: string): Promise<AdminSessionRow> {

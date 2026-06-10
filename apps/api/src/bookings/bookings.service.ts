@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   BookingStatus,
   BookingChannel,
@@ -17,17 +18,27 @@ import {
   WaitlistStatus,
   type User,
 } from '@prisma/client';
+import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
+
+/** Neon/pooled DB: booking tx runs several round-trips; Prisma default 5s is too low. */
+const BOOKING_INTERACTIVE_TX_TIMEOUT_MS = 15_000;
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import {
   ListMyBookingsQueryDto,
   MyBookingsScope,
 } from './dto/list-my-bookings-query.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
+import {
+  isCancellationNoticeEnforced,
+  resolveCancellationHoursNotice,
+} from './cancellation-notice-hours';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import {
   BookingManagementOrder,
@@ -92,6 +103,10 @@ export class BookingsService {
     private readonly prisma: PrismaService,
     private readonly waitlist: WaitlistService,
     private readonly packageUsage: PackageUsageService,
+    private readonly config: ConfigService,
+    private readonly cancelIntent: BookingCancelIntentService,
+    private readonly schedule: ScheduleService,
+    private readonly realtime: RealtimePublisherService,
   ) {}
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
@@ -115,96 +130,100 @@ export class BookingsService {
       throw new BadRequestException('Session is full — join waitlist');
     }
 
-    const booking = await this.prisma.$transaction(async (tx) => {
-      const requiredSessions =
-        session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
-      let userPackageId: string | null = null;
+    await this.packageUsage.syncExpiredMemberships(userId);
 
-      const existingBooking = await tx.booking.findUnique({
-        where: { userId_sessionId: { userId, sessionId } },
-      });
-      if (existingBooking?.status === BookingStatus.BOOKED) {
-        throw new BadRequestException('Already booked');
-      }
+    const booking = await this.prisma.$transaction(
+      async (tx) => {
+        const requiredSessions =
+          session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
+        let userPackageId: string | null = null;
 
-      const needsSessionCredit =
-        requiredSessions > 0 &&
-        (!existingBooking ||
-          existingBooking.status === BookingStatus.CANCELLED);
-
-      if (needsSessionCredit) {
-        const dropInPayment = await tx.payment.findFirst({
-          where: {
-            userId,
-            description: `Drop-in session ${sessionId}`,
-            status: PaymentStatus.SUCCEEDED,
-          },
-          select: { id: true },
+        const existingBooking = await tx.booking.findUnique({
+          where: { userId_sessionId: { userId, sessionId } },
         });
-        if (!dropInPayment) {
-          await this.packageUsage.syncExpiredMemberships(userId);
-          const usablePackage = await this.packageUsage.findUsablePackage(
-            tx,
-            userId,
-          );
-          if (usablePackage) {
-            await this.packageUsage.consumeSession(tx, usablePackage.id);
-            userPackageId = usablePackage.id;
-          } else if (session.priceCents > 0) {
-            const user = await tx.user.findUnique({
-              where: { id: userId },
-              select: { giftCreditsCents: true },
-            });
-            const credits = user?.giftCreditsCents ?? 0;
-            if (credits < session.priceCents) {
+        if (existingBooking?.status === BookingStatus.BOOKED) {
+          throw new BadRequestException('Already booked');
+        }
+
+        const needsSessionCredit =
+          requiredSessions > 0 &&
+          (!existingBooking ||
+            existingBooking.status === BookingStatus.CANCELLED);
+
+        if (needsSessionCredit) {
+          const dropInPayment = await tx.payment.findFirst({
+            where: {
+              userId,
+              description: `Drop-in session ${sessionId}`,
+              status: PaymentStatus.SUCCEEDED,
+            },
+            select: { id: true },
+          });
+          if (!dropInPayment) {
+            const usablePackage = await this.packageUsage.findUsablePackage(
+              tx,
+              userId,
+            );
+            if (usablePackage) {
+              await this.packageUsage.consumeSession(tx, usablePackage.id);
+              userPackageId = usablePackage.id;
+            } else if (session.priceCents > 0) {
+              const user = await tx.user.findUnique({
+                where: { id: userId },
+                select: { giftCreditsCents: true },
+              });
+              const credits = user?.giftCreditsCents ?? 0;
+              if (credits < session.priceCents) {
+                throw new BadRequestException(
+                  'Active package, payment, or gift credits required for this class',
+                );
+              }
+              await tx.user.update({
+                where: { id: userId },
+                data: { giftCreditsCents: { decrement: session.priceCents } },
+              });
+              await tx.payment.create({
+                data: {
+                  userId,
+                  amountCents: session.priceCents,
+                  status: PaymentStatus.SUCCEEDED,
+                  description: `Gift credit spend ${sessionId}`,
+                },
+              });
+            } else {
               throw new BadRequestException(
-                'Active package, payment, or gift credits required for this class',
+                'Active package or payment required for this class',
               );
             }
-            await tx.user.update({
-              where: { id: userId },
-              data: { giftCreditsCents: { decrement: session.priceCents } },
-            });
-            await tx.payment.create({
-              data: {
-                userId,
-                amountCents: session.priceCents,
-                status: PaymentStatus.SUCCEEDED,
-                description: `Gift credit spend ${sessionId}`,
-              },
-            });
-          } else {
-            throw new BadRequestException(
-              'Active package or payment required for this class',
-            );
           }
         }
-      }
 
-      if (existingBooking) {
-        return tx.booking.update({
-          where: { id: existingBooking.id },
+        if (existingBooking) {
+          return tx.booking.update({
+            where: { id: existingBooking.id },
+            data: {
+              status: BookingStatus.BOOKED,
+              channel: dto?.channel ?? BookingChannel.WEBSITE,
+              cancelledAt: null,
+              attendedAt: null,
+              ...(userPackageId !== null ? { userPackageId } : {}),
+            },
+            include: { session: { include: { classType: true } } },
+          });
+        }
+        return tx.booking.create({
           data: {
+            userId,
+            sessionId,
             status: BookingStatus.BOOKED,
             channel: dto?.channel ?? BookingChannel.WEBSITE,
-            cancelledAt: null,
-            attendedAt: null,
-            ...(userPackageId !== null ? { userPackageId } : {}),
+            userPackageId,
           },
           include: { session: { include: { classType: true } } },
         });
-      }
-      return tx.booking.create({
-        data: {
-          userId,
-          sessionId,
-          status: BookingStatus.BOOKED,
-          channel: dto?.channel ?? BookingChannel.WEBSITE,
-          userPackageId,
-        },
-        include: { session: { include: { classType: true } } },
-      });
-    });
+      },
+      { timeout: BOOKING_INTERACTIVE_TX_TIMEOUT_MS },
+    );
 
     const after = await this.waitlist.bookedCount(sessionId);
     if (after >= session.capacity) {
@@ -213,7 +232,47 @@ export class BookingsService {
         data: { status: ClassSessionStatus.FULL },
       });
     }
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId,
+      sessionId,
+    });
     return booking;
+  }
+
+  async registerCancelIntent(userId: string, bookingId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { userId: true, status: true, sessionId: true },
+    });
+    if (!booking) {
+      throw new NotFoundException();
+    }
+    if (booking.userId !== userId) {
+      throw new ForbiddenException();
+    }
+    if (booking.status !== BookingStatus.BOOKED) {
+      throw new BadRequestException('Cannot hold cancel for this booking');
+    }
+    this.cancelIntent.register(booking.sessionId);
+    this.realtime.emitCancelIntentChanged(booking.sessionId);
+    return { ok: true };
+  }
+
+  async clearCancelIntent(userId: string, bookingId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { userId: true, sessionId: true },
+    });
+    if (!booking) {
+      throw new NotFoundException();
+    }
+    if (booking.userId !== userId) {
+      throw new ForbiddenException();
+    }
+    this.cancelIntent.clear(booking.sessionId);
+    this.realtime.emitCancelIntentChanged(booking.sessionId);
+    return { ok: true };
   }
 
   async cancel(userId: string, bookingId: string) {
@@ -231,15 +290,26 @@ export class BookingsService {
       throw new BadRequestException('Cannot cancel this booking');
     }
     const studio = await this.prisma.studioSettings.findFirst();
-    const noticeHours = studio?.cancellationHoursNotice ?? 24;
-    const deadline = new Date(booking.session.startsAt);
-    deadline.setHours(deadline.getHours() - noticeHours);
-    if (new Date() > deadline) {
-      throw new BadRequestException(
-        `Cancellation must be at least ${noticeHours}h before class`,
-      );
+    const noticeHours = resolveCancellationHoursNotice(
+      studio?.cancellationHoursNotice,
+      this.config.get<string>('CANCELLATION_HOURS_NOTICE'),
+    );
+    if (isCancellationNoticeEnforced(noticeHours)) {
+      const deadline = new Date(booking.session.startsAt);
+      deadline.setHours(deadline.getHours() - noticeHours);
+      if (new Date() > deadline) {
+        throw new BadRequestException(
+          `Cancellation must be at least ${noticeHours}h before class`,
+        );
+      }
     }
     await this.releaseSlot(booking);
+    this.cancelIntent.clear(booking.sessionId);
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: booking.userId,
+      sessionId: booking.sessionId,
+    });
     return { ok: true };
   }
 
@@ -368,6 +438,11 @@ export class BookingsService {
       throw new NotFoundException();
     }
     await this.releaseSlot(booking);
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: booking.userId,
+      sessionId: booking.sessionId,
+    });
     return { ok: true };
   }
 
@@ -418,6 +493,14 @@ export class BookingsService {
       });
     }
     await this.waitlist.offerNextIfSlot(oldSessionId);
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: booking.userId,
+      sessionId: targetSessionId,
+    });
+    if (oldSessionId !== targetSessionId) {
+      this.realtime.emitPublicScheduleSession(oldSessionId);
+    }
     return updated;
   }
 

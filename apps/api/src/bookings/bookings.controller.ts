@@ -52,6 +52,24 @@ export class BookingsController {
     return this.bookings.cancel(user.id, id);
   }
 
+  @Post(':id/cancel-intent')
+  @UseGuards(JwtAuthGuard)
+  registerCancelIntent(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ) {
+    return this.bookings.registerCancelIntent(user.id, id);
+  }
+
+  @Delete(':id/cancel-intent')
+  @UseGuards(JwtAuthGuard)
+  clearCancelIntent(
+    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+  ) {
+    return this.bookings.clearCancelIntent(user.id, id);
+  }
+
   @Get('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.COACH)

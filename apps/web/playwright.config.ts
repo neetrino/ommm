@@ -1,4 +1,14 @@
+import path from "node:path";
+import { config as loadEnv } from "dotenv";
 import { defineConfig, devices } from "@playwright/test";
+
+const monorepoRoot = path.join(__dirname, "..", "..");
+loadEnv({ path: path.join(monorepoRoot, ".env"), quiet: true });
+loadEnv({
+  path: path.join(monorepoRoot, ".env.local"),
+  override: true,
+  quiet: true,
+});
 
 /** Default dev port 3000 is often busy locally; E2E uses a separate port. */
 const WEB_PORT = process.env.WEB_E2E_PORT ?? "3100";
@@ -23,5 +33,10 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     cwd: __dirname,
     timeout: 300_000,
+    // Root `.env` sets NODE_ENV=development; production build/start must override.
+    env: {
+      ...process.env,
+      NODE_ENV: "production",
+    },
   },
 });

@@ -1,4 +1,8 @@
 import type { CoachAnalyticsPayload } from "@/components/coach/coach-analytics-types";
+import {
+  formatTimeForUi,
+  HOUR_ONLY_24H_OPTIONS,
+} from "@/lib/format-time-display";
 
 const STRONG_FILL_RATE = 70;
 const WEAK_FILL_RATE = 40;
@@ -95,10 +99,7 @@ export function mapHourlyBarItems(
   hourly: CoachAnalyticsPayload["hourlyAttendance"],
   locale: string,
 ) {
-  const hourFormatter = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    hour12: false,
-  });
+  const hourFormatter = new Intl.DateTimeFormat(locale, HOUR_ONLY_24H_OPTIONS);
 
   return hourly
     .filter((bucket) => bucket.attendance > 0)
@@ -118,8 +119,5 @@ export function mapHourlyBarItems(
 export function formatPeakTimeLabel(hour: number, locale: string): string {
   const sample = new Date();
   sample.setHours(hour, 0, 0, 0);
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(sample);
+  return formatTimeForUi(sample, locale);
 }

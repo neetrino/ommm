@@ -1,4 +1,5 @@
 import { formatDateForUi } from "@/lib/date-display";
+import { formatTimeForUi } from "@/lib/format-time-display";
 
 export function formatSessionRange(
   locale: string,
@@ -7,9 +8,5 @@ export function formatSessionRange(
 ): string {
   const start = new Date(startsAtIso);
   const end = new Date(endsAtIso);
-  const timeFormatter = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-  return `${formatDateForUi(start)} ${timeFormatter.format(start)} - ${timeFormatter.format(end)}`;
+  return `${formatDateForUi(start)} ${formatTimeForUi(start, locale)} - ${formatTimeForUi(end, locale)}`;
 }

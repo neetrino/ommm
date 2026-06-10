@@ -21,6 +21,7 @@ import { MailModule } from './mail/mail.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RealtimeModule } from './realtime/realtime.module';
 import { ReportsModule } from './reports/reports.module';
 import { ScheduleItemsModule } from './schedule/schedule.module';
 import { StudioModule } from './studio/studio.module';
@@ -82,6 +83,7 @@ function createPinoHttpConfig(): Record<string, unknown> {
       ],
     }),
     CacheModule,
+    RealtimeModule,
     PrismaModule,
     MailModule,
     AuthModule,

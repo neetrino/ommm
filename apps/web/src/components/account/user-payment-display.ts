@@ -1,3 +1,4 @@
+import { formatTimeForUi } from "@/lib/format-time-display";
 import { isManualPaymentMethod } from "@/lib/manual-payment-method";
 import type { UserPaymentRow } from "@/lib/user-package-types";
 
@@ -52,10 +53,7 @@ export function formatPaymentTime(value: Date | string, locale: string): string 
   if (Number.isNaN(date.getTime())) {
     return "";
   }
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
+  return formatTimeForUi(date, locale);
 }
 
 export function statusSortRank(status: string): number {

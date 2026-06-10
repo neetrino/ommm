@@ -1,20 +1,17 @@
 import { normalizePackageCategoryKey } from "@/components/admin/package-category-utils";
-import { resolveMarketingDancesPackageCategory } from "@/components/marketing/packages/public-package-category-dances";
-import { resolveMarketingMatPilatesPackageCategory } from "@/components/marketing/packages/public-package-category-mat-pilates";
-import { resolveMarketingReformerIndividualPackageCategory } from "@/components/marketing/packages/public-package-category-reformer-individual";
-import { resolveMarketingReformerGroupPackageCategory } from "@/components/marketing/packages/public-package-category-reformer-group";
-import { resolveMarketingYogaPackageCategory } from "@/components/marketing/packages/public-package-category-yoga";
+import { MARKETING_DANCES_CATEGORY_LABEL } from "@/components/marketing/packages/public-package-category-dances";
+import { MARKETING_MAT_PILATES_CATEGORY_LABEL } from "@/components/marketing/packages/public-package-category-mat-pilates";
+import { MARKETING_REFORMER_GROUP_CATEGORY_LABEL } from "@/components/marketing/packages/public-package-category-reformer-group";
+import { MARKETING_REFORMER_INDIVIDUAL_CATEGORY_LABEL } from "@/components/marketing/packages/public-package-category-reformer-individual";
+import { MARKETING_YOGA_CATEGORY_LABEL } from "@/components/marketing/packages/public-package-category-yoga";
 import {
   categoryHasMultiplePricedTiers,
   resolveCategoryStartingPriceCents,
   type PublicPackageCategoryGroup,
 } from "@/lib/public-package-categories";
+import { assignPackageCardGradientStartColors } from "@/lib/package-card-colors";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
 import { formatAmdFromCents } from "@/lib/price-amd";
-import {
-  PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS,
-  type PackagesPageCategoryColorVariantKey,
-} from "@/components/marketing/packages/packages-page-tokens";
 
 export type PackagesPageCategoryCardCopy = {
   id: string;
@@ -26,90 +23,63 @@ export type PackagesPageCategoryCardCopy = {
 
 export type PackagesPageAccordionCategory = PackagesPageCategoryCardCopy & {
   plans: PublicPackagePlan[];
-  visualStyleKey: PackagesPageCategoryColorVariantKey;
+  gradientStartColor: string;
 };
 
 type PackagesPageCardLabels = {
   priceFromPrefix: string;
 };
 
-const DEFAULT_PACKAGE_COLOR_VARIANT = PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS[0];
+const FALLBACK_GRADIENT_START_COLOR = "#ede9dd";
 
-const KNOWN_MARKETING_CATEGORY_RESOLVERS = [
-  resolveMarketingReformerGroupPackageCategory,
-  resolveMarketingReformerIndividualPackageCategory,
-  resolveMarketingMatPilatesPackageCategory,
-  resolveMarketingYogaPackageCategory,
-  resolveMarketingDancesPackageCategory,
-] as const;
+/** Figma-facing labels for known Admin category keys (display only — no filtering). */
+const PUBLIC_PACKAGE_CATEGORY_LABEL_OVERRIDES: Readonly<Record<string, string>> = {
+  "reformer group": MARKETING_REFORMER_GROUP_CATEGORY_LABEL,
+  "reformer individual": MARKETING_REFORMER_INDIVIDUAL_CATEGORY_LABEL,
+  "mat pilates": MARKETING_MAT_PILATES_CATEGORY_LABEL,
+  yoga: MARKETING_YOGA_CATEGORY_LABEL,
+  dances: MARKETING_DANCES_CATEGORY_LABEL,
+  dance: MARKETING_DANCES_CATEGORY_LABEL,
+};
 
-function hashCategoryKey(categoryKey: string): number {
-  let hash = 0;
-  for (const char of categoryKey) {
-    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  }
-  return hash;
-}
-
-function resolveCategoryColorVariant(
-  category: Pick<PublicPackageCategoryGroup, "id" | "label">,
-  previousVariant: PackagesPageCategoryColorVariantKey | null,
-): PackagesPageCategoryColorVariantKey {
-  const categoryId = normalizePackageCategoryKey(category.id);
-  const categoryLabel = normalizePackageCategoryKey(category.label);
-  const canonicalKey = categoryId === "dance" || categoryLabel === "dance" ? "dances" : categoryId;
-  const directMatch = PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS.find(
-    (variant) => variant === canonicalKey || variant === categoryLabel,
+function resolvePublicPackageCategoryLabel(category: PublicPackageCategoryGroup): string {
+  const idKey = normalizePackageCategoryKey(category.id);
+  const labelKey = normalizePackageCategoryKey(category.label);
+  return (
+    PUBLIC_PACKAGE_CATEGORY_LABEL_OVERRIDES[idKey] ??
+    PUBLIC_PACKAGE_CATEGORY_LABEL_OVERRIDES[labelKey] ??
+    category.label
   );
-  const variants = PACKAGES_PAGE_CATEGORY_COLOR_VARIANT_KEYS;
-  const variantCount: number = variants.length;
-  const startIndex =
-    directMatch !== undefined
-      ? variants.indexOf(directMatch)
-      : hashCategoryKey(categoryId) % variantCount;
-  const candidate = variants[startIndex] ?? DEFAULT_PACKAGE_COLOR_VARIANT;
-
-  if (candidate !== previousVariant || variantCount === 1) {
-    return candidate;
-  }
-  return variants[(startIndex + 1) % variants.length] ?? candidate;
 }
 
-function withColorVariants(
-  categories: readonly PackagesPageAccordionCategory[],
-): PackagesPageAccordionCategory[] {
-  let previousVariant: PackagesPageCategoryColorVariantKey | null = null;
-  return categories.map((category) => {
-    const visualStyleKey = resolveCategoryColorVariant(category, previousVariant);
-    previousVariant = visualStyleKey;
-    return { ...category, visualStyleKey };
+function resolveCategoryDisplayOrder(category: PublicPackageCategoryGroup): number {
+  if (category.plans.length === 0) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+  return Math.min(...category.plans.map((plan) => plan.displayOrder));
+}
+
+function sortPublicPackageCategoriesForDisplay(
+  categories: readonly PublicPackageCategoryGroup[],
+): PublicPackageCategoryGroup[] {
+  return [...categories].sort((left, right) => {
+    const leftOrder = resolveCategoryDisplayOrder(left);
+    const rightOrder = resolveCategoryDisplayOrder(right);
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+    return left.label.localeCompare(right.label);
   });
 }
 
-/** Marketing order — known Figma cards first, then Admin-created categories. */
-export function listMarketingPackageCategories(
+/** All visible Admin package categories — no static subset or mock categories. */
+export function listPublicPackageCategoriesForPage(
   apiCategories: readonly PublicPackageCategoryGroup[],
 ): PublicPackageCategoryGroup[] {
-  const usedKeys = new Set<string>();
-  const ordered: PublicPackageCategoryGroup[] = [];
-
-  for (const resolveKnownCategory of KNOWN_MARKETING_CATEGORY_RESOLVERS) {
-    const category = resolveKnownCategory(apiCategories);
-    if (category.plans.length === 0) {
-      continue;
-    }
-    usedKeys.add(normalizePackageCategoryKey(category.id));
-    ordered.push(category);
-  }
-
-  for (const category of apiCategories) {
-    const key = normalizePackageCategoryKey(category.id);
-    if (!usedKeys.has(key)) {
-      ordered.push(category);
-    }
-  }
-
-  return ordered;
+  return sortPublicPackageCategoriesForDisplay(apiCategories).map((category) => ({
+    ...category,
+    label: resolvePublicPackageCategoryLabel(category),
+  }));
 }
 
 export function resolveMarketingPackageCategoryByKey(
@@ -118,7 +88,7 @@ export function resolveMarketingPackageCategoryByKey(
 ): PublicPackageCategoryGroup | null {
   const normalizedKey = normalizePackageCategoryKey(decodeURIComponent(categoryKey));
   return (
-    listMarketingPackageCategories(apiCategories).find(
+    listPublicPackageCategoriesForPage(apiCategories).find(
       (category) => normalizePackageCategoryKey(category.id) === normalizedKey,
     ) ?? null
   );
@@ -137,10 +107,17 @@ export function buildPackagesPageAccordionCategories(
   locale: string,
   labels: PackagesPageCardLabels,
 ): PackagesPageAccordionCategory[] {
-  const accordionCategories = listMarketingPackageCategories(categories).map((category) => {
+  const publicCategories = listPublicPackageCategoriesForPage(categories);
+  const gradientStartColors = assignPackageCardGradientStartColors(
+    publicCategories.map((category) => category.id),
+  );
+
+  return publicCategories.map((category, index) => {
     const configuredPlans = category.plans.filter((plan) => plan.priceCents > 0);
     const hasPlans = configuredPlans.length > 0;
     const plans = configuredPlans;
+    const gradientStartColor =
+      gradientStartColors[index] ?? gradientStartColors[0] ?? FALLBACK_GRADIENT_START_COLOR;
 
     if (!hasPlans) {
       return {
@@ -149,7 +126,7 @@ export function buildPackagesPageAccordionCategories(
         priceAmount: null,
         hasPlans: false,
         plans,
-        visualStyleKey: DEFAULT_PACKAGE_COLOR_VARIANT,
+        gradientStartColor,
       };
     }
 
@@ -166,9 +143,7 @@ export function buildPackagesPageAccordionCategories(
       priceFromPrefix,
       hasPlans: true,
       plans,
-      visualStyleKey: DEFAULT_PACKAGE_COLOR_VARIANT,
+      gradientStartColor,
     };
   });
-
-  return withColorVariants(accordionCategories);
 }

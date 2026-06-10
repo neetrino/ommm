@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
 
 type Props = {
   sessionId: string;
@@ -22,6 +23,7 @@ export function JoinWaitlistButton({ sessionId, size = "sm" }: Props) {
     setMsg(null);
     try {
       await apiFetch(`/waitlist/sessions/${sessionId}`, { method: "POST" });
+      dispatchNotificationsRefresh();
       router.refresh();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("failed"));

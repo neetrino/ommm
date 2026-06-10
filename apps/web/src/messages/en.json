@@ -13,6 +13,21 @@
     "sessionDurationMinutes": "{minutes} min",
     "sessionCoach": "Coach"
   },
+  "headerNotifications": {
+    "title": "Notifications",
+    "triggerAria": "Notifications{count, plural, =0 {} other {, {count} unread}}",
+    "panelAria": "Recent notifications",
+    "unreadCount": "{count, plural, =1 {1 unread notification} other {# unread notifications}}",
+    "empty": "No new notifications",
+    "loading": "Loading notifications…",
+    "loadError": "Could not load notifications",
+    "spotOpenedBadge": "Spot opened",
+    "spotOpenedBody": "A spot opened for a class on your waitlist.",
+    "bookNow": "Book now",
+    "bookFailed": "Could not book this session",
+    "markAllRead": "Mark all as read",
+    "preferencesLink": "Notification preferences"
+  },
   "listSort": {
     "sort": "Sort",
     "newest": "Newest first",
@@ -718,6 +733,8 @@
       "membershipDetailsCategory": "Category",
       "membershipDetailsPrice": "Price",
       "membershipDetailsValidity": "Validity",
+      "validityExpired": "Expired",
+      "validityDaysRemaining": "{count, plural, one {# day remaining} other {# days remaining}}",
       "membershipDetailsSessions": "Sessions",
       "membershipDetailsPeriodEnd": "Renews / ends",
       "membershipDetailsStatus": "Status",
@@ -777,12 +794,15 @@
     },
     "bookings": {
       "title": "My bookings",
-      "description": "Upcoming and past reservations.",
-      "upcoming": "Upcoming",
-      "pastOther": "Past and other",
-      "emptySection": "Nothing here yet.",
-      "emptyTitle": "No bookings yet",
-      "emptyDescription": "When you book a class, it will appear here.",
+      "tabs": {
+        "aria": "Booking time range",
+        "past": "Past",
+        "perfect": "Perfect"
+      },
+      "emptyPerfectTitle": "No bookings yet",
+      "emptyPerfectDescription": "When you book a class, it will appear here.",
+      "emptyPastTitle": "No past bookings",
+      "emptyPastDescription": "Nothing here yet.",
       "filteredEmptyTitle": "No bookings match your filters",
       "filteredEmptyDescription": "Try adjusting the date range, class type, coach, or status.",
       "filteredEmptySection": "No matches in this section.",
@@ -884,6 +904,8 @@
       "title": "Notifications",
       "description": "Choose how Ommm reaches you. Changes save immediately.",
       "preferences": "Preferences",
+      "offersHeading": "Spot opened",
+      "offersDescription": "When a waitlisted class has an open spot, you can book it here.",
       "signIn": "Sign in to manage notifications."
     },
     "giftCards": {
@@ -1220,6 +1242,11 @@
       "timezoneNote": "All dates and times are displayed in the location's timezone.",
       "studioBrand": "Ommm",
       "bookCta": "Book",
+      "spotsLeft": "{count, plural, =1 {1 spot left} other {# spots left}}",
+      "spotsFull": "Full",
+      "bookedBadge": "Booked",
+      "onWaitlistBadge": "On waitlist",
+      "actionLoading": "…",
       "prevDatesAria": "Previous dates",
       "nextDatesAria": "Next dates",
       "empty": "No schedule items yet.",
@@ -2502,7 +2529,8 @@
         "disabledSuccess": "Package disabled.",
         "deleteSuccess": "Package deleted.",
         "categoryDeleteSuccess": "Category deleted.",
-        "tierAddedSuccess": "Pricing option added."
+        "tierAddedSuccess": "Pricing option added.",
+        "tierUpdatedSuccess": "Pricing option updated."
       },
       "pricingTitle": "Pricing & Billing",
       "pricingDescription": "Manage billing settings for this package.",
@@ -2527,10 +2555,10 @@
       "deletingButton": "Deleting…",
       "deleteCategoryConfirm": "Delete category \"{name}\" and all {count} packages in it? This cannot be undone.",
       "deleteCategoryConfirmEmpty": "Remove empty category \"{name}\"?",
-      "durationMonthsInvalid": "Enter a whole number of months from 1 to 120.",
-      "fieldDurationMonths": "Package duration (months)",
-      "fieldDurationMonthsPlaceholder": "e.g. 6",
-      "fieldDurationMonthsHint": "Shown in the packages table in the Session column (1 month = 30 days).",
+      "durationDaysInvalid": "Enter a whole number of days from 1 to 3600.",
+      "fieldDurationDays": "Package duration (days)",
+      "fieldDurationDaysPlaceholder": "e.g. 40",
+      "fieldDurationDaysHint": "Shown in the packages table Validity column.",
       "fieldGuestCount": "Guests (optional)",
       "fieldGuestCountPlaceholder": "e.g. 2",
       "fieldGuestCountHint": "Maximum guests allowed on this package (shown in the Guests column).",
@@ -2549,8 +2577,13 @@
       "fieldSessionsCount": "Sessions",
       "fieldSessionsCountPlaceholder": "e.g. 10",
       "sessionsCountInvalid": "Enter a whole number of sessions from 1 to 999.",
-      "fieldValidityHint": "Shown in the Validity column (1 month = 30 days).",
-      "saveTierButton": "Add option"
+      "fieldValidityHint": "Shown in the Validity column.",
+      "saveTierButton": "Add option",
+      "editTierTitle": "Edit pricing option",
+      "editTierDescription": "Update sessions, price, validity, and guest limit for this option.",
+      "editTierFormHeading": "Pricing option",
+      "editTierFormDescription": "Session count, price, validity, and guest limit appear in the package list.",
+      "saveTierChangesButton": "Save changes"
     },
     "packagePlans": {
       "title": "Membership plans",
@@ -2617,7 +2650,6 @@
     },
     "waitlists": {
       "title": "Waitlists",
-      "description": "Manage active waitlist entries and promote members when spots open.",
       "errorAuth": "Admin or manager sign-in required.",
       "errorLoad": "Could not load waitlists ({status}).",
       "loadFailed": "Could not load active waitlist entries.",
@@ -3541,7 +3573,14 @@
     },
     "joinWaitlist": {
       "action": "Join waitlist",
-      "failed": "Could not join waitlist"
+      "failed": "Could not join waitlist",
+      "success": "Added to waitlist",
+      "alreadyOnWaitlist": "You are already on the waitlist"
+    },
+    "leaveWaitlist": {
+      "action": "Leave waitlist",
+      "failed": "Could not leave waitlist",
+      "success": "Removed from waitlist"
     },
     "packageCheckout": {
       "subscribe": "Subscribe"

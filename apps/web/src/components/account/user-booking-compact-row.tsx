@@ -13,7 +13,6 @@ import {
   USER_BOOKINGS_LIST_CLASS_CELL,
   USER_BOOKINGS_LIST_DATE_CELL,
   USER_BOOKINGS_LIST_ROW_CLASS,
-  USER_BOOKINGS_LIST_SPACER_CELL,
   USER_BOOKINGS_LIST_STATUS_CELL,
   USER_BOOKINGS_LIST_TIME_CELL,
 } from "@/components/account/user-bookings-list-layout";
@@ -74,8 +73,6 @@ export function UserBookingCompactRow({
           {booking.status}
         </span>
       </div>
-
-      <div className={USER_BOOKINGS_LIST_SPACER_CELL} aria-hidden="true" />
 
       <div className={USER_BOOKINGS_LIST_ACTIONS_CELL}>
         {showCancel && booking.status === "BOOKED" ? (

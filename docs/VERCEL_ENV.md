@@ -26,6 +26,7 @@ Assumption: **Next.js** is deployed on Vercel; **Nest API**, database, and secre
 |----------|---------|---------|
 | `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` | Public site URL (SSR, links, metadata). No trailing slash unless your app expects one. |
 | `NEXT_PUBLIC_API_URL` | `https://api.your-domain.com` | Browser-facing API base URL (client-side requests, asset URLs). |
+| `NEXT_PUBLIC_API_ORIGIN` | `https://api.your-domain.com` | **SSE only** — browser `EventSource` connects directly to this origin (not Next `/api/v1` rewrite). Usually the same value as `NEXT_PUBLIC_API_URL`. |
 | `API_INTERNAL_URL` | `https://api.your-domain.com` | Server-side proxy target for `/api/v1/*` rewrites in `apps/web/next.config.ts`. **Must not** be `http://127.0.0.1:4000` on Vercel. |
 
 `NODE_ENV` is set by Vercel; do not override unless you have a specific reason.

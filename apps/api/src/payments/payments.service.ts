@@ -17,6 +17,8 @@ import {
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import {
   AdminListPaymentsQueryDto,
   PaymentSourceFilter,
@@ -80,6 +82,8 @@ export class PaymentsService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly mail: MailService,
+    private readonly schedule: ScheduleService,
+    private readonly realtime: RealtimePublisherService,
   ) {}
 
   async createGiftCheckout(params: {
@@ -467,7 +471,25 @@ export class PaymentsService {
     for (const email of giftEmails) {
       await this.sendGiftCardEmail(email.to, email.code);
     }
+    await this.emitDropInBookingRealtimeIfNeeded(payment);
     return payment;
+  }
+
+  private async emitDropInBookingRealtimeIfNeeded(
+    payment: InternalPaymentRecord,
+  ): Promise<void> {
+    if (payment.source !== INTERNAL_PAYMENT_SOURCE.DROPIN) {
+      return;
+    }
+    const sessionId = payment.sourceId?.trim();
+    if (!sessionId) {
+      return;
+    }
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: payment.userId,
+      sessionId,
+    });
   }
 
   async listPayments(userId: string, query: ListMyPaymentsQueryDto = {}) {

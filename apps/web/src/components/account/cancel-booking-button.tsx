@@ -2,15 +2,23 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
 import { ApiError, apiFetch } from "@/lib/api";
+import {
+  clearBookingCancelIntent,
+  registerBookingCancelIntent,
+} from "@/lib/booking-cancel-intent";
+import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
+import { BOOKING_CANCEL_CONFIRM_DELAY_MS } from "@/lib/public-schedule-constants";
 
 type Props = {
   bookingId: string;
   appearance?: "link" | "button";
   size?: "sm" | "md";
+  buttonClassName?: string;
+  wrapperClassName?: string;
   onCancelled?: () => void;
 };
 
@@ -20,58 +28,112 @@ export function CancelBookingButton({
   bookingId,
   appearance = "link",
   size = "md",
+  buttonClassName,
+  wrapperClassName,
   onCancelled,
 }: Props) {
   const router = useRouter();
   const t = useTranslations("forms.cancelBooking");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmReady, setConfirmReady] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const buttonSize = appearance === "link" ? "sm" : size;
 
-  function openConfirm() {
+  useEffect(() => {
+    if (!confirmOpen) {
+      return undefined;
+    }
+    const timeoutId = window.setTimeout(() => {
+      setConfirmReady(true);
+    }, BOOKING_CANCEL_CONFIRM_DELAY_MS);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [confirmOpen]);
+
+  async function openConfirm() {
     if (busy) {
       return;
     }
-    setConfirmOpen(true);
+    setMsg(null);
+    setConfirmReady(false);
+    try {
+      await registerBookingCancelIntent(bookingId);
+      dispatchNotificationsRefresh();
+      setConfirmOpen(true);
+    } catch (error) {
+      setMsg(error instanceof ApiError ? error.message : t("failed"));
+    }
   }
 
-  function closeConfirm() {
+  async function closeConfirm() {
     if (busy) {
       return;
     }
     setConfirmOpen(false);
+    setConfirmReady(false);
+    try {
+      await clearBookingCancelIntent(bookingId);
+      dispatchNotificationsRefresh();
+    } catch {
+      // Spot hold expires server-side; schedule poll will reconcile.
+    }
   }
 
   async function confirmCancel() {
+    if (!confirmReady) {
+      return;
+    }
     setBusy(true);
     setMsg(null);
     try {
       await apiFetch(`/bookings/${bookingId}`, { method: "DELETE" });
       setConfirmOpen(false);
       onCancelled?.();
+      dispatchNotificationsRefresh();
       router.refresh();
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : t("failed"));
       setConfirmOpen(false);
+      try {
+        await clearBookingCancelIntent(bookingId);
+        dispatchNotificationsRefresh();
+      } catch {
+        // Hold will expire automatically.
+      }
     } finally {
       setBusy(false);
     }
   }
 
+  const resolvedButtonClass = buttonClassName ?? CANCEL_BOOKING_BUTTON_CLASS;
+  const useNativeButton = buttonClassName !== undefined;
+
   return (
     <>
-      <div className="flex flex-col items-start gap-1">
-        <OmmButton
-          type="button"
-          variant="secondary"
-          size={buttonSize}
-          disabled={busy}
-          className={CANCEL_BOOKING_BUTTON_CLASS}
-          onClick={openConfirm}
-        >
-          {t("action")}
-        </OmmButton>
+      <div className={wrapperClassName ?? "flex flex-col items-start gap-1"}>
+        {useNativeButton ? (
+          <button
+            type="button"
+            disabled={busy}
+            className={resolvedButtonClass}
+            onClick={() => void openConfirm()}
+          >
+            {t("action")}
+          </button>
+        ) : (
+          <OmmButton
+            type="button"
+            variant="secondary"
+            size={buttonSize}
+            disabled={busy}
+            className={resolvedButtonClass}
+            onClick={() => void openConfirm()}
+          >
+            {t("action")}
+          </OmmButton>
+        )}
         {msg ? <p className="text-xs text-amber-800">{msg}</p> : null}
       </div>
       <OmmConfirmDialog
@@ -83,9 +145,9 @@ export function CancelBookingButton({
         backdropAriaLabel={t("modalBackdropClose")}
         tone="danger"
         confirmClassName={CANCEL_BOOKING_BUTTON_CLASS}
-        pending={busy}
+        pending={busy || !confirmReady}
         onConfirm={() => void confirmCancel()}
-        onCancel={closeConfirm}
+        onCancel={() => void closeConfirm()}
       />
     </>
   );

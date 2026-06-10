@@ -1,20 +1,8 @@
-import { startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import type { IntegratedFilterField } from "@/components/shared/search/integrated-search-filter-types";
-
-function toLocalIsoDate(date: Date): string {
-  const year = String(date.getFullYear());
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function scheduleTodayIsoDate(): string {
-  return toLocalIsoDate(startOfLocalDay(new Date()));
-}
-
-function scheduleSessionLocalIsoDay(startsAt: string): string {
-  return toLocalIsoDate(new Date(startsAt));
-}
+import {
+  scheduleSessionLocalIsoDay,
+  scheduleTodayIsoDate,
+} from "@/lib/local-iso-date";
 
 export const DATE_SORT_ORDERS = ["newest", "oldest"] as const;
 export type DateSortOrder = (typeof DATE_SORT_ORDERS)[number];

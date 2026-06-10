@@ -3,8 +3,8 @@ export const MAX_CATEGORY_NAME_LENGTH = 80;
 export const MAX_DESCRIPTION_LENGTH = 500;
 export const MAX_BILLING_PERIOD_LENGTH = 32;
 export const PACKAGE_DAYS_PER_MONTH = 30;
-export const MIN_PACKAGE_DURATION_MONTHS = 1;
-export const MAX_PACKAGE_DURATION_MONTHS = 120;
+export const MIN_PACKAGE_DURATION_DAYS = 1;
+export const MAX_PACKAGE_DURATION_DAYS = 3600;
 export const MIN_PACKAGE_GUEST_COUNT = 0;
 export const MAX_PACKAGE_GUEST_COUNT = 99;
 export const MIN_PACKAGE_SESSIONS = 1;
@@ -33,6 +33,15 @@ export function isBillingPeriodOption(value: string): value is BillingPeriodOpti
   return BILLING_PERIOD_OPTIONS.includes(value as BillingPeriodOption);
 }
 
+export function resolvePackageBillingPeriod(
+  pkg: { billingPeriod: string } | undefined,
+): BillingPeriodOption {
+  if (pkg !== undefined && isBillingPeriodOption(pkg.billingPeriod)) {
+    return pkg.billingPeriod;
+  }
+  return "monthly";
+}
+
 export function durationMonthsToPeriodDays(months: number): number {
   return months * PACKAGE_DAYS_PER_MONTH;
 }
@@ -44,18 +53,14 @@ export function resolvePackageDurationMonths(periodDays: number): number {
   if (periodDays % PACKAGE_DAYS_PER_MONTH === 0) {
     return periodDays / PACKAGE_DAYS_PER_MONTH;
   }
-  return Math.max(
-    MIN_PACKAGE_DURATION_MONTHS,
-    Math.round(periodDays / PACKAGE_DAYS_PER_MONTH),
-  );
+  return Math.max(1, Math.round(periodDays / PACKAGE_DAYS_PER_MONTH));
 }
 
-export function periodDaysToDurationMonths(periodDays: number): string {
-  const months = resolvePackageDurationMonths(periodDays);
-  if (months <= 0) {
-    return String(MIN_PACKAGE_DURATION_MONTHS);
+export function periodDaysToFormDurationDays(periodDays: number): string {
+  if (!Number.isFinite(periodDays) || periodDays <= 0) {
+    return String(PACKAGE_DAYS_PER_MONTH);
   }
-  return String(months);
+  return String(periodDays);
 }
 
 export function parseGuestCount(raw: string): number | null {
@@ -82,28 +87,34 @@ export function parseSessionsCount(raw: string): number | null {
   return count;
 }
 
-export function parseDurationMonths(raw: string): number | null {
+/** Builds the stored plan name from session count (e.g. "1 Session", "4 Sessions"). */
+export function buildPackageSessionNameFromCount(count: number): string {
+  if (!Number.isInteger(count) || count <= 0) {
+    return buildPackageSessionNameFromCount(MIN_PACKAGE_SESSIONS);
+  }
+  return count === 1 ? "1 Session" : `${count} Sessions`;
+}
+
+export function parseDurationDays(raw: string): number | null {
   const normalized = raw.trim();
   if (normalized.length === 0) {
     return null;
   }
-  const months = Number.parseInt(normalized, 10);
-  if (!Number.isInteger(months)) {
+  const days = Number.parseInt(normalized, 10);
+  if (!Number.isInteger(days)) {
     return null;
   }
-  return months;
+  return days;
 }
 
 export type AdminPackageFormValues = {
   name: string;
-  sessionName: string;
   categoryName: string;
   description: string;
   price: string;
-  durationMonths: string;
+  durationDays: string;
   sessionsCount: string;
   guestCount: string;
-  billingPeriod: BillingPeriodOption;
   isPopular: boolean;
   isActive: boolean;
 };
@@ -111,14 +122,12 @@ export type AdminPackageFormValues = {
 export function createEmptyPackageFormValues(initialCategoryName = ""): AdminPackageFormValues {
   return {
     name: "",
-    sessionName: "",
     categoryName: initialCategoryName,
     description: "",
     price: "",
-    durationMonths: "1",
+    durationDays: String(PACKAGE_DAYS_PER_MONTH),
     sessionsCount: "1",
     guestCount: "",
-    billingPeriod: "monthly",
     isPopular: false,
     isActive: true,
   };
@@ -139,22 +148,19 @@ export function packageRowToFormValues(
 },
   fallbackCategoryName = "",
 ): AdminPackageFormValues {
-  const billingPeriod = isBillingPeriodOption(pkg.billingPeriod) ? pkg.billingPeriod : "monthly";
   const sessions =
     typeof pkg.sessionsPerMonth === "number" && pkg.sessionsPerMonth > 0
       ? pkg.sessionsPerMonth
       : MIN_PACKAGE_SESSIONS;
   return {
     name: pkg.name,
-    sessionName: pkg.name,
     categoryName: pkg.categoryName.trim().length > 0 ? pkg.categoryName : fallbackCategoryName,
     description: pkg.description ?? "",
     price: String(pkg.priceCents),
-    durationMonths: periodDaysToDurationMonths(pkg.periodDays),
+    durationDays: periodDaysToFormDurationDays(pkg.periodDays),
     sessionsCount: String(sessions),
     guestCount:
       typeof pkg.guestCount === "number" && pkg.guestCount > 0 ? String(pkg.guestCount) : "",
-    billingPeriod,
     isPopular: pkg.isPopular,
     isActive: pkg.isActive,
   };

@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import { AdminWaitlistCompactRow } from "@/components/admin/admin-waitlist-compact-row";
 import {
   ADMIN_WAITLIST_LIST_ACTIONS_HEADER_CELL,
@@ -250,6 +252,13 @@ export function AdminWaitlistManagement({
       }
     }
   }, [listPage.offset, listPage.take, orderFilter, setPayload, t]);
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.WAITLIST_ADMIN, () => {
+    void loadRows();
+  });
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.BOOKINGS_ADMIN, () => {
+    void loadRows();
+  });
 
   const refreshList = useCallback(() => {
     startRefreshTransition(() => {

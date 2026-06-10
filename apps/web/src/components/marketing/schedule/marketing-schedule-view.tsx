@@ -1,7 +1,23 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { apiFetch } from "@/lib/api";
+import { fetchPublicScheduleClient } from "@/lib/fetch-public-schedule-client";
+import { useDebouncedCallback } from "@/lib/debounced-callback";
+import {
+  dispatchNotificationsRefresh,
+  NOTIFICATIONS_REFRESH_EVENT,
+} from "@/lib/notifications-refresh-event";
+import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
+import {
+  applyScheduleSpotDelta,
+  resolveMemberOnWaitlistBadge,
+  resolveMemberScheduleRowDisplay,
+} from "@/lib/schedule-session-spots";
+import type { UserBookingRow } from "@/lib/user-booking-types";
+import { useMemberWaitlistData } from "@/hooks/use-member-waitlist-data";
 import styles from "@/components/marketing/schedule/marketing-schedule-view.module.css";
 import {
   SCHEDULE_DATE_STRIP_VISIBLE_DAYS,
@@ -28,6 +44,10 @@ import {
 import {
   useScheduleDayTransition,
 } from "@/components/marketing/schedule/use-schedule-day-transition";
+import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
+import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
+import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 
@@ -93,24 +113,208 @@ function scheduleItemDate(
     : mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
 }
 
-function toLocaleTime(locale: string, value: string): string {
-  const [hour, minute] = value.split(":").map((part) => Number(part));
-  const d = new Date();
-  d.setHours(hour, minute, 0, 0);
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(d);
-}
-
 export function MarketingScheduleView({ initialItems, audience }: MarketingScheduleViewProps) {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
-  const [items] = useState<MarketingScheduleItem[]>(initialItems);
+  const isMember = audience === "member";
+  const [items, setItems] = useState<MarketingScheduleItem[]>(initialItems);
+  const [bookedBySessionId, setBookedBySessionId] = useState<Record<string, string>>({});
+  const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(!isMember);
   const [baseline] = useState(() => startOfLocalDay(new Date()));
   const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
+  const [scheduleNow, setScheduleNow] = useState(() => new Date());
+  const [scheduleCapacityReady, setScheduleCapacityReady] = useState(false);
+  const initialScheduleHydratedRef = useRef(false);
+  const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
+    useMemberWaitlistData(isMember);
+  const memberActionStateReady =
+    !isMember || (memberBookingsLoaded && memberWaitlistLoaded && scheduleCapacityReady);
+  const spotsStateReady = !isMember || scheduleCapacityReady;
+
+  const refetchMemberBookings = useCallback(async (markLoaded: boolean) => {
+    if (!isMember) {
+      setMemberBookingsLoaded(true);
+      setBookedBySessionId({});
+      return;
+    }
+    try {
+      const rows = await apiFetch<UserBookingRow[]>("/bookings/me");
+      const next: Record<string, string> = {};
+      for (const row of rows) {
+        if (row.status === "BOOKED") {
+          next[row.session.id] = row.id;
+        }
+      }
+      setBookedBySessionId(next);
+    } catch {
+      // Keep the previous map on transient load errors.
+    } finally {
+      if (markLoaded) {
+        setMemberBookingsLoaded(true);
+      }
+    }
+  }, [isMember]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      if (!isMember) {
+        if (!cancelled) {
+          setMemberBookingsLoaded(true);
+          setBookedBySessionId({});
+        }
+        return;
+      }
+      try {
+        const rows = await apiFetch<UserBookingRow[]>("/bookings/me");
+        if (cancelled) {
+          return;
+        }
+        const next: Record<string, string> = {};
+        for (const row of rows) {
+          if (row.status === "BOOKED") {
+            next[row.session.id] = row.id;
+          }
+        }
+        setBookedBySessionId(next);
+      } catch {
+        // Keep the previous map on transient load errors.
+      } finally {
+        if (!cancelled) {
+          setMemberBookingsLoaded(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialItems, isMember]);
+
+  const refreshSchedule = useCallback(async () => {
+    try {
+      const { items: nextItems } = await fetchPublicScheduleClient();
+      setItems(nextItems);
+    } catch {
+      // Keep current list when refresh fails.
+    } finally {
+      if (!initialScheduleHydratedRef.current) {
+        initialScheduleHydratedRef.current = true;
+        setScheduleCapacityReady(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchPublicScheduleClient()
+      .then(({ items: nextItems }) => {
+        if (!cancelled) {
+          setItems(nextItems);
+        }
+      })
+      .catch(() => {
+        // Keep current list when refresh fails.
+      })
+      .finally(() => {
+        if (!cancelled && !initialScheduleHydratedRef.current) {
+          initialScheduleHydratedRef.current = true;
+          setScheduleCapacityReady(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const syncLiveSchedule = useCallback(() => {
+    setScheduleNow(new Date());
+    void refreshSchedule();
+  }, [refreshSchedule]);
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);
+  useRealtimeRefetch(
+    REALTIME_REFETCH_KEYS.BOOKINGS_ME,
+    () => refetchMemberBookings(false),
+    isMember,
+  );
+  useRealtimeRefetch(
+    REALTIME_REFETCH_KEYS.WAITLIST_ME,
+    () => refetchWaitlist({ silent: true }),
+    isMember,
+  );
+
+  useScheduleLiveSync({ onSync: syncLiveSchedule });
+
+  const debouncedRefetchBookings = useDebouncedCallback(() => {
+    void refetchMemberBookings(false);
+  }, 400);
+
+  useEffect(() => {
+    if (!isMember) {
+      return undefined;
+    }
+    const handleRefresh = (): void => {
+      debouncedRefetchBookings();
+    };
+    window.addEventListener(NOTIFICATIONS_REFRESH_EVENT, handleRefresh);
+    return () => {
+      window.removeEventListener(NOTIFICATIONS_REFRESH_EVENT, handleRefresh);
+    };
+  }, [debouncedRefetchBookings, isMember]);
+
+  useEffect(() => {
+    const tick = (): void => {
+      setScheduleNow(new Date());
+    };
+    const intervalId = window.setInterval(tick, SCHEDULE_CLOCK_TICK_MS);
+    const onVisibility = (): void => {
+      if (document.visibilityState === "visible") {
+        tick();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
+  const handleBooked = useCallback(
+    (sessionId: string, bookingId: string) => {
+      setBookedBySessionId((current) => ({ ...current, [sessionId]: bookingId }));
+      setItems((current) =>
+        current.map((item) =>
+          item.id === sessionId ? applyScheduleSpotDelta(item, -1) : item,
+        ),
+      );
+      void refreshSchedule();
+      dispatchNotificationsRefresh();
+    },
+    [refreshSchedule],
+  );
+
+  const handleCancelled = useCallback(
+    async (sessionId: string) => {
+      setBookedBySessionId((current) => {
+        const next = { ...current };
+        delete next[sessionId];
+        return next;
+      });
+      await refreshSchedule();
+      dispatchNotificationsRefresh();
+    },
+    [refreshSchedule],
+  );
+
+  const handleWaitlisted = useCallback(() => {
+    void refetchWaitlist({ silent: true });
+  }, [refetchWaitlist]);
+
+  const handleWaitlistLeft = useCallback(() => {
+    void refetchWaitlist({ silent: true });
+  }, [refetchWaitlist]);
 
   const classTypeOptions = useMemo<readonly ScheduleFilterOption<string>[]>(() => {
     const distinct = getScheduleClassTypeValues(items);
@@ -147,6 +351,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     const baselineWeekStart = startOfWeekSunday(baseline);
     return items
       .filter((item) => item.isActive)
+      .filter((item) => isUpcomingPublicScheduleSession(item, scheduleNow))
       .filter((item) => {
         const rowDay = scheduleItemDate(item, baselineWeekStart, dayToOffset);
         if (!isSameCalendarDay(rowDay, nav.selectedDate)) return false;
@@ -155,7 +360,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
         return true;
       })
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset]);
+  }, [baseline, nav.selectedDate, classType, instructor, items, dayToOffset, scheduleNow]);
 
   const selectedDayKey = nav.selectedDate.toISOString().slice(0, 10);
   const { contentRef, renderedDayKey, renderedSessions, animationPhase, containerStyle, getItemStyle } =
@@ -210,25 +415,53 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                 {t("empty")}
               </li>
             ) : (
-              renderedSessions.map((row, index) => (
-                <ScheduleSessionRow
-                  key={row.id}
-                  row={row}
-                  bookLabel={t("bookCta")}
-                  audience={audience}
-                  subtitle={`${row.instructorName} • ${row.classType}`}
-                  timeLabel={toLocaleTime(locale, row.startTime)}
-                  durationLabel={
-                    row.durationMinutes !== null
-                      ? t("minutesShort", { count: row.durationMinutes })
-                      : row.endTime !== null
-                        ? `${toLocaleTime(locale, row.startTime)} - ${toLocaleTime(locale, row.endTime)}`
-                        : "-"
-                  }
-                  className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
-                  style={getItemStyle(index)}
-                />
-              ))
+              renderedSessions.map((row, index) => {
+                const userOnWaitlist =
+                  bookedBySessionId[row.id] === undefined && waitlistedSessionIds.has(row.id);
+                const displayRow = resolveMemberScheduleRowDisplay({
+                  row,
+                  onWaitlist: userOnWaitlist,
+                  capacityReady: scheduleCapacityReady,
+                });
+                const showOnWaitlist = resolveMemberOnWaitlistBadge({
+                  userBookingId: bookedBySessionId[row.id],
+                  onWaitlist: userOnWaitlist,
+                  availableSpots: displayRow.availableSpots,
+                  sessionStatus: displayRow.status,
+                  capacityReady: scheduleCapacityReady,
+                });
+
+                return (
+                  <ScheduleSessionRow
+                    key={row.id}
+                    row={displayRow}
+                    bookLabel={t("bookCta")}
+                    audience={audience}
+                    subtitle={`${row.instructorName} • ${row.classType}`}
+                    spotsFullLabel={t("spotsFull")}
+                    spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
+                    spotsLoadingLabel={t("actionLoading")}
+                    spotsStateReady={spotsStateReady}
+                    timeLabel={formatScheduleTimeHHmm(locale, row.startTime)}
+                    durationLabel={
+                      row.durationMinutes !== null
+                        ? t("minutesShort", { count: row.durationMinutes })
+                        : row.endTime !== null
+                          ? `${formatScheduleTimeHHmm(locale, row.startTime)} - ${formatScheduleTimeHHmm(locale, row.endTime)}`
+                          : "-"
+                    }
+                    userBookingId={bookedBySessionId[row.id]}
+                    bookingStateReady={memberActionStateReady}
+                    isOnWaitlist={showOnWaitlist}
+                    onBooked={handleBooked}
+                    onCancelled={handleCancelled}
+                    onWaitlisted={handleWaitlisted}
+                    onWaitlistLeft={handleWaitlistLeft}
+                    className={animationPhase === "enter" ? styles.scheduleItemEnter : ""}
+                    style={getItemStyle(index)}
+                  />
+                );
+              })
             )}
           </ul>
         </div>
