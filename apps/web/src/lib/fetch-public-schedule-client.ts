@@ -9,8 +9,9 @@ type PublicScheduleClientResult = {
   classTypes: string[];
 };
 
-/** Client-side refresh of the public schedule window (today + 30 days). */
-export async function fetchPublicScheduleClient(): Promise<PublicScheduleClientResult> {
+let inFlightScheduleFetch: Promise<PublicScheduleClientResult> | null = null;
+
+async function loadPublicScheduleClient(): Promise<PublicScheduleClientResult> {
   const rows = await apiFetch<MarketingScheduleItem[]>(
     `/schedule/public?${buildPublicScheduleRangeQuery()}`,
   );
@@ -22,4 +23,19 @@ export async function fetchPublicScheduleClient(): Promise<PublicScheduleClientR
     items: activeItems,
     classTypes: getScheduleClassTypeValues(activeItems),
   };
+}
+
+/** Client-side refresh of the public schedule window (today + 30 days). */
+export async function fetchPublicScheduleClient(): Promise<PublicScheduleClientResult> {
+  if (inFlightScheduleFetch !== null) {
+    return inFlightScheduleFetch;
+  }
+
+  const pending = loadPublicScheduleClient().finally(() => {
+    if (inFlightScheduleFetch === pending) {
+      inFlightScheduleFetch = null;
+    }
+  });
+  inFlightScheduleFetch = pending;
+  return pending;
 }

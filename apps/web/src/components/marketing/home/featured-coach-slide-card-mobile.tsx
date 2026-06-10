@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Image from "next/image";
 import styles from "@/components/marketing/home/featured-coach-slide-card-mobile.module.css";
@@ -83,7 +83,7 @@ export function FeaturedCoachSlideCardMobile({
   })();
 
   return (
-    <motion.article
+    <m.article
       aria-hidden={ariaHidden ? true : undefined}
       className={styles.cardRoot}
       style={{ zIndex: laneZIndex(lane), transformOrigin: "top center" }}
@@ -147,6 +147,6 @@ export function FeaturedCoachSlideCardMobile({
           onClick={onActivate}
         />
       ) : null}
-    </motion.article>
+    </m.article>
   );
 }

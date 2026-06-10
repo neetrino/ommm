@@ -207,26 +207,8 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    void fetchPublicScheduleClient()
-      .then(({ items: nextItems }) => {
-        if (!cancelled) {
-          setItems(nextItems);
-        }
-      })
-      .catch(() => {
-        // Keep current list when refresh fails.
-      })
-      .finally(() => {
-        if (!cancelled && !initialScheduleHydratedRef.current) {
-          initialScheduleHydratedRef.current = true;
-          setScheduleCapacityReady(true);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void refreshSchedule();
+  }, [refreshSchedule]);
 
   const syncLiveSchedule = useCallback(() => {
     setScheduleNow(new Date());
@@ -265,18 +247,41 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   }, [debouncedRefetchBookings, isMember]);
 
   useEffect(() => {
+    let intervalId: number | undefined;
+
     const tick = (): void => {
       setScheduleNow(new Date());
     };
-    const intervalId = window.setInterval(tick, SCHEDULE_CLOCK_TICK_MS);
+
+    const clearIntervalIfSet = (): void => {
+      if (intervalId !== undefined) {
+        window.clearInterval(intervalId);
+        intervalId = undefined;
+      }
+    };
+
+    const armInterval = (): void => {
+      clearIntervalIfSet();
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+      intervalId = window.setInterval(tick, SCHEDULE_CLOCK_TICK_MS);
+    };
+
+    armInterval();
+
     const onVisibility = (): void => {
       if (document.visibilityState === "visible") {
         tick();
+        armInterval();
+        return;
       }
+      clearIntervalIfSet();
     };
+
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
-      window.clearInterval(intervalId);
+      clearIntervalIfSet();
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);

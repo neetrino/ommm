@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { CSSProperties, ReactNode } from "react";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { marketingScrollRevealMotionProps } from "@/components/marketing/marketing-scroll-reveal-motion";
@@ -49,7 +49,7 @@ export function SchedulePageListItemReveal({
     : revealStyles.revealSlot;
 
   return (
-    <motion.li
+    <m.li
       className={slotClassName}
       style={style}
       {...marketingScrollRevealMotionProps(
@@ -59,6 +59,6 @@ export function SchedulePageListItemReveal({
       )}
     >
       {children}
-    </motion.li>
+    </m.li>
   );
 }

@@ -14,6 +14,8 @@ type OmmConfirmDialogProps = {
   cancelLabel: string;
   backdropAriaLabel: string;
   pending?: boolean;
+  /** When set, only the confirm action is blocked (dismiss stays enabled unless `pending`). */
+  confirmPending?: boolean;
   tone?: OmmConfirmDialogTone;
   confirmClassName?: string;
   onConfirm: () => void;
@@ -22,7 +24,7 @@ type OmmConfirmDialogProps = {
 };
 
 const CONFIRM_DIALOG_PANEL_CLASS =
-  "w-full max-w-md rounded-[28px] border border-white/60 bg-white/90 p-6 shadow-[0_30px_70px_-30px_rgba(45,40,35,0.45)] backdrop-blur-md";
+  "w-full max-w-md rounded-[28px] border border-sand-200/80 bg-white p-6 shadow-[0_24px_48px_-28px_rgba(45,40,35,0.35)]";
 
 const CONFIRM_DIALOG_TONE_PANEL_CLASS: Record<OmmConfirmDialogTone, string> = {
   default: "",
@@ -39,6 +41,7 @@ export function OmmConfirmDialog({
   cancelLabel,
   backdropAriaLabel,
   pending = false,
+  confirmPending,
   tone = "default",
   confirmClassName = "",
   onConfirm,
@@ -47,6 +50,7 @@ export function OmmConfirmDialog({
 }: OmmConfirmDialogProps) {
   const titleId = useId();
   const descId = useId();
+  const resolvedConfirmPending = confirmPending ?? pending;
   const panelClassName = [
     CONFIRM_DIALOG_PANEL_CLASS,
     CONFIRM_DIALOG_TONE_PANEL_CLASS[tone],
@@ -86,7 +90,7 @@ export function OmmConfirmDialog({
             size="md"
             className={confirmClassName}
             onClick={onConfirm}
-            disabled={pending}
+            disabled={resolvedConfirmPending}
           >
             {confirmLabel}
           </OmmButton>

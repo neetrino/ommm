@@ -292,7 +292,6 @@ export class BookingsService {
     const studio = await this.prisma.studioSettings.findFirst();
     const noticeHours = resolveCancellationHoursNotice(
       studio?.cancellationHoursNotice,
-      this.config.get<string>('CANCELLATION_HOURS_NOTICE'),
     );
     if (isCancellationNoticeEnforced(noticeHours)) {
       const deadline = new Date(booking.session.startsAt);
