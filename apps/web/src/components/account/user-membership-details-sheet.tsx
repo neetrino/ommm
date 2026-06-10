@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import {
@@ -16,16 +16,24 @@ import {
   memberStatusClassName,
 } from "@/components/account/user-membership-display";
 import {
+  USER_MEMBERSHIP_DETAILS_DESKTOP_BACKDROP_CLASS,
+  USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS,
+  USER_MEMBERSHIP_DETAILS_DESKTOP_OVERLAY_CLASS,
+  USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS,
+} from "@/components/account/user-membership-details-sheet-layout";
+import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
   ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
   ADMIN_DETAILS_SHEET_FOOTER_CLASS,
   ADMIN_DETAILS_SHEET_HEADER_CLASS,
   ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS,
   ADMIN_DETAILS_SHEET_TITLE_CLASS,
+  USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS,
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
@@ -52,7 +60,7 @@ export function UserMembershipDetailsSheet({
   isOpen,
   onClose,
 }: UserMembershipDetailsSheetProps) {
-  if (membership === null) {
+  if (!isOpen && membership === null) {
     return null;
   }
 
@@ -74,7 +82,7 @@ function UserMembershipDetailsSheetInner({
   isOpen,
   onClose,
 }: {
-  membership: UserMembershipRow;
+  membership: UserMembershipRow | null;
   locale: string;
   status: UserPackageStatus;
   isOpen: boolean;
@@ -83,19 +91,70 @@ function UserMembershipDetailsSheetInner({
   const t = useTranslations("userPages.packages");
   const m = useTranslations("marketing");
   const titleId = useId();
-  const display = buildMembershipDisplayModel(membership, status, t, m);
-  const lifecycle = useUserPackageLifecycle(membership.id, status);
-  const showLifecycleActions = hasPackageLifecycleActions(status);
+  const isPhone = useMemberHubSheetPhone();
+  const closingRef = useRef(false);
+  const [motionState, setMotionState] = useState<"open" | "closed">("closed");
+  const [displayMembership, setDisplayMembership] = useState<UserMembershipRow | null>(
+    membership,
+  );
+  const [displayStatus, setDisplayStatus] = useState<UserPackageStatus>(status);
 
-  return (
-    <OmmDrawerPortal
-      isOpen={isOpen}
-      onClose={onClose}
-      backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
-      ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS}
-    >
+  useLayoutEffect(() => {
+    if (membership === null) {
+      return;
+    }
+    setDisplayMembership(membership);
+    setDisplayStatus(status);
+  }, [membership, status]);
+
+  useLayoutEffect(() => {
+    if (isPhone || !isOpen) {
+      return undefined;
+    }
+
+    setMotionState("closed");
+    const frame = requestAnimationFrame(() => {
+      setMotionState("open");
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [displayMembership?.id, isOpen, isPhone]);
+
+  const lifecycle = useUserPackageLifecycle(displayMembership?.id ?? "", displayStatus);
+
+  function finishClose() {
+    closingRef.current = false;
+    onClose();
+  }
+
+  function handleClose() {
+    if (closingRef.current) {
+      return;
+    }
+
+    dismissMobileKeyboard();
+
+    if (isPhone) {
+      finishClose();
+      return;
+    }
+
+    closingRef.current = true;
+    setMotionState("closed");
+    window.setTimeout(finishClose, USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS);
+  }
+
+  if (displayMembership === null) {
+    return null;
+  }
+
+  const display = buildMembershipDisplayModel(displayMembership, displayStatus, t, m);
+  const showLifecycleActions = hasPackageLifecycleActions(displayStatus);
+
+  const sheetContent = (
+    <>
       <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1 space-y-3">
@@ -104,22 +163,22 @@ function UserMembershipDetailsSheetInner({
             </h2>
             {showLifecycleActions ? (
               <UserPackageLifecycleActions
-                userPackageId={membership.id}
-                status={status}
+                userPackageId={displayMembership.id}
+                status={displayStatus}
                 layout="sheetHeader"
                 lifecycle={lifecycle}
               />
             ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className={memberStatusClassName(status)}>
-              {formatMembershipStatusLabel(status, t)}
+            <span className={memberStatusClassName(displayStatus)}>
+              {formatMembershipStatusLabel(displayStatus, t)}
             </span>
             <button
               type="button"
               className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
               aria-label={t("membershipDetailsCloseBackdrop")}
-              onClick={onClose}
+              onClick={handleClose}
             >
               <CloseGlyph />
             </button>
@@ -130,15 +189,18 @@ function UserMembershipDetailsSheetInner({
       <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
         <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
           <DetailRow label={t("membershipDetailsSessionName")} value={display.sessionName} />
-          <DetailRow label={t("membershipDetailsCategory")} value={membership.plan.categoryName} />
+          <DetailRow
+            label={t("membershipDetailsCategory")}
+            value={displayMembership.plan.categoryName}
+          />
           <DetailRow
             label={t("membershipDetailsPrice")}
-            value={formatAmdFromCents(membership.plan.priceCents, locale)}
+            value={formatAmdFromCents(displayMembership.plan.priceCents, locale)}
             valueClassName={MEMBERSHIP_DETAIL_PRICE_VALUE_CLASS}
           />
           <DetailRow
             label={t("membershipDetailsValidity")}
-            value={m("packagesPeriodDaysShort", { days: membership.plan.periodDays })}
+            value={m("packagesPeriodDaysShort", { days: displayMembership.plan.periodDays })}
           />
           <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
           {display.sessionsRemainingSummary !== null ? (
@@ -166,8 +228,8 @@ function UserMembershipDetailsSheetInner({
         <div className="mt-5">
           <MembershipPeriodHighlight
             locale={locale}
-            periodStart={membership.currentPeriodStart}
-            periodEnd={membership.currentPeriodEnd}
+            periodStart={displayMembership.currentPeriodStart}
+            periodEnd={displayMembership.currentPeriodEnd}
             variant="board"
           />
         </div>
@@ -176,8 +238,8 @@ function UserMembershipDetailsSheetInner({
       {showLifecycleActions ? (
         <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
           <UserPackageLifecycleActions
-            userPackageId={membership.id}
-            status={status}
+            userPackageId={displayMembership.id}
+            status={displayStatus}
             layout="sheetFooter"
             hiddenActions={["pause", "cancel"]}
             lifecycle={lifecycle}
@@ -185,6 +247,36 @@ function UserMembershipDetailsSheetInner({
           <PackageLifecycleConfirmDialog lifecycle={lifecycle} />
         </footer>
       ) : null}
+    </>
+  );
+
+  if (isPhone) {
+    return (
+      <OmmDrawerPortal
+        isOpen={isOpen}
+        onClose={handleClose}
+        backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
+        ariaLabelledBy={titleId}
+        overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
+        panelClassName={USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS}
+      >
+        {sheetContent}
+      </OmmDrawerPortal>
+    );
+  }
+
+  return (
+    <OmmDrawerPortal
+      isOpen={isOpen}
+      onClose={handleClose}
+      backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
+      ariaLabelledBy={titleId}
+      overlayClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_OVERLAY_CLASS}
+      backdropClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_BACKDROP_CLASS}
+      panelClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS}
+      motionState={motionState}
+    >
+      {sheetContent}
     </OmmDrawerPortal>
   );
 }

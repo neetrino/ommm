@@ -399,6 +399,73 @@ html {
   }
 
   /**
+   * Member package details — desktop drawer aligned with notifications motion.
+   */
+  .ommm-user-membership-details-desktop-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 105;
+    display: none;
+    background: transparent;
+    overscroll-behavior: none;
+    pointer-events: none;
+  }
+
+  @media (min-width: 744px) {
+    .ommm-user-membership-details-desktop-overlay {
+      display: block;
+    }
+  }
+
+  .ommm-user-membership-details-desktop-backdrop {
+    @apply absolute inset-0 z-0 cursor-pointer appearance-none border-0 bg-transparent p-0 shadow-none;
+    @apply backdrop-blur-[1px];
+    @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-user-membership-details-desktop-overlay[data-state="open"]
+    .ommm-user-membership-details-desktop-backdrop {
+    opacity: 1;
+  }
+
+  .ommm-user-membership-details-desktop-panel {
+    @apply fixed z-10 flex w-[36vw] max-w-[36rem] min-w-[22rem] flex-col overflow-hidden;
+    @apply rounded-tl-[40px] rounded-bl-[40px];
+    @apply border border-white/55 border-r-0;
+    background: color-mix(in srgb, white 22%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(165%);
+    backdrop-filter: blur(20px) saturate(165%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.55),
+      inset 1px 0 0 0 rgb(255 255 255 / 0.28);
+    top: var(--ommm-marketing-site-header-offset, 4.25rem);
+    right: 0;
+    bottom: 0;
+    pointer-events: auto;
+    transform: translate3d(100%, 0, 0);
+    opacity: 0.96;
+    transition:
+      transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-user-membership-details-desktop-overlay[data-state="open"]
+    .ommm-user-membership-details-desktop-panel {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ommm-user-membership-details-desktop-backdrop,
+    .ommm-user-membership-details-desktop-panel {
+      transition: none;
+    }
+  }
+
+  /**
    * Package subscribe payment — mobile bottom sheet on phones.
    */
   .ommm-package-subscribe-mobile-overlay {
@@ -458,7 +525,7 @@ html {
     @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
     pointer-events: auto;
     opacity: 0;
-    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .ommm-package-subscribe-desktop-overlay[data-state="open"]
@@ -484,8 +551,8 @@ html {
     transform: translate3d(100%, 0, 0);
     opacity: 0.96;
     transition:
-      transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .ommm-package-subscribe-desktop-overlay[data-state="open"]

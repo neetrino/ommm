@@ -134,10 +134,11 @@ function PackageSubscribePaymentModalSession({
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
 
   useLayoutEffect(() => {
-    if (isPhone) {
+    if (isPhone || !isOpen) {
       return undefined;
     }
 
+    setMotionState("closed");
     const frame = requestAnimationFrame(() => {
       setMotionState("open");
     });
@@ -145,7 +146,7 @@ function PackageSubscribePaymentModalSession({
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [isPhone]);
+  }, [isOpen, isPhone]);
 
   function handlePlanSelect(planId: string) {
     setSelectedPlanId(planId);

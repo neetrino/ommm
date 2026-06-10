@@ -161,7 +161,7 @@ export function HomePackagePlanCardsRow({ cards }: HomePackagePlanCardsRowProps)
           key={card.id ?? `plan-card-${index}`}
           index={index}
           gridColumns={HOME_PAGE_SCROLL_REVEAL.planCardsGridColumns}
-          className="min-w-0 flex-1"
+          className={styles.cardSlot}
         >
           <HomePackagePlanCard {...card} />
         </HomePageReveal>
