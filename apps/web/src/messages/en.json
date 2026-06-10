@@ -904,6 +904,8 @@
       "title": "Notifications",
       "description": "Choose how Ommm reaches you. Changes save immediately.",
       "preferences": "Preferences",
+      "offersHeading": "Spot opened",
+      "offersDescription": "When a waitlisted class has an open spot, you can book it here.",
       "signIn": "Sign in to manage notifications."
     },
     "giftCards": {

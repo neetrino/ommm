@@ -2,7 +2,7 @@
 
 **Source of truth:** [`SSE_REALTIME_IMPLEMENTATION.md`](./SSE_REALTIME_IMPLEMENTATION.md)  
 **Started:** 2026-06-10  
-**Last updated:** 2026-06-10 (verification + cleanup complete)
+**Last updated:** 2026-06-10 (verification + cleanup + member notifications page)
 
 ---
 
@@ -119,7 +119,7 @@
 | Wire header notifications + waitlist hook | DONE | `use-member-waitlist-data.ts` registers `waitlist/me` |
 | Wire cancel-intent flow | DONE | Via `cancel-intent.changed` → `schedule/public` refetch (no button change) |
 | Mount RealtimeProvider in shell | DONE | `marketing-realtime-root.tsx` in marketing layout; `workspace-shell.tsx` for authenticated workspace |
-| Web typecheck | BLOCKED | Pre-existing `.next/types` missing `user/notifications` page; SSE code lint-clean |
+| Web typecheck | DONE | Fixed missing `user/notifications` page; `pnpm exec tsc --noEmit` passes |
 
 ---
 
@@ -201,3 +201,10 @@
 - **New files:** `apps/api/src/realtime/realtime-publisher.service.spec.ts`, `realtime-refetch-keys.util.spec.ts`
 - **Modified:** `public-schedule-constants.ts`, `use-schedule-live-sync.ts`, `marketing-schedule-view.tsx`, `docs/TECH_CARD.md`, `.env` (`NEXT_PUBLIC_API_ORIGIN`)
 - **Checks:** `pnpm test --testPathPatterns=realtime` (7 tests pass); SSE headers + CORS via `curl.exe`; browser `EventSource` open test on `/en/schedule`
+
+### 2026-06-10 — Member notifications page (tsc unblock)
+
+- **Status:** Web `tsc` unblocked
+- **New files:** `user/notifications/page.tsx`, `user/@sheet/(.)notifications/page.tsx`, `member-user-notifications-route-content.tsx`, `member-user-notifications-offers.tsx`
+- **Modified:** `marketing-site-header.tsx` (preferences → `/user/notifications`), `user/layout.tsx`, `member-user-hub-sheet-paths.ts`, `dashboard-subtitle-path.ts`, `en.json`/`hy.json`/`ru.json`
+- **Checks:** `pnpm exec tsc --noEmit` (web) — pass

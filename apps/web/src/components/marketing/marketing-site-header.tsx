@@ -148,7 +148,8 @@ export function MarketingSiteHeader({
   const showWorkspaceNotifications =
     notificationHref !== null && notificationsLabel !== null;
   const showNotifications = showWorkspaceNotifications || showMemberNotifications;
-  const notificationPreferencesHref = notificationHref;
+  const notificationPreferencesHref =
+    notificationHref ?? (showMemberNotifications ? "/user/notifications" : null);
   const desktopGlassStyle = {
     ["--marketing-glass-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,

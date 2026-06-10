@@ -9,6 +9,10 @@ export const MEMBER_USER_HUB_SHEET_PATHS = [
   "/user/profile",
 ] as const;
 
+export function isMemberUserNotificationsPath(pathname: string): boolean {
+  return memberUserPathWithoutLocale(pathname) === "/user/notifications";
+}
+
 /** Locale-stripped pathname — e.g. `/en/user/bookings` → `/user/bookings`. */
 export function memberUserPathWithoutLocale(pathname: string): string {
   const segments = pathname.split("/").filter(Boolean);
