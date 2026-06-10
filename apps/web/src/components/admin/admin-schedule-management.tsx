@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { adminChrome } from "@/components/admin/admin-chrome";
@@ -21,6 +21,7 @@ import { PlusIcon } from "@/components/ui/plus-icon";
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildClassTypeSlugFromName } from "@/lib/class-type-slug";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import type { AdminPackageRow } from "@/components/admin/admin-packages-types";
 import { AdminScheduleSessionCompactRow } from "@/components/admin/admin-schedule-session-compact-row";
 import {
@@ -32,6 +33,7 @@ import { buildSessionLevelOptions, resolveSessionClassTypeId, sessionTitleFromCl
 import { AdminScheduleSessionDetailsSheet } from "@/components/admin/admin-schedule-session-details-sheet";
 import { ScheduleViewSwitcher } from "@/components/shared/schedule/schedule-view-switcher";
 import { useScheduleViewUrl } from "@/hooks/use-schedule-view-url";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { StaffScheduleListWeekViews } from "@/components/shared/schedule/staff-schedule-list-week-views";
 import { ScheduleWeekColumnsView } from "@/components/shared/schedule/schedule-week-columns-view";
 import {
@@ -430,6 +432,14 @@ export function AdminScheduleManagement({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [, startScheduleRefresh] = useTransition();
+  const refreshScheduleFromServer = useCallback(() => {
+    startScheduleRefresh(() => {
+      router.refresh();
+    });
+  }, [router]);
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_ADMIN, refreshScheduleFromServer);
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.BOOKINGS_ADMIN, refreshScheduleFromServer);
   const hasMounted = useRef(false);
   const filterStateRef = useRef(initialFilterState);
   const [rows, setRows] = useState(sessions);

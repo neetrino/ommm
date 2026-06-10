@@ -4,19 +4,30 @@
  */
 import { REALTIME_EVENT_NAMES } from './realtime.types';
 
-type RefetchKey = 'schedule/public' | 'bookings/me' | 'waitlist/me';
+type RefetchKey =
+  | 'schedule/public'
+  | 'bookings/me'
+  | 'waitlist/me'
+  | 'classes/admin/sessions'
+  | 'bookings/admin'
+  | 'waitlist/admin';
 
 function refetchKeysForEvent(type: string): RefetchKey[] {
   switch (type) {
     case REALTIME_EVENT_NAMES.SCHEDULE_INVALIDATE:
     case REALTIME_EVENT_NAMES.SESSION_CHANGED:
     case REALTIME_EVENT_NAMES.CANCEL_INTENT_CHANGED:
-      return ['schedule/public'];
+      return ['schedule/public', 'classes/admin/sessions'];
     case REALTIME_EVENT_NAMES.BOOKING_CHANGED:
-      return ['bookings/me', 'schedule/public'];
+      return [
+        'bookings/me',
+        'schedule/public',
+        'bookings/admin',
+        'waitlist/admin',
+      ];
     case REALTIME_EVENT_NAMES.WAITLIST_CHANGED:
     case REALTIME_EVENT_NAMES.WAITLIST_OFFER:
-      return ['waitlist/me'];
+      return ['waitlist/me', 'waitlist/admin'];
     default:
       return [];
   }
@@ -34,12 +45,19 @@ describe('realtime refetch key mapping', () => {
       REALTIME_EVENT_NAMES.SCHEDULE_INVALIDATE,
       REALTIME_EVENT_NAMES.SESSION_CHANGED,
     ]);
-    expect(keys).toEqual(['bookings/me', 'schedule/public']);
+    expect(keys).toEqual([
+      'bookings/me',
+      'schedule/public',
+      'bookings/admin',
+      'waitlist/admin',
+      'classes/admin/sessions',
+    ]);
   });
 
-  it('maps cancel-intent to schedule/public only', () => {
+  it('maps cancel-intent to schedule/public and admin schedule', () => {
     expect(refetchKeysForEvent(REALTIME_EVENT_NAMES.CANCEL_INTENT_CHANGED)).toEqual([
       'schedule/public',
+      'classes/admin/sessions',
     ]);
   });
 });

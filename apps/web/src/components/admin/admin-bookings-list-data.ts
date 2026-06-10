@@ -14,7 +14,9 @@ import {
   type AdminBookingsManagementPayload,
 } from "@/components/admin/admin-bookings-query";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { apiFetch } from "@/lib/api";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import {
   parseListPageParams,
   resetListPageQuery,
@@ -172,6 +174,58 @@ export function useAdminBookingsListData({
   const calendarSessions = isCalendarBookingsView(view)
     ? (calendarPayload?.sessionSlots ?? [])
     : payload.sessionSlots;
+
+  const reloadList = useCallback(() => {
+    const nextListRequestId = listRequestId.current + 1;
+    listRequestId.current = nextListRequestId;
+    startListTransition(() => {
+      void apiFetch<AdminBookingsManagementPayload>(
+        buildAdminBookingsListEndpoint(filters, listPage),
+      )
+        .then((next) => {
+          if (listRequestId.current !== nextListRequestId) return;
+          setPayload(next);
+        })
+        .catch(() => {
+          if (listRequestId.current === nextListRequestId) {
+            setPayload((current) => ({
+              ...current,
+              rows: [],
+              pagination: {
+                total: 0,
+                take: listPage.take,
+                offset: listPage.offset,
+              },
+            }));
+          }
+        });
+    });
+
+    if (!isCalendarBookingsView(view)) {
+      return;
+    }
+
+    const range = resolveAdminBookingsCalendarRange();
+    const nextCalendarRequestId = calendarRequestId.current + 1;
+    calendarRequestId.current = nextCalendarRequestId;
+    startCalendarTransition(() => {
+      void apiFetch<AdminBookingsManagementPayload>(
+        buildAdminBookingsCalendarEndpoint(filters, range),
+      )
+        .then((next) => {
+          if (calendarRequestId.current !== nextCalendarRequestId) return;
+          setCalendarPayload(next);
+        })
+        .catch(() => {
+          if (calendarRequestId.current === nextCalendarRequestId) {
+            setCalendarPayload(null);
+          }
+        });
+    });
+  }, [filters, listPage, setPayload, view]);
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.BOOKINGS_ADMIN, reloadList);
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.WAITLIST_ADMIN, reloadList);
 
   return {
     payload,

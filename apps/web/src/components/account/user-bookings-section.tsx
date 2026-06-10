@@ -29,7 +29,9 @@ import { ListPageSearchFilters } from "@/components/shared/search/list-page-sear
 import { OmmListPagination } from "@/components/ui/omm-list-pagination";
 import { useUserListBoardView } from "@/hooks/use-user-list-board-view";
 import { usePropSyncedState } from "@/hooks/use-prop-synced-state";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { apiFetch } from "@/lib/api";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import {
   parseListPageParams,
   resetListPageQuery,
@@ -43,6 +45,7 @@ import {
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import {
   buildUserBookingsPastEndpoint,
+  buildUserBookingsUpcomingEndpoint,
   USER_BOOKINGS_PAST_PAGE_KEYS,
   type UserBookingsPastPayload,
 } from "@/lib/user-bookings-query";
@@ -67,6 +70,7 @@ export function UserBookingsSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [viewMode, setView] = useUserListBoardView("bookings");
+  const [upcomingRows, setUpcomingRows] = usePropSyncedState(initialUpcoming);
   const [pastPayload, setPastPayload] = usePropSyncedState(initialPast);
   const [filters, setFilters] = useState<UserBookingFilterValues>(() => ({
     ...DEFAULT_USER_BOOKING_FILTER_VALUES,
@@ -124,6 +128,21 @@ export function UserBookingsSection({
     });
   }, [filters.order, pastListPage, setPastPayload]);
 
+  const refetchUpcoming = useCallback(async () => {
+    try {
+      const rows = await apiFetch<UserBookingRow[]>(
+        buildUserBookingsUpcomingEndpoint(filters.order),
+      );
+      setUpcomingRows(rows);
+    } catch {
+      // Keep current rows on transient errors.
+    }
+  }, [filters.order, setUpcomingRows]);
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.BOOKINGS_ME, () => {
+    void refetchUpcoming();
+  });
+
   const setPastListPage = useCallback(
     (page: number, pageSize?: number) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -135,8 +154,8 @@ export function UserBookingsSection({
   );
 
   const filterOptions = useMemo(
-    () => extractUserBookingFilterOptions([...initialUpcoming, ...pastPayload.rows]),
-    [initialUpcoming, pastPayload.rows],
+    () => extractUserBookingFilterOptions([...upcomingRows, ...pastPayload.rows]),
+    [upcomingRows, pastPayload.rows],
   );
 
   const filterFields = useMemo(
@@ -176,11 +195,11 @@ export function UserBookingsSection({
   const filteredUpcoming = useMemo(
     () =>
       sortBySessionStartsAt(
-        initialUpcoming.filter((row) => matchesUserBookingFilters(row, filters)),
+        upcomingRows.filter((row) => matchesUserBookingFilters(row, filters)),
         (row) => row.session.startsAt,
         filters.order,
       ),
-    [filters, initialUpcoming],
+    [filters, upcomingRows],
   );
 
   const filteredPast = useMemo(
@@ -203,8 +222,8 @@ export function UserBookingsSection({
       : pastPayload.total
     : filtersActive
       ? filteredUpcoming.length
-      : initialUpcoming.length;
-  const tabHasBookings = isPastTab ? pastPayload.total > 0 : initialUpcoming.length > 0;
+      : upcomingRows.length;
+  const tabHasBookings = isPastTab ? pastPayload.total > 0 : upcomingRows.length > 0;
 
   function handleIntegratedFilterChange(key: string, value: string): void {
     switch (key) {

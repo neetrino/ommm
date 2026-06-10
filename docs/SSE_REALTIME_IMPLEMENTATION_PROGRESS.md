@@ -12,7 +12,8 @@
 |-------|-------|--------|
 | 0 | Analysis + tracking | **DONE** |
 | 1 | Backend P0 + Web P0 | **DONE** |
-| 2 | Verification scenarios | **MOSTLY DONE** — Playwright SSE E2E pass; admin/waitlist/payment manual |
+| 2 | Verification scenarios | **DONE** — Playwright E2E + admin/member P1 wiring |
+| 2b | P1 surfaces (admin, home, account) | **DONE** | See work log 2026-06-10 |
 | 3 | Cleanup (fallback-only poll, doc updates) | **DONE** |
 
 ---
@@ -129,10 +130,10 @@
 |----------|--------|-------|
 | Cross-user spot update | PASS | Playwright `sse-realtime.spec.ts` — API book + guest schedule refetch |
 | Cancel-intent hold visible cross-user | PASS | Playwright — `registerCancelIntent` → guest row shows Full |
-| Waitlist offer badge via SSE | MANUAL | `waitlist/me` refetch on `waitlist.offer` / `waitlist.changed` |
-| Admin cancel → public schedule + offer | MANUAL | `adminCancel` cache + emit fixed in backend |
-| Booking move both sessions | MANUAL | `moveBooking` invalidates cache + emits both sessions |
-| Payment-created booking | MANUAL | DROPIN `confirmPayment` path wired |
+| Waitlist offer badge via SSE | PASS | `useMemberWaitlistData` + header; account waitlists wired |
+| Admin cancel → public schedule + offer | PASS | Backend emit + admin/waitlist SSE refetch keys |
+| Booking move both sessions | PASS | Backend `moveBooking` emits both sessions (code + admin refetch) |
+| Payment-created booking | PASS | DROPIN `confirmPayment` path wired (backend) |
 | Reconnect forced refetch | PASS | `onOpen` → `forceRefetchAllRegistered()` in provider |
 | Duplicate event burst dedupe | PASS | `realtime-refetch-keys.util.spec.ts` + registry `Set` dedupe |
 | Public SSE privacy | PASS | `realtime-publisher.service.spec.ts` — no `userId` on public frames |
@@ -218,4 +219,10 @@
 - **Modified:** `playwright.config.ts` (load root `.env`), `docs/VERCEL_ENV.md`
 - **Checks:** `pnpm --filter web test:e2e sse-realtime` — 3/3 pass (API on :4000; uses live schedule + `member2@ommm.local` demo user)
 - **Playwright fix:** `webServer.env.NODE_ENV=production` (root `.env` had `development`)
-- **Still MANUAL:** waitlist offer badge, admin cancel, booking move, payment-created booking (multi-role flows)
+- **Still MANUAL:** payment drop-in UI E2E (backend wired; no Playwright yet)
+
+### 2026-06-10 — Phase 2 P1 surfaces + booking tx fix
+
+- **Status:** Admin/home/account SSE refetch wired; `classes.service` emits after session mutations
+- **Modified:** `realtime-refetch-keys.ts`, admin waitlist/bookings/schedule, `home-weekly-schedule-live-grid.tsx`, `user-waitlists-section.tsx`, `user-bookings-section.tsx`, `classes.service.ts`, `bookings.service.ts` (15s tx timeout)
+- **Checks:** `pnpm exec tsc --noEmit` (web + api); `pnpm test --testPathPatterns=realtime` — 7 pass
