@@ -1194,6 +1194,7 @@
         "lastName": "Last name",
         "phone": "Phone",
         "dateOfBirth": "Date of birth",
+        "bio": "Bio",
         "locale": "Locale"
       },
       "emptyValue": "—"
@@ -3674,8 +3675,10 @@
       "cancel": "Cancel",
       "saveSuccess": "Profile updated successfully.",
       "saveFailed": "Could not update profile.",
+      "bioSaveFailed": "Account details saved, but bio could not be updated.",
       "emailRequired": "Email is required.",
-      "dateOfBirthInvalid": "Enter the date of birth in DD/MM/YYYY format."
+      "dateOfBirthInvalid": "Enter the date of birth in DD/MM/YYYY format.",
+      "bioTooLong": "Bio is too long."
     },
     "contact": {
       "name": "Name",

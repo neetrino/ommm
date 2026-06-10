@@ -13,4 +13,6 @@ export type MeApiUser = {
 export type MeApiResponse = {
   user: MeApiUser;
   coachProfileId: string | null;
+  /** Shared coach-profile bio — same field as admin Coaches CRM. */
+  coachBio?: string | null;
 };
