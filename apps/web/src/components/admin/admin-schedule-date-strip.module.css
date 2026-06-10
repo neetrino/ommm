@@ -33,6 +33,10 @@
   -webkit-user-drag: none;
 }
 
+.cardTodayNumber {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
 .viewport:active .card {
   transition: none;
 }

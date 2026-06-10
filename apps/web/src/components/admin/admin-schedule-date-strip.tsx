@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 import { addDays, startOfLocalDay } from "@/components/marketing/schedule/schedule-date-utils";
 import styles from "@/components/admin/admin-schedule-date-strip.module.css";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
@@ -86,6 +87,34 @@ function scrollDayIntoView(container: HTMLDivElement, dayButton: HTMLButtonEleme
   container.scrollLeft = Math.max(0, Math.min(targetLeft, maxScroll));
 }
 
+function scheduleDayCardSurfaceClass(isActiveFilter: boolean, isToday: boolean): string {
+  const interactive =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 hover:-translate-y-0.5 motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200";
+
+  if (isActiveFilter) {
+    return [
+      "border border-sage-700/20 bg-sage-800 text-white",
+      "shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)] ring-2 ring-sage-900/30",
+      interactive,
+    ].join(" ");
+  }
+
+  if (isToday) {
+    return [
+      "border-2 border-sage-800/55 bg-sand-100 text-sage-900",
+      "shadow-[0_16px_34px_-22px_rgba(45,40,35,0.38)] ring-2 ring-sage-800/20",
+      "hover:bg-sand-50 hover:ring-sage-800/30",
+      interactive,
+    ].join(" ");
+  }
+
+  return [
+    "border border-white/70 bg-white/75 text-sage-800",
+    "hover:bg-white",
+    interactive,
+  ].join(" ");
+}
+
 type ScheduleDayCardProps = {
   locale: string;
   day: string;
@@ -105,57 +134,70 @@ function ScheduleDayCard({
   shouldSuppressClick,
   setButtonRef,
 }: ScheduleDayCardProps) {
+  const t = useTranslations("adminPages.schedule");
   const date = new Date(`${day}T00:00:00`);
   const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date);
   const month = new Intl.DateTimeFormat(locale, { month: "short" }).format(date);
   const isToday = day === scheduleTodayIsoDate();
   const isActiveFilter = selected;
 
-  const todayAccentClass = "font-serif text-sand-700";
-  const defaultAccentClass = "font-serif text-sage-950";
-  const weekdayClass = isActiveFilter ? "opacity-75" : isToday ? todayAccentClass : defaultAccentClass;
-  const monthClass = isActiveFilter ? "opacity-75" : isToday ? todayAccentClass : defaultAccentClass;
-  const dayNumberClass = `${styles.dayNumber} font-serif leading-none ${
-    isActiveFilter ? "text-white" : isToday ? "text-sand-700" : "text-sage-950"
-  }`;
+  const weekdayClass = [
+    "min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.12em]",
+    isActiveFilter ? "text-white/75" : isToday ? "text-sage-700" : "font-serif text-sage-950",
+  ].join(" ");
+
+  const todayBadgeClass = [
+    "truncate text-[9px] font-bold uppercase tracking-[0.14em]",
+    isActiveFilter ? "text-white/85" : "text-sage-800",
+  ].join(" ");
+
+  const monthClass = [
+    "text-left text-sm font-semibold uppercase tracking-wide",
+    isActiveFilter ? "text-white/80" : isToday ? "text-sage-700" : "font-serif text-sage-950",
+  ].join(" ");
+
+  const dayNumberClass = [
+    styles.dayNumber,
+    "font-serif leading-none font-semibold",
+    isActiveFilter ? "text-white" : "text-sage-950",
+    isToday && !isActiveFilter ? styles.cardTodayNumber : "",
+  ].join(" ");
+
+  const countBadgeClass = [
+    "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+    isActiveFilter
+      ? "bg-white/20 text-white"
+      : isToday
+        ? "border border-sage-800/15 bg-white text-sage-800"
+        : "bg-sand-50 text-sage-700",
+  ].join(" ");
 
   return (
     <button
       ref={setButtonRef}
       type="button"
       aria-pressed={isActiveFilter}
+      aria-current={isToday ? "date" : undefined}
       onClick={() => {
         if (shouldSuppressClick()) return;
         onSelect(day);
       }}
-      className={`${styles.card} flex flex-col rounded-2xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-700/25 ${
-        isActiveFilter
-          ? "border-sage-700/20 bg-sage-800 text-white shadow-[0_18px_34px_-24px_rgba(45,40,35,0.6)] ring-2 ring-sage-900/30"
-          : isToday
-            ? "border-sand-700/25 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200"
-            : "border-white/70 bg-white/75 text-sage-800 hover:-translate-y-0.5 hover:bg-white motion-safe:transition-[transform,background-color,border-color,box-shadow] motion-safe:duration-200"
-      }`}
+      className={`${styles.card} flex flex-col rounded-2xl p-3 text-left ${scheduleDayCardSurfaceClass(
+        isActiveFilter,
+        isToday,
+      )}`}
     >
       <span className="flex items-start justify-between gap-1">
-        <span
-          className={`min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.12em] ${weekdayClass}`}
-        >
-          {weekday}
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className={weekdayClass}>{weekday}</span>
+          {isToday ? <span className={todayBadgeClass}>{t("today")}</span> : null}
         </span>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            isActiveFilter ? "bg-white/20" : isToday ? "bg-sand-100 text-sand-700" : "bg-sand-50 text-sage-700"
-          }`}
-        >
-          {sessionCount}
-        </span>
+        <span className={countBadgeClass}>{sessionCount}</span>
       </span>
       <span className="flex min-h-0 flex-1 items-center justify-center">
         <span className={dayNumberClass}>{date.getDate()}</span>
       </span>
-      <span className={`text-left text-sm font-semibold uppercase tracking-wide ${monthClass}`}>
-        {month}
-      </span>
+      <span className={monthClass}>{month}</span>
     </button>
   );
 }
