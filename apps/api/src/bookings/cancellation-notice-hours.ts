@@ -1,28 +1,19 @@
 const DEFAULT_CANCELLATION_HOURS_NOTICE = 24;
 
-function parseHoursValue(raw: string | undefined): number | null {
-  const cleaned = raw?.trim().replace(/^["']|["']$/g, '');
-  if (cleaned === undefined || cleaned === '') {
-    return null;
-  }
-  const parsed = Number.parseInt(cleaned, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return null;
-  }
-  return parsed;
-}
+/**
+ * Optional code override for cancel notice (hours). Not read from environment variables.
+ * `0` = member cancel allowed until class start. `null` = use admin studio settings.
+ */
+export const CANCELLATION_HOURS_NOTICE_OVERRIDE: number | null = 0;
 
 /**
- * Studio policy hours, overridable via `CANCELLATION_HOURS_NOTICE` for local testing.
- * Remove the env var to fall back to studio settings (default 24h).
+ * Resolves how many hours before class start cancellation remains allowed.
  */
 export function resolveCancellationHoursNotice(
   studioValue: number | null | undefined,
-  envValue?: string,
 ): number {
-  const envOverride = parseHoursValue(envValue);
-  if (envOverride !== null) {
-    return envOverride;
+  if (CANCELLATION_HOURS_NOTICE_OVERRIDE !== null) {
+    return CANCELLATION_HOURS_NOTICE_OVERRIDE;
   }
   return studioValue ?? DEFAULT_CANCELLATION_HOURS_NOTICE;
 }
