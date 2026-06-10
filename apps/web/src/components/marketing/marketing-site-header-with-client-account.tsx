@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -24,6 +24,15 @@ type MarketingSiteHeaderWithClientAccountProps = {
   serverAccount: MarketingHeaderAccount | null;
 };
 
+function readInitialCachedAccount(
+  serverAccount: MarketingHeaderAccount | null,
+): MarketingHeaderAccount | null {
+  if (serverAccount !== null) {
+    return null;
+  }
+  return readCachedMarketingHeaderAccount();
+}
+
 function persistAccount(account: MarketingHeaderAccount): void {
   writeCachedMarketingHeaderAccount(account);
   markClientSessionHint();
@@ -42,21 +51,11 @@ export function MarketingSiteHeaderWithClientAccount({
   navLinks,
   serverAccount,
 }: MarketingSiteHeaderWithClientAccountProps) {
-  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(null);
+  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(() =>
+    readInitialCachedAccount(serverAccount),
+  );
   const [cachedAccountValidated, setCachedAccountValidated] = useState(false);
   const account = serverAccount ?? cachedAccount;
-
-  useLayoutEffect(() => {
-    if (serverAccount !== null) {
-      return;
-    }
-    const cached = readCachedMarketingHeaderAccount();
-    if (cached !== null) {
-      queueMicrotask(() => {
-        setCachedAccount(cached);
-      });
-    }
-  }, [serverAccount]);
 
   useEffect(() => {
     if (serverAccount !== null) {
