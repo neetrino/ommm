@@ -1,0 +1,12 @@
+.root {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: calc(100vh - var(--marketing-mobile-header-height, 4.25rem));
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  object-position: center var(--explore-coming-soon-image-position-y, 50%);
+}
