@@ -4,7 +4,9 @@ import { MarketingPageSectionReveal } from "@/components/marketing/marketing-pag
 import styles from "@/components/marketing/story/marketing-story-closing-section.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
+import { Link } from "@/i18n/navigation";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 
 type MarketingStoryClosingSectionProps = {
   locale: string;
@@ -17,11 +19,17 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
   return (
     <MarketingPageSectionReveal index={3}>
       <article
-        className={styles.card}
+        className={`${marketingMontserrat.variable} ${styles.card}`}
         style={{
-          ["--story-card-radius" as string]: STORY_PAGE_LAYOUT.cardRadius,
+          ["--story-card-radius" as string]: STORY_PAGE_LAYOUT.closingCardRadius,
           ["--story-card-bg" as string]: STORY_PAGE_SURFACE.cardBackgroundAlt,
+          ["--story-card-shadow" as string]: STORY_PAGE_LAYOUT.storyCardShadow,
           ["--story-accent" as string]: STORY_PAGE_SURFACE.accent,
+          ["--story-heading-color" as string]: STORY_PAGE_SURFACE.heading,
+          ["--story-body-color" as string]: STORY_PAGE_SURFACE.body,
+          ["--story-body-muted" as string]: STORY_PAGE_SURFACE.bodyMuted,
+          ["--story-cta-bg" as string]: STORY_PAGE_LAYOUT.featureCardCtaBackground,
+          ["--story-cta-hover" as string]: STORY_PAGE_LAYOUT.featureCardCtaHover,
         }}
         aria-labelledby="story-closing-heading"
       >
@@ -30,7 +38,7 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
             src={STORY_PAGE_ASSETS.closingPortrait}
             alt=""
             fill
-            sizes="(max-width: 899px) 100vw, 18rem"
+            sizes="(max-width: 767px) 100vw, 44vw"
             className={styles.portrait}
             {...belowFoldImageProps()}
           />
@@ -40,18 +48,18 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
             {t("closingTitle")}
           </h2>
           <p className={styles.body}>{t("closingBody")}</p>
-          <p className={styles.callout}>{t("closingCallout")}</p>
-          <p className={styles.signoff}>{t("closingSignoff")}</p>
-        </div>
-        <div className={styles.decorWrap} aria-hidden="true">
-          <Image
-            src={STORY_PAGE_ASSETS.closingDecor}
-            alt=""
-            width={96}
-            height={240}
-            className={styles.decor}
-            {...belowFoldImageProps()}
-          />
+          <div className={styles.footerRow}>
+            <div className={styles.footerCopy}>
+              <p className={styles.callout}>{t("closingCallout")}</p>
+              <p className={styles.signoff}>{t("closingSignoff")}</p>
+            </div>
+            <Link href="/membership" className={styles.cta}>
+              <span>{t("closingCta")}</span>
+              <span className={styles.ctaArrow} aria-hidden="true">
+                →
+              </span>
+            </Link>
+          </div>
         </div>
       </article>
     </MarketingPageSectionReveal>

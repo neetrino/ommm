@@ -1202,9 +1202,13 @@
       "lede": "A women's wellness space in the heart of Yerevan — created for movement, calm, and the moment that belongs only to you.",
       "featurePauseTitle": "A pause held on purpose.",
       "featurePauseBody": "Every detail invites you to slow down — from the first breath at the door to the quiet after class. This is time set aside for you, without rush or noise.",
+      "featurePauseBadge": "01 / Your pause",
       "featureCalmTitle": "Designed around calm.",
       "featureCalmBody": "Soft light, natural textures, and thoughtful flow through the studio keep the space gentle on the senses. Movement and rest share the same unhurried rhythm.",
-      "valuesHeading": "Our values",
+      "featureCalmBadge": "02 / Calm",
+      "featureCardCta": "Explore the studio",
+      "valuesHeading": "Our Values",
+      "valuesSubtitle": "What we stand for in the studio — movement, calm, and community.",
       "valuePeaceTitle": "A peaceful mind",
       "valuePeaceBody": "Classes and rituals that help you arrive in the present — breath, focus, and release from the day behind you.",
       "valueStrengthTitle": "Strength that's yours",
@@ -1214,7 +1218,8 @@
       "closingTitle": "The pause in Ommm.",
       "closingBody": "The name carries the sound of an extended exhale — the space between effort and ease. Three letters, one long breath, and a reminder that harmony is something you can return to.",
       "closingCallout": "This is your moment of harmony.",
-      "closingSignoff": "We're glad you're here."
+      "closingSignoff": "We're glad you're here.",
+      "closingCta": "Begin your practice"
     },
     "explore": {
       "listTitle": "Stories from the studio",

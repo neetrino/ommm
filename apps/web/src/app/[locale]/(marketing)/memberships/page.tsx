@@ -6,5 +6,5 @@ export default async function MembershipsMarketingPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/schedule`);
+  redirect(`/${locale}/membership`);
 }

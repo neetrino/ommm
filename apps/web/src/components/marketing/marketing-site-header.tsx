@@ -50,12 +50,8 @@ import {
 } from "@/components/marketing/marketing-route-utils";
 import { WorkspaceShellNotificationLink } from "@/components/shell/workspace-shell-notification-link";
 import { workspaceMobileDrawerLayout } from "@/components/shell/workspace-mobile-drawer-layout";
+import { isMarketingNavLinkActive } from "@/components/marketing/marketing-nav-active";
 import { Link, usePathname } from "@/i18n/navigation";
-
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 /** Logged-in viewer summary used to swap the login icon for a profile avatar. */
 export type MarketingHeaderAccount = {
@@ -338,7 +334,7 @@ export function MarketingSiteHeader({
           >
             <div className={`${marketingHeaderNavLinksClass(compact)} ${navPillStyles.desktopNavLinks}`}>
               {navLinks.map(({ href, key }) => {
-                const linkActive = isActive(marketingPath, href);
+                const linkActive = isMarketingNavLinkActive(marketingPath, href, key);
                 return (
                   <Link
                     key={href}
@@ -411,7 +407,9 @@ export function MarketingSiteHeader({
           onClose={() => setPublicMenuOpen(false)}
           navLinks={navLinks}
           marketingPath={marketingPath}
-          isActive={isActive}
+          isActive={(pathname, href, key) =>
+            isMarketingNavLinkActive(pathname, href, key)
+          }
         />
       ) : null}
     </header>

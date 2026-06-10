@@ -125,7 +125,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/:locale/memberships",
-        destination: "/:locale/schedule",
+        destination: "/:locale/membership",
         permanent: false,
       },
       {
