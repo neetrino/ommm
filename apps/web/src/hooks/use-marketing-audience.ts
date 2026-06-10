@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   MARKETING_HEADER_ACCOUNT_UPDATED,
@@ -16,21 +16,21 @@ function audienceFromHeaderCache(): PublicPackageCategoryCardsAudience {
   return marketingAudienceFromHeaderHref(cached.href);
 }
 
+function subscribeAudience(onStoreChange: () => void): () => void {
+  const handler = () => {
+    onStoreChange();
+  };
+  window.addEventListener(MARKETING_HEADER_ACCOUNT_UPDATED, handler);
+  return () => {
+    window.removeEventListener(MARKETING_HEADER_ACCOUNT_UPDATED, handler);
+  };
+}
+
 /** Client marketing audience — avoids blocking page data on `/users/me`. */
 export function useMarketingAudience(): PublicPackageCategoryCardsAudience {
-  const [audience, setAudience] = useState<PublicPackageCategoryCardsAudience>("guest");
-
-  useEffect(() => {
-    const syncAudience = () => {
-      setAudience(audienceFromHeaderCache());
-    };
-
-    syncAudience();
-    window.addEventListener(MARKETING_HEADER_ACCOUNT_UPDATED, syncAudience);
-    return () => {
-      window.removeEventListener(MARKETING_HEADER_ACCOUNT_UPDATED, syncAudience);
-    };
-  }, []);
-
-  return audience;
+  return useSyncExternalStore(
+    subscribeAudience,
+    audienceFromHeaderCache,
+    () => "guest",
+  );
 }

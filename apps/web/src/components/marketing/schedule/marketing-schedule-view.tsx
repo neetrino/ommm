@@ -109,7 +109,7 @@ export function MarketingScheduleView({
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const audience = useMarketingAudience();
-  const sessionBookings = useMemberSessionBookings(audience);
+  const sessionBookings = useMemberSessionBookings();
   const [items] = useState<MarketingScheduleItem[]>(initialItems);
   const [baseline] = useState(() => startOfLocalDay(new Date()));
   const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));

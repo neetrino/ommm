@@ -353,6 +353,7 @@ export function marketingHeaderLanguageTriggerClass(): string {
   return [
     "ommm-dropdown-trigger",
     MARKETING_HEADER_FLAT_ACTION_TRIGGER_CLASS,
+    "!h-9 !min-h-9 !w-7 !min-w-7 lg:!h-10 lg:!min-h-10 lg:!w-8 lg:!min-w-8 nav-desktop:!h-9 nav-desktop:!min-h-9 nav-desktop:!w-7 nav-desktop:!min-w-7",
     "data-[open=true]:!border-0 data-[open=true]:!bg-transparent data-[open=true]:!shadow-none data-[open=true]:!ring-0",
   ].join(" ");
 }

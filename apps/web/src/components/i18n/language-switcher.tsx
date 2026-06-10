@@ -17,7 +17,7 @@ import {
 } from "@/lib/language-switcher-locales";
 
 /** Icon-only marketing trigger; menu needs room for language labels. */
-const MARKETING_ICON_MENU_MIN_WIDTH_PX = 160;
+const MARKETING_ICON_MENU_MIN_WIDTH_PX = 120;
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";

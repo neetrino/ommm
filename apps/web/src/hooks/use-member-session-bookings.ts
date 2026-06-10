@@ -1,22 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import { useEffect, useSyncExternalStore } from "react";
 import { apiFetch } from "@/lib/api";
+import {
+  getMarketingSessionBookingsClientSnapshot,
+  getMarketingSessionBookingsServerSnapshot,
+  MARKETING_SESSION_BOOKINGS_UPDATED,
+  writeCachedMarketingSessionBookings,
+} from "@/lib/marketing-session-bookings-cache";
+import { readCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
+import { marketingAudienceFromHeaderHref } from "@/lib/marketing-audience-from-header-href";
 import type { UserBookingRow } from "@/lib/user-booking-types";
 import {
   buildUserSessionBookingMap,
   type UserSessionBookingMap,
 } from "@/lib/user-session-bookings-map";
 
-/** Loads upcoming member bookings after paint — keeps public schedule SSR fast. */
-export function useMemberSessionBookings(
-  audience: PublicPackageCategoryCardsAudience,
-): UserSessionBookingMap {
-  const [sessionBookings, setSessionBookings] = useState<UserSessionBookingMap>({});
+function isMemberFromHeaderCache(): boolean {
+  const cached = readCachedMarketingHeaderAccount();
+  if (cached === null) {
+    return false;
+  }
+  return marketingAudienceFromHeaderHref(cached.href) === "member";
+}
+
+function subscribeSessionBookings(onStoreChange: () => void): () => void {
+  const handler = () => {
+    onStoreChange();
+  };
+  window.addEventListener(MARKETING_SESSION_BOOKINGS_UPDATED, handler);
+  return () => {
+    window.removeEventListener(MARKETING_SESSION_BOOKINGS_UPDATED, handler);
+  };
+}
+
+/** Hydration-safe cached bookings; refreshes in background for members. */
+export function useMemberSessionBookings(): UserSessionBookingMap {
+  const sessionBookings = useSyncExternalStore(
+    subscribeSessionBookings,
+    getMarketingSessionBookingsClientSnapshot,
+    getMarketingSessionBookingsServerSnapshot,
+  );
 
   useEffect(() => {
-    if (audience !== "member") {
+    if (!isMemberFromHeaderCache()) {
       return undefined;
     }
 
@@ -24,18 +51,20 @@ export function useMemberSessionBookings(
 
     void apiFetch<UserBookingRow[]>("/bookings/me")
       .then((bookings) => {
-        if (!cancelled) {
-          setSessionBookings(buildUserSessionBookingMap(bookings));
+        if (cancelled) {
+          return;
         }
+        const next = buildUserSessionBookingMap(bookings);
+        writeCachedMarketingSessionBookings(next);
       })
       .catch(() => {
-        // Non-blocking — rows keep default Book actions.
+        // Keep cached snapshot when offline or session expired.
       });
 
     return () => {
       cancelled = true;
     };
-  }, [audience]);
+  }, []);
 
   return sessionBookings;
 }

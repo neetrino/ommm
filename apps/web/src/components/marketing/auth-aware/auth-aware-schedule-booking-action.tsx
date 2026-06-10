@@ -6,9 +6,13 @@ import { CancelBookingButton, CANCEL_BOOKING_ERROR_MESSAGE_CLASS } from "@/compo
 import { SESSION_BOOKED_BUTTON_MD_CLASS } from "@/components/account/session-booked-badge";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { SCHEDULE_BOOK_BTN } from "@/components/marketing/schedule/schedule-public-design";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { buildLoginHrefWithReturnUrl } from "@/lib/auth-redirect";
+import {
+  readCachedMarketingSessionBookings,
+  writeCachedMarketingSessionBookings,
+} from "@/lib/marketing-session-bookings-cache";
 
 const SCHEDULE_RETURN_PATH = "/schedule";
 
@@ -52,14 +56,6 @@ export function AuthAwareScheduleBookingAction({
   const isFull = sessionStatus === "FULL" || availableSpots <= 0;
   const isGuest = audience === "guest" && userBookingId === undefined;
 
-  if (isGuest) {
-    return (
-      <Link href={buildLoginHrefWithReturnUrl(SCHEDULE_RETURN_PATH)} className={className}>
-        {bookLabel}
-      </Link>
-    );
-  }
-
   async function bookSession() {
     setBusy(true);
     setMsg(null);
@@ -69,6 +65,10 @@ export function AuthAwareScheduleBookingAction({
         { method: "POST" },
       );
       setBookingId(booking.id);
+      writeCachedMarketingSessionBookings({
+        ...readCachedMarketingSessionBookings(),
+        [sessionId]: booking.id,
+      });
       router.refresh();
     } catch (error) {
       setMsg(error instanceof ApiError ? error.message : tBook("bookFailed"));
@@ -90,6 +90,18 @@ export function AuthAwareScheduleBookingAction({
     }
   }
 
+  async function handlePrimaryAction() {
+    if (isGuest) {
+      router.push(buildLoginHrefWithReturnUrl(SCHEDULE_RETURN_PATH));
+      return;
+    }
+    if (isFull) {
+      await joinWaitlist();
+      return;
+    }
+    await bookSession();
+  }
+
   if (bookingId) {
     return (
       <div className="flex flex-col items-end">
@@ -105,6 +117,12 @@ export function AuthAwareScheduleBookingAction({
             onCancelled={() => {
               setBookingId(undefined);
               setCancelMsg(null);
+              const cached = readCachedMarketingSessionBookings();
+              if (sessionId in cached) {
+                const next = { ...cached };
+                delete next[sessionId];
+                writeCachedMarketingSessionBookings(next);
+              }
             }}
           />
           <button
@@ -126,9 +144,9 @@ export function AuthAwareScheduleBookingAction({
         type="button"
         className={className}
         disabled={busy}
-        onClick={() => void (isFull ? joinWaitlist() : bookSession())}
+        onClick={() => void handlePrimaryAction()}
       >
-        {isFull ? tWaitlist("action") : bookLabel}
+        {isFull && !isGuest ? tWaitlist("action") : bookLabel}
       </button>
       {msg ? <p className="max-w-[12rem] text-right text-xs text-amber-900">{msg}</p> : null}
     </div>

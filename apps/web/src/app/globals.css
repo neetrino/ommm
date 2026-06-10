@@ -1242,7 +1242,7 @@ html {
   }
 
   .ommm-language-switcher-menu {
-    min-width: 10rem;
+    min-width: 7.5rem;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-menu-list {
@@ -1285,7 +1285,8 @@ html {
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option {
-    @apply justify-center border-2 border-transparent px-2 py-1.5 text-center text-sm font-medium;
+    @apply justify-center border-2 border-transparent px-1.5 py-2.5 text-center text-sm font-medium;
+    min-height: 2.5rem;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option[data-selected="true"] {

@@ -215,10 +215,10 @@
 }
 
 .mobileHeaderLanguageTrigger:global(.ommm-dropdown-trigger) {
-  height: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
-  min-height: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
-  width: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
-  min-width: var(--marketing-mobile-glass-pill-action-icon-size, 26px) !important;
+  height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) + 4px) !important;
+  min-height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) + 4px) !important;
+  width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 4px) !important;
+  min-width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 4px) !important;
   transition:
     height var(--marketing-mobile-glass-pill-transition-duration, 420ms)
       var(--marketing-mobile-glass-pill-transition-easing, cubic-bezier(0.4, 0, 0.2, 1)),

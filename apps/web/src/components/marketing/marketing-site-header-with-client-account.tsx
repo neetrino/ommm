@@ -15,6 +15,7 @@ import {
   readCachedMarketingHeaderAccount,
   writeCachedMarketingHeaderAccount,
 } from "@/lib/marketing-header-account-cache";
+import { clearCachedMarketingSessionBookings } from "@/lib/marketing-session-bookings-cache";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
 
 type MarketingSiteHeaderWithClientAccountProps = {
@@ -29,6 +30,7 @@ function persistAccount(account: MarketingHeaderAccount): void {
 
 function clearPersistedAccount(): void {
   clearCachedMarketingHeaderAccount();
+  clearCachedMarketingSessionBookings();
   clearClientSessionHint();
 }
 
