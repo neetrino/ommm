@@ -16,8 +16,11 @@ export type RealtimeSseClientHandle = {
   close: () => void;
 };
 
+const RECONNECT_BASE_MS = 1_000;
+const RECONNECT_MAX_MS = 30_000;
+
 /**
- * Native EventSource wrapper — does not permanently close on transient `onerror`.
+ * Native EventSource wrapper with automatic reconnect when the stream closes.
  * Intentional shutdown only via {@link RealtimeSseClientHandle.close}.
  */
 export function createRealtimeSseClient(
@@ -25,9 +28,33 @@ export function createRealtimeSseClient(
 ): RealtimeSseClientHandle {
   let closed = false;
   let source: EventSource | null = null;
+  let reconnectAttempt = 0;
+  let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 
   const setStatus = (status: RealtimeConnectionStatus): void => {
     options.onStatusChange(status);
+  };
+
+  const clearReconnectTimer = (): void => {
+    if (reconnectTimer !== undefined) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = undefined;
+    }
+  };
+
+  const scheduleReconnect = (): void => {
+    if (closed) {
+      return;
+    }
+    clearReconnectTimer();
+    const delay = Math.min(
+      RECONNECT_BASE_MS * 2 ** reconnectAttempt,
+      RECONNECT_MAX_MS,
+    );
+    reconnectAttempt += 1;
+    reconnectTimer = setTimeout(() => {
+      connect();
+    }, delay);
   };
 
   const attachListeners = (es: EventSource): void => {
@@ -46,6 +73,8 @@ export function createRealtimeSseClient(
       if (closed) {
         return;
       }
+      reconnectAttempt = 0;
+      clearReconnectTimer();
       setStatus("connected");
       options.onOpen();
     };
@@ -58,11 +87,10 @@ export function createRealtimeSseClient(
         setStatus("connecting");
         return;
       }
-      if (es.readyState === EventSource.CLOSED) {
-        setStatus("disconnected");
-        return;
-      }
       setStatus("disconnected");
+      source?.close();
+      source = null;
+      scheduleReconnect();
     };
   };
 
@@ -81,6 +109,7 @@ export function createRealtimeSseClient(
   return {
     close: (): void => {
       closed = true;
+      clearReconnectTimer();
       source?.close();
       source = null;
       setStatus("disconnected");

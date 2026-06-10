@@ -11,7 +11,6 @@ import {
 } from "@/lib/notifications-refresh-event";
 import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
-import { useRealtimeConnectionStatus } from "@/components/realtime/realtime-provider";
 import {
   applyScheduleSpotDelta,
   resolveMemberOnWaitlistBadge,
@@ -185,8 +184,6 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     void refreshSchedule();
   }, [refreshSchedule]);
 
-  const sseConnected = useRealtimeConnectionStatus() === "connected";
-
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);
   useRealtimeRefetch(
     REALTIME_REFETCH_KEYS.BOOKINGS_ME,
@@ -199,10 +196,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     isMember,
   );
 
-  useScheduleLiveSync({
-    onSync: syncLiveSchedule,
-    enabled: !sseConnected,
-  });
+  useScheduleLiveSync({ onSync: syncLiveSchedule });
 
   const debouncedRefetchBookings = useDebouncedCallback(() => {
     void refetchMemberBookings(false);

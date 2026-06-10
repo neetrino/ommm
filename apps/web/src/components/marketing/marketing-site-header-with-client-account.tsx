@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   MarketingSiteHeader,
   type MarketingHeaderAccount,
@@ -42,13 +42,23 @@ export function MarketingSiteHeaderWithClientAccount({
   navLinks,
   serverAccount,
 }: MarketingSiteHeaderWithClientAccountProps) {
-  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(
-    readCachedMarketingHeaderAccount,
-  );
+  const [cachedAccount, setCachedAccount] = useState<MarketingHeaderAccount | null>(null);
+  const [cachedAccountValidated, setCachedAccountValidated] = useState(false);
   const account = serverAccount ?? cachedAccount;
+
+  useLayoutEffect(() => {
+    if (serverAccount !== null) {
+      return;
+    }
+    const cached = readCachedMarketingHeaderAccount();
+    if (cached !== null) {
+      setCachedAccount(cached);
+    }
+  }, [serverAccount]);
 
   useEffect(() => {
     if (serverAccount !== null) {
+      setCachedAccountValidated(false);
       persistAccount(serverAccount);
     }
   }, [serverAccount]);
@@ -73,15 +83,18 @@ export function MarketingSiteHeaderWithClientAccount({
         );
         if (resolved !== null) {
           setCachedAccount(resolved);
+          setCachedAccountValidated(true);
           persistAccount(resolved);
           return;
         }
         setCachedAccount(null);
+        setCachedAccountValidated(false);
         clearPersistedAccount();
       })
       .catch(() => {
         if (!cancelled) {
           setCachedAccount(null);
+          setCachedAccountValidated(false);
           clearPersistedAccount();
         }
       });
@@ -93,7 +106,7 @@ export function MarketingSiteHeaderWithClientAccount({
 
   const showMemberNotifications = account?.href === USER_ACCOUNT_PATH;
 
-  useSyncMarketingRealtimeAuth(account !== null);
+  useSyncMarketingRealtimeAuth(serverAccount !== null || cachedAccountValidated);
 
   return (
     <MarketingSiteHeader

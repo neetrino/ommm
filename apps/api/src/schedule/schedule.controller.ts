@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -22,6 +23,7 @@ export class ScheduleController {
   constructor(private readonly schedule: ScheduleService) {}
 
   @Get('public')
+  @Header('Cache-Control', 'no-store')
   listPublic(@Query('from') from?: string, @Query('to') to?: string) {
     return this.schedule.listPublicActive({ from, to });
   }

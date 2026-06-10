@@ -14,6 +14,9 @@ export async function fetchPublicScheduleClient(): Promise<PublicScheduleClientR
   const rows = await apiFetch<MarketingScheduleItem[]>(
     `/schedule/public?${buildPublicScheduleRangeQuery()}`,
   );
+  if (!Array.isArray(rows)) {
+    throw new Error("Invalid public schedule response");
+  }
   const activeItems = filterBookablePublicScheduleItems(rows);
   return {
     items: activeItems,
