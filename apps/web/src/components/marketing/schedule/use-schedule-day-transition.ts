@@ -60,12 +60,7 @@ export function useScheduleDayTransition<TSession>({
     enterResetTimerRef.current = null;
 
     if (prefersReducedMotion) return;
-
-    if (renderedDayKey === selectedDayKey) {
-      setRenderedSessions(visibleSessions);
-      setAnimationPhase("idle");
-      return;
-    }
+    if (renderedDayKey === selectedDayKey) return;
 
     startTimerRef.current = window.setTimeout(() => {
       setAnimationPhase("exit");
@@ -82,7 +77,11 @@ export function useScheduleDayTransition<TSession>({
   }, [prefersReducedMotion, renderedDayKey, selectedDayKey, visibleSessions]);
 
   const currentDayKey = prefersReducedMotion ? selectedDayKey : renderedDayKey;
-  const currentSessions = prefersReducedMotion ? visibleSessions : renderedSessions;
+  const currentSessions = prefersReducedMotion
+    ? visibleSessions
+    : renderedDayKey === selectedDayKey
+      ? visibleSessions
+      : renderedSessions;
   const currentPhase = prefersReducedMotion ? "idle" : animationPhase;
 
   useLayoutEffect(() => {

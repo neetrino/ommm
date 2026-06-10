@@ -77,7 +77,9 @@ describe('RealtimePublisherService', () => {
     service.emitPublicScheduleSession('session-abc');
 
     const payload = publicStream.chunks.join('');
-    expect(payload).toContain(`event: ${REALTIME_EVENT_NAMES.SCHEDULE_INVALIDATE}`);
+    expect(payload).toContain(
+      `event: ${REALTIME_EVENT_NAMES.SCHEDULE_INVALIDATE}`,
+    );
     expect(payload).toContain(`event: ${REALTIME_EVENT_NAMES.SESSION_CHANGED}`);
     expect(payload).toContain('"sessionId":"session-abc"');
     expect(payload).not.toContain('userId');
@@ -100,13 +102,18 @@ describe('RealtimePublisherService', () => {
       '1.1.1.1',
     );
 
-    service.emitBookingSessionChange({ userId: 'user-a', sessionId: 'session-1' });
+    service.emitBookingSessionChange({
+      userId: 'user-a',
+      sessionId: 'session-1',
+    });
 
     const userAPayload = userA.chunks.join('');
     const userBPayload = userB.chunks.join('');
     const publicPayload = publicStream.chunks.join('');
 
-    expect(userAPayload).toContain(`event: ${REALTIME_EVENT_NAMES.BOOKING_CHANGED}`);
+    expect(userAPayload).toContain(
+      `event: ${REALTIME_EVENT_NAMES.BOOKING_CHANGED}`,
+    );
     expect(userAPayload).toContain('"userId":"user-a"');
     expect(userBPayload).not.toContain(REALTIME_EVENT_NAMES.BOOKING_CHANGED);
     expect(publicPayload).not.toContain(REALTIME_EVENT_NAMES.BOOKING_CHANGED);
@@ -129,7 +136,11 @@ describe('RealtimePublisherService', () => {
 
     service.emitWaitlistOffer('offer-user', 'session-offer');
 
-    expect(offered.chunks.join('')).toContain(REALTIME_EVENT_NAMES.WAITLIST_OFFER);
-    expect(other.chunks.join('')).not.toContain(REALTIME_EVENT_NAMES.WAITLIST_OFFER);
+    expect(offered.chunks.join('')).toContain(
+      REALTIME_EVENT_NAMES.WAITLIST_OFFER,
+    );
+    expect(other.chunks.join('')).not.toContain(
+      REALTIME_EVENT_NAMES.WAITLIST_OFFER,
+    );
   });
 });

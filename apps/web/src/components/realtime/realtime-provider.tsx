@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -38,20 +39,23 @@ export function RealtimeProvider({
   authenticated,
   enablePublic = true,
 }: RealtimeProviderProps) {
-  const registryRef = useRef<RealtimeRefetchRegistry | null>(null);
-  if (registryRef.current === null) {
-    registryRef.current = new RealtimeRefetchRegistry();
-  }
-  const registry = registryRef.current;
+  const registryRef = useRef(new RealtimeRefetchRegistry());
 
-  const [connectionStatus, setConnectionStatus] =
+  const registerRefetch = useCallback<RealtimeRefetchRegistry["register"]>(
+    (key, handler) => registryRef.current.register(key, handler),
+    [],
+  );
+
+  const [sseConnectionStatus, setSseConnectionStatus] =
     useState<RealtimeConnectionStatus>("disconnected");
 
   const shouldConnect = authenticated || enablePublic;
+  const connectionStatus: RealtimeConnectionStatus = shouldConnect
+    ? sseConnectionStatus
+    : "disconnected";
 
   useEffect(() => {
     if (!shouldConnect || typeof window === "undefined") {
-      setConnectionStatus("disconnected");
       return undefined;
     }
 
@@ -64,28 +68,28 @@ export function RealtimeProvider({
       url,
       withCredentials: true,
       onOpen: () => {
-        registry.forceRefetchAllRegistered();
+        registryRef.current.forceRefetchAllRegistered();
       },
       onEvent: (event) => {
         const keys = refetchKeysForEvent(event);
         if (keys.length > 0) {
-          registry.requestRefetch(keys);
+          registryRef.current.requestRefetch(keys);
         }
       },
-      onStatusChange: setConnectionStatus,
+      onStatusChange: setSseConnectionStatus,
     });
 
     return () => {
       client.close();
     };
-  }, [authenticated, registry, shouldConnect]);
+  }, [authenticated, shouldConnect]);
 
   const value = useMemo(
     (): RealtimeContextValue => ({
       connectionStatus,
-      registerRefetch: registry.register.bind(registry),
+      registerRefetch,
     }),
-    [connectionStatus, registry],
+    [connectionStatus, registerRefetch],
   );
 
   return (

@@ -55,8 +55,20 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
   }, []);
 
   useEffect(() => {
-    void refreshSchedule();
-  }, [refreshSchedule]);
+    let cancelled = false;
+    void fetchPublicScheduleClient()
+      .then(({ items: nextItems }) => {
+        if (!cancelled) {
+          setItems(nextItems);
+        }
+      })
+      .catch(() => {
+        // Keep current rows on transient errors.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);
 

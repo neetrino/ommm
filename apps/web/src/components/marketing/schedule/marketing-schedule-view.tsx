@@ -158,8 +158,39 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   }, [isMember]);
 
   useEffect(() => {
-    void refetchMemberBookings(true);
-  }, [initialItems, refetchMemberBookings]);
+    let cancelled = false;
+    void (async () => {
+      if (!isMember) {
+        if (!cancelled) {
+          setMemberBookingsLoaded(true);
+          setBookedBySessionId({});
+        }
+        return;
+      }
+      try {
+        const rows = await apiFetch<UserBookingRow[]>("/bookings/me");
+        if (cancelled) {
+          return;
+        }
+        const next: Record<string, string> = {};
+        for (const row of rows) {
+          if (row.status === "BOOKED") {
+            next[row.session.id] = row.id;
+          }
+        }
+        setBookedBySessionId(next);
+      } catch {
+        // Keep the previous map on transient load errors.
+      } finally {
+        if (!cancelled) {
+          setMemberBookingsLoaded(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [initialItems, isMember]);
 
   const refreshSchedule = useCallback(async () => {
     try {
@@ -176,8 +207,26 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   }, []);
 
   useEffect(() => {
-    void refreshSchedule();
-  }, [refreshSchedule]);
+    let cancelled = false;
+    void fetchPublicScheduleClient()
+      .then(({ items: nextItems }) => {
+        if (!cancelled) {
+          setItems(nextItems);
+        }
+      })
+      .catch(() => {
+        // Keep current list when refresh fails.
+      })
+      .finally(() => {
+        if (!cancelled && !initialScheduleHydratedRef.current) {
+          initialScheduleHydratedRef.current = true;
+          setScheduleCapacityReady(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const syncLiveSchedule = useCallback(() => {
     setScheduleNow(new Date());

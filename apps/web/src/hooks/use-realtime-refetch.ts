@@ -15,7 +15,10 @@ export function useRealtimeRefetch(
 ): void {
   const ctx = useContext(RealtimeContext);
   const refetchRef = useRef(refetch);
-  refetchRef.current = refetch;
+
+  useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
 
   useEffect(() => {
     if (!ctx || !enabled) {

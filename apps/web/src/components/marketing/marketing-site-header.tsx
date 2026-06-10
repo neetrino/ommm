@@ -114,7 +114,6 @@ export function MarketingSiteHeader({
   memberWorkspaceHeader = false,
   notificationHref = null,
   notificationsLabel = null,
-  notificationsActive: _notificationsActive = false,
   showMemberNotifications = false,
 }: MarketingSiteHeaderProps) {
   const locale = useLocale();

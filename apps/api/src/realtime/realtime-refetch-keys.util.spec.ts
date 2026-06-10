@@ -55,9 +55,8 @@ describe('realtime refetch key mapping', () => {
   });
 
   it('maps cancel-intent to schedule/public and admin schedule', () => {
-    expect(refetchKeysForEvent(REALTIME_EVENT_NAMES.CANCEL_INTENT_CHANGED)).toEqual([
-      'schedule/public',
-      'classes/admin/sessions',
-    ]);
+    expect(
+      refetchKeysForEvent(REALTIME_EVENT_NAMES.CANCEL_INTENT_CHANGED),
+    ).toEqual(['schedule/public', 'classes/admin/sessions']);
   });
 });

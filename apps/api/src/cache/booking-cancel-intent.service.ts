@@ -32,7 +32,9 @@ export class BookingCancelIntentService {
   }
 
   /** Keeps public rows full while another member is confirming a cancellation. */
-  applyToPublicItems(items: readonly PublicScheduleItem[]): PublicScheduleItem[] {
+  applyToPublicItems(
+    items: readonly PublicScheduleItem[],
+  ): PublicScheduleItem[] {
     return items.map((item) => {
       if (!this.isActive(item.id)) {
         return item;

@@ -471,7 +471,7 @@ export class PaymentsService {
     for (const email of giftEmails) {
       await this.sendGiftCardEmail(email.to, email.code);
     }
-    await this.emitDropInBookingRealtimeIfNeeded(payment as InternalPaymentRecord);
+    await this.emitDropInBookingRealtimeIfNeeded(payment);
     return payment;
   }
 

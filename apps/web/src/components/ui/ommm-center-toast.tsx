@@ -23,12 +23,19 @@ const TONE_PANEL_CLASS: Record<OmmmCenterToastTone, string> = {
   error: "border-red-200/90 bg-red-50/95 text-red-900 ring-1 ring-red-200/60",
 };
 
-export function OmmmCenterToast({
+type OmmmCenterToastAnimatorProps = {
+  message: string;
+  tone: OmmmCenterToastTone;
+  onDismiss: () => void;
+  durationMs: number;
+};
+
+function OmmmCenterToastAnimator({
   message,
-  tone = "success",
+  tone,
   onDismiss,
-  durationMs = OMMM_CENTER_TOAST_VISIBLE_MS,
-}: OmmmCenterToastProps) {
+  durationMs,
+}: OmmmCenterToastAnimatorProps) {
   const [phase, setPhase] = useState<ToastPhase>("enter");
   const onDismissRef = useRef(onDismiss);
 
@@ -37,11 +44,6 @@ export function OmmmCenterToast({
   }, [onDismiss]);
 
   useEffect(() => {
-    if (!message) {
-      return undefined;
-    }
-    setPhase("enter");
-
     const exitTimer = window.setTimeout(() => {
       setPhase("exit");
     }, durationMs);
@@ -56,14 +58,10 @@ export function OmmmCenterToast({
     };
   }, [durationMs, message]);
 
-  if (!message || typeof document === "undefined") {
-    return null;
-  }
-
   const animationClass =
     phase === "exit" ? "ommm-center-toast-out" : "ommm-center-toast-in";
 
-  return createPortal(
+  return (
     <div
       className="pointer-events-none fixed inset-0 z-[115] flex items-center justify-center px-4"
       aria-live="polite"
@@ -88,7 +86,28 @@ export function OmmmCenterToast({
         ) : null}
         <span className="text-left leading-snug">{message}</span>
       </div>
-    </div>,
+    </div>
+  );
+}
+
+export function OmmmCenterToast({
+  message,
+  tone = "success",
+  onDismiss,
+  durationMs = OMMM_CENTER_TOAST_VISIBLE_MS,
+}: OmmmCenterToastProps) {
+  if (!message || typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
+    <OmmmCenterToastAnimator
+      key={message}
+      message={message}
+      tone={tone}
+      onDismiss={onDismiss}
+      durationMs={durationMs}
+    />,
     document.body,
   );
 }

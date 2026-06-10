@@ -90,8 +90,40 @@ export function useMemberWaitlistData(enabled: boolean): MemberWaitlistData {
   );
 
   useEffect(() => {
-    void refetch();
-  }, [refetch]);
+    let cancelled = false;
+    void (async () => {
+      if (!enabled) {
+        if (!cancelled) {
+          setRows([]);
+          setLoading(false);
+          setLoaded(true);
+          setError(false);
+        }
+        return;
+      }
+      setLoading(true);
+      setError(false);
+      try {
+        const data = await fetchMemberWaitlistDeduped();
+        if (!cancelled) {
+          setRows(data);
+        }
+      } catch {
+        if (!cancelled) {
+          setRows([]);
+          setError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          setLoaded(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
 
   useEffect(() => {
     if (!enabled) {

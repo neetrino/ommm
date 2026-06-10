@@ -52,13 +52,14 @@ export function MarketingSiteHeaderWithClientAccount({
     }
     const cached = readCachedMarketingHeaderAccount();
     if (cached !== null) {
-      setCachedAccount(cached);
+      queueMicrotask(() => {
+        setCachedAccount(cached);
+      });
     }
   }, [serverAccount]);
 
   useEffect(() => {
     if (serverAccount !== null) {
-      setCachedAccountValidated(false);
       persistAccount(serverAccount);
     }
   }, [serverAccount]);

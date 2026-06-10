@@ -26,10 +26,13 @@ export function MarketingRealtimeRoot({
   serverAuthenticated,
 }: MarketingRealtimeRootProps) {
   const [authenticated, setAuthenticated] = useState(serverAuthenticated);
+  const [prevServerAuthenticated, setPrevServerAuthenticated] =
+    useState(serverAuthenticated);
 
-  useEffect(() => {
+  if (serverAuthenticated !== prevServerAuthenticated) {
+    setPrevServerAuthenticated(serverAuthenticated);
     setAuthenticated(serverAuthenticated);
-  }, [serverAuthenticated]);
+  }
 
   return (
     <RealtimeAuthSetterContext.Provider value={setAuthenticated}>

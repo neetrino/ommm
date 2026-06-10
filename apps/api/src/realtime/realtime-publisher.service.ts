@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import type { Role } from '@prisma/client';
 import type { Response } from 'express';
 import { randomUUID } from 'node:crypto';
@@ -106,7 +101,10 @@ export class RealtimePublisherService {
     this.emitToUser(event.data.userId, event);
   }
 
-  emitBookingSessionChange(params: { userId: string; sessionId: string }): void {
+  emitBookingSessionChange(params: {
+    userId: string;
+    sessionId: string;
+  }): void {
     this.emitToUser(params.userId, {
       type: REALTIME_EVENT_NAMES.BOOKING_CHANGED,
       data: { userId: params.userId, sessionId: params.sessionId },

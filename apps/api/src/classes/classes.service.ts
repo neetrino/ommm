@@ -99,7 +99,9 @@ export class ClassesService {
     private readonly realtime: RealtimePublisherService,
   ) {}
 
-  private async invalidatePublicScheduleAndEmit(sessionId: string): Promise<void> {
+  private async invalidatePublicScheduleAndEmit(
+    sessionId: string,
+  ): Promise<void> {
     await this.schedule.invalidatePublicCache();
     this.realtime.emitPublicScheduleSession(sessionId);
   }
@@ -673,7 +675,9 @@ export class ClassesService {
       createRows.map((data) => this.prisma.classSession.create({ data })),
     );
     await Promise.all(
-      created.map((session) => this.invalidatePublicScheduleAndEmit(session.id)),
+      created.map((session) =>
+        this.invalidatePublicScheduleAndEmit(session.id),
+      ),
     );
     return Promise.all(
       created.map((session) => this.findSessionAdminOrThrow(session.id)),

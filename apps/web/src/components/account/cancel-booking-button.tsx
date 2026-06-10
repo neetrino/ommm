@@ -42,7 +42,6 @@ export function CancelBookingButton({
 
   useEffect(() => {
     if (!confirmOpen) {
-      setConfirmReady(false);
       return undefined;
     }
     const timeoutId = window.setTimeout(() => {
@@ -58,6 +57,7 @@ export function CancelBookingButton({
       return;
     }
     setMsg(null);
+    setConfirmReady(false);
     try {
       await registerBookingCancelIntent(bookingId);
       dispatchNotificationsRefresh();
@@ -72,6 +72,7 @@ export function CancelBookingButton({
       return;
     }
     setConfirmOpen(false);
+    setConfirmReady(false);
     try {
       await clearBookingCancelIntent(bookingId);
       dispatchNotificationsRefresh();

@@ -184,13 +184,8 @@ export class PackagesService {
         ? await this.resolveCategoryName(dto.categoryName)
         : undefined;
     const resolvedSlug =
-      dto.slug !== undefined
-        ? this.resolveSlug(dto.slug, dto.slug)
-        : undefined;
-    if (
-      resolvedSlug !== undefined &&
-      resolvedSlug !== existing.slug
-    ) {
+      dto.slug !== undefined ? this.resolveSlug(dto.slug, dto.slug) : undefined;
+    if (resolvedSlug !== undefined && resolvedSlug !== existing.slug) {
       await this.assertSlugAvailable(resolvedSlug, planId);
     }
     const data = {
