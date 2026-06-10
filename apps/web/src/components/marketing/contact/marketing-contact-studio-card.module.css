@@ -119,21 +119,43 @@
 .socialList {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 1.5rem 2rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  transition: opacity 150ms ease;
+}
+
+.socialLabel {
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.8125rem;
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
   font-weight: 500;
+  line-height: 1.35;
   color: var(--contact-value-color);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .socialLink:hover {
-  opacity: 0.75;
+  opacity: 0.72;
+}
+
+.socialLink:focus-visible {
+  outline: 2px solid var(--contact-value-color);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.socialIcon {
+  width: auto;
+  height: var(--contact-social-icon-size, 1.5rem);
+  object-fit: contain;
+  filter: brightness(0);
+  opacity: 0.88;
 }

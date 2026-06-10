@@ -1195,7 +1195,10 @@
       "fallbackEmail": "hello@ommm.am",
       "fallbackAddress": "Yerevan, Armenia",
       "fallbackHours": "Mon – Sat / 8:00 – 21:00",
-      "mapHeading": "Map"
+      "mapHeading": "Map",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "socialAria": "{network} profile"
     },
     "story": {
       "title": "About Ommm.",

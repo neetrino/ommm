@@ -1195,7 +1195,10 @@
       "fallbackEmail": "hello@ommm.am",
       "fallbackAddress": "Երևան, Հայաստան",
       "fallbackHours": "Երկ – Շբ / 8:00 – 21:00",
-      "mapHeading": "Քարտեզ"
+      "mapHeading": "Քարտեզ",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "socialAria": "{network} էջ"
     },
     "story": {
       "title": "Ommm-ի մասին",

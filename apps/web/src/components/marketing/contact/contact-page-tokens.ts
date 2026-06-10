@@ -23,6 +23,7 @@ export const CONTACT_PAGE_LAYOUT = {
   cardPaddingPx: 36,
   cardGapPx: 28,
   iconSizePx: 56,
+  socialIconSizePx: 36,
   inputRadiusPx: 12,
   buttonRadiusPx: 999,
   calloutRadiusPx: 16,

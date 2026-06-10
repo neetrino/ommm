@@ -1195,7 +1195,10 @@
       "fallbackEmail": "hello@ommm.am",
       "fallbackAddress": "Ереван, Армения",
       "fallbackHours": "Пн – Сб / 8:00 – 21:00",
-      "mapHeading": "Карта"
+      "mapHeading": "Карта",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "socialAria": "Профиль {network}"
     },
     "story": {
       "title": "О Ommm.",

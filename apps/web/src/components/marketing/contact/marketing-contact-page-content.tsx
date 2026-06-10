@@ -8,6 +8,7 @@ import { MarketingContactStudioCard } from "@/components/marketing/contact/marke
 import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
+import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
 import { listStudioSocialLinks } from "@/lib/studio-social-links";
 
 type StudioPublic = {
@@ -57,6 +58,7 @@ async function MarketingContactStudioSection({ locale }: MarketingContactLocaleP
   const studioRes = await fetchPublicJsonCached<StudioPublic>("/studio");
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
+  const socialIconLinks = resolveContactSocialIconLinks(social);
 
   const phone = pickStudioValue(studio?.contactPhone, t("fallbackPhone"));
   const email = pickStudioValue(studio?.contactEmail, t("fallbackEmail"));
@@ -95,7 +97,9 @@ async function MarketingContactStudioSection({ locale }: MarketingContactLocaleP
       heading={t("studioHeading")}
       rows={studioRows}
       replyCallout={t("replyCallout")}
-      socialLinks={social}
+      socialIconLinks={socialIconLinks}
+      socialLabel={(network) => t(network)}
+      socialAria={(network) => t("socialAria", { network })}
     />
   );
 }
