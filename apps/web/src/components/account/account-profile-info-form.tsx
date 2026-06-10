@@ -1,7 +1,7 @@
 "use client";
 
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { MAX_BIO_LENGTH } from "@/components/admin/admin-coach-form-helpers";
@@ -169,13 +169,6 @@ export function AccountProfileInfoForm({
 
   const empty = tProfile("emptyValue");
 
-  useEffect(() => {
-    if (!isEditing) {
-      setForm(initialFormState(initialUser, initialBio));
-      setSavedBio(null);
-    }
-  }, [initialUser, initialBio, isEditing]);
-
   function resetFormState() {
     setForm(initialFormState(initialUser, initialBio));
   }
@@ -279,7 +272,11 @@ export function AccountProfileInfoForm({
   const displayDob = initialUser.dateOfBirth
     ? formatDateForUi(initialUser.dateOfBirth)
     : empty;
-  const displayBio = (savedBio ?? initialBio)?.trim() ?? "";
+  const trimmedInitialBio = initialBio?.trim() ?? "";
+  const displayBio =
+    savedBio !== null && trimmedInitialBio !== savedBio
+      ? savedBio
+      : trimmedInitialBio;
 
   let actions: ReactNode = null;
   if (isEditing) {

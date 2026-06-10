@@ -129,7 +129,9 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const [scheduleCapacityReady, setScheduleCapacityReady] = useState(false);
   const initialScheduleHydratedRef = useRef(false);
   const bookedBySessionIdRef = useRef(bookedBySessionId);
-  bookedBySessionIdRef.current = bookedBySessionId;
+  useEffect(() => {
+    bookedBySessionIdRef.current = bookedBySessionId;
+  }, [bookedBySessionId]);
   const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
     useMemberWaitlistData(isMember);
   const memberActionStateReady =
