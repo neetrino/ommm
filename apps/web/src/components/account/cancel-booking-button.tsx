@@ -20,7 +20,8 @@ import {
 
 type Props = {
   bookingId: string;
-  sessionStartsAt?: string | null;
+  sessionDate?: string | null;
+  sessionStartTime?: string | null;
   appearance?: "link" | "button";
   size?: "sm" | "md";
   buttonClassName?: string;
@@ -32,7 +33,8 @@ const CANCEL_BOOKING_BUTTON_CLASS = "ommm-btn-lifecycle-action--danger";
 
 export function CancelBookingButton({
   bookingId,
-  sessionStartsAt,
+  sessionDate,
+  sessionStartTime,
   appearance = "link",
   size = "md",
   buttonClassName,
@@ -51,13 +53,19 @@ export function CancelBookingButton({
   const intentSyncRef = useRef<string | null>(null);
   const buttonSize = appearance === "link" ? "sm" : size;
 
+  const hasSessionTiming =
+    sessionDate !== undefined &&
+    sessionDate !== null &&
+    sessionStartTime !== undefined &&
+    sessionStartTime !== null &&
+    sessionStartTime.length > 0;
+
   const penalized =
-    sessionStartsAt !== undefined &&
-    sessionStartsAt !== null &&
-    isPenalizedCancellation(new Date(sessionStartsAt), undefined, new Date(nowMs));
+    hasSessionTiming &&
+    isPenalizedCancellation(sessionDate, sessionStartTime, undefined, new Date(nowMs));
 
   useEffect(() => {
-    if (!confirmOpen || !sessionStartsAt) {
+    if (!confirmOpen || !hasSessionTiming) {
       return undefined;
     }
     const intervalId = window.setInterval(() => {
@@ -66,7 +74,7 @@ export function CancelBookingButton({
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [confirmOpen, sessionStartsAt]);
+  }, [confirmOpen, hasSessionTiming]);
 
   useEffect(() => {
     if (!confirmOpen) {

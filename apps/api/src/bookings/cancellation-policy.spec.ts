@@ -15,25 +15,25 @@ describe('resolveCancellationPenaltyHours', () => {
 });
 
 describe('isPenalizedCancellation', () => {
-  const classStart = new Date('2026-06-10T19:00:00.000Z');
+  const classStart = new Date(Date.UTC(2026, 5, 10, 19, 0, 0, 0));
 
   it('is free at exactly 24 hours before class start', () => {
-    const now = new Date('2026-06-09T19:00:00.000Z');
+    const now = new Date(2026, 5, 9, 19, 0, 0, 0);
     expect(isPenalizedCancellation(classStart, 24, now)).toBe(false);
   });
 
   it('is free more than 24 hours before class start', () => {
-    const now = new Date('2026-06-09T15:00:00.000Z');
+    const now = new Date(2026, 5, 9, 15, 0, 0, 0);
     expect(isPenalizedCancellation(classStart, 24, now)).toBe(false);
   });
 
   it('is penalized within 24 hours of class start', () => {
-    const now = new Date('2026-06-09T19:01:00.000Z');
+    const now = new Date(2026, 5, 9, 19, 1, 0, 0);
     expect(isPenalizedCancellation(classStart, 24, now)).toBe(true);
   });
 
   it('is penalized one minute before class start', () => {
-    const now = new Date('2026-06-10T18:59:00.000Z');
+    const now = new Date(2026, 5, 10, 18, 59, 0, 0);
     expect(isPenalizedCancellation(classStart, 24, now)).toBe(true);
   });
 });

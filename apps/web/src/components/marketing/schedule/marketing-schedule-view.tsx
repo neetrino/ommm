@@ -13,6 +13,7 @@ import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
 import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import {
   applyScheduleSpotDelta,
+  mergePublicScheduleItems,
   resolveMemberOnWaitlistBadge,
   resolveMemberScheduleRowDisplay,
 } from "@/lib/schedule-session-spots";
@@ -127,6 +128,8 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const [scheduleNow, setScheduleNow] = useState(() => new Date());
   const [scheduleCapacityReady, setScheduleCapacityReady] = useState(false);
   const initialScheduleHydratedRef = useRef(false);
+  const bookedBySessionIdRef = useRef(bookedBySessionId);
+  bookedBySessionIdRef.current = bookedBySessionId;
   const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
     useMemberWaitlistData(isMember);
   const memberActionStateReady =
@@ -195,7 +198,9 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const refreshSchedule = useCallback(async () => {
     try {
       const { items: nextItems } = await fetchPublicScheduleClient();
-      setItems(nextItems);
+      setItems((current) =>
+        mergePublicScheduleItems(current, nextItems, bookedBySessionIdRef.current),
+      );
     } catch {
       // Keep current list when refresh fails.
     } finally {

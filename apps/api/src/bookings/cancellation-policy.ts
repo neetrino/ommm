@@ -18,16 +18,37 @@ export function resolveCancellationPenaltyHours(
   return studioValue ?? DEFAULT_CANCELLATION_PENALTY_HOURS;
 }
 
+function sessionWallClockStartMs(startsAt: Date): number {
+  return Date.UTC(
+    startsAt.getUTCFullYear(),
+    startsAt.getUTCMonth(),
+    startsAt.getUTCDate(),
+    startsAt.getUTCHours(),
+    startsAt.getUTCMinutes(),
+  );
+}
+
+function viewerWallClockNowMs(now: Date): number {
+  return Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    now.getHours(),
+    now.getMinutes(),
+  );
+}
+
 /**
  * Penalized when cancellation occurs less than `penaltyHours` before class start.
- * At exactly `penaltyHours` before start, cancellation remains free.
+ * Compares studio wall-clock fields stored on `startsAt` with the viewer's local wall clock.
  */
 export function isPenalizedCancellation(
-  sessionStartsAt: Date,
+  startsAt: Date,
   penaltyHours: number,
   now: Date = new Date(),
 ): boolean {
-  const freeCancelDeadline = new Date(sessionStartsAt);
-  freeCancelDeadline.setHours(freeCancelDeadline.getHours() - penaltyHours);
-  return now > freeCancelDeadline;
+  const startMs = sessionWallClockStartMs(startsAt);
+  const nowMs = viewerWallClockNowMs(now);
+  const freeCancelDeadlineMs = startMs - penaltyHours * 60 * 60 * 1000;
+  return nowMs > freeCancelDeadlineMs;
 }

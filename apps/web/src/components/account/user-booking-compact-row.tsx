@@ -1,6 +1,7 @@
 "use client";
 
 import { CancelBookingButton } from "@/components/account/cancel-booking-button";
+import { scheduleStartTimeFromIso } from "@/lib/cancellation-policy";
 import { RebookButton } from "@/components/account/rebook-button";
 import {
   resolveSessionCoachName,
@@ -78,7 +79,8 @@ export function UserBookingCompactRow({
         {showCancel && booking.status === "BOOKED" ? (
           <CancelBookingButton
             bookingId={booking.id}
-            sessionStartsAt={booking.session.startsAt}
+            sessionDate={booking.session.startsAt}
+            sessionStartTime={scheduleStartTimeFromIso(booking.session.startsAt)}
           />
         ) : null}
         {showRebook ? <RebookButton sessionId={booking.session.id} /> : null}

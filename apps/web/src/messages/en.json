@@ -3558,7 +3558,7 @@
       "confirmTitle": "Cancel booking?",
       "confirm": "Your spot will be released so another member can book it. No session will be deducted from your package.",
       "penaltyConfirmTitle": "Late cancellation",
-      "penaltyConfirm": "You are cancelling within 24 hours of class start. One session will be deducted from your package and your spot will be released for others to book.",
+      "penaltyConfirm": "You are cancelling within 24 hours of class start. One session will be deducted from your package and your spot will be released for others to book. Thank You!",
       "confirmNo": "Keep booking",
       "modalBackdropClose": "Close dialog",
       "action": "Cancel",
