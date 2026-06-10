@@ -22,6 +22,7 @@ html {
   --color-cream-100: #faffa0;
   --color-peach-100: #ffe4c3;
   --color-mint-100: #eef0cd;
+  --color-mint-200: color-mix(in srgb, var(--color-mint-100) 78%, var(--color-sage-700) 22%);
   --color-blue-100: #e4f5fd;
   --color-gift-gold: #e8da74;
 
@@ -76,6 +77,7 @@ html {
   --color-cream-100: var(--color-cream-100);
   --color-peach-100: var(--color-peach-100);
   --color-mint-100: var(--color-mint-100);
+  --color-mint-200: var(--color-mint-200);
   --color-blue-100: var(--color-blue-100);
   --color-gift-gold: var(--color-gift-gold);
 
