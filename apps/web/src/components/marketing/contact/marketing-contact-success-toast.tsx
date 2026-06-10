@@ -50,8 +50,10 @@ export function MarketingContactSuccessToast({
       return;
     }
 
-    setPhase("enter");
-    setTopOffset(resolveToastTopOffset());
+    const startTimer = window.setTimeout(() => {
+      setPhase("enter");
+      setTopOffset(resolveToastTopOffset());
+    }, 0);
     const exitTimer = window.setTimeout(() => {
       setPhase("exit");
     }, CONTACT_PAGE_LAYOUT.successToastVisibleMs);
@@ -61,6 +63,7 @@ export function MarketingContactSuccessToast({
     }, CONTACT_PAGE_LAYOUT.successToastVisibleMs + CONTACT_PAGE_LAYOUT.successToastExitMs);
 
     return () => {
+      window.clearTimeout(startTimer);
       window.clearTimeout(exitTimer);
       window.clearTimeout(hideTimer);
     };

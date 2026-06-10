@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import {
@@ -33,6 +33,7 @@ import {
 } from "@/components/admin/admin-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
@@ -93,34 +94,26 @@ function UserMembershipDetailsSheetInner({
   const titleId = useId();
   const isPhone = useMemberHubSheetPhone();
   const closingRef = useRef(false);
-  const [motionState, setMotionState] = useState<"open" | "closed">("closed");
   const [displayMembership, setDisplayMembership] = useState<UserMembershipRow | null>(
     membership,
   );
   const [displayStatus, setDisplayStatus] = useState<UserPackageStatus>(status);
+  const [prevMembership, setPrevMembership] = useState(membership);
+  const [prevStatus, setPrevStatus] = useState(status);
 
-  useLayoutEffect(() => {
-    if (membership === null) {
-      return;
+  if (membership !== prevMembership || status !== prevStatus) {
+    setPrevMembership(membership);
+    setPrevStatus(status);
+    if (membership !== null) {
+      setDisplayMembership(membership);
+      setDisplayStatus(status);
     }
-    setDisplayMembership(membership);
-    setDisplayStatus(status);
-  }, [membership, status]);
+  }
 
-  useLayoutEffect(() => {
-    if (isPhone || !isOpen) {
-      return undefined;
-    }
-
-    setMotionState("closed");
-    const frame = requestAnimationFrame(() => {
-      setMotionState("open");
-    });
-
-    return () => {
-      cancelAnimationFrame(frame);
-    };
-  }, [displayMembership?.id, isOpen, isPhone]);
+  const { motionState, closeMotion } = useDesktopSheetEnterMotion(
+    !isPhone && isOpen,
+    displayMembership?.id,
+  );
 
   const lifecycle = useUserPackageLifecycle(displayMembership?.id ?? "", displayStatus);
 
@@ -142,7 +135,7 @@ function UserMembershipDetailsSheetInner({
     }
 
     closingRef.current = true;
-    setMotionState("closed");
+    closeMotion();
     window.setTimeout(finishClose, USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS);
   }
 

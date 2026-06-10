@@ -58,7 +58,7 @@ function useHomePlanInteractiveCards({
           href: "/membership",
         };
       }),
-    [audience, cards, categories, openCategorySubscribe],
+    [audience, cards, openCategorySubscribe],
   );
 }
 

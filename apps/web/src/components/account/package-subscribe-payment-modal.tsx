@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
@@ -33,6 +33,7 @@ import {
   readMemberHubSheetPhoneViewport,
   useMemberHubSheetPhone,
 } from "@/hooks/use-member-hub-sheet-phone";
+import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
 import { isApiError, isArcaCheckoutEnabled, startArcaCardCheckout } from "@/lib/arca-checkout";
 import { apiFetch } from "@/lib/api";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
@@ -120,8 +121,9 @@ function PackageSubscribePaymentModalSession({
   const titleId = useId();
   const closingRef = useRef(false);
   const refreshAfterCloseRef = useRef(false);
-  const [motionState, setMotionState] = useState<"open" | "closed">("closed");
   const [step, setStep] = useState<ModalStep>("form");
+  const isPhone = useMemberHubSheetPhone();
+  const { motionState, closeMotion } = useDesktopSheetEnterMotion(!isPhone && isOpen);
   const [selectedPlanId, setSelectedPlanId] = useState(() =>
     resolveDefaultPlanId(plans, initialPlanId),
   );
@@ -129,24 +131,8 @@ function PackageSubscribePaymentModalSession({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isPhone = useMemberHubSheetPhone();
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
   const sheetTitle = step === "success" ? t("successTitle") : t("title");
-
-  useLayoutEffect(() => {
-    if (isPhone || !isOpen) {
-      return undefined;
-    }
-
-    setMotionState("closed");
-    const frame = requestAnimationFrame(() => {
-      setMotionState("open");
-    });
-
-    return () => {
-      cancelAnimationFrame(frame);
-    };
-  }, [isOpen, isPhone]);
 
   function handlePlanSelect(planId: string) {
     setSelectedPlanId(planId);
@@ -207,7 +193,7 @@ function PackageSubscribePaymentModalSession({
     }
 
     closingRef.current = true;
-    setMotionState("closed");
+    closeMotion();
     window.setTimeout(finishClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
   }
 
