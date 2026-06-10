@@ -62,10 +62,7 @@ function AdminCoachesListView({
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colTags")}</span>
         <span className={ADMIN_COACHES_LIST_EMPHASIZED_HEADER}>{t("colWorkload")}</span>
         {readOnly ? null : (
-          <>
-            <span aria-hidden="true" />
-            <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
-          </>
+          <span className={ADMIN_COACHES_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
         )}
       </div>
       {coaches.map((coach) => (

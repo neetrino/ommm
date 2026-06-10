@@ -10,8 +10,9 @@ import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions
 import {
   ADMIN_COACHES_LIST_ACTIONS_CELL,
   ADMIN_COACHES_LIST_CELL,
+  ADMIN_COACHES_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_COACHES_LIST_ROW_CLASS,
-  ADMIN_COACHES_LIST_SPACER_CELL,
+  ADMIN_COACHES_LIST_SPECIALIZATION_CELL,
   ADMIN_COACHES_LIST_TAGS_CELL,
   ADMIN_COACHES_LIST_WORKLOAD_CELL,
 } from "@/components/admin/admin-coaches-list-layout";
@@ -70,9 +71,9 @@ export function AdminCoachCompactRow({
         </div>
       </div>
 
-      <div className={ADMIN_COACHES_LIST_CELL}>
+      <div className={ADMIN_COACHES_LIST_SPECIALIZATION_CELL}>
         <AdminListMobileLabel label={t("colSpecialization")} />
-        <p className="text-sm text-sage-800">{coach.specialization ?? "—"}</p>
+        <p className="truncate text-sm text-sage-800">{coach.specialization ?? "—"}</p>
       </div>
 
       <div className={ADMIN_COACHES_LIST_TAGS_CELL}>
@@ -91,12 +92,8 @@ export function AdminCoachCompactRow({
       </div>
 
       {readOnly ? null : (
-        <div className={ADMIN_COACHES_LIST_SPACER_CELL} aria-hidden="true" />
-      )}
-
-      {readOnly ? null : (
         <div
-          className={ADMIN_COACHES_LIST_ACTIONS_CELL}
+          className={`${ADMIN_COACHES_LIST_ACTIONS_CELL} ${ADMIN_COACHES_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
