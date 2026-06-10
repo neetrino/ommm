@@ -241,14 +241,19 @@
 }
 
 /* Header avatar — slightly smaller than globe/action icons. */
-.mobileHeaderAvatar {
+.mobileHeaderAvatar,
+.mobileHeaderGuestUserIcon {
   flex-shrink: 0;
   aspect-ratio: 1;
+}
+
+.mobileHeaderAvatar {
   border-radius: 9999px;
   overflow: hidden;
 }
 
-.mobileHeaderAvatar {
+.mobileHeaderAvatar,
+.mobileHeaderGuestUserIcon {
   height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
   width: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;
   min-height: calc(var(--marketing-mobile-glass-pill-action-icon-size, 26px) - 3px) !important;

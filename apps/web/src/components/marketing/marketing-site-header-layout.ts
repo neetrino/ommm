@@ -314,6 +314,9 @@ export const MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS =
 export const MARKETING_HEADER_DESKTOP_AVATAR_CLASS =
   "h-[21px] w-[21px] shrink-0 lg:h-[25px] lg:w-[25px] nav-desktop:h-[29px] nav-desktop:w-[29px]";
 
+/** Logged-out / no-photo user icon — same footprint as {@link MARKETING_HEADER_DESKTOP_AVATAR_CLASS}. */
+export const MARKETING_HEADER_GUEST_USER_ICON_CLASS = MARKETING_HEADER_DESKTOP_AVATAR_CLASS;
+
 export function marketingHeaderMenuButtonClass(): string {
   return marketingHeaderMobileMenuButtonClass(false);
 }

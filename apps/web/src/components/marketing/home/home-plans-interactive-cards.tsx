@@ -10,7 +10,6 @@ import type { HomePlanCardCopy } from "@/components/marketing/home/home-plan-car
 import styles from "@/components/marketing/home/marketing-public-home-plans-section.module.css";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import { listPublicPackageCategorySubscribablePlans } from "@/components/marketing/packages/public-package-category-subscribable-plans";
-import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
 import { usePackageSubscribeUrlState } from "@/hooks/use-package-subscribe-url-state";
 import { resolvePackageSubscribeCategoryContext } from "@/lib/package-subscribe-category-plans";
 import type { PublicPackageCategoryGroup } from "@/lib/public-package-categories";
@@ -54,16 +53,9 @@ function useHomePlanInteractiveCards({
             onActivate: () => openCategorySubscribe(card.id),
           };
         }
-        const loginPlanId =
-          categories
-            .find((item) => item.id === card.id)
-            ?.plans.find((plan) => plan.priceCents > 0)?.id ?? "";
         return {
           ...card,
-          href:
-            loginPlanId.length > 0
-              ? buildPackagesSubscribeLoginHref(loginPlanId)
-              : `/packages?category=${encodeURIComponent(card.id)}`,
+          href: "/membership",
         };
       }),
     [audience, cards, categories, openCategorySubscribe],

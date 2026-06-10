@@ -36,6 +36,7 @@ import {
   MARKETING_MOBILE_HEADER,
   MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS,
   MARKETING_HEADER_DESKTOP_AVATAR_CLASS,
+  MARKETING_HEADER_GUEST_USER_ICON_CLASS,
   marketingHeaderNavLinksClass,
   marketingHeaderNavPillLinkClass,
   marketingHeaderShellClass,
@@ -293,7 +294,7 @@ export function MarketingSiteHeader({
                   profileHref={account.href}
                   triggerClassName={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
                   avatarClassName={navPillStyles.mobileHeaderAvatar}
-                  guestIconClassName={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                  guestIconClassName={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (
@@ -304,7 +305,7 @@ export function MarketingSiteHeader({
                   onClick={closeAllMenus}
                 >
                   <MarketingHeaderUserIcon
-                    className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
+                    className={`${navPillStyles.mobileHeaderGuestUserIcon} shrink-0`}
                   />
                 </Link>
               ) : null}
@@ -383,7 +384,7 @@ export function MarketingSiteHeader({
                   profileHref={account.href}
                   triggerClassName={marketingHeaderIconAccountClass()}
                   avatarClassName={`${MARKETING_HEADER_DESKTOP_AVATAR_CLASS} rounded-full`}
-                  guestIconClassName={MARKETING_HEADER_DESKTOP_AVATAR_CLASS}
+                  guestIconClassName={MARKETING_HEADER_GUEST_USER_ICON_CLASS}
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (
@@ -393,7 +394,7 @@ export function MarketingSiteHeader({
                   aria-label={tCommon("login")}
                   onClick={closeAllMenus}
                 >
-                  <MarketingHeaderUserIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
+                  <MarketingHeaderUserIcon className={MARKETING_HEADER_GUEST_USER_ICON_CLASS} />
                 </Link>
               ) : null}
             </div>
