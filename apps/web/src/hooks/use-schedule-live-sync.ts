@@ -3,24 +3,23 @@
 import { useEffect } from "react";
 import { useDebouncedCallback } from "@/lib/debounced-callback";
 import { NOTIFICATIONS_REFRESH_EVENT } from "@/lib/notifications-refresh-event";
-import { SCHEDULE_LIVE_POLL_INTERVAL_MS, SCHEDULE_FALLBACK_POLL_MS } from "@/lib/public-schedule-constants";
+import { SCHEDULE_FALLBACK_POLL_MS } from "@/lib/public-schedule-constants";
 
 type UseScheduleLiveSyncOptions = {
   enabled?: boolean;
   onSync: () => void;
-  /** Poll interval; defaults to primary live sync interval. */
+  /** Poll interval; defaults to SSE disconnect fallback (60s). */
   intervalMs?: number;
 };
 
 /**
- * Keeps the public schedule list fresh while the tab is visible.
- * Primary cross-user updates should come from SSE; this hook supports fallback polling
- * while disconnected and same-browser {@link NOTIFICATIONS_REFRESH_EVENT} refresh.
+ * Fallback schedule sync while SSE is disconnected, plus same-browser
+ * {@link NOTIFICATIONS_REFRESH_EVENT} refresh for instant local UX.
  */
 export function useScheduleLiveSync({
   enabled = true,
   onSync,
-  intervalMs = SCHEDULE_LIVE_POLL_INTERVAL_MS,
+  intervalMs = SCHEDULE_FALLBACK_POLL_MS,
 }: UseScheduleLiveSyncOptions): void {
   const debouncedSync = useDebouncedCallback(onSync, 200);
 

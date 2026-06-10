@@ -2,7 +2,7 @@
 
 **Source of truth:** [`SSE_REALTIME_IMPLEMENTATION.md`](./SSE_REALTIME_IMPLEMENTATION.md)  
 **Started:** 2026-06-10  
-**Last updated:** 2026-06-10 (Phase 1 backend + web P0 complete)
+**Last updated:** 2026-06-10 (verification + cleanup complete)
 
 ---
 
@@ -12,8 +12,8 @@
 |-------|-------|--------|
 | 0 | Analysis + tracking | **DONE** |
 | 1 | Backend P0 + Web P0 | **DONE** |
-| 2 | Verification scenarios | TODO |
-| 3 | Cleanup (fallback-only poll, doc updates) | TODO |
+| 2 | Verification scenarios | **PARTIAL** — automated checks pass; multi-user E2E manual |
+| 3 | Cleanup (fallback-only poll, doc updates) | **DONE** |
 
 ---
 
@@ -119,7 +119,7 @@
 | Wire header notifications + waitlist hook | DONE | `use-member-waitlist-data.ts` registers `waitlist/me` |
 | Wire cancel-intent flow | DONE | Via `cancel-intent.changed` → `schedule/public` refetch (no button change) |
 | Mount RealtimeProvider in shell | DONE | `marketing-realtime-root.tsx` in marketing layout; `workspace-shell.tsx` for authenticated workspace |
-| Web typecheck | BLOCKED | Pre-existing `.next/types` missing notifications page; new files lint-clean |
+| Web typecheck | BLOCKED | Pre-existing `.next/types` missing `user/notifications` page; SSE code lint-clean |
 
 ---
 
@@ -127,18 +127,21 @@
 
 | Scenario | Status | Notes |
 |----------|--------|-------|
-| Cross-user spot update | TODO | — |
-| Cancel-intent hold visible cross-user | TODO | — |
-| Waitlist offer badge via SSE | TODO | — |
-| Admin cancel → public schedule + offer | TODO | — |
-| Booking move both sessions | TODO | — |
-| Payment-created booking | TODO | — |
-| Reconnect forced refetch | TODO | — |
-| Duplicate event burst dedupe | TODO | — |
-| Public SSE privacy | TODO | — |
-| Subscriber memory cleanup | TODO | — |
-| CORS credentials | TODO | — |
-| Cache invalidation before emit | TODO | — |
+| Cross-user spot update | MANUAL | Requires two browsers/sessions; SSE + refetch wiring in place |
+| Cancel-intent hold visible cross-user | MANUAL | API emits `cancel-intent.changed`; schedule registers `schedule/public` refetch |
+| Waitlist offer badge via SSE | MANUAL | `waitlist/me` refetch on `waitlist.offer` / `waitlist.changed` |
+| Admin cancel → public schedule + offer | MANUAL | `adminCancel` cache + emit fixed in backend |
+| Booking move both sessions | MANUAL | `moveBooking` invalidates cache + emits both sessions |
+| Payment-created booking | MANUAL | DROPIN `confirmPayment` path wired |
+| Reconnect forced refetch | PASS | `onOpen` → `forceRefetchAllRegistered()` in provider |
+| Duplicate event burst dedupe | PASS | `realtime-refetch-keys.util.spec.ts` + registry `Set` dedupe |
+| Public SSE privacy | PASS | `realtime-publisher.service.spec.ts` — no `userId` on public frames |
+| Subscriber memory cleanup | PASS | Jest: 5 connect/close cycles → `activeConnectionCount` 0 |
+| CORS credentials | PASS | `curl` with `Origin: http://localhost:3000` → `Allow-Credentials: true` |
+| Cache invalidation before emit | PASS | Code review: all booking paths `invalidatePublicCache` before `realtime.emit*` |
+| SSE response headers | PASS | `Content-Type: text/event-stream`, `no-cache`, `X-Accel-Buffering: no` |
+| Browser EventSource (guest) | PASS | CDP test: `EventSource` to `http://localhost:4000/v1/realtime/public` opens |
+| API idle when no tabs | PASS | Aborted SSE requests logged on disconnect (terminal observation) |
 
 ---
 
@@ -146,11 +149,12 @@
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Reduce 15s poll to 60s fallback-only | TODO | After verification |
-| Keep local clock tick | TODO | — |
-| Keep optimistic CustomEvent where useful | TODO | — |
-| Remove duplicate refresh mechanisms | TODO | — |
-| Update `docs/TECH_CARD.md` §7.6 | TODO | — |
+| Reduce 15s poll to 60s fallback-only | DONE | Removed `SCHEDULE_LIVE_POLL_INTERVAL_MS`; hook default `SCHEDULE_FALLBACK_POLL_MS` |
+| Keep local clock tick | DONE | `SCHEDULE_CLOCK_TICK_MS` unchanged |
+| Keep optimistic CustomEvent where useful | DONE | `NOTIFICATIONS_REFRESH_EVENT` retained |
+| Remove duplicate refresh mechanisms | DONE | Primary 15s poll removed; SSE primary; fallback + CustomEvent only |
+| Update `docs/TECH_CARD.md` §7.6 | DONE | Realtime SSE section added |
+| `NEXT_PUBLIC_API_ORIGIN` in `.env` | DONE | Set to `http://localhost:4000` (alias of `NEXT_PUBLIC_API_URL`) |
 
 ---
 
@@ -190,3 +194,10 @@
 - **Modified:** `marketing-schedule-view.tsx`, `use-member-waitlist-data.ts`, `use-schedule-live-sync.ts`, `public-schedule-constants.ts`, `(marketing)/layout.tsx`, `marketing-site-header-with-client-account.tsx`, `workspace-shell.tsx`
 - **Checks:** ESLint clean on touched files; `tsc` blocked by unrelated missing notifications page in `.next/types`
 - **Behavior:** Direct SSE to API origin with credentials; 15s primary poll replaced by SSE + 60s fallback when disconnected; local `CustomEvent` kept for same-browser UX
+
+### 2026-06-10 — Verification + cleanup
+
+- **Status:** Automated verification PASS; multi-user E2E marked MANUAL; Phase 3 cleanup DONE
+- **New files:** `apps/api/src/realtime/realtime-publisher.service.spec.ts`, `realtime-refetch-keys.util.spec.ts`
+- **Modified:** `public-schedule-constants.ts`, `use-schedule-live-sync.ts`, `marketing-schedule-view.tsx`, `docs/TECH_CARD.md`, `.env` (`NEXT_PUBLIC_API_ORIGIN`)
+- **Checks:** `pnpm test --testPathPatterns=realtime` (7 tests pass); SSE headers + CORS via `curl.exe`; browser `EventSource` open test on `/en/schedule`

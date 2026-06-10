@@ -46,7 +46,7 @@ import {
   useScheduleDayTransition,
 } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
-import { SCHEDULE_CLOCK_TICK_MS, SCHEDULE_FALLBACK_POLL_MS } from "@/lib/public-schedule-constants";
+import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
@@ -202,7 +202,6 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   useScheduleLiveSync({
     onSync: syncLiveSchedule,
     enabled: !sseConnected,
-    intervalMs: SCHEDULE_FALLBACK_POLL_MS,
   });
 
   const debouncedRefetchBookings = useDebouncedCallback(() => {
