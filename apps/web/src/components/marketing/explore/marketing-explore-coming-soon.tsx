@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import styles from "@/components/marketing/explore/marketing-explore-coming-soon.module.css";
 import { EXPLORE_PAGE_ASSETS } from "@/components/marketing/explore/explore-page-assets";
 import { EXPLORE_PAGE_LAYOUT } from "@/components/marketing/explore/explore-page-tokens";
-import { lcpImageProps } from "@/lib/image-loading-props";
+import { belowFoldImageProps, lcpImageProps } from "@/lib/image-loading-props";
 
 type MarketingExploreComingSoonProps = {
   locale: string;
@@ -24,12 +24,20 @@ export async function MarketingExploreComingSoon({
       }}
     >
       <Image
+        src={EXPLORE_PAGE_ASSETS.comingSoonMobile}
+        alt={t("comingSoonAlt")}
+        fill
+        sizes="100vw"
+        className={`${styles.image} ${styles.imageMobile}`}
+        {...lcpImageProps()}
+      />
+      <Image
         src={EXPLORE_PAGE_ASSETS.comingSoon}
         alt={t("comingSoonAlt")}
         fill
         sizes="100vw"
-        className={styles.image}
-        {...lcpImageProps()}
+        className={`${styles.image} ${styles.imageDesktop}`}
+        {...belowFoldImageProps()}
       />
     </div>
   );

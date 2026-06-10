@@ -10,3 +10,22 @@
   object-fit: cover;
   object-position: center var(--explore-coming-soon-image-position-y, 50%);
 }
+
+.imageMobile {
+  display: block;
+  object-position: center center;
+}
+
+.imageDesktop {
+  display: none;
+}
+
+@media (min-width: 744px) {
+  .imageMobile {
+    display: none;
+  }
+
+  .imageDesktop {
+    display: block;
+  }
+}

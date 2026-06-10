@@ -7,7 +7,7 @@
   padding-bottom: var(--story-hero-padding-bottom, clamp(2rem, 5vw, 4rem));
 }
 
-@media (max-width: 899px) {
+@media (max-width: 743px) {
   .hero {
     display: block;
     padding-bottom: calc(
@@ -15,6 +15,29 @@
         var(--story-hero-visual-nudge-y, clamp(1rem, 3vw, 2rem)) +
         min(100%, var(--story-hero-visual-max-width, 28rem)) * 7 / 6
     );
+  }
+}
+
+@media (min-width: 744px) and (max-width: 899px) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(11rem, 40%);
+    align-items: start;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    padding-bottom: var(--story-hero-padding-bottom, clamp(2rem, 5vw, 4rem));
+  }
+
+  .copy {
+    align-self: start;
+    transform: translateY(var(--story-hero-tablet-copy-nudge-y, -1.25rem));
+  }
+
+  .title {
+    max-width: var(--story-hero-tablet-title-max-width, 11ch);
+  }
+
+  .lead {
+    max-width: var(--story-hero-tablet-lead-max-width, 13.5rem);
   }
 }
 
@@ -69,7 +92,7 @@
   );
 }
 
-@media (max-width: 899px) {
+@media (max-width: 743px) {
   .visual {
     position: absolute;
     right: 0;
@@ -78,7 +101,23 @@
     justify-self: end;
     transform: translateY(var(--story-hero-visual-nudge-y, clamp(1rem, 3vw, 2rem)));
   }
+}
 
+@media (min-width: 744px) and (max-width: 899px) {
+  .visual {
+    position: relative;
+    z-index: 1;
+    justify-self: end;
+    align-self: start;
+    width: min(
+      100%,
+      var(--story-hero-tablet-visual-max-width, clamp(13rem, 36vw, 17rem))
+    );
+    transform: translateY(var(--story-hero-tablet-visual-nudge-y, -0.25rem));
+  }
+}
+
+@media (max-width: 899px) {
   .branchWrap {
     display: none;
   }

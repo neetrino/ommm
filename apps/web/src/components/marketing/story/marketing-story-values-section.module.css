@@ -53,6 +53,40 @@
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+}
+
+@media (min-width: 744px) and (max-width: 899px) {
+  .grid > li {
+    display: flex;
+    min-width: 0;
+  }
+
+  .card {
+    flex: 1;
+    width: 100%;
+    min-height: var(--story-values-card-min-height-tablet, 30rem);
+  }
+
+  .copy {
+    flex: 1;
+    padding: 1rem 0.875rem 0;
+    gap: 0.625rem;
+  }
+
+  .title {
+    font-size: 1.125rem;
+    line-height: 1.2;
+  }
+
+  .body {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+
+  .media {
+    min-height: var(--story-values-image-min-height-tablet, 12rem);
   }
 }
 

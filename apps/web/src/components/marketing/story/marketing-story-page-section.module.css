@@ -7,11 +7,14 @@
   padding-bottom: clamp(2rem, 5vw, 3.5rem);
 }
 
-@media (max-width: 743px) {
+/* Story hero is mobile/tablet through 899px — keep title below the fixed header. */
+@media (max-width: 899px) {
   .section {
     padding-top: calc(
-      var(--marketing-mobile-header-height, 4.25rem) +
-        var(--coaches-page-hero-mobile-gap, 0.75rem)
+      var(
+        --ommm-marketing-site-header-offset,
+        var(--marketing-mobile-header-height, 4.25rem)
+      ) + var(--coaches-page-hero-mobile-gap, 0.75rem)
     );
   }
 }

@@ -23,6 +23,12 @@ export const STORY_PAGE_LAYOUT = {
   heroArchRadiusTop: "clamp(8rem, 26vw, 15rem)",
   heroArchRadiusBottom: "clamp(2.25rem, 5vw, 3rem)",
   heroVisualMaxWidth: "clamp(22rem, 42vw, 32rem)",
+  /** iPad Mini / tablet hero — narrow title (~3 words per line) + portrait beside copy. */
+  heroTabletTitleMaxWidth: "11ch",
+  heroTabletLeadMaxWidth: "13.5rem",
+  heroTabletVisualMaxWidth: "clamp(13rem, 36vw, 17rem)",
+  heroTabletVisualNudgeY: "-0.25rem",
+  heroTabletCopyNudgeY: "-1.25rem",
   heroVisualAspectRatio: "6 / 7",
   sectionGap: "clamp(2rem, 5vw, 3.5rem)",
   cardPadding: "clamp(1.25rem, 3vw, 2.5rem)",
@@ -30,6 +36,9 @@ export const STORY_PAGE_LAYOUT = {
   valuesCardRadius: "clamp(2.25rem, 4vw, 3rem)",
   valuesCardMinHeight: "clamp(25rem, 46vw, 32rem)",
   valuesCardImageMinHeight: "clamp(12.5rem, 28vw, 17rem)",
+  /** iPad Mini — equal taller cards so copy fits in three columns. */
+  valuesCardMinHeightTablet: "30rem",
+  valuesCardImageMinHeightTablet: "12rem",
   valuesHeadingColor: HOME_COACHES_SECTION_FIGMA.headingColor,
   valuesSubtitleColor: HOME_COACHES_SECTION_FIGMA.subtitleColor,
   valuesSectionMarginTop: "clamp(2.5rem, 6vw, 4rem)",

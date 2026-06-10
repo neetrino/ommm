@@ -18,6 +18,15 @@ export async function MarketingStoryHero({ locale }: MarketingStoryHeroProps) {
     ["--story-hero-visual-max-width" as string]: STORY_PAGE_LAYOUT.heroVisualMaxWidth,
     ["--story-hero-visual-nudge-y" as string]: "clamp(1rem, 3vw, 2rem)",
     ["--story-hero-padding-bottom" as string]: "clamp(2rem, 5vw, 4rem)",
+    ["--story-hero-tablet-title-max-width" as string]:
+      STORY_PAGE_LAYOUT.heroTabletTitleMaxWidth,
+    ["--story-hero-tablet-lead-max-width" as string]:
+      STORY_PAGE_LAYOUT.heroTabletLeadMaxWidth,
+    ["--story-hero-tablet-visual-max-width" as string]:
+      STORY_PAGE_LAYOUT.heroTabletVisualMaxWidth,
+    ["--story-hero-tablet-visual-nudge-y" as string]:
+      STORY_PAGE_LAYOUT.heroTabletVisualNudgeY,
+    ["--story-hero-tablet-copy-nudge-y" as string]: STORY_PAGE_LAYOUT.heroTabletCopyNudgeY,
   };
 
   const heroVisualStyle = {

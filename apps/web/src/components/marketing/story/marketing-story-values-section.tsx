@@ -57,6 +57,10 @@ const VALUES_SECTION_STYLE = {
   ["--story-values-section-margin-top" as string]: STORY_PAGE_LAYOUT.valuesSectionMarginTop,
   ["--story-values-section-margin-top-mobile" as string]:
     STORY_PAGE_LAYOUT.valuesSectionMarginTopMobile,
+  ["--story-values-card-min-height-tablet" as string]:
+    STORY_PAGE_LAYOUT.valuesCardMinHeightTablet,
+  ["--story-values-image-min-height-tablet" as string]:
+    STORY_PAGE_LAYOUT.valuesCardImageMinHeightTablet,
 } as const;
 
 /** Three-column values grid — text top, image bottom (reference card layout). */
