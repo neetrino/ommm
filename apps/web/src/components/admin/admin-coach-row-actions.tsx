@@ -5,10 +5,6 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
-import {
-  ADMIN_COACH_STATUS_BADGE_CLASS,
-  coachStatusBadgeTone,
-} from "@/components/admin/admin-coach-list-badges";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { AdminCenterToast } from "@/components/ui/admin-center-toast";
@@ -38,7 +34,6 @@ export function AdminCoachRowActions({
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null);
   const isActive = coach.isActive;
   const toggleLabel = isActive ? t("deactivateCoach") : t("activateCoach");
-  const statusLabel = isActive ? t("statusActive") : t("statusInactive");
 
   function openConfirm(): void {
     if (busy) {
@@ -105,9 +100,6 @@ export function AdminCoachRowActions({
         role="group"
         aria-label={t("colActions")}
       >
-        <span className={`${ADMIN_COACH_STATUS_BADGE_CLASS} ${coachStatusBadgeTone(isActive)}`}>
-          {statusLabel}
-        </span>
         <AdminRowIconButton
           ariaLabel={toggleLabel}
           title={toggleLabel}

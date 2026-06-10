@@ -17,7 +17,7 @@ import {
   ADMIN_CLIENTS_LIST_TAGS_CELL,
 } from "@/components/admin/admin-clients-list-layout";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
+import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import type { ClientRow, ClientTag } from "@/components/admin/admin-clients-types";
 import { formatDateCompactForUi, formatDateForUi } from "@/lib/date-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
@@ -57,18 +57,10 @@ export function AdminClientCompactRow({
         <div className="flex min-w-0 items-center gap-3">
           <ClientAvatar row={row} />
           <div className="min-w-0 flex-1">
-            <button
-              type="button"
-              className={ADMIN_LIST_TITLE_LINK_CLASS}
-              title={name}
-              onClick={(event) => {
-                event.stopPropagation();
-                onSelect(row);
-              }}
-            >
+            <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={name}>
               {name}
-            </button>
-            <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? row.email}</p>
+            </p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">{row.phone ?? "—"}</p>
           </div>
         </div>
       </div>
