@@ -40,11 +40,8 @@ import {
   resolveScheduleView,
   type ScheduleView,
 } from "@/components/admin/admin-schedule-view";
+import { AdminScheduleSessionsListHeader } from "@/components/admin/admin-schedule-sessions-list-header";
 import {
-  ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL,
-  ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL,
-  ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER,
-  ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL,
   ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS,
   ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS,
 } from "@/components/admin/admin-schedule-sessions-list-layout";
@@ -79,7 +76,12 @@ import {
   localIsoDateFromValue,
   scheduleSessionLocalIsoDay,
 } from "@/lib/local-iso-date";
-import { parseSessionSortOrder, sortAdminSessionRows, type SessionSortOrder } from "@/lib/list-sort";
+import {
+  parseSessionSortOrder,
+  sortAdminSessionRows,
+  toggleSessionDateSortOrder,
+  type SessionSortOrder,
+} from "@/lib/list-sort";
 import {
   ADMIN_DETAILS_SHEET_BODY_CLASS,
   ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
@@ -1001,6 +1003,11 @@ export function AdminScheduleManagement({
         view={view}
         rows={displayRows}
         sortOrder={filters.order}
+        onDateTimeSort={() => {
+          patchFilterState({
+            filters: { order: toggleSessionDateSortOrder(filters.order) },
+          });
+        }}
         selectedDay={selectedDay}
         onSelectDay={(day) => setSelectedDay((current) => (current === day ? null : day))}
         onDetails={setDetails}
@@ -1195,6 +1202,7 @@ function ScheduleViews(props: {
   view: ScheduleView;
   rows: AdminScheduleSession[];
   sortOrder: SessionSortOrder;
+  onDateTimeSort: () => void;
   selectedDay: string | null;
   busyId: string | null;
   onSelectDay: (day: string) => void;
@@ -1213,13 +1221,21 @@ function ScheduleViews(props: {
         selectedDay={props.selectedDay}
         onSelectDay={props.onSelectDay}
       />
-      <SessionTable {...props} rows={props.rows} sortOrder={props.sortOrder} />
+      <SessionTable
+        {...props}
+        rows={props.rows}
+        sortOrder={props.sortOrder}
+        onDateTimeSort={props.onDateTimeSort}
+      />
     </div>
   );
 }
 
 function SessionTable(
-  props: Omit<Parameters<typeof ScheduleViews>[0], "view"> & { sortOrder: SessionSortOrder },
+  props: Omit<Parameters<typeof ScheduleViews>[0], "view"> & {
+    sortOrder: SessionSortOrder;
+    onDateTimeSort: () => void;
+  },
 ) {
   const t = useTranslations("adminPages.classes");
   const rows = sortAdminSessionRows(
@@ -1241,13 +1257,10 @@ function SessionTable(
   return (
     <div className={ADMIN_SCHEDULE_SESSIONS_LIST_TABLE_CLASS}>
       <div className={ADMIN_SCHEDULE_SESSIONS_LIST_HEADER_CLASS}>
-        <span>{t("colClass")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL}>{t("colDateTime")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCoach")}</span>
-        <span aria-hidden="true" />
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_EMPHASIZED_HEADER}>{t("colCapacity")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_TAGS_HEADER_CELL}>{t("colTags")}</span>
-        <span className={ADMIN_SCHEDULE_SESSIONS_LIST_ACTIONS_HEADER_CELL}>{t("colActions")}</span>
+        <AdminScheduleSessionsListHeader
+          sortOrder={props.sortOrder}
+          onDateTimeSort={props.onDateTimeSort}
+        />
       </div>
       {rows.map((row) => (
         <AdminScheduleSessionCompactRow
