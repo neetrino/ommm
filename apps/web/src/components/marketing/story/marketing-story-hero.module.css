@@ -1,0 +1,113 @@
+.hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  align-items: center;
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 42%);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+}
+
+.copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: center;
+  text-align: left;
+}
+
+.title {
+  margin: 0;
+  max-width: 14ch;
+  font-family: var(--font-serif);
+  font-size: clamp(3.15rem, 7.8vw, 5.375rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.02;
+  color: var(--coaches-page-heading-color, #fbf5d5);
+}
+
+.lead {
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
+  max-width: 30rem;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.0625rem, 2vw, 1.25rem);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--coaches-page-lead-color, rgba(255, 255, 255, 0.73));
+}
+
+.visual {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: min(100%, var(--story-hero-visual-max-width, 28rem));
+  transform: translate(calc(-1 * var(--story-hero-visual-offset-left, 25px)), clamp(1rem, 3vw, 2rem));
+}
+
+@media (min-width: 900px) {
+  .visual {
+    justify-self: end;
+    align-self: center;
+    transform: translate(calc(-1 * var(--story-hero-visual-offset-left, 25px)), clamp(2.5rem, 6vw, 5rem));
+  }
+}
+
+.archFrame {
+  position: relative;
+  aspect-ratio: var(--story-hero-visual-aspect-ratio, 6 / 7);
+  overflow: visible;
+  width: 100%;
+}
+
+.portraitClip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius:
+    var(--story-hero-arch-radius-top, clamp(8rem, 26vw, 15rem))
+    var(--story-hero-arch-radius-top, clamp(8rem, 26vw, 15rem))
+    var(--story-hero-arch-radius-bottom, clamp(2.25rem, 5vw, 3rem))
+    var(--story-hero-arch-radius-bottom, clamp(2.25rem, 5vw, 3rem));
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.portrait {
+  object-fit: cover;
+  object-position: 52% 18%;
+}
+
+.branchWrap {
+  position: absolute;
+  top: 8%;
+  right: 2%;
+  z-index: 2;
+  width: 84%;
+  height: 140%;
+  pointer-events: none;
+  transform: translate(var(--story-hero-branch-offset-x, 0px), calc(-1 * var(--story-hero-branch-offset-y, 0px)));
+}
+
+.branch {
+  object-fit: contain;
+  object-position: right top;
+}
+
+@media (min-width: 900px) {
+  .branchWrap {
+    top: 20%;
+    right: -4%;
+    width: 80%;
+    height: 142%;
+  }
+}

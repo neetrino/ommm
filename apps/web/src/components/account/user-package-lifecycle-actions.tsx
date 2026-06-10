@@ -3,15 +3,9 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
-import {
-  ADMIN_ACTION_ICON_CLASS,
-  CancelGlyph,
-  ToggleOffGlyph,
-  ToggleOnGlyph,
-} from "@/components/ui/admin-action-glyphs";
 import { OmmButton } from "@/components/ui/omm-button";
 import { OmmConfirmDialog } from "@/components/ui/omm-confirm-dialog";
-import { AdminRowIconButton } from "@/components/ui/admin-row-icon-button";
+import { UserPackageListIconActions } from "@/components/account/user-package-list-icon-actions";
 import { ApiError, apiFetch } from "@/lib/api";
 import type { UserPackageStatus } from "@/lib/user-package-types";
 
@@ -228,7 +222,7 @@ export function UserPackageLifecycleActions({
 
   const buttonRowClass =
     layout === "list"
-      ? "flex flex-wrap items-center justify-end gap-1.5 md:justify-center"
+      ? "flex flex-wrap items-center justify-end gap-1.5"
       : layout === "board"
         ? "flex w-full flex-wrap items-center gap-2"
         : "flex flex-wrap gap-2";
@@ -242,81 +236,56 @@ export function UserPackageLifecycleActions({
   const renewLabel = t("renew");
   const cancelLabel = t("cancelAction");
 
+  const listIconActions =
+    layout === "list" && hasVisibleActions ? (
+      <UserPackageListIconActions
+        className="justify-end md:justify-center"
+        lifecycle={lifecycle}
+        showPause={showPause}
+        showRenew={showRenew}
+        showCancel={showCancel}
+      />
+    ) : null;
+
   return (
     <>
       <div className={containerClass}>
-        {hasVisibleActions ? (
-          <div
-            className={buttonRowClass}
-            role={layout === "list" ? "group" : undefined}
-            aria-label={layout === "list" ? t("actionsGroupAria") : undefined}
-          >
+        {layout === "list" ? (
+          listIconActions
+        ) : hasVisibleActions ? (
+          <div className={buttonRowClass}>
             {showPause ? (
-              layout === "list" ? (
-                <AdminRowIconButton
-                  ariaLabel={pauseLabel}
-                  title={pauseLabel}
-                  disabled={lifecycle.busy}
-                  onClick={() => lifecycle.openConfirm("pause")}
-                >
-                  <ToggleOffGlyph className={ADMIN_ACTION_ICON_CLASS} />
-                </AdminRowIconButton>
-              ) : (
-                <OmmButton
-                  size={buttonSize}
-                  variant="secondary"
-                  disabled={lifecycle.busy}
-                  className={[buttonClass, PACKAGE_PAUSE_BUTTON_CLASS].filter(Boolean).join(" ")}
-                  onClick={() => lifecycle.openConfirm("pause")}
-                >
-                  {pauseLabel}
-                </OmmButton>
-              )
+              <OmmButton
+                size={buttonSize}
+                variant="secondary"
+                disabled={lifecycle.busy}
+                className={[buttonClass, PACKAGE_PAUSE_BUTTON_CLASS].filter(Boolean).join(" ")}
+                onClick={() => lifecycle.openConfirm("pause")}
+              >
+                {pauseLabel}
+              </OmmButton>
             ) : null}
             {showRenew ? (
-              layout === "list" ? (
-                <AdminRowIconButton
-                  ariaLabel={renewLabel}
-                  title={renewLabel}
-                  disabled={lifecycle.busy}
-                  onClick={lifecycle.runRenew}
-                >
-                  <ToggleOnGlyph className={ADMIN_ACTION_ICON_CLASS} />
-                </AdminRowIconButton>
-              ) : (
-                <OmmButton
-                  size={buttonSize}
-                  variant="primary"
-                  disabled={lifecycle.busy}
-                  className={buttonClass}
-                  onClick={lifecycle.runRenew}
-                >
-                  {renewLabel}
-                </OmmButton>
-              )
+              <OmmButton
+                size={buttonSize}
+                variant="primary"
+                disabled={lifecycle.busy}
+                className={buttonClass}
+                onClick={lifecycle.runRenew}
+              >
+                {renewLabel}
+              </OmmButton>
             ) : null}
             {showCancel ? (
-              layout === "list" ? (
-                <AdminRowIconButton
-                  ariaLabel={cancelLabel}
-                  title={cancelLabel}
-                  variant="danger"
-                  disabled={lifecycle.busy}
-                  onClick={() => lifecycle.openConfirm("cancel")}
-                >
-                  <CancelGlyph className={ADMIN_ACTION_ICON_CLASS} />
-                </AdminRowIconButton>
-              ) : (
-                <OmmButton
-                  size={buttonSize}
-                  variant="secondary"
-                  disabled={lifecycle.busy}
-                  className={[buttonClass, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
-                  onClick={() => lifecycle.openConfirm("cancel")}
-                >
-                  {cancelLabel}
-                </OmmButton>
-              )
+              <OmmButton
+                size={buttonSize}
+                variant="secondary"
+                disabled={lifecycle.busy}
+                className={[buttonClass, PACKAGE_CANCEL_BUTTON_CLASS].filter(Boolean).join(" ")}
+                onClick={() => lifecycle.openConfirm("cancel")}
+              >
+                {cancelLabel}
+              </OmmButton>
             ) : null}
           </div>
         ) : null}

@@ -1,0 +1,74 @@
+.grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  margin-top: calc(-1 * var(--story-feature-overlap, 4rem));
+}
+
+@media (min-width: 900px) {
+  .grid {
+    margin-top: calc(-1 * var(--story-feature-overlap, 7.5rem));
+  }
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: center;
+  min-height: clamp(14rem, 28vw, 18rem);
+  padding: var(--story-card-padding);
+  border-radius: var(--story-card-radius);
+  background: var(--story-card-bg);
+  box-shadow:
+    0 0.75rem 2rem -0.625rem rgba(45, 40, 35, 0.14),
+    0 0.25rem 0.75rem -0.25rem rgba(45, 40, 35, 0.08);
+}
+
+@media (min-width: 640px) {
+  .card {
+    grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+  }
+}
+
+.media {
+  position: relative;
+  min-height: clamp(10rem, 22vw, 14rem);
+  overflow: hidden;
+  border-radius: calc(var(--story-card-radius) - 0.5rem);
+}
+
+.image {
+  object-fit: cover;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.15;
+  color: #1d1c15;
+}
+
+.body {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.8125rem, 1.4vw, 0.9375rem);
+  font-weight: 300;
+  line-height: 1.55;
+  color: #4a4738;
+}

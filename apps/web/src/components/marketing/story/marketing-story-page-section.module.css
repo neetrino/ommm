@@ -1,0 +1,8 @@
+.section {
+  position: relative;
+  composes: heroShell from "../marketing-public-page-section.module.css";
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+}

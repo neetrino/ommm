@@ -1,0 +1,15 @@
+.stack {
+  position: relative;
+  isolation: isolate;
+}
+
+@media (min-width: 900px) {
+  .stack {
+    padding-bottom: clamp(1.5rem, 4vw, 3rem);
+  }
+}
+
+.featureReveal {
+  position: relative;
+  z-index: 2;
+}

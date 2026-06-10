@@ -1,0 +1,98 @@
+.section {
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #1d1c15;
+}
+
+.line {
+  height: 1px;
+  background: var(--story-values-line);
+}
+
+.grid {
+  display: grid;
+  gap: var(--story-values-gap);
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--story-card-radius);
+  background: var(--story-card-bg);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.imagePeace {
+  object-position: 52% 18%;
+}
+
+.imageStrength {
+  object-position: center 35%;
+}
+
+.imageCommunity {
+  object-position: center;
+  filter: saturate(0.92);
+}
+
+.copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #1d1c15;
+}
+
+.body {
+  margin: 0;
+  font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.8125rem, 1.35vw, 0.9375rem);
+  font-weight: 300;
+  line-height: 1.55;
+  color: #4a4738;
+}
