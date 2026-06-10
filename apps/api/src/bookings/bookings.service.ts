@@ -26,6 +26,9 @@ import { PackageUsageService } from '../packages/package-usage.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import type { AdminBookingsManagementQueryDto } from './dto/admin-bookings-management-query.dto';
 import type { CreateBookingDto } from './dto/create-booking.dto';
+
+/** Neon/pooled DB: booking tx runs several round-trips; Prisma default 5s is too low. */
+const BOOKING_INTERACTIVE_TX_TIMEOUT_MS = 15_000;
 import type { CreateBookingNoteDto } from './dto/create-booking-note.dto';
 import {
   ListMyBookingsQueryDto,
@@ -127,96 +130,100 @@ export class BookingsService {
       throw new BadRequestException('Session is full — join waitlist');
     }
 
-    const booking = await this.prisma.$transaction(async (tx) => {
-      const requiredSessions =
-        session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
-      let userPackageId: string | null = null;
+    await this.packageUsage.syncExpiredMemberships(userId);
 
-      const existingBooking = await tx.booking.findUnique({
-        where: { userId_sessionId: { userId, sessionId } },
-      });
-      if (existingBooking?.status === BookingStatus.BOOKED) {
-        throw new BadRequestException('Already booked');
-      }
+    const booking = await this.prisma.$transaction(
+      async (tx) => {
+        const requiredSessions =
+          session.sessionRequirement ?? (session.priceCents > 0 ? 1 : 0);
+        let userPackageId: string | null = null;
 
-      const needsSessionCredit =
-        requiredSessions > 0 &&
-        (!existingBooking ||
-          existingBooking.status === BookingStatus.CANCELLED);
-
-      if (needsSessionCredit) {
-        const dropInPayment = await tx.payment.findFirst({
-          where: {
-            userId,
-            description: `Drop-in session ${sessionId}`,
-            status: PaymentStatus.SUCCEEDED,
-          },
-          select: { id: true },
+        const existingBooking = await tx.booking.findUnique({
+          where: { userId_sessionId: { userId, sessionId } },
         });
-        if (!dropInPayment) {
-          await this.packageUsage.syncExpiredMemberships(userId);
-          const usablePackage = await this.packageUsage.findUsablePackage(
-            tx,
-            userId,
-          );
-          if (usablePackage) {
-            await this.packageUsage.consumeSession(tx, usablePackage.id);
-            userPackageId = usablePackage.id;
-          } else if (session.priceCents > 0) {
-            const user = await tx.user.findUnique({
-              where: { id: userId },
-              select: { giftCreditsCents: true },
-            });
-            const credits = user?.giftCreditsCents ?? 0;
-            if (credits < session.priceCents) {
+        if (existingBooking?.status === BookingStatus.BOOKED) {
+          throw new BadRequestException('Already booked');
+        }
+
+        const needsSessionCredit =
+          requiredSessions > 0 &&
+          (!existingBooking ||
+            existingBooking.status === BookingStatus.CANCELLED);
+
+        if (needsSessionCredit) {
+          const dropInPayment = await tx.payment.findFirst({
+            where: {
+              userId,
+              description: `Drop-in session ${sessionId}`,
+              status: PaymentStatus.SUCCEEDED,
+            },
+            select: { id: true },
+          });
+          if (!dropInPayment) {
+            const usablePackage = await this.packageUsage.findUsablePackage(
+              tx,
+              userId,
+            );
+            if (usablePackage) {
+              await this.packageUsage.consumeSession(tx, usablePackage.id);
+              userPackageId = usablePackage.id;
+            } else if (session.priceCents > 0) {
+              const user = await tx.user.findUnique({
+                where: { id: userId },
+                select: { giftCreditsCents: true },
+              });
+              const credits = user?.giftCreditsCents ?? 0;
+              if (credits < session.priceCents) {
+                throw new BadRequestException(
+                  'Active package, payment, or gift credits required for this class',
+                );
+              }
+              await tx.user.update({
+                where: { id: userId },
+                data: { giftCreditsCents: { decrement: session.priceCents } },
+              });
+              await tx.payment.create({
+                data: {
+                  userId,
+                  amountCents: session.priceCents,
+                  status: PaymentStatus.SUCCEEDED,
+                  description: `Gift credit spend ${sessionId}`,
+                },
+              });
+            } else {
               throw new BadRequestException(
-                'Active package, payment, or gift credits required for this class',
+                'Active package or payment required for this class',
               );
             }
-            await tx.user.update({
-              where: { id: userId },
-              data: { giftCreditsCents: { decrement: session.priceCents } },
-            });
-            await tx.payment.create({
-              data: {
-                userId,
-                amountCents: session.priceCents,
-                status: PaymentStatus.SUCCEEDED,
-                description: `Gift credit spend ${sessionId}`,
-              },
-            });
-          } else {
-            throw new BadRequestException(
-              'Active package or payment required for this class',
-            );
           }
         }
-      }
 
-      if (existingBooking) {
-        return tx.booking.update({
-          where: { id: existingBooking.id },
+        if (existingBooking) {
+          return tx.booking.update({
+            where: { id: existingBooking.id },
+            data: {
+              status: BookingStatus.BOOKED,
+              channel: dto?.channel ?? BookingChannel.WEBSITE,
+              cancelledAt: null,
+              attendedAt: null,
+              ...(userPackageId !== null ? { userPackageId } : {}),
+            },
+            include: { session: { include: { classType: true } } },
+          });
+        }
+        return tx.booking.create({
           data: {
+            userId,
+            sessionId,
             status: BookingStatus.BOOKED,
             channel: dto?.channel ?? BookingChannel.WEBSITE,
-            cancelledAt: null,
-            attendedAt: null,
-            ...(userPackageId !== null ? { userPackageId } : {}),
+            userPackageId,
           },
           include: { session: { include: { classType: true } } },
         });
-      }
-      return tx.booking.create({
-        data: {
-          userId,
-          sessionId,
-          status: BookingStatus.BOOKED,
-          channel: dto?.channel ?? BookingChannel.WEBSITE,
-          userPackageId,
-        },
-        include: { session: { include: { classType: true } } },
-      });
-    });
+      },
+      { timeout: BOOKING_INTERACTIVE_TX_TIMEOUT_MS },
+    );
 
     const after = await this.waitlist.bookedCount(sessionId);
     if (after >= session.capacity) {

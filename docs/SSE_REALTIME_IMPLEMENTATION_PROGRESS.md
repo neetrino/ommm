@@ -2,7 +2,7 @@
 
 **Source of truth:** [`SSE_REALTIME_IMPLEMENTATION.md`](./SSE_REALTIME_IMPLEMENTATION.md)  
 **Started:** 2026-06-10  
-**Last updated:** 2026-06-10 (verification + cleanup + member notifications page)
+**Last updated:** 2026-06-10 (Playwright SSE E2E + VERCEL_ENV)
 
 ---
 
@@ -12,7 +12,7 @@
 |-------|-------|--------|
 | 0 | Analysis + tracking | **DONE** |
 | 1 | Backend P0 + Web P0 | **DONE** |
-| 2 | Verification scenarios | **PARTIAL** — automated checks pass; multi-user E2E manual |
+| 2 | Verification scenarios | **MOSTLY DONE** — Playwright SSE E2E pass; admin/waitlist/payment manual |
 | 3 | Cleanup (fallback-only poll, doc updates) | **DONE** |
 
 ---
@@ -127,8 +127,8 @@
 
 | Scenario | Status | Notes |
 |----------|--------|-------|
-| Cross-user spot update | MANUAL | Requires two browsers/sessions; SSE + refetch wiring in place |
-| Cancel-intent hold visible cross-user | MANUAL | API emits `cancel-intent.changed`; schedule registers `schedule/public` refetch |
+| Cross-user spot update | PASS | Playwright `sse-realtime.spec.ts` — API book + guest schedule refetch |
+| Cancel-intent hold visible cross-user | PASS | Playwright — `registerCancelIntent` → guest row shows Full |
 | Waitlist offer badge via SSE | MANUAL | `waitlist/me` refetch on `waitlist.offer` / `waitlist.changed` |
 | Admin cancel → public schedule + offer | MANUAL | `adminCancel` cache + emit fixed in backend |
 | Booking move both sessions | MANUAL | `moveBooking` invalidates cache + emits both sessions |
@@ -155,6 +155,8 @@
 | Remove duplicate refresh mechanisms | DONE | Primary 15s poll removed; SSE primary; fallback + CustomEvent only |
 | Update `docs/TECH_CARD.md` §7.6 | DONE | Realtime SSE section added |
 | `NEXT_PUBLIC_API_ORIGIN` in `.env` | DONE | Set to `http://localhost:4000` (alias of `NEXT_PUBLIC_API_URL`) |
+| Update `docs/VERCEL_ENV.md` | DONE | `NEXT_PUBLIC_API_ORIGIN` for SSE documented |
+| Playwright SSE E2E | DONE | `apps/web/e2e/sse-realtime.spec.ts` (requires API :4000 + seed) |
 
 ---
 
@@ -208,3 +210,12 @@
 - **New files:** `user/notifications/page.tsx`, `user/@sheet/(.)notifications/page.tsx`, `member-user-notifications-route-content.tsx`, `member-user-notifications-offers.tsx`
 - **Modified:** `marketing-site-header.tsx` (preferences → `/user/notifications`), `user/layout.tsx`, `member-user-hub-sheet-paths.ts`, `dashboard-subtitle-path.ts`, `en.json`/`hy.json`/`ru.json`
 - **Checks:** `pnpm exec tsc --noEmit` (web) — pass
+
+### 2026-06-10 — Playwright SSE E2E
+
+- **Status:** Automated cross-user booking + cancel-intent scenarios PASS (with API running)
+- **New files:** `apps/web/e2e/sse-realtime.spec.ts`, `e2e/helpers/realtime-api.ts`, `e2e/helpers/schedule-refetch.ts`
+- **Modified:** `playwright.config.ts` (load root `.env`), `docs/VERCEL_ENV.md`
+- **Checks:** `pnpm --filter web test:e2e sse-realtime` — 3/3 pass (API on :4000; uses live schedule + `member2@ommm.local` demo user)
+- **Playwright fix:** `webServer.env.NODE_ENV=production` (root `.env` had `development`)
+- **Still MANUAL:** waitlist offer badge, admin cancel, booking move, payment-created booking (multi-role flows)
