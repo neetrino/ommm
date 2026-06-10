@@ -100,6 +100,7 @@ function AdminScheduleDateTimeSortHeader({
   return (
     <button
       type="button"
+      role="columnheader"
       className={`${SORT_HEADER_BUTTON_CLASS} ${ADMIN_SCHEDULE_SESSIONS_LIST_DATE_TIME_HEADER_CELL}`}
       onClick={onSort}
       aria-sort={ariaSort}

@@ -55,7 +55,15 @@ export function HomeWeeklyScheduleLiveGrid({ locale, initialItems }: HomeWeeklyS
   }, []);
 
   useEffect(() => {
-    void refreshSchedule();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void refreshSchedule();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [refreshSchedule]);
 
   useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);

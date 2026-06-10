@@ -207,7 +207,15 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   }, []);
 
   useEffect(() => {
-    void refreshSchedule();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void refreshSchedule();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [refreshSchedule]);
 
   const syncLiveSchedule = useCallback(() => {
