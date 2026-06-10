@@ -10,15 +10,16 @@ import { AdminCoachRowActions } from "@/components/admin/admin-coach-row-actions
 import {
   ADMIN_COACHES_LIST_ACTIONS_CELL,
   ADMIN_COACHES_LIST_CELL,
+  ADMIN_COACHES_LIST_ROW_ACTIONS_HOVER_REVEAL,
   ADMIN_COACHES_LIST_ROW_CLASS,
-  ADMIN_COACHES_LIST_SPACER_CELL,
+  ADMIN_COACHES_LIST_SPECIALIZATION_CELL,
   ADMIN_COACHES_LIST_TAGS_CELL,
   ADMIN_COACHES_LIST_WORKLOAD_CELL,
 } from "@/components/admin/admin-coaches-list-layout";
 import type { CoachClassOption } from "@/components/admin/admin-coach-form-helpers";
 import type { AdminCoachDirectoryRow } from "@/components/admin/admin-coaches-types";
 import { AdminListMobileLabel } from "@/components/admin/admin-list-mobile-label";
-import { ADMIN_LIST_TITLE_LINK_CLASS } from "@/components/admin/admin-list-table-layout";
+import { ADMIN_LIST_TITLE_TEXT_CLASS } from "@/components/admin/admin-list-table-layout";
 import { coachCardDisplayName } from "@/components/coaches/coach-card-display";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -62,27 +63,17 @@ export function AdminCoachCompactRow({
         <div className="flex min-w-0 items-center gap-3">
           <CoachAvatar coach={coach} />
           <div className="min-w-0 flex-1">
-            <button
-              type="button"
-              className={ADMIN_LIST_TITLE_LINK_CLASS}
-              title={displayName}
-              onClick={(event) => {
-                event.stopPropagation();
-                onSelect(coach);
-              }}
-            >
+            <p className={ADMIN_LIST_TITLE_TEXT_CLASS} title={displayName}>
               {displayName}
-            </button>
-            <p className="mt-0.5 truncate text-xs text-sage-500">
-              {coach.user.phone ?? coach.user.email}
             </p>
+            <p className="mt-0.5 truncate text-xs text-sage-500">{coach.user.phone ?? "—"}</p>
           </div>
         </div>
       </div>
 
-      <div className={ADMIN_COACHES_LIST_CELL}>
+      <div className={ADMIN_COACHES_LIST_SPECIALIZATION_CELL}>
         <AdminListMobileLabel label={t("colSpecialization")} />
-        <p className="text-sm text-sage-800">{coach.specialization ?? "—"}</p>
+        <p className="truncate text-sm text-sage-800">{coach.specialization ?? "—"}</p>
       </div>
 
       <div className={ADMIN_COACHES_LIST_TAGS_CELL}>
@@ -101,12 +92,8 @@ export function AdminCoachCompactRow({
       </div>
 
       {readOnly ? null : (
-        <div className={ADMIN_COACHES_LIST_SPACER_CELL} aria-hidden="true" />
-      )}
-
-      {readOnly ? null : (
         <div
-          className={ADMIN_COACHES_LIST_ACTIONS_CELL}
+          className={`${ADMIN_COACHES_LIST_ACTIONS_CELL} ${ADMIN_COACHES_LIST_ROW_ACTIONS_HOVER_REVEAL}`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >

@@ -122,7 +122,6 @@ export function AdminFinanceMembersPanel({ locale, initialClients, filters }: Pr
         pageSize={userListPage.pageSize}
         offset={initialClients.pagination.offset}
         onPageChange={(page) => setUserListPage(page)}
-        onPageSizeChange={(pageSize) => setUserListPage(1, pageSize)}
       />
 
       <AdminClientDrawer

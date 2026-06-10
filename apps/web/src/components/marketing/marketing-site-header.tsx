@@ -8,6 +8,7 @@ import {
   MarketingHeaderMenuIcon,
   MarketingHeaderUserIcon,
 } from "@/components/marketing/marketing-header-icons";
+import { MarketingHeaderLoginLink } from "@/components/marketing/marketing-header-login-link";
 import type { MarketingNavKey } from "@/components/marketing/marketing-nav-links";
 import { MarketingMobileMenuModal } from "@/components/marketing/marketing-mobile-menu-modal";
 import { MarketingAccountAvatarMenu } from "@/components/marketing/marketing-account-avatar-menu";
@@ -278,16 +279,15 @@ export function MarketingSiteHeader({
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (
-                <Link
-                  href="/login"
+                <MarketingHeaderLoginLink
                   className={`${marketingHeaderMobileIconAccountClass()} ${navPillStyles.mobileHeaderAccountButton}`}
-                  aria-label={tCommon("login")}
-                  onClick={closeAllMenus}
+                  ariaLabel={tCommon("login")}
+                  onNavigate={closeAllMenus}
                 >
                   <MarketingHeaderUserIcon
                     className={`${navPillStyles.mobileHeaderActionIcon} shrink-0`}
                   />
-                </Link>
+                </MarketingHeaderLoginLink>
               ) : null}
             </div>
           </div>
@@ -367,14 +367,13 @@ export function MarketingSiteHeader({
                   onAfterSelect={closeAllMenus}
                 />
               ) : !memberWorkspaceHeader ? (
-                <Link
-                  href="/login"
+                <MarketingHeaderLoginLink
                   className={marketingHeaderIconAccountClass()}
-                  aria-label={tCommon("login")}
-                  onClick={closeAllMenus}
+                  ariaLabel={tCommon("login")}
+                  onNavigate={closeAllMenus}
                 >
                   <MarketingHeaderUserIcon className={MARKETING_HEADER_DESKTOP_ACTION_ICON_CLASS} />
-                </Link>
+                </MarketingHeaderLoginLink>
               ) : null}
             </div>
           </div>

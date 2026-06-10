@@ -129,7 +129,7 @@ function AdminCoachCardSummary({ coach }: { coach: AdminCoachDirectoryRow }) {
           })}
         </p>
         <p className="mt-1 truncate text-xs font-medium text-sage-600">
-          {coach.user.email}
+          {coach.user.phone ?? "—"}
         </p>
       </div>
       <StatusBadge isActive={coach.isActive} />

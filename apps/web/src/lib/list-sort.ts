@@ -43,6 +43,13 @@ export function parseSessionSortOrder(
     : fallback;
 }
 
+/** Toggles date/time column sort between ascending and descending. */
+export function toggleSessionDateSortOrder(
+  current: SessionSortOrder,
+): Extract<SessionSortOrder, "date-asc" | "date-desc"> {
+  return current === "date-desc" ? "date-asc" : "date-desc";
+}
+
 export function parseBookingManagementSortOrder(
   value: string | undefined | null,
   fallback: BookingManagementSortOrder = "upcoming",

@@ -37,7 +37,8 @@ export function CancelBookingButton({
   const t = useTranslations("forms.cancelBooking");
   const { cancelBookingId, openCancelBooking, closeCancelBooking } = useBookingCancelUrlState();
   const confirmOpen = cancelBookingId === bookingId;
-  const [confirmReady, setConfirmReady] = useState(false);
+  const [confirmDelayPassed, setConfirmDelayPassed] = useState(false);
+  const confirmReady = confirmOpen && confirmDelayPassed;
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const intentSyncRef = useRef<string | null>(null);
@@ -45,7 +46,6 @@ export function CancelBookingButton({
 
   useEffect(() => {
     if (!confirmOpen) {
-      setConfirmReady(false);
       intentSyncRef.current = null;
       return undefined;
     }
@@ -62,7 +62,7 @@ export function CancelBookingButton({
     }
 
     const timeoutId = window.setTimeout(() => {
-      setConfirmReady(true);
+      setConfirmDelayPassed(true);
     }, BOOKING_CANCEL_CONFIRM_DELAY_MS);
 
     return () => {
@@ -75,7 +75,7 @@ export function CancelBookingButton({
       return;
     }
     setMsg(null);
-    setConfirmReady(false);
+    setConfirmDelayPassed(false);
     openCancelBooking(bookingId);
   }
 
@@ -84,7 +84,7 @@ export function CancelBookingButton({
       return;
     }
     closeCancelBooking();
-    setConfirmReady(false);
+    setConfirmDelayPassed(false);
     void clearBookingCancelIntent(bookingId).catch(() => {
       // Spot hold expires server-side; schedule poll will reconcile.
     });

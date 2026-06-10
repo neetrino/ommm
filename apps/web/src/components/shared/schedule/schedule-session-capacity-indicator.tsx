@@ -5,18 +5,15 @@ type ScheduleSessionCapacityIndicatorProps = {
   secondaryLabel: string;
 };
 
-/** Empty-track background — solid enough to read on white list cards. */
-const CAPACITY_TRACK_CLASS = "bg-sand-300/90 ring-1 ring-inset ring-sand-400/30";
-
-function fillTone(full: boolean, fewLeft: boolean): string {
-  if (full) return "bg-amber-400";
-  if (fewLeft) return "bg-orange-300";
-  return "bg-mint-500";
-}
+const CAPACITY_TRACK_CLASS = "bg-white/90 ring-1 ring-inset ring-sand-500/20";
+/** Slightly deeper than ACTIVE badge — `mint-200` (mint-100 + sage). */
+const CAPACITY_FILL_CLASS = "bg-mint-200";
+const CAPACITY_FILL_MIN_PERCENT = 8;
 
 function fillWidthPercent(booked: number, capacity: number): number {
-  if (capacity <= 0) return 0;
-  return Math.min(100, Math.round((booked / capacity) * 100));
+  if (capacity <= 0 || booked <= 0) return 0;
+  const ratio = Math.min(100, (booked / capacity) * 100);
+  return Math.max(ratio, CAPACITY_FILL_MIN_PERCENT);
 }
 
 type CapacityFillBarProps = {
@@ -26,8 +23,6 @@ type CapacityFillBarProps = {
 };
 
 function CapacityFillBar({ booked, capacity, spotsLabel }: CapacityFillBarProps) {
-  const full = booked >= capacity;
-  const fewLeft = !full && capacity - booked <= 2;
   const fillWidth = fillWidthPercent(booked, capacity);
 
   return (
@@ -40,7 +35,7 @@ function CapacityFillBar({ booked, capacity, spotsLabel }: CapacityFillBarProps)
       aria-label={spotsLabel}
     >
       <div
-        className={`h-full rounded-full transition-[width] ${fillTone(full, fewLeft)}`}
+        className={`block h-full min-w-0 rounded-full transition-[width] duration-300 ease-out ${CAPACITY_FILL_CLASS}`}
         style={{ width: `${fillWidth}%` }}
       />
     </div>
