@@ -121,6 +121,7 @@ export function UserSessionCompactRow({
         <div className={USER_SCHEDULE_LIST_ACTIONS_CLASS}>
           <SessionBookingActions
             sessionId={session.id}
+            sessionStartsAt={session.startsAt}
             priceCents={session.priceCents}
             full={full}
             userBookingId={activeBookingId}

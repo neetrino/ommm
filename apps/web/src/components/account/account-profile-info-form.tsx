@@ -1,9 +1,10 @@
 "use client";
 
-import type { InputHTMLAttributes, ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { MAX_BIO_LENGTH } from "@/components/admin/admin-coach-form-helpers";
 import { ApiError, apiFetch } from "@/lib/api";
 import {
   formatBirthdayInput,
@@ -35,6 +36,9 @@ type ProfileFormUser = {
 type AccountProfileInfoFormProps = {
   initialUser: ProfileFormUser;
   showRole?: boolean;
+  /** When set, shows the shared coach-profile bio field (same source as admin coaches). */
+  coachProfileId?: string | null;
+  initialBio?: string | null;
 };
 
 type FormState = {
@@ -43,6 +47,7 @@ type FormState = {
   lastName: string;
   phone: string;
   dateOfBirth: string;
+  bio: string;
 };
 
 type ProfileFieldProps = {
@@ -56,7 +61,10 @@ type ProfileFieldProps = {
   readOnly?: boolean;
   disabled?: boolean;
   emptyLabel: string;
-} & Pick<InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "inputMode" | "placeholder">;
+  multiline?: boolean;
+  maxLength?: number;
+} & Pick<InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "inputMode" | "placeholder"> &
+  Pick<TextareaHTMLAttributes<HTMLTextAreaElement>, "rows">;
 
 function ProfileField({
   id,
@@ -69,6 +77,9 @@ function ProfileField({
   readOnly = false,
   disabled = false,
   emptyLabel,
+  multiline = false,
+  maxLength,
+  rows = 4,
   type = "text",
   autoComplete,
   inputMode,
@@ -76,6 +87,7 @@ function ProfileField({
 }: ProfileFieldProps) {
   const isEmpty = displayValue.trim() === "";
   const spanClass = span === 2 ? "sm:col-span-2" : "";
+  const textareaClass = `${PROFILE_FIELD_INPUT_CLASS} min-h-[6rem] resize-y`;
 
   return (
     <div className={`${PROFILE_FIELD_CELL_CLASS} ${spanClass}`.trim()}>
@@ -83,19 +95,40 @@ function ProfileField({
         {label}
       </label>
       {editing && !readOnly ? (
-        <input
-          id={id}
-          type={type}
-          autoComplete={autoComplete}
-          inputMode={inputMode}
-          placeholder={placeholder}
-          className={PROFILE_FIELD_INPUT_CLASS}
-          value={inputValue}
-          onChange={(event) => onChange?.(event.target.value)}
-          disabled={disabled}
-        />
+        multiline ? (
+          <textarea
+            id={id}
+            rows={rows}
+            maxLength={maxLength}
+            placeholder={placeholder}
+            className={textareaClass}
+            value={inputValue}
+            onChange={(event) => onChange?.(event.target.value)}
+            disabled={disabled}
+          />
+        ) : (
+          <input
+            id={id}
+            type={type}
+            autoComplete={autoComplete}
+            inputMode={inputMode}
+            placeholder={placeholder}
+            className={PROFILE_FIELD_INPUT_CLASS}
+            value={inputValue}
+            onChange={(event) => onChange?.(event.target.value)}
+            disabled={disabled}
+          />
+        )
       ) : (
-        <p className={isEmpty ? PROFILE_FIELD_VALUE_EMPTY_CLASS : PROFILE_FIELD_VALUE_CLASS}>
+        <p
+          className={
+            multiline && !isEmpty
+              ? `${PROFILE_FIELD_VALUE_CLASS} whitespace-pre-wrap`
+              : isEmpty
+                ? PROFILE_FIELD_VALUE_EMPTY_CLASS
+                : PROFILE_FIELD_VALUE_CLASS
+          }
+        >
           {isEmpty ? emptyLabel : displayValue}
         </p>
       )}
@@ -103,19 +136,22 @@ function ProfileField({
   );
 }
 
-function initialFormState(user: ProfileFormUser): FormState {
+function initialFormState(user: ProfileFormUser, bio: string | null | undefined): FormState {
   return {
     email: user.email,
     name: user.name ?? "",
     lastName: user.lastName ?? "",
     phone: user.phone ?? "",
     dateOfBirth: formatIsoDateToUi(user.dateOfBirth),
+    bio: bio ?? "",
   };
 }
 
 export function AccountProfileInfoForm({
   initialUser,
   showRole = false,
+  coachProfileId = null,
+  initialBio,
 }: AccountProfileInfoFormProps) {
   const tProfile = useTranslations("userPages.profile");
   const tForm = useTranslations("forms.profileEdit");
@@ -125,9 +161,17 @@ export function AccountProfileInfoForm({
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
-  const [form, setForm] = useState<FormState>(() => initialFormState(initialUser));
+  const [form, setForm] = useState<FormState>(() =>
+    initialFormState(initialUser, initialBio),
+  );
+  const [savedBio, setSavedBio] = useState<string | null>(null);
+  const showCoachBio = coachProfileId !== null && coachProfileId.length > 0;
 
   const empty = tProfile("emptyValue");
+
+  function resetFormState() {
+    setForm(initialFormState(initialUser, initialBio));
+  }
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -135,15 +179,28 @@ export function AccountProfileInfoForm({
 
   function startEdit() {
     setMessage(null);
-    setForm(initialFormState(initialUser));
+    resetFormState();
     setIsEditing(true);
   }
 
   function cancelEdit() {
     dismissMobileKeyboard();
-    setForm(initialFormState(initialUser));
+    resetFormState();
     setMessage(null);
     setIsEditing(false);
+  }
+
+  async function saveCoachBio(): Promise<void> {
+    if (!showCoachBio || coachProfileId === null) {
+      return;
+    }
+    const bioTrimmed = form.bio.trim();
+    await apiFetch<{ bio: string | null }>(`/coaches/${coachProfileId}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        bio: bioTrimmed === "" ? null : bioTrimmed,
+      }),
+    });
   }
 
   async function save() {
@@ -170,6 +227,14 @@ export function AccountProfileInfoForm({
         setMessage(tForm("dateOfBirthInvalid"));
         return;
       }
+      if (showCoachBio) {
+        const bioTrimmed = form.bio.trim();
+        if (bioTrimmed.length > MAX_BIO_LENGTH) {
+          setTone("err");
+          setMessage(tForm("bioTooLong"));
+          return;
+        }
+      }
       await apiFetch<{ user: ProfileFormUser }>("/users/me", {
         method: "PATCH",
         body: JSON.stringify({
@@ -180,6 +245,17 @@ export function AccountProfileInfoForm({
           dateOfBirth,
         }),
       });
+      if (showCoachBio) {
+        try {
+          await saveCoachBio();
+          setSavedBio(form.bio.trim());
+        } catch (error) {
+          setTone("err");
+          setMessage(error instanceof ApiError ? error.message : tForm("bioSaveFailed"));
+          router.refresh();
+          return;
+        }
+      }
       setTone("ok");
       setMessage(tForm("saveSuccess"));
       dismissMobileKeyboard();
@@ -196,6 +272,11 @@ export function AccountProfileInfoForm({
   const displayDob = initialUser.dateOfBirth
     ? formatDateForUi(initialUser.dateOfBirth)
     : empty;
+  const trimmedInitialBio = initialBio?.trim() ?? "";
+  const displayBio =
+    savedBio !== null && trimmedInitialBio !== savedBio
+      ? savedBio
+      : trimmedInitialBio;
 
   let actions: ReactNode = null;
   if (isEditing) {
@@ -298,6 +379,21 @@ export function AccountProfileInfoForm({
           disabled={isSaving}
           emptyLabel={empty}
         />
+        {showCoachBio ? (
+          <ProfileField
+            id="profile-bio"
+            label={tProfile("labels.bio")}
+            displayValue={displayBio}
+            editing={isEditing}
+            inputValue={form.bio}
+            onChange={(value) => updateField("bio", value)}
+            span={2}
+            multiline
+            maxLength={MAX_BIO_LENGTH}
+            disabled={isSaving}
+            emptyLabel={empty}
+          />
+        ) : null}
         {showRole ? (
           <ProfileField
             id="profile-role"

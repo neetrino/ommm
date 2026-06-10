@@ -1194,6 +1194,7 @@
         "lastName": "Last name",
         "phone": "Phone",
         "dateOfBirth": "Date of birth",
+        "bio": "Bio",
         "locale": "Locale"
       },
       "emptyValue": "—"
@@ -3556,7 +3557,9 @@
     },
     "cancelBooking": {
       "confirmTitle": "Cancel booking?",
-      "confirm": "Cancel this booking? Policy deadlines apply.",
+      "confirm": "Your spot will be released so another member can book it. No session will be deducted from your package.",
+      "penaltyConfirmTitle": "Late cancellation",
+      "penaltyConfirm": "You are cancelling within 24 hours of class start. One session will be deducted from your package and your spot will be released for others to book. Thank You!",
       "confirmNo": "Keep booking",
       "modalBackdropClose": "Close dialog",
       "action": "Cancel",
@@ -3672,8 +3675,10 @@
       "cancel": "Cancel",
       "saveSuccess": "Profile updated successfully.",
       "saveFailed": "Could not update profile.",
+      "bioSaveFailed": "Account details saved, but bio could not be updated.",
       "emailRequired": "Email is required.",
-      "dateOfBirthInvalid": "Enter the date of birth in DD/MM/YYYY format."
+      "dateOfBirthInvalid": "Enter the date of birth in DD/MM/YYYY format.",
+      "bioTooLong": "Bio is too long."
     },
     "contact": {
       "name": "Name",
@@ -3820,7 +3825,7 @@
         "mapEmbedUrl": "Google Maps or similar embed URL for the contact page.",
         "workingHours": "Free text — e.g. Mon–Fri 9:00–21:00, Sat 10:00–18:00.",
         "socialLinksJson": "JSON object mapping platform names to URLs (instagram, facebook, etc.).",
-        "cancellationHoursNotice": "How many hours before class start members can cancel.",
+        "cancellationHoursNotice": "Hours before class start when late cancellation deducts one package session (free cancellation applies before this window).",
         "waitlistOfferMinutes": "How long a waitlist spot stays reserved after an offer."
       }
     }

@@ -360,6 +360,16 @@ export class CoachesService {
     return undefined;
   }
 
+  /** Coach workspace may only patch the shared public bio field on their own profile. */
+  private assertCoachSelfUpdateFields(dto: UpdateCoachDto): void {
+    const disallowed = (Object.keys(dto) as (keyof UpdateCoachDto)[]).filter(
+      (key) => key !== 'bio',
+    );
+    if (disallowed.length > 0) {
+      throw new ForbiddenException('Coaches can only update bio');
+    }
+  }
+
   async update(actor: User, coachProfileId: string, dto: UpdateCoachDto) {
     const profile = await this.prisma.coachProfile.findUnique({
       where: { id: coachProfileId },
@@ -376,6 +386,9 @@ export class CoachesService {
     }
     if (actor.role === Role.COACH && profile.userId !== actor.id) {
       throw new ForbiddenException();
+    }
+    if (actor.role === Role.COACH) {
+      this.assertCoachSelfUpdateFields(dto);
     }
     if (actor.role === Role.MANAGER && dto.isActive === false) {
       throw new ForbiddenException('Managers cannot deactivate coaches');

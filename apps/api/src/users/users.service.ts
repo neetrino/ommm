@@ -53,7 +53,7 @@ export class UsersService {
       where: { id: userId },
       include: {
         notificationPrefs: true,
-        coachProfile: { select: { id: true } },
+        coachProfile: { select: { id: true, bio: true } },
         achievements: {
           include: {
             achievement: {
@@ -67,6 +67,7 @@ export class UsersService {
     return {
       user: sanitizeUser(u),
       coachProfileId: coachProfile?.id ?? null,
+      coachBio: coachProfile?.bio ?? null,
       achievements: achievements.map((row) => ({
         id: row.achievementId,
         title: row.achievement.title,

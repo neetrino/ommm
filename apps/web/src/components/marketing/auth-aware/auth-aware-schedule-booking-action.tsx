@@ -23,6 +23,8 @@ type BookSessionResponse = {
 
 type AuthAwareScheduleBookingActionProps = {
   sessionId: string;
+  sessionDate?: string | null;
+  sessionStartTime?: string | null;
   availableSpots: number;
   sessionStatus: string;
   bookLabel: string;
@@ -39,6 +41,8 @@ type AuthAwareScheduleBookingActionProps = {
 
 export function AuthAwareScheduleBookingAction({
   sessionId,
+  sessionDate,
+  sessionStartTime,
   availableSpots,
   sessionStatus,
   bookLabel,
@@ -99,6 +103,8 @@ export function AuthAwareScheduleBookingAction({
       return (
         <CancelBookingButton
           bookingId={resolvedBookingId}
+          sessionDate={sessionDate}
+          sessionStartTime={sessionStartTime}
           appearance="button"
           size="sm"
           buttonClassName={SCHEDULE_CANCEL_BTN}

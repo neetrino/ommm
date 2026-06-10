@@ -71,6 +71,7 @@ export function UserSessionBoardCard({
       <div className="mt-auto border-t border-white/70 pt-4">
         <SessionBookingActions
           sessionId={session.id}
+          sessionStartsAt={session.startsAt}
           priceCents={session.priceCents}
           full={full}
           userBookingId={activeBookingId}

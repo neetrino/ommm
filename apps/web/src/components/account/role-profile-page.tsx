@@ -23,6 +23,8 @@ type MeResponse = {
     homeImageUrl?: string | null;
     dateOfBirth?: string | null;
   };
+  coachProfileId?: string | null;
+  coachBio?: string | null;
 };
 
 type WorkspaceNoteVariant = "admin" | "coach" | "manager" | "contentAdmin";
@@ -56,6 +58,8 @@ export async function RoleProfilePage({
   }
 
   const { user } = res.data;
+  const coachProfileId = res.data.coachProfileId ?? null;
+  const coachBio = user.role === "COACH" ? (res.data.coachBio ?? null) : null;
   const homePreviewUrl = resolveApiAssetUrl(user.homeImageUrl ?? null) ?? null;
   const workspaceHeading =
     workspaceNoteVariant !== undefined
@@ -76,7 +80,12 @@ export async function RoleProfilePage({
             <AccountHomeImageForm initialPreviewUrl={homePreviewUrl} />
           </div>
           <div className="min-w-0 lg:col-span-8 xl:col-span-9">
-            <AccountProfileInfoForm initialUser={user} showRole={showRole} />
+            <AccountProfileInfoForm
+              initialUser={user}
+              showRole={showRole}
+              coachProfileId={user.role === "COACH" ? coachProfileId : null}
+              initialBio={user.role === "COACH" ? coachBio : undefined}
+            />
           </div>
         </div>
       </AccountSection>

@@ -116,6 +116,7 @@ export function UserSessionMobileCard({
 
         <SessionBookingActions
           sessionId={session.id}
+          sessionStartsAt={session.startsAt}
           priceCents={session.priceCents}
           full={full}
           userBookingId={activeBookingId}

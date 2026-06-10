@@ -76,7 +76,7 @@ export class CoachesController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.COACH)
   update(
     @CurrentUser() user: User,
     @Param('id') id: string,

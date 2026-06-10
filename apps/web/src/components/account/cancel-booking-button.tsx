@@ -11,11 +11,17 @@ import {
   clearBookingCancelIntent,
   registerBookingCancelIntent,
 } from "@/lib/booking-cancel-intent";
+import { isPenalizedCancellation } from "@/lib/cancellation-policy";
 import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event";
-import { BOOKING_CANCEL_CONFIRM_DELAY_MS } from "@/lib/public-schedule-constants";
+import {
+  BOOKING_CANCEL_CONFIRM_DELAY_MS,
+  SCHEDULE_CLOCK_TICK_MS,
+} from "@/lib/public-schedule-constants";
 
 type Props = {
   bookingId: string;
+  sessionDate?: string | null;
+  sessionStartTime?: string | null;
   appearance?: "link" | "button";
   size?: "sm" | "md";
   buttonClassName?: string;
@@ -27,6 +33,8 @@ const CANCEL_BOOKING_BUTTON_CLASS = "ommm-btn-lifecycle-action--danger";
 
 export function CancelBookingButton({
   bookingId,
+  sessionDate,
+  sessionStartTime,
   appearance = "link",
   size = "md",
   buttonClassName,
@@ -39,10 +47,34 @@ export function CancelBookingButton({
   const confirmOpen = cancelBookingId === bookingId;
   const [confirmDelayPassed, setConfirmDelayPassed] = useState(false);
   const confirmReady = confirmOpen && confirmDelayPassed;
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const intentSyncRef = useRef<string | null>(null);
   const buttonSize = appearance === "link" ? "sm" : size;
+
+  const hasSessionTiming =
+    sessionDate !== undefined &&
+    sessionDate !== null &&
+    sessionStartTime !== undefined &&
+    sessionStartTime !== null &&
+    sessionStartTime.length > 0;
+
+  const penalized =
+    hasSessionTiming &&
+    isPenalizedCancellation(sessionDate, sessionStartTime, undefined, new Date(nowMs));
+
+  useEffect(() => {
+    if (!confirmOpen || !hasSessionTiming) {
+      return undefined;
+    }
+    const intervalId = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, SCHEDULE_CLOCK_TICK_MS);
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [confirmOpen, hasSessionTiming]);
 
   useEffect(() => {
     if (!confirmOpen) {
@@ -76,6 +108,7 @@ export function CancelBookingButton({
     }
     setMsg(null);
     setConfirmDelayPassed(false);
+    setNowMs(Date.now());
     openCancelBooking(bookingId);
   }
 
@@ -117,6 +150,8 @@ export function CancelBookingButton({
 
   const resolvedButtonClass = buttonClassName ?? CANCEL_BOOKING_BUTTON_CLASS;
   const useNativeButton = buttonClassName !== undefined;
+  const dialogTitle = penalized ? t("penaltyConfirmTitle") : t("confirmTitle");
+  const dialogDescription = penalized ? t("penaltyConfirm") : t("confirm");
 
   return (
     <>
@@ -146,8 +181,8 @@ export function CancelBookingButton({
       </div>
       <OmmConfirmDialog
         isOpen={confirmOpen}
-        title={t("confirmTitle")}
-        description={t("confirm")}
+        title={dialogTitle}
+        description={dialogDescription}
         confirmLabel={t("action")}
         cancelLabel={t("confirmNo")}
         backdropAriaLabel={t("modalBackdropClose")}

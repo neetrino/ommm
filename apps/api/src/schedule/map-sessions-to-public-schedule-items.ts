@@ -59,8 +59,8 @@ function dayOfWeekFromDate(value: Date): ScheduleDayOfWeek {
 }
 
 function formatTime24h(value: Date): string {
-  const hours = String(value.getHours()).padStart(2, '0');
-  const minutes = String(value.getMinutes()).padStart(2, '0');
+  const hours = String(value.getUTCHours()).padStart(2, '0');
+  const minutes = String(value.getUTCMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
 

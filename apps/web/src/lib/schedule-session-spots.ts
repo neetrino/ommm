@@ -29,6 +29,39 @@ export function pinScheduleRowFull(item: MarketingScheduleItem): MarketingSchedu
   return { ...item, availableSpots: 0, status: "FULL" };
 }
 
+/**
+ * Merges a schedule refresh without flashing "Full" on rows the member has booked.
+ * Cancel-intent temporarily pins public capacity to full for other viewers.
+ */
+export function mergePublicScheduleItems(
+  previous: readonly MarketingScheduleItem[],
+  incoming: readonly MarketingScheduleItem[],
+  bookedBySessionId: Readonly<Record<string, string>>,
+): MarketingScheduleItem[] {
+  const previousById = new Map(previous.map((item) => [item.id, item]));
+
+  return incoming.map((item) => {
+    if (bookedBySessionId[item.id] === undefined) {
+      return item;
+    }
+
+    const prior = previousById.get(item.id);
+    if (prior === undefined) {
+      return item;
+    }
+
+    const incomingPinnedFull =
+      isScheduleSessionFull(item.availableSpots, item.status) &&
+      !isScheduleSessionFull(prior.availableSpots, prior.status);
+
+    if (incomingPinnedFull) {
+      return prior;
+    }
+
+    return item;
+  });
+}
+
 type MemberOnWaitlistBadgeParams = {
   userBookingId?: string;
   onWaitlist: boolean;
