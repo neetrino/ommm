@@ -40,6 +40,7 @@ export function RealtimeProvider({
   enablePublic = true,
 }: RealtimeProviderProps) {
   const registryRef = useRef(new RealtimeRefetchRegistry());
+  const hadSseConnectedRef = useRef(false);
 
   const registerRefetch = useCallback<RealtimeRefetchRegistry["register"]>(
     (key, handler) => registryRef.current.register(key, handler),
@@ -68,7 +69,12 @@ export function RealtimeProvider({
       url,
       withCredentials: true,
       onOpen: () => {
-        registryRef.current.forceRefetchAllRegistered();
+        // Initial connect is covered by client hydration refetch; reconnects force refresh.
+        if (hadSseConnectedRef.current) {
+          registryRef.current.forceRefetchAllRegistered();
+        } else {
+          hadSseConnectedRef.current = true;
+        }
       },
       onEvent: (event) => {
         const keys = refetchKeysForEvent(event);

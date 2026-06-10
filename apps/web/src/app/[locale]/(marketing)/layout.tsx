@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import { MarketingPublicHomeFooter } from "@/components/marketing/home/marketing-public-home-footer";
@@ -27,7 +26,6 @@ export default async function MarketingLayout({
   children,
   params,
 }: LayoutProps) {
-  await connection();
   const { locale } = await params;
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound();

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { ReactNode } from "react";
 import { marketingScrollRevealMotionProps } from "@/components/marketing/marketing-scroll-reveal-motion";
 import revealStyles from "@/components/marketing/marketing-scroll-reveal.module.css";
@@ -26,11 +26,11 @@ export function MarketingScrollReveal({
     : revealStyles.revealSlot;
 
   return (
-    <motion.div
+    <m.div
       className={slotClassName}
       {...marketingScrollRevealMotionProps(index, reducedMotion, gridColumns)}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
