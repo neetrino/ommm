@@ -18,6 +18,8 @@ import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto'
 import { resolveWaitlistAdminOrderBy } from '../common/list-order.helpers';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
+import { ScheduleService } from '../schedule/schedule.service';
 import { StudioService } from '../studio/studio.service';
 import { AdminWaitlistActiveQueryDto } from './dto/admin-waitlist-active-query.dto';
 
@@ -31,6 +33,8 @@ export class WaitlistService {
     private readonly mail: MailService,
     private readonly studio: StudioService,
     private readonly audit: AuditService,
+    private readonly realtime: RealtimePublisherService,
+    private readonly schedule: ScheduleService,
   ) {
     this.waitlistCronEnabled = this.isEnabledEnv(
       process.env.ENABLE_WAITLIST_BACKGROUND_JOBS,
@@ -74,7 +78,7 @@ export class WaitlistService {
     });
     const position = (last?.position ?? 0) + 1;
     if (existing) {
-      return this.prisma.waitlistEntry.update({
+      const entry = await this.prisma.waitlistEntry.update({
         where: { id: existing.id },
         data: {
           status: WaitlistStatus.ACTIVE,
@@ -83,10 +87,14 @@ export class WaitlistService {
           offerExpiresAt: null,
         },
       });
+      this.realtime.emitWaitlistChanged(userId, sessionId);
+      return entry;
     }
-    return this.prisma.waitlistEntry.create({
+    const entry = await this.prisma.waitlistEntry.create({
       data: { userId, sessionId, position, status: WaitlistStatus.ACTIVE },
     });
+    this.realtime.emitWaitlistChanged(userId, sessionId);
+    return entry;
   }
 
   async leave(userId: string, sessionId: string) {
@@ -113,6 +121,7 @@ export class WaitlistService {
     if (wasOffered) {
       await this.offerNextIfSlot(sessionId);
     }
+    this.realtime.emitWaitlistChanged(userId, sessionId);
     return { ok: true };
   }
 
@@ -347,6 +356,7 @@ export class WaitlistService {
       subject: 'A spot opened — book now',
       html: `<p>A place opened for your class.</p><p><a href="${link}">Book</a></p><p>Offer expires in ${minutes} minutes.</p>`,
     });
+    this.realtime.emitWaitlistOffer(next.userId, sessionId);
   }
 
   @Cron(CronExpression.EVERY_10_MINUTES)
@@ -469,6 +479,12 @@ export class WaitlistService {
       entityId: entry.id,
       payload: { bookingId: result.id, sessionId: session.id },
     });
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: entry.userId,
+      sessionId: session.id,
+    });
+    this.realtime.emitWaitlistChanged(entry.userId, session.id);
     return result;
   }
 

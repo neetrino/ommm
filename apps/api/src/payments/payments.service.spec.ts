@@ -135,11 +135,15 @@ describe('PaymentsService', () => {
     });
     const config = { get: jest.fn().mockReturnValue(undefined) };
     const mail = { sendEmail: jest.fn() };
+    const schedule = { invalidatePublicCache: jest.fn().mockResolvedValue(undefined) };
+    const realtime = { emitBookingSessionChange: jest.fn() };
     return {
       service: new PaymentsService(
         prisma as never,
         config as never,
         mail as never,
+        schedule as never,
+        realtime as never,
       ),
       prisma,
     };

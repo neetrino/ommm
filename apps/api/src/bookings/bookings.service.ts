@@ -20,6 +20,7 @@ import {
 } from '@prisma/client';
 import { BookingCancelIntentService } from '../cache/booking-cancel-intent.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { PackageUsageService } from '../packages/package-usage.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
@@ -102,6 +103,7 @@ export class BookingsService {
     private readonly config: ConfigService,
     private readonly cancelIntent: BookingCancelIntentService,
     private readonly schedule: ScheduleService,
+    private readonly realtime: RealtimePublisherService,
   ) {}
 
   async book(userId: string, sessionId: string, dto?: CreateBookingDto) {
@@ -224,6 +226,10 @@ export class BookingsService {
       });
     }
     await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId,
+      sessionId,
+    });
     return booking;
   }
 
@@ -242,6 +248,7 @@ export class BookingsService {
       throw new BadRequestException('Cannot hold cancel for this booking');
     }
     this.cancelIntent.register(booking.sessionId);
+    this.realtime.emitCancelIntentChanged(booking.sessionId);
     return { ok: true };
   }
 
@@ -257,6 +264,7 @@ export class BookingsService {
       throw new ForbiddenException();
     }
     this.cancelIntent.clear(booking.sessionId);
+    this.realtime.emitCancelIntentChanged(booking.sessionId);
     return { ok: true };
   }
 
@@ -291,6 +299,10 @@ export class BookingsService {
     await this.releaseSlot(booking);
     this.cancelIntent.clear(booking.sessionId);
     await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: booking.userId,
+      sessionId: booking.sessionId,
+    });
     return { ok: true };
   }
 
@@ -419,6 +431,11 @@ export class BookingsService {
       throw new NotFoundException();
     }
     await this.releaseSlot(booking);
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: booking.userId,
+      sessionId: booking.sessionId,
+    });
     return { ok: true };
   }
 
@@ -469,6 +486,14 @@ export class BookingsService {
       });
     }
     await this.waitlist.offerNextIfSlot(oldSessionId);
+    await this.schedule.invalidatePublicCache();
+    this.realtime.emitBookingSessionChange({
+      userId: booking.userId,
+      sessionId: targetSessionId,
+    });
+    if (oldSessionId !== targetSessionId) {
+      this.realtime.emitPublicScheduleSession(oldSessionId);
+    }
     return updated;
   }
 

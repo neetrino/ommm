@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleItemsModule } from '../schedule/schedule.module';
 import { ArcaClient } from './arca/arca.client';
 import { ArcaConfig } from './arca/arca.config';
 import { ArcaPaymentsController } from './arca/arca-payments.controller';
@@ -7,6 +8,7 @@ import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 
 @Module({
+  imports: [ScheduleItemsModule],
   controllers: [PaymentsController, ArcaPaymentsController],
   providers: [PaymentsService, ArcaConfig, ArcaClient, ArcaService],
   exports: [PaymentsService],
