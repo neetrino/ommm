@@ -76,7 +76,10 @@ export function UserBookingCompactRow({
 
       <div className={USER_BOOKINGS_LIST_ACTIONS_CELL}>
         {showCancel && booking.status === "BOOKED" ? (
-          <CancelBookingButton bookingId={booking.id} />
+          <CancelBookingButton
+            bookingId={booking.id}
+            sessionStartsAt={booking.session.startsAt}
+          />
         ) : null}
         {showRebook ? <RebookButton sessionId={booking.session.id} /> : null}
       </div>

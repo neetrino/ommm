@@ -77,6 +77,7 @@ export function ScheduleSessionRow({
       <div className="flex items-center justify-end">
         <AuthAwareScheduleBookingAction
           sessionId={row.id}
+          sessionStartsAt={row.sessionDate}
           availableSpots={row.availableSpots}
           sessionStatus={row.status}
           bookLabel={bookLabel}

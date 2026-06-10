@@ -58,7 +58,7 @@ export function UserBookingBoardCard({
 
       <div className="mt-auto border-t border-white/70 pt-4">
         {showCancel && booking.status === "BOOKED" ? (
-          <CancelBookingButton bookingId={booking.id} />
+          <CancelBookingButton bookingId={booking.id} sessionStartsAt={booking.session.startsAt} />
         ) : null}
         {showRebook ? <RebookButton sessionId={booking.session.id} /> : null}
       </div>

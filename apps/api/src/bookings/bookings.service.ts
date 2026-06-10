@@ -36,9 +36,9 @@ import {
 } from './dto/list-my-bookings-query.dto';
 import type { UpdateAdminBookingDto } from './dto/update-admin-booking.dto';
 import {
-  isCancellationNoticeEnforced,
-  resolveCancellationHoursNotice,
-} from './cancellation-notice-hours';
+  isPenalizedCancellation,
+  resolveCancellationPenaltyHours,
+} from './cancellation-policy';
 import { DEFAULT_LIST_PAGE_SIZE } from '../common/dto/list-pagination-query.dto';
 import {
   BookingManagementOrder,
@@ -290,35 +290,33 @@ export class BookingsService {
       throw new BadRequestException('Cannot cancel this booking');
     }
     const studio = await this.prisma.studioSettings.findFirst();
-    const noticeHours = resolveCancellationHoursNotice(
+    const penaltyHours = resolveCancellationPenaltyHours(
       studio?.cancellationHoursNotice,
     );
-    if (isCancellationNoticeEnforced(noticeHours)) {
-      const deadline = new Date(booking.session.startsAt);
-      deadline.setHours(deadline.getHours() - noticeHours);
-      if (new Date() > deadline) {
-        throw new BadRequestException(
-          `Cancellation must be at least ${noticeHours}h before class`,
-        );
-      }
-    }
-    await this.releaseSlot(booking);
+    const applyPenalty = isPenalizedCancellation(
+      booking.session.startsAt,
+      penaltyHours,
+    );
+    await this.releaseSlot(booking, { applyPenalty });
     this.cancelIntent.clear(booking.sessionId);
     await this.schedule.invalidatePublicCache();
     this.realtime.emitBookingSessionChange({
       userId: booking.userId,
       sessionId: booking.sessionId,
     });
-    return { ok: true };
+    return { ok: true, penalized: applyPenalty };
   }
 
-  private async releaseSlot(booking: {
-    id: string;
-    userId: string;
-    sessionId: string;
-    userPackageId: string | null;
-    session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
-  }) {
+  private async releaseSlot(
+    booking: {
+      id: string;
+      userId: string;
+      sessionId: string;
+      userPackageId: string | null;
+      session: Pick<ClassSession, 'priceCents' | 'sessionRequirement'>;
+    },
+    options: { applyPenalty: boolean } = { applyPenalty: false },
+  ) {
     await this.prisma.$transaction(async (tx) => {
       const current = await tx.booking.findUnique({
         where: { id: booking.id },
@@ -333,7 +331,9 @@ export class BookingsService {
       });
       const packageId = current.userPackageId ?? booking.userPackageId;
       if (packageId) {
-        await this.packageUsage.restoreSession(tx, packageId);
+        if (!options.applyPenalty) {
+          await this.packageUsage.restoreSession(tx, packageId);
+        }
         return;
       }
       const requiredSessions =

@@ -13,6 +13,7 @@ import { JoinWaitlistButton } from "@/components/account/join-waitlist-button";
 
 type SessionBookingActionsProps = {
   sessionId: string;
+  sessionStartsAt?: string;
   priceCents: number;
   full: boolean;
   userBookingId?: string;
@@ -23,6 +24,7 @@ type SessionBookingActionsProps = {
 
 export function SessionBookingActions({
   sessionId,
+  sessionStartsAt,
   priceCents,
   full,
   userBookingId,
@@ -57,6 +59,7 @@ export function SessionBookingActions({
     const cancelButton = (
       <CancelBookingButton
         bookingId={bookingId}
+        sessionStartsAt={sessionStartsAt}
         appearance="button"
         size={size}
         onCancelled={() => {
