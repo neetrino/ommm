@@ -2,7 +2,7 @@
 
 **Source of truth:** [`SSE_REALTIME_IMPLEMENTATION.md`](./SSE_REALTIME_IMPLEMENTATION.md)  
 **Started:** 2026-06-10  
-**Last updated:** 2026-06-10 (Phase 0 + Phase 1 backend P0 complete)
+**Last updated:** 2026-06-10 (Phase 1 backend + web P0 complete)
 
 ---
 
@@ -11,7 +11,7 @@
 | Phase | Scope | Status |
 |-------|-------|--------|
 | 0 | Analysis + tracking | **DONE** |
-| 1 | Backend P0 + Web P0 | **IN_PROGRESS** (backend P0 **DONE**; web P0 TODO) |
+| 1 | Backend P0 + Web P0 | **DONE** |
 | 2 | Verification scenarios | TODO |
 | 3 | Cleanup (fallback-only poll, doc updates) | TODO |
 
@@ -107,17 +107,19 @@
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Shared realtime event types | TODO | `apps/web/src/lib/realtime/realtime-event-types.ts` |
-| EventSource wrapper | TODO | Direct `NEXT_PUBLIC_API_ORIGIN` |
-| Realtime provider (one tab connection) | TODO | — |
-| Refetch registry (debounce/dedupe) | TODO | — |
-| Subscription hook | TODO | — |
-| Reconnect forced refetch | TODO | — |
-| Fallback poll while disconnected (60s) | TODO | Refactor `use-schedule-live-sync.ts` |
-| Wire marketing schedule view | TODO | — |
-| Wire header notifications + waitlist hook | TODO | — |
-| Wire cancel-intent flow | TODO | — |
-| Mount RealtimeProvider in shell | TODO | — |
+| Shared realtime event types | DONE | `apps/web/src/lib/realtime/realtime-event-types.ts` |
+| EventSource wrapper | DONE | `realtime-sse-client.ts` — no permanent close on `onerror` |
+| API origin resolver | DONE | `resolve-api-origin.ts` — `NEXT_PUBLIC_API_ORIGIN` → fallback `NEXT_PUBLIC_API_URL` |
+| Realtime provider (one tab connection) | DONE | `components/realtime/realtime-provider.tsx` |
+| Refetch registry (debounce/dedupe) | DONE | `realtime-refetch-registry.ts` — 200ms debounce, in-flight dedupe |
+| Subscription hook | DONE | `hooks/use-realtime-refetch.ts` (plan `use-realtime-subscription.ts` equivalent) |
+| Reconnect forced refetch | DONE | `onOpen` → `forceRefetchAllRegistered()` |
+| Fallback poll while disconnected (60s) | DONE | `use-schedule-live-sync.ts` + `SCHEDULE_FALLBACK_POLL_MS`; enabled when SSE not connected |
+| Wire marketing schedule view | DONE | `marketing-schedule-view.tsx` |
+| Wire header notifications + waitlist hook | DONE | `use-member-waitlist-data.ts` registers `waitlist/me` |
+| Wire cancel-intent flow | DONE | Via `cancel-intent.changed` → `schedule/public` refetch (no button change) |
+| Mount RealtimeProvider in shell | DONE | `marketing-realtime-root.tsx` in marketing layout; `workspace-shell.tsx` for authenticated workspace |
+| Web typecheck | BLOCKED | Pre-existing `.next/types` missing notifications page; new files lint-clean |
 
 ---
 
@@ -157,7 +159,8 @@
 | Date | Item | Detail |
 |------|------|--------|
 | 2026-06-10 | Analysis | No existing realtime code; full greenfield backend module |
-| 2026-06-10 | `NEXT_PUBLIC_API_ORIGIN` | Missing from env/web — Phase 2 prerequisite |
+| 2026-06-10 | `NEXT_PUBLIC_API_ORIGIN` | Uses `NEXT_PUBLIC_API_URL` fallback (already in `.env`); optional alias documented |
+| 2026-06-10 | Subscription hook filename | Implemented as `use-realtime-refetch.ts` instead of `use-realtime-subscription.ts` |
 | 2026-06-10 | Schedule module import name | Use `ScheduleItemsModule` not `ScheduleModule` (Nest cron) |
 
 ---
@@ -179,3 +182,11 @@
 - **Modified:** `app.module.ts`, `bookings.service.ts`, `waitlist.service.ts`, `waitlist.module.ts`, `payments.service.ts`, `payments.module.ts`, `payments.service.spec.ts`
 - **Checks:** `pnpm exec tsc --noEmit`, `pnpm run build` (api) — pass
 - **Behavior:** Thin SSE frames only; public channel never receives `userId`; authenticated stream receives public + user-scoped private events; emit after cache invalidation on booking paths
+
+### 2026-06-10 — Phase 1 web P0
+
+- **Status:** All Phase 1 web P0 tasks DONE
+- **New files:** `apps/web/src/lib/realtime/*`, `apps/web/src/components/realtime/*`, `apps/web/src/hooks/use-realtime-refetch.ts`
+- **Modified:** `marketing-schedule-view.tsx`, `use-member-waitlist-data.ts`, `use-schedule-live-sync.ts`, `public-schedule-constants.ts`, `(marketing)/layout.tsx`, `marketing-site-header-with-client-account.tsx`, `workspace-shell.tsx`
+- **Checks:** ESLint clean on touched files; `tsc` blocked by unrelated missing notifications page in `.next/types`
+- **Behavior:** Direct SSE to API origin with credentials; 15s primary poll replaced by SSE + 60s fallback when disconnected; local `CustomEvent` kept for same-browser UX

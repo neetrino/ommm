@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useDebouncedCallback } from "@/lib/debounced-callback";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
 import { NOTIFICATIONS_REFRESH_EVENT } from "@/lib/notifications-refresh-event";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import { fetchMemberWaitlistDeduped } from "@/lib/member-waitlist-fetch";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
 
@@ -80,6 +82,12 @@ export function useMemberWaitlistData(enabled: boolean): MemberWaitlistData {
   const debouncedSilentRefetch = useDebouncedCallback(() => {
     void refetch({ silent: true });
   }, WAITLIST_REFRESH_DEBOUNCE_MS);
+
+  useRealtimeRefetch(
+    REALTIME_REFETCH_KEYS.WAITLIST_ME,
+    () => refetch({ silent: true }),
+    enabled,
+  );
 
   useEffect(() => {
     void refetch();

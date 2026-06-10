@@ -16,6 +16,7 @@ import {
 } from "@/components/shell/dashboard-app-shell";
 import { dashboardNavPathActive } from "@/lib/dashboard-nav";
 import { useMemberUserHomeScrollTop } from "@/hooks/use-member-user-home-scroll-top";
+import { RealtimeProvider } from "@/components/realtime/realtime-provider";
 import { markClientSessionHint } from "@/lib/client-session-hint";
 import { writeCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
 import { usePathname } from "@/i18n/navigation";
@@ -66,12 +67,13 @@ export function WorkspaceShell({
   } as CSSProperties;
 
   return (
-    <div
-      className={offsetStyles.shellWithMarketingHeader}
-      data-workspace-shell
-      data-marketing-account-shell
-      style={shellStyle}
-    >
+    <RealtimeProvider authenticated enablePublic={false}>
+      <div
+        className={offsetStyles.shellWithMarketingHeader}
+        data-workspace-shell
+        data-marketing-account-shell
+        style={shellStyle}
+      >
       <MarketingSiteHeader
         navLinks={MARKETING_NAV_LINKS}
         account={account}
@@ -100,6 +102,7 @@ export function WorkspaceShell({
       >
         {children}
       </DashboardAppShell>
-    </div>
+      </div>
+    </RealtimeProvider>
   );
 }

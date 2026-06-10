@@ -10,6 +10,8 @@ import {
   NOTIFICATIONS_REFRESH_EVENT,
 } from "@/lib/notifications-refresh-event";
 import { useScheduleLiveSync } from "@/hooks/use-schedule-live-sync";
+import { useRealtimeRefetch } from "@/hooks/use-realtime-refetch";
+import { useRealtimeConnectionStatus } from "@/components/realtime/realtime-provider";
 import {
   applyScheduleSpotDelta,
   resolveMemberOnWaitlistBadge,
@@ -44,7 +46,8 @@ import {
   useScheduleDayTransition,
 } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { isUpcomingPublicScheduleSession } from "@/lib/filter-public-schedule-items";
-import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
+import { SCHEDULE_CLOCK_TICK_MS, SCHEDULE_FALLBACK_POLL_MS } from "@/lib/public-schedule-constants";
+import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
@@ -182,7 +185,25 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     void refreshSchedule();
   }, [refreshSchedule]);
 
-  useScheduleLiveSync({ onSync: syncLiveSchedule });
+  const sseConnected = useRealtimeConnectionStatus() === "connected";
+
+  useRealtimeRefetch(REALTIME_REFETCH_KEYS.SCHEDULE_PUBLIC, refreshSchedule);
+  useRealtimeRefetch(
+    REALTIME_REFETCH_KEYS.BOOKINGS_ME,
+    () => refetchMemberBookings(false),
+    isMember,
+  );
+  useRealtimeRefetch(
+    REALTIME_REFETCH_KEYS.WAITLIST_ME,
+    () => refetchWaitlist({ silent: true }),
+    isMember,
+  );
+
+  useScheduleLiveSync({
+    onSync: syncLiveSchedule,
+    enabled: !sseConnected,
+    intervalMs: SCHEDULE_FALLBACK_POLL_MS,
+  });
 
   const debouncedRefetchBookings = useDebouncedCallback(() => {
     void refetchMemberBookings(false);

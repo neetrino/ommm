@@ -17,6 +17,7 @@ import {
 } from "@/lib/marketing-header-account-cache";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
+import { useSyncMarketingRealtimeAuth } from "@/components/realtime/marketing-realtime-root";
 
 type MarketingSiteHeaderWithClientAccountProps = {
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
@@ -91,6 +92,8 @@ export function MarketingSiteHeaderWithClientAccount({
   }, [serverAccount]);
 
   const showMemberNotifications = account?.href === USER_ACCOUNT_PATH;
+
+  useSyncMarketingRealtimeAuth(account !== null);
 
   return (
     <MarketingSiteHeader

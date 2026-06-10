@@ -9,6 +9,7 @@ import { MarketingLayoutShell } from "@/components/marketing/marketing-layout-sh
 import { MarketingLayoutMain } from "@/components/marketing/marketing-layout-main";
 import { MARKETING_NAV_LINKS } from "@/components/marketing/marketing-nav-links";
 import { MarketingSiteHeaderWithClientAccount } from "@/components/marketing/marketing-site-header-with-client-account";
+import { MarketingRealtimeRoot } from "@/components/realtime/marketing-realtime-root";
 import { routing } from "@/i18n/routing";
 import { localeFreePathFromRequestPathname } from "@/lib/marketing-path-from-request";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
@@ -39,17 +40,19 @@ export default async function MarketingLayout({
   );
 
   return (
-    <MarketingLayoutShell>
-      <MarketingSiteHeaderWithClientAccount
-        navLinks={MARKETING_NAV_LINKS}
-        serverAccount={headerAccount}
-      />
-      <MarketingLayoutMain>{children}</MarketingLayoutMain>
-      <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
-        <Suspense fallback={<MarketingFooterLoading />}>
-          <MarketingPublicHomeFooter locale={locale} surfaceVariant="inner" />
-        </Suspense>
-      </MarketingFooterGate>
-    </MarketingLayoutShell>
+    <MarketingRealtimeRoot serverAuthenticated={headerAccount !== null}>
+      <MarketingLayoutShell>
+        <MarketingSiteHeaderWithClientAccount
+          navLinks={MARKETING_NAV_LINKS}
+          serverAccount={headerAccount}
+        />
+        <MarketingLayoutMain>{children}</MarketingLayoutMain>
+        <MarketingFooterGate serverMarketingPath={serverMarketingPath}>
+          <Suspense fallback={<MarketingFooterLoading />}>
+            <MarketingPublicHomeFooter locale={locale} surfaceVariant="inner" />
+          </Suspense>
+        </MarketingFooterGate>
+      </MarketingLayoutShell>
+    </MarketingRealtimeRoot>
   );
 }
