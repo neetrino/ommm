@@ -18,9 +18,7 @@ function audienceFromHeaderCache(): PublicPackageCategoryCardsAudience {
 
 /** Client marketing audience — avoids blocking page data on `/users/me`. */
 export function useMarketingAudience(): PublicPackageCategoryCardsAudience {
-  const [audience, setAudience] = useState<PublicPackageCategoryCardsAudience>(
-    audienceFromHeaderCache,
-  );
+  const [audience, setAudience] = useState<PublicPackageCategoryCardsAudience>("guest");
 
   useEffect(() => {
     const syncAudience = () => {

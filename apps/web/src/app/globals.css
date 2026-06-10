@@ -1404,9 +1404,9 @@ html {
   }
 
   .ommm-session-booked-button {
-    @apply inline-flex cursor-default items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] shadow-[0_6px_18px_-12px_rgba(61,107,82,0.14)];
-    background-color: #e2f2e8;
-    color: #3d6b52;
+    @apply inline-flex cursor-default items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] shadow-[0_6px_18px_-12px_rgba(134,162,145,0.35)];
+    background-color: #86a291;
+    color: #fff8d9;
   }
 
   .ommm-session-booked-button--sm {

@@ -16,6 +16,7 @@ export type ScheduleSessionRowProps = {
   timeLabel: string;
   durationLabel: string;
   audience: PublicPackageCategoryCardsAudience;
+  userBookingId?: string;
   className?: string;
   style?: CSSProperties;
 };
@@ -27,6 +28,7 @@ export function ScheduleSessionRow({
   timeLabel,
   durationLabel,
   audience,
+  userBookingId,
   className,
   style,
 }: ScheduleSessionRowProps) {
@@ -43,13 +45,14 @@ export function ScheduleSessionRow({
         <p className={`text-base font-semibold leading-snug ${SCHEDULE_INK}`}>{row.className}</p>
         <p className={`mt-1 text-sm ${SCHEDULE_MUTED}`}>{subtitle}</p>
       </div>
-      <div className="flex items-center justify-end">
+      <div className="flex items-end justify-end">
         <AuthAwareScheduleBookingAction
           sessionId={row.id}
           availableSpots={row.availableSpots}
           sessionStatus={row.status}
           bookLabel={bookLabel}
           audience={audience}
+          userBookingId={userBookingId}
           className={SCHEDULE_BOOK_BTN}
         />
       </div>

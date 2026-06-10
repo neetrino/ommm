@@ -30,6 +30,7 @@ import {
 } from "@/components/marketing/schedule/use-schedule-day-transition";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
 import { useMarketingAudience } from "@/hooks/use-marketing-audience";
+import { useMemberSessionBookings } from "@/hooks/use-member-session-bookings";
 
 type ScheduleNavState = {
   windowStart: Date;
@@ -102,10 +103,13 @@ function toLocaleTime(locale: string, value: string): string {
   }).format(d);
 }
 
-export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {
+export function MarketingScheduleView({
+  initialItems,
+}: MarketingScheduleViewProps) {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
   const audience = useMarketingAudience();
+  const sessionBookings = useMemberSessionBookings(audience);
   const [items] = useState<MarketingScheduleItem[]>(initialItems);
   const [baseline] = useState(() => startOfLocalDay(new Date()));
   const [nav, setNav] = useState<ScheduleNavState>(() => buildInitialNav(baseline));
@@ -216,6 +220,7 @@ export function MarketingScheduleView({ initialItems }: MarketingScheduleViewPro
                   row={row}
                   bookLabel={t("bookCta")}
                   audience={audience}
+                  userBookingId={sessionBookings[row.id]}
                   subtitle={`${row.instructorName} • ${row.classType}`}
                   timeLabel={toLocaleTime(locale, row.startTime)}
                   durationLabel={
