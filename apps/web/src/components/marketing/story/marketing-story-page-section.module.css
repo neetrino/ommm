@@ -6,3 +6,12 @@
   min-width: 0;
   padding-bottom: clamp(2rem, 5vw, 3.5rem);
 }
+
+@media (max-width: 743px) {
+  .section {
+    padding-top: calc(
+      var(--marketing-mobile-header-height, 4.25rem) +
+        var(--coaches-page-hero-mobile-gap, 0.75rem)
+    );
+  }
+}

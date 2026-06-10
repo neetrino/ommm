@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { marketingScrollRevealMotionProps } from "@/components/marketing/marketing-scroll-reveal-motion";
 import revealStyles from "@/components/marketing/marketing-scroll-reveal.module.css";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { isLocaleSwitchScrollPending } from "@/lib/locale-switch-scroll";
 
 export type MarketingScrollRevealProps = {
   index: number;
@@ -21,6 +22,7 @@ export function MarketingScrollReveal({
   className,
 }: MarketingScrollRevealProps) {
   const reducedMotion = usePrefersReducedMotion();
+  const [skipEntrance] = useState(() => isLocaleSwitchScrollPending());
   const slotClassName = className
     ? `${revealStyles.revealSlot} ${className}`
     : revealStyles.revealSlot;
@@ -28,7 +30,12 @@ export function MarketingScrollReveal({
   return (
     <motion.div
       className={slotClassName}
-      {...marketingScrollRevealMotionProps(index, reducedMotion, gridColumns)}
+      {...marketingScrollRevealMotionProps(
+        index,
+        reducedMotion,
+        gridColumns,
+        skipEntrance,
+      )}
     >
       {children}
     </motion.div>

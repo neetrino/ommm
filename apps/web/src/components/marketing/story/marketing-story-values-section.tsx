@@ -54,6 +54,9 @@ const VALUES_SECTION_STYLE = {
   ["--story-values-card-heading-color" as string]: STORY_PAGE_SURFACE.heading,
   ["--story-values-card-body-color" as string]: STORY_PAGE_SURFACE.body,
   ["--story-values-badge-border" as string]: STORY_PAGE_SURFACE.badgeBorder,
+  ["--story-values-section-margin-top" as string]: STORY_PAGE_LAYOUT.valuesSectionMarginTop,
+  ["--story-values-section-margin-top-mobile" as string]:
+    STORY_PAGE_LAYOUT.valuesSectionMarginTopMobile,
 } as const;
 
 /** Three-column values grid — text top, image bottom (reference card layout). */

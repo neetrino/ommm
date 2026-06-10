@@ -32,14 +32,16 @@ export const STORY_PAGE_LAYOUT = {
   valuesCardImageMinHeight: "clamp(12.5rem, 28vw, 17rem)",
   valuesHeadingColor: HOME_COACHES_SECTION_FIGMA.headingColor,
   valuesSubtitleColor: HOME_COACHES_SECTION_FIGMA.subtitleColor,
+  valuesSectionMarginTop: "clamp(2.5rem, 6vw, 4rem)",
+  valuesSectionMarginTopMobile: "clamp(6rem, 22vw, 8rem)",
   /** Feature cards pulled up over the hero portrait. */
   featureCardsHeroOverlap: "clamp(6rem, 14vw, 11rem)",
   featureCardRadius: "clamp(2.25rem, 4vw, 3rem)",
   featureCardCtaBackground: "#dbcab3",
   featureCardCtaHover: "#d0b89e",
-  /** Hero portrait nudge toward the text column. */
+  /** Hero portrait nudge toward the text column (desktop). */
   heroVisualOffsetLeftPx: 50,
-  /** Hero branch fine-tune — right and up from base anchor. */
+  /** Hero branch fine-tune — right and up from base anchor (desktop). */
   heroBranchOffsetRightPx: 150,
   heroBranchOffsetUpPx: 60,
 } as const;

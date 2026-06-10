@@ -3,6 +3,11 @@
   isolation: isolate;
 }
 
+.stack > :first-child {
+  position: relative;
+  z-index: 1;
+}
+
 @media (min-width: 900px) {
   .stack {
     padding-bottom: clamp(1.5rem, 4vw, 3rem);

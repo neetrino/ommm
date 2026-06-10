@@ -29,6 +29,11 @@ function readSnapshot(): ScrollSnapshot | null {
   return null;
 }
 
+/** True while a locale switch snapshot is waiting to be restored (avoids layout flash). */
+export function isLocaleSwitchScrollPending(): boolean {
+  return readSnapshot() !== null;
+}
+
 /** Call immediately before a locale-only client navigation. */
 export function captureLocaleSwitchScroll(): void {
   if (typeof window === "undefined") {

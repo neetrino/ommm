@@ -126,6 +126,27 @@
   list-style: none;
 }
 
+@media (max-width: 743px) {
+  .socialList {
+    flex-wrap: nowrap;
+    gap: 1rem;
+  }
+
+  .socialList > li {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .socialLink {
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .socialLabel {
+    font-size: 0.9375rem;
+  }
+}
+
 .socialLink {
   display: inline-flex;
   align-items: center;

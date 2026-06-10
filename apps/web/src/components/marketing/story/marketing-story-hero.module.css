@@ -4,7 +4,18 @@
   display: grid;
   gap: clamp(1.5rem, 4vw, 2.5rem);
   align-items: center;
-  padding-bottom: clamp(2rem, 5vw, 4rem);
+  padding-bottom: var(--story-hero-padding-bottom, clamp(2rem, 5vw, 4rem));
+}
+
+@media (max-width: 899px) {
+  .hero {
+    display: block;
+    padding-bottom: calc(
+      var(--story-hero-padding-bottom, clamp(2rem, 5vw, 4rem)) +
+        var(--story-hero-visual-nudge-y, clamp(1rem, 3vw, 2rem)) +
+        min(100%, var(--story-hero-visual-max-width, 28rem)) * 7 / 6
+    );
+  }
 }
 
 @media (min-width: 900px) {
@@ -52,14 +63,35 @@
   z-index: 1;
   justify-self: center;
   width: min(100%, var(--story-hero-visual-max-width, 28rem));
-  transform: translate(calc(-1 * var(--story-hero-visual-offset-left, 25px)), clamp(1rem, 3vw, 2rem));
+  transform: translate(
+    calc(-1 * var(--story-hero-visual-offset-left, 25px)),
+    clamp(1rem, 3vw, 2rem)
+  );
+}
+
+@media (max-width: 899px) {
+  .visual {
+    position: absolute;
+    right: 0;
+    bottom: var(--story-hero-padding-bottom, clamp(2rem, 5vw, 4rem));
+    z-index: 0;
+    justify-self: end;
+    transform: translateY(var(--story-hero-visual-nudge-y, clamp(1rem, 3vw, 2rem)));
+  }
+
+  .branchWrap {
+    display: none;
+  }
 }
 
 @media (min-width: 900px) {
   .visual {
     justify-self: end;
     align-self: center;
-    transform: translate(calc(-1 * var(--story-hero-visual-offset-left, 25px)), clamp(2.5rem, 6vw, 5rem));
+    transform: translate(
+      calc(-1 * var(--story-hero-visual-offset-left, 25px)),
+      clamp(2.5rem, 6vw, 5rem)
+    );
   }
 }
 

@@ -1,5 +1,11 @@
 .section {
-  margin-top: clamp(2.5rem, 6vw, 4rem);
+  margin-top: var(--story-values-section-margin-top-mobile, clamp(6rem, 22vw, 8rem));
+}
+
+@media (min-width: 900px) {
+  .section {
+    margin-top: var(--story-values-section-margin-top, clamp(2.5rem, 6vw, 4rem));
+  }
 }
 
 .header {

@@ -24,12 +24,20 @@ export function marketingScrollRevealMotionProps(
   index: number,
   reducedMotion: boolean,
   gridColumns: number,
+  skipEntrance = false,
 ): MotionProps {
   const viewport = {
     once: true,
     amount: MARKETING_SCROLL_REVEAL_MOTION.viewportAmount,
     margin: MARKETING_SCROLL_REVEAL_MOTION.viewportMargin,
   } as const;
+
+  if (skipEntrance) {
+    return {
+      initial: false,
+      viewport,
+    };
+  }
 
   if (reducedMotion) {
     return {
