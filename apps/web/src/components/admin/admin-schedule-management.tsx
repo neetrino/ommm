@@ -927,7 +927,6 @@ export function AdminScheduleManagement({
               pageSize={listPage.pageSize}
               offset={listPagination.offset}
               onPageChange={setListPage}
-              onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
               disabled={busyId !== null}
             />
           ) : null}
@@ -1047,7 +1046,6 @@ export function AdminScheduleManagement({
           pageSize={listPage.pageSize}
           offset={listPagination.offset}
           onPageChange={setListPage}
-          onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
           disabled={busyId !== null}
         />
       ) : null}
