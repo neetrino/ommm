@@ -20,7 +20,7 @@ export async function MarketingExploreComingSoon({
       className={styles.root}
       style={{
         ["--explore-coming-soon-image-position-y" as string]:
-          EXPLORE_PAGE_LAYOUT.comingSoonImagePositionY,
+          EXPLORE_PAGE_LAYOUT.comingSoonDesktopImagePositionY,
       }}
     >
       <Image
@@ -32,7 +32,23 @@ export async function MarketingExploreComingSoon({
         {...lcpImageProps()}
       />
       <Image
-        src={EXPLORE_PAGE_ASSETS.comingSoon}
+        src={EXPLORE_PAGE_ASSETS.comingSoonIpadAir}
+        alt={t("comingSoonAlt")}
+        fill
+        sizes="100vw"
+        className={`${styles.image} ${styles.imageIpadAir}`}
+        {...belowFoldImageProps()}
+      />
+      <Image
+        src={EXPLORE_PAGE_ASSETS.comingSoonIpadPro}
+        alt={t("comingSoonAlt")}
+        fill
+        sizes="100vw"
+        className={`${styles.image} ${styles.imageIpadPro}`}
+        {...belowFoldImageProps()}
+      />
+      <Image
+        src={EXPLORE_PAGE_ASSETS.comingSoonDesktop}
         alt={t("comingSoonAlt")}
         fill
         sizes="100vw"
