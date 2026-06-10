@@ -10,6 +10,8 @@ export const CONTACT_PAGE_SURFACE = {
   valueColor: "#1d1c15",
   inputBackground: "rgba(255, 255, 255, 0.75)",
   inputBorder: "rgba(151, 144, 124, 0.35)",
+  inputErrorBorder: "#b42318",
+  inputErrorRing: "rgba(180, 35, 24, 0.12)",
   buttonBackground: "#a68f7b",
   buttonHoverBackground: "#8f7968",
   securityTextColor: "#4a4738",
@@ -24,4 +26,8 @@ export const CONTACT_PAGE_LAYOUT = {
   inputRadiusPx: 12,
   buttonRadiusPx: 999,
   calloutRadiusPx: 16,
+  successToastTopGapPx: 12,
+  successToastVisibleMs: 3500,
+  successToastEnterMs: 720,
+  successToastExitMs: 480,
 } as const;

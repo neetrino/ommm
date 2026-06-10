@@ -71,6 +71,16 @@
   box-shadow: 0 0 0 3px rgba(166, 143, 123, 0.15);
 }
 
+.inputInvalid {
+  border-color: var(--contact-input-error-border);
+  box-shadow: 0 0 0 3px var(--contact-input-error-ring);
+}
+
+.inputInvalid:focus {
+  border-color: var(--contact-input-error-border);
+  box-shadow: 0 0 0 3px var(--contact-input-error-ring);
+}
+
 .textarea {
   composes: input;
   min-height: 7.5rem;
@@ -165,11 +175,6 @@
   font-family: var(--font-montserrat-marketing), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.875rem;
   line-height: 1.45;
-}
-
-.feedbackSuccess {
-  composes: feedback;
-  color: var(--contact-value-color);
 }
 
 .feedbackError {

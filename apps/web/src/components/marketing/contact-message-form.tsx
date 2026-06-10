@@ -11,14 +11,36 @@ import {
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
 import styles from "@/components/marketing/contact/marketing-contact-message-form.module.css";
+import { MarketingContactSuccessToast } from "@/components/marketing/contact/marketing-contact-success-toast";
 import { ApiError, apiFetch } from "@/lib/api";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+
+const CONTACT_REQUIRED_FIELDS = ["name", "phone", "email", "subject", "message"] as const;
+
+type ContactRequiredField = (typeof CONTACT_REQUIRED_FIELDS)[number];
+
+function getEmptyContactFields(form: HTMLFormElement): ContactRequiredField[] {
+  const formData = new FormData(form);
+  return CONTACT_REQUIRED_FIELDS.filter(
+    (field) => String(formData.get(field) ?? "").trim().length === 0,
+  );
+}
+
+function fieldInputClass(
+  field: ContactRequiredField,
+  invalidFields: ReadonlySet<ContactRequiredField>,
+  baseClass: string,
+): string {
+  return invalidFields.has(field) ? `${baseClass} ${styles.inputInvalid}` : baseClass;
+}
 
 const FORM_STYLE = {
   "--contact-card-padding": `${CONTACT_PAGE_LAYOUT.cardPaddingPx}px`,
   "--contact-input-radius": `${CONTACT_PAGE_LAYOUT.inputRadiusPx}px`,
   "--contact-input-bg": CONTACT_PAGE_SURFACE.inputBackground,
   "--contact-input-border": CONTACT_PAGE_SURFACE.inputBorder,
+  "--contact-input-error-border": CONTACT_PAGE_SURFACE.inputErrorBorder,
+  "--contact-input-error-ring": CONTACT_PAGE_SURFACE.inputErrorRing,
   "--contact-button-radius": `${CONTACT_PAGE_LAYOUT.buttonRadiusPx}px`,
   "--contact-button-bg": CONTACT_PAGE_SURFACE.buttonBackground,
   "--contact-button-hover-bg": CONTACT_PAGE_SURFACE.buttonHoverBackground,
@@ -73,19 +95,47 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
   const t = useTranslations("forms.contact");
   const tPage = useTranslations("marketingPages.contact");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [invalidFields, setInvalidFields] = useState<ReadonlySet<ContactRequiredField>>(
+    () => new Set(),
+  );
+
+  function clearInvalidField(field: ContactRequiredField) {
+    setInvalidFields((current) => {
+      if (!current.has(field)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.delete(field);
+      return next;
+    });
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const emptyFields = getEmptyContactFields(formElement);
+    if (emptyFields.length > 0) {
+      setInvalidFields(new Set(emptyFields));
+      setErrorMsg(null);
+      setSuccessToast(null);
+      const firstField = formElement.elements.namedItem(emptyFields[0]);
+      if (firstField instanceof HTMLElement) {
+        firstField.focus();
+      }
+      return;
+    }
+
+    setInvalidFields(new Set());
+    const form = new FormData(formElement);
     const email = String(form.get("email") ?? "").trim();
     const message = String(form.get("message") ?? "");
     const composedMessage =
       email.length > 0 ? `Email: ${email}\n\n${message}` : message;
 
     setErrorMsg(null);
-    setSent(false);
+    setSuccessToast(null);
     setPending(true);
     try {
       await apiFetch<{ ok: boolean }>("/contact", {
@@ -97,8 +147,8 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
           message: composedMessage,
         }),
       });
-      setSent(true);
-      e.currentTarget.reset();
+      setSuccessToast(t("thankYou"));
+      formElement.reset();
     } catch (err) {
       setErrorMsg(err instanceof ApiError ? err.message : t("sendError"));
     } finally {
@@ -109,6 +159,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
   return (
     <>
       <form
+        noValidate
         onSubmit={(ev) => void onSubmit(ev)}
         className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.form}`}
         style={FORM_STYLE}
@@ -121,8 +172,10 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               name="name"
               required
               autoComplete="name"
-              className={styles.input}
+              aria-invalid={invalidFields.has("name")}
+              className={fieldInputClass("name", invalidFields, styles.input)}
               defaultValue={prefill?.name}
+              onInput={() => clearInvalidField("name")}
             />
           </label>
           <label className={styles.field}>
@@ -131,8 +184,10 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               name="phone"
               required
               autoComplete="tel"
-              className={styles.input}
+              aria-invalid={invalidFields.has("phone")}
+              className={fieldInputClass("phone", invalidFields, styles.input)}
               defaultValue={prefill?.phone}
+              onInput={() => clearInvalidField("phone")}
             />
           </label>
         </div>
@@ -141,14 +196,24 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
           <input
             name="email"
             type="email"
+            required
             autoComplete="email"
-            className={styles.input}
+            aria-invalid={invalidFields.has("email")}
+            className={fieldInputClass("email", invalidFields, styles.input)}
             defaultValue={prefill?.email}
+            onInput={() => clearInvalidField("email")}
           />
         </label>
         <label className={styles.field}>
           <span className={styles.label}>{t("subject")}</span>
-          <input name="subject" autoComplete="off" className={styles.input} />
+          <input
+            name="subject"
+            required
+            autoComplete="off"
+            aria-invalid={invalidFields.has("subject")}
+            className={fieldInputClass("subject", invalidFields, styles.input)}
+            onInput={() => clearInvalidField("subject")}
+          />
         </label>
         <label className={styles.field}>
           <span className={styles.label}>{t("message")}</span>
@@ -156,7 +221,9 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             name="message"
             required
             rows={5}
-            className={styles.textarea}
+            aria-invalid={invalidFields.has("message")}
+            className={fieldInputClass("message", invalidFields, styles.textarea)}
+            onInput={() => clearInvalidField("message")}
           />
         </label>
         <button type="submit" className={styles.submit} disabled={pending}>
@@ -178,11 +245,10 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
           {tPage("securityNote")}
         </p>
       </form>
-      {sent ? (
-        <p className={styles.feedbackSuccess} role="status">
-          {t("thankYou")}
-        </p>
-      ) : null}
+      <MarketingContactSuccessToast
+        message={successToast}
+        onDismiss={() => setSuccessToast(null)}
+      />
       {errorMsg ? (
         <p className={styles.feedbackError} role="status">
           {errorMsg}
