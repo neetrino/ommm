@@ -1512,6 +1512,10 @@ html {
     @apply px-3 py-1.5 text-[11px] font-semibold tracking-[0.1em];
   }
 
+  .ommm-session-booked-button--schedule {
+    @apply font-semibold uppercase tracking-[0.1em];
+  }
+
   .ommm-session-booked-card {
     background-color: color-mix(in srgb, #e2f2e8 38%, var(--color-paper));
     box-shadow: 0 22px 54px -34px rgba(61, 107, 82, 0.16);

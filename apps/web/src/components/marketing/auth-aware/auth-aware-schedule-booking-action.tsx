@@ -6,10 +6,10 @@ import {
   CancelBookingButton,
   CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
 } from "@/components/account/cancel-booking-button";
-import { SESSION_BOOKED_BUTTON_SM_CLASS } from "@/components/account/session-booked-badge";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   SCHEDULE_BOOK_BTN,
+  SCHEDULE_BOOKED_BTN,
   SCHEDULE_CANCEL_BTN,
 } from "@/components/marketing/schedule/schedule-public-design";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -125,7 +125,7 @@ export function AuthAwareScheduleBookingAction({
             type="button"
             disabled
             aria-disabled="true"
-            className={SESSION_BOOKED_BUTTON_SM_CLASS}
+            className={SCHEDULE_BOOKED_BTN}
           >
             {tClasses("bookedBadge")}
           </button>
