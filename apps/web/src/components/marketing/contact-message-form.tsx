@@ -172,6 +172,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               name="name"
               required
               autoComplete="name"
+              placeholder={t("placeholders.name")}
               aria-invalid={invalidFields.has("name")}
               className={fieldInputClass("name", invalidFields, styles.input)}
               defaultValue={prefill?.name}
@@ -184,6 +185,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               name="phone"
               required
               autoComplete="tel"
+              placeholder={t("placeholders.phone")}
               aria-invalid={invalidFields.has("phone")}
               className={fieldInputClass("phone", invalidFields, styles.input)}
               defaultValue={prefill?.phone}
@@ -198,6 +200,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             type="email"
             required
             autoComplete="email"
+            placeholder={t("placeholders.email")}
             aria-invalid={invalidFields.has("email")}
             className={fieldInputClass("email", invalidFields, styles.input)}
             defaultValue={prefill?.email}
@@ -210,6 +213,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             name="subject"
             required
             autoComplete="off"
+            placeholder={t("placeholders.subject")}
             aria-invalid={invalidFields.has("subject")}
             className={fieldInputClass("subject", invalidFields, styles.input)}
             onInput={() => clearInvalidField("subject")}
@@ -221,6 +225,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             name="message"
             required
             rows={5}
+            placeholder={t("placeholders.message")}
             aria-invalid={invalidFields.has("message")}
             className={fieldInputClass("message", invalidFields, styles.textarea)}
             onInput={() => clearInvalidField("message")}

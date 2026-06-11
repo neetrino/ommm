@@ -3715,6 +3715,13 @@
       "email": "Email",
       "subject": "Subject",
       "message": "Message",
+      "placeholders": {
+        "name": "Sofia Martirosyan",
+        "phone": "+374 99 123 456",
+        "email": "sofia@example.com",
+        "subject": "Morning class schedule",
+        "message": "Hi! I'd like to know more about your morning Pilates classes."
+      },
       "send": "Send",
       "sending": "Sending…",
       "thankYou": "Thank you — your message was sent.",
