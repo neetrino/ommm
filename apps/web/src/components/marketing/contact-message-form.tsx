@@ -131,9 +131,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
     setInvalidFields(new Set());
     const form = new FormData(formElement);
     const email = String(form.get("email") ?? "").trim();
-    const message = String(form.get("message") ?? "");
-    const composedMessage =
-      email.length > 0 ? `Email: ${email}\n\n${message}` : message;
+    const message = String(form.get("message") ?? "").trim();
 
     setErrorMsg(null);
     setSuccessToast(null);
@@ -142,10 +140,11 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
       await apiFetch<{ ok: boolean }>("/contact", {
         method: "POST",
         body: JSON.stringify({
-          name: form.get("name"),
-          phone: form.get("phone"),
-          subject: form.get("subject") || undefined,
-          message: composedMessage,
+          name: String(form.get("name") ?? "").trim(),
+          email,
+          phone: String(form.get("phone") ?? "").trim(),
+          subject: String(form.get("subject") ?? "").trim() || undefined,
+          message,
         }),
       });
       setSuccessToast(t("thankYou"));

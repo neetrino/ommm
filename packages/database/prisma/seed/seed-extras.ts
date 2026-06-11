@@ -264,6 +264,7 @@ export async function seedContactMessages(prisma: PrismaClient): Promise<void> {
     {
       id: "seed-contact-1",
       name: "Lucine Asatryan",
+      email: "lucine.asatryan@example.com",
       phone: "+37499111222",
       subject: "Private reformer availability",
       message: "Hi! Do you have weekend private reformer slots in April?",
@@ -271,6 +272,7 @@ export async function seedContactMessages(prisma: PrismaClient): Promise<void> {
     {
       id: "seed-contact-2",
       name: "David Harutyunyan",
+      email: "david.harutyunyan@example.com",
       phone: "+37499333444",
       subject: "Gift cards",
       message: "Can I purchase a gift card bundle for our team?",
