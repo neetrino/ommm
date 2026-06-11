@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { MarketingPageSectionReveal } from "@/components/marketing/marketing-page-section-reveal";
+import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-closing-section.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
@@ -17,7 +17,7 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
   const t = await getTranslations({ locale, namespace: "marketingPages.story" });
 
   return (
-    <MarketingPageSectionReveal index={3}>
+    <StoryPageReveal index={0}>
       <article
         className={`${marketingMontserrat.variable} ${styles.card}`}
         style={{
@@ -62,6 +62,6 @@ export async function MarketingStoryClosingSection({ locale }: MarketingStoryClo
           </div>
         </div>
       </article>
-    </MarketingPageSectionReveal>
+    </StoryPageReveal>
   );
 }

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { MarketingPageSectionReveal } from "@/components/marketing/marketing-page-section-reveal";
 import styles from "@/components/marketing/story/marketing-story-values-section.module.css";
+import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
@@ -68,21 +68,26 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
   const t = await getTranslations({ locale, namespace: "marketingPages.story" });
 
   return (
-    <MarketingPageSectionReveal index={2}>
-      <section
-        className={`${marketingMontserrat.variable} ${styles.section}`}
-        aria-labelledby="story-values-heading"
-        style={VALUES_SECTION_STYLE}
-      >
+    <section
+      className={`${marketingMontserrat.variable} ${styles.section}`}
+      aria-labelledby="story-values-heading"
+      style={VALUES_SECTION_STYLE}
+    >
+      <StoryPageReveal index={0}>
         <header className={styles.header}>
           <h2 id="story-values-heading" className={styles.sectionTitle}>
             {t("valuesHeading")}
           </h2>
           <p className={styles.sectionSubtitle}>{t("valuesSubtitle")}</p>
         </header>
-        <ul className={styles.grid}>
-          {VALUE_CARDS.map((card, index) => (
-            <li key={card.titleKey}>
+      </StoryPageReveal>
+      <ul className={styles.grid}>
+        {VALUE_CARDS.map((card, index) => (
+          <li key={card.titleKey}>
+            <StoryPageReveal
+              index={index}
+              gridColumns={STORY_PAGE_LAYOUT.valuesGridColumns}
+            >
               <article
                 className={styles.card}
                 style={{ ["--story-value-surface" as string]: card.surface }}
@@ -110,10 +115,10 @@ export async function MarketingStoryValuesSection({ locale }: MarketingStoryValu
                   />
                 </div>
               </article>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </MarketingPageSectionReveal>
+            </StoryPageReveal>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

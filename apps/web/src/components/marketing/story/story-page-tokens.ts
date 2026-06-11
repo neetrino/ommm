@@ -15,6 +15,12 @@ export const STORY_PAGE_SURFACE = {
 } as const;
 
 export const STORY_PAGE_LAYOUT = {
+  /** Single-column blocks — hero, section headers, closing card. */
+  revealGridColumns: 1,
+  /** Feature intro cards — two-up grid on desktop. */
+  featureCardsGridColumns: 2,
+  /** Values grid — three-up layout aligned with coaches page stagger. */
+  valuesGridColumns: 3,
   cardRadius: "clamp(1.5rem, 3vw, 2rem)",
   storyCardRadius: "clamp(2.25rem, 4vw, 3rem)",
   closingCardRadius: "clamp(1.75rem, 3vw, 2.25rem)",

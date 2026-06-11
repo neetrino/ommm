@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { MarketingPageSectionReveal } from "@/components/marketing/marketing-page-section-reveal";
 import styles from "@/components/marketing/story/marketing-story-feature-cards.module.css";
+import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import { STORY_PAGE_LAYOUT, STORY_PAGE_SURFACE } from "@/components/marketing/story/story-page-tokens";
 import { Link } from "@/i18n/navigation";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
@@ -49,10 +49,17 @@ export async function MarketingStoryFeatureCards({
   const t = await getTranslations({ locale, namespace: "marketingPages.story" });
 
   return (
-    <MarketingPageSectionReveal index={1} className={revealClassName}>
-      <div className={`${marketingMontserrat.variable} ${styles.grid}`} style={FEATURE_GRID_STYLE}>
-        {FEATURE_CARDS.map((card) => (
-          <article key={card.titleKey} className={styles.card}>
+    <div
+      className={`${marketingMontserrat.variable} ${styles.grid} ${revealClassName ?? ""}`}
+      style={FEATURE_GRID_STYLE}
+    >
+      {FEATURE_CARDS.map((card, index) => (
+        <StoryPageReveal
+          key={card.titleKey}
+          index={index}
+          gridColumns={STORY_PAGE_LAYOUT.featureCardsGridColumns}
+        >
+          <article className={styles.card}>
             <div className={styles.copy}>
               <span className={styles.badge}>{t(card.badgeKey)}</span>
               <h2 className={styles.title}>{t(card.titleKey)}</h2>
@@ -65,8 +72,8 @@ export async function MarketingStoryFeatureCards({
               </Link>
             </div>
           </article>
-        ))}
-      </div>
-    </MarketingPageSectionReveal>
+        </StoryPageReveal>
+      ))}
+    </div>
   );
 }
