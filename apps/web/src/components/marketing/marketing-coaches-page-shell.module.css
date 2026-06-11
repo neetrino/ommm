@@ -27,6 +27,8 @@
 .shell:has([data-marketing-explore-coming-soon]) .main {
   background: transparent;
   padding-bottom: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .main {

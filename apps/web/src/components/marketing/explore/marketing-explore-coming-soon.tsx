@@ -38,10 +38,25 @@ export async function MarketingExploreComingSoon({
           EXPLORE_PAGE_LAYOUT.inlineLogoBorderRadiusRatio,
         ),
         ["--explore-inline-logo-gap" as string]: `${EXPLORE_PAGE_LAYOUT.inlineLogoGapPx}px`,
+        ["--explore-page-content-inset-min" as string]: `${EXPLORE_PAGE_LAYOUT.contentInsetMinPx}px`,
+        ["--explore-page-content-inset-vw" as string]: `${EXPLORE_PAGE_LAYOUT.contentInsetVw}vw`,
+        ["--explore-page-content-inset-max" as string]: `${EXPLORE_PAGE_LAYOUT.contentInsetMaxPx}px`,
+        ["--explore-title-nudge-x" as string]: `${EXPLORE_PAGE_LAYOUT.titleNudgeXPx}px`,
+        ["--explore-title-nudge-y" as string]: `${EXPLORE_PAGE_LAYOUT.titleNudgeYPx}px`,
         ["--explore-page-enter-bg-duration" as string]: `${EXPLORE_PAGE_LAYOUT.backgroundDurationMs}ms`,
         ["--explore-page-enter-title-duration" as string]: `${EXPLORE_PAGE_LAYOUT.titleDurationMs}ms`,
         ["--explore-page-enter-title-delay" as string]: `${EXPLORE_PAGE_LAYOUT.titleDelayMs}ms`,
         ["--explore-page-enter-title-offset" as string]: `${EXPLORE_PAGE_LAYOUT.titleOffsetPx}px`,
+        ["--explore-page-title-float-amplitude" as string]: `${EXPLORE_PAGE_LAYOUT.amplitudePx}px`,
+        ["--explore-page-title-float-duration" as string]: `${EXPLORE_PAGE_LAYOUT.durationMs}ms`,
+        ["--explore-page-title-float-start-delay" as string]: `${EXPLORE_PAGE_LAYOUT.startDelayAfterEnterMs}ms`,
+        ["--explore-inline-logo-enter-delay" as string]: `${EXPLORE_PAGE_LAYOUT.titleDelayMs + EXPLORE_PAGE_LAYOUT.titleDurationMs + EXPLORE_PAGE_LAYOUT.enterDelayAfterTitleMs}ms`,
+        ["--explore-inline-logo-enter-duration" as string]: `${EXPLORE_PAGE_LAYOUT.enterDurationMs}ms`,
+        ["--explore-inline-logo-enter-stagger" as string]: `${EXPLORE_PAGE_LAYOUT.enterStaggerMs}ms`,
+        ["--explore-inline-logo-enter-rise" as string]: `${EXPLORE_PAGE_LAYOUT.enterRisePx}px`,
+        ["--explore-inline-logo-float-duration" as string]: `${EXPLORE_PAGE_LAYOUT.floatDurationMs}ms`,
+        ["--explore-inline-logo-float-amplitude" as string]: `${EXPLORE_PAGE_LAYOUT.floatAmplitudePx}px`,
+        ["--explore-inline-logo-float-glow-rgb" as string]: EXPLORE_PAGE_LAYOUT.floatGlowRgb,
         ["--explore-page-enter-reduced-duration" as string]: `${EXPLORE_PAGE_LAYOUT.reducedMotionDurationMs}ms`,
       }}
     >
@@ -57,33 +72,35 @@ export async function MarketingExploreComingSoon({
 
       <div className={styles.overlay}>
         <h1 className={styles.title} aria-label={t("comingSoonTitle")}>
-          <span className={styles.titleLine1}>{headingLine1}</span>
-          {showSplitSoonLine ? (
-            <span className={styles.titleLine2}>
-              <span>{headingLine2Start}</span>
-              <span className={styles.inlineLogoPair} aria-hidden>
-                <span className={styles.inlineLogo}>
-                  <Image
-                    src={EXPLORE_PAGE_ASSETS.inlineLogoO}
-                    alt=""
-                    fill
-                    sizes="4rem"
-                    className={styles.inlineLogoImage}
-                  />
+          <span className={styles.titleFloat}>
+            <span className={styles.titleLine1}>{headingLine1}</span>
+            {showSplitSoonLine ? (
+              <span className={styles.titleLine2}>
+                <span>{headingLine2Start}</span>
+                <span className={styles.inlineLogoPair} aria-hidden>
+                  <span className={`${styles.inlineLogo} ${styles.inlineLogoLead}`}>
+                    <Image
+                      src={EXPLORE_PAGE_ASSETS.inlineLogoO}
+                      alt=""
+                      fill
+                      sizes="4rem"
+                      className={styles.inlineLogoImage}
+                    />
+                  </span>
+                  <span className={`${styles.inlineLogo} ${styles.inlineLogoTrail}`}>
+                    <Image
+                      src={EXPLORE_PAGE_ASSETS.inlineLogoO}
+                      alt=""
+                      fill
+                      sizes="4rem"
+                      className={styles.inlineLogoImage}
+                    />
+                  </span>
                 </span>
-                <span className={styles.inlineLogo}>
-                  <Image
-                    src={EXPLORE_PAGE_ASSETS.inlineLogoO}
-                    alt=""
-                    fill
-                    sizes="4rem"
-                    className={styles.inlineLogoImage}
-                  />
-                </span>
+                <span>{headingLine2End}</span>
               </span>
-              <span>{headingLine2End}</span>
-            </span>
-          ) : null}
+            ) : null}
+          </span>
         </h1>
       </div>
     </div>

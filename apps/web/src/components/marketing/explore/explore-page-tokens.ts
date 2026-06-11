@@ -29,14 +29,45 @@ export const EXPLORE_COMING_SOON_TYPOGRAPHY = {
 export const EXPLORE_PAGE_ENTER = {
   backgroundDurationMs: 520,
   titleDurationMs: 680,
-  titleDelayMs: 140,
+  titleDelayMs: 400,
   titleOffsetPx: 14,
   reducedMotionDurationMs: 250,
+} as const;
+
+/** Idle float — gentle rise/fall after the entrance finishes. */
+export const EXPLORE_PAGE_TITLE_FLOAT = {
+  amplitudePx: 10,
+  durationMs: 2400,
+  startDelayAfterEnterMs: 600,
+} as const;
+
+/** Twin golden “o” orbs — pop-in, glow, and counter-phase vertical float. */
+export const EXPLORE_INLINE_LOGO_MOTION = {
+  enterDelayAfterTitleMs: 180,
+  enterDurationMs: 520,
+  enterStaggerMs: 140,
+  enterRisePx: 18,
+  floatDurationMs: 2400,
+  floatAmplitudePx: 9,
+  floatGlowRgb: "255, 196, 110",
+} as const;
+
+/** Symmetric horizontal inset — keeps the title centered with equal edge breathing room. */
+export const EXPLORE_PAGE_SURFACE = {
+  contentInsetMinPx: 24,
+  contentInsetVw: 5,
+  contentInsetMaxPx: 48,
+  /** Optical tune — slightly left and lower vs geometric center. */
+  titleNudgeXPx: -28,
+  titleNudgeYPx: 48,
 } as const;
 
 /** Layout tokens for the Explore coming soon page. */
 export const EXPLORE_PAGE_LAYOUT = {
   titleColor: "rgba(255, 255, 255, 0.96)",
+  ...EXPLORE_PAGE_SURFACE,
   ...EXPLORE_COMING_SOON_TYPOGRAPHY,
   ...EXPLORE_PAGE_ENTER,
+  ...EXPLORE_PAGE_TITLE_FLOAT,
+  ...EXPLORE_INLINE_LOGO_MOTION,
 } as const;
