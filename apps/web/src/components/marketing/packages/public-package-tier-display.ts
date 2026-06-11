@@ -1,5 +1,5 @@
 import type { PackageTableDisplayRow } from "@/components/admin/admin-packages-display";
-import { formatAmdAmount } from "@/lib/price-amd";
+import { formatAmdFromCents } from "@/lib/price-amd";
 
 /** Minimum sessions before showing the days-limit column (e.g. 12-pack, not 2-pack). */
 const MIN_SESSIONS_FOR_DAYS_LIMIT = 3;
@@ -74,11 +74,7 @@ export function formatPublicPackageTierPricePerSession(
     return null;
   }
   const perSession = plan.priceCents / sessions;
-  const hasFraction = Math.abs(perSession - Math.round(perSession)) > 0.001;
-  return formatAmdAmount(perSession, {
-    minimumFractionDigits: hasFraction ? 2 : 0,
-    maximumFractionDigits: 2,
-  });
+  return formatAmdFromCents(Math.round(perSession), locale);
 }
 
 /** Validity label for table/detail; null when no days limit (e.g. 1-session Dances tier). */

@@ -110,7 +110,7 @@ export function MarketingPublicHomeGallerySection() {
           <HomePageReveal index={2}>
             <div className={styles.mobileCta}>
               <HomeHeroCtaButton
-                href="/explore"
+                href="/story"
                 label={t("galleryMoreDetails")}
                 variant="booking"
                 labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
@@ -158,7 +158,7 @@ export function MarketingPublicHomeGallerySection() {
           <HomePageReveal index={2} className="flex w-full justify-center">
             <div style={{ marginTop: HOME_GALLERY_LAYOUT.dotsToCtaGapPx }}>
               <HomeHeroCtaButton
-                href="/explore"
+                href="/story"
                 label={t("galleryMoreDetails")}
                 variant="membership"
               />
