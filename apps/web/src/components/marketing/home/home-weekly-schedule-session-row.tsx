@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AuthAwareScheduleReserveLink } from "@/components/marketing/auth-aware/auth-aware-schedule-reserve-link";
 import styles from "@/components/marketing/home/home-weekly-schedule-session-row.module.css";
 import { buildMarketingScheduleItemDateTimeRange } from "@/components/marketing/home/build-marketing-schedule-item-datetime-range";
 import { formatScheduleTime } from "@/components/marketing/home/format-schedule-time";
@@ -15,7 +16,6 @@ import type { MarketingScheduleItem } from "@/components/marketing/schedule/mark
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
 import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
-import { Link } from "@/i18n/navigation";
 
 type HomeWeeklyScheduleSessionRowProps = {
   item: MarketingScheduleItem;
@@ -125,9 +125,8 @@ export function HomeWeeklyScheduleSessionRow({
         </div>
       </div>
 
-      <Link
-        href="/schedule"
-        aria-label={bookAriaLabel}
+      <AuthAwareScheduleReserveLink
+        ariaLabel={bookAriaLabel}
         className={`${styles.reserve} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#695f00]/40 focus-visible:ring-offset-2 active:scale-[0.99]`}
         style={{
           ["--home-schedule-reserve-fill" as string]:
@@ -144,7 +143,7 @@ export function HomeWeeklyScheduleSessionRow({
         }}
       >
         {reserveLabel}
-      </Link>
+      </AuthAwareScheduleReserveLink>
     </article>
   );
 }
