@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AdminStudioContactSettingsFields } from "@/components/admin/admin-studio-contact-settings-fields";
 import { adminChrome } from "@/components/admin/admin-chrome";
 import { AdminSectionShell } from "@/components/admin/admin-section-shell";
 import {
@@ -11,25 +12,19 @@ import {
 import { DashboardNavIcon } from "@/components/shell/dashboard-nav-icon";
 import { OmmButton } from "@/components/ui/omm-button";
 import { ApiError, apiFetch } from "@/lib/api";
-
-type StudioSettings = {
-  studioName: string;
-  contactEmail: string | null;
-  contactPhone: string | null;
-  whatsappUrl: string | null;
-  address: string | null;
-  mapEmbedUrl: string | null;
-  workingHours: string | null;
-  cancellationHoursNotice: number;
-  waitlistOfferMinutes: number;
-};
+import {
+  collectStudioSettingsFieldErrors,
+  type StudioSettingsFieldErrors,
+} from "@/lib/studio-contact-validation";
+import {
+  buildStudioSocialLinksJson,
+  getStudioSocialPlatformUrl,
+  type StudioPublicSettings,
+} from "@/lib/studio-social-links";
 
 type AdminStudioSettingsFormProps = {
-  initial: StudioSettings;
+  initial: StudioPublicSettings;
 };
-
-const NUMBER_INPUT_CLASS =
-  "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
 type SettingsSectionProps = {
   heading: string;
@@ -49,7 +44,7 @@ function SettingsSection({ heading, description, children, className = "" }: Set
 }
 
 type SummaryMetricProps = {
-  icon: "settings" | "send" | "calendar";
+  icon: "settings" | "send";
   label: string;
   value: string;
   helper: string;
@@ -73,6 +68,7 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "err">("ok");
+  const [fieldErrors, setFieldErrors] = useState<StudioSettingsFieldErrors>({});
 
   const [studioName, setStudioName] = useState(initial.studioName);
   const [contactEmail, setContactEmail] = useState(initial.contactEmail ?? "");
@@ -81,11 +77,12 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
   const [address, setAddress] = useState(initial.address ?? "");
   const [mapEmbedUrl, setMapEmbedUrl] = useState(initial.mapEmbedUrl ?? "");
   const [workingHours, setWorkingHours] = useState(initial.workingHours ?? "");
-  const [cancellationHoursNotice, setCancellationHoursNotice] = useState(
-    String(initial.cancellationHoursNotice),
+  const [socialLinksJson, setSocialLinksJson] = useState(initial.socialLinksJson);
+  const [instagramUrl, setInstagramUrl] = useState(() =>
+    getStudioSocialPlatformUrl(initial.socialLinksJson, "instagram"),
   );
-  const [waitlistOfferMinutes, setWaitlistOfferMinutes] = useState(
-    String(initial.waitlistOfferMinutes),
+  const [facebookUrl, setFacebookUrl] = useState(() =>
+    getStudioSocialPlatformUrl(initial.socialLinksJson, "facebook"),
   );
 
   const summaryMetrics = useMemo(
@@ -104,18 +101,8 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
         value: contactEmail.trim() || contactPhone.trim() || t("tiles.contact.empty"),
         helper: t("tiles.contact.helper"),
       },
-      {
-        key: "policies",
-        icon: "calendar" as const,
-        label: t("tiles.policies.title"),
-        value: t("tiles.policies.value", {
-          hours: cancellationHoursNotice || "0",
-          minutes: waitlistOfferMinutes || "0",
-        }),
-        helper: t("tiles.policies.helper"),
-      },
     ],
-    [cancellationHoursNotice, contactEmail, contactPhone, studioName, t, waitlistOfferMinutes],
+    [contactEmail, contactPhone, studioName, t],
   );
 
   const statusBanner = msg && tone === "ok" ? msg : null;
@@ -125,8 +112,28 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
     if (busy) {
       return;
     }
+
+    const nextFieldErrors = collectStudioSettingsFieldErrors(
+      { contactEmail, whatsappUrl, mapEmbedUrl, instagramUrl, facebookUrl },
+      {
+        invalidEmail: t("validation.invalidEmail"),
+        invalidUrl: t("validation.invalidUrl"),
+      },
+    );
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setTone("err");
+      setMsg(t("validation.fixFields"));
+      return;
+    }
+
     setBusy(true);
     setMsg(null);
+    const nextSocialLinksJson = buildStudioSocialLinksJson({
+      instagramUrl,
+      facebookUrl,
+      existingJson: socialLinksJson,
+    });
     try {
       await apiFetch("/studio", {
         method: "PATCH",
@@ -138,10 +145,10 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
           address: address.trim() || null,
           mapEmbedUrl: mapEmbedUrl.trim() || null,
           workingHours: workingHours.trim() || null,
-          cancellationHoursNotice: Number.parseInt(cancellationHoursNotice, 10),
-          waitlistOfferMinutes: Number.parseInt(waitlistOfferMinutes, 10),
+          socialLinksJson: nextSocialLinksJson,
         }),
       });
+      setSocialLinksJson(nextSocialLinksJson);
       setTone("ok");
       setMsg(t("saved"));
     } catch (error) {
@@ -158,7 +165,7 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
         <p className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-sage-500">
           {t("title")}
         </p>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {summaryMetrics.map(({ key, ...metric }) => (
             <SummaryMetric key={key} {...metric} />
           ))}
@@ -196,111 +203,66 @@ export function AdminStudioSettingsForm({ initial }: AdminStudioSettingsFormProp
           </SettingsSection>
 
           <SettingsSection
-            heading={t("sections.contact.heading")}
-            description={t("sections.contact.description")}
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AdminSheetEditableField label={t("contactEmail")} hint={t("hints.contactEmail")}>
-                <input
-                  type="email"
-                  className={adminSheetFieldInputClass()}
-                  value={contactEmail}
-                  onChange={(event) => setContactEmail(event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("contactPhone")} hint={t("hints.contactPhone")}>
-                <input
-                  type="tel"
-                  className={adminSheetFieldInputClass()}
-                  value={contactPhone}
-                  onChange={(event) => setContactPhone(event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField
-                label={t("whatsappUrl")}
-                hint={t("hints.whatsappUrl")}
-                className="sm:col-span-2"
-              >
-                <input
-                  type="url"
-                  className={adminSheetFieldInputClass()}
-                  value={whatsappUrl}
-                  onChange={(event) => setWhatsappUrl(event.target.value)}
-                  disabled={busy}
-                  placeholder="https://"
-                />
-              </AdminSheetEditableField>
-            </div>
-          </SettingsSection>
-
-          <SettingsSection
             heading={t("sections.location.heading")}
             description={t("sections.location.description")}
           >
-            <div className="grid gap-4">
-              <AdminSheetEditableField label={t("address")} hint={t("hints.address")}>
-                <input
-                  className={adminSheetFieldInputClass()}
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("mapEmbedUrl")} hint={t("hints.mapEmbedUrl")}>
-                <input
-                  type="url"
-                  className={adminSheetFieldInputClass()}
-                  value={mapEmbedUrl}
-                  onChange={(event) => setMapEmbedUrl(event.target.value)}
-                  disabled={busy}
-                  placeholder="https://"
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField label={t("workingHours")} hint={t("hints.workingHours")}>
-                <textarea
-                  className={adminSheetFieldInputClass(false, "min-h-[5.5rem] resize-y py-2.5")}
-                  value={workingHours}
-                  onChange={(event) => setWorkingHours(event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-            </div>
+            <AdminSheetEditableField
+              label={t("mapEmbedUrl")}
+              hint={t("hints.mapEmbedUrl")}
+              error={fieldErrors.mapEmbedUrl}
+            >
+              <input
+                type="url"
+                className={adminSheetFieldInputClass(fieldErrors.mapEmbedUrl !== undefined)}
+                value={mapEmbedUrl}
+                onChange={(event) => setMapEmbedUrl(event.target.value)}
+                disabled={busy}
+                placeholder="https://"
+              />
+            </AdminSheetEditableField>
           </SettingsSection>
 
           <SettingsSection
-            heading={t("sections.policies.heading")}
-            description={t("sections.policies.description")}
+            heading={t("sections.contact.heading")}
+            description={t("sections.contact.description")}
+            className="lg:col-span-2"
           >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AdminSheetEditableField
-                label={t("cancellationHoursNotice")}
-                hint={t("hints.cancellationHoursNotice")}
-              >
-                <input
-                  type="number"
-                  min={0}
-                  className={adminSheetFieldInputClass(false, NUMBER_INPUT_CLASS)}
-                  value={cancellationHoursNotice}
-                  onChange={(event) => setCancellationHoursNotice(event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-              <AdminSheetEditableField
-                label={t("waitlistOfferMinutes")}
-                hint={t("hints.waitlistOfferMinutes")}
-              >
-                <input
-                  type="number"
-                  min={1}
-                  className={adminSheetFieldInputClass(false, NUMBER_INPUT_CLASS)}
-                  value={waitlistOfferMinutes}
-                  onChange={(event) => setWaitlistOfferMinutes(event.target.value)}
-                  disabled={busy}
-                />
-              </AdminSheetEditableField>
-            </div>
+            <AdminStudioContactSettingsFields
+              busy={busy}
+              contactPhone={contactPhone}
+              contactEmail={contactEmail}
+              address={address}
+              workingHours={workingHours}
+              instagramUrl={instagramUrl}
+              facebookUrl={facebookUrl}
+              whatsappUrl={whatsappUrl}
+              fieldErrors={fieldErrors}
+              labels={{
+                contactPhone: t("contactPhone"),
+                contactEmail: t("contactEmail"),
+                address: t("address"),
+                workingHours: t("workingHours"),
+                instagramUrl: t("instagramUrl"),
+                facebookUrl: t("facebookUrl"),
+                whatsappUrl: t("whatsappUrl"),
+                hints: {
+                  contactPhone: t("hints.contactPhone"),
+                  contactEmail: t("hints.contactEmail"),
+                  address: t("hints.address"),
+                  workingHours: t("hints.workingHours"),
+                  instagramUrl: t("hints.instagramUrl"),
+                  facebookUrl: t("hints.facebookUrl"),
+                  whatsappUrl: t("hints.whatsappUrl"),
+                },
+              }}
+              onContactPhoneChange={setContactPhone}
+              onContactEmailChange={setContactEmail}
+              onAddressChange={setAddress}
+              onWorkingHoursChange={setWorkingHours}
+              onInstagramUrlChange={setInstagramUrl}
+              onFacebookUrlChange={setFacebookUrl}
+              onWhatsappUrlChange={setWhatsappUrl}
+            />
           </SettingsSection>
         </div>
       </AdminSectionShell>

@@ -3744,6 +3744,8 @@
       "address": "Հասցե",
       "mapEmbedUrl": "Քարտեզի embed URL",
       "workingHours": "Աշխատաժամեր",
+      "instagramUrl": "Instagram URL",
+      "facebookUrl": "Facebook URL",
       "socialLinksJson": "Սոցիալական հղումների JSON",
       "cancellationHoursNotice": "Չեղարկման ժամային շեմ",
       "waitlistOfferMinutes": "Սպասման առաջարկի րոպեներ",
@@ -3775,12 +3777,12 @@
           "description": "Հանրային ստուդիայի անուն"
         },
         "contact": {
-          "heading": "Կապ",
-          "description": "Ինչպես են մասնակիցները կապվում թիմի հետ"
+          "heading": "Կապի տվյալներ",
+          "description": "Ցուցադրվում է հանրային կապի էջում — հեռախոս, էլ. հասցե, հասցե, ժամեր և սոցիալական հղումներ"
         },
         "location": {
           "heading": "Տեղադրություն",
-          "description": "Հասցե, քարտեզ և ժամեր կայքում"
+          "description": "Քարտեզի embed հանրային կապի էջի համար"
         },
         "social": {
           "heading": "Սոցիալական ցանցեր",
@@ -3798,10 +3800,17 @@
         "whatsappUrl": "WhatsApp չաթի կամ բիզնես պրոֆիլի ամբողջական հղում։",
         "address": "Փողոցային հասցե կապի էջում։",
         "mapEmbedUrl": "Google Maps կամ նմանատիպ embed հղում։",
-        "workingHours": "Ազատ տեքստ — օր. Երկ–Ուրբ 9:00–21:00, Շբթ 10:00–18:00։",
+        "workingHours": "Ազատ տեքստ — օր. Երկ–Շբ 7:00–21:00 · Կիր 9:00–18:00։",
+        "instagramUrl": "Instagram պրոֆիլի ամբողջական URL կապի էջում։",
+        "facebookUrl": "Facebook էջի ամբողջական URL կապի էջում։",
         "socialLinksJson": "JSON օբյեկտ՝ հարթակի անուն → URL (instagram, facebook և այլն)։",
         "cancellationHoursNotice": "Քանի ժամ առաջ մինչև դասը կարելի է չեղարկել ամրագրումը։",
         "waitlistOfferMinutes": "Քանի րոպե սպասման ցուցակի տեղը մնում է ամրագրված առաջարկից հետո։"
+      },
+      "validation": {
+        "invalidEmail": "Մուտքագրեք վավեր էլ. հասցե կամ թողեք դատարկ։",
+        "invalidUrl": "Մուտքագրեք վավեր http(s) URL կամ թողեք դատարկ։",
+        "fixFields": "Պահպանելուց առաջ ուղղեք նշված դաշտերը։"
       }
     }
   }

@@ -17,38 +17,41 @@ const CONTACT_SOCIAL_ICON_DEFS = [
     iconSrc: CONTACT_PAGE_ASSETS.iconInstagram,
     width: 23,
     height: 23,
-    fallbackHref: "https://instagram.com",
   },
   {
     id: "facebook",
     iconSrc: CONTACT_PAGE_ASSETS.iconFacebook,
     width: 13,
     height: 23,
-    fallbackHref: "https://facebook.com",
   },
 ] as const satisfies readonly {
   id: ContactSocialPlatform;
   iconSrc: string;
   width: number;
   height: number;
-  fallbackHref: string;
 }[];
 
-/** Instagram + Facebook icons — studio URLs override footer-style fallbacks. */
+/** Instagram + Facebook icons — only platforms with studio URLs are returned. */
 export function resolveContactSocialIconLinks(
   studioLinks: StudioSocialLink[],
 ): ContactSocialIconLink[] {
-  return CONTACT_SOCIAL_ICON_DEFS.map((definition) => {
+  return CONTACT_SOCIAL_ICON_DEFS.flatMap((definition) => {
     const match = studioLinks.find(
       (link) => link.label.toLowerCase() === definition.id,
     );
+    const href = match?.url.trim();
+    if (href === undefined || href.length === 0) {
+      return [];
+    }
 
-    return {
-      id: definition.id,
-      href: match?.url ?? definition.fallbackHref,
-      iconSrc: definition.iconSrc,
-      width: definition.width,
-      height: definition.height,
-    };
+    return [
+      {
+        id: definition.id,
+        href,
+        iconSrc: definition.iconSrc,
+        width: definition.width,
+        height: definition.height,
+      },
+    ];
   });
 }

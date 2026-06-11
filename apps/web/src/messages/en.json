@@ -3796,7 +3796,9 @@
       "whatsappUrl": "WhatsApp URL",
       "address": "Address",
       "mapEmbedUrl": "Map embed URL",
-      "workingHours": "Working hours",
+      "workingHours": "Opening hours",
+      "instagramUrl": "Instagram URL",
+      "facebookUrl": "Facebook URL",
       "socialLinksJson": "Social links JSON",
       "cancellationHoursNotice": "Cancellation notice (hours)",
       "waitlistOfferMinutes": "Waitlist offer window (minutes)",
@@ -3828,12 +3830,12 @@
           "description": "Public studio name"
         },
         "contact": {
-          "heading": "Contact",
-          "description": "How members reach your team"
+          "heading": "Contact information",
+          "description": "Shown on the public contact page — phone, email, address, hours, and social links"
         },
         "location": {
           "heading": "Location",
-          "description": "Address, map, and hours on the site"
+          "description": "Map embed for the public contact page"
         },
         "social": {
           "heading": "Social links",
@@ -3851,10 +3853,17 @@
         "whatsappUrl": "Full link to your WhatsApp chat or business profile.",
         "address": "Street address shown on the contact page.",
         "mapEmbedUrl": "Google Maps or similar embed URL for the contact page.",
-        "workingHours": "Free text — e.g. Mon–Fri 9:00–21:00, Sat 10:00–18:00.",
+        "workingHours": "Free text — e.g. Mon–Sat 7:00–21:00 · Sun 9:00–18:00.",
+        "instagramUrl": "Full Instagram profile URL shown on the contact page.",
+        "facebookUrl": "Full Facebook page URL shown on the contact page.",
         "socialLinksJson": "JSON object mapping platform names to URLs (instagram, facebook, etc.).",
         "cancellationHoursNotice": "Hours before class start when late cancellation deducts one package session (free cancellation applies before this window).",
         "waitlistOfferMinutes": "How long a waitlist spot stays reserved after an offer."
+      },
+      "validation": {
+        "invalidEmail": "Enter a valid email address or leave this field empty.",
+        "invalidUrl": "Enter a valid http(s) URL or leave this field empty.",
+        "fixFields": "Fix the highlighted fields before saving."
       }
     }
   }
