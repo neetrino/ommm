@@ -49,7 +49,7 @@ ${plainTextToHtml(CONFIRMATION_BODY)}
   </tr>
   <tr>
     <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Confirmed at</td>
-    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.confirmedAtLabel)} (UTC)</td>
+    <td style="padding:6px 0 6px 16px;font-family:${EMAIL_BRAND.sansFontFamily};font-size:15px;color:${EMAIL_BRAND.headingColor};">${escapeHtml(params.confirmedAtLabel)}</td>
   </tr>
   <tr>
     <td style="padding:6px 0;font-family:${EMAIL_BRAND.sansFontFamily};font-size:13px;font-weight:600;color:${EMAIL_BRAND.mutedColor};">Reference</td>

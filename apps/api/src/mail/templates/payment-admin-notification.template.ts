@@ -56,7 +56,7 @@ ${plainTextToHtml(ADMIN_INTRO)}
     { label: 'Status', value: escapeHtml(params.statusLabel) },
     {
       label: 'Confirmed at',
-      value: `${escapeHtml(params.confirmedAtLabel)} (UTC)`,
+      value: escapeHtml(params.confirmedAtLabel),
     },
     { label: 'Reference', value: escapeHtml(reference) },
     { label: 'Payment ID', value: escapeHtml(params.paymentId) },

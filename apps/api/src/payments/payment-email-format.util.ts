@@ -2,6 +2,9 @@ import { PaymentSource, PaymentStatus } from '@prisma/client';
 
 const AMD_SYMBOL = '֏';
 
+/** Ommm studio wall-clock for transactional emails (matches Armenia local time). */
+export const PAYMENT_EMAIL_TIMEZONE = 'Asia/Yerevan';
+
 /** Formats AMD amounts stored in `amountCents` fields (whole dram units). */
 export function formatPaymentAmount(
   amountCents: number,
@@ -58,13 +61,28 @@ export function formatPaymentStatusLabel(status: PaymentStatus): string {
   return status;
 }
 
-/** Formats a payment timestamp for email detail rows (UTC). */
+/** Short offset label for the studio timezone (e.g. GMT+4). */
+export function formatPaymentTimezoneLabel(date: Date): string {
+  const part = new Intl.DateTimeFormat('en-GB', {
+    timeZone: PAYMENT_EMAIL_TIMEZONE,
+    timeZoneName: 'shortOffset',
+  })
+    .formatToParts(date)
+    .find((segment) => segment.type === 'timeZoneName');
+
+  return part?.value ?? 'GMT+4';
+}
+
+/** Formats a payment timestamp for email detail rows in studio local time (24h). */
 export function formatPaymentDateTime(date: Date): string {
-  return new Intl.DateTimeFormat('en-GB', {
+  const formatted = new Intl.DateTimeFormat('en-GB', {
     dateStyle: 'full',
     timeStyle: 'short',
-    timeZone: 'UTC',
+    timeZone: PAYMENT_EMAIL_TIMEZONE,
+    hour12: false,
   }).format(date);
+
+  return `${formatted} (${formatPaymentTimezoneLabel(date)})`;
 }
 
 /** Builds a display name from user profile fields. */
