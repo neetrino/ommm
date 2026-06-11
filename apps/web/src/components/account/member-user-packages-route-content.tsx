@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { UserPackagesSection } from "@/components/account/user-packages-section";
+import { UserPackagesSectionDeferred } from "@/components/account/account-deferred-sections";
 import { serverApiJson } from "@/lib/server-api";
 import type { UserMembershipRow } from "@/lib/user-package-types";
 
@@ -17,7 +17,7 @@ export async function MemberUserPackagesRouteContent({
   const memberships = membershipsRes.ok ? membershipsRes.data : [];
 
   return (
-    <UserPackagesSection
+    <UserPackagesSectionDeferred
       locale={locale}
       memberships={memberships}
       apiOk={membershipsRes.ok}

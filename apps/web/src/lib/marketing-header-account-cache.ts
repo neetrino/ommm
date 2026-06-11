@@ -1,6 +1,7 @@
 import type { MarketingHeaderAccount } from "@/components/marketing/marketing-site-header";
 
 const CACHE_KEY = "ommm_marketing_header_account_v1";
+export const MARKETING_HEADER_ACCOUNT_UPDATED = "ommm-marketing-header-account-updated";
 
 function isMarketingHeaderAccount(value: unknown): value is MarketingHeaderAccount {
   if (typeof value !== "object" || value === null) {
@@ -40,6 +41,9 @@ export function writeCachedMarketingHeaderAccount(
     return;
   }
   sessionStorage.setItem(CACHE_KEY, JSON.stringify(account));
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(MARKETING_HEADER_ACCOUNT_UPDATED));
+  }
 }
 
 /** Clears cached account on logout. */
@@ -48,4 +52,7 @@ export function clearCachedMarketingHeaderAccount(): void {
     return;
   }
   sessionStorage.removeItem(CACHE_KEY);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(MARKETING_HEADER_ACCOUNT_UPDATED));
+  }
 }

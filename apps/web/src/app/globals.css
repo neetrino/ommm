@@ -401,6 +401,73 @@ html {
   }
 
   /**
+   * Member package details — desktop drawer aligned with notifications motion.
+   */
+  .ommm-user-membership-details-desktop-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 105;
+    display: none;
+    background: transparent;
+    overscroll-behavior: none;
+    pointer-events: none;
+  }
+
+  @media (min-width: 744px) {
+    .ommm-user-membership-details-desktop-overlay {
+      display: block;
+    }
+  }
+
+  .ommm-user-membership-details-desktop-backdrop {
+    @apply absolute inset-0 z-0 cursor-pointer appearance-none border-0 bg-transparent p-0 shadow-none;
+    @apply backdrop-blur-[1px];
+    @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-user-membership-details-desktop-overlay[data-state="open"]
+    .ommm-user-membership-details-desktop-backdrop {
+    opacity: 1;
+  }
+
+  .ommm-user-membership-details-desktop-panel {
+    @apply fixed z-10 flex w-[36vw] max-w-[36rem] min-w-[22rem] flex-col overflow-hidden;
+    @apply rounded-tl-[40px] rounded-bl-[40px];
+    @apply border border-white/55 border-r-0;
+    background: color-mix(in srgb, white 22%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(165%);
+    backdrop-filter: blur(20px) saturate(165%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.55),
+      inset 1px 0 0 0 rgb(255 255 255 / 0.28);
+    top: var(--ommm-marketing-site-header-offset, 4.25rem);
+    right: 0;
+    bottom: 0;
+    pointer-events: auto;
+    transform: translate3d(100%, 0, 0);
+    opacity: 0.96;
+    transition:
+      transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ommm-user-membership-details-desktop-overlay[data-state="open"]
+    .ommm-user-membership-details-desktop-panel {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ommm-user-membership-details-desktop-backdrop,
+    .ommm-user-membership-details-desktop-panel {
+      transition: none;
+    }
+  }
+
+  /**
    * Package subscribe payment — mobile bottom sheet on phones.
    */
   .ommm-package-subscribe-mobile-overlay {
@@ -460,7 +527,7 @@ html {
     @apply focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70;
     pointer-events: auto;
     opacity: 0;
-    transition: opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .ommm-package-subscribe-desktop-overlay[data-state="open"]
@@ -486,8 +553,8 @@ html {
     transform: translate3d(100%, 0, 0);
     opacity: 0.96;
     transition:
-      transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 440ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .ommm-package-subscribe-desktop-overlay[data-state="open"]
@@ -1244,19 +1311,21 @@ html {
   }
 
   .ommm-language-switcher-menu {
-    min-width: 11.5rem;
+    min-width: 7.5rem;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-menu-list {
-    @apply m-1.5 space-y-1 p-1.5;
+    @apply m-1 space-y-0.5 p-1;
   }
 
   .ommm-language-switcher-option-row {
-    display: grid;
+    display: block;
     width: 100%;
-    grid-template-columns: 1.25rem minmax(0, 1fr);
-    align-items: center;
-    column-gap: 0.625rem;
+    text-align: center;
+  }
+
+  .ommm-language-switcher-root .ommm-dropdown-trigger {
+    @apply justify-center text-center;
   }
 
   .ommm-dropdown-menu-action {
@@ -1285,7 +1354,8 @@ html {
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option {
-    @apply justify-start border-2 border-transparent px-3 py-2 text-left text-sm font-medium;
+    @apply justify-center border-2 border-transparent px-1.5 py-2.5 text-center text-sm font-medium;
+    min-height: 2.5rem;
   }
 
   .ommm-language-switcher-menu .ommm-dropdown-option[data-selected="true"] {
@@ -1404,9 +1474,9 @@ html {
   }
 
   .ommm-session-booked-button {
-    @apply inline-flex cursor-default items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] shadow-[0_6px_18px_-12px_rgba(61,107,82,0.14)];
-    background-color: #e2f2e8;
-    color: #3d6b52;
+    @apply inline-flex cursor-default items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium uppercase tracking-[0.16em] shadow-[0_6px_18px_-12px_rgba(134,162,145,0.35)];
+    background-color: #86a291;
+    color: #fff8d9;
   }
 
   .ommm-session-booked-button--sm {

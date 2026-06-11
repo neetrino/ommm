@@ -15,6 +15,7 @@ import {
   readCachedMarketingHeaderAccount,
   writeCachedMarketingHeaderAccount,
 } from "@/lib/marketing-header-account-cache";
+import { clearCachedMarketingSessionBookings } from "@/lib/marketing-session-bookings-cache";
 import { resolveMarketingHeaderAccount } from "@/lib/resolve-marketing-header-account";
 import { USER_ACCOUNT_PATH } from "@/lib/role-home";
 import { useSyncMarketingRealtimeAuth } from "@/components/realtime/marketing-realtime-root";
@@ -40,6 +41,7 @@ function persistAccount(account: MarketingHeaderAccount): void {
 
 function clearPersistedAccount(): void {
   clearCachedMarketingHeaderAccount();
+  clearCachedMarketingSessionBookings();
   clearClientSessionHint();
 }
 

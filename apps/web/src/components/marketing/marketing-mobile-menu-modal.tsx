@@ -15,7 +15,7 @@ type MarketingMobileMenuModalProps = {
   onClose: () => void;
   navLinks: readonly { readonly href: string; readonly key: MarketingNavKey }[];
   marketingPath: string;
-  isActive: (pathname: string, href: string) => boolean;
+  isActive: (pathname: string, href: string, key: MarketingNavKey) => boolean;
 };
 
 /** Matches panel enter/exit animations in `marketing-site-header-nav-pill.module.css`. */
@@ -120,7 +120,7 @@ export function MarketingMobileMenuModal({
                 key={href}
                 href={href}
                 className={marketingHeaderMobileMenuNavLinkClass(
-                  isActive(marketingPath, href),
+                  isActive(marketingPath, href, key),
                 )}
                 onClick={onClose}
               >

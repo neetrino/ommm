@@ -274,10 +274,17 @@
 .cardsRow {
   width: 100%;
   max-width: var(--home-plan-row-max-width);
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--home-plan-cards-gap);
   margin-inline: auto;
+}
+
+.cardSlot {
+  flex: 0 1 calc((100% - (2 * var(--home-plan-cards-gap))) / 3);
+  max-width: var(--home-plan-card-max-width);
+  min-width: 0;
 }
 
 @keyframes planPriceGlassPulseSlow {

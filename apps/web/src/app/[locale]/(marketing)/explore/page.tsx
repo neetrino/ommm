@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
-import { MarketingExploreListContent } from "@/components/marketing/explore/marketing-explore-list-content";
-import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
+import { MarketingExploreComingSoon } from "@/components/marketing/explore/marketing-explore-coming-soon";
+import { MarketingExplorePageSection } from "@/components/marketing/explore/marketing-explore-page-section";
 
 export async function generateMetadata({
   params,
@@ -27,17 +25,10 @@ export default async function ExplorePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "marketingPages.explore" });
 
   return (
-    <MarketingPageFrame
-      eyebrow={t("eyebrow")}
-      title={t("listTitle")}
-      lede={t("lede")}
-    >
-      <Suspense fallback={<MarketingPageContentSkeleton cards={2} />}>
-        <MarketingExploreListContent locale={locale} />
-      </Suspense>
-    </MarketingPageFrame>
+    <MarketingExplorePageSection>
+      <MarketingExploreComingSoon locale={locale} />
+    </MarketingExplorePageSection>
   );
 }

@@ -2,7 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
-import { CancelBookingButton } from "@/components/account/cancel-booking-button";
+import {
+  CancelBookingButton,
+  CANCEL_BOOKING_ERROR_MESSAGE_CLASS,
+} from "@/components/account/cancel-booking-button";
+import { SESSION_BOOKED_BUTTON_SM_CLASS } from "@/components/account/session-booked-badge";
 import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
 import {
   SCHEDULE_BOOK_BTN,
@@ -61,7 +65,9 @@ export function AuthAwareScheduleBookingAction({
   const tWaitlist = useTranslations("forms.joinWaitlist");
   const tLeaveWaitlist = useTranslations("forms.leaveWaitlist");
   const tSchedule = useTranslations("marketingPages.schedule");
+  const tClasses = useTranslations("userPages.classes");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [cancelMsg, setCancelMsg] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [bookingId, setBookingId] = useState<string | undefined>(userBookingId);
@@ -90,6 +96,44 @@ export function AuthAwareScheduleBookingAction({
     return <p className="max-w-[12rem] text-right text-xs text-amber-900">{errorMsg}</p>;
   }
 
+  function renderBookedActions(): ReactNode {
+    if (resolvedBookingId === undefined) {
+      return null;
+    }
+
+    return (
+      <div className="flex flex-col items-end">
+        {cancelMsg ? (
+          <p className={`${CANCEL_BOOKING_ERROR_MESSAGE_CLASS} text-right`}>{cancelMsg}</p>
+        ) : null}
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <CancelBookingButton
+            bookingId={resolvedBookingId}
+            sessionDate={sessionDate}
+            sessionStartTime={sessionStartTime}
+            appearance="button"
+            size="sm"
+            buttonClassName={SCHEDULE_CANCEL_BTN}
+            onError={setCancelMsg}
+            onCancelled={() => {
+              setBookingId(undefined);
+              setCancelMsg(null);
+              onCancelled?.();
+            }}
+          />
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            className={SESSION_BOOKED_BUTTON_SM_CLASS}
+          >
+            {tClasses("bookedBadge")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   function renderAction(): ReactNode {
     if (audience === "guest") {
       return (
@@ -100,21 +144,7 @@ export function AuthAwareScheduleBookingAction({
     }
 
     if (isBooked) {
-      return (
-        <CancelBookingButton
-          bookingId={resolvedBookingId}
-          sessionDate={sessionDate}
-          sessionStartTime={sessionStartTime}
-          appearance="button"
-          size="sm"
-          buttonClassName={SCHEDULE_CANCEL_BTN}
-          wrapperClassName="flex flex-col items-end gap-1"
-          onCancelled={() => {
-            setBookingId(undefined);
-            onCancelled?.();
-          }}
-        />
-      );
+      return renderBookedActions();
     }
 
     if (!bookingStateReady) {

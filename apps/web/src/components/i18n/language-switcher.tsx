@@ -7,7 +7,6 @@ import { apiFetch } from "@/lib/api";
 import { captureLocaleSwitchScroll } from "@/lib/locale-switch-scroll";
 import { setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import type { DashboardShellVariant } from "@/components/shell/dashboard-shell-types";
-import { LocaleFlagIcon } from "@/components/i18n/locale-flag-icon";
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select";
 import { routing } from "@/i18n/routing";
 import {
@@ -18,7 +17,7 @@ import {
 } from "@/lib/language-switcher-locales";
 
 /** Icon-only marketing trigger; menu needs room for language labels. */
-const MARKETING_ICON_MENU_MIN_WIDTH_PX = 184;
+const MARKETING_ICON_MENU_MIN_WIDTH_PX = 120;
 
 export type LanguageSwitcherProps = {
   context: "marketing" | "dashboard";
@@ -94,7 +93,7 @@ export function LanguageSwitcher({
 
   return (
     <div
-      className={`ommm-dropdown-root shrink-0 ${rootMinWidth} ${className}`.trim()}
+      className={`ommm-dropdown-root ommm-language-switcher-root shrink-0 ${rootMinWidth} ${className}`.trim()}
     >
       <DropdownSelect<LanguageSwitcherLocaleCode>
         label={effectiveLocale}
@@ -121,16 +120,15 @@ export function LanguageSwitcher({
               {renderIconTrigger?.()}
             </span>
           ) : (
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold leading-none text-[#464646]">
+            <span className="min-w-0 flex-1 truncate text-center text-sm font-semibold leading-none text-[#464646]">
               {languageSwitcherEndonym(effectiveLocale)}
             </span>
           )
         }
         renderOption={(option, selected) => (
           <>
-            <span className="ommm-language-switcher-option-row">
-              <LocaleFlagIcon code={option.value} />
-              <span className="whitespace-nowrap leading-none">{option.label}</span>
+            <span className="ommm-language-switcher-option-row whitespace-nowrap leading-none">
+              {option.label}
             </span>
             {selected ? <span className="sr-only">{t("switcherAria")}</span> : null}
           </>

@@ -1,0 +1,64 @@
+.root {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: calc(100vh - var(--marketing-mobile-header-height, 4.25rem));
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.imageMobile {
+  display: block;
+  object-position: center center;
+}
+
+.imageIpadAir,
+.imageIpadPro {
+  object-position: center center;
+}
+
+.imageDesktop {
+  object-position: center var(--explore-coming-soon-image-position-y, 50%);
+}
+
+.imageIpadAir,
+.imageIpadPro,
+.imageDesktop {
+  display: none;
+}
+
+/* iPad Air tier — 744px–1023px. */
+@media (min-width: 744px) {
+  .imageMobile {
+    display: none;
+  }
+
+  .imageIpadAir {
+    display: block;
+  }
+}
+
+/* iPad Pro tier — 1024px–1366px. */
+@media (min-width: 1024px) {
+  .imageIpadAir {
+    display: none;
+  }
+
+  .imageIpadPro {
+    display: block;
+  }
+}
+
+/* Nav desktop — 1367px+. */
+@media (min-width: 1367px) {
+  .imageIpadPro {
+    display: none;
+  }
+
+  .imageDesktop {
+    display: block;
+  }
+}

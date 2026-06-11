@@ -74,7 +74,7 @@ export function ScheduleSessionRow({
           spotsLoadingLabel={spotsLoadingLabel}
         />
       </div>
-      <div className="flex items-center justify-end">
+      <div className="flex items-end justify-end">
         <AuthAwareScheduleBookingAction
           sessionId={row.id}
           sessionDate={row.sessionDate}

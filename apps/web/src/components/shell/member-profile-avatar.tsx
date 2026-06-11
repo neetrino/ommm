@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { MarketingHeaderUserIcon } from "@/components/marketing/marketing-header-icons";
+import { MARKETING_HEADER_GUEST_USER_ICON_CLASS } from "@/components/marketing/marketing-site-header-layout";
 
 type MemberProfileAvatarProps = {
   initials: string;
@@ -13,7 +14,7 @@ type MemberProfileAvatarProps = {
 export function MemberProfileAvatar({
   imageSrc,
   className,
-  guestIconClassName = "h-6 w-6 shrink-0 lg:h-7 lg:w-7 nav-desktop:h-8 nav-desktop:w-8",
+  guestIconClassName = MARKETING_HEADER_GUEST_USER_ICON_CLASS,
 }: MemberProfileAvatarProps) {
   if (imageSrc) {
     const photoClass = className

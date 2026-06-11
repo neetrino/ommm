@@ -71,7 +71,7 @@ export const USER_PACKAGES_LIST_STATUS_CELL = [
 ].join(" ");
 
 export const USER_PACKAGES_LIST_ACTIONS_CELL = [
-  USER_LIST_CELL_CLASS,
+  "min-w-0 w-full max-w-full justify-self-stretch overflow-visible text-left",
   "md:flex md:flex-col md:items-center md:justify-center",
 ].join(" ");
 

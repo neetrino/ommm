@@ -1,6 +1,8 @@
 /** Page root markers — shell/footer styling follows mounted content via `:has()`, not URL. */
 export const MARKETING_HOME_PAGE_MARKER = "data-marketing-home";
 export const MARKETING_INNER_PAGE_MARKER = "data-marketing-inner";
+/** Explore index — full-bleed coming soon surface without inner-page gradient or footer. */
+export const MARKETING_EXPLORE_COMING_SOON_MARKER = "data-marketing-explore-coming-soon";
 /** Coaches hero keeps cream header ink over the teal gradient (`62:2182`). */
 export const MARKETING_COACHES_HERO_MARKER = "data-marketing-coaches-hero";
 
@@ -38,14 +40,31 @@ export function isMarketingSchedulePath(pathname: string): boolean {
   return pathname === "/schedule" || pathname.startsWith("/schedule/");
 }
 
-/** Public packages page — scroll-reveal cards + footer. */
-export function isMarketingPackagesPath(pathname: string): boolean {
-  return pathname === "/packages" || pathname.startsWith("/packages/");
+/** Public membership/packages pages — scroll-reveal cards + footer. */
+export function isMarketingMembershipPath(pathname: string): boolean {
+  return (
+    pathname === "/membership" ||
+    pathname.startsWith("/membership/") ||
+    pathname === "/memberships" ||
+    pathname.startsWith("/memberships/") ||
+    pathname === "/packages" ||
+    pathname.startsWith("/packages/")
+  );
 }
 
-/** Public explore list and post pages — scroll-reveal cards + footer. */
+/** @deprecated Prefer {@link isMarketingMembershipPath} — kept for call-site clarity. */
+export function isMarketingPackagesPath(pathname: string): boolean {
+  return isMarketingMembershipPath(pathname);
+}
+
+/** Explore index — coming soon placeholder (Figma `422:1810`). */
+export function isMarketingExploreComingSoonPath(pathname: string): boolean {
+  return pathname === "/explore";
+}
+
+/** Public explore post pages — scroll-reveal cards + footer. */
 export function isMarketingExplorePath(pathname: string): boolean {
-  return pathname === "/explore" || pathname.startsWith("/explore/");
+  return pathname.startsWith("/explore/");
 }
 
 /** Public contact page — scroll-reveal sections + footer. */

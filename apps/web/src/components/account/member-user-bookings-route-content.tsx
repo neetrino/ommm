@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { UserBookingsSection } from "@/components/account/user-bookings-section";
+import { UserBookingsSectionDeferred } from "@/components/account/account-deferred-sections";
 import {
   buildUserBookingsPastEndpoint,
   buildUserBookingsUpcomingEndpoint,
@@ -46,7 +46,7 @@ export async function MemberUserBookingsRouteContent({
   }
 
   return (
-    <UserBookingsSection
+    <UserBookingsSectionDeferred
       locale={locale}
       initialUpcoming={upcomingRes.data}
       initialPast={pastRes.data}

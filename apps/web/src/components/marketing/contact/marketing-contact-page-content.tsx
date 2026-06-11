@@ -1,14 +1,15 @@
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { ContactMessageFormDeferred } from "@/components/marketing/marketing-deferred-sections";
-import { MarketingLazyMapEmbed } from "@/components/marketing/contact/marketing-lazy-map-embed";
+import { ContactMessageForm } from "@/components/marketing/contact-message-form";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import { MarketingContactAnimatedSections } from "@/components/marketing/contact/marketing-contact-animated-sections";
+import { MarketingContactMapSection } from "@/components/marketing/contact/marketing-contact-map-section";
 import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
+import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
+import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
-import { isMarketingMemberUser } from "@/lib/marketing-audience";
-import { userDisplayName } from "@/lib/user-display-name";
+import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
 import { listStudioSocialLinks } from "@/lib/studio-social-links";
-import { getOptionalLayoutAuthUser } from "@/server/require-role-layout";
 
 type StudioPublic = {
   studioName: string;
@@ -21,6 +22,10 @@ type StudioPublic = {
   socialLinksJson: string | null;
 };
 
+type MarketingContactLocaleProps = {
+  locale: string;
+};
+
 function pickStudioValue(
   value: string | null | undefined,
   fallback: string,
@@ -29,25 +34,34 @@ function pickStudioValue(
   return trimmed !== undefined && trimmed.length > 0 ? trimmed : fallback;
 }
 
-type MarketingContactPageContentProps = {
-  locale: string;
-};
+/** Contact cards — form paints immediately; studio + map stream in parallel. */
+export function MarketingContactPageLayout({ locale }: MarketingContactLocaleProps) {
+  return (
+    <>
+      <MarketingContactAnimatedSections
+        studioCard={
+          <Suspense fallback={<MarketingPageContentSkeleton cards={1} />}>
+            <MarketingContactStudioSection locale={locale} />
+          </Suspense>
+        }
+        messageForm={<ContactMessageForm />}
+      />
+      <Suspense fallback={null}>
+        <MarketingContactMapEmbedSection locale={locale} />
+      </Suspense>
+    </>
+  );
+}
 
-export async function MarketingContactPageContent({
-  locale,
-}: MarketingContactPageContentProps) {
+async function MarketingContactStudioSection({ locale }: MarketingContactLocaleProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const [studioRes, authUser] = await Promise.all([
-    fetchPublicJsonCached<StudioPublic>("/studio"),
-    getOptionalLayoutAuthUser(),
-  ]);
+  const studioRes = await fetchPublicJsonCached<StudioPublic>("/studio");
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
+  const socialIconLinks = resolveContactSocialIconLinks(social);
 
   const phone = pickStudioValue(studio?.contactPhone, t("fallbackPhone"));
   const email = pickStudioValue(studio?.contactEmail, t("fallbackEmail"));
-  const address = pickStudioValue(studio?.address, t("fallbackAddress"));
-  const hours = pickStudioValue(studio?.workingHours, t("fallbackHours"));
 
   const studioRows = [
     {
@@ -68,44 +82,40 @@ export async function MarketingContactPageContent({
       key: "address",
       iconSrc: CONTACT_PAGE_ASSETS.iconLocation,
       label: t("address"),
-      value: address,
+      value: pickStudioValue(studio?.address, t("fallbackAddress")),
     },
     {
       key: "hours",
       iconSrc: CONTACT_PAGE_ASSETS.iconHours,
       label: t("hours"),
-      value: hours,
+      value: pickStudioValue(studio?.workingHours, t("fallbackHours")),
     },
   ];
 
-  const mapEmbed =
-    studio !== null &&
-    studio.mapEmbedUrl !== null &&
-    studio.mapEmbedUrl.trim() !== "" ? (
-      <MarketingLazyMapEmbed heading={t("mapHeading")} embedHtml={studio.mapEmbedUrl} />
-    ) : undefined;
+  return (
+    <MarketingContactStudioCard
+      heading={t("studioHeading")}
+      rows={studioRows}
+      replyCallout={t("replyCallout")}
+      socialIconLinks={socialIconLinks}
+      socialLabel={(network) => t(network)}
+      socialAria={(network) => t("socialAria", { network })}
+    />
+  );
+}
 
-  const memberPrefill =
-    authUser !== null && isMarketingMemberUser(authUser)
-      ? {
-          name: userDisplayName(authUser.name, authUser.lastName, authUser.email),
-          email: authUser.email,
-          phone: authUser.phone ?? "",
-        }
-      : undefined;
+async function MarketingContactMapEmbedSection({ locale }: MarketingContactLocaleProps) {
+  const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
+  const studioRes = await fetchPublicJsonCached<StudioPublic>("/studio");
+  const embedHtml = studioRes.ok ? studioRes.data.mapEmbedUrl?.trim() : undefined;
+
+  if (embedHtml === undefined || embedHtml.length === 0) {
+    return null;
+  }
 
   return (
-    <MarketingContactAnimatedSections
-      studioCard={
-        <MarketingContactStudioCard
-          heading={t("studioHeading")}
-          rows={studioRows}
-          replyCallout={t("replyCallout")}
-          socialLinks={social}
-        />
-      }
-      messageForm={<ContactMessageFormDeferred prefill={memberPrefill} />}
-      mapEmbed={mapEmbed}
-    />
+    <MarketingScrollReveal index={2} gridColumns={1}>
+      <MarketingContactMapSection heading={t("mapHeading")} embedHtml={embedHtml} />
+    </MarketingScrollReveal>
   );
 }

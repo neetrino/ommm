@@ -1,6 +1,4 @@
 import dynamic from "next/dynamic";
-import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
-import { MARKETING_LAZY_SECTION } from "@/components/marketing/marketing-lazy-section-tokens";
 
 function deferredPlaceholder(className: string) {
   return function MarketingDeferredSectionFallback() {
@@ -14,7 +12,9 @@ export const MarketingScheduleViewDeferred = dynamic(
       (module) => module.MarketingScheduleView,
     ),
   {
-    loading: () => <MarketingPageContentSkeleton cards={1} />,
+    loading: deferredPlaceholder(
+      "h-40 animate-pulse rounded-[24px] border border-white/50 bg-white/35 sm:h-48",
+    ),
   },
 );
 
@@ -24,7 +24,9 @@ export const MarketingPublicCoachesGridDeferred = dynamic(
       (module) => module.MarketingPublicCoachesGrid,
     ),
   {
-    loading: () => <MarketingPageContentSkeleton cards={3} />,
+    loading: deferredPlaceholder(
+      "h-40 animate-pulse rounded-[24px] border border-white/50 bg-white/35 sm:h-48",
+    ),
   },
 );
 
@@ -37,15 +39,5 @@ export const PublicPackageCategoryListTableDeferred = dynamic(
     loading: deferredPlaceholder(
       "h-32 animate-pulse rounded-[24px] border border-white/50 bg-white/35",
     ),
-  },
-);
-
-export const ContactMessageFormDeferred = dynamic(
-  () =>
-    import("@/components/marketing/contact-message-form").then(
-      (module) => module.ContactMessageForm,
-    ),
-  {
-    loading: deferredPlaceholder(MARKETING_LAZY_SECTION.placeholders.contactForm),
   },
 );

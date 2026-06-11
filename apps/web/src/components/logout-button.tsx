@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { clearCachedMarketingHeaderAccount } from "@/lib/marketing-header-account-cache";
+import { clearCachedMarketingSessionBookings } from "@/lib/marketing-session-bookings-cache";
 import { clearClientSessionHint } from "@/lib/client-session-hint";
 import { cn } from "@/lib/cn";
 
@@ -96,6 +97,7 @@ export function LogoutButton({
       // Cookie clear is best-effort; still leave protected areas.
     } finally {
       clearCachedMarketingHeaderAccount();
+      clearCachedMarketingSessionBookings();
       clearClientSessionHint();
       router.replace(POST_LOGOUT_PATH, { locale });
       router.refresh();

@@ -1,7 +1,9 @@
 import Image from "next/image";
 import styles from "@/components/marketing/home/home-weekly-schedule-session-row.module.css";
+import { buildMarketingScheduleItemDateTimeRange } from "@/components/marketing/home/build-marketing-schedule-item-datetime-range";
 import { formatScheduleTime } from "@/components/marketing/home/format-schedule-time";
 import { getHomeWeeklyScheduleRowGradient } from "@/components/marketing/home/get-home-weekly-schedule-row-gradient";
+import { SessionDateTimeListDateChip } from "@/components/shared/schedule/session-datetime-list-display";
 import {
   HOME_WEEKLY_SCHEDULE_ASSETS,
   HOME_WEEKLY_SCHEDULE_FIGMA,
@@ -12,6 +14,7 @@ import {
 import type { MarketingScheduleItem } from "@/components/marketing/schedule/marketing-schedule-types";
 import { marketingMontserrat } from "@/lib/fonts/marketing-montserrat";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { buildSessionDateTimeDisplay } from "@/lib/session-datetime-display";
 import { Link } from "@/i18n/navigation";
 
 type HomeWeeklyScheduleSessionRowProps = {
@@ -33,7 +36,17 @@ export function HomeWeeklyScheduleSessionRow({
   spotsLeftLabel,
   bookAriaLabel,
 }: HomeWeeklyScheduleSessionRowProps) {
-  const timeLabel = formatScheduleTime(locale, item.startTime);
+  const dateTimeRange = buildMarketingScheduleItemDateTimeRange(item);
+  const dateTimeDisplay =
+    dateTimeRange !== null
+      ? buildSessionDateTimeDisplay(
+          locale,
+          dateTimeRange.startsAt,
+          dateTimeRange.endsAt,
+        )
+      : null;
+  const timeLabel =
+    dateTimeDisplay?.startTime ?? formatScheduleTime(locale, item.startTime);
   const spotsUrgent = item.availableSpots <= HOME_WEEKLY_SCHEDULE_FIGMA.spotsUrgentThreshold;
   const rowGradientDesktop = getHomeWeeklyScheduleRowGradient(item.classType, "desktop");
   const rowGradientMobile = getHomeWeeklyScheduleRowGradient(item.classType, "mobile");
@@ -56,6 +69,9 @@ export function HomeWeeklyScheduleSessionRow({
     >
       <div className={styles.info}>
         <div className={styles.timeCluster}>
+          {dateTimeDisplay !== null ? (
+            <SessionDateTimeListDateChip display={dateTimeDisplay} />
+          ) : null}
           <Image
             src={HOME_WEEKLY_SCHEDULE_ASSETS.clockIcon}
             alt=""

@@ -6,6 +6,7 @@ import {
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
+import type { ContactSocialIconLink } from "@/components/marketing/contact/contact-page-social";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
 
@@ -21,7 +22,9 @@ type MarketingContactStudioCardProps = {
   heading: string;
   rows: ContactStudioRow[];
   replyCallout: string;
-  socialLinks: { label: string; url: string }[];
+  socialIconLinks: ContactSocialIconLink[];
+  socialLabel: (network: ContactSocialIconLink["id"]) => string;
+  socialAria: (network: string) => string;
 };
 
 function ContactStarIcon() {
@@ -55,6 +58,7 @@ const CARD_STYLE = {
   "--contact-heading-color": CONTACT_PAGE_SURFACE.headingColor,
   "--contact-label-color": CONTACT_PAGE_SURFACE.labelColor,
   "--contact-value-color": CONTACT_PAGE_SURFACE.valueColor,
+  "--contact-social-icon-size": `${CONTACT_PAGE_LAYOUT.socialIconSizePx}px`,
 } as CSSProperties;
 
 /** Studio contact details card — phone, email, address, hours. */
@@ -62,7 +66,9 @@ export function MarketingContactStudioCard({
   heading,
   rows,
   replyCallout,
-  socialLinks,
+  socialIconLinks,
+  socialLabel,
+  socialAria,
 }: MarketingContactStudioCardProps) {
   return (
     <article className={`${CONTACT_PAGE_CARD_SHELL_CLASS} ${styles.card}`} style={CARD_STYLE}>
@@ -99,22 +105,31 @@ export function MarketingContactStudioCard({
         <ContactStarIcon />
         <p className={styles.calloutText}>{replyCallout}</p>
       </div>
-      {socialLinks.length > 0 ? (
-        <ul className={styles.socialList}>
-          {socialLinks.map((link) => (
-            <li key={link.url}>
-              <a
-                href={link.url}
-                className={styles.socialLink}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <ul className={styles.socialList}>
+        {socialIconLinks.map((link) => (
+          <li key={link.id}>
+            <a
+              href={link.href}
+              className={styles.socialLink}
+              aria-label={socialAria(link.id)}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Image
+                src={link.iconSrc}
+                alt=""
+                width={link.width}
+                height={link.height}
+                className={styles.socialIcon}
+                unoptimized
+                aria-hidden
+                {...belowFoldImageProps()}
+              />
+              <span className={styles.socialLabel}>{socialLabel(link.id)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </article>
   );
 }

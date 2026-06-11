@@ -62,6 +62,7 @@ export type DropdownSelectProps<T extends string> = {
 
 const HOVER_MENU_CLOSE_DELAY_MS = 180;
 const HOVER_MENU_ANIMATION_MS = 220;
+/** Mobile dismiss transform duration — keep in sync with `.ommm-dropdown-menu--mobile-dismiss` in CSS. */
 const HOVER_OPEN_MEDIA_QUERY = "(hover: hover) and (pointer: fine)";
 const MOBILE_VIEWPORT_MEDIA_QUERY = `(max-width: ${CANVAS_TABLET_MIN_WIDTH_PX - 1}px)`;
 const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";
@@ -153,6 +154,39 @@ export function DropdownSelect<T extends string>({
   const menuDismissMotion = isMobileViewport || animateMenuDismiss;
   const menuMotionActive = menuAnimationActive || menuDismissMotion;
 
+  const clearHoverCloseTimer = useCallback(() => {
+    if (hoverCloseTimerRef.current !== null) {
+      clearTimeout(hoverCloseTimerRef.current);
+      hoverCloseTimerRef.current = null;
+    }
+  }, []);
+
+  const dismissMenu = useCallback((options?: { focusTrigger?: boolean }) => {
+    const focusTrigger = options?.focusTrigger ?? false;
+    clearHoverCloseTimer();
+    setSearchQuery("");
+
+    const animatedExit = menuMotionActive && open && !prefersReducedMotion();
+    if (animatedExit) {
+      setMenuExitHold(true);
+      setOpen(false);
+      if (focusTrigger) {
+        pendingFocusRef.current = true;
+      }
+      return;
+    }
+
+    scrollDismissRef.current = false;
+    setOpen(false);
+    setMenuExitHold(false);
+    setMenuAnimatedIn(false);
+    if (focusTrigger) {
+      window.requestAnimationFrame(() => {
+        triggerRef.current?.focus();
+      });
+    }
+  }, [clearHoverCloseTimer, menuMotionActive, open]);
+
   const visibleOptions = useMemo(
     () => (searchable ? filterDropdownOptions(options, searchQuery) : [...options]),
     [options, searchable, searchQuery],
@@ -185,42 +219,6 @@ export function DropdownSelect<T extends string>({
     menuPosition === null || disableMenuScroll
       ? undefined
       : Math.max(96, menuPosition.maxHeight - 16 - searchHeaderHeight);
-
-  const clearHoverCloseTimer = useCallback(() => {
-    if (hoverCloseTimerRef.current !== null) {
-      clearTimeout(hoverCloseTimerRef.current);
-      hoverCloseTimerRef.current = null;
-    }
-  }, []);
-
-  const dismissMenu = useCallback(
-    (options?: { focusTrigger?: boolean }) => {
-      const focusTrigger = options?.focusTrigger ?? false;
-      clearHoverCloseTimer();
-      setSearchQuery("");
-
-      const animatedExit = menuMotionActive && open && !prefersReducedMotion();
-      if (animatedExit) {
-        setMenuExitHold(true);
-        setOpen(false);
-        if (focusTrigger) {
-          pendingFocusRef.current = true;
-        }
-        return;
-      }
-
-      scrollDismissRef.current = false;
-      setOpen(false);
-      setMenuExitHold(false);
-      setMenuAnimatedIn(false);
-      if (focusTrigger) {
-        window.requestAnimationFrame(() => {
-          triggerRef.current?.focus();
-        });
-      }
-    },
-    [clearHoverCloseTimer, menuMotionActive, open],
-  );
 
   useEffect(() => {
     if (!isMenuOpen) {

@@ -32,6 +32,7 @@ import { PackagesPageCardFabImage } from "@/components/marketing/packages/packag
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { buildPackagesSubscribeLoginHref } from "@/lib/auth-redirect";
 import { usePackageSubscribeUrlState } from "@/hooks/use-package-subscribe-url-state";
+import { useMarketingAudience } from "@/hooks/use-marketing-audience";
 import { resolvePackageSubscribeCategoryContext } from "@/lib/package-subscribe-category-plans";
 import { toPackageSubscribePlanOptions } from "@/lib/package-subscribe-plan-option";
 import type { PublicPackagePlan } from "@/lib/public-package-plan";
@@ -39,7 +40,6 @@ import type { PublicPackagePlan } from "@/lib/public-package-plan";
 type PackagesPageAccordionProps = {
   locale: string;
   categories: readonly PackagesPageAccordionCategory[];
-  audience?: PublicPackageCategoryCardsAudience;
 };
 
 /** Locates a plan (and its category) by id across all accordion categories. */
@@ -597,9 +597,9 @@ function PackagesSubscribeModalHost(props: PackagesSubscribeModalHostProps) {
 export function PackagesPageAccordion({
   locale,
   categories,
-  audience = "guest",
 }: PackagesPageAccordionProps) {
   const t = useTranslations("marketing");
+  const audience = useMarketingAudience();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

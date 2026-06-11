@@ -57,6 +57,8 @@ export async function MarketingPublicHomePlansSection({
     priceFromPrefix: t("planCardPriceFromPrefix"),
   });
 
+  const plansCtaHref = audience === "member" ? "/packages" : "/membership";
+
   const interactiveCardsProps = {
     audience,
     categories,
@@ -136,7 +138,7 @@ export async function MarketingPublicHomePlansSection({
           <HomePageReveal index={2}>
             <div className={styles.mobileCta}>
               <HomeHeroCtaButton
-                href="/packages"
+                href={plansCtaHref}
                 label={t("plansMoreDetails")}
                 variant="booking"
                 labelOffsetPx={HOME_HERO_MOBILE_MORE_DETAILS_CTA.labelOffsetPx}
@@ -175,7 +177,7 @@ export async function MarketingPublicHomePlansSection({
           >
             <HomePageReveal index={0}>
               <header
-                className="flex w-full max-w-[834px] flex-col items-center text-center"
+                className="mx-auto flex w-full max-w-[834px] flex-col items-center text-center"
                 style={{ gap: HOME_PLANS_SECTION_LAYOUT.headerGapPx }}
               >
                 <h2
@@ -214,9 +216,9 @@ export async function MarketingPublicHomePlansSection({
               <HomePlansDesktopCards {...interactiveCardsProps} />
             )}
 
-            <HomePageReveal index={3}>
+            <HomePageReveal index={3} className="flex w-full justify-center">
               <HomeHeroCtaButton
-                href="/packages"
+                href={plansCtaHref}
                 label={t("plansMoreDetails")}
                 variant="membership"
               />

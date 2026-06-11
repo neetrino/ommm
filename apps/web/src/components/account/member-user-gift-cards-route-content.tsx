@@ -3,13 +3,14 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { GiftPurchaseForm } from "@/components/account/gift-purchase-form";
 import { GiftRedeemForm } from "@/components/account/gift-redeem-form";
-import { UserGiftCardsBoard } from "@/components/account/user-gift-cards-board";
+import { UserGiftCardsBoardDeferred } from "@/components/account/account-deferred-sections";
 import { UserGiftCardsPageHero } from "@/components/account/user-gift-cards-page-hero";
 import { UserGiftCardsSection } from "@/components/account/user-gift-card-tile-layout";
 import type { UserGiftCardRow } from "@/components/account/user-gift-cards-types";
 import { mergeUserGiftCards } from "@/lib/merge-user-gift-cards";
 import { parseUserGiftCardsTab } from "@/lib/user-gift-cards-tab";
 import { serverApiJson } from "@/lib/server-api";
+import { getCachedUsersMe } from "@/server/cached-users-me";
 
 type MemberUserGiftCardsRouteContentProps = {
   locale: string;
@@ -29,10 +30,10 @@ export async function MemberUserGiftCardsRouteContent({
   const [purchasedRes, receivedRes, meRes] = await Promise.all([
     serverApiJson<UserGiftCardRow[]>("/gift-cards/me/purchased", cookie),
     serverApiJson<UserGiftCardRow[]>("/gift-cards/me/received", cookie),
-    serverApiJson<{ user: { giftCreditsCents: number } }>("/users/me", cookie),
+    getCachedUsersMe(),
   ]);
 
-  const credits = meRes.ok ? meRes.data.user.giftCreditsCents : null;
+  const credits = meRes.ok ? meRes.data.user.giftCreditsCents ?? null : null;
   const purchased = purchasedRes.ok ? purchasedRes.data : [];
   const received = receivedRes.ok ? receivedRes.data : [];
   const mergedCards = mergeUserGiftCards(purchased, received);
@@ -57,7 +58,7 @@ export async function MemberUserGiftCardsRouteContent({
         </UserGiftCardsSection>
 
         <Suspense fallback={null}>
-          <UserGiftCardsBoard locale={locale} cards={mergedCards} loadError={loadError} />
+          <UserGiftCardsBoardDeferred locale={locale} cards={mergedCards} loadError={loadError} />
         </Suspense>
       </div>
     ) : (

@@ -20,6 +20,15 @@
   );
 }
 
+.shell:has([data-marketing-explore-coming-soon]) {
+  background: #1a1714;
+}
+
+.shell:has([data-marketing-explore-coming-soon]) .main {
+  background: transparent;
+  padding-bottom: 0;
+}
+
 .main {
   display: flex;
   min-height: 0;

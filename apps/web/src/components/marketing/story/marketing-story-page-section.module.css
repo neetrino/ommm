@@ -1,0 +1,20 @@
+.section {
+  position: relative;
+  composes: heroShell from "../marketing-public-page-section.module.css";
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+/* Story hero is mobile/tablet through 899px — keep title below the fixed header. */
+@media (max-width: 899px) {
+  .section {
+    padding-top: calc(
+      var(
+        --ommm-marketing-site-header-offset,
+        var(--marketing-mobile-header-height, 4.25rem)
+      ) + var(--coaches-page-hero-mobile-gap, 0.75rem)
+    );
+  }
+}
