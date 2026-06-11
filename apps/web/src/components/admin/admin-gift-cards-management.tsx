@@ -239,7 +239,6 @@ export function AdminGiftCardsManagement({
             pageSize={listPage.pageSize}
             offset={initial.offset}
             onPageChange={setListPage}
-            onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
             disabled={isUpdating}
           />
         </>
