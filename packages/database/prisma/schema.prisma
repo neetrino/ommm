@@ -404,6 +404,7 @@ model Payment {
   metadata        Json?
   confirmedAt     DateTime?
   successEmailSentAt DateTime?
+  cashPendingEmailSentAt DateTime?
   confirmedByAdminId String?
   planId          String?
   plan            PackagePlan?         @relation(fields: [planId], references: [id], onDelete: SetNull)

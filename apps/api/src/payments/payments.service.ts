@@ -17,6 +17,7 @@ import {
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
@@ -86,7 +87,13 @@ export class PaymentsService {
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
     private readonly paymentSuccessEmail: PaymentSuccessEmailService,
+    private readonly paymentCashPendingEmail: PaymentCashPendingEmailService,
   ) {}
+
+  /** Sends the branded cash-payment reminder email for a pending cash payment. */
+  async notifyCashPaymentPending(paymentId: string): Promise<void> {
+    await this.paymentCashPendingEmail.trySendCashPendingEmail(paymentId);
+  }
 
   async createGiftCheckout(params: {
     purchaserId: string;
@@ -340,7 +347,7 @@ export class PaymentsService {
   }
 
   async confirmDropInCashPayment(userId: string, paymentReference: string) {
-    return this.prisma.$transaction(async (tx) => {
+    const payment = await this.prisma.$transaction(async (tx) => {
       const existing = (await tx.payment.findFirst({
         where: this.withInternalPaymentWhereFields({ paymentReference }),
       })) as InternalPaymentRecord | null;
@@ -353,6 +360,11 @@ export class PaymentsService {
       if (existing.source !== INTERNAL_PAYMENT_SOURCE.DROPIN) {
         throw new BadRequestException('Payment is not a drop-in checkout');
       }
+      await this.fulfillDropInPayment(
+        tx,
+        existing.userId,
+        existing.sourceId ?? null,
+      );
       return tx.payment.update({
         where: { id: existing.id },
         data: this.withInternalPaymentUpdateFields({
@@ -360,6 +372,9 @@ export class PaymentsService {
         }),
       });
     });
+    await this.emitDropInBookingRealtimeIfNeeded(payment);
+    await this.paymentCashPendingEmail.trySendCashPendingEmail(payment.id);
+    return payment;
   }
 
   async confirmGiftPayment(
@@ -368,7 +383,7 @@ export class PaymentsService {
     paymentMethod: GiftPaymentMethod,
   ) {
     if (paymentMethod === ManualPaymentMethod.CASH) {
-      return this.prisma.$transaction(async (tx) => {
+      const payment = await this.prisma.$transaction(async (tx) => {
         const existing = (await tx.payment.findFirst({
           where: this.withInternalPaymentWhereFields({ paymentReference }),
         })) as InternalPaymentRecord | null;
@@ -388,6 +403,8 @@ export class PaymentsService {
           }),
         });
       });
+      await this.paymentCashPendingEmail.trySendCashPendingEmail(payment.id);
+      return payment;
     }
 
     if (this.isArcaCheckoutEnabled()) {

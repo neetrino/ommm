@@ -154,6 +154,9 @@ describe('PaymentsService', () => {
     const paymentSuccessEmail = {
       trySendSuccessEmails: jest.fn().mockResolvedValue(undefined),
     };
+    const paymentCashPendingEmail = {
+      trySendCashPendingEmail: jest.fn().mockResolvedValue(undefined),
+    };
     return {
       service: new PaymentsService(
         prisma as never,
@@ -162,6 +165,7 @@ describe('PaymentsService', () => {
         schedule as never,
         realtime as never,
         paymentSuccessEmail as never,
+        paymentCashPendingEmail as never,
       ),
       prisma,
       paymentSuccessEmail,

@@ -5,6 +5,7 @@ import { ArcaConfig } from './arca/arca.config';
 import { ArcaPaymentsController } from './arca/arca-payments.controller';
 import { ArcaService } from './arca/arca.service';
 import { PaymentsController } from './payments.controller';
+import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
 import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { PaymentsService } from './payments.service';
 
@@ -13,6 +14,7 @@ import { PaymentsService } from './payments.service';
   controllers: [PaymentsController, ArcaPaymentsController],
   providers: [
     PaymentsService,
+    PaymentCashPendingEmailService,
     PaymentSuccessEmailService,
     ArcaConfig,
     ArcaClient,
