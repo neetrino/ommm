@@ -32,3 +32,11 @@ export const CONTACT_PAGE_LAYOUT = {
   successToastEnterMs: 720,
   successToastExitMs: 480,
 } as const;
+
+/** Above-fold cards — quick mount fade/slide (no scroll intersection wait). */
+export const CONTACT_PAGE_REVEAL_MOTION = {
+  durationSec: 0.42,
+  staggerSec: 0.06,
+  offsetPx: 12,
+  reducedMotionDurationSec: 0.2,
+} as const;

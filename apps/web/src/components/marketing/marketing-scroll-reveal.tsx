@@ -2,7 +2,11 @@
 
 import { m } from "framer-motion";
 import { type ReactNode, useState } from "react";
-import { marketingScrollRevealMotionProps } from "@/components/marketing/marketing-scroll-reveal-motion";
+import {
+  type MarketingScrollRevealEntrance,
+  type MarketingScrollRevealMotionProfile,
+  marketingScrollRevealMotionProps,
+} from "@/components/marketing/marketing-scroll-reveal-motion";
 import revealStyles from "@/components/marketing/marketing-scroll-reveal.module.css";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { isLocaleSwitchScrollPending } from "@/lib/locale-switch-scroll";
@@ -12,6 +16,8 @@ export type MarketingScrollRevealProps = {
   gridColumns: number;
   children: ReactNode;
   className?: string;
+  entrance?: MarketingScrollRevealEntrance;
+  profile?: MarketingScrollRevealMotionProfile;
 };
 
 /** Scroll-triggered reveal wrapper for marketing page cards and sections. */
@@ -20,6 +26,8 @@ export function MarketingScrollReveal({
   gridColumns,
   children,
   className,
+  entrance,
+  profile,
 }: MarketingScrollRevealProps) {
   const reducedMotion = usePrefersReducedMotion();
   const [skipEntrance] = useState(() => isLocaleSwitchScrollPending());
@@ -35,6 +43,7 @@ export function MarketingScrollReveal({
         reducedMotion,
         gridColumns,
         skipEntrance,
+        { entrance, profile },
       )}
     >
       {children}

@@ -1,39 +1,86 @@
 .root {
+  --explore-page-header-offset: var(
+    --ommm-marketing-site-header-offset,
+    var(--marketing-mobile-header-height, 4.25rem)
+  );
   position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  align-self: stretch;
   width: 100%;
-  flex: 1;
-  min-height: calc(100vh - var(--marketing-mobile-header-height, 4.25rem));
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-top: calc(-1 * var(--explore-page-header-offset));
   overflow: hidden;
+}
+
+@media (min-width: 744px) {
+  .root {
+    --explore-page-header-offset: calc(
+      max(0.5rem, env(safe-area-inset-top, 0px)) + 40px + 0.5rem
+    );
+  }
+}
+
+@media (min-width: 1024px) {
+  .root {
+    --explore-page-header-offset: calc(
+      max(0.5rem, env(safe-area-inset-top, 0px)) + 44px + 0.75rem
+    );
+  }
+}
+
+@media (min-width: 1280px) {
+  .root {
+    --explore-page-header-offset: calc(
+      max(0.75rem, env(safe-area-inset-top, 0px)) + 53px + 0.75rem
+    );
+  }
 }
 
 .image {
   object-fit: cover;
   object-position: center center;
-  animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 520ms) ease-out both;
+  animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 400ms)
+    cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .overlay {
+  --explore-page-content-inset: clamp(
+    var(--explore-page-content-inset-min, 24px),
+    var(--explore-page-content-inset-vw, 5vw),
+    var(--explore-page-content-inset-max, 48px)
+  );
   position: absolute;
   inset: 0;
   z-index: 1;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(1.5rem, 5vw, 3rem);
+  padding-block: var(--explore-page-header-offset)
+    var(--explore-page-content-inset);
+  padding-inline: max(
+      var(--explore-page-content-inset),
+      env(safe-area-inset-left, 0px)
+    )
+    max(var(--explore-page-content-inset), env(safe-area-inset-right, 0px));
 }
 
 .title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--explore-title-line-gap, 0.28em);
+  width: 100%;
+  max-width: 100%;
   margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
   color: var(--explore-title-color, rgba(255, 255, 255, 0.96));
   font-family: var(--font-serif, ui-serif, Georgia, "Times New Roman", serif);
   font-size: clamp(
-    4rem,
-    calc(100vw * var(--explore-title-font-size-px, 220) / var(--explore-artboard-width-px, 1440)),
-    13.75rem
+    3.375rem,
+    calc(100vw * var(--explore-title-font-size-px, 188) / var(--explore-artboard-width-px, 1440)),
+    11.75rem
   );
   font-style: italic;
   font-weight: var(--explore-title-font-weight, 700);
@@ -41,17 +88,37 @@
   letter-spacing: 0.01em;
   text-align: center;
   text-wrap: balance;
-  animation: explore-page-title-enter var(--explore-page-enter-title-duration, 680ms) ease-out
-    var(--explore-page-enter-title-delay, 140ms) both;
+  transform: translate3d(var(--explore-title-nudge-x, 0), var(--explore-title-nudge-y, 0), 0);
+  animation: explore-page-title-enter var(--explore-page-enter-title-duration, 500ms)
+    cubic-bezier(0.33, 1, 0.68, 1) var(--explore-page-enter-title-delay, 260ms) both;
 }
 
-.titleLine1,
-.titleLine2 {
-  display: block;
-}
-
-.titleLine2 {
+.titleFloat {
   display: flex;
+  width: max-content;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--explore-title-line-gap, 0.28em);
+  animation: explore-page-title-float var(--explore-page-title-float-duration, 2400ms)
+    cubic-bezier(0.45, 0.05, 0.55, 0.95)
+    calc(
+      var(--explore-page-enter-title-delay, 260ms) + var(--explore-page-enter-title-duration, 500ms) +
+        var(--explore-page-title-float-start-delay, 0ms)
+    )
+    infinite;
+  will-change: transform;
+}
+
+.titleLine1 {
+  display: block;
+  max-width: 100%;
+  text-align: center;
+}
+
+.titleLine2 {
+  display: inline-flex;
+  max-width: 100%;
   align-items: center;
   justify-content: center;
 }
@@ -60,29 +127,59 @@
   display: inline-flex;
   align-items: center;
   gap: var(--explore-inline-logo-gap, 3px);
-  margin-inline: 2px;
 }
 
 .inlineLogo {
   position: relative;
   display: inline-block;
   width: clamp(
-    2.5rem,
-    calc(100vw * var(--explore-inline-logo-width-ratio, 0.084)),
-    7.5625rem
+    2rem,
+    calc(100vw * var(--explore-inline-logo-width-ratio, 0.071)),
+    6.4375rem
   );
   height: clamp(
-    2.5rem,
-    calc(100vw * var(--explore-inline-logo-height-ratio, 0.083)),
-    7.5rem
+    2rem,
+    calc(100vw * var(--explore-inline-logo-height-ratio, 0.071)),
+    6.375rem
   );
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: visible;
   border-radius: calc(var(--explore-inline-logo-radius-ratio, 0.7008) * 100%);
+  transform-origin: center center;
+  will-change: transform, filter;
+}
+
+.inlineLogoLead {
+  --explore-inline-logo-float-low: var(--explore-inline-logo-float-amplitude, 9px);
+  --explore-inline-logo-float-high: calc(-1 * var(--explore-inline-logo-float-amplitude, 9px));
+  --explore-inline-logo-float-start-delay: calc(
+    var(--explore-inline-logo-enter-delay, 260ms) + var(--explore-inline-logo-enter-duration, 500ms)
+  );
+
+  animation:
+    explore-inline-logo-enter var(--explore-inline-logo-enter-duration, 500ms)
+      cubic-bezier(0.33, 1, 0.68, 1) var(--explore-inline-logo-enter-delay, 260ms) both,
+    explore-inline-logo-float var(--explore-inline-logo-float-duration, 2400ms)
+      cubic-bezier(0.45, 0.05, 0.55, 0.95) var(--explore-inline-logo-float-start-delay) infinite;
+}
+
+.inlineLogoTrail {
+  --explore-inline-logo-float-low: calc(-1 * var(--explore-inline-logo-float-amplitude, 9px));
+  --explore-inline-logo-float-high: var(--explore-inline-logo-float-amplitude, 9px);
+  --explore-inline-logo-float-start-delay: calc(
+    var(--explore-inline-logo-enter-delay, 260ms) + var(--explore-inline-logo-enter-duration, 500ms)
+  );
+
+  animation:
+    explore-inline-logo-enter var(--explore-inline-logo-enter-duration, 500ms)
+      cubic-bezier(0.33, 1, 0.68, 1) var(--explore-inline-logo-enter-delay, 260ms) both,
+    explore-inline-logo-float var(--explore-inline-logo-float-duration, 2400ms)
+      cubic-bezier(0.45, 0.05, 0.55, 0.95) var(--explore-inline-logo-float-start-delay) infinite;
 }
 
 .inlineLogoImage {
   object-fit: cover;
+  border-radius: inherit;
 }
 
 @keyframes explore-page-bg-enter {
@@ -98,12 +195,64 @@
 @keyframes explore-page-title-enter {
   from {
     opacity: 0;
-    transform: translate3d(0, var(--explore-page-enter-title-offset, 14px), 0);
+    transform: translate3d(
+      var(--explore-title-nudge-x, 0),
+      calc(var(--explore-title-nudge-y, 0px) + var(--explore-page-enter-title-offset, 14px)),
+      0
+    );
   }
 
   to {
     opacity: 1;
+    transform: translate3d(var(--explore-title-nudge-x, 0), var(--explore-title-nudge-y, 0), 0);
+  }
+}
+
+@keyframes explore-page-title-float {
+  0%,
+  100% {
     transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, calc(-1 * var(--explore-page-title-float-amplitude, 10px)), 0);
+  }
+}
+
+@keyframes explore-inline-logo-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(
+        0,
+        calc(
+          var(--explore-inline-logo-float-low, 9px) + var(--explore-inline-logo-enter-rise, 10px)
+        ),
+        0
+      )
+      scale(0.94);
+    filter: brightness(0.88);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, var(--explore-inline-logo-float-low, 9px), 0) scale(1);
+    filter: brightness(1)
+      drop-shadow(0 0 0.35rem rgba(var(--explore-inline-logo-float-glow-rgb, 255, 196, 110), 0.18));
+  }
+}
+
+@keyframes explore-inline-logo-float {
+  0%,
+  100% {
+    transform: translate3d(0, var(--explore-inline-logo-float-low, 9px), 0);
+    filter: brightness(1)
+      drop-shadow(0 0 0.35rem rgba(var(--explore-inline-logo-float-glow-rgb, 255, 196, 110), 0.18));
+  }
+
+  50% {
+    transform: translate3d(0, var(--explore-inline-logo-float-high, -9px), 0);
+    filter: brightness(1.1)
+      drop-shadow(0 0 0.85rem rgba(var(--explore-inline-logo-float-glow-rgb, 255, 196, 110), 0.5));
   }
 }
 
@@ -112,6 +261,18 @@
   .title {
     animation: explore-page-enter-reduced var(--explore-page-enter-reduced-duration, 250ms) ease-out
       both;
+  }
+
+  .titleFloat,
+  .inlineLogoLead,
+  .inlineLogoTrail {
+    animation: none;
+    will-change: auto;
+  }
+
+  .inlineLogoLead,
+  .inlineLogoTrail {
+    filter: none;
   }
 }
 

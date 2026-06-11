@@ -25,13 +25,11 @@ export class ContactService {
   ) {}
 
   async submit(dto: CreateContactMessageDto) {
-    const receiverEmail = this.config
-      .get<string>('CONTACT_RECEIVER_EMAIL')
-      ?.trim();
+    const receiverEmail = await this.resolveReceiverEmail();
 
     if (!receiverEmail) {
       this.logger.error(
-        'CONTACT_RECEIVER_EMAIL is not configured; contact form email cannot be delivered.',
+        'Contact receiver email is not configured (CONTACT_RECEIVER_EMAIL or studio contactEmail).',
       );
       throw new ServiceUnavailableException(CONTACT_SEND_ERROR);
     }
@@ -98,5 +96,19 @@ export class ContactService {
     }
 
     return { id: msg.id, ok: true };
+  }
+
+  /** Env override first; otherwise studio settings email shown on the contact page. */
+  private async resolveReceiverEmail(): Promise<string | null> {
+    const fromEnv = this.config.get<string>('CONTACT_RECEIVER_EMAIL')?.trim();
+    if (fromEnv) {
+      return fromEnv;
+    }
+
+    const studio = await this.prisma.studioSettings.findFirst({
+      select: { contactEmail: true },
+    });
+    const fromStudio = studio?.contactEmail?.trim();
+    return fromStudio && fromStudio.length > 0 ? fromStudio : null;
   }
 }

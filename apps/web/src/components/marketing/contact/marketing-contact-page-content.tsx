@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { ContactMessageForm } from "@/components/marketing/contact-message-form";
 import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
+import { CONTACT_PAGE_CARD_SHELL_CLASS } from "@/components/marketing/contact/contact-page-tokens";
 import { MarketingContactAnimatedSections } from "@/components/marketing/contact/marketing-contact-animated-sections";
 import { MarketingContactMapSection } from "@/components/marketing/contact/marketing-contact-map-section";
 import { MarketingContactStudioCard } from "@/components/marketing/contact/marketing-contact-studio-card";
-import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
@@ -18,6 +18,10 @@ type MarketingContactLocaleProps = {
   locale: string;
 };
 
+type MarketingContactPageLayoutProps = MarketingContactLocaleProps & {
+  studioFetch?: ReturnType<typeof fetchPublicJsonCached<StudioPublicSettings>>;
+};
+
 type ContactStudioRow = {
   key: string;
   iconSrc: string;
@@ -26,7 +30,14 @@ type ContactStudioRow = {
   href?: string;
 };
 
-const STUDIO_PUBLIC_CACHE_OPTIONS = { cacheMode: "no-store" as const };
+function MarketingContactStudioCardPlaceholder() {
+  return (
+    <div
+      aria-hidden
+      className={`${CONTACT_PAGE_CARD_SHELL_CLASS} min-h-[clamp(22rem,55vw,28rem)] opacity-60`}
+    />
+  );
+}
 
 function buildContactStudioRows(
   studio: StudioPublicSettings | null,
@@ -85,30 +96,33 @@ function buildContactStudioRows(
 }
 
 /** Contact cards — form paints immediately; studio + map stream in parallel. */
-export function MarketingContactPageLayout({ locale }: MarketingContactLocaleProps) {
+export function MarketingContactPageLayout({
+  locale,
+  studioFetch,
+}: MarketingContactPageLayoutProps) {
   return (
     <>
       <MarketingContactAnimatedSections
         studioCard={
-          <Suspense fallback={<MarketingPageContentSkeleton cards={1} />}>
-            <MarketingContactStudioSection locale={locale} />
+          <Suspense fallback={<MarketingContactStudioCardPlaceholder />}>
+            <MarketingContactStudioSection locale={locale} studioFetch={studioFetch} />
           </Suspense>
         }
         messageForm={<ContactMessageForm />}
       />
       <Suspense fallback={null}>
-        <MarketingContactMapEmbedSection locale={locale} />
+        <MarketingContactMapEmbedSection locale={locale} studioFetch={studioFetch} />
       </Suspense>
     </>
   );
 }
 
-async function MarketingContactStudioSection({ locale }: MarketingContactLocaleProps) {
+async function MarketingContactStudioSection({
+  locale,
+  studioFetch,
+}: MarketingContactPageLayoutProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const studioRes = await fetchPublicJsonCached<StudioPublicSettings>(
-    "/studio",
-    STUDIO_PUBLIC_CACHE_OPTIONS,
-  );
+  const studioRes = await (studioFetch ?? fetchPublicJsonCached<StudioPublicSettings>("/studio"));
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
   const socialIconLinks = resolveContactSocialIconLinks(social, studio?.whatsappUrl);
@@ -131,12 +145,12 @@ async function MarketingContactStudioSection({ locale }: MarketingContactLocaleP
   );
 }
 
-async function MarketingContactMapEmbedSection({ locale }: MarketingContactLocaleProps) {
+async function MarketingContactMapEmbedSection({
+  locale,
+  studioFetch,
+}: MarketingContactPageLayoutProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const studioRes = await fetchPublicJsonCached<StudioPublicSettings>(
-    "/studio",
-    STUDIO_PUBLIC_CACHE_OPTIONS,
-  );
+  const studioRes = await (studioFetch ?? fetchPublicJsonCached<StudioPublicSettings>("/studio"));
   const embedHtml = studioRes.ok ? studioRes.data.mapEmbedUrl?.trim() : undefined;
 
   if (embedHtml === undefined || embedHtml.length === 0) {
