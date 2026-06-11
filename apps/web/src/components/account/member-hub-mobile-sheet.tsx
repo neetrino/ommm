@@ -26,7 +26,6 @@ import { useCloseOnEscape } from "@/hooks/use-close-on-escape";
 import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
-import { peekMemberHubSheetScrollY } from "@/lib/member-hub-sheet-navigation";
 
 const MemberHubMobileSheetCloseContext = createContext<(() => void) | null>(null);
 
@@ -81,17 +80,11 @@ export function MemberHubMobileSheet({
   const clientMounted = useIsClientMounted();
   const panelRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef(false);
-  const preservedScrollYRef = useRef<number | undefined>(undefined);
-  if (preservedScrollYRef.current === undefined) {
-    preservedScrollYRef.current = peekMemberHubSheetScrollY() ?? undefined;
-  }
   const [isClosing, setIsClosing] = useState(false);
   const [backdropVisible, setBackdropVisible] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
 
-  useLockBodyScroll(clientMounted, {
-    preserveScrollY: preservedScrollYRef.current,
-  });
+  useLockBodyScroll(clientMounted);
 
   const requestClose = useCallback(() => {
     if (closingRef.current || closeDisabled) {

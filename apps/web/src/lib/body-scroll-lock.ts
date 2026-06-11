@@ -7,13 +7,6 @@ const ALLOWED_TOUCH_SCROLL_SELECTOR =
 let lockCount = 0;
 let savedScrollY = 0;
 
-type LockBodyScrollOptions = {
-  /** Use when window scroll was already reset before lock (e.g. member hub sheet open). */
-  preserveScrollY?: number;
-};
-
-export type { LockBodyScrollOptions };
-
 type ScrollLockSnapshot = {
   htmlOverflow: string;
   bodyOverflow: string;
@@ -65,12 +58,11 @@ function onLockedTouchMove(event: TouchEvent): void {
  * Locks background scroll while modals/sheets stay scrollable.
  * Uses `position: fixed` on body so iOS Safari keeps viewport-fixed overlays visible.
  */
-export function lockBodyScroll(options: LockBodyScrollOptions = {}): () => void {
+export function lockBodyScroll(): () => void {
   lockCount += 1;
 
   if (lockCount === 1 && typeof document !== "undefined") {
-    savedScrollY =
-      options.preserveScrollY !== undefined ? options.preserveScrollY : window.scrollY;
+    savedScrollY = window.scrollY;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
 
@@ -134,10 +126,6 @@ export function lockBodyScroll(options: LockBodyScrollOptions = {}): () => void 
     }
 
     snapshot = null;
-
-    const targetScrollY = savedScrollY;
-    requestAnimationFrame(() => {
-      window.scrollTo(0, targetScrollY);
-    });
+    window.scrollTo(0, savedScrollY);
   };
 }

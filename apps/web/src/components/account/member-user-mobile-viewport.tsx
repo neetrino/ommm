@@ -1,15 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MemberHubBackdropScrollPane } from "@/components/account/member-hub-backdrop-scroll-pane";
 import styles from "@/components/account/member-user-mobile-viewport.module.css";
 import { MemberUserScrollRestoration } from "@/components/account/member-user-scroll-restoration";
-import {
-  readMemberHubSheetPhoneViewport,
-  useMemberHubSheetPhone,
-} from "@/hooks/use-member-hub-sheet-phone";
-import { peekMemberHubSheetNavigation } from "@/lib/member-hub-sheet-navigation";
-import { useIsClientMounted } from "@/hooks/use-is-client-mounted";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import { peekMemberHubSheetScrollY } from "@/lib/member-hub-sheet-navigation";
 
 type MemberUserMobileViewportProps = {
   /** Parallel `@sheet` slot is rendering an intercepted hub section. */
@@ -32,17 +27,14 @@ export function MemberUserMobileViewport({
   hubBackdrop,
   children,
 }: MemberUserMobileViewportProps) {
-  const clientMounted = useIsClientMounted();
   const isPhone = useMemberHubSheetPhone();
-  const showMobileSheetChrome =
-    hasMobileSheet &&
-    (isPhone ||
-      !clientMounted ||
-      peekMemberHubSheetNavigation() ||
-      readMemberHubSheetPhoneViewport());
-  const effectiveMobileSheetOpen = showMobileSheetChrome;
+  const effectiveMobileSheetOpen = isPhone && hasMobileSheet;
   const effectiveDesktopNotificationsOpen = !isPhone && hasDesktopNotificationsSheet;
-  const showHubBackdrop = effectiveMobileSheetOpen && hubBackdrop;
+  /** Intercepted sheet from scrolled hub — keep existing hub DOM instead of remounting a copy. */
+  const preserveScrolledHub =
+    effectiveMobileSheetOpen && peekMemberHubSheetScrollY() !== null;
+  const hideRouteForSheet = effectiveMobileSheetOpen && !preserveScrolledHub;
+  const showHubBackdrop = hideRouteForSheet && hubBackdrop;
 
   return (
     <>
@@ -54,14 +46,10 @@ export function MemberUserMobileViewport({
           effectiveDesktopNotificationsOpen ? "open" : "closed"
         }
       >
-        {showHubBackdrop ? (
-          <div className={styles.hubBackdrop}>
-            <MemberHubBackdropScrollPane>{hubBackdrop}</MemberHubBackdropScrollPane>
-          </div>
-        ) : null}
+        {showHubBackdrop ? <div className={styles.hubBackdrop}>{hubBackdrop}</div> : null}
         <div
           className={
-            effectiveMobileSheetOpen || effectiveDesktopNotificationsOpen
+            hideRouteForSheet || effectiveDesktopNotificationsOpen
               ? styles.routeContentWhenSheet
               : styles.routeContent
           }

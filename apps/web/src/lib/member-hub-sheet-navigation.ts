@@ -59,12 +59,37 @@ export function shouldUseMemberHubSheetNavigation(
 
 export function markMemberHubSheetNavigation(): void {
   try {
-    if (typeof sessionStorage !== "undefined") {
+    if (typeof sessionStorage !== "undefined" && typeof window !== "undefined") {
       sessionStorage.setItem(MEMBER_HUB_SHEET_NAV_KEY, "1");
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem(MEMBER_HUB_SCROLL_Y_KEY, String(window.scrollY));
-      }
+      sessionStorage.setItem(MEMBER_HUB_SCROLL_Y_KEY, String(window.scrollY));
       notifyMemberHubSheetNavigation();
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Hub scroll depth saved when opening a member sheet from the account hub. */
+export function peekMemberHubSheetScrollY(): number | null {
+  try {
+    if (typeof sessionStorage === "undefined") {
+      return null;
+    }
+    const raw = sessionStorage.getItem(MEMBER_HUB_SCROLL_Y_KEY);
+    if (raw === null) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearMemberHubSheetScrollY(): void {
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(MEMBER_HUB_SCROLL_Y_KEY);
     }
   } catch {
     /* ignore */
@@ -87,33 +112,6 @@ export function clearMemberHubSheetNavigation(): void {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.removeItem(MEMBER_HUB_SHEET_NAV_KEY);
       notifyMemberHubSheetNavigation();
-    }
-  } catch {
-    /* ignore */
-  }
-}
-
-/** Hub scroll depth saved when opening a member bottom sheet — restore after close. */
-export function peekMemberHubSheetScrollY(): number | null {
-  try {
-    if (typeof sessionStorage === "undefined") {
-      return null;
-    }
-    const raw = sessionStorage.getItem(MEMBER_HUB_SCROLL_Y_KEY);
-    if (raw === null) {
-      return null;
-    }
-    const parsed = Number.parseInt(raw, 10);
-    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-export function clearMemberHubSheetScrollY(): void {
-  try {
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.removeItem(MEMBER_HUB_SCROLL_Y_KEY);
     }
   } catch {
     /* ignore */
