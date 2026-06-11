@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "postinstall": "pnpm run db:generate",
-    "dev": "pnpm run dev:stack",
+    "dev": "node ./scripts/dev-guide.cjs",
     "dev:all": "pnpm --parallel --filter \"./apps/*\" run dev",
-    "dev:stack": "pnpm --filter web run dev:stack",
     "dev:web": "pnpm --filter web dev",
     "build": "pnpm run build:web",
     "build:web": "pnpm --filter web build",

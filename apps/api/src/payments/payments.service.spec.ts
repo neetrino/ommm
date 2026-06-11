@@ -122,7 +122,19 @@ describe('PaymentsService', () => {
           },
         ]),
         create: jest.fn(),
-        update: jest.fn(),
+        update: jest
+          .fn()
+          .mockImplementation(
+            (args: PaymentUpdateCall & { data: { status?: PaymentStatus } }) =>
+              Promise.resolve({
+                id: args.where.id,
+                userId: 'u1',
+                amountCents: 10_000,
+                status: args.data.status ?? PaymentStatus.SUCCEEDED,
+                source: PAYMENT_SOURCE.DROPIN,
+                sourceId: 's1',
+              }),
+          ),
         count: jest.fn().mockResolvedValue(1),
       },
       userPackage: {
@@ -139,6 +151,9 @@ describe('PaymentsService', () => {
       invalidatePublicCache: jest.fn().mockResolvedValue(undefined),
     };
     const realtime = { emitBookingSessionChange: jest.fn() };
+    const paymentSuccessEmail = {
+      trySendSuccessEmails: jest.fn().mockResolvedValue(undefined),
+    };
     return {
       service: new PaymentsService(
         prisma as never,
@@ -146,8 +161,10 @@ describe('PaymentsService', () => {
         mail as never,
         schedule as never,
         realtime as never,
+        paymentSuccessEmail as never,
       ),
       prisma,
+      paymentSuccessEmail,
     };
   }
 

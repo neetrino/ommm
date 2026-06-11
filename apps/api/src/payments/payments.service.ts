@@ -17,6 +17,7 @@ import {
 import { randomBytes } from 'node:crypto';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { RealtimePublisherService } from '../realtime/realtime-publisher.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import {
@@ -84,6 +85,7 @@ export class PaymentsService {
     private readonly mail: MailService,
     private readonly schedule: ScheduleService,
     private readonly realtime: RealtimePublisherService,
+    private readonly paymentSuccessEmail: PaymentSuccessEmailService,
   ) {}
 
   async createGiftCheckout(params: {
@@ -224,6 +226,8 @@ export class PaymentsService {
       return payment;
     }
 
+    const previousStatus = payment.status;
+
     if (
       status === PaymentStatus.SUCCEEDED &&
       payment.status === PaymentStatus.PENDING
@@ -233,7 +237,7 @@ export class PaymentsService {
       });
     }
 
-    return this.prisma.payment.update({
+    const updated = await this.prisma.payment.update({
       where: { id: paymentId },
       data: this.withInternalPaymentUpdateFields({
         status,
@@ -250,6 +254,18 @@ export class PaymentsService {
           : {}),
       }),
     });
+
+    if (
+      status === PaymentStatus.SUCCEEDED &&
+      previousStatus !== PaymentStatus.SUCCEEDED
+    ) {
+      await this.paymentSuccessEmail.trySendSuccessEmails(
+        updated.id,
+        previousStatus,
+      );
+    }
+
+    return updated;
   }
 
   private resolveAdminStatusConfirmedAt(
@@ -415,6 +431,10 @@ export class PaymentsService {
     for (const email of giftEmails) {
       await this.sendGiftCardEmail(email.to, email.code);
     }
+    await this.paymentSuccessEmail.trySendSuccessEmails(
+      payment.id,
+      PaymentStatus.PENDING,
+    );
     return payment;
   }
 
@@ -472,6 +492,10 @@ export class PaymentsService {
       await this.sendGiftCardEmail(email.to, email.code);
     }
     await this.emitDropInBookingRealtimeIfNeeded(payment);
+    await this.paymentSuccessEmail.trySendSuccessEmails(
+      payment.id,
+      PaymentStatus.PENDING,
+    );
     return payment;
   }
 

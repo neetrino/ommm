@@ -5,11 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import {
-  EMAIL_LOGO_CID_SRC,
-  getEmailLogoAttachment,
-  resolveEmailLogoPreviewSrc,
-} from './email-logo';
+import { EMAIL_LOGO_CID_SRC, resolveEmailLogoPreviewSrc } from './email-logo';
 
 /** Log only (no external API). Same as `MAIL_TRANSPORT=test`. */
 const TRANSPORT_LOG = 'log' as const;
@@ -128,7 +124,9 @@ export class MailService {
       subject: params.subject,
       html: params.html,
       ...(replyTo ? { replyTo } : {}),
-      ...(params.attachments?.length ? { attachments: params.attachments } : {}),
+      ...(params.attachments?.length
+        ? { attachments: params.attachments }
+        : {}),
     });
     if (error) {
       this.logger.error(`Resend error: ${error.message}`);
