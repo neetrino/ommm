@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { OmmButton } from "@/components/ui/omm-button";
 import { useFloatingMenuPosition } from "@/components/ui/use-floating-menu-position";
 import { useHeaderNotificationsSeen } from "@/hooks/use-header-notifications-seen";
@@ -14,6 +14,10 @@ import { dispatchNotificationsRefresh } from "@/lib/notifications-refresh-event"
 import { formatTimeForUi } from "@/lib/format-time-display";
 import { getOmmmOverlayPortalRoot, OMMM_FLOATING_MENU_Z_INDEX } from "@/lib/ommm-overlay-portal";
 import type { UserWaitlistRow } from "@/lib/user-booking-types";
+import styles from "@/components/shell/header-notifications-menu.module.css";
+
+/** Keep in sync with `.panel` transition in `header-notifications-menu.module.css`. */
+const HEADER_NOTIFICATIONS_MENU_MOTION_MS = 320;
 
 type HeaderNotificationsMenuProps = {
   enabled: boolean;
@@ -127,8 +131,11 @@ export function HeaderNotificationsMenu({
   const t = useTranslations("headerNotifications");
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closingRef = useRef(false);
   const mounted = useIsClientMounted();
   const [open, setOpen] = useState(false);
+  const [panelVisible, setPanelVisible] = useState(false);
   const { offeredRows, loading, error, refetch } = useMemberWaitlistData(enabled);
   const { markAllSeen, countUnread } = useHeaderNotificationsSeen();
   const offerIds = offeredRows.map((row) => row.id);
@@ -146,8 +153,44 @@ export function HeaderNotificationsMenu({
   );
 
   const closeMenu = useCallback(() => {
-    setOpen(false);
-  }, []);
+    if (!open || closingRef.current) {
+      return;
+    }
+
+    closingRef.current = true;
+    setPanelVisible(false);
+    window.setTimeout(() => {
+      setOpen(false);
+      closingRef.current = false;
+    }, HEADER_NOTIFICATIONS_MENU_MOTION_MS);
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || !menuPosition || !mounted) {
+      return undefined;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return undefined;
+    }
+
+    panel.style.transition = "none";
+    panel.style.opacity = "0";
+    panel.style.transform = "translate3d(0, -0.5rem, 0) scale(0.96)";
+    void panel.offsetHeight;
+
+    const openFrame = requestAnimationFrame(() => {
+      panel.style.transition = "";
+      panel.style.opacity = "";
+      panel.style.transform = "";
+      setPanelVisible(true);
+    });
+
+    return () => {
+      cancelAnimationFrame(openFrame);
+    };
+  }, [menuPosition, mounted, open]);
 
   useEffect(() => {
     if (!open) {
@@ -198,10 +241,17 @@ export function HeaderNotificationsMenu({
     open && menuPosition && mounted
       ? createPortal(
           <div
+            ref={panelRef}
             id={menuId}
             role="dialog"
             aria-label={t("panelAria")}
-            className="overflow-hidden rounded-2xl border border-white/70 bg-white/95 shadow-[0_18px_40px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md"
+            className={[
+              styles.panel,
+              panelVisible ? styles.panelVisible : "",
+              "overflow-hidden rounded-2xl border border-white/70 bg-white/95 shadow-[0_18px_40px_-24px_rgba(45,40,35,0.35)] backdrop-blur-md",
+            ]
+              .filter(Boolean)
+              .join(" ")}
             style={{
               position: "fixed",
               top: menuPosition.top,
@@ -282,7 +332,13 @@ export function HeaderNotificationsMenu({
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-controls={open ? menuId : undefined}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (open) {
+            closeMenu();
+            return;
+          }
+          setOpen(true);
+        }}
       >
         <NotificationBellIcon className={iconClassName} />
         {badge}
