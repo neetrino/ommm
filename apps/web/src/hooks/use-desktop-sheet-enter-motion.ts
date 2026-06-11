@@ -18,13 +18,12 @@ export function useDesktopSheetEnterMotion(
 
   useLayoutEffect(() => {
     if (!enabled) {
-      setMotionState("closed");
       return undefined;
     }
 
-    setMotionState("closed");
     let openFrame: number | undefined;
     const closedFrame = requestAnimationFrame(() => {
+      setMotionState("closed");
       openFrame = requestAnimationFrame(() => {
         setMotionState("open");
       });
@@ -42,5 +41,8 @@ export function useDesktopSheetEnterMotion(
     setMotionState("closed");
   }, []);
 
-  return { motionState, closeMotion };
-}
+  return {
+    motionState: enabled ? motionState : "closed",
+    closeMotion,
+  };
+};
