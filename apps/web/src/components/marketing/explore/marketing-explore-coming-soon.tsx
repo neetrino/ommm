@@ -50,7 +50,7 @@ export async function MarketingExploreComingSoon({
         ["--explore-page-title-float-amplitude" as string]: `${EXPLORE_PAGE_LAYOUT.amplitudePx}px`,
         ["--explore-page-title-float-duration" as string]: `${EXPLORE_PAGE_LAYOUT.durationMs}ms`,
         ["--explore-page-title-float-start-delay" as string]: `${EXPLORE_PAGE_LAYOUT.startDelayAfterEnterMs}ms`,
-        ["--explore-inline-logo-enter-delay" as string]: `${EXPLORE_PAGE_LAYOUT.titleDelayMs + EXPLORE_PAGE_LAYOUT.titleDurationMs + EXPLORE_PAGE_LAYOUT.enterDelayAfterTitleMs}ms`,
+        ["--explore-inline-logo-enter-delay" as string]: `${EXPLORE_PAGE_LAYOUT.titleDelayMs}ms`,
         ["--explore-inline-logo-enter-duration" as string]: `${EXPLORE_PAGE_LAYOUT.enterDurationMs}ms`,
         ["--explore-inline-logo-enter-stagger" as string]: `${EXPLORE_PAGE_LAYOUT.enterStaggerMs}ms`,
         ["--explore-inline-logo-enter-rise" as string]: `${EXPLORE_PAGE_LAYOUT.enterRisePx}px`,

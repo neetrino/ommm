@@ -42,7 +42,8 @@
 .image {
   object-fit: cover;
   object-position: center center;
-  animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 520ms) ease-out both;
+  animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 400ms)
+    cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .overlay {
@@ -77,9 +78,9 @@
   color: var(--explore-title-color, rgba(255, 255, 255, 0.96));
   font-family: var(--font-serif, ui-serif, Georgia, "Times New Roman", serif);
   font-size: clamp(
-    4rem,
-    calc(100vw * var(--explore-title-font-size-px, 220) / var(--explore-artboard-width-px, 1440)),
-    13.75rem
+    3.375rem,
+    calc(100vw * var(--explore-title-font-size-px, 188) / var(--explore-artboard-width-px, 1440)),
+    11.75rem
   );
   font-style: italic;
   font-weight: var(--explore-title-font-weight, 700);
@@ -88,8 +89,8 @@
   text-align: center;
   text-wrap: balance;
   transform: translate3d(var(--explore-title-nudge-x, 0), var(--explore-title-nudge-y, 0), 0);
-  animation: explore-page-title-enter var(--explore-page-enter-title-duration, 680ms) ease-out
-    var(--explore-page-enter-title-delay, 400ms) both;
+  animation: explore-page-title-enter var(--explore-page-enter-title-duration, 500ms)
+    cubic-bezier(0.33, 1, 0.68, 1) var(--explore-page-enter-title-delay, 260ms) both;
 }
 
 .titleFloat {
@@ -99,10 +100,11 @@
   flex-direction: column;
   align-items: center;
   gap: var(--explore-title-line-gap, 0.28em);
-  animation: explore-page-title-float var(--explore-page-title-float-duration, 3200ms) ease-in-out
+  animation: explore-page-title-float var(--explore-page-title-float-duration, 2400ms)
+    cubic-bezier(0.45, 0.05, 0.55, 0.95)
     calc(
-      var(--explore-page-enter-title-delay, 400ms) + var(--explore-page-enter-title-duration, 680ms) +
-        var(--explore-page-title-float-start-delay, 600ms)
+      var(--explore-page-enter-title-delay, 260ms) + var(--explore-page-enter-title-duration, 500ms) +
+        var(--explore-page-title-float-start-delay, 0ms)
     )
     infinite;
   will-change: transform;
@@ -131,14 +133,14 @@
   position: relative;
   display: inline-block;
   width: clamp(
-    2.5rem,
-    calc(100vw * var(--explore-inline-logo-width-ratio, 0.084)),
-    7.5625rem
+    2rem,
+    calc(100vw * var(--explore-inline-logo-width-ratio, 0.071)),
+    6.4375rem
   );
   height: clamp(
-    2.5rem,
-    calc(100vw * var(--explore-inline-logo-height-ratio, 0.083)),
-    7.5rem
+    2rem,
+    calc(100vw * var(--explore-inline-logo-height-ratio, 0.071)),
+    6.375rem
   );
   flex-shrink: 0;
   overflow: visible;
@@ -151,32 +153,28 @@
   --explore-inline-logo-float-low: var(--explore-inline-logo-float-amplitude, 9px);
   --explore-inline-logo-float-high: calc(-1 * var(--explore-inline-logo-float-amplitude, 9px));
   --explore-inline-logo-float-start-delay: calc(
-    var(--explore-inline-logo-enter-delay, 1260ms) + var(--explore-inline-logo-enter-duration, 520ms) +
-      var(--explore-inline-logo-enter-stagger, 140ms)
+    var(--explore-inline-logo-enter-delay, 260ms) + var(--explore-inline-logo-enter-duration, 500ms)
   );
 
   animation:
-    explore-inline-logo-enter var(--explore-inline-logo-enter-duration, 520ms)
-      cubic-bezier(0.34, 1.45, 0.64, 1) var(--explore-inline-logo-enter-delay, 1260ms) both,
-    explore-inline-logo-float var(--explore-inline-logo-float-duration, 2400ms) ease-in-out
-      var(--explore-inline-logo-float-start-delay) infinite;
+    explore-inline-logo-enter var(--explore-inline-logo-enter-duration, 500ms)
+      cubic-bezier(0.33, 1, 0.68, 1) var(--explore-inline-logo-enter-delay, 260ms) both,
+    explore-inline-logo-float var(--explore-inline-logo-float-duration, 2400ms)
+      cubic-bezier(0.45, 0.05, 0.55, 0.95) var(--explore-inline-logo-float-start-delay) infinite;
 }
 
 .inlineLogoTrail {
   --explore-inline-logo-float-low: calc(-1 * var(--explore-inline-logo-float-amplitude, 9px));
   --explore-inline-logo-float-high: var(--explore-inline-logo-float-amplitude, 9px);
   --explore-inline-logo-float-start-delay: calc(
-    var(--explore-inline-logo-enter-delay, 1260ms) + var(--explore-inline-logo-enter-duration, 520ms) +
-      var(--explore-inline-logo-enter-stagger, 140ms)
+    var(--explore-inline-logo-enter-delay, 260ms) + var(--explore-inline-logo-enter-duration, 500ms)
   );
 
   animation:
-    explore-inline-logo-enter var(--explore-inline-logo-enter-duration, 520ms)
-      cubic-bezier(0.34, 1.45, 0.64, 1)
-      calc(var(--explore-inline-logo-enter-delay, 1260ms) + var(--explore-inline-logo-enter-stagger, 140ms))
-      both,
-    explore-inline-logo-float var(--explore-inline-logo-float-duration, 2400ms) ease-in-out
-      var(--explore-inline-logo-float-start-delay) infinite;
+    explore-inline-logo-enter var(--explore-inline-logo-enter-duration, 500ms)
+      cubic-bezier(0.33, 1, 0.68, 1) var(--explore-inline-logo-enter-delay, 260ms) both,
+    explore-inline-logo-float var(--explore-inline-logo-float-duration, 2400ms)
+      cubic-bezier(0.45, 0.05, 0.55, 0.95) var(--explore-inline-logo-float-start-delay) infinite;
 }
 
 .inlineLogoImage {
@@ -224,19 +222,22 @@
 @keyframes explore-inline-logo-enter {
   0% {
     opacity: 0;
-    transform: translate3d(0, var(--explore-inline-logo-enter-rise, 18px), 0) scale(0.88);
-    filter: brightness(0.8);
-  }
-
-  70% {
-    transform: translate3d(0, calc(var(--explore-inline-logo-enter-rise, 18px) * -0.12), 0) scale(1.04);
-    filter: brightness(1.12);
+    transform: translate3d(
+        0,
+        calc(
+          var(--explore-inline-logo-float-low, 9px) + var(--explore-inline-logo-enter-rise, 10px)
+        ),
+        0
+      )
+      scale(0.94);
+    filter: brightness(0.88);
   }
 
   100% {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-    filter: brightness(1);
+    transform: translate3d(0, var(--explore-inline-logo-float-low, 9px), 0) scale(1);
+    filter: brightness(1)
+      drop-shadow(0 0 0.35rem rgba(var(--explore-inline-logo-float-glow-rgb, 255, 196, 110), 0.18));
   }
 }
 

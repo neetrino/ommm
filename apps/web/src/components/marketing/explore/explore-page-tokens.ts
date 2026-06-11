@@ -5,8 +5,15 @@ export const EXPLORE_INLINE_LOGO_FIGMA = {
   borderRadiusPx: 91,
 } as const;
 
-/** Slightly below Figma `301:399` — tuned on device. */
-const EXPLORE_INLINE_LOGO_SCALE = 0.93;
+/** Uniform scale — title and inline logos shrink together on device. */
+const EXPLORE_COMING_SOON_CONTENT_SCALE = 0.94;
+
+/** Figma `422:1810` measured title size before device tuning. */
+const EXPLORE_TITLE_FONT_SIZE_FIGMA_PX = 200;
+
+/** Scaled with title size — tuned on device. */
+const EXPLORE_INLINE_LOGO_BASE_SCALE = 0.84;
+const EXPLORE_INLINE_LOGO_SCALE = EXPLORE_INLINE_LOGO_BASE_SCALE * EXPLORE_COMING_SOON_CONTENT_SCALE;
 
 const EXPLORE_INLINE_LOGO_WIDTH_PX = EXPLORE_INLINE_LOGO_FIGMA.widthPx * EXPLORE_INLINE_LOGO_SCALE;
 const EXPLORE_INLINE_LOGO_HEIGHT_PX = EXPLORE_INLINE_LOGO_FIGMA.heightPx * EXPLORE_INLINE_LOGO_SCALE;
@@ -14,7 +21,7 @@ const EXPLORE_INLINE_LOGO_HEIGHT_PX = EXPLORE_INLINE_LOGO_FIGMA.heightPx * EXPLO
 /** Figma `422:1810` artboard (1440×902). Type sizes measured from the export. */
 export const EXPLORE_COMING_SOON_TYPOGRAPHY = {
   artboardWidthPx: 1440,
-  titleFontSizePx: 220,
+  titleFontSizePx: Math.round(EXPLORE_TITLE_FONT_SIZE_FIGMA_PX * EXPLORE_COMING_SOON_CONTENT_SCALE),
   titleFontWeight: 700,
   titleLineGapEm: 0.10,
   /** Viewport-scaled — independent from title font-size so logos stay fixed when type grows. */
@@ -27,26 +34,25 @@ export const EXPLORE_COMING_SOON_TYPOGRAPHY = {
 
 /** Page-load entrance — background then title. */
 export const EXPLORE_PAGE_ENTER = {
-  backgroundDurationMs: 520,
-  titleDurationMs: 680,
-  titleDelayMs: 400,
-  titleOffsetPx: 14,
-  reducedMotionDurationMs: 250,
+  backgroundDurationMs: 400,
+  titleDurationMs: 500,
+  titleDelayMs: 260,
+  titleOffsetPx: 10,
+  reducedMotionDurationMs: 220,
 } as const;
 
 /** Idle float — gentle rise/fall after the entrance finishes. */
 export const EXPLORE_PAGE_TITLE_FLOAT = {
   amplitudePx: 10,
   durationMs: 2400,
-  startDelayAfterEnterMs: 600,
+  startDelayAfterEnterMs: 0,
 } as const;
 
-/** Twin golden “o” orbs — pop-in, glow, and counter-phase vertical float. */
+/** Twin golden “o” orbs — appear with the title, then counter-phase vertical float. */
 export const EXPLORE_INLINE_LOGO_MOTION = {
-  enterDelayAfterTitleMs: 180,
-  enterDurationMs: 520,
-  enterStaggerMs: 140,
-  enterRisePx: 18,
+  enterDurationMs: 500,
+  enterStaggerMs: 0,
+  enterRisePx: 10,
   floatDurationMs: 2400,
   floatAmplitudePx: 9,
   floatGlowRgb: "255, 196, 110",
