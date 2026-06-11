@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import styles from "@/components/account/member-user-mobile-viewport.module.css";
 import { MemberUserScrollRestoration } from "@/components/account/member-user-scroll-restoration";
 import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import { peekMemberHubSheetScrollY } from "@/lib/member-hub-sheet-navigation";
 
 type MemberUserMobileViewportProps = {
   /** Parallel `@sheet` slot is rendering an intercepted hub section. */
@@ -29,7 +30,11 @@ export function MemberUserMobileViewport({
   const isPhone = useMemberHubSheetPhone();
   const effectiveMobileSheetOpen = isPhone && hasMobileSheet;
   const effectiveDesktopNotificationsOpen = !isPhone && hasDesktopNotificationsSheet;
-  const showHubBackdrop = effectiveMobileSheetOpen && hubBackdrop;
+  /** Intercepted sheet from scrolled hub — keep existing hub DOM instead of remounting a copy. */
+  const preserveScrolledHub =
+    effectiveMobileSheetOpen && peekMemberHubSheetScrollY() !== null;
+  const hideRouteForSheet = effectiveMobileSheetOpen && !preserveScrolledHub;
+  const showHubBackdrop = hideRouteForSheet && hubBackdrop;
 
   return (
     <>
@@ -41,12 +46,10 @@ export function MemberUserMobileViewport({
           effectiveDesktopNotificationsOpen ? "open" : "closed"
         }
       >
-        {showHubBackdrop ? (
-          <div className={styles.hubBackdrop}>{hubBackdrop}</div>
-        ) : null}
+        {showHubBackdrop ? <div className={styles.hubBackdrop}>{hubBackdrop}</div> : null}
         <div
           className={
-            effectiveMobileSheetOpen || effectiveDesktopNotificationsOpen
+            hideRouteForSheet || effectiveDesktopNotificationsOpen
               ? styles.routeContentWhenSheet
               : styles.routeContent
           }

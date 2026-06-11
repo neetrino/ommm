@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { MarketingPageFrame } from "@/components/layout/marketing-page-frame";
-import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-page-content-skeleton";
-import { MarketingPackagesPageContent } from "@/components/marketing/packages/marketing-packages-page-content";
+import { MarketingMembershipPageLayout } from "@/components/marketing/packages/marketing-membership-page-content";
+import { MarketingMembershipPageSection } from "@/components/marketing/packages/marketing-membership-page-section";
 
 export default async function PackagesMarketingPage({
   params,
@@ -13,10 +11,8 @@ export default async function PackagesMarketingPage({
   const m = await getTranslations({ locale, namespace: "marketing" });
 
   return (
-    <MarketingPageFrame title={m("packagesPageTitle")} lede={m("packagesPageLead")} scrollReveal>
-      <Suspense fallback={<MarketingPageContentSkeleton cards={5} />}>
-        <MarketingPackagesPageContent locale={locale} />
-      </Suspense>
-    </MarketingPageFrame>
+    <MarketingMembershipPageSection title={m("packagesPageTitle")} lead={m("packagesPageLead")}>
+      <MarketingMembershipPageLayout locale={locale} />
+    </MarketingMembershipPageSection>
   );
 }

@@ -9,7 +9,7 @@ export default async function UserWaitlistsSheetPage({
   const { locale } = await params;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.waitlists">
+    <MemberHubSheetPage titleNamespace="userPages.waitlists">
       <MemberUserWaitlistsRouteContent locale={locale} embeddedInSheet />
     </MemberHubSheetPage>
   );

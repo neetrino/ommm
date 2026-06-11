@@ -1,6 +1,10 @@
 export type ListBoardViewMode = "list" | "board";
 
-export const DEFAULT_USER_LIST_BOARD_VIEW_MODE: ListBoardViewMode = "board";
+/** Default member `/user` view when `?view` is absent (desktop). */
+export const DEFAULT_USER_LIST_BOARD_VIEW_MODE: ListBoardViewMode = "list";
+
+/** Card layout on viewports that do not support list mode. */
+const LIST_BOARD_VIEW_COMPACT_MODE: ListBoardViewMode = "board";
 
 export const LIST_BOARD_VIEW_QUERY_KEY = "view";
 
@@ -26,7 +30,7 @@ export function resolveEffectiveListBoardViewMode(
   supportsListView: boolean,
 ): ListBoardViewMode {
   if (!supportsListView && preferred === "list") {
-    return DEFAULT_USER_LIST_BOARD_VIEW_MODE;
+    return LIST_BOARD_VIEW_COMPACT_MODE;
   }
   return preferred;
 }

@@ -12,7 +12,7 @@ export default async function UserClassesSheetPage({
   const search = await searchParams;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.classes">
+    <MemberHubSheetPage titleNamespace="userPages.classes">
       <MemberUserClassesRouteContent locale={locale} search={search} embeddedInSheet />
     </MemberHubSheetPage>
   );

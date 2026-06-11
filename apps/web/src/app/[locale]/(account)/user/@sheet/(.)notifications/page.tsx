@@ -10,7 +10,6 @@ export default async function UserNotificationsSheetPage({
 
   return (
     <MemberHubSheetPage
-      locale={locale}
       titleNamespace="userPages.notifications"
       desktopSidePanel
     >

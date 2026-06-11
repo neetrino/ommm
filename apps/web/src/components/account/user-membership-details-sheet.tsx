@@ -1,32 +1,29 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { MembershipPeriodHighlight } from "@/components/account/membership-period-highlight";
 import {
-  hasPackageLifecycleActions,
-  PackageLifecycleConfirmDialog,
-  UserPackageLifecycleActions,
-  useUserPackageLifecycle,
-} from "@/components/account/user-package-lifecycle-actions";
-import { PackageUsageBar } from "@/components/account/package-usage-bar";
+  MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS,
+  memberAccountHubSheetPanelStyle,
+} from "@/components/account/member-account-hub-sheet-layout";
 import {
-  buildMembershipDisplayModel,
-  formatMembershipStatusLabel,
-  memberStatusClassName,
-} from "@/components/account/user-membership-display";
+  MemberHubMobileSheet,
+  useMemberHubMobileSheetClose,
+} from "@/components/account/member-hub-mobile-sheet";
 import {
-  ADMIN_DETAILS_SHEET_BODY_CLASS,
-  ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS,
-  ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS,
-  ADMIN_DETAILS_SHEET_FOOTER_CLASS,
-  ADMIN_DETAILS_SHEET_HEADER_CLASS,
-  ADMIN_DETAILS_SHEET_OVERLAY_CLASS,
-  USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS,
-  ADMIN_DETAILS_SHEET_TITLE_CLASS,
-} from "@/components/admin/admin-details-sheet-layout";
+  MEMBERSHIP_DETAILS_SHEET_TITLE_ID,
+  MembershipDetailsSheetContent,
+} from "@/components/account/user-membership-details-sheet-content";
+import {
+  USER_MEMBERSHIP_DETAILS_DESKTOP_BACKDROP_CLASS,
+  USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS,
+  USER_MEMBERSHIP_DETAILS_DESKTOP_OVERLAY_CLASS,
+  USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS,
+} from "@/components/account/user-membership-details-sheet-layout";
 import { OmmDrawerPortal } from "@/components/ui/omm-modal";
-import { formatAmdFromCents } from "@/lib/price-amd";
+import { useDesktopSheetEnterMotion } from "@/hooks/use-desktop-sheet-enter-motion";
+import { useMemberHubSheetPhone } from "@/hooks/use-member-hub-sheet-phone";
+import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
 import type { UserMembershipRow, UserPackageStatus } from "@/lib/user-package-types";
 
 type UserMembershipDetailsSheetProps = {
@@ -37,14 +34,6 @@ type UserMembershipDetailsSheetProps = {
   onClose: () => void;
 };
 
-const MEMBERSHIP_DETAIL_LABEL_CLASS =
-  "text-xs font-bold uppercase tracking-[0.08em] text-sage-600";
-
-const MEMBERSHIP_DETAIL_VALUE_CLASS = "text-sm font-semibold text-sage-950";
-
-const MEMBERSHIP_DETAIL_PRICE_VALUE_CLASS =
-  "text-base font-semibold tracking-tight text-sage-950";
-
 export function UserMembershipDetailsSheet({
   membership,
   locale,
@@ -52,12 +41,12 @@ export function UserMembershipDetailsSheet({
   isOpen,
   onClose,
 }: UserMembershipDetailsSheetProps) {
-  if (membership === null) {
+  if (!isOpen || membership === null) {
     return null;
   }
 
   return (
-    <UserMembershipDetailsSheetInner
+    <UserMembershipDetailsSheetPortal
       membership={membership}
       locale={locale}
       status={status}
@@ -67,7 +56,31 @@ export function UserMembershipDetailsSheet({
   );
 }
 
-function UserMembershipDetailsSheetInner({
+function MembershipDetailsMobileBody({
+  membership,
+  locale,
+  status,
+}: {
+  membership: UserMembershipRow;
+  locale: string;
+  status: UserPackageStatus;
+}) {
+  const requestClose = useMemberHubMobileSheetClose();
+
+  return (
+    <>
+      <div className={MEMBER_ACCOUNT_HUB_SHEET_GRABBER_CLASS} aria-hidden />
+      <MembershipDetailsSheetContent
+        membership={membership}
+        locale={locale}
+        status={status}
+        onClose={requestClose}
+      />
+    </>
+  );
+}
+
+function UserMembershipDetailsSheetPortal({
   membership,
   locale,
   status,
@@ -81,142 +94,59 @@ function UserMembershipDetailsSheetInner({
   onClose: () => void;
 }) {
   const t = useTranslations("userPages.packages");
-  const m = useTranslations("marketing");
-  const titleId = useId();
-  const display = buildMembershipDisplayModel(membership, status, t, m);
-  const lifecycle = useUserPackageLifecycle(membership.id, status);
-  const showLifecycleActions = hasPackageLifecycleActions(status);
+  const closingRef = useRef(false);
+  const isPhone = useMemberHubSheetPhone();
+  const { motionState: desktopMotionState, closeMotion: closeDesktopMotion } =
+    useDesktopSheetEnterMotion(!isPhone && isOpen);
+
+  const finishClose = useCallback(() => {
+    closingRef.current = false;
+    onClose();
+  }, [onClose]);
+
+  const handleDesktopClose = useCallback(() => {
+    if (closingRef.current) {
+      return;
+    }
+
+    dismissMobileKeyboard();
+    closingRef.current = true;
+    closeDesktopMotion();
+    window.setTimeout(finishClose, USER_MEMBERSHIP_DETAILS_DESKTOP_MOTION_MS);
+  }, [closeDesktopMotion, finishClose]);
+
+  if (isPhone) {
+    return (
+      <MemberHubMobileSheet
+        bare
+        titleId={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
+        closeLabel={t("membershipDetailsCloseBackdrop")}
+        backdropCloseLabel={t("membershipDetailsCloseBackdrop")}
+        onClose={finishClose}
+        panelStyle={memberAccountHubSheetPanelStyle()}
+      >
+        <MembershipDetailsMobileBody membership={membership} locale={locale} status={status} />
+      </MemberHubMobileSheet>
+    );
+  }
 
   return (
     <OmmDrawerPortal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleDesktopClose}
       backdropAriaLabel={t("membershipDetailsCloseBackdrop")}
-      ariaLabelledBy={titleId}
-      overlayClassName={ADMIN_DETAILS_SHEET_OVERLAY_CLASS}
-      panelClassName={USER_MEMBERSHIP_DETAILS_SHEET_PANEL_CLASS}
+      ariaLabelledBy={MEMBERSHIP_DETAILS_SHEET_TITLE_ID}
+      overlayClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_OVERLAY_CLASS}
+      backdropClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_BACKDROP_CLASS}
+      panelClassName={USER_MEMBERSHIP_DETAILS_DESKTOP_PANEL_CLASS}
+      motionState={desktopMotionState}
     >
-      <header className={ADMIN_DETAILS_SHEET_HEADER_CLASS}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-3">
-            <h2 id={titleId} className={ADMIN_DETAILS_SHEET_TITLE_CLASS}>
-              {display.sessionName}
-            </h2>
-            {showLifecycleActions ? (
-              <UserPackageLifecycleActions
-                userPackageId={membership.id}
-                status={status}
-                layout="sheetHeader"
-                lifecycle={lifecycle}
-              />
-            ) : null}
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <span className={memberStatusClassName(status)}>
-              {formatMembershipStatusLabel(status, t)}
-            </span>
-            <button
-              type="button"
-              className={ADMIN_DETAILS_SHEET_CLOSE_BUTTON_CLASS}
-              aria-label={t("membershipDetailsCloseBackdrop")}
-              onClick={onClose}
-            >
-              <CloseGlyph />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className={`${ADMIN_DETAILS_SHEET_BODY_CLASS} min-h-0 flex-1`}>
-        <dl className={ADMIN_DETAILS_SHEET_DETAIL_BLOCK_CLASS}>
-          <DetailRow label={t("membershipDetailsSessionName")} value={display.sessionName} />
-          <DetailRow label={t("membershipDetailsCategory")} value={membership.plan.categoryName} />
-          <DetailRow
-            label={t("membershipDetailsPrice")}
-            value={formatAmdFromCents(membership.plan.priceCents, locale)}
-            valueClassName={MEMBERSHIP_DETAIL_PRICE_VALUE_CLASS}
-          />
-          <DetailRow
-            label={t("membershipDetailsValidity")}
-            value={display.validityLabel}
-          />
-          <DetailRow label={t("membershipDetailsSessions")} value={display.sessionsSummary} />
-          {display.sessionsRemainingSummary !== null ? (
-            <DetailRow
-              label={t("membershipDetailsSessionsRemaining")}
-              value={display.sessionsRemainingSummary}
-            />
-          ) : null}
-          {display.totalSessions !== null &&
-          display.usedSessions !== null &&
-          display.totalSessions > 0 ? (
-            <div className="space-y-2 py-1">
-              <dt className={MEMBERSHIP_DETAIL_LABEL_CLASS}>{t("membershipDetailsUsage")}</dt>
-              <dd>
-                <PackageUsageBar
-                  used={display.usedSessions}
-                  total={display.totalSessions}
-                  ariaLabel={display.sessionsSummary}
-                />
-              </dd>
-            </div>
-          ) : null}
-        </dl>
-
-        <div className="mt-5">
-          <MembershipPeriodHighlight
-            locale={locale}
-            periodStart={membership.currentPeriodStart}
-            periodEnd={membership.currentPeriodEnd}
-            variant="board"
-          />
-        </div>
-      </div>
-
-      {showLifecycleActions ? (
-        <footer className={ADMIN_DETAILS_SHEET_FOOTER_CLASS}>
-          <UserPackageLifecycleActions
-            userPackageId={membership.id}
-            status={status}
-            layout="sheetFooter"
-            hiddenActions={["pause", "cancel"]}
-            lifecycle={lifecycle}
-          />
-          <PackageLifecycleConfirmDialog lifecycle={lifecycle} />
-        </footer>
-      ) : null}
+      <MembershipDetailsSheetContent
+        membership={membership}
+        locale={locale}
+        status={status}
+        onClose={handleDesktopClose}
+      />
     </OmmDrawerPortal>
-  );
-}
-
-type DetailRowProps = {
-  label: string;
-  value: string;
-  valueClassName?: string;
-};
-
-function DetailRow({ label, value, valueClassName = MEMBERSHIP_DETAIL_VALUE_CLASS }: DetailRowProps) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-      <dt className={MEMBERSHIP_DETAIL_LABEL_CLASS}>{label}</dt>
-      <dd className={valueClassName}>{value}</dd>
-    </div>
-  );
-}
-
-function CloseGlyph() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      className="h-5 w-5"
-      aria-hidden
-    >
-      <path d="M6 6l12 12M18 6L6 18" />
-    </svg>
   );
 }

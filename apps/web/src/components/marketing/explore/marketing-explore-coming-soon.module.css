@@ -8,57 +8,119 @@
 
 .image {
   object-fit: cover;
+  object-position: center center;
+  animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 520ms) ease-out both;
 }
 
-.imageMobile {
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--explore-title-line-gap, 0.28em);
+  margin: 0;
+  color: var(--explore-title-color, rgba(255, 255, 255, 0.96));
+  font-family: var(--font-serif, ui-serif, Georgia, "Times New Roman", serif);
+  font-size: clamp(
+    4rem,
+    calc(100vw * var(--explore-title-font-size-px, 220) / var(--explore-artboard-width-px, 1440)),
+    13.75rem
+  );
+  font-style: italic;
+  font-weight: var(--explore-title-font-weight, 700);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-wrap: balance;
+  animation: explore-page-title-enter var(--explore-page-enter-title-duration, 680ms) ease-out
+    var(--explore-page-enter-title-delay, 140ms) both;
+}
+
+.titleLine1,
+.titleLine2 {
   display: block;
-  object-position: center center;
 }
 
-.imageIpadAir,
-.imageIpadPro {
-  object-position: center center;
+.titleLine2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.imageDesktop {
-  object-position: center var(--explore-coming-soon-image-position-y, 50%);
+.inlineLogoPair {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--explore-inline-logo-gap, 3px);
+  margin-inline: 2px;
 }
 
-.imageIpadAir,
-.imageIpadPro,
-.imageDesktop {
-  display: none;
+.inlineLogo {
+  position: relative;
+  display: inline-block;
+  width: clamp(
+    2.5rem,
+    calc(100vw * var(--explore-inline-logo-width-ratio, 0.084)),
+    7.5625rem
+  );
+  height: clamp(
+    2.5rem,
+    calc(100vw * var(--explore-inline-logo-height-ratio, 0.083)),
+    7.5rem
+  );
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: calc(var(--explore-inline-logo-radius-ratio, 0.7008) * 100%);
 }
 
-/* iPad Air tier — 744px–1023px. */
-@media (min-width: 744px) {
-  .imageMobile {
-    display: none;
+.inlineLogoImage {
+  object-fit: cover;
+}
+
+@keyframes explore-page-bg-enter {
+  from {
+    opacity: 0;
   }
 
-  .imageIpadAir {
-    display: block;
+  to {
+    opacity: 1;
   }
 }
 
-/* iPad Pro tier — 1024px–1366px. */
-@media (min-width: 1024px) {
-  .imageIpadAir {
-    display: none;
+@keyframes explore-page-title-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--explore-page-enter-title-offset, 14px), 0);
   }
 
-  .imageIpadPro {
-    display: block;
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
-/* Nav desktop — 1367px+. */
-@media (min-width: 1367px) {
-  .imageIpadPro {
-    display: none;
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .title {
+    animation: explore-page-enter-reduced var(--explore-page-enter-reduced-duration, 250ms) ease-out
+      both;
+  }
+}
+
+@keyframes explore-page-enter-reduced {
+  from {
+    opacity: 0;
   }
 
-  .imageDesktop {
-    display: block;
+  to {
+    opacity: 1;
   }
 }

@@ -6,6 +6,7 @@ export const SCHEDULE_INTERACTIVE_LIFT =
   "transition-transform duration-300 ease-out hover:-translate-y-0.5 motion-reduce:transform-none";
 export const SCHEDULE_BOOK_BTN = `ommm-btn-compact-primary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
 export const SCHEDULE_CANCEL_BTN = `ommm-btn-compact-secondary min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
+export const SCHEDULE_BOOKED_BTN = `ommm-session-booked-button ommm-session-booked-button--schedule min-h-11 min-w-[5.5rem] shrink-0 px-4 text-sm ${SCHEDULE_INTERACTIVE_LIFT}`;
 export const SCHEDULE_ROW_DIVIDER = "border-b border-white/55";
 /** Full-width week strip surface in wellness card tone. */
 export const SCHEDULE_DATE_STRIP_PANEL =

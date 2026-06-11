@@ -132,10 +132,19 @@
 }
 
 .decorMark {
+  display: inline-flex;
   flex-shrink: 0;
-  font-size: 1.125rem;
-  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
   color: var(--story-values-card-heading-color, #1d1c15);
+}
+
+.decorMarkIcon {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .title {

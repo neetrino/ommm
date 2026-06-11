@@ -1,5 +1,17 @@
 const WORKSPACE_SCROLL_PANE_SELECTOR = "[data-workspace-scroll-pane]";
 
+/** Restore window and workspace shell pane scroll (member mobile uses window scroll). */
+export function restoreWorkspaceScrollPosition(scrollY: number): void {
+  window.scrollTo(0, scrollY);
+  document.documentElement.scrollTop = scrollY;
+  document.body.scrollTop = scrollY;
+
+  const pane = document.querySelector<HTMLElement>(WORKSPACE_SCROLL_PANE_SELECTOR);
+  if (pane) {
+    pane.scrollTop = scrollY;
+  }
+}
+
 /** Scroll window and the workspace shell pane to top (member mobile uses window scroll). */
 export function resetWorkspaceScrollPosition(): void {
   window.scrollTo(0, 0);

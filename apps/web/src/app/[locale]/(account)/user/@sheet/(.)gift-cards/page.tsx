@@ -12,7 +12,7 @@ export default async function UserGiftCardsSheetPage({
   const search = await searchParams;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.giftCards">
+    <MemberHubSheetPage titleNamespace="userPages.giftCards">
       <MemberUserGiftCardsRouteContent locale={locale} search={search} embeddedInSheet />
     </MemberHubSheetPage>
   );

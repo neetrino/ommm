@@ -12,7 +12,7 @@ export default async function UserPaymentsSheetPage({
   const search = await searchParams;
 
   return (
-    <MemberHubSheetPage locale={locale} titleNamespace="userPages.payments">
+    <MemberHubSheetPage titleNamespace="userPages.payments">
       <MemberUserPaymentsRouteContent locale={locale} search={search} embeddedInSheet />
     </MemberHubSheetPage>
   );

@@ -144,9 +144,13 @@ export function MarketingSiteHeader({
   };
   const showWorkspaceNotifications =
     notificationHref !== null && notificationsLabel !== null;
-  const showNotifications = showWorkspaceNotifications || showMemberNotifications;
+  const showMemberNotificationsOnUserPath =
+    showMemberNotifications && isUserAccountPath(marketingPath);
+  const showNotifications =
+    showWorkspaceNotifications || showMemberNotificationsOnUserPath;
   const notificationPreferencesHref =
-    notificationHref ?? (showMemberNotifications ? "/user/notifications" : null);
+    notificationHref ??
+    (showMemberNotificationsOnUserPath ? "/user/notifications" : null);
   const desktopGlassStyle = {
     ["--marketing-glass-pill-bg" as string]:
       MARKETING_MOBILE_HEADER.scrolledPillBackground,
