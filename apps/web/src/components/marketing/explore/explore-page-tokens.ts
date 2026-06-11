@@ -25,8 +25,18 @@ export const EXPLORE_COMING_SOON_TYPOGRAPHY = {
   inlineLogoGapPx: 3,
 } as const;
 
+/** Page-load entrance — background then title. */
+export const EXPLORE_PAGE_ENTER = {
+  backgroundDurationMs: 520,
+  titleDurationMs: 680,
+  titleDelayMs: 140,
+  titleOffsetPx: 14,
+  reducedMotionDurationMs: 250,
+} as const;
+
 /** Layout tokens for the Explore coming soon page. */
 export const EXPLORE_PAGE_LAYOUT = {
   titleColor: "rgba(255, 255, 255, 0.96)",
   ...EXPLORE_COMING_SOON_TYPOGRAPHY,
+  ...EXPLORE_PAGE_ENTER,
 } as const;

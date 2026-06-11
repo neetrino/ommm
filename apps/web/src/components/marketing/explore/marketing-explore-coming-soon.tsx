@@ -38,6 +38,11 @@ export async function MarketingExploreComingSoon({
           EXPLORE_PAGE_LAYOUT.inlineLogoBorderRadiusRatio,
         ),
         ["--explore-inline-logo-gap" as string]: `${EXPLORE_PAGE_LAYOUT.inlineLogoGapPx}px`,
+        ["--explore-page-enter-bg-duration" as string]: `${EXPLORE_PAGE_LAYOUT.backgroundDurationMs}ms`,
+        ["--explore-page-enter-title-duration" as string]: `${EXPLORE_PAGE_LAYOUT.titleDurationMs}ms`,
+        ["--explore-page-enter-title-delay" as string]: `${EXPLORE_PAGE_LAYOUT.titleDelayMs}ms`,
+        ["--explore-page-enter-title-offset" as string]: `${EXPLORE_PAGE_LAYOUT.titleOffsetPx}px`,
+        ["--explore-page-enter-reduced-duration" as string]: `${EXPLORE_PAGE_LAYOUT.reducedMotionDurationMs}ms`,
       }}
     >
       <Image

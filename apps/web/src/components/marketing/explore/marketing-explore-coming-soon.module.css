@@ -9,6 +9,7 @@
 .image {
   object-fit: cover;
   object-position: center center;
+  animation: explore-page-bg-enter var(--explore-page-enter-bg-duration, 520ms) ease-out both;
 }
 
 .overlay {
@@ -40,6 +41,8 @@
   letter-spacing: 0.01em;
   text-align: center;
   text-wrap: balance;
+  animation: explore-page-title-enter var(--explore-page-enter-title-duration, 680ms) ease-out
+    var(--explore-page-enter-title-delay, 140ms) both;
 }
 
 .titleLine1,
@@ -80,4 +83,44 @@
 
 .inlineLogoImage {
   object-fit: cover;
+}
+
+@keyframes explore-page-bg-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes explore-page-title-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--explore-page-enter-title-offset, 14px), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .title {
+    animation: explore-page-enter-reduced var(--explore-page-enter-reduced-duration, 250ms) ease-out
+      both;
+  }
+}
+
+@keyframes explore-page-enter-reduced {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
