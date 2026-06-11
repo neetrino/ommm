@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { MarketingPageSectionReveal } from "@/components/marketing/marketing-page-section-reveal";
+import { StoryPageReveal } from "@/components/marketing/story/story-page-reveal";
 import styles from "@/components/marketing/story/marketing-story-hero.module.css";
 import { STORY_PAGE_ASSETS } from "@/components/marketing/story/story-page-assets";
 import { STORY_PAGE_LAYOUT } from "@/components/marketing/story/story-page-tokens";
@@ -41,7 +41,7 @@ export async function MarketingStoryHero({ locale }: MarketingStoryHeroProps) {
   };
 
   return (
-    <MarketingPageSectionReveal index={0}>
+    <StoryPageReveal index={0}>
       <header
         className={styles.hero}
         aria-labelledby="story-hero-heading"
@@ -84,6 +84,6 @@ export async function MarketingStoryHero({ locale }: MarketingStoryHeroProps) {
           </div>
         </div>
       </header>
-    </MarketingPageSectionReveal>
+    </StoryPageReveal>
   );
 }
