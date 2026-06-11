@@ -797,7 +797,7 @@
       "tabs": {
         "aria": "Booking time range",
         "past": "Past",
-        "perfect": "Perfect"
+        "perfect": "Current"
       },
       "emptyPerfectTitle": "No bookings yet",
       "emptyPerfectDescription": "When you book a class, it will appear here.",
