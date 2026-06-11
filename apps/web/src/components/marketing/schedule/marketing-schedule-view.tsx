@@ -50,7 +50,8 @@ import { SCHEDULE_CLOCK_TICK_MS } from "@/lib/public-schedule-constants";
 import { REALTIME_REFETCH_KEYS } from "@/lib/realtime/realtime-refetch-keys";
 import { formatScheduleTimeHHmm } from "@/lib/format-time-display";
 import { getScheduleClassTypeValues } from "@/lib/schedule-class-types";
-import type { PublicPackageCategoryCardsAudience } from "@/components/marketing/packages/public-package-category-cards";
+import { useMarketingAudience } from "@/hooks/use-marketing-audience";
+import { MarketingScheduleSessionsSkeleton } from "@/components/marketing/schedule/marketing-schedule-sessions-skeleton";
 
 type ScheduleNavState = {
   windowStart: Date;
@@ -93,7 +94,6 @@ function shiftWeek(
 
 type MarketingScheduleViewProps = {
   initialItems: MarketingScheduleItem[];
-  audience: PublicPackageCategoryCardsAudience;
 };
 
 function mapDayToDate(
@@ -114,11 +114,13 @@ function scheduleItemDate(
     : mapDayToDate(baselineWeekStart, item.dayOfWeek, dayToOffset);
 }
 
-export function MarketingScheduleView({ initialItems, audience }: MarketingScheduleViewProps) {
+export function MarketingScheduleView({ initialItems }: MarketingScheduleViewProps) {
   const t = useTranslations("marketingPages.schedule");
   const locale = useLocale();
+  const audience = useMarketingAudience();
   const isMember = audience === "member";
   const [items, setItems] = useState<MarketingScheduleItem[]>(initialItems);
+  const [sessionsReady, setSessionsReady] = useState(initialItems.length > 0);
   const [bookedBySessionId, setBookedBySessionId] = useState<Record<string, string>>({});
   const [memberBookingsLoaded, setMemberBookingsLoaded] = useState(!isMember);
   const [baseline] = useState(() => startOfLocalDay(new Date()));
@@ -126,8 +128,6 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const [classType, setClassType] = useState("all");
   const [instructor, setInstructor] = useState("all");
   const [scheduleNow, setScheduleNow] = useState(() => new Date());
-  const [scheduleCapacityReady, setScheduleCapacityReady] = useState(false);
-  const initialScheduleHydratedRef = useRef(false);
   const bookedBySessionIdRef = useRef(bookedBySessionId);
   useEffect(() => {
     bookedBySessionIdRef.current = bookedBySessionId;
@@ -135,8 +135,7 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
   const { waitlistedSessionIds, loaded: memberWaitlistLoaded, refetch: refetchWaitlist } =
     useMemberWaitlistData(isMember);
   const memberActionStateReady =
-    !isMember || (memberBookingsLoaded && memberWaitlistLoaded && scheduleCapacityReady);
-  const spotsStateReady = !isMember || scheduleCapacityReady;
+    !isMember || (memberBookingsLoaded && memberWaitlistLoaded);
 
   const refetchMemberBookings = useCallback(async (markLoaded: boolean) => {
     if (!isMember) {
@@ -206,24 +205,45 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
     } catch {
       // Keep current list when refresh fails.
     } finally {
-      if (!initialScheduleHydratedRef.current) {
-        initialScheduleHydratedRef.current = true;
-        setScheduleCapacityReady(true);
-      }
+      setSessionsReady(true);
     }
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-    queueMicrotask(() => {
+
+    const runRefresh = (): void => {
       if (!cancelled) {
         void refreshSchedule();
       }
-    });
+    };
+
+    if (initialItems.length > 0) {
+      let idleCallbackId: number | undefined;
+      let timeoutId: number | undefined;
+
+      if (typeof requestIdleCallback !== "undefined") {
+        idleCallbackId = requestIdleCallback(runRefresh, { timeout: 2_000 });
+      } else {
+        timeoutId = window.setTimeout(runRefresh, 300);
+      }
+
+      return () => {
+        cancelled = true;
+        if (idleCallbackId !== undefined) {
+          cancelIdleCallback(idleCallbackId);
+        }
+        if (timeoutId !== undefined) {
+          window.clearTimeout(timeoutId);
+        }
+      };
+    }
+
+    runRefresh();
     return () => {
       cancelled = true;
     };
-  }, [refreshSchedule]);
+  }, [initialItems.length, refreshSchedule]);
 
   const syncLiveSchedule = useCallback(() => {
     setScheduleNow(new Date());
@@ -426,7 +446,9 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
           }
         >
           <ul key={renderedDayKey} className="list-none overflow-hidden p-0">
-            {renderedSessions.length === 0 ? (
+            {!sessionsReady ? (
+              <MarketingScheduleSessionsSkeleton />
+            ) : renderedSessions.length === 0 ? (
               <li
                 className={`py-12 text-center text-sm ${SCHEDULE_MUTED} ${
                   animationPhase === "enter" ? styles.scheduleItemEnter : ""
@@ -441,14 +463,14 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                 const displayRow = resolveMemberScheduleRowDisplay({
                   row,
                   onWaitlist: userOnWaitlist,
-                  capacityReady: scheduleCapacityReady,
+                  capacityReady: memberWaitlistLoaded,
                 });
                 const showOnWaitlist = resolveMemberOnWaitlistBadge({
                   userBookingId: bookedBySessionId[row.id],
                   onWaitlist: userOnWaitlist,
                   availableSpots: displayRow.availableSpots,
                   sessionStatus: displayRow.status,
-                  capacityReady: scheduleCapacityReady,
+                  capacityReady: memberWaitlistLoaded,
                 });
 
                 return (
@@ -461,7 +483,6 @@ export function MarketingScheduleView({ initialItems, audience }: MarketingSched
                     spotsFullLabel={t("spotsFull")}
                     spotsLeftLabel={t("spotsLeft", { count: displayRow.availableSpots })}
                     spotsLoadingLabel={t("actionLoading")}
-                    spotsStateReady={spotsStateReady}
                     timeLabel={formatScheduleTimeHHmm(locale, row.startTime)}
                     durationLabel={
                       row.durationMinutes !== null

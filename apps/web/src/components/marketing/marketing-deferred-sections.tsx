@@ -6,18 +6,6 @@ function deferredPlaceholder(className: string) {
   };
 }
 
-export const MarketingScheduleViewDeferred = dynamic(
-  () =>
-    import("@/components/marketing/schedule/marketing-schedule-view").then(
-      (module) => module.MarketingScheduleView,
-    ),
-  {
-    loading: deferredPlaceholder(
-      "h-40 animate-pulse rounded-[24px] border border-white/50 bg-white/35 sm:h-48",
-    ),
-  },
-);
-
 export const MarketingPublicCoachesGridDeferred = dynamic(
   () =>
     import("@/components/marketing/coaches/marketing-public-coaches-grid").then(
