@@ -1,57 +1,44 @@
-import { CONTACT_PAGE_ASSETS } from "@/components/marketing/contact/contact-page-assets";
 import type { StudioSocialLink } from "@/lib/studio-social-links";
 
-export type ContactSocialPlatform = "instagram" | "facebook";
+export type ContactSocialPlatform = "instagram" | "facebook" | "whatsapp";
 
 export type ContactSocialIconLink = {
   id: ContactSocialPlatform;
   href: string;
-  iconSrc: string;
-  width: number;
-  height: number;
 };
 
-const CONTACT_SOCIAL_ICON_DEFS = [
-  {
-    id: "instagram",
-    iconSrc: CONTACT_PAGE_ASSETS.iconInstagram,
-    width: 23,
-    height: 23,
-  },
-  {
-    id: "facebook",
-    iconSrc: CONTACT_PAGE_ASSETS.iconFacebook,
-    width: 13,
-    height: 23,
-  },
-] as const satisfies readonly {
-  id: ContactSocialPlatform;
-  iconSrc: string;
-  width: number;
-  height: number;
-}[];
+const CONTACT_SOCIAL_PLATFORM_ORDER: readonly ContactSocialPlatform[] = [
+  "instagram",
+  "facebook",
+  "whatsapp",
+];
 
-/** Instagram + Facebook icons — only platforms with studio URLs are returned. */
+function resolveSocialHref(
+  platform: ContactSocialPlatform,
+  studioLinks: StudioSocialLink[],
+  whatsappUrl: string | null | undefined,
+): string | undefined {
+  if (platform === "whatsapp") {
+    const href = whatsappUrl?.trim();
+    return href !== undefined && href.length > 0 ? href : undefined;
+  }
+
+  const match = studioLinks.find((link) => link.label.toLowerCase() === platform);
+  const href = match?.url.trim();
+  return href !== undefined && href.length > 0 ? href : undefined;
+}
+
+/** Social links for the contact page — only platforms with configured URLs are returned. */
 export function resolveContactSocialIconLinks(
   studioLinks: StudioSocialLink[],
+  whatsappUrl?: string | null,
 ): ContactSocialIconLink[] {
-  return CONTACT_SOCIAL_ICON_DEFS.flatMap((definition) => {
-    const match = studioLinks.find(
-      (link) => link.label.toLowerCase() === definition.id,
-    );
-    const href = match?.url.trim();
-    if (href === undefined || href.length === 0) {
+  return CONTACT_SOCIAL_PLATFORM_ORDER.flatMap((platform) => {
+    const href = resolveSocialHref(platform, studioLinks, whatsappUrl);
+    if (href === undefined) {
       return [];
     }
 
-    return [
-      {
-        id: definition.id,
-        href,
-        iconSrc: definition.iconSrc,
-        width: definition.width,
-        height: definition.height,
-      },
-    ];
+    return [{ id: platform, href }];
   });
 }

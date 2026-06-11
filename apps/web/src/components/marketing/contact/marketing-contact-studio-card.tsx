@@ -6,6 +6,7 @@ import {
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
+import { ContactSocialBrandIcon } from "@/components/marketing/contact/contact-social-brand-icon";
 import type { ContactSocialIconLink } from "@/components/marketing/contact/contact-page-social";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
@@ -116,16 +117,7 @@ export function MarketingContactStudioCard({
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Image
-                  src={link.iconSrc}
-                  alt=""
-                  width={link.width}
-                  height={link.height}
-                  className={styles.socialIcon}
-                  unoptimized
-                  aria-hidden
-                  {...belowFoldImageProps()}
-                />
+                <ContactSocialBrandIcon id={link.id} />
                 <span className={styles.socialLabel}>{socialLabel(link.id)}</span>
               </a>
             </li>

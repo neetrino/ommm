@@ -111,7 +111,7 @@ async function MarketingContactStudioSection({ locale }: MarketingContactLocaleP
   );
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
-  const socialIconLinks = resolveContactSocialIconLinks(social);
+  const socialIconLinks = resolveContactSocialIconLinks(social, studio?.whatsappUrl);
   const studioRows = buildContactStudioRows(studio, {
     phone: t("phone"),
     email: t("email"),
