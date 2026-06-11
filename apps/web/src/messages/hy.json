@@ -681,9 +681,7 @@
       "next": "Հաջորդ",
       "prevAria": "Նախորդ էջ",
       "nextAria": "Հաջորդ էջ",
-      "pagesAria": "Էջեր",
-      "pageSizeAria": "Գրառումներ էջում",
-      "pageSizeLabel": "{size} էջում"
+      "pagesAria": "Էջեր"
     },
     "packages": {
       "title": "Իմ փաթեթները",
@@ -1470,9 +1468,7 @@
       "next": "Հաջորդ",
       "prevAria": "Նախորդ էջ",
       "nextAria": "Հաջորդ էջ",
-      "pagesAria": "Էջեր",
-      "pageSizeAria": "Գրառումներ էջում",
-      "pageSizeLabel": "{size} էջում"
+      "pagesAria": "Էջեր"
     },
     "home": {
       "signInPrompt": "Մուտք գործեք՝ ադմինի վահանակը բացելու համար։"

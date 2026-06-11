@@ -381,7 +381,6 @@ export function AdminClientsManagement({
         pageSize={listPage.pageSize}
         offset={payload.pagination.offset}
         onPageChange={(nextPage) => setListPage(nextPage)}
-        onPageSizeChange={(nextSize) => setListPage(1, nextSize)}
         disabled={loading}
       />
       {payload.rows.length === 0 ? (

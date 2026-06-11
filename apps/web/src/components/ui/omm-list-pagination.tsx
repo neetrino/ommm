@@ -2,14 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import {
-  LIST_PAGE_SIZE_OPTIONS,
   clampListPage,
   listPageRange,
   totalListPages,
   type ListPageQueryKeys,
 } from "@/lib/list-pagination";
 import { OmmButton } from "@/components/ui/omm-button";
-import { OmmSelectDropdown } from "@/components/ui/omm-select-dropdown";
 
 export const OMMM_LIST_PAGINATION_FOOTER_CLASS =
   "flex flex-col gap-3 border-t border-white/60 pt-4 sm:flex-row sm:items-center sm:justify-between";
@@ -20,7 +18,6 @@ type OmmListPaginationProps = {
   pageSize: number;
   offset: number;
   onPageChange: (page: number) => void;
-  onPageSizeChange?: (pageSize: number) => void;
   disabled?: boolean;
   namespace?: "adminPages.pagination" | "userPages.pagination";
 };
@@ -31,7 +28,6 @@ export function OmmListPagination({
   pageSize,
   offset,
   onPageChange,
-  onPageSizeChange,
   disabled = false,
   namespace = "adminPages.pagination",
 }: OmmListPaginationProps) {
@@ -57,23 +53,6 @@ export function OmmListPagination({
           : t("range", { from: range.from, to: range.to, total: range.total })}
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        {onPageSizeChange ? (
-          <OmmSelectDropdown
-            ariaLabel={t("pageSizeAria")}
-            label={t("pageSizeLabel", { size: pageSize })}
-            value={String(pageSize)}
-            options={LIST_PAGE_SIZE_OPTIONS.map((size) => ({
-              value: String(size),
-              label: String(size),
-            }))}
-            onChange={(value) => {
-              const nextSize = Number.parseInt(value, 10);
-              if (Number.isFinite(nextSize) && nextSize > 0) {
-                onPageSizeChange(nextSize);
-              }
-            }}
-          />
-        ) : null}
         <OmmButton
           size="sm"
           variant="ghost"

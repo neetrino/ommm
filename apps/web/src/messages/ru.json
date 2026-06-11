@@ -681,9 +681,7 @@
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
-      "pagesAria": "Страницы",
-      "pageSizeAria": "Записей на странице",
-      "pageSizeLabel": "{size} на странице"
+      "pagesAria": "Страницы"
     },
     "packages": {
       "title": "Мои пакеты",
@@ -1470,9 +1468,7 @@
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
-      "pagesAria": "Страницы",
-      "pageSizeAria": "Записей на странице",
-      "pageSizeLabel": "{size} на странице"
+      "pagesAria": "Страницы"
     },
     "home": {
       "signInPrompt": "Войдите, чтобы открыть админ-панель."

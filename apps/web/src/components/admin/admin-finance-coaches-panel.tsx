@@ -125,7 +125,6 @@ export function AdminFinanceCoachesPanel({ locale, initial, filters }: Props) {
         pageSize={listPage.pageSize}
         offset={initial.offset}
         onPageChange={setListPage}
-        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
       />
       <AdminCoachSessionsDrawer
         coach={drawerCoach}

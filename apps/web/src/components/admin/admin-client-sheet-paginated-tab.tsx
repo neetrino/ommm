@@ -34,7 +34,7 @@ export function ClientSheetPaginatedTab<T>({
 }: ClientSheetPaginatedTabProps<T>) {
   const [page, setPage] = useState(1);
   const [prevClientId, setPrevClientId] = useState(clientId);
-  const [pageSize, setPageSize] = useState(DEFAULT_LIST_PAGE_SIZE);
+  const pageSize = DEFAULT_LIST_PAGE_SIZE;
   const [result, setResult] = useState<PaginatedFetchResult<T> | null>(null);
 
   if (clientId !== prevClientId) {
@@ -89,10 +89,6 @@ export function ClientSheetPaginatedTab<T>({
         offset={offset}
         disabled={loading}
         onPageChange={setPage}
-        onPageSizeChange={(nextPageSize) => {
-          setPage(1);
-          setPageSize(nextPageSize);
-        }}
       />
     </div>
   );

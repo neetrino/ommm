@@ -681,9 +681,7 @@
       "next": "Next",
       "prevAria": "Previous page",
       "nextAria": "Next page",
-      "pagesAria": "Pages",
-      "pageSizeAria": "Results per page",
-      "pageSizeLabel": "{size} per page"
+      "pagesAria": "Pages"
     },
     "packages": {
       "title": "My packages",
@@ -1479,9 +1477,7 @@
       "next": "Next",
       "prevAria": "Previous page",
       "nextAria": "Next page",
-      "pagesAria": "Pages",
-      "pageSizeAria": "Results per page",
-      "pageSizeLabel": "{size} per page"
+      "pagesAria": "Pages"
     },
     "home": {
       "signInPrompt": "Sign in to open the admin dashboard."

@@ -306,7 +306,6 @@ export function AdminNotificationsDeliveriesSection({
         pageSize={listPage.pageSize}
         offset={payload.offset}
         onPageChange={setListPage}
-        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
       />
       <p className={adminChrome.metaText}>{t("deliveryNote")}</p>
     </section>

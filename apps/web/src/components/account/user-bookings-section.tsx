@@ -327,7 +327,6 @@ export function UserBookingsSection({
               pageSize={pastListPage.pageSize}
               offset={pastPayload.offset}
               onPageChange={(page) => setPastListPage(page)}
-              onPageSizeChange={(pageSize) => setPastListPage(1, pageSize)}
               disabled={loadingPast}
             />
           ) : undefined
