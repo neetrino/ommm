@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "pnpm exec next dev",
-    "dev:stack": "node ./scripts/dev-with-api.cjs",
     "build": "pnpm exec next build",
     "start": "pnpm exec next start",
     "lint": "pnpm exec eslint",

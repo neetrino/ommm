@@ -60,7 +60,7 @@ export function AdminPackagesCategoryTable({
   const t = useTranslations("adminPages.packages");
   const reducedMotion = usePrefersReducedMotion();
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(PACKAGE_CATEGORY_TABLE_PAGE_SIZE);
+  const pageSize = PACKAGE_CATEGORY_TABLE_PAGE_SIZE;
   const [prevPackages, setPrevPackages] = useState(packages);
   if (packages !== prevPackages) {
     setPrevPackages(packages);
@@ -138,10 +138,6 @@ export function AdminPackagesCategoryTable({
             pageSize={pageSize}
             offset={offset}
             onPageChange={setPage}
-            onPageSizeChange={(nextPageSize) => {
-              setPage(1);
-              setPageSize(nextPageSize);
-            }}
           />
         </div>
       ) : null}

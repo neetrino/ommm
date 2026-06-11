@@ -5,12 +5,21 @@ import { ArcaConfig } from './arca/arca.config';
 import { ArcaPaymentsController } from './arca/arca-payments.controller';
 import { ArcaService } from './arca/arca.service';
 import { PaymentsController } from './payments.controller';
+import { PaymentCashPendingEmailService } from './payment-cash-pending-email.service';
+import { PaymentSuccessEmailService } from './payment-success-email.service';
 import { PaymentsService } from './payments.service';
 
 @Module({
   imports: [ScheduleItemsModule],
   controllers: [PaymentsController, ArcaPaymentsController],
-  providers: [PaymentsService, ArcaConfig, ArcaClient, ArcaService],
+  providers: [
+    PaymentsService,
+    PaymentCashPendingEmailService,
+    PaymentSuccessEmailService,
+    ArcaConfig,
+    ArcaClient,
+    ArcaService,
+  ],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}

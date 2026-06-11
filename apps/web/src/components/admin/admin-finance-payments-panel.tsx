@@ -210,7 +210,6 @@ export function AdminFinancePaymentsPanel({
         pageSize={payListPage.pageSize}
         offset={paymentsPayload.offset}
         onPageChange={(page) => setPayListPage(page)}
-        onPageSizeChange={(pageSize) => setPayListPage(1, pageSize)}
         disabled={loading}
       />
 

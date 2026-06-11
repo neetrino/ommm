@@ -74,7 +74,7 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
   const t = useTranslations("adminPages.finance.coachDrawer");
   const titleId = useId();
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_LIST_PAGE_SIZE);
+  const pageSize = DEFAULT_LIST_PAGE_SIZE;
   const [sessions, setSessions] = useState<CoachSessionRow[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -198,10 +198,6 @@ export function AdminCoachSessionsDrawer({ coach, locale, month, onClose }: Prop
           offset={listOffset}
           disabled={loading}
           onPageChange={setPage}
-          onPageSizeChange={(nextPageSize) => {
-            setPage(1);
-            setPageSize(nextPageSize);
-          }}
         />
       </div>
     </OmmDrawerPortal>

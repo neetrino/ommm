@@ -2,8 +2,6 @@ export const DEFAULT_LIST_PAGE_SIZE = 25;
 
 export const MAX_LIST_PAGE_SIZE = 100;
 
-export const LIST_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
-
 export const LIST_PAGE_QUERY_KEY = "page";
 
 export const LIST_PAGE_SIZE_QUERY_KEY = "pageSize";

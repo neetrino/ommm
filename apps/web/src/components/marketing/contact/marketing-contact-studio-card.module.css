@@ -173,10 +173,10 @@
   border-radius: 4px;
 }
 
-.socialIcon {
-  width: auto;
-  height: var(--contact-social-icon-size, 1.5rem);
-  object-fit: contain;
-  filter: brightness(0);
+.socialBrandIcon {
+  width: var(--contact-social-icon-size, 1.625rem);
+  height: var(--contact-social-icon-size, 1.625rem);
+  flex-shrink: 0;
+  color: var(--contact-value-color);
   opacity: 0.88;
 }

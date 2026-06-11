@@ -9,29 +9,79 @@ import { MarketingPageContentSkeleton } from "@/components/marketing/marketing-p
 import { MarketingScrollReveal } from "@/components/marketing/marketing-scroll-reveal";
 import { fetchPublicJsonCached } from "@/lib/cached-public-api";
 import { resolveContactSocialIconLinks } from "@/components/marketing/contact/contact-page-social";
-import { listStudioSocialLinks } from "@/lib/studio-social-links";
-
-type StudioPublic = {
-  studioName: string;
-  contactEmail: string | null;
-  contactPhone: string | null;
-  whatsappUrl: string | null;
-  address: string | null;
-  mapEmbedUrl: string | null;
-  workingHours: string | null;
-  socialLinksJson: string | null;
-};
+import {
+  listStudioSocialLinks,
+  type StudioPublicSettings,
+} from "@/lib/studio-social-links";
 
 type MarketingContactLocaleProps = {
   locale: string;
 };
 
-function pickStudioValue(
-  value: string | null | undefined,
-  fallback: string,
-): string {
-  const trimmed = value?.trim();
-  return trimmed !== undefined && trimmed.length > 0 ? trimmed : fallback;
+type ContactStudioRow = {
+  key: string;
+  iconSrc: string;
+  label: string;
+  value: string;
+  href?: string;
+};
+
+const STUDIO_PUBLIC_CACHE_OPTIONS = { cacheMode: "no-store" as const };
+
+function buildContactStudioRows(
+  studio: StudioPublicSettings | null,
+  labels: {
+    phone: string;
+    email: string;
+    address: string;
+    hours: string;
+  },
+): ContactStudioRow[] {
+  const rows: ContactStudioRow[] = [];
+
+  const phone = studio?.contactPhone?.trim();
+  if (phone !== undefined && phone.length > 0) {
+    rows.push({
+      key: "phone",
+      iconSrc: CONTACT_PAGE_ASSETS.iconPhone,
+      label: labels.phone,
+      value: phone,
+      href: `tel:${phone.replace(/\s+/g, "")}`,
+    });
+  }
+
+  const email = studio?.contactEmail?.trim();
+  if (email !== undefined && email.length > 0) {
+    rows.push({
+      key: "email",
+      iconSrc: CONTACT_PAGE_ASSETS.iconMail,
+      label: labels.email,
+      value: email,
+      href: `mailto:${email}`,
+    });
+  }
+
+  const address = studio?.address?.trim();
+  if (address !== undefined && address.length > 0) {
+    rows.push({
+      key: "address",
+      iconSrc: CONTACT_PAGE_ASSETS.iconLocation,
+      label: labels.address,
+      value: address,
+    });
+  }
+
+  const hours = studio?.workingHours?.trim();
+  if (hours !== undefined && hours.length > 0) {
+    rows.push({
+      key: "hours",
+      iconSrc: CONTACT_PAGE_ASSETS.iconHours,
+      label: labels.hours,
+      value: hours,
+    });
+  }
+
+  return rows;
 }
 
 /** Contact cards — form paints immediately; studio + map stream in parallel. */
@@ -55,42 +105,19 @@ export function MarketingContactPageLayout({ locale }: MarketingContactLocalePro
 
 async function MarketingContactStudioSection({ locale }: MarketingContactLocaleProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const studioRes = await fetchPublicJsonCached<StudioPublic>("/studio");
+  const studioRes = await fetchPublicJsonCached<StudioPublicSettings>(
+    "/studio",
+    STUDIO_PUBLIC_CACHE_OPTIONS,
+  );
   const studio = studioRes.ok ? studioRes.data : null;
   const social = studio !== null ? listStudioSocialLinks(studio.socialLinksJson) : [];
-  const socialIconLinks = resolveContactSocialIconLinks(social);
-
-  const phone = pickStudioValue(studio?.contactPhone, t("fallbackPhone"));
-  const email = pickStudioValue(studio?.contactEmail, t("fallbackEmail"));
-
-  const studioRows = [
-    {
-      key: "phone",
-      iconSrc: CONTACT_PAGE_ASSETS.iconPhone,
-      label: t("phone"),
-      value: phone,
-      href: `tel:${phone.replace(/\s+/g, "")}`,
-    },
-    {
-      key: "email",
-      iconSrc: CONTACT_PAGE_ASSETS.iconMail,
-      label: t("email"),
-      value: email,
-      href: `mailto:${email}`,
-    },
-    {
-      key: "address",
-      iconSrc: CONTACT_PAGE_ASSETS.iconLocation,
-      label: t("address"),
-      value: pickStudioValue(studio?.address, t("fallbackAddress")),
-    },
-    {
-      key: "hours",
-      iconSrc: CONTACT_PAGE_ASSETS.iconHours,
-      label: t("hours"),
-      value: pickStudioValue(studio?.workingHours, t("fallbackHours")),
-    },
-  ];
+  const socialIconLinks = resolveContactSocialIconLinks(social, studio?.whatsappUrl);
+  const studioRows = buildContactStudioRows(studio, {
+    phone: t("phone"),
+    email: t("email"),
+    address: t("address"),
+    hours: t("hours"),
+  });
 
   return (
     <MarketingContactStudioCard
@@ -106,7 +133,10 @@ async function MarketingContactStudioSection({ locale }: MarketingContactLocaleP
 
 async function MarketingContactMapEmbedSection({ locale }: MarketingContactLocaleProps) {
   const t = await getTranslations({ locale, namespace: "marketingPages.contact" });
-  const studioRes = await fetchPublicJsonCached<StudioPublic>("/studio");
+  const studioRes = await fetchPublicJsonCached<StudioPublicSettings>(
+    "/studio",
+    STUDIO_PUBLIC_CACHE_OPTIONS,
+  );
   const embedHtml = studioRes.ok ? studioRes.data.mapEmbedUrl?.trim() : undefined;
 
   if (embedHtml === undefined || embedHtml.length === 0) {

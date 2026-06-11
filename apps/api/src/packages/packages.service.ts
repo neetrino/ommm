@@ -440,6 +440,9 @@ export class PackagesService {
     if (isCardAutoConfirmable(paymentMethod) && !requiresArcaCheckout) {
       await this.payments.confirmPendingCardPayment(paymentId);
     }
+    if (paymentMethod === ManualPaymentMethod.CASH) {
+      await this.payments.notifyCashPaymentPending(paymentId);
+    }
     await this.audit.log({
       actorId: userId,
       actorRole: 'USER',

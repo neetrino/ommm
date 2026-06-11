@@ -681,9 +681,7 @@
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
-      "pagesAria": "Страницы",
-      "pageSizeAria": "Записей на странице",
-      "pageSizeLabel": "{size} на странице"
+      "pagesAria": "Страницы"
     },
     "packages": {
       "title": "Мои пакеты",
@@ -1221,6 +1219,7 @@
       "mapHeading": "Карта",
       "instagram": "Instagram",
       "facebook": "Facebook",
+      "whatsapp": "WhatsApp",
       "socialAria": "Профиль {network}"
     },
     "story": {
@@ -1469,9 +1468,7 @@
       "next": "Вперёд",
       "prevAria": "Предыдущая страница",
       "nextAria": "Следующая страница",
-      "pagesAria": "Страницы",
-      "pageSizeAria": "Записей на странице",
-      "pageSizeLabel": "{size} на странице"
+      "pagesAria": "Страницы"
     },
     "home": {
       "signInPrompt": "Войдите, чтобы открыть админ-панель."
@@ -3662,6 +3659,13 @@
       "email": "Email",
       "subject": "Тема",
       "message": "Сообщение",
+      "placeholders": {
+        "name": "София Мартиросян",
+        "phone": "+374 99 123 456",
+        "email": "sofia@example.com",
+        "subject": "Расписание утренних занятий",
+        "message": "Здравствуйте! Хотела бы узнать больше о ваших утренних занятиях пилатесом."
+      },
       "send": "Отправить",
       "sending": "Отправка…",
       "thankYou": "Спасибо — ваше сообщение отправлено.",
@@ -3745,6 +3749,8 @@
       "address": "Адрес",
       "mapEmbedUrl": "Ссылка embed карты",
       "workingHours": "Часы работы",
+      "instagramUrl": "Ссылка Instagram",
+      "facebookUrl": "Ссылка Facebook",
       "socialLinksJson": "JSON соцссылок",
       "cancellationHoursNotice": "Окно отмены (часы)",
       "waitlistOfferMinutes": "Срок оффера листа ожидания (минуты)",
@@ -3776,12 +3782,12 @@
           "description": "Публичное название студии"
         },
         "contact": {
-          "heading": "Контакты",
-          "description": "Как участники связываются с командой"
+          "heading": "Контактная информация",
+          "description": "Отображается на публичной странице контактов — телефон, email, адрес, часы и соцсети"
         },
         "location": {
           "heading": "Локация",
-          "description": "Адрес, карта и часы работы на сайте"
+          "description": "Embed карты для публичной страницы контактов"
         },
         "social": {
           "heading": "Соцсети",
@@ -3799,10 +3805,17 @@
         "whatsappUrl": "Полная ссылка на чат или бизнес-профиль WhatsApp.",
         "address": "Адрес на странице контактов.",
         "mapEmbedUrl": "Embed-ссылка Google Maps или аналога.",
-        "workingHours": "Свободный текст — напр. Пн–Пт 9:00–21:00, Сб 10:00–18:00.",
+        "workingHours": "Свободный текст — напр. Пн–Сб 7:00–21:00 · Вс 9:00–18:00.",
+        "instagramUrl": "Полная ссылка на профиль Instagram для страницы контактов.",
+        "facebookUrl": "Полная ссылка на страницу Facebook для страницы контактов.",
         "socialLinksJson": "JSON-объект: название платформы → URL (instagram, facebook и т.д.).",
         "cancellationHoursNotice": "За сколько часов до начала занятия можно отменить бронь.",
         "waitlistOfferMinutes": "Сколько минут место из листа ожидания остаётся зарезервированным."
+      },
+      "validation": {
+        "invalidEmail": "Введите корректный email или оставьте поле пустым.",
+        "invalidUrl": "Введите корректный http(s) URL или оставьте поле пустым.",
+        "fixFields": "Исправьте выделенные поля перед сохранением."
       }
     }
   }

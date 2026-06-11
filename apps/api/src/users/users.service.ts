@@ -487,6 +487,7 @@ export class UsersService {
     await this.prisma.contactMessage.create({
       data: {
         name: displayName,
+        email: user.email,
         phone: user.phone ?? 'Not provided',
         subject: 'Delete account request',
         message: lines.join('\n'),

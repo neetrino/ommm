@@ -11,6 +11,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { prefetchMarketingHeaderAccount } from "@/lib/prefetch-marketing-header-account";
 import { pickUiLocaleForUser, setUiLocaleCookie } from "@/lib/ui-locale-cookie";
 import { resolveAuthDestination } from "@/lib/auth-redirect";
+import { syncPhoneInputElement } from "@/lib/phone-input";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_EMAIL_LENGTH = 254;
@@ -197,6 +198,7 @@ function RegisterForm() {
               className="ommm-input"
               maxLength={MAX_PHONE_CHARS}
               inputMode="tel"
+              onInput={(event) => syncPhoneInputElement(event.currentTarget)}
             />
           </label>
           <label className="flex flex-col gap-1.5">

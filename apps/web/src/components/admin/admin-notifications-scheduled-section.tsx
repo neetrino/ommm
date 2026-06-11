@@ -414,7 +414,6 @@ export function AdminNotificationsScheduledSection({
         pageSize={listPage.pageSize}
         offset={payload.offset}
         onPageChange={setListPage}
-        onPageSizeChange={(pageSize) => setListPage(1, pageSize)}
         disabled={busyId !== null}
       />
       {message ? (

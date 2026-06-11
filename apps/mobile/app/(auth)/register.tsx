@@ -7,6 +7,7 @@ import { isValidEmail } from "../../src/auth/isValidEmail";
 import { AuthBackToHomeRow } from "../../src/features/auth/components/AuthBackToHomeRow";
 import { AuthPasswordInput } from "../../src/features/auth/components/AuthPasswordInput";
 import { AuthScreenShell } from "../../src/features/auth/components/AuthScreenShell";
+import { formatPhoneInput } from "../../src/lib/phone-input";
 import { fontFamilies } from "../../src/theme/fontFamilies";
 import { colors, radii, space, typography } from "../../src/theme/tokens";
 
@@ -158,7 +159,7 @@ export default function RegisterRoute() {
         />
         <TextInput
           value={phone}
-          onChangeText={setPhone}
+          onChangeText={(value) => setPhone(formatPhoneInput(value))}
           placeholder="Phone"
           placeholderTextColor={colors.bodyMuted}
           style={styles.input}

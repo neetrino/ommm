@@ -1,11 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import { EMAIL_LOGO_CID_SRC, resolveEmailLogoPreviewSrc } from './email-logo';
 
 /** Log only (no external API). Same as `MAIL_TRANSPORT=test`. */
 const TRANSPORT_LOG = 'log' as const;
 /** Send via Resend (requires valid `RESEND_API_KEY`). */
 const TRANSPORT_RESEND = 'resend' as const;
+
+const DEFAULT_FROM = 'Ommm <onboarding@resend.dev>';
 
 type MailTransport = typeof TRANSPORT_LOG | typeof TRANSPORT_RESEND;
 
@@ -18,6 +25,39 @@ function normalizeMailTransport(raw: string | undefined): MailTransport | null {
     return TRANSPORT_RESEND;
   }
   return null;
+}
+
+type SendEmailParams = {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+  attachments?: Array<{
+    content?: string | Buffer;
+    filename?: string | false;
+    path?: string;
+    contentType?: string;
+    contentId?: string;
+  }>;
+};
+
+/** Builds a Resend-compatible `from` using `RESEND_FROM` and `RESEND_FROM_EMAIL`. */
+function resolveFromAddress(
+  fromRaw: string | undefined,
+  fromEmailRaw: string | undefined,
+): string {
+  const from = fromRaw?.trim() ?? '';
+  if (from.includes('@')) {
+    return from;
+  }
+
+  const email = fromEmailRaw?.trim() ?? '';
+  if (email.length > 0) {
+    const displayName = from.length > 0 ? from : 'Ommm';
+    return `${displayName} <${email}>`;
+  }
+
+  return DEFAULT_FROM;
 }
 
 @Injectable()
@@ -58,23 +98,22 @@ export class MailService {
     }
   }
 
-  async sendEmail(params: {
-    to: string;
-    subject: string;
-    html: string;
-  }): Promise<void> {
-    const from =
-      this.config.get<string>('RESEND_FROM') ?? 'Ommm <onboarding@resend.dev>';
+  async sendEmail(params: SendEmailParams): Promise<void> {
+    const from = resolveFromAddress(
+      this.config.get<string>('RESEND_FROM'),
+      this.config.get<string>('RESEND_FROM_EMAIL'),
+    );
+    const replyTo = params.replyTo?.trim();
 
     if (this.transport === TRANSPORT_LOG || this.resend === null) {
       if (this.transport === TRANSPORT_RESEND && this.resend === null) {
         this.logger.warn(
           `Email not sent (Resend unavailable): to=${params.to} subject=${params.subject}`,
         );
-        return;
+        throw new ServiceUnavailableException('Email delivery is unavailable');
       }
       this.logger.log(
-        `[mail:test] to=${params.to} subject=${params.subject} from=${from}\n${params.html}`,
+        `[mail:test] to=${params.to} subject=${params.subject} from=${from}${replyTo ? ` replyTo=${replyTo}` : ''}\n${params.html.replace(EMAIL_LOGO_CID_SRC, resolveEmailLogoPreviewSrc())}`,
       );
       return;
     }
@@ -84,9 +123,14 @@ export class MailService {
       to: params.to,
       subject: params.subject,
       html: params.html,
+      ...(replyTo ? { replyTo } : {}),
+      ...(params.attachments?.length
+        ? { attachments: params.attachments }
+        : {}),
     });
     if (error) {
       this.logger.error(`Resend error: ${error.message}`);
+      throw new ServiceUnavailableException('Email delivery failed');
     }
   }
 }

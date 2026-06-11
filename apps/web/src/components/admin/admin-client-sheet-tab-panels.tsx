@@ -20,6 +20,7 @@ import {
 } from "@/components/admin/admin-sheet-editable-field";
 import { apiFetch } from "@/lib/api";
 import { formatBirthdayInput, formatDateForUi, formatDateTimeForUi } from "@/lib/date-display";
+import { formatPhoneInput } from "@/lib/phone-input";
 import { formatAmdFromCents } from "@/lib/price-amd";
 import { resolveApiAssetUrl } from "@/lib/resolve-api-asset-url";
 
@@ -152,7 +153,9 @@ export function ClientSheetTabPanels({
                 autoComplete="tel"
                 className="ommm-input"
                 value={form.phone}
-                onChange={(event) => controller.updateField("phone", event.target.value)}
+                onChange={(event) =>
+                  controller.updateField("phone", formatPhoneInput(event.target.value))
+                }
                 disabled={busy}
               />
             </AdminSheetEditableField>

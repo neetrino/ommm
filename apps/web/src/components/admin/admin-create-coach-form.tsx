@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { revalidatePublicCoaches } from "@/lib/revalidate-public-coaches";
 import { formatBirthdayInput, parseBirthdayDisplayToIso } from "@/lib/date-display";
+import { syncPhoneInputElement } from "@/lib/phone-input";
 import { AdminCoachAssignedClassesPicker } from "@/components/admin/admin-coach-assigned-classes-picker";
 import { PlusIcon } from "@/components/ui/plus-icon";
 import {
@@ -419,6 +420,7 @@ export function AdminCreateCoachForm({
               autoComplete="tel"
               maxLength={MAX_PHONE_CHARS}
               required
+              onInput={(event) => syncPhoneInputElement(event.currentTarget)}
             />
           </label>
           <label className="flex flex-col gap-1">

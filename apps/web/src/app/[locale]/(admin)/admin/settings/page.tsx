@@ -3,18 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminStudioSettingsForm } from "@/components/admin/admin-studio-settings-form";
 import { AdminContentFrame } from "@/components/admin/admin-content-frame";
 import { serverApiJson } from "@/lib/server-api";
-
-type StudioSettings = {
-  studioName: string;
-  contactEmail: string | null;
-  contactPhone: string | null;
-  whatsappUrl: string | null;
-  address: string | null;
-  mapEmbedUrl: string | null;
-  workingHours: string | null;
-  cancellationHoursNotice: number;
-  waitlistOfferMinutes: number;
-};
+import type { StudioPublicSettings } from "@/lib/studio-social-links";
 
 export default async function AdminSettingsPage({
   params,
@@ -24,12 +13,12 @@ export default async function AdminSettingsPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "adminActions.studio" });
   const cookie = (await headers()).get("cookie") ?? "";
-  const res = await serverApiJson<StudioSettings>("/studio", cookie);
+  const res = await serverApiJson<StudioPublicSettings>("/studio", cookie);
   if (!res.ok) {
     return (
-      <div className="app-alert-warn max-w-xl">
-        {t("loadFailed", { status: res.status })}
-      </div>
+      <AdminContentFrame>
+        <div className="app-alert-warn max-w-xl">{t("loadFailed", { status: res.status })}</div>
+      </AdminContentFrame>
     );
   }
   return (

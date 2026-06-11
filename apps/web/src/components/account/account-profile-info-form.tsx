@@ -12,6 +12,7 @@ import {
   formatIsoDateToUi,
   parseBirthdayDisplayToIso,
 } from "@/lib/date-display";
+import { formatPhoneInput } from "@/lib/phone-input";
 import { EditActionButton } from "@/components/ui/edit-action-button";
 import { OmmButton } from "@/components/ui/omm-button";
 import { dismissMobileKeyboard } from "@/lib/dismiss-mobile-keyboard";
@@ -360,7 +361,7 @@ export function AccountProfileInfoForm({
           displayValue={initialUser.phone ?? ""}
           editing={isEditing}
           inputValue={form.phone}
-          onChange={(value) => updateField("phone", value)}
+          onChange={(value) => updateField("phone", formatPhoneInput(value))}
           type="tel"
           autoComplete="tel"
           disabled={isSaving}

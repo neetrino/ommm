@@ -183,7 +183,6 @@ function MyGiftCardsSection({
             pageSize={listPage.pageSize}
             offset={listPage.offset}
             onPageChange={setPage}
-            onPageSizeChange={(pageSize) => setPage(1, pageSize)}
             namespace="userPages.pagination"
           />
         </>

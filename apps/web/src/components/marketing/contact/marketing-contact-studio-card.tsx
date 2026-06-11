@@ -6,6 +6,7 @@ import {
   CONTACT_PAGE_LAYOUT,
   CONTACT_PAGE_SURFACE,
 } from "@/components/marketing/contact/contact-page-tokens";
+import { ContactSocialBrandIcon } from "@/components/marketing/contact/contact-social-brand-icon";
 import type { ContactSocialIconLink } from "@/components/marketing/contact/contact-page-social";
 import styles from "@/components/marketing/contact/marketing-contact-studio-card.module.css";
 import { aboveFoldImageProps, belowFoldImageProps } from "@/lib/image-loading-props";
@@ -105,31 +106,24 @@ export function MarketingContactStudioCard({
         <ContactStarIcon />
         <p className={styles.calloutText}>{replyCallout}</p>
       </div>
-      <ul className={styles.socialList}>
-        {socialIconLinks.map((link) => (
-          <li key={link.id}>
-            <a
-              href={link.href}
-              className={styles.socialLink}
-              aria-label={socialAria(link.id)}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Image
-                src={link.iconSrc}
-                alt=""
-                width={link.width}
-                height={link.height}
-                className={styles.socialIcon}
-                unoptimized
-                aria-hidden
-                {...belowFoldImageProps()}
-              />
-              <span className={styles.socialLabel}>{socialLabel(link.id)}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {socialIconLinks.length > 0 ? (
+        <ul className={styles.socialList}>
+          {socialIconLinks.map((link) => (
+            <li key={link.id}>
+              <a
+                href={link.href}
+                className={styles.socialLink}
+                aria-label={socialAria(link.id)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <ContactSocialBrandIcon id={link.id} />
+                <span className={styles.socialLabel}>{socialLabel(link.id)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </article>
   );
 }

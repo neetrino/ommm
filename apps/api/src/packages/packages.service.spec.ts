@@ -33,6 +33,7 @@ describe('PackagesService', () => {
     };
     const payments = {
       confirmPendingCardPayment: jest.fn().mockResolvedValue(undefined),
+      notifyCashPaymentPending: jest.fn().mockResolvedValue(undefined),
       isArcaCheckoutEnabled: jest.fn().mockReturnValue(false),
     };
     const packageUsage = new PackageUsageService(prisma as never);
@@ -302,6 +303,7 @@ describe('PackagesService', () => {
       ManualPaymentMethod.CASH,
     );
     expect(payments.confirmPendingCardPayment).not.toHaveBeenCalled();
+    expect(payments.notifyCashPaymentPending).toHaveBeenCalledWith('pay-cash');
     expect(result.paymentReference).toBe('PKG-REF-1');
   });
 

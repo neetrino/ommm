@@ -14,6 +14,7 @@ import styles from "@/components/marketing/contact/marketing-contact-message-for
 import { MarketingContactSuccessToast } from "@/components/marketing/contact/marketing-contact-success-toast";
 import { ApiError, apiFetch } from "@/lib/api";
 import { belowFoldImageProps } from "@/lib/image-loading-props";
+import { syncPhoneInputElement } from "@/lib/phone-input";
 
 const CONTACT_REQUIRED_FIELDS = ["name", "phone", "email", "subject", "message"] as const;
 
@@ -130,9 +131,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
     setInvalidFields(new Set());
     const form = new FormData(formElement);
     const email = String(form.get("email") ?? "").trim();
-    const message = String(form.get("message") ?? "");
-    const composedMessage =
-      email.length > 0 ? `Email: ${email}\n\n${message}` : message;
+    const message = String(form.get("message") ?? "").trim();
 
     setErrorMsg(null);
     setSuccessToast(null);
@@ -141,10 +140,11 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
       await apiFetch<{ ok: boolean }>("/contact", {
         method: "POST",
         body: JSON.stringify({
-          name: form.get("name"),
-          phone: form.get("phone"),
-          subject: form.get("subject") || undefined,
-          message: composedMessage,
+          name: String(form.get("name") ?? "").trim(),
+          email,
+          phone: String(form.get("phone") ?? "").trim(),
+          subject: String(form.get("subject") ?? "").trim() || undefined,
+          message,
         }),
       });
       setSuccessToast(t("thankYou"));
@@ -172,6 +172,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               name="name"
               required
               autoComplete="name"
+              placeholder={t("placeholders.name")}
               aria-invalid={invalidFields.has("name")}
               className={fieldInputClass("name", invalidFields, styles.input)}
               defaultValue={prefill?.name}
@@ -184,10 +185,14 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
               name="phone"
               required
               autoComplete="tel"
+              placeholder={t("placeholders.phone")}
               aria-invalid={invalidFields.has("phone")}
               className={fieldInputClass("phone", invalidFields, styles.input)}
               defaultValue={prefill?.phone}
-              onInput={() => clearInvalidField("phone")}
+              onInput={(event) => {
+                syncPhoneInputElement(event.currentTarget);
+                clearInvalidField("phone");
+              }}
             />
           </label>
         </div>
@@ -198,6 +203,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             type="email"
             required
             autoComplete="email"
+            placeholder={t("placeholders.email")}
             aria-invalid={invalidFields.has("email")}
             className={fieldInputClass("email", invalidFields, styles.input)}
             defaultValue={prefill?.email}
@@ -210,6 +216,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             name="subject"
             required
             autoComplete="off"
+            placeholder={t("placeholders.subject")}
             aria-invalid={invalidFields.has("subject")}
             className={fieldInputClass("subject", invalidFields, styles.input)}
             onInput={() => clearInvalidField("subject")}
@@ -221,6 +228,7 @@ export function ContactMessageForm({ formTitle, prefill }: ContactMessageFormPro
             name="message"
             required
             rows={5}
+            placeholder={t("placeholders.message")}
             aria-invalid={invalidFields.has("message")}
             className={fieldInputClass("message", invalidFields, styles.textarea)}
             onInput={() => clearInvalidField("message")}

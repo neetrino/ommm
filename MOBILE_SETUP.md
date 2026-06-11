@@ -18,7 +18,7 @@ Root `postinstall` runs `pnpm run db:generate` (Prisma Client from `packages/dat
 pnpm run dev:all
 ```
 
-This runs `dev` in parallel for each package under `apps/*` (web, api, mobile). For web + API only (typical frontend work), use `pnpm run dev` from the repo root.
+This runs `dev` in parallel for each package under `apps/*` (web, api, mobile). For web + API only, start them in **two terminals**: `pnpm run dev:api`, then `pnpm run dev:web`.
 
 The Expo CLI opens in the same terminal multiplex — use a dedicated terminal for mobile if you prefer a clearer Metro log:
 
@@ -30,10 +30,9 @@ pnpm run dev:mobile
 
 | Command               | Description                          |
 | --------------------- | ------------------------------------ |
-| `pnpm run dev`        | Web + API together (`[web]` / `[api]` logs) |
-| `pnpm run dev:stack`  | Same as `dev`                        |
-| `pnpm run dev:web`    | Next.js only (port 3000)             |
-| `pnpm run dev:api`    | NestJS only (default port 4000)      |
+| `pnpm run dev`        | Prints dev commands (does not start apps) |
+| `pnpm run dev:api`    | NestJS only (port 4000) — start first |
+| `pnpm run dev:web`    | Next.js only (port 3000) — start second |
 | `pnpm run dev:all`    | Web + API + mobile in parallel       |
 | `pnpm run dev:mobile` | Expo (Metro) only                    |
 
