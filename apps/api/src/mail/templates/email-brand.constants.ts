@@ -10,5 +10,5 @@ export const EMAIL_BRAND = {
   fontFamily: "'Georgia', 'Times New Roman', 'Palatino Linotype', serif",
   sansFontFamily:
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-  logoDisplaySizePx: 96,
+  logoDisplaySizePx: 148,
 } as const;
