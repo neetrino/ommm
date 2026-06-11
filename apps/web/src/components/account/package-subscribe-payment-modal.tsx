@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PackageSubscribePlanPicker } from "@/components/account/package-subscribe-plan-picker";
@@ -118,8 +118,7 @@ function PackageSubscribePaymentModalSession({
   const t = useTranslations("forms.manualPackagePayment");
   const router = useRouter();
   const titleId = useId();
-  const closingRef = useRef(false);
-  const refreshAfterCloseRef = useRef(false);
+  const [shouldRefreshAfterClose, setShouldRefreshAfterClose] = useState(false);
   const [step, setStep] = useState<ModalStep>("form");
   const isPhone = useMemberHubSheetPhone();
   const { motionState: desktopMotionState, closeMotion: closeDesktopMotion } =
@@ -129,6 +128,7 @@ function PackageSubscribePaymentModalSession({
   );
   const [paymentMethod, setPaymentMethod] = useState<ManualPaymentMethod>("CARD");
   const [busy, setBusy] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0];
@@ -163,7 +163,7 @@ function PackageSubscribePaymentModalSession({
         return;
       }
       setStep("success");
-      refreshAfterCloseRef.current = true;
+      setShouldRefreshAfterClose(true);
     } catch (err) {
       setError(isApiError(err) ? err.message : t("submitFailed"));
     } finally {
@@ -172,8 +172,8 @@ function PackageSubscribePaymentModalSession({
   }
 
   function finishClose() {
-    const shouldRefresh = refreshAfterCloseRef.current;
-    refreshAfterCloseRef.current = false;
+    const shouldRefresh = shouldRefreshAfterClose;
+    setShouldRefreshAfterClose(false);
     onClose();
     if (shouldRefresh) {
       router.refresh();
@@ -181,21 +181,14 @@ function PackageSubscribePaymentModalSession({
   }
 
   function handleDesktopClose() {
-    if (busy || closingRef.current) {
+    if (busy || isClosing) {
       return;
     }
 
     dismissMobileKeyboard();
-    closingRef.current = true;
+    setIsClosing(true);
     closeDesktopMotion();
     window.setTimeout(finishClose, PACKAGE_SUBSCRIBE_DESKTOP_MOTION_MS);
-  }
-
-  function handleDone() {
-    if (isPhone) {
-      return;
-    }
-    handleDesktopClose();
   }
 
   function renderSheetBody(onClose: () => void) {
